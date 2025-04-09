@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* global fetch */
+
 /**
  * This script is used to configure the Google RISC Event Stream. It
  * assumes that your project is configured to send events
@@ -11,8 +13,6 @@
  */
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const axios = require('axios');
-
 const { Command } = require('commander');
 const program = new Command();
 
@@ -88,14 +88,13 @@ async function getEventStreamConfig(authToken) {
   };
 
   try {
-    const response = await axios.get(streamUpdateEndpoint, {
-      headers: headers,
-    });
-    if (response.status !== 200) {
+    const response = await fetch(streamUpdateEndpoint, { headers });
+    if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`);
     }
-    console.log('getEventStreamConfig response', response.data);
-    return response.data;
+    const data = await response.json();
+    console.log('getEventStreamConfig response', data);
+    return data;
   } catch (error) {
     console.error(`Error configuring the event stream: ${error}`);
     throw error;
@@ -110,6 +109,7 @@ async function configureEventStream(
     'https://risc.googleapis.com/v1beta/stream:update';
   const headers = {
     Authorization: `Bearer ${authToken}`,
+    'Content-Type': 'application/json',
   };
   const streamCfg = {
     delivery: {
@@ -127,11 +127,14 @@ async function configureEventStream(
       ...streamCfg,
     };
 
-    const response = await axios.post(streamUpdateEndpoint, newConfig, {
-      headers: headers,
+    const response = await fetch(streamUpdateEndpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(newConfig),
     });
-    console.log('configureEventStream response', response.data);
-    if (response.status !== 200) {
+    const data = await response.json();
+    console.log('configureEventStream response', data);
+    if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`);
     }
   } catch (error) {
@@ -145,17 +148,21 @@ async function testEventStream(authToken, nonce) {
     'https://risc.googleapis.com/v1beta/stream:verify';
   const headers = {
     Authorization: `Bearer ${authToken}`,
+    'Content-Type': 'application/json',
   };
   const state = {
     state: nonce,
   };
 
   try {
-    const response = await axios.post(streamVerifyEndpoint, state, {
-      headers: headers,
+    const response = await fetch(streamVerifyEndpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(state),
     });
-    console.log('testEventStream response', response.data);
-    if (response.status !== 200) {
+    const data = await response.json();
+    console.log('testEventStream response', data);
+    if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`);
     }
   } catch (error) {

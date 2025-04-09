@@ -9,7 +9,6 @@
  * @module
  */
 import { NestFactory } from '@nestjs/core';
-import axios from 'axios';
 import Chance from 'chance';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
@@ -52,21 +51,27 @@ async function main() {
     isActive: true,
     uid,
   });
-  let response;
+  let response, responseData;
   try {
-    response = await axios({
-      url: args.targetUrl,
-      headers: { Authorization: 'Bearer ' + jwtPayload },
+    response = await fetch(args.targetUrl, {
       method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + jwtPayload,
+        'Content-Type': 'application/json',
+      },
     });
-  } catch (err) {
-    logger.error('webhookCall', { err });
+    if (!response.ok) {
+      throw new Error(`HTTP response error: ${response.status}`);
+    }
+    responseData = await response.json();
+  } catch (e) {
+    logger.error('webhookCall', { e });
     process.exit(1);
   }
 
   logger.info('webhookCall', {
     statusCode: response.status,
-    body: response.data,
+    body: responseData,
   });
   process.exit(0);
 }

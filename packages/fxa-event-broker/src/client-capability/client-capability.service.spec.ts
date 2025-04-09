@@ -50,6 +50,7 @@ describe('ClientCapabilityService', () => {
     }).compile();
 
     service = module.get<ClientCapabilityService>(ClientCapabilityService);
+    global.fetch = jest.fn();
   });
 
   it('should be defined', () => {
@@ -74,17 +75,18 @@ describe('ClientCapabilityService', () => {
     (service as any).config.requireCapabilities = false;
     const mockUpdate = jest.fn().mockResolvedValue({});
     (service as any).updateCapabilities = mockUpdate;
-    (service as any).updateCapabilities = mockUpdate;
     await service.onApplicationBootstrap();
     expect(mockUpdate).toHaveBeenCalledTimes(0);
   });
 
   describe('updateCapabilities', () => {
     it('updates successfully', async () => {
-      const mockUpdate = jest
-        .fn()
-        .mockResolvedValue({ status: 200, data: baseClients });
-      (service as any).axiosInstance = { get: mockUpdate };
+      const mockResponse = {
+        ok: true,
+        status: 200,
+        json: jest.fn().mockResolvedValue(baseClients),
+      };
+      (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
       await service.updateCapabilities();
       expect(service.capabilities).toStrictEqual({
         testClient1: ['testCapability1'],
@@ -93,24 +95,27 @@ describe('ClientCapabilityService', () => {
     });
 
     it('throws on error', async () => {
-      const mockUpdate = jest.fn().mockRejectedValue({});
-      (service as any).axiosInstance = { get: mockUpdate };
+      (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
       expect.assertions(1);
-      let error: Error | undefined = undefined;
+      let caughtError: Error | undefined = undefined;
       try {
         await service.updateCapabilities({ throwOnError: true });
       } catch (err) {
-        error = err;
+        caughtError = err;
       }
-
-      expect(error).toBeDefined();
+      expect(caughtError).toBeDefined();
     });
 
     it('logs on error', async () => {
-      const mockUpdate = jest.fn().mockRejectedValue({});
-      (service as any).axiosInstance = { get: mockUpdate };
+      const mockResponse = {
+        ok: false,
+        status: 500,
+        json: jest.fn().mockResolvedValue({ message: 'Server error' }),
+        text: jest.fn().mockResolvedValue('Server error'),
+      };
+      (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
       await service.updateCapabilities();
-      expect((service as any).log.error).toBeCalledTimes(1);
+      expect(log.error).toBeCalledTimes(1);
       expect(Sentry.captureException).toBeCalledTimes(1);
     });
   });

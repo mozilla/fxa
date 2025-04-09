@@ -5,8 +5,8 @@
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { Inject, Injectable } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
-import Agent from 'agentkeepalive';
-import axios, { AxiosInstance } from 'axios';
+import { HttpAgent, HttpsAgent } from 'agentkeepalive';
+import fetch from 'node-fetch';
 import { ProfileClientConfig } from './profile.config';
 import {
   ProfileClientError,
@@ -24,31 +24,32 @@ type SupportedMethods = 'post' | 'delete';
 
 @Injectable()
 export class ProfileClient {
-  private axiosInstance: AxiosInstance;
+  private baseURL: string;
+  private defaultHeaders: Record<string, string>;
+  private httpAgent: HttpAgent;
+  private httpsAgent: HttpsAgent;
+
   constructor(
     @Inject(LOGGER_PROVIDER) private log: LoggerService,
     private config: ProfileClientConfig
   ) {
-    this.axiosInstance = axios.create({
-      baseURL: this.config.url,
-      httpAgent: new Agent({
-        maxSockets: MAX_SOCKETS,
-        maxFreeSockets: MAX_FREE_SOCKETS,
-        timeout: TIMEOUT_MS,
-        freeSocketTimeout: FREE_SOCKET_TIMEOUT_MS,
-      }),
-      httpsAgent: new Agent.HttpsAgent({
-        maxSockets: MAX_SOCKETS,
-        maxFreeSockets: MAX_FREE_SOCKETS,
-        timeout: TIMEOUT_MS,
-        freeSocketTimeout: FREE_SOCKET_TIMEOUT_MS,
-      }),
+    this.baseURL = this.config.url;
+    this.defaultHeaders = {
+      Authorization: `Bearer ${config.secretBearerToken}`,
+      'Content-Type': 'application/json',
+    };
+    this.httpAgent = new HttpAgent({
+      maxSockets: MAX_SOCKETS,
+      maxFreeSockets: MAX_FREE_SOCKETS,
+      timeout: TIMEOUT_MS,
+      freeSocketTimeout: FREE_SOCKET_TIMEOUT_MS,
     });
-
-    // Authorization header is required for all requests to the profile server
-    this.axiosInstance.defaults.headers.common[
-      'Authorization'
-    ] = `Bearer ${config.secretBearerToken}`;
+    this.httpsAgent = new HttpsAgent({
+      maxSockets: MAX_SOCKETS,
+      maxFreeSockets: MAX_FREE_SOCKETS,
+      timeout: TIMEOUT_MS,
+      freeSocketTimeout: FREE_SOCKET_TIMEOUT_MS,
+    });
   }
 
   private async makeRequest(
@@ -56,16 +57,45 @@ export class ProfileClient {
     requestData: any,
     method: SupportedMethods
   ) {
-    if (!this.axiosInstance) {
-      return;
+    const url = `${this.baseURL}${endpoint}`;
+
+    let agent;
+    try {
+      const parsedUrl = new URL(url);
+      agent =
+        parsedUrl.protocol === 'https:' ? this.httpsAgent : this.httpAgent;
+    } catch (err) {
+      agent = this.httpAgent;
+    }
+
+    const options: any = {
+      method: method.toUpperCase(),
+      headers: this.defaultHeaders,
+      // The agent option below necessitates the use of node‑fetch. As of this writing, it's not available in native fetch,
+      // requiring a workaround that installs and imports undici to use its agent and custom dispatcher modules.
+      // (Native fetch uses undici under the hood, but the full API isn’t exposed as a public module.)
+      agent: agent,
+    };
+
+    if (method === 'post') {
+      options.body = JSON.stringify(requestData);
     }
 
     try {
-      await this.axiosInstance[method](endpoint, requestData);
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        const error: any = new Error(`HTTP response error: ${response.status}`);
+        error.response = response;
+        throw error;
+      }
       return {};
-    } catch (err) {
+    } catch (err: any) {
       const response = err.response || {};
-      if (err.errno > -1 || (response.status && response.status < 500)) {
+      if (
+        (err.errno !== undefined && err.errno > -1) ||
+        (response.status && response.status < 500)
+      ) {
         throw new ProfileClientError(err);
       } else {
         throw new ProfileClientServiceFailureError(
