@@ -160,7 +160,7 @@ describe('IndexContainer', () => {
       </LocationProvider>
     );
     expect(container).toBeDefined();
-    expect(mockUseValidatedQueryParams).toBeCalledWith(IndexQueryParams, true);
+    expect(mockUseValidatedQueryParams).toBeCalledWith(IndexQueryParams, false);
   });
 
   it('should render the Index component when no redirection is required', async () => {
