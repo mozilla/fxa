@@ -19443,12 +19443,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry-internal/browser-utils@npm:9.12.0":
+  version: 9.12.0
+  resolution: "@sentry-internal/browser-utils@npm:9.12.0"
+  dependencies:
+    "@sentry/core": 9.12.0
+  checksum: b44b14bffdb7ffe0ea8efd8a8930563af8458c16343f07ed179569cdcb01bc56f99f821ef4782c9fa52d8c500bf4a409cb9ddc3c785bfe887033e7f86449b15f
+  languageName: node
+  linkType: hard
+
 "@sentry-internal/feedback@npm:8.42.0":
   version: 8.42.0
   resolution: "@sentry-internal/feedback@npm:8.42.0"
   dependencies:
     "@sentry/core": 8.42.0
   checksum: 32b89585342e0f535751fc33f11127f0b730bd34c931efb6d605acacad692360f67a0d5a1ec08c4c814744aaa302d67ee7cc303f55ceaa8eb38abf02383006e4
+  languageName: node
+  linkType: hard
+
+"@sentry-internal/feedback@npm:9.12.0":
+  version: 9.12.0
+  resolution: "@sentry-internal/feedback@npm:9.12.0"
+  dependencies:
+    "@sentry/core": 9.12.0
+  checksum: 6245100c50b48c178bc2b54999ec6c05614b3de3612902d67ac7cafc1e32fbc2735922461ce6afa82d7a5b1d389c98e65b0a822be739345b05e4ab2676f3ac00
   languageName: node
   linkType: hard
 
@@ -19462,6 +19480,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry-internal/replay-canvas@npm:9.12.0":
+  version: 9.12.0
+  resolution: "@sentry-internal/replay-canvas@npm:9.12.0"
+  dependencies:
+    "@sentry-internal/replay": 9.12.0
+    "@sentry/core": 9.12.0
+  checksum: 5ff030866e8a88273b320cafd3ce89f2816c58dc57e9f2f4900aa4364d59b6a71655bc618ec32d9f03631d68ce2cc11539567bf18c4564ffd32363c88282bc8e
+  languageName: node
+  linkType: hard
+
 "@sentry-internal/replay@npm:8.42.0":
   version: 8.42.0
   resolution: "@sentry-internal/replay@npm:8.42.0"
@@ -19472,6 +19500,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry-internal/replay@npm:9.12.0":
+  version: 9.12.0
+  resolution: "@sentry-internal/replay@npm:9.12.0"
+  dependencies:
+    "@sentry-internal/browser-utils": 9.12.0
+    "@sentry/core": 9.12.0
+  checksum: 47074f5f316860b0909d892132367104b38ad4c75ec6545b3ab484d3af0ec0c873ca2679582769ebf76c80b43ac26347dc33a9cf1e3b79ddb2043eef5dcb3c69
+  languageName: node
+  linkType: hard
+
 "@sentry/babel-plugin-component-annotate@npm:2.22.6":
   version: 2.22.6
   resolution: "@sentry/babel-plugin-component-annotate@npm:2.22.6"
@@ -19479,7 +19517,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/browser@npm:8.42.0, @sentry/browser@npm:^8.42.0":
+"@sentry/browser@npm:8.42.0":
   version: 8.42.0
   resolution: "@sentry/browser@npm:8.42.0"
   dependencies:
@@ -19489,6 +19527,19 @@ __metadata:
     "@sentry-internal/replay-canvas": 8.42.0
     "@sentry/core": 8.42.0
   checksum: 12d94f1a5a1789622cecb042e1d111043c07b441df8b18cb2af3d67a5489b648997061056a26f2a86b55f673a211f0597f20ff309dd862b36dc28d0767a5f3e3
+  languageName: node
+  linkType: hard
+
+"@sentry/browser@npm:^9.12.0":
+  version: 9.12.0
+  resolution: "@sentry/browser@npm:9.12.0"
+  dependencies:
+    "@sentry-internal/browser-utils": 9.12.0
+    "@sentry-internal/feedback": 9.12.0
+    "@sentry-internal/replay": 9.12.0
+    "@sentry-internal/replay-canvas": 9.12.0
+    "@sentry/core": 9.12.0
+  checksum: 4acd1e65dd3a4ce6ca2150a1945ace0ab50e482aa0dd39ed1a3fc1fd3be9d7318af2781f947faf594aaee9d32c58650743527de56d0aeb46b8c5aa1867c37e9e
   languageName: node
   linkType: hard
 
@@ -19598,6 +19649,13 @@ __metadata:
   version: 8.42.0
   resolution: "@sentry/core@npm:8.42.0"
   checksum: 9364ae4c9201cbbae01411986334c666faf5f0d20248452daa8f81aa6544f41ea351decec1570240583c430eb78173a896c4506a32492755c29ba142ed20d594
+  languageName: node
+  linkType: hard
+
+"@sentry/core@npm:9.12.0":
+  version: 9.12.0
+  resolution: "@sentry/core@npm:9.12.0"
+  checksum: 6bf8b5f7fe91897a598c608a17a6b2024d59c2055e5714629aba280ba7004dae4171481b455d61514367d264b3e2a5b2e82fd0cc264993020cc8fd93ddac03dc
   languageName: node
   linkType: hard
 
@@ -44005,7 +44063,7 @@ fsevents@~2.1.1:
     "@paypal/react-paypal-js": ^8.7.0
     "@radix-ui/react-form": ^0.1.0
     "@radix-ui/react-tooltip": ^1.1.2
-    "@sentry/browser": ^8.42.0
+    "@sentry/browser": ^9.12.0
     "@sentry/nestjs": ^8.42.0
     "@sentry/nextjs": ^8.42.0
     "@sentry/node": ^8.42.0
