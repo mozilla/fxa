@@ -180,7 +180,7 @@ describe('bind-decorator', function () {
   it('will not get invalid data directly', () => {
     const data = new GenericData({ test_validated_field: '' });
     const model1 = new TestModel(data);
-    expect(() => model1.getModelData('testValidatedField')).toThrow();
+    expect(() => model1.getModelData('testValidatedField', true)).toThrow();
   });
 
   it('sets invalid when validate is specified as false', () => {

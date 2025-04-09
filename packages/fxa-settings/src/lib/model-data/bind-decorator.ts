@@ -143,7 +143,7 @@ export const bind = <T>(dataKey?: KeyTransform) => {
         const key = getKey(dataKey, memberName);
         const value = this.getModelData(key, true);
         const type = getType(this, memberName);
-        return coerceValue(value, type);
+        return coerceValue(value, type, key);
       },
     };
     Object.defineProperty(model, memberName, property);
@@ -181,7 +181,8 @@ function writeRawValue(value: any, dataType: DataType | undefined) {
  */
 function coerceValue(
   value: string | undefined,
-  dataType: DataType | undefined
+  dataType: DataType | undefined,
+  key: string | undefined
 ): string | boolean | number | any | null {
   if (value == null) {
     return value;
@@ -199,7 +200,7 @@ function coerceValue(
     if (dataType === 'boolean') {
       const lower = value.toLowerCase().trim();
       if (lower !== 'true' && lower !== 'false') {
-        throw new Error('Invalid boolean value: ' + value);
+        throw new DataCoercionError(value, dataType, key);
       }
       return value === 'true';
     }
@@ -213,9 +214,7 @@ function coerceValue(
     }
   }
 
-  throw new Error(
-    `Data type mismatch! Type safety violated! Cannot coerce ${typeof value} (${value}) to ${dataType}.`
-  );
+  throw new DataCoercionError(value, dataType, key);
 }
 
 /**
@@ -250,4 +249,16 @@ function getType(target: any, memberName: string): DataType {
 
   // No design type is available, fallback to string
   return 'string';
+}
+
+export class DataCoercionError extends Error {
+  constructor(
+    value: string | undefined,
+    dataType: DataType | undefined,
+    property: string | undefined
+  ) {
+    super(
+      `Data type mismatch! Type safety violated! Cannot coerce ${typeof value} (${value}) to ${dataType}.\n- property ${property} has failed`
+    );
+  }
 }
