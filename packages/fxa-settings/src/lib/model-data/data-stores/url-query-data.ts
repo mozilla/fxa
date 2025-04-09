@@ -13,9 +13,25 @@ export class UrlQueryData extends UrlData {
   private readonly promises: Array<Promise<void>> = [];
   private internalState: URLSearchParams;
 
-  constructor(public readonly window: ReachRouterWindow) {
+  constructor(
+    public readonly window: ReachRouterWindow,
+    requireEncodedQueryParams = false
+  ) {
     super(window);
-    this.internalState = new URLSearchParams(this.window.location.search);
+
+    if (requireEncodedQueryParams) {
+      const params = new URLSearchParams(this.window.location.search);
+      for (const entry of params.entries()) {
+        if (entry[1] !== encodeURIComponent(entry[1])) {
+          throw new Error(
+            `Invalid query parameter ${entry[0]}. Query parameters must be uri encoded.`
+          );
+        }
+      }
+      this.internalState = params;
+    } else {
+      this.internalState = new URLSearchParams(this.window.location.search);
+    }
   }
 
   /**

@@ -6,7 +6,7 @@ import sentryMetrics from 'fxa-shared/sentry/browser';
 
 import React from 'react';
 import { render } from 'react-dom';
-import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
+import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';

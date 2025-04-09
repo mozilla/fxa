@@ -18,8 +18,8 @@ import SigninContainer from './container';
 import { BeginSigninResult, SigninProps } from './interfaces';
 import { MozServices } from '../../lib/types';
 import { act, screen, waitFor } from '@testing-library/react';
-import { ModelDataProvider } from '../../lib/model-data';
 import { Integration, IntegrationType } from '../../models';
+import { ModelDataProvider } from '../../lib/model-data';
 import {
   MOCK_STORED_ACCOUNT,
   MOCK_EMAIL,
@@ -57,6 +57,13 @@ import { firefox } from '../../lib/channels/firefox';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
+import { ReachRouterWindow } from '../../lib/window';
+import { validateQueryParamModel } from '../../lib/hooks/useValidate';
+import {
+  OAuthNativeSyncQueryParameters,
+  OAuthQueryParams,
+  SigninQueryParams,
+} from '../../models/pages/signin';
 
 jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),
@@ -103,6 +110,10 @@ function mockOAuthNativeIntegration() {
     wantsKeys: () => true,
     isDesktopSync: () => true,
     isDesktopRelay: () => false,
+    data: {
+      service: 'sync',
+      context: Constants.FX_SYNC_CONTEXT,
+    },
   } as Integration;
 }
 
@@ -219,10 +230,12 @@ function mockUseValidateModule(
   } = { queryParams: MOCK_QUERY_PARAM_MODEL }
 ) {
   const queryParamModel = queryParams as unknown as ModelDataProvider;
-  jest.spyOn(UseValidateModule, 'useValidatedQueryParams').mockReturnValue({
-    queryParamModel,
-    validationError: undefined,
-  });
+  return jest
+    .spyOn(UseValidateModule, 'useValidatedQueryParams')
+    .mockReturnValue({
+      queryParamModel,
+      validationError: undefined,
+    });
 }
 
 const MOCK_ROUTER_STATE_EMAIL = 'from@routerstate.com';
@@ -302,7 +315,7 @@ function render(mocks: Array<MockedResponse>) {
   loadDevMessages();
   loadErrorMessages();
 
-  renderWithLocalizationProvider(
+  return renderWithLocalizationProvider(
     <MockedProvider mocks={mocks} addTypename={false}>
       <LocationProvider>
         <SigninContainer
@@ -332,7 +345,7 @@ describe('signin container', () => {
         });
         expect(SigninModule.default).toBeCalled();
       });
-      it('router state takes precendence over query param state', async () => {
+      it('router state takes precedence over query param state', async () => {
         mockUseValidateModule();
         mockLocationState = MOCK_LOCATION_STATE_COMPLETE;
         render([mockGqlAvatarUseQuery()]);
@@ -1027,9 +1040,8 @@ describe('signin container', () => {
       });
 
       await waitFor(async () => {
-        const handlerResult = await currentSigninProps?.cachedSigninHandler(
-          MOCK_SESSION_TOKEN
-        );
+        const handlerResult =
+          await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
 
         expect(mockAuthClient.accountProfile).toBeCalledWith(
           MOCK_SESSION_TOKEN
@@ -1063,9 +1075,8 @@ describe('signin container', () => {
       render([mockGqlAvatarUseQuery()]);
 
       await waitFor(async () => {
-        const handlerResult = await currentSigninProps?.cachedSigninHandler(
-          MOCK_SESSION_TOKEN
-        );
+        const handlerResult =
+          await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
 
         expect(handlerResult?.data?.verificationMethod).toEqual(
           VerificationMethods.TOTP_2FA
@@ -1086,9 +1097,8 @@ describe('signin container', () => {
       render([mockGqlAvatarUseQuery()]);
 
       await waitFor(async () => {
-        const handlerResult = await currentSigninProps?.cachedSigninHandler(
-          MOCK_SESSION_TOKEN
-        );
+        const handlerResult =
+          await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
         expect(CacheModule.discardSessionToken).toHaveBeenCalled();
         expect(handlerResult?.data).toBeUndefined();
         expect(handlerResult?.error?.errno).toEqual(
@@ -1108,14 +1118,87 @@ describe('signin container', () => {
       render([mockGqlAvatarUseQuery()]);
 
       await waitFor(async () => {
-        const handlerResult = await currentSigninProps?.cachedSigninHandler(
-          MOCK_SESSION_TOKEN
-        );
+        const handlerResult =
+          await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
 
         expect(CacheModule.discardSessionToken).not.toHaveBeenCalled();
         expect(handlerResult?.data).toBeUndefined();
         expect(handlerResult?.error).toEqual(AuthUiErrors.UNEXPECTED_ERROR);
       });
+    });
+  });
+
+  describe('query parameter check', () => {
+    let useValidatedQueryParamsSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      useValidatedQueryParamsSpy = mockUseValidateModule({
+        queryParams: {
+          email: MOCK_QUERY_PARAM_EMAIL,
+          hasPassword: 'true',
+          isV2: () => false,
+        },
+      });
+    });
+
+    it('should check query parameters', () => {
+      mockWebIntegration();
+      const container = render([mockGqlAvatarUseQuery()]);
+      expect(container).toBeDefined();
+      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+        SigninQueryParams,
+        true
+      );
+      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+        OAuthQueryParams,
+        true,
+        true
+      );
+      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+        OAuthNativeSyncQueryParameters,
+        true,
+        true
+      );
+    });
+
+    it('should validate oauth query parameters', () => {
+      mockOAuthWebIntegration();
+      const container = render([mockGqlAvatarUseQuery()]);
+      expect(container).toBeDefined();
+      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+        SigninQueryParams,
+        true
+      );
+      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+        OAuthQueryParams,
+        true,
+        false
+      );
+      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+        OAuthNativeSyncQueryParameters,
+        true,
+        true
+      );
+    });
+
+    it('should validate oauth native sync query parameters', () => {
+      mockOAuthNativeIntegration();
+      const container = render([mockGqlAvatarUseQuery()]);
+      expect(container).toBeDefined();
+      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+        SigninQueryParams,
+        true
+      );
+      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+        OAuthQueryParams,
+        true,
+        false
+      );
+      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+        OAuthNativeSyncQueryParameters,
+        true,
+        false
+      );
     });
   });
 });

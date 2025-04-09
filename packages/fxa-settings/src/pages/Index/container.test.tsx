@@ -21,6 +21,7 @@ import { MOCK_EMAIL } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import GleanMetrics from '../../lib/glean';
+import { IndexQueryParams } from '../../models/pages/index';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -149,12 +150,19 @@ describe('IndexContainer', () => {
     jest.resetAllMocks();
   });
 
-  it('should render the Index component when no redirection is required', async () => {
-    mockUseValidatedQueryParams.mockReturnValue({
-      queryParamModel: {},
-      validationError: null,
-    });
+  it('should check query parameters', () => {
+    const { container } = renderWithLocalizationProvider(
+      <LocationProvider>
+        <IndexContainer
+          {...{ integration, serviceName: MozServices.Default }}
+        />
+      </LocationProvider>
+    );
+    expect(container).toBeDefined();
+    expect(mockUseValidatedQueryParams).toBeCalledWith(IndexQueryParams, true);
+  });
 
+  it('should render the Index component when no redirection is required', async () => {
     const { container } = renderWithLocalizationProvider(
       <LocationProvider>
         <IndexContainer
@@ -171,11 +179,6 @@ describe('IndexContainer', () => {
 
   it('should pass the prefill email as prop to index when provided by location state', async () => {
     mockLocationState = { prefillEmail: MOCK_EMAIL };
-    mockUseValidatedQueryParams.mockReturnValue({
-      queryParamModel: {},
-      validationError: null,
-    });
-
     const { container } = renderWithLocalizationProvider(
       <LocationProvider>
         <IndexContainer
@@ -421,9 +424,8 @@ describe('IndexContainer', () => {
           expect(currentIndexProps?.signUpOrSignInHandler).toBeDefined();
         });
 
-        const result = await currentIndexProps?.signUpOrSignInHandler(
-          MOCK_EMAIL
-        );
+        const result =
+          await currentIndexProps?.signUpOrSignInHandler(MOCK_EMAIL);
 
         expect(result?.error).toBeNull();
         await waitFor(() => {
@@ -467,9 +469,8 @@ describe('IndexContainer', () => {
           expect(currentIndexProps?.signUpOrSignInHandler).toBeDefined();
         });
 
-        const result = await currentIndexProps?.signUpOrSignInHandler(
-          MOCK_EMAIL
-        );
+        const result =
+          await currentIndexProps?.signUpOrSignInHandler(MOCK_EMAIL);
 
         expect(result?.error).toBeNull();
         await waitFor(() => {
@@ -515,9 +516,8 @@ describe('IndexContainer', () => {
           expect(currentIndexProps?.signUpOrSignInHandler).toBeDefined();
         });
         // You might need to extract this handler from the component via a ref or by exposing it for testing.
-        const result = await currentIndexProps?.signUpOrSignInHandler(
-          'invalid-email'
-        );
+        const result =
+          await currentIndexProps?.signUpOrSignInHandler('invalid-email');
         expect(result?.error?.errno).toEqual(AuthUiErrors.EMAIL_REQUIRED.errno);
 
         // no Glean event emitted with this error type
@@ -579,9 +579,8 @@ describe('IndexContainer', () => {
           expect(currentIndexProps?.signUpOrSignInHandler).toBeDefined();
         });
         // You might need to extract this handler from the component via a ref or by exposing it for testing.
-        const result = await currentIndexProps?.signUpOrSignInHandler(
-          'test@firefox.com'
-        );
+        const result =
+          await currentIndexProps?.signUpOrSignInHandler('test@firefox.com');
         expect(result?.error?.errno).toEqual(
           AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.errno
         );
