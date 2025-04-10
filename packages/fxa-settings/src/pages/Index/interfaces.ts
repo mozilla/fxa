@@ -28,6 +28,8 @@ export interface IndexProps extends LocationState {
   signUpOrSignInHandler: (
     email: string
   ) => Promise<{ error: HandledError | null }>;
+  initialErrorBannerMessage?: string;
+  initialTooltipErrorMessage?: string;
 }
 
 export interface IndexFormData {
