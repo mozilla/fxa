@@ -22,6 +22,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import GleanMetrics from '../../lib/glean';
 import { IndexQueryParams } from '../../models/pages/index';
+import { ModelValidationErrors } from '../../lib/model-data';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -289,6 +290,35 @@ describe('IndexContainer', () => {
       });
     });
 
+    it('should render Index with emailSuggestionError when provided email fails email validation', async () => {
+      // No prefillEmail so query param email is used
+      mockLocationState = {};
+      // Provide an invalid email via query params (missing '@' makes it fail validation)
+      mockUseValidatedQueryParams.mockReturnValue({
+        queryParamModel: { email: 'invalid-email' },
+        validationError: new Error() as ModelValidationErrors,
+      });
+
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <IndexContainer
+            {...{ integration, serviceName: MozServices.Default }}
+          />
+        </LocationProvider>
+      );
+
+      await waitFor(() => {
+        expect(currentIndexProps).toBeDefined();
+      });
+
+      expect(mockNavigate).not.toHaveBeenCalled();
+
+      expect(currentIndexProps?.tooltipErrorMessage).toBeDefined();
+      expect(currentIndexProps?.tooltipErrorMessage).toEqual(
+        AuthUiErrors.EMAIL_REQUIRED.message
+      );
+    });
+
     it('should suggest currentAccount email when available and redirect to signin', async () => {
       mockLocationState = {}; // no prefillEmail
 
@@ -403,7 +433,7 @@ describe('IndexContainer', () => {
     });
   });
 
-  describe('signUpOrSignInHandler', () => {
+  describe('processEmailSubmission', () => {
     describe('success', () => {
       it('with a new valid email', async () => {
         mockUseAuthClient.mockReturnValue({
@@ -421,13 +451,11 @@ describe('IndexContainer', () => {
         );
 
         await waitFor(() => {
-          expect(currentIndexProps?.signUpOrSignInHandler).toBeDefined();
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
 
-        const result =
-          await currentIndexProps?.signUpOrSignInHandler(MOCK_EMAIL);
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
 
-        expect(result?.error).toBeNull();
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledTimes(1);
         });
@@ -466,13 +494,11 @@ describe('IndexContainer', () => {
         );
 
         await waitFor(() => {
-          expect(currentIndexProps?.signUpOrSignInHandler).toBeDefined();
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
 
-        const result =
-          await currentIndexProps?.signUpOrSignInHandler(MOCK_EMAIL);
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
 
-        expect(result?.error).toBeNull();
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledTimes(1);
         });
@@ -498,7 +524,7 @@ describe('IndexContainer', () => {
     });
 
     describe('errors', () => {
-      it('should return an error when signUpOrSignInHandler is called with an invalid email', async () => {
+      it('when called with an invalid email', async () => {
         mockUseAuthClient.mockReturnValue({
           accountStatusByEmail: jest.fn().mockResolvedValue({
             exists: false,
@@ -513,14 +539,16 @@ describe('IndexContainer', () => {
         );
 
         await waitFor(() => {
-          expect(currentIndexProps?.signUpOrSignInHandler).toBeDefined();
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
-        // You might need to extract this handler from the component via a ref or by exposing it for testing.
-        const result =
-          await currentIndexProps?.signUpOrSignInHandler('invalid-email');
-        expect(result?.error?.errno).toEqual(AuthUiErrors.EMAIL_REQUIRED.errno);
+        await currentIndexProps?.processEmailSubmission('invalid-email');
+        await waitFor(() => {
+          expect(currentIndexProps?.tooltipErrorMessage).toBeDefined();
+          expect(currentIndexProps?.tooltipErrorMessage).toEqual(
+            AuthUiErrors.EMAIL_REQUIRED.message
+          );
+        });
 
-        // no Glean event emitted with this error type
         const gleanSubmitFailSpy = jest.spyOn(
           GleanMetrics.emailFirst,
           'submitFail'
@@ -528,7 +556,7 @@ describe('IndexContainer', () => {
         expect(gleanSubmitFailSpy).not.toHaveBeenCalled();
       });
 
-      it('should return an error when signUpOrSignInHandler is called with an email mask', async () => {
+      it('when called with an email mask', async () => {
         mockUseAuthClient.mockReturnValue({
           accountStatusByEmail: jest.fn().mockResolvedValue({
             exists: false,
@@ -543,25 +571,29 @@ describe('IndexContainer', () => {
         );
 
         await waitFor(() => {
-          expect(currentIndexProps?.signUpOrSignInHandler).toBeDefined();
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
-        // You might need to extract this handler from the component via a ref or by exposing it for testing.
-        const result = await currentIndexProps?.signUpOrSignInHandler(
+        await currentIndexProps?.processEmailSubmission(
           'test@relay.firefox.com'
         );
-        expect(result?.error?.errno).toEqual(
-          AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.errno
-        );
+        await waitFor(() => {
+          expect(currentIndexProps?.tooltipErrorMessage).toBeDefined();
+          expect(currentIndexProps?.tooltipErrorMessage).toEqual(
+            AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.message
+          );
+        });
 
         // no Glean event emitted with this error type
         const gleanSubmitFailSpy = jest.spyOn(
           GleanMetrics.emailFirst,
           'submitFail'
         );
-        expect(gleanSubmitFailSpy).not.toHaveBeenCalled();
+        expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+          event: { reason: 'registration' },
+        });
       });
 
-      it('should return an error when signUpOrSignInHandler is called with a firefox.com email', async () => {
+      it('when called with a firefox.com email', async () => {
         mockUseAuthClient.mockReturnValue({
           accountStatusByEmail: jest.fn().mockResolvedValue({
             exists: false,
@@ -576,24 +608,27 @@ describe('IndexContainer', () => {
         );
 
         await waitFor(() => {
-          expect(currentIndexProps?.signUpOrSignInHandler).toBeDefined();
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
-        // You might need to extract this handler from the component via a ref or by exposing it for testing.
-        const result =
-          await currentIndexProps?.signUpOrSignInHandler('test@firefox.com');
-        expect(result?.error?.errno).toEqual(
-          AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.errno
-        );
+        await currentIndexProps?.processEmailSubmission('test@firefox.com');
+        await waitFor(() => {
+          expect(currentIndexProps?.tooltipErrorMessage).toBeDefined();
+          expect(currentIndexProps?.tooltipErrorMessage).toEqual(
+            AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.message
+          );
+        });
 
         // no Glean event emitted with this error type
         const gleanSubmitFailSpy = jest.spyOn(
           GleanMetrics.emailFirst,
           'submitFail'
         );
-        expect(gleanSubmitFailSpy).not.toHaveBeenCalled();
+        expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+          event: { reason: 'registration' },
+        });
       });
 
-      it('should return an error when signUpOrSignInHandler is called with an invalid email domain', async () => {
+      it('when called with an invalid email domain', async () => {
         mockUseAuthClient.mockReturnValue({
           accountStatusByEmail: jest.fn().mockResolvedValue({
             exists: false,
@@ -613,21 +648,25 @@ describe('IndexContainer', () => {
         );
 
         await waitFor(() => {
-          expect(currentIndexProps?.signUpOrSignInHandler).toBeDefined();
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
         });
-        // You might need to extract this handler from the component via a ref or by exposing it for testing.
-        const result = await currentIndexProps?.signUpOrSignInHandler(
+        await currentIndexProps?.processEmailSubmission(
           'mockinvaliddomain@invalid.invalid'
         );
-        expect(result?.error?.errno).toEqual(
-          AuthUiErrors.INVALID_EMAIL_DOMAIN.errno
-        );
+        await waitFor(() => {
+          expect(currentIndexProps?.tooltipErrorMessage).toBeDefined();
+          expect(currentIndexProps?.tooltipErrorMessage).toEqual(
+            'Mistyped email? invalid.invalid isn’t a valid email service'
+          );
+        });
 
         const gleanSubmitFailSpy = jest.spyOn(
           GleanMetrics.emailFirst,
           'submitFail'
         );
-        expect(gleanSubmitFailSpy).toHaveBeenCalledTimes(1);
+        expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
+          event: { reason: 'registration' },
+        });
       });
     });
   });

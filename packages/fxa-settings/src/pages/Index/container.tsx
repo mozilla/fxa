@@ -2,46 +2,50 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import * as Sentry from '@sentry/browser';
-import Index from '.';
-import { IndexContainerProps, LocationState } from './interfaces';
-import { useCallback, useEffect } from 'react';
-import { useAuthClient } from '../../models';
+
+import { useCallback, useEffect, useState } from 'react';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { isEmail } from 'class-validator';
+
+import { hardNavigate } from 'fxa-react/lib/utils';
+import { isEmailMask } from 'fxa-shared/email/helpers';
+
 import firefox from '../../lib/channels/firefox';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { getHandledError } from '../../lib/error-utils';
 import { currentAccount, lastStoredAccount } from '../../lib/cache';
-import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
-import { IndexQueryParams } from '../../models/pages/index';
-import { isUnsupportedContext } from '../../models/integrations/utils';
-import { hardNavigate } from 'fxa-react/lib/utils';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
-import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
-import { isOAuthWebIntegration } from '../../models/integrations/oauth-web-integration';
+import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
+import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { ModelValidationErrors } from '../../lib/model-data';
+import { AuthError } from '../../lib/oauth';
 
-// TODO: remove this function, it's only here to make TS happy until
-// we work on FXA-9757. errnos are always defined
-function getErrorWithDefinedErrNo(error: AuthUiError) {
-  return {
-    ...error,
-    errno: error.errno!,
-  };
-}
+import { useAuthClient, useFtlMsgResolver } from '../../models';
+import { isOAuthWebIntegration } from '../../models/integrations/oauth-web-integration';
+import { isUnsupportedContext } from '../../models/integrations/utils';
+import { IndexQueryParams } from '../../models/pages/index';
+
+import Index from '.';
+import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
+import { IndexContainerProps, LocationState } from './interfaces';
 
 export const IndexContainer = ({
   integration,
   serviceName,
 }: IndexContainerProps & RouteComponentProps) => {
-  // TODO, more strict validation for bad oauth params, FXA-11297
   const authClient = useAuthClient();
+  const ftlMsgResolver = useFtlMsgResolver();
   const navigate = useNavigate();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
+
+  const [errorBannerMessage, setErrorBannerMessage] = useState('');
+  const [successBannerMessage, setSuccessBannerMessage] = useState('');
+  const [tooltipErrorMessage, setTooltipErrorMessage] = useState('');
+  const [hasTriedAutoProcess, setHasTriedAutoProcess] = useState(false);
+
   const { queryParamModel, validationError } = useValidatedQueryParams(
     IndexQueryParams,
     // There is some concern that RPs or sub plat might not be validating emails
@@ -50,41 +54,40 @@ export const IndexContainer = ({
     false
   );
 
-  if (validationError instanceof ModelValidationErrors) {
+  const clearEmailParams = () => {
+    // Clean up the URL to avoid repeat validation, since we already know this param is invalid
+    const url = new URL(window.location.href);
+    url.searchParams.delete('email');
+    url.searchParams.delete('login_hint');
+    window.history.replaceState({}, '', url.toString());
+  };
+
+  useEffect(() => {
     // Since it's debatable as to whether or not we want to let potentially bogus
     // email / loginHints through... For now, let's log it so we can keep tabs on
     // the potential impact.
-    console.warn(validationError);
-    Sentry.captureException(validationError, {
-      tags: {
-        source: 'IndexContainer',
-        condition: validationError.condition,
-      },
-    });
-  }
+    if (validationError instanceof ModelValidationErrors) {
+      console.warn(validationError);
+      Sentry.captureException(validationError, {
+        tags: {
+          source: 'IndexContainer',
+          condition: validationError.condition,
+        },
+      });
+
+      clearEmailParams();
+    }
+  }, [validationError]);
 
   const { prefillEmail, deleteAccountSuccess, hasBounced } =
     location.state || {};
 
-  const isWebChannelIntegration =
-    integration.isSync() || integration.isDesktopRelay();
-
-  // 'email' query param should take precedence, followed by 'login_hint'
-  const suggestedEmail =
-    queryParamModel.email ||
-    queryParamModel.loginHint ||
-    currentAccount()?.email ||
-    lastStoredAccount()?.email;
-
-  const hasEmailSuggestion = suggestedEmail && !prefillEmail;
-
-  const handleSuccess = useCallback(
+  const handleSuccessNavigation = useCallback(
     (
       exists: boolean,
       hasLinkedAccount: boolean,
       hasPassword: boolean,
-      email: string,
-      isSubmit: boolean
+      email: string
     ) => {
       const url = new URL(window.location.href);
       const params = new URLSearchParams(location.search);
@@ -96,8 +99,6 @@ export const IndexContainer = ({
       params.delete('email');
       url.search = params.toString();
       if (exists) {
-        isSubmit &&
-          GleanMetrics.emailFirst.submitSuccess({ event: { reason: 'login' } });
         const signinRoute = isOAuthWebIntegration(integration)
           ? '/oauth/signin'
           : '/signin';
@@ -110,10 +111,6 @@ export const IndexContainer = ({
           },
         });
       } else {
-        isSubmit &&
-          GleanMetrics.emailFirst.submitSuccess({
-            event: { reason: 'registration' },
-          });
         const signupRoute = isOAuthWebIntegration(integration)
           ? '/oauth/signup'
           : '/signup';
@@ -129,86 +126,154 @@ export const IndexContainer = ({
     [integration, location.search, navigate]
   );
 
-  const signUpOrSignInHandler = useCallback(
-    async (email: string, isSubmit = true) => {
+  const handleEmailSubmissionError = useCallback(
+    (email: string, error: AuthUiError) => {
+      const localizedError = getLocalizedEmailValidationErrorMessage(
+        error as AuthError,
+        ftlMsgResolver,
+        email
+      );
+      switch (error.errno) {
+        case AuthUiErrors.MX_LOOKUP_WARNING.errno:
+        case AuthUiErrors.EMAIL_REQUIRED.errno:
+        case AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.errno:
+        case AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.errno:
+        case AuthUiErrors.INVALID_EMAIL_DOMAIN.errno:
+          setTooltipErrorMessage(localizedError);
+          break;
+        default:
+          setErrorBannerMessage(localizedError);
+      }
+    },
+    [ftlMsgResolver]
+  );
+
+  const processEmailSubmission = useCallback(
+    async (email: string, isManualSubmission = true) => {
+      let accountExists;
       try {
-        if (!isEmailValid(email)) {
-          return {
-            error: getErrorWithDefinedErrNo(AuthUiErrors.EMAIL_REQUIRED),
-          };
+        if (!isEmail(email)) {
+          throw AuthUiErrors.EMAIL_REQUIRED;
         }
         const { exists, hasLinkedAccount, hasPassword } =
           await authClient.accountStatusByEmail(email, {
             thirdPartyAuthStatus: true,
           });
 
+        accountExists = exists;
+
         if (!exists) {
           if (isEmailMask(email)) {
-            return {
-              error: getErrorWithDefinedErrNo(
-                AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT
-              ),
-            };
+            throw AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT;
             // "@firefox" or "@firefox.com" email addresses are not valid
             // at this time, therefore block the attempt.
             // the added 'i' disallows uppercase letters
           } else if (new RegExp('@firefox(\\.com)?$', 'i').test(email)) {
-            return {
-              error: getErrorWithDefinedErrNo(
-                AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN
-              ),
-            };
+            throw AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN;
           }
           // DNS lookup for MX record
           await checkEmailDomain(email);
         }
 
-        if (isWebChannelIntegration) {
+        if (integration.isSync() || integration.isDesktopRelay()) {
           const { ok } = await firefox.fxaCanLinkAccount({ email });
           if (!ok) {
-            return {
-              error: getErrorWithDefinedErrNo(AuthUiErrors.USER_CANCELED_LOGIN),
-            };
+            throw AuthUiErrors.USER_CANCELED_LOGIN;
           }
         }
 
-        handleSuccess(exists, hasLinkedAccount, hasPassword, email, isSubmit);
-        return { error: null };
+        isManualSubmission &&
+          GleanMetrics.emailFirst.submitSuccess({
+            event: { reason: accountExists ? 'login' : 'registration' },
+          });
+
+        handleSuccessNavigation(exists, hasLinkedAccount, hasPassword, email);
       } catch (error) {
-        GleanMetrics.emailFirst.submitFail();
-        return getHandledError(error);
+        if (isManualSubmission && isEmail(email)) {
+          GleanMetrics.emailFirst.submitFail({
+            event: { reason: accountExists ? 'login' : 'registration' },
+          });
+        }
+        // if email verification fails, clear from params to avoid re-use
+        if (!isManualSubmission) {
+          clearEmailParams();
+        }
+        handleEmailSubmissionError(email, error);
       }
     },
-    [authClient, handleSuccess, isWebChannelIntegration]
+    [
+      authClient,
+      handleEmailSubmissionError,
+      handleSuccessNavigation,
+      integration,
+    ]
   );
 
-  useEffect(() => {
-    if (!hasEmailSuggestion) {
-      return;
-    }
+  const suggestedEmail =
+    queryParamModel.email ||
+    queryParamModel.loginHint ||
+    currentAccount()?.email ||
+    lastStoredAccount()?.email;
 
-    signUpOrSignInHandler(suggestedEmail, false);
-  }, [hasEmailSuggestion, signUpOrSignInHandler, suggestedEmail]);
+  // If we just came from another Mozilla accounts page with a prefill email in location state,
+  // ignore suggested email. Prefill email is used for clicks on "Use different account" or "Change email".
+  const shouldTrySuggestedEmail = suggestedEmail && !prefillEmail;
+
+  useEffect(() => {
+    if (shouldTrySuggestedEmail && !hasTriedAutoProcess) {
+      setHasTriedAutoProcess(true);
+      processEmailSubmission(suggestedEmail, false);
+    }
+  }, [
+    ftlMsgResolver,
+    hasTriedAutoProcess,
+    processEmailSubmission,
+    suggestedEmail,
+    shouldTrySuggestedEmail,
+  ]);
+
+  useEffect(() => {
+    if (prefillEmail && hasBounced) {
+      setTooltipErrorMessage(
+        getLocalizedErrorMessage(
+          ftlMsgResolver,
+          AuthUiErrors.SIGNUP_EMAIL_BOUNCE
+        )
+      );
+    }
+  }, [ftlMsgResolver, hasBounced, prefillEmail]);
+
+  useEffect(() => {
+    if (deleteAccountSuccess) {
+      setSuccessBannerMessage(
+        ftlMsgResolver.getMsg(
+          'index-account-delete-success',
+          'Account deleted successfully'
+        )
+      );
+    }
+  }, [ftlMsgResolver, deleteAccountSuccess]);
 
   if (isUnsupportedContext(integration.data.context)) {
     hardNavigate('/update_firefox', {}, true);
-    return <LoadingSpinner fullScreen />;
   }
 
-  if (hasEmailSuggestion) {
-    return <LoadingSpinner fullScreen />;
-  }
+  const initialPrefill = prefillEmail || suggestedEmail;
 
   return (
     <Index
       {...{
         integration,
         serviceName,
-        signUpOrSignInHandler,
-        prefillEmail,
-        deleteAccountSuccess,
-        hasBounced,
+        processEmailSubmission,
+        setErrorBannerMessage,
+        setSuccessBannerMessage,
+        setTooltipErrorMessage,
+        errorBannerMessage,
+        successBannerMessage,
+        tooltipErrorMessage,
       }}
+      prefillEmail={initialPrefill}
     />
   );
 };

@@ -630,6 +630,10 @@ email:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: additional information - 'login' or 'registration'
+        type: string
 login:
   email_confirmation_submit:
     type: event

@@ -58,25 +58,38 @@ export const Subject = ({
   integration = createMockIndexWebIntegration(),
   serviceName = MozServices.Default,
   prefillEmail,
-  deleteAccountSuccess,
-  hasBounced,
+  initialErrorBanner = '',
+  initialSuccessBanner = '',
+  initialTooltipMessage = '',
 }: {
   integration?: IndexIntegration;
   serviceName?: MozServices;
   prefillEmail?: string;
-  deleteAccountSuccess?: boolean;
-  hasBounced?: boolean;
+  initialErrorBanner?: string;
+  initialSuccessBanner?: string;
+  initialTooltipMessage?: string;
 }) => {
+  const [errorBannerMessage, setErrorBannerMessage] =
+    React.useState(initialErrorBanner);
+  const [successBannerMessage, setSuccessBannerMessage] =
+    React.useState(initialSuccessBanner);
+  const [tooltipErrorMessage, setTooltipErrorMessage] = React.useState(
+    initialTooltipMessage
+  );
   return (
     <LocationProvider>
       <Index
-        signUpOrSignInHandler={async () => ({ error: null })}
+        processEmailSubmission={async () => {}}
         {...{
           prefillEmail,
-          deleteAccountSuccess,
-          hasBounced,
           integration,
           serviceName,
+          errorBannerMessage,
+          successBannerMessage,
+          tooltipErrorMessage,
+          setErrorBannerMessage,
+          setSuccessBannerMessage,
+          setTooltipErrorMessage,
         }}
       />
     </LocationProvider>
