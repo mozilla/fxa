@@ -61,7 +61,9 @@ export const firstGoogleOauthStart = new EventMetricType(
  *
  * Generated from `email.first_submit_fail`.
  */
-export const firstSubmitFail = new EventMetricType(
+export const firstSubmitFail = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'email',
     name: 'first_submit_fail',
@@ -69,7 +71,7 @@ export const firstSubmitFail = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**
