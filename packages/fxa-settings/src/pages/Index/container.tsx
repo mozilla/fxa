@@ -32,7 +32,6 @@ export const IndexContainer = ({
   integration,
   serviceName,
 }: IndexContainerProps & RouteComponentProps) => {
-  // TODO, more strict validation for bad oauth params, FXA-11297
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigate = useNavigate();

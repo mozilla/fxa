@@ -7,14 +7,8 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-2 #smoke', () => {
   test.describe('OAuth `login_hint` and `email` param', () => {
     test('email specified by relier, invalid', async ({
-      pages: { configPage, page, relier },
+      pages: { page, relier },
     }) => {
-      const config = await configPage.getConfig();
-      test.fixme(
-        config.showReactApp.emailFirstRoutes === true &&
-          config.rolloutRates.generalizedReactApp > 0,
-        'FXA-11297 - error message not shown when invalid email provided as sign-in hint by RP'
-      );
       const invalidEmail = 'invalid@';
 
       await relier.goto(`email=${invalidEmail}`);
