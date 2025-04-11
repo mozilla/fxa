@@ -89,28 +89,30 @@ export default async function CheckoutLayout({
               />
             }
           />
-          <div
-            className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
-            aria-label="Tax location form"
-          >
-            <h2 className="m-0 mb-4 font-semibold text-grey-600">
-              {l10n.getString('select-tax-location-title', 'Location')}
-            </h2>
-            <SelectTaxLocation
-              saveAction={async (countryCode, postalCode) => {
-                'use server';
-                await updateCartAction(cart.id, cart.version, {
-                  taxAddress: { countryCode, postalCode },
-                });
-              }}
-              cmsCountries={cms.countries}
-              locale={locale.substring(0, 2)}
-              productName={purchaseDetails.productName}
-              unsupportedLocations={config.subscriptionsUnsupportedLocations}
-              countryCode={cart.taxAddress?.countryCode}
-              postalCode={cart.taxAddress?.postalCode}
-            />
-          </div>
+          {cart.state === CartState.START && (
+            <div
+              className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
+              aria-label="Tax location form"
+            >
+              <h2 className="m-0 mb-4 font-semibold text-grey-600">
+                {l10n.getString('select-tax-location-title', 'Location')}
+              </h2>
+              <SelectTaxLocation
+                saveAction={async (countryCode, postalCode) => {
+                  'use server';
+                  await updateCartAction(cart.id, cart.version, {
+                    taxAddress: { countryCode, postalCode },
+                  });
+                }}
+                cmsCountries={cms.countries}
+                locale={locale.substring(0, 2)}
+                productName={purchaseDetails.productName}
+                unsupportedLocations={config.subscriptionsUnsupportedLocations}
+                countryCode={cart.taxAddress?.countryCode}
+                postalCode={cart.taxAddress?.postalCode}
+              />
+            </div>
+          )}
           <CouponForm
             cartId={cart.id}
             cartVersion={cart.version}
