@@ -158,6 +158,14 @@ export class CartInvalidCurrencyError extends CartError {
   }
 }
 
+export class CartNoTaxAddressError extends CartError {
+  constructor(cartId: string) {
+    super('Cart tax address not found', {
+      cartId,
+    });
+  }
+}
+
 export class CartSubscriptionNotFoundError extends CartError {
   constructor(cartId: string) {
     super('Cart subscription not found', {

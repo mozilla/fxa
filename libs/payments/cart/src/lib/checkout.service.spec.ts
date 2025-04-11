@@ -88,6 +88,7 @@ import {
   CartInvalidPromoCodeError,
   CartInvalidCurrencyError,
   CartUidNotFoundError,
+  CartNoTaxAddressError,
 } from './cart.error';
 import { CheckoutService } from './checkout.service';
 import { PrePayStepsResultFactory } from './checkout.factories';
@@ -245,6 +246,7 @@ describe('CheckoutService', () => {
     beforeEach(async () => {
       jest.spyOn(customerManager, 'create').mockResolvedValue(mockCustomer);
       jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
       jest
         .spyOn(accountCustomerManager, 'createAccountCustomer')
         .mockResolvedValue(mockAccountCustomer);
@@ -280,6 +282,21 @@ describe('CheckoutService', () => {
       it('fetches the customer', () => {
         expect(customerManager.retrieve).toHaveBeenCalledWith(
           mockCart.stripeCustomerId
+        );
+      });
+
+      it('updates the tax location of the customer', () => {
+        expect(customerManager.update).toHaveBeenCalledWith(
+          mockCart.stripeCustomerId,
+          {
+            shipping: {
+              name: mockAccount.email,
+              address: {
+                country: mockCart.taxAddress?.countryCode,
+                postal_code: mockCart.taxAddress?.postalCode,
+              },
+            },
+          }
         );
       });
 
@@ -345,10 +362,22 @@ describe('CheckoutService', () => {
         ).rejects.toBeInstanceOf(CartUidNotFoundError);
       });
 
+      it('throws cart tax location missing error', async () => {
+        await expect(
+          checkoutService.prePaySteps(
+            {
+              ...mockCart,
+              taxAddress: null,
+            },
+            mockCustomerData
+          )
+        ).rejects.toBeInstanceOf(CartNoTaxAddressError);
+      });
+
       it('throws cart currency invalid error', async () => {
         const mockCart = StripeResponseFactory(
           ResultCartFactory({
-            currency: null,
+            currency: undefined,
           })
         );
 

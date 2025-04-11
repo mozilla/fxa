@@ -4,11 +4,12 @@
 
 import { auth } from 'apps/payments/next/auth';
 import { notFound, redirect } from 'next/navigation';
-import { setupCartAction } from '@fxa/payments/ui/actions';
+import { getTaxAddressAction, setupCartAction } from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
 import type { SubplatInterval } from '@fxa/payments/customer';
+import { getIpAddress } from '@fxa/payments/ui/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,14 +21,13 @@ export default async function New({
   searchParams: Record<string, string>;
 }) {
   const { offeringId, interval, locale } = params;
+  const ipAddress = getIpAddress();
   const session = await auth();
 
   const fxaUid = session?.user?.id;
   const coupon = searchParams.coupon || undefined;
-  const countryCode = searchParams.countryCode || undefined;
-  const postalCode = searchParams.postalCode || undefined;
-  const taxAddress =
-    countryCode && postalCode ? { countryCode, postalCode } : undefined;
+
+  const taxAddress = await getTaxAddressAction(ipAddress, fxaUid);
 
   if (!taxAddress) {
     const redirectToUrl = new URL(
