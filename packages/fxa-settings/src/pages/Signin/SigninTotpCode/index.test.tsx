@@ -13,7 +13,7 @@ import {
   AuthUiError,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
-import { mockOAuthNativeIntegration, Subject } from './mocks';
+import { mockOAuthNativeSigninIntegration, Subject } from './mocks';
 import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
 import {
   createMockSigninOAuthIntegration,
@@ -96,7 +96,7 @@ describe('Sign in with TOTP code page', () => {
 
   it('renders expected service=relay text', () => {
     renderWithLocalizationProvider(
-      <Subject integration={mockOAuthNativeIntegration(false)} />
+      <Subject integration={mockOAuthNativeSigninIntegration(false)} />
     );
     screen.getByText(serviceRelayText);
   });

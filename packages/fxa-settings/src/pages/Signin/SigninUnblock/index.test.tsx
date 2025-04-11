@@ -24,7 +24,6 @@ import { navigate } from '@reach/router';
 import { tryAgainError } from '../../../lib/oauth/hooks';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { createMockWebIntegration } from './mocks';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -40,8 +39,6 @@ jest.mock('../../../lib/glean', () => ({
     },
   },
 }));
-
-jest.mock('../../../lib/hooks/useWebRedirect');
 
 const mockUseNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
@@ -297,11 +294,8 @@ describe('SigninUnblock', () => {
     });
 
     it('with valid redirectTo', async () => {
-      const redirectTo = 'surprisinglyValid!';
+      const redirectTo = 'http://localhost/';
       const integration = createMockWebIntegration({ redirectTo });
-      (useWebRedirect as jest.Mock).mockReturnValue({
-        isValid: true,
-      });
       renderWithSuccess(undefined, integration);
       const input = screen.getByRole('textbox');
       const submitButton = screen.getByRole('button', { name: 'Continue' });
@@ -315,13 +309,9 @@ describe('SigninUnblock', () => {
     });
 
     it('with invalid redirectTo', async () => {
-      const redirectTo = 'sadlyInvalid';
+      const redirectTo = 'http://invalidhost/';
       const integration = createMockWebIntegration({
         redirectTo,
-      });
-      (useWebRedirect as jest.Mock).mockReturnValue({
-        isValid: false,
-        localizedInvalidRedirectError: 'Invalid redirect',
       });
       renderWithSuccess(undefined, integration);
       const input = screen.getByRole('textbox');

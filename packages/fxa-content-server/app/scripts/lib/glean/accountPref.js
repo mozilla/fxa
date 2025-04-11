@@ -149,7 +149,7 @@ export const bentoView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['nimbus_user_id']
 );
 
 /**

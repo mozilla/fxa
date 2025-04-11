@@ -3,8 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { LocationProvider } from '@reach/router';
-import { Integration, IntegrationType } from '../../../models';
+import { LocationProvider, redirectTo } from '@reach/router';
+import {
+  IntegrationData,
+  IntegrationType,
+  OAuthIntegrationData,
+} from '../../../models';
 import { SigninTotpCode, SigninTotpCodeProps } from '.';
 import {
   MOCK_EMAIL,
@@ -14,24 +18,30 @@ import {
 } from '../../mocks';
 import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
+import { SigninIntegration } from '../interfaces';
+import { GenericData } from '../../../lib/model-data';
 
-const mockWebIntegration = {
+const mockWebSigninIntegration = {
   type: IntegrationType.Web,
   getService: () => MozServices.Default,
   isSync: () => false,
   wantsKeys: () => false,
   isDesktopRelay: () => false,
-} as Integration;
+} as SigninIntegration;
 
-export const mockOAuthNativeIntegration = (isSync = true) =>
+export const mockOAuthNativeSigninIntegration = (isSync = true) =>
   ({
     type: IntegrationType.OAuthNative,
-    getService: () => MozServices.FirefoxSync,
+    getService: () => (isSync ? MozServices.FirefoxSync : MozServices.Relay),
     isSync: () => isSync,
     wantsKeys: () => false,
     isDesktopRelay: () => !isSync,
-    data: {},
-  } as Integration);
+    data: new IntegrationData(
+      new GenericData({
+        redirectTo: 'http://localhost/',
+      })
+    ),
+  }) as SigninIntegration;
 
 export const MOCK_TOTP_LOCATION_STATE = {
   email: MOCK_EMAIL,
@@ -55,7 +65,7 @@ const mockSubmitTotpCode = async () => ({});
 
 export const Subject = ({
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
-  integration = mockWebIntegration,
+  integration = mockWebSigninIntegration,
   serviceName = MozServices.Default,
   signinState = MOCK_TOTP_LOCATION_STATE,
   submitTotpCode = mockSubmitTotpCode,

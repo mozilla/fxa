@@ -74,7 +74,6 @@ import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
 import { setCurrentAccount } from '../../lib/storage-utils';
 import { useCheckReactEmailFirst } from '../../lib/hooks';
 import { cachedSignIn } from './utils';
-import OAuthDataError from '../../components/OAuthDataError';
 
 /*
  * In Backbone, the `email` param is optional. If it's provided, we
