@@ -2,21 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as Sentry from '@sentry/nextjs';
+import { headers } from 'next/headers';
+import Image from 'next/image';
+import { notFound, redirect } from 'next/navigation';
+
+import { LocationStatus } from '@fxa/payments/eligibility';
 import {
+  Banner,
+  BannerVariant,
   BaseParams,
   IsolatedSelectTaxLocation,
   buildRedirectUrl,
 } from '@fxa/payments/ui';
-import { config } from 'apps/payments/next/config';
-import { fetchCMSData } from '@fxa/payments/ui/actions';
+import {
+  fetchCMSData,
+  getProductAvailabilityForLocation,
+} from '@fxa/payments/ui/actions';
 import { getApp, TermsAndPrivacy } from '@fxa/payments/ui/server';
-import { headers } from 'next/headers';
-import { notFound, redirect } from 'next/navigation';
-import Image from 'next/image';
 import locationIcon from '@fxa/shared/assets/images/confirm-pairing.svg';
-import infoIcon from '@fxa/shared/assets/images/icon_information_circle_outline_current.min.svg';
-import * as Sentry from '@sentry/nextjs';
 import type { PageContentOfferingTransformed } from '@fxa/shared/cms';
+import { config } from 'apps/payments/next/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,8 +39,24 @@ export default async function Location({
   Sentry.captureMessage('Could not locate user by their ip');
 
   let cms: PageContentOfferingTransformed | undefined;
+  let locationStatus: LocationStatus | undefined;
   try {
-    cms = await fetchCMSData(params.offeringId, acceptLanguage, params.locale);
+    const cmsDataPromise = fetchCMSData(
+      params.offeringId,
+      acceptLanguage,
+      params.locale
+    );
+    const locationPromise = await getProductAvailabilityForLocation(
+      params.offeringId,
+      searchParams['countryCode']
+    );
+
+    const [cmsData, locationData] = await Promise.all([
+      cmsDataPromise,
+      locationPromise,
+    ]);
+    cms = cmsData;
+    locationStatus = locationData.status;
   } catch (error) {
     if (error.name === 'FetchCmsInvalidOfferingError') {
       notFound();
@@ -59,7 +81,7 @@ export default async function Location({
 
   return (
     <section
-      className="w-full bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12"
+      className="w-full max-w-[576px] bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12"
       aria-label="Determine currency and tax location"
     >
       <h1 className="font-bold text-grey-600 text-xl mt-10">
@@ -76,20 +98,38 @@ export default async function Location({
           headerElement
         )}
       </h1>
-      <div className="shrink-0 my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-start text-sm bg-blue-50 font-bold">
-        <Image src={infoIcon} alt="" />
-        {l10n.getString(
-          'location-banner-info',
-          'We weren’t able to detect your location automatically'
-        )}
-      </div>
+      {locationStatus === LocationStatus.SanctionedLocation ? (
+        <Banner variant={BannerVariant.Error} showCloseButton={true}>
+          {l10n.getString(
+            'next-location-unsupported',
+            'Your current location is not supported according to our Terms of Service.'
+          )}
+        </Banner>
+      ) : locationStatus === LocationStatus.ProductNotAvailable ? (
+        <Banner variant={BannerVariant.Error} showCloseButton={true}>
+          {l10n.getString(
+            'select-tax-location-product-not-available',
+            { productName: purchaseDetails.productName },
+            `${purchaseDetails.productName} is not available in this location.`
+          )}
+        </Banner>
+      ) : (
+        <Banner variant={BannerVariant.Info} showCloseButton={true}>
+          {l10n.getString(
+            'location-banner-info',
+            'We weren’t able to detect your location automatically'
+          )}
+        </Banner>
+      )}
       <div className="flex flex-col items-center">
         <Image src={locationIcon} alt="" className="py-6" />
         <IsolatedSelectTaxLocation
           cmsCountries={cms.countries}
           locale={params.locale.substring(0, 2)}
           productName={purchaseDetails.productName}
-          unsupportedLocations={config.subscriptionsUnsupportedLocations}
+          unsupportedLocations={
+            config.location.subscriptionsUnsupportedLocations
+          }
           saveAction={async (countryCode: string, postalCode: string) => {
             'use server';
 

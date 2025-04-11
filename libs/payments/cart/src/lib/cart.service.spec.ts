@@ -95,6 +95,10 @@ import {
   CartSubscriptionNotFoundError,
 } from './cart.error';
 import { CurrencyManager } from '@fxa/payments/currency';
+import {
+  LocationConfig,
+  MockLocationConfigProvider,
+} from '@fxa/payments/eligibility';
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
 import { NeedsInputType } from './cart.types';
 import { redirect } from 'next/navigation';
@@ -154,9 +158,11 @@ describe('CartService', () => {
         GeoDBManager,
         GeoDBManagerConfig,
         InvoiceManager,
+        LocationConfig,
         MockAccountDatabaseNestFactory,
         MockFirestoreProvider,
         MockGeoDBNestFactory,
+        MockLocationConfigProvider,
         MockNotifierSnsConfigProvider,
         MockPaypalClientConfigProvider,
         MockProfileClientConfigProvider,

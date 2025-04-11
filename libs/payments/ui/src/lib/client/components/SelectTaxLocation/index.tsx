@@ -319,7 +319,11 @@ const Expanded = ({
         </Localized>
         <Form.Message match="valueMissing">
           <Localized id="select-tax-location-error-missing-postal-code">
-            <p className="mt-1 text-alert-red" role="alert">
+            <p
+              className="mt-1 text-alert-red"
+              role="alert"
+              aria-live="assertive"
+            >
               Please enter your postal code
             </p>
           </Localized>
@@ -327,7 +331,11 @@ const Expanded = ({
         {serverErrors.invalidPostalCode && (
           <Form.Message>
             <Localized id="select-tax-location-error-invalid-postal-code">
-              <p className="mt-1 text-alert-red" role="alert">
+              <p
+                className="mt-1 text-alert-red"
+                role="alert"
+                aria-live="assertive"
+              >
                 Please enter a valid postal code
               </p>
             </Localized>
@@ -348,18 +356,8 @@ const Expanded = ({
           className="w-full"
           data-testid="tax-location-save-button"
           type="submit"
-          disabled={
-            errorExists ||
-            !selectedCountryCode ||
-            !selectedPostalCode ||
-            isLoading
-          }
-          aria-disabled={
-            errorExists ||
-            !selectedCountryCode ||
-            !selectedPostalCode ||
-            isLoading
-          }
+          disabled={errorExists || isLoading}
+          aria-disabled={errorExists || isLoading}
         >
           {isLoading ? (
             <Image

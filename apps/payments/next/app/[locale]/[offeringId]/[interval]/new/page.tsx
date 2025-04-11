@@ -4,7 +4,12 @@
 
 import { auth } from 'apps/payments/next/auth';
 import { notFound, redirect } from 'next/navigation';
-import { getTaxAddressAction, setupCartAction } from '@fxa/payments/ui/actions';
+import { LocationStatus } from '@fxa/payments/eligibility';
+import {
+  getProductAvailabilityForLocation,
+  getTaxAddressAction,
+  setupCartAction,
+} from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
@@ -29,7 +34,19 @@ export default async function New({
 
   const taxAddress = await getTaxAddressAction(ipAddress, fxaUid);
 
-  if (!taxAddress) {
+  // Check if the customer is in a location not supported by Subscription Platform
+  // or whether the product is not available in the customer's location
+  const { status } = await getProductAvailabilityForLocation(
+    offeringId,
+    taxAddress?.countryCode
+  );
+
+  if (
+    !taxAddress ||
+    status === LocationStatus.SanctionedLocation ||
+    status === LocationStatus.ProductNotAvailable ||
+    status === LocationStatus.Unresolved
+  ) {
     const redirectToUrl = new URL(
       buildRedirectUrl(
         params.offeringId,

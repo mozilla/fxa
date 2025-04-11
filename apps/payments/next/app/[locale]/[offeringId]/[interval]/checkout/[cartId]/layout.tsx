@@ -107,7 +107,9 @@ export default async function CheckoutLayout({
                 cmsCountries={cms.countries}
                 locale={locale.substring(0, 2)}
                 productName={purchaseDetails.productName}
-                unsupportedLocations={config.subscriptionsUnsupportedLocations}
+                unsupportedLocations={
+                  config.location.subscriptionsUnsupportedLocations
+                }
                 countryCode={cart.taxAddress?.countryCode}
                 postalCode={cart.taxAddress?.postalCode}
               />
