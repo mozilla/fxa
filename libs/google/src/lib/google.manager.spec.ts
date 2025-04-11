@@ -91,6 +91,67 @@ describe('GoogleManager', () => {
       });
     });
 
+    it('should return true - Romanian bypass', async () => {
+      const mockResponseData = {
+        results: [
+          GeocodeResultFactory({
+            address_components: [
+              {
+                long_name: 'Romania',
+                short_name: 'RO',
+                types: ['country', 'political'] as PlaceType2[],
+              },
+            ],
+            formatted_address: 'Romania',
+            types: ['country', 'political'] as PlaceType2[],
+          }),
+        ],
+        status: 'OK' as Status,
+        error_message: '',
+      };
+
+      jest.spyOn(googleClient, 'geocode').mockResolvedValue(mockResponseData);
+
+      const response = await googleManager.validateAndFormatPostalCode(
+        '010000',
+        'RO'
+      );
+      expect(response).toEqual({
+        isValid: true,
+        formattedPostalCode: '010000',
+      });
+    });
+
+    it('should return false - Romanian non-matching', async () => {
+      const mockResponseData = {
+        results: [
+          GeocodeResultFactory({
+            address_components: [
+              {
+                long_name: 'Romania',
+                short_name: 'RO',
+                types: ['country', 'political'] as PlaceType2[],
+              },
+            ],
+            formatted_address: 'Romania',
+            types: ['country', 'political'] as PlaceType2[],
+          }),
+        ],
+        status: 'OK' as Status,
+        error_message: '',
+      };
+
+      jest.spyOn(googleClient, 'geocode').mockResolvedValue(mockResponseData);
+
+      const response = await googleManager.validateAndFormatPostalCode(
+        '00000',
+        'RO'
+      );
+      expect(response).toEqual({
+        isValid: false,
+      });
+    });
+
     it('should return false - 00000', async () => {
       const mockResponseData = {
         results: [
