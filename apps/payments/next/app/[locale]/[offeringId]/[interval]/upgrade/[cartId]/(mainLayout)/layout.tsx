@@ -4,12 +4,16 @@
 
 import { headers } from 'next/headers';
 import { MetricsWrapper, PurchaseDetails } from '@fxa/payments/ui';
-import { fetchCMSData, getCartAction } from '@fxa/payments/ui/actions';
+import {
+  fetchCMSData,
+  getCartOrRedirectAction,
+} from '@fxa/payments/ui/actions';
 import {
   getApp,
   CheckoutParams,
   PriceInterval,
   SubscriptionTitle,
+  SupportedPages,
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
@@ -25,7 +29,10 @@ export default async function UpgradeSuccessLayout({
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
-  const cartDataPromise = getCartAction(params.cartId);
+  const cartDataPromise = getCartOrRedirectAction(
+    params.cartId,
+    SupportedPages.SUCCESS
+  );
   const cmsDataPromise = fetchCMSData(params.offeringId, locale);
   const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);
   const purchaseDetails =
@@ -44,21 +51,21 @@ export default async function UpgradeSuccessLayout({
           aria-label="Upgrade details"
         >
           <PurchaseDetails
-            invoice={cart.upcomingInvoicePreview}
+            invoice={cart.latestInvoicePreview}
             purchaseDetails={purchaseDetails}
             priceInterval={
               <PriceInterval
                 l10n={l10n}
-                amount={cart.upcomingInvoicePreview.listAmount}
-                currency={cart.upcomingInvoicePreview.currency}
+                amount={cart.latestInvoicePreview.listAmount}
+                currency={cart.latestInvoicePreview.currency}
                 interval={cart.interval}
               />
             }
             totalPrice={
               <PriceInterval
                 l10n={l10n}
-                amount={cart.upcomingInvoicePreview.totalAmount}
-                currency={cart.upcomingInvoicePreview.currency}
+                amount={cart.latestInvoicePreview.totalAmount}
+                currency={cart.latestInvoicePreview.currency}
                 interval={cart.interval}
               />
             }
