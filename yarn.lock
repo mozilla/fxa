@@ -26512,17 +26512,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsdom@npm:^16":
-  version: 16.2.13
-  resolution: "@types/jsdom@npm:16.2.13"
-  dependencies:
-    "@types/node": "*"
-    "@types/parse5": "*"
-    "@types/tough-cookie": "*"
-  checksum: 2575d020e345f556a28208dad4d495e317e7364f1de222322c100841f49a815c73c0aa32d32d7a72a05fd7cd33551f4c0effc108fbaaf194ec42ed0f04d877b9
-  languageName: node
-  linkType: hard
-
 "@types/jsdom@npm:^20.0.0":
   version: 20.0.1
   resolution: "@types/jsdom@npm:20.0.1"
@@ -26531,6 +26520,17 @@ __metadata:
     "@types/tough-cookie": "*"
     parse5: ^7.0.0
   checksum: d55402c5256ef451f93a6e3d3881f98339fe73a5ac2030588df056d6835df8367b5a857b48d27528289057e26dcdd3f502edc00cb877c79174cb3a4c7f2198c1
+  languageName: node
+  linkType: hard
+
+"@types/jsdom@npm:^21":
+  version: 21.1.7
+  resolution: "@types/jsdom@npm:21.1.7"
+  dependencies:
+    "@types/node": "*"
+    "@types/tough-cookie": "*"
+    parse5: ^7.0.0
+  checksum: b7465d5a471ed4e68a54e2639c534d364134674598687be69645736731215e7407fe37a4af66dc616ef03be9c5515cb355df2eda5c8080146c05bd569ea8810d
   languageName: node
   linkType: hard
 
@@ -26931,13 +26931,6 @@ __metadata:
   version: 4.0.0
   resolution: "@types/parse-json@npm:4.0.0"
   checksum: fd6bce2b674b6efc3db4c7c3d336bd70c90838e8439de639b909ce22f3720d21344f52427f1d9e57b265fcb7f6c018699b99e5e0c208a1a4823014269a6bf35b
-  languageName: node
-  linkType: hard
-
-"@types/parse5@npm:*":
-  version: 6.0.0
-  resolution: "@types/parse5@npm:6.0.0"
-  checksum: 1c27d07fe12f317290a379c370005d7957ca3d7edc6eb0f17dc94465a7f70fc7330e47c80bf0018674e2dfcf9d727204740bc9ecbee1b7a9556fb6711cd60a50
   languageName: node
   linkType: hard
 
@@ -44030,7 +44023,7 @@ fsevents@~2.1.1:
     "@types/babel__core": ^7
     "@types/bn.js": ^5
     "@types/jest": ^29.5.1
-    "@types/jsdom": ^16
+    "@types/jsdom": ^21
     "@types/module-alias": ^2
     "@types/mysql": ^2
     "@types/node": ^22.13.5
