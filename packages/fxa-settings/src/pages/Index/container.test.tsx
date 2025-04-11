@@ -22,6 +22,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import GleanMetrics from '../../lib/glean';
 import { IndexQueryParams } from '../../models/pages/index';
+import { ModelValidationErrors } from '../../lib/model-data';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -159,7 +160,7 @@ describe('IndexContainer', () => {
       </LocationProvider>
     );
     expect(container).toBeDefined();
-    expect(mockUseValidatedQueryParams).toBeCalledWith(IndexQueryParams, true);
+    expect(mockUseValidatedQueryParams).toBeCalledWith(IndexQueryParams, false);
   });
 
   it('should render the Index component when no redirection is required', async () => {
@@ -287,6 +288,35 @@ describe('IndexContainer', () => {
           emailStatusChecked: true,
         },
       });
+    });
+
+    it('should render Index with emailSuggestionError when provided email fails email validation', async () => {
+      // No prefillEmail so query param email is used
+      mockLocationState = {};
+      // Provide an invalid email via query params (missing '@' makes it fail validation)
+      mockUseValidatedQueryParams.mockReturnValue({
+        queryParamModel: { email: 'invalid-email' },
+        validationError: new Error() as ModelValidationErrors,
+      });
+
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <IndexContainer
+            {...{ integration, serviceName: MozServices.Default }}
+          />
+        </LocationProvider>
+      );
+
+      await waitFor(() => {
+        expect(currentIndexProps).toBeDefined();
+      });
+
+      expect(mockNavigate).not.toHaveBeenCalled();
+
+      expect(currentIndexProps?.initialTooltipErrorMessage).toBeDefined();
+      expect(currentIndexProps?.initialTooltipErrorMessage).toEqual(
+        AuthUiErrors.EMAIL_REQUIRED.message
+      );
     });
 
     it('should suggest currentAccount email when available and redirect to signin', async () => {

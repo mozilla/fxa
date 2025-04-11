@@ -18,9 +18,10 @@ import {
 } from '../../models/integrations/client-matching';
 import { isOAuthIntegration, useFtlMsgResolver } from '../../models';
 import GleanMetrics from '../../lib/glean';
-import { getLocalizedErrorMessage, interpolate } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { AuthError } from '../../lib/oauth';
+import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
 
 export const Index = ({
   integration,
@@ -28,7 +29,8 @@ export const Index = ({
   signUpOrSignInHandler,
   prefillEmail,
   deleteAccountSuccess,
-  hasBounced,
+  initialErrorBannerMessage,
+  initialTooltipErrorMessage,
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
@@ -39,7 +41,9 @@ export const Index = ({
   const isRelayClient = isOAuth && isClientRelay(clientId);
 
   const ftlMsgResolver = useFtlMsgResolver();
-  const [errorBannerMessage, setErrorBannerMessage] = useState('');
+  const [errorBannerMessage, setErrorBannerMessage] = useState(
+    initialErrorBannerMessage
+  );
   const [successBannerMessage, setSuccessBannerMessage] = useState(
     deleteAccountSuccess
       ? ftlMsgResolver.getMsg(
@@ -49,12 +53,7 @@ export const Index = ({
       : undefined
   );
   const [tooltipErrorText, setTooltipErrorText] = useState(
-    hasBounced
-      ? ftlMsgResolver.getMsg(
-          'auth-errors-1018',
-          'Your confirmation email was just returned. Mistyped email?'
-        )
-      : undefined
+    initialTooltipErrorMessage
   );
 
   const emailEngageEventEmitted = useRef(false);
@@ -66,66 +65,30 @@ export const Index = ({
     GleanMetrics.emailFirst.view();
   }, []);
 
-  const { handleSubmit, register } = useForm<IndexFormData>({
-    mode: 'onChange',
-    criteriaMode: 'all',
-    defaultValues: {
-      email: prefillEmail,
-    },
-  });
+  const handleEmailError = (email: string, error: AuthError) => {
+    const localizedError = getLocalizedEmailValidationErrorMessage(
+      error,
+      ftlMsgResolver,
+      email
+    );
+    switch (error.errno) {
+      case AuthUiErrors.MX_LOOKUP_WARNING.errno:
+      case AuthUiErrors.EMAIL_REQUIRED.errno:
+      case AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.errno:
+      case AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.errno:
+      case AuthUiErrors.INVALID_EMAIL_DOMAIN.errno:
+        setTooltipErrorText(localizedError);
+        break;
+      default:
+        setErrorBannerMessage(localizedError);
+    }
+  };
 
   const onSubmit = async ({ email }: IndexFormData) => {
     // This function handles navigation on success
     const { error } = await signUpOrSignInHandler(email.trim());
     if (error) {
-      switch (error.errno) {
-        case AuthUiErrors.MX_LOOKUP_WARNING.errno:
-          setTooltipErrorText(
-            ftlMsgResolver.getMsg('auth-error-1067', error.message)
-          );
-          break;
-        case AuthUiErrors.EMAIL_REQUIRED.errno:
-          setTooltipErrorText(
-            ftlMsgResolver.getMsg(
-              'auth-error-1011',
-              AuthUiErrors.EMAIL_REQUIRED.message
-            )
-          );
-          break;
-        case AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.errno:
-          setTooltipErrorText(
-            ftlMsgResolver.getMsg(
-              'auth-error-1066',
-              AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.message
-            )
-          );
-          break;
-        case AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.errno:
-          setTooltipErrorText(
-            ftlMsgResolver.getMsg(
-              'auth-error-1020',
-              AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.message
-            )
-          );
-          break;
-        case AuthUiErrors.INVALID_EMAIL_DOMAIN.errno: {
-          const [, domain] = email.split('@');
-          setTooltipErrorText(
-            ftlMsgResolver.getMsg(
-              'auth-error-1064',
-              interpolate(AuthUiErrors.INVALID_EMAIL_DOMAIN.message, {
-                domain,
-              }),
-              { domain }
-            )
-          );
-          break;
-        }
-        default:
-          setErrorBannerMessage(
-            getLocalizedErrorMessage(ftlMsgResolver, error)
-          );
-      }
+      handleEmailError(email, error);
     }
   };
 
@@ -144,6 +107,14 @@ export const Index = ({
       setTooltipErrorText('');
     }
   };
+
+  const { handleSubmit, register } = useForm<IndexFormData>({
+    mode: 'onChange',
+    criteriaMode: 'all',
+    defaultValues: {
+      email: prefillEmail,
+    },
+  });
 
   return (
     <AppLayout>

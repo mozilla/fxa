@@ -61,6 +61,9 @@ export const checkEmailDomain = async (email: string) => {
       return;
     }
   } catch (error) {
+    if (error.message?.includes('Bad Request')) {
+      throw AuthUiErrors.INVALID_EMAIL_DOMAIN;
+    }
     // Don't error and allow submission in case of server failure
     return;
   }

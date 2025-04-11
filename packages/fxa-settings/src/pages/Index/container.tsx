@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import * as Sentry from '@sentry/browser';
 import Index from '.';
 import { IndexContainerProps, LocationState } from './interfaces';
-import { useCallback, useEffect } from 'react';
-import { useAuthClient } from '../../models';
+import { useCallback, useEffect, useState } from 'react';
+import { useAuthClient, useFtlMsgResolver } from '../../models';
 import firefox from '../../lib/channels/firefox';
-import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { getHandledError } from '../../lib/error-utils';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { AuthError } from '../../lib/oauth';
 import { currentAccount, lastStoredAccount } from '../../lib/cache';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { IndexQueryParams } from '../../models/pages/index';
@@ -20,42 +21,58 @@ import { checkEmailDomain } from '../../lib/email-domain-validator';
 import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { isOAuthWebIntegration } from '../../models/integrations/oauth-web-integration';
 import GleanMetrics from '../../lib/glean';
-
-// TODO: remove this function, it's only here to make TS happy until
-// we work on FXA-9757. errnos are always defined
-function getErrorWithDefinedErrNo(error: AuthUiError) {
-  return {
-    ...error,
-    errno: error.errno!,
-  };
-}
+import { ModelValidationErrors } from '../../lib/model-data';
+import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
+import {
+  getHandledError,
+  getLocalizedErrorMessage,
+} from '../../lib/error-utils';
 
 export const IndexContainer = ({
   integration,
   serviceName,
 }: IndexContainerProps & RouteComponentProps) => {
-  // TODO, more strict validation for bad oauth params, FXA-11297
   const authClient = useAuthClient();
+  const ftlMsgResolver = useFtlMsgResolver();
   const navigate = useNavigate();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
-  const { queryParamModel } = useValidatedQueryParams(IndexQueryParams, true);
+  const { queryParamModel, validationError } = useValidatedQueryParams(
+    IndexQueryParams,
+    // There is some concern that RPs or sub plat might not be validating emails
+    // before sending them to us. Rather than fail hard here, let's monitor the
+    // situation. Users should still be able to correct a bad email via the UI.
+    false
+  );
+
+  useEffect(() => {
+    // Since it's debatable as to whether or not we want to let potentially bogus
+    // email / loginHints through... For now, let's log it so we can keep tabs on
+    // the potential impact.
+    if (validationError instanceof ModelValidationErrors) {
+      console.warn(validationError);
+      Sentry.captureException(validationError, {
+        tags: {
+          source: 'IndexContainer',
+          condition: validationError.condition,
+        },
+      });
+
+      // Clean up the URL to avoid repeat validation, since we already know this param is invalid
+      const url = new URL(window.location.href);
+      url.searchParams.delete('email');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [validationError]);
 
   const { prefillEmail, deleteAccountSuccess, hasBounced } =
     location.state || {};
 
-  const isWebChannelIntegration =
-    integration.isSync() || integration.isDesktopRelay();
-
-  // 'email' query param should take precedence, followed by 'login_hint'
-  const suggestedEmail =
-    queryParamModel.email ||
-    queryParamModel.loginHint ||
-    currentAccount()?.email ||
-    lastStoredAccount()?.email;
-
-  const hasEmailSuggestion = suggestedEmail && !prefillEmail;
+  const [initialErrorBannerMessage, setInitialErrorBannerMessage] =
+    useState('');
+  const [initialTooltipErrorMessage, setInitialTooltipErrorMessage] =
+    useState('');
 
   const handleSuccess = useCallback(
     (
@@ -113,7 +130,7 @@ export const IndexContainer = ({
       try {
         if (!isEmailValid(email)) {
           return {
-            error: getErrorWithDefinedErrNo(AuthUiErrors.EMAIL_REQUIRED),
+            error: AuthUiErrors.EMAIL_REQUIRED as AuthError,
           };
         }
         const { exists, hasLinkedAccount, hasPassword } =
@@ -124,29 +141,26 @@ export const IndexContainer = ({
         if (!exists) {
           if (isEmailMask(email)) {
             return {
-              error: getErrorWithDefinedErrNo(
-                AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT
-              ),
+              error: AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT as AuthError,
             };
             // "@firefox" or "@firefox.com" email addresses are not valid
             // at this time, therefore block the attempt.
             // the added 'i' disallows uppercase letters
           } else if (new RegExp('@firefox(\\.com)?$', 'i').test(email)) {
             return {
-              error: getErrorWithDefinedErrNo(
-                AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN
-              ),
+              error:
+                AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN as AuthError,
             };
           }
           // DNS lookup for MX record
           await checkEmailDomain(email);
         }
 
-        if (isWebChannelIntegration) {
+        if (integration.isSync() || integration.isDesktopRelay()) {
           const { ok } = await firefox.fxaCanLinkAccount({ email });
           if (!ok) {
             return {
-              error: getErrorWithDefinedErrNo(AuthUiErrors.USER_CANCELED_LOGIN),
+              error: AuthUiErrors.USER_CANCELED_LOGIN as AuthError,
             };
           }
         }
@@ -158,24 +172,70 @@ export const IndexContainer = ({
         return getHandledError(error);
       }
     },
-    [authClient, handleSuccess, isWebChannelIntegration]
+    [authClient, handleSuccess, integration]
   );
 
+  // If there is a suggested email, try to direct to either signin or signup
+  // If no account exists for the suggested email, the same email validation steps
+  // will be run as if the email was submitted manually.
+  // RP-provided 'email' query param should take precedence, followed by 'login_hint'
+  // then previous accounts.
+  const suggestedEmail =
+    queryParamModel.email ||
+    queryParamModel.loginHint ||
+    currentAccount()?.email ||
+    lastStoredAccount()?.email;
+
+  // If we just came from another Mozilla accounts page with a prefill email in location state,
+  // ignore suggested email (they are probably stale)
+  const useEmailSuggestion = suggestedEmail && !prefillEmail;
+
   useEffect(() => {
-    if (!hasEmailSuggestion) {
+    if (!useEmailSuggestion) {
       return;
     }
 
-    signUpOrSignInHandler(suggestedEmail, false);
-  }, [hasEmailSuggestion, signUpOrSignInHandler, suggestedEmail]);
+    (async () => {
+      const { error } = await signUpOrSignInHandler(suggestedEmail, false);
+      if (error) {
+        const localizedError = getLocalizedEmailValidationErrorMessage(
+          error,
+          ftlMsgResolver,
+          suggestedEmail
+        );
+        switch (error.errno) {
+          case AuthUiErrors.MX_LOOKUP_WARNING.errno:
+          case AuthUiErrors.EMAIL_REQUIRED.errno:
+          case AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.errno:
+          case AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.errno:
+          case AuthUiErrors.INVALID_EMAIL_DOMAIN.errno:
+            setInitialTooltipErrorMessage(localizedError);
+            break;
+          default:
+            setInitialErrorBannerMessage(localizedError);
+        }
+      }
+    })();
+  }, [
+    ftlMsgResolver,
+    useEmailSuggestion,
+    signUpOrSignInHandler,
+    suggestedEmail,
+  ]);
 
   if (isUnsupportedContext(integration.data.context)) {
     hardNavigate('/update_firefox', {}, true);
     return <LoadingSpinner fullScreen />;
   }
 
-  if (hasEmailSuggestion) {
+  if (useEmailSuggestion && !initialTooltipErrorMessage) {
     return <LoadingSpinner fullScreen />;
+  }
+
+  if (prefillEmail && hasBounced) {
+    setInitialTooltipErrorMessage(
+      getLocalizedErrorMessage(ftlMsgResolver, AuthUiErrors.SIGNUP_EMAIL_BOUNCE)
+    );
   }
 
   return (
@@ -184,10 +244,11 @@ export const IndexContainer = ({
         integration,
         serviceName,
         signUpOrSignInHandler,
-        prefillEmail,
         deleteAccountSuccess,
-        hasBounced,
+        initialErrorBannerMessage,
+        initialTooltipErrorMessage,
       }}
+      prefillEmail={prefillEmail || suggestedEmail}
     />
   );
 };
