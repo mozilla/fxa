@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { auth } from 'apps/payments/next/auth';
+import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-import { setupCartAction } from '@fxa/payments/ui/actions';
+import { fetchCMSData, setupCartAction } from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
@@ -29,7 +30,21 @@ export default async function New({
   const taxAddress =
     countryCode && postalCode ? { countryCode, postalCode } : undefined;
 
-  if (!taxAddress) {
+  // Check if the customer is in a location not supported by Subscription Platform
+  // or whether the product is not available in the customer's location
+  let isSanctionedLocation: boolean | undefined;
+  let isSupportedCountry: boolean | undefined;
+  const acceptLanguage = headers().get('accept-language');
+  const { countries } = await fetchCMSData(offeringId, acceptLanguage, locale);
+  const supportedCountries = countries.map((country) => country.slice(0, 2));
+  const sanctionedLocations = config.subscriptionsUnsupportedLocations;
+
+  if (countryCode) {
+    isSanctionedLocation = sanctionedLocations.includes(countryCode);
+    isSupportedCountry = supportedCountries.includes(countryCode);
+  }
+
+  if (!taxAddress || isSanctionedLocation || !isSupportedCountry) {
     const redirectToUrl = new URL(
       buildRedirectUrl(
         params.offeringId,

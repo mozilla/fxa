@@ -14,11 +14,83 @@ import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import Image from 'next/image';
 import locationIcon from '@fxa/shared/assets/images/confirm-pairing.svg';
+import errorIcon from '@fxa/shared/assets/images/icon_error_circle_outline_current.min.svg';
 import infoIcon from '@fxa/shared/assets/images/icon_information_circle_outline_current.min.svg';
 import * as Sentry from '@sentry/nextjs';
 import type { PageContentOfferingTransformed } from '@fxa/shared/cms';
+import { LocalizerRsc } from '@fxa/shared/l10n/server';
 
 export const dynamic = 'force-dynamic';
+
+const LocationBanner = ({
+  l10n,
+  countryCode,
+  supportedCountries,
+  productName,
+}: {
+  l10n: LocalizerRsc;
+  countryCode: string | undefined;
+  supportedCountries: string[];
+  productName: string;
+}) => {
+  let isSanctionedLocation: boolean | undefined;
+  let isSupportedLocation: boolean | undefined;
+  const sanctionedLocations = config.subscriptionsUnsupportedLocations;
+  const formattedCountries = supportedCountries.map((country) =>
+    country.slice(0, 2)
+  );
+  if (countryCode) {
+    isSanctionedLocation = sanctionedLocations.includes(countryCode);
+    isSupportedLocation = formattedCountries.includes(countryCode);
+  }
+
+  if (isSanctionedLocation) {
+    return (
+      <div
+        className="shrink-0 my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-start text-sm font-bold bg-red-100"
+        role="alert"
+        aria-live="assertive"
+      >
+        <Image src={errorIcon} alt="" />
+        {l10n.getString(
+          'next-location-unsupported',
+          'Your current location is not supported according to our Terms of Service.'
+        )}
+      </div>
+    );
+  }
+
+  if (isSupportedLocation === false) {
+    return (
+      <div
+        className="shrink-0 my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-start text-sm font-bold bg-red-100"
+        role="alert"
+        aria-live="assertive"
+      >
+        <Image src={errorIcon} alt="" />
+        {l10n.getString(
+          'select-tax-location-product-not-available',
+          { productName },
+          `${productName} is not available in this location.`
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="shrink-0 my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-start text-sm font-bold bg-blue-50"
+      role="status"
+      aria-live="polite"
+    >
+      <Image src={infoIcon} alt="" />
+      {l10n.getString(
+        'location-banner-info',
+        'We weren’t able to detect your location automatically'
+      )}
+    </div>
+  );
+};
 
 export default async function Location({
   params,
@@ -76,13 +148,12 @@ export default async function Location({
           headerElement
         )}
       </h1>
-      <div className="shrink-0 my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-start text-sm bg-blue-50 font-bold">
-        <Image src={infoIcon} alt="" />
-        {l10n.getString(
-          'location-banner-info',
-          'We weren’t able to detect your location automatically'
-        )}
-      </div>
+      <LocationBanner
+        l10n={l10n}
+        countryCode={searchParams['countryCode']}
+        supportedCountries={cms.countries}
+        productName={purchaseDetails.productName}
+      />
       <div className="flex flex-col items-center">
         <Image src={locationIcon} alt="" className="py-6" />
         <IsolatedSelectTaxLocation
