@@ -5,6 +5,6 @@
 
 import { getApp } from '../nestapp/app';
 
-export const getTaxAddressAction = async (ipAddress: string, uid?: string) => {
-  return getApp().getActionsService().getTaxAddress({ ipAddress, uid });
+export const getIsTaxLockedAction = async (uid: string) => {
+  return getApp().getActionsService().getIsTaxLocked({ uid });
 };

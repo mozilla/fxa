@@ -8,6 +8,7 @@ export { determineCurrencyAction } from './determineCurrency';
 export { fetchCMSData } from './fetchCMSData';
 export { getCartAction } from './getCart';
 export { getCartOrRedirectAction } from './getCartOrRedirect';
+export { getIsTaxLockedAction } from './getIsTaxLocked';
 export { getMetricsFlowAction } from './getMetricsFlow';
 export { getPayPalCheckoutToken } from './getPayPalCheckoutToken';
 export { getTaxAddressAction } from './getTaxAddress';

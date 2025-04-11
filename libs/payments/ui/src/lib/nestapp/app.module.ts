@@ -6,7 +6,12 @@ import { Module } from '@nestjs/common';
 import { TypedConfigModule } from 'nest-typed-config';
 
 import { GoogleClient, GoogleManager } from '@fxa/google';
-import { CartManager, CartService, CheckoutService } from '@fxa/payments/cart';
+import {
+  CartManager,
+  CartService,
+  CheckoutService,
+  TaxService,
+} from '@fxa/payments/cart';
 import {
   EligibilityManager,
   EligibilityService,
@@ -83,6 +88,7 @@ import { PaymentsEmitterService } from '@fxa/payments/events';
     AccountManager,
     CartManager,
     CartService,
+    TaxService,
     CheckoutTokenManager,
     ContentServerManager,
     ContentServerClient,
