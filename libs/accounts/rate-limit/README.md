@@ -12,7 +12,7 @@ Run `nx test rate-limit` to execute the unit tests via [Jest](https://jestjs.io)
 
 ## Defining Rules
 
-This library is driven my a simple grammar for defining rules. The grammar is as follows:
+This library is driven by a simple grammar for defining rules. The grammar is as follows:
 
 ` ${action} : ${blockOn} : ${maxAttempts} : ${windowDuration} : ${banDuration}`
 
