@@ -14,5 +14,6 @@ export const MockPaymentsGleanFactory = {
       recordPaySetupSubmit: () => {},
       recordPaySetupSuccess: () => {},
       recordPaySetupFail: () => {},
-    } as any),
+      recordSubscriptionEnded: () => {},
+    }) as any,
 };

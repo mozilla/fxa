@@ -37,6 +37,13 @@ export type CmsMetricsData = {
   priceId: string;
 };
 
+export type SubscriptionCancellationData = {
+  offeringId?: string;
+  interval?: string;
+  voluntaryCancellation: boolean;
+  providerEventId: string;
+};
+
 export const PaymentsGleanProvider = Symbol('GleanServerEventsProvider');
 
 export type PaymentsGleanServerEventsLoggerTester = {
@@ -45,4 +52,5 @@ export type PaymentsGleanServerEventsLoggerTester = {
   recordPaySetupSubmit: (data: any) => void;
   recordPaySetupSuccess: (data: any) => void;
   recordPaySetupFail: (data: any) => void;
+  recordSubscriptionEnded: (data: any) => void;
 };

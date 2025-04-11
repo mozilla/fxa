@@ -11,6 +11,7 @@ relying_party:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -28,7 +29,8 @@ relying_party:
     send_in_pings:
       - events
     notification_emails:
-      - fxa-staff@mozilla.com
+      - dalvarez@mozilla.com
+      - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
     data_reviews:
@@ -45,6 +47,7 @@ session:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -62,6 +65,7 @@ session:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -78,6 +82,7 @@ session:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -95,6 +100,7 @@ session:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -112,6 +118,7 @@ session:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -132,6 +139,7 @@ subscription:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -147,6 +155,7 @@ subscription:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -157,11 +166,12 @@ subscription:
       - interaction
   product_id:
     type: string
-    description: Product ID of a subscription.
+    description: Stripe product ID of a subscription.
     lifetime: application
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -177,6 +187,7 @@ subscription:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -187,11 +198,12 @@ subscription:
       - interaction
   offering_id:
     type: string
-    description: ID of the offering a customer subscribed to
+    description: The API ID of the offering a customer subscribed to
     lifetime: application
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -207,6 +219,7 @@ subscription:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -222,6 +235,7 @@ subscription:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -237,6 +251,7 @@ subscription:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -252,6 +267,7 @@ subscription:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -267,11 +283,53 @@ subscription:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
     data_reviews:
       - https://github.com/mozilla/fxa/issues/18512
+    expires: never
+    data_sensitivity:
+      - interaction
+  ended:
+    type: event
+    lifetime: ping
+    description: |
+      A subscription has ended.
+    send_in_pings:
+      - events
+    notification_emails:
+      - dalvarez@mozilla.com
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11139
+    data_reviews:
+      - https://github.com/mozilla/fxa/issues/18696
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      subscription_voluntary_cancellation:
+        description: |
+          Whether the user cancelled the subscription (`true`) or not (`false`)
+        type: boolean
+  provider_event_id:
+    description: |
+      A unique identifier for the subscription notification from a payment provider.
+      For Stripe and Stripe-managed providers like PayPal, this is the Stripe webhook event id.
+      This will be used to deduplicate notifications that may have been sent multiple times by the payment provider.
+    type: string
+    lifetime: application
+    send_in_pings:
+      - events
+    notification_emails:
+      - dalvarez@mozilla.com
+      - subplat-team@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11139
+    data_reviews:
+      - https://github.com/mozilla/fxa/issues/18696
     expires: never
     data_sensitivity:
       - interaction
@@ -290,6 +348,7 @@ utm:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -313,6 +372,7 @@ utm:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -335,6 +395,7 @@ utm:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -357,6 +418,7 @@ utm:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -380,6 +442,7 @@ utm:
     send_in_pings:
       - events
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7265
@@ -395,6 +458,7 @@ pay_setup:
     description: Checkout view event
     type: event
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -407,6 +471,7 @@ pay_setup:
     description: Checkout engage event
     type: event
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -419,6 +484,7 @@ pay_setup:
     description: Checkout submit event
     type: event
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -431,6 +497,7 @@ pay_setup:
     description: Checkout engage event
     type: event
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
@@ -443,6 +510,7 @@ pay_setup:
     description: Checkout fail event
     type: event
     notification_emails:
+      - dalvarez@mozilla.com
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531

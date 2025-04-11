@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
-import { CartMetrics, CmsMetricsData, CommonMetrics } from './glean.types';
+import {
+  CartMetrics,
+  CmsMetricsData,
+  CommonMetrics,
+  SubscriptionCancellationData,
+} from './glean.types';
 import { ResultCartFactory } from '@fxa/payments/cart';
 import { SubplatInterval } from '@fxa/payments/customer';
 
@@ -56,3 +61,21 @@ export const CmsMetricsDataFactory = (
   priceId: `price_${faker.string.alphanumeric({ length: 14 })}`,
   ...override,
 });
+
+export const SubscriptionCancellationDataFactory = (
+  override?: Partial<SubscriptionCancellationData>
+): SubscriptionCancellationData => {
+  return {
+    offeringId: faker.helpers.arrayElement([
+      'vpn',
+      'relay-phone',
+      'relay-email',
+      'hubs',
+      'mdnplus',
+    ]),
+    interval: faker.helpers.enumValue(SubplatInterval),
+    voluntaryCancellation: faker.datatype.boolean(),
+    providerEventId: faker.string.uuid(),
+    ...override,
+  };
+};
