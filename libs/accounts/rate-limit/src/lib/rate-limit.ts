@@ -8,7 +8,7 @@ import { ActionNotFound, MissingOption } from './error';
 import { calculateRetryAfter, getKey } from './util';
 
 /**
- * Class the controls 'rate-limiting' specific actions.
+ * Class that controls 'rate-limiting' specific actions.
  * This used to be customs0-server, but has been simplified quite a bit by
  * using explicit configuration and a more generalized approach to defining rules.
  */
