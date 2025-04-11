@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import axios from 'axios';
+/* global fetch */
+
 import { Provider, PROVIDER } from 'fxa-shared/db/models/auth/linked-account';
 import jwt from 'jsonwebtoken';
 
@@ -132,7 +133,7 @@ export const appleEventHandlers = {
  * @param eventDetails
  * @param log
  * @param db
- * @returns Promise<void>)
+ * @returns {Promise<void>}
  */
 async function handleAppleConsentRevokedEvent(
   eventDetails: AppleSETEvent,
@@ -242,14 +243,18 @@ export function handleGoogleOtherEventType(eventType: string, log: any) {
  * @param token
  */
 export async function getApplePublicKey(token: string) {
-  const appleCerts = await axios.get(APPLE_PUBLIC_KEYS);
+  const response = await fetch(APPLE_PUBLIC_KEYS);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Apple public keys: ${response.status}`);
+  }
+  const appleCerts = await response.json();
   const jwtHeader = jwt.decode(token, { complete: true })?.header;
   const keyId = jwtHeader?.kid;
   if (!keyId) {
     throw new Error('No valid keyId found.');
   }
 
-  const publicKey = appleCerts.data.keys.find(
+  const publicKey = appleCerts.keys.find(
     (key: { kid: string }) => key.kid === keyId
   );
 
@@ -270,17 +275,27 @@ export async function getApplePublicKey(token: string) {
 export async function getGooglePublicKey(
   token: string
 ): Promise<{ pem: string; issuer: string }> {
-  const riscConfig = await axios.get(RISC_CONFIG_URI);
-  const { jwks_uri: jwksUri, issuer } = riscConfig.data;
+  const riscResponse = await fetch(RISC_CONFIG_URI);
+  if (!riscResponse.ok) {
+    throw new Error(`Failed to fetch RISC config: ${riscResponse.status}`);
+  }
+  const riscConfig = await riscResponse.json();
+  const { jwks_uri: jwksUri, issuer } = riscConfig;
 
-  const googleCerts = await axios.get(jwksUri);
+  const googleResponse = await fetch(jwksUri);
+  if (!googleResponse.ok) {
+    throw new Error(
+      `Failed to fetch Google public keys: ${googleResponse.status}`
+    );
+  }
+  const googleCerts = await googleResponse.json();
   const jwtHeader = jwt.decode(token, { complete: true })?.header;
   const keyId = jwtHeader.kid;
   if (!keyId) {
     throw new Error('No valid keyId found.');
   }
 
-  const publicKey = googleCerts.data.keys.find(
+  const publicKey = googleCerts.keys.find(
     (key: { kid: string }) => key.kid === keyId
   );
 

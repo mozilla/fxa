@@ -36,7 +36,6 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.758.0",
     "@types/sinon": "10.0.1",
-    "axios": "^0.29.0",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",

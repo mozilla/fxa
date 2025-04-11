@@ -11,7 +11,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Request } from 'express';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
@@ -106,15 +105,28 @@ export class PubsubProxyController {
     jwtPayload: string;
     webhookEndpoint: string;
     message: Record<string, any>;
-  }): Promise<AxiosResponse> {
+  }): Promise<{ status: number; data: any }> {
     const { jwtPayload, webhookEndpoint, clientId, message } = options;
-    const requestOptions: AxiosRequestConfig = {
+    const requestOptions = {
+      method: 'POST',
       headers: { Authorization: 'Bearer ' + jwtPayload },
-      url: webhookEndpoint,
-      method: 'post',
     };
+
     try {
-      const response = await axios(requestOptions);
+      const response = await fetch(webhookEndpoint, requestOptions);
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        data = await response.text();
+      }
+
+      if (!response.ok) {
+        const error: any = new Error(`HTTP response error: ${response.status}`);
+        error.response = { status: response.status, data };
+        throw error;
+      }
+
       const now = Date.now();
       this.metrics.timing('proxy.success', now - message.changeTime, {
         clientId,
@@ -124,13 +136,13 @@ export class PubsubProxyController {
       if (message.event === dto.SUBSCRIPTION_UPDATE_EVENT) {
         this.metrics.timing(`proxy.sub.eventDelay`, now - message.changeTime);
       }
-      return response;
-    } catch (err) {
+      return { status: response.status, data };
+    } catch (err: any) {
       if (err.response) {
         // Proxy normal HTTP responses that aren't 200.
         this.metrics.increment(`proxy.fail`, {
           clientId,
-          statusCode: (err.response as AxiosResponse).status.toString(),
+          statusCode: err.response.status.toString(),
           type: message.event,
         });
         this.log.debug('proxyDeliverFail', {
