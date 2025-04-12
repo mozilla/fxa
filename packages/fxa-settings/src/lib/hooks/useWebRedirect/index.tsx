@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
-import {
-  BaseIntegrationData,
-  useConfig,
-  useFtlMsgResolver,
-} from '../../../models';
+import { useConfig, useFtlMsgResolver } from '../../../models';
 import { useLocation } from '@reach/router';
 import { AuthUiErrors } from '../../auth-errors/auth-errors';
 import { getErrorFtlId } from '../../error-utils';
@@ -19,17 +15,14 @@ import { getErrorFtlId } from '../../error-utils';
  * At the time of writing, this is only valid for web integrations.
  * OAuth integrations should check against clientInfo.redirectUri.
  */
-export function useWebRedirect(redirectTo: BaseIntegrationData['redirectTo']) {
+export function useWebRedirect(redirectTo: string | undefined) {
   const config = useConfig();
+
   const location = useLocation();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  if (!redirectTo) {
-    return;
-  }
-
   const isValid = isAllowed(
-    redirectTo,
+    redirectTo || '',
     location.href,
     config.redirectAllowlist
   );

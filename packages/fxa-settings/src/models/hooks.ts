@@ -139,8 +139,10 @@ export function useExperiments(): NimbusResult | null {
 export function useSession() {
   const { session } = useContext(AppContext);
   if (!session) {
+    console.log('!!! no session');
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
+
   return session;
 }
 

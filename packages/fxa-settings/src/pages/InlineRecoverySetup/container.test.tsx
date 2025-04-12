@@ -11,7 +11,11 @@ import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { MozServices } from '../../lib/types';
-import { OAuthIntegration, useSensitiveDataClient } from '../../models';
+import {
+  IntegrationType,
+  OAuthIntegration,
+  useSensitiveDataClient,
+} from '../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import {
   MOCK_QUERY_PARAMS,
@@ -139,12 +143,13 @@ function setMocks() {
 const defaultProps = {
   isSignedIn: true,
   integration: {
+    type: IntegrationType.OAuthWeb,
     returnOnError: () => true,
     getService: () => undefined,
     getClientId: () => MOCK_CLIENT_ID,
     getRedirectWithErrorUrl: (error: AuthUiError) =>
       `https://localhost:8080/?error=${error.errno}`,
-  } as unknown as OAuthIntegration,
+  } as OAuthIntegration,
   serviceName: MozServices.Default,
 };
 function render(props = {}) {

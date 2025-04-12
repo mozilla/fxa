@@ -4,7 +4,6 @@
 
 import sinon, { createSandbox } from 'sinon';
 import {
-  BaseIntegration,
   Integration,
   IntegrationType,
   OAuthIntegration,
@@ -16,6 +15,7 @@ import {
   RelierClientInfo,
   RelierSubscriptionInfo,
   SyncDesktopV3Integration,
+  GenericIntegration,
 } from '../../models/integrations';
 import { StorageData, UrlHashData, UrlQueryData } from '../model-data';
 import { IntegrationFactory, DefaultIntegrationFlags } from '../integrations';
@@ -137,14 +137,14 @@ describe('lib/integrations/integration-factory', () => {
     };
   });
 
-  describe('BaseIntegration creation', () => {
-    let integration: BaseIntegration;
+  describe('Integration creation', () => {
+    let integration: Integration;
 
     beforeAll(async () => {
-      integration = await setup<BaseIntegration>(
+      integration = await setup<Integration>(
         {},
         { initIntegration: 1 },
-        (i: Integration) => i instanceof BaseIntegration
+        (i: Integration) => i instanceof GenericIntegration
       );
     });
 
