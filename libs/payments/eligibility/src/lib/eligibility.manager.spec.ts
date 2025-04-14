@@ -30,7 +30,11 @@ import {
 import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 
 import { EligibilityManager } from './eligibility.manager';
-import { OfferingComparison, OfferingOverlapResult } from './eligibility.types';
+import {
+  EligibilityStatus,
+  OfferingComparison,
+  OfferingOverlapResult,
+} from './eligibility.types';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { faker } from '@faker-js/faker';
@@ -520,7 +524,9 @@ describe('EligibilityManager', () => {
       ] as OfferingOverlapResult[];
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
       const interval = SubplatInterval.Monthly;
-      const mockPrice = StripePriceFactory();
+      const mockPrice = StripePriceFactory({
+        id: 'prod_test1',
+      });
 
       jest
         .spyOn(priceManager, 'retrieveByInterval')
@@ -533,7 +539,7 @@ describe('EligibilityManager', () => {
         [mockPrice]
       );
       expect(result.subscriptionEligibilityResult).toEqual(
-        CartEligibilityStatus.INVALID
+        EligibilityStatus.SAME
       );
     });
 

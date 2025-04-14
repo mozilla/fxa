@@ -9,6 +9,7 @@ export enum EligibilityStatus {
   UPGRADE = 'upgrade',
   DOWNGRADE = 'downgrade',
   BLOCKED_IAP = 'blocked_iap',
+  SAME = 'same',
   INVALID = 'invalid',
 }
 
@@ -48,7 +49,8 @@ export type SubscriptionEligibilityResult =
   | {
       subscriptionEligibilityResult:
         | EligibilityStatus.CREATE
-        | EligibilityStatus.INVALID;
+        | EligibilityStatus.INVALID
+        | EligibilityStatus.SAME;
     }
   | {
       subscriptionEligibilityResult:

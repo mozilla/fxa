@@ -13,3 +13,4 @@ export * from './lib/server/components/TermsAndPrivacy';
 export * from './lib/server/components/UpgradePurchaseDetails';
 export * from './lib/utils/types';
 export * from './lib/utils/getIpAddress';
+export * from './lib/utils/getErrorFtlInfo';

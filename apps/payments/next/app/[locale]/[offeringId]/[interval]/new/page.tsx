@@ -10,11 +10,36 @@ import {
   getTaxAddressAction,
   setupCartAction,
 } from '@fxa/payments/ui/actions';
-import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
+import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
 import type { SubplatInterval } from '@fxa/payments/customer';
+import type { ResultCart } from '@fxa/payments/cart';
 import { getIpAddress } from '@fxa/payments/ui/server';
+
+function getRedirectToUrl(
+  cart: ResultCart,
+  params: BaseParams,
+  searchParams: Record<string, string>
+) {
+  const { id, state, eligibilityStatus } = cart;
+  const { offeringId, interval, locale } = params;
+
+  const page = state === CartState.FAIL ? 'error' : 'start';
+  const pageType =
+    eligibilityStatus === CartEligibilityStatus.UPGRADE
+      ? 'upgrade'
+      : 'checkout';
+
+  return new URL(
+    buildRedirectUrl(offeringId, interval, page, pageType, {
+      locale,
+      cartId: id,
+      baseUrl: config.paymentsNextHostedUrl,
+      searchParams,
+    })
+  );
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +50,7 @@ export default async function New({
   params: BaseParams;
   searchParams: Record<string, string>;
 }) {
-  const { offeringId, interval, locale } = params;
+  const { offeringId, interval } = params;
   const ipAddress = getIpAddress();
   const session = await auth();
 
@@ -47,7 +72,7 @@ export default async function New({
     status === LocationStatus.ProductNotAvailable ||
     status === LocationStatus.Unresolved
   ) {
-    const redirectToUrl = new URL(
+    const locationPageUrl = new URL(
       buildRedirectUrl(
         params.offeringId,
         params.interval,
@@ -60,13 +85,12 @@ export default async function New({
         }
       )
     );
-    redirect(redirectToUrl.href);
+    redirect(locationPageUrl.href);
   }
 
   let redirectToUrl: URL;
-  let pageType: 'checkout' | 'upgrade';
   try {
-    const { id: cartId, eligibilityStatus } = await setupCartAction(
+    const cart = await setupCartAction(
       interval as SubplatInterval,
       offeringId,
       taxAddress,
@@ -75,22 +99,10 @@ export default async function New({
       fxaUid
     );
 
-    pageType =
-      eligibilityStatus === CartEligibilityStatus.UPGRADE
-        ? 'upgrade'
-        : 'checkout';
-
-    redirectToUrl = new URL(
-      buildRedirectUrl(offeringId, interval, 'start', pageType, {
-        locale,
-        cartId,
-        baseUrl: config.paymentsNextHostedUrl,
-        searchParams,
-      })
-    );
+    redirectToUrl = getRedirectToUrl(cart, params, searchParams);
   } catch (error) {
     if (error.name === 'CartInvalidPromoCodeError') {
-      const { id: cartId, eligibilityStatus } = await setupCartAction(
+      const cart = await setupCartAction(
         interval as SubplatInterval,
         offeringId,
         taxAddress,
@@ -99,19 +111,7 @@ export default async function New({
         fxaUid
       );
 
-      pageType =
-        eligibilityStatus === CartEligibilityStatus.UPGRADE
-          ? 'upgrade'
-          : 'checkout';
-
-      redirectToUrl = new URL(
-        buildRedirectUrl(offeringId, interval, 'start', pageType, {
-          locale,
-          cartId,
-          baseUrl: config.paymentsNextHostedUrl,
-          searchParams,
-        })
-      );
+      redirectToUrl = getRedirectToUrl(cart, params, searchParams);
     } else if (
       error.name === 'RetrieveStripePriceInvalidOfferingError' ||
       error.name === 'RetrieveStripePriceNotFoundError'

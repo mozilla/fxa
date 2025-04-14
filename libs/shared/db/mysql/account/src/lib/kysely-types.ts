@@ -6,9 +6,10 @@
  */
 import type { ColumnType, JSONColumnType } from 'kysely';
 
-export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
-  ? ColumnType<S, I | undefined, U>
-  : ColumnType<T, T | undefined, T>;
+export type Generated<T> =
+  T extends ColumnType<infer S, infer I, infer U>
+    ? ColumnType<S, I | undefined, U>
+    : ColumnType<T, T | undefined, T>;
 
 export type Json = ColumnType<JsonValue, string, string>;
 
@@ -36,6 +37,7 @@ export enum CartErrorReasonId {
   SUCCESS_CART_MISSING_REQUIRED = 'success_cart_missing_required',
   CartEligibilityStatusDowngrade = 'cart_eligibility_status_downgrade',
   CartEligibilityStatusInvalid = 'cart_eligibility_status_invalid',
+  CartEligibilityStatusSame = 'cart_eligibility_status_same',
   Unknown = 'unknown',
 }
 
