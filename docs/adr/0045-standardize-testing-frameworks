@@ -1,0 +1,175 @@
+# Use Markdown Architectural Decision Records
+
+## Context and Problem Statement
+
+We want to record architectural decisions made in this project.
+Which format and structure should these records follow?
+
+## Considered Options
+
+An overview.
+
+We have _lots_ of tests spread around the mono-repo, and as such different ways to run them. There are many that are already using a unspoken standard, and plenty that use their own pattern. The purpose here is to understand how all of our tests are run, what would be the effort to make the developer experience better with unified test approach.
+
+- What does a unified test approach look like?
+- What advantage does a unified test approach provide?
+  - Developer experience
+  - CI/CD Improvements
+
+Here's where we stand today:
+
+---
+
+### 📋 Test Script Summary
+
+We have several different ways of invoking tests. In no way an exhaustive list, this includes:
+- Using `Nx` to target packages with `Jest`
+- Basic invocation with `package.json` scripts, and these target a variety of frameworks such as `Jest` and `Mocha`.
+- Using custom shell or js scripts to invoke both `Jest` and `Mocha`
+
+
+For a detailed list of "test" references from `package.json` files, check below. This misses `lib/` projects and only finds references to "test" in `package.json`'s
+<details>
+<summary>Click to expand test script summary</summary>
+
+This was generated with the [scraper script](../../find_test_refs.js) - last generated 4/11/2025.
+
+---
+<!-- When generating this table, replace this div to it's closing tag -->
+<div style="overflow-x:auto;">
+
+| Path | Script Reference |
+|------|------------------|
+| `external/l10n/package.json` | <span title="&quot;test&quot;: &quot;grunt l10n-lint&quot;">&quot;test&quot;: &quot;grunt l10n-lint&quot;</span> |
+| `package.json` | <span title="&quot;test&quot;: &quot;_scripts/test-package.sh&quot;">&quot;test&quot;: &quot;_scripts/test-package.sh&quot;</span> |
+| `packages/browserid-verifier/package.json` | <span title="&quot;test&quot;: &quot;mocha --exit -t 5000 -R spec tests/*.js&quot;">&quot;test&quot;: &quot;mocha --exit -t 5000 -R spec tests/*.js&quot;</span> |
+| `packages/eslint-plugin-fxa/package.json` | <span title="&quot;test&quot;: &quot;mocha&quot;">&quot;test&quot;: &quot;mocha&quot;</span> |
+| `packages/functional-tests/package.json` | <span title="&quot;test&quot;: &quot;NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=local&quot;">&quot;test&quot;: &quot;NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --projec...</span> |
+| `packages/functional-tests/package.json` | <span title="&quot;test-local&quot;: &quot;NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=local&quot;">&quot;test-local&quot;: &quot;NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --...</span> |
+| `packages/functional-tests/package.json` | <span title="&quot;test-stage&quot;: &quot;NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=stage&quot;">&quot;test-stage&quot;: &quot;NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --...</span> |
+| `packages/functional-tests/package.json` | <span title="&quot;test-production&quot;: &quot;NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=production&quot;">&quot;test-production&quot;: &quot;NODE_OPTIONS='--dns-result-order=ipv4first' playwright te...</span> |
+| `packages/fxa-admin-panel/build/packages/fxa-admin-panel/package.json` | <span title="&quot;test&quot;: &quot;yarn test-unit&quot;">&quot;test&quot;: &quot;yarn test-unit&quot;</span> |
+| `packages/fxa-admin-panel/build/packages/fxa-admin-panel/package.json` | <span title="&quot;test-frontend&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-panel-frontend-jest-unit-results.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'&quot;">&quot;test-frontend&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_n...</span> |
+| `packages/fxa-admin-panel/build/packages/fxa-admin-panel/package.json` | <span title="&quot;test-server&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-panel-server-jest-unit-results.xml jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'&quot;">&quot;test-server&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_nam...</span> |
+| `packages/fxa-admin-panel/build/packages/fxa-admin-panel/package.json` | <span title="&quot;test-unit&quot;: &quot;CI=true yarn test-frontend &amp;&amp; CI=true yarn test-server&quot;">&quot;test-unit&quot;: &quot;CI=true yarn test-frontend &amp;&amp; CI=true yarn test-server&quot;</span> |
+| `packages/fxa-admin-panel/package.json` | <span title="&quot;test&quot;: &quot;yarn test-unit&quot;">&quot;test&quot;: &quot;yarn test-unit&quot;</span> |
+| `packages/fxa-admin-panel/package.json` | <span title="&quot;test-frontend&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-panel-frontend-jest-unit-results.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --coverage --verbose --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'&quot;">&quot;test-frontend&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_n...</span> |
+| `packages/fxa-admin-panel/package.json` | <span title="&quot;test-server&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-panel-server-jest-unit-results.xml jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'&quot;">&quot;test-server&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_nam...</span> |
+| `packages/fxa-admin-panel/package.json` | <span title="&quot;test-unit&quot;: &quot;CI=true yarn test-frontend &amp;&amp; CI=true yarn test-server&quot;">&quot;test-unit&quot;: &quot;CI=true yarn test-frontend &amp;&amp; CI=true yarn test-server&quot;</span> |
+| `packages/fxa-admin-server/package.json` | <span title="&quot;test&quot;: &quot;yarn gen-keys &amp;&amp; yarn test-default &amp;&amp; yarn test-e2e &quot;">&quot;test&quot;: &quot;yarn gen-keys &amp;&amp; yarn test-default &amp;&amp; yarn test-e2e &quot;</span> |
+| `packages/fxa-admin-server/package.json` | <span title="&quot;test-unit&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-server-jest-unit-results.xml jest --runInBand --coverage --detectOpenHandles --forceExit --logHeapUsage -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit&quot;">&quot;test-unit&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/...</span> |
+| `packages/fxa-admin-server/package.json` | <span title="&quot;test-integration&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-admin-server-jest-integration-results.xml jest --runInBand --coverage --forceExit --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit&quot;">&quot;test-integration&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_packag...</span> |
+| `packages/fxa-admin-server/package.json` | <span title="&quot;test-default&quot;: &quot;jest --runInBand --detectOpenHandles --forceExit -t=&quot;scripts/audit-tokens&quot;&quot;">&quot;test-default&quot;: &quot;jest --runInBand --detectOpenHandles --forceExit -t=&quot;scripts...</span> |
+| `packages/fxa-admin-server/package.json` | <span title="&quot;test-watch&quot;: &quot;jest --watch&quot;">&quot;test-watch&quot;: &quot;jest --watch&quot;</span> |
+| `packages/fxa-admin-server/package.json` | <span title="&quot;test-cov&quot;: &quot;jest --coverage&quot;">&quot;test-cov&quot;: &quot;jest --coverage&quot;</span> |
+| `packages/fxa-admin-server/package.json` | <span title="&quot;test-debug&quot;: &quot;node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand&quot;">&quot;test-debug&quot;: &quot;node --inspect-brk -r tsconfig-paths/register -r esbuild-regis...</span> |
+| `packages/fxa-admin-server/package.json` | <span title="&quot;test-e2e&quot;: &quot;jest --runInBand --config ./jest-e2e.config.js --forceExit&quot;">&quot;test-e2e&quot;: &quot;jest --runInBand --config ./jest-e2e.config.js --forceExit&quot;</span> |
+| `packages/fxa-auth-client/package.json` | <span title="&quot;test&quot;: &quot;mocha -r esbuild-register test/*&quot;">&quot;test&quot;: &quot;mocha -r esbuild-register test/*&quot;</span> |
+| `packages/fxa-auth-client/package.json` | <span title="&quot;test-unit&quot;: &quot;MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-auth-client-mocha-unit-results.xml mocha -r esbuild-register test/*&quot;">&quot;test-unit&quot;: &quot;MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-auth-cli...</span> |
+| `packages/fxa-auth-client/package.json` | <span title="&quot;test-integration&quot;: &quot;echo No integration tests present for $npm_package_name&quot;">&quot;test-integration&quot;: &quot;echo No integration tests present for $npm_package_name&quot;</span> |
+| `packages/fxa-auth-server/package.json` | <span title="&quot;build-l10n&quot;: &quot;nx l10n-merge &amp;&amp; nx l10n-merge-test&quot;">&quot;build-l10n&quot;: &quot;nx l10n-merge &amp;&amp; nx l10n-merge-test&quot;</span> |
+| `packages/fxa-auth-server/package.json` | <span title="&quot;l10n-merge-test&quot;: &quot;yarn grunt merge-ftl:test&quot;">&quot;l10n-merge-test&quot;: &quot;yarn grunt merge-ftl:test&quot;</span> |
+| `packages/fxa-auth-server/package.json` | <span title="&quot;test&quot;: &quot;VERIFIER_VERSION=0 scripts/test-local.sh&quot;">&quot;test&quot;: &quot;VERIFIER_VERSION=0 scripts/test-local.sh&quot;</span> |
+| `packages/fxa-auth-server/package.json` | <span title="&quot;test-unit&quot;: &quot;VERIFIER_VERSION=0 TEST_TYPE=unit scripts/test-ci.sh&quot;">&quot;test-unit&quot;: &quot;VERIFIER_VERSION=0 TEST_TYPE=unit scripts/test-ci.sh&quot;</span> |
+| `packages/fxa-auth-server/package.json` | <span title="&quot;test-integration&quot;: &quot;VERIFIER_VERSION=0 TEST_TYPE=integration scripts/test-ci.sh&quot;">&quot;test-integration&quot;: &quot;VERIFIER_VERSION=0 TEST_TYPE=integration scripts/test-ci...</span> |
+| `packages/fxa-auth-server/package.json` | <span title="&quot;test-integration-v2&quot;: &quot;VERIFIER_VERSION=0 TEST_TYPE=integration-v2 scripts/test-ci.sh&quot;">&quot;test-integration-v2&quot;: &quot;VERIFIER_VERSION=0 TEST_TYPE=integration-v2 scripts/t...</span> |
+| `packages/fxa-auth-server/package.json` | <span title="&quot;merge-ftl-test&quot;: &quot;nx l10n-merge&quot;">&quot;merge-ftl-test&quot;: &quot;nx l10n-merge&quot;</span> |
+| `packages/fxa-content-server/package.json` | <span title="&quot;lint&quot;: &quot;yarn lint-glean &amp;&amp; eslint app server tests --cache&quot;">&quot;lint&quot;: &quot;yarn lint-glean &amp;&amp; eslint app server tests --cache&quot;</span> |
+| `packages/fxa-content-server/package.json` | <span title="&quot;test&quot;: &quot;node tests/intern.js --unit=true&quot;">&quot;test&quot;: &quot;node tests/intern.js --unit=true&quot;</span> |
+| `packages/fxa-content-server/package.json` | <span title="&quot;test-server&quot;: &quot;node tests/intern.js --suites=server&quot;">&quot;test-server&quot;: &quot;node tests/intern.js --suites=server&quot;</span> |
+| `packages/fxa-customs-server/package.json` | <span title="&quot;test&quot;: &quot;scripts/test-local.sh&quot;">&quot;test&quot;: &quot;scripts/test-local.sh&quot;</span> |
+| `packages/fxa-customs-server/package.json` | <span title="&quot;test-unit&quot;: &quot;yarn make-artifacts-dir &amp;&amp; tap test/local --jobs=1 | tap-xunit &gt; ../../artifacts/tests/$npm_package_name/fxa-customs-server-tap-unit-results.xml&quot;">&quot;test-unit&quot;: &quot;yarn make-artifacts-dir &amp;&amp; tap test/local --jobs=1 | tap-xunit ...</span> |
+| `packages/fxa-customs-server/package.json` | <span title="&quot;test-integration&quot;: &quot;yarn make-artifacts-dir &amp;&amp; tap test/remote --jobs=1 | tap-xunit &gt; ../../artifacts/tests/$npm_package_name/fxa-customs-server-tap-integration-results.xml&quot;">&quot;test-integration&quot;: &quot;yarn make-artifacts-dir &amp;&amp; tap test/remote --jobs=1 | ta...</span> |
+| `packages/fxa-customs-server/package.json` | <span title="&quot;make-artifacts-dir&quot;: &quot;mkdir -p ../../artifacts/tests/$npm_package_name&quot;">&quot;make-artifacts-dir&quot;: &quot;mkdir -p ../../artifacts/tests/$npm_package_name&quot;</span> |
+| `packages/fxa-event-broker/package.json` | <span title="&quot;format&quot;: &quot;prettier --write &quot;src/**/*.ts&quot; &quot;test/**/*.ts&quot;&quot;">&quot;format&quot;: &quot;prettier --write &quot;src/**/*.ts&quot; &quot;test/**/*.ts&quot;&quot;</span> |
+| `packages/fxa-event-broker/package.json` | <span title="&quot;lint&quot;: &quot;eslint {src,test}/**/*.ts&quot;">&quot;lint&quot;: &quot;eslint {src,test}/**/*.ts&quot;</span> |
+| `packages/fxa-event-broker/package.json` | <span title="&quot;test&quot;: &quot;jest --runInBand&quot;">&quot;test&quot;: &quot;jest --runInBand&quot;</span> |
+| `packages/fxa-event-broker/package.json` | <span title="&quot;test-unit&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-event-broker-jest-unit-results.xml jest --coverage --forceExit --detectOpenHandles --logHeapUsage -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit&quot;">&quot;test-unit&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/...</span> |
+| `packages/fxa-event-broker/package.json` | <span title="&quot;test-integration&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-event-broker-jest-integration-results.xml jest --coverage --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit &quot;">&quot;test-integration&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_packag...</span> |
+| `packages/fxa-event-broker/package.json` | <span title="&quot;test-watch&quot;: &quot;jest --watch&quot;">&quot;test-watch&quot;: &quot;jest --watch&quot;</span> |
+| `packages/fxa-event-broker/package.json` | <span title="&quot;test-cov&quot;: &quot;jest --coverage&quot;">&quot;test-cov&quot;: &quot;jest --coverage&quot;</span> |
+| `packages/fxa-event-broker/package.json` | <span title="&quot;test-debug&quot;: &quot;node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand&quot;">&quot;test-debug&quot;: &quot;node --inspect-brk -r tsconfig-paths/register -r esbuild-regis...</span> |
+| `packages/fxa-event-broker/package.json` | <span title="&quot;test-e2e&quot;: &quot;jest --config ./test/jest-e2e.json&quot;">&quot;test-e2e&quot;: &quot;jest --config ./test/jest-e2e.json&quot;</span> |
+| `packages/fxa-geodb/package.json` | <span title="&quot;test&quot;: &quot;mocha&quot;">&quot;test&quot;: &quot;mocha&quot;</span> |
+| `packages/fxa-geodb/package.json` | <span title="&quot;test-unit&quot;: &quot;MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-geodb-mocha-unit-results.xml mocha --grep '^(?!.*#integration)' &quot;">&quot;test-unit&quot;: &quot;MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-geodb-mo...</span> |
+| `packages/fxa-geodb/package.json` | <span title="&quot;test-integration&quot;: &quot;MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-geodb-mocha-integration-results.xml mocha --grep '#integration'&quot;">&quot;test-integration&quot;: &quot;MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-g...</span> |
+| `packages/fxa-graphql-api/package.json` | <span title="&quot;test-unit&quot;: &quot;npm run build &amp;&amp; JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-graphql-api-jest-unit-results.xml jest --coverage --runInBand --logHeapUsage --forceExit -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit&quot;">&quot;test-unit&quot;: &quot;npm run build &amp;&amp; JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$...</span> |
+| `packages/fxa-graphql-api/package.json` | <span title="&quot;test-integration&quot;: &quot;npm run build &amp;&amp; JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-graphql-api-jest-integration-results.xml jest --coverage --runInBand --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit &amp;&amp; yarn test-e2e&quot;">&quot;test-integration&quot;: &quot;npm run build &amp;&amp; JEST_JUNIT_OUTPUT_FILE=../../artifacts/...</span> |
+| `packages/fxa-graphql-api/package.json` | <span title="&quot;test&quot;: &quot;npm run build &amp;&amp; jest --runInBand --logHeapUsage &amp;&amp; yarn test-e2e&quot;">&quot;test&quot;: &quot;npm run build &amp;&amp; jest --runInBand --logHeapUsage &amp;&amp; yarn test-e2e&quot;</span> |
+| `packages/fxa-graphql-api/package.json` | <span title="&quot;test-watch&quot;: &quot;jest --watch&quot;">&quot;test-watch&quot;: &quot;jest --watch&quot;</span> |
+| `packages/fxa-graphql-api/package.json` | <span title="&quot;test-cov&quot;: &quot;jest --coverage&quot;">&quot;test-cov&quot;: &quot;jest --coverage&quot;</span> |
+| `packages/fxa-graphql-api/package.json` | <span title="&quot;test-debug&quot;: &quot;node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand --logHeapUsage&quot;">&quot;test-debug&quot;: &quot;node --inspect-brk -r tsconfig-paths/register -r esbuild-regis...</span> |
+| `packages/fxa-graphql-api/package.json` | <span title="&quot;test-e2e&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-e2e.xml jest --runInBand --forceExit --logHeapUsage --config ./test/jest-e2e.config.js --ci --reporters=default --reporters=jest-junit --detectOpenHandles&quot;">&quot;test-e2e&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/j...</span> |
+| `packages/fxa-payments-server/package.json` | <span title="&quot;build-l10n&quot;: &quot;nx l10n-merge &amp;&amp; nx l10n-bundle &amp;&amp; nx l10n-merge-test&quot;">&quot;build-l10n&quot;: &quot;nx l10n-merge &amp;&amp; nx l10n-bundle &amp;&amp; nx l10n-merge-test&quot;</span> |
+| `packages/fxa-payments-server/package.json` | <span title="&quot;l10n-merge-test&quot;: &quot;yarn grunt merge-ftl:test&quot;">&quot;l10n-merge-test&quot;: &quot;yarn grunt merge-ftl:test&quot;</span> |
+| `packages/fxa-payments-server/package.json` | <span title="&quot;test&quot;: &quot;yarn test-frontend &amp;&amp; yarn test-server&quot;">&quot;test&quot;: &quot;yarn test-frontend &amp;&amp; yarn test-server&quot;</span> |
+| `packages/fxa-payments-server/package.json` | <span title="&quot;test-frontend&quot;: &quot;SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false&quot;">&quot;test-frontend&quot;: &quot;SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK...</span> |
+| `packages/fxa-payments-server/package.json` | <span title="&quot;test-frontend-watch&quot;: &quot;SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test&quot;">&quot;test-frontend-watch&quot;: &quot;SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME...</span> |
+| `packages/fxa-payments-server/package.json` | <span title="&quot;test-server&quot;: &quot;jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit&quot;">&quot;test-server&quot;: &quot;jest --coverage --runInBand --logHeapUsage --verbose --config...</span> |
+| `packages/fxa-payments-server/package.json` | <span title="&quot;test-unit&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-payments-server-jest-unit-results.xml jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit&quot;">&quot;test-unit&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/...</span> |
+| `packages/fxa-payments-server/package.json` | <span title="&quot;test-integration&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-payments-server-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false --ci --reporters=default --reporters=jest-junit&quot;">&quot;test-integration&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_packag...</span> |
+| `packages/fxa-profile-server/package.json` | <span title="&quot;test&quot;: &quot;scripts/test-local.sh&quot;">&quot;test&quot;: &quot;scripts/test-local.sh&quot;</span> |
+| `packages/fxa-profile-server/package.json` | <span title="&quot;test-unit&quot;: &quot;MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-unit-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' --invert&quot;">&quot;test-unit&quot;: &quot;MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-...</span> |
+| `packages/fxa-profile-server/package.json` | <span title="&quot;test-integration&quot;: &quot;mkdir -p var/public &amp;&amp; MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-profile-server-mocha-integration-results.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration'&quot;">&quot;test-integration&quot;: &quot;mkdir -p var/public &amp;&amp; MOCHA_FILE=../../artifacts/tests/...</span> |
+| `packages/fxa-react/package.json` | <span title="&quot;build-l10n&quot;: &quot;nx l10n-merge &amp;&amp; nx l10n-merge-test&quot;">&quot;build-l10n&quot;: &quot;nx l10n-merge &amp;&amp; nx l10n-merge-test&quot;</span> |
+| `packages/fxa-react/package.json` | <span title="&quot;l10n-merge-test&quot;: &quot;yarn grunt merge-ftl:test&quot;">&quot;l10n-merge-test&quot;: &quot;yarn grunt merge-ftl:test&quot;</span> |
+| `packages/fxa-react/package.json` | <span title="&quot;test&quot;: &quot;yarn test-unit &amp;&amp; yarn test-integration&quot;">&quot;test&quot;: &quot;yarn test-unit &amp;&amp; yarn test-integration&quot;</span> |
+| `packages/fxa-react/package.json` | <span title="&quot;test-unit&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-react-jest-unit-results.xml jest --coverage --runInBand --logHeapUsage --env=jest-environment-jsdom -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit&quot;">&quot;test-unit&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/...</span> |
+| `packages/fxa-settings/package.json` | <span title="&quot;build-l10n&quot;: &quot;nx l10n-merge &amp;&amp; nx l10n-bundle &amp;&amp; nx l10n-merge-test&quot;">&quot;build-l10n&quot;: &quot;nx l10n-merge &amp;&amp; nx l10n-bundle &amp;&amp; nx l10n-merge-test&quot;</span> |
+| `packages/fxa-settings/package.json` | <span title="&quot;l10n-merge-test&quot;: &quot;yarn grunt merge-ftl:test&quot;">&quot;l10n-merge-test&quot;: &quot;yarn grunt merge-ftl:test&quot;</span> |
+| `packages/fxa-settings/package.json` | <span title="&quot;test&quot;: &quot;SKIP_PREFLIGHT_CHECK=true node scripts/test.js&quot;">&quot;test&quot;: &quot;SKIP_PREFLIGHT_CHECK=true node scripts/test.js&quot;</span> |
+| `packages/fxa-settings/package.json` | <span title="&quot;test-watch&quot;: &quot;SKIP_PREFLIGHT_CHECK=true node scripts/test.js&quot;">&quot;test-watch&quot;: &quot;SKIP_PREFLIGHT_CHECK=true node scripts/test.js&quot;</span> |
+| `packages/fxa-settings/package.json` | <span title="&quot;test-coverage&quot;: &quot;yarn test --coverage --watchAll=false&quot;">&quot;test-coverage&quot;: &quot;yarn test --coverage --watchAll=false&quot;</span> |
+| `packages/fxa-settings/package.json` | <span title="&quot;test-unit&quot;: &quot;echo No unit tests present for $npm_package_name&quot;">&quot;test-unit&quot;: &quot;echo No unit tests present for $npm_package_name&quot;</span> |
+| `packages/fxa-settings/package.json` | <span title="&quot;test-integration&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-settings-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true node scripts/test.js --watchAll=false --ci --runInBand --reporters=default --reporters=jest-junit&quot;">&quot;test-integration&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_packag...</span> |
+| `packages/fxa-shared/package.json` | <span title="&quot;copy-sql&quot;: &quot;echo '{ &quot;type&quot;: &quot;module&quot; }' &gt; ./dist/esm/packages/fxa-shared/db/package.json &amp;&amp; find test -name \*.sql -exec cp \{\} dist/esm/packages/fxa-shared/\{\} \; ; find test -name \*.sql -exec cp \{\} dist/cjs/packages/fxa-shared/\{\} \;&quot;">&quot;copy-sql&quot;: &quot;echo '{ &quot;type&quot;: &quot;module&quot; }' &gt; ./dist/esm/packages/fxa-shared/db/...</span> |
+| `packages/fxa-shared/package.json` | <span title="&quot;test&quot;: &quot;yarn test-mocha &amp;&amp; yarn test-jest&quot;">&quot;test&quot;: &quot;yarn test-mocha &amp;&amp; yarn test-jest&quot;</span> |
+| `packages/fxa-shared/package.json` | <span title="&quot;test-unit&quot;: &quot;yarn test-mocha-unit &amp;&amp; yarn test-jest-unit&quot;">&quot;test-unit&quot;: &quot;yarn test-mocha-unit &amp;&amp; yarn test-jest-unit&quot;</span> |
+| `packages/fxa-shared/package.json` | <span title="&quot;test-integration&quot;: &quot;yarn test-mocha-integration &amp;&amp; yarn test-jest-integration&quot;">&quot;test-integration&quot;: &quot;yarn test-mocha-integration &amp;&amp; yarn test-jest-integration&quot;</span> |
+| `packages/fxa-shared/package.json` | <span title="&quot;test-mocha&quot;: &quot;tsc --build &amp;&amp; node ./scripts/mocha-coverage.js -r esbuild-register --recursive test/**/*.{js,ts}&quot;">&quot;test-mocha&quot;: &quot;tsc --build &amp;&amp; node ./scripts/mocha-coverage.js -r esbuild-reg...</span> |
+| `packages/fxa-shared/package.json` | <span title="&quot;test-mocha-unit&quot;: &quot;NODE_OPTIONS=--no-experimental-fetch MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-shared-mocha-unit-results.xml mocha -r esbuild-register -r tsconfig-paths/register --recursive test/**/*.{js,ts} -g '#integration' --invert&quot;">&quot;test-mocha-unit&quot;: &quot;NODE_OPTIONS=--no-experimental-fetch MOCHA_FILE=../../art...</span> |
+| `packages/fxa-shared/package.json` | <span title="&quot;test-mocha-integration&quot;: &quot;MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-shared-mocha-integration-results.xml mocha -r esbuild-register -r tsconfig-paths/register --recursive test/**/*.{js,ts} -g '#integration'&quot;">&quot;test-mocha-integration&quot;: &quot;MOCHA_FILE=../../artifacts/tests/$npm_package_name...</span> |
+| `packages/fxa-shared/package.json` | <span title="&quot;test-jest&quot;: &quot;jest --runInBand --logHeapUsage --coverage&quot;">&quot;test-jest&quot;: &quot;jest --runInBand --logHeapUsage --coverage&quot;</span> |
+| `packages/fxa-shared/package.json` | <span title="&quot;test-jest-unit&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-shared-jest-unit-results.xml jest --coverage --runInBand --logHeapUsage --forceExit --coverage -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit&quot;">&quot;test-jest-unit&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_...</span> |
+| `packages/fxa-shared/package.json` | <span title="&quot;test-jest-integration&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-shared-jest-integration-results.xml jest --coverage --runInBand --logHeapUsage --coverage -t '#integration' --ci --reporters=default --reporters=jest-junit&quot;">&quot;test-jest-integration&quot;: &quot;JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_p...</span> |
+
+</div>
+
+
+</details>
+
+The current challenges are the lingering scripts that are still running in obscure ways, such as with their own shell scripts.
+
+There are a few options to ease this, and make the developer experience in testing more manageable:
+
+- Fully convert all tests to Jest, matching the existing `nx` targeted pattern
+    - pros:
+    - cons:
+    - time:
+- Migrate `mocha` and other "one-off" (tests using their own runner/script pattern) to Jest, matching the xisting `nx` targeted pattern
+    - pros:
+    - cons:
+    - time:
+- Focused migrations, targeting just a handful of the most difficult/different test exectuions and runners; again, moving to Jest with the `nx` targeting pattern
+    - pros:
+    - cons:
+    - time:
+
+
+<!-- * [MADR](https://adr.github.io/madr/) 2.1.2 – The Markdown Architectural Decision Records
+* [Michael Nygard's template](http://thinkrelevance.com/blog/2011/11/15/documenting-architecture-decisions) – The first incarnation of the term "ADR"
+* [Sustainable Architectural Decisions](https://www.infoq.com/articles/sustainable-architectural-design-decisions) – The Y-Statements
+* Other templates listed at <https://github.com/joelparkerhenderson/architecture_decision_record>
+* Formless – No conventions for file format and structure -->
+
+## Decision Outcome
+
+Chosen option: "MADR 2.1.2", because
+
+* Implicit assumptions should be made explicit.
+  Design documentation is important to enable people understanding the decisions later on.
+  See also [A rational design process: How and why to fake it](https://doi.org/10.1109/TSE.1986.6312940).
+* The MADR format is lean and fits our development style.
+* The MADR structure is comprehensible and facilitates usage & maintenance.
+* The MADR project is vivid.
+* Version 2.1.2 is the latest one available when starting to document ADRs.
