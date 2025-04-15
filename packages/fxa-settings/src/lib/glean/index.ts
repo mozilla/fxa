@@ -301,6 +301,9 @@ const recordEventMetric = (
     case 'login_backup_code_success_view':
       login.backupCodeSuccessView.record();
       break;
+    case 'login_backup_choice_view':
+      login.backupChoiceView.record();
+      break;
     case 'login_backup_choice_submit':
       login.backupChoiceSubmit.record();
       break;

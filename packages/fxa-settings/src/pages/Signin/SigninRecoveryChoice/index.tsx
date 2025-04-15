@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../components/AppLayout';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
@@ -59,6 +59,10 @@ const SigninRecoveryChoice = ({
     'signin-recovery-method-send-code-error-description',
     'Please try again later or use your backup authentication codes.'
   );
+
+  useEffect(() => {
+    GleanMetrics.login.backupChoiceView();
+  }, []);
 
   const handlePhoneChoiceError = (error: AuthUiError) => {
     if (

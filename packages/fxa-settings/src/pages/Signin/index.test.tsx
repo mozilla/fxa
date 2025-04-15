@@ -72,7 +72,7 @@ jest.mock('../../lib/glean', () => ({
       success: jest.fn(),
     },
     thirdPartyAuth: {
-      viewWithNoPasswordSet: jest.fn(),
+      loginNoPwView: jest.fn(),
     },
   },
 }));

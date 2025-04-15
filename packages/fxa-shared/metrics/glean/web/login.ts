@@ -26,6 +26,23 @@ export const backupChoiceSubmit = new EventMetricType<{
 );
 
 /**
+ * User viewed the choice screen to choose a 2FA recovery method (recovery phone
+ * or backup authentication codes).
+ *
+ * Generated from `login.backup_choice_view`.
+ */
+export const backupChoiceView = new EventMetricType(
+  {
+    category: 'login',
+    name: 'backup_choice_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Event that indicates a user attempted to authenticate by clicking
  * "Confirm" on the 2FA backup codes page.
  *

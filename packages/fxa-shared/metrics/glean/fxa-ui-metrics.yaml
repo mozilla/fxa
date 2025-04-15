@@ -959,6 +959,23 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+  backup_choice_view:
+    type: event
+    description: |
+      User viewed the choice screen to choose a 2FA recovery method (recovery phone or backup authentication codes).
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11446
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
   backup_choice_submit:
     type: event
     description: |
