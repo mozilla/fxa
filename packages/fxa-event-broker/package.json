@@ -84,25 +84,6 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.5.3"
   },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".spec.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": [
-        "ts-jest",
-        {
-          "isolatedModules": true
-        }
-      ]
-    },
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
-  },
   "nx": {
     "tags": [
       "scope:broker",
