@@ -322,6 +322,7 @@ module.exports = (
         ...TOTP_DOCS.TOTP_VERIFY_POST,
         auth: {
           strategy: 'passwordForgotToken',
+          payload: 'required',
         },
         validate: {
           payload: isA.object({
@@ -373,6 +374,11 @@ module.exports = (
             glean.resetPassword.twoFactorSuccess(request, {
               uid: passwordForgotToken.uid,
             });
+
+            await db.verifyPasswordForgotTokenWithMethod(
+              passwordForgotToken.id,
+              'totp-2fa'
+            );
           }
 
           return {
@@ -417,6 +423,7 @@ module.exports = (
 
         const code = request.payload.code;
         const { uid, email } = request.auth.credentials;
+        const passwordForgotToken = request.auth.credentials;
 
         await customs.check(request, email, 'verifyRecoveryCode');
 
@@ -458,6 +465,11 @@ module.exports = (
         glean.resetPassword.twoFactorRecoveryCodeSuccess(request, {
           uid,
         });
+
+        await db.verifyPasswordForgotTokenWithMethod(
+          passwordForgotToken.id,
+          'recovery-code'
+        );
 
         return {
           remaining,

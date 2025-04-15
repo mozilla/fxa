@@ -6,9 +6,10 @@
  */
 import type { ColumnType, JSONColumnType } from 'kysely';
 
-export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
-  ? ColumnType<S, I | undefined, U>
-  : ColumnType<T, T | undefined, T>;
+export type Generated<T> =
+  T extends ColumnType<infer S, infer I, infer U>
+    ? ColumnType<S, I | undefined, U>
+    : ColumnType<T, T | undefined, T>;
 
 export type Json = ColumnType<JsonValue, string, string>;
 
@@ -59,6 +60,7 @@ export interface AccountResetTokens {
   tokenData: Buffer;
   uid: Buffer;
   createdAt: number;
+  verificationMethod: number;
 }
 
 export interface Accounts {
@@ -193,6 +195,7 @@ export interface PasswordForgotTokens {
   passCode: Buffer;
   createdAt: number;
   tries: number;
+  verificationMethod: number;
 }
 
 export interface PaypalCustomers {

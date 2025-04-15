@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseAuthModel, Proc } from './base-auth';
 import { uuidTransformer } from '../../transformers';
+import {
+  VerificationMethod,
+  verificationMethodToNumber,
+} from './session-token';
 
 export class AccountResetToken extends BaseAuthModel {
   public static tableName = 'accountResetTokens';
@@ -14,6 +18,7 @@ export class AccountResetToken extends BaseAuthModel {
   tokenData!: string;
   uid!: string;
   createdAt!: number;
+  verificationMethod!: number;
 
   // joined fields (from accountResetToken_# stored proc)
   verifierSetAt!: number;
