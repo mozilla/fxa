@@ -27,14 +27,26 @@ import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
 import createClient from 'openapi-fetch';
 
-import { parseBooleanArg } from '../lib/args';
-import { emitStatsdMetrics } from '../lib/metrics';
 import appConfig from '../../config';
-
+import logFn from '../../lib/log';
+import { createDB } from '../../lib/db';
+import TokenFn from '../../lib/tokens';
+import { emitStatsdMetrics } from '../lib/metrics';
+import { parseBooleanArg } from '../lib/args';
 import { paths } from './identity-schema';
+import {
+  createCredentialsSearchFn,
+  createFindAccountFn,
+  createHasTotp2faFn,
+  defaultPerPageLimit,
+  fetchAllCredentialResults,
+  isLoginAnEmailAddress,
+  SearchResultIdentity,
+} from './lib';
 
 const config = appConfig.getProperties();
 const searchDomain = 'accounts.firefox.com';
+const resultsPerPageLimit = defaultPerPageLimit;
 const statsd = new StatsD({ ...config.statsd });
 const client = createClient<paths>({
   baseUrl: 'https://api.recordedfuture.com',
@@ -77,35 +89,81 @@ Dry run mode is on.  It is the default; use '--dry-run false' when you are ready
 
 Domain: ${searchDomain}
 Filter: first_downloaded_date_gte=${firstDownloadedDateIsoString}
-Limit: 500
+Limit: ${resultsPerPageLimit}
 `);
     return 0;
   }
 
-  const res = await emitStatsdMetrics(
-    async () =>
-      await client.POST('/identity/credentials/search', {
-        body: {
-          domains: [searchDomain],
-          filter: {
-            first_downloaded_gte: firstDownloadedDateIsoString,
-          },
-          limit: 500,
-        },
-      }),
+  const payload = {
+    domains: [searchDomain],
+    filter: {
+      first_downloaded_gte: firstDownloadedDateIsoString,
+    },
+    limit: resultsPerPageLimit,
+  };
+  const _credentialsSearchFn = createCredentialsSearchFn(client);
+  const credentialsSearch = emitStatsdMetrics(
+    _credentialsSearchFn,
     'recorded-future.identity.credentials-search',
     statsd
-  )();
+  );
+  const credentials = await fetchAllCredentialResults(
+    credentialsSearch,
+    payload
+  );
+  statsd.increment(
+    'recorded-future.identity.credentials-search.results.total',
+    credentials.length
+  );
 
-  if (res.error) {
-    // the Recorded Future Identity OpenAPI definition does not include any
-    // response information aside from the http 200 response
-    throw new Error(`Recorded Future error response: ${(res as any).error}`);
+  const emailLoginIdentities = credentials.filter(isLoginAnEmailAddress);
+  statsd.increment(
+    'recorded-future.identity.credentials-search.results.email-logins',
+    emailLoginIdentities.length
+  );
+
+  if (emailLoginIdentities.length === 0) {
+    return 0;
   }
 
-  if (res.data) {
-    console.log(`Found ${res.data.count} results.`);
+  const log = logFn({ name: 'recorded-future' });
+  const Token = TokenFn(log, config);
+  const DB = createDB(config, log, Token);
+  const authDb = await DB.connect(config, undefined);
+
+  const getAccountRecord = authDb.accountRecord.bind(authDb);
+  const findAccount = createFindAccountFn(getAccountRecord);
+  const getTotpToken = authDb.totpToken.bind(authDb);
+  const hasTotp2FA = createHasTotp2faFn(getTotpToken);
+
+  const accountEmails: SearchResultIdentity['login'][] = [];
+  for (const identity of emailLoginIdentities) {
+    const acct = await findAccount(identity.login);
+
+    if (acct) {
+      const has2FA = await hasTotp2FA(acct);
+
+      if (!has2FA) {
+        accountEmails.push(identity.login);
+        statsd.increment(
+          'recorded-future.identity.credentials-search.results.account-emails'
+        );
+      } else {
+        statsd.increment(
+          'recorded-future.identity.credentials-search.results.2fa-accounts'
+        );
+      }
+    }
   }
+
+  if (accountEmails.length === 0) {
+    console.log('No account emails found.');
+    return 0;
+  }
+
+  console.log(
+    `Found ${credentials.length} results, of which ${accountEmails.length} are accounts without 2FA.`
+  );
 
   await promisify(statsd.close).bind(statsd)();
   return 0;
