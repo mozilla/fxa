@@ -86,7 +86,7 @@ import {
   CartTotalMismatchError,
   CartAccountNotFoundError,
   CartInvalidPromoCodeError,
-  CartInvalidCurrencyError,
+  CartCurrencyNotFoundError,
   CartUidNotFoundError,
   CartNoTaxAddressError,
 } from './cart.error';
@@ -383,7 +383,7 @@ describe('CheckoutService', () => {
 
         await expect(
           checkoutService.prePaySteps(mockCart, mockCustomerData)
-        ).rejects.toBeInstanceOf(CartInvalidCurrencyError);
+        ).rejects.toBeInstanceOf(CartCurrencyNotFoundError);
       });
 
       it('throws cart eligibility mismatch error', async () => {

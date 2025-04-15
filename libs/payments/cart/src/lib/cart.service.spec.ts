@@ -88,7 +88,7 @@ import { CartService } from './cart.service';
 import { CheckoutService } from './checkout.service';
 import {
   CartError,
-  CartInvalidCurrencyError,
+  CartCurrencyNotFoundError,
   CartInvalidPromoCodeError,
   CartInvalidStateForActionError,
   CartStateProcessingError,
@@ -561,7 +561,7 @@ describe('CartService', () => {
         .mockResolvedValue([mockAccount]);
 
       await expect(() => cartService.setupCart(args)).rejects.toThrowError(
-        CartInvalidCurrencyError
+        CartCurrencyNotFoundError
       );
 
       expect(cartManager.createCart).not.toHaveBeenCalled();
@@ -1054,7 +1054,7 @@ describe('CartService', () => {
             mockCart.version,
             mockUpdateCartInput
           )
-        ).rejects.toBeInstanceOf(CartInvalidCurrencyError);
+        ).rejects.toBeInstanceOf(CartCurrencyNotFoundError);
       });
     });
 

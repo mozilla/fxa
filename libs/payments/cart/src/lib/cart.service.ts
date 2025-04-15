@@ -51,10 +51,9 @@ import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 import {
   CartError,
-  CartInvalidCurrencyError,
+  CartCurrencyNotFoundError,
   CartInvalidPromoCodeError,
   CartInvalidStateForActionError,
-  CartNotUpdatedError,
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
 } from './cart.error';
@@ -75,6 +74,7 @@ import { NeedsInputType } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutFailedError } from './checkout.error';
 import { CheckoutService } from './checkout.service';
+import { resolveErrorInstance } from './util/resolveErrorInstance';
 
 type Constructor<T> = new (...args: any[]) => T;
 interface WrapWithCartCatchOptions {
@@ -140,19 +140,7 @@ export class CartService {
         throw error;
       }
 
-      let errorReasonId = CartErrorReasonId.Unknown;
-      if (error instanceof CartNotUpdatedError) {
-        errorReasonId = CartErrorReasonId.BASIC_ERROR;
-      }
-
-      // All unexpected/untyped errors should go to Sentry
-      if (errorReasonId === CartErrorReasonId.Unknown) {
-        Sentry.captureException(error, {
-          extra: {
-            cartId,
-          },
-        });
-      }
+      const errorReasonId = resolveErrorInstance(error);
 
       try {
         await this.cartManager.finishErrorCart(cartId, {
@@ -278,7 +266,7 @@ export class CartService {
       args.taxAddress.countryCode
     );
     if (!currency) {
-      throw new CartInvalidCurrencyError(
+      throw new CartCurrencyNotFoundError(
         currency,
         args.taxAddress.countryCode,
         undefined
@@ -331,14 +319,14 @@ export class CartService {
     if (cartEligibilityStatus === CartEligibilityStatus.INVALID) {
       await this.finalizeCartWithError(
         cart.id,
-        CartErrorReasonId.CartEligibilityStatusInvalid
+        CartErrorReasonId.CART_ELIGIBILITY_STATUS_INVALID
       );
     }
 
     if (cartEligibilityStatus === CartEligibilityStatus.DOWNGRADE) {
       await this.finalizeCartWithError(
         cart.id,
-        CartErrorReasonId.CartEligibilityStatusDowngrade
+        CartErrorReasonId.CART_ELIGIBILITY_STATUS_DOWNGRADE
       );
     }
 
@@ -513,7 +501,7 @@ export class CartService {
   @SanitizeExceptions()
   async finalizeCartWithError(
     cartId: string,
-    errorReasonId: CartErrorReasonId
+    errorReasonId: CartErrorReasonId | string
   ): Promise<void> {
     try {
       await this.cartManager.finishErrorCart(cartId, {
@@ -556,7 +544,7 @@ export class CartService {
             cartDetailsInput.taxAddress?.countryCode
           );
           if (!cartDetails.currency) {
-            throw new CartInvalidCurrencyError(
+            throw new CartCurrencyNotFoundError(
               cartDetails.currency,
               cartDetailsInput.taxAddress.countryCode
             );
@@ -797,9 +785,8 @@ export class CartService {
       throw new CartSubscriptionNotFoundError(cartId);
     }
 
-    const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
-      subscription
-    );
+    const paymentIntent =
+      await this.subscriptionManager.getLatestPaymentIntent(subscription);
     if (!paymentIntent) {
       throw new CartError('no payment intent found for cart subscription', {
         cartId,
@@ -873,7 +860,7 @@ export class CartService {
         });
       } else {
         const promises: Promise<any>[] = [
-          this.finalizeCartWithError(cartId, CartErrorReasonId.Unknown),
+          this.finalizeCartWithError(cartId, CartErrorReasonId.UNKNOWN),
         ];
         if (cart.stripeSubscriptionId) {
           promises.push(
