@@ -17,7 +17,7 @@ export function getComponentTitle(cart: CartDTO) {
   const { state, eligibilityStatus, errorReasonId } = cart;
   switch (state) {
     case CartState.FAIL:
-      if (errorReasonId === CartErrorReasonId.CartEligibilityStatusSame) {
+      if (errorReasonId === CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME) {
         return {
           title: 'You’ve already subscribed',
           titleFtl: 'subscription-title-sub-exists',

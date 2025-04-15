@@ -11,6 +11,8 @@ checkout-error-contact-support-button = Contact Support
 checkout-error-not-eligible = You are not eligible to subscribe to this product - please contact support so we can help you.
 checkout-error-already-subscribed = You’re already subscribed to this product.
 checkout-error-contact-support = Please contact support so we can help you.
+cart-error-currency-not-determined = We were unable to determine the currency for this purchase, please try again.
+checkout-processing-general-error = An unexpected error has occurred while processing your payment, please try again.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages

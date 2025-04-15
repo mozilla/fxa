@@ -25,7 +25,7 @@ export type FinishCart = {
 
 export type FinishErrorCart = {
   uid?: string;
-  errorReasonId: CartErrorReasonId;
+  errorReasonId: CartErrorReasonId | string;
   amount?: number;
   stripeCustomerId?: string;
 };

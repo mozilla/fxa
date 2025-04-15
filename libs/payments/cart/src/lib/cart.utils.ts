@@ -35,7 +35,7 @@ export const cartEligibilityDetailsMap: Record<
   [EligibilityStatus.DOWNGRADE]: {
     eligibilityStatus: CartEligibilityStatus.DOWNGRADE,
     state: CartState.FAIL,
-    errorReasonId: CartErrorReasonId.CartEligibilityStatusDowngrade,
+    errorReasonId: CartErrorReasonId.CART_ELIGIBILITY_STATUS_DOWNGRADE,
   },
   [EligibilityStatus.BLOCKED_IAP]: {
     eligibilityStatus: CartEligibilityStatus.BLOCKED_IAP,
@@ -45,12 +45,12 @@ export const cartEligibilityDetailsMap: Record<
   [EligibilityStatus.SAME]: {
     eligibilityStatus: CartEligibilityStatus.INVALID,
     state: CartState.FAIL,
-    errorReasonId: CartErrorReasonId.CartEligibilityStatusSame,
+    errorReasonId: CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME,
   },
   [EligibilityStatus.INVALID]: {
     eligibilityStatus: CartEligibilityStatus.INVALID,
     state: CartState.FAIL,
-    errorReasonId: CartErrorReasonId.CartEligibilityStatusInvalid,
+    errorReasonId: CartErrorReasonId.CART_ELIGIBILITY_STATUS_INVALID,
   },
 };
 
@@ -60,6 +60,6 @@ export function stripeErrorToErrorReasonId(
   switch (stripeError.type) {
     case 'card_error':
     default:
-      return CartErrorReasonId.Unknown;
+      return CartErrorReasonId.UNKNOWN;
   }
 }
