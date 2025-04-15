@@ -10,6 +10,7 @@ import {
   CartService,
   CheckoutFailedError,
   SuccessCartDTO,
+  TaxService,
 } from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
@@ -64,9 +65,11 @@ import { ValidatePostalCodeActionResult } from './validators/ValidatePostalCodeA
 import { DetermineCurrencyActionResult } from './validators/DetermineCurrencyActionResult';
 import { SetupCartActionResult } from './validators/SetupCartActionResult';
 import { RestartCartActionResult } from './validators/RestartCartActionResult';
-import { GetTaxAddressArgs } from './validators/getTaxAddressArgs';
-import { GetTaxAddressResult } from './validators/getTaxAddressResult';
+import { GetTaxAddressArgs } from './validators/GetTaxAddressArgs';
+import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
 import { CartInvalidPromoCodeError } from 'libs/payments/cart/src/lib/cart.error';
+import { GetIsTaxLockedArgs } from './validators/GetIsTaxLockedArgs';
+import { GetIsTaxLockedResult } from './validators/GetIsTaxLockedResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -77,6 +80,7 @@ import { CartInvalidPromoCodeError } from 'libs/payments/cart/src/lib/cart.error
 export class NextJSActionsService {
   constructor(
     private cartService: CartService,
+    private taxService: TaxService,
     private checkoutTokenManager: CheckoutTokenManager,
     private contentServerManager: ContentServerManager,
     private emitterService: PaymentsEmitterService,
@@ -201,9 +205,22 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(GetTaxAddressArgs, GetTaxAddressResult)
   @WithTypeCachableAsyncLocalStorage()
-  async getTaxAddress(args: { ipAddress: string }) {
-    const taxAddress = this.geodbManager.getTaxAddress(args.ipAddress);
-    return { taxAddress };
+  async getTaxAddress(args: { ipAddress: string; uid?: string }) {
+    const result = await this.taxService.getTaxAddress(
+      args.ipAddress,
+      args.uid
+    );
+
+    return result;
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(GetIsTaxLockedArgs, GetIsTaxLockedResult)
+  @WithTypeCachableAsyncLocalStorage()
+  async getIsTaxLocked(args: { uid: string }) {
+    const result = await this.taxService.getIsTaxLocked(args.uid);
+
+    return result;
   }
 
   @SanitizeExceptions()

@@ -23,7 +23,6 @@ import {
   STRIPE_SUBSCRIPTION_METADATA,
   SubplatInterval,
   SubscriptionManager,
-  TaxAddress,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
@@ -44,6 +43,7 @@ import {
   CartInvalidCurrencyError,
   CartUidNotFoundError,
   CartError,
+  CartNoTaxAddressError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
@@ -91,7 +91,11 @@ export class CheckoutService {
     cart: ResultCart,
     customerData: CheckoutCustomerData
   ): Promise<PrePayStepsResult> {
-    const taxAddress = cart.taxAddress as any as TaxAddress;
+    const taxAddress = cart.taxAddress;
+    if (!taxAddress) {
+      throw new CartNoTaxAddressError(cart.id);
+    }
+
     let version = cart.version;
 
     if (!cart.currency) {
@@ -125,6 +129,16 @@ export class CheckoutService {
       stripeCustomerId = customer.id;
     } else {
       customer = await this.customerManager.retrieve(stripeCustomerId);
+
+      await this.customerManager.update(stripeCustomerId, {
+        shipping: {
+          name: email,
+          address: {
+            country: taxAddress.countryCode,
+            postal_code: taxAddress.postalCode,
+          },
+        },
+      });
     }
 
     if (uid && !cart.stripeCustomerId) {
@@ -454,9 +468,8 @@ export class CheckoutService {
     const latestInvoice = await this.invoiceManager.retrieve(
       subscription.latest_invoice
     );
-    const processedInvoice = await this.invoiceManager.processPayPalInvoice(
-      latestInvoice
-    );
+    const processedInvoice =
+      await this.invoiceManager.processPayPalInvoice(latestInvoice);
     if (['paid', 'open'].includes(processedInvoice.status ?? '')) {
       await this.postPaySteps({
         cart,
