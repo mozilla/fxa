@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('../configuration');
 const joi = require('joi');
 const Sentry = require('@sentry/node');
 const {
@@ -14,8 +13,10 @@ const BODY_SCHEMA = {
   context: joi.object().required(),
 };
 
-module.exports = function (options = {}, statsd) {
-  const requestReceivedTime = Date.now();
+module.exports = function (config, statsd) {
+  // Get nimbus options from config
+  const options = config.get('nimbus');
+
   return {
     method: 'post',
     path: '/nimbus-experiments',
@@ -23,48 +24,67 @@ module.exports = function (options = {}, statsd) {
       body: overrideJoiMessages(BODY_SCHEMA),
     },
     process: async function (req, res) {
+      const requestReceivedTime = Date.now();
       const body = JSON.stringify({
         client_id: req.body.client_id,
         context: req.body.context,
       });
 
-      const previewMode = (req.query && req.query.nimbusPreview) || false;
       const queryParams = new URLSearchParams({
-        nimbus_preview: previewMode,
+        nimbus_preview: req.query && req.query.nimbusPreview === 'true',
       });
 
-      try {
-        const resp = await fetch(
-          `${
-            config.getProperties().nimbus.host
-          }/v2/features/?${queryParams.toString()}`,
-          {
-            method: 'POST',
-            body,
-            // A request to cirrus should not be more than 50ms,
-            // but we give it a large enough padding.
-            signal: AbortSignal.timeout(1000),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, options.timeout);
 
-        res.end(await resp.text());
-      } catch (err) {
-        Sentry.withScope(() => {
-          let errorMsg = 'experiment fetch error';
-          if (err.name === 'TimeoutError') {
-            errorMsg =
-              'Timeout: It took more than 1 seconds to get the result!';
-          }
-          Sentry.captureMessage(errorMsg, 'error');
+      try {
+        const url = `${options.host}/v2/features/?${queryParams.toString()}`;
+        const resp = await fetch(url, {
+          method: 'POST',
+          body,
+          // A request to cirrus should not be more than 50ms,
+          // but we give it a large enough padding.
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json',
+          },
         });
-      } finally {
-        const requestCompletedTime = Date.now();
-        const responseTime = requestCompletedTime - requestReceivedTime;
+
+        const features = await resp.text();
+        res.end(features);
+
+        // Record success
         if (statsd) {
-          statsd.timing('cirrus.response-time', responseTime);
+          statsd.increment('cirrus.experiment-fetch-success');
+        }
+      } catch (err) {
+        Sentry.captureException(err, {
+          tags: {
+            source: 'nimbus-experiments',
+          },
+        });
+
+        // Return a 'service unavailable' error. We essentially failed
+        // to communicate with the cirrus server, so experiments are
+        // now unavailable...
+        res.status(503);
+        res.end();
+
+        // Record failure
+        if (statsd) {
+          statsd.increment('cirrus.experiment-fetch-error');
+        }
+      } finally {
+        clearTimeout(timeoutId);
+
+        // Record processing time
+        if (statsd) {
+          statsd.timing(
+            'cirrus.response-time',
+            Date.now() - requestReceivedTime
+          );
         }
       }
     },

@@ -4,9 +4,9 @@
 
 const { registerSuite } = intern.getInterface('object');
 const { expect, use } = require('chai');
+const sinonChai = require('sinon-chai');
 const { readFileSync } = require('fs');
 const { resolve } = require('path');
-const sinonChai = require('sinon-chai');
 const { mockRes } = require('sinon-express-mock');
 const {
   swapBetaMeta,
@@ -14,7 +14,7 @@ const {
   settingsConfig,
 } = require('../../server/lib/beta-settings');
 
-use(sinonChai);
+use(sinonChai.default);
 
 const dummyHtml = readFileSync(
   resolve(__dirname, './fixtures/server-config-index.html'),

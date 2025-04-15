@@ -6,7 +6,7 @@ import * as Sentry from '@sentry/browser';
 
 /**
  * A collection of attributes about the client that will be used for
- * targetting an experiment.
+ * targeting an experiment.
  */
 export type NimbusContextT = {
   language: string | null;
@@ -33,44 +33,33 @@ export async function initializeNimbus(
   clientId: string,
   previewEnabled: boolean,
   context: NimbusContextT
-): Promise<any> {
-  const MAX_TIMEOUT_MS = 1000;
+): Promise<NimbusResult | null> {
   const body = JSON.stringify({
     client_id: clientId,
     context,
   });
 
-  let experiments;
-
   try {
-    const resp = await fetch(
-      `/nimbus-experiments?nimbusPreview=${previewEnabled}`,
-      {
-        method: 'POST',
-        body,
-        // A request to cirrus should not be more than 50ms,
-        // but we give it a large enough padding.
-        signal: AbortSignal.timeout(MAX_TIMEOUT_MS),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const query =
+      previewEnabled === true ? `?nimbusPreview=${previewEnabled}` : '';
+    const resp = await fetch(`/nimbus-experiments${query}`, {
+      method: 'POST',
+      body,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-    if (resp.status !== 200) {
-      return;
+    if (resp.status === 200) {
+      return (await resp.json()) as NimbusResult;
     }
-
-    experiments = resp.json();
   } catch (err) {
-    Sentry.withScope(() => {
-      let errorMsg = 'Experiment fetch error';
-      if (err.name === 'TimeoutError') {
-        errorMsg = `Timeout: It took more than ${MAX_TIMEOUT_MS} milliseconds to get the result!`;
-      }
-      Sentry.captureMessage(errorMsg, 'error');
+    Sentry.captureException(err, {
+      tags: {
+        source: 'nimbus-experiments',
+      },
     });
   }
 
-  return experiments;
+  return null;
 }

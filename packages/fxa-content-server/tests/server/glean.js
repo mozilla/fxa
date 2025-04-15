@@ -6,7 +6,7 @@ const { registerSuite } = intern.getInterface('object');
 const proxyquire = require('proxyquire');
 const assert = intern.getPlugin('chai').assert;
 const sinon = require('sinon');
-const sandbox = sinon.sandbox.create();
+const sandbox = sinon.createSandbox();
 const accountEventsLoggerStub = sandbox.stub();
 const createAccountsEventsEventStub = sandbox
   .stub()

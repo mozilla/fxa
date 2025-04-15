@@ -4,6 +4,14 @@
 
 import * as Sentry from '@sentry/browser';
 
+/**
+ * The nimbus experiments and enrollment information needed for applying a feature experiment.
+ */
+export interface NimbusResult {
+  features: Record<string, any>;
+  nimbusUserId: string;
+}
+
 export default class Nimbus {
   static experiments: any;
 
@@ -17,31 +25,23 @@ export default class Nimbus {
       const resp = await fetch('/nimbus-experiments', {
         method: 'POST',
         body,
-        // A request to cirrus should not be more than 50ms,
-        // but this timeout is public-facing so may take longer.
-        signal: AbortSignal.timeout(1000),
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      if (resp.status !== 200) {
+      if (resp.status === 200) {
+        const json = await resp.json();
+        this.experiments = json as NimbusResult;
+      } else {
         this.experiments = null;
-        return;
       }
-
-      this.experiments = await resp.json();
     } catch (err) {
-      if (err.name === 'TimeoutError') {
-        // We can't do much here if we're reaching timeouts from network issues.
-        return;
-      }
-
-      Sentry.withScope(() => {
-        Sentry.captureMessage('Experiment fetch error', 'error');
+      Sentry.captureException(err, {
+        tags: {
+          source: 'nimbus-experiments',
+        },
       });
-
-      // Finally, always clear out the experiments;
       this.experiments = null;
     }
   }
