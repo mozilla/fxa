@@ -200,7 +200,7 @@
     "@types/babel__core": "^7",
     "@types/bn.js": "^5",
     "@types/jest": "^29.5.1",
-    "@types/jsdom": "^21",
+    "@types/jsdom": "^16",
     "@types/module-alias": "^2",
     "@types/mysql": "^2",
     "@types/node": "^22.13.5",
