@@ -128,7 +128,7 @@ At a minimum however, the documentation we do have may be out of date, or includ
 - Revise and Extend Existing Docs
   - **Good**, because we get a single "home" for testing in FxA
   - **Good**, because participating in testing, be that unit, integration, or functional, becomes easier when there is guidance on how to add and update tests
-  - **Good**, because we also get a place for best practices and patterns, such as how to identify code-smell when making tests, avoiding too many assertions per test, or
+  - **Good**, because we also get a place for best practices and patterns, such as how to identify code-smell when making tests or avoiding too many assertions per test
   - **Bad**, because it could be come tedious to manage references and keeping testing documentation in sync with latest patterns
   - **Bad**, because this might be too "strict" and put too many guard rails on testing implementation.
 - Minimal Edits for Accuracy
