@@ -178,7 +178,7 @@ B. Optimize Functional Tests
 
 C. Fix and Expand Test Dashboard
 
-      Decision: Fix the broken dashboard functionality and expand test metrics review in regular triage workflow. More emphasis during weekly(bi-weekly?) team sync.
+      Decision: Fix the broken dashboard functionality and improve stability. Push an emphasis on alerting from the dashboard to fit into standard alerting/triage workflow.
 
       Test metrics can offer actionable insights into health trends, flakiness, skip counts, and CI performance over time.
 
