@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as Sentry from '@sentry/nextjs';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import { notFound, redirect } from 'next/navigation';
@@ -35,8 +34,7 @@ export default async function Location({
 }) {
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, params.locale);
-
-  Sentry.captureMessage('Could not locate user by their ip');
+  const emitterService = getApp().getEmitterService();
 
   let cms: PageContentOfferingTransformed | undefined;
   let locationStatus: LocationStatus | undefined;
@@ -57,6 +55,8 @@ export default async function Location({
     ]);
     cms = cmsData;
     locationStatus = locationData.status;
+
+    emitterService.emit('locationView', locationStatus);
   } catch (error) {
     if (error.name === 'FetchCmsInvalidOfferingError') {
       notFound();

@@ -7,6 +7,7 @@ import {
   CommonMetrics,
   PaymentProvidersType,
 } from '@fxa/payments/metrics';
+import { LocationStatus } from '@fxa/payments/eligibility';
 
 export type CheckoutEvents = CommonMetrics;
 export type CheckoutPaymentEvents = CommonMetrics & {
@@ -49,6 +50,7 @@ export type PaymentsEmitterEvents = {
   checkoutFail: CheckoutPaymentEvents;
   subscriptionEnded: SubscriptionEndedEvents;
   sp3Rollout: SP3RolloutEvent;
+  locationView: LocationStatus;
 };
 
 export type AdditionalMetricsData = {
