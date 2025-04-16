@@ -264,17 +264,20 @@ commands:
   cache-save-yarn:
     steps:
       - save_cache:
-          key: fxa-yarn-001-{{ checksum "yarn.lock" }}
+          key: fxa-yarn-002-{{ checksum "yarn.lock" }}
           paths:
             - /home/circleci/.yarn
             - /home/circleci/project/.yarn
 
   cache-restore-yarn:
     steps:
+      # Note, this matches keys im a prefixed manner. ie It will try match
+      # the first key which is the exact key. If this fails it'll fallback
+      # to a recent entry that starts with fxa-yarn-002
       - restore_cache:
           keys:
-            - fxa-yarn-001-{{ checksum "yarn.lock" }}
-            - fxa-yarn-001-
+            - fxa-yarn-002-{{ checksum "yarn.lock" }}
+            - fxa-yarn-002-
 
   wait-for-infrastructure:
     steps:
