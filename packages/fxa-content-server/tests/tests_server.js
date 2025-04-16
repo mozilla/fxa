@@ -34,6 +34,7 @@ module.exports = [
   'tests/server/routes/get-update-firefox.js',
   'tests/server/routes/get-well-known-change-password.js',
   'tests/server/routes/post-csp.js',
+  'tests/server/routes/post-nimbus-experiments.js',
   'tests/server/routes/post-metrics.js',
   'tests/server/routes/post-third-party-auth-redirect.js',
   'tests/server/routes/react-app.js',

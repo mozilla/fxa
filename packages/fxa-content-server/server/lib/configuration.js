@@ -678,6 +678,12 @@ const conf = (module.exports = convict({
       env: 'NIMBUS_CIRRUS_HOST',
       format: String,
     },
+    timeout: {
+      default: 200,
+      doc: 'Amount of time in milliseconds to wait for a response from cirrus',
+      env: 'NIMBUS_CIRRUS_TIMEOUT',
+      format: Number,
+    },
   },
   pairing: {
     clients: {
