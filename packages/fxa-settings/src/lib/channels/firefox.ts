@@ -122,7 +122,10 @@ type FxACanLinkAccountResponse = {
   ok: boolean;
 };
 
-const DEFAULT_SEND_TIMEOUT_LENGTH_MS = 5 * 1000; // 5 seconds in milliseconds
+// timeout tuned for device latency
+// max timeout of 100-200 ms would be optimal for an ultra-snappy UX, but could cause false negatives on mobile
+// compromising with 500ms for safer mobile support without being noticeably long if it times out
+const DEFAULT_SEND_TIMEOUT_LENGTH_MS = 500;
 
 let messageIdSuffix = 0;
 /**
@@ -355,11 +358,11 @@ export class Firefox extends EventTarget {
     isPairing: boolean,
     service: string
   ): Promise<undefined | SignedInUser> {
-    let timeout: number;
+    let timeoutId: number;
     return Promise.race<undefined | SignedInUser>([
       new Promise<undefined | SignedInUser>((resolve) => {
         const handleFxAStatusEvent = (event: any) => {
-          clearTimeout(timeout);
+          clearTimeout(timeoutId);
           this.removeEventListener(
             FirefoxCommand.FxAStatus,
             handleFxAStatusEvent
@@ -380,10 +383,21 @@ export class Firefox extends EventTarget {
           });
         });
       }),
-      new Promise(
-        (resolve) =>
-          (timeout = setTimeout(resolve, DEFAULT_SEND_TIMEOUT_LENGTH_MS))
-      ),
+      // Ideally, we would detect WebChannel support instead of relying on a timeout.
+      // However, it's difficult to reliably detect all compatible environments —
+      // including Firefox Desktop, Android (Fenix), and iOS (FxA iOS) — especially
+      // when considering misconfigurations. For example, when using `localhost`
+      // with a browser configured to talk to production or stage servers,
+      // the WebChannel may be present but not able to communicate correctly.
+      // Because of this, we fall back to a short timeout to detect unresponsiveness.
+      new Promise((resolve) => {
+        timeoutId = window.setTimeout(() => {
+          console.warn(
+            '[Firefox WebChannel] fxa_status timed out or unavailable in this browser'
+          );
+          resolve(undefined);
+        }, DEFAULT_SEND_TIMEOUT_LENGTH_MS);
+      }),
     ]);
   }
 }
