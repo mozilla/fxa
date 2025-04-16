@@ -120,7 +120,7 @@
     "request": "^2.88.2",
     "uuid": "^10.0.0",
     "verror": "^1.10.1",
-    "web-push": "3.6.7"
+    "web-push": "3.4.4"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
