@@ -95,6 +95,10 @@ import { PrePayStepsResultFactory } from './checkout.factories';
 import { AccountManager } from '@fxa/shared/account/account';
 import { CurrencyManager } from '@fxa/payments/currency';
 import {
+  LocationConfig,
+  MockLocationConfigProvider,
+} from '@fxa/payments/eligibility';
+import {
   GeoDBManager,
   GeoDBManagerConfig,
   MockGeoDBNestFactory,
@@ -141,9 +145,11 @@ describe('CheckoutService', () => {
         GeoDBManagerConfig,
         MockGeoDBNestFactory,
         InvoiceManager,
+        LocationConfig,
         MockAccountDatabaseNestFactory,
         MockCurrencyConfigProvider,
         MockFirestoreProvider,
+        MockLocationConfigProvider,
         MockNotifierSnsConfigProvider,
         MockProfileClientConfigProvider,
         MockStatsDProvider,

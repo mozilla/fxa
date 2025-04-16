@@ -18,8 +18,10 @@ import {
   EligibilityContentByOfferingResultFactory,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
+  EligibilityOfferingResultFactory,
   MockStrapiClientConfigProvider,
   OfferingNotFoundError,
+  PageContentOfferingTransformedFactory,
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
@@ -30,9 +32,11 @@ import { EligibilityManager } from './eligibility.manager';
 import { EligibilityService } from './eligibility.service';
 import {
   EligibilityStatus,
+  LocationStatus,
   OfferingComparison,
   OfferingOverlapResult,
 } from './eligibility.types';
+import { LocationConfig, MockLocationConfigProvider } from './location.config';
 
 describe('EligibilityService', () => {
   let productConfigurationManager: ProductConfigurationManager;
@@ -46,7 +50,9 @@ describe('EligibilityService', () => {
         MockStrapiClientConfigProvider,
         EligibilityManager,
         EligibilityService,
+        LocationConfig,
         MockFirestoreProvider,
+        MockLocationConfigProvider,
         MockStatsDProvider,
         PriceManager,
         ProductConfigurationManager,
@@ -159,6 +165,88 @@ describe('EligibilityService', () => {
         interval,
         []
       );
+    });
+  });
+
+  describe('getProductAvailabilityForLocation', () => {
+    it('returns valid location', async () => {
+      const mockOffering = EligibilityOfferingResultFactory({
+        countries: ['US', 'CA', 'GB'],
+      });
+      const mockCountryCode = 'GB';
+
+      jest.spyOn(productConfigurationManager, 'fetchCMSData').mockResolvedValue(
+        PageContentOfferingTransformedFactory({
+          countries: ['US', 'CA', 'GB'],
+        })
+      );
+
+      const { status } =
+        await eligibilityService.getProductAvailabilityForLocation(
+          mockOffering.apiIdentifier,
+          mockCountryCode
+        );
+
+      expect(status).toEqual(LocationStatus.Valid);
+    });
+
+    it('returns sanctioned location', async () => {
+      const mockOffering = EligibilityOfferingResultFactory({
+        countries: ['US', 'CA', 'GB'],
+      });
+      const mockCountryCode = 'CN';
+
+      jest.spyOn(productConfigurationManager, 'fetchCMSData').mockResolvedValue(
+        PageContentOfferingTransformedFactory({
+          countries: ['US', 'CA', 'GB'],
+        })
+      );
+
+      const { status } =
+        await eligibilityService.getProductAvailabilityForLocation(
+          mockOffering.apiIdentifier,
+          mockCountryCode
+        );
+      expect(status).toEqual(LocationStatus.SanctionedLocation);
+    });
+
+    it('returns product not available in location', async () => {
+      const mockOffering = EligibilityOfferingResultFactory({
+        countries: ['US', 'CA', 'GB'],
+      });
+      const mockCountryCode = 'RO';
+
+      jest.spyOn(productConfigurationManager, 'fetchCMSData').mockResolvedValue(
+        PageContentOfferingTransformedFactory({
+          countries: ['US', 'CA', 'GB'],
+        })
+      );
+
+      const { status } =
+        await eligibilityService.getProductAvailabilityForLocation(
+          mockOffering.apiIdentifier,
+          mockCountryCode
+        );
+      expect(status).toEqual(LocationStatus.ProductNotAvailable);
+    });
+
+    it('returns unresolved', async () => {
+      const mockOffering = EligibilityOfferingResultFactory({
+        countries: ['US', 'CA', 'GB'],
+      });
+
+      jest.spyOn(productConfigurationManager, 'fetchCMSData').mockResolvedValue(
+        PageContentOfferingTransformedFactory({
+          countries: ['US', 'CA', 'GB'],
+        })
+      );
+
+      const { status } =
+        await eligibilityService.getProductAvailabilityForLocation(
+          mockOffering.apiIdentifier,
+          undefined
+        );
+      expect(status).toEqual(LocationStatus.Unresolved);
     });
   });
 });

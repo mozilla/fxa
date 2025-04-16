@@ -12,6 +12,13 @@ export enum EligibilityStatus {
   INVALID = 'invalid',
 }
 
+export enum LocationStatus {
+  ProductNotAvailable = 'product_not_available',
+  SanctionedLocation = 'sanctioned_location',
+  Unresolved = 'unresolved',
+  Valid = 'valid',
+}
+
 // Used to represent offering comparison to target price
 export enum OfferingComparison {
   SAME = 'same',

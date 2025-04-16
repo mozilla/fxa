@@ -4,6 +4,7 @@
 
 // Use this file to export React client components (e.g. those with 'use client' directive) or other non-server utilities
 
+export * from './lib/client/components/Banner';
 export * from './lib/client/components/BaseButton';
 export * from './lib/client/components/CheckoutForm';
 export * from './lib/client/components/CheckoutCheckbox';

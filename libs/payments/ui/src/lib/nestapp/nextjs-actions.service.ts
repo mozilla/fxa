@@ -28,6 +28,7 @@ import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
 import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithStripeActionArgs';
+import { GetProductAvailabilityForLocationActionArgs } from './validators/GetProductAvailabilityForLocationActionArgs';
 import { FetchCMSDataActionArgs } from './validators/FetchCMSDataActionArgs';
 import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
 import { GetCartActionArgs } from './validators/GetCartActionArgs';
@@ -56,7 +57,9 @@ import {
   TaxAddress,
   type SubplatInterval,
 } from '@fxa/payments/customer';
+import { EligibilityService } from '@fxa/payments/eligibility';
 import { WithTypeCachableAsyncLocalStorage } from '@fxa/shared/db/type-cacheable';
+import { GetProductAvailabilityForLocationActionResult } from './validators/GetProductAvailabilityForLocationActionResult';
 import { GetPayPalCheckoutTokenResult } from './validators/GetPayPalCheckoutTokenResult';
 import { FetchCMSDataActionResult } from './validators/FetchCMSDataActionResult';
 import { getNeedsInputActionResult } from './validators/GetNeedsInputActionResult';
@@ -70,7 +73,6 @@ import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
 import { CartInvalidPromoCodeError } from 'libs/payments/cart/src/lib/cart.error';
 import { GetIsTaxLockedArgs } from './validators/GetIsTaxLockedArgs';
 import { GetIsTaxLockedResult } from './validators/GetIsTaxLockedResult';
-
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
  * ALL server actions must use this service as a proxy to other NestJS services.
@@ -87,6 +89,7 @@ export class NextJSActionsService {
     private googleManager: GoogleManager,
     private geodbManager: GeoDBManager,
     private currencyManager: CurrencyManager,
+    private eligibilityService: EligibilityService,
     private productConfigurationManager: ProductConfigurationManager
   ) {}
 
@@ -359,5 +362,21 @@ export class NextJSActionsService {
     return {
       currency,
     };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetProductAvailabilityForLocationActionArgs,
+    GetProductAvailabilityForLocationActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  async getProductAvailabilityForLocation(args: {
+    offeringId: string;
+    countryCode?: string;
+  }) {
+    return await this.eligibilityService.getProductAvailabilityForLocation(
+      args.offeringId,
+      args.countryCode
+    );
   }
 }

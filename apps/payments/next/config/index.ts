@@ -130,9 +130,6 @@ export class PaymentsNextConfig extends NestAppRootConfig {
   @IsUrl({ require_tld: false })
   profileUploadedImagesUrl!: string;
 
-  @IsString()
-  subscriptionsUnsupportedLocations!: string;
-
   @IsUrl({ require_tld: false })
   supportUrl!: string;
 

@@ -8,12 +8,15 @@ import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { EligibilityManager } from './eligibility.manager';
 import {
   EligibilityStatus,
+  LocationStatus,
   SubscriptionEligibilityResult,
 } from './eligibility.types';
+import { LocationConfig } from './location.config';
 
 @Injectable()
 export class EligibilityService {
   constructor(
+    private locationConfig: LocationConfig,
     private productConfigurationManager: ProductConfigurationManager,
     private eligibilityManager: EligibilityManager,
     private subscriptionManager: SubscriptionManager
@@ -40,9 +43,8 @@ export class EligibilityService {
 
     const targetOffering = targetOfferingResult.getOffering();
 
-    const subscriptions = await this.subscriptionManager.listForCustomer(
-      stripeCustomerId
-    );
+    const subscriptions =
+      await this.subscriptionManager.listForCustomer(stripeCustomerId);
 
     const subscribedPrices = subscriptions
       .flatMap((subscription) => subscription.items.data)
@@ -63,5 +65,50 @@ export class EligibilityService {
     );
 
     return eligibility;
+  }
+
+  async getProductAvailabilityForLocation(
+    offeringId: string,
+    countryCode?: string
+  ) {
+    if (!countryCode) {
+      return {
+        status: LocationStatus.Unresolved,
+        message: 'Country code was not resolved',
+      };
+    }
+
+    const { countries } =
+      await this.productConfigurationManager.fetchCMSData(offeringId);
+    const supportedCountries = countries.map((country) => country.slice(0, 2));
+
+    const isSanctionedLocation = countryCode
+      ? this.locationConfig.subscriptionsUnsupportedLocations.includes(
+          countryCode
+        )
+      : undefined;
+
+    const isSupportedLocation = countryCode
+      ? supportedCountries.includes(countryCode)
+      : undefined;
+
+    if (isSanctionedLocation) {
+      return {
+        status: LocationStatus.SanctionedLocation,
+        message: `Customer is in a sanctioned location: ${countryCode}`,
+      };
+    }
+
+    if (isSupportedLocation === false) {
+      return {
+        status: LocationStatus.ProductNotAvailable,
+        message: `Product is not available in customer's location: ${countryCode}`,
+      };
+    }
+
+    return {
+      status: LocationStatus.Valid,
+      message: `Customer is in a location where the product is supported: ${countryCode}`,
+    };
   }
 }

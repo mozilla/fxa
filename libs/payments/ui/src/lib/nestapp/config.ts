@@ -8,6 +8,7 @@ import { IsDefined, ValidateNested } from 'class-validator';
 import { GoogleClientConfig } from '@fxa/google';
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { GeoDBConfig, GeoDBManagerConfig } from '@fxa/shared/geodb';
+import { LocationConfig } from '@fxa/payments/eligibility';
 import { PaypalClientConfig } from 'libs/payments/paypal/src/lib/paypal.client.config';
 import { StripeConfig } from '@fxa/payments/stripe';
 import { StrapiClientConfig } from '@fxa/shared/cms';
@@ -88,4 +89,9 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly googleClientConfig!: Partial<GoogleClientConfig>;
+
+  @Type(() => LocationConfig)
+  @ValidateNested()
+  @IsDefined()
+  location!: LocationConfig;
 }
