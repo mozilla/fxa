@@ -89,7 +89,8 @@ Alternatively, we can just look for the tests that fit the bill, and fix them in
   - **Bad**, because the tests provide value today, and we can easily miss that value if we are not diligent in the process and application of new patterns.
 - Audit and Identify Inaccurate/False Tests
   - **Good**, because we would find tests that are giving potential false positives (or negatives)
-  - **Bad**, because it would cause this problem
+  - **Good**, because we could remove tests that are no longer valid.
+  - **Bad**, because we would still have tests that are long running, testing multiple functionalities instead of being focused. Functional tests are built step on top of step, and a failure early on in a test may not indicate a failure of the thing _being_ tested.
   </details>
 
 <details>
