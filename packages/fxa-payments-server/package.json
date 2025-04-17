@@ -118,7 +118,7 @@
     "tailwindcss": "3.4.3",
     "typescript": "^5.5.3",
     "wait-for-expect": "^3.0.2",
-    "webpack": "^5.97.0"
+    "webpack": "^5.98.0"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^2.7.1",
@@ -130,7 +130,7 @@
     "convict-format-with-validator": "^6.2.0",
     "dayjs": "^1.11.5",
     "eslint-plugin-jest": "^27.6.0",
-    "express": "^4.21.2",
+    "express": "^5.0.0",
     "fxa-auth-server": "workspace:*",
     "fxa-geodb": "workspace:*",
     "fxa-react": "workspace:*",
@@ -155,7 +155,7 @@
     "redux": "^4.2.0",
     "redux-promise-middleware": "^6.2.0",
     "redux-thunk": "^2.4.1",
-    "serve-static": "^1.16.0",
+    "serve-static": "^2.1.0",
     "uuid": "^10.0.0"
   },
   "readmeFilename": "README.md",
