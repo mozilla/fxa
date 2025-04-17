@@ -73,7 +73,7 @@ Options:
 
 A recent dicovery found that one of our functional tests wasn't actually [testing what we thought it was][invalid test thread]. This lead to discussion about the tests viability and if it would make more sense to split it the functional test into a few different tests at the unit level. This would dramatically speed up the execution, more directly target the functionality (redirect logic and return/retry logic).
 
-It's a good idea to audit functional tests on a regular basis regardless, making sure they're still valid business logic, testing what you expect them to test, and this would give us a chance to find tests that fit a similar bucket, split them apart into unit tests, and speed up test time and coverage.
+It's a good idea to audit functional tests on a regular basis regardless, making sure they're still valid business logic, testing what you expect them to test, and this would give us a chance to find tests that fit a similar bucket, split them apart into unit tests, and speed up test time and coverage. There was a previous [audit][functional test audit] done, and we should revisit this with an eye on what tests can be split up and pushing left.
 
 Alternatively, we can just look for the tests that fit the bill, and fix them in place. This wouldn't require as extensive an investment, and would give us more confidence in our functional tests.
 
@@ -82,9 +82,9 @@ Alternatively, we can just look for the tests that fit the bill, and fix them in
 - Audit and Refactor Functional Tests for Shift Left
   - **Good**, because it's necessary to audit functional tests on a semi-regular basis
   - **Good**, because we have the potential to reduce the number of functional tests, reducing the amount of time and CI Resources required to execute them.
+  - **Good**, because an audit gives us a clear picture of what tests smoke tests for different environments, the value of those tests, and if their failure is indication of a critical state of FxA
   - **Good**, because we can test the same, or similar business logic faster in a unit or integration test
   - **Good**, because we also remove implicit assertions from tests. Functional tests may often test one flow, but implicitly test something along the way
-  - **Good**, because it provides room to build functional tests against business flows (and map out the business flows) - not to self, need to figure out how to better explain this. There's been mention that Accounts operates as a "state machine" with the flows, but we don't appear to have documentation on those flows
   - **Bad**, because a large refactor of that scale can introduce new flakiness and instability in our functional tests.
   - **Bad**, because the tests provide value today, and we can easily miss that value if we are not diligent in the process and application of new patterns.
 - Audit and Identify Inaccurate/False Tests
@@ -108,7 +108,6 @@ The dashboard has an opportunity to push metrics about test health into the lime
 
 <details>
 <summary>D: Update and Expand Central Test Documentation</summary>
-asdf
 
 Options:
 
@@ -117,9 +116,9 @@ Options:
 
 #### Details
 
-We have most documentation around testing in the [developer docs][developer docs], however test references and patterns are spread about throughout the docs, and we're missing guidance on how to write good tests. As a result, most patterns of testing come down to personal preference, or who is doing a code review. We try to stick to patterns but it can always vary.
+We have most documentation around testing in the [developer docs], however test references and patterns are spread about throughout the docs, and we're missing guidance on how to write good tests. As a result, most patterns of testing come down to personal preference, or who is doing a code review. We try to stick to patterns but it can always vary.
 
-Additionally, documentation around _what_ testing exists, or patterns to follow in CI, or tagging, or for functional tests live spread about and may be difficult to find and it's okay to have them closer to the thing they should be, but then linking back to a source could make them easier to find and identify areas that we're missing.
+Additionally, documentation around _what_ testing exists is spread around and may be difficult to find. It's okay to have them spread and closer to the thing they should be, but also linking test documentation back to a single source could make them easier to find and identify areas that we're missing.
 
 At a minimum however, the documentation we do have may be out of date, or include reference we have not fully adopted, for example the [Test Strategy][test strategy] document. We should review all test related documents, update references and links, and if there are things yet to be fully adopted we should
 
@@ -149,10 +148,10 @@ A. Unify Testing Frameworks
       Commits  Subfolder
       -------  ---------
            69  fxa-auth-server      <- Candidate one
-           66  fxa-settings         <- Candidate two
-           25  fxa-content-server
-           24  functional-tests
-           23  fxa-shared
+           66  fxa-settings         <- Already using Jest
+           25  fxa-content-server   <- Candidate two(?)
+           24  functional-tests     <- Playwright, cannot be migrated
+           23  fxa-shared           <- Next Candidate
            12  fxa-admin-server
            11  fxa-graphql-api
            10  fxa-react
@@ -176,13 +175,13 @@ B. Optimize Functional Tests
 
       This will improve test execution time, reduce CI resource usage, and ensure test intent is aligned with the right level of abstraction.
 
-C. Fix and Expand Test Dashboard
+C. Fix Testing Dashboard
 
       Decision: Fix the broken dashboard functionality and improve stability. Push an emphasis on alerting from the dashboard to fit into standard alerting/triage workflow.
 
       Test metrics can offer actionable insights into health trends, flakiness, skip counts, and CI performance over time.
 
-D. Update and Expand Central Testing Documentation
+D. Update and Expand Central Test Documentation
 
       Decision: Review, update, and consolidate test documentation, placing emphasis on best practices for test authoring and guidance for different test types.
 
@@ -190,14 +189,45 @@ D. Update and Expand Central Testing Documentation
 
 These changes are intended to be incremental and collaborative, enabling the FxA team to adopt improvements in a way that aligns with our velocity.
 
+Order of operations recommendations. All of these are valuable, and recommending one over another is objectively difficult. However, if we omit any consideration of LOE, the approach to priority is around what's broken vs. not and what sets us up for success with the others. Today, tests _are_ running, so making large sweeping changes, especially without a clear view into how those changes impact the overall test and quality health of FxA is not recommended. Additionally, we can foxfood by establishing patterns and best practices before making sweeping changes to tests.
+
+As such, the suggested order is; **C** Fix Testing Dashboard, **D** Update and Expand Central Test Documentation, **A** Unify Testing Frameworks, **B** Optimize Functional Tests.
+
 Statuses:
 
 - **👍 Recommended**
 - **👎 Not Recommended**
 - **🧪 Experiment**
 
+Links:
+
+- [Test Metrics Dashboard][test metrics dashboard]
+- [Dashboard bug ticket][dashboard bug ticket]
+- [Github thread on invalid functional test][invalid test thread]
+- [Test Strategy][test strategy]
+- [Functional Test Audit][functional test audit]
+- Test related [developer docs][developer docs]
+  - [Tests in CircleCi][tests in circleci]
+  - [Functional and Manual A/B Testing][functional and manual ab testing]
+  - [Testing Emails][testing emails]
+  - [Testing Coupons][testing coupons]
+  - [Local Testing Setup][testing local setup]
+
 [test metrics dashboard]: https://mozilla.cloud.looker.com/dashboards/1982
-[invalid test thread]: https://github.com/mozilla/fxa/pull/18662#discussion_r2031621069
 [dashboard bug ticket]: https://mozilla-hub.atlassian.net/browse/FXA-11519
-[developer docs]: https://mozilla.github.io/ecosystem-platform/reference/tests-in-circleci
+[invalid test thread]: https://github.com/mozilla/fxa/pull/18662#discussion_r2031621069
+
+<!-- links to testing related developer docs -->
+
+[developer docs]: https://mozilla.github.io/ecosystem-platform/
+[tests in circleci]: https://mozilla.github.io/ecosystem-platform/reference/tests-in-circleci
+[functional and manual ab testing]: https://mozilla.github.io/ecosystem-platform/reference/experiments-ab-testing#functional-and-manual-testing
+[testing emails]: https://mozilla.github.io/ecosystem-platform/reference/emails#tests
+[testing coupons]: https://mozilla.github.io/ecosystem-platform/relying-parties/reference/sub-plat-coupons#testing-coupons
+[testing local setup]: https://mozilla.github.io/ecosystem-platform/tutorials/development-setup#testing
+
+<!-- There are many more... -->
+<!-- end -->
+
 [test strategy]: https://docs.google.com/document/d/1gYvGpXtLkSA84ELKJA-3tOPtlRlgcIQwmVOKbirtII0/
+[functional test audit]: https://docs.google.com/spreadsheets/d/11Wq-Y-ipeNFXqLHbr3GJCh_f_qEAG-CUuqBt5Dcnh5k/edit?gid=0#gid=0
