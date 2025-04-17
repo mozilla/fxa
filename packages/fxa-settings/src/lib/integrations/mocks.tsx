@@ -2,17 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IntegrationType } from '../../models';
+import { SyncDesktopV3Integration, WebIntegration } from '../../models';
+import { GenericData } from '../model-data';
 import { IntegrationSubsetType } from './interfaces';
 
 export function createMockWebIntegration(): IntegrationSubsetType {
-  return {
-    type: IntegrationType.Web,
-  };
+  return new WebIntegration(new GenericData({}));
 }
 
 export function createMockSyncDesktopV3Integration(): IntegrationSubsetType {
-  return {
-    type: IntegrationType.SyncDesktopV3,
-  };
+  return new SyncDesktopV3Integration(new GenericData({}));
 }

@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MozServices } from '../../../lib/types';
-import { Integration, IntegrationType } from '../../../models';
+import {
+  Integration,
+  IntegrationType,
+  OAuthNativeIntegration,
+  WebIntegration,
+} from '../../../models';
 import { MOCK_RECOVERY_CODE } from '../../mocks';
 import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
 import { ConsumeRecoveryCodeResponse } from './interfaces';
@@ -37,8 +42,10 @@ export const mockWebIntegration = {
   isSync: () => false,
   wantsKeys: () => false,
   isDesktopRelay: () => false,
-  data: {},
-} as Integration;
+  data: {
+    validate: () => {},
+  },
+} as WebIntegration;
 
 export const createMockOAuthNativeIntegration = (isSync = true) =>
   ({
@@ -47,7 +54,9 @@ export const createMockOAuthNativeIntegration = (isSync = true) =>
     isSync: () => isSync,
     wantsKeys: () => false,
     isDesktopRelay: () => !isSync,
-    data: {},
-  } as Integration);
+    data: {
+      validate: () => {},
+    },
+  }) as OAuthNativeIntegration;
 
 export * from '../../mocks';

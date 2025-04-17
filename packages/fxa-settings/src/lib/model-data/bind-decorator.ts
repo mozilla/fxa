@@ -141,7 +141,7 @@ export const bind = <T>(dataKey?: KeyTransform) => {
           throw new InvalidModelInstance();
         }
         const key = getKey(dataKey, memberName);
-        const value = this.getModelData(key, true);
+        const value = this.getModelData(key);
         const type = getType(this, memberName);
         return coerceValue(value, type, key);
       },

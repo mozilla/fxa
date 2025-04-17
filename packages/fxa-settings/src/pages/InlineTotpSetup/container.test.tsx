@@ -10,7 +10,7 @@ import { ApolloClient } from '@apollo/client';
 import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MozServices } from '../../lib/types';
-import { OAuthIntegration } from '../../models';
+import { IntegrationType, OAuthIntegration } from '../../models';
 import InlineTotpSetupContainer from './container';
 import GleanMetrics from '../../lib/glean';
 import {
@@ -107,10 +107,11 @@ function setMocks() {
 const defaultProps = {
   isSignedIn: true,
   integration: {
+    type: IntegrationType.OAuthWeb,
     returnOnError: () => true,
     getRedirectWithErrorUrl: (error: AuthUiError) =>
       `https://localhost:8080/?error=${error.errno}`,
-  } as unknown as OAuthIntegration,
+  } as OAuthIntegration,
   serviceName: MozServices.Default,
 };
 function render(props = {}) {

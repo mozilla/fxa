@@ -4,7 +4,7 @@
 
 import { HandledError } from '../../lib/error-utils';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
-import { BaseIntegration, OAuthIntegration } from '../../models';
+import { Integration, OAuthIntegration } from '../../models';
 import { MetricsContext } from '@fxa/shared/glean';
 
 export interface BeginSignupResponse {
@@ -60,7 +60,7 @@ export type SignupOAuthIntegration = Pick<
 >;
 
 export type SignupBaseIntegration = Pick<
-  BaseIntegration,
+  Integration,
   | 'type'
   | 'isSync'
   | 'getService'

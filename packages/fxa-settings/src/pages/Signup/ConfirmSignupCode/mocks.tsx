@@ -5,7 +5,17 @@
 import React from 'react';
 import { LocationProvider } from '@reach/router';
 import ConfirmSignupCode from '.';
-import { IntegrationType, OAuthNativeClients } from '../../../models';
+import {
+  IntegrationType,
+  OAuthIntegrationData,
+  OAuthNativeClients,
+  OAuthNativeIntegration,
+  OAuthNativeServices,
+  OAuthWebIntegration,
+  RelierClientInfo,
+  WebIntegration,
+  WebIntegrationData,
+} from '../../../models';
 import {
   MOCK_CLIENT_ID,
   MOCK_EMAIL,
@@ -25,6 +35,8 @@ import {
 } from './interfaces';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { MozServices } from '../../../lib/types';
+import { GenericData } from '../../../lib/model-data';
+import { Constants } from '../../../lib/constants';
 
 export const MOCK_AUTH_ERROR = {
   errno: 999,
@@ -36,45 +48,147 @@ export const MOCK_SIGNUP_CODE = '123456';
 export function createMockWebIntegration({
   redirectTo = undefined,
 }: { redirectTo?: string } = {}): ConfirmSignupCodeBaseIntegration {
-  return {
-    type: IntegrationType.Web,
-    data: { uid: MOCK_UID, redirectTo },
-    getService: () => MozServices.Default,
-    getClientId: () => undefined,
-    isDesktopRelay: () => false,
-  };
+  // Leaving for historical record. Remove once baked.
+  // return {
+  //   type: IntegrationType.Web,
+  //   data: new WebIntegrationData(
+  //     new GenericData({
+  //       uid: MOCK_UID,
+  //       context: Constants.FX_DESKTOP_V3_CONTEXT,
+  //       redirect_to: redirectTo,
+  //     })
+  //   ),
+  //   getService: () => MozServices.Default,
+  //   getClientId: () => undefined,
+  //   isDesktopRelay: () => false,
+  // };
+
+  const integration = new WebIntegration(
+    new GenericData({
+      uid: MOCK_UID,
+      context: Constants.FX_DESKTOP_V3_CONTEXT,
+      redirect_to: redirectTo,
+      service: MozServices.Default,
+    })
+  );
+
+  expect(integration.type).toEqual(IntegrationType.Web);
+  expect(integration.getService()).toEqual(MozServices.Default);
+  expect(integration.getClientId()).toBeUndefined();
+  expect(integration.isDesktopRelay()).toBeFalsy();
+
+  return integration;
 }
 
 export function createMockOAuthWebIntegration(
   serviceName = MOCK_SERVICE
 ): ConfirmSignupCodeOAuthIntegration {
-  return {
-    type: IntegrationType.OAuthWeb,
-    data: { uid: MOCK_UID, redirectTo: undefined },
-    getRedirectUri: () => MOCK_REDIRECT_URI,
-    getService: () => serviceName,
-    getClientId: () => MOCK_CLIENT_ID,
-    wantsTwoStepAuthentication: () => false,
-    isSync: () => false,
-    getPermissions: () => [],
-    isDesktopRelay: () => false,
-  };
+  // Keeping previous mock for reference... Now we mock the data and use the actual integration.
+  // return {
+  //   type: IntegrationType.OAuthWeb,
+  //   data: new OAuthIntegrationData(
+  //     new GenericData({ uid: MOCK_UID, redirect_to: undefined })
+  //   ),
+  //   getRedirectUri: () => MOCK_REDIRECT_URI,
+  //   getService: () => serviceName,
+  //   getClientId: () => MOCK_CLIENT_ID,
+  //   wantsTwoStepAuthentication: () => false,
+  //   isSync: () => false,
+  //   getPermissions: () => [],
+  //   isDesktopRelay: () => false,
+  // };
+
+  const integration = new OAuthWebIntegration(
+    new GenericData({
+      uid: MOCK_UID,
+      service: serviceName,
+      client_id: MOCK_CLIENT_ID,
+      scope: 'profile:email',
+    }),
+    new GenericData({}),
+    {
+      scopedKeysEnabled: false,
+      scopedKeysValidation: {},
+      isPromptNoneEnabled: false,
+      isPromptNoneEnabledClientIds: [],
+    }
+  );
+
+  integration.clientInfo = {
+    redirectUri: MOCK_REDIRECT_URI,
+  } as RelierClientInfo;
+
+  expect(integration.type).toEqual(IntegrationType.OAuthWeb);
+  expect(integration.getRedirectUri()).toEqual(MOCK_REDIRECT_URI);
+  expect(integration.getService()).toEqual(serviceName);
+  expect(integration.getClientId()).toEqual(MOCK_CLIENT_ID);
+  expect(integration.wantsTwoStepAuthentication()).toEqual(false);
+  expect(integration.isSync()).toEqual(false);
+  expect(integration.getPermissions()).toEqual(['profile:email']);
+  expect(integration.isDesktopRelay()).toEqual(false);
+
+  return integration;
 }
 
 export function createMockOAuthNativeIntegration(
   isSync = true
 ): ConfirmSignupCodeOAuthIntegration {
-  return {
-    type: IntegrationType.OAuthNative,
-    data: { uid: MOCK_UID, redirectTo: undefined },
-    getRedirectUri: () => MOCK_REDIRECT_URI,
-    getService: () => OAuthNativeClients.FirefoxDesktop,
-    getClientId: () => MOCK_CLIENT_ID,
-    wantsTwoStepAuthentication: () => false,
-    isSync: () => isSync,
-    getPermissions: () => [],
-    isDesktopRelay: () => !isSync,
-  };
+  // Keeping previous mock for reference... Now we mock the data and use an actual integration.
+  // return {
+  //   type: IntegrationType.OAuthNative,
+  //   data: new OAuthIntegrationData(
+  //     new GenericData({ uid: MOCK_UID, redirect_to: undefined })
+  //   ),
+  //   getRedirectUri: () => MOCK_REDIRECT_URI,
+  //   getService: () => OAuthNativeClients.FirefoxDesktop,
+  //   getClientId: () => MOCK_CLIENT_ID,
+  //   wantsTwoStepAuthentication: () => false,
+  //   isSync: () => isSync,
+  //   getPermissions: () => [],
+  //   isDesktopRelay: () => !isSync,
+  // };
+
+  const integration = new OAuthNativeIntegration(
+    new GenericData({
+      scope: 'profile:email',
+      service: isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay,
+      uid: MOCK_UID,
+      redirect_uri: MOCK_REDIRECT_URI,
+      client_id: MOCK_CLIENT_ID,
+    }),
+    new GenericData({}),
+    {
+      scopedKeysEnabled: false,
+      scopedKeysValidation: {},
+      isPromptNoneEnabled: false,
+      isPromptNoneEnabledClientIds: [],
+    }
+  );
+
+  if (isSync) {
+    integration.clientInfo = {
+      redirectUri: MOCK_REDIRECT_URI,
+      clientId: OAuthNativeClients.FirefoxDesktop,
+    } as RelierClientInfo;
+  } else {
+    integration.clientInfo = {
+      redirectUri: MOCK_REDIRECT_URI,
+      clientId: OAuthNativeClients.FirefoxDesktop,
+    } as RelierClientInfo;
+  }
+
+  expect(integration.type).toEqual(IntegrationType.OAuthNative);
+  expect(integration.getRedirectUri()).toEqual(MOCK_REDIRECT_URI);
+  expect(integration.getService()).toEqual(
+    isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay
+  );
+  expect(integration.getClientId()).toEqual(MOCK_CLIENT_ID);
+  expect(integration.wantsTwoStepAuthentication()).toEqual(false);
+  expect(integration.isSync()).toEqual(isSync);
+  expect(integration.getPermissions()).toEqual(['profile:email']);
+  expect(integration.isDesktopRelay()).toEqual(!isSync);
+
+  return integration;
 }
 
 export const Subject = ({

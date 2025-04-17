@@ -16,7 +16,8 @@ import {
 import { getCode } from '../../lib/totp';
 import { MozServices } from '../../lib/types';
 import {
-  OAuthIntegration,
+  Integration,
+  isOAuthIntegration,
   useAuthClient,
   useSensitiveDataClient,
 } from '../../models';
@@ -36,7 +37,7 @@ export const InlineRecoverySetupContainer = ({
   serviceName,
 }: {
   isSignedIn: boolean;
-  integration: OAuthIntegration;
+  integration: Integration;
   serviceName: MozServices;
 } & RouteComponentProps) => {
   const navigate = useNavigate();
@@ -111,7 +112,7 @@ export const InlineRecoverySetupContainer = ({
   const cancelSetupHandler = useCallback(() => {
     const error = AuthUiErrors.TOTP_REQUIRED;
 
-    if (integration.returnOnError()) {
+    if (isOAuthIntegration(integration) && integration.returnOnError()) {
       const url = integration.getRedirectWithErrorUrl(error);
       hardNavigate(url);
       return;

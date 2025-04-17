@@ -35,9 +35,9 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}/?redirect_to=javascript:alert(1)`
       );
       await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
 
-      await expect(page).toHaveURL(/settings/);
+      await expect(page).toHaveURL(/signin/);
+      await expect(signin.badRequestHeading).toBeVisible();
     });
 
     test('allows valid redirect_to parameter', async ({
