@@ -95,10 +95,20 @@ const Settings = lazy(() => import('../Settings'));
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
+  const { data: isSignedInData } = useLocalSignedInQueryState();
+
+  // If we don't know the user yet, we can't send any identifying metrics to sentry. We also can't determine
+  // whether or not they have opted out, therefore lets enable sentry.
+  //
+  // Do this before any other hook, so that we don't accidentally drop Sentry errors.
+  //
+  if (isSignedInData === undefined || isSignedInData.isSignedIn === false) {
+    sentryMetrics.enable();
+  }
+
   const config = useConfig();
   const session = useSession();
   const integration = useIntegration();
-  const { data: isSignedInData } = useLocalSignedInQueryState();
 
   // GQL call for minimal metrics data
   const { loading: metricsLoading, data } = useInitialMetricsQueryState() ?? {};
@@ -221,7 +231,7 @@ export const App = ({
   ]);
 
   useEffect(() => {
-    if (metricsEnabled) {
+    if (metricsEnabled || isSignedIn === false) {
       sentryMetrics.enable();
     } else {
       sentryMetrics.disable();

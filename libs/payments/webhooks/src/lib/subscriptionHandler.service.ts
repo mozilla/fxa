@@ -34,11 +34,13 @@ export class SubscriptionEventsService {
     const price = subscription.items.data[0].price;
 
     let paymentProvider: PaymentProvidersType | undefined;
-    let voluntaryCancellation: boolean | undefined;
+    let determinedCancellation: boolean | undefined;
+    let uid: string | undefined;
     try {
       const customer = await this.customerManager.retrieve(
         subscription.customer
       );
+      uid = customer.metadata['userid'];
       const paymentMethodType = determinePaymentMethodType(customer, [
         subscription,
       ]);
@@ -53,17 +55,20 @@ export class SubscriptionEventsService {
           ? await this.invoiceManager.retrieve(subscription.latest_invoice)
           : undefined;
 
-      voluntaryCancellation =
+      determinedCancellation =
         paymentProvider &&
         determineCancellation(paymentProvider, subscription, latestInvoice);
     } catch (err) {
       if (err instanceof CustomerDeletedError) {
         paymentProvider = undefined;
-        voluntaryCancellation = undefined;
+        determinedCancellation = undefined;
       } else {
         throw err;
       }
     }
+
+    // If voluntaryCancellation could not be determined, assume it was not voluntary
+    const voluntaryCancellation = !!determinedCancellation;
 
     this.emitterService.getEmitter().emit('subscriptionEnded', {
       productId: price.product,
@@ -72,8 +77,8 @@ export class SubscriptionEventsService {
       priceIntervalCount: price.recurring?.interval_count,
       paymentProvider: paymentProvider,
       providerEventId: event.id,
-      subscriptionId: subscription.id,
       voluntaryCancellation,
+      uid,
     });
   }
 }

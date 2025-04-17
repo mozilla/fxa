@@ -13,8 +13,13 @@ updates:
     ignore:
       - dependency-name: 'jest-watch-typeahead' # To be removed after react-scripts update
       - dependency-name: 'esbuild' # See FXA-5948
+      - dependency-name: 'mailparser' # Used as a test helper only, see #FXA-5351
       - dependency-name: '*'
         update-types: ['version-update:semver-patch']
+    groups:
+      one-package-per-pr: # prevent grouping of unrelated PRs
+        patterns:
+          - '*'
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:

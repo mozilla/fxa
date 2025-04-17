@@ -54,6 +54,8 @@ jest.mock('@type-cacheable/core', () => ({
 
 jest.mock('@fxa/shared/db/type-cacheable', () => ({
   NetworkFirstStrategy: function () {},
+  AsyncLocalStorageAdapter: function () {},
+  CacheFirstStrategy: function () {},
   MemoryAdapter: function () {},
 }));
 
@@ -423,9 +425,8 @@ describe('productConfigurationManager', () => {
 
       mockOfferingResult.getOffering = jest.fn().mockReturnValue(mockOffering);
 
-      const result = await productConfigurationManager.getOfferingPlanIds(
-        apiIdentifier
-      );
+      const result =
+        await productConfigurationManager.getOfferingPlanIds(apiIdentifier);
       expect(result).toEqual([mockPlan.id]);
     });
   });

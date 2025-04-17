@@ -11,7 +11,7 @@ import {
   CheckoutPaymentEvents,
   PaymentsEmitterEvents,
   SP3RolloutEvent,
-  SubscriptionEnded,
+  SubscriptionEndedEvents,
 } from './emitter.types';
 import { AccountManager } from '@fxa/shared/account/account';
 import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
@@ -147,8 +147,16 @@ export class PaymentsEmitterService {
     }
   }
 
-  async handleSubscriptionEnded(eventData: SubscriptionEnded) {
-    const { priceId, priceInterval, priceIntervalCount } = eventData;
+  async handleSubscriptionEnded(eventData: SubscriptionEndedEvents) {
+    const {
+      productId,
+      priceId,
+      priceInterval,
+      priceIntervalCount,
+      providerEventId,
+      voluntaryCancellation,
+      uid,
+    } = eventData;
     let offeringId: string | undefined;
     try {
       const cms =
@@ -165,9 +173,26 @@ export class PaymentsEmitterService {
       priceInterval && priceIntervalCount
         ? getSubplatInterval(priceInterval, priceIntervalCount)
         : undefined;
-    console.log(interval, offeringId);
 
-    // todo record Glean metric
+    const metricsOptOut = await this.retrieveOptOut(uid);
+
+    if (!metricsOptOut) {
+      this.paymentsGleanManager.recordFxaSubscriptionEnded(
+        {
+          cmsMetricsData: {
+            priceId,
+            productId,
+          },
+          subscriptionCancellationData: {
+            offeringId,
+            interval,
+            voluntaryCancellation,
+            providerEventId,
+          },
+        },
+        eventData.paymentProvider
+      );
+    }
   }
 
   async handleSP3Rollout(eventData: SP3RolloutEvent) {

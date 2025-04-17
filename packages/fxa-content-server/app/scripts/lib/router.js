@@ -699,9 +699,16 @@ Router = Router.extend({
 
   createReactViewHandler(routeName, additionalParams) {
     if (routeName === '/') {
-      const queryParams = new URLSearchParams(this.window.location.search);
-      queryParams.set('showReactApp', 'true');
-      this.navigateAway(`/?${queryParams.toString()}`);
+      // We intentionally avoid using URLSearchParams because it converts '+'
+      // characters to spaces per the application/x-www-form-urlencoded
+      // standard. This can corrupt email addresses (e.g., "user+alias@example.com").
+      // Instead, we use our custom objToSearchString function, which leverages
+      // encodeURIComponent to correctly preserve and encode all valid email characters.
+      const rawSearch = window.location.search.substring(1);
+      const paramsObject = Url.searchParams(rawSearch);
+      paramsObject.showReactApp = 'true';
+      const newSearchString = Url.objToSearchString(paramsObject);
+      this.navigateAway(`/${newSearchString}`);
     } else {
       const { deviceId, flowBeginTime, flowId } =
         this.metrics.getFlowEventMetadata();

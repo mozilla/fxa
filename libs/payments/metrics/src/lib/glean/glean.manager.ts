@@ -7,6 +7,7 @@ import {
   CommonMetrics,
   PaymentProvidersType,
   PaymentsGleanProvider,
+  SubscriptionCancellationData,
 } from './glean.types';
 import { Inject, Injectable } from '@nestjs/common';
 import { type PaymentsGleanServerEventsLogger } from './glean.provider';
@@ -16,6 +17,7 @@ import { mapSubscription } from './utils/mapSubscription';
 import { mapRelyingParty } from './utils/mapRelyingParty';
 import { normalizeGleanFalsyValues } from './utils/normalizeGleanFalsyValues';
 import { PaymentsGleanConfig } from './glean.config';
+import { mapSubscriptionCancellation } from './utils/mapSubscriptionCancellation';
 
 @Injectable()
 export class PaymentsGleanManager {
@@ -104,10 +106,29 @@ export class PaymentsGleanManager {
     }
   }
 
+  recordFxaSubscriptionEnded(
+    metrics: {
+      cmsMetricsData: CmsMetricsData;
+      subscriptionCancellationData: SubscriptionCancellationData;
+    },
+    paymentProvider?: PaymentProvidersType
+  ) {
+    const commonMetrics = this.populateCommonMetrics(metrics);
+
+    if (this.paymentsGleanConfig.enabled) {
+      this.paymentsGleanServerEventsLogger.recordSubscriptionEnded({
+        ...commonMetrics,
+        subscription_payment_provider:
+          normalizeGleanFalsyValues(paymentProvider),
+      });
+    }
+  }
+
   private populateCommonMetrics(metrics: {
     commonMetricsData?: CommonMetrics;
     cartMetricsData?: CartMetrics;
     cmsMetricsData?: CmsMetricsData;
+    subscriptionCancellationData?: SubscriptionCancellationData;
   }) {
     const emptyCommonMetricsData: CommonMetrics = {
       ipAddress: '',
@@ -126,10 +147,18 @@ export class PaymentsGleanManager {
       priceId: '',
       productId: '',
     };
+    const emptySubscriptionCancellationData: SubscriptionCancellationData = {
+      offeringId: '',
+      interval: '',
+      voluntaryCancellation: false,
+      providerEventId: '',
+    };
     const commonMetricsData =
       metrics.commonMetricsData || emptyCommonMetricsData;
     const cartMetricsData = metrics.cartMetricsData || emptyCartMetricsData;
     const cmsMetricsData = metrics.cmsMetricsData || emptyCmsMetricsData;
+    const subscriptionCancellationData =
+      metrics.subscriptionCancellationData || emptySubscriptionCancellationData;
     return {
       user_agent: commonMetricsData.userAgent,
       ip_address: commonMetricsData.ipAddress,
@@ -144,6 +173,7 @@ export class PaymentsGleanManager {
         cmsMetricsData,
       }),
       ...mapUtm(commonMetricsData.searchParams),
+      ...mapSubscriptionCancellation(subscriptionCancellationData),
     };
   }
 }

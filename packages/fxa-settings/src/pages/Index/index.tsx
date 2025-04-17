@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { IndexFormData, IndexProps } from './interfaces';
 import AppLayout from '../../components/AppLayout';
@@ -16,19 +16,21 @@ import {
   isClientPocket,
   isClientRelay,
 } from '../../models/integrations/client-matching';
-import { isOAuthIntegration, useFtlMsgResolver } from '../../models';
+import { isOAuthIntegration } from '../../models';
 import GleanMetrics from '../../lib/glean';
-import { getLocalizedErrorMessage, interpolate } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 export const Index = ({
   integration,
   serviceName,
-  signUpOrSignInHandler,
+  processEmailSubmission,
   prefillEmail,
-  deleteAccountSuccess,
-  hasBounced,
+  errorBannerMessage,
+  successBannerMessage,
+  tooltipErrorMessage,
+  setErrorBannerMessage,
+  setSuccessBannerMessage,
+  setTooltipErrorMessage,
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
@@ -37,25 +39,6 @@ export const Index = ({
   const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
   const isRelayClient = isOAuth && isClientRelay(clientId);
-
-  const ftlMsgResolver = useFtlMsgResolver();
-  const [errorBannerMessage, setErrorBannerMessage] = useState('');
-  const [successBannerMessage, setSuccessBannerMessage] = useState(
-    deleteAccountSuccess
-      ? ftlMsgResolver.getMsg(
-          'index-account-delete-success',
-          'Account deleted successfully'
-        )
-      : undefined
-  );
-  const [tooltipErrorText, setTooltipErrorText] = useState(
-    hasBounced
-      ? ftlMsgResolver.getMsg(
-          'auth-errors-1018',
-          'Your confirmation email was just returned. Mistyped email?'
-        )
-      : undefined
-  );
 
   const emailEngageEventEmitted = useRef(false);
 
@@ -66,67 +49,8 @@ export const Index = ({
     GleanMetrics.emailFirst.view();
   }, []);
 
-  const { handleSubmit, register } = useForm<IndexFormData>({
-    mode: 'onChange',
-    criteriaMode: 'all',
-    defaultValues: {
-      email: prefillEmail,
-    },
-  });
-
   const onSubmit = async ({ email }: IndexFormData) => {
-    // This function handles navigation on success
-    const { error } = await signUpOrSignInHandler(email.trim());
-    if (error) {
-      switch (error.errno) {
-        case AuthUiErrors.MX_LOOKUP_WARNING.errno:
-          setTooltipErrorText(
-            ftlMsgResolver.getMsg('auth-error-1067', error.message)
-          );
-          break;
-        case AuthUiErrors.EMAIL_REQUIRED.errno:
-          setTooltipErrorText(
-            ftlMsgResolver.getMsg(
-              'auth-error-1011',
-              AuthUiErrors.EMAIL_REQUIRED.message
-            )
-          );
-          break;
-        case AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.errno:
-          setTooltipErrorText(
-            ftlMsgResolver.getMsg(
-              'auth-error-1066',
-              AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.message
-            )
-          );
-          break;
-        case AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.errno:
-          setTooltipErrorText(
-            ftlMsgResolver.getMsg(
-              'auth-error-1020',
-              AuthUiErrors.DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN.message
-            )
-          );
-          break;
-        case AuthUiErrors.INVALID_EMAIL_DOMAIN.errno: {
-          const [, domain] = email.split('@');
-          setTooltipErrorText(
-            ftlMsgResolver.getMsg(
-              'auth-error-1064',
-              interpolate(AuthUiErrors.INVALID_EMAIL_DOMAIN.message, {
-                domain,
-              }),
-              { domain }
-            )
-          );
-          break;
-        }
-        default:
-          setErrorBannerMessage(
-            getLocalizedErrorMessage(ftlMsgResolver, error)
-          );
-      }
-    }
+    processEmailSubmission(email.trim());
   };
 
   const handleInputChange = () => {
@@ -140,10 +64,17 @@ export const Index = ({
       setErrorBannerMessage('');
       setSuccessBannerMessage('');
     }
-    if (tooltipErrorText) {
-      setTooltipErrorText('');
+    if (tooltipErrorMessage) {
+      setTooltipErrorMessage('');
     }
   };
+
+  const { handleSubmit, register } = useForm<IndexFormData>({
+    mode: 'onSubmit',
+    defaultValues: {
+      email: prefillEmail,
+    },
+  });
 
   return (
     <AppLayout>
@@ -205,7 +136,7 @@ export const Index = ({
             label="Enter your email"
             inputRef={register()}
             autoFocus
-            errorText={tooltipErrorText}
+            errorText={tooltipErrorMessage}
             onChange={handleInputChange}
           />
         </FtlMsg>

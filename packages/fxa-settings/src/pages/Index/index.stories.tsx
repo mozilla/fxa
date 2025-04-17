@@ -27,17 +27,16 @@ export default {
 
 const storyWithProps = ({
   ...props // overrides
-}: Partial<IndexProps> = {}) => {
+}: Partial<IndexProps> & {
+  initialErrorBanner?: string;
+  initialSuccessBanner?: string;
+  initialTooltipMessage?: string;
+} = {}) => {
   const story = () => <Subject {...props} />;
   return story;
 };
 
 export const Default = storyWithProps();
-
-export const WithBouncedEmail = storyWithProps({
-  hasBounced: true,
-  prefillEmail: MOCK_EMAIL,
-});
 
 export const WithServiceRelayIntegration = storyWithProps({
   integration: createMockIndexOAuthNativeIntegration({
@@ -48,10 +47,6 @@ export const WithServiceRelayIntegration = storyWithProps({
 
 export const WithPrefilledEmail = storyWithProps({
   prefillEmail: MOCK_EMAIL,
-});
-
-export const WithDeleteAccountSuccess = storyWithProps({
-  deleteAccountSuccess: true,
 });
 
 export const Sync = storyWithProps({
@@ -71,4 +66,17 @@ export const Pocket = storyWithProps({
     clientId: POCKET_CLIENTIDS[0],
   }),
   serviceName: MozServices.Pocket,
+});
+
+export const WithSuccessBanner = storyWithProps({
+  initialSuccessBanner:
+    'Container can pass a success message - Mainly used for successful account deletion',
+});
+
+export const WithErrorBanner = storyWithProps({
+  initialErrorBanner: 'Container can pass an error message',
+});
+
+export const WithErrorTooltip = storyWithProps({
+  initialTooltipMessage: 'Container can pass a tooltip error',
 });

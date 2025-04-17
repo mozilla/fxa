@@ -55,6 +55,7 @@ import {
   TaxAddress,
   type SubplatInterval,
 } from '@fxa/payments/customer';
+import { WithTypeCachableAsyncLocalStorage } from '@fxa/shared/db/type-cacheable';
 import { GetPayPalCheckoutTokenResult } from './validators/GetPayPalCheckoutTokenResult';
 import { FetchCMSDataActionResult } from './validators/FetchCMSDataActionResult';
 import { getNeedsInputActionResult } from './validators/GetNeedsInputActionResult';
@@ -87,6 +88,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(GetCartActionArgs, GetCartActionResult)
+  @WithTypeCachableAsyncLocalStorage()
   async getCart(args: { cartId: string }) {
     const cart = await this.cartService.getCart(args.cartId);
 
@@ -97,6 +99,7 @@ export class NextJSActionsService {
     allowlist: [CartInvalidStateForActionError],
   })
   @NextIOValidator(GetCartActionArgs, GetSuccessCartActionResult)
+  @WithTypeCachableAsyncLocalStorage()
   async getSuccessCart(args: { cartId: string }): Promise<SuccessCartDTO> {
     const cart = await this.cartService.getCart(args.cartId);
 
@@ -115,6 +118,7 @@ export class NextJSActionsService {
     ],
   })
   @NextIOValidator(UpdateCartActionArgs, undefined)
+  @WithTypeCachableAsyncLocalStorage()
   async updateCart(args: {
     cartId: string;
     version: number;
@@ -136,6 +140,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(RestartCartActionArgs, RestartCartActionResult)
+  @WithTypeCachableAsyncLocalStorage()
   async restartCart(args: { cartId: string }) {
     const cart = await this.cartService.restartCart(args.cartId);
 
@@ -146,6 +151,7 @@ export class NextJSActionsService {
     allowlist: [CartInvalidPromoCodeError, ProductConfigError],
   })
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
+  @WithTypeCachableAsyncLocalStorage()
   async setupCart(args: {
     interval: SubplatInterval;
     offeringConfigId: string;
@@ -163,6 +169,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(FinalizeCartWithErrorArgs, undefined)
+  @WithTypeCachableAsyncLocalStorage()
   async finalizeCartWithError(args: {
     cartId: string;
     errorReasonId: CartErrorReasonId;
@@ -175,12 +182,14 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(FinalizeProcessingCartActionArgs, undefined)
+  @WithTypeCachableAsyncLocalStorage()
   async finalizeProcessingCart(args: { cartId: string }) {
     await this.cartService.finalizeProcessingCart(args.cartId);
   }
 
   @SanitizeExceptions()
   @NextIOValidator(GetPayPalCheckoutTokenArgs, GetPayPalCheckoutTokenResult)
+  @WithTypeCachableAsyncLocalStorage()
   async getPayPalCheckoutToken(args: { currencyCode: string }) {
     const token = await this.checkoutTokenManager.get(args.currencyCode);
 
@@ -191,6 +200,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(GetTaxAddressArgs, GetTaxAddressResult)
+  @WithTypeCachableAsyncLocalStorage()
   async getTaxAddress(args: { ipAddress: string }) {
     const taxAddress = this.geodbManager.getTaxAddress(args.ipAddress);
     return { taxAddress };
@@ -198,6 +208,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(CheckoutCartWithPaypalActionArgs, undefined)
+  @WithTypeCachableAsyncLocalStorage()
   async checkoutCartWithPaypal(args: {
     cartId: string;
     version: number;
@@ -214,6 +225,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(CheckoutCartWithStripeActionArgs, undefined)
+  @WithTypeCachableAsyncLocalStorage()
   async checkoutCartWithStripe(args: {
     cartId: string;
     version: number;
@@ -230,6 +242,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions({ allowlist: [ProductConfigError] })
   @NextIOValidator(FetchCMSDataActionArgs, FetchCMSDataActionResult)
+  @WithTypeCachableAsyncLocalStorage()
   async fetchCMSData(args: {
     offeringId: string;
     acceptLanguage?: string | null;
@@ -246,6 +259,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(RecordEmitterEventArgs, undefined)
+  @WithTypeCachableAsyncLocalStorage()
   async recordEmitterEvent(args: {
     eventName: string;
     requestArgs: CommonMetrics;
@@ -278,6 +292,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(GetNeedsInputActionArgs, getNeedsInputActionResult)
+  @WithTypeCachableAsyncLocalStorage()
   async getNeedsInput(args: { cartId: string }) {
     return await this.cartService.getNeedsInput(args.cartId);
   }
@@ -286,6 +301,7 @@ export class NextJSActionsService {
     allowlist: [CheckoutFailedError],
   })
   @NextIOValidator(SubmitNeedsInputActionArgs, undefined)
+  @WithTypeCachableAsyncLocalStorage()
   async submitNeedsInput(args: { cartId: string }) {
     await this.cartService.submitNeedsInput(args.cartId);
   }
@@ -298,6 +314,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(ValidatePostalCodeActionArgs, ValidatePostalCodeActionResult)
+  @WithTypeCachableAsyncLocalStorage()
   async validateAndFormatPostalCode(args: {
     postalCode: string;
     countryCode: string;
@@ -310,6 +327,7 @@ export class NextJSActionsService {
 
   @SanitizeExceptions()
   @NextIOValidator(DetermineCurrencyActionArgs, DetermineCurrencyActionResult)
+  @WithTypeCachableAsyncLocalStorage()
   async determineCurrency(args: { ip: string }) {
     const location = this.geodbManager.getTaxAddress(args.ip);
 

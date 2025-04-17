@@ -213,10 +213,14 @@ const recordEventMetric = (
       email.firstEngage.record();
       break;
     case 'email_first_submit_success':
-      email.firstSubmitSuccess.record();
+      email.firstSubmitSuccess.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'email_first_submit_fail':
-      email.firstSubmitFail.record();
+      email.firstSubmitFail.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'email_first_google_oauth_start':
       email.firstGoogleOauthStart.record();

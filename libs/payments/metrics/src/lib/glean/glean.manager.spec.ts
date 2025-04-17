@@ -7,6 +7,7 @@ import {
   CartMetricsFactory,
   CmsMetricsDataFactory,
   CommonMetricsFactory,
+  SubscriptionCancellationDataFactory,
 } from './glean.factory';
 import { PaymentsGleanProvider } from './glean.types';
 import { MockPaymentsGleanFactory } from './glean.test-provider';
@@ -19,6 +20,7 @@ const mockCommonMetricsData = {
   commonMetricsData: CommonMetricsFactory(),
   cartMetricsData: CartMetricsFactory(),
   cmsMetricsData: CmsMetricsDataFactory(),
+  subscriptionCancellationData: SubscriptionCancellationDataFactory(),
 };
 const mockCommonMetrics = { common: 'metrics' };
 const mockPaymentProvider = 'card';
@@ -158,6 +160,39 @@ describe('PaymentsGleanManager', () => {
       );
       expect(
         paymentsGleanServerEventsLogger.recordPaySetupFail
+      ).toHaveBeenCalledWith({
+        ...mockCommonMetrics,
+        subscription_payment_provider: mockPaymentProvider,
+      });
+    });
+  });
+
+  describe('recordFxaSubscriptionEnded', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(paymentsGleanServerEventsLogger, 'recordSubscriptionEnded')
+        .mockReturnValue({});
+      spyPopulateCommonMetrics = jest
+        .spyOn(paymentsGleanManager as any, 'populateCommonMetrics')
+        .mockReturnValue(mockCommonMetrics);
+    });
+
+    it('should record subscribe - subscription_ended', () => {
+      paymentsGleanManager.recordFxaSubscriptionEnded(
+        {
+          cmsMetricsData: mockCommonMetricsData.cmsMetricsData,
+          subscriptionCancellationData:
+            mockCommonMetricsData.subscriptionCancellationData,
+        },
+        mockPaymentProvider
+      );
+      expect(spyPopulateCommonMetrics).toHaveBeenCalledWith({
+        cmsMetricsData: mockCommonMetricsData.cmsMetricsData,
+        subscriptionCancellationData:
+          mockCommonMetricsData.subscriptionCancellationData,
+      });
+      expect(
+        paymentsGleanServerEventsLogger.recordSubscriptionEnded
       ).toHaveBeenCalledWith({
         ...mockCommonMetrics,
         subscription_payment_provider: mockPaymentProvider,
