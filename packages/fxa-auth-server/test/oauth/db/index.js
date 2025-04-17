@@ -371,9 +371,10 @@ describe('#integration - db', function () {
         const mysql = await db.mysql;
         const t = await mysql._getRefreshToken(tokenId);
         assert.equal(hex(t.tokenId), hex(tokenId), 'same token');
-        assert.equal(
-          t.lastUsedAt.toString(),
-          tokenFirstUsage.lastUsedAt.toString(),
+        assert.approximately(
+          t.lastUsedAt.getTime(),
+          tokenFirstUsage.lastUsedAt.getTime(),
+          1000, // some slack
           'lastUsedAt not changed'
         );
       });

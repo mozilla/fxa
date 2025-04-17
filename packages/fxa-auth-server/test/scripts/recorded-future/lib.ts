@@ -56,7 +56,7 @@ describe('Recorded Future credentials search and reset script lib', () => {
     });
   });
 
-  describe('fetch all results function', () => {
+  describe('fetch all credentials search results function', () => {
     let client;
 
     beforeEach(() => {
@@ -80,7 +80,7 @@ describe('Recorded Future credentials search and reset script lib', () => {
         .resolves({ data: secondResponse });
       const searchFn = lib.createCredentialsSearchFn(client);
 
-      const res = await lib.fetchAllCredentialResults(searchFn, payload);
+      const res = await lib.fetchAllCredentialSearchResults(searchFn, payload);
 
       sinon.assert.calledTwice(client.POST);
       sinon.assert.calledWith(client.POST, '/identity/credentials/search', {
@@ -93,32 +93,6 @@ describe('Recorded Future credentials search and reset script lib', () => {
         ...firstResponse.identities,
         ...secondResponse.identities,
       ] as unknown as SearchResultIdentity[]);
-    });
-  });
-
-  describe('email address login filter', () => {
-    it('matches strings resembling email addresses', () => {
-      assert.isTrue(
-        lib.isLoginAnEmailAddress({ login: 'a@q.co', domain: 'example.com' })
-      );
-      assert.isTrue(
-        lib.isLoginAnEmailAddress({ login: 'a+b@z.q', domain: 'example.com' })
-      );
-      assert.isTrue(
-        lib.isLoginAnEmailAddress({
-          login: 'a.b@z.q.co.gg',
-          domain: 'example.com',
-        })
-      );
-      assert.isFalse(
-        lib.isLoginAnEmailAddress({ login: 'a.co.gg', domain: 'example.com' })
-      );
-      assert.isFalse(
-        lib.isLoginAnEmailAddress({ login: 'quux', domain: 'example.com' })
-      );
-      assert.isFalse(
-        lib.isLoginAnEmailAddress({ login: 'a+/', domain: 'example.com' })
-      );
     });
   });
 
@@ -185,6 +159,124 @@ describe('Recorded Future credentials search and reset script lib', () => {
         sinon.assert.calledOnceWithExactly(totpTokenFn, '9001');
         assert.equal(err.errno, ERRNO.INVALID_JSON);
       }
+    });
+  });
+
+  describe('credentials lookup function', () => {
+    let client;
+
+    beforeEach(() => {
+      client = { POST: sandbox.stub() };
+    });
+
+    it('returns leaked credentials with cleartext password', async () => {
+      const expected = [
+        {
+          subject: 'a@b.com',
+          exposed_secret: {
+            details: { clear_text_value: 'abc' },
+            type: 'clear',
+          },
+        },
+        {
+          subject: 'fizz@bar.gg',
+          exposed_secret: {
+            details: { clear_text_value: 'buzz' },
+            type: 'clear',
+          },
+        },
+      ];
+      const filtered = [
+        {
+          subject: 'a@b.com',
+          exposed_secret: {
+            details: { clear_text_value: 'abc' },
+            type: 'clear',
+          },
+        },
+        {
+          subject: 'x@y.com',
+          exposed_secret: {
+            type: 'hash',
+          },
+        },
+      ];
+      client.POST.resolves({
+        data: {
+          identities: [
+            { credentials: [expected[0], filtered[0]] },
+            { credentials: [expected[1]] },
+            { credentials: [filtered[1]] },
+          ],
+        },
+      });
+      const lookupFn = lib.createCredentialsLookupFn(client);
+      const subjects = [
+        { login: 'a@b.com', domain: 'quux.io' },
+        { login: 'x@y.com', domain: 'quux.io' },
+        { login: 'fizz@bar.gg', domain: 'quux.io' },
+      ];
+      const res = await lookupFn(subjects, {
+        first_downloaded_gte: '2025-04-15',
+      });
+      sinon.assert.calledOnceWithExactly(
+        client.POST,
+        '/identity/credentials/lookup',
+        {
+          body: {
+            subjects_login: subjects,
+            filter: { first_downloaded_gte: '2025-04-15' },
+          },
+        }
+      );
+      assert.deepEqual(res, expected);
+    });
+
+    it('limits the subjects login in API call', async () => {
+      client.POST.resolves({ data: { identities: [] } });
+      const lookupFn = lib.createCredentialsLookupFn(client);
+      const subjects = Array(555);
+      await lookupFn(subjects, {
+        first_downloaded_gte: '2025-04-15',
+      });
+
+      sinon.assert.calledTwice(client.POST);
+    });
+  });
+
+  describe('verify password function', () => {
+    it('checks the leaked password', async () => {
+      const getCredentials = sandbox.stub().resolves({ authPW: 'wibble' });
+      const checkPassword = sandbox.stub().resolves({ match: false });
+      const verifyHashStub = sandbox.stub().resolves('quux');
+      const Password = class {
+        async verifyHash() {
+          return verifyHashStub();
+        }
+      };
+      const verifyPassword = lib.createVerifyPasswordFn(
+        Password as any,
+        checkPassword,
+        getCredentials
+      );
+      const leakCredentials = {
+        subject: 'fizz@bar.gg',
+        exposed_secret: {
+          details: { clear_text_value: 'buzz' },
+          type: 'clear',
+        },
+      };
+      const acct = {
+        uid: '9001',
+        authSalt: 'pepper',
+        verifierVersion: 1,
+      };
+      const res = await verifyPassword(leakCredentials, acct as any);
+
+      sinon.assert.calledOnceWithExactly(getCredentials, acct, 'buzz');
+      sinon.assert.calledOnce(verifyHashStub);
+      sinon.assert.calledOnceWithExactly(checkPassword, '9001', 'quux');
+      assert.isFalse(res);
     });
   });
 });

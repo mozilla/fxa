@@ -26,21 +26,24 @@ import { promisify } from 'util';
 import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
 import createClient from 'openapi-fetch';
+import PQueue from 'p-queue';
 
 import appConfig from '../../config';
 import logFn from '../../lib/log';
 import { createDB } from '../../lib/db';
+import PasswordFn from '../../lib/crypto/password';
 import TokenFn from '../../lib/tokens';
 import { emitStatsdMetrics } from '../lib/metrics';
 import { parseBooleanArg } from '../lib/args';
 import { paths } from './identity-schema';
 import {
+  createCredentialsLookupFn,
   createCredentialsSearchFn,
   createFindAccountFn,
   createHasTotp2faFn,
+  createVerifyPasswordFn,
   defaultPerPageLimit,
-  fetchAllCredentialResults,
-  isLoginAnEmailAddress,
+  fetchAllCredentialSearchResults,
   SearchResultIdentity,
 } from './lib';
 
@@ -65,6 +68,11 @@ will be sent to the account holder.`
       '--first-downloaded-date <date>',
       'The date after when the account credential was first downloaded by Recorded Future.  If not given, the date in UTC from 24 hours ago will be used.',
       Date.parse
+    )
+    .option(
+      '--concurrency [number]',
+      'The max number of inflight active password verify and reset as well as per second rate limit.  Defaults to 100.',
+      parseInt
     )
     .option(
       '--dry-run [true|false]',
@@ -94,10 +102,12 @@ Limit: ${resultsPerPageLimit}
     return 0;
   }
 
+  const usernamePropertiesFilter = ['Email'] as 'Email'[];
   const payload = {
     domains: [searchDomain],
     filter: {
       first_downloaded_gte: firstDownloadedDateIsoString,
+      username_properties: usernamePropertiesFilter,
     },
     limit: resultsPerPageLimit,
   };
@@ -107,27 +117,22 @@ Limit: ${resultsPerPageLimit}
     'recorded-future.identity.credentials-search',
     statsd
   );
-  const credentials = await fetchAllCredentialResults(
+  const leakedLogins = await fetchAllCredentialSearchResults(
     credentialsSearch,
     payload
   );
   statsd.increment(
     'recorded-future.identity.credentials-search.results.total',
-    credentials.length
+    leakedLogins.length
   );
 
-  const emailLoginIdentities = credentials.filter(isLoginAnEmailAddress);
-  statsd.increment(
-    'recorded-future.identity.credentials-search.results.email-logins',
-    emailLoginIdentities.length
-  );
-
-  if (emailLoginIdentities.length === 0) {
+  if (leakedLogins.length === 0) {
     return 0;
   }
 
   const log = logFn({ name: 'recorded-future' });
   const Token = TokenFn(log, config);
+  const Password = PasswordFn(log, config);
   const DB = createDB(config, log, Token);
   const authDb = await DB.connect(config, undefined);
 
@@ -136,15 +141,20 @@ Limit: ${resultsPerPageLimit}
   const getTotpToken = authDb.totpToken.bind(authDb);
   const hasTotp2FA = createHasTotp2faFn(getTotpToken);
 
-  const accountEmails: SearchResultIdentity['login'][] = [];
-  for (const identity of emailLoginIdentities) {
+  const accountLogins: SearchResultIdentity[] = [];
+  const accounts: Record<
+    SearchResultIdentity['login'],
+    Awaited<ReturnType<typeof findAccount>>
+  > = {};
+  for (const identity of leakedLogins) {
     const acct = await findAccount(identity.login);
 
     if (acct) {
       const has2FA = await hasTotp2FA(acct);
 
       if (!has2FA) {
-        accountEmails.push(identity.login);
+        accounts[identity.login] = acct;
+        accountLogins.push(identity);
         statsd.increment(
           'recorded-future.identity.credentials-search.results.account-emails'
         );
@@ -156,13 +166,53 @@ Limit: ${resultsPerPageLimit}
     }
   }
 
-  if (accountEmails.length === 0) {
+  if (accountLogins.length === 0) {
     console.log('No account emails found.');
     return 0;
   }
 
+  const credentialsLookupFn = createCredentialsLookupFn(client);
+  const cleartextCredentials = await credentialsLookupFn(accountLogins, {
+    first_downloaded_gte: firstDownloadedDateIsoString,
+  });
+  statsd.increment(
+    'recorded-future.identity.credentials-lookup.cleartext-total',
+    cleartextCredentials.length
+  );
+
+  const verifyPassword = createVerifyPasswordFn(
+    Password,
+    authDb.checkPassword.bind(authDb)
+  );
+
+  const defaultConcurrency = 100;
+  const concurrency = program.concurrency || defaultConcurrency;
+  const queue = new PQueue({
+    concurrency,
+    interval: 1000,
+    intervalCap: concurrency,
+  });
+
+  for (const foundCredentials of cleartextCredentials) {
+    await queue.onSizeLessThan(concurrency * 5);
+
+    queue.add(async () => {
+      const acct = accounts[foundCredentials.subject as string];
+      const passwordMatched = await verifyPassword(foundCredentials, acct);
+
+      if (passwordMatched) {
+        // @TODO maybe reset and send email
+        statsd.increment(
+          'recorded-future.identity.credentials-lookup.password-match'
+        );
+      }
+    });
+  }
+
+  await queue.onIdle();
+
   console.log(
-    `Found ${credentials.length} results, of which ${accountEmails.length} are accounts without 2FA.`
+    `Found ${leakedLogins.length} results, of which ${accountLogins.length} are accounts without 2FA.`
   );
 
   await promisify(statsd.close).bind(statsd)();
