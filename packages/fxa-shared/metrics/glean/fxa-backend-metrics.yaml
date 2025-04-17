@@ -1386,3 +1386,27 @@ two_step_auth_phone_remove:
     expires: never
     data_sensitivity:
       - interaction
+
+email_delivery:
+  success:
+    type: event
+    description: |
+      Event that indicates the email was successfully delivered to the user.
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11197
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - technical
+    extra_keys:
+      reason:
+        description: |
+          The email template that was delivered.
+        type: string

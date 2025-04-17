@@ -5,8 +5,9 @@
 'use strict';
 
 const utils = require('./utils/helpers');
+const { requestForGlean } = require('../inactive-accounts');
 
-module.exports = function (log) {
+module.exports = function (log, glean) {
   return function start(deliveryQueue) {
     async function handleDelivery(message) {
       utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'delivery');
@@ -21,6 +22,8 @@ module.exports = function (log) {
       // Log the `X-Template-Name` header to help track the email template that delivered.
       // Ref: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
       const templateName = utils.getHeaderValue('X-Template-Name', message);
+
+      const uid = utils.getHeaderValue('X-Uid', message);
 
       for (const recipient of recipients) {
         const email = recipient;
@@ -40,6 +43,10 @@ module.exports = function (log) {
         utils.logFlowEventFromMessage(log, message, 'delivered');
         utils.logEmailEventFromMessage(log, message, 'delivered', emailDomain);
         utils.logAccountEventFromMessage(message, 'emailDelivered');
+        glean.emailDelivery.success(requestForGlean, {
+          uid,
+          reason: templateName,
+        });
 
         log.info('handleDelivery', logData);
       }
