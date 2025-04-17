@@ -36,6 +36,7 @@ jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
     login: {
+      backupChoiceView: jest.fn(),
       backupChoiceSubmit: jest.fn(),
     },
   },
@@ -59,6 +60,9 @@ function mockReachRouter(pathname = '', mockLocationState = {}) {
 }
 
 describe('SigninRecoveryChoice', () => {
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
   it('renders as expected', () => {
     renderSigninRecoveryChoice();
 
@@ -159,6 +163,19 @@ describe('SigninRecoveryChoice', () => {
   });
 
   describe('glean metrics', () => {
+    it('view event emitted on render', async () => {
+      mockReachRouter('signin_recovery_choice', MOCK_SIGNIN_LOCATION_STATE);
+
+      renderSigninRecoveryChoice();
+      expect(
+        screen.getByRole('heading', {
+          name: 'Choose a recovery method',
+          level: 2,
+        })
+      ).toBeInTheDocument();
+      expect(GleanMetrics.login.backupChoiceView).toBeCalledTimes(1);
+    });
+
     it('sends the correct metric when Recovery phone option is selected', async () => {
       mockReachRouter('signin_recovery_choice', MOCK_SIGNIN_LOCATION_STATE);
 
@@ -168,9 +185,11 @@ describe('SigninRecoveryChoice', () => {
       user.click(screen.getByLabelText(/Recovery phone/i));
       user.click(screen.getByRole('button', { name: 'Continue' }));
 
-      expect(GleanMetrics.login.backupChoiceSubmit).toBeCalledWith({
-        event: { reason: 'phone' },
-      });
+      await waitFor(() =>
+        expect(GleanMetrics.login.backupChoiceSubmit).toBeCalledWith({
+          event: { reason: 'phone' },
+        })
+      );
     });
 
     it('sends the correct metric when Backup authentication codes option is selected', async () => {
@@ -182,9 +201,11 @@ describe('SigninRecoveryChoice', () => {
       user.click(screen.getByLabelText(/Backup authentication codes/i));
       user.click(screen.getByRole('button', { name: 'Continue' }));
 
-      expect(GleanMetrics.login.backupChoiceSubmit).toBeCalledWith({
-        event: { reason: 'code' },
-      });
+      await waitFor(() =>
+        expect(GleanMetrics.login.backupChoiceSubmit).toBeCalledWith({
+          event: { reason: 'code' },
+        })
+      );
     });
   });
 });

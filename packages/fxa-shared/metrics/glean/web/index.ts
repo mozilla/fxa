@@ -85,6 +85,7 @@ export const eventsMap = {
     forgotPassword: 'login_forgot_pwd_submit',
     diffAccountLinkClick: 'login_diff_account_link_click',
     engage: 'login_engage',
+    backupChoiceView: 'login_backup_choice_view',
     backupChoiceSubmit: 'login_backup_choice_submit',
     recoveryPhoneSuccessView: 'login_recovery_phone_success_view',
   },
@@ -150,7 +151,7 @@ export const eventsMap = {
     startAppleAuthFromReg: 'third_party_auth_apple_reg_start',
     startGoogleAuthFromLogin: 'third_party_auth_google_login_start',
     startAppleAuthFromLogin: 'third_party_auth_apple_login_start',
-    viewWithNoPasswordSet: 'third_party_auth_login_no_pw_view',
+    loginNoPwView: 'third_party_auth_login_no_pw_view',
   },
 
   thirdPartyAuthSetPassword: {

@@ -546,6 +546,13 @@ describe('lib/glean', () => {
         sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
 
+      it('submits a ping with the login_backup_choice_view event name', async () => {
+        GleanMetrics.login.backupChoiceView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_backup_choice_view');
+      });
+
       it('submits a ping with the login_backup_choice_submit event name', async () => {
         GleanMetrics.login.backupChoiceSubmit({ event: { reason: 'quux' } });
         await GleanMetrics.isDone();
@@ -644,7 +651,7 @@ describe('lib/glean', () => {
 
       it('submits a ping with the login_third_party_auth_no_pw_view event name', async () => {
         const spy = sandbox.spy(thirdPartyAuth.loginNoPwView, 'record');
-        GleanMetrics.thirdPartyAuth.viewWithNoPasswordSet();
+        GleanMetrics.thirdPartyAuth.loginNoPwView();
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(

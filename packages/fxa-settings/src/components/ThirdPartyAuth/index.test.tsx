@@ -32,7 +32,7 @@ jest.mock('../../lib/glean', () => {
         },
       },
       thirdPartyAuth: {
-        viewWithNoPasswordSet: () => {
+        loginNoPwView: () => {
           mockViewWithNoPasswordSet();
         },
         startGoogleAuthFromLogin: () => {
@@ -161,7 +161,7 @@ describe('ThirdPartyAuthComponent', () => {
   });
 
   describe('emits metrics', () => {
-    it('emits glean metrics viewWithNoPasswordSet', () => {
+    it('emits glean metrics loginNoPwView', () => {
       renderWith({
         enabled: true,
         showSeparator: false,

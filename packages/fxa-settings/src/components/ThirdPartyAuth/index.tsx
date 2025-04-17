@@ -36,7 +36,7 @@ const ThirdPartyAuth = ({
   useEffect(() => {
     // If the separator is shown, the user has set a password
     if (!showSeparator) {
-      GleanMetrics.thirdPartyAuth.viewWithNoPasswordSet();
+      GleanMetrics.thirdPartyAuth.loginNoPwView();
     }
   }, [showSeparator]);
 
