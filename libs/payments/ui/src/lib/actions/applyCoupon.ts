@@ -6,14 +6,13 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { UpdateCartInput } from '@fxa/payments/cart';
 import { getApp } from '../nestapp/app';
 import { CouponErrorMessageType } from '../utils/error-ftl-messages';
 
-export const updateCartAction = async (
+export const applyCouponAction = async (
   cartId: string,
   version: number,
-  cartDetails: UpdateCartInput
+  couponCode?: string
 ) => {
   const actionsService = getApp().getActionsService();
 
@@ -21,7 +20,9 @@ export const updateCartAction = async (
     await actionsService.updateCart({
       cartId,
       version,
-      cartDetails,
+      cartDetails: {
+        couponCode,
+      },
     });
   } catch (err) {
     if (err.name === 'CouponErrorExpired') {
@@ -36,7 +37,7 @@ export const updateCartAction = async (
   }
 
   revalidatePath(
-    '/[locale]/[offeringId]/[interval]/checkout/[cartId]/start',
+    `/[locale]/[offeringId]/[interval]/checkout/[cartId]/start`,
     'page'
   );
 

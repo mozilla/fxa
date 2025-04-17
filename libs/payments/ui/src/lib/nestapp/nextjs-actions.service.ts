@@ -70,6 +70,7 @@ import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
 import { CartInvalidPromoCodeError } from 'libs/payments/cart/src/lib/cart.error';
 import { GetIsTaxLockedArgs } from './validators/GetIsTaxLockedArgs';
 import { GetIsTaxLockedResult } from './validators/GetIsTaxLockedResult';
+import { UpdateCartActionResult } from './validators/UpdateCartActionResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -121,7 +122,7 @@ export class NextJSActionsService {
       CouponErrorLimitReached,
     ],
   })
-  @NextIOValidator(UpdateCartActionArgs, undefined)
+  @NextIOValidator(UpdateCartActionArgs, UpdateCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
   async updateCart(args: {
     cartId: string;
@@ -135,7 +136,7 @@ export class NextJSActionsService {
       couponCode?: string;
     };
   }) {
-    await this.cartService.updateCart(
+    return this.cartService.updateCart(
       args.cartId,
       args.version,
       args.cartDetails

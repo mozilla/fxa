@@ -541,7 +541,7 @@ export class CartService {
     cartId: string,
     version: number,
     cartDetailsInput: UpdateCartInput
-  ) {
+  ): Promise<ResultCart> {
     return this.wrapWithCartCatch(
       cartId,
       { errorAllowList: [PromotionCodeCouldNotBeAttachedError] },
@@ -603,6 +603,8 @@ export class CartService {
         }
 
         await this.cartManager.updateFreshCart(cartId, version, cartDetails);
+
+        return this.cartManager.fetchCartById(cartId);
       }
     );
   }
@@ -797,9 +799,8 @@ export class CartService {
       throw new CartSubscriptionNotFoundError(cartId);
     }
 
-    const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
-      subscription
-    );
+    const paymentIntent =
+      await this.subscriptionManager.getLatestPaymentIntent(subscription);
     if (!paymentIntent) {
       throw new CartError('no payment intent found for cart subscription', {
         cartId,
