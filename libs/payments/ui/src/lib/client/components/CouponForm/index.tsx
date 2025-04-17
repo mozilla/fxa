@@ -11,11 +11,11 @@ import { forwardRef, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { ButtonVariant } from '../BaseButton';
 import { SubmitButton } from '../SubmitButton';
-import { updateCartAction } from '../../../actions/updateCart';
 import {
   CouponErrorMessageType,
   getFallbackTextByFluentId,
 } from '../../../utils/error-ftl-messages';
+import { applyCouponAction } from '@fxa/payments/ui/actions';
 
 interface WithCouponProps {
   cartId: string;
@@ -30,7 +30,7 @@ const WithCoupon = ({
   readOnly,
 }: WithCouponProps) => {
   async function removeCoupon() {
-    await updateCartAction(cartId, cartVersion, { couponCode: '' });
+    await applyCouponAction(cartId, cartVersion, '');
   }
 
   return (
@@ -114,9 +114,7 @@ const WithoutCoupon = ({
   async function applyCoupon(_: any, formData: FormData) {
     const promotionCode = formData.get('coupon') as string;
 
-    return updateCartAction(cartId, cartVersion, {
-      couponCode: promotionCode,
-    });
+    return applyCouponAction(cartId, cartVersion, promotionCode);
   }
   const routeCoupon = useSearchParams().get('coupon') || undefined;
   useEffect(() => {
