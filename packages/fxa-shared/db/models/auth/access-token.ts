@@ -17,7 +17,8 @@ export class AccessToken {
     public profileChangedAt: number,
     public expiresAt: Date,
     public token: Buffer | null,
-    public type: string = 'bearer'
+    public deviceId: string,
+    public type: string = 'bearer' // default value should be 'bearer'
   ) {}
 
   get clientCanGrant() {
@@ -52,6 +53,7 @@ export class AccessToken {
       createdAt: this.createdAt.getTime(),
       profileChangedAt: this.profileChangedAt,
       expiresAt: this.expiresAt.getTime(),
+      deviceId: this.deviceId,
     };
   }
 
@@ -71,7 +73,8 @@ export class AccessToken {
       row.createdAt,
       row.profileChangedAt,
       row.expiresAt,
-      null
+      null,
+      row.deviceId
     );
   }
 
@@ -101,7 +104,8 @@ export class AccessToken {
       new Date(json.createdAt),
       json.profileChangedAt,
       new Date(json.expiresAt),
-      null
+      null,
+      json.deviceId
     );
   }
 }

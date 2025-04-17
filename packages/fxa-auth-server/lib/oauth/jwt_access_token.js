@@ -15,8 +15,16 @@ const HEADER_TYP = 'at+JWT';
 /**
  * Create a JWT access token from `grant`
  */
+
+// TODO: Is this used?
 exports.create = async function generateJWTAccessToken(accessToken, grant) {
+  console.log('!!! jwt_access_token.create', {
+    accessToken,
+    grant,
+  });
+
   const clientId = hex(grant.clientId);
+  const deviceId = hex(grant.deviceId);
   // For historical reasons (based on an early draft of the JWT-access-token spec) we
   // always include the client_id in the `aud` claim. A future iteration of this code
   // should instead infer an appropriate default `aud` based on the requested scopes.
@@ -24,14 +32,15 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
   const audience = grant.resource
     ? [clientId, grant.resource]
     : grant.scope.contains(OAUTH_SCOPE_OLD_SYNC)
-    ? TOKEN_SERVER_URL
-    : clientId;
+      ? TOKEN_SERVER_URL
+      : clientId;
 
   // Claims list from:
   // https://tools.ietf.org/html/draft-ietf-oauth-access-token-jwt#section-2.2
   const claims = {
     aud: audience,
     client_id: clientId,
+    device_id: deviceId,
     exp: Math.floor(accessToken.expiresAt / 1000),
     iat: Math.floor(Date.now() / 1000),
     // iss is set in jwt.sign

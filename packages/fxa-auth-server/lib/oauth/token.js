@@ -43,6 +43,9 @@ exports.verify = async function verify(accessToken) {
         scope: ScopeSet.fromString(t.scope),
         generation: t['fxa-generation'],
         profile_changed_at: t['fxa-profileChangedAt'],
+        // Note, some tokens might not have this yet. A refresh is required to get this state
+        // updated in the token or DB.
+        device_id: t.device_id || undefined,
       };
       return info;
     }
@@ -50,10 +53,13 @@ exports.verify = async function verify(accessToken) {
   // These JWT access tokens are still database backed, continue
   // to use the database as the canonical source of info
   // until we fully migrate to JWTs.
-  const token = await db.getAccessToken(await exports.getTokenId(accessToken));
+  const accessTokenId = await exports.getTokenId(accessToken);
+  const token = await db.getAccessToken(accessTokenId);
   if (!token) {
     throw OauthError.invalidToken();
   }
+
+  console.log('!!! accessTokenId', { accessTokenId, token });
 
   // We dug ourselves a bit of a hole with token expiry,
   // and this logic is here to help us climb back out.
@@ -82,6 +88,7 @@ exports.verify = async function verify(accessToken) {
     user: token.userId.toString('hex'),
     client_id: token.clientId.toString('hex'),
     scope: token.scope,
+    device_id: token.device_id.toString('hex'),
   };
 
   if (token.profileChangedAt) {

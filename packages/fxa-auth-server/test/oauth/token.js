@@ -17,6 +17,7 @@ describe('token', function () {
         },
         {
           clientId: Buffer.from('5882386c6d801776', 'hex'),
+          deviceId: Buffer.from('1111111111111111', 'hex'),
           scope: ScopeSet.fromString(
             'https://identity.mozilla.com/apps/oldsync'
           ),
@@ -34,6 +35,7 @@ describe('token', function () {
       );
       assert.equal(t.generation, 9);
       assert.equal(t.profile_changed_at, 8);
+      assert.equal(t.device_id, '5882386c6d801776');
     });
   });
 });

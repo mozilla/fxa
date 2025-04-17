@@ -71,10 +71,10 @@ const QUERY_CODE_INSERT =
   'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_INSERT =
   'INSERT INTO tokens (clientId, userId, scope, type, expiresAt, ' +
-  'token, profileChangedAt) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  'token, profileChangedAt, deviceId) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_REFRESH_TOKEN_INSERT =
-  'INSERT INTO refreshTokens (clientId, userId, scope, token, profileChangedAt) VALUES ' +
-  '(?, ?, ?, ?, ?)';
+  'INSERT INTO refreshTokens (clientId, userId, scope, token, profileChangedAt, deviceId) VALUES ' +
+  '(?, ?, ?, ?, ?, ?)';
 // Access token storage in redis annotates each token with client metadata,
 // so we do the same when reading from MySQL, for consistency.
 // Note that the `token` field stores the hash of the token rather than the raw token,
@@ -371,6 +371,7 @@ class MysqlStore extends MysqlOAuthShared {
       accessToken.expiresAt,
       accessToken.tokenId,
       accessToken.profileChangedAt,
+      accessToken.deviceId,
     ]);
   }
 
@@ -522,6 +523,7 @@ class MysqlStore extends MysqlOAuthShared {
       userId: vals.userId,
       scope: vals.scope,
       profileChangedAt: vals.profileChangedAt,
+      deviceId: vals.deviceId,
     };
     const token = unique.token();
     const tokenId = encrypt.hash(token);
@@ -531,6 +533,7 @@ class MysqlStore extends MysqlOAuthShared {
       t.scope.toString(),
       tokenId,
       t.profileChangedAt,
+      t.deviceId,
     ]).then(function () {
       t.token = token;
       t.tokenId = tokenId;
@@ -539,14 +542,14 @@ class MysqlStore extends MysqlOAuthShared {
   }
 
   _getRefreshToken(token) {
-    return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)]).then(function (
-      t
-    ) {
-      if (t) {
-        t.scope = ScopeSet.fromString(t.scope);
+    return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)]).then(
+      function (t) {
+        if (t) {
+          t.scope = ScopeSet.fromString(t.scope);
+        }
+        return t;
       }
-      return t;
-    });
+    );
   }
 
   _touchRefreshToken(token, now) {

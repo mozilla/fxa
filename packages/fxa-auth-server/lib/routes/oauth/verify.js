@@ -35,6 +35,13 @@ module.exports = ({ log, glean }) => ({
     handler: async function verify(req) {
       const info = await token.verify(req.payload.token);
       info.scope = info.scope.getScopeValues();
+
+      console.log('!!! verify', req.payload, info);
+
+      if (info.device_id) {
+        // TODO: Lookup device id.
+      }
+
       log.debug('verify.success', {
         client_id: info.client_id,
         scope: info.scope,
@@ -48,6 +55,7 @@ module.exports = ({ log, glean }) => ({
         oauthClientId: info.client_id,
         scopes: info.scope,
       });
+
       return info;
     },
   },

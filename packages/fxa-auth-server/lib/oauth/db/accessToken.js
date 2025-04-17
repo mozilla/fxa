@@ -19,7 +19,8 @@ AccessToken.generate = function (
   scope,
   profileChangedAt,
   expiresAt,
-  ttl
+  ttl,
+  deviceId
 ) {
   const token = unique.token();
   const tokenId = encrypt.hash(token);
@@ -36,7 +37,9 @@ AccessToken.generate = function (
     profileChangedAt || 0,
     expiresAt || new Date(Date.now() + (ttl * 1000 || MAX_TTL)),
     // This is the one and only time the caller can get at the unhashed token.
-    token
+    token,
+    'bearer',
+    deviceId
   );
 };
 
