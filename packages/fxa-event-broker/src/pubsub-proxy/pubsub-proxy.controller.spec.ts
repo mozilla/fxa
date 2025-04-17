@@ -6,7 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as Sentry from '@sentry/node';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import nock from 'nock';
+import fetchMock from 'fetch-mock';
 
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { JwtsetService } from '../jwtset/jwtset.service';
@@ -84,13 +84,15 @@ describe('PubsubProxy Controller', () => {
   let mockMetricValue: any;
 
   const mockWebhook = () => {
-    nock('http://accounts.firefox.com')
-      .post('/webhook')
-      .reply(function (uri, requestBody) {
-        const auth = this.req.getHeader('authorization');
-        return [200, { token: typeof auth === 'string' ? auth : 'unknown' }];
-      });
+    fetchMock.post('http://accounts.firefox.com/webhook', (url, opts) => {
+      const auth = (opts.headers as any)['authorization'] || (opts.headers as any)['Authorization'];
+      return { status: 200, body: { token: typeof auth === 'string' ? auth : 'unknown' } };
+    });
   };
+
+  afterEach(() => {
+    fetchMock.restore();
+  });
 
   beforeEach(async () => {
     jwtset = {
@@ -275,7 +277,11 @@ describe('PubsubProxy Controller', () => {
   });
 
   it('proxies an error code back', async () => {
-    nock('http://accounts.firefox.com').post('/webhook').reply(400, 'Error123');
+    // Configure fetch-mock to return a 400 error response.
+    fetchMock.post('http://accounts.firefox.com/webhook', {
+      status: 400,
+      body: 'Error123',
+    });
     const message = createValidSubscriptionMessage();
     expect.assertions(2);
     let err:

@@ -66,6 +66,7 @@ export class PubsubProxyController {
     // for failures.
     this.metrics.timing(`proxy.queueDelay`, queueDelay);
 
+    // Mimic the original behavior by throwing an HttpException with the response details.
     throw new HttpException(data, status);
   }
 
@@ -107,25 +108,25 @@ export class PubsubProxyController {
     message: Record<string, any>;
   }): Promise<{ status: number; data: any }> {
     const { jwtPayload, webhookEndpoint, clientId, message } = options;
-    const requestOptions = {
-      method: 'POST',
+    const fetchOptions: RequestInit = {
+      method: 'post',
       headers: { Authorization: 'Bearer ' + jwtPayload },
     };
 
     try {
-      const response = await fetch(webhookEndpoint, requestOptions);
       let data;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        data = await response.text();
-      }
+      const response = await fetch(webhookEndpoint, fetchOptions);
 
       if (!response.ok) {
-        const error: any = new Error(`HTTP response error: ${response.status}`);
-        error.response = { status: response.status, data };
-        throw error;
+        try {
+          data = await response.clone().json();
+        } catch (jsonError) {
+          data = await response.text();
+        }
+        return { status: response.status, data };
       }
+
+      data = await response.json();
 
       const now = Date.now();
       this.metrics.timing('proxy.success', now - message.changeTime, {
@@ -138,23 +139,10 @@ export class PubsubProxyController {
       }
       return { status: response.status, data };
     } catch (err: any) {
-      if (err.response) {
-        // Proxy normal HTTP responses that aren't 200.
-        this.metrics.increment(`proxy.fail`, {
-          clientId,
-          statusCode: err.response.status.toString(),
-          type: message.event,
-        });
-        this.log.debug('proxyDeliverFail', {
-          response: err.response,
-          message: 'failed to proxy message',
-        });
-        return err.response;
-      } else {
-        this.log.error('proxyDeliverError', { err });
-        Sentry.captureException(err);
-        throw ExtendedError.withCause('Proxy delivery error', err);
-      }
+      // catch any network or unexpected errors.
+      this.log.error('proxyDeliverError', { err });
+      Sentry.captureException(err);
+      throw ExtendedError.withCause('Proxy delivery error', err);
     }
   }
 
