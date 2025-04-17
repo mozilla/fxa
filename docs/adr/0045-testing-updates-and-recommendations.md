@@ -171,7 +171,7 @@ A. Unify Testing Frameworks
 
 B. Optimize Functional Tests
 
-      Decision: Audit and refactor long-running or flaky Playwright tests with an eye toward shifting logic into unit or integration tests where it makes sense.
+      Decision: Audit and refactor long-running or flaky Playwright tests with a focus on shift-left. Tests are pushed to appropriate packages if they can be split into unit or integration tests.
 
       This will improve test execution time, reduce CI resource usage, and ensure test intent is aligned with the right level of abstraction.
 
