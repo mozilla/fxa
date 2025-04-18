@@ -433,7 +433,7 @@ describe('/account/reset', () => {
     });
   });
 
-  describe('reset account with totp', () => {
+  describe('reset account with verified totp', () => {
     let res;
     beforeEach(() => {
       mockDB.totpToken = sinon.spy(() => {
@@ -442,6 +442,7 @@ describe('/account/reset', () => {
           enabled: true,
         });
       });
+      mockRequest.auth.credentials.verificationMethod = 2; // Token has been verified
       return runTest(route, mockRequest, (result) => (res = result));
     });
 
@@ -456,7 +457,7 @@ describe('/account/reset', () => {
       );
     });
 
-    it('should have created unverified sessionToken', () => {
+    it('should have created verified sessionToken', () => {
       assert.equal(
         mockDB.createSessionToken.callCount,
         1,
@@ -484,6 +485,23 @@ describe('/account/reset', () => {
         'db.createKeyFetchToken was passed one argument'
       );
       assert.ok(args[0].tokenVerificationId, 'tokenVerificationId is set');
+    });
+  });
+
+  describe('reset account with unverified totp', () => {
+    it('should fail with unverified session', async () => {
+      mockDB.totpToken = sinon.spy(() => {
+        return Promise.resolve({
+          verified: true,
+          enabled: true,
+        });
+      });
+      try {
+        await runTest(route, mockRequest);
+        assert.fail('should have failed');
+      } catch (error) {
+        assert.equal(error.errno, 138, 'unverified session code');
+      }
     });
   });
 

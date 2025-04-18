@@ -9,6 +9,7 @@ const inherits = require('util').inherits;
 module.exports = function (log, Token, lifetime) {
   function AccountResetToken(keys, details) {
     details.lifetime = lifetime;
+    this.verificationMethod = details.verificationMethod || null;
     Token.call(this, keys, details);
   }
   inherits(AccountResetToken, Token);

@@ -248,9 +248,8 @@ export const createDB = (
         promises.push(this.redis.getSessionTokens(uid));
       }
 
-      const [mysqlSessionTokens, redisSessionTokens = {}] = await Promise.all(
-        promises
-      );
+      const [mysqlSessionTokens, redisSessionTokens = {}] =
+        await Promise.all(promises);
 
       // for each db session token, if there is a matching redis token
       // overwrite the properties of the db token with the redis token values
@@ -942,13 +941,36 @@ export const createDB = (
       await RawSessionToken.verify(tokenId, verificationMethod);
     }
 
+    async verifyPasswordForgotTokenWithMethod(
+      tokenId: string,
+      verificationMethod: VerificationMethod | number
+    ) {
+      log.trace('DB.verifyPasswordForgotTokenWithMethod', {
+        tokenId,
+        verificationMethod,
+      });
+
+      this.metrics?.increment('db.verify.passwordForgotTokensWithMethod', {
+        method: verificationMethodToString(verificationMethod),
+      });
+
+      await RawPasswordForgotToken.updateVerificationMethod(
+        tokenId,
+        verificationMethod
+      );
+    }
+
     async forgotPasswordVerified(passwordForgotToken: {
       id: string;
       uid: string;
+      verificationMethod: VerificationMethod | number;
     }) {
-      const { id, uid } = passwordForgotToken;
+      const { id, uid, verificationMethod } = passwordForgotToken;
       log.trace('DB.forgotPasswordVerified', { uid });
-      const accountResetToken = await AccountResetToken.create({ uid });
+      const accountResetToken = await AccountResetToken.create({
+        uid,
+        verificationMethod,
+      });
       await RawPasswordForgotToken.verify(id, accountResetToken);
       this.metrics?.increment('db.forgotPasswordVerified');
       return accountResetToken;

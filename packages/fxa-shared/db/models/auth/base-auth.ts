@@ -8,7 +8,7 @@ import { Knex } from 'knex';
 
 export enum Proc {
   AccountRecord = 'accountRecord_10',
-  AccountResetToken = 'accountResetToken_1',
+  AccountResetToken = 'accountResetToken_2',
   AccountDevices = 'accountDevices_17',
   ConsumeRecoveryCode = 'consumeRecoveryCode_3',
   ConsumeSigninCode = 'consumeSigninCode_4',
@@ -42,12 +42,12 @@ export enum Proc {
   DeviceFromTokenVerificationId = 'deviceFromTokenVerificationId_6',
   EmailBounces = 'fetchEmailBounces_3',
   FindLargeAccounts = 'findLargeAccounts_1',
-  ForgotPasswordVerified = 'forgotPasswordVerified_8',
+  ForgotPasswordVerified = 'forgotPasswordVerified_9',
   KeyFetchToken = 'keyFetchToken_1',
   KeyFetchTokenWithVerificationStatus = 'keyFetchTokenWithVerificationStatus_2',
   LimitSessions = 'limitSessions_3',
   PasswordChangeToken = 'passwordChangeToken_3',
-  PasswordForgotToken = 'passwordForgotToken_2',
+  PasswordForgotToken = 'passwordForgotToken_3',
   PurgeAvailableCommands = 'purgeAvailableCommands_1',
   Prune = 'prune_10',
   RecoveryCodes = 'recoveryCodes_1',

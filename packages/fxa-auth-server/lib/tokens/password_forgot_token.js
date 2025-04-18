@@ -14,6 +14,7 @@ module.exports = (log, Token, lifetime) => {
     this.email = details.email || null;
     this.passCode = details.passCode || null;
     this.tries = details.tries || null;
+    this.verificationMethod = details.verificationMethod || null;
   }
   inherits(PasswordForgotToken, Token);
 
