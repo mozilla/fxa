@@ -110,6 +110,12 @@ export class SigninPage extends BaseLayout {
     });
   }
 
+  get badRequestHeading() {
+    return this.page.getByRole('heading', {
+      name: /Bad Request: Invalid Query Parameters/,
+    });
+  }
+
   goto(route = '/', params = new URLSearchParams()) {
     params.set('forceExperiment', 'generalizedReactApp');
     params.set('forceExperimentGroup', 'react');

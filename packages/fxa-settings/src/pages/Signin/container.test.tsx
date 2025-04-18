@@ -18,8 +18,8 @@ import SigninContainer from './container';
 import { BeginSigninResult, SigninProps } from './interfaces';
 import { MozServices } from '../../lib/types';
 import { act, screen, waitFor } from '@testing-library/react';
-import { Integration, IntegrationType } from '../../models';
-import { ModelDataProvider } from '../../lib/model-data';
+import { Integration, IntegrationType, WebIntegration } from '../../models';
+import { GenericData, ModelDataProvider } from '../../lib/model-data';
 import {
   MOCK_STORED_ACCOUNT,
   MOCK_EMAIL,
@@ -118,16 +118,31 @@ function mockOAuthNativeIntegration() {
 }
 
 function mockWebIntegration() {
-  integration = {
-    type: IntegrationType.Web,
-    getService: () => MozServices.Default,
-    getClientId: () => undefined,
-    isSync: () => false,
-    wantsKeys: () => false,
-    isDesktopSync: () => false,
-    isDesktopRelay: () => false,
-    data: {},
-  } as Integration;
+  // Leaving for historical record. Remove once baked.
+  // integration = {
+  //   type: IntegrationType.Web,
+  //   getService: () => MozServices.Default,
+  //   getClientId: () => undefined,
+  //   isSync: () => false,
+  //   wantsKeys: () => false,
+  //   isDesktopSync: () => false,
+  //   isDesktopRelay: () => false,
+  //   data: {},
+  // } as Integration;
+
+  integration = new WebIntegration(
+    new GenericData({
+      service: MozServices.Default,
+    })
+  );
+
+  expect(integration.type).toEqual(IntegrationType.Web);
+  expect(integration.getService()).toEqual(MozServices.Default);
+  expect(integration.getClientId()).toEqual(undefined);
+  expect(integration.isSync()).toBeFalsy();
+  expect(integration.wantsKeys()).toBeFalsy();
+  expect(integration.isDesktopSync()).toBeFalsy();
+  expect(integration.isDesktopRelay()).toBeFalsy();
 }
 
 function applyDefaultMocks() {

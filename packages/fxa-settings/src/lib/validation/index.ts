@@ -6,7 +6,8 @@ import {
 } from 'class-validator';
 
 /**
- * This is validator attempts to be backwards compatible with a pre-existing rule in
+ * This validator attempts to be backwards compatible with a pre-existing rule in
+ * fxa-content-server. Reference validate.js, isUrlValid.
  */
 @ValidatorConstraint({ name: 'IsFxaRedirectToUrl', async: false })
 export class IsFxaRedirectToUrl implements ValidatorConstraintInterface {

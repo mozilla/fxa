@@ -12,7 +12,11 @@ import {
   Matches,
   Validate,
 } from 'class-validator';
-import { bind, ModelDataProvider } from '../../../lib/model-data';
+import {
+  bind,
+  KeyTransforms as T,
+  ModelDataProvider,
+} from '../../../lib/model-data';
 import { IsFxaRedirectToUrl } from '../../../lib/validation';
 
 /**
@@ -44,6 +48,6 @@ export class SigninQueryParams extends ModelDataProvider {
 
   @IsOptional()
   @Validate(IsFxaRedirectToUrl, {})
-  @bind()
+  @bind(T.snakeCase)
   redirectTo: string | undefined = undefined;
 }

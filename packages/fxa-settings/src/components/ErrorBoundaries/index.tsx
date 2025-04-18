@@ -51,5 +51,6 @@ export const AppError = ({ error }: { error?: Error }) => {
   if (error instanceof ModelValidationErrors) {
     return <AppErrorDialog errorType="query-parameter-violation" />;
   }
+
   return <AppErrorDialog />;
 };

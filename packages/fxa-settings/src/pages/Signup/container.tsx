@@ -92,7 +92,7 @@ const SignupContainer = ({
   const wantsKeys = integration.wantsKeys();
 
   // TODO: in PostVerify/SetPassword we call this and handle web channel messaging
-  // in the container compoment, but here we handle web channel messaging in the
+  // in the container component, but here we handle web channel messaging in the
   // presentation component and we should be consistent. Calling this here allows for
   // some easier mocking, especially until we can upgrade to Storybook 8.
   const useSyncEnginesResult = useSyncEngines(integration);
