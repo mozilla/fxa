@@ -6,9 +6,10 @@
  */
 import type { ColumnType, JSONColumnType } from 'kysely';
 
-export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
-  ? ColumnType<S, I | undefined, U>
-  : ColumnType<T, T | undefined, T>;
+export type Generated<T> =
+  T extends ColumnType<infer S, infer I, infer U>
+    ? ColumnType<S, I | undefined, U>
+    : ColumnType<T, T | undefined, T>;
 
 export type Json = ColumnType<JsonValue, string, string>;
 
@@ -34,9 +35,11 @@ export enum CartErrorReasonId {
   BASIC_ERROR = 'basic-error-message',
   IAP_UPGRADE_CONTACT_SUPPORT = 'iap_upgrade_contact_support',
   SUCCESS_CART_MISSING_REQUIRED = 'success_cart_missing_required',
-  CartEligibilityStatusDowngrade = 'cart_eligibility_status_downgrade',
-  CartEligibilityStatusInvalid = 'cart_eligibility_status_invalid',
-  Unknown = 'unknown',
+  CART_ELIGIBILITY_STATUS_DOWNGRADE = 'cart_eligibility_status_downgrade',
+  CART_ELIGIBILITY_STATUS_INVALID = 'cart_eligibility_status_invalid',
+  CART_CURRENCY_NOT_DETERMINED = 'cart_currency_not_determined',
+  CART_PROCESSING_GENERAL_ERROR = 'cart_processing_general_error',
+  UNKNOWN = 'unknown',
 }
 
 export enum CartEligibilityStatus {
@@ -91,7 +94,7 @@ export interface Carts {
   id: Buffer;
   uid: Buffer | null;
   state: CartState;
-  errorReasonId: CartErrorReasonId | null;
+  errorReasonId: CartErrorReasonId | string | null;
   offeringConfigId: string;
   interval: string;
   experiment: string | null;

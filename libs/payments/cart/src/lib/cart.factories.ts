@@ -94,7 +94,7 @@ export const FinishCartFactory = (
 export const FinishErrorCartFactory = (
   override?: Partial<FinishErrorCart>
 ): FinishErrorCart => ({
-  errorReasonId: CartErrorReasonId.Unknown,
+  errorReasonId: CartErrorReasonId.UNKNOWN,
   ...override,
 });
 

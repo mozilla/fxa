@@ -40,7 +40,7 @@ import {
   CartEligibilityMismatchError,
   CartAccountNotFoundError,
   CartInvalidPromoCodeError,
-  CartInvalidCurrencyError,
+  CartCurrencyNotFoundError,
   CartUidNotFoundError,
   CartError,
   CartNoTaxAddressError,
@@ -99,7 +99,7 @@ export class CheckoutService {
     let version = cart.version;
 
     if (!cart.currency) {
-      throw new CartInvalidCurrencyError(
+      throw new CartCurrencyNotFoundError(
         cart.currency || undefined,
         taxAddress.countryCode
       );

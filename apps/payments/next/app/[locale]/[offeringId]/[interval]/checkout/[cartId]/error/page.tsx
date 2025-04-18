@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 const getErrorReason = (
-  reason: CartErrorReasonId | null,
+  reason: CartErrorReasonId | string | null,
   params: CheckoutParams
 ) => {
   switch (reason) {
@@ -60,6 +60,26 @@ const getErrorReason = (
         message:
           'You can still get this product — please contact support so we can help you.',
         messageFtl: 'next-iap-upgrade-contact-support',
+      };
+    // Note refactoring of this method was done as part of PR#18722
+    // and these updates should be included in that PRs function `getErrorFtlInfo.ts`
+    case CartErrorReasonId.CART_CURRENCY_NOT_DETERMINED:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message:
+          'We were unable to determine the currency for this purchase, please try again.',
+        messageFtl: 'cart-error-currency-not-determined',
+      };
+    case CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message:
+          'An unexpected error has occurred while processing your payment, please try again.',
+        messageFtl: 'checkout-processing-general-error',
       };
     default:
       return {

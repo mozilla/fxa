@@ -144,13 +144,13 @@ export class CartInvalidPromoCodeError extends CartError {
   }
 }
 
-export class CartInvalidCurrencyError extends CartError {
+export class CartCurrencyNotFoundError extends CartError {
   constructor(
     currency: string | undefined,
     country: string | undefined,
     cartId?: string
   ) {
-    super('Cart specified currency is not supported', {
+    super('Cart currency could not be determined', {
       cartId,
       currency,
       country,

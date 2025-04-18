@@ -16,13 +16,13 @@ describe('utils', () => {
     it('should return for type card_error', () => {
       mockStripeError.type = 'card_error';
       const result = stripeErrorToErrorReasonId(mockStripeError);
-      expect(result).toBe(CartErrorReasonId.Unknown);
+      expect(result).toBe(CartErrorReasonId.UNKNOWN);
     });
 
     it('should return for default', () => {
       mockStripeError.type = 'api_error';
       const result = stripeErrorToErrorReasonId(mockStripeError);
-      expect(result).toBe(CartErrorReasonId.Unknown);
+      expect(result).toBe(CartErrorReasonId.UNKNOWN);
     });
   });
 });

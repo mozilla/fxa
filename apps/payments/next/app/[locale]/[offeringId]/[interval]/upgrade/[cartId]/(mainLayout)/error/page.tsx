@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 const getErrorReason = (
-  reason: CartErrorReasonId | null,
+  reason: CartErrorReasonId | string | null,
   params: CheckoutParams
 ) => {
   switch (reason) {
