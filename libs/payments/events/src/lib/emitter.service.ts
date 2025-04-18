@@ -4,6 +4,8 @@
 import Emittery from 'emittery';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { Inject, Injectable } from '@nestjs/common';
+import type { LoggerService } from '@nestjs/common';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { CartManager } from '@fxa/payments/cart';
 import { PaymentsGleanManager } from '@fxa/payments/metrics';
 import { LocationStatus } from '@fxa/payments/eligibility';
@@ -29,7 +31,8 @@ export class PaymentsEmitterService {
     private paymentsGleanManager: PaymentsGleanManager,
     private cartManager: CartManager,
     private accountManager: AccountManager,
-    @Inject(StatsDService) public statsd: StatsD
+    @Inject(StatsDService) public statsd: StatsD,
+    @Inject(LOGGER_PROVIDER) private log: LoggerService
   ) {
     this.emitter = new Emittery<PaymentsEmitterEvents>();
     this.emitter.on('checkoutView', this.handleCheckoutView.bind(this));
@@ -201,6 +204,11 @@ export class PaymentsEmitterService {
     const { version, offeringId, interval, shadowMode } = eventData;
 
     this.statsd.increment('sp3_rollout', {
+      version,
+      shadow_mode: shadowMode ? 'true' : 'false',
+    });
+
+    this.log.log('sp3_rollout event data', {
       version,
       offering_id: offeringId,
       interval,
