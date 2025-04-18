@@ -6,6 +6,7 @@ import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { Inject, Injectable } from '@nestjs/common';
 import { CartManager } from '@fxa/payments/cart';
 import { PaymentsGleanManager } from '@fxa/payments/metrics';
+import { LocationStatus } from '@fxa/payments/eligibility';
 import {
   CheckoutEvents,
   CheckoutPaymentEvents,
@@ -41,6 +42,7 @@ export class PaymentsEmitterService {
       this.handleSubscriptionEnded.bind(this)
     );
     this.emitter.on('sp3Rollout', this.handleSP3Rollout.bind(this));
+    this.emitter.on('locationView', this.handleLocationView.bind(this));
   }
 
   getEmitter(): Emittery<PaymentsEmitterEvents> {
@@ -203,6 +205,12 @@ export class PaymentsEmitterService {
       offering_id: offeringId,
       interval,
       shadow_mode: shadowMode ? 'true' : 'false',
+    });
+  }
+
+  async handleLocationView(status: LocationStatus) {
+    this.statsd.increment('sp3_location_view', {
+      location_status: status,
     });
   }
 
