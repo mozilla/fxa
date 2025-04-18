@@ -298,9 +298,8 @@ export class InactiveAccountsManager {
       await this.accountTasks.deleteAccount(
         {
           uid: taskPayload.uid,
-          customerId: (
-            await getAccountCustomerByUid(taskPayload.uid)
-          )?.stripeCustomerId,
+          customerId: (await getAccountCustomerByUid(taskPayload.uid))
+            ?.stripeCustomerId,
           reason: ReasonForDeletion.InactiveAccountScheduled,
         },
         {
@@ -387,61 +386,6 @@ export class InactiveAccountsManager {
   async handleFirstEmailBounce(taskPayload, account, now) {
     const emails = account.emails.map((e) => e.email);
 
-    // Because a small number of first notification emails were sent before
-    // the email types were added to the database
-    // (https://github.com/mozilla/fxa/pull/18362), we need to carve out an
-    // exception for a faction of those accounts.  This can be removed after
-    // 2025-04-12.
-    // Delete the corresponding test when deleting this if block.
-    if (
-      account.createdAt >=
-        new Date('2023-01-01').setUTCHours(0, 0, 0, 0).valueOf() &&
-      account.createdAt <
-        new Date('2023-02-01').setUTCHours(0, 0, 0, 0).valueOf()
-    ) {
-      // check to see if there's a bounced email in Firestore and there's a hard bounce in MySQL with no email type
-      const bounceEvents = await this.accountEventsManager.findEmailEvents(
-        taskPayload.uid,
-        'emailBounced',
-        'inactiveAccountFirstWarning',
-        // some wiggle room to account for task and email delays
-        now - 54 * aDayInMs,
-        now - 52 * aDayInMs
-      );
-
-      if (bounceEvents.length > 0) {
-        const bounceTime = bounceEvents.map((x) => x.createdAt);
-        const min = Math.min(...bounceTime);
-        const max = Math.max(...bounceTime);
-        const hardBounces = await EmailBounce.query()
-          .whereIn('email', emails)
-          .whereNull('emailTypeId')
-          .where('bounceType', '=', BOUNCE_TYPES.Permanent)
-          .where('createdAt', '>', min - 15000)
-          .where('createdAt', '<', max + 15000)
-          .select(['email', 'createdAt']);
-
-        if (bounceEvents.length === hardBounces.length) {
-          await this.accountTasks.deleteAccount({
-            uid: taskPayload.uid,
-            customerId: (
-              await getAccountCustomerByUid(taskPayload.uid)
-            )?.stripeCustomerId,
-            reason: ReasonForDeletion.InactiveAccountEmailBounced,
-          });
-          this.statsd.increment(`account.inactive.second-email.skipped.bounce`);
-          await this.glean.inactiveAccountDeletion.secondEmailSkipped(
-            requestForGlean,
-            {
-              uid: taskPayload.uid,
-              reason: 'first_email_bounced',
-            }
-          );
-          return true;
-        }
-      }
-    }
-
     const firstEmailBounces = await EmailBounce.query()
       .join('emailTypes', 'emailTypes.id', 'emailBounces.emailTypeId')
       .whereIn('emailBounces.email', emails)
@@ -461,9 +405,8 @@ export class InactiveAccountsManager {
     ) {
       await this.accountTasks.deleteAccount({
         uid: taskPayload.uid,
-        customerId: (
-          await getAccountCustomerByUid(taskPayload.uid)
-        )?.stripeCustomerId,
+        customerId: (await getAccountCustomerByUid(taskPayload.uid))
+          ?.stripeCustomerId,
         reason: ReasonForDeletion.InactiveAccountEmailBounced,
       });
       this.statsd.increment(`account.inactive.second-email.skipped.bounce`);
