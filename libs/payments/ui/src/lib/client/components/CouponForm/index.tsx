@@ -6,6 +6,7 @@
 
 import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
+import classNames from 'classnames';
 import { useSearchParams } from 'next/navigation';
 import { forwardRef, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
@@ -80,13 +81,14 @@ const CouponInput = forwardRef(
     return (
       <Localized attrs={{ placeholder: true }} id="next-coupon-enter-code">
         <input
-          className={`w-full border rounded-md p-3
-            ${
-              error
-                ? 'border-red-700 focus:border-red-700 focus:shadow-input-red-focus'
-                : 'border-black/30 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none'
+          className={classNames(
+            'w-full border rounded-md p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none',
+            {
+              'border-black/30': !error && !pending,
+              'border-alert-red text-alert-red shadow-inputError': error,
+              'cursor-not-allowed': pending,
             }
-            ${pending ? 'cursor-not-allowed' : ''}`}
+          )}
           type="text"
           name="coupon"
           data-testid="coupon-input"
@@ -161,7 +163,7 @@ const WithoutCoupon = ({
 
         {error && (
           <Localized id={error}>
-            <div className="text-red-700 mt-4" data-testid="coupon-error">
+            <div className="text-alert-red mt-4" data-testid="coupon-error">
               {getFallbackTextByFluentId(error)}
             </div>
           </Localized>
