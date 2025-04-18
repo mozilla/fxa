@@ -7,10 +7,11 @@
 const { assert } = require('chai');
 
 const EventEmitter = require('events').EventEmitter;
-const { mockLog } = require('../../mocks');
+const { mockLog, mockGlean } = require('../../mocks');
 const sinon = require('sinon');
 const emailHelpers = require('../../../lib/email/utils/helpers');
 const delivery = require('../../../lib/email/delivery');
+const { requestForGlean } = require('../../../lib/inactive-accounts');
 
 let sandbox;
 const mockDeliveryQueue = new EventEmitter();
@@ -22,8 +23,8 @@ function mockMessage(msg) {
   return msg;
 }
 
-function mockedDelivery(log) {
-  return delivery(log)(mockDeliveryQueue);
+function mockedDelivery(log, glean) {
+  return delivery(log, glean)(mockDeliveryQueue);
 }
 
 describe('delivery messages', () => {
@@ -37,25 +38,28 @@ describe('delivery messages', () => {
 
   it('should not log an error for headers', () => {
     const log = mockLog();
-    return mockedDelivery(log)
+    const glean = mockGlean();
+    return mockedDelivery(log, glean)
       .handleDelivery(mockMessage({ junk: 'message' }))
       .then(() => assert.equal(log.error.callCount, 0));
   });
 
   it('should log an error for missing headers', () => {
     const log = mockLog();
+    const glean = mockGlean();
     const message = mockMessage({
       junk: 'message',
     });
     message.headers = undefined;
-    return mockedDelivery(log)
+    return mockedDelivery(log, glean)
       .handleDelivery(message)
       .then(() => assert.equal(log.error.callCount, 1));
   });
 
   it('should ignore unknown message types', () => {
     const log = mockLog();
-    return mockedDelivery(log)
+    const glean = mockGlean();
+    return mockedDelivery(log, glean)
       .handleDelivery(
         mockMessage({
           junk: 'message',
@@ -69,6 +73,7 @@ describe('delivery messages', () => {
 
   it('should log delivery', () => {
     const log = mockLog();
+    const glean = mockGlean();
     const mockMsg = mockMessage({
       notificationType: 'Delivery',
       delivery: {
@@ -89,7 +94,7 @@ describe('delivery messages', () => {
       },
     });
 
-    return mockedDelivery(log)
+    return mockedDelivery(log, glean)
       .handleDelivery(mockMsg)
       .then(() => {
         assert.equal(log.info.callCount, 2);
@@ -106,6 +111,7 @@ describe('delivery messages', () => {
 
   it('should emit flow metrics', () => {
     const log = mockLog();
+    const glean = mockGlean();
     const mockMsg = mockMessage({
       notificationType: 'Delivery',
       delivery: {
@@ -138,7 +144,7 @@ describe('delivery messages', () => {
       },
     });
 
-    return mockedDelivery(log)
+    return mockedDelivery(log, glean)
       .handleDelivery(mockMsg)
       .then(() => {
         assert.equal(log.flowEvent.callCount, 1);
@@ -162,6 +168,7 @@ describe('delivery messages', () => {
 
   it('should log popular email domain', () => {
     const log = mockLog();
+    const glean = mockGlean();
     const mockMsg = mockMessage({
       notificationType: 'Delivery',
       delivery: {
@@ -194,7 +201,7 @@ describe('delivery messages', () => {
       },
     });
 
-    return mockedDelivery(log)
+    return mockedDelivery(log, glean)
       .handleDelivery(mockMsg)
       .then(() => {
         assert.equal(log.flowEvent.callCount, 1);
@@ -222,6 +229,7 @@ describe('delivery messages', () => {
       .stub(emailHelpers, 'logAccountEventFromMessage')
       .returns(Promise.resolve());
     const log = mockLog();
+    const glean = mockGlean();
     const mockMsg = mockMessage({
       notificationType: 'Delivery',
       delivery: {
@@ -254,11 +262,57 @@ describe('delivery messages', () => {
       },
     });
 
-    await mockedDelivery(log).handleDelivery(mockMsg);
+    await mockedDelivery(log, glean).handleDelivery(mockMsg);
     sinon.assert.calledOnceWithExactly(
       emailHelpers.logAccountEventFromMessage,
       mockMsg,
       'emailDelivered'
+    );
+  });
+
+  it('should log glean event for successful email delivery', async () => {
+    const log = mockLog();
+    const glean = mockGlean();
+    const mockMsg = mockMessage({
+      notificationType: 'Delivery',
+      delivery: {
+        timestamp: '2016-01-27T14:59:38.237Z',
+        recipients: ['jane@aol.com'],
+        processingTimeMillis: 546,
+        reportingMTA: 'a8-70.smtp-out.amazonses.com',
+        smtpResponse: '250 ok:  Message 64111812 accepted',
+        remoteMtaIp: '127.0.2.0',
+      },
+      mail: {
+        headers: [
+          {
+            name: 'X-Template-Name',
+            value: 'verifyLoginEmail',
+          },
+          {
+            name: 'X-Flow-Id',
+            value: 'someFlowId',
+          },
+          {
+            name: 'X-Flow-Begin-Time',
+            value: '1234',
+          },
+          {
+            name: 'X-Uid',
+            value: 'en',
+          },
+        ],
+      },
+    });
+
+    await mockedDelivery(log, glean).handleDelivery(mockMsg);
+    sinon.assert.calledOnceWithExactly(
+      glean.emailDelivery.success,
+      requestForGlean,
+      {
+        uid: 'en',
+        reason: 'verifyLoginEmail',
+      }
     );
   });
 });

@@ -12,6 +12,8 @@ const { Container } = require('typedi');
 const { AuthFirestore, AppConfig, AuthLogger } = require('../lib/types');
 const { StripeHelper } = require('../lib/payments/stripe');
 const { setupFirestore } = require('../lib/firestore-db');
+const { gleanMetrics } = require('../lib/metrics/glean');
+const glean = gleanMetrics(config);
 
 const statsd = new StatsD(config.statsd);
 Container.set(StatsD, statsd);
@@ -61,7 +63,7 @@ const error = require('../lib/error');
 const Token = require('../lib/tokens')(log, config);
 const SQSReceiver = require('../lib/sqs')(log, statsd);
 const bounces = require('../lib/email/bounces')(log, error);
-const delivery = require('../lib/email/delivery')(log);
+const delivery = require('../lib/email/delivery')(log, glean);
 const notifications = require('../lib/email/notifications')(log, error);
 
 const { createDB } = require('../lib/db');
