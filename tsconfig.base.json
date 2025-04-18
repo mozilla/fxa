@@ -24,6 +24,7 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
+      "@fxa/accounts/rate-limit": ["libs/accounts/rate-limit/src/index.ts"],
       "@fxa/accounts/recovery-phone": [
         "libs/accounts/recovery-phone/src/index.ts"
       ],
