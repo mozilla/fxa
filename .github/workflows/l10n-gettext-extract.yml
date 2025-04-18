@@ -3,8 +3,11 @@ on:
   pull_request:
     paths:
       - 'packages/fxa-content-server/**'
+
 jobs:
   extract:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Install Linux packages
@@ -23,11 +26,13 @@ jobs:
         with:
           repository: mozilla/fxa-content-server-l10n
           path: 'fxa-l10n'
+          persist-credentials: false
       - name: Clone FxA code repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
           path: 'fxa-code'
+          persist-credentials: false
       - name: Install npm packages
         run: |
           cd fxa-l10n
