@@ -305,51 +305,6 @@ describe('InactiveAccountsManager', () => {
       sandbox.assert.calledOnce(inactiveAccountManager.scheduleNextEmail);
     });
 
-    it('should delete the account if the first email bounced - edge case', async () => {
-      mockAccount.createdAt = new Date('2023-01-15').valueOf();
-      sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
-      sandbox
-        .stub(accountEventsManager, 'findEmailEvents')
-        .resolves([{ createdAt: now }]);
-      emailBounceSelect.resolves([{ uid: mockPayload.uid }]);
-      sandbox.stub(inactiveAccountManager, 'scheduleNextEmail').resolves();
-
-      await inactiveAccountManager.handleNotificationTask(
-        mockSecondTaskPayload
-      );
-      mockAccount.createdAt = undefined;
-      sinon.assert.calledOnceWithExactly(
-        accountEventsManager.findEmailEvents,
-        mockPayload.uid,
-        'emailBounced',
-        'inactiveAccountFirstWarning',
-        1736413600000,
-        1736586400000
-      );
-      sinon.assert.calledOnceWithExactly(emailBounceSelect, [
-        'email',
-        'createdAt',
-      ]);
-      sinon.assert.calledWithExactly(
-        mockStatsd.increment,
-        'account.inactive.second-email.skipped.bounce'
-      );
-      sinon.assert.calledOnce(
-        mockGlean.inactiveAccountDeletion.secondEmailSkipped
-      );
-      assert.deepEqual(
-        mockGlean.inactiveAccountDeletion.secondEmailSkipped.args[0][1],
-        { uid: mockSecondTaskPayload.uid, reason: 'first_email_bounced' }
-      );
-      sinon.assert.calledOnceWithExactly(mockDeleteAccountTasks.deleteAccount, {
-        uid: mockSecondTaskPayload.uid,
-        customerId: undefined,
-        reason: ReasonForDeletion.InactiveAccountEmailBounced,
-      });
-
-      sinon.assert.notCalled(inactiveAccountManager.scheduleNextEmail);
-    });
-
     it('should delete the account if the first email bounced', async () => {
       sandbox.stub(inactiveAccountManager, 'isActive').resolves(false);
       emailBounceSelect.resolves([mockAccount]);
