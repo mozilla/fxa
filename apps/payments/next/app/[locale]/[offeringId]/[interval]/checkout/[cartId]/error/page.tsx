@@ -7,18 +7,20 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import errorIcon from '@fxa/shared/assets/images/error.svg';
+import checkIcon from '@fxa/shared/assets/images/check.svg';
 import {
   getApp,
   CheckoutParams,
   SupportedPages,
+  getErrorFtlInfo,
 } from '@fxa/payments/ui/server';
 import {
   getCartOrRedirectAction,
   recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
-import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { config } from 'apps/payments/next/config';
 import type { Metadata } from 'next';
+import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
@@ -28,48 +30,6 @@ export const metadata: Metadata = {
   title: 'Error',
   description:
     'There was an error processing your subscription. If this problem persists, please contact support.',
-};
-
-const getErrorReason = (
-  reason: CartErrorReasonId | null,
-  params: CheckoutParams
-) => {
-  switch (reason) {
-    case 'cart_eligibility_status_downgrade':
-      return {
-        buttonFtl: 'checkout-error-contact-support-button',
-        buttonLabel: 'Contact Support',
-        buttonUrl: config.supportUrl,
-        message: 'Please contact support so we can help you.',
-        messageFtl: 'checkout-error-contact-support',
-      };
-    case 'cart_eligibility_status_invalid':
-      return {
-        buttonFtl: 'checkout-error-contact-support-button',
-        buttonLabel: 'Contact Support',
-        buttonUrl: config.supportUrl,
-        message:
-          'You are not eligible to subscribe to this product - please contact support so we can help you.',
-        messageFtl: 'checkout-error-not-eligible',
-      };
-    case 'iap_upgrade_contact_support':
-      return {
-        buttonFtl: 'next-payment-error-manage-subscription-button',
-        buttonLabel: 'Manage my subscription',
-        buttonUrl: `${config.contentServerUrl}/subscriptions`,
-        message:
-          'You can still get this product — please contact support so we can help you.',
-        messageFtl: 'next-iap-upgrade-contact-support',
-      };
-    default:
-      return {
-        buttonFtl: 'next-payment-error-retry-button',
-        buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
-        message: 'Something went wrong. Please try again later.',
-        messageFtl: 'next-basic-error-message',
-      };
-  }
 };
 
 export default async function CheckoutError({
@@ -97,7 +57,7 @@ export default async function CheckoutError({
     cart.paymentInfo?.type
   );
 
-  const errorReason = getErrorReason(cart.errorReasonId, params);
+  const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config);
 
   return (
     <>
@@ -105,7 +65,22 @@ export default async function CheckoutError({
         className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
         aria-label="Payment error"
       >
-        <Image src={errorIcon} alt="" className="mt-16 mb-10" />
+        {
+          // Once more conditionals are added, move this to a separate component
+          cart.errorReasonId === CartErrorReasonId.CartEligibilityStatusSame ? (
+            <Image
+              src={checkIcon}
+              alt="check-icon"
+              className="h-20 w-20 mt-16 mb-10"
+            />
+          ) : (
+            <Image
+              src={errorIcon}
+              alt="error-icon"
+              className="h-20 w-20 mt-16 mb-10"
+            />
+          )
+        }
         <p className="text-grey-400 max-w-sm text-sm px-7 py-0 mb-4 ">
           {l10n.getString(errorReason.messageFtl, errorReason.message)}
         </p>

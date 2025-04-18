@@ -4,27 +4,37 @@
 
 import Image from 'next/image';
 import checkLogo from '@fxa/shared/assets/images/check.svg';
-import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
+import {
+  CartEligibilityStatus,
+  CartErrorReasonId,
+  CartState,
+} from '@fxa/shared/db/mysql/account';
 import { LocalizerRsc } from '@fxa/shared/l10n/server';
 import circledConfirm from '@fxa/shared/assets/images/circled-confirm-clouds.svg';
+import type { CartDTO } from '@fxa/payments/cart';
 
-const getComponentTitle = (
-  cartState: CartState,
-  cartEligibilityStatus?: CartEligibilityStatus
-) => {
-  switch (cartState) {
+export function getComponentTitle(cart: CartDTO) {
+  const { state, eligibilityStatus, errorReasonId } = cart;
+  switch (state) {
     case CartState.FAIL:
-      return {
-        title: 'Error confirming subscription…',
-        titleFtl: 'next-subscription-error-title',
-      };
+      if (errorReasonId === CartErrorReasonId.CartEligibilityStatusSame) {
+        return {
+          title: 'You’ve already subscribed',
+          titleFtl: 'subscription-title-sub-exists',
+        };
+      } else {
+        return {
+          title: 'Error confirming subscription…',
+          titleFtl: 'next-subscription-error-title',
+        };
+      }
     case CartState.PROCESSING:
       return {
         title: 'Confirming subscription…',
         titleFtl: 'next-subscription-processing-title',
       };
     case CartState.START:
-      if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
+      if (eligibilityStatus === CartEligibilityStatus.UPGRADE) {
         return {
           title: 'Review your change',
           titleFtl: 'subscription-title-plan-change-heading',
@@ -40,13 +50,13 @@ const getComponentTitle = (
         titleFtl: 'next-subscription-success-title',
       };
     default:
-      console.error('SubscriptionTitle - does not match options', cartState);
+      console.error('SubscriptionTitle - does not match options', state);
       return {
         title: 'Set up your subscription',
         titleFtl: 'next-subscription-create-title',
       };
   }
-};
+}
 
 const subheaders: string[] = [
   CartState.PROCESSING,
@@ -55,22 +65,20 @@ const subheaders: string[] = [
 ];
 
 interface SubscriptionTitleProps {
-  cartState: CartState;
-  cartEligibilityStatus?: CartEligibilityStatus.UPGRADE;
+  cart: CartDTO;
   l10n: LocalizerRsc;
 }
 
 export async function SubscriptionTitle({
+  cart,
   l10n,
-  cartState,
-  cartEligibilityStatus,
 }: SubscriptionTitleProps) {
-  const componentTitle = getComponentTitle(cartState, cartEligibilityStatus);
+  const componentTitle = getComponentTitle(cart);
   const displaySubtitle =
-    subheaders.includes(cartState) &&
+    subheaders.includes(cart.state) &&
     !(
-      cartState === CartState.START &&
-      cartEligibilityStatus === CartEligibilityStatus.UPGRADE
+      cart.state === CartState.START &&
+      cart.eligibilityStatus === CartEligibilityStatus.UPGRADE
     );
 
   return (
@@ -78,7 +86,7 @@ export async function SubscriptionTitle({
       className="bg-white shadow-sm shadow-grey-300 text-center my-0 pt-5 px-4 pb-px tablet:mx-0"
       aria-label={l10n.getString(componentTitle.titleFtl, componentTitle.title)}
     >
-      {cartState === CartState.SUCCESS && (
+      {cart.state === CartState.SUCCESS && (
         <div className="flex items-center justify-center padding pb-6">
           <Image src={circledConfirm} alt="" className="w-30 h-30" />
         </div>

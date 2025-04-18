@@ -17,6 +17,7 @@ export const handleEligibilityStatusMap = {
   [EligibilityStatus.DOWNGRADE]: CartEligibilityStatus.DOWNGRADE,
   [EligibilityStatus.UPGRADE]: CartEligibilityStatus.UPGRADE,
   [EligibilityStatus.INVALID]: CartEligibilityStatus.INVALID,
+  [EligibilityStatus.SAME]: CartEligibilityStatus.INVALID,
 };
 
 export const cartEligibilityDetailsMap: Record<
@@ -40,6 +41,11 @@ export const cartEligibilityDetailsMap: Record<
     eligibilityStatus: CartEligibilityStatus.BLOCKED_IAP,
     state: CartState.FAIL,
     errorReasonId: CartErrorReasonId.IAP_UPGRADE_CONTACT_SUPPORT,
+  },
+  [EligibilityStatus.SAME]: {
+    eligibilityStatus: CartEligibilityStatus.INVALID,
+    state: CartState.FAIL,
+    errorReasonId: CartErrorReasonId.CartEligibilityStatusSame,
   },
   [EligibilityStatus.INVALID]: {
     eligibilityStatus: CartEligibilityStatus.INVALID,

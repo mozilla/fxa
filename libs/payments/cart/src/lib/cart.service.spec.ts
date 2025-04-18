@@ -61,6 +61,7 @@ import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import {
   AccountFactory,
   CartEligibilityStatus,
+  CartErrorReasonId,
   CartState,
   MockAccountDatabaseNestFactory,
 } from '@fxa/shared/db/mysql/account';
@@ -574,7 +575,9 @@ describe('CartService', () => {
     });
 
     it('returns cart eligibility status downgrade', async () => {
-      const mockResultCart = ResultCartFactory();
+      const mockErrorCart = ResultCartFactory({
+        state: CartState.FAIL,
+      });
       const mockResolvedCurrency = faker.finance.currencyCode();
 
       jest
@@ -583,32 +586,38 @@ describe('CartService', () => {
       jest
         .spyOn(currencyManager, 'getCurrencyForCountry')
         .mockReturnValue(mockResolvedCurrency);
-      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest
+        .spyOn(cartManager, 'createErrorCart')
+        .mockResolvedValue(mockErrorCart);
       jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
       jest
         .spyOn(eligibilityService, 'checkEligibility')
         .mockResolvedValue(SubscriptionEligibilityResultDowngradeFactory());
-      jest.spyOn(cartService, 'finalizeCartWithError').mockResolvedValue();
 
       const result = await cartService.setupCart(args);
 
-      expect(cartManager.createCart).toHaveBeenCalledWith({
-        interval: args.interval,
-        offeringConfigId: args.offeringConfigId,
-        amount: mockInvoicePreview.subtotal,
-        uid: args.uid,
-        stripeCustomerId: mockAccountCustomer.stripeCustomerId,
-        experiment: args.experiment,
-        taxAddress,
-        currency: mockResolvedCurrency,
-        eligibilityStatus: CartEligibilityStatus.DOWNGRADE,
-        couponCode: args.promoCode,
-      });
-      expect(result).toEqual(mockResultCart);
+      expect(cartManager.createErrorCart).toHaveBeenCalledWith(
+        {
+          interval: args.interval,
+          offeringConfigId: args.offeringConfigId,
+          amount: mockInvoicePreview.subtotal,
+          uid: args.uid,
+          stripeCustomerId: mockAccountCustomer.stripeCustomerId,
+          experiment: args.experiment,
+          taxAddress,
+          currency: mockResolvedCurrency,
+          eligibilityStatus: CartEligibilityStatus.DOWNGRADE,
+          couponCode: args.promoCode,
+        },
+        CartErrorReasonId.CartEligibilityStatusDowngrade
+      );
+      expect(result).toEqual(mockErrorCart);
     });
 
     it('returns cart eligibility status invalid', async () => {
-      const mockResultCart = ResultCartFactory();
+      const mockErrorCart = ResultCartFactory({
+        state: CartState.FAIL,
+      });
       const mockResolvedCurrency = faker.finance.currencyCode();
 
       jest
@@ -617,28 +626,72 @@ describe('CartService', () => {
       jest
         .spyOn(currencyManager, 'getCurrencyForCountry')
         .mockReturnValue(mockResolvedCurrency);
-      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest
+        .spyOn(cartManager, 'createErrorCart')
+        .mockResolvedValue(mockErrorCart);
       jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.INVALID,
       });
-      jest.spyOn(cartService, 'finalizeCartWithError').mockResolvedValue();
 
       const result = await cartService.setupCart(args);
 
-      expect(cartManager.createCart).toHaveBeenCalledWith({
-        interval: args.interval,
-        offeringConfigId: args.offeringConfigId,
-        amount: mockInvoicePreview.subtotal,
-        uid: args.uid,
-        stripeCustomerId: mockAccountCustomer.stripeCustomerId,
-        experiment: args.experiment,
-        taxAddress,
-        currency: mockResolvedCurrency,
-        eligibilityStatus: CartEligibilityStatus.INVALID,
-        couponCode: args.promoCode,
+      expect(cartManager.createErrorCart).toHaveBeenCalledWith(
+        {
+          interval: args.interval,
+          offeringConfigId: args.offeringConfigId,
+          amount: mockInvoicePreview.subtotal,
+          uid: args.uid,
+          stripeCustomerId: mockAccountCustomer.stripeCustomerId,
+          experiment: args.experiment,
+          taxAddress,
+          currency: mockResolvedCurrency,
+          eligibilityStatus: CartEligibilityStatus.INVALID,
+          couponCode: args.promoCode,
+        },
+        CartErrorReasonId.CartEligibilityStatusInvalid
+      );
+      expect(result).toEqual(mockErrorCart);
+    });
+
+    it('returns cart eligibility status same', async () => {
+      const mockErrorCart = ResultCartFactory({
+        state: CartState.FAIL,
       });
-      expect(result).toEqual(mockResultCart);
+      const mockResolvedCurrency = faker.finance.currencyCode();
+
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest
+        .spyOn(cartManager, 'createErrorCart')
+        .mockResolvedValue(mockErrorCart);
+      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.SAME,
+      });
+
+      const result = await cartService.setupCart(args);
+
+      expect(cartManager.createErrorCart).toHaveBeenCalledWith(
+        {
+          interval: args.interval,
+          offeringConfigId: args.offeringConfigId,
+          amount: mockInvoicePreview.subtotal,
+          uid: args.uid,
+          stripeCustomerId: mockAccountCustomer.stripeCustomerId,
+          experiment: args.experiment,
+          taxAddress,
+          currency: mockResolvedCurrency,
+          eligibilityStatus: CartEligibilityStatus.INVALID,
+          couponCode: args.promoCode,
+        },
+        CartErrorReasonId.CartEligibilityStatusSame
+      );
+      expect(result).toEqual(mockErrorCart);
     });
   });
 

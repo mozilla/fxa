@@ -9,6 +9,7 @@ import {
   testAccountDatabaseSetup,
   AccountDatabase,
   CartUpdate,
+  CartErrorReasonId,
 } from '@fxa/shared/db/mysql/account';
 
 import {
@@ -90,6 +91,35 @@ describe('CartManager', () => {
       });
       try {
         await cartManager.createCart(setupCart);
+      } catch (error) {
+        expect(error).toBeInstanceOf(CartNotCreatedError);
+        expect(error.jse_cause).not.toBeUndefined();
+      }
+    });
+  });
+
+  describe('createErrorCart', () => {
+    it('succeeds', async () => {
+      const setupCart = SetupCartFactory({
+        interval: 'annually',
+      });
+      const cart = await cartManager.createErrorCart(
+        setupCart,
+        CartErrorReasonId.CartEligibilityStatusSame
+      );
+      expect(cart).toEqual(expect.objectContaining(setupCart));
+    });
+
+    it('fails - with unexpected error', async () => {
+      const setupCart = SetupCartFactory({
+        interval: 'annually',
+        uid: 0 as unknown as string,
+      });
+      try {
+        await cartManager.createErrorCart(
+          setupCart,
+          CartErrorReasonId.CartEligibilityStatusInvalid
+        );
       } catch (error) {
         expect(error).toBeInstanceOf(CartNotCreatedError);
         expect(error.jse_cause).not.toBeUndefined();

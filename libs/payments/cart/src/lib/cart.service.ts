@@ -27,7 +27,10 @@ import {
   PromotionCodeCouldNotBeAttachedError,
   TaxAddress,
 } from '@fxa/payments/customer';
-import { EligibilityService } from '@fxa/payments/eligibility';
+import {
+  EligibilityService,
+  EligibilityStatus,
+} from '@fxa/payments/eligibility';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
@@ -67,6 +70,7 @@ import type {
   NoInputNeededResponse,
   PaymentInfo,
   ResultCart,
+  SetupCart,
   StripeHandleNextActionResponse,
   UpdateCart,
   UpdateCartInput,
@@ -315,7 +319,7 @@ export class CartService {
       }
     }
 
-    const cart = await this.cartManager.createCart({
+    const createCartParams: SetupCart = {
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
       amount: upcomingInvoice.subtotal,
@@ -326,23 +330,26 @@ export class CartService {
       currency,
       eligibilityStatus: cartEligibilityStatus,
       couponCode: args.promoCode,
-    });
+    };
 
-    if (cartEligibilityStatus === CartEligibilityStatus.INVALID) {
-      await this.finalizeCartWithError(
-        cart.id,
+    if (eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME) {
+      return this.cartManager.createErrorCart(
+        createCartParams,
+        CartErrorReasonId.CartEligibilityStatusSame
+      );
+    } else if (cartEligibilityStatus === CartEligibilityStatus.INVALID) {
+      return this.cartManager.createErrorCart(
+        createCartParams,
         CartErrorReasonId.CartEligibilityStatusInvalid
       );
-    }
-
-    if (cartEligibilityStatus === CartEligibilityStatus.DOWNGRADE) {
-      await this.finalizeCartWithError(
-        cart.id,
+    } else if (cartEligibilityStatus === CartEligibilityStatus.DOWNGRADE) {
+      return this.cartManager.createErrorCart(
+        createCartParams,
         CartErrorReasonId.CartEligibilityStatusDowngrade
       );
+    } else {
+      return this.cartManager.createCart(createCartParams);
     }
-
-    return cart;
   }
 
   /**
@@ -797,9 +804,8 @@ export class CartService {
       throw new CartSubscriptionNotFoundError(cartId);
     }
 
-    const paymentIntent = await this.subscriptionManager.getLatestPaymentIntent(
-      subscription
-    );
+    const paymentIntent =
+      await this.subscriptionManager.getLatestPaymentIntent(subscription);
     if (!paymentIntent) {
       throw new CartError('no payment intent found for cart subscription', {
         cartId,
