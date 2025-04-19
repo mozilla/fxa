@@ -45,9 +45,18 @@ function runTest(route, request, assertions) {
 
 describe('/linked_account', function () {
   this.timeout(5000);
-  let mockLog, mockDB, mockMailer, mockRequest, route, axiosMock, statsd;
+  let mockLog, mockDB, mockMailer, mockRequest, route, fetchStub, statsd;
 
   const UID = 'fxauid';
+
+  beforeEach(() => {
+    fetchStub = sinon.stub();
+    global.fetch = fetchStub;
+  });
+
+  afterEach(() => {
+    delete global.fetch;
+  });
 
   describe('/linked_account/login', () => {
     describe('google auth', () => {
@@ -87,11 +96,11 @@ describe('/linked_account', function () {
         };
 
         const mockGoogleAuthResponse = {
-          data: { id_token: 'somedata' },
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve({ id_token: 'somedata' }),
         };
-        axiosMock = {
-          post: sinon.spy(() => mockGoogleAuthResponse),
-        };
+        fetchStub.resolves(mockGoogleAuthResponse);
 
         route = getRoute(
           makeRoutes(
@@ -106,7 +115,6 @@ describe('/linked_account', function () {
               'google-auth-library': {
                 OAuth2Client: OAuth2ClientMock,
               },
-              axios: axiosMock,
             }
           ),
           '/linked_account/login'
@@ -147,8 +155,10 @@ describe('/linked_account', function () {
         mockRequest.payload.code = 'oauth code';
         const result = await runTest(route, mockRequest);
 
-        assert.isTrue(axiosMock.post.calledOnce);
-        assert.equal(axiosMock.post.args[0][1].code, 'oauth code');
+        assert.isTrue(fetchStub.calledOnce);
+        const fetchCallArgs = fetchStub.getCall(0).args;
+        const body = JSON.parse(fetchCallArgs[1].body);
+        assert.equal(body.code, 'oauth code');
 
         assert.isTrue(
           mockDB.getLinkedAccount.calledOnceWith(
@@ -331,29 +341,25 @@ describe('/linked_account', function () {
         });
 
         const mockAppleAuthResponse = {
-          data: {
-            id_token:
-              'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQzEyM0RFRkcifQ.eyJpc3MiOiJERUYxMjNHSElKIiwic3ViIjoiT29vT29vIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTcyMzU4MDg2LCJhdWQiOiJodHRwczovL2FwcGxlaWQuYXBwbGUuY29tIiwiZW1haWwiOiJibG9vcEBtb3ppbGxhLmNvbSIsInRlYW1JZCI6Ik15IGNvb2wgdGVhbSB5byJ9.owz0xkgzDr9rLwXhd3TWV2QSRfH2YSnLt7LkS_TS42oGq_cbp1pyqhBtOBNTyvpZT6YKlxAxdmDkAr9x_KI7-A',
-            email: 'bloop@mozilla.com',
-            user: 'OooOoo',
-          },
+          ok: true,
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              id_token:
+                'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkFCQzEyM0RFRkcifQ.eyJpc3MiOiJERUYxMjNHSElKIiwic3ViIjoiT29vT29vIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTcyMzU4MDg2LCJhdWQiOiJodHRwczovL2FwcGxlaWQuYXBwbGUuY29tIiwiZW1haWwiOiJibG9vcEBtb3ppbGxhLmNvbSIsInRlYW1JZCI6Ik15IGNvb2wgdGVhbSB5byJ9.owz0xkgzDr9rLwXhd3TWV2QSRfH2YSnLt7LkS_TS42oGq_cbp1pyqhBtOBNTyvpZT6YKlxAxdmDkAr9x_KI7-A',
+              email: 'bloop@mozilla.com',
+              user: 'OooOoo',
+            }),
         };
-        axiosMock = {
-          post: sinon.spy(() => mockAppleAuthResponse),
-        };
+        fetchStub.resolves(mockAppleAuthResponse);
 
         route = getRoute(
-          makeRoutes(
-            {
-              config: mockConfig,
-              db: mockDB,
-              log: mockLog,
-              mailer: mockMailer,
-            },
-            {
-              axios: axiosMock,
-            }
-          ),
+          makeRoutes({
+            config: mockConfig,
+            db: mockDB,
+            log: mockLog,
+            mailer: mockMailer,
+          }),
           '/linked_account/login'
         );
         glean.registration.complete.reset();
@@ -392,10 +398,10 @@ describe('/linked_account', function () {
         mockRequest.payload.code = 'oauth code';
         const result = await runTest(route, mockRequest);
 
-        assert.isTrue(axiosMock.post.calledOnce);
-        const urlSearchParams = new URLSearchParams(axiosMock.post.args[0][1]);
-        const params = Object.fromEntries(urlSearchParams.entries());
-
+        assert.isTrue(fetchStub.calledOnce);
+        const fetchCallArgs = fetchStub.getCall(0).args;
+        const bodyStr = fetchCallArgs[1].body;
+        const params = Object.fromEntries(new URLSearchParams(bodyStr));
         assert.isDefined(params.client_secret);
 
         assert.isTrue(
@@ -575,7 +581,7 @@ describe('/linked_account', function () {
       try {
         await runTest(route, mockRequest);
         assert.fail('should have failed');
-      } catch(err) {
+      } catch (err) {
         assert.isTrue(mockDB.deleteLinkedAccount.notCalled);
         assert.equal(err.errno, 138, 'unconfirmed session');
       }

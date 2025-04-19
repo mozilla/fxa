@@ -11,7 +11,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Request } from 'express';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
@@ -67,6 +66,7 @@ export class PubsubProxyController {
     // for failures.
     this.metrics.timing(`proxy.queueDelay`, queueDelay);
 
+    // Mimic the original behavior by throwing an HttpException with the response details.
     throw new HttpException(data, status);
   }
 
@@ -106,15 +106,28 @@ export class PubsubProxyController {
     jwtPayload: string;
     webhookEndpoint: string;
     message: Record<string, any>;
-  }): Promise<AxiosResponse> {
+  }): Promise<{ status: number; data: any }> {
     const { jwtPayload, webhookEndpoint, clientId, message } = options;
-    const requestOptions: AxiosRequestConfig = {
-      headers: { Authorization: 'Bearer ' + jwtPayload },
-      url: webhookEndpoint,
+    const fetchOptions: RequestInit = {
       method: 'post',
+      headers: { Authorization: 'Bearer ' + jwtPayload },
     };
+
     try {
-      const response = await axios(requestOptions);
+      let data;
+      const response = await fetch(webhookEndpoint, fetchOptions);
+
+      if (!response.ok) {
+        try {
+          data = await response.clone().json();
+        } catch (jsonError) {
+          data = await response.text();
+        }
+        return { status: response.status, data };
+      }
+
+      data = await response.json();
+
       const now = Date.now();
       this.metrics.timing('proxy.success', now - message.changeTime, {
         clientId,
@@ -124,25 +137,12 @@ export class PubsubProxyController {
       if (message.event === dto.SUBSCRIPTION_UPDATE_EVENT) {
         this.metrics.timing(`proxy.sub.eventDelay`, now - message.changeTime);
       }
-      return response;
-    } catch (err) {
-      if (err.response) {
-        // Proxy normal HTTP responses that aren't 200.
-        this.metrics.increment(`proxy.fail`, {
-          clientId,
-          statusCode: (err.response as AxiosResponse).status.toString(),
-          type: message.event,
-        });
-        this.log.debug('proxyDeliverFail', {
-          response: err.response,
-          message: 'failed to proxy message',
-        });
-        return err.response;
-      } else {
-        this.log.error('proxyDeliverError', { err });
-        Sentry.captureException(err);
-        throw ExtendedError.withCause('Proxy delivery error', err);
-      }
+      return { status: response.status, data };
+    } catch (err: any) {
+      // catch any network or unexpected errors.
+      this.log.error('proxyDeliverError', { err });
+      Sentry.captureException(err);
+      throw ExtendedError.withCause('Proxy delivery error', err);
     }
   }
 
