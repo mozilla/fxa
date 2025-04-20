@@ -26,7 +26,6 @@ import { promisify } from 'util';
 import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
 import createClient from 'openapi-fetch';
-import PQueue from 'p-queue';
 
 import appConfig from '../../config';
 import logFn from '../../lib/log';
@@ -34,7 +33,7 @@ import { createDB } from '../../lib/db';
 import PasswordFn from '../../lib/crypto/password';
 import TokenFn from '../../lib/tokens';
 import { emitStatsdMetrics } from '../lib/metrics';
-import { parseBooleanArg } from '../lib/args';
+import { collect, parseBooleanArg } from '../lib/args';
 import { paths } from './identity-schema';
 import {
   createCredentialsLookupFn,
@@ -48,6 +47,11 @@ import {
 } from './lib';
 
 const config = appConfig.getProperties();
+const log = logFn({ name: 'recorded-future' });
+const Token = TokenFn(log, config);
+const Password = PasswordFn(log, config);
+const DB = createDB(config, log, Token);
+
 const searchDomain = 'accounts.firefox.com';
 const resultsPerPageLimit = defaultPerPageLimit;
 const statsd = new StatsD({ ...config.statsd });
@@ -56,8 +60,12 @@ const client = createClient<paths>({
   headers: { 'X-RFToken': config.recordedFuture.identityApiKey },
 });
 
+let authDb: Awaited<ReturnType<typeof DB.connect>> | null;
+
 const checkAndReset = async () => {
   const program = new Command();
+  const accountEmails = collect();
+
   program
     .description(
       `Query Recorded Future's Identity API for leaked account credentials.  Accounts
@@ -75,6 +83,12 @@ will be sent to the account holder.`
       parseInt
     )
     .option(
+      '--email [string]',
+      'Email address of an account to reset.  Repeatable.',
+      accountEmails,
+      []
+    )
+    .option(
       '--dry-run [true|false]',
       'Print out the argument and configuration values that will be used in the execution of the script. Defaults to true.',
       parseBooleanArg,
@@ -82,6 +96,13 @@ will be sent to the account holder.`
     );
 
   program.parse(process.argv);
+  const resetWithEmailArgs = program.email.length > 0;
+
+  if (resetWithEmailArgs) {
+    console.log(
+      '\nEmail arguments found.  ALL Recorded Future arguments will be ignored.'
+    );
+  }
 
   const firstDownloadedDatetime =
     program.firstDownloadedDate && !Number.isNaN(program.firstDownloadedDate)
@@ -102,122 +123,169 @@ Limit: ${resultsPerPageLimit}
     return 0;
   }
 
+  const accountsToReset = await (async () => {
+    if (!resetWithEmailArgs) {
+      return await findLeakedAccounts(firstDownloadedDateIsoString);
+    }
+
+    const loginsFromEmailArgs = program.email.map((x) => ({
+      login: x,
+      domain: searchDomain,
+    }));
+    const { accounts } = await getAccountsByLogin(loginsFromEmailArgs);
+    return Array.from(accounts.values());
+  })();
+
+  if (accountsToReset.length === 0) {
+    console.log('No eligible accounts found.');
+  } else {
+    // TODO maybe reset and send emails
+  }
+
+  await promisify(statsd.close).bind(statsd)();
+  return 0;
+};
+
+async function findLeakedAccounts(firstDownloadedDate: string) {
+  const accountsToReset: Awaited<
+    ReturnType<ReturnType<typeof createFindAccountFn>>
+  >[] = [];
   const usernamePropertiesFilter = ['Email'] as 'Email'[];
   const payload = {
     domains: [searchDomain],
     filter: {
-      first_downloaded_gte: firstDownloadedDateIsoString,
+      first_downloaded_gte: firstDownloadedDate,
       username_properties: usernamePropertiesFilter,
     },
     limit: resultsPerPageLimit,
   };
+
   const _credentialsSearchFn = createCredentialsSearchFn(client);
   const credentialsSearch = emitStatsdMetrics(
     _credentialsSearchFn,
     'recorded-future.identity.credentials-search',
     statsd
   );
+
   const leakedLogins = await fetchAllCredentialSearchResults(
     credentialsSearch,
     payload
   );
+
+  if (leakedLogins.length === 0) {
+    return [];
+  }
+
   statsd.increment(
     'recorded-future.identity.credentials-search.results.total',
     leakedLogins.length
   );
 
-  if (leakedLogins.length === 0) {
-    return 0;
+  const { accounts, has2faCount } = await getAccountsByLogin(leakedLogins);
+  if (accounts.size) {
+    statsd.increment(
+      'recorded-future.identity.credentials-search.results.account-emails',
+      accounts.size
+    );
+  }
+  if (has2faCount) {
+    statsd.increment(
+      'recorded-future.identity.credentials-search.results.2fa-accounts',
+      has2faCount
+    );
   }
 
-  const log = logFn({ name: 'recorded-future' });
-  const Token = TokenFn(log, config);
-  const Password = PasswordFn(log, config);
-  const DB = createDB(config, log, Token);
-  const authDb = await DB.connect(config, undefined);
+  if (accounts.size === 0) {
+    return [];
+  }
 
-  const getAccountRecord = authDb.accountRecord.bind(authDb);
-  const findAccount = createFindAccountFn(getAccountRecord);
-  const getTotpToken = authDb.totpToken.bind(authDb);
-  const hasTotp2FA = createHasTotp2faFn(getTotpToken);
-
-  const accountLogins: SearchResultIdentity[] = [];
-  const accounts: Record<
+  const accountsByLogin: Record<
     SearchResultIdentity['login'],
-    Awaited<ReturnType<typeof findAccount>>
-  > = {};
-  for (const identity of leakedLogins) {
-    const acct = await findAccount(identity.login);
-
-    if (acct) {
-      const has2FA = await hasTotp2FA(acct);
-
-      if (!has2FA) {
-        accounts[identity.login] = acct;
-        accountLogins.push(identity);
-        statsd.increment(
-          'recorded-future.identity.credentials-search.results.account-emails'
-        );
-      } else {
-        statsd.increment(
-          'recorded-future.identity.credentials-search.results.2fa-accounts'
-        );
-      }
-    }
-  }
-
-  if (accountLogins.length === 0) {
-    console.log('No account emails found.');
-    return 0;
-  }
+    Awaited<ReturnType<ReturnType<typeof createFindAccountFn>>>
+  > = Array.from(accounts.entries()).reduce((acc, val) => {
+    acc[val[0].login] = val[1];
+    return acc;
+  }, {});
 
   const credentialsLookupFn = createCredentialsLookupFn(client);
-  const cleartextCredentials = await credentialsLookupFn(accountLogins, {
-    first_downloaded_gte: firstDownloadedDateIsoString,
-  });
+  const cleartextCredentials = await credentialsLookupFn(
+    Array.from(accounts.keys()),
+    {
+      first_downloaded_gte: firstDownloadedDate,
+    }
+  );
   statsd.increment(
     'recorded-future.identity.credentials-lookup.cleartext-total',
     cleartextCredentials.length
   );
 
+  const db = await getAuthDb();
   const verifyPassword = createVerifyPasswordFn(
     Password,
-    authDb.checkPassword.bind(authDb)
+    db.checkPassword.bind(db)
   );
-
-  const defaultConcurrency = 100;
-  const concurrency = program.concurrency || defaultConcurrency;
-  const queue = new PQueue({
-    concurrency,
-    interval: 1000,
-    intervalCap: concurrency,
-  });
 
   for (const foundCredentials of cleartextCredentials) {
-    await queue.onSizeLessThan(concurrency * 5);
+    const acct = accountsByLogin[foundCredentials.subject as string];
+    const passwordMatched = await verifyPassword(foundCredentials, acct);
 
-    queue.add(async () => {
-      const acct = accounts[foundCredentials.subject as string];
-      const passwordMatched = await verifyPassword(foundCredentials, acct);
-
-      if (passwordMatched) {
-        // @TODO maybe reset and send email
-        statsd.increment(
-          'recorded-future.identity.credentials-lookup.password-match'
-        );
-      }
-    });
+    if (passwordMatched) {
+      accountsToReset.push(acct);
+      statsd.increment(
+        'recorded-future.identity.credentials-lookup.password-match'
+      );
+    }
   }
 
-  await queue.onIdle();
+  return accountsToReset;
+}
 
-  console.log(
-    `Found ${leakedLogins.length} results, of which ${accountLogins.length} are accounts without 2FA.`
-  );
+async function getAccountsByLogin(logins: SearchResultIdentity[]) {
+  const findAcct = await getFindAccountFn();
+  const hasTotp2FA = await getHasTotp2faFn();
+  const accounts: Map<
+    SearchResultIdentity,
+    Awaited<ReturnType<ReturnType<typeof createFindAccountFn>>>
+  > = new Map();
+  let has2faCount = 0;
 
-  await promisify(statsd.close).bind(statsd)();
-  return 0;
-};
+  for (const x of logins) {
+    const acct = await findAcct(x.login);
+
+    if (acct) {
+      const has2FA = await hasTotp2FA(acct);
+
+      if (!has2FA) {
+        accounts.set(x, acct);
+      } else {
+        has2faCount++;
+      }
+    }
+  }
+
+  return { accounts, has2faCount };
+}
+
+async function getAuthDb() {
+  if (authDb) {
+    return authDb;
+  }
+
+  authDb = await DB.connect(config, undefined);
+  return authDb;
+}
+
+async function getFindAccountFn() {
+  const db = await getAuthDb();
+  const getAccountRecord = db.accountRecord.bind(db);
+  return createFindAccountFn(getAccountRecord);
+}
+
+async function getHasTotp2faFn() {
+  const db = await getAuthDb();
+  const getTotpToken = db.totpToken.bind(db);
+  return createHasTotp2faFn(getTotpToken);
+}
 
 if (require.main === module) {
   checkAndReset()

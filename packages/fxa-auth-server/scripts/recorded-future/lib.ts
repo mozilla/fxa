@@ -184,6 +184,7 @@ export const getCredentials = async (
       salt: account?.normalizedEmail,
     };
   })();
+
   const stretch = await pbkdf2.derive(
     Buffer.from(password),
     hkdf.KWE('quickStretch', salt),
@@ -192,6 +193,7 @@ export const getCredentials = async (
   );
   const authPW = await hkdf(stretch, 'authPW', null, 32);
   const unwrapBKey = await hkdf(stretch, 'unwrapBKey', null, 32);
+
   return { authPW, unwrapBKey };
 };
 
