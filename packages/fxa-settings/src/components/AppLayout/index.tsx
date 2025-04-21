@@ -45,7 +45,7 @@ export const AppLayout = ({
                 null,
                 'Mozilla logo'
               )}
-              className="h-auto w-28 mx-auto mobileLandscape:mx-0"
+              className="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
             />
           </LinkExternal>
         </header>

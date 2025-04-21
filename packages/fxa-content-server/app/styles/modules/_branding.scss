@@ -46,9 +46,9 @@
   background: image-url('mozilla.svg') no-repeat center center;
   cursor: pointer;
   display: block;
-  height: 2rem;
+  height: 40px;
   transition: opacity $short-transition;
-  width: 7rem;
+  width: 140px;
 
   // Links to external sites cannot be opened when signing in
   // to Sync on Firefox for iOS

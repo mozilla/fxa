@@ -34,7 +34,7 @@ export const Header = ({ profile, className = 'default' }: HeaderProps) => {
         <img
           src={mozillaLogo}
           alt={l10n.getString('brand-name-mozilla-logo', null, 'Mozilla logo')}
-          className="w-[120px]"
+          className="w-[140px]"
         />
       </div>
       {profileSection}
