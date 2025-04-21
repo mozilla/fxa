@@ -5,7 +5,7 @@
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import {
   logViewEvent,
@@ -51,7 +51,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const [currentPasswordErrorText, setCurrentPasswordErrorText] =
     useState<string>();
@@ -61,8 +61,8 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
     alertBar.success(
       ftlMsgResolver.getMsg('pw-change-success-alert-2', 'Password updated')
     );
-    navigate(SETTINGS_PATH + '#password', { replace: true });
-  }, [alertBar, ftlMsgResolver, navigate]);
+    navigateWithQuery(SETTINGS_PATH + '#password', { replace: true });
+  }, [alertBar, ftlMsgResolver, navigateWithQuery]);
 
   const onFormSubmit = useCallback(
     async ({ oldPassword, newPassword }: FormData) => {

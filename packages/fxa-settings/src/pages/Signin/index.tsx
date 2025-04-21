@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import classNames from 'classnames';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
@@ -37,7 +37,6 @@ import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
-import { useCheckReactEmailFirst } from '../../lib/hooks';
 
 export const viewName = 'signin';
 
@@ -65,11 +64,10 @@ const Signin = ({
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const sensitiveDataClient = useSensitiveDataClient();
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -245,9 +243,8 @@ const Signin = ({
           switch (errno) {
             case AuthUiErrors.THROTTLED.errno:
             case AuthUiErrors.REQUEST_BLOCKED.errno:
-              const { localizedErrorMessage } = await sendUnblockEmailHandler(
-                email
-              );
+              const { localizedErrorMessage } =
+                await sendUnblockEmailHandler(email);
               if (localizedErrorMessage) {
                 // Sending the unblock email could itself be rate limited.
                 // If it is, the error should be displayed on this screen
@@ -262,7 +259,7 @@ const Signin = ({
                 plainTextPassword: password,
               });
               // navigate only if sending the unblock code email is successful
-              navigate('/signin_unblock', {
+              navigateWithQuery('/signin_unblock', {
                 state: {
                   email,
                   // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword from state
@@ -274,7 +271,7 @@ const Signin = ({
               break;
             case AuthUiErrors.EMAIL_HARD_BOUNCE.errno:
             case AuthUiErrors.EMAIL_SENT_COMPLAINT.errno:
-              navigate('/signin_bounced');
+              navigateWithQuery('/signin_bounced');
               break;
             default:
               setLocalizedBannerError(
@@ -292,7 +289,7 @@ const Signin = ({
       ftlMsgResolver,
       hasLinkedAccount,
       hasPassword,
-      navigate,
+      navigateWithQuery,
       sendUnblockEmailHandler,
       setLocalizedBannerError,
       finishOAuthFlowHandler,
@@ -457,28 +454,11 @@ const Signin = ({
               e.preventDefault();
               GleanMetrics.login.diffAccountLinkClick();
 
-              if (shouldUseReactEmailFirst) {
-                navigate('/', {
-                  state: {
-                    prefillEmail: email,
-                  },
-                });
-              } else {
-                const params = new URLSearchParams(location.search);
-                // Tell content-server to stay on index and prefill the email
-                params.set('prefillEmail', email);
-                // Passing back the 'email' param causes various behaviors in
-                // content-server since it marks the email as "coming from a RP".
-                // Also remove other params that are passed when coming
-                // from content-server to React, see Signup container component
-                // for more info.
-                params.delete('email');
-                params.delete('hasLinkedAccount');
-                params.delete('hasPassword');
-                params.delete('showReactApp');
-                params.delete('login_hint');
-                hardNavigate(`/?${params.toString()}`);
-              }
+              navigateWithQuery('/', {
+                state: {
+                  prefillEmail: email,
+                },
+              });
             }}
           >
             Use a different account

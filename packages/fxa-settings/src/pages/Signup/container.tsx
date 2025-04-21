@@ -3,12 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { useAuthClient, useConfig } from '../../models';
 import { Signup } from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import { useMutation } from '@apollo/client';
 import {
   BeginSignUpOptions,
@@ -32,7 +31,6 @@ import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { QueryParams } from '../..';
 import { isFirefoxService } from '../../models/integrations/utils';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
-import { useCheckReactEmailFirst } from '../../lib/hooks';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -70,7 +68,7 @@ const SignupContainer = ({
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const config = useConfig();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
@@ -87,7 +85,6 @@ const SignupContainer = ({
   const emailStatusChecked =
     queryParamModel.emailStatusChecked || location.state?.emailStatusChecked;
   const email = queryParamModel.email || location.state?.email;
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const wantsKeys = integration.wantsKeys();
 
@@ -108,18 +105,14 @@ const SignupContainer = ({
           const signInPath = location.pathname.startsWith('/oauth')
             ? '/oauth/signin'
             : '/signin';
-          if (config.showReactApp.signInRoutes) {
-            navigate(signInPath, {
-              replace: true,
-              state: {
-                email,
-                hasLinkedAccount,
-                hasPassword,
-              },
-            });
-          } else {
-            hardNavigate(signInPath, { email }, true);
-          }
+          navigateWithQuery(signInPath, {
+            replace: true,
+            state: {
+              email,
+              hasLinkedAccount,
+              hasPassword,
+            },
+          });
         }
       }
     })();
@@ -217,15 +210,11 @@ const SignupContainer = ({
 
   // TODO: probably a better way to read this?
   if (window.document.cookie.indexOf('tooyoung') > -1) {
-    navigate('/cannot_create_account');
+    navigateWithQuery('/cannot_create_account');
   }
 
   if (validationError || !email) {
-    if (shouldUseReactEmailFirst) {
-      navigate('/');
-    } else {
-      hardNavigate('/', {}, true);
-    }
+    navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;
   }
 

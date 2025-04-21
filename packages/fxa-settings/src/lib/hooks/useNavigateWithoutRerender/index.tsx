@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { NavigateOptions } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 import { useCallback } from 'react';
 
@@ -15,13 +15,13 @@ import { useCallback } from 'react';
  * unintentional error.
  */
 export default function useNavigateWithoutRerender() {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const navigateWithoutRerender = useCallback(
     (path: string, options: NavigateOptions<{}>) => {
-      window.requestAnimationFrame(() => navigate(path, options));
+      window.requestAnimationFrame(() => navigateWithQuery(path, options));
     },
-    [navigate]
+    [navigateWithQuery]
   );
 
   return navigateWithoutRerender;

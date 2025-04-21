@@ -25,10 +25,10 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
   return {
     emailFirstRoutes: {
       featureFlagOn: showReactApp.emailFirstRoutes,
-      // the order of the routes in teh array is important.  do not put '/'
+      // the order of the routes in the array is important.  do not put '/'
       // first.
       routes: reactRoute.getRoutes(['authorization', 'oauth', '/']),
-      fullProdRollout: false,
+      fullProdRollout: true,
     },
     simpleRoutes: {
       featureFlagOn: showReactApp.simpleRoutes,

@@ -29,13 +29,13 @@ import { SETTINGS_PATH } from '../../constants';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount } from '../../lib/cache';
 import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
 import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
 import { SettingsIntegration } from './interfaces';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 
 export const Settings = ({
   integration,
@@ -43,6 +43,7 @@ export const Settings = ({
   const session = useSession();
   const account = useAccount();
   const location = useLocation();
+  const navigateWithQuery = useNavigateWithQuery();
 
   useEffect(() => {
     /**
@@ -77,7 +78,7 @@ export const Settings = ({
       // signin page
       if (accountUidFromApolloCache === undefined) {
         console.warn('Could not access account.uid from apollo cache!');
-        hardNavigate('/');
+        navigateWithQuery('/');
         return;
       }
 
@@ -103,11 +104,11 @@ export const Settings = ({
       // Either way, we cannot reliable sync up apollo cache and localstorage, so
       // we will direct back to the login page.
       console.warn('Could not locate current account in local storage');
-      hardNavigate('/');
+      navigateWithQuery('/');
     }
     window.addEventListener('focus', handleWindowFocus);
     return () => window.removeEventListener('focus', handleWindowFocus);
-  }, [account, session]);
+  }, [account, navigateWithQuery, session]);
 
   const { loading, error } = useInitialSettingsState();
   const { enabled: gleanEnabled } = GleanMetrics.useGlean();

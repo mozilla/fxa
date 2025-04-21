@@ -167,7 +167,7 @@ describe('SigninTokenCode container', () => {
         mockLocationState = {};
         render([]);
         expect(CacheModule.currentAccount).toBeCalled();
-        expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
+        expect(mockNavigate).toBeCalledWith('/');
         expect(SigninTokenCodeModule.default).not.toBeCalled();
       });
     });

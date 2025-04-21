@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from 'react';
-import { Link, RouteComponentProps, useNavigate } from '@reach/router';
+import { Link, RouteComponentProps } from '@reach/router';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { SETTINGS_PATH } from '../../../constants';
 import CardHeader from '../../CardHeader';
@@ -14,6 +14,7 @@ import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import FlowContainer from '../FlowContainer';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 // TODO, update this link with #section-heading once the SUMO article is updated (FXA-10918)
 const sumoTwoStepLink = (
@@ -26,7 +27,7 @@ const sumoTwoStepLink = (
 );
 
 const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -35,7 +36,8 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   // Use phoneNumber as a fallback in case nationalFormat is not available
   const formattedFullPhoneNumber = nationalFormat || phoneNumber;
 
-  const goHome = () => navigate(SETTINGS_PATH + '#security', { replace: true });
+  const goHome = () =>
+    navigateWithQuery(SETTINGS_PATH + '#security', { replace: true });
 
   const gleanSuccessView =
     GleanMetrics.accountPref.twoStepAuthPhoneRemoveSuccessView;
@@ -48,8 +50,8 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
       ),
       gleanSuccessView
     );
-    navigate(SETTINGS_PATH + '#security', { replace: true });
-  }, [alertBar, ftlMsgResolver, gleanSuccessView, navigate]);
+    navigateWithQuery(SETTINGS_PATH + '#security', { replace: true });
+  }, [alertBar, ftlMsgResolver, gleanSuccessView, navigateWithQuery]);
 
   const clickRemoveRecoveryPhone = useCallback(async () => {
     try {

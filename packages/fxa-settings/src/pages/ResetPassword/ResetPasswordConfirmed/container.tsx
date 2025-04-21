@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
 
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import ResetPasswordConfirmed from '.';
@@ -35,7 +35,6 @@ const ResetPasswordConfirmedContainer = ({
     authClient,
     integration
   );
-  const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const sensitiveDataClient = useSensitiveDataClient();
   const [errorMessage, setErrorMessage] = useState('');
@@ -101,7 +100,7 @@ const ResetPasswordConfirmedContainer = ({
   }
 
   if (!verified) {
-    hardNavigate(`/${location.search}`);
+    navigateWithQuery('/');
     return;
   }
 

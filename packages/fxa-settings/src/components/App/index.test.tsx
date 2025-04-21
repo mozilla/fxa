@@ -356,7 +356,7 @@ describe('SettingsRoutes', () => {
     (useSession as jest.Mock).mockRestore();
   });
 
-  it('redirects to /signin if isSignedIn is false', async () => {
+  it('redirects to email-first if isSignedIn is false', async () => {
     (firefox.requestSignedInUser as jest.Mock).mockResolvedValue(null);
     (currentAccount as jest.Mock).mockReturnValue(null);
     (useIntegration as jest.Mock).mockReturnValue({
@@ -436,6 +436,14 @@ describe('SettingsRoutes', () => {
   });
 
   it('restores sync user when session is valid', async () => {
+    // we only send a webChannel message to check for a sync user
+    // if the userAgent is a version of Firefox
+    Object.defineProperty(window.navigator, 'userAgent', {
+      value:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:118.0) Gecko/20100101 Firefox/118.0',
+      configurable: true,
+    });
+
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
       isDesktopRelay: () => false,

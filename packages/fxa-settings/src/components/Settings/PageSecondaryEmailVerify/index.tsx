@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import { logViewEvent } from '../../../lib/metrics';
 import { useAccount, useAlertBar } from '../../../models';
@@ -24,10 +24,11 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       verificationCode: '',
     },
   });
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const goHome = useCallback(
-    () => navigate(SETTINGS_PATH + '#secondary-email', { replace: true }),
-    [navigate]
+    () =>
+      navigateWithQuery(SETTINGS_PATH + '#secondary-email', { replace: true }),
+    [navigateWithQuery]
   );
   const { l10n } = useLocalization();
   const alertBar = useAlertBar();
@@ -41,9 +42,9 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           `${email} successfully added`
         )
       );
-      navigate(SETTINGS_PATH + '#secondary-email', { replace: true });
+      navigateWithQuery(SETTINGS_PATH + '#secondary-email', { replace: true });
     },
-    [alertBar, l10n, navigate]
+    [alertBar, l10n, navigateWithQuery]
   );
   const subtitleText = l10n.getString(
     'add-secondary-email-step-2',
@@ -84,9 +85,9 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
 
   useEffect(() => {
     if (!email) {
-      navigate(SETTINGS_PATH, { replace: true });
+      navigateWithQuery(SETTINGS_PATH, { replace: true });
     }
-  }, [email, navigate]);
+  }, [email, navigateWithQuery]);
 
   const buttonDisabled =
     !formState.isDirty || !formState.isValid || account.loading;

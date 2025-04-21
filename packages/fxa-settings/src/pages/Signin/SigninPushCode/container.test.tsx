@@ -172,7 +172,7 @@ describe('SigninPushCode container', () => {
         mockLocationState = {};
         render();
         expect(CacheModule.currentAccount).toBeCalled();
-        expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
+        expect(mockNavigate).toBeCalledWith('/');
         expect(SigninPushCodeModule.default).not.toBeCalled();
       });
     });

@@ -14,14 +14,12 @@ import {
   useSensitiveDataClient,
 } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { useEffect, useState } from 'react';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 export type SigninPushCodeContainerProps = {
   integration: Integration;
@@ -33,8 +31,7 @@ export const SigninPushCodeContainer = ({
   serviceName,
 }: SigninPushCodeContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
-  const navigate = useNavigate();
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
+  const navigateWithQuery = useNavigateWithQuery();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
     integration
@@ -75,18 +72,14 @@ export const SigninPushCodeContainer = ({
   }
 
   if (!signinState) {
-    if (shouldUseReactEmailFirst) {
-      navigate('/');
-    } else {
-      hardNavigate('/', {}, true);
-    }
+    navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;
   }
 
   // redirect if there is 2FA is set up for the account,
   // but the session is not TOTP verified
   if (totpVerified) {
-    navigate('/signin_totp_code', {
+    navigateWithQuery('/signin_totp_code', {
       state: signinState,
     });
     return <LoadingSpinner fullScreen />;

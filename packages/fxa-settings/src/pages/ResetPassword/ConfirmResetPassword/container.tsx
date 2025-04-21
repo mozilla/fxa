@@ -25,7 +25,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const navigate = useNavigateWithQuery();
+  const navigateWithQuery = useNavigateWithQuery();
   let location = useLocation();
 
   const { email, metricsContext } =
@@ -33,7 +33,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
 
   useEffect(() => {
     if (!email || !metricsContext) {
-      navigate(`/reset_password${location.search}`);
+      navigateWithQuery('/reset_password');
     }
   });
 
@@ -48,7 +48,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
     totpExists?: boolean
   ) => {
     if (totpExists && recoveryKeyExists === false) {
-      navigate('/confirm_totp_reset_password', {
+      navigateWithQuery('/confirm_totp_reset_password', {
         state: {
           code,
           email,
@@ -62,7 +62,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         replace: true,
       });
     } else if (recoveryKeyExists === true) {
-      navigate('/account_recovery_confirm_key', {
+      navigateWithQuery('/account_recovery_confirm_key', {
         state: {
           code,
           email,
@@ -77,7 +77,7 @@ const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
         replace: true,
       });
     } else {
-      navigate('/complete_reset_password', {
+      navigateWithQuery('/complete_reset_password', {
         state: {
           code,
           email,

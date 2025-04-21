@@ -6,17 +6,16 @@ import React, { useEffect } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { ConfirmResetPasswordProps } from './interfaces';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
 import { useFtlMsgResolver } from '../../../models';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import { ResendStatus } from '../../../lib/types';
 import { EmailCodeImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
-import { useCheckReactEmailFirst } from '../../../lib/hooks';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 const ConfirmResetPassword = ({
   clearBanners,
@@ -33,9 +32,7 @@ const ConfirmResetPassword = ({
   }, []);
 
   const ftlMsgResolver = useFtlMsgResolver();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const spanElement = <span className="font-bold">{email}</span>;
 
@@ -108,27 +105,11 @@ const ConfirmResetPassword = ({
               e.preventDefault();
               GleanMetrics.passwordReset.emailConfirmationDifferentAccount();
 
-              if (shouldUseReactEmailFirst) {
-                navigate('/', {
-                  state: {
-                    prefillEmail: email,
-                  },
-                });
-              } else {
-                const params = new URLSearchParams(location.search);
-                // Tell content-server to stay on index and prefill the email
-                params.set('prefillEmail', email);
-                // Passing back the 'email' param causes various behaviors in
-                // content-server since it marks the email as "coming from a RP".
-                // Also remove other params that are passed when coming
-                // from content-server to React, see Signup container component
-                // for more info.
-                params.delete('email');
-                params.delete('hasLinkedAccount');
-                params.delete('hasPassword');
-                params.delete('showReactApp');
-                hardNavigate(`/?${params.toString()}`);
-              }
+              navigateWithQuery('/', {
+                state: {
+                  prefillEmail: email,
+                },
+              });
             }}
           >
             Use a different account

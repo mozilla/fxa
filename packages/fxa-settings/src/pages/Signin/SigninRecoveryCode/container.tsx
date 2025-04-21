@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import SigninRecoveryCode from '.';
 import {
   Integration,
@@ -25,8 +24,7 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError } from '../../../lib/error-utils';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
-import { useCheckReactEmailFirst } from '../../../lib/hooks';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 type SigninRecoveryCodeLocationState = {
   signinState: SigninLocationState;
@@ -49,8 +47,7 @@ export const SigninRecoveryCodeContainer = ({
     (useLocation() as ReturnType<typeof useLocation> & {
       state: SigninRecoveryCodeLocationState;
     }) || {};
-  const navigate = useNavigate();
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
+  const navigateWithQuery = useNavigateWithQuery();
   const signinState = getSigninState(location.state?.signinState);
   const lastFourPhoneDigits = location.state?.lastFourPhoneDigits;
   const sensitiveDataClient = useSensitiveDataClient();
@@ -91,14 +88,14 @@ export const SigninRecoveryCodeContainer = ({
     }
     try {
       await authClient.recoveryPhoneSigninSendCode(signinState.sessionToken);
-      navigate('/signin_recovery_phone', {
+      navigateWithQuery('/signin_recovery_phone', {
         state: { signinState, lastFourPhoneDigits },
       });
       return;
     } catch (error) {
       const { error: handledError } = getHandledError(error);
       if (handledError.errno === AuthUiErrors.INVALID_TOKEN.errno) {
-        navigate('/signin');
+        navigateWithQuery('/signin');
         return;
       }
       return handledError;
@@ -113,11 +110,7 @@ export const SigninRecoveryCodeContainer = ({
   }
 
   if (!signinState) {
-    if (shouldUseReactEmailFirst) {
-      navigate('/');
-    } else {
-      hardNavigate('/', {}, true);
-    }
+    navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;
   }
 

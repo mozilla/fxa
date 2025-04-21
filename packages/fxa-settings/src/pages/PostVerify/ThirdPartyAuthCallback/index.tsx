@@ -26,6 +26,7 @@ import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
 import { currentAccount } from '../../../lib/cache';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 type LinkedAccountData = {
   uid: hexstring;
@@ -46,6 +47,7 @@ const ThirdPartyAuthCallback = ({
   const authClient = useAuthClient();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const location = useLocation();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
     authClient,
@@ -105,10 +107,16 @@ const ThirdPartyAuthCallback = ({
 
       if (navError) {
         // TODO validate what should happen here
-        hardNavigate('/');
+        navigateWithQuery('/');
       }
     },
-    [finishOAuthFlowHandler, integration, location.search, webRedirectCheck]
+    [
+      finishOAuthFlowHandler,
+      integration,
+      location.search,
+      navigateWithQuery,
+      webRedirectCheck,
+    ]
   );
 
   const verifyThirdPartyAuthResponse = useCallback(async () => {
@@ -161,9 +169,15 @@ const ThirdPartyAuthCallback = ({
       );
     } catch (error) {
       // TODO validate what should happen here
-      hardNavigate('/');
+      navigateWithQuery('/');
     }
-  }, [account, flowQueryParams, integration, storeLinkedAccountData]);
+  }, [
+    account,
+    flowQueryParams,
+    integration,
+    navigateWithQuery,
+    storeLinkedAccountData,
+  ]);
 
   const navigateNext = useCallback(
     async (linkedAccount: LinkedAccountData) => {

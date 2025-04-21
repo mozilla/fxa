@@ -4,7 +4,7 @@
 
 import { useMutation, useQuery } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState } from 'react';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
@@ -40,7 +40,7 @@ export const InlineRecoverySetupContainer = ({
   integration: Integration;
   serviceName: MozServices;
 } & RouteComponentProps) => {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
@@ -127,12 +127,12 @@ export const InlineRecoverySetupContainer = ({
 
   // Some basic sanity checks
   if (!isSignedIn || !signinRecoveryLocationState?.email || !totp) {
-    navigate(`/signup${location.search}`);
+    navigateWithQuery('/signup');
     return <LoadingSpinner fullScreen />;
   }
 
   if (totpStatus?.account.totp.verified) {
-    navigate(`/signin_totp_code${location.search}`, {
+    navigateWithQuery('/signin_totp_code', {
       state: signinLocationState,
     });
     return <LoadingSpinner fullScreen />;

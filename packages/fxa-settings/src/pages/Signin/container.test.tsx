@@ -399,7 +399,7 @@ describe('signin container', () => {
       it('is handled if not provided in query params or location state', async () => {
         render([mockGqlAvatarUseQuery()]);
         expect(CacheModule.currentAccount).toBeCalled();
-        expect(ReactUtils.hardNavigate).toBeCalledWith('/');
+        expect(mockNavigate).toBeCalledWith('/');
         expect(SigninModule.default).not.toBeCalled();
       });
       it('uses local storage value if email is not provided via query param or router state', async () => {
@@ -500,9 +500,9 @@ describe('signin container', () => {
 
       render([mockGqlAvatarUseQuery()]);
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(
-          `/signup?email=from%40queryparams.com&emailStatusChecked=true`
-        );
+        expect(mockNavigate).toHaveBeenCalledWith('/signup', {
+          state: { email: MOCK_QUERY_PARAM_EMAIL, emailStatusChecked: true },
+        });
       });
     });
   });

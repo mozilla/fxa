@@ -18,7 +18,7 @@ const ResetPasswordContainer = ({
 }: ResetPasswordContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
-  const navigate = useNavigateWithQuery();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -33,7 +33,7 @@ const ResetPasswordContainer = ({
     };
     try {
       await authClient.passwordForgotSendOtp(email, options);
-      navigate('/confirm_reset_password', {
+      navigateWithQuery('/confirm_reset_password', {
         state: { email, metricsContext },
       });
     } catch (err) {

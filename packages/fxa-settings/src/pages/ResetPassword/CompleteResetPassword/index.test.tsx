@@ -64,10 +64,8 @@ describe('CompleteResetPassword page', () => {
       expect(screen.getByText('Remember your password?')).toBeVisible();
       const link = screen.getByRole('link', { name: 'Sign in' });
       expect(link).toBeVisible();
-      expect(link).toHaveAttribute(
-        'href',
-        `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
-      );
+      // note: email is passed in location state by the sub-component
+      expect(link).toHaveAttribute('href', '/');
 
       expect(
         screen.queryByRole('link', { name: 'Use account recovery key' })
@@ -159,10 +157,8 @@ describe('CompleteResetPassword page', () => {
       expect(screen.getByText('Remember your password?')).toBeVisible();
       const link = screen.getByRole('link', { name: 'Sign in' });
       expect(link).toBeVisible();
-      expect(link).toHaveAttribute(
-        'href',
-        `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
-      );
+      // prefillEmail is passed as state from the LinkRememberPassword component
+      expect(link).toHaveAttribute('href', '/');
       expect(
         screen.queryByRole('link', { name: 'Use account recovery key' })
       ).not.toBeInTheDocument();

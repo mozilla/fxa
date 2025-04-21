@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import InlineTotpSetup from '.';
@@ -41,7 +41,7 @@ export const InlineTotpSetupContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
   };
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const metricsContext = queryParamsToMetricsContext(
     flowQueryParams as unknown as Record<string, string>
@@ -60,15 +60,15 @@ export const InlineTotpSetupContainer = ({
   const navTo = useCallback(
     (
       uri:
-        | 'signup'
-        | 'signin_token_code'
-        | 'signin_totp_code'
-        | 'inline_recovery_setup',
+        | '/signup'
+        | '/signin_token_code'
+        | '/signin_totp_code'
+        | '/inline_recovery_setup',
       state?: SigninLocationState | SigninRecoveryLocationState
     ) => {
-      navigate(`/${uri}${location.search}`, { state });
+      navigateWithQuery(uri, { state });
     },
-    [location, navigate]
+    [navigateWithQuery]
   );
 
   // Determine if the session is verified
@@ -109,15 +109,15 @@ export const InlineTotpSetupContainer = ({
   // Once state has settled, determine if user should be directed to another page
   useEffect(() => {
     if (!isSignedIn || !signinState) {
-      navTo('signup');
+      navTo('/signup');
     } else if (sessionVerified === false) {
-      navTo('signin_token_code', signinState ? signinState : undefined);
+      navTo('/signin_token_code', signinState ? signinState : undefined);
     } else if (
       totpStatusLoading === false &&
       totpStatus !== undefined &&
       totpStatus.account.totp.verified
     ) {
-      navTo('signin_totp_code', signinState ? signinState : undefined);
+      navTo('/signin_totp_code', signinState ? signinState : undefined);
     }
   }, [
     sessionVerified,
@@ -155,7 +155,7 @@ export const InlineTotpSetupContainer = ({
         };
         GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
         navTo(
-          'inline_recovery_setup',
+          '/inline_recovery_setup',
           Object.keys(state).length > 0 ? state : undefined
         );
       } catch (error) {

@@ -6,11 +6,14 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import LinkRememberPassword, { LinkRememberPasswordProps } from '.';
-import { MOCK_ACCOUNT } from '../../models/mocks';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import { MOCK_CLIENT_ID, MOCK_EMAIL } from '../../pages/mocks';
-import { LocationProvider } from '@reach/router';
+import {
+  createHistory,
+  createMemorySource,
+  LocationProvider,
+} from '@reach/router';
 import userEvent from '@testing-library/user-event';
 
 jest.mock('../../lib/glean', () => ({
@@ -34,7 +37,7 @@ jest.mock('@reach/router', () => ({
 }));
 
 const Subject = ({
-  email = MOCK_ACCOUNT.primaryEmail.email,
+  email = MOCK_EMAIL,
   clickHandler,
 }: Partial<LinkRememberPasswordProps>) => (
   <LocationProvider>
@@ -46,6 +49,10 @@ describe('LinkRememberPassword', () => {
   let bundle: FluentBundle;
   beforeAll(async () => {
     bundle = await getFtlBundle('settings');
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   it('renders as expected', () => {
@@ -63,10 +70,7 @@ describe('LinkRememberPassword', () => {
       name: 'Sign in',
     });
 
-    expect(rememberPasswordLink).toHaveAttribute(
-      'href',
-      `/?client_id=123&prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
-    );
+    expect(rememberPasswordLink).toHaveAttribute('href', `/?client_id=123`);
   });
 
   it('executes a clickHandler if passed in as prop', async () => {
@@ -80,5 +84,44 @@ describe('LinkRememberPassword', () => {
     );
 
     expect(mockClickHandler).toHaveBeenCalledTimes(1);
+  });
+
+  describe('location state', () => {
+    beforeEach(() => {
+      jest.unmock('@reach/router');
+    });
+
+    it('updates location with expected state when the link is clicked', async () => {
+      // Create a custom memory source and history for testing navigation.
+      const source = createMemorySource('/some-start-route');
+      const history = createHistory(source);
+
+      // Render the component within the LocationProvider that uses custom history.
+      renderWithLocalizationProvider(
+        <LocationProvider history={history}>
+          <LinkRememberPassword email={MOCK_EMAIL} />
+        </LocationProvider>
+      );
+
+      // Find and assert the link is visible.
+      const rememberPasswordLink = screen.getByRole('link', {
+        name: 'Sign in',
+      });
+      expect(rememberPasswordLink).toBeVisible();
+      expect(rememberPasswordLink).toHaveAttribute(
+        'href',
+        `/?client_id=${MOCK_CLIENT_ID}`
+      );
+
+      const user = userEvent.setup();
+      await waitFor(() => user.click(rememberPasswordLink));
+
+      // Check that the pathname is updated if the link has a destination change.
+      expect(history.location.pathname).toStrictEqual('/');
+
+      expect(history.location.state).toMatchObject({
+        prefillEmail: MOCK_EMAIL,
+      });
+    });
   });
 });

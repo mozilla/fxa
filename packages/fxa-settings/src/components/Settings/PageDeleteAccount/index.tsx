@@ -5,7 +5,7 @@
 import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useAccount, useAlertBar } from '../../../models';
 import InputPassword from '../../InputPassword';
 import FlowContainer from '../FlowContainer';
@@ -16,12 +16,10 @@ import { Checkbox } from '../Checkbox';
 import { useLocalization } from '@fluent/react';
 import { Localized } from '@fluent/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { useFtlMsgResolver } from '../../../models/hooks';
-import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 type FormData = {
   password: string;
@@ -104,11 +102,10 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const allBoxesChecked = Object.keys(checkboxLabels).every((element) =>
     checkedBoxes.includes(element)
   );
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const goHome = useCallback(() => window.history.back(), []);
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const account = useAccount();
 
@@ -145,15 +142,12 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
           'flow.settings.account-delete',
           'confirm-password.success'
         );
-        if (shouldUseReactEmailFirst) {
-          navigate('/', {
-            state: {
-              deleteAccountSuccess: true,
-            },
-          });
-        } else {
-          hardNavigate('/', { delete_account_success: true }, true);
-        }
+
+        navigateWithQuery('/', {
+          state: {
+            deleteAccountSuccess: true,
+          },
+        });
       } catch (e) {
         const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
         if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
@@ -171,8 +165,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
       setValue,
       alertBar,
       ftlMsgResolver,
-      navigate,
-      shouldUseReactEmailFirst,
+      navigateWithQuery,
     ]
   );
 
@@ -295,7 +288,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                 <button
                   className="cta-neutral mx-2 px-10 py-2"
                   onClick={() =>
-                    navigate(SETTINGS_PATH + '#delete-account', {
+                    navigateWithQuery(SETTINGS_PATH + '#delete-account', {
                       replace: true,
                     })
                   }

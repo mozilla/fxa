@@ -26,7 +26,7 @@ const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
-  const navigate = useNavigateWithQuery();
+  const navigateWithQuery = useNavigateWithQuery();
   const sensitiveDataClient = useSensitiveDataClient();
 
   const {
@@ -72,7 +72,7 @@ const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {
       kB,
     });
 
-    navigate('/account_recovery_reset_password', {
+    navigateWithQuery('/account_recovery_reset_password', {
       state: {
         accountResetToken: fetchedAccountResetToken,
         email,

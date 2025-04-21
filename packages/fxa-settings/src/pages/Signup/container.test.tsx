@@ -39,7 +39,7 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
 import SignupContainer from './container';
-import { IntegrationType, useAuthClient } from '../../models';
+import { IntegrationType } from '../../models';
 import { MozServices } from '../../lib/types';
 import { FirefoxCommand } from '../../lib/channels/firefox';
 import { Constants } from '../../lib/constants';
@@ -117,14 +117,9 @@ function mockCryptoModule() {
   });
 }
 
+const mockNavigate = jest.fn();
 function mockReachRouterModule() {
-  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(function () {
-    return Promise.resolve();
-  });
-}
-
-function mockReactUtilsModule() {
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
+  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
 }
 
 // TIP - Sometimes it's useful to have inner mocks. In this case, we hold a reference to
@@ -196,7 +191,6 @@ function applyMocks() {
   mockFirefoxModule();
   mockCryptoModule();
   mockReachRouterModule();
-  mockReactUtilsModule();
   mockLoadingSpinnerModule();
 }
 
@@ -263,7 +257,7 @@ describe('sign-up-container', () => {
       await render('loading spinner mock');
 
       // TODO: Determine if email is valid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
-      expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
+      expect(mockNavigate).toBeCalledWith('/');
     });
 
     it('handles empty email', async () => {
@@ -283,7 +277,7 @@ describe('sign-up-container', () => {
       await render('loading spinner mock');
 
       // TODO: Show that email is invalid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
-      expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
+      expect(mockNavigate).toBeCalledWith('/');
     });
   });
 

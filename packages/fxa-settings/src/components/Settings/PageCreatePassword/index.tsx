@@ -4,7 +4,7 @@
 
 import { Localized } from '@fluent/react';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SETTINGS_PATH } from '../../../constants';
@@ -40,7 +40,7 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
 
   const alertBar = useAlertBar();
   const account = useAccount();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: {
@@ -54,14 +54,14 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
     alertBar.success(
       ftlMsgResolver.getMsg('pw-create-success-alert-2', 'Password set')
     );
-    navigate(
+    navigateWithQuery(
       SETTINGS_PATH + (wantsUnlinkProviderId ? '#linked-account' : '#password'),
       {
         replace: true,
         state: { wantsUnlinkProviderId },
       }
     );
-  }, [alertBar, ftlMsgResolver, navigate, wantsUnlinkProviderId]);
+  }, [alertBar, ftlMsgResolver, navigateWithQuery, wantsUnlinkProviderId]);
 
   const onFormSubmit = useCallback(
     async ({ newPassword }: FormData) => {

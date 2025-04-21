@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
@@ -57,7 +57,7 @@ export const SigninUnblock = ({
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const redirectTo =
@@ -170,7 +170,7 @@ export const SigninUnblock = ({
       );
       switch (error.errno) {
         case AuthUiErrors.INCORRECT_PASSWORD.errno:
-          navigate(`/signin`, {
+          navigateWithQuery(`/signin`, {
             state: {
               email,
               // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from Apollo cache

@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { SETTINGS_PATH } from '../../../constants';
 import InputText from '../../InputText';
@@ -25,17 +25,17 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
     null,
     'Step 1 of 2'
   );
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const alertBar = useAlertBar();
   const account = useAccount();
   const goHome = () =>
-    navigate(SETTINGS_PATH + '#secondary-email', { replace: true });
+    navigateWithQuery(SETTINGS_PATH + '#secondary-email', { replace: true });
 
   const createSecondaryEmail = useCallback(
     async (email: string) => {
       try {
         await account.createSecondaryEmail(email);
-        navigate('emails/verify', { state: { email }, replace: true });
+        navigateWithQuery('emails/verify', { state: { email }, replace: true });
       } catch (e) {
         if (e.errno) {
           const errorText = l10n.getString(
@@ -55,7 +55,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
         }
       }
     },
-    [account, navigate, setErrorText, alertBar, l10n]
+    [account, navigateWithQuery, setErrorText, alertBar, l10n]
   );
 
   const checkEmail = useCallback(

@@ -28,7 +28,6 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
@@ -43,8 +42,7 @@ import {
 } from '../gql';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
-import { useCheckReactEmailFirst } from '../../../lib/hooks';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -71,8 +69,7 @@ export const SigninTotpCodeContainer = ({
 
   const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
   const { service } = queryParamModel;
-  const navigate = useNavigate();
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
@@ -164,11 +161,7 @@ export const SigninTotpCodeContainer = ({
     (signinState.verificationMethod &&
       signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
   ) {
-    if (shouldUseReactEmailFirst) {
-      navigate('/');
-    } else {
-      hardNavigate('/', {}, true);
-    }
+    navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;
   }
 

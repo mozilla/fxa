@@ -5,10 +5,9 @@
 import * as Sentry from '@sentry/browser';
 
 import { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import { isEmail } from 'class-validator';
 
-import { hardNavigate } from 'fxa-react/lib/utils';
 import { isEmailMask } from 'fxa-shared/email/helpers';
 
 import firefox from '../../lib/channels/firefox';
@@ -29,6 +28,8 @@ import { IndexQueryParams } from '../../models/pages/index';
 import Index from '.';
 import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
 import { IndexContainerProps, LocationState } from './interfaces';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { hardNavigate } from 'fxa-react/lib/utils';
 
 export const IndexContainer = ({
   integration,
@@ -36,7 +37,7 @@ export const IndexContainer = ({
 }: IndexContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
@@ -89,21 +90,11 @@ export const IndexContainer = ({
       hasPassword: boolean,
       email: string
     ) => {
-      const url = new URL(window.location.href);
-      const params = new URLSearchParams(location.search);
-      // Remove the 'email' query parameter to avoid it taking precedence,
-      // which would prevent users from signing up with a different email.
-      // This deletion applies to both signup and signin routes and is a legacy
-      // workaround from the Backbone-to-React transition (see FXA-10567).
-      // Consider using useNavigateWithQuery once the issue is resolved.
-      params.delete('email');
-      url.search = params.toString();
       if (exists) {
         const signinRoute = isOAuthWebIntegration(integration)
           ? '/oauth/signin'
           : '/signin';
-        url.pathname = signinRoute;
-        navigate(url.toString(), {
+        navigateWithQuery(signinRoute, {
           state: {
             email,
             hasLinkedAccount,
@@ -114,8 +105,7 @@ export const IndexContainer = ({
         const signupRoute = isOAuthWebIntegration(integration)
           ? '/oauth/signup'
           : '/signup';
-        url.pathname = signupRoute;
-        navigate(url.toString(), {
+        navigateWithQuery(signupRoute, {
           state: {
             email,
             emailStatusChecked: true,
@@ -123,7 +113,7 @@ export const IndexContainer = ({
         });
       }
     },
-    [integration, location.search, navigate]
+    [integration, navigateWithQuery]
   );
 
   const handleEmailSubmissionError = useCallback(

@@ -18,7 +18,7 @@ import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
@@ -27,7 +27,7 @@ const replaceCodesRoute = `${route}/replace_codes`;
 export const UnitRowTwoStepAuth = () => {
   const alertBar = useAlertBar();
   const account = useAccount();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const {
     backupCodes: { count },
@@ -164,7 +164,7 @@ export const UnitRowTwoStepAuth = () => {
         <BackupCodesSubRow
           numCodesAvailable={count}
           onCtaClick={() => {
-            navigate(replaceCodesRoute, undefined, false);
+            navigateWithQuery(replaceCodesRoute, undefined, false);
           }}
           key={1}
         />
@@ -174,7 +174,7 @@ export const UnitRowTwoStepAuth = () => {
         subRows.push(
           <BackupPhoneSubRow
             onCtaClick={() => {
-              navigate(
+              navigateWithQuery(
                 `${SETTINGS_PATH}/recovery_phone/setup`,
                 undefined,
                 false
@@ -185,7 +185,7 @@ export const UnitRowTwoStepAuth = () => {
               count > 0 && {
                 onDeleteClick: () => {
                   alertBar.hide();
-                  navigate(
+                  navigateWithQuery(
                     `${SETTINGS_PATH}/recovery_phone/remove`,
                     undefined,
                     false

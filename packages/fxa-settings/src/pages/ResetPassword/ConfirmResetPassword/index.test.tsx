@@ -7,12 +7,12 @@
 import React from 'react';
 import { Subject } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import * as utils from 'fxa-react/lib/utils';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MOCK_EMAIL } from '../../mocks';
 import { ResendStatus } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
+import { LocationProvider } from '@reach/router';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -25,34 +25,24 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
-jest.mock('fxa-react/lib/utils', () => ({
-  ...jest.requireActual('fxa-react/lib/utils'),
-  hardNavigate: jest.fn(),
-}));
+const mockLocationHook = jest.fn();
+const mockNavigateHook = jest.fn();
+jest.mock('@reach/router', () => {
+  return {
+    ...jest.requireActual('@reach/router'),
+    useNavigate: () => mockNavigateHook,
+    useLocation: () => mockLocationHook,
+  };
+});
 
 const mockResendCode = jest.fn(() => Promise.resolve());
 const mockVerifyCode = jest.fn((code: string) => Promise.resolve());
 
 describe('ConfirmResetPassword', () => {
-  let locationAssignSpy: jest.Mock;
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-
-    locationAssignSpy = jest.fn();
-
-    Object.defineProperty(window, 'location', {
-      value: {
-        // mock content server url for URL constructor
-        origin: 'http://localhost:3030',
-        assign: locationAssignSpy,
-      },
-      writable: true,
-    });
-  });
+  beforeEach(() => {});
 
   afterEach(() => {
-    locationAssignSpy.mockRestore();
+    jest.resetAllMocks();
   });
 
   it('renders as expected', async () => {
@@ -137,18 +127,15 @@ describe('ConfirmResetPassword', () => {
   });
 
   it('handles Use different account link', async () => {
-    let hardNavigateSpy: jest.SpyInstance;
-    hardNavigateSpy = jest
-      .spyOn(utils, 'hardNavigate')
-      .mockImplementation(() => {});
-
     const user = userEvent.setup();
     renderWithLocalizationProvider(<Subject />);
 
     await waitFor(() =>
       user.click(screen.getByRole('link', { name: /^Use a different account/ }))
     );
-    expect(hardNavigateSpy).toHaveBeenCalledTimes(1);
+    expect(mockNavigateHook).toHaveBeenCalledWith('/', {
+      state: { prefillEmail: MOCK_EMAIL },
+    });
     expect(
       GleanMetrics.passwordReset.emailConfirmationDifferentAccount
     ).toHaveBeenCalledTimes(1);
@@ -167,10 +154,12 @@ describe('ConfirmResetPassword', () => {
 
     it('shows resend error banner', async () => {
       renderWithLocalizationProvider(
-        <Subject
-          resendStatus={ResendStatus.error}
-          resendErrorMessage="Something went wrong. Please try again."
-        />
+        <LocationProvider>
+          <Subject
+            resendStatus={ResendStatus.error}
+            resendErrorMessage="Something went wrong. Please try again."
+          />
+        </LocationProvider>
       );
 
       await expect(

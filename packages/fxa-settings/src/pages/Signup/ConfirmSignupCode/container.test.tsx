@@ -223,9 +223,9 @@ describe('confirm-signup-container', () => {
         expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
       );
       expect(mockEmailBounceStatusQuery).toBeCalled();
-      expect(ReactUtils.hardNavigate).toBeCalledWith(
-        `/?bouncedEmail=${encodeURIComponent(MOCK_EMAIL)}`
-      );
+      expect(mockNavigate).toBeCalledWith('/', {
+        state: { hasBounced: true, prefillEmail: MOCK_EMAIL },
+      });
     });
 
     it('redirects to signin_bounced if there is a bounce that is not on signup', async () => {
@@ -236,9 +236,7 @@ describe('confirm-signup-container', () => {
         expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
       );
       expect(mockEmailBounceStatusQuery).toBeCalled();
-      expect(ReactUtils.hardNavigate).toBeCalledWith(
-        `/signin_bounced?bouncedEmail=${encodeURIComponent(MOCK_EMAIL)}`
-      );
+      expect(mockNavigate).toBeCalledWith('/signin_bounced');
     });
   });
 
@@ -253,9 +251,7 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(screen.getByText('loading spinner mock')).toBeInTheDocument()
       );
-      expect(ReactUtils.hardNavigate).toBeCalledWith(
-        expect.stringMatching('/')
-      );
+      expect(mockNavigate).toBeCalledWith('/');
     });
   });
 

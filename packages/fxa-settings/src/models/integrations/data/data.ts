@@ -58,7 +58,7 @@ export class IntegrationData extends ModelDataProvider {
 
   @IsOptional()
   @IsString()
-  @bind()
+  @bind(T.snakeCase)
   loginHint: string | undefined;
 
   @IsOptional()

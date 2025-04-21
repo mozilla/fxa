@@ -5,15 +5,14 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import { useFtlMsgResolver } from '../../../models';
-import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
 import FormVerifyCode, {
   commonBackupCodeFormAttributes,
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
-import { useCheckReactEmailFirst } from '../../../lib/hooks';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 export type ConfirmTotpResetPasswordProps = {
   verifyCode: (code: string) => Promise<void>;
@@ -30,8 +29,7 @@ const ConfirmTotpResetPassword = ({
 }: ConfirmTotpResetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [showRecoveryCode, setShowRecoveryCode] = useState<boolean>(false);
-  const navigate = useNavigate();
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const totpFormAttributes: FormAttributes = {
     inputFtlId: 'confirm-totp-reset-password-input-label-v2',
@@ -144,12 +142,7 @@ const ConfirmTotpResetPassword = ({
               className="link-blue text-sm"
               data-glean-id="reset_password_confirm_totp_use_different_account_button"
               onClick={() => {
-                if (shouldUseReactEmailFirst) {
-                  navigate('/');
-                } else {
-                  // Navigate to email first page and keep search params
-                  hardNavigate('/', {}, true);
-                }
+                navigateWithQuery('/');
               }}
             >
               <FtlMsg id="confirm-totp-reset-password-use-different-account">

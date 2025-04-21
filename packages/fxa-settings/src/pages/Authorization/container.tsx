@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import {
   Integration,
   isDefault,
@@ -21,6 +21,7 @@ import { cachedSignIn, handleNavigation } from '../Signin/utils';
 import { AuthError, OAuthError } from '../../lib/oauth/oauth-errors';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { hardNavigate } from 'fxa-react/lib/utils';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 
 const convertToRelierAccount = (
   account: ReturnType<typeof currentAccount>,
@@ -48,9 +49,9 @@ const AuthorizationContainer = ({
   const [oauthError, setOauthError] = useState<AuthError | OAuthError | null>(
     null
   );
-  const navigate = useNavigate();
   const authClient = useAuthClient();
   const location = useLocation() as ReturnType<typeof useLocation>;
+  const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -130,6 +131,10 @@ const AuthorizationContainer = ({
   ]);
 
   useEffect(() => {
+    if (oauthError) {
+      return;
+    }
+
     if (isOAuthWebIntegration(integration) && integration.wantsPromptNone()) {
       promptNoneHandler();
       return;
@@ -140,8 +145,9 @@ const AuthorizationContainer = ({
 
     if (integration.data.action) {
       if (integration.data.action === 'email') {
-        navigate(`/oauth?${urlSearchParams.toString()}`);
+        navigateWithQuery('/oauth');
       } else {
+        // we'll keep the hard navigate here to support backbone and react pages
         hardNavigate(
           `/${integration.data.action}?${urlSearchParams.toString()}`
         );
@@ -149,8 +155,14 @@ const AuthorizationContainer = ({
       return;
     }
 
-    navigate(`/oauth?${urlSearchParams.toString()}`);
-  }, [integration, location.search, navigate, promptNoneHandler]);
+    navigateWithQuery('/oauth');
+  }, [
+    integration,
+    location.search,
+    oauthError,
+    navigateWithQuery,
+    promptNoneHandler,
+  ]);
 
   if (oauthError) {
     return <OAuthDataError error={oauthError} />;

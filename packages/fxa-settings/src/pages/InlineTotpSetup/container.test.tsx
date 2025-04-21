@@ -5,6 +5,7 @@
 import * as ApolloClientModule from '@apollo/client';
 import * as InlineTotpSetupModule from './index';
 import * as utils from 'fxa-react/lib/utils';
+import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 
 import { ApolloClient } from '@apollo/client';
 import { LocationProvider } from '@reach/router';
@@ -67,9 +68,16 @@ jest.mock('../../lib/glean', () => ({
 }));
 
 function setMocks() {
+  const search = '?' + new URLSearchParams(MOCK_QUERY_PARAMS);
+
+  mockWindowLocation({
+    pathname: '/inline_totp_setup',
+    search,
+  });
+
   mockLocationHook.mockReturnValue({
     pathname: '/inline_totp_setup',
-    search: '?' + new URLSearchParams(MOCK_QUERY_PARAMS),
+    search,
     state: MOCK_SIGNIN_LOCATION_STATE,
   });
   mockCheckCode.mockReturnValue(true);
@@ -131,6 +139,10 @@ function render(props = {}) {
 describe('InlineTotpSetupContainer', () => {
   beforeEach(() => {
     setMocks();
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   describe('redirects away', () => {

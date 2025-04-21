@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import { useAccount, useFtlMsgResolver } from '../../../models';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
@@ -15,7 +15,7 @@ const numberOfSteps = 2;
 
 export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();
 
   const [phoneData, setPhoneData] = useState<{
@@ -29,7 +29,9 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   const goHome = () =>
-    navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
+    navigateWithQuery(SETTINGS_PATH + '#two-step-authentication', {
+      replace: true,
+    });
 
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'page-setup-recovery-phone-heading',
@@ -52,7 +54,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     } else {
-      navigate(SETTINGS_PATH);
+      navigateWithQuery(SETTINGS_PATH);
     }
   };
 
@@ -61,7 +63,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     if (currentStep + 1 <= numberOfSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      navigate(SETTINGS_PATH);
+      navigateWithQuery(SETTINGS_PATH);
     }
   };
 

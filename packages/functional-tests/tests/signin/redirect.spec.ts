@@ -27,22 +27,21 @@ test.describe('severity-2 #smoke', () => {
       target,
       page,
       pages: { signin },
-      testAccountTracker,
     }) => {
-      const credentials = await testAccountTracker.signUp();
-
       await page.goto(
         `${target.contentServerUrl}/?redirect_to=javascript:alert(1)`
       );
-      await signin.fillOutEmailFirstForm(credentials.email);
 
-      await expect(page).toHaveURL(/signin/);
-      await expect(signin.badRequestHeading).toBeVisible();
+      // only error message shown on screen in case of xss redirect_to
+      await expect(
+        page.getByRole('heading', { name: /Bad Request/ })
+      ).toBeVisible();
+      await expect(signin.emailFirstHeading).toBeHidden();
     });
 
     test('does not allow bogus redirect_to parameter', async ({
       target,
-      pages: { page, signin },
+      pages: { page, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -54,11 +53,12 @@ test.describe('severity-2 #smoke', () => {
       await signin.fillOutPasswordForm(credentials.password);
 
       await expect(page).not.toHaveURL(redirectTo);
+      await expect(settings.settingsHeading).toBeVisible();
     });
 
     test('allows valid redirect_to parameter', async ({
       target,
-      pages: { page, signin },
+      pages: { page, changePassword, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -70,6 +70,7 @@ test.describe('severity-2 #smoke', () => {
       await signin.fillOutPasswordForm(credentials.password);
 
       await expect(page).toHaveURL(redirectTo);
+      await expect(changePassword.changePasswordHeading).toBeVisible();
     });
   });
 });

@@ -6,7 +6,7 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import SetPassword from '.';
 import { currentAccount } from '../../../lib/cache';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import {
   Integration,
   useAuthClient,
@@ -37,7 +37,7 @@ const SetPasswordContainer = ({
   integration: Integration;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
   const storedLocalAccount = currentAccount();
   const email = storedLocalAccount?.email;
@@ -160,7 +160,7 @@ const SetPasswordContainer = ({
   // Users must be already authenticated on this page.
   // This page is currently always for the Sync flow.
   if (!email || !sessionToken || !uid || !integration.isSync()) {
-    navigate('/signin', { replace: true });
+    navigateWithQuery('/signin', { replace: true });
     return <LoadingSpinner />;
   }
   if (oAuthDataError) {
