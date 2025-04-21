@@ -21,6 +21,7 @@
  *   4. Send an email to the affected account holder to reset their password.
  */
 
+import crypto from 'crypto';
 import { promisify } from 'util';
 
 import { Command } from 'commander';
@@ -30,7 +31,11 @@ import createClient from 'openapi-fetch';
 import appConfig from '../../config';
 import logFn from '../../lib/log';
 import { createDB } from '../../lib/db';
+import oauthDb from '../../lib/oauth/db';
+import * as butil from '../../lib/crypto/butil';
 import PasswordFn from '../../lib/crypto/password';
+import bouncesFn from '../../lib/bounces';
+import sendersFn from '../../lib/senders';
 import TokenFn from '../../lib/tokens';
 import { emitStatsdMetrics } from '../lib/metrics';
 import { collect, parseBooleanArg } from '../lib/args';
@@ -45,6 +50,10 @@ import {
   fetchAllCredentialSearchResults,
   SearchResultIdentity,
 } from './lib';
+
+type ResetableAccount = NonNullable<
+  Awaited<ReturnType<ReturnType<typeof createFindAccountFn>>>
+>;
 
 const config = appConfig.getProperties();
 const log = logFn({ name: 'recorded-future' });
@@ -112,17 +121,6 @@ will be sent to the account holder.`
     .toISOString()
     .split('T')[0];
 
-  if (program.dryRun) {
-    console.log(`
-Dry run mode is on.  It is the default; use '--dry-run false' when you are ready.
-
-Domain: ${searchDomain}
-Filter: first_downloaded_date_gte=${firstDownloadedDateIsoString}
-Limit: ${resultsPerPageLimit}
-`);
-    return 0;
-  }
-
   const accountsToReset = await (async () => {
     if (!resetWithEmailArgs) {
       return await findLeakedAccounts(firstDownloadedDateIsoString);
@@ -130,26 +128,35 @@ Limit: ${resultsPerPageLimit}
 
     const loginsFromEmailArgs = program.email.map((x) => ({
       login: x,
-      domain: searchDomain,
     }));
     const { accounts } = await getAccountsByLogin(loginsFromEmailArgs);
     return Array.from(accounts.values());
   })();
 
-  if (accountsToReset.length === 0) {
-    console.log('No eligible accounts found.');
-  } else {
-    // TODO maybe reset and send emails
+  if (program.dryRun) {
+    console.log(`
+Dry run mode is on.  It is the default; use '--dry-run false' when you are ready.
+
+Domain: ${searchDomain}
+Filter: first_downloaded_date_gte=${firstDownloadedDateIsoString}
+Limit: ${resultsPerPageLimit}
+Account emails to reset:
+${accountsToReset.map((x) => `${`\t`}${x.email}`).join('\n')}
+`);
+    return 0;
   }
 
-  await promisify(statsd.close).bind(statsd)();
+  if (accountsToReset.length === 0) {
+    log.info('recordedFuture.info', 'No eligible accounts found.');
+    return 0;
+  }
+
+  await resetAccounts(accountsToReset, resetWithEmailArgs);
   return 0;
 };
 
 async function findLeakedAccounts(firstDownloadedDate: string) {
-  const accountsToReset: Awaited<
-    ReturnType<ReturnType<typeof createFindAccountFn>>
-  >[] = [];
+  const accountsToReset: ResetableAccount[] = [];
   const usernamePropertiesFilter = ['Email'] as 'Email'[];
   const payload = {
     domains: [searchDomain],
@@ -201,7 +208,7 @@ async function findLeakedAccounts(firstDownloadedDate: string) {
 
   const accountsByLogin: Record<
     SearchResultIdentity['login'],
-    Awaited<ReturnType<ReturnType<typeof createFindAccountFn>>>
+    ResetableAccount
   > = Array.from(accounts.entries()).reduce((acc, val) => {
     acc[val[0].login] = val[1];
     return acc;
@@ -243,10 +250,7 @@ async function findLeakedAccounts(firstDownloadedDate: string) {
 async function getAccountsByLogin(logins: SearchResultIdentity[]) {
   const findAcct = await getFindAccountFn();
   const hasTotp2FA = await getHasTotp2faFn();
-  const accounts: Map<
-    SearchResultIdentity,
-    Awaited<ReturnType<ReturnType<typeof createFindAccountFn>>>
-  > = new Map();
+  const accounts: Map<SearchResultIdentity, ResetableAccount> = new Map();
   let has2faCount = 0;
 
   for (const x of logins) {
@@ -264,6 +268,54 @@ async function getAccountsByLogin(logins: SearchResultIdentity[]) {
   }
 
   return { accounts, has2faCount };
+}
+
+async function resetAccounts(
+  accountsToReset: ResetableAccount[],
+  resetWithEmails: boolean
+) {
+  const authDb = await getAuthDb();
+  const bounces = bouncesFn(config, authDb);
+  const senders = await sendersFn(log, config, bounces, statsd);
+  // the dynamically named `send\w+Email` functions are not in the type of senders.email
+  const mailer: any = senders.email;
+
+  for (const acct of accountsToReset) {
+    try {
+      await authDb.resetAccount(
+        { uid: acct.uid },
+        {
+          authSalt: butil.ONES.toString('hex'),
+          verifyHash: butil.ONES.toString('hex'),
+          wrapWrapKb: crypto.randomBytes(32).toString('hex'),
+          verifyHashVersion2: butil.ONES.toString('hex'),
+          wrapWrapKbVersion2: crypto.randomBytes(32).toString('hex'),
+          verifierVersion: 1,
+        }
+      );
+      await oauthDb.removeTokensAndCodes(acct.uid);
+      await mailer.sendPasswordChangeRequiredEmail(acct.emails, acct);
+
+      if (!resetWithEmails) {
+        statsd.increment(
+          'recorded-future.identity.credentials-lookup.account-reset'
+        );
+      } else {
+        statsd.increment('recorded-future.email-direct.account-reset');
+      }
+
+      log.info('account.forceReset', {
+        uid: acct.uid,
+        recordedFuture: !resetWithEmails,
+      });
+    } catch (err) {
+      log.error('account.failedReset', {
+        uid: acct.uid,
+        recordedFuture: !resetWithEmails,
+        error: err,
+      });
+    }
+  }
 }
 
 async function getAuthDb() {
@@ -289,9 +341,25 @@ async function getHasTotp2faFn() {
 
 if (require.main === module) {
   checkAndReset()
-    .catch((err: Error) => {
-      console.error(err);
-      process.exit(1);
+    .then(
+      (exitCode) => {
+        statsd.increment('recorded-future.identity.script.success', {
+          exitCode: `${exitCode}`,
+        });
+        return exitCode;
+      },
+      (err) => {
+        log.error('recordedFuture.error', { error: err });
+        statsd.increment('recorded-future.identity.script.error', {
+          exitCode: '1',
+        });
+        return 1;
+      }
+    )
+    .then((exitCode) => {
+      return promisify(statsd.close)
+        .bind(statsd)()
+        .then(() => exitCode);
     })
     .then((exitCode: number) => process.exit(exitCode));
 }
