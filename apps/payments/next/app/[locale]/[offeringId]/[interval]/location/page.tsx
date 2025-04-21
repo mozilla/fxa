@@ -14,14 +14,13 @@ import {
   IsolatedSelectTaxLocation,
   buildRedirectUrl,
 } from '@fxa/payments/ui';
-import {
-  fetchCMSData,
-  getProductAvailabilityForLocation,
-} from '@fxa/payments/ui/actions';
+import { fetchCMSData, validateLocationAction } from '@fxa/payments/ui/actions';
 import { getApp, TermsAndPrivacy } from '@fxa/payments/ui/server';
 import locationIcon from '@fxa/shared/assets/images/confirm-pairing.svg';
 import type { PageContentOfferingTransformed } from '@fxa/shared/cms';
 import { config } from 'apps/payments/next/config';
+import { auth } from 'apps/payments/next/auth';
+import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,26 +34,30 @@ export default async function Location({
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, params.locale);
   const emitterService = getApp().getEmitterService();
+  const session = await auth();
+  const providedCountryCode = searchParams['countryCode'];
+  const providedPostalCode = searchParams['postalCode'];
+  const taxAddress =
+    providedCountryCode && providedPostalCode
+      ? {
+          countryCode: providedCountryCode,
+          postalCode: providedPostalCode,
+        }
+      : undefined;
+
+  const fxaUid = session?.user?.id;
 
   let cms: PageContentOfferingTransformed | undefined;
-  let locationStatus: LocationStatus | undefined;
+  let locationStatus: LocationStatus | TaxChangeAllowedStatus | undefined;
+  let customerCurrency: string | undefined;
   try {
-    const cmsDataPromise = fetchCMSData(
-      params.offeringId,
-      acceptLanguage,
-      params.locale
-    );
-    const locationPromise = await getProductAvailabilityForLocation(
-      params.offeringId,
-      searchParams['countryCode']
-    );
-
-    const [cmsData, locationData] = await Promise.all([
-      cmsDataPromise,
-      locationPromise,
+    const [cmsData, validateLocationResults] = await Promise.all([
+      fetchCMSData(params.offeringId, acceptLanguage, params.locale),
+      validateLocationAction(params.offeringId, taxAddress, fxaUid),
     ]);
     cms = cmsData;
-    locationStatus = locationData.status;
+    locationStatus = validateLocationResults.status;
+    customerCurrency = validateLocationResults.currentCurrency;
 
     emitterService.emit('locationView', locationStatus);
   } catch (error) {
@@ -105,12 +108,20 @@ export default async function Location({
             'Your current location is not supported according to our Terms of Service.'
           )}
         </Banner>
-      ) : locationStatus === LocationStatus.ProductNotAvailable ? (
+      ) : locationStatus === LocationStatus.ProductNotAvailable ||
+        locationStatus === TaxChangeAllowedStatus.CurrencyNotFound ? (
         <Banner variant={BannerVariant.Error} showCloseButton={true}>
           {l10n.getString(
             'select-tax-location-product-not-available',
             { productName: purchaseDetails.productName },
             `${purchaseDetails.productName} is not available in this location.`
+          )}
+        </Banner>
+      ) : locationStatus === TaxChangeAllowedStatus.CurrencyChange ? (
+        <Banner variant={BannerVariant.Error} showCloseButton={true}>
+          {l10n.getString(
+            'location-banner-currency-change',
+            'Currency change not supported. To continue, select a country that matches your current billing currency.'
           )}
         </Banner>
       ) : (
@@ -127,11 +138,29 @@ export default async function Location({
           cmsCountries={cms.countries}
           locale={params.locale.substring(0, 2)}
           productName={purchaseDetails.productName}
+          showNewTaxRateInfoMessage={false}
           unsupportedLocations={
             config.location.subscriptionsUnsupportedLocations
           }
+          currentCurrency={customerCurrency}
           saveAction={async (countryCode: string, postalCode: string) => {
             'use server';
+
+            if (fxaUid) {
+              // call server Action here to validate if tax location change is allowed
+              const result = await validateLocationAction(
+                params.offeringId,
+                { countryCode, postalCode },
+                fxaUid
+              );
+
+              if (!result.isValid) {
+                return {
+                  ok: false,
+                  error: result.status,
+                };
+              }
+            }
 
             searchParams['countryCode'] = countryCode;
             searchParams['postalCode'] = postalCode;

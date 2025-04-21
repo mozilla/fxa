@@ -1,17 +1,17 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 'use server';
 
+import { TaxAddress } from '@fxa/payments/customer';
 import { getApp } from '../nestapp/app';
 
-export const getProductAvailabilityForLocation = (
+export const validateLocationAction = async (
   offeringId: string,
-  countryCode?: string
+  taxAddress?: TaxAddress,
+  uid?: string
 ) => {
-  return getApp().getActionsService().getProductAvailabilityForLocation({
-    offeringId,
-    countryCode,
-  });
+  return await getApp()
+    .getActionsService()
+    .validateLocation({ offeringId, taxAddress, uid });
 };

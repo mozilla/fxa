@@ -1302,6 +1302,7 @@ describe('CartService', () => {
           customerSessionClientSecret: mockCustomerSession.client_secret,
         },
         metricsOptedOut: false,
+        hasActiveSubscriptions: true,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -1362,6 +1363,7 @@ describe('CartService', () => {
           brand: mockPaymentMethod.card?.brand,
           customerSessionClientSecret: mockCustomerSession.client_secret,
         },
+        hasActiveSubscriptions: true,
       });
       expect(
         'latestInvoicePreview' in result && result.latestInvoicePreview
@@ -1410,6 +1412,7 @@ describe('CartService', () => {
         ...mockCart,
         upcomingInvoicePreview: mockInvoicePreview,
         metricsOptedOut: false,
+        hasActiveSubscriptions: false,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -1472,6 +1475,7 @@ describe('CartService', () => {
           interval: mockFromPrice.recurring?.interval,
           listAmount: mockFromPrice.unit_amount,
         },
+        hasActiveSubscriptions: true,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);

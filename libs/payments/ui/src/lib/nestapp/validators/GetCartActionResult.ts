@@ -14,6 +14,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
+import { TaxAddress } from './common/TaxAddress';
 
 class TaxAmount {
   @IsString()
@@ -92,14 +93,6 @@ class FromPriceInfo {
 
   @IsNumber()
   listAmount!: number;
-}
-
-class TaxAddress {
-  @IsString()
-  countryCode!: string;
-
-  @IsString()
-  postalCode!: string;
 }
 
 export class GetCartActionResult {

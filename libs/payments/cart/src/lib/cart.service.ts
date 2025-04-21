@@ -565,7 +565,8 @@ export class CartService {
           if (!cartDetails.currency) {
             throw new CartCurrencyNotFoundError(
               cartDetails.currency,
-              cartDetailsInput.taxAddress.countryCode
+              cartDetailsInput.taxAddress.countryCode,
+              cartId
             );
           }
 
@@ -775,6 +776,7 @@ export class CartService {
           ? eligibility.fromOfferingConfigId
           : undefined,
       fromPrice: 'fromPrice' in eligibility ? fromPrice : undefined,
+      hasActiveSubscriptions: !!subscriptions.length,
     };
   }
 

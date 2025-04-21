@@ -4,7 +4,7 @@
 import Emittery from 'emittery';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { Inject, Injectable } from '@nestjs/common';
-import { CartManager } from '@fxa/payments/cart';
+import { CartManager, TaxChangeAllowedStatus } from '@fxa/payments/cart';
 import { PaymentsGleanManager } from '@fxa/payments/metrics';
 import { LocationStatus } from '@fxa/payments/eligibility';
 import {
@@ -208,7 +208,7 @@ export class PaymentsEmitterService {
     });
   }
 
-  async handleLocationView(status: LocationStatus) {
+  async handleLocationView(status: LocationStatus | TaxChangeAllowedStatus) {
     this.statsd.increment('sp3_location_view', {
       location_status: status,
     });
