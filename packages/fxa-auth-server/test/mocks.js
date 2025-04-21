@@ -116,6 +116,7 @@ const DB_METHOD_NAMES = [
   'createLinkedAccount',
   'deleteLinkedAccount',
   'accountExists',
+  'verifyPasswordForgotTokenWithMethod',
 ];
 
 const LOG_METHOD_NAMES = [

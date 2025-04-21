@@ -821,6 +821,19 @@ module.exports = (config) => {
     );
   };
 
+  Client.prototype.verifyTotpCodeForPasswordReset = function (
+    code,
+    headers,
+    options
+  ) {
+    return this.api.passwordForgotVerifyTotpCode(
+      this.passwordForgotToken,
+      code,
+      headers,
+      options
+    );
+  };
+
   Client.prototype.verifyPasswordResetCode = function (code, headers, options) {
     return this.api
       .passwordForgotVerifyCode(

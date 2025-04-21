@@ -25,7 +25,10 @@ import * as validators from './validators';
 const HEX_STRING = validators.HEX_STRING;
 
 class OtpRedisAdapter implements OtpStorage {
-  constructor(private redis: Redis, private ttl: number) {}
+  constructor(
+    private redis: Redis,
+    private ttl: number
+  ) {}
 
   async set(key: string, value: string) {
     await this.redis.set(key, value, 'EX', this.ttl);
@@ -625,8 +628,8 @@ module.exports = function (
         const code = await otpManager.create(account.uid);
         const ip = request.app.clientAddress;
         const service = payload.service || request.query.service;
-        const { deviceId, flowId, flowBeginTime } = await request.app
-          .metricsContext;
+        const { deviceId, flowId, flowBeginTime } =
+          await request.app.metricsContext;
         const geoData = request.app.geo;
         const {
           browser: uaBrowser,
@@ -787,8 +790,8 @@ module.exports = function (
         }
         request.setMetricsFlowCompleteSignal(flowCompleteSignal);
 
-        const { deviceId, flowId, flowBeginTime } = await request.app
-          .metricsContext;
+        const { deviceId, flowId, flowBeginTime } =
+          await request.app.metricsContext;
 
         await Promise.all([
           request.emitMetricsEvent('password.forgot.send_code.start'),
@@ -802,9 +805,8 @@ module.exports = function (
         // The token constructor sets createdAt from its argument.
         // Clobber the timestamp to prevent prematurely expired tokens.
         accountRecord.createdAt = undefined;
-        const passwordForgotToken = await db.createPasswordForgotToken(
-          accountRecord
-        );
+        const passwordForgotToken =
+          await db.createPasswordForgotToken(accountRecord);
         const [, emails] = await Promise.all([
           request.stashMetricsContext(passwordForgotToken),
           db.accountEmails(passwordForgotToken.uid),
@@ -902,8 +904,8 @@ module.exports = function (
         const service = payload.service || request.query.service;
         const ip = request.app.clientAddress;
 
-        const { deviceId, flowId, flowBeginTime } = await request.app
-          .metricsContext;
+        const { deviceId, flowId, flowBeginTime } =
+          await request.app.metricsContext;
 
         await Promise.all([
           request.emitMetricsEvent('password.forgot.resend_code.start'),
@@ -999,8 +1001,8 @@ module.exports = function (
             includeRecoveryKeyPrompt?: boolean;
           };
 
-        const { deviceId, flowId, flowBeginTime } = await request.app
-          .metricsContext;
+        const { deviceId, flowId, flowBeginTime } =
+          await request.app.metricsContext;
 
         await Promise.all([
           request.emitMetricsEvent('password.forgot.verify_code.start'),
@@ -1016,9 +1018,8 @@ module.exports = function (
           butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
           passwordForgotToken.ttl() > 0
         ) {
-          accountResetToken = await db.forgotPasswordVerified(
-            passwordForgotToken
-          );
+          accountResetToken =
+            await db.forgotPasswordVerified(passwordForgotToken);
         } else {
           await failVerifyAttempt(passwordForgotToken);
           throw error.invalidVerificationCode({

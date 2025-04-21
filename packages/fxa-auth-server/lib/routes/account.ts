@@ -314,8 +314,8 @@ export class AccountHandler {
       tokenVerificationId,
       verificationMethod,
     } = options;
-    const { deviceId, flowId, flowBeginTime, productId, planId } = await request
-      .app.metricsContext;
+    const { deviceId, flowId, flowBeginTime, productId, planId } =
+      await request.app.metricsContext;
     const locale = request.app.acceptLanguage;
     const form = request.payload as any;
     const query = request.query;
@@ -1213,8 +1213,8 @@ export class AccountHandler {
           const service =
             (request.payload as any).service || request.query.service;
           const ip = request.app.clientAddress;
-          const { deviceId, flowId, flowBeginTime } = await request.app
-            .metricsContext;
+          const { deviceId, flowId, flowBeginTime } =
+            await request.app.metricsContext;
 
           try {
             await this.mailer.sendNewDeviceLoginEmail(
@@ -1525,6 +1525,17 @@ export class AccountHandler {
     };
 
     const resetAccountData = async () => {
+      // Users using a valid recovery key don't need to have a 2FA verified accountResetToken
+      // since recovery key in this case is considered a 2FA method.
+      if (hasTotpToken && !recoveryKeyId) {
+        if (
+          accountResetToken.verificationMethod === undefined ||
+          accountResetToken.verificationMethod <= 1
+        ) {
+          throw error.unverifiedSession();
+        }
+      }
+
       const authSalt = await random.hex(32);
       let keysHaveChanged;
       password = new this.Password(

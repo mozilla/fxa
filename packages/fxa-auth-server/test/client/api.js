@@ -873,6 +873,26 @@ module.exports = (config) => {
     );
   };
 
+  ClientApi.prototype.passwordForgotVerifyTotpCode = function (
+    passwordForgotTokenHex,
+    code,
+    headers
+  ) {
+    return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex).then(
+      (token) => {
+        return this.doRequest(
+          'POST',
+          `${this.baseURL}/totp/verify`,
+          token,
+          {
+            code,
+          },
+          headers
+        );
+      }
+    );
+  };
+
   ClientApi.prototype.passwordForgotStatus = function (passwordForgotTokenHex) {
     return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex).then(
       (token) => {
