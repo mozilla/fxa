@@ -11,12 +11,12 @@ import {
   getApp,
   CheckoutParams,
   SupportedPages,
+  getErrorFtlInfo,
 } from '@fxa/payments/ui/server';
 import {
   getCartOrRedirectAction,
   recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
-import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { config } from 'apps/payments/next/config';
 import { Metadata } from 'next';
 
@@ -28,48 +28,6 @@ export const metadata: Metadata = {
   title: 'Error',
   description:
     'There was an error processing your upgrade. If this problem persists, please contact support.',
-};
-
-const getErrorReason = (
-  reason: CartErrorReasonId | null,
-  params: CheckoutParams
-) => {
-  switch (reason) {
-    case 'cart_eligibility_status_downgrade':
-      return {
-        buttonFtl: 'checkout-error-contact-support-button',
-        buttonLabel: 'Contact Support',
-        buttonUrl: config.supportUrl,
-        message: 'Please contact support so we can help you.',
-        messageFtl: 'checkout-error-contact-support',
-      };
-    case 'cart_eligibility_status_invalid':
-      return {
-        buttonFtl: 'checkout-error-contact-support-button',
-        buttonLabel: 'Contact Support',
-        buttonUrl: config.supportUrl,
-        message:
-          'You are not eligible to subscribe to this product - please contact support so we can help you.',
-        messageFtl: 'checkout-error-not-eligible',
-      };
-    case 'iap_upgrade_contact_support':
-      return {
-        buttonFtl: 'next-payment-error-manage-subscription-button',
-        buttonLabel: 'Manage my subscription',
-        buttonUrl: `${config.contentServerUrl}/subscriptions`,
-        message:
-          'You can still get this product — please contact support so we can help you.',
-        messageFtl: 'next-iap-upgrade-contact-support',
-      };
-    default:
-      return {
-        buttonFtl: 'next-payment-error-retry-button',
-        buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
-        message: 'Something went wrong. Please try again later.',
-        messageFtl: 'next-basic-error-message',
-      };
-  }
 };
 
 export default async function UpgradeError({
@@ -97,7 +55,7 @@ export default async function UpgradeError({
     cart.paymentInfo?.type
   );
 
-  const errorReason = getErrorReason(cart.errorReasonId, params);
+  const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config);
 
   return (
     <>

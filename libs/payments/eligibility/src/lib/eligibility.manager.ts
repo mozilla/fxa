@@ -120,12 +120,18 @@ export class EligibilityManager {
       if (
         !overlappingPrice ||
         !overlappingPrice.recurring ||
-        !targetPrice.recurring ||
-        overlappingPrice.id === targetPrice.id
-      )
+        !targetPrice.recurring
+      ) {
         return {
           subscriptionEligibilityResult: EligibilityStatus.INVALID,
         };
+      }
+
+      if (overlappingPrice.id === targetPrice.id) {
+        return {
+          subscriptionEligibilityResult: EligibilityStatus.SAME,
+        };
+      }
 
       if (overlap.comparison === OfferingComparison.DOWNGRADE)
         return {

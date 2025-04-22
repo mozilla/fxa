@@ -30,7 +30,10 @@ import {
   UpdateCart,
 } from './cart.types';
 
-import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
+import type {
+  AccountDatabase,
+  CartErrorReasonId,
+} from '@fxa/shared/db/mysql/account';
 import assert from 'assert';
 // For an action to be executed, the cart state needs to be in one of
 // valid states listed in the array of CartStates below
@@ -101,6 +104,41 @@ export class CartManager {
         id: uuidv4({}, Buffer.alloc(16)),
         uid: input.uid ? Buffer.from(input.uid, 'hex') : undefined,
         state: CartState.START,
+        createdAt: now,
+        updatedAt: now,
+        version: 0,
+      });
+
+      assert(cart.currency, 'Cart currency is required');
+
+      return {
+        ...cart,
+        id: cart.id.toString('hex'),
+        uid: cart.uid ? cart.uid.toString('hex') : undefined,
+        currency: cart.currency,
+      };
+    } catch (error) {
+      console.log(error);
+      throw new CartNotCreatedError(input, error);
+    }
+  }
+
+  public async createErrorCart(
+    input: SetupCart,
+    errorReasonId: CartErrorReasonId
+  ): Promise<ResultCart> {
+    const now = Date.now();
+    try {
+      const cart = await createCart(this.db, {
+        ...input,
+        taxAddress: input.taxAddress
+          ? JSON.stringify(input.taxAddress)
+          : undefined,
+        currency: input.currency,
+        id: uuidv4({}, Buffer.alloc(16)),
+        uid: input.uid ? Buffer.from(input.uid, 'hex') : undefined,
+        state: CartState.FAIL,
+        errorReasonId,
         createdAt: now,
         updatedAt: now,
         version: 0,

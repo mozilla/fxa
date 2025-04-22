@@ -12,7 +12,6 @@ import {
   SubscriptionTitle,
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
-import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 import { config } from 'apps/payments/next/config';
 
 export default async function UpgradeSuccessLayout({
@@ -34,11 +33,7 @@ export default async function UpgradeSuccessLayout({
   return (
     <MetricsWrapper cart={cart}>
       <div className="mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
-        <SubscriptionTitle
-          cartState={cart.state}
-          cartEligibilityStatus={CartEligibilityStatus.UPGRADE}
-          l10n={l10n}
-        />
+        <SubscriptionTitle cart={cart} l10n={l10n} />
         <section
           className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:col-end-auto tablet:row-start-1 tablet:row-end-3"
           aria-label="Upgrade details"

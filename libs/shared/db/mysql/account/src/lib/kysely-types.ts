@@ -37,6 +37,7 @@ export enum CartErrorReasonId {
   SUCCESS_CART_MISSING_REQUIRED = 'success_cart_missing_required',
   CartEligibilityStatusDowngrade = 'cart_eligibility_status_downgrade',
   CartEligibilityStatusInvalid = 'cart_eligibility_status_invalid',
+  CartEligibilityStatusSame = 'cart_eligibility_status_same',
   Unknown = 'unknown',
 }
 
