@@ -21,7 +21,7 @@ const command = [
   'scripts/recorded-future/check-and-reset.ts',
 ];
 
-describe('recorded future credentials search and account reset script', () => {
+describe('#integration - recorded future credentials search and account reset script', () => {
   const getOutputValue = (lines: string[], needle: string) => {
     const line = lines.find((line) => line.startsWith(needle));
     return line?.split(': ')[1];
@@ -30,7 +30,10 @@ describe('recorded future credentials search and account reset script', () => {
   it('has correct defaults', async () => {
     try {
       const now = Date.now();
-      const { stdout } = await exec(command.join(' '), execOptions);
+
+      // passing in an email so that the script won't try to use the Recorded Future API, which we are not set up in this context
+      const cmd = [...command, `--email testo@example.gg`];
+      const { stdout } = await exec(cmd.join(' '), execOptions);
       const outputLines = stdout.split('\n');
 
       assert.include(stdout, 'Dry run mode is on.');
@@ -56,7 +59,11 @@ describe('recorded future credentials search and account reset script', () => {
   it('uses the first downloaded date argument', async () => {
     try {
       const expectedDate = '2025-01-01';
-      const cmd = [...command, `--first-downloaded-date ${expectedDate}`];
+      const cmd = [
+        ...command,
+        `--first-downloaded-date ${expectedDate}`,
+        `--email testo@example.gg`,
+      ];
       const { stdout } = await exec(cmd.join(' '), execOptions);
       const outputLines = stdout.split('\n');
 
