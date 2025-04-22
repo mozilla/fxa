@@ -25,6 +25,7 @@ import crypto from 'crypto';
 import { promisify } from 'util';
 
 import { Command } from 'commander';
+import { Container } from 'typedi';
 import { StatsD } from 'hot-shots';
 import createClient from 'openapi-fetch';
 
@@ -50,6 +51,8 @@ import {
   fetchAllCredentialSearchResults,
   SearchResultIdentity,
 } from './lib';
+import { AppConfig } from '../../lib/types';
+import { AccountEventsManager } from '../../lib/account-events';
 
 type ResetableAccount = NonNullable<
   Awaited<ReturnType<ReturnType<typeof createFindAccountFn>>>
@@ -68,6 +71,9 @@ const client = createClient<paths>({
   baseUrl: 'https://api.recordedfuture.com',
   headers: { 'X-RFToken': config.recordedFuture.identityApiKey },
 });
+
+Container.set(AppConfig, config);
+Container.set(StatsD, statsd);
 
 let authDb: Awaited<ReturnType<typeof DB.connect>> | null;
 
@@ -279,6 +285,7 @@ async function resetAccounts(
   const senders = await sendersFn(log, config, bounces, statsd);
   // the dynamically named `send\w+Email` functions are not in the type of senders.email
   const mailer: any = senders.email;
+  const accountEventManager = new AccountEventsManager();
 
   for (const acct of accountsToReset) {
     try {
@@ -295,6 +302,12 @@ async function resetAccounts(
       );
       await oauthDb.removeTokensAndCodes(acct.uid);
       await mailer.sendPasswordChangeRequiredEmail(acct.emails, acct);
+      await accountEventManager.recordSecurityEvent(authDb, {
+        uid: acct.uid,
+        name: 'account.must_reset',
+        // loopback addr since this is not a user action
+        ipAddr: '127.0.0.1',
+      });
 
       if (!resetWithEmails) {
         statsd.increment(
