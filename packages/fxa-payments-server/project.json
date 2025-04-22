@@ -1,0 +1,17 @@
+{
+  "name": "fxa-payments-server",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/fxa-payments-server/src",
+  "projectType": "application",
+
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/fxa-payments-server/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

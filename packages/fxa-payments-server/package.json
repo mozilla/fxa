@@ -62,6 +62,7 @@
     "@babel/preset-typescript": "^7.25.7",
     "@fluent/bundle": "^0.18.0",
     "@fluent/langneg": "^0.7.0",
+    "@mswjs/interceptors": "^0.38.5",
     "@rescripts/cli": "~0.0.16",
     "@storybook/addon-actions": "^8.0.0",
     "@storybook/addon-links": "^7.6.4",

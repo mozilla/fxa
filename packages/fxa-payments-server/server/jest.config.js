@@ -23,5 +23,7 @@ module.exports = {
   // https://kulshekhar.github.io/ts-jest/docs/getting-started/paths-mapping#jest-config-with-helper
   roots: ['<rootDir>'],
   modulePaths: [compilerOptions.baseUrl],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {prefix: '<rootDir>/../../../'})
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(compilerOptions.paths, {prefix: '<rootDir>/../../../'}),
+    '@mswjs/interceptors/presets/node': '<rootDir>/node_modules/@mswjs/interceptors/lib/node/presets/node.js',
 };
