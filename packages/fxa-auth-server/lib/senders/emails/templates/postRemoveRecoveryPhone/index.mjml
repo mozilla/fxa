@@ -13,7 +13,10 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="postRemoveRecoveryPhone-description">Your recovery phone has been removed from your two-step authentication settings. You still have your backup authentication codes available for use.</span>
+      <span data-l10n-id="postRemoveRecoveryPhone-description-v2">Your recovery phone has been removed from your two-step authentication settings.</span>
+    </mj-text>
+    <mj-text css-class="text-body">
+      <span data-l10n-id="postRemoveRecoveryPhone-description-extra">You can still use your backup authentication codes to sign in if you arenʼt able to use your authenticator app.</span>
     </mj-text>
     <mj-text css-class="text-body-no-margin">
       <span data-l10n-id="postRemoveRecoveryPhone-requested-device">You requested it from:</span>
