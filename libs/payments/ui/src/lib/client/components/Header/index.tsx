@@ -118,7 +118,7 @@ export const Header = ({ auth }: HeaderProps) => {
           src={mozillaIcon}
           alt="Mozilla logo"
           className="object-contain"
-          width={120}
+          width={140}
         />
       </div>
       <div className="flex items-center leading-normal">
