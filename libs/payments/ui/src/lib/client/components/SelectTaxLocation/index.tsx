@@ -66,7 +66,7 @@ interface ExpandedProps {
   unsupportedLocations: string;
   countryCode: string | undefined;
   postalCode: string | undefined;
-  saveAction: (countryCode: string, postalCode: string) => void;
+  saveAction: (countryCode: string, postalCode: string) => Promise<void> | void;
   buttonContent?: {
     ftlId: string;
     label: string;
@@ -194,7 +194,7 @@ const Expanded = ({
           setServerErrors((prev) => ({ ...prev, invalidPostalCode: true }));
           setIsLoading(false);
         } else {
-          saveAction(
+          await saveAction(
             selectedCountryCode,
             formattedPostalCode || selectedPostalCode
           );
@@ -202,11 +202,12 @@ const Expanded = ({
       }
     } catch (err) {
       setServerErrors((prev) => ({ ...prev, locationNotUpdated: true }));
+      setIsLoading(false);
     }
   };
 
-  const errorExists = Object.values(serverErrors).some(
-    (value) => value === true
+  const blockingErrorExists = Object.entries(serverErrors).some(
+    ([key, value]) => (key === 'locationNotUpdated' ? false : !!value)
   );
 
   return (
@@ -356,8 +357,8 @@ const Expanded = ({
           className="w-full"
           data-testid="tax-location-save-button"
           type="submit"
-          disabled={errorExists || isLoading}
-          aria-disabled={errorExists || isLoading}
+          disabled={blockingErrorExists || isLoading}
+          aria-disabled={blockingErrorExists || isLoading}
         >
           {isLoading ? (
             <Image
@@ -381,7 +382,10 @@ const Expanded = ({
 };
 
 interface SelectTaxLocationProps {
-  saveAction: (countryCode: string, postalCode: string) => Promise<void> | void;
+  saveAction: (
+    countryCode: string,
+    postalCode: string
+  ) => Promise<{ countryCode: string; postalCode: string }>;
   cmsCountries: string[];
   locale: string;
   productName: string;
@@ -407,6 +411,16 @@ export function SelectTaxLocation({
   const [expanded, setExpanded] = useState<boolean>(
     !countryCode || !postalCode
   );
+  const [localLocation, setLocalLocation] = useState<{
+    countryCode?: string;
+    postalCode?: string;
+  }>({ countryCode, postalCode });
+
+  // This ensures that the localLocation always matches the
+  // countryCode and postalCode passed into the component
+  useEffect(() => {
+    setLocalLocation({ countryCode, postalCode });
+  }, [countryCode, postalCode]);
 
   const [alertStatus, setAlertStatus] = useState<boolean>(false);
   const cmsCountryCodes = cmsCountries.map((country) => country.slice(0, 2));
@@ -420,16 +434,20 @@ export function SelectTaxLocation({
       countryCode={countryCode}
       postalCode={postalCode}
       saveAction={async (countryCode: string, postalCode: string) => {
-        await saveAction(countryCode, postalCode);
+        const cartValues = await saveAction(countryCode, postalCode);
         setExpanded(false);
         setAlertStatus(true);
+        setLocalLocation({
+          countryCode: cartValues.countryCode,
+          postalCode: cartValues.postalCode,
+        });
       }}
       buttonContent={buttonContent}
     />
   ) : (
     <Collapsed
-      countryCode={countryCode}
-      postalCode={postalCode}
+      countryCode={localLocation.countryCode}
+      postalCode={localLocation.postalCode}
       editAction={() => {
         setExpanded(true);
       }}
@@ -444,7 +462,9 @@ export function IsolatedSelectTaxLocation({
   locale,
   productName,
   unsupportedLocations,
-}: Omit<SelectTaxLocationProps, 'countryCode' | 'postalCode'>) {
+}: Omit<SelectTaxLocationProps, 'countryCode' | 'postalCode' | 'saveAction'> & {
+  saveAction: (countryCode: string, postalCode: string) => void;
+}) {
   const queryParams = useSearchParams();
 
   const countryCode = queryParams?.get('countryCode') ?? '';
@@ -456,7 +476,7 @@ export function IsolatedSelectTaxLocation({
   const cmsCountryCodes = cmsCountries.map((country) => country.slice(0, 2));
   return (
     <Expanded
-      saveAction={(countryCode: string, postalCode: string) => {
+      saveAction={async (countryCode: string, postalCode: string) => {
         setUpdatedCountryCode(countryCode);
         setUpdatedPostalCode(postalCode);
         saveAction(countryCode, postalCode);

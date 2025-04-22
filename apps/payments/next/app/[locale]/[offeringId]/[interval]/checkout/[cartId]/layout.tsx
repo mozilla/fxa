@@ -11,7 +11,7 @@ import {
 import {
   fetchCMSData,
   getCartAction,
-  updateCartAction,
+  updateTaxAddressAction,
 } from '@fxa/payments/ui/actions';
 import {
   getApp,
@@ -100,8 +100,9 @@ export default async function CheckoutLayout({
               <SelectTaxLocation
                 saveAction={async (countryCode, postalCode) => {
                   'use server';
-                  await updateCartAction(cart.id, cart.version, {
-                    taxAddress: { countryCode, postalCode },
+                  return updateTaxAddressAction(cart.id, cart.version, {
+                    countryCode,
+                    postalCode,
                   });
                 }}
                 cmsCountries={cms.countries}

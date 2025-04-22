@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+export { applyCouponAction } from './applyCoupon';
 export { checkoutCartWithPaypal } from './checkoutCartWithPaypal';
 export { checkoutCartWithStripe } from './checkoutCartWithStripe';
 export { determineCurrencyAction } from './determineCurrency';
@@ -17,7 +18,7 @@ export { handleStripeErrorAction } from './handleStripeError';
 export { recordEmitterEventAction } from './recordEmitterEvent';
 export { restartCartAction } from './restartCart';
 export { setupCartAction } from './setupCart';
-export { updateCartAction } from './updateCart';
+export { updateTaxAddressAction } from './updateTaxAddress';
 export { finalizeCartWithError } from './finalizeCartWithError';
 export { finalizeProcessingCartAction } from './finalizeProcessingCart';
 export { getNeedsInputAction } from './getNeedsInput';
