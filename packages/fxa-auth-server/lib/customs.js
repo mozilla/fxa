@@ -52,20 +52,14 @@ class CustomsClient {
       this.logHttpAgentStatus();
 
       const url = this.baseURL + endpoint;
-      let agent;
-      try {
-        const parsedUrl = new URL(url);
-        agent =
-          parsedUrl.protocol === 'https:' ? this.httpsAgent : this.httpAgent;
-      } catch (err) {
-        agent = this.httpAgent;
-      }
+      const agent =
+        url.startsWith('https:') ? this.httpsAgent : this.httpAgent;
 
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData),
-        agent: agent,
+        agent,
       };
 
       const response = await fetch(url, options);
@@ -83,8 +77,7 @@ class CustomsClient {
         );
       }
 
-      const data = await response.json();
-      return data;
+      return await response.json();
     } catch (err) {
       if (this.statsd) {
         this.statsd.timing(
@@ -93,10 +86,7 @@ class CustomsClient {
         );
       }
 
-      if (
-        (err.errno !== undefined && err.errno > -1) ||
-        (err.statusCode && err.statusCode < 500)
-      ) {
+      if (err.errno > -1 || (err.statusCode && err.statusCode < 500)) {
         throw err;
       } else {
         throw this.error.backendServiceFailure(

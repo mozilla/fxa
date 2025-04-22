@@ -14025,9 +14025,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mswjs/interceptors@npm:^0.38.1":
-  version: 0.38.3
-  resolution: "@mswjs/interceptors@npm:0.38.3"
+"@mswjs/interceptors@npm:^0.38.1, @mswjs/interceptors@npm:^0.38.5":
+  version: 0.38.5
+  resolution: "@mswjs/interceptors@npm:0.38.5"
   dependencies:
     "@open-draft/deferred-promise": ^2.2.0
     "@open-draft/logger": ^0.3.0
@@ -14036,7 +14036,7 @@ __metadata:
     jsdom: ^26.0.0
     outvariant: ^1.4.3
     strict-event-emitter: ^0.5.1
-  checksum: 89523acacb6de5f6c67ff9a54e861d435aa73977357638f45bc30da69efaca7e5f60ca7c889324372e5d6faefcd541659200353d26c71b942bcd0da95d8d22e0
+  checksum: e60b1c7b677d7d76b6ceb1d4fdd4aa46f2717804b6f6fde5aab531c245599fca17aeb4e3b985a22effbc12e1e353fc26c40805609a87a83ec4eda7d325eea3a9
   languageName: node
   linkType: hard
 
@@ -43094,7 +43094,6 @@ fsevents@~2.1.1:
     "@types/luxon": ^3
     "@types/mjml": ^4.7.4
     "@types/mocha": ^10.0.6
-    "@types/nock": ^11.1.0
     "@types/node": ^22.13.5
     "@types/node-zendesk": ^2.0.2
     "@types/nodemailer": ^6.4.2
@@ -43162,7 +43161,7 @@ fsevents@~2.1.1:
     moment-timezone: ^0.5.35
     mozlog: ^3.0.2
     mysql: ^2.18.1
-    nock: 14.0.3
+    node-fetch: 2.6.7
     node-zendesk: ^2.2.0
     nodemailer: ^6.9.9
     nodemon: ^3.1.0
@@ -43448,7 +43447,6 @@ fsevents@~2.1.1:
     joi: ^17.13.3
     jwks-rsa: ^3.1.0
     mozlog: ^3.0.2
-    nock: 14.0.3
     p-event: ^6.0.0
     pm2: ^5.4.2
     prettier: ^3.5.3
@@ -53370,13 +53368,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.set@npm:^4.3.2":
-  version: 4.3.2
-  resolution: "lodash.set@npm:4.3.2"
-  checksum: a9122f49eef9f2d0fc9061a33d87f8e5b8c6b23d46e8b9e9ce1529d3588d79741bd1145a3abdfa3b13082703e65af27ff18d8a07bfc22b9be32f3fc36f763f70
-  languageName: node
-  linkType: hard
-
 "lodash.snakecase@npm:^4.1.1":
   version: 4.1.1
   resolution: "lodash.snakecase@npm:4.1.1"
@@ -56215,14 +56206,13 @@ fsevents@~2.1.1:
   linkType: hard
 
 "nock@npm:*":
-  version: 13.2.1
-  resolution: "nock@npm:13.2.1"
+  version: 14.0.4
+  resolution: "nock@npm:14.0.4"
   dependencies:
-    debug: ^4.1.0
+    "@mswjs/interceptors": ^0.38.5
     json-stringify-safe: ^5.0.1
-    lodash.set: ^4.3.2
     propagate: ^2.0.0
-  checksum: b401fb8143ca88095ee34c715e2806eda2813dace4f4c4798961ad961c18003d1529f4507a79c429d2c3c768e136632ee19ee9ebfef71f0cb022df152594df1d
+  checksum: 60425c4b7a706775459479bef488c770ce93bc982cbdb5ea88473cdd4612f40633221bd678c9224d59b0efbfbcda39c282c52f756dbebbe5d5219e8415cd97ff
   languageName: node
   linkType: hard
 
@@ -56320,6 +56310,20 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"node-fetch@npm:2.6.7, node-fetch@npm:^2.6.7":
+  version: 2.6.7
+  resolution: "node-fetch@npm:2.6.7"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: 8d816ffd1ee22cab8301c7756ef04f3437f18dace86a1dae22cf81db8ef29c0bf6655f3215cb0cdb22b420b6fe141e64b26905e7f33f9377a7fa59135ea3e10b
+  languageName: node
+  linkType: hard
+
 "node-fetch@npm:2.7.0, node-fetch@npm:^2.6.9":
   version: 2.7.0
   resolution: "node-fetch@npm:2.7.0"
@@ -56352,20 +56356,6 @@ fsevents@~2.1.1:
   version: 2.6.1
   resolution: "node-fetch@npm:2.6.1"
   checksum: 91075bedd57879117e310fbcc36983ad5d699e522edb1ebcdc4ee5294c982843982652925c3532729fdc86b2d64a8a827797a745f332040d91823c8752ee4d7c
-  languageName: node
-  linkType: hard
-
-"node-fetch@npm:^2.6.7":
-  version: 2.6.7
-  resolution: "node-fetch@npm:2.6.7"
-  dependencies:
-    whatwg-url: ^5.0.0
-  peerDependencies:
-    encoding: ^0.1.0
-  peerDependenciesMeta:
-    encoding:
-      optional: true
-  checksum: 8d816ffd1ee22cab8301c7756ef04f3437f18dace86a1dae22cf81db8ef29c0bf6655f3215cb0cdb22b420b6fe141e64b26905e7f33f9377a7fa59135ea3e10b
   languageName: node
   linkType: hard
 

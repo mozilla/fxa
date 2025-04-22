@@ -12,7 +12,6 @@ const error = require('../../../lib/error');
 const getRoute = require('../../routes_helpers').getRoute;
 const knownIpLocation = require('../../known-ip-location');
 const mocks = require('../../mocks');
-const nock = require('nock');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
@@ -216,8 +215,6 @@ function runTest(route, request, assertions) {
 // Called in /recovery_email/set_primary, however the promise is not waited for
 // so we test the function independently as it doesn't affect the route success.
 describe('update zendesk primary email', () => {
-  let searchSpy, listSpy, updateSpy;
-
   beforeEach(() => {
     const config = {
       zendesk: {
@@ -228,27 +225,20 @@ describe('update zendesk primary email', () => {
     zendeskClient = require('../../../lib/zendesk-client').createZendeskClient(
       config
     );
-    searchSpy = sinon.spy(zendeskClient.search, 'queryAll');
-    listSpy = sinon.spy(zendeskClient.useridentities, 'list');
-    updateSpy = sinon.spy(zendeskClient, 'updateIdentity');
-  });
 
-  afterEach(() => {
-    nock.cleanAll();
   });
 
   it('should update the primary email address', async () => {
     const uid = '1234-0000';
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get('/api/v2/search.json')
-      .query(true)
-      .reply(200, MOCK_SEARCH_USERS_SUCESS);
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get(`/api/v2/users/${ZENDESK_USER_ID}/identities.json`)
-      .reply(200, MOCK_FETCH_USER_IDENTITIES_SUCCESS);
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .put(`/api/v2/users/${ZENDESK_USER_ID}/identities/${IDENTITY_ID}.json`)
-      .reply(200, MOCK_UPDATE_IDENTITY_SUCCESS);
+    const searchStub = sinon
+      .stub(zendeskClient.search, 'queryAll')
+      .resolves(MOCK_SEARCH_USERS_SUCESS);
+    const listStub = sinon
+      .stub(zendeskClient.useridentities, 'list')
+      .resolves(MOCK_FETCH_USER_IDENTITIES_SUCCESS);
+    const updateStub = sinon
+      .stub(zendeskClient, 'updateIdentity')
+      .resolves(MOCK_UPDATE_IDENTITY_SUCCESS);
 
     try {
       await updateZendeskPrimaryEmail(
@@ -260,17 +250,19 @@ describe('update zendesk primary email', () => {
     } catch (err) {
       assert.fail(err, undefined, 'should not throw');
     }
-    assert.calledOnce(searchSpy);
-    assert.calledOnce(listSpy);
-    assert.calledOnce(updateSpy);
+    assert.calledOnce(searchStub);
+    assert.calledOnce(listStub);
+    assert.calledOnce(updateStub);
+    searchStub.restore();
+    listStub.restore();
+    updateStub.restore();
   });
 
   it('should stop if the user wasnt found in zendesk', async () => {
     const uid = '1234-0000';
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get('/api/v2/search.json')
-      .query(true)
-      .reply(200, MOCK_SEARCH_USERS_SUCESS_NO_RESULTS);
+    const searchStub = sinon
+      .stub(zendeskClient.search, 'queryAll')
+      .resolves(MOCK_SEARCH_USERS_SUCESS_NO_RESULTS);
     try {
       await updateZendeskPrimaryEmail(
         zendeskClient,
@@ -281,19 +273,18 @@ describe('update zendesk primary email', () => {
     } catch (err) {
       assert.fail(err, undefined, 'should not throw');
     }
-    assert.calledOnce(searchSpy);
-    assert.isFalse(listSpy.called);
+    assert.calledOnce(searchStub);
+    searchStub.restore();
   });
 
   it('should stop if the users email was already updated', async () => {
     const uid = '1234-0000';
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get('/api/v2/search.json')
-      .query(true)
-      .reply(200, MOCK_SEARCH_USERS_SUCESS);
-    nock(`https://${SUBDOMAIN}.zendesk.com`)
-      .get(`/api/v2/users/${ZENDESK_USER_ID}/identities.json`)
-      .reply(200, MOCK_FETCH_USER_IDENTITIES_ALREADY_CHANGED);
+    const searchStub = sinon
+      .stub(zendeskClient.search, 'queryAll')
+      .resolves(MOCK_SEARCH_USERS_SUCESS);
+    const listStub = sinon
+      .stub(zendeskClient.useridentities, 'list')
+      .resolves(MOCK_FETCH_USER_IDENTITIES_ALREADY_CHANGED);
     try {
       await updateZendeskPrimaryEmail(
         zendeskClient,
@@ -304,9 +295,10 @@ describe('update zendesk primary email', () => {
     } catch (err) {
       assert.fail(err, undefined, 'should not throw');
     }
-    assert.calledOnce(searchSpy);
-    assert.calledOnce(listSpy);
-    assert.isFalse(updateSpy.called);
+    assert.calledOnce(searchStub);
+    assert.calledOnce(listStub);
+    searchStub.restore();
+    listStub.restore();
   });
 });
 

@@ -9,7 +9,6 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const uuid = require('uuid');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
-const nock = require('nock');
 const { supportRoutes } = require('../../../lib/routes/subscriptions/support');
 const AppError = require('../../../lib/error');
 
@@ -184,32 +183,21 @@ describe('support', () => {
     },
   };
 
+
+  const customFieldsOnTicket = [
+    'FxA - 123done Pro',
+    '',
+    requestOptions.payload.productPlatform,
+    requestOptions.payload.productVersion,
+    requestOptions.payload.topic,
+    'payment',
+    requestOptions.payload.app,
+    'Mountain View',
+    'California',
+    'United States',
+  ];
+
   describe('with config.subscriptions.enabled = false', () => {
-    const setupNockForSuccess = () => {
-      nock(`https://${SUBDOMAIN}.zendesk.com`)
-        .post('/api/v2/requests.json')
-        .reply(201, MOCK_CREATE_REPLY);
-      nock(`https://${SUBDOMAIN}.zendesk.com`)
-        .get(`/api/v2/users/${REQUESTER_ID}.json`)
-        .reply(200, MOCK_NEW_SHOW_REPLY);
-      nock(`https://${SUBDOMAIN}.zendesk.com`)
-        .put(`/api/v2/users/${REQUESTER_ID}.json`)
-        .reply(200, MOCK_UPDATE_REPLY);
-    };
-
-    const customFieldsOnTicket = [
-      'FxA - 123done Pro',
-      '',
-      requestOptions.payload.productPlatform,
-      requestOptions.payload.productVersion,
-      requestOptions.payload.topic,
-      'payment',
-      requestOptions.payload.app,
-      'Mountain View',
-      'California',
-      'United States',
-    ];
-
     it('should not set up any routes', async () => {
       config.subscriptions.enabled = false;
       routes = supportRoutes(log, db, config, customs, zendeskClient);
@@ -219,65 +207,82 @@ describe('support', () => {
     describe('POST /support/ticket', () => {
       it('should accept a first ticket for a subscriber', async () => {
         config.subscriptions.enabled = true;
-        setupNockForSuccess();
-        const spy = sinon.spy(zendeskClient.requests, 'create');
+        // For a first ticket, the Zendesk "show" returns a user with no linked user_id.
+        const createStub = sinon
+          .stub(zendeskClient.requests, 'create')
+          .resolves(MOCK_CREATE_REPLY);
+        const showStub = sinon
+          .stub(zendeskClient.users, 'show')
+          .resolves(MOCK_NEW_SHOW_REPLY);
+        const updateStub = sinon
+          .stub(zendeskClient.users, 'update')
+          .resolves(MOCK_UPDATE_REPLY);
+
         const res = await runTest('/support/ticket', requestOptions);
-        const zendeskReq = spy.firstCall.args[0].request;
+        const zendeskReq = createStub.firstCall.args[0].request;
         assert.equal(
           zendeskReq.subject,
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
-        assert.deepEqual(
-          zendeskReq.custom_fields.map((field) => field.value),
-          customFieldsOnTicket
-        );
+        const fieldValues = zendeskReq.custom_fields.map((field) => field.value);
+        assert.deepEqual(fieldValues, customFieldsOnTicket);
         assert.deepEqual(res, { success: true, ticket: 91 });
-        nock.isDone();
-        spy.restore();
+        sinon.assert.calledOnce(createStub);
+        sinon.assert.calledOnce(showStub);
+        sinon.assert.calledOnce(updateStub);
+        createStub.restore();
+        showStub.restore();
+        updateStub.restore();
       });
 
       it('should accept a second ticket for a subscriber', async () => {
         config.subscriptions.enabled = true;
-        nock(`https://${SUBDOMAIN}.zendesk.com`)
-          .post('/api/v2/requests.json')
-          .reply(201, MOCK_CREATE_REPLY);
-        nock(`https://${SUBDOMAIN}.zendesk.com`)
-          .get(`/api/v2/users/${REQUESTER_ID}.json`)
-          .reply(200, MOCK_EXISTING_SHOW_REPLY);
+        // For a second ticket, the Zendesk "show" returns a user already linked.
+        const createStub = sinon
+          .stub(zendeskClient.requests, 'create')
+          .resolves(MOCK_CREATE_REPLY);
+        const showStub = sinon
+          .stub(zendeskClient.users, 'show')
+          .resolves(MOCK_EXISTING_SHOW_REPLY);
+
         const res = await runTest('/support/ticket', requestOptions);
         assert.deepEqual(res, { success: true, ticket: 91 });
-        nock.isDone();
+        sinon.assert.calledOnce(createStub);
+        sinon.assert.calledOnce(showStub);
+        createStub.restore();
+        showStub.restore();
       });
 
       it('#integration - should handle retrying an update user call', async () => {
         config.subscriptions.enabled = true;
-        nock(`https://${SUBDOMAIN}.zendesk.com`)
-          .post('/api/v2/requests.json')
-          .reply(201, MOCK_CREATE_REPLY);
-        nock(`https://${SUBDOMAIN}.zendesk.com`)
-          .get(`/api/v2/users/${REQUESTER_ID}.json`)
-          .reply(500)
-          .get(`/api/v2/users/${REQUESTER_ID}.json`)
-          .reply(200, MOCK_NEW_SHOW_REPLY);
-        nock(`https://${SUBDOMAIN}.zendesk.com`)
-          .put(`/api/v2/users/${REQUESTER_ID}.json`)
-          .reply(200, MOCK_UPDATE_REPLY);
-        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const createStub = sinon
+          .stub(zendeskClient.requests, 'create')
+          .resolves(MOCK_CREATE_REPLY);
+        // Simulate the first call to "show" failing and the second call succeeding.
+        const showStub = sinon.stub(zendeskClient.users, 'show');
+        showStub.onCall(0).rejects(new Error('500 Internal Error'));
+        showStub.onCall(1).resolves(MOCK_NEW_SHOW_REPLY);
+        const updateStub = sinon
+          .stub(zendeskClient.users, 'update')
+          .resolves(MOCK_UPDATE_REPLY);
+
         const res = await runTest('/support/ticket', requestOptions);
-        const zendeskReq = spy.firstCall.args[0].request;
+        const zendeskReq = createStub.firstCall.args[0].request;
         assert.equal(
           zendeskReq.subject,
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
-        assert.deepEqual(
-          zendeskReq.custom_fields.map((field) => field.value),
-          customFieldsOnTicket
-        );
+        const fieldValues = zendeskReq.custom_fields.map((field) => field.value);
+        assert.deepEqual(fieldValues, customFieldsOnTicket);
         assert.deepEqual(res, { success: true, ticket: 91 });
-        nock.isDone();
-        spy.restore();
+        sinon.assert.calledOnce(createStub);
+        sinon.assert.calledTwice(showStub);
+        sinon.assert.calledOnce(updateStub);
+        createStub.restore();
+        showStub.restore();
+        updateStub.restore();
       });
 
       it('should reject tickets for a non-subscriber', async () => {
@@ -302,26 +307,36 @@ describe('support', () => {
 
       it('should accept a ticket from another service using a shared secret', async () => {
         config.subscriptions.enabled = true;
-        setupNockForSuccess();
-        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const createStub = sinon
+          .stub(zendeskClient.requests, 'create')
+          .resolves(MOCK_CREATE_REPLY);
+        const showStub = sinon
+          .stub(zendeskClient.users, 'show')
+          .resolves(MOCK_NEW_SHOW_REPLY);
+        const updateStub = sinon
+          .stub(zendeskClient.users, 'update')
+          .resolves(MOCK_UPDATE_REPLY);
+
         const res = await runTest('/support/ticket', {
           ...requestOptions,
           auth: { strategy: 'supportSecret' },
           payload: { ...requestOptions.payload, email: TEST_EMAIL },
         });
-        const zendeskReq = spy.firstCall.args[0].request;
+        const zendeskReq = createStub.firstCall.args[0].request;
         assert.equal(
           zendeskReq.subject,
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
-        assert.deepEqual(
-          zendeskReq.custom_fields.map((field) => field.value),
-          customFieldsOnTicket
-        );
+        const fieldValues = zendeskReq.custom_fields.map((field) => field.value);
+        assert.deepEqual(fieldValues, customFieldsOnTicket);
         assert.deepEqual(res, { success: true, ticket: 91 });
-        nock.isDone();
-        spy.restore();
+        sinon.assert.calledOnce(createStub);
+        sinon.assert.calledOnce(showStub);
+        sinon.assert.calledOnce(updateStub);
+        createStub.restore();
+        showStub.restore();
+        updateStub.restore();
       });
 
       it('should work for someone who is not a FxA user', async () => {
@@ -329,26 +344,36 @@ describe('support', () => {
         db.accountRecord = sinon.stub().throws(AppError.unknownAccount());
 
         config.subscriptions.enabled = true;
-        setupNockForSuccess();
-        const spy = sinon.spy(zendeskClient.requests, 'create');
+        const createStub = sinon
+          .stub(zendeskClient.requests, 'create')
+          .resolves(MOCK_CREATE_REPLY);
+        const showStub = sinon
+          .stub(zendeskClient.users, 'show')
+          .resolves(MOCK_NEW_SHOW_REPLY);
+        const updateStub = sinon
+          .stub(zendeskClient.users, 'update')
+          .resolves(MOCK_UPDATE_REPLY);
+
         const res = await runTest('/support/ticket', {
           ...requestOptions,
           auth: { strategy: 'supportSecret' },
           payload: { ...requestOptions.payload, email: TEST_EMAIL },
         });
-        const zendeskReq = spy.firstCall.args[0].request;
+        const zendeskReq = createStub.firstCall.args[0].request;
         assert.equal(
           zendeskReq.subject,
           `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
-        assert.deepEqual(
-          zendeskReq.custom_fields.map((field) => field.value),
-          customFieldsOnTicket
-        );
+        const fieldValues = zendeskReq.custom_fields.map((field) => field.value);
+        assert.deepEqual(fieldValues, customFieldsOnTicket);
         assert.deepEqual(res, { success: true, ticket: 91 });
-        nock.isDone();
-        spy.restore();
+        sinon.assert.calledOnce(createStub);
+        sinon.assert.calledOnce(showStub);
+        sinon.assert.calledOnce(updateStub);
+        createStub.restore();
+        showStub.restore();
+        updateStub.restore();
 
         db.accountRecord = dbAccountRecord;
       });
