@@ -30,6 +30,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { promisify } from 'util';
 
 import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
@@ -65,6 +66,9 @@ import {
   setDateToUTC,
   buildExclusionsTempTableQuery,
 } from './lib';
+
+const config = appConfig.getProperties();
+const statsd = new StatsD({ ...config.statsd });
 
 // {{{ constants and defaults
 
@@ -230,11 +234,9 @@ const init = async () => {
 
   // {{{ dependencies
 
-  const config = appConfig.getProperties();
   const log = initLog({
     ...config.log,
   });
-  const statsd = new StatsD({ ...config.statsd });
   const glean = gleanMetrics(config);
 
   const redis = initRedis(
@@ -569,9 +571,25 @@ const init = async () => {
 
 if (require.main === module) {
   init()
-    .catch((err: Error) => {
-      console.error(err);
-      process.exit(1);
+    .then(
+      (exitCode) => {
+        statsd.increment('accounts.inactive.enqueue-script.success', {
+          exitCode: `${exitCode}`,
+        });
+        return exitCode;
+      },
+      (err) => {
+        statsd.increment('accounts.inactive.enqueue-script.error', {
+          exitCode: '1',
+        });
+        console.error(err);
+        return 1;
+      }
+    )
+    .then((exitCode) => {
+      return promisify(statsd.close)
+        .bind(statsd)()
+        .then(() => exitCode);
     })
     .then((exitCode: number) => process.exit(exitCode));
 }
