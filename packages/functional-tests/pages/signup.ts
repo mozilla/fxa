@@ -130,6 +130,14 @@ export class SignupPage extends BaseLayout {
     await expect(this.signupFormHeading).toBeVisible();
 
     await this.passwordTextbox.fill(password);
+    await this.ageTextbox.fill(age);
+    await this.createAccountButton.click();
+  }
+
+  async fillOutSyncSignupForm(password: string, age: string) {
+    await expect(this.signupFormHeading).toBeVisible();
+
+    await this.passwordTextbox.fill(password);
     await this.verifyPasswordTextbox.fill(password);
     await this.ageTextbox.fill(age);
     await this.createAccountButton.click();

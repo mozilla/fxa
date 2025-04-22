@@ -92,7 +92,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(signup.CWTSEngineBookmarks).toBeVisible();
       await expect(signup.CWTSEngineHistory).toBeVisible();
 
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSyncSignupForm(password, AGE_21);
 
       await expect(page).toHaveURL(/confirm_signup_code/);
 

@@ -4,14 +4,13 @@
 
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import FormPasswordWithBalloons, { PasswordFormType } from '.';
+import FormPasswordWithBalloons, { FormPasswordWithBalloonsProps } from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 
-type SubjectProps = {
-  passwordFormType: PasswordFormType;
-};
-
-export const Subject = ({ passwordFormType }: SubjectProps) => {
+export const Subject = ({
+  passwordFormType = 'signup',
+  requirePasswordConfirmation,
+}: Partial<FormPasswordWithBalloonsProps>) => {
   type FormData = {
     oldPassword?: string;
     newPassword: string;
@@ -41,6 +40,7 @@ export const Subject = ({ passwordFormType }: SubjectProps) => {
         register,
         getValues,
         passwordFormType,
+        requirePasswordConfirmation,
       }}
       onSubmit={handleSubmit(onFormSubmit)}
       email={MOCK_ACCOUNT.primaryEmail.email}
