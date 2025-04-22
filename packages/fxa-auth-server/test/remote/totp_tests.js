@@ -474,15 +474,15 @@ const {
       const res = await client.resetPassword(newPassword, {}, { keys: true });
       assert.equal(
         res.verificationMethod,
-        'totp-2fa',
+        undefined,
         'verificationMethod not set'
       );
       assert.equal(
         res.verificationReason,
-        'login',
+        undefined,
         'verificationMethod not set'
       );
-      assert.equal(res.verified, false);
+      assert.equal(res.verified, true);
       assert.ok(res.keyFetchToken);
       assert.ok(res.sessionToken);
       assert.ok(res.authAt);

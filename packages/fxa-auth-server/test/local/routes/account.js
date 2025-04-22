@@ -449,12 +449,8 @@ describe('/account/reset', () => {
     it('should return response', () => {
       assert.ok(res.sessionToken, 'return sessionToken');
       assert.ok(res.keyFetchToken, 'return keyFetchToken');
-      assert.equal(res.verified, false, 'return verified false');
-      assert.equal(
-        res.verificationMethod,
-        'totp-2fa',
-        'verification method set'
-      );
+      assert.equal(res.verified, true, 'return verified true');
+      assert.equal(res.verificationMethod, undefined);
     });
 
     it('should have created verified sessionToken', () => {
@@ -469,10 +465,13 @@ describe('/account/reset', () => {
         1,
         'db.createSessionToken was passed one argument'
       );
-      assert.ok(args[0].tokenVerificationId, 'tokenVerificationId is set');
+      assert.notOk(
+        args[0].tokenVerificationId,
+        'tokenVerificationId is not set'
+      );
     });
 
-    it('should have created unverified keyFetchToken', () => {
+    it('should have created verified keyFetchToken', () => {
       assert.equal(
         mockDB.createKeyFetchToken.callCount,
         1,
@@ -484,7 +483,10 @@ describe('/account/reset', () => {
         1,
         'db.createKeyFetchToken was passed one argument'
       );
-      assert.ok(args[0].tokenVerificationId, 'tokenVerificationId is set');
+      assert.notOk(
+        args[0].tokenVerificationId,
+        'tokenVerificationId is not set'
+      );
     });
   });
 
