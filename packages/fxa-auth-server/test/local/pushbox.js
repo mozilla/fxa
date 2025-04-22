@@ -7,7 +7,6 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
 const sandbox = sinon.createSandbox();
-const nock = require('nock');
 
 const { pushboxApi } = require('../../lib/pushbox');
 const pushboxDbModule = require('../../lib/pushbox/db');
@@ -37,12 +36,6 @@ const mockData = 'eyJmb28iOiAiYmFyIn0';
 const mockUid = 'ABCDEF';
 
 describe('pushbox', () => {
-  afterEach(() => {
-    assert.ok(
-      nock.isDone(),
-      'there should be no pending request mocks at the end of a test'
-    );
-  });
 
   describe('using direct Pushbox database access', () => {
     let stubDbModule;

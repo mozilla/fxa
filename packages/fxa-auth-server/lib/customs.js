@@ -4,7 +4,7 @@
 
 'use strict';
 
-const axios = require('axios');
+const fetch = require('node-fetch');
 const { config } = require('../config');
 const { createHttpAgent, createHttpsAgent } = require('../lib/http-agent');
 const { performance } = require('perf_hooks');
@@ -36,16 +36,12 @@ class CustomsClient {
         customsHttpAgentConfig.timeoutMs,
         customsHttpAgentConfig.freeSocketTimeoutMs
       );
-      this.axiosInstance = axios.create({
-        baseURL: url,
-        httpAgent: this.httpAgent,
-        httpsAgent: this.httpsAgent,
-      });
+      this.baseURL = url;
     }
   }
 
   async makeRequest(endpoint, requestData) {
-    if (!this.axiosInstance) {
+    if (!this.baseURL) {
       return;
     }
 
@@ -55,7 +51,24 @@ class CustomsClient {
     try {
       this.logHttpAgentStatus();
 
-      const response = await this.axiosInstance.post(endpoint, requestData);
+      const url = this.baseURL + endpoint;
+      const agent =
+        url.startsWith('https:') ? this.httpsAgent : this.httpAgent;
+
+      const options = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData),
+        agent,
+      };
+
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        const error = new Error(`HTTP response error: ${response.status}`);
+        error.statusCode = response.status;
+        throw error;
+      }
 
       if (this.statsd) {
         this.statsd.timing(
@@ -64,7 +77,7 @@ class CustomsClient {
         );
       }
 
-      return response.data;
+      return await response.json();
     } catch (err) {
       if (this.statsd) {
         this.statsd.timing(
@@ -214,7 +227,7 @@ class CustomsClient {
   }
 
   logHttpAgentStatus() {
-    if (this.axiosInstance && this.statsd) {
+    if (this.baseURL && this.statsd) {
       this.logStatus(this.httpAgent, 'httpAgent');
       this.logStatus(this.httpsAgent, 'httpsAgent');
     }

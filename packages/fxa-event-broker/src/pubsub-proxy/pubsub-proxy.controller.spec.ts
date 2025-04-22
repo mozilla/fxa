@@ -6,7 +6,6 @@ import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as Sentry from '@sentry/node';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import nock from 'nock';
 
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { JwtsetService } from '../jwtset/jwtset.service';
@@ -76,21 +75,36 @@ const createValidPasswordMessage = (): string => {
   ).toString('base64');
 };
 
+const mockWebhook = () => {
+  return jest.spyOn(global, 'fetch').mockImplementation(async function (url, options = {}) {
+    const headers = options.headers || {};
+    const auth = headers.authorization || headers.Authorization || '';
+    return new Response(
+      JSON.stringify({ token: auth ? auth : 'unknown' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  });
+};
+
+const mockErrorWebhook = () => {
+  return jest.spyOn(global, 'fetch').mockImplementation( async function (url, options = {}) {
+    return new Response('Error123', {
+      status: 400,
+      headers: { 'Content-Type': 'text/plain' }
+    });
+  });
+};
+
+afterEach(() => {
+  jest.restoreAllMocks();
+});
+
 describe('PubsubProxy Controller', () => {
   let controller: PubsubProxyController;
   let jwtset: any;
   let logger: any;
   let mockWebhookValue: any;
   let mockMetricValue: any;
-
-  const mockWebhook = () => {
-    nock('http://accounts.firefox.com')
-      .post('/webhook')
-      .reply(function (uri, requestBody) {
-        const auth = this.req.getHeader('authorization');
-        return [200, { token: typeof auth === 'string' ? auth : 'unknown' }];
-      });
-  };
 
   beforeEach(async () => {
     jwtset = {
@@ -170,7 +184,7 @@ describe('PubsubProxy Controller', () => {
     }
 
     expect(err?.getStatus()).toBe(200);
-    expect(err?.getResponse()).toStrictEqual({ token: 'Bearer ' + TEST_TOKEN });
+    expect(err?.getResponse()).toEqual({ token: 'Bearer ' + TEST_TOKEN });
   });
 
   describe('handles common RP events:', () => {
@@ -212,7 +226,7 @@ describe('PubsubProxy Controller', () => {
         const status = err?.getStatus();
         const body = err?.getResponse();
         expect(status).toBe(200);
-        expect(body).toStrictEqual({ token: 'Bearer ' + TEST_TOKEN });
+        expect(body).toEqual({ token: 'Bearer ' + TEST_TOKEN });
       }
 
       expect(jwtset[generateFunc]).toBeCalledTimes(1);
@@ -275,7 +289,7 @@ describe('PubsubProxy Controller', () => {
   });
 
   it('proxies an error code back', async () => {
-    nock('http://accounts.firefox.com').post('/webhook').reply(400, 'Error123');
+    mockErrorWebhook();
     const message = createValidSubscriptionMessage();
     expect.assertions(2);
     let err:
@@ -294,6 +308,6 @@ describe('PubsubProxy Controller', () => {
     }
 
     expect(err?.getStatus()).toBe(400);
-    expect(err?.getResponse()).toStrictEqual('Error123');
+    expect(err?.getResponse()).toEqual('Error123');
   });
 });

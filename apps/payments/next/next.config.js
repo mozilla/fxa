@@ -27,7 +27,6 @@ const nextConfig = {
     instrumentationHook: true,
     optimizePackageImports: ['@radix-ui/react-form', '@radix-ui/react-tooltip'],
     serverComponentsExternalPackages: [
-      'axios',
       '@apollo',
       '@faker-js/faker',
       '@google-cloud/firestore',

@@ -10,7 +10,6 @@ import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import * as Sentry from '@sentry/node';
 
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
@@ -23,7 +22,6 @@ export class ClientCapabilityService
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
   private config: AppConfig['clientCapabilityFetch'];
-  private axiosInstance: AxiosInstance;
   private intervalName = 'clientCapabilities';
   public capabilities: ClientCapabilities = {};
 
@@ -35,18 +33,21 @@ export class ClientCapabilityService
     this.config = configService.get(
       'clientCapabilityFetch'
     ) as AppConfig['clientCapabilityFetch'];
-    this.axiosInstance = axios.create({
-      headers: { Authorization: this.config.authToken },
-    });
     this.log.setContext(ClientCapabilityService.name);
   }
 
   async updateCapabilities(
     { throwOnError } = { throwOnError: false }
   ): Promise<void> {
-    let result: AxiosResponse<{ clientId: string; capabilities: string[] }[]>;
+    let resultData: { clientId: string; capabilities: string[] }[];
     try {
-      result = await this.axiosInstance.get(this.config.clientUrl);
+      const response = await fetch(this.config.clientUrl, {
+        headers: { Authorization: this.config.authToken },
+      });
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+      resultData = await response.json();
     } catch (err: any) {
       if (throwOnError) {
         throw ExtendedError.withCause(
@@ -55,16 +56,14 @@ export class ClientCapabilityService
         );
       }
       this.log.error('updateCapabilities', {
-        status: err.response
-          ? (err.response as AxiosResponse).status
-          : undefined,
+        status: err.status,
         message: 'Error fetching client capabilities.',
       });
       Sentry.captureException(err);
       return;
     }
-    this.log.debug('updateCapabilities', { clientCapabilities: result.data });
-    result.data.forEach(({ clientId, capabilities }) => {
+    this.log.debug('updateCapabilities', { clientCapabilities: resultData });
+    resultData.forEach(({ clientId, capabilities }) => {
       this.capabilities[clientId] = capabilities;
     });
   }
