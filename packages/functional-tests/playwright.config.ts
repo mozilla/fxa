@@ -50,7 +50,9 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   timeout: 60000, // 1 minute
 
   // Total allowable time spent for each assertion. Defaults to 5 seconds.
-  expect: { timeout: 10000 }, // 10 seconds
+  // Increased timeout locally vs CI because putting strain on local machine
+  // can cause services/network calls to take longer to respond.
+  expect: CI ? { timeout: 10000 } : { timeout: 15000 }, // 10 seconds on CI, 15 seconds locally
 
   // Report slow tests, but only the top 10 slowest tests.
   reportSlowTests: {
@@ -77,7 +79,7 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
             },
             trace: 'retain-on-failure',
           },
-        } as Project)
+        }) as Project
     ),
   ],
   reporter: CI
