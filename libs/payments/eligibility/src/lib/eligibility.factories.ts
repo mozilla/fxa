@@ -10,6 +10,11 @@ export const SubscriptionEligibilityResultCreateFactory =
     subscriptionEligibilityResult: EligibilityStatus.CREATE,
   });
 
+export const SubscriptionEligibilityResultBlockedIAPFactory =
+  (): SubscriptionEligibilityResult => ({
+    subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
+  });
+
 export const SubscriptionEligibilityResultUpgradeFactory = (): {
   subscriptionEligibilityResult: EligibilityStatus.UPGRADE;
   fromOfferingConfigId: string;

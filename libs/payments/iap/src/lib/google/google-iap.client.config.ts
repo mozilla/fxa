@@ -4,10 +4,10 @@
 
 import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
-import { IsOptional, IsString, IsUrl } from 'class-validator';
+import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class GoogleIapClientConfig {
-  @IsUrl()
+  @IsEmail()
   public readonly email!: string;
 
   @IsString()

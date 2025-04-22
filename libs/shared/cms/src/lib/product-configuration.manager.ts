@@ -15,6 +15,7 @@ import {
   CapabilityServiceByPlanIdsQuery,
   EligibilityContentByOfferingQuery,
   PageContentForOfferingQuery,
+  type IapOfferingsByStoreIDsQuery,
 } from '../__generated__/graphql';
 import {
   FetchCmsInvalidOfferingError,
@@ -49,6 +50,10 @@ import {
 } from './queries/services-with-capabilities';
 import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
 import { DeepNonNullable } from './types';
+import {
+  iapOfferingsByStoreIDsQuery,
+  IapOfferingsByStoreIDsResultUtil,
+} from './queries/iap-offerings-by-storeids';
 
 @Injectable()
 export class ProductConfigurationManager {
@@ -166,6 +171,21 @@ export class ProductConfigurationManager {
     );
   }
 
+  async getIapOfferings(
+    storeIDs: string[]
+  ): Promise<IapOfferingsByStoreIDsResultUtil> {
+    const queryResult = await this.strapiClient.query(
+      iapOfferingsByStoreIDsQuery,
+      {
+        storeIDs,
+      }
+    );
+
+    return new IapOfferingsByStoreIDsResultUtil(
+      queryResult as DeepNonNullable<IapOfferingsByStoreIDsQuery>
+    );
+  }
+
   async getServicesWithCapabilities(): Promise<ServicesWithCapabilitiesResultUtil> {
     const queryResult = await this.strapiClient.query(
       servicesWithCapabilitiesQuery,
@@ -197,9 +217,8 @@ export class ProductConfigurationManager {
   }
 
   async getOfferingPlanIds(apiIdentifier: string) {
-    const offeringResult = await this.getEligibilityContentByOffering(
-      apiIdentifier
-    );
+    const offeringResult =
+      await this.getEligibilityContentByOffering(apiIdentifier);
     const offering = offeringResult.getOffering();
     const planIds = offering.defaultPurchase.stripePlanChoices.map(
       (el) => el.stripePlanChoice

@@ -9,6 +9,7 @@ import {
   EligibilityManager,
   EligibilityService,
   EligibilityStatus,
+  SubscriptionEligibilityResultBlockedIAPFactory,
   SubscriptionEligibilityResultDowngradeFactory,
 } from '@fxa/payments/eligibility';
 import {
@@ -103,6 +104,15 @@ import {
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
 import { NeedsInputType } from './cart.types';
 import { redirect } from 'next/navigation';
+import {
+  AppleIapClient,
+  AppleIapPurchaseManager,
+  GoogleIapClient,
+  GoogleIapPurchaseManager,
+  MockAppleIapClientConfigProvider,
+  MockGoogleIapClientConfigProvider,
+} from '@fxa/payments/iap';
+import { Logger } from '@nestjs/common';
 
 jest.mock('next/navigation');
 jest.mock('@fxa/shared/error', () => ({
@@ -156,6 +166,13 @@ describe('CartService', () => {
         CustomerSessionManager,
         EligibilityManager,
         EligibilityService,
+        AppleIapPurchaseManager,
+        AppleIapClient,
+        MockAppleIapClientConfigProvider,
+        GoogleIapPurchaseManager,
+        GoogleIapClient,
+        MockGoogleIapClientConfigProvider,
+        Logger,
         GeoDBManager,
         GeoDBManagerConfig,
         InvoiceManager,
@@ -572,6 +589,46 @@ describe('CartService', () => {
       );
 
       expect(cartManager.createCart).not.toHaveBeenCalled();
+    });
+
+    it('returns cart eligibility status blocked_iap', async () => {
+      const mockErrorCart = ResultCartFactory({
+        state: CartState.FAIL,
+      });
+      const mockResolvedCurrency = faker.finance.currencyCode();
+
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest
+        .spyOn(cartManager, 'createErrorCart')
+        .mockResolvedValue(mockErrorCart);
+      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
+      jest
+        .spyOn(eligibilityService, 'checkEligibility')
+        .mockResolvedValue(SubscriptionEligibilityResultBlockedIAPFactory());
+
+      const result = await cartService.setupCart(args);
+
+      expect(cartManager.createErrorCart).toHaveBeenCalledWith(
+        {
+          interval: args.interval,
+          offeringConfigId: args.offeringConfigId,
+          amount: mockInvoicePreview.subtotal,
+          uid: args.uid,
+          stripeCustomerId: mockAccountCustomer.stripeCustomerId,
+          experiment: args.experiment,
+          taxAddress,
+          currency: mockResolvedCurrency,
+          eligibilityStatus: CartEligibilityStatus.BLOCKED_IAP,
+          couponCode: args.promoCode,
+        },
+        CartErrorReasonId.IAP_UPGRADE_CONTACT_SUPPORT
+      );
+      expect(result).toEqual(mockErrorCart);
     });
 
     it('returns cart eligibility status downgrade', async () => {

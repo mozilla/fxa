@@ -50,7 +50,8 @@ export type SubscriptionEligibilityResult =
       subscriptionEligibilityResult:
         | EligibilityStatus.CREATE
         | EligibilityStatus.INVALID
-        | EligibilityStatus.SAME;
+        | EligibilityStatus.SAME
+        | EligibilityStatus.BLOCKED_IAP;
     }
   | {
       subscriptionEligibilityResult:

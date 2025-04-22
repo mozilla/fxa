@@ -162,6 +162,7 @@ export class CheckoutService {
     const eligibility = await this.eligibilityService.checkEligibility(
       cart.interval as SubplatInterval,
       cart.offeringConfigId,
+      uid,
       stripeCustomerId
     );
 

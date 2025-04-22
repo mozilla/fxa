@@ -515,7 +515,7 @@ describe('EligibilityManager', () => {
       );
     });
 
-    it('returns invalid if subscribed price with same id as target price', async () => {
+    it('returns same if subscribed price with same id as target price', async () => {
       const mockOverlapResult = [
         {
           comparison: OfferingComparison.SAME,

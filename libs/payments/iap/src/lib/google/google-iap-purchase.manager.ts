@@ -20,15 +20,15 @@ import { REPLACED_PURCHASE_USERID_PLACEHOLDER } from './constants';
 
 @Injectable()
 export class GoogleIapPurchaseManager {
-  collectionRef: CollectionReference;
-
   constructor(
-    config: GoogleIapClientConfig,
-    @Inject(FirestoreService) firestore: Firestore,
+    private config: GoogleIapClientConfig,
+    @Inject(FirestoreService) private firestore: Firestore,
     private googleIapClient: GoogleIapClient,
     private log: Logger
-  ) {
-    this.collectionRef = firestore.collection(config.collectionName);
+  ) {}
+
+  get collectionRef(): CollectionReference {
+    return this.firestore.collection(this.config.collectionName);
   }
 
   async getForUser(

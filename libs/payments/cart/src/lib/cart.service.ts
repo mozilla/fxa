@@ -300,6 +300,7 @@ export class CartService {
       this.eligibilityService.checkEligibility(
         args.interval,
         args.offeringConfigId,
+        args.uid,
         accountCustomer?.stripeCustomerId
       ),
     ]);
@@ -337,19 +338,30 @@ export class CartService {
         createCartParams,
         CartErrorReasonId.CartEligibilityStatusSame
       );
-    } else if (cartEligibilityStatus === CartEligibilityStatus.INVALID) {
+    }
+
+    if (cartEligibilityStatus === CartEligibilityStatus.INVALID) {
       return this.cartManager.createErrorCart(
         createCartParams,
         CartErrorReasonId.CartEligibilityStatusInvalid
       );
-    } else if (cartEligibilityStatus === CartEligibilityStatus.DOWNGRADE) {
+    }
+
+    if (cartEligibilityStatus === CartEligibilityStatus.DOWNGRADE) {
       return this.cartManager.createErrorCart(
         createCartParams,
         CartErrorReasonId.CartEligibilityStatusDowngrade
       );
-    } else {
-      return this.cartManager.createCart(createCartParams);
     }
+
+    if (cartEligibilityStatus === CartEligibilityStatus.BLOCKED_IAP) {
+      return this.cartManager.createErrorCart(
+        createCartParams,
+        CartErrorReasonId.IAP_UPGRADE_CONTACT_SUPPORT
+      );
+    }
+
+    return this.cartManager.createCart(createCartParams);
   }
 
   /**
@@ -648,6 +660,7 @@ export class CartService {
     const eligibility = await this.eligibilityService.checkEligibility(
       cart.interval as SubplatInterval,
       cart.offeringConfigId,
+      cart.uid,
       cart.stripeCustomerId
     );
 

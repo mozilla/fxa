@@ -10,6 +10,7 @@
       "@fxa/payments/currency": ["libs/payments/currency/src/index"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index"],
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index"],
+      "@fxa/payments/iap": ["libs/payments/iap/src/index"],
       "@fxa/shared/account/account": ["libs/shared/account/account/src/index"],
       "@fxa/profile/client": ["libs/profile/client/src/index"],
       "@fxa/shared/cms": ["libs/shared/cms/src/index"],

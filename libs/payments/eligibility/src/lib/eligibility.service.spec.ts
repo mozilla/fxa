@@ -19,6 +19,12 @@ import {
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
   EligibilityOfferingResultFactory,
+  IapOfferingByStoreIDResultFactory,
+  IapOfferingResultFactory,
+  IapOfferingsByStoreIDsResultUtil,
+  IapOfferingSubGroupOfferingResultFactory,
+  IapOfferingSubGroupResultFactory,
+  IapWithOfferingResultFactory,
   MockStrapiClientConfigProvider,
   OfferingNotFoundError,
   PageContentOfferingTransformedFactory,
@@ -37,12 +43,24 @@ import {
   OfferingOverlapResult,
 } from './eligibility.types';
 import { LocationConfig, MockLocationConfigProvider } from './location.config';
+import {
+  AppleIapClient,
+  AppleIapPurchaseManager,
+  GoogleIapClient,
+  GoogleIapPurchaseManager,
+  MockAppleIapClientConfigProvider,
+  MockGoogleIapClientConfigProvider,
+} from '@fxa/payments/iap';
+import { faker } from '@faker-js/faker';
+import { Logger } from '@nestjs/common';
 
 describe('EligibilityService', () => {
   let productConfigurationManager: ProductConfigurationManager;
   let eligibilityManager: EligibilityManager;
   let eligibilityService: EligibilityService;
   let subscriptionManager: SubscriptionManager;
+  let appleIapPurchaseManager: AppleIapPurchaseManager;
+  let googleIapPurchaseManager: GoogleIapPurchaseManager;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -50,10 +68,17 @@ describe('EligibilityService', () => {
         MockStrapiClientConfigProvider,
         EligibilityManager,
         EligibilityService,
+        AppleIapPurchaseManager,
+        AppleIapClient,
+        MockAppleIapClientConfigProvider,
+        GoogleIapPurchaseManager,
+        GoogleIapClient,
+        MockGoogleIapClientConfigProvider,
         LocationConfig,
         MockFirestoreProvider,
         MockLocationConfigProvider,
         MockStatsDProvider,
+        Logger,
         PriceManager,
         ProductConfigurationManager,
         StrapiClient,
@@ -67,6 +92,8 @@ describe('EligibilityService', () => {
     eligibilityService = module.get(EligibilityService);
     productConfigurationManager = module.get(ProductConfigurationManager);
     subscriptionManager = module.get(SubscriptionManager);
+    appleIapPurchaseManager = module.get(AppleIapPurchaseManager);
+    googleIapPurchaseManager = module.get(GoogleIapPurchaseManager);
   });
 
   describe('checkEligibility', () => {
@@ -77,6 +104,7 @@ describe('EligibilityService', () => {
       const result = await eligibilityService.checkEligibility(
         interval,
         mockOffering.apiIdentifier,
+        undefined,
         undefined
       );
       expect(result).toEqual({
@@ -87,7 +115,10 @@ describe('EligibilityService', () => {
     it('throws an error for no offering for offeringConfigId', async () => {
       const mockCustomer = StripeCustomerFactory();
       const interval = SubplatInterval.Monthly;
+      const offeringApiIdentifier = faker.string.uuid();
 
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
       jest
         .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
         .mockResolvedValue(
@@ -101,7 +132,58 @@ describe('EligibilityService', () => {
       await expect(
         eligibilityService.checkEligibility(
           interval,
-          'prod_test1',
+          offeringApiIdentifier,
+          faker.string.uuid(),
+          mockCustomer.id
+        )
+      ).rejects.toThrowError(OfferingNotFoundError);
+    });
+
+    it('returns IAP overlap when user has IAP subscriptions in the same subgroup', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const interval = SubplatInterval.Monthly;
+      const offeringApiIdentifier = faker.string.uuid();
+
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue(
+          new IapOfferingsByStoreIDsResultUtil(
+            IapOfferingByStoreIDResultFactory({
+              iaps: [
+                IapWithOfferingResultFactory({
+                  offering: IapOfferingResultFactory({
+                    subGroups: [
+                      IapOfferingSubGroupResultFactory({
+                        offerings: [
+                          IapOfferingSubGroupOfferingResultFactory({
+                            apiIdentifier: offeringApiIdentifier,
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                }),
+              ],
+            })
+          )
+        );
+      jest
+        .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
+        .mockResolvedValue(
+          new EligibilityContentByOfferingResultUtil(
+            EligibilityContentByOfferingResultFactory({
+              offerings: [],
+            })
+          )
+        );
+
+      await expect(
+        eligibilityService.checkEligibility(
+          interval,
+          offeringApiIdentifier,
+          faker.string.uuid(),
           mockCustomer.id
         )
       ).rejects.toThrowError(OfferingNotFoundError);
@@ -121,6 +203,8 @@ describe('EligibilityService', () => {
         },
       ] satisfies OfferingOverlapResult[];
 
+      jest.spyOn(appleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
+      jest.spyOn(googleIapPurchaseManager, 'getForUser').mockResolvedValue([]);
       jest
         .spyOn(productConfigurationManager, 'getEligibilityContentByOffering')
         .mockResolvedValue(
@@ -146,6 +230,7 @@ describe('EligibilityService', () => {
       await eligibilityService.checkEligibility(
         interval,
         mockOffering.apiIdentifier,
+        faker.string.uuid(),
         mockCustomer.id
       );
 

@@ -32,15 +32,15 @@ import {
 
 @Injectable()
 export class AppleIapPurchaseManager {
-  collectionRef: CollectionReference;
-
   constructor(
-    config: AppleIapClientConfig,
-    @Inject(FirestoreService) firestore: Firestore,
+    private config: AppleIapClientConfig,
+    @Inject(FirestoreService) private firestore: Firestore,
     private appleIapClient: AppleIapClient,
     private log: Logger
-  ) {
-    this.collectionRef = firestore.collection(config.collectionName);
+  ) {}
+
+  get collectionRef(): CollectionReference {
+    return this.firestore.collection(this.config.collectionName);
   }
 
   async getForUser(

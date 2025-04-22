@@ -38,6 +38,7 @@
       "@fxa/payments/customer": ["libs/payments/customer/src/index.ts"],
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
       "@fxa/payments/events": ["libs/payments/events/src/index.ts"],
+      "@fxa/payments/iap": ["libs/payments/iap/src/index.ts"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
       "@fxa/payments/metrics": ["libs/payments/metrics/src/index.ts"],
       "@fxa/payments/metrics/provider": [
