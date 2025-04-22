@@ -34,7 +34,7 @@ export const FormSetupAccount = ({
   setAgeCheckErrorText,
   onFocusAgeInput,
   onBlurAgeInput,
-  submitButtonGleanId
+  submitButtonGleanId,
 }: FormSetupAccountProps) => {
   const showCWTS = () => {
     if (isSync) {
@@ -71,9 +71,10 @@ export const FormSetupAccount = ({
         disableButtonUntilValid: true,
         onSubmit,
         loading,
-        submitButtonGleanId
+        submitButtonGleanId,
       }}
       passwordFormType="signup"
+      requirePasswordConfirmation={isSync}
     >
       {setAgeCheckErrorText &&
         setAgeCheckErrorText &&

@@ -28,6 +28,7 @@ export type FormPasswordWithBalloonsProps = {
   children?: React.ReactNode;
   disableButtonUntilValid?: boolean;
   submitButtonGleanId?: string;
+  requirePasswordConfirmation?: boolean;
 };
 
 const getTemplateValues = (passwordFormType: PasswordFormType) => {
@@ -77,6 +78,7 @@ export const FormPasswordWithBalloons = ({
   children,
   disableButtonUntilValid = false,
   submitButtonGleanId,
+  requirePasswordConfirmation = true,
 }: FormPasswordWithBalloonsProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
@@ -349,44 +351,49 @@ export const FormPasswordWithBalloons = ({
           </span>
         </div>
 
-        <div className=" relative mb-4">
-          <FtlMsg
-            id={templateValues.confirmPasswordFtlId}
-            attrs={{ label: true }}
-          >
-            <InputPassword
-              name="confirmPassword"
-              label={templateValues.confirmPasswordLabel}
-              className="text-start"
-              // onFocusCb and onBlurCb control visibility of PasswordInfoBalloon
-              // Only used for the 'signup' page
-              onFocusCb={onFocusConfirmPassword}
-              onBlurCb={onBlurConfirmPassword}
-              onChange={() => onChangePassword('confirmPassword')}
-              hasErrors={errors.confirmPassword && passwordMatchErrorText}
-              errorText={passwordMatchErrorText}
-              inputRef={register({
-                required: true,
-                validate: (value: string) => value === getValues().newPassword,
-              })}
-              anchorPosition="end"
-              tooltipPosition="bottom"
-              prefixDataTestId="verify-password"
-              aria-describedby="repeat-password-information"
-            />
-          </FtlMsg>
+        {requirePasswordConfirmation && (
+          <div className=" relative mb-4">
+            <FtlMsg
+              id={templateValues.confirmPasswordFtlId}
+              attrs={{ label: true }}
+            >
+              <InputPassword
+                name="confirmPassword"
+                label={templateValues.confirmPasswordLabel}
+                className="text-start"
+                // onFocusCb and onBlurCb control visibility of PasswordInfoBalloon
+                // Only used for the 'signup' page
+                onFocusCb={onFocusConfirmPassword}
+                onBlurCb={onBlurConfirmPassword}
+                onChange={() => onChangePassword('confirmPassword')}
+                hasErrors={errors.confirmPassword && passwordMatchErrorText}
+                errorText={passwordMatchErrorText}
+                inputRef={register({
+                  required: true,
+                  validate: (value: string) =>
+                    value === getValues().newPassword,
+                })}
+                anchorPosition="end"
+                tooltipPosition="bottom"
+                prefixDataTestId="verify-password"
+                aria-describedby="repeat-password-information"
+              />
+            </FtlMsg>
 
-          <span
-            id="repeat-password-information"
-            aria-live="polite"
-            className="text-xs"
-          >
-            {isConfirmPwdBalloonVisible && <PasswordInfoBalloon />}
-            {srOnlyConfirmPwdFeedbackMessage && (
-              <span className="sr-only">{srOnlyConfirmPwdFeedbackMessage}</span>
-            )}
-          </span>
-        </div>
+            <span
+              id="repeat-password-information"
+              aria-live="polite"
+              className="text-xs"
+            >
+              {isConfirmPwdBalloonVisible && <PasswordInfoBalloon />}
+              {srOnlyConfirmPwdFeedbackMessage && (
+                <span className="sr-only">
+                  {srOnlyConfirmPwdFeedbackMessage}
+                </span>
+              )}
+            </span>
+          </div>
+        )}
 
         {children}
         <FtlMsg id={templateValues.buttonFtlId}>

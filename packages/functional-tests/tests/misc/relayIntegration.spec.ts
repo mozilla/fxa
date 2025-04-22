@@ -34,7 +34,6 @@ test.describe('relay integration', () => {
     ).toBeVisible();
 
     await signup.passwordTextbox.fill(password);
-    await signup.verifyPasswordTextbox.fill(password);
     await signup.ageTextbox.fill(AGE_21);
     await signup.createAccountButton.click();
 
