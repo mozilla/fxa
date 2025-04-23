@@ -1687,9 +1687,9 @@ export class AccountHandler {
         } = request.app.ua;
 
         // Since the only way to reach this point is clicking a
-        // link from the user's email, we create a verified sessionToken
-        // **unless** the user has a TOTP token.
-        tokenVerificationId = hasTotpToken ? await random.hex(16) : null;
+        // link from the user's email and verifying TOTP if they have it,
+        // we create a verified session token.
+        tokenVerificationId = null;
 
         const sessionTokenOptions = {
           uid: account.uid,
@@ -1697,7 +1697,7 @@ export class AccountHandler {
           emailCode: account.primaryEmail.emailCode,
           emailVerified: account.primaryEmail.isVerified,
           verifierSetAt: account.verifierSetAt,
-          mustVerify: !!tokenVerificationId,
+          mustVerify: false,
           tokenVerificationId,
           uaBrowser,
           uaBrowserVersion,
@@ -1779,13 +1779,9 @@ export class AccountHandler {
         }
       }
 
-      const verificationMethod = hasTotpToken ? 'totp-2fa' : undefined;
       Object.assign(
         response,
-        this.signinUtils.getSessionVerificationStatus(
-          sessionToken,
-          verificationMethod
-        )
+        this.signinUtils.getSessionVerificationStatus(sessionToken, undefined)
       );
 
       return response;

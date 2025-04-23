@@ -49,19 +49,13 @@ test.describe('severity-1 #smoke', () => {
     });
 
     // Fill out the TOTP form
-    let totpCode = await getCode(secret);
+    const totpCode = await getCode(secret);
     await resetPassword.fillOutTotpForm(totpCode);
 
     // Create and submit new password
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
-    await expect(page).toHaveURL(/signin/);
-    await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
-    await signin.fillOutPasswordForm(newPassword);
-
-    totpCode = await getCode(secret);
-    await page.waitForURL(/signin_totp_code/);
-    await signinTotpCode.fillOutCodeForm(totpCode);
+    await expect(settings.alertBar).toHaveText('Your password has been reset');
 
     await expect(settings.settingsHeading).toBeVisible();
 
@@ -121,13 +115,7 @@ test.describe('severity-1 #smoke', () => {
     // Create and submit new password
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
-    await expect(page).toHaveURL(/signin/);
-    await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
-    await signin.fillOutPasswordForm(newPassword);
-
-    const totpCode = await getCode(secret);
-    await page.waitForURL(/signin_totp_code/);
-    await signinTotpCode.fillOutCodeForm(totpCode);
+    await expect(settings.alertBar).toHaveText('Your password has been reset');
 
     await expect(settings.settingsHeading).toBeVisible();
 
@@ -162,7 +150,7 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
-    const { secret } = await totp.fillOutTotpForms();
+    await totp.fillOutTotpForms();
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(
@@ -196,25 +184,15 @@ test.describe('severity-1 #smoke', () => {
     await resetPassword.fillOutRecoveryKeyForm(key);
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
-    await expect(page).toHaveURL(/signin/);
-    await expect(
-      resetPassword.passwordResetSuccessRecovyerKeyReminderHeading
-    ).toBeVisible();
-    await expect(
-      resetPassword.passwordResetSuccessRecovyerKeyReminderMessage
-    ).toBeVisible();
+    await expect(resetPassword.passwordResetPasswordSaved).toBeVisible();
 
-    await signin.fillOutPasswordForm(newPassword);
-
-    // Prompted for 2FA on new login
-    const totpCode = await getCode(secret);
-    await page.waitForURL(/signin_totp_code/);
-    await signinTotpCode.fillOutCodeForm(totpCode);
+    await resetPassword.continueWithoutDownloadingRecoveryKey();
+    await resetPassword.recoveryKeyFinishButton.click();
 
     await expect(settings.settingsHeading).toBeVisible();
 
-    // Recovery key has been consumed
-    await expect(settings.recoveryKey.status).toHaveText('Not Set');
+    // Recovery key has been consumed and a new one created
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
 
     // Remove TOTP before teardown
     await settings.disconnectTotp();
@@ -283,20 +261,13 @@ test.describe('severity-1 #smoke', () => {
     await page.waitForURL(/confirm_totp_reset_password/);
 
     // Fill out the TOTP form
-    let totpCode = await getCode(secret);
+    const totpCode = await getCode(secret);
     await resetPassword.fillOutTotpForm(totpCode);
 
     // Create and submit new password
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
-    await expect(page).toHaveURL(/signin/);
-    await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
-    await signin.fillOutPasswordForm(newPassword);
-
-    // Prompted for 2FA on new login
-    totpCode = await getCode(secret);
-    await page.waitForURL(/signin_totp_code/);
-    await signinTotpCode.fillOutCodeForm(totpCode);
+    await expect(settings.alertBar).toHaveText('Your password has been reset');
 
     await expect(settings.settingsHeading).toBeVisible();
 

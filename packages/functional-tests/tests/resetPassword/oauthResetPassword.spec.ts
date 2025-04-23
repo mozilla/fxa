@@ -129,22 +129,21 @@ test.describe('severity-1 #smoke', () => {
       await resetPassword.fillOutResetPasswordCodeForm(code);
 
       // Fill out the TOTP form
-      let totpCode = await getCode(secret);
+      const totpCode = await getCode(secret);
       await resetPassword.fillOutTotpForm(totpCode);
 
       await resetPassword.fillOutNewPasswordForm(newPassword);
 
-      await expect(page).toHaveURL(/signin/);
+      await expect(page).toHaveURL(/reset_password_verified/);
       await expect(resetPassword.passwordResetSuccessMessage).toBeVisible();
 
-      await expect(signin.passwordFormHeading).toBeVisible();
-      await signin.fillOutPasswordForm(newPassword);
-      await expect(page).toHaveURL(/signin_totp_code/);
-      totpCode = await getCode(secret);
-      await signinTotpCode.fillOutCodeForm(totpCode);
+      await resetPassword.passwordResetConfirmationContinueButton.click();
 
       await expect(page).toHaveURL(target.relierUrl);
       expect(await relier.isLoggedIn()).toBe(true);
+
+      // update password for cleanup function
+      credentials.password = newPassword;
 
       // Goes to settings and disables totp on user's account (required for cleanup)
       await signin.goto();
