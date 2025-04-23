@@ -5,30 +5,23 @@
 import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
 import { Environment } from 'app-store-server-api';
-import { Transform, Type } from 'class-transformer';
-import { IsArray, IsEnum, IsString, ValidateNested } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsArray, IsEnum, IsString } from 'class-validator';
 
-export class AppleIapClientConfigCredential {
-  @IsString()
-  public readonly key!: string;
-
-  @IsString()
-  public readonly keyId!: string;
-
-  @IsString()
-  public readonly issuerId!: string;
-
-  @IsString()
-  public readonly bundleId!: string;
+export interface AppleIapClientConfigCredential {
+  key: string;
+  keyId: string;
+  issuerId: string;
+  bundleId: string;
 }
 
 export class AppleIapClientConfig {
   @Transform(
-    ({ value }) => (value instanceof Object ? value : JSON.parse(value)),
+    ({ value }) => {
+      return value instanceof Object ? value : JSON.parse(value);
+    },
     { toClassOnly: true }
   )
-  @Type(() => AppleIapClientConfigCredential)
-  @ValidateNested({ each: true })
   @IsArray()
   public readonly credentials!: AppleIapClientConfigCredential[];
 
