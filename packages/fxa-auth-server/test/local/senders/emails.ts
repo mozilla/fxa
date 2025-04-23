@@ -37,7 +37,9 @@ config.smtp.subscriptionTermsUrl = 'http://example.com/terms';
 // Force enable the subscription transactional emails
 config.subscriptions.transactionalEmails.enabled = true;
 
-const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/emails/templates/_versions.json`);
+const TEMPLATE_VERSIONS = require(
+  `${ROOT_DIR}/lib/senders/emails/templates/_versions.json`
+);
 
 const SUBSCRIPTION_TERMS_URL = 'https://example.com/subscription-product/terms';
 const SUBSCRIPTION_PRIVACY_URL =
@@ -1270,7 +1272,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: 'Recovery phone removed' },
-      { test: 'include', expected: 'Your recovery phone has been removed from your two-step authentication settings. You still have your backup authentication codes available for use.' },
+      { test: 'include', expected: 'Your recovery phone has been removed from your two-step authentication settings.' },
+      { test: 'include', expected: 'You can still use your backup authentication codes to sign in if you arenʼt able to use your authenticator app.' },
       { test: 'include', expected: 'You requested it from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
@@ -1280,7 +1283,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: 'Recovery phone removed' },
-      { test: 'include', expected: 'Your recovery phone has been removed from your two-step authentication settings. You still have your backup authentication codes available for use.' },
+      { test: 'include', expected: 'Your recovery phone has been removed from your two-step authentication settings.' },
+      { test: 'include', expected: 'You can still use your backup authentication codes to sign in if you arenʼt able to use your authenticator app.' },
       { test: 'include', expected: 'You requested it from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
       { test: 'include', expected: `${MESSAGE.date}` },
@@ -2702,7 +2706,7 @@ PAYPAL_MESSAGE.payment_provider = 'paypal';
 const TESTS_WITH_PAYPAL_AS_PAYMENT_PROVIDER: [
   string,
   any,
-  Record<string, any>?
+  Record<string, any>?,
 ][] = [
   [
     'subscriptionFirstInvoiceEmail',
