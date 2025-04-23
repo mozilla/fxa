@@ -5,6 +5,10 @@
 import { Injectable } from '@nestjs/common';
 import { SubscriptionManager, SubplatInterval } from '@fxa/payments/customer';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
+import {
+  GoogleIapPurchaseManager,
+  AppleIapPurchaseManager,
+} from '@fxa/payments/iap';
 import { EligibilityManager } from './eligibility.manager';
 import {
   EligibilityStatus,
@@ -12,6 +16,7 @@ import {
   SubscriptionEligibilityResult,
 } from './eligibility.types';
 import { LocationConfig } from './location.config';
+import { EligibilityError } from './eligibility.error';
 
 @Injectable()
 export class EligibilityService {
@@ -19,7 +24,9 @@ export class EligibilityService {
     private locationConfig: LocationConfig,
     private productConfigurationManager: ProductConfigurationManager,
     private eligibilityManager: EligibilityManager,
-    private subscriptionManager: SubscriptionManager
+    private subscriptionManager: SubscriptionManager,
+    private googleIapPurchaseManager: GoogleIapPurchaseManager,
+    private appleIapPurchaseManager: AppleIapPurchaseManager
   ) {}
 
   /**
@@ -28,9 +35,16 @@ export class EligibilityService {
   async checkEligibility(
     interval: SubplatInterval,
     offeringConfigId: string,
+    uid?: string | null | undefined,
     stripeCustomerId?: string | null | undefined
   ): Promise<SubscriptionEligibilityResult> {
-    if (!stripeCustomerId) {
+    if (!uid) {
+      if (stripeCustomerId) {
+        throw new EligibilityError(
+          "'uid' is required when 'stripeCustomerId' is provided"
+        );
+      }
+
       return {
         subscriptionEligibilityResult: EligibilityStatus.CREATE,
       };
@@ -42,6 +56,30 @@ export class EligibilityService {
       );
 
     const targetOffering = targetOfferingResult.getOffering();
+
+    const [appleIapPurchases, googleIapPurchases] = await Promise.all([
+      this.appleIapPurchaseManager.getForUser(uid),
+      this.googleIapPurchaseManager.getForUser(uid),
+    ]);
+    if (appleIapPurchases.length || googleIapPurchases.length) {
+      const iapOfferingResult =
+        await this.productConfigurationManager.getIapOfferings([
+          ...appleIapPurchases.map((el) => el.productId),
+          ...googleIapPurchases.map((el) => el.sku),
+        ]);
+
+      if (iapOfferingResult.hasOverlap(offeringConfigId)) {
+        return {
+          subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
+        };
+      }
+    }
+
+    if (!stripeCustomerId) {
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      };
+    }
 
     const subscriptions =
       await this.subscriptionManager.listForCustomer(stripeCustomerId);

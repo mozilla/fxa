@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { TypedConfigModule } from 'nest-typed-config';
 
 import { GoogleClient, GoogleManager } from '@fxa/google';
@@ -61,6 +61,12 @@ import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { PaymentsEmitterService } from '@fxa/payments/events';
+import {
+  AppleIapClient,
+  AppleIapPurchaseManager,
+  GoogleIapClient,
+  GoogleIapPurchaseManager,
+} from '@fxa/payments/iap';
 
 @Module({
   imports: [
@@ -83,6 +89,7 @@ import { PaymentsEmitterService } from '@fxa/payments/events';
   ],
   controllers: [],
   providers: [
+    Logger,
     AccountCustomerManager,
     AccountDatabaseNestFactory,
     AccountManager,
@@ -98,6 +105,10 @@ import { PaymentsEmitterService } from '@fxa/payments/events';
     CheckoutService,
     EligibilityManager,
     EligibilityService,
+    AppleIapPurchaseManager,
+    AppleIapClient,
+    GoogleIapPurchaseManager,
+    GoogleIapClient,
     FirestoreProvider,
     GeoDBManager,
     GeoDBNestFactory,

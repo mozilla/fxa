@@ -19,6 +19,7 @@ import { CurrencyConfig } from 'libs/payments/currency/src/lib/currency.config';
 import { ProfileClientConfig } from '@fxa/profile/client';
 import { ContentServerClientConfig } from '@fxa/payments/content-server';
 import { NotifierSnsConfig } from '@fxa/shared/notifier';
+import { AppleIapClientConfig, GoogleIapClientConfig } from '@fxa/payments/iap';
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -54,6 +55,16 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly strapiClientConfig!: Partial<StrapiClientConfig>;
+
+  @Type(() => AppleIapClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly appleIapClientConfig!: Partial<AppleIapClientConfig>;
+
+  @Type(() => GoogleIapClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly googleIapClientConfig!: Partial<GoogleIapClientConfig>;
 
   @Type(() => FirestoreConfig)
   @ValidateNested()

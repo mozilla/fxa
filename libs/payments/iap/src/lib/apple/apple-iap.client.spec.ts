@@ -8,7 +8,7 @@ import { AppleIapMissingCredentialsError } from './apple-iap.error';
 import { Environment, StatusResponse } from 'app-store-server-api';
 import {
   AppleIapClientConfig,
-  MockAppleIapClientConfigProvider,
+  MockAppleIapClientConfig,
 } from './apple-iap.client.config';
 import assert from 'assert';
 import { faker } from '@faker-js/faker';
@@ -29,7 +29,23 @@ describe('AppleIapClient', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MockAppleIapClientConfigProvider, AppleIapClient],
+      providers: [
+        {
+          provide: AppleIapClientConfig,
+          useValue: {
+            ...MockAppleIapClientConfig,
+            credentials: [
+              {
+                key: faker.string.uuid(),
+                keyId: faker.string.uuid(),
+                issuerId: faker.string.uuid(),
+                bundleId: faker.string.uuid(),
+              },
+            ],
+          },
+        },
+        AppleIapClient,
+      ],
     }).compile();
 
     appleIapClient = module.get(AppleIapClient);

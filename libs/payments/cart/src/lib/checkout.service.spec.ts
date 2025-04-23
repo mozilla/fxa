@@ -104,6 +104,15 @@ import {
   MockGeoDBNestFactory,
 } from '@fxa/shared/geodb';
 import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/currency.config';
+import {
+  AppleIapClient,
+  AppleIapPurchaseManager,
+  GoogleIapClient,
+  GoogleIapPurchaseManager,
+  MockAppleIapClientConfigProvider,
+  MockGoogleIapClientConfigProvider,
+} from '@fxa/payments/iap';
+import { Logger } from '@nestjs/common';
 
 describe('CheckoutService', () => {
   let accountCustomerManager: AccountCustomerManager;
@@ -141,6 +150,13 @@ describe('CheckoutService', () => {
         CurrencyManager,
         EligibilityManager,
         EligibilityService,
+        AppleIapPurchaseManager,
+        AppleIapClient,
+        MockAppleIapClientConfigProvider,
+        GoogleIapPurchaseManager,
+        GoogleIapClient,
+        MockGoogleIapClientConfigProvider,
+        Logger,
         GeoDBManager,
         GeoDBManagerConfig,
         MockGeoDBNestFactory,
@@ -310,6 +326,7 @@ describe('CheckoutService', () => {
         expect(eligibilityService.checkEligibility).toHaveBeenCalledWith(
           mockCart.interval,
           mockCart.offeringConfigId,
+          mockCart.uid,
           mockCustomer.id
         );
 

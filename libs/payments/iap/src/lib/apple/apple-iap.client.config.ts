@@ -5,7 +5,7 @@
 import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
 import { Environment } from 'app-store-server-api';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsArray, IsEnum, IsString, ValidateNested } from 'class-validator';
 
 export class AppleIapClientConfigCredential {
@@ -23,6 +23,10 @@ export class AppleIapClientConfigCredential {
 }
 
 export class AppleIapClientConfig {
+  @Transform(
+    ({ value }) => (value instanceof Object ? value : JSON.parse(value)),
+    { toClassOnly: true }
+  )
   @Type(() => AppleIapClientConfigCredential)
   @ValidateNested({ each: true })
   @IsArray()
@@ -36,14 +40,8 @@ export class AppleIapClientConfig {
 }
 
 export const MockAppleIapClientConfig = {
-  credentials: [
-    {
-      key: faker.string.uuid(),
-      keyId: faker.string.uuid(),
-      issuerId: faker.string.uuid(),
-      bundleId: faker.string.uuid(),
-    },
-  ],
+  // This must be left empty, else we initialize the client with invalid keys and it throws errors
+  credentials: [],
   environment: Environment.Sandbox,
   collectionName: faker.string.uuid(),
 } satisfies AppleIapClientConfig;

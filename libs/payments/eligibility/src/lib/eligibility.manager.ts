@@ -112,63 +112,69 @@ export class EligibilityManager {
       interval
     );
 
-    if (targetPrice) {
-      const overlappingPrice = subscribedPrices.find(
-        (price) => price.id === overlap.priceId
-      );
+    if (!targetPrice) {
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.INVALID,
+      };
+    }
 
-      if (
-        !overlappingPrice ||
-        !overlappingPrice.recurring ||
-        !targetPrice.recurring
-      ) {
-        return {
-          subscriptionEligibilityResult: EligibilityStatus.INVALID,
-        };
+    const overlappingPrice = subscribedPrices.find(
+      (price) => price.id === overlap.priceId
+    );
+
+    if (
+      !overlappingPrice ||
+      !overlappingPrice.recurring ||
+      !targetPrice.recurring
+    ) {
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.INVALID,
+      };
+    }
+
+    if (overlappingPrice.id === targetPrice.id) {
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.SAME,
+      };
+    }
+
+    if (overlap.comparison === OfferingComparison.DOWNGRADE) {
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
+        fromOfferingConfigId: overlap.fromOfferingId,
+        fromPrice: overlappingPrice,
+      };
+    }
+
+    const intervalComparisonResult = intervalComparison(
+      {
+        unit: overlappingPrice.recurring.interval,
+        count: overlappingPrice.recurring.interval_count,
+      },
+      {
+        unit: targetPrice.recurring.interval,
+        count: targetPrice.recurring.interval_count,
       }
+    );
+    // Any interval change that is lower than the existing price's interval is
+    // a downgrade. Otherwise its considered an upgrade.
+    if (intervalComparisonResult === IntervalComparison.SHORTER) {
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
+        fromOfferingConfigId: overlap.fromOfferingId,
+        fromPrice: overlappingPrice,
+      };
+    }
 
-      if (overlappingPrice.id === targetPrice.id) {
-        return {
-          subscriptionEligibilityResult: EligibilityStatus.SAME,
-        };
-      }
-
-      if (overlap.comparison === OfferingComparison.DOWNGRADE)
-        return {
-          subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
-          fromOfferingConfigId: overlap.fromOfferingId,
-          fromPrice: overlappingPrice,
-        };
-
-      const intervalComparisonResult = intervalComparison(
-        {
-          unit: overlappingPrice.recurring.interval,
-          count: overlappingPrice.recurring.interval_count,
-        },
-        {
-          unit: targetPrice.recurring.interval,
-          count: targetPrice.recurring.interval_count,
-        }
-      );
-      // Any interval change that is lower than the existing price's interval is
-      // a downgrade. Otherwise its considered an upgrade.
-      if (intervalComparisonResult === IntervalComparison.SHORTER) {
-        return {
-          subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
-          fromOfferingConfigId: overlap.fromOfferingId,
-          fromPrice: overlappingPrice,
-        };
-      }
-
-      if (
-        overlap.comparison === OfferingComparison.UPGRADE ||
-        intervalComparisonResult === IntervalComparison.LONGER
-      )
-        return {
-          subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
-          fromOfferingConfigId: overlap.fromOfferingId,
-          fromPrice: overlappingPrice,
-        };
+    if (
+      overlap.comparison === OfferingComparison.UPGRADE ||
+      intervalComparisonResult === IntervalComparison.LONGER
+    ) {
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+        fromOfferingConfigId: overlap.fromOfferingId,
+        fromPrice: overlappingPrice,
+      };
     }
 
     return {

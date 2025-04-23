@@ -6,6 +6,7 @@ import 'server-only';
 
 import { NestFactory } from '@nestjs/core';
 
+import { logger } from '@fxa/shared/log';
 import { AppModule } from './app.module';
 import { LocalizerRscFactory } from '@fxa/shared/l10n/server';
 import { singleton } from '../utils/singleton';
@@ -20,7 +21,9 @@ class AppSingleton {
 
   async initialize() {
     if (!this.app) {
-      this.app = await NestFactory.createApplicationContext(AppModule);
+      this.app = await NestFactory.createApplicationContext(AppModule, {
+        logger,
+      });
     }
   }
 
