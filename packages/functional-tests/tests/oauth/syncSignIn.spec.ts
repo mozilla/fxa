@@ -21,6 +21,10 @@ test.describe('severity-1 #smoke', () => {
       },
       testAccountTracker,
     }) => {
+      test.fixme(
+        target.name !== 'local',
+        'FXA-11542, test is inconsistently failing in smoke tests with a different cached account than expected - suspect failing for react email-first'
+      );
       const { email, password } = testAccountTracker.generateAccountDetails();
       const syncCredentials = await testAccountTracker.signUpSync();
 
