@@ -160,7 +160,7 @@
     "binary-split": "1.0.5",
     "chai": "^4.5.0",
     "chai-as-promised": "^7.1.1",
-    "esbuild": "^0.17.15",
+    "esbuild": "^0.25.3",
     "esbuild-register": "^3.5.0",
     "eslint": "^7.32.0",
     "fxa-shared": "workspace:*",
