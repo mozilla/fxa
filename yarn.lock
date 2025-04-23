@@ -30963,14 +30963,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.29.0":
-  version: 0.29.0
-  resolution: "axios@npm:0.29.0"
+"axios@npm:1.8.4":
+  version: 1.8.4
+  resolution: "axios@npm:1.8.4"
   dependencies:
-    follow-redirects: ^1.15.4
+    follow-redirects: ^1.15.6
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
-  checksum: b365fa0471ff62472521932c68f152e98650804c016fc6a9fe337a6cd67201141baf14d29161527cce5189b9eba8f14cb5781e02c56e69f56784e9a23385d7e7
+  checksum: e901dc1730bdcd769839b3d93ae6d6457a53d79b19a0eb623ebfea333441259ab51e63ca118baa47a5156567401466ac739f31087b4ee5e6770ab2e227484538
   languageName: node
   linkType: hard
 
@@ -43402,7 +43402,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/eslint-plugin": ^5.59.0
     "@typescript-eslint/parser": ^7.1.1
     audit-filter: ^0.5.0
-    axios: ^0.29.0
+    axios: 1.8.4
     chance: ^1.1.8
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
@@ -44043,7 +44043,7 @@ fsevents@~2.1.1:
     app-store-server-api: ^0.16.0
     autoprefixer: ^10.4.14
     aws-sdk: ^2.1691.0
-    axios: ^0.29.0
+    axios: 1.8.4
     babel-jest: ^29.7.0
     base64url: ^3.0.1
     bn.js: ^5.2.1
