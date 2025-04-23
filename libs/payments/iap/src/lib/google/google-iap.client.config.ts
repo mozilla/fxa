@@ -8,7 +8,8 @@ import { IsEmail, IsOptional, IsString } from 'class-validator';
 
 export class GoogleIapClientConfig {
   @IsEmail()
-  public readonly email!: string;
+  @IsOptional()
+  public readonly email?: string;
 
   @IsString()
   @IsOptional()
