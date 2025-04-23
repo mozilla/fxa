@@ -6,6 +6,7 @@
 
 import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
+import classNames from 'classnames';
 import countries from 'i18n-iso-countries';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
@@ -37,11 +38,11 @@ const Collapsed = ({
         <span>
           <Form.Submit asChild>
             <SubmitButton
-              variant={ButtonVariant.Secondary}
+              variant={ButtonVariant.Primary}
               data-testid="tax-location-edit-button"
             >
               <Localized id="select-tax-location-edit-button">
-                <p>Edit</p>
+                <span>Edit</span>
               </Localized>
             </SubmitButton>
           </Form.Submit>
@@ -67,6 +68,7 @@ interface ExpandedProps {
   countryCode: string | undefined;
   postalCode: string | undefined;
   saveAction: (countryCode: string, postalCode: string) => Promise<void> | void;
+  cancelAction?: () => void;
   buttonContent?: {
     ftlId: string;
     label: string;
@@ -81,6 +83,7 @@ const Expanded = ({
   countryCode,
   postalCode,
   saveAction,
+  cancelAction,
   buttonContent,
 }: ExpandedProps) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -123,52 +126,38 @@ const Expanded = ({
       };
     });
     setCountryCodes(countryArr.sort((a, b) => a.name.localeCompare(b.name)));
-  }, [locale]);
+  }, [countryCode, postalCode, locale]);
 
-  const handleCountryCodeChange = (countryCode: string | undefined) => {
+  const handleCountryCodeChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     setServerErrors((prev) => ({
       ...prev,
       missingCountryCode: false,
       productNotAvailable: false,
       unsupportedCountries: false,
+      invalidPostalCode: false,
     }));
 
-    if (!countryCode) {
+    if (!event.target.value) {
       return setServerErrors((prev) => ({ ...prev, missingCountryCode: true }));
     }
 
-    setSelectedCountryCode(countryCode);
+    setSelectedCountryCode(event.target.value);
 
     // If the selected location is not supported per TOS, it is not necessary to
     // also inform the customer that the product is not available in their location.
-    if (
-      unsupportedLocations.includes(countryCode) &&
-      !cmsCountryCodes.includes(countryCode)
-    ) {
-      setServerErrors((prev) => ({
-        ...prev,
-        productNotAvailable: false,
-        unsupportedCountry: true,
-      }));
-    } else if (unsupportedLocations.includes(countryCode)) {
-      setServerErrors((prev) => ({
-        ...prev,
-        productNotAvailable: false,
-        unsupportedCountry: true,
-      }));
-    } else if (!cmsCountryCodes.includes(countryCode)) {
-      setServerErrors((prev) => ({
-        ...prev,
-        productNotAvailable: true,
-        unsupportedCountry: false,
-      }));
-    } else {
-      setServerErrors((prev) => ({
-        ...prev,
-        productNotAvailable: false,
-        unsupportedCountry: false,
-      }));
-    }
+    const isSanctionedLocation = unsupportedLocations.includes(
+      event.target.value
+    );
+    const isProductAvailable = cmsCountryCodes.includes(event.target.value);
+    setServerErrors((prev) => ({
+      ...prev,
+      productNotAvailable: isSanctionedLocation
+        ? isProductAvailable
+        : !isProductAvailable,
+      unsupportedCountry: isSanctionedLocation,
+    }));
   };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -215,34 +204,66 @@ const Expanded = ({
       onSubmit={handleFormSubmit}
       className="flex flex-col gap-4 w-full"
       data-testid="select-location-form"
+      aria-busy={isLoading}
+      aria-live="polite"
     >
+      {isLoading && (
+        <span className="sr-only" role="status">
+          Saving...
+        </span>
+      )}
       <Form.Field name="countryCode">
         <Localized id="select-tax-location-country-code-label">
-          <Form.Label className="text-grey-400 block mb-1 text-start">
+          <Form.Label
+            htmlFor="countryCode"
+            className="text-grey-400 block mb-1 text-start"
+          >
             Country
           </Form.Label>
         </Localized>
-        <Form.Control asChild>
+        <div className="relative w-full">
           <select
+            id="countryCode"
             name="countryCode"
-            value={selectedCountryCode}
-            onChange={(e) => {
-              setServerErrors((prev) => ({
-                ...prev,
-                invalidPostalCode: false,
-              }));
-              handleCountryCodeChange(e.target.value);
+            value={selectedCountryCode ?? ''}
+            onChange={handleCountryCodeChange}
+            onInvalid={() => {
+              if (!selectedCountryCode) {
+                setServerErrors((prev) => ({
+                  ...prev,
+                  missingCountryCode: true,
+                }));
+              }
             }}
-            className="flex items-center justify-between gap-4 w-full border rounded-md border-black/30 p-3 bg-white placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:text-grey-500 data-[invalid=true]:border-alert-red data-[invalid=true]:shadow-inputError"
+            className={classNames(
+              'appearance-none pr-10 w-full border rounded-md p-3 bg-white placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:text-grey-500 data-[invalid=true]:border-alert-red data-[invalid=true]:shadow-inputError',
+              {
+                'border-black/30':
+                  !serverErrors.missingCountryCode &&
+                  !serverErrors.productNotAvailable &&
+                  !serverErrors.unsupportedCountry,
+                'border-alert-red text-alert-red shadow-inputError':
+                  serverErrors.missingCountryCode ||
+                  serverErrors.productNotAvailable ||
+                  serverErrors.unsupportedCountry,
+                'cursor-not-allowed': isLoading,
+              }
+            )}
             required
             aria-required
+            aria-invalid={
+              serverErrors.missingCountryCode ||
+              serverErrors.productNotAvailable ||
+              serverErrors.unsupportedCountry ||
+              undefined
+            }
             disabled={isLoading}
           >
-            {!selectedCountryCode && (
-              <Localized id="select-tax-location-country-code-placeholder">
-                <option value="">Select your country</option>
-              </Localized>
-            )}
+            <Localized id="select-tax-location-country-code-placeholder">
+              <option value="" disabled>
+                Select your country
+              </option>
+            </Localized>
             {countryCodes.map((country, idx) => (
               <option
                 key={`${country.code}-${idx}`}
@@ -253,14 +274,29 @@ const Expanded = ({
               </option>
             ))}
           </select>
-        </Form.Control>
-        <Form.Message match="valueMissing">
-          <Localized id="select-tax-location-error-missing-country-code">
-            <p className="mt-1 text-alert-red" role="alert">
-              Please select your country
-            </p>
-          </Localized>
-        </Form.Message>
+          <svg
+            className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M19 9l-7 7-7-7"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+        {serverErrors.missingCountryCode && (
+          <Form.Message>
+            <Localized id="select-tax-location-error-missing-country-code">
+              <p className="mt-1 text-alert-red" role="alert">
+                Please select your country
+              </p>
+            </Localized>
+          </Form.Message>
+        )}
         {serverErrors.productNotAvailable && (
           <Form.Message>
             <Localized
@@ -287,7 +323,10 @@ const Expanded = ({
 
       <Form.Field name="postalCode">
         <Localized id="select-tax-location-postal-code-label">
-          <Form.Label className="text-grey-400 block mb-1 text-start">
+          <Form.Label
+            htmlFor="postalCode"
+            className="text-grey-400 block mb-1 text-start"
+          >
             Postal Code
           </Form.Label>
         </Localized>
@@ -299,7 +338,15 @@ const Expanded = ({
           <Form.Control asChild>
             <input
               id="postalCode"
-              className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
+              className={classNames(
+                'w-full border rounded-md p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError data-[invalid=true]:placeholder:text-alert-red',
+                {
+                  'border-black/30': !serverErrors.invalidPostalCode,
+                  'border-alert-red text-alert-red shadow-inputError':
+                    serverErrors.invalidPostalCode,
+                  'cursor-not-allowed': isLoading,
+                }
+              )}
               name="postalCode"
               type="text"
               data-testid="postal-code"
@@ -314,6 +361,7 @@ const Expanded = ({
               defaultValue={selectedPostalCode}
               required
               aria-required
+              aria-invalid={serverErrors.invalidPostalCode || undefined}
               disabled={isLoading}
             />
           </Form.Control>
@@ -351,32 +399,49 @@ const Expanded = ({
         </Localized>
       )}
 
-      <Form.Submit asChild>
-        <BaseButton
-          variant={ButtonVariant.Primary}
-          className="w-full"
-          data-testid="tax-location-save-button"
-          type="submit"
-          disabled={blockingErrorExists || isLoading}
-          aria-disabled={blockingErrorExists || isLoading}
-        >
-          {isLoading ? (
-            <Image
-              src={spinnerWhiteImage}
-              alt=""
-              className="absolute animate-spin h-8 w-8"
-            />
-          ) : buttonContent ? (
-            <Localized id={buttonContent.ftlId}>
-              <p>{buttonContent.label}</p>
-            </Localized>
-          ) : (
-            <Localized id="select-tax-location-save-button">
-              <p>Save</p>
-            </Localized>
-          )}
-        </BaseButton>
-      </Form.Submit>
+      <div className="flex gap-4 justify-between items-center">
+        {!buttonContent && (
+          <BaseButton
+            variant={ButtonVariant.Secondary}
+            className="w-full"
+            data-testid="tax-location-cancel-button"
+            onClick={cancelAction}
+            type="button"
+          >
+            <span>Cancel</span>
+          </BaseButton>
+        )}
+
+        <Form.Submit asChild>
+          <BaseButton
+            variant={ButtonVariant.Primary}
+            className="w-full"
+            data-testid="tax-location-save-button"
+            type="submit"
+            disabled={blockingErrorExists || isLoading}
+            aria-disabled={blockingErrorExists || isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className="sr-only">Saving...</span>
+                <Image
+                  src={spinnerWhiteImage}
+                  alt=""
+                  className="absolute animate-spin h-8 w-8"
+                />
+              </>
+            ) : buttonContent ? (
+              <Localized id={buttonContent.ftlId}>
+                <p>{buttonContent.label}</p>
+              </Localized>
+            ) : (
+              <Localized id="select-tax-location-save-button">
+                <p>Save</p>
+              </Localized>
+            )}
+          </BaseButton>
+        </Form.Submit>
+      </div>
     </Form.Root>
   );
 };
@@ -441,6 +506,10 @@ export function SelectTaxLocation({
           countryCode: cartValues.countryCode,
           postalCode: cartValues.postalCode,
         });
+      }}
+      cancelAction={() => {
+        setExpanded(false);
+        setAlertStatus(false);
       }}
       buttonContent={buttonContent}
     />
