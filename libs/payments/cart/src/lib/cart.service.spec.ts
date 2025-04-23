@@ -90,7 +90,7 @@ import { CartService } from './cart.service';
 import { CheckoutService } from './checkout.service';
 import {
   CartError,
-  CartInvalidCurrencyError,
+  CartCurrencyNotFoundError,
   CartInvalidPromoCodeError,
   CartInvalidStateForActionError,
   CartStateProcessingError,
@@ -585,7 +585,7 @@ describe('CartService', () => {
         .mockResolvedValue([mockAccount]);
 
       await expect(() => cartService.setupCart(args)).rejects.toThrowError(
-        CartInvalidCurrencyError
+        CartCurrencyNotFoundError
       );
 
       expect(cartManager.createCart).not.toHaveBeenCalled();
@@ -666,7 +666,7 @@ describe('CartService', () => {
           eligibilityStatus: CartEligibilityStatus.DOWNGRADE,
           couponCode: args.promoCode,
         },
-        CartErrorReasonId.CartEligibilityStatusDowngrade
+        CartErrorReasonId.CART_ELIGIBILITY_STATUS_DOWNGRADE
       );
       expect(result).toEqual(mockErrorCart);
     });
@@ -706,7 +706,7 @@ describe('CartService', () => {
           eligibilityStatus: CartEligibilityStatus.INVALID,
           couponCode: args.promoCode,
         },
-        CartErrorReasonId.CartEligibilityStatusInvalid
+        CartErrorReasonId.CART_ELIGIBILITY_STATUS_INVALID
       );
       expect(result).toEqual(mockErrorCart);
     });
@@ -746,7 +746,7 @@ describe('CartService', () => {
           eligibilityStatus: CartEligibilityStatus.INVALID,
           couponCode: args.promoCode,
         },
-        CartErrorReasonId.CartEligibilityStatusSame
+        CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME
       );
       expect(result).toEqual(mockErrorCart);
     });
@@ -1170,7 +1170,7 @@ describe('CartService', () => {
             mockCart.version,
             mockUpdateCartInput
           )
-        ).rejects.toBeInstanceOf(CartInvalidCurrencyError);
+        ).rejects.toBeInstanceOf(CartCurrencyNotFoundError);
       });
     });
 

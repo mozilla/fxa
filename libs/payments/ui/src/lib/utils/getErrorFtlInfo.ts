@@ -6,7 +6,7 @@ import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { CheckoutParams } from './types';
 
 export function getErrorFtlInfo(
-  reason: CartErrorReasonId | null,
+  reason: CartErrorReasonId | string | null,
   params: CheckoutParams,
   config: {
     contentServerUrl: string;
@@ -14,7 +14,7 @@ export function getErrorFtlInfo(
   }
 ) {
   switch (reason) {
-    case CartErrorReasonId.CartEligibilityStatusDowngrade:
+    case CartErrorReasonId.CART_ELIGIBILITY_STATUS_DOWNGRADE:
       return {
         buttonFtl: 'checkout-error-contact-support-button',
         buttonLabel: 'Contact Support',
@@ -22,7 +22,7 @@ export function getErrorFtlInfo(
         message: 'Please contact support so we can help you.',
         messageFtl: 'checkout-error-contact-support',
       };
-    case CartErrorReasonId.CartEligibilityStatusInvalid:
+    case CartErrorReasonId.CART_ELIGIBILITY_STATUS_INVALID:
       return {
         buttonFtl: 'checkout-error-contact-support-button',
         buttonLabel: 'Contact Support',
@@ -31,7 +31,7 @@ export function getErrorFtlInfo(
           'You are not eligible to subscribe to this product - please contact support so we can help you.',
         messageFtl: 'checkout-error-not-eligible',
       };
-    case CartErrorReasonId.CartEligibilityStatusSame:
+    case CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME:
       return {
         buttonFtl: 'next-payment-error-manage-subscription-button',
         buttonLabel: 'Manage my subscription',
@@ -48,6 +48,25 @@ export function getErrorFtlInfo(
           'You can still get this product — please contact support so we can help you.',
         messageFtl: 'next-iap-upgrade-contact-support',
       };
+    case CartErrorReasonId.CART_CURRENCY_NOT_DETERMINED:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message:
+          'We were unable to determine the currency for this purchase, please try again.',
+        messageFtl: 'cart-error-currency-not-determined',
+      };
+    case CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message:
+          'An unexpected error has occurred while processing your payment, please try again.',
+        messageFtl: 'checkout-processing-general-error',
+      };
+
     case CartErrorReasonId.BASIC_ERROR:
     default:
       return {
