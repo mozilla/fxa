@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postAddRecoveryPhone-title">You created a recovery phone number</span>
+      <span data-l10n-id="postAddRecoveryPhone-title-v2">You added a recovery phone number</span>
     </mj-text>
 
     <mj-text css-class="text-body-no-margin">

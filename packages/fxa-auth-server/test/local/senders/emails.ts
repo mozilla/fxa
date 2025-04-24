@@ -1202,7 +1202,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'recovery-phone-added', 'manage-account', 'email', 'uid') }],
     ])],
     ['html', [
-      { test: 'include', expected: 'You created a recovery phone number' },
+      { test: 'include', expected: 'You added a recovery phone number' },
       { test: 'include', expected: 'You added ••••••1234 as your recovery phone number' },
       // TODO, update test with FXA-10918
       { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
@@ -1217,7 +1217,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'You created a recovery phone number' },
+      { test: 'include', expected: 'You added a recovery phone number' },
       { test: 'include', expected: 'You added ••••••1234 as your recovery phone number' },
       // TODO, update test with FXA-10918
       { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
