@@ -53,7 +53,7 @@ describe('FlowSetupRecoveryPhoneConfirmCode', () => {
       screen.getByRole('button', { name: /Resend code/i })
     ).toBeInTheDocument();
     const disabledSubmitButton = screen.getByRole('button', {
-      name: /Enter 6-digit code to continue/i,
+      name: /Confirm/i,
     });
     expect(disabledSubmitButton).toBeInTheDocument();
     expect(disabledSubmitButton).toBeDisabled();

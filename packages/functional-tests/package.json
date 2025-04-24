@@ -25,7 +25,7 @@
     "fxa-settings": "workspace:*",
     "jsqr": "^1.4.0",
     "pdf-parse": "^1.1.1",
-    "typescript": "^5.5.3",
+    "typescript": "5.5.3",
     "upng-js": "^2.1.0"
   },
   "nx": {

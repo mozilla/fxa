@@ -67,4 +67,5 @@ export class Random {
   }
 }
 
-export default new Random();
+const randomInstance = new Random();
+export default randomInstance;
