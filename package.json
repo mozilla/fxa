@@ -128,7 +128,7 @@
     "semver": "^7.7.1",
     "set-value": "^4.1.0",
     "sms-segments-calculator": "^1.2.0",
-    "stripe": "^17.4.0",
+    "stripe": "17.4.0",
     "superagent": "^10.2.0",
     "tslib": "^2.8.1",
     "twilio": "^5.3.5",

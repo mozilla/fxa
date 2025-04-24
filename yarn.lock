@@ -31113,7 +31113,7 @@ __metadata:
     server-only: ^0.0.1
     set-value: ^4.1.0
     sms-segments-calculator: ^1.2.0
-    stripe: ^17.4.0
+    stripe: 17.4.0
     stylelint: ^16.14.1
     stylelint-config-prettier: ^9.0.3
     stylelint-config-recommended-scss: ^14.0.0
@@ -50818,13 +50818,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stripe@npm:^17.4.0":
-  version: 17.7.0
-  resolution: "stripe@npm:17.7.0"
+"stripe@npm:17.4.0":
+  version: 17.4.0
+  resolution: "stripe@npm:17.4.0"
   dependencies:
     "@types/node": ">=8.1.0"
     qs: ^6.11.0
-  checksum: b2b65144c2433d084c4c5593426672973b69f46b648464f162728ef4aa6213d37552dfd9569d83d0c2eed1c1497bb0ed66a07647a0cd224147b8069e10696993
+  checksum: 0319bc8cfe769490d50b8552b15e79368a1ded86d6ac4fe48dbe3bef18ed1f01e8e558d3b3fee2ca96f50f632906ad2d7513456925a7111585fefa1f4d4f47d6
   languageName: node
   linkType: hard
 
