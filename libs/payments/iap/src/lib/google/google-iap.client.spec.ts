@@ -4,24 +4,21 @@ import { GoogleIapUnknownError } from './google-iap.error';
 import { MockGoogleIapClientConfigProvider } from './google-iap.client.config';
 import { faker } from '@faker-js/faker';
 
-jest.mock('googleapis', () => ({
-  google: {
-    androidpublisher: jest.fn().mockReturnValue({
-      purchases: {
-        subscriptions: {
-          get: jest.fn(),
-        },
+jest.mock('@googleapis/androidpublisher', () => ({
+  androidpublisher: jest.fn().mockReturnValue({
+    purchases: {
+      subscriptions: {
+        get: jest.fn(),
       },
-    }),
-  },
-  Auth: {
-    JWT: jest.fn(),
+    },
+  }),
+  auth: {
+    GoogleAuth: jest.fn(),
   },
 }));
 
 describe('GoogleIapClient', () => {
   let googleIapClient: GoogleIapClient;
-  let mockApiInstance: any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,8 +26,6 @@ describe('GoogleIapClient', () => {
     }).compile();
 
     googleIapClient = module.get(GoogleIapClient);
-    mockApiInstance =
-      googleIapClient.playDeveloperApiClient.purchases.subscriptions;
   });
 
   afterEach(() => {
@@ -47,7 +42,10 @@ describe('GoogleIapClient', () => {
       };
 
       jest
-        .spyOn(mockApiInstance, 'get')
+        .spyOn(
+          googleIapClient.playDeveloperApiClient.purchases.subscriptions as any,
+          'get'
+        )
         .mockResolvedValue({ data: mockResponseData });
 
       const result = await googleIapClient.getSubscriptions(
@@ -57,7 +55,9 @@ describe('GoogleIapClient', () => {
       );
 
       expect(result).toEqual(mockResponseData);
-      expect(mockApiInstance.get).toHaveBeenCalledWith({
+      expect(
+        googleIapClient.playDeveloperApiClient.purchases.subscriptions.get
+      ).toHaveBeenCalledWith({
         packageName: mockPackageName,
         subscriptionId: mockSku,
         token: mockPurchaseToken,
@@ -70,7 +70,12 @@ describe('GoogleIapClient', () => {
       const mockPurchaseToken = faker.string.uuid();
       const error = new Error('Google API error');
 
-      jest.spyOn(mockApiInstance, 'get').mockRejectedValue(error);
+      jest
+        .spyOn(
+          googleIapClient.playDeveloperApiClient.purchases.subscriptions as any,
+          'get'
+        )
+        .mockRejectedValue(error);
 
       await expect(
         googleIapClient.getSubscriptions(

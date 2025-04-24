@@ -4,7 +4,11 @@
 
 import { Injectable } from '@nestjs/common';
 import { GoogleIapClientConfig } from './google-iap.client.config';
-import { Auth, google, type androidpublisher_v3 } from 'googleapis';
+import {
+  androidpublisher,
+  androidpublisher_v3,
+  auth,
+} from '@googleapis/androidpublisher';
 import {
   GoogleIapTokenNotFoundError,
   GoogleIapUnknownError,
@@ -15,16 +19,16 @@ export class GoogleIapClient {
   playDeveloperApiClient: androidpublisher_v3.Androidpublisher;
 
   constructor(config: GoogleIapClientConfig) {
-    const authConfig: Auth.JWTOptions = {
+    const authConfig = {
       email: config.email,
       scopes: ['https://www.googleapis.com/auth/androidpublisher'],
       ...(config.keyFilename
         ? { keyFile: config.keyFilename }
         : { key: config.privateKey }),
     };
-    this.playDeveloperApiClient = google.androidpublisher({
+    this.playDeveloperApiClient = androidpublisher({
       version: 'v3',
-      auth: new Auth.JWT(authConfig),
+      auth: new auth.GoogleAuth(authConfig),
     });
   }
 
