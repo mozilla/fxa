@@ -30,8 +30,8 @@ jobs:
     steps:
       - id: determine
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.git_tag }}" != "" ]]; then
-            tag="${{ inputs.git_tag }}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${GIT_TAG}" != "" ]]; then
+            tag="${GIT_TAG}"
           elif [[ "${{ github.event_name }}" == "check_run" ]]; then
             echo ${CIRCLECI_EXTERNAL_ID}
             CIRCLECI_WORKFLOW_ID=$(echo "${CIRCLECI_EXTERNAL_ID}" | jq -r '."workflow-id"')
@@ -53,6 +53,8 @@ jobs:
             echo "Trigger docker build & push on ${{ github.event_name }} and cannot determine tag" >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
+        env:
+          GIT_TAG: "${{ inputs.git_tag }}"
 
   docker:
     name: Docker build and push to GAR
@@ -74,10 +76,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.GIT_TAG }}
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
-        with:
-          cache: yarn
 
       - run: ./_scripts/l10n/clone.sh
 
@@ -86,6 +87,8 @@ jobs:
       - run: ./_scripts/create-version-json.sh
 
       - uses: docker/setup-buildx-action@v3
+        with:
+          cache-binary: false
 
       - id: meta
         uses: docker/metadata-action@v5
