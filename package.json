@@ -48,6 +48,7 @@
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.4.1",
     "@google-cloud/pubsub": "^4.3.1",
     "@google-cloud/translate": "^8.5.0",
+    "@googleapis/androidpublisher": "^27.0.0",
     "@googlemaps/google-maps-services-js": "^3.4.0",
     "@grpc/grpc-js": "^1.11.1",
     "@mozilla/glean": "^5.0.4",

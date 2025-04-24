@@ -9978,6 +9978,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@googleapis/androidpublisher@npm:^27.0.0":
+  version: 27.0.0
+  resolution: "@googleapis/androidpublisher@npm:27.0.0"
+  dependencies:
+    googleapis-common: ^7.0.0
+  checksum: 0469a387c7f8bc4a5f4b3727d0150600cc72e16f427c1e6dcc426d28f8809f5a987a6091619e578ef37cdcd0c505337301cd02f21ed41f4353ea12e0a6adaceb
+  languageName: node
+  linkType: hard
+
 "@googlemaps/google-maps-services-js@npm:^3.4.0":
   version: 3.4.0
   resolution: "@googlemaps/google-maps-services-js@npm:3.4.0"
@@ -43960,6 +43969,7 @@ fsevents@~2.1.1:
     "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.4.1
     "@google-cloud/pubsub": ^4.3.1
     "@google-cloud/translate": ^8.5.0
+    "@googleapis/androidpublisher": ^27.0.0
     "@googlemaps/google-maps-services-js": ^3.4.0
     "@graphql-codegen/cli": 5.0.0
     "@graphql-codegen/client-preset": ^4.3.2
