@@ -112,7 +112,6 @@ const ACCOUNT_PROFILE_GET = {
       If an OAuth bearer token is used, the values returned depend on the scopes that the token is authorized for:
         - \`email\` requires \`profile:email\` scope.
         - \`locale\` requires \`profile:locale\` scope.
-        - \`atLeast18AtReg\` requires \`profile:age_check\` scope.
         - \`authenticationMethods\` and \`authenticatorAssuranceLevel\` require \`profile:amr\` scope.
         - \`accountDisabledAt\` requires \`profile:account_disabled_at\` scope.
         - \`accountLockedAt\` requires \`profile:account_locked_at\` scope.

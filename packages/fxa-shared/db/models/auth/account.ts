@@ -37,7 +37,6 @@ const selectFields = [
   raw('COALESCE(keysChangedAt, verifierSetAt, createdAt) AS keysChangedAt'),
   'metricsOptOutAt',
   'disabledAt',
-  'atLeast18AtReg',
 ];
 
 export class Account extends BaseAuthModel {
@@ -55,7 +54,6 @@ export class Account extends BaseAuthModel {
     'wrapWrapKbVersion2',
   ];
 
-  atLeast18AtReg?: boolean | null;
   authSalt!: string;
   clientSalt?: string;
   createdAt!: number;
@@ -135,7 +133,6 @@ export class Account extends BaseAuthModel {
     verifierSetAt,
     createdAt,
     locale,
-    atLeast18AtReg,
   }: Pick<
     Account,
     | 'uid'
@@ -154,7 +151,6 @@ export class Account extends BaseAuthModel {
     | 'verifierSetAt'
     | 'createdAt'
     | 'locale'
-    | 'atLeast18AtReg'
   >) {
     try {
       await Account.callProcedure(
@@ -174,8 +170,7 @@ export class Account extends BaseAuthModel {
         verifyHashVersion2 ? uuidTransformer.to(verifyHashVersion2) : null,
         verifierSetAt,
         createdAt,
-        locale ?? '',
-        atLeast18AtReg ?? null
+        locale ?? ''
       );
     } catch (e: any) {
       throw convertError(e);

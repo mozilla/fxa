@@ -712,14 +712,14 @@ describe('#integration - AccountResolver', () => {
         const result = await resolver.signUp(headers, {
           authPW: '00000000',
           email: 'testo@example.xyz',
-          options: { service: 'testo-co', atLeast18AtReg: false },
+          options: { service: 'testo-co' },
         });
         expect(authClient.signUpWithAuthPW).toBeCalledTimes(1);
         expect(authClient.signUpWithAuthPW).toBeCalledWith(
           'testo@example.xyz',
           '00000000',
           {},
-          { service: 'testo-co', atLeast18AtReg: false },
+          { service: 'testo-co' },
           headers
         );
         expect(result).toStrictEqual(mockRespPayload);
@@ -747,7 +747,7 @@ describe('#integration - AccountResolver', () => {
             clientSalt:
               'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           },
-          options: { service: 'testo-co', atLeast18AtReg: false },
+          options: { service: 'testo-co' },
         });
         expect(authClient.signUpWithAuthPW).toBeCalledTimes(1);
         expect(authClient.signUpWithAuthPW).toBeCalledWith(
@@ -760,7 +760,7 @@ describe('#integration - AccountResolver', () => {
             clientSalt:
               'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           },
-          { service: 'testo-co', atLeast18AtReg: false },
+          { service: 'testo-co' },
           headers
         );
         expect(result).toStrictEqual(mockRespPayload);

@@ -87,22 +87,6 @@ export default function (config = {}) {
     },
 
     /**
-     * Is the user >=18 years old at registration?
-     * Used by some relying parties to determine if they need to perform another age check
-     *
-     * @returns {Boolean}
-     */
-    isAgeAtLeast18() {
-      if (!this.isCoppaEnabled()) {
-        // If COPPA is disabled, set this to null (RP will need to check again)
-        return null;
-      }
-      const atLeast18AtReg = this._getAge() >= 18 ? true : null;
-
-      return atLeast18AtReg;
-    },
-
-    /**
      * Mark the user as too young. Navigates to
      * a page informing the user they are unable
      * to sign up.

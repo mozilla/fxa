@@ -17,8 +17,6 @@ const DESCRIPTIONS = {
   amount:
     'Amount intended to be collected. A positive integer representing how much to charge in the smallest currency unit (e.g. 100 cents to charge $1.00 or 100 to charge ¥100, a zero-decimal currency).',
   assertion: 'A FxA assertion for the signed-in user.',
-  atLeast18AtReg:
-    'True if age submitted at signup is equal or higher than 18, otherwise null if >18, account created before this column was added or if COPPA is disabled. Used by some relying parties to verify if they need to perform another age check.',
   authAt:
     'The UTC unix timestamp for the session at which the user last authenticated to FxA server when generating this token, in seconds since the epoch.',
   authPW: 'The PBKDF2/HKDF-stretched password as a hex string.',

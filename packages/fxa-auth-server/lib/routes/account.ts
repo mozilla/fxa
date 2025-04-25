@@ -132,7 +132,6 @@ export class AccountHandler {
     request: AuthRequest;
     service?: string;
     userAgentString: string;
-    atLeast18AtReg: boolean | null;
   }) {
     const {
       authPW,
@@ -147,7 +146,6 @@ export class AccountHandler {
       request,
       service,
       userAgentString,
-      atLeast18AtReg,
     } = options;
 
     const { password, verifyHash } = await this.createPassword(
@@ -205,7 +203,6 @@ export class AccountHandler {
       verifyHashVersion2: verifyHashVersion2,
       verifierSetAt: Date.now(),
       locale,
-      atLeast18AtReg,
     });
 
     await request.emitMetricsEvent('account.created', {
@@ -512,7 +509,6 @@ export class AccountHandler {
     const service = form.service || query.service;
     const preVerified = !!form.preVerified;
     const verificationMethod = form.verificationMethod;
-    const atLeast18AtReg = form.atLeast18AtReg ? form.atLeast18AtReg : null;
 
     request.validateMetricsContext();
     if (this.OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS.has(service)) {
@@ -549,7 +545,6 @@ export class AccountHandler {
       request,
       service,
       userAgentString,
-      atLeast18AtReg,
     });
 
     const sessionToken = await this.createSessionToken({
@@ -1425,11 +1420,6 @@ export class AccountHandler {
       res.authenticatorAssuranceLevel =
         authMethods.maximumAssuranceLevel(amrValues);
     }
-    if (scope.contains('profile:age_check')) {
-      res.atLeast18AtReg = account.atLeast18AtReg
-        ? account.atLeast18AtReg
-        : null;
-    }
 
     if (scope.contains('profile:account_disabled_at')) {
       res.accountDisabledAt = account.disabledAt;
@@ -2062,11 +2052,6 @@ export const accountRoutes = (
               ...(!(config as any).isProduction && {
                 preVerified: isA.boolean(),
               }),
-              atLeast18AtReg: isA
-                .boolean()
-                .allow(null)
-                .optional()
-                .description(DESCRIPTION.atLeast18AtReg),
             })
             .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
         },
@@ -2317,7 +2302,6 @@ export const accountRoutes = (
             subscriptionsByClientId: isA.object().unknown(true).optional(),
             profileChangedAt: isA.number().min(0),
             metricsEnabled: isA.boolean().optional(),
-            atLeast18AtReg: isA.boolean().allow(null),
             accountLockedAt: isA.number().optional().allow(null),
             accountDisabledAt: isA.number().optional().allow(null),
           }),

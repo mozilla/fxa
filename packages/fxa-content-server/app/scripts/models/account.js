@@ -73,7 +73,6 @@ const DEFAULTS = _.extend(
     verificationMethod: undefined,
     verificationReason: undefined,
     totpVerified: undefined,
-    atLeast18AtReg: undefined,
   },
   PERSISTENT
 );
@@ -690,7 +689,6 @@ const Account = Backbone.Model.extend(
      * @param {Object} [options]
      * @param {String} [options.resume] - Resume token to send in verification
      * email if user is unverified.
-     * @param {boolean} [options.atLeast18AtReg] - true if user submitted age is 18+ at registration
      * @returns {Promise} - resolves when complete
      */
     signUp(password, relier, options = {}) {
@@ -699,7 +697,6 @@ const Account = Backbone.Model.extend(
           metricsContext: this._metrics.getFlowEventMetadata(),
           resume: options.resume,
           verificationMethod: options.verificationMethod,
-          atLeast18AtReg: options.atLeast18AtReg,
         })
         .then((updatedSessionData) => {
           this.set(updatedSessionData);

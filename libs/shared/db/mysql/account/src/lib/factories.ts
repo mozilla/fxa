@@ -88,7 +88,6 @@ export const AccountFactory = (override?: Partial<Account>): Account => ({
   disabledAt: null,
   metricsOptOutAt: null,
   clientSalt: null,
-  atLeast18AtReg: 1,
   ...override,
 });
 

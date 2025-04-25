@@ -79,7 +79,6 @@ const account = (uid: string, email: string, createdAt: number) => ({
   wrapWrapKb: toZeroBuff(32).toString('hex'),
   verifierSetAt: createdAt,
   locale: 'en-US',
-  atLeast18AtReg: null,
 });
 
 const signInCode = (uid: string, createdAt: number) => ({

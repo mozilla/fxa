@@ -57,7 +57,6 @@ export type SignUpOptions = {
   style?: string;
   verificationMethod?: string;
   metricsContext?: MetricsContext;
-  atLeast18AtReg?: boolean | null;
 };
 
 export type SignedUpAccountData = {
