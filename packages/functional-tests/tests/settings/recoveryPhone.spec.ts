@@ -97,7 +97,7 @@ test.describe('severity-1 #smoke', () => {
 
       await recoveryPhone.enterPhoneNumber('1234567890');
       await recoveryPhone.clickSendCode();
-      await recoveryPhone.expectAddErrorBanner('Invalid phone number');
+      await expect(recoveryPhone.addErrorBanner).toHaveText(/invalid phone number/i);
 
       await settings.goto();
       await settings.disconnectTotp();
