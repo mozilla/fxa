@@ -1,3 +1,4 @@
+import { Config } from 'jest';
 /* eslint-disable */
 import { readFileSync } from 'fs';
 
@@ -18,7 +19,7 @@ if (swcJestConfig.swcrc === undefined) {
 // jest needs EsModule Interop to find the default exported setup/teardown functions
 // swcJestConfig.module.noInterop = false;
 
-export default {
+const config: Config = {
   displayName: 'shared-db-mysql-account',
   preset: '../../../../../jest.preset.js',
   transform: {
@@ -27,4 +28,15 @@ export default {
   moduleFileExtensions: ['ts', 'js', 'html'],
   testEnvironment: 'node',
   coverageDirectory: '../../../../../coverage/libs/shared/db/mysql/account',
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: 'artifacts/tests/shared-db-mysql-account',
+        outputName: 'shared-db-mysql-account-jest-unit-results.xml',
+      },
+    ],
+  ],
 };
+export default config;

@@ -1,5 +1,6 @@
+import { Config } from 'jest';
 /* eslint-disable */
-export default {
+const config: Config = {
   displayName: 'shared-l10n',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
@@ -12,4 +13,15 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../../coverage/libs/shared/l10n',
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: 'artifacts/tests/shared-l10n',
+        outputName: 'shared-l10n-jest-unit-results.xml',
+      },
+    ],
+  ],
 };
+export default config;
