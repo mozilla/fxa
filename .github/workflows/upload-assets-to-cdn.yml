@@ -22,9 +22,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Configure Stage AWS credentials
-        uses: aws-actions/configure-aws-credentials@master
+        uses: aws-actions/configure-aws-credentials@4d5f2395c037584ea85572b7fc12e63c9156a46e
         with:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::142069644989:role/fxa-content-cdn-stage-asset-upload
@@ -37,7 +39,7 @@ jobs:
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.pdf" --content-disposition attachment  assets/legal s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/legal
 
       - name: Configure Production AWS credentials
-        uses: aws-actions/configure-aws-credentials@master
+        uses: aws-actions/configure-aws-credentials@4d5f2395c037584ea85572b7fc12e63c9156a46e
         with:
           aws-region: us-west-2
           role-to-assume: arn:aws:iam::361527076523:role/fxa-content-cdn-prod-asset-upload
@@ -50,7 +52,7 @@ jobs:
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.pdf" --content-disposition attachment   assets/legal s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/legal
 
       - name: Configure Stage GCP credentials
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f #v2
         with:
           service_account: gke-cdn-upload-stage@${{ secrets.GCP_NONPROD_PROJECT_ID }}.iam.gserviceaccount.com
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
@@ -62,7 +64,7 @@ jobs:
           gcloud storage cp --cache-control='public,max-age=86400' --content-disposition=attachment -r assets/legal/* gs://fxa-content-cdn-stage-distbucket/legal/
 
       - name: Configure Prod GCP credentials
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f #v2
         with:
           service_account: gke-cdn-upload-prod@${{ secrets.GCP_PROD_PROJECT_ID }}.iam.gserviceaccount.com
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_POOL_PROJECT_NUMBER }}
@@ -74,7 +76,7 @@ jobs:
           gcloud storage cp --cache-control='public,max-age=86400' --content-disposition=attachment -r assets/legal/* gs://fxa-content-cdn-prod-distbucket/legal/
 
       - name: "Post to fxa-team Slack channel"
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0 #v1.27.0
         with:
           channel-id: 'CLV3KMZ8B'
           slack-message: "New assets have been uploaded to CDN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
