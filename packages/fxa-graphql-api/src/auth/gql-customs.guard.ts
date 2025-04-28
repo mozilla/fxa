@@ -26,7 +26,7 @@ export class GqlCustomsGuard implements CanActivate {
     await this.customs.check({
       action: customsName,
       email,
-      ip: req.ip,
+      ip: req.ip ?? 'unknown', // req.ip may be undefined, but the original contract expects a string
       headers: req.headers,
       query: req.query,
     });
