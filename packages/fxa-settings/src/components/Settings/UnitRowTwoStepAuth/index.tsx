@@ -11,7 +11,6 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import {
   useAccount,
   useAlertBar,
-  useConfig,
   useFtlMsgResolver,
   useSession,
 } from '../../../models';
@@ -35,7 +34,6 @@ export const UnitRowTwoStepAuth = () => {
     totp: { exists, verified },
     recoveryPhone,
   } = account;
-  const config = useConfig();
   const [disable2FAModalRevealed, revealDisable2FAModal, hideDisable2FAModal] =
     useBooleanState();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -171,11 +169,7 @@ export const UnitRowTwoStepAuth = () => {
           key={1}
         />
       );
-      if (
-        (config.featureFlags?.enableAdding2FABackupPhone === true &&
-          recoveryPhone.available === true) ||
-        recoveryPhone.exists === true
-      ) {
+      if (recoveryPhone.available === true || recoveryPhone.exists === true) {
         const { nationalFormat, phoneNumber } = recoveryPhone;
         subRows.push(
           <BackupPhoneSubRow

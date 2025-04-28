@@ -7,12 +7,7 @@ import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
-import {
-  useAccount,
-  useConfig,
-  useInitialSettingsState,
-  useSession,
-} from '../../models';
+import { useAccount, useInitialSettingsState, useSession } from '../../models';
 import {
   Redirect,
   Router,
@@ -45,7 +40,6 @@ import { SettingsIntegration } from './interfaces';
 export const Settings = ({
   integration,
 }: { integration: SettingsIntegration } & RouteComponentProps) => {
-  const config = useConfig();
   const session = useSession();
   const account = useAccount();
   const location = useLocation();
@@ -133,10 +127,6 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" />;
   }
 
-  const canAddRecoveryPhone =
-    account.recoveryPhone.available &&
-    config.featureFlags?.enableAdding2FABackupPhone === true;
-
   const canRemoveRecoveryPhone =
     account.recoveryPhone.phoneNumber &&
     account.backupCodes.hasBackupCodes === true;
@@ -194,7 +184,7 @@ export const Settings = ({
           {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
           <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
 
-          {canAddRecoveryPhone ? (
+          {account.recoveryPhone.available ? (
             <PageRecoveryPhoneSetup path="/recovery_phone/setup" />
           ) : (
             <Redirect from="/recovery_phone/setup" to="/settings" noThrow />

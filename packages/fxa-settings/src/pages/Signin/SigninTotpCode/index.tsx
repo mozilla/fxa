@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
-import { useConfig, useFtlMsgResolver } from '../../../models';
+import { useFtlMsgResolver } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
 import { MozServices } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
@@ -51,7 +51,6 @@ export const SigninTotpCode = ({
   keyFetchToken,
   unwrapBKey,
 }: SigninTotpCodeProps & RouteComponentProps) => {
-  const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const navigate = useNavigate();
@@ -119,10 +118,6 @@ export const SigninTotpCode = ({
       }
     }
   };
-
-  const troubleWithCodeTarget = config.featureFlags?.enableUsing2FABackupPhone
-    ? 'signin_recovery_choice'
-    : 'signin_recovery_code';
 
   return (
     <AppLayout>
@@ -209,7 +204,7 @@ export const SigninTotpCode = ({
         </FtlMsg>
         <FtlMsg id="signin-totp-code-recovery-code-link">
           <Link
-            to={`/${troubleWithCodeTarget}${location.search}`}
+            to={`/signin_recovery_choice${location.search}`}
             state={signinState}
             className="text-end"
             data-glean-id="login_totp_code_trouble_link"

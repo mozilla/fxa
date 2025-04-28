@@ -7,7 +7,6 @@ import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import UnitRowTwoStepAuth from '.';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import { getDefault } from '../../../lib/config';
 
 export const createSubject = (
   accountOverrides = {},
@@ -25,13 +24,7 @@ export const createSubject = (
     },
     ...accountOverrides,
   } as unknown as Account;
-  const config = {
-    ...getDefault(),
-    featureFlags: {
-      enableAdding2FABackupPhone: true,
-    },
-  };
-  const appContext = mockAppContext({ account, config });
+  const appContext = mockAppContext({ account });
   const settingsContext = mockSettingsContext(settingsOverrides);
 
   return (
