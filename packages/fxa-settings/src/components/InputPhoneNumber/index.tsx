@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 import InputText from '../InputText';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
 import { UseFormMethods } from 'react-hook-form';
 
@@ -122,21 +123,59 @@ const InputPhoneNumber = ({
 
   return (
     <div className="flex">
-      <select
-        aria-label={ftlMsgResolver.getMsg(
-          'input-phone-number-country-list-aria-label',
-          'Select country'
-        )}
-        onChange={handleCountryChange}
-        value={selectedCountry.id}
-        className={`bg-transparent border border-grey-200 rounded-md py-2 ps-10 w-[60px] me-2 focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus ${selectedCountry.classNameFlag} bg-no-repeat bg-[length:1.5rem_1rem] bg-[40%_50%] -indent-9999 z-10`}
-      >
-        {sortedLocalizedCountries.map((country) => (
-          <option key={country.id} value={country.id} className="text-black">
-            {country.localizedName} ({country.code})
-          </option>
-        ))}
-      </select>
+      <div className="relative inline-block w-[60px] me-2">
+        <FtlMsg id="input-phone-number-country-list-aria-label">
+          <label id="countryLabel" className="sr-only">
+            Select country
+          </label>
+        </FtlMsg>
+        <select
+          aria-labelledby="countryLabel"
+          onChange={handleCountryChange}
+          value={selectedCountry.id}
+          /* The forced-colors styling is for Windows HCM
+           * keeps label hidden when the select is collapsed without hiding from screen readers
+           */
+          className="
+            w-full h-full
+            px-2
+            border border-grey-200 rounded-md
+            bg-transparent text-transparent
+            focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus
+            forced-color-adjust:none
+            [@media(forced-colors:active)]:text-[ButtonFace]
+            [@media(forced-colors:active)]:text-shadow-[0_0_0_transparent]
+            appearance-none
+          "
+        >
+          {sortedLocalizedCountries.map((country) => (
+            <option key={country.id} value={country.id} className="text-black">
+              {country.localizedName} ({country.code})
+            </option>
+          ))}
+        </select>
+
+        <span
+          aria-hidden
+          className={`
+              absolute start-1 top-1/2 -translate-y-1/2
+              w-6 h-4 bg-no-repeat bg-[length:1.5rem_1rem]
+              pointer-events-none
+              ${selectedCountry.classNameFlag}
+            `}
+        />
+
+        {/* chevron ▾ */}
+        <svg
+          aria-hidden
+          viewBox="0 0 8 5"
+          className="absolute end-1.5 top-1/2 -translate-y-1/2 w-2.5 h-2.5
+                   fill-current text-current pointer-events-none
+                   [forced-colors:active]:text-[ButtonText]"
+        >
+          <path d="M0 0h8L4 5z" />
+        </svg>
+      </div>
 
       {/* Because the country code may not be unique, the above `select`'s `value` must
        be by country ID. This hidden input allows us to access it in the form data. */}
