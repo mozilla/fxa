@@ -197,7 +197,7 @@
     "through": "2.3.8",
     "tsc-alias": "^1.8.8",
     "type-fest": "^4.38.0",
-    "typescript": "^5.5.3",
+    "typescript": "5.5.3",
     "webpack": "^5.97.0",
     "webpack-watch-files-plugin": "^1.2.1",
     "ws": "^8.17.1"

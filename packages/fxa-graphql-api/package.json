@@ -64,7 +64,7 @@
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",
     "@types/graphql": "^14.5.0",
-    "@types/jest": "^29.2.5",
+    "@types/jest": "29.2.5",
     "@types/node": "^22.13.5",
     "@types/passport": "^1.0.6",
     "@types/passport-http-bearer": "^1.0.36",
@@ -80,7 +80,7 @@
     "pm2": "^5.4.2",
     "prettier": "^3.5.3",
     "supertest": "^7.0.0",
-    "typescript": "^5.5.3"
+    "typescript": "5.5.3"
   },
   "nx": {
     "tags": [
