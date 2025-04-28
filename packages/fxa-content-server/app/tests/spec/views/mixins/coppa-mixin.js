@@ -166,10 +166,6 @@ describe('views/mixins/coppa-mixin', () => {
       assert.isTrue(view.isUserOldEnough());
     });
 
-    it('isAgeAtLeast18 returns null', () => {
-      assert.isNull(view.isAgeAtLeast18());
-    });
-
     it('coppaHasValue returns true', () => {
       assert.isTrue(view.coppaHasValue());
     });
@@ -182,10 +178,6 @@ describe('views/mixins/coppa-mixin', () => {
 
     it('isUserOldEnough returns true', () => {
       assert.isTrue(view.isUserOldEnough());
-    });
-
-    it('isAgeAtLeast18 returns true', () => {
-      assert.isTrue(view.isAgeAtLeast18());
     });
 
     it('coppaHasValue returns true', () => {
@@ -208,16 +200,6 @@ describe('views/mixins/coppa-mixin', () => {
       assert.isTrue(view.isUserOldEnough());
     });
 
-    it('isAgeAtLeast18 returns null always if COPPA is disabled', () => {
-      sinon.stub(view, 'isCoppaEnabled').callsFake(() => false);
-      assert.isNull(view.isAgeAtLeast18());
-    });
-
-    it('isAgeAtLeast18 returns null if COPPA is enabled', () => {
-      sinon.stub(view, 'isCoppaEnabled').callsFake(() => true);
-      assert.isNull(view.isAgeAtLeast18());
-    });
-
     it('coppaHasValue returns true', () => {
       assert.isTrue(view.coppaHasValue());
     });
@@ -236,16 +218,6 @@ describe('views/mixins/coppa-mixin', () => {
     it('isUserOldEnough returns true always if COPPA is disabled', () => {
       sinon.stub(view, 'isCoppaEnabled').callsFake(() => false);
       assert.isTrue(view.isUserOldEnough());
-    });
-
-    it('isAgeAtLeast18 returns null always if COPPA is disabled', () => {
-      sinon.stub(view, 'isCoppaEnabled').callsFake(() => false);
-      assert.isNull(view.isAgeAtLeast18());
-    });
-
-    it('isAgeAtLeast18 returns null if COPPA is enabled', () => {
-      sinon.stub(view, 'isCoppaEnabled').callsFake(() => true);
-      assert.isNull(view.isAgeAtLeast18());
     });
 
     it('coppaHasValue returns false', () => {

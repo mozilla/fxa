@@ -89,7 +89,6 @@ export interface Accounts {
   disabledAt: number | null;
   metricsOptOutAt: number | null;
   clientSalt: string | null;
-  atLeast18AtReg: number | null;
 }
 
 export interface Carts {

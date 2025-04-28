@@ -23,14 +23,12 @@ export interface BeginSignUpOptions {
   service?: string;
   verificationMethod?: string;
   keys?: boolean;
-  atLeast18AtReg: true | null;
   metricsContext: MetricsContext;
 }
 
 export type BeginSignupHandler = (
   email: string,
-  password: string,
-  atLeast18AtReg: true | null
+  password: string
 ) => Promise<BeginSignupResult>;
 
 export interface BeginSignupResult {

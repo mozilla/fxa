@@ -1211,7 +1211,6 @@ describe('models/account', function () {
           },
           resume: 'resume token',
           verificationMethod: undefined,
-          atLeast18AtReg: undefined,
         })
       );
     });
@@ -2444,11 +2443,11 @@ describe('models/account', function () {
       var result;
 
       beforeEach(function () {
-        return setup({ keyFetchToken: 'key fetch token' }).then(function (
-          _result
-        ) {
-          result = _result;
-        });
+        return setup({ keyFetchToken: 'key fetch token' }).then(
+          function (_result) {
+            result = _result;
+          }
+        );
       });
 
       it('resolves to null', function () {

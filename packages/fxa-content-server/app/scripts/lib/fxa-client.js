@@ -432,7 +432,6 @@ FxaClientWrapper.prototype = {
    *                   which the session token is being created.
    *                   Defaults to the relier's context.
    *   @param {String} [options.style] - Specify the style for emails
-   *   @param {Boolean | null} [options.atLeast18AtReg] - is the user at 18 or over at registration
    * @returns {Promise}
    */
   signUp: withClient(function (
@@ -466,10 +465,6 @@ FxaClientWrapper.prototype = {
 
     if (options.verificationMethod) {
       signUpOptions.verificationMethod = options.verificationMethod;
-    }
-
-    if (options.atLeast18AtReg) {
-      signUpOptions.atLeast18AtReg = options.atLeast18AtReg;
     }
 
     if (relier.has('style')) {

@@ -128,7 +128,7 @@ const SignupContainer = ({
   const [beginSignup] = useMutation<BeginSignupResponse>(BEGIN_SIGNUP_MUTATION);
 
   const beginSignupHandler: BeginSignupHandler = useCallback(
-    async (email, password, atLeast18AtReg) => {
+    async (email, password) => {
       const service = integration.getService();
       const clientId = integration.getClientId();
 
@@ -139,7 +139,6 @@ const SignupContainer = ({
         // Sending up the clientId when the user is not signing in to the browser
         // is used to show the correct service name in emails
         ...(isFirefoxService(service) ? { service } : { service: clientId }),
-        atLeast18AtReg,
         metricsContext: queryParamsToMetricsContext(
           flowQueryParams as unknown as Record<string, string>
         ),

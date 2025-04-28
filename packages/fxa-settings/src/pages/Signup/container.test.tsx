@@ -366,8 +366,7 @@ describe('sign-up-container', () => {
       expect(currentSignupProps).toBeDefined();
       const handlerResult = await currentSignupProps?.beginSignupHandler(
         'foo@mozilla.com',
-        'test123',
-        true
+        'test123'
       );
 
       expect(mockBeginSignupMutation).toBeCalledWith({
@@ -379,7 +378,6 @@ describe('sign-up-container', () => {
               verificationMethod: 'email-otp',
               keys: true,
               service: 'sync',
-              atLeast18AtReg: true,
               metricsContext: {
                 flowId: MOCK_FLOW_ID,
               },
@@ -403,8 +401,7 @@ describe('sign-up-container', () => {
       await render();
       const result = await currentSignupProps?.beginSignupHandler(
         'foo@mozilla.com',
-        'test123',
-        true
+        'test123'
       );
 
       expect(result?.data).toBeUndefined();
@@ -433,8 +430,7 @@ describe('sign-up-container', () => {
       await waitFor(async () => {
         const result = await currentSignupProps?.beginSignupHandler(
           'foo@mozilla.com',
-          'test123',
-          true
+          'test123'
         );
 
         expect(result?.data).toBeUndefined();

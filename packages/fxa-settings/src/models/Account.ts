@@ -170,7 +170,6 @@ const DEFAULTS = {
   verificationMethod: undefined,
   verificationReason: undefined,
   totpVerified: undefined,
-  atLeast18AtReg: undefined,
 };
 
 export const GET_PROFILE_INFO = gql`
@@ -331,8 +330,8 @@ export function getNextAvatar(
     displayName && /[a-zA-Z0-9]/.test(displayName)
       ? displayName[0]
       : email
-      ? email[0]
-      : '?';
+        ? email[0]
+        : '?';
   const url = `${config.servers.profile.url}/v1/avatar/${char}`;
   if (
     !existingUrl ||

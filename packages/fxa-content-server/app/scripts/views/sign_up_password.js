@@ -130,10 +130,6 @@ const SignUpPasswordView = FormView.extend({
         });
       }
 
-      // returns null if coppa enabled, otherwise will use submitted age
-      // to determine if age is >=18 at time of sign up
-      account.set({ atLeast18AtReg: this.isAgeAtLeast18() });
-
       return this.signUp(account, this._getPassword());
     });
   },

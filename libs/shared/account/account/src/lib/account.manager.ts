@@ -45,7 +45,6 @@ export class AccountManager {
       verifierSetAt: 0,
       createdAt: Date.now(),
       locale,
-      atLeast18AtReg: null,
     });
     return uid.toString('hex');
   }
