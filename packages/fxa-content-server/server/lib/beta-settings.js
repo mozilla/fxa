@@ -101,12 +101,6 @@ const settingsConfig = {
     recoveryCodeSetupOnSyncSignIn: config.get(
       'featureFlags.recoveryCodeSetupOnSyncSignIn'
     ),
-    enableAdding2FABackupPhone: config.get(
-      'featureFlags.enableAdding2FABackupPhone'
-    ),
-    enableUsing2FABackupPhone: config.get(
-      'featureFlags.enableUsing2FABackupPhone'
-    ),
   },
   nimbusPreview: config.get('nimbusPreview'),
 };

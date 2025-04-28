@@ -232,18 +232,6 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN',
     },
-    enableAdding2FABackupPhone: {
-      default: false,
-      doc: 'Enables adding a new backup phone number for 2FA',
-      format: Boolean,
-      env: 'FEATURE_FLAGS_ADDING_2FA_BACKUP_PHONE',
-    },
-    enableUsing2FABackupPhone: {
-      default: false,
-      doc: 'Enables using and managing an already confirmed backup phone number for 2FA',
-      format: Boolean,
-      env: 'FEATURE_FLAGS_USING_2FA_BACKUP_PHONE',
-    },
   },
   showReactApp: {
     emailFirstRoutes: {

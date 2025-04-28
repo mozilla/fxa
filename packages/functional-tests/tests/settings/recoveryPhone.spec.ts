@@ -74,12 +74,6 @@ test.describe('severity-1 #smoke', () => {
         throw new Error('Redis must be enabled when using a real test number.');
       }
     });
-    test.beforeEach(async ({ pages: { configPage }, target }) => {
-      // Ensure that the feature flag is enabled
-      const config = await configPage.getConfig();
-      test.skip(config.featureFlags.enableAdding2FABackupPhone !== true);
-      test.skip(config.featureFlags.enableUsing2FABackupPhone !== true);
-    });
 
     test('setup fails with invalid number', async ({
       target,

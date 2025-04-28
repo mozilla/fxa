@@ -91,8 +91,6 @@ export interface Config {
   featureFlags?: {
     keyStretchV2?: boolean;
     recoveryCodeSetupOnSyncSignIn?: boolean;
-    enableAdding2FABackupPhone?: boolean;
-    enableUsing2FABackupPhone?: boolean;
   };
   nimbusPreview: boolean;
 }
@@ -171,8 +169,6 @@ export function getDefault() {
     },
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,
-      enableAdding2FABackupPhone: false,
-      enableUsing2FABackupPhone: false,
     },
     nimbusPreview: false,
   } as Config;
