@@ -100,7 +100,7 @@ jobs:
             type=raw,${{ env.GIT_TAG }}
 
       - id: gcp-auth
-        uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f #v2
+        uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 #v2
         with:
           token_format: 'access_token'
           service_account: artifact-writer@${{ env.GCP_PROJECT_ID}}.iam.gserviceaccount.com
