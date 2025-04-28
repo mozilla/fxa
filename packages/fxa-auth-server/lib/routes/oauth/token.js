@@ -620,9 +620,8 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
             ...newUAInfo,
           };
 
-          const newSessionToken = await db.createSessionToken(
-            sessionTokenOptions
-          );
+          const newSessionToken =
+            await db.createSessionToken(sessionTokenOptions);
           // the new session token information is later
           // used in 'newTokenNotification' to attach it to device records
           grant.session_token_id = newSessionToken.id;
@@ -668,12 +667,8 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
             service: req.payload.client_id,
           });
 
-          // This is a bit of a hack, but we emit the `account.signed`
+          // We emit the `account.signed`
           // event to signal to the flow it has been completed (see flowCompleteSignal).
-          // Previously, this event would get emitted on the `/certificate/sign`
-          // endpoint however, with the move to sync oauth, this does not happen anymore
-          // and we need to "fake" it.
-          //
           // A "fxa_activity - cert_signed" event will be emitted since
           // "account.signed" is mapped to it.  And cert_signed is used in a
           // rollup to generate the "fxa_activity - active" event in Amplitude

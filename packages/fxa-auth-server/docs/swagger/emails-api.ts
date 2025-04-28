@@ -24,9 +24,9 @@ const RECOVERY_EMAIL_STATUS_GET = {
 
       Returns the 'verified' status for the account's recovery email address.
 
-      Currently, each account is associated with exactly one email address. This address must be verified before the account can be used (specifically, \`POST /certificate/sign\` and \`GET /account/keys\` will return errors until the address is verified). In the future, this may be expanded to include multiple addresses, and/or alternate types of recovery methods (e.g. SMS). A new API will be provided for this extra functionality.
+      Currently, each account is associated with exactly one email address. This address must be verified before the account can be used (specifically, \`GET /account/keys\` will return errors until the address is verified). In the future, this may be expanded to include multiple addresses, and/or alternate types of recovery methods (e.g. SMS). A new API will be provided for this extra functionality.
 
-      This call is used to determine the current state (verified or unverified) of the account. During account creation, until the address is verified, the agent can poll this method to discover when it should proceed with \`POST /certificate/sign\` and \`GET /account/keys\`.
+      This call is used to determine the current state (verified or unverified) of the account. During account creation, until the address is verified, the agent can poll this method to discover when it should proceed with  \`GET /account/keys\`.
     `,
   ],
   plugins: {

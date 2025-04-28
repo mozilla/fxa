@@ -5,7 +5,6 @@
 'use strict';
 
 const { assert } = require('chai');
-const { JWTool } = require('@fxa/vendored/jwtool');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const TestServer = require('../test_server');
@@ -366,12 +365,6 @@ function getSessionTokenId(sessionTokenHex) {
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'foobar';
-      const duration = 1000 * 60 * 60 * 24; // 24 hours
-      const publicKey = {
-        algorithm: 'RS',
-        n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
-        e: '65537',
-      };
 
       let client = await Client.createAndVerify(
         config.publicUrl,
@@ -381,9 +374,7 @@ function getSessionTokenId(sessionTokenHex) {
         testOptions
       );
 
-      const cert1 = JWTool.unverify(
-        await client.sign(publicKey, duration)
-      ).payload;
+      const profileBefore = await client.accountProfile();
 
       await client.changePassword(newPassword);
       await server.mailbox.waitForEmail(email);
@@ -396,12 +387,11 @@ function getSessionTokenId(sessionTokenHex) {
         testOptions
       );
 
-      const cert2 = JWTool.unverify(
-        await client.sign(publicKey, duration)
-      ).payload;
-      assert.equal(cert1['fxa-uid'], cert2['fxa-uid']);
-      assert.ok(cert1['fxa-generation'] < cert2['fxa-generation']);
-      assert.equal(cert1['fxa-keysChangedAt'], cert2['fxa-keysChangedAt']);
+      const profileAfter = await client.accountProfile();
+      assert.equal(
+        profileBefore['keysChangedAt'],
+        profileAfter['keysChangedAt']
+      );
     });
 
     it('wrong password on change start', () => {
@@ -545,7 +535,5 @@ function getSessionTokenId(sessionTokenHex) {
           })
       );
     });
-
-
   });
 });

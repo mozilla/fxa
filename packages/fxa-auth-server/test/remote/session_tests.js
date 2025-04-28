@@ -7,15 +7,7 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const { JWTool } = require('@fxa/vendored/jwtool');
 const config = require('../../config').default.getProperties();
-const pubSigKey = JWTool.JWK.fromFile(config.publicKeyFile);
-const duration = 1000 * 60 * 60 * 24;
-const publicKey = {
-  algorithm: 'RS',
-  n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
-  e: '65537',
-};
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote session`, function () {
@@ -322,51 +314,6 @@ const publicKey = {
           });
       });
 
-      it('updates the last-auth time', () => {
-        const email = server.uniqueEmail();
-        const password = 'foobar';
-        let client, lastAuth1, lastAuth2;
-        return Client.createAndVerify(
-          config.publicUrl,
-          email,
-          password,
-          server.mailbox,
-          testOptions
-        )
-          .then((x) => {
-            client = x;
-          })
-          .then(() => {
-            return client.sign(publicKey, duration);
-          })
-          .then((cert) => {
-            const payload = JWTool.verify(cert, pubSigKey.pem);
-            assert.equal(
-              payload.principal.email.split('@')[0],
-              client.uid,
-              'cert has correct uid'
-            );
-            lastAuth1 = payload['fxa-lastAuthAt'];
-            return new Promise((ok) => setTimeout(ok, 1000));
-          })
-          .then(() => {
-            return client.reauth();
-          })
-          .then(() => {
-            return client.sign(publicKey, duration);
-          })
-          .then((cert) => {
-            const payload = JWTool.verify(cert, pubSigKey.pem);
-            assert.equal(
-              payload.principal.email.split('@')[0],
-              client.uid,
-              'cert has correct uid'
-            );
-            lastAuth2 = payload['fxa-lastAuthAt'];
-            assert.ok(lastAuth1 < lastAuth2, 'last-auth timestamp increased');
-          });
-      });
-
       it('rejects incorrect passwords', () => {
         const email = server.uniqueEmail();
         const password = 'foobar';
@@ -609,7 +556,5 @@ const publicKey = {
           );
       });
     });
-
-
   });
 });
