@@ -110,7 +110,9 @@ const ERRORS = {
   },
   INVALID_PHONE_NUMBER: {
     errno: 129,
-    message: 'Invalid phone number',
+    message:
+      'You entered an invalid phone number. Please check it and try again.',
+    version: 2,
   },
   INVALID_PHONE_REGION: {
     errno: 130,
@@ -654,13 +656,16 @@ type ErrorVal = { errno: number; message: string; version?: number };
 
 export const AuthUiErrors: { [key in ErrorKey]: AuthUiError } = (
   Object.entries(ERRORS) as [[ErrorKey, ErrorVal]]
-).reduce((acc: { [key in ErrorKey]: AuthUiError }, [k, v]) => {
-  const e = new Error(v.message) as AuthUiError;
-  e.errno = v.errno;
-  e.version = v.version;
-  acc[k] = e;
-  return acc;
-}, {} as Record<ErrorKey, AuthUiError>);
+).reduce(
+  (acc: { [key in ErrorKey]: AuthUiError }, [k, v]) => {
+    const e = new Error(v.message) as AuthUiError;
+    e.errno = v.errno;
+    e.version = v.version;
+    acc[k] = e;
+    return acc;
+  },
+  {} as Record<ErrorKey, AuthUiError>
+);
 
 export const AuthUiErrorNos: {
   [key: number]: AuthUiError;
