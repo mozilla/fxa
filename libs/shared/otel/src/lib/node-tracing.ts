@@ -5,22 +5,31 @@
 import api from '@opentelemetry/api';
 import { suppressTracing } from '@opentelemetry/core';
 import { ILogger } from '@fxa/shared/log';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { registerInstrumentations } from '@opentelemetry/instrumentation';
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import {
+  TracingOpts,
   checkSampleRate,
   checkServiceName,
-  TracingOpts,
   logType,
 } from './config';
-import { addConsoleExporter } from './exporters/fxa-console';
-import { addGcpTraceExporter } from './exporters/fxa-gcp';
-import { addOtlpTraceExporter } from './exporters/fxa-otlp';
+import {
+  NodeTracerProvider,
+  TraceIdRatioBasedSampler,
+  ParentBasedSampler,
+  SpanProcessor,
+  BatchSpanProcessor,
+  SimpleSpanProcessor,
+  SpanExporter,
+} from '@opentelemetry/sdk-trace-node';
+import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
+import { resourceFromAttributes } from '@opentelemetry/resources';
+import { getConsoleTraceExporter } from './exporters/fxa-console';
+import { getGcpTraceExporter } from './exporters/fxa-gcp';
+import { getOtlpTraceExporter } from './exporters/fxa-otlp';
 import { createPiiFilter } from './pii-filters';
-import { createNodeProvider } from './providers/node-provider';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { registerInstrumentations } from '@opentelemetry/instrumentation';
 
-export const TRACER_NAME = 'fxa-tracer';
+export const TRACER_NAME = 'fxa';
 
 /**
  * Responsible for initializing node tracing from a config object. This uses the auto instrumentation feature
@@ -38,15 +47,49 @@ export class NodeTracingInitializer {
     checkServiceName(this.opts);
     checkSampleRate(this.opts);
 
-    this.provider = createNodeProvider(this.opts);
-
     const filter = createPiiFilter(!!this.opts?.filterPii, this.logger);
-    addGcpTraceExporter(opts, this.provider, filter, this.logger);
-    addOtlpTraceExporter(opts, this.provider, undefined, filter, this.logger);
-    addConsoleExporter(opts, this.provider, filter);
+
+    // create spanProcessors and filter undefined ones.
+    const spanProcessors = [
+      this.makeSpanProcessor(
+        getOtlpTraceExporter(this.opts, undefined, filter)
+      ),
+      this.makeSpanProcessor(getGcpTraceExporter(this.opts, filter)),
+      this.makeSpanProcessor(getConsoleTraceExporter(this.opts, filter)),
+      // add more exporters here
+    ].filter((x) => x !== undefined);
+
+    // If we ever want to implement webTracing again we can update this
+    // to be agnostic enough to support both web and node tracing; they
+    // both take the same options.
+    this.provider = new NodeTracerProvider({
+      sampler: new ParentBasedSampler({
+        root: new TraceIdRatioBasedSampler(this.opts.sampleRate),
+      }),
+      resource: resourceFromAttributes({
+        [ATTR_SERVICE_NAME]: this.opts.serviceName,
+      }),
+      spanProcessors,
+    });
 
     this.register();
   }
+
+  /**
+   * Creates a new span processor for the exporter.
+   * @param exporter
+   * @returns
+   */
+  private makeSpanProcessor = (
+    exporter: SpanExporter | undefined
+  ): SpanProcessor | undefined => {
+    if (!exporter) {
+      return undefined;
+    }
+    return this.opts.batchProcessor
+      ? new BatchSpanProcessor(exporter)
+      : new SimpleSpanProcessor(exporter);
+  };
 
   protected register() {
     registerInstrumentations({
@@ -86,7 +129,7 @@ export class NodeTracingInitializer {
   }
 
   public getTraceParentId() {
-    const tracer = this.provider.getTracer('fxa');
+    const tracer = this.provider.getTracer(TRACER_NAME);
     const span = tracer.startSpan('client-inject');
     const version = '00';
     const spanContext = span.spanContext();
@@ -97,6 +140,10 @@ export class NodeTracingInitializer {
     const parentId = `${version}-${spanContext.traceId}-${spanContext.spanId}-${sampleDecision}`;
     span.end();
     return parentId;
+  }
+
+  public getProvider() {
+    return this.provider;
   }
 }
 
@@ -111,8 +158,9 @@ export function getTraceParentId() {
   return nodeTracing.getTraceParentId();
 }
 
-/** Initializes tracing in node context */
 let initialized = false;
+
+/** Initializes and manages tracing in node context */
 export function initTracing(opts: TracingOpts, logger: ILogger) {
   if (initialized) {
     logger.warn(logType, { msg: 'Tracing already initialized!' });
@@ -164,4 +212,14 @@ export function suppressTrace(action: () => any) {
 /** Resets the current tracing instance. Use only for testing purposes. */
 export function reset() {
   nodeTracing = undefined;
+  initialized = false;
+}
+
+/**
+ * Shuts down the tracing provider and all span processors. Use only for testing purposes.
+ */
+export async function shutdownTracing() {
+  if (nodeTracing) {
+    await nodeTracing.getProvider().shutdown();
+  }
 }

@@ -11,7 +11,7 @@ import {
   SpanStatus,
 } from '@opentelemetry/api';
 import { InstrumentationScope } from '@opentelemetry/core';
-import { Resource } from '@opentelemetry/resources';
+import { Resource, resourceFromAttributes } from '@opentelemetry/resources';
 import { ReadableSpan, TimedEvent } from '@opentelemetry/sdk-trace-base';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -39,15 +39,20 @@ describe('scrubs pii', () => {
     public readonly events: TimedEvent[] = [];
     public readonly duration: HrTime = [0, 0];
     public readonly ended: boolean = true;
-    public readonly resource: Resource = new Resource({});
+    public readonly resource: Resource = resourceFromAttributes({});
     public readonly instrumentationLibrary: InstrumentationScope = {
       name: '',
     };
 
     constructor(attributes: Attributes) {
       this.attributes = attributes;
-      this.resource = new Resource(attributes);
+      this.resource = resourceFromAttributes(attributes);
     }
+    parentSpanContext?: SpanContext | undefined;
+    instrumentationScope: InstrumentationScope = {
+      name: '',
+      version: undefined,
+    };
     public readonly droppedAttributesCount: number = 0;
     public readonly droppedEventsCount: number = 0;
     public readonly droppedLinksCount: number = 0;

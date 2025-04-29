@@ -3,24 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  BasicTracerProvider,
   BatchSpanProcessor,
   ConsoleSpanExporter,
+  NodeTracerProvider,
   SimpleSpanProcessor,
 } from '@opentelemetry/sdk-trace-node';
 import { expect } from 'chai';
-import { addConsoleExporter } from '../../tracing/exporters/fxa-console';
-import { addGcpTraceExporter } from '../../tracing/exporters/fxa-gcp';
-import { addOtlpTraceExporter } from '../../tracing/exporters/fxa-otlp';
+import { getConsoleTraceExporter } from '../../tracing/exporters/fxa-console';
+import { getGcpTraceExporter } from '../../tracing/exporters/fxa-gcp';
+import { getOtlpTraceExporter } from '../../tracing/exporters/fxa-otlp';
 import sinon from 'sinon';
 import { TracingOpts } from '../../tracing/config';
-import { addExporter } from '../../tracing/exporters/exporters';
 import { checkDuration } from '../../tracing/exporters/util';
 
 describe('tracing exports', () => {
   const sandbox = sinon.createSandbox();
-  const provider = new BasicTracerProvider();
-  const addSpanProcessorSpy = sandbox.spy(provider, 'addSpanProcessor');
+  const provider = new NodeTracerProvider();
 
   afterEach(() => {
     sandbox.reset();
@@ -50,45 +48,16 @@ describe('tracing exports', () => {
       },
     };
 
-    it('creates console exporter', () => {
-      expect(addConsoleExporter(opts, provider)).to.exist;
-      sinon.assert.calledOnce(addSpanProcessorSpy);
+    it('gets console exporter', () => {
+      expect(getConsoleTraceExporter(opts)).to.exist;
     });
 
-    it('creates gcp exporter', () => {
-      expect(addGcpTraceExporter(opts, provider)).to.exist;
-      sinon.assert.calledOnce(addSpanProcessorSpy);
+    it('gets gcp exporter', () => {
+      expect(getGcpTraceExporter(opts)).to.exist;
     });
 
-    it('creates otlp exporter', () => {
-      expect(addOtlpTraceExporter(opts, provider)).to.exist;
-      sinon.assert.calledOnce(addSpanProcessorSpy);
-    });
-
-    describe('exporter', () => {
-      it('adds simple span processor', () => {
-        const exporter = new ConsoleSpanExporter();
-        const processor = addExporter(
-          { ...opts, batchProcessor: false },
-          provider,
-          exporter
-        );
-
-        expect(processor instanceof SimpleSpanProcessor).to.be.true;
-        sinon.assert.calledWith(addSpanProcessorSpy, processor);
-      });
-
-      it('adds batch span processor', () => {
-        const exporter = new ConsoleSpanExporter();
-        const processor = addExporter(
-          { ...opts, batchProcessor: true },
-          provider,
-          exporter
-        );
-
-        expect(processor instanceof BatchSpanProcessor).to.be.true;
-        sinon.assert.calledWith(addSpanProcessorSpy, processor);
-      });
+    it('gets otlp exporter', () => {
+      expect(getOtlpTraceExporter(opts)).to.exist;
     });
   });
 
@@ -103,19 +72,16 @@ describe('tracing exports', () => {
       filterPii: false,
     };
 
-    it('creates console exporter', () => {
-      expect(addConsoleExporter(opts, provider)).to.not.exist;
-      sinon.assert.notCalled(addSpanProcessorSpy);
+    it('does not get console exporter', () => {
+      expect(getConsoleTraceExporter(opts)).to.not.exist;
     });
 
-    it('creates gcp exporter', () => {
-      expect(addGcpTraceExporter(opts, provider)).to.not.exist;
-      sinon.assert.notCalled(addSpanProcessorSpy);
+    it('does not get gcp exporter', () => {
+      expect(getGcpTraceExporter(opts)).to.not.exist;
     });
 
-    it('creates otlp exporter', () => {
-      expect(addOtlpTraceExporter(opts, provider)).to.not.exist;
-      sinon.assert.notCalled(addSpanProcessorSpy);
+    it('does not get otlp exporter', () => {
+      expect(getOtlpTraceExporter(opts)).to.not.exist;
     });
   });
 
