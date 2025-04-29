@@ -11,7 +11,6 @@
 9292 # Fortress
 8080 # 123done
 10139 # 321done
-5050 # browserid-verifier
 3031 # payments server
 7100 # support admin panel
 8002 # pushbox

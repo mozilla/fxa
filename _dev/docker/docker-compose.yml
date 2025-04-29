@@ -10,16 +10,6 @@ services:
   #   init: true
   #   ports:
   #     - "8080:8080"
-  browserid-verifier:
-    image: browserid-verifier:build
-    command: node server.js
-    environment:
-      - PORT=5050
-      - IP_ADDRESS=0.0.0.0
-      - FORCE_INSECURE_LOOKUP_OVER_HTTP=true
-    init: true
-    ports:
-      - "5050:5050"
   auth:
     image: fxa-auth-server:build
     entrypoint: /bin/bash -c
