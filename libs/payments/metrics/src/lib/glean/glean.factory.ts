@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
 import {
+  CancellationReason,
   CartMetrics,
   CmsMetricsData,
   CommonMetrics,
@@ -74,7 +75,7 @@ export const SubscriptionCancellationDataFactory = (
       'mdnplus',
     ]),
     interval: faker.helpers.enumValue(SubplatInterval),
-    voluntaryCancellation: faker.datatype.boolean(),
+    cancellationReason: faker.helpers.enumValue(CancellationReason),
     providerEventId: faker.string.uuid(),
     ...override,
   };

@@ -156,7 +156,7 @@ export class PaymentsEmitterService {
       priceInterval,
       priceIntervalCount,
       providerEventId,
-      voluntaryCancellation,
+      cancellationReason,
       uid,
     } = eventData;
     let offeringId: string | undefined;
@@ -188,7 +188,7 @@ export class PaymentsEmitterService {
           subscriptionCancellationData: {
             offeringId,
             interval,
-            voluntaryCancellation,
+            cancellationReason,
             providerEventId,
           },
         },

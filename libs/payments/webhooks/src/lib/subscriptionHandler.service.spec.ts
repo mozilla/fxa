@@ -48,7 +48,10 @@ import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { CustomerSubscriptionDeletedResponseFactory } from './factories';
 import { determinePaymentMethodType } from '@fxa/payments/customer';
-import { determineCancellation } from './util/determineCancellation';
+import {
+  CancellationReason,
+  determineCancellation,
+} from './util/determineCancellation';
 
 jest.mock('@fxa/payments/customer');
 const mockDeterminePaymentMethodType = jest.mocked(determinePaymentMethodType);
@@ -166,8 +169,8 @@ describe('SubscriptionEventsService', () => {
         );
       });
 
-      it('should emit the subscriptionEnded event, with voluntaryCancellation false', async () => {
-        mockDetermineCancellation.mockReturnValue(false);
+      it('should emit the subscriptionEnded event, with cancellationReason as redundant', async () => {
+        mockDetermineCancellation.mockReturnValue(CancellationReason.Redundant);
         await subscriptionEventsService.handleCustomerSubscriptionDeleted(
           mockEvent,
           mockEventObjectData
@@ -177,13 +180,15 @@ describe('SubscriptionEventsService', () => {
         expect(mockEmitter.emit).toHaveBeenCalledWith(
           expect.any(String),
           expect.objectContaining({
-            voluntaryCancellation: false,
+            cancellationReason: CancellationReason.Redundant,
           })
         );
       });
 
-      it('should emit the subscriptionEnded event, with voluntaryCancellation true', async () => {
-        mockDetermineCancellation.mockReturnValue(true);
+      it('should emit the subscriptionEnded event, with cancellationReason as involuntary', async () => {
+        mockDetermineCancellation.mockReturnValue(
+          CancellationReason.Involuntary
+        );
         await subscriptionEventsService.handleCustomerSubscriptionDeleted(
           mockEvent,
           mockEventObjectData
@@ -193,7 +198,25 @@ describe('SubscriptionEventsService', () => {
         expect(mockEmitter.emit).toHaveBeenCalledWith(
           expect.any(String),
           expect.objectContaining({
-            voluntaryCancellation: true,
+            cancellationReason: CancellationReason.Involuntary,
+          })
+        );
+      });
+
+      it('should emit the subscriptionEnded event, with cancellationReason as customer initiated', async () => {
+        mockDetermineCancellation.mockReturnValue(
+          CancellationReason.CustomerInitiated
+        );
+        await subscriptionEventsService.handleCustomerSubscriptionDeleted(
+          mockEvent,
+          mockEventObjectData
+        );
+
+        expect(mockEmitter.emit).toHaveBeenCalledTimes(1);
+        expect(mockEmitter.emit).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            cancellationReason: CancellationReason.CustomerInitiated,
           })
         );
       });
@@ -212,7 +235,7 @@ describe('SubscriptionEventsService', () => {
           expect.any(String),
           expect.objectContaining({
             paymentProvider: undefined,
-            voluntaryCancellation: false,
+            cancellationReason: CancellationReason.Involuntary,
           })
         );
       });

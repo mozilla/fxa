@@ -37,10 +37,16 @@ export type CmsMetricsData = {
   priceId: string;
 };
 
+export enum CancellationReason {
+  CustomerInitiated = 'customer_initiated',
+  Involuntary = 'involuntary',
+  Redundant = 'redundant',
+}
+
 export type SubscriptionCancellationData = {
   offeringId?: string;
   interval?: string;
-  voluntaryCancellation: boolean;
+  cancellationReason: CancellationReason;
   providerEventId: string;
 };
 

@@ -8,6 +8,7 @@ import {
   SubscriptionEndedEvents,
 } from './emitter.types';
 import {
+  CancellationReason,
   CartMetricsFactory,
   CmsMetricsDataFactory,
 } from '@fxa/payments/metrics';
@@ -29,7 +30,7 @@ export const SubscriptionEndedFactory = (
   priceInterval: faker.helpers.arrayElement(['month', 'year']),
   priceIntervalCount: faker.number.int({ min: 1, max: 12 }),
   providerEventId: faker.string.uuid(),
-  voluntaryCancellation: faker.datatype.boolean(),
+  cancellationReason: faker.helpers.enumValue(CancellationReason),
   uid: faker.string.uuid(),
   ...override,
 });

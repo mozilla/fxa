@@ -365,7 +365,7 @@ describe('PaymentsEmitterService', () => {
     const subscriptionCancellationData = {
       offeringId: mockOfferingId,
       interval: mockSubplatInterval,
-      voluntaryCancellation: cancellationEventData.voluntaryCancellation,
+      cancellationReason: cancellationEventData.cancellationReason,
       providerEventId: cancellationEventData.providerEventId,
     };
 
