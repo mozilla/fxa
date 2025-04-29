@@ -16955,12 +16955,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsonwebtoken@npm:^8.5.1":
-  version: 8.5.9
-  resolution: "@types/jsonwebtoken@npm:8.5.9"
+"@types/jsonwebtoken@npm:8.5.1":
+  version: 8.5.1
+  resolution: "@types/jsonwebtoken@npm:8.5.1"
   dependencies:
     "@types/node": "*"
-  checksum: 33815ab02d1371b423118316b7706d2f2ec03eeee5e1494be72da50425d2384e5e0a09ea193f7a5ab4b4f6a9c5847147305f50e965f3d927a95bdf8adb471b2a
+  checksum: 740581b0d1e18f31ce9332e26702ae2704af86f0cb0bb914ee3554517e514e97392610525f9349ea8fe3742d0f816eb86d7ab864ddbd19cef55b2db4a43883a1
   languageName: node
   linkType: hard
 
@@ -30302,7 +30302,7 @@ __metadata:
     "@types/ejs": ^3.0.6
     "@types/hapi__hapi": ^20.0.10
     "@types/ioredis": ^4.26.4
-    "@types/jsonwebtoken": ^8.5.1
+    "@types/jsonwebtoken": 8.5.1
     "@types/jws": ^3.2.3
     "@types/lodash": ^4
     "@types/luxon": ^3
@@ -30358,7 +30358,7 @@ __metadata:
     ioredis: ^4.28.2
     joi: ^17.13.3
     jose: ^5.9.6
-    jsonwebtoken: ^9.0.0
+    jsonwebtoken: 9.0.0
     jsxgettext-recursive-next: 1.1.0
     jwks-rsa: ^3.1.0
     jws: 4.0.0
@@ -37235,6 +37235,18 @@ __metadata:
   version: 5.0.1
   resolution: "jsonpointer@npm:5.0.1"
   checksum: 0b40f712900ad0c846681ea2db23b6684b9d5eedf55807b4708c656f5894b63507d0e28ae10aa1bddbea551241035afe62b6df0800fc94c2e2806a7f3adecd7c
+  languageName: node
+  linkType: hard
+
+"jsonwebtoken@npm:9.0.0":
+  version: 9.0.0
+  resolution: "jsonwebtoken@npm:9.0.0"
+  dependencies:
+    jws: ^3.2.2
+    lodash: ^4.17.21
+    ms: ^2.1.1
+    semver: ^7.3.8
+  checksum: b9181cecf9df99f1dc0253f91ba000a1aa4d91f5816d1608c0dba61a5623726a0bfe200b51df25de18c1a6000825d231ad7ce2788aa54fd48dcb760ad9eb9514
   languageName: node
   linkType: hard
 
