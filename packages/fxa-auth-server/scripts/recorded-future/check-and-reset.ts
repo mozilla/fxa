@@ -153,7 +153,7 @@ ${accountsToReset.map((x) => `${`\t`}${x.email}`).join('\n')}
   }
 
   if (accountsToReset.length === 0) {
-    log.info('recordedFuture.info', 'No eligible accounts found.');
+    log.info('recordedFuture.info', { message: 'No eligible accounts found.' });
     return 0;
   }
 
