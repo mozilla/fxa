@@ -1204,31 +1204,6 @@ export default class AuthClient {
     return accountData;
   }
 
-  async certificateSign(
-    sessionToken: hexstring,
-    publicKey: any,
-    duration: number,
-    options: {
-      service?: string;
-    } = {},
-    headers?: Headers
-  ) {
-    const payload = {
-      publicKey,
-      duration,
-    };
-    return this.sessionPost(
-      `/certificate/sign${
-        options.service
-          ? `?service=${encodeURIComponent(options.service as string)}`
-          : ''
-      }`,
-      sessionToken,
-      payload,
-      headers
-    );
-  }
-
   async passwordChange(
     email: string,
     oldPassword: string,

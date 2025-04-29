@@ -8,7 +8,6 @@ const { assert } = require('chai');
 const url = require('url');
 const Client = require('../client')();
 const TestServer = require('../test_server');
-const { JWTool } = require('@fxa/vendored/jwtool');
 
 const config = require('../../config').default.getProperties();
 
@@ -225,12 +224,6 @@ const config = require('../../config').default.getProperties();
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'ez';
-      const duration = 1000 * 60 * 60 * 24; // 24 hours
-      const publicKey = {
-        algorithm: 'RS',
-        n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123',
-        e: '65537',
-      };
 
       const client = await Client.createAndVerify(
         config.publicUrl,
@@ -240,22 +233,16 @@ const config = require('../../config').default.getProperties();
         { ...testOptions, keys: true }
       );
 
-      const cert1 = JWTool.unverify(
-        await client.sign(publicKey, duration)
-      ).payload;
+      const profileBefore = await client.accountProfile();
 
       await client.forgotPassword();
       const code = await server.mailbox.waitForCode(email);
       await resetPassword(client, code, newPassword);
       await server.mailbox.waitForEmail(email);
 
-      const cert2 = JWTool.unverify(
-        await client.sign(publicKey, duration)
-      ).payload;
+      const profileAfter = await client.accountProfile();
 
-      assert.equal(cert1['fxa-uid'], cert2['fxa-uid']);
-      assert.ok(cert1['fxa-generation'] < cert2['fxa-generation']);
-      assert.ok(cert1['fxa-keysChangedAt'] < cert2['fxa-keysChangedAt']);
+      assert.ok(profileBefore['keysChangedAt'] < profileAfter['keysChangedAt']);
     });
 
     async function resetPassword(client, code, newPassword, options) {

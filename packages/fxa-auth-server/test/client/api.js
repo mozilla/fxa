@@ -654,33 +654,6 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.certificateSign = function (
-    sessionTokenHex,
-    publicKey,
-    duration,
-    locale,
-    options = {}
-  ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
-      let url = `${this.baseURL}/certificate/sign`;
-      if (options.service) {
-        url += `?service=${options.service}`;
-      }
-      return this.doRequest(
-        'POST',
-        url,
-        token,
-        {
-          publicKey: publicKey,
-          duration: duration,
-        },
-        {
-          'accept-language': locale,
-        }
-      );
-    });
-  };
-
   ClientApi.prototype.getRandomBytes = function () {
     return this.doRequest('POST', `${this.baseURL}/get_random_bytes`);
   };

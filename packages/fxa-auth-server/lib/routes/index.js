@@ -159,15 +159,6 @@ module.exports = function (
     glean,
     statsd
   );
-  const sign = require('./sign')(
-    log,
-    signer,
-    db,
-    config.domain,
-    devicesImpl,
-    config,
-    profile
-  );
   const unblockCodes = require('./unblock-codes')(
     log,
     db,
@@ -250,7 +241,6 @@ module.exports = function (
     recoveryPhone,
     securityEvents,
     session,
-    sign,
     totp,
     unblockCodes,
     util,

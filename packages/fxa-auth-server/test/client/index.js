@@ -518,23 +518,6 @@ module.exports = (config) => {
     });
   };
 
-  Client.prototype.sign = function (publicKey, duration, locale, options) {
-    const o = this.sessionToken ? Promise.resolve(null) : this.login();
-    return o
-      .then(() => {
-        return this.api.certificateSign(
-          this.sessionToken,
-          publicKey,
-          duration,
-          locale,
-          options
-        );
-      })
-      .then((x) => {
-        return x.cert;
-      });
-  };
-
   Client.prototype.changePassword = function (
     newPassword,
     headers,

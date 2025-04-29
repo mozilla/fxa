@@ -1427,6 +1427,9 @@ export class AccountHandler {
     if (scope.contains('profile:account_locked_at')) {
       res.accountLockedAt = account.lockedAt;
     }
+    if (scope.contains('profile:keys_changed_at')) {
+      res.keysChangedAt = account.keysChangedAt;
+    }
 
     if (
       this.config.subscriptions?.enabled &&
@@ -2304,6 +2307,7 @@ export const accountRoutes = (
             metricsEnabled: isA.boolean().optional(),
             accountLockedAt: isA.number().optional().allow(null),
             accountDisabledAt: isA.number().optional().allow(null),
+            keysChangedAt: isA.number().optional().allow(null),
           }),
         },
       },
