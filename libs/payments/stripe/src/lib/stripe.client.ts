@@ -219,12 +219,6 @@ export class StripeClient {
     return result as StripeResponse<StripeSubscription>;
   }
 
-  @Cacheable({
-    cacheKey: (args: any) =>
-      cacheKeyForClient('invoicesRetrieve', args[0], args[1]),
-    strategy: new CacheFirstStrategy(),
-    client: new AsyncLocalStorageAdapter(),
-  })
   @CaptureTimingWithStatsD()
   async invoicesRetrieve(
     id: string,
@@ -237,12 +231,6 @@ export class StripeClient {
     return result as StripeResponse<StripeInvoice>;
   }
 
-  @Cacheable({
-    cacheKey: (args: any) =>
-      cacheKeyForClient('invoicesRetrieveUpcoming', undefined, args[0]),
-    strategy: new CacheFirstStrategy(),
-    client: new AsyncLocalStorageAdapter(),
-  })
   @CaptureTimingWithStatsD()
   async invoicesRetrieveUpcoming(
     params?: Stripe.InvoiceRetrieveUpcomingParams
