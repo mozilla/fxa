@@ -6,8 +6,6 @@ const url = require('url');
 const { assert } = require('chai');
 const nock = require('nock');
 const buf = require('buf').hex;
-const generateRSAKeypair = require('keypair');
-const { JWTool } = require('@fxa/vendored/jwtool');
 const testServer = require('../lib/server');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const { decodeJWT } = require('../lib/util');
@@ -16,10 +14,13 @@ const sinon = require('sinon');
 const db = require('../../lib/oauth/db');
 const encrypt = require('fxa-shared/auth/encrypt');
 const config = testServer.config;
+const util2 = require('util');
 
 const unique = require('../../lib/oauth/unique');
 const util = require('../../lib/oauth/util');
 const validators = require('../../lib/oauth/validators');
+const jwt = require('jsonwebtoken');
+const jwtSign = util2.promisify(jwt.sign);
 
 const assertSecurityHeaders = require('../lib/util').assertSecurityHeaders;
 
@@ -30,32 +31,53 @@ const AMR = ['pwd', 'email'];
 const AAL = 1;
 const ACR = 'AAL1';
 const PROFILE_CHANGED_AT_LATER_TIME = AUTH_AT + 1000;
+const JWT_IAT = Date.now();
+const ISSUER = config.get('oauthServer.browserid.issuer');
+const AUDIENCE = config.get('publicUrl');
+const AUTH_SERVER_SECRETS = config.get('oauthServer.authServerSecrets');
 
-function mockVerifierResult(opts) {
-  opts = opts || {};
-  return JSON.stringify({
-    status: opts.status || 'okay',
-    email:
-      (opts.uid || USERID) + '@' + config.get('oauthServer.browserid.issuer'),
-    issuer: opts.issuer || config.get('oauthServer.browserid.issuer'),
-    idpClaims: {
-      'fxa-verifiedEmail': opts.vemail || VEMAIL,
-      'fxa-lastAuthAt': opts.authAt || AUTH_AT,
-      'fxa-generation': opts.generation || 123456,
-      // eslint-disable-next-line no-prototype-builtins
-      'fxa-tokenVerified': opts.hasOwnProperty('tokenVerified')
-        ? opts.tokenVerified
-        : true,
-      'fxa-amr': opts.amr || AMR,
-      'fxa-aal': opts.aal || AAL,
-      'fxa-profileChangedAt': opts.profileChangedAt,
-      'fxa-keysChangedAt': opts.keysChangedAt,
+const GOOD_CLAIMS = {
+  'fxa-generation': 123456,
+  'fxa-verifiedEmail': VEMAIL,
+  'fxa-lastAuthAt': AUTH_AT,
+  'fxa-tokenVerified': true,
+  'fxa-amr': AMR,
+  'fxa-aal': AAL,
+};
+
+const UNVERIFIED_CLAIMS = {
+  'fxa-generation': 12345,
+  'fxa-verifiedEmail': VEMAIL,
+  'fxa-lastAuthAt': AUTH_AT,
+  'fxa-tokenVerified': false,
+  'fxa-amr': ['pwd', 'otp'],
+  'fxa-aal': 2,
+};
+
+async function genAssertion(claims, sub) {
+  let options = {};
+  claims = Object.assign(
+    {
+      iat: JWT_IAT,
+      exp: JWT_IAT + 60,
+      sub: sub || USERID,
+      aud: AUDIENCE,
+      iss: ISSUER,
     },
-  });
+    claims
+  );
+
+  const key = AUTH_SERVER_SECRETS[0];
+
+  options = Object.assign(
+    {
+      algorithm: 'HS256',
+    },
+    options
+  );
+  return await jwtSign(claims, key, options);
 }
 
-const VERIFY_GOOD = mockVerifierResult();
-const VERIFY_GOOD_BUT_UNVERIFIED = mockVerifierResult({ tokenVerified: false });
 const MAX_TTL_S = config.get('oauthServer.expiration.accessToken') / 1000;
 
 const SCOPED_CLIENT_ID = 'aaa6b9b3a65a1871';
@@ -64,38 +86,6 @@ const NO_ALLOWED_SCOPES_CLIENT_ID = '38a6b9b3a65a1872';
 const BAD_CLIENT_ID = '0006b9b3a65a1871';
 const SCOPE_CAN_SCOPE_KEY =
   'https://identity.mozilla.com/apps/sample-scope-can-scope-key';
-
-function mockAssertion() {
-  var parts = url.parse(config.get('oauthServer.browserid.verificationUrl'));
-  return nock(parts.protocol + '//' + parts.host).post(parts.path);
-}
-
-function genAssertion(email) {
-  var idp = JWTool.JWK.fromPEM(generateRSAKeypair().private, {
-    iss: config.get('oauthServer.browserid.issuer'),
-  });
-  var userPair = generateRSAKeypair();
-  var userSecret = JWTool.JWK.fromPEM(userPair.private, {
-    iss: config.get('oauthServer.browserid.issuer'),
-  });
-  var userPublic = JWTool.JWK.fromPEM(userPair.public);
-  var now = Date.now();
-  var cert = idp.signSync({
-    'public-key': userPublic,
-    principal: {
-      email: email,
-    },
-    iat: now - 1000,
-    exp: now,
-    'fxa-verifiedEmail': VEMAIL,
-  });
-  var assertion = userSecret.signSync({
-    aud: 'oauth.fxa',
-    exp: now,
-  });
-
-  return Promise.resolve(cert + '~' + assertion);
-}
 
 // this matches the hashed secret in config, an assert sanity checks
 // lower to make sure it matches
@@ -157,14 +147,12 @@ function basicAuthHeader(clientId, secret) {
 
 describe('#integration - /v1', function () {
   this.timeout(60000);
-  const VERIFY_FAILURE = '{"status": "failure"}';
   let sandbox;
   let Server;
 
   function newToken(payload = {}, options = {}) {
     var ttl = payload.ttl || MAX_TTL_S;
     delete payload.ttl;
-    mockAssertion().reply(200, options.verifierResponse || VERIFY_GOOD);
     return Server.api
       .post({
         url: '/authorization',
@@ -193,9 +181,7 @@ describe('#integration - /v1', function () {
   before(async function () {
     Server = await testServer.start();
     assert.isDefined(Server);
-    AN_ASSERTION = await genAssertion(
-      USERID + config.get('oauthServer.browserid.issuer')
-    );
+    AN_ASSERTION = await genAssertion(GOOD_CLAIMS);
     await db.ping();
     client = clientByName('Mocha');
     clientId = client.id;
@@ -277,7 +263,6 @@ describe('#integration - /v1', function () {
     describe('untrusted client scope', function () {
       it('should fail if invalid scopes', function () {
         var client = clientByName('Untrusted');
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -296,7 +281,6 @@ describe('#integration - /v1', function () {
 
       it('should report all invalid scopes', function () {
         var client = clientByName('Untrusted');
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -319,7 +303,6 @@ describe('#integration - /v1', function () {
 
       it('should succeed if valid scope', function () {
         var client = clientByName('Untrusted');
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -338,8 +321,6 @@ describe('#integration - /v1', function () {
         const scopes =
           'profile:email profile:uid https://identity.mozilla.com/apps/notes https://identity.mozilla.com/apps/lockbox';
         const client = clientByName('Mocha');
-        mockAssertion().reply(200, VERIFY_GOOD);
-
         return Server.api
           .post({
             url: '/authorization',
@@ -358,7 +339,6 @@ describe('#integration - /v1', function () {
     describe('pkce', function () {
       it('should fail if Public Client is not using code_challenge', function () {
         var client = clientByName('Public Client PKCE');
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -377,7 +357,6 @@ describe('#integration - /v1', function () {
 
       it('should allow Public Clients to direct grant without PKCE', function () {
         var client = clientByName('Admin');
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -395,7 +374,6 @@ describe('#integration - /v1', function () {
 
       it('only works with Public Clients', function () {
         var client = clientByName('Mocha');
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -418,7 +396,6 @@ describe('#integration - /v1', function () {
 
     describe('?client_id', function () {
       it('is required', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -448,12 +425,14 @@ describe('#integration - /v1', function () {
           });
       });
 
-      it('errors correctly if invalid', function () {
-        mockAssertion().reply(400, VERIFY_FAILURE);
+      it('errors correctly if invalid', async function () {
+        const assertion = await genAssertion(GOOD_CLAIMS);
         return Server.api
           .post({
             url: '/authorization',
-            payload: authParams(),
+            payload: authParams({
+              assertion: assertion + 'invalid',
+            }),
           })
           .then(function (res) {
             assert.equal(res.result.code, 401);
@@ -462,12 +441,14 @@ describe('#integration - /v1', function () {
           });
       });
 
-      it('succeeds by default when fxa-tokenVerified is false', function () {
-        mockAssertion().reply(200, VERIFY_GOOD_BUT_UNVERIFIED);
+      it('succeeds by default when fxa-tokenVerified is false', async function () {
+        const assertion = await genAssertion(UNVERIFIED_CLAIMS);
         return Server.api
           .post({
             url: '/authorization',
-            payload: authParams(),
+            payload: authParams({
+              assertion,
+            }),
           })
           .then(function (res) {
             assert.equal(res.statusCode, 200);
@@ -475,12 +456,13 @@ describe('#integration - /v1', function () {
           });
       });
 
-      it('errors when fxa-tokenVerified is false and a scope has keys', function () {
-        mockAssertion().reply(200, VERIFY_GOOD_BUT_UNVERIFIED);
+      it('errors when fxa-tokenVerified is false and a scope has keys', async function () {
+        const assertion = await genAssertion(UNVERIFIED_CLAIMS);
         return Server.api
           .post({
             url: '/authorization',
             payload: authParams({
+              assertion,
               client_id: SCOPED_CLIENT_ID,
               scope: SCOPE_CAN_SCOPE_KEY,
             }),
@@ -492,12 +474,13 @@ describe('#integration - /v1', function () {
           });
       });
 
-      it('succeeds when fxa-tokenVerified is false and an unknown URL scope is requested', function () {
-        mockAssertion().reply(200, VERIFY_GOOD_BUT_UNVERIFIED);
+      it('succeeds when fxa-tokenVerified is false and an unknown URL scope is requested', async function () {
+        const assertion = await genAssertion(UNVERIFIED_CLAIMS);
         return Server.api
           .post({
             url: '/authorization',
             payload: authParams({
+              assertion,
               client_id: SCOPED_CLIENT_ID,
               scope: 'https://example.com/unknown-scope',
             }),
@@ -511,7 +494,6 @@ describe('#integration - /v1', function () {
 
     describe('?redirect_uri', function () {
       it('is optional', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -527,7 +509,6 @@ describe('#integration - /v1', function () {
       });
 
       it('must be same as registered redirect', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -543,7 +524,6 @@ describe('#integration - /v1', function () {
       });
 
       it('can be a URN', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -561,7 +541,6 @@ describe('#integration - /v1', function () {
       });
 
       it('can have query parameters', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -581,7 +560,6 @@ describe('#integration - /v1', function () {
 
     describe('?state', function () {
       it('is required', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -596,7 +574,6 @@ describe('#integration - /v1', function () {
       });
 
       it('is returned', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -618,7 +595,6 @@ describe('#integration - /v1', function () {
 
     describe('?scope', function () {
       it('is required', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -632,7 +608,6 @@ describe('#integration - /v1', function () {
       });
 
       it('is restricted to expected characters', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -667,8 +642,6 @@ describe('#integration - /v1', function () {
         const jwtClient = clientByName('JWT Client');
         assert(jwtClient.canGrant); //sanity check
         const clientId = jwtClient.id;
-        mockAssertion().reply(200, VERIFY_GOOD);
-
         const res = await newToken(
           {
             access_type: 'offline',
@@ -686,7 +659,6 @@ describe('#integration - /v1', function () {
 
     describe('?response_type', function () {
       it('is optional', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -702,7 +674,6 @@ describe('#integration - /v1', function () {
       });
 
       it('can be code', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -720,7 +691,6 @@ describe('#integration - /v1', function () {
 
       it('supports PKCE - code_challenge and code_challenge_method', function () {
         var client = clientByName('Public Client PKCE');
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -740,7 +710,6 @@ describe('#integration - /v1', function () {
       });
 
       it('supports code_challenge only with code response_type', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -757,7 +726,6 @@ describe('#integration - /v1', function () {
       });
 
       it('must not be something besides code or token', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -772,7 +740,6 @@ describe('#integration - /v1', function () {
       });
 
       it('fails if ttl is specified with code', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -796,7 +763,6 @@ describe('#integration - /v1', function () {
         assert(ppidClient.canGrant); //sanity check
 
         it('does not require state argument', function () {
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -813,7 +779,6 @@ describe('#integration - /v1', function () {
         });
 
         it('requires scope argument', function () {
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -829,7 +794,6 @@ describe('#integration - /v1', function () {
         });
 
         it('requires a client with proper permission', function () {
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -846,7 +810,6 @@ describe('#integration - /v1', function () {
         });
 
         it('returns an implicit token', function () {
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -870,7 +833,6 @@ describe('#integration - /v1', function () {
         });
 
         it('returns an JWT formatted token in the implicit grant flow', async function () {
-          mockAssertion().reply(200, VERIFY_GOOD);
           const res = await Server.api.post({
             url: '/authorization',
             payload: authParams({
@@ -904,7 +866,6 @@ describe('#integration - /v1', function () {
 
         it('honours the ttl parameter', function () {
           var ttl = 42;
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -924,7 +885,6 @@ describe('#integration - /v1', function () {
 
         it('allows an arbitrarily long ttl parameter', function () {
           var ttl = MAX_TTL_S * 100;
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -984,7 +944,6 @@ describe('#integration - /v1', function () {
         return db
           .registerClient(client2)
           .then(() => {
-            mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api
               .post({
                 url: '/authorization',
@@ -1021,7 +980,6 @@ describe('#integration - /v1', function () {
     describe('response', function () {
       describe('with a trusted client', function () {
         it('should redirect to the redirect_uri', function () {
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -1045,9 +1003,7 @@ describe('#integration - /v1', function () {
 
     describe('check acr payload', () => {
       it('should throw error if mismatch with claims', () => {
-        const options = { aal: 1 };
         const payload = { acr_values: 'AAL2' };
-        mockAssertion().reply(200, mockVerifierResult(options));
         return Server.api
           .post({
             url: '/authorization',
@@ -1062,9 +1018,7 @@ describe('#integration - /v1', function () {
       });
 
       it('process request when correct acr_values in claims', () => {
-        const options = { aal: 2 };
-        const payload = { acr_values: 'AAL2' };
-        mockAssertion().reply(200, mockVerifierResult(options));
+        const payload = { acr_values: 'AAL1' };
         return Server.api
           .post({
             url: '/authorization',
@@ -1195,7 +1149,6 @@ describe('#integration - /v1', function () {
 
       describe('previous secret', function () {
         function getCode(clientId) {
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -1257,7 +1210,6 @@ describe('#integration - /v1', function () {
 
     describe('authorization header', function () {
       it('should allow fetching get auth token when the secret is valid', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -1376,7 +1328,6 @@ describe('#integration - /v1', function () {
           return db
             .registerClient(client2)
             .then(function () {
-              mockAssertion().reply(200, VERIFY_GOOD);
               return Server.api
                 .post({
                   url: '/authorization',
@@ -1427,7 +1378,6 @@ describe('#integration - /v1', function () {
           });
 
           it('consumes code when provided correct code_verifier', function () {
-            mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api
               .post({
                 url: '/authorization',
@@ -1464,7 +1414,6 @@ describe('#integration - /v1', function () {
           });
 
           it('rejects invalid code_verifier', function () {
-            mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api
               .post({
                 url: '/authorization',
@@ -1501,7 +1450,6 @@ describe('#integration - /v1', function () {
             this.slow(200);
             var exp = config.get('oauthServer.expiration.code');
             config.set('oauthServer.expiration.code', 50);
-            mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api
               .post({
                 url: '/authorization',
@@ -1549,7 +1497,6 @@ describe('#integration - /v1', function () {
             return db
               .registerClient(client3)
               .then(function () {
-                mockAssertion().reply(200, VERIFY_GOOD);
                 return Server.api
                   .post({
                     url: '/authorization',
@@ -1589,7 +1536,6 @@ describe('#integration - /v1', function () {
           this.slow(200);
           var exp = config.get('oauthServer.expiration.code');
           config.set('oauthServer.expiration.code', 50);
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -1620,7 +1566,6 @@ describe('#integration - /v1', function () {
         });
 
         it('cannot use the same code multiple times', function () {
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -1660,7 +1605,6 @@ describe('#integration - /v1', function () {
         });
 
         it('does not accept a `scope` parameter', function () {
-          mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
@@ -1695,7 +1639,6 @@ describe('#integration - /v1', function () {
       describe('response', function () {
         describe('access_type=online', function () {
           it('should return a correct response', function () {
-            mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api
               .post({
                 url: '/authorization',
@@ -1734,7 +1677,6 @@ describe('#integration - /v1', function () {
 
         describe('access_type=offline', function () {
           it('should return a correct response', function () {
-            mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api
               .post({
                 url: '/authorization',
@@ -1777,7 +1719,6 @@ describe('#integration - /v1', function () {
       });
 
       it('with a blank scope', function () {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -2193,7 +2134,6 @@ describe('#integration - /v1', function () {
       });
 
       it('can directly grant a token with valid assertion', async () => {
-        mockAssertion().reply(200, VERIFY_GOOD);
         const res = await Server.api.post({
           url: '/token',
           payload: {
@@ -2211,7 +2151,6 @@ describe('#integration - /v1', function () {
       });
 
       it('can create a refresh token if requested', async () => {
-        mockAssertion().reply(200, VERIFY_GOOD);
         const res = await Server.api.post({
           url: '/token',
           payload: {
@@ -2231,7 +2170,6 @@ describe('#integration - /v1', function () {
       });
 
       it('accepts configurable ttl', async () => {
-        mockAssertion().reply(200, VERIFY_GOOD);
         const res = await Server.api.post({
           url: '/token',
           payload: {
@@ -2248,7 +2186,6 @@ describe('#integration - /v1', function () {
       });
 
       it('accepts arbitrarily long ttl, but returns the configured maximum ttl', async () => {
-        mockAssertion().reply(200, VERIFY_GOOD);
         const res = await Server.api.post({
           url: '/token',
           payload: {
@@ -2265,7 +2202,6 @@ describe('#integration - /v1', function () {
       });
 
       it('rejects invalid assertions', async () => {
-        mockAssertion().reply(400, VERIFY_FAILURE);
         const res = await Server.api.post({
           url: '/token',
           payload: {
@@ -2273,7 +2209,7 @@ describe('#integration - /v1', function () {
             grant_type: 'fxa-credentials',
             scope: 'profile testme',
             access_type: 'offline',
-            assertion: AN_ASSERTION,
+            assertion: AN_ASSERTION + 'invalid',
           },
         });
         assertSecurityHeaders(res);
@@ -2298,7 +2234,6 @@ describe('#integration - /v1', function () {
       });
 
       it('rejects disallowed scopes', async () => {
-        mockAssertion().reply(200, VERIFY_GOOD);
         const res = await Server.api.post({
           url: '/token',
           payload: {
@@ -2420,48 +2355,54 @@ describe('#integration - /v1', function () {
         assert.equal(res3.result.scope, '');
       });
 
-      it('should omit amr claim when not given in the assertion', () => {
-        let verifierResponse = JSON.parse(VERIFY_GOOD);
-        delete verifierResponse.idpClaims['fxa-amr'];
-        verifierResponse = JSON.stringify(verifierResponse);
-        return newToken({ scope: 'openid' }, { verifierResponse }).then(
-          (res) => {
-            assert.equal(res.statusCode, 200);
-            assertSecurityHeaders(res);
-            assert(res.result.id_token);
-            const jwt = decodeJWT(res.result.id_token);
-            const claims = jwt.claims;
+      it('should omit amr claim when not given in the assertion', async () => {
+        const assertion = await genAssertion({
+          'fxa-generation': 12345,
+          'fxa-verifiedEmail': VEMAIL,
+          'fxa-lastAuthAt': AUTH_AT,
+          'fxa-tokenVerified': true,
+          'fxa-aal': AAL,
+          'fxa-profileChangedAt': Date.now(),
+        });
+        return newToken({ scope: 'openid', assertion }).then((res) => {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert(res.result.id_token);
+          const jwt = decodeJWT(res.result.id_token);
+          const claims = jwt.claims;
 
-            assert.equal(claims.sub, USERID);
-            assert.equal(claims.aud, clientId);
-            assert.equal(claims.iss, config.get('oauthServer.openid.issuer'));
-            assert.equal(claims.amr, undefined);
-            assert.equal(claims.acr, ACR);
-            assert.equal(claims['fxa-aal'], AAL);
-          }
-        );
+          assert.equal(claims.sub, USERID);
+          assert.equal(claims.aud, clientId);
+          assert.equal(claims.iss, config.get('oauthServer.openid.issuer'));
+          assert.equal(claims.amr, undefined);
+          assert.equal(claims.acr, ACR);
+          assert.equal(claims['fxa-aal'], AAL);
+        });
       });
 
-      it('should omit acr and fxa-aal claims when not given in the assertion', () => {
-        let verifierResponse = JSON.parse(VERIFY_GOOD);
-        delete verifierResponse.idpClaims['fxa-aal'];
-        verifierResponse = JSON.stringify(verifierResponse);
-        return newToken({ scope: 'openid' }, { verifierResponse }).then(
-          (res) => {
-            assert.equal(res.statusCode, 200);
-            assertSecurityHeaders(res);
-            assert(res.result.id_token);
-            const jwt = decodeJWT(res.result.id_token);
-            const claims = jwt.claims;
+      it('should omit acr and fxa-aal claims when not given in the assertion', async () => {
+        const assertion = await genAssertion({
+          'fxa-generation': 12345,
+          'fxa-verifiedEmail': VEMAIL,
+          'fxa-lastAuthAt': AUTH_AT,
+          'fxa-tokenVerified': true,
+          'fxa-amr': AMR,
+          'fxa-profileChangedAt': Date.now(),
+        });
+        return newToken({ scope: 'openid', assertion }).then((res) => {
+          assert.equal(res.statusCode, 200);
+          assertSecurityHeaders(res);
+          assert(res.result.id_token);
+          const jwt = decodeJWT(res.result.id_token);
+          const claims = jwt.claims;
 
-            assert.equal(claims.sub, USERID);
-            assert.equal(claims.aud, clientId);
-            assert.equal(claims.iss, config.get('oauthServer.openid.issuer'));
-            assert.deepEqual(claims.amr, AMR);
-            assert.equal(claims.acr, undefined);
-            assert.equal(claims['fxa-aal'], undefined);
-          }
-        );
+          assert.equal(claims.sub, USERID);
+          assert.equal(claims.aud, clientId);
+          assert.equal(claims.iss, config.get('oauthServer.openid.issuer'));
+          assert.deepEqual(claims.amr, AMR);
+          assert.equal(claims.acr, undefined);
+          assert.equal(claims['fxa-aal'], undefined);
+        });
       });
 
       it('should be available to untrusted reliers', function () {
@@ -2479,7 +2420,6 @@ describe('#integration - /v1', function () {
 
     describe('?redirect_uri', () => {
       function getCode(clientId) {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
             url: '/authorization',
@@ -2621,7 +2561,6 @@ describe('#integration - /v1', function () {
       });
 
       it('works with a correct response', () => {
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
@@ -2646,7 +2585,6 @@ describe('#integration - /v1', function () {
       });
 
       it('works with multiple scopes', () => {
-        mockAssertion().reply(200, VERIFY_GOOD);
         const ANOTHER_CAN_SCOPE_KEY =
           'https://identity.mozilla.com/apps/another-can-scope-key';
         genericRequest.payload.scope = `${SCOPE_CAN_SCOPE_KEY} ${ANOTHER_CAN_SCOPE_KEY}`;
@@ -2681,7 +2619,6 @@ describe('#integration - /v1', function () {
 
       it('fails with non-existent client_id', () => {
         genericRequest.payload.client_id = BAD_CLIENT_ID;
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 400);
           assertSecurityHeaders(res);
@@ -2694,7 +2631,6 @@ describe('#integration - /v1', function () {
       it('succeeds with a non-scoped-key scope', () => {
         genericRequest.payload.scope =
           'https://identity.mozilla.com/apps/sample-scope';
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
@@ -2704,7 +2640,6 @@ describe('#integration - /v1', function () {
 
       it('succeeds with scopes that arent explicitly defined in config', () => {
         genericRequest.payload.scope += ' kv';
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
@@ -2717,7 +2652,7 @@ describe('#integration - /v1', function () {
       });
 
       it('fails with bad assertion', () => {
-        mockAssertion().reply(200, VERIFY_FAILURE);
+        genericRequest.payload.assertion = AN_ASSERTION + 'invalid';
         return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 401);
           assertSecurityHeaders(res);
@@ -2729,7 +2664,6 @@ describe('#integration - /v1', function () {
       it('fails for clients that are not allowed the requested scope', () => {
         genericRequest.payload.client_id = NO_KEY_SCOPES_CLIENT_ID;
 
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 400);
           assert.equal(res.result.message, 'Requested scopes are not allowed');
@@ -2740,7 +2674,6 @@ describe('#integration - /v1', function () {
       it('fails for clients that have no allowedScopes', () => {
         genericRequest.payload.client_id = NO_ALLOWED_SCOPES_CLIENT_ID;
 
-        mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 400);
           assert.equal(res.result.message, 'Requested scopes are not allowed');
@@ -2748,14 +2681,16 @@ describe('#integration - /v1', function () {
         });
       });
 
-      it('correctly handles authAt timestamp for newly-created accounts', () => {
-        mockAssertion().reply(
-          200,
-          mockVerifierResult({
-            authAt: 1549910733,
-            generation: 1549910733629,
-          })
-        );
+      it('correctly handles authAt timestamp for newly-created accounts', async () => {
+        genericRequest.payload.assertion = await genAssertion({
+          'fxa-generation': 1549910733629,
+          'fxa-verifiedEmail': VEMAIL,
+          'fxa-lastAuthAt': 1549910733,
+          'fxa-tokenVerified': true,
+          'fxa-amr': AMR,
+          'fxa-aal': AAL,
+          'fxa-profileChangedAt': Date.now(),
+        });
         return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
@@ -2767,14 +2702,17 @@ describe('#integration - /v1', function () {
         });
       });
 
-      it('uses fxa-keysChangedAt for the key rotation timestamp', () => {
-        mockAssertion().reply(
-          200,
-          mockVerifierResult({
-            generation: 1549910740000,
-            keysChangedAt: 1549910340000,
-          })
-        );
+      it('uses fxa-keysChangedAt for the key rotation timestamp', async () => {
+        genericRequest.payload.assertion = await genAssertion({
+          'fxa-generation': 1549910740000,
+          'fxa-verifiedEmail': VEMAIL,
+          'fxa-lastAuthAt': 1549910733,
+          'fxa-tokenVerified': true,
+          'fxa-amr': AMR,
+          'fxa-aal': AAL,
+          'fxa-profileChangedAt': Date.now(),
+          'fxa-keysChangedAt': 1549910340000,
+        });
         return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
@@ -2788,14 +2726,17 @@ describe('#integration - /v1', function () {
         });
       });
 
-      it('falls back to fxa-generation when fxa-keysChangedAt is falsy', () => {
-        mockAssertion().reply(
-          200,
-          mockVerifierResult({
-            generation: 1549910730000,
-            keysChangedAt: undefined,
-          })
-        );
+      it('falls back to fxa-generation when fxa-keysChangedAt is falsy', async () => {
+        genericRequest.payload.assertion = await genAssertion({
+          'fxa-generation': 1549910730000,
+          'fxa-verifiedEmail': VEMAIL,
+          'fxa-lastAuthAt': 1549910733,
+          'fxa-tokenVerified': true,
+          'fxa-amr': AMR,
+          'fxa-aal': AAL,
+          'fxa-profileChangedAt': Date.now(),
+          'fxa-keysChangedAt': undefined,
+        });
         return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
@@ -2933,11 +2874,17 @@ describe('#integration - /v1', function () {
           });
       });
 
-      it('should return profile_changed_at when set', function () {
-        const verifierResponse = mockVerifierResult({
-          profileChangedAt: PROFILE_CHANGED_AT_LATER_TIME,
+      it('should return profile_changed_at when set', async function () {
+        const assertion = await genAssertion({
+          'fxa-generation': 1549910730000,
+          'fxa-verifiedEmail': VEMAIL,
+          'fxa-lastAuthAt': 1549910733,
+          'fxa-tokenVerified': true,
+          'fxa-amr': AMR,
+          'fxa-aal': AAL,
+          'fxa-profileChangedAt': PROFILE_CHANGED_AT_LATER_TIME,
         });
-        return newToken({ scope: 'profile' }, { verifierResponse })
+        return newToken({ scope: 'profile', assertion })
           .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
@@ -3260,16 +3207,20 @@ describe('#integration - /v1', function () {
   describe('/authorized-clients', () => {
     let user1, user2, client1Id, client2Id, client1, client2;
 
-    function withMockAssertion(user, params) {
-      mockAssertion().reply(
-        200,
-        mockVerifierResult({
-          uid: user.uid,
-          vemail: user.email,
-        })
+    async function withMockAssertion(user, params) {
+      const assertion = await genAssertion(
+        {
+          'fxa-generation': 123456,
+          'fxa-verifiedEmail': user.email || VEMAIL,
+          'fxa-lastAuthAt': AUTH_AT,
+          'fxa-tokenVerified': true,
+          'fxa-amr': AMR,
+          'fxa-aal': AAL,
+        },
+        user.uid
       );
       return {
-        assertion: AN_ASSERTION,
+        assertion,
         ...params,
       };
     }
@@ -3336,7 +3287,7 @@ describe('#integration - /v1', function () {
         await makeAccessToken(client2, user1, ['bb_scope', 'aa_scope']);
         const res = await Server.api.post({
           url: '/authorized-clients',
-          payload: withMockAssertion(user1, {}),
+          payload: await withMockAssertion(user1, {}),
         });
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
@@ -3370,7 +3321,7 @@ describe('#integration - /v1', function () {
 
         const res1 = await Server.api.post({
           url: '/authorized-clients',
-          payload: withMockAssertion(user1, {}),
+          payload: await withMockAssertion(user1, {}),
         });
         assert.equal(res1.statusCode, 200);
         assertSecurityHeaders(res1);
@@ -3380,7 +3331,7 @@ describe('#integration - /v1', function () {
 
         const res2 = await Server.api.post({
           url: '/authorized-clients',
-          payload: withMockAssertion(user2, {}),
+          payload: await withMockAssertion(user2, {}),
         });
         assert.equal(res2.statusCode, 200);
         assertSecurityHeaders(res2);
@@ -3401,7 +3352,7 @@ describe('#integration - /v1', function () {
         await makeAccessToken(client2, user1, ['profile']);
         const res = await Server.api.post({
           url: '/authorized-clients',
-          payload: withMockAssertion(user1, {}),
+          payload: await withMockAssertion(user1, {}),
         });
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
@@ -3429,7 +3380,7 @@ describe('#integration - /v1', function () {
         await makeAccessToken(client2, user1, ['profile']);
         const res = await Server.api.post({
           url: '/authorized-clients',
-          payload: withMockAssertion(user1, {}),
+          payload: await withMockAssertion(user1, {}),
         });
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
@@ -3447,7 +3398,7 @@ describe('#integration - /v1', function () {
         await makeRefreshToken(client2, user1, ['profile']);
         const res = await Server.api.post({
           url: '/authorized-clients',
-          payload: withMockAssertion(user1, {}),
+          payload: await withMockAssertion(user1, {}),
         });
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
@@ -3459,12 +3410,10 @@ describe('#integration - /v1', function () {
 
       it('requires a valid assertion', async () => {
         await makeAccessToken(client1, user1, ['profile']);
-        mockAssertion().reply(400, VERIFY_FAILURE);
-
         let res = await Server.api.post({
           url: '/authorized-clients',
           payload: {
-            assertion: AN_ASSERTION,
+            assertion: AN_ASSERTION + 'invalid',
           },
         });
         assert.equal(res.statusCode, 401);
@@ -3474,7 +3423,7 @@ describe('#integration - /v1', function () {
         // Check that it didn't delete the token.
         res = await Server.api.post({
           url: '/authorized-clients',
-          payload: withMockAssertion(user1, {}),
+          payload: await withMockAssertion(user1, {}),
         });
         assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
@@ -3492,7 +3441,7 @@ describe('#integration - /v1', function () {
 
         let res = await Server.api.post({
           url: '/authorized-clients/destroy',
-          payload: withMockAssertion(user1, {
+          payload: await withMockAssertion(user1, {
             client_id: client1Id.toString('hex'),
           }),
         });
@@ -3501,7 +3450,7 @@ describe('#integration - /v1', function () {
 
         res = await Server.api.post({
           url: '/authorized-clients',
-          payload: withMockAssertion(user1, {}),
+          payload: await withMockAssertion(user1, {}),
         });
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.length, 2);
@@ -3509,7 +3458,7 @@ describe('#integration - /v1', function () {
 
         res = await Server.api.post({
           url: '/authorized-clients/destroy',
-          payload: withMockAssertion(user1, {
+          payload: await withMockAssertion(user1, {
             client_id: client2Id.toString('hex'),
           }),
         });
@@ -3518,17 +3467,18 @@ describe('#integration - /v1', function () {
 
         res = await Server.api.post({
           url: '/authorized-clients',
-          payload: withMockAssertion(user1, {}),
+          payload: await withMockAssertion(user1, {}),
         });
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.length, 0);
       });
 
       it('deletes outstanding authorization codes for the client', async () => {
-        mockAssertion().reply(200, mockVerifierResult({ uid: user1.uid }));
+        const result = await withMockAssertion(user1, {});
         let res = await Server.api.post({
           url: '/authorization',
           payload: authParams({
+            assertion: result.assertion,
             scope: 'profile',
           }),
         });
@@ -3536,7 +3486,7 @@ describe('#integration - /v1', function () {
         assert.ok(code, 'an authorization code was generated');
         await Server.api.post({
           url: '/authorized-clients/destroy',
-          payload: withMockAssertion(user1, {
+          payload: await withMockAssertion(user1, {
             client_id: clientId,
           }),
         });
@@ -3566,7 +3516,7 @@ describe('#integration - /v1', function () {
 
         let res = await Server.api.post({
           url: '/authorized-clients/destroy',
-          payload: withMockAssertion(user1, {
+          payload: await withMockAssertion(user1, {
             client_id: client2Id.toString('hex'),
             refresh_token_id: tokenId,
           }),
@@ -3576,7 +3526,7 @@ describe('#integration - /v1', function () {
 
         res = await Server.api.post({
           url: '/authorized-clients',
-          payload: withMockAssertion(user1, {}),
+          payload: await withMockAssertion(user1, {}),
         });
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.length, 2);
@@ -3596,7 +3546,7 @@ describe('#integration - /v1', function () {
         ]);
         const res = await Server.api.post({
           url: '/authorized-clients/destroy',
-          payload: withMockAssertion(user1, {
+          payload: await withMockAssertion(user1, {
             client_id: client1Id.toString('hex'),
             refresh_token_id: tokenId,
           }),
@@ -3616,7 +3566,7 @@ describe('#integration - /v1', function () {
         ]);
         const res = await Server.api.post({
           url: '/authorized-clients/destroy',
-          payload: withMockAssertion(user2, {
+          payload: await withMockAssertion(user2, {
             client_id: client2Id.toString('hex'),
             refresh_token_id: tokenId,
           }),
@@ -3628,11 +3578,10 @@ describe('#integration - /v1', function () {
       });
 
       it('requires a valid assertion', async () => {
-        mockAssertion().reply(400, VERIFY_FAILURE);
         const res = await Server.api.post({
           url: '/authorized-clients/destroy',
           payload: {
-            assertion: AN_ASSERTION,
+            assertion: AN_ASSERTION + 'invalid',
             client_id: client1Id.toString('hex'),
           },
         });
@@ -3784,7 +3733,6 @@ describe('#integration - /v1', function () {
       const jwtClient = clientByName('JWT Client');
       assert(jwtClient.canGrant); //sanity check
       const clientId = jwtClient.id;
-      mockAssertion().reply(200, VERIFY_GOOD);
 
       const tokenResult = await newToken(
         {
@@ -3945,7 +3893,6 @@ describe('#integration - /v1', function () {
     });
 
     it('returns a different sub to the user ID', async () => {
-      mockAssertion().reply(200, VERIFY_GOOD);
       const ppidTokenResult = await newToken(
         {
           access_type: 'offline',
@@ -3966,7 +3913,6 @@ describe('#integration - /v1', function () {
     });
 
     it('does not automatically rotate unless enabled for client', async () => {
-      mockAssertion().reply(200, VERIFY_GOOD);
       const initialTokenResult = await newToken(
         {
           access_type: 'offline',
@@ -4004,7 +3950,6 @@ describe('#integration - /v1', function () {
     });
 
     it('ignores ppid_seed unless PPID is enabled for client', async () => {
-      mockAssertion().reply(200, VERIFY_GOOD);
       const seededTokenResult = await newToken(
         {
           access_type: 'offline',
@@ -4055,8 +4000,6 @@ describe('#integration - /v1', function () {
     });
 
     it('automatically rotates based on server time', async () => {
-      mockAssertion().reply(200, VERIFY_GOOD);
-
       const tokenResult = await newToken(
         {
           access_type: 'offline',
@@ -4100,8 +4043,6 @@ describe('#integration - /v1', function () {
     });
 
     it('accepts ppid_seed when fetching tokens', async () => {
-      mockAssertion().reply(200, VERIFY_GOOD);
-
       const accessTokenResult = await newToken(
         {
           access_type: 'offline',
@@ -4140,8 +4081,6 @@ describe('#integration - /v1', function () {
     });
 
     it('accepts different ppid_seed when using a refresh_token', async () => {
-      mockAssertion().reply(200, VERIFY_GOOD);
-
       const tokenResult = await newToken(
         {
           access_type: 'offline',
@@ -4190,41 +4129,6 @@ describe('#integration - /v1', function () {
       );
       assert.equal(tokenResult.statusCode, 400);
       assert.equal(tokenResult.result.errno, 109);
-    });
-  });
-
-  describe('BrowserID assertions', () => {
-    it('cannot be used to access endpoints that accept JWT access tokens', async () => {
-      const verifyWithAssertion = await Server.api.post({
-        url: '/verify',
-        payload: {
-          token: AN_ASSERTION,
-        },
-      });
-
-      assert.equal(verifyWithAssertion.statusCode, 400);
-      assert.equal(verifyWithAssertion.result.errno, 109);
-
-      const introspectWithAssertion = await Server.api.post({
-        url: '/introspect',
-        payload: {
-          token: AN_ASSERTION,
-          token_type_hint: 'access_token',
-        },
-      });
-
-      assert.strictEqual(introspectWithAssertion.statusCode, 200);
-      assert.isFalse(introspectWithAssertion.result.active);
-
-      const destroyWithAnAssertion = await Server.api.post({
-        url: '/destroy',
-        payload: {
-          token: AN_ASSERTION,
-        },
-      });
-
-      assert.equal(destroyWithAnAssertion.statusCode, 400);
-      assert.equal(destroyWithAnAssertion.result.errno, 109);
     });
   });
 });

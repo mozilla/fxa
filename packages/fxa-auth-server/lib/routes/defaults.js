@@ -56,10 +56,6 @@ module.exports = (log, config, db) => {
         // We should consider it deprecated but removing it isn't a high priority.
         log.begin('Defaults.config', request);
         return {
-          browserid: {
-            issuer: config.oauthServer.browserid.issuer,
-            verificationUrl: config.oauthServer.browserid.verificationUrl,
-          },
           contentUrl: config.oauthServer.contentUrl,
         };
       },
