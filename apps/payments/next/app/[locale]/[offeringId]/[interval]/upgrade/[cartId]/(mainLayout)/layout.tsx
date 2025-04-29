@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { headers } from 'next/headers';
-import { MetricsWrapper, PurchaseDetails } from '@fxa/payments/ui';
+import { Header, MetricsWrapper, PurchaseDetails } from '@fxa/payments/ui';
 import { fetchCMSData, getCartAction } from '@fxa/payments/ui/actions';
 import {
   getApp,
@@ -13,6 +13,7 @@ import {
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
 import { config } from 'apps/payments/next/config';
+import { auth, signOut } from 'apps/payments/next/auth';
 
 export default async function UpgradeSuccessLayout({
   children,
@@ -26,12 +27,27 @@ export default async function UpgradeSuccessLayout({
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const cartDataPromise = getCartAction(params.cartId);
   const cmsDataPromise = fetchCMSData(params.offeringId, locale);
-  const [cms, cart] = await Promise.all([cmsDataPromise, cartDataPromise]);
+  const sessionPromise = auth();
+  const [cms, cart, session] = await Promise.all([
+    cmsDataPromise,
+    cartDataPromise,
+    sessionPromise,
+  ]);
   const purchaseDetails =
     cms.defaultPurchase.purchaseDetails.localizations.at(0) ||
     cms.defaultPurchase.purchaseDetails;
   return (
     <MetricsWrapper cart={cart}>
+      <Header
+        auth={{
+          user: session?.user,
+          signOut: async () => {
+            'use server';
+            await signOut({ redirect: false });
+          },
+        }}
+        cart={cart}
+      />
       <div className="mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
         <SubscriptionTitle cart={cart} l10n={l10n} />
         <section

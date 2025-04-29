@@ -4,6 +4,7 @@
 import { headers } from 'next/headers';
 import {
   CouponForm,
+  Header,
   MetricsWrapper,
   PurchaseDetails,
   SelectTaxLocation,
@@ -22,7 +23,7 @@ import {
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
 import { CartState } from '@fxa/shared/db/mysql/account';
-import { auth } from 'apps/payments/next/auth';
+import { auth, signOut } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
 
 export interface CheckoutSearchParams {
@@ -57,6 +58,16 @@ export default async function CheckoutLayout({
     cms.defaultPurchase.purchaseDetails;
   return (
     <MetricsWrapper cart={cart}>
+      <Header
+        auth={{
+          user: session?.user,
+          signOut: async () => {
+            'use server';
+            await signOut({ redirect: false });
+          },
+        }}
+        cart={cart}
+      />
       {session?.user?.email && (
         <div className="mb-8 tablet:hidden">
           <SignedIn email={session.user.email} />
