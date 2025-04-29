@@ -161,8 +161,8 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/preset-react": "^7.25.7",
+    "@babel/core": "7.25.7",
+    "@babel/preset-react": "7.25.7",
     "@graphql-codegen/cli": "5.0.0",
     "@graphql-codegen/client-preset": "^4.3.2",
     "@graphql-codegen/typescript": "^4.0.1",
@@ -257,9 +257,12 @@
     "packages/*"
   ],
   "resolutions": {
-    "@babel/core": "^7.22.5",
-    "@babel/helper-module-imports": "^7.22.5",
-    "@babel/types": "^7.22.5",
+    "@babel/core": "7.25.7",
+    "@babel/helper-create-class-features-plugin": "7.25.7",
+    "@babel/helper-module-imports": "7.25.7",
+    "@babel/plugin-transform-function-name": "7.25.7",
+    "@babel/traverse": "7.25.7",
+    "@babel/types": "7.25.7",
     "@graphql-typed-document-node/core": "3.2.0",
     "@svgr/webpack": "^8.0.1",
     "@types/node": "^20.11.1",
