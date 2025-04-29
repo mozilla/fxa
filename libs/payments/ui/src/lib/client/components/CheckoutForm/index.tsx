@@ -188,10 +188,6 @@ export function CheckoutForm({
             payment_method_data: {
               billing_details: {
                 name: fullName,
-                address: {
-                  country: cart.taxAddress.countryCode,
-                  postal_code: cart.taxAddress.postalCode,
-                },
               },
             },
           }
@@ -326,16 +322,15 @@ export function CheckoutForm({
                 spacedAccordionItems: true,
               },
               readOnly: !formEnabled,
-              fields: {
-                billingDetails: {
-                  address: {
-                    country: 'never',
-                    postalCode: 'never',
-                  },
-                },
-              },
               terms: {
                 card: 'never',
+              },
+              defaultValues: {
+                billingDetails: {
+                  address: {
+                    country: cart.taxAddress.countryCode,
+                  },
+                },
               },
             }}
           />
