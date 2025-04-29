@@ -118,17 +118,19 @@ export function useExperiments(): NimbusResult | null {
     async function fetchExperiments() {
       if (experimentInfo) {
         const exp = await experimentInfo;
-        // Today, we don't need everything from the response so let's only add them as needed.
-        // We map out the response from the doc examples here:
-        // https://github.com/mozilla/experimenter/blob/main/cirrus/README.md
-        setExperiments({
-          features: exp.Features,
-          // The ID we send and the one receive should be the same.
-          // There has been a case were a bug in Nimbus sent us different IDs,
-          // so for now, let us trust our own ID.
-          // See: https://github.com/mozilla/blurts-server/pull/5509
-          nimbusUserId: uniqueUserId,
-        } as NimbusResult);
+        if (exp) {
+          // Today, we don't need everything from the response so let's only add them as needed.
+          // We map out the response from the doc examples here:
+          // https://github.com/mozilla/experimenter/blob/main/cirrus/README.md
+          setExperiments({
+            features: exp.Features,
+            // The ID we send and the one receive should be the same.
+            // There has been a case were a bug in Nimbus sent us different IDs,
+            // so for now, let us trust our own ID.
+            // See: https://github.com/mozilla/blurts-server/pull/5509
+            nimbusUserId: uniqueUserId,
+          } as NimbusResult);
+        }
       }
     }
     fetchExperiments();
