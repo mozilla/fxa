@@ -30,7 +30,10 @@ describe('PaymentsGleanManager', () => {
   let paymentsGleanServerEventsLogger: any;
   let spyPopulateCommonMetrics: jest.SpyInstance;
 
+  const originalEnv = process.env;
+
   beforeEach(async () => {
+    process.env = { ...originalEnv, CI: '' };
     const moduleRef = await Test.createTestingModule({
       providers: [
         MockPaymentsGleanFactory,
@@ -41,6 +44,10 @@ describe('PaymentsGleanManager', () => {
 
     paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
     paymentsGleanServerEventsLogger = moduleRef.get(PaymentsGleanProvider);
+  });
+
+  afterEach(() => {
+    process.env = originalEnv;
   });
 
   it('should be defined', () => {
