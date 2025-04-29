@@ -1060,8 +1060,10 @@ describe('CartService', () => {
 
   describe('updateCart', () => {
     describe('updates cart with tax address and currency', () => {
+      const mockCurrency = faker.finance.currencyCode();
       const mockCart = ResultCartFactory({
         stripeSubscriptionId: undefined,
+        currency: mockCurrency,
       });
       const mockUpdateCartInput = UpdateCartInputFactory({
         taxAddress: {
@@ -1069,12 +1071,12 @@ describe('CartService', () => {
           countryCode: faker.location.countryCode(),
         },
       });
-      const mockCurrency = faker.finance.currencyCode();
+      const mockPrice = StripePriceFactory();
+      const mockPreviewInvoice = InvoicePreviewFactory();
       const expectedUpdateCart = {
         ...mockUpdateCartInput,
         currency: mockCurrency,
       };
-      const mockPrice = StripePriceFactory();
 
       beforeEach(() => {
         jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
@@ -1089,9 +1091,12 @@ describe('CartService', () => {
         jest
           .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
           .mockResolvedValue(undefined);
+        jest
+          .spyOn(invoiceManager, 'previewUpcoming')
+          .mockResolvedValue(mockPreviewInvoice);
       });
 
-      it('calls cartManager.updateFreshCart', async () => {
+      it('calls cartManager.updateFreshCart with no currency change', async () => {
         await cartService.updateCart(
           mockCart.id,
           mockCart.version,
@@ -1125,7 +1130,10 @@ describe('CartService', () => {
         expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
           mockCart.id,
           mockCart.version,
-          expectedUpdateCart
+          {
+            ...expectedUpdateCart,
+            amount: mockPreviewInvoice.subtotal,
+          }
         );
       });
 
@@ -1154,6 +1162,7 @@ describe('CartService', () => {
           {
             ...expectedUpdateCart,
             couponCode: null,
+            amount: mockPreviewInvoice.subtotal,
           }
         );
       });
@@ -1181,15 +1190,9 @@ describe('CartService', () => {
       const mockPrice = StripePriceFactory();
       const mockUpdateCartInput = UpdateCartInputFactory({
         couponCode: faker.word.noun(),
-        taxAddress: {
-          postalCode: faker.location.zipCode(),
-          countryCode: faker.location.countryCode(),
-        },
       });
-      const mockCurrency = faker.finance.currencyCode();
       const expectedUpdateCart = {
         ...mockUpdateCartInput,
-        currency: mockCurrency,
       };
 
       beforeEach(async () => {
@@ -1197,9 +1200,6 @@ describe('CartService', () => {
         jest
           .spyOn(productConfigurationManager, 'retrieveStripePrice')
           .mockResolvedValue(mockPrice);
-        jest
-          .spyOn(currencyManager, 'getCurrencyForCountry')
-          .mockReturnValue(mockCurrency);
         jest
           .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
           .mockResolvedValue(undefined);
@@ -1239,7 +1239,7 @@ describe('CartService', () => {
         ).toHaveBeenCalledWith(
           mockUpdateCartInput.couponCode,
           mockPrice,
-          mockCurrency
+          mockCart.currency
         );
         expect(cartManager.updateFreshCart).not.toHaveBeenCalled();
         expect(cartManager.finishErrorCart).not.toHaveBeenCalled();

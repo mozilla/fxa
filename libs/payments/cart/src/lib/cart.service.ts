@@ -553,10 +553,10 @@ export class CartService {
       cartId,
       { errorAllowList: [PromotionCodeCouldNotBeAttachedError] },
       async () => {
+        const oldCart = await this.cartManager.fetchCartById(cartId);
         const cartDetails: UpdateCart = {
           ...cartDetailsInput,
         };
-        const oldCart = await this.cartManager.fetchCartById(cartId);
 
         if (cartDetailsInput.taxAddress?.countryCode) {
           cartDetails.currency = this.currencyManager.getCurrencyForCountry(
@@ -569,28 +569,33 @@ export class CartService {
             );
           }
 
-          // If the currency has changed, and the cart already has a coupon code, and
-          // no new coupon is being added, then the coupon code needs to revalidated.
-          // If the code is invalid, then update the cart with an empty coupon code.
-          if (
-            cartDetails.currency !== oldCart.currency &&
-            !!oldCart.couponCode &&
-            !cartDetailsInput.couponCode
-          ) {
+          if (cartDetails.currency !== oldCart.currency) {
             const price =
               await this.productConfigurationManager.retrieveStripePrice(
                 oldCart.offeringConfigId,
                 oldCart.interval as SubplatInterval
               );
 
-            try {
-              await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
-                oldCart.couponCode,
-                price,
-                cartDetails.currency
-              );
-            } catch (error) {
-              cartDetails.couponCode = null;
+            const upcomingInvoice = await this.invoiceManager.previewUpcoming({
+              priceId: price.id,
+              currency: cartDetails.currency,
+              taxAddress: cartDetailsInput.taxAddress,
+              couponCode: cartDetailsInput.couponCode,
+            });
+            cartDetails.amount = upcomingInvoice.subtotal;
+            // If the currency has changed, and the cart already has a coupon code, and
+            // no new coupon is being added, then the coupon code needs to revalidated.
+            // If the code is invalid, then update the cart with an empty coupon code.
+            if (!!oldCart.couponCode && !cartDetailsInput.couponCode) {
+              try {
+                await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+                  oldCart.couponCode,
+                  price,
+                  cartDetails.currency
+                );
+              } catch (error) {
+                cartDetails.couponCode = null;
+              }
             }
           }
         }
