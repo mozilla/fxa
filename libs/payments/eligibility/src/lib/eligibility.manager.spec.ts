@@ -543,6 +543,37 @@ describe('EligibilityManager', () => {
       );
     });
 
+    it('returns same if subscribed price and target price have same product and interval', async () => {
+      const mockOverlapResult = [
+        {
+          comparison: OfferingComparison.SAME,
+          priceId: 'price_legacy',
+        },
+      ] as OfferingOverlapResult[];
+      const mockTargetOffering = EligibilityContentOfferingResultFactory();
+      const interval = SubplatInterval.Monthly;
+      const mockTargetPrice = StripePriceFactory({
+        id: 'price_new',
+      });
+      const mockSubscribedPrice = {
+        ...mockTargetPrice,
+        id: 'price_legacy',
+      };
+      jest
+        .spyOn(priceManager, 'retrieveByInterval')
+        .mockResolvedValue(mockTargetPrice);
+
+      const result = await manager.compareOverlap(
+        mockOverlapResult,
+        mockTargetOffering,
+        interval,
+        [mockSubscribedPrice]
+      );
+      expect(result.subscriptionEligibilityResult).toEqual(
+        EligibilityStatus.SAME
+      );
+    });
+
     it('returns downgrade when target price interval is shorter than the subscribed price', async () => {
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
       const mockFromPrice = StripePriceFactory({
