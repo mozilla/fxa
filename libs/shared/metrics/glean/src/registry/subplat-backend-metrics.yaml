@@ -310,10 +310,14 @@ subscription:
     data_sensitivity:
       - interaction
     extra_keys:
-      subscription_voluntary_cancellation:
+      subscription_cancellation_reason:
         description: |
-          Whether the user cancelled the subscription (`true`) or not (`false`)
-        type: boolean
+          Reason for the subscription cancellation - customer initiated, involuntary, or redundant.
+        type: string
+        enum:
+          - customer_initiated
+          - involuntary
+          - redundant
   provider_event_id:
     description: |
       A unique identifier for the subscription notification from a payment provider.

@@ -7,13 +7,13 @@ import { normalizeGleanFalsyValues } from './normalizeGleanFalsyValues';
 export function mapSubscriptionCancellation({
   offeringId,
   interval,
-  voluntaryCancellation,
+  cancellationReason,
   providerEventId,
 }: SubscriptionCancellationData) {
   return {
     subscription_offering_id: normalizeGleanFalsyValues(offeringId),
     subscription_interval: normalizeGleanFalsyValues(interval),
     subscription_provider_event_id: normalizeGleanFalsyValues(providerEventId),
-    subscription_voluntary_cancellation: voluntaryCancellation,
+    subscription_cancellation_reason: cancellationReason,
   };
 }

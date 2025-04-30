@@ -6,14 +6,17 @@ import {
   StripeInvoiceFactory,
   StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
-import { determineCancellation } from './determineCancellation';
+import {
+  CancellationReason,
+  determineCancellation,
+} from './determineCancellation';
 
 describe('determineCancellation', () => {
   const mockSubscription = StripeSubscriptionFactory();
 
   describe('external_paypal', () => {
     const paymentProvider = 'external_paypal';
-    it('returns true if status is not uncollectible', () => {
+    it('returns customer initiated if status is not uncollectible', () => {
       const mockLatestInvoice = StripeInvoiceFactory({ status: 'paid' });
       expect(
         determineCancellation(
@@ -21,10 +24,10 @@ describe('determineCancellation', () => {
           mockSubscription,
           mockLatestInvoice
         )
-      ).toBe(true);
+      ).toBe(CancellationReason.CustomerInitiated);
     });
 
-    it('return false if status is uncollectible', () => {
+    it('return involuntary if status is uncollectible', () => {
       const mockLatestInvoice = StripeInvoiceFactory({
         status: 'uncollectible',
       });
@@ -34,7 +37,7 @@ describe('determineCancellation', () => {
           mockSubscription,
           mockLatestInvoice
         )
-      ).toBe(false);
+      ).toBe(CancellationReason.Involuntary);
     });
 
     it('return undefined', () => {
@@ -46,7 +49,7 @@ describe('determineCancellation', () => {
 
   describe('card', () => {
     const paymentProvider = 'card';
-    it('returns true if reason is cancellation_requested', () => {
+    it('returns customer initiated if reason is cancellation_requested', () => {
       const mockSubscription = StripeSubscriptionFactory({
         cancellation_details: {
           reason: 'cancellation_requested',
@@ -55,11 +58,11 @@ describe('determineCancellation', () => {
         },
       });
       expect(determineCancellation(paymentProvider, mockSubscription)).toBe(
-        true
+        CancellationReason.CustomerInitiated
       );
     });
 
-    it('returns false if reason is not cancellation_requested', () => {
+    it('returns involuntary if reason is not cancellation_requested', () => {
       const mockSubscription = StripeSubscriptionFactory({
         cancellation_details: {
           reason: 'payment_disputed',
@@ -68,7 +71,7 @@ describe('determineCancellation', () => {
         },
       });
       expect(determineCancellation(paymentProvider, mockSubscription)).toBe(
-        false
+        CancellationReason.Involuntary
       );
     });
 
@@ -78,6 +81,20 @@ describe('determineCancellation', () => {
       });
       expect(determineCancellation(paymentProvider, mockSubscription)).toBe(
         undefined
+      );
+    });
+  });
+
+  describe('redundantCancellation', () => {
+    const paymentProvider = 'card';
+    it('returns redundant if metadata contains redundantCancellation', () => {
+      const mockSubscription = StripeSubscriptionFactory({
+        metadata: {
+          redundantCancellation: 'true',
+        },
+      });
+      expect(determineCancellation(paymentProvider, mockSubscription)).toBe(
+        CancellationReason.Redundant
       );
     });
   });

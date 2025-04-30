@@ -5,3 +5,4 @@
 export * from './lib/stripeWebhooks.service';
 export * from './lib/stripeEvents.manager';
 export * from './lib/subscriptionHandler.service';
+export * from './lib/types';

@@ -13,7 +13,10 @@ import { PaymentsEmitterService } from '@fxa/payments/events';
 import { PaymentProvidersType } from '@fxa/payments/metrics';
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
-import { determineCancellation } from './util/determineCancellation';
+import {
+  CancellationReason,
+  determineCancellation,
+} from './util/determineCancellation';
 
 @Injectable()
 export class SubscriptionEventsService {
@@ -34,7 +37,7 @@ export class SubscriptionEventsService {
     const price = subscription.items.data[0].price;
 
     let paymentProvider: PaymentProvidersType | undefined;
-    let determinedCancellation: boolean | undefined;
+    let determinedCancellation: CancellationReason | undefined;
     let uid: string | undefined;
     try {
       const customer = await this.customerManager.retrieve(
@@ -67,8 +70,9 @@ export class SubscriptionEventsService {
       }
     }
 
-    // If voluntaryCancellation could not be determined, assume it was not voluntary
-    const voluntaryCancellation = !!determinedCancellation;
+    // If cancellationReason could not be determined, assume it was not voluntary
+    const cancellationReason =
+      determinedCancellation ?? CancellationReason.Involuntary;
 
     this.emitterService.getEmitter().emit('subscriptionEnded', {
       productId: price.product,
@@ -77,7 +81,7 @@ export class SubscriptionEventsService {
       priceIntervalCount: price.recurring?.interval_count,
       paymentProvider: paymentProvider,
       providerEventId: event.id,
-      voluntaryCancellation,
+      cancellationReason,
       uid,
     });
   }
