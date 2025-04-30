@@ -132,7 +132,14 @@ export class EligibilityManager {
       };
     }
 
-    if (overlappingPrice.id === targetPrice.id) {
+    if (
+      overlappingPrice.id === targetPrice.id ||
+      (overlappingPrice.product === targetPrice.product &&
+        overlappingPrice.recurring.interval ===
+          targetPrice.recurring.interval &&
+        overlappingPrice.recurring.interval_count ===
+          targetPrice.recurring.interval_count)
+    ) {
       return {
         subscriptionEligibilityResult: EligibilityStatus.SAME,
       };
