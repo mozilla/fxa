@@ -23,7 +23,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(page).toHaveURL(/settings/);
     });
 
-    test(`ignore xss redirect_to parameter`, async ({
+    test(`errors on xss redirect_to parameter`, async ({
       target,
       page,
       pages: { signin },
@@ -35,9 +35,25 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}/?redirect_to=javascript:alert(1)`
       );
       await signin.fillOutEmailFirstForm(credentials.email);
+
+      await expect(page).toHaveURL(/signin/);
+      await expect(signin.badRequestHeading).toBeVisible();
+    });
+
+    test('does not allow bogus redirect_to parameter', async ({
+      target,
+      pages: { page, signin },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+
+      // set a redirect url that is not the usual navigation target after signin
+      const redirectTo = `https://evil.com/`;
+      await page.goto(`${target.contentServerUrl}/?redirect_to=${redirectTo}`);
+      await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
-      await expect(page).toHaveURL(/settings/);
+      await expect(page).not.toHaveURL(redirectTo);
     });
 
     test('allows valid redirect_to parameter', async ({

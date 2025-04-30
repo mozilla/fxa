@@ -3,11 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ModelDataStore } from '../../lib/model-data';
-import { IntegrationType } from './base-integration';
-import {
-  SyncBasicIntegration,
-  SyncIntegrationFeatures,
-} from './sync-basic-integration';
+import { IntegrationType } from './integration';
+import { SyncBasicIntegration } from './sync-basic-integration';
 
 /**
  * Sync desktop with context=fx_desktop_v3
@@ -26,7 +23,7 @@ export function isSyncDesktopV3Integration(integration: {
  *
  * FxA sends and receives web channel messages if this integration is created.
  */
-export class SyncDesktopV3Integration extends SyncBasicIntegration<SyncIntegrationFeatures> {
+export class SyncDesktopV3Integration extends SyncBasicIntegration {
   constructor(data: ModelDataStore) {
     super(data, IntegrationType.SyncDesktopV3);
     this.setFeatures({ allowUidChange: true });

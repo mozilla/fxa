@@ -23,7 +23,6 @@ import { MozServices } from '../../lib/types';
 
 import {
   Integration,
-  OAuthIntegration,
   useConfig,
   useInitialMetricsQueryState,
   useIntegration,
@@ -129,10 +128,10 @@ export const App = ({
       // If there is a user actively signed into the browser,
       // we should try to use that user's account when possible.
       const userFromBrowser = await firefox.requestSignedInUser(
-        integration.data.context,
+        integration.data.context || '',
         // TODO with React pairing flow, update this if pairing flow
         false,
-        integration.data.service
+        integration.data.service || ''
       );
 
       if (userFromBrowser && userFromBrowser.sessionToken) {
@@ -461,12 +460,13 @@ const AuthAndAccountSetupRoutes = ({
 
       <InlineTotpSetupContainer
         path="/inline_totp_setup/*"
-        integration={integration as OAuthIntegration}
+        integration={integration}
         {...{ isSignedIn, serviceName, flowQueryParams }}
       />
+
       <InlineRecoverySetupContainer
         path="/inline_recovery_setup/*"
-        integration={integration as OAuthIntegration}
+        integration={integration}
         {...{ isSignedIn, serviceName }}
       />
     </Router>

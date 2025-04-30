@@ -69,6 +69,9 @@ const ConfirmSignupCode = ({
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const isDesktopRelay = integration.isDesktopRelay();
 
+  // Make sure data is valid. If it isn't fail fast.
+  integration.data.validate();
+
   useEffect(() => {
     GleanMetrics.signupConfirmation.view();
   }, []);
@@ -227,7 +230,7 @@ const ConfirmSignupCode = ({
       } else if (isWebIntegration(integration)) {
         // SubPlat redirect
         if (integration.data.redirectTo) {
-          if (webRedirectCheck?.isValid) {
+          if (webRedirectCheck.isValid) {
             hardNavigate(integration.data.redirectTo);
           } else if (webRedirectCheck?.localizedInvalidRedirectError) {
             // Even if the code submission is successful, show the user this error

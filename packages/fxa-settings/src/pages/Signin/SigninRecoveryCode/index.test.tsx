@@ -17,7 +17,7 @@ import { MOCK_RECOVERY_CODE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { tryAgainError } from '../../../lib/oauth/hooks';
-import { mockOAuthNativeIntegration } from '../SigninTotpCode/mocks';
+import { mockOAuthNativeSigninIntegration } from '../SigninTotpCode/mocks';
 import userEvent from '@testing-library/user-event';
 
 jest.mock('../../../lib/glean', () => ({
@@ -125,7 +125,7 @@ describe('PageSigninRecoveryCode', () => {
       <LocationProvider>
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
-          integration={mockOAuthNativeIntegration(false)}
+          integration={mockOAuthNativeSigninIntegration(false)}
           navigateToRecoveryPhone={jest.fn()}
           signinState={mockSigninLocationState}
           submitRecoveryCode={jest.fn()}

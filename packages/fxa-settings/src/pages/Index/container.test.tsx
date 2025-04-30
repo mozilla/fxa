@@ -11,7 +11,7 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
-import { Integration, IntegrationType } from '../../models';
+import { Integration, IntegrationType, WebIntegration } from '../../models';
 import { IndexContainer } from './container';
 import { MozServices } from '../../lib/types';
 import AuthClient from 'fxa-auth-client/browser';
@@ -22,7 +22,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import GleanMetrics from '../../lib/glean';
 import { IndexQueryParams } from '../../models/pages/index';
-import { ModelValidationErrors } from '../../lib/model-data';
+import { GenericData, ModelValidationErrors } from '../../lib/model-data';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -100,29 +100,60 @@ describe('IndexContainer', () => {
   let integration: Integration;
 
   function mockWebIntegration() {
-    integration = {
-      type: IntegrationType.Web,
-      getService: () => MozServices.Default,
-      getClientId: () => undefined,
-      isSync: () => false,
-      wantsKeys: () => false,
-      isDesktopSync: () => false,
-      isDesktopRelay: () => false,
-      data: {},
-    } as Integration;
+    // Leaving for historical record. Remove once baked.
+    // integration = {
+    //   type: IntegrationType.Web,
+    //   getService: () => MozServices.Default,
+    //   getClientId: () => undefined,
+    //   isSync: () => false,
+    //   wantsKeys: () => false,
+    //   isDesktopSync: () => false,
+    //   isDesktopRelay: () => false,
+    //   data: {},
+    // } as Integration;
+
+    integration = new WebIntegration(
+      new GenericData({
+        service: MozServices.Default,
+      })
+    );
+
+    expect(integration.type).toEqual(IntegrationType.Web);
+    expect(integration.getService()).toEqual(MozServices.Default);
+    expect(integration.getClientId()).toEqual(undefined);
+    expect(integration.isSync()).toBeFalsy();
+    expect(integration.wantsKeys()).toBeFalsy();
+    expect(integration.isDesktopSync()).toBeFalsy();
+    expect(integration.isDesktopRelay()).toBeFalsy();
   }
 
   function mockUnsupportedContextIntegration() {
-    integration = {
-      type: IntegrationType.Web,
-      getService: () => MozServices.Default,
-      getClientId: () => undefined,
-      isSync: () => false,
-      wantsKeys: () => false,
-      isDesktopSync: () => false,
-      isDesktopRelay: () => false,
-      data: { context: 'fx_desktop_v2' },
-    } as Integration;
+    // Leaving for historical record. Remove once baked.
+    // integration = {
+    //   type: IntegrationType.Web,
+    //   getService: () => MozServices.Default,
+    //   getClientId: () => undefined,
+    //   isSync: () => false,
+    //   wantsKeys: () => false,
+    //   isDesktopSync: () => false,
+    //   isDesktopRelay: () => false,
+    //   data: { context: 'fx_desktop_v2' },
+    // } as Integration;
+
+    integration = new WebIntegration(
+      new GenericData({
+        context: 'fx_desktop_v2',
+        service: MozServices.Default,
+      })
+    );
+
+    expect(integration.type).toEqual(IntegrationType.Web);
+    expect(integration.getService()).toEqual(MozServices.Default);
+    expect(integration.getClientId()).toEqual(undefined);
+    expect(integration.isSync()).toBeFalsy();
+    expect(integration.wantsKeys()).toBeFalsy();
+    expect(integration.isDesktopSync()).toBeFalsy();
+    expect(integration.isDesktopRelay()).toBeFalsy();
   }
 
   beforeEach(() => {

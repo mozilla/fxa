@@ -4,7 +4,13 @@
 
 import React from 'react';
 import { LocationProvider } from '@reach/router';
-import { IntegrationType } from '../../../models';
+import {
+  IntegrationType,
+  OAuthIntegrationData,
+  OAuthNativeIntegration,
+  WebIntegration,
+  WebIntegrationData,
+} from '../../../models';
 import { SigninTokenCodeProps } from './interfaces';
 import SigninTokenCode from '.';
 import {
@@ -17,8 +23,9 @@ import {
 } from '../../mocks';
 import { MozServices } from '../../../lib/types';
 import VerificationReasons from '../../../constants/verification-reasons';
+import { GenericData } from '../../../lib/model-data';
 
-export function createMockWebIntegration() {
+export function createMockWebIntegration(): WebIntegration {
   return {
     type: IntegrationType.Web,
     getService: () => MozServices.Default,
@@ -27,21 +34,25 @@ export function createMockWebIntegration() {
     wantsKeys: () => false,
     isDesktopSync: () => false,
     isDesktopRelay: () => false,
-    data: {},
-  };
+    data: new WebIntegrationData(new GenericData({})),
+  } as WebIntegration;
 }
 
-export function createOAuthNativeIntegration(isSync = true) {
+export function createOAuthNativeIntegration(
+  isSync = true
+): OAuthNativeIntegration {
   return {
     type: IntegrationType.OAuthNative,
     getService: () => MozServices.Default,
-    getClientId: () => undefined,
+    getClientId: () => 'sync',
     isSync: () => isSync,
     wantsKeys: () => false,
     isDesktopSync: () => false,
     isDesktopRelay: () => !isSync,
-    data: {},
-  };
+    data: new OAuthIntegrationData(new GenericData({})),
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
+  } as OAuthNativeIntegration;
 }
 
 export const createMockSigninLocationState = (

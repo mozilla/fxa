@@ -25,7 +25,6 @@ import {
   mockFinishOAuthFlowHandler,
 } from '../../mocks';
 import GleanMetrics from '../../../lib/glean';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { ConfirmSignupCodeIntegration } from './interfaces';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import {
@@ -35,6 +34,7 @@ import {
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import firefox from '../../../lib/channels/firefox';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { mockWebIntegration } from '../../Signin/SigninRecoveryCode/mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -67,8 +67,6 @@ jest.mock('../../../lib/glean', () => ({
     isDone: jest.fn(),
   },
 }));
-
-jest.mock('../../../lib/hooks/useWebRedirect');
 
 jest.mock('../../../lib/cache', () => ({
   ...jest.requireActual('../../../lib/cache'),
@@ -145,7 +143,7 @@ describe('ConfirmSignupCode page', () => {
   });
 
   it('renders as expected', () => {
-    renderWithSession({ session });
+    renderWithSession({ session, integration: createMockWebIntegration({}) });
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -321,11 +319,8 @@ describe('ConfirmSignupCode page', () => {
 
   describe('Web integration on submission', () => {
     it('with valid redirectTo', async () => {
-      const redirectTo = 'surprisinglyValid!';
+      const redirectTo = 'http://localhost/';
       const integration = createMockWebIntegration({ redirectTo });
-      (useWebRedirect as jest.Mock).mockReturnValue({
-        isValid: true,
-      });
       renderWithSession({ session, integration });
       submit();
 
@@ -337,11 +332,7 @@ describe('ConfirmSignupCode page', () => {
 
     it('with invalid redirectTo', async () => {
       const integration = createMockWebIntegration({
-        redirectTo: 'sadlyInvalid',
-      });
-      (useWebRedirect as jest.Mock).mockReturnValue({
-        isValid: false,
-        localizedInvalidRedirectError: AuthUiErrors.INVALID_REDIRECT_TO.message,
+        redirectTo: 'https://invalidhost/',
       });
       renderWithSession({ session, integration });
       submit();
@@ -350,7 +341,10 @@ describe('ConfirmSignupCode page', () => {
     });
 
     it('without redirectTo', async () => {
-      renderWithSession({ session });
+      renderWithSession({
+        session,
+        integration: createMockWebIntegration({}),
+      });
       submit();
 
       await waitFor(() => {
@@ -375,7 +369,7 @@ describe('ConfirmSignupCode page with error states', () => {
   });
 
   it('renders an error tooltip when the form is submitted without a code', async () => {
-    renderWithSession({ session });
+    renderWithSession({ session, integration: createMockWebIntegration({}) });
 
     const codeInput = screen.getByLabelText('Enter 6-digit code');
     fireEvent.change(codeInput, {
@@ -403,7 +397,10 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
   it('displays a success banner when successful', async () => {
     session = mockSession(true, false);
 
-    renderWithSession({ session });
+    renderWithSession({
+      session,
+      integration: mockWebIntegration,
+    });
 
     const resendEmailButton = screen.getByRole('button', {
       name: 'Email new code.',
@@ -421,7 +418,7 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
       sendVerificationCode: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR),
     } as unknown as Session;
 
-    renderWithSession({ session });
+    renderWithSession({ session, integration: mockWebIntegration });
 
     const resendEmailButton = screen.getByRole('button', {
       name: 'Email new code.',

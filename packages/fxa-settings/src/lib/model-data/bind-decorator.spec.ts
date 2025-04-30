@@ -114,16 +114,6 @@ describe('bind-decorator', function () {
     }).toThrow();
   });
 
-  it('throws on access of a invalid state', () => {
-    const data = new GenericData({
-      test_validated_field: ``,
-    });
-    const model1 = new TestModel(data);
-    expect(() => {
-      model1.testValidatedField?.toString();
-    }).toThrow();
-  });
-
   it('throws on write of a invalid state', () => {
     const data = new GenericData({});
     const model1 = new TestModel(data);

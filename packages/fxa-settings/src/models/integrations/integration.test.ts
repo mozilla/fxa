@@ -4,13 +4,29 @@
 
 import { UrlQueryData } from '../../lib/model-data';
 import { ReachRouterWindow } from '../../lib/window';
-import { BaseIntegration, IntegrationType } from './base-integration';
+import {
+  GenericIntegration,
+  Integration,
+  IntegrationType,
+} from './integration';
+import { IntegrationData } from './data/data';
+import { IntegrationFeatures } from './features';
 
-describe('BaseIntegration Model', function () {
+describe('Integration Model', function () {
   const window = new ReachRouterWindow();
-  let model: BaseIntegration;
+  let model: Integration;
   beforeEach(function () {
-    model = new BaseIntegration(IntegrationType.Web, new UrlQueryData(window));
+    model = new GenericIntegration<IntegrationFeatures, IntegrationData>(
+      IntegrationType.Web,
+      new IntegrationData(new UrlQueryData(window)),
+      {
+        allowUidChange: false,
+        fxaStatus: false,
+        handleSignedInNotification: true,
+        reuseExistingSession: false,
+        supportsPairing: false,
+      } satisfies IntegrationFeatures
+    );
   });
 
   describe('isSync', function () {
@@ -30,11 +46,4 @@ describe('BaseIntegration Model', function () {
       expect(model.isTrusted()).toBeTruthy();
     });
   });
-
-  // TODO: Move elsewhere
-  // describe('accountNeedsPermissions', function () {
-  //   it('returns `false`', function () {
-  //     expect(relier.accountNeedsPermissions).toBeFalsy();
-  //   });
-  // });
 });

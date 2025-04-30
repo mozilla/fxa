@@ -7,7 +7,7 @@ import Signin from '.';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { MozServices } from '../../lib/types';
-import { AppContext, IntegrationType } from '../../models';
+import { AppContext, IntegrationData, IntegrationType } from '../../models';
 import {
   MOCK_AUTH_AT,
   MOCK_EMAIL,
@@ -56,6 +56,7 @@ import { ApolloError } from '@apollo/client';
 import { GraphQLError } from 'graphql';
 import { BeginSigninError } from '../../lib/error-utils';
 import { mockAppContext } from '../../models/mocks';
+import { GenericData } from '../../lib/model-data';
 
 // Extend base mocks
 export * from '../mocks';
@@ -103,9 +104,11 @@ export function createMockSigninWebIntegration(): SigninIntegration {
     getService: () => MozServices.Default,
     getClientId: () => undefined,
     wantsKeys: () => false,
-    data: {},
+    data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => false,
     isDesktopRelay: () => false,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
   };
 }
 
@@ -119,9 +122,11 @@ export function createMockSigninOAuthNativeSyncIntegration({
     wantsKeys: () => true,
     getService: () => MozServices.FirefoxSync,
     getClientId: () => MOCK_CLIENT_ID,
-    data: {},
+    data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => true,
     isDesktopRelay: () => !isSync,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
   };
 }
 
@@ -145,7 +150,7 @@ export function createMockSigninOAuthIntegration({
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     isDesktopSync: () => isSync,
-    data: {},
+    data: new IntegrationData(new GenericData({})),
     isDesktopRelay: () => false,
   };
 }
@@ -165,7 +170,7 @@ export function createMockSigninOAuthNativeIntegration({
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     isDesktopSync: () => isSync,
-    data: {},
+    data: new IntegrationData(new GenericData({})),
     isDesktopRelay: () => !isSync,
     getClientId: () => MOCK_CLIENT_ID,
   };
