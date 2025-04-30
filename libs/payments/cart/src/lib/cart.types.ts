@@ -128,6 +128,7 @@ export interface TaxAmount {
 }
 
 export type UpdateCart = {
+  amount?: number;
   uid?: string;
   taxAddress?: TaxAddress;
   currency?: string;
