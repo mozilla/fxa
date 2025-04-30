@@ -25,18 +25,54 @@ import { useEscKeydownEffect } from '../../hooks/useEscKeydownEffect';
 import { User } from 'next-auth';
 import { constructHrefWithUtm } from '../../../utils/constructHrefWithUtm';
 import { OFFERING_LINKS } from '../../../constants';
-import { useParams, useRouter } from 'next/navigation';
+import {
+  ReadonlyURLSearchParams,
+  useParams,
+  useRouter,
+  useSearchParams,
+} from 'next/navigation';
+
+function buildSignOutRedirectPath(
+  params: Record<string, string | string[]>,
+  searchParams: ReadonlyURLSearchParams,
+  countryCode: string,
+  postalCode: string
+) {
+  const { locale, offeringId, interval } = params;
+  const remainingQueryParams = searchParams.toString();
+  const basePath = `/${locale}/${offeringId}/${interval}/new?countryCode=${countryCode}&postalCode=${postalCode}`;
+
+  if (remainingQueryParams) {
+    return `${basePath}&${remainingQueryParams}`;
+  } else {
+    return basePath;
+  }
+}
 
 type HeaderProps = {
   auth?: {
     user: User | undefined;
     signOut: () => Promise<void>;
   };
+  cart: {
+    taxAddress: {
+      countryCode: string;
+      postalCode: string;
+    };
+  };
 };
 
-export const Header = ({ auth }: HeaderProps) => {
+export const Header = ({ auth, cart }: HeaderProps) => {
   const router = useRouter();
-  const { locale, offeringId, interval } = useParams();
+  const params = useParams();
+  const searchParams = useSearchParams();
+
+  const signOutRedirectPath = buildSignOutRedirectPath(
+    params,
+    searchParams,
+    cart.taxAddress.countryCode,
+    cart.taxAddress.postalCode
+  );
 
   const signedIn = auth && auth.user;
 
@@ -362,9 +398,8 @@ export const Header = ({ auth }: HeaderProps) => {
                           // As of this commit, both router.push and direct location.href overwriting are necessary to ensure
                           // the browser is in the correct state without any contentless flashes
                           await auth.signOut();
-                          const redirectUrl = `/${locale}/${offeringId}/${interval}/new`;
-                          router.push(redirectUrl);
-                          window.location.href = redirectUrl;
+                          router.push(signOutRedirectPath);
+                          window.location.href = signOutRedirectPath;
                         }}
                         className="pl-3 group"
                       >

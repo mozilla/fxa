@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { getApp } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
-import { Header, Providers } from '@fxa/payments/ui';
+import { Providers } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
-import { auth, signOut } from '../../auth';
 
 export default async function RootProviderLayout({
   params,
@@ -23,8 +22,6 @@ export default async function RootProviderLayout({
     params.locale
   );
 
-  const session = await auth();
-
   return (
     <Providers
       config={{
@@ -37,15 +34,6 @@ export default async function RootProviderLayout({
       fetchedMessages={fetchedMessages}
       nonce={nonce}
     >
-      <Header
-        auth={{
-          user: session?.user,
-          signOut: async () => {
-            'use server';
-            await signOut({ redirect: false });
-          },
-        }}
-      />
       {children}
     </Providers>
   );

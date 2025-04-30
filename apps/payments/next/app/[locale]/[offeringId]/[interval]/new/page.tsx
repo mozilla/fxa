@@ -56,8 +56,13 @@ export default async function New({
 
   const fxaUid = session?.user?.id;
   const coupon = searchParams.coupon || undefined;
+  const countryCode = searchParams.countryCode;
+  const postalCode = searchParams.postalCode;
 
-  const taxAddress = await getTaxAddressAction(ipAddress, fxaUid);
+  const taxAddress =
+    countryCode && postalCode
+      ? { countryCode, postalCode }
+      : await getTaxAddressAction(ipAddress, fxaUid);
 
   // Check if the customer is in a location not supported by Subscription Platform
   // or whether the product is not available in the customer's location
