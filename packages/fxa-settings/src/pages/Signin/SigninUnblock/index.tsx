@@ -155,6 +155,7 @@ export const SigninUnblock = ({
       ) {
         alertBar.error(webRedirectCheck.localizedInvalidRedirectError);
       }
+
       const { error: navError } = await handleNavigation(navigationOptions);
       if (navError) {
         setBannerErrorMessage(

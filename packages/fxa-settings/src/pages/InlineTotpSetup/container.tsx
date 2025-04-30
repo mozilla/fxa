@@ -8,7 +8,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import InlineTotpSetup from '.';
 import { MozServices } from '../../lib/types';
-import { OAuthIntegration, useSession } from '../../models';
+import { Integration, isOAuthIntegration, useSession } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { checkCode } from '../../lib/totp';
 import { useMutation, useQuery } from '@apollo/client';
@@ -30,7 +30,7 @@ export const InlineTotpSetupContainer = ({
   flowQueryParams,
 }: {
   isSignedIn: boolean;
-  integration: OAuthIntegration;
+  integration: Integration;
   serviceName: MozServices;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
@@ -131,7 +131,7 @@ export const InlineTotpSetupContainer = ({
   const cancelSetupHandler = useCallback(() => {
     const error = AuthUiErrors.TOTP_REQUIRED;
 
-    if (integration.returnOnError()) {
+    if (isOAuthIntegration(integration) && integration.returnOnError()) {
       const url = integration.getRedirectWithErrorUrl(error);
       hardNavigate(url);
       return;

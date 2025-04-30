@@ -3,21 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ModelDataStore } from '../../lib/model-data';
-import { IntegrationType } from './base-integration';
+import { IntegrationType } from './integration';
 import {
   OAuthWebIntegration,
-  OAuthIntegrationData,
   OAuthIntegrationOptions,
 } from './oauth-web-integration';
-import { bind, KeyTransforms as T } from '../../lib/model-data';
-import { IsBase64, IsNotEmpty } from 'class-validator';
-
-export class PairingAuthorityIntegrationData extends OAuthIntegrationData {
-  @IsBase64()
-  @IsNotEmpty()
-  @bind(T.snakeCase)
-  channelId: string = '';
-}
 
 // TODO in the 'Pairing' React epic. This shouldn't have any `feature` overrides but feel
 // free to look at all of that logic with fresh eyes in case we want to do it differently.

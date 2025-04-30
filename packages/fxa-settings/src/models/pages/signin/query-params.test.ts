@@ -24,13 +24,13 @@ describe('SigninQueryParams checks', function () {
 
   it('checks redirect uri', () => {
     expect(
-      validate('redirectTo=https://localhost:3030/app?foo=bar').isValid
+      validate('redirect_to=https://localhost:3030/app?foo=bar').isValid
     ).toBeTruthy();
     expect(
-      validate('redirectTo=tps://localhost:3030/app?foo=bar').isValid
+      validate('redirect_to=tps://localhost:3030/app?foo=bar').isValid
     ).toBeFalsy();
     expect(
-      validate('redirectTo=urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel')
+      validate('redirect_to=urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel')
         .isValid
     ).toBeFalsy();
   });

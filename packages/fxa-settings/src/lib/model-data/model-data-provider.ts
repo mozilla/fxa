@@ -35,7 +35,7 @@ export class ModelDataProvider {
    * @param validate Whether or not to validate. Optional and defaults to true.
    * @returns underlying data
    */
-  setModelData(key: string, value: RawData, validate = false) {
+  setModelData(key: string, value: RawData, validate = true) {
     if (this.modelData == null) {
       throw new Error(
         'Invalid bind! Has the data store for the model been initialized?'
@@ -62,7 +62,7 @@ export class ModelDataProvider {
    * @param validate Whether or not to validate. Optional and defaults to true.
    * @returns
    */
-  getModelData(key: string, validate = false) {
+  getModelData(key: string, validate = true) {
     if (this.modelData == null) {
       throw new Error(
         'Invalid bind! Has the data store for the model been initialized?'
@@ -89,7 +89,7 @@ export class ModelDataProvider {
    * @param key A specific property name to validate.
    * @returns
    */
-  validate(property?: string) {
+  validate(properties?: string[] | string) {
     if (!this.isDirty) {
       return;
     }
@@ -98,8 +98,13 @@ export class ModelDataProvider {
     let errors = validateSync(this);
 
     // If a key was provided only consider errors for that property.
-    if (property) {
-      errors = errors.filter((x) => x.property === property);
+    if (typeof properties === 'string') {
+      properties = [properties];
+    }
+
+    // If a key was provided only consider errors for that property.
+    if (properties) {
+      errors = errors.filter((x) => properties.includes(x.property));
     }
 
     const keyLookup: Record<string, string> = {};

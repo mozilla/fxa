@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Settings from '.';
-import { IntegrationType } from '../../models';
+import { GenericData } from '../../lib/model-data';
+import { IntegrationData, IntegrationType } from '../../models';
 import { SettingsIntegration } from './interfaces';
 
 export function createMockSettingsIntegration({
@@ -15,7 +16,7 @@ export function createMockSettingsIntegration({
 } = {}): SettingsIntegration {
   return {
     type,
-    data: {},
+    data: new IntegrationData(new GenericData({})),
   };
 }
 

@@ -8,7 +8,7 @@ import { MozServices } from '../lib/types';
 import { MOCK_ACCOUNT } from '../models/mocks';
 
 export const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
-export const MOCK_UID = 'abc123';
+export const MOCK_UID = 'abcd1234abcd1234abcd1234abcd1234';
 export const MOCK_REDIRECT_URI = 'http://localhost:8080/123Done';
 export const MOCK_CLIENT_ID = '123';
 export const MOCK_SERVICE = MozServices.TestService;

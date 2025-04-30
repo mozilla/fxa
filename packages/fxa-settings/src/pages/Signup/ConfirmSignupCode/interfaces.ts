@@ -5,7 +5,6 @@
 import { RouteComponentProps } from '@reach/router';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { Integration, OAuthWebIntegration } from '../../../models';
-import { StoredAccountData } from '../../../lib/storage-utils';
 import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 
@@ -20,11 +19,6 @@ export type LocationState = {
   email?: hexstring;
   uid?: hexstring;
 };
-
-export type ConfirmSignupCodeContainerProps = {
-  integration: Integration;
-  storedAccountData: StoredAccountData;
-} & RouteComponentProps;
 
 export type ConfirmSignupCodeProps = {
   email: string;

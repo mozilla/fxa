@@ -29,7 +29,7 @@ const AppErrorDialog = ({ errorType }: { errorType?: ErrorType }) => {
           <Localized id="app-query-parameter-err-heading">
             <h2
               className="text-grey-900 font-header text-lg font-bold mb-3"
-              data-testid="error-loading-app"
+              data-testid="error-bad-query-parameters"
             >
               Bad Request: Invalid Query Parameters
             </h2>

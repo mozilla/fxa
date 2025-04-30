@@ -5,11 +5,11 @@
 import AuthClient from 'fxa-auth-client/browser';
 import { useCallback } from 'react';
 import {
-  Integration,
   OAuthIntegration,
   isOAuthNativeIntegrationSync,
   isOAuthIntegration,
   isSyncDesktopV3Integration,
+  Integration,
 } from '../../models';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
@@ -180,16 +180,21 @@ export function tryAgainError() {
  */
 export function useFinishOAuthFlowHandler(
   authClient: AuthClient,
-  integration: Pick<Integration, 'clientInfo' | 'type' | 'wantsKeys' | 'data'>
+  integration: Pick<Integration, 'type' | 'data'>
 ): UseFinishOAuthFlowHandlerResult {
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
+  const oAuthIntegration = isOAuthIntegration(integration) ? integration : null;
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
     async (accountUid, sessionToken, keyFetchToken, unwrapBKey) => {
-      const oAuthIntegration = integration as OAuthIntegration;
+      // We cannot finish the flow if we don't have an oauth integration. This indicates something
+      // Went very sideways.
+      if (oAuthIntegration == null) {
+        throw new OAuthError('UNEXPECTED_ERROR');
+      }
 
       let keys;
-      if (integration.wantsKeys() && keyFetchToken && unwrapBKey) {
+      if (oAuthIntegration.wantsKeys() && keyFetchToken && unwrapBKey) {
         try {
           const { kB } = await authClient.accountKeys(
             keyFetchToken,
@@ -248,7 +253,7 @@ export function useFinishOAuthFlowHandler(
       // the server occurs to get the state from
       // the redirect_uri returned when creating
       // the token or code.
-      const state = isSyncOAuth ? integration.data.state : oAuthData.state;
+      const state = isSyncOAuth ? oAuthIntegration.data.state : oAuthData.state;
 
       return {
         redirect,
@@ -256,7 +261,7 @@ export function useFinishOAuthFlowHandler(
         state,
       };
     },
-    [authClient, integration, isSyncOAuth]
+    [authClient, oAuthIntegration, isSyncOAuth]
   );
 
   /* TODO: Probably remove 'isOAuthVerificationDifferentBrowser' and
@@ -296,7 +301,7 @@ export function useFinishOAuthFlowHandler(
  * to /signin instead of showing an error component? FXA-10889
  */
 export function useOAuthKeysCheck(
-  integration: Pick<Integration, 'type' | 'wantsKeys'>,
+  integration: Pick<OAuthIntegration, 'type' | 'wantsKeys'>,
   keyFetchToken?: hexstring,
   unwrapBKey?: hexstring
 ) {
