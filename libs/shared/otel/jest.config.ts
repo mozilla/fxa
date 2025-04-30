@@ -1,5 +1,6 @@
+import { Config } from 'jest';
 /* eslint-disable */
-export default {
+const config: Config = {
   displayName: 'shared-otel',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
@@ -8,4 +9,15 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../../coverage/libs/shared/otel',
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: 'artifacts/tests/shared-otel',
+        outputName: 'shared-otel-jest-unit-results.xml',
+      },
+    ],
+  ],
 };
+export default config;

@@ -1,3 +1,4 @@
+import { Config } from 'jest';
 /* eslint-disable */
 import { readFileSync } from 'fs';
 
@@ -18,7 +19,7 @@ if (swcJestConfig.swcrc === undefined) {
 // jest needs EsModule Interop to find the default exported setup/teardown functions
 // swcJestConfig.module.noInterop = false;
 
-export default {
+const config: Config = {
   displayName: 'payments-metrics',
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
@@ -27,4 +28,15 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../../coverage/libs/payments/metrics',
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: 'artifacts/tests/payments-metrics',
+        outputName: 'payments-metrics-jest-unit-results.xml',
+      },
+    ],
+  ],
 };
+export default config;

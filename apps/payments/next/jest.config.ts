@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* eslint-disable */
-export default {
+import { Config } from 'jest';
+
+const config: Config = {
   displayName: 'payments-next',
   preset: '../../../jest.preset.js',
   transform: {
@@ -11,4 +13,16 @@ export default {
     '^.+\\.[tj]sx?$': ['babel-jest', { presets: ['@nx/next/babel'] }],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  reporters: [
+    'default',
+    [
+      'jest-junit',
+      {
+        outputDirectory: 'artifacts/tests/payments-next',
+        outputName: 'payments-next-jest-unit-results.xml',
+      },
+    ],
+  ],
 };
+
+export default config;
