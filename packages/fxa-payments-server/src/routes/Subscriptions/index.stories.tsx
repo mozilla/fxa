@@ -47,7 +47,7 @@ const CONFIRM_CARD_SETUP_RESULT = {
 const defaultPaymentUpdateStripeOverride = () =>
   ({
     confirmCardSetup: async () => CONFIRM_CARD_SETUP_RESULT,
-  } as unknown as PaymentUpdateStripeAPIs);
+  }) as unknown as PaymentUpdateStripeAPIs;
 
 export default {
   title: 'routes/Subscriptions',
@@ -284,6 +284,7 @@ const subscribedProps: SubscriptionsProps = {
     loading: false,
     result: [
       {
+        currency: 'usd',
         subscriptionId: 'sub_5551212',
         period_start: 1,
         total: 100,
@@ -416,6 +417,7 @@ export const SubscribedWithWebSubscriptionWithExclusiveTax = storyWithContext({
       loading: false,
       result: [
         {
+          currency: 'usd',
           subscriptionId: 'sub_5551212',
           period_start: 1,
           subtotal: 2000,
@@ -443,6 +445,7 @@ export const SubscribedWithWebSubscriptionWithInclusiveTax = storyWithContext({
       loading: false,
       result: [
         {
+          currency: 'usd',
           subscriptionId: 'sub_5551212',
           period_start: 1,
           subtotal: 2000,
