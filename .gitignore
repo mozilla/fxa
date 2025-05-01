@@ -88,10 +88,6 @@ Thumbs.db
 # circleci
 .circleci/local.yml
 
-# browserid-verifier
-packages/browserid-verifier/loadtest/venv
-packages/browserid-verifier/loadtest/*.pyc
-
 # fxa-admin-server
 packages/fxa-admin-server/src/config/local.json
 

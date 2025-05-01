@@ -18,7 +18,6 @@ CI=false NODE_ENV=test npx nx run-many \
     --verbose \
     -p \
     123done \
-    browserid-verifier \
     fxa-auth-server \
     fxa-content-server \
     fxa-graphql-api \

@@ -11,7 +11,6 @@ spec:
     - ./backstage/mysql.resources.yaml
     - ./backstage/redis.resources.yaml
     - ./packages/123done/backstage.yaml
-    - ./packages/browserid-verifier/backstage.yaml
     - ./packages/fxa-admin-panel/backstage.yaml
     - ./packages/fxa-admin-server/backstage.yaml
     - ./packages/fxa-auth-server/backstage.yaml

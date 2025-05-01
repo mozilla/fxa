@@ -20,7 +20,6 @@ spec:
   providesApis:
     - api:fxa-auth
   dependsOn:
-    - component:fxa-browserid-verifier
     - component:fxa-customs-server
     - resource:fxa-auth-database
     - resource:fxa-oauth-database
