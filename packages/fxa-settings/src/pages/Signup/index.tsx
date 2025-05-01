@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { useLocation } from '@reach/router';
-import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import { isEmailMask } from 'fxa-shared/email/helpers';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,7 +16,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import firefox from '../../lib/channels/firefox';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
-import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import {
   logViewEvent,
   settingsViewName,
@@ -40,7 +39,6 @@ import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { FormSetupAccount } from '../../components/FormSetupAccount';
-import { useCheckReactEmailFirst } from '../../lib/hooks';
 
 export const viewName = 'signup';
 
@@ -58,7 +56,6 @@ export const Signup = ({
 }: SignupProps) => {
   const sensitiveDataClient = useSensitiveDataClient();
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   useEffect(() => {
     GleanMetrics.registration.view();
@@ -82,8 +79,7 @@ export const Signup = ({
     isAccountSuggestionBannerVisible,
     setIsAccountSuggestionBannerVisible,
   ] = useState<boolean>(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigateWithQuery = useNavigateWithQuery();
 
   // no newsletters are selected by default
   const [selectedNewsletterSlugs, setSelectedNewsletterSlugs] = useState<
@@ -167,7 +163,7 @@ export const Signup = ({
 
         // TODO: probably a better way to set this?
         document.cookie = 'tooyoung=1;';
-        navigate('/cannot_create_account');
+        navigateWithQuery('/cannot_create_account');
         return;
       } else if (Number(age) > 130) {
         setAgeCheckErrorText(localizedValidAgeError);
@@ -258,7 +254,7 @@ export const Signup = ({
           });
         }
 
-        navigate('/confirm_signup_code', {
+        navigateWithQuery('/confirm_signup_code', {
           state: {
             origin: 'signup',
             selectedNewsletterSlugs,
@@ -287,7 +283,7 @@ export const Signup = ({
     [
       beginSignupHandler,
       ftlMsgResolver,
-      navigate,
+      navigateWithQuery,
       selectedNewsletterSlugs,
       declinedSyncEngines,
       email,
@@ -365,29 +361,11 @@ export const Signup = ({
             onClick={async (e) => {
               e.preventDefault();
               GleanMetrics.registration.changeEmail();
-
-              if (shouldUseReactEmailFirst) {
-                navigate('/', {
-                  state: {
-                    prefillEmail: email,
-                  },
-                });
-              } else {
-                await GleanMetrics.isDone(); // since we navigate away to Backbone
-                const params = new URLSearchParams(location.search);
-                // Tell content-server to stay on index and prefill the email
-                params.set('prefillEmail', email);
-                // Passing back the 'email' param causes various behaviors in
-                // content-server since it marks the email as "coming from a RP".
-                // Also remove `emailStatusChecked` since we pass that when coming
-                // from content-server to React, see Signup container component
-                // for more info.
-                params.delete('emailStatusChecked');
-                params.delete('email');
-                params.delete('login_hint');
-                params.delete('showReactApp');
-                hardNavigate(`/?${params.toString()}`);
-              }
+              navigateWithQuery('/', {
+                state: {
+                  prefillEmail: email,
+                },
+              });
             }}
           >
             Change email

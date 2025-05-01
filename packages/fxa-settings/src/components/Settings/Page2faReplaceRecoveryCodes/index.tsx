@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
@@ -26,14 +26,16 @@ import GleanMetrics from '../../../lib/glean';
 
 export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const account = useAccount();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
 
   const goHome = () =>
-    navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
+    navigateWithQuery(SETTINGS_PATH + '#two-step-authentication', {
+      replace: true,
+    });
 
   const [subtitle, setSubtitle] = useState<string>(
     ftlMsgResolver.getMsg('tfa-replace-code-1-2', 'Step 1 of 2')
@@ -53,7 +55,9 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
           event: { reason: GleanClickEventType2FA.replace },
         })
     );
-    navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
+    navigateWithQuery(SETTINGS_PATH + '#two-step-authentication', {
+      replace: true,
+    });
   };
 
   const onRecoveryCodeSubmit = async (_: RecoveryCodeForm) => {

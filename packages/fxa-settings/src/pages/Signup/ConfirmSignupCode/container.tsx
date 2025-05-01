@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { currentAccount } from '../../../lib/cache';
 import {
   useFinishOAuthFlowHandler,
@@ -16,7 +16,6 @@ import {
   useSensitiveDataClient,
 } from '../../../models';
 import ConfirmSignupCode from '.';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
 import { useQuery } from '@apollo/client';
@@ -24,7 +23,6 @@ import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { useCheckReactEmailFirst } from '../../../lib/hooks';
 
 export const POLL_INTERVAL = 5000;
 
@@ -57,7 +55,6 @@ const SignupConfirmCodeContainer = ({
   const sensitiveDataClient = useSensitiveDataClient();
   const { keyFetchToken, unwrapBKey } =
     sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
@@ -77,7 +74,7 @@ const SignupConfirmCodeContainer = ({
     email: emailFromLocationState,
     uid: uidFromLocationState,
   } = location.state || {};
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   // If a user tries to signin and they haven't verified their account yet, we pass
   // this state through router state and redirect here. Otherwise, we read from localStorage.
@@ -90,31 +87,6 @@ const SignupConfirmCodeContainer = ({
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
     integration
-  );
-
-  const navigateToContentServer = useCallback(
-    (path: string, hasBounced?: boolean) => {
-      const params = new URLSearchParams(location.search);
-
-      // If the user reached this page from React signup,
-      // 'email' and 'emailStatusChecked' will be set as params
-      // when the user was navigated from Backbone to React.
-      // This is temporary until index is converted to React.
-      // Passing back the 'email' param causes various behaviors in
-      // content-server since it marks the email as "coming from a RP".
-      params.delete('emailStatusChecked');
-      params.delete('email');
-      params.delete('showReactApp');
-      // passing the 'bouncedEmail' param will display an error tooltip
-      // on the email-first signin/signup page and allow to check
-      // if the entered email matches the bounced email
-      hasBounced && email && params.set('bouncedEmail', email);
-      if (Array.from(params).length > 0) {
-        path += `?${params.toString()}`;
-      }
-      hardNavigate(path);
-    },
-    [email, location.search]
   );
 
   // Poll for hard bounces registered in database for the entered email.
@@ -134,37 +106,18 @@ const SignupConfirmCodeContainer = ({
       const hasBounced = true;
       // if arriving from signup, return to '/' and allow user to signup with another email
       if (origin === 'signup') {
-        if (shouldUseReactEmailFirst) {
-          navigate('/', {
-            state: {
-              hasBounced,
-              prefillEmail: email,
-            },
-          });
-        } else {
-          navigateToContentServer('/', hasBounced);
-        }
+        navigateWithQuery('/', {
+          state: {
+            hasBounced,
+            prefillEmail: email,
+          },
+        });
       } else {
         // if not arriving from signup, redirect to signin_bounced for support info
-        if (shouldUseReactEmailFirst) {
-          navigate('/signin_bounced', {
-            state: {
-              hasBounced,
-            },
-          });
-        } else {
-          navigateToContentServer('/signin_bounced', hasBounced);
-        }
+        navigateWithQuery('/signin_bounced');
       }
     }
-  }, [
-    data,
-    origin,
-    navigate,
-    navigateToContentServer,
-    shouldUseReactEmailFirst,
-    email,
-  ]);
+  }, [data, origin, navigateWithQuery, email]);
 
   // TODO: This check and related test can be moved up the tree to the App component,
   // where a missing integration should be caught and handled.
@@ -173,7 +126,7 @@ const SignupConfirmCodeContainer = ({
   }
 
   if (!uid || !sessionToken || !email) {
-    navigateToContentServer('/');
+    navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;
   }
 

@@ -5,22 +5,22 @@
 // See https://github.com/reach/router/issues/242 for a discussion
 
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { useCallback, useLayoutEffect } from 'react';
 
 export const ScrollToTop = (
   props: React.PropsWithChildren<RouteComponentProps>
 ) => {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const { href, state } = useLocation();
 
   const updateState = useCallback(async () => {
-    await navigate(href, {
+    await navigateWithQuery(href, {
       state: { ...(state as any), scrolled: true },
       replace: true,
     });
     window.scrollTo(0, 0);
-  }, [href, state, navigate]);
+  }, [href, state, navigateWithQuery]);
 
   useLayoutEffect(() => {
     // If there's a hash, let the browser scroll to the id.

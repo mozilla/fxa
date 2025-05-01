@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useAccount, useFtlMsgResolver } from '../../../models';
@@ -27,7 +27,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
 
   const { recoveryKey, email } = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
@@ -36,7 +36,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
     ? RecoveryKeyAction.Change
     : RecoveryKeyAction.Create;
   const goHome = () =>
-    navigate(SETTINGS_PATH + '#recovery-key', { replace: true });
+    navigateWithQuery(SETTINGS_PATH + '#recovery-key', { replace: true });
 
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'recovery-key-create-page-title',
@@ -49,7 +49,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   );
 
   const navigateBackward = () => {
-    navigate(SETTINGS_PATH);
+    navigateWithQuery(SETTINGS_PATH);
   };
 
   const navigateForward = (e?: React.MouseEvent<HTMLElement>) => {
@@ -57,7 +57,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
     if (currentStep + 1 <= numberOfSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      navigate(SETTINGS_PATH);
+      navigateWithQuery(SETTINGS_PATH);
     }
   };
 

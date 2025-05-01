@@ -75,7 +75,7 @@ describe('OAuthQueryParams checks', function () {
 
   it('supports sync signin', () => {
     const queryParams =
-      'showReactApp=true&uniqueUserId=0b4cee0e-900e-45ac-bf0f-bd154146e9b8&access_type=offline&client_id=dcdb5ae7add825d2&pkce_client_id=38a6b9b3a65a1871&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth&scope=profile%20openid&action=signin&state=';
+      'uniqueUserId=0b4cee0e-900e-45ac-bf0f-bd154146e9b8&access_type=offline&client_id=dcdb5ae7add825d2&pkce_client_id=38a6b9b3a65a1871&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth&scope=profile%20openid&action=signin&state=';
 
     expect(validate(queryParams).isValid).toBeTruthy();
   });
@@ -89,7 +89,7 @@ describe('OAuthNativeSyncQueryParameters checks', function () {
   }
   it('supports sync signin', () => {
     const queryParams =
-      'showReactApp=true&uniqueUserId=0b4cee0e-900e-45ac-bf0f-bd154146e9b8&access_type=offline&client_id=dcdb5ae7add825d2&pkce_client_id=38a6b9b3a65a1871&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth&scope=profile%20openid&action=signin&state=jsklfl8jsf8sl';
+      'uniqueUserId=0b4cee0e-900e-45ac-bf0f-bd154146e9b8&access_type=offline&client_id=dcdb5ae7add825d2&pkce_client_id=38a6b9b3a65a1871&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth&scope=profile%20openid&action=signin&state=jsklfl8jsf8sl';
     const result = validate(queryParams);
     expect(result.isValid).toBeTruthy();
   });

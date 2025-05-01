@@ -4,7 +4,7 @@
 
 import React, { useEffect } from 'react';
 import { Link } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -34,7 +34,7 @@ const Pair = ({
     'pair-qr-code-aria-label',
     'QR code'
   );
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   // TODO: Recreate the QR code logic which previously existed in the content-server.
   // Probably after that we can remove the fallback styles for the QR code div.
 
@@ -50,16 +50,18 @@ const Pair = ({
   useEffect(() => {
     // This will just run at page load.
     if (!isSupported()) {
-      navigate('/pair/unsupported');
+      navigateWithQuery('/pair/unsupported');
     }
     if (isDefaultAccount()) {
       // we have historically needed the "forceView" option to prevent a loop of redirects.
-      navigate('/connect_another_device', { state: { forceView: true } });
+      navigateWithQuery('/connect_another_device', {
+        state: { forceView: true },
+      });
     }
     if (accountIsNotVerifiedOrHasNoSessionToken()) {
-      navigate('/signin');
+      navigateWithQuery('/signin');
     }
-  }, [navigate]);
+  }, [navigateWithQuery]);
 
   const showQRCode =
     entryPoint === ENTRYPOINTS.FIREFOX_MENU_ENTRYPOINT ||

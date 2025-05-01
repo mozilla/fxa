@@ -5,15 +5,21 @@
 import { v4 as uuidv4 } from 'uuid';
 import { searchParams } from './utilities';
 
-export type MetricsFlow = {
+export type RawMetricsFlow = {
   flowId: string;
   flowBeginTime: string | number;
   deviceId?: undefined | string;
 };
 
+export type MetricsFlow = {
+  flowId: string;
+  flowBeginTime: number;
+  deviceId?: undefined | string;
+};
+
 let metricsFlow: MetricsFlow | null = null;
 
-function isMetricsFlow(data: any): data is MetricsFlow {
+function isRawMetricsFlow(data: any): data is RawMetricsFlow {
   return (
     data?.flowId &&
     data?.flowBeginTime &&
@@ -32,10 +38,13 @@ function isMetricsFlow(data: any): data is MetricsFlow {
  */
 export function init(flowData?: any) {
   const initWithX = (x: any) => {
-    if (isMetricsFlow(x)) {
+    if (isRawMetricsFlow(x)) {
       metricsFlow = {
         flowId: x.flowId,
-        flowBeginTime: x.flowBeginTime,
+        flowBeginTime:
+          typeof x.flowBeginTime === 'string'
+            ? Number(x.flowBeginTime)
+            : x.flowBeginTime,
         ...(x.deviceId && { deviceId: x.deviceId }),
       };
       return true;

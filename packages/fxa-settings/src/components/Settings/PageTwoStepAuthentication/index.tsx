@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
 import InputText from '../../InputText';
@@ -30,11 +30,13 @@ type RecoveryCodeForm = { recoveryCode: string };
 
 export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
   const account = useAccount();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const { l10n } = useLocalization();
   const alertBar = useAlertBar();
   const goHome = () =>
-    navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
+    navigateWithQuery(SETTINGS_PATH + '#two-step-authentication', {
+      replace: true,
+    });
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
       l10n.getString(
@@ -47,8 +49,10 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
           event: { reason: GleanClickEventType2FA.setup },
         })
     );
-    navigate(SETTINGS_PATH + '#two-step-authentication', { replace: true });
-  }, [alertBar, l10n, navigate]);
+    navigateWithQuery(SETTINGS_PATH + '#two-step-authentication', {
+      replace: true,
+    });
+  }, [alertBar, l10n, navigateWithQuery]);
 
   const totpForm = useForm<TotpForm>({
     mode: 'onTouched',

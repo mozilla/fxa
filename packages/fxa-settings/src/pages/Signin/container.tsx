@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import Signin from '.';
 import {
   Integration,
@@ -55,7 +55,6 @@ import { searchParams } from '../../lib/utilities';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { MetricsContext } from '@fxa/shared/glean';
-import { isEmailValid } from 'fxa-shared/email/helpers';
 import {
   getHandledError,
   getLocalizedErrorMessage,
@@ -72,7 +71,6 @@ import {
 } from '../../models/integrations/utils';
 import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
 import { setCurrentAccount } from '../../lib/storage-utils';
-import { useCheckReactEmailFirst } from '../../lib/hooks';
 import { cachedSignIn } from './utils';
 import OAuthDataError from '../../components/OAuthDataError';
 
@@ -132,13 +130,12 @@ const SigninContainer = ({
   const config = useConfig();
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
   const session = useSession();
   const sensitiveDataClient = useSensitiveDataClient();
-  const shouldUseReactEmailFirst = useCheckReactEmailFirst();
 
   const { queryParamModel, validationError } = useValidatedQueryParams(
     SigninQueryParams,
@@ -207,7 +204,6 @@ const SigninContainer = ({
 
   useEffect(() => {
     (async () => {
-      const queryParams = new URLSearchParams(location.search);
       if (!validationError && email) {
         // if you directly hit /signin with email param, or we read from localstorage
         // (on this page or email-first) this means the account status hasn't been checked
@@ -224,18 +220,13 @@ const SigninContainer = ({
               const signUpPath = location.pathname.startsWith('/oauth')
                 ? '/oauth/signup'
                 : '/signup';
-              if (shouldUseReactEmailFirst) {
-                navigate(signUpPath, {
-                  state: {
-                    email,
-                    emailStatusChecked: true,
-                  },
-                });
-              } else {
-                queryParams.set('email', email);
-                queryParams.set('emailStatusChecked', 'true');
-                navigate(`${signUpPath}?${queryParams}`);
-              }
+
+              navigateWithQuery(signUpPath, {
+                state: {
+                  email,
+                  emailStatusChecked: true,
+                },
+              });
             } else {
               // TODO: in FXA-9177, also set hasLinkedAccount and hasPassword in Apollo cache
               setAccountStatus({
@@ -244,42 +235,19 @@ const SigninContainer = ({
               });
             }
           } catch (error) {
-            if (shouldUseReactEmailFirst) {
-              navigate('/', {
-                state: {
-                  prefillEmail: email,
-                },
-              });
-            } else {
-              // Passing back the 'email' param causes various behaviors in
-              // content-server since it marks the email as "coming from a RP".
-              queryParams.delete('email');
-              queryParams.delete('showReactApp=true');
-              if (isEmailValid(email)) {
-                queryParams.set('prefillEmail', email);
-              }
-              hardNavigate(`/?${queryParams}`);
-            }
+            navigateWithQuery('/', {
+              state: {
+                prefillEmail: email,
+              },
+            });
           }
         }
       } else {
-        if (shouldUseReactEmailFirst) {
-          navigate('/', {
-            state: {
-              prefillEmail: email,
-            },
-          });
-        } else {
-          // Passing back the 'email' param causes various behaviors in
-          // content-server since it marks the email as "coming from a RP".
-          queryParams.delete('email');
-          queryParams.delete('showReactApp');
-          if (email && isEmailValid(email)) {
-            queryParams.set('prefillEmail', email);
-          }
-          const optionalParams = queryParams.size > 0 ? `?${queryParams}` : '';
-          hardNavigate(`/${optionalParams}`);
-        }
+        navigateWithQuery('/', {
+          state: {
+            prefillEmail: email,
+          },
+        });
       }
     })();
     // Only run this on initial render
@@ -493,7 +461,7 @@ const SigninContainer = ({
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done
   if (!email || validationError) {
-    hardNavigate(`/${location.search}`);
+    navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;
   }
 

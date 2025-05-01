@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode, useCallback, useState } from 'react';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useAccount, Email, useAlertBar } from '../../../models';
 import UnitRow from '../UnitRow';
 import ModalVerifySession from '../ModalVerifySession';
@@ -19,7 +19,7 @@ type UnitRowSecondaryEmailContentAndActionsProps = {
 
 export const UnitRowSecondaryEmail = () => {
   const account = useAccount();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const alertBar = useAlertBar();
   const [queuedAction, setQueuedAction] = useState<() => void>();
   const { l10n } = useLocalization();
@@ -34,7 +34,9 @@ export const UnitRowSecondaryEmail = () => {
     async (email: string) => {
       try {
         await account.resendEmailCode(email);
-        navigate(`${SETTINGS_PATH}/emails/verify`, { state: { email } });
+        navigateWithQuery(`${SETTINGS_PATH}/emails/verify`, {
+          state: { email },
+        });
       } catch (e) {
         alertBar.error(
           l10n.getString(
@@ -45,7 +47,7 @@ export const UnitRowSecondaryEmail = () => {
         );
       }
     },
-    [account, navigate, alertBar, l10n]
+    [account, navigateWithQuery, alertBar, l10n]
   );
 
   const makeEmailPrimary = useCallback(

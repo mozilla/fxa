@@ -71,6 +71,6 @@
   },
   "rolloutRates": {
     "keyStretchV2": 1,
-    "generalizedReactApp": 1
+    "generalizedReactApp": 0
   }
 }

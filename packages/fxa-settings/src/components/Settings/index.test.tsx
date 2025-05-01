@@ -28,6 +28,12 @@ jest.mock('./ScrollToTop', () => ({
   ),
 }));
 
+const mockNavigate = jest.fn();
+jest.mock('@reach/router', () => ({
+  ...jest.requireActual('@reach/router'),
+  useNavigate: () => mockNavigate,
+}));
+
 describe('App component', () => {
   beforeEach(() => {
     jest.clearAllMocks();

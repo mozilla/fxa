@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
@@ -65,7 +65,7 @@ const ConfirmSignupCode = ({
     ResendStatus.none
   );
 
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const isDesktopRelay = integration.isDesktopRelay();
 
@@ -100,7 +100,7 @@ const ConfirmSignupCode = ({
         'Account confirmed successfully'
       )
     );
-    navigate('/settings', { replace: true });
+    navigateWithQuery('/settings', { replace: true });
   }
 
   async function handleResendCode() {
@@ -169,6 +169,7 @@ const ConfirmSignupCode = ({
 
       if (isSyncDesktopV3Integration(integration)) {
         const { to } = getSyncNavigate(location.search);
+        // will navigate to pair route which is still in backbone
         hardNavigate(to);
       } else if (isOAuthIntegration(integration)) {
         // Check to see if the relier wants TOTP.
@@ -181,7 +182,7 @@ const ConfirmSignupCode = ({
 
         // Params are included to eventually allow for redirect to RP after 2FA setup
         if (integration.wantsTwoStepAuthentication()) {
-          navigate('oauth/signin');
+          navigateWithQuery('oauth/signin');
           return;
         } else {
           const { redirect, code, state, error } = await finishOAuthFlowHandler(

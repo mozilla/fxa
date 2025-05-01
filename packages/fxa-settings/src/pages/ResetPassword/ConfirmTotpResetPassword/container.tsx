@@ -27,12 +27,12 @@ const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
 
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const navigate = useNavigateWithQuery();
+  const navigateWithQuery = useNavigateWithQuery();
 
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
 
   const onSuccess = () => {
-    navigate('/complete_reset_password', {
+    navigateWithQuery('/complete_reset_password', {
       state: {
         code,
         email,

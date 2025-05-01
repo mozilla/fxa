@@ -290,10 +290,9 @@ describe('Signup page', () => {
       });
       await waitFor(() => {
         expect(GleanMetrics.registration.changeEmail).toBeCalledTimes(1);
-        expect(GleanMetrics.isDone).toBeCalledTimes(1);
-        expect(hardNavigateSpy).toHaveBeenCalledWith(
-          `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
-        );
+        expect(mockNavigate).toHaveBeenCalledWith('/', {
+          state: { prefillEmail: MOCK_EMAIL },
+        });
       });
     });
   });

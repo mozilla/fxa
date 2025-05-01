@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useNavigate, NavigateOptions } from '@reach/router';
+import { useNavigate, NavigateOptions, useLocation } from '@reach/router';
 
 export function useNavigateWithQuery() {
+  const location = useLocation();
   const navigate = useNavigate();
 
   return (
@@ -12,12 +13,11 @@ export function useNavigateWithQuery() {
     options?: NavigateOptions<{}>,
     includeHash: boolean = true
   ) => {
-    const location = window.location;
     let path = to;
 
     if (to.includes('?')) {
       path = to;
-    } else if (location.search) {
+    } else if (location.search && location.search !== '?') {
       path = `${to}${location.search}`;
     }
 
@@ -25,10 +25,6 @@ export function useNavigateWithQuery() {
       path = `${path}${location.hash}`;
     }
 
-    if (options) {
-      return navigate(path, options);
-    }
-
-    return navigate(path);
+    return options ? navigate(path, options) : navigate(path);
   };
 }

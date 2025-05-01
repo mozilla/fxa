@@ -40,12 +40,12 @@ export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
 
   const createRecoveryKey = useCallback(
     (
-        uid: string,
-        sessionToken: string,
-        unwrapBKey: string,
-        emailForAuth: string,
-        authPW: string
-      ): (() => Promise<CreateRecoveryKeyHandler>) =>
+      uid: string,
+      sessionToken: string,
+      unwrapBKey: string,
+      emailForAuth: string,
+      authPW: string
+    ): (() => Promise<CreateRecoveryKeyHandler>) =>
       async () => {
         try {
           // We must reauth for another `keyFetchToken` because we sent it to Sync
@@ -116,6 +116,7 @@ export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
   ) {
     // go to CAD with success messaging, we do not want to re-prompt for password
     const { to } = getSyncNavigate(location.search);
+    // keep hard navigate until pair routes converted to react
     hardNavigate(to);
     return <></>;
   }

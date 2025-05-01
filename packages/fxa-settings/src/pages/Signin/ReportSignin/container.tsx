@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { ReportSigninQueryParams } from '../../../models/pages/signin';
@@ -14,7 +14,7 @@ import { ReportSignin } from './index';
 const ReportSigninContainer = (_: RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsg = useFtlMsgResolver();
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const { queryParamModel, validationError } = useValidatedQueryParams(
@@ -27,7 +27,7 @@ const ReportSigninContainer = (_: RouteComponentProps) => {
         queryParamModel.uid,
         queryParamModel.unblockCode
       );
-      navigate('/signin_reported?showReactApp=true');
+      navigateWithQuery('/signin_reported');
     } catch (e) {
       // TODO verify error message to display
       setErrorMessage(

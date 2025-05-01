@@ -11,9 +11,9 @@ import { UseFormMethods, ValidateResult } from 'react-hook-form';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
-import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../constants';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
+import { useNavigate } from '@reach/router';
 
 type FormPasswordProps = {
   formState: UseFormMethods['formState'];

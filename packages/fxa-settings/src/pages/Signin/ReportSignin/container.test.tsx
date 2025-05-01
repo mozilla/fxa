@@ -20,6 +20,7 @@ import AuthClient from 'fxa-auth-client/browser';
 import { MOCK_UID, MOCK_UNBLOCK_CODE } from '../../mocks';
 import { ReportSigninProps } from './interfaces';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { LocationProvider } from '@reach/router';
 
 let currentReportSigninProps: ReportSigninProps | undefined;
 function mockReportSigninModule() {
@@ -84,24 +85,28 @@ function applyMocks() {
 }
 
 async function render(text?: string) {
-  renderWithLocalizationProvider(<ReportSigninContainer />);
+  renderWithLocalizationProvider(
+    <LocationProvider>
+      <ReportSigninContainer />
+    </LocationProvider>
+  );
 
   await screen.findByText(text || 'report signin mock');
 }
 
-describe('report-signin-container', () => {
+describe('ReportSigninContainer', () => {
   beforeEach(() => {
     applyMocks();
   });
 
-  describe('default-state', () => {
-    it('renders', async () => {
+  describe('default state', () => {
+    it('renders component', async () => {
       await render();
       expect(ReportSigninModule.ReportSignin).toBeCalled();
     });
   });
 
-  describe('error-states', () => {
+  describe('error states', () => {
     it('handles invalid uid', async () => {
       jest
         .spyOn(UseValidateModule, 'useValidatedQueryParams')
@@ -177,9 +182,7 @@ describe('report-signin-container', () => {
       expect(currentReportSigninProps).toBeDefined();
       await currentReportSigninProps?.submitReport();
       expect(mockAuthClient.rejectUnblockCode).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith(
-        '/signin_reported?showReactApp=true'
-      );
+      expect(mockNavigate).toHaveBeenCalledWith('/signin_reported');
       expect(currentReportSigninProps?.errorMessage).toBe('');
     });
 

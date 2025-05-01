@@ -4,7 +4,7 @@
 
 import React, { useCallback, useRef } from 'react';
 
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Localized, useLocalization } from '@fluent/react';
 import { useAccount, useAlertBar } from '../../../models';
 import { SETTINGS_PATH } from '../../../constants';
@@ -28,14 +28,14 @@ const editButtonClass = `mx-1 text-white rounded-full hover:bg-grey-100`;
 const buttonSize = 32;
 
 export const RemovePhotoBtn = () => {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const alertBar = useAlertBar();
   const account = useAccount();
   const { l10n } = useLocalization();
   const deleteAvatar = useCallback(async () => {
     try {
       await account.deleteAvatar();
-      navigate(SETTINGS_PATH, { replace: true });
+      navigateWithQuery(SETTINGS_PATH, { replace: true });
     } catch (err) {
       alertBar.error(
         l10n.getString(
@@ -45,7 +45,7 @@ export const RemovePhotoBtn = () => {
         )
       );
     }
-  }, [account, navigate, alertBar, l10n]);
+  }, [account, navigateWithQuery, alertBar, l10n]);
 
   return (
     <div onClick={deleteAvatar} className="cursor-pointer flex-1">
@@ -142,14 +142,14 @@ export const ConfirmBtns = ({
   saveEnabled,
   localizedSaveText,
 }: ConfirmBtnsProps) => {
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
 
   return (
     <div className="flex justify-center mx-auto max-w-64">
       <Localized id="avatar-page-cancel-button">
         <button
           className="cta-neutral cta-base-p mx-2 flex-1"
-          onClick={() => navigate(SETTINGS_PATH, { replace: true })}
+          onClick={() => navigateWithQuery(SETTINGS_PATH, { replace: true })}
           data-testid="close-button"
         >
           Cancel

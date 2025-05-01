@@ -26,7 +26,7 @@ describe('MetricsFlow', () => {
         global.window.document.body.dataset.flowId
       );
       expect(flowData?.flowBeginTime).toEqual(
-        global.window.document.body.dataset.flowBeginTime
+        Number(global.window.document.body.dataset.flowBeginTime)
       );
       expect(flowData?.deviceId).toBeDefined();
     });
@@ -39,13 +39,15 @@ describe('MetricsFlow', () => {
       );
       const flowData = init();
       expect(flowData?.flowId).toEqual(flowQueryParam.flowId);
-      expect(flowData?.flowBeginTime).toEqual(flowQueryParam.flowBeginTime);
+      expect(flowData?.flowBeginTime).toEqual(
+        Number(flowQueryParam.flowBeginTime)
+      );
     });
 
     it('should initialize the metricsFlow model with the argument', () => {
       const flowData = init(flowArg);
       expect(flowData?.flowId).toEqual(flowArg.flowId);
-      expect(flowData?.flowBeginTime).toEqual(flowArg.flowBeginTime);
+      expect(flowData?.flowBeginTime).toEqual(Number(flowArg.flowBeginTime));
       expect(flowData?.deviceId).toEqual(flowArg.deviceId);
     });
   });

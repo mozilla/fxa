@@ -77,10 +77,6 @@ function mockCache(opts: any = {}, isEmpty = false) {
   );
 }
 
-function mockReactUtilsModule() {
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
-}
-
 const mockLocation = (pathname: string, mockLocationState: Object) => {
   return {
     ...global.window.location,
@@ -89,11 +85,8 @@ const mockLocation = (pathname: string, mockLocationState: Object) => {
   };
 };
 
-function mockReachRouter(
-  mockNavigate = jest.fn(),
-  pathname = '',
-  mockLocationState = {}
-) {
+const mockNavigate = jest.fn();
+function mockReachRouter(pathname = '', mockLocationState = {}) {
   mockNavigate.mockReset();
   jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
   jest
@@ -116,9 +109,8 @@ function applyDefaultMocks() {
   jest.restoreAllMocks();
   mockSigninRecoveryCodeModule();
   mockLoadingSpinnerModule();
-  mockReactUtilsModule();
   mockCache();
-  mockReachRouter(undefined, 'signin_recovery_code', {
+  mockReachRouter('signin_recovery_code', {
     signinState: mockSigninLocationState,
   });
   mockWebIntegration();
@@ -148,24 +140,24 @@ describe('SigninRecoveryCode container', () => {
   });
   describe('initial state', () => {
     it('redirects if page is reached without location state', async () => {
-      mockReachRouter(undefined, 'signin_recovery_code');
+      mockReachRouter('signin_recovery_code');
       mockCache({}, true);
       await render([]);
-      expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
+      expect(mockNavigate).toBeCalledWith('/');
     });
 
     it('redirects if there is no sessionToken', async () => {
-      mockReachRouter(undefined, 'signin_recovery_code');
+      mockReachRouter('signin_recovery_code');
       mockCache({ sessionToken: '' });
       await render([]);
-      expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
+      expect(mockNavigate).toBeCalledWith('/');
     });
 
     it('retrieves the session token from local storage if no location state', async () => {
-      mockReachRouter(undefined, 'signin_recovery_code', {});
+      mockReachRouter('signin_recovery_code', {});
       mockCache(MOCK_STORED_ACCOUNT);
       await render([]);
-      expect(ReactUtils.hardNavigate).not.toBeCalledWith('/', {}, true);
+      expect(mockNavigate).not.toBeCalledWith('/');
     });
 
     it('reads data from sensitive data client', () => {

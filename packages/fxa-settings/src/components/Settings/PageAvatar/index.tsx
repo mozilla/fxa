@@ -4,7 +4,7 @@
 
 import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Localized, useLocalization } from '@fluent/react';
 import Webcam from 'react-webcam';
 import Cropper, { Area } from 'react-easy-crop';
@@ -41,7 +41,7 @@ const frameClass = `rounded-full m-auto w-40 object-cover`;
 
 export const PageAddAvatar = (_: RouteComponentProps) => {
   usePageViewEvent('settings.avatar.change');
-  const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();
   const { l10n } = useLocalization();
   const { avatar } = useAccount();
@@ -77,12 +77,14 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
       try {
         await account.uploadAvatar(file);
         logViewEvent(settingsViewName, 'avatar.crop.submit.change');
-        navigate(SETTINGS_PATH + '#profile-picture', { replace: true });
+        navigateWithQuery(SETTINGS_PATH + '#profile-picture', {
+          replace: true,
+        });
       } catch (e) {
         onFileError();
       }
     },
-    [account, navigate, onFileError]
+    [account, navigateWithQuery, onFileError]
   );
 
   /* Capture State */

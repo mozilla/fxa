@@ -1002,9 +1002,9 @@ describe('Signin component', () => {
           1
         );
       });
-      expect(hardNavigateSpy).toHaveBeenCalledWith(
-        `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
-      );
+      expect(mockNavigate).toHaveBeenCalledWith('/', {
+        state: { prefillEmail: MOCK_EMAIL },
+      });
     });
   });
 

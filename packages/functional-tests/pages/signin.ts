@@ -38,12 +38,14 @@ export class SigninPage extends BaseLayout {
     return this.page.getByRole('button', { name: 'Confirm' });
   }
 
+  // Use /Continue with.*Apple/ because of hidden bidi Unicode characters around "Apple" in its accessible name.
   get continueWithAppleButton() {
-    return this.page.getByRole('button', { name: 'Continue with Apple' });
+    return this.page.getByRole('button', { name: /Continue with .*Apple/ });
   }
 
+  // Use /Continue with.*Google/ because of hidden bidi Unicode characters around "Google" in its accessible name.
   get continueWithGoogleButton() {
-    return this.page.getByRole('button', { name: 'Continue with Google' });
+    return this.page.getByRole('button', { name: /Continue with .*Google/ });
   }
 
   get emailFirstHeading() {

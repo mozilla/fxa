@@ -37,16 +37,24 @@ import {
   useOAuthKeysCheck,
 } from '../../lib/oauth/hooks';
 import { SensitiveData } from '../../lib/sensitive-data-client';
+import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 
 let mockLocationState = {};
-const mockSearch = '?' + new URLSearchParams(MOCK_QUERY_PARAMS);
+const search = '?' + new URLSearchParams(MOCK_QUERY_PARAMS);
+
+mockWindowLocation({
+  pathname: '/inline_recovery_setup',
+  search,
+});
+
 const mockLocationHook = () => {
   return {
     pathname: '/inline_recovery_setup',
-    search: mockSearch,
+    search,
     state: mockLocationState,
   };
 };
+
 const mockNavigateHook = jest.fn();
 jest.mock('@reach/router', () => {
   return {
@@ -169,18 +177,18 @@ describe('InlineRecoverySetupContainer', () => {
     it('redirects when user is not signed in', () => {
       mockLocationState = MOCK_SIGNIN_RECOVERY_LOCATION_STATE;
       render({ isSignedIn: false });
-      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${mockSearch}`);
+      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
     });
 
     it('redirects when there is no signin state', () => {
       render();
-      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${mockSearch}`);
+      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
     });
 
     it('redirects when there is no totp token', () => {
       mockLocationState = MOCK_SIGNIN_LOCATION_STATE;
       render();
-      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${mockSearch}`);
+      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${search}`);
     });
 
     it('redirects when totp is already active', async () => {
@@ -198,7 +206,7 @@ describe('InlineRecoverySetupContainer', () => {
 
       render();
       expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signin_totp_code${mockSearch}`,
+        `/signin_totp_code${search}`,
         {
           state: MOCK_SIGNIN_LOCATION_STATE,
         }

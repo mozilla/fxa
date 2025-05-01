@@ -8,7 +8,7 @@ import {
   Suspense,
   useEffect,
   useState,
-  useCallback,
+  useLayoutEffect,
   useMemo,
 } from 'react';
 
@@ -91,11 +91,10 @@ export const App = ({
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const { data: isSignedInData } = useLocalSignedInQueryState();
 
-  // If we don't know the user yet, we can't send any identifying metrics to sentry. We also can't determine
-  // whether or not they have opted out, therefore lets enable sentry.
-  //
-  // Do this before any other hook, so that we don't accidentally drop Sentry errors.
-  //
+  // Configure Sentry before any other hooks that might throw.
+  // If no user is signed in:
+  // - we can't send any identifying metrics to sentry
+  // - we can't determine whether or not they have opted out
   if (isSignedInData === undefined || isSignedInData.isSignedIn === false) {
     sentryMetrics.enable();
   }
@@ -111,76 +110,94 @@ export const App = ({
   const [isSignedIn, setIsSignedIn] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
-    if (!integration) {
-      return;
-    }
+    const initializeSession = async () => {
+      if (!integration) {
+        return;
+      }
 
-    // If the local apollo cache says we are signed in, then we can skip the rest.
-    if (isSignedInData?.isSignedIn === true) {
-      setIsSignedIn(true);
-      return;
-    }
+      // If the local apollo cache says we are signed in, then we can skip the rest.
+      if (isSignedInData?.isSignedIn === true) {
+        setIsSignedIn(true);
+        return;
+      }
 
-    (async () => {
+      // if there is already a valid current account, use it
+      const localUser = currentAccount();
+      if (
+        localUser?.sessionToken &&
+        (await session.isValid(localUser.sessionToken))
+      ) {
+        setIsSignedIn(true);
+        return;
+      }
+
       let isValidSession = false;
 
       // Request and update account data/state to match the browser state.
       // If there is a user actively signed into the browser,
       // we should try to use that user's account when possible.
-      const userFromBrowser = await firefox.requestSignedInUser(
-        integration.data.context || '',
-        // TODO with React pairing flow, update this if pairing flow
-        false,
-        integration.data.service || ''
-      );
+      const ua = navigator.userAgent.toLowerCase();
+      // This may not catch all Firefox browsers notably iOS devices, see FXA-11520 for alternate approach
+      const isProbablyFirefox = ua.includes('firefox') || ua.includes('fxios');
 
-      if (userFromBrowser && userFromBrowser.sessionToken) {
+      let userFromBrowser;
+      if (isProbablyFirefox) {
+        userFromBrowser = await firefox.requestSignedInUser(
+          integration.data.context || '',
+          // TODO with React pairing flow, update this if pairing flow
+          false,
+          integration.data.service || ''
+        );
+      }
+
+      if (userFromBrowser?.sessionToken) {
         // If the session is valid, try to set it as the current account
         isValidSession = await session.isValid(userFromBrowser.sessionToken);
         if (isValidSession) {
           const cachedUser = getAccountByUid(userFromBrowser.uid);
-          if (cachedUser) {
-            storeAccountData({
-              ...cachedUser,
-              // Make sure we are apply the session token we validated
-              sessionToken: userFromBrowser.sessionToken,
-            });
-          } else {
-            storeAccountData(userFromBrowser);
-          }
-        }
-      } else {
-        const cachedUser = currentAccount();
-        if (cachedUser?.sessionToken) {
-          isValidSession = await session.isValid(cachedUser.sessionToken);
+          storeAccountData(
+            cachedUser
+              ? {
+                  ...cachedUser,
+                  // Make sure we are apply the session token we validated
+                  sessionToken: userFromBrowser.sessionToken,
+                }
+              : userFromBrowser
+          );
         }
       }
 
       setIsSignedIn(isValidSession);
-    })();
+    };
+    initializeSession();
   }, [integration, isSignedInData?.isSignedIn, session]);
 
-  // Because this query depends on the result of an initial query (in this case,
-  // metrics), we need to run it separately.
-  const getMetricsEnabled = useCallback(() => {
+  const metricsEnabled = useMemo(() => {
     if (metricsLoading || !integration || isSignedIn === undefined) {
       return;
     }
+
     return data?.account?.metricsEnabled || !isSignedIn;
   }, [metricsLoading, integration, isSignedIn, data?.account?.metricsEnabled]);
-  const metricsEnabled = getMetricsEnabled();
-  const metricsFlow = MetricsFlow.init(flowQueryParams);
-  flowQueryParams = { ...flowQueryParams, ...metricsFlow } as QueryParams;
 
-  useMemo(() => {
+  const metricsFlow = useMemo(
+    () => MetricsFlow.init(flowQueryParams),
+    [flowQueryParams]
+  );
+
+  const updatedFlowQueryParams = useMemo(
+    () => ({ ...flowQueryParams, ...metricsFlow }),
+    [flowQueryParams, metricsFlow]
+  );
+
+  // Initialize Glean metrics as early as possible,
+  // before the browser paints and before child components run their effects.
+  // useLayoutEffect ensures this happens immediately after DOM mutations,
+  // but before the screen is painted or child useEffect hooks are called.
+  useLayoutEffect(() => {
     if (!metricsEnabled || !integration || GleanMetrics.getEnabled()) {
       return;
     }
-
-    // This is in a useMemo because we want Glean to be initialized _before_
-    // other components are rendered.  `useEffect` is called after a component
-    // is rendered, which for this means _after_ all the children components
-    // are rendered and _their `useEffect` hooks are called_.
 
     GleanMetrics.initialize(
       {
@@ -201,7 +218,7 @@ export const App = ({
     if (!metricsEnabled) {
       return;
     }
-    Metrics.init(metricsEnabled, flowQueryParams);
+    Metrics.init(metricsEnabled, updatedFlowQueryParams);
     if (data?.account?.metricsEnabled) {
       Metrics.initUserPreferences({
         recoveryKey: data.account.recoveryKey.exists,
@@ -211,17 +228,17 @@ export const App = ({
       });
     }
   }, [
+    config,
     data,
     data?.account?.metricsEnabled,
     data?.account?.emails,
     data?.account?.totp,
     data?.account?.recoveryKey,
     isSignedIn,
-    flowQueryParams,
     metricsFlow,
-    config,
     metricsLoading,
     metricsEnabled,
+    updatedFlowQueryParams,
   ]);
 
   useEffect(() => {
@@ -239,15 +256,24 @@ export const App = ({
     metricsEnabled,
   ]);
 
-  // Wait until metrics is done loading, integration has been created, and isSignedIn has been determined.
-  if (metricsLoading || !integration || isSignedIn === undefined) {
+  // Wait until app initialization is complete
+  if (
+    metricsLoading ||
+    !integration ||
+    isSignedIn === undefined ||
+    metricsEnabled === undefined
+  ) {
     return <LoadingSpinner fullScreen />;
   }
 
   return (
     <Router basepath="/">
       <AuthAndAccountSetupRoutes
-        {...{ isSignedIn, integration, flowQueryParams }}
+        {...{
+          isSignedIn,
+          integration,
+          flowQueryParams: updatedFlowQueryParams,
+        }}
         path="/*"
       />
       <SettingsRoutes {...{ isSignedIn, integration }} path="/settings/*" />
