@@ -11,8 +11,6 @@ import {
 import { expect, test } from '../../lib/fixtures/standard';
 import uaStrings from '../../lib/ua-strings';
 
-const AGE_21 = '21';
-
 test.describe('severity-1 #smoke', () => {
   test.describe('Sync v3 sign up and CWTS', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
@@ -72,7 +70,6 @@ test.describe('severity-1 #smoke', () => {
       await login.clickSubmit();
       await login.setPassword(password);
       await login.confirmPassword(password);
-      await login.setAge(AGE_21);
 
       // The CWTS form is on the same signup page
       await expect(login.CWTSEngineHeader).toBeVisible();
@@ -133,7 +130,6 @@ test.describe('severity-1 #smoke', () => {
       await login.clickSubmit();
       await login.setPassword(password);
       await login.confirmPassword(password);
-      await login.setAge(AGE_21);
       await login.submit();
 
       // Verify the CWTS page and the checkboxes
@@ -186,7 +182,6 @@ test.describe('severity-1 #smoke', () => {
       await login.clickSubmit();
       await login.setPassword(password);
       await login.confirmPassword(password);
-      await login.setAge(AGE_21);
       await login.submit();
 
       // Verify the CWTS page and the checkboxes
@@ -231,7 +226,6 @@ test.describe('severity-1 #smoke', () => {
       await login.clickSubmit();
       await login.setPassword(password);
       await login.confirmPassword(password);
-      await login.setAge(AGE_21);
       await login.submit();
 
       // Verify the CWTS page and the checkboxes
@@ -277,7 +271,6 @@ test.describe('severity-1 #smoke', () => {
       await login.clickSubmit();
       await login.setPassword(password);
       await login.confirmPassword(password);
-      await login.setAge(AGE_21);
       await login.submit();
 
       // Verify the CWTS page and the checkboxes

@@ -66,7 +66,6 @@ jest.mock('../../lib/glean', () => ({
       cwts: jest.fn(),
       marketing: jest.fn(),
       changeEmail: jest.fn(),
-      whyWeAsk: jest.fn(),
     },
     isDone: jest.fn(),
   },
@@ -95,9 +94,7 @@ const commonFxaLoginOptions = {
   unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
 };
 
-async function fillOutForm(age: string, withPwdConfirmation: boolean) {
-  const ageInput = screen.getByLabelText('How old are you?');
-
+async function fillOutForm(withPwdConfirmation: boolean) {
   fireEvent.input(screen.getByLabelText('Password'), {
     target: { value: MOCK_PASSWORD },
   });
@@ -105,10 +102,6 @@ async function fillOutForm(age: string, withPwdConfirmation: boolean) {
     fireEvent.input(screen.getByLabelText('Repeat password'), {
       target: { value: MOCK_PASSWORD },
     });
-  fireEvent.input(ageInput, {
-    target: { value: age },
-  });
-
   await waitFor(() => {
     expect(
       screen.getByRole('button', {
@@ -148,8 +141,6 @@ describe('Signup page', () => {
     screen.getByLabelText('Password');
     // password confirmation field required for sync and desktop relay only
     expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
-    screen.getByLabelText('How old are you?');
-    screen.getByRole('link', { name: /Why do we ask/ });
 
     // newsletter options are shown by default
     await waitFor(() => screen.getByText('Get more from Mozilla:'));
@@ -306,18 +297,12 @@ describe('Signup page', () => {
     });
 
     fireEvent.focus(screen.getByLabelText('Password'));
-    fireEvent.focus(screen.getByLabelText('How old are you?'));
-    fireEvent.click(screen.getByRole('link', { name: /Why do we ask/ }));
 
     await waitFor(() => {
-      expect(GleanMetrics.registration.engage).toBeCalledTimes(2);
+      expect(GleanMetrics.registration.engage).toBeCalledTimes(1);
       expect(GleanMetrics.registration.engage).toBeCalledWith({
         event: { reason: 'password' },
       });
-      expect(GleanMetrics.registration.engage).toBeCalledWith({
-        event: { reason: 'age' },
-      });
-      expect(GleanMetrics.registration.whyWeAsk).toBeCalledTimes(1);
     });
   });
 
@@ -328,7 +313,7 @@ describe('Signup page', () => {
     renderWithLocalizationProvider(
       <Subject beginSignupHandler={mockBeginSignupHandler} />
     );
-    await fillOutForm('18', false);
+    await fillOutForm(false);
     submit();
     await waitFor(() => {
       expect(mockSensitiveDataClient.setDataType).toHaveBeenCalledWith(
@@ -342,76 +327,12 @@ describe('Signup page', () => {
     });
   });
 
-  describe('age check', () => {
-    // Clean up cookies to start with a clean slate and avoid polluting other tests.
-    const originalCookie = document.cookie;
-
-    beforeAll(() => {
-      // @ts-ignore
-      delete document.cookie;
-      document.cookie = originalCookie;
-    });
-
-    beforeEach(() => {
-      document.cookie = originalCookie;
-    });
-
-    afterEach(() => {
-      jest.restoreAllMocks();
-    });
-
-    afterAll(() => {
-      document.cookie = originalCookie;
-    });
-
-    it('with user under 13, adds cookie and redirects', async () => {
-      let cookieJar = '';
-      jest.spyOn(document, 'cookie', 'set').mockImplementation((cookie) => {
-        cookieJar = cookie;
-      });
-      jest.spyOn(document, 'cookie', 'get').mockImplementation(() => cookieJar);
-      expect(document.cookie).toBe('');
-
-      const mockBeginSignupHandler = jest.fn();
-      renderWithLocalizationProvider(
-        <Subject beginSignupHandler={mockBeginSignupHandler} />
-      );
-      await fillOutForm('12', false);
-
-      submit();
-      await waitFor(() => {
-        expect(document.cookie).toBe('tooyoung=1;');
-      });
-      expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
-      expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/cannot_create_account');
-      expect(mockBeginSignupHandler).not.toBeCalled();
-    });
-
-    it('with age set over 130, does not submit and displays error', async () => {
-      const mockBeginSignupHandler = jest.fn();
-      renderWithLocalizationProvider(
-        <Subject beginSignupHandler={mockBeginSignupHandler} />
-      );
-      await fillOutForm('131', false);
-
-      submit();
-      await waitFor(() => {
-        expect(screen.getByTestId('tooltip')).toHaveTextContent(
-          'You must enter a valid age to sign up'
-        );
-      });
-      expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
-      expect(mockBeginSignupHandler).not.toBeCalled();
-    });
-  });
-
   describe('fails for Relay email masks', () => {
     ['a@relay.firefox.com', 'b@mozmail.com', 'c@sub.mozmail.com'].forEach(
       (mask) => {
         it(`fails for mask ${mask}`, async () => {
           renderWithLocalizationProvider(<Subject email={mask} />);
-          await fillOutForm('18', false);
+          await fillOutForm(false);
           submit();
 
           await waitFor(() => {
@@ -430,7 +351,7 @@ describe('Signup page', () => {
     renderWithLocalizationProvider(
       <Subject beginSignupHandler={mockBeginSignupHandler} />
     );
-    await fillOutForm('18', false);
+    await fillOutForm(false);
 
     // select all newsletters
     const checkboxes = screen.getAllByRole('checkbox');
@@ -476,7 +397,7 @@ describe('Signup page', () => {
 
   it('emits a metrics event on submit', async () => {
     renderWithLocalizationProvider(<Subject />);
-    await fillOutForm('18', false);
+    await fillOutForm(false);
     submit();
 
     await waitFor(() => {
@@ -499,7 +420,7 @@ describe('Signup page', () => {
         <Subject beginSignupHandler={mockBeginSignupHandler} />
       );
 
-      await fillOutForm('18', false);
+      await fillOutForm(false);
       submit();
 
       await waitFor(() => {
@@ -542,7 +463,7 @@ describe('Signup page', () => {
         });
 
         it('all CWTS options selected (default)', async () => {
-          await fillOutForm('18', true);
+          await fillOutForm(true);
           submit();
 
           await waitFor(() => {
@@ -590,7 +511,7 @@ describe('Signup page', () => {
             />
           );
 
-          await fillOutForm('18', true);
+          await fillOutForm(true);
           submit();
 
           await waitFor(() => {
@@ -620,7 +541,7 @@ describe('Signup page', () => {
             />
           );
 
-          await fillOutForm('18', true);
+          await fillOutForm(true);
 
           // deselect
           fireEvent.click(screen.getByText('Open Tabs'));
@@ -675,7 +596,7 @@ describe('Signup page', () => {
               beginSignupHandler={mockBeginSignupHandler}
             />
           );
-          await fillOutForm('18', true);
+          await fillOutForm(true);
 
           act(() => {
             syncEngineConfigs.forEach((engineConfig) => {
@@ -746,14 +667,12 @@ describe('Signup page', () => {
           />
         );
 
-        const ageInput = screen.getByLabelText('How old are you?');
         const passwordInput = screen.getByLabelText('Password');
         const repeatPasswordInput = screen.getByLabelText('Repeat password');
         const submitButton = screen.getByRole('button', {
           name: 'Create account',
         });
 
-        await user.type(ageInput, '13');
         await user.type(passwordInput, MOCK_PASSWORD);
         await user.type(repeatPasswordInput, MOCK_PASSWORD + 'x');
 
@@ -787,7 +706,7 @@ describe('Signup page', () => {
           beginSignupHandler={mockBeginSignupHandler}
         />
       );
-      await fillOutForm('18', false);
+      await fillOutForm(false);
       submit();
 
       expect(fxaLoginSpy).not.toBeCalled();
@@ -822,7 +741,7 @@ describe('Signup page', () => {
           beginSignupHandler={mockBeginSignupHandler}
         />
       );
-      await fillOutForm('18', false);
+      await fillOutForm(false);
       submit();
 
       await waitFor(() => {
@@ -853,7 +772,7 @@ describe('Signup page', () => {
         <Subject beginSignupHandler={mockBeginSignupHandler} />
       );
 
-      await fillOutForm('18', false);
+      await fillOutForm(false);
       submit();
 
       await waitFor(() => {
@@ -861,37 +780,6 @@ describe('Signup page', () => {
       });
       expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('handle input errors', () => {
-    it('checks coppa is empty', async () => {
-      renderWithLocalizationProvider(
-        <Subject
-          {...{
-            email: 'foo@bar.com',
-          }}
-        />
-      );
-
-      const newPasswordInput = screen.getByTestId('new-password-input-field');
-      const ageInput = screen.getByTestId('age-input-field');
-      const createAccountButton = screen.getByText('Create account');
-
-      fireEvent.change(newPasswordInput, {
-        target: { value: 'bar12345' },
-      });
-      fireEvent.focus(ageInput);
-      fireEvent.blur(ageInput);
-      createAccountButton.click();
-
-      await waitFor(() => {
-        screen.getByText('You must enter your age to sign up');
-      });
-      expect(createAccountButton).toBeDisabled();
-
-      // TODO: Make sure only valid values are accepted:
-      //  https://mozilla-hub.atlassian.net/browse/FXA-8654
     });
   });
 });

@@ -71,5 +71,4 @@ export interface SignupFormData {
   email: string;
   newPassword: string;
   confirmPassword: string;
-  age: string;
 }

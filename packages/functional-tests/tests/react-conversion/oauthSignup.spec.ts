@@ -6,8 +6,6 @@ import { FirefoxCommand } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
 
-const AGE_21 = '21';
-
 test.describe('severity-1 #smoke', () => {
   test.describe('signup react', () => {
     test('signup oauth', async ({
@@ -24,7 +22,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
@@ -61,7 +59,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(page).toHaveURL(/^((?!redirect_uri).)*$/);
 
       await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
@@ -92,7 +90,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(signup.CWTSEngineBookmarks).toBeVisible();
       await expect(signup.CWTSEngineHistory).toBeVisible();
 
-      await signup.fillOutSyncSignupForm(password, AGE_21);
+      await signup.fillOutSyncSignupForm(password);
 
       await expect(page).toHaveURL(/confirm_signup_code/);
 

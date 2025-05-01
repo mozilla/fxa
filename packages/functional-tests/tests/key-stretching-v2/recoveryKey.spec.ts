@@ -5,7 +5,6 @@
 import { expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 
-const AGE_21 = '21';
 const HINT = 'secret key location';
 
 /**
@@ -85,7 +84,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await page.waitForURL(/\//);
       await signup.fillOutEmailForm(accountDetails.email);
-      await signup.fillOutSignupForm(accountDetails.password, AGE_21);
+      await signup.fillOutSignupForm(accountDetails.password);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(
         accountDetails.email

@@ -180,7 +180,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Try creating a new account with the same secondary email as previous account and new password
       await signup.fillOutEmailForm(newEmail);
-      await signup.fillOutSignupForm(newPassword, '21');
+      await signup.fillOutSignupForm(newPassword);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(newEmail);
       await confirmSignupCode.fillOutCodeForm(code);
@@ -206,9 +206,8 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
       await settings.secondaryEmail.addButton.click();
       await secondaryEmail.fillOutEmail(newEmail);
-      const code: string = await target.emailClient.getVerifySecondaryCode(
-        newEmail
-      );
+      const code: string =
+        await target.emailClient.getVerifySecondaryCode(newEmail);
       await secondaryEmail.fillOutVerificationCode(code);
 
       await expect(settings.alertBar).toHaveText(/successfully added/);

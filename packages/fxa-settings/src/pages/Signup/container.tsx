@@ -208,11 +208,6 @@ const SignupContainer = ({
     ]
   );
 
-  // TODO: probably a better way to read this?
-  if (window.document.cookie.indexOf('tooyoung') > -1) {
-    navigateWithQuery('/cannot_create_account');
-  }
-
   if (validationError || !email) {
     navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;
