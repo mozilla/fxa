@@ -39,7 +39,7 @@ export class SessionResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Logs out the current session',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   public async destroySession(
     @GqlSessionToken() token: string,
     @GqlXHeaders() headers: Headers,
@@ -106,7 +106,7 @@ export class SessionResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Resend a verify code.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async resendVerifyCode(
     @GqlSessionToken() token: string,
@@ -122,7 +122,7 @@ export class SessionResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Verify a OTP code.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async verifyCode(
     @GqlSessionToken() token: string,
@@ -145,7 +145,7 @@ export class SessionResolver {
     description:
       'Verify session with a 2FA backup authentication (recovery) code',
   })
-  @UseGuards(UnverifiedSessionGuard, GqlCustomsGuard)
+  @UseGuards(UnverifiedSessionGuard)
   @CatchGatewayError
   public async consumeRecoveryCode(
     @GqlSessionToken() token: string,

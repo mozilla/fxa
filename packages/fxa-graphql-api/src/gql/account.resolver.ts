@@ -167,7 +167,7 @@ export class AccountResolver {
     description:
       'Create a new randomly generated TOTP token for a user if they do not currently have one.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   public async createTotp(
     @GqlSessionToken() token: string,
     @GqlXHeaders() headers: Headers,
@@ -191,7 +191,7 @@ export class AccountResolver {
     description:
       'Verifies the current session if the passed TOTP code is valid.',
   })
-  @UseGuards(UnverifiedSessionGuard, GqlCustomsGuard)
+  @UseGuards(UnverifiedSessionGuard)
   @CatchGatewayError
   public async verifyTotp(
     @GqlSessionToken() token: string,
@@ -214,7 +214,7 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Deletes the current TOTP token for the user.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async deleteTotp(
     @GqlSessionToken() token: string,
@@ -231,7 +231,7 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Deletes the current recovery key for the user.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async deleteRecoveryKey(
     @GqlSessionToken() token: string,
@@ -249,7 +249,7 @@ export class AccountResolver {
     description:
       'Return new backup authentication codes while removing old ones.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async changeRecoveryCodes(
     @GqlSessionToken() token: string,
@@ -326,7 +326,7 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Create a secondary email for the signed in account.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async createSecondaryEmail(
     @GqlSessionToken() token: string,
@@ -347,7 +347,7 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Reset the verification code to a secondary email.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async resendSecondaryEmailCode(
     @GqlSessionToken() token: string,
@@ -365,7 +365,7 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Verify the email address with a code.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async verifySecondaryEmail(
     @GqlSessionToken() token: string,
@@ -384,7 +384,7 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Remove the secondary email for the signed in account.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async deleteSecondaryEmail(
     @GqlSessionToken() token: string,
@@ -399,7 +399,7 @@ export class AccountResolver {
     description:
       'Change users primary email address, this email address must belong to the user and be verified.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async updatePrimaryEmail(
     @GqlSessionToken() token: string,
@@ -433,7 +433,7 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Send a session verification email.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async sendSessionVerificationCode(
     @GqlSessionToken() token: string,
@@ -448,7 +448,7 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Verify the session via an email code.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async verifySession(
     @GqlSessionToken() token: string,
