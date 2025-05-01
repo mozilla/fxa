@@ -70,13 +70,14 @@
       ]
     },
     "transformIgnorePatterns": [
-      "[/\\\\]node_modules[/\\\\](?!@mozilla/glean).+\\.(js|jsx|mjs|cjs|ts|tsx)$",
-      "^.+\\.module\\.(css|sass|scss)$"
+      "[/\\\\]node_modules[/\\\\](?!sinon|@mozilla/glean).+\\.(js|jsx|mjs|cjs|ts|tsx)$",
+      "^.+\\.module\\.(css|sass|scss)$",
+      "/node_modules/(?!(sinon|@mozilla/glean)/)"
     ],
     "modulePaths": [],
     "moduleNameMapper": {
       "^react-native$": "react-native-web",
-      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
+      "\\.(css|sass|scss)$": "identity-obj-proxy",
       "@fxa/shared/l10n": "<rootDir>/../../libs/shared/l10n/src/index.ts",
       "@fxa/shared/metrics/glean": "<rootDir>/../../libs/shared/metrics/glean/src/index.ts",
       "^@fxa/shared/assets(.*)$": "<rootDir>/../../libs/shared/assets/src$1"
