@@ -111,6 +111,7 @@ export const SUBSCRIPTION_UPDATE_TYPES = {
   DOWNGRADE: 'downgrade',
   REACTIVATION: 'reactivation',
   CANCELLATION: 'cancellation',
+  REDUNDANT_OVERLAP: 'redundant_overlap',
 };
 
 export type FormattedSubscriptionForEmail = {
@@ -740,9 +741,8 @@ export class StripeHelper extends StripeHelperBase {
     };
 
     try {
-      const firstInvoice = await this.stripe.invoices.retrieveUpcoming(
-        requestObject
-      );
+      const firstInvoice =
+        await this.stripe.invoices.retrieveUpcoming(requestObject);
 
       let proratedInvoice;
       if (isUpgrade && requestObject.subscription_items?.length) {
@@ -758,9 +758,8 @@ export class StripeHelper extends StripeHelperBase {
           requestObject.subscription_items[0].id = subscriptionItem?.id;
           requestObject.subscription = subscriptionItem?.subscription;
 
-          proratedInvoice = await this.stripe.invoices.retrieveUpcoming(
-            requestObject
-          );
+          proratedInvoice =
+            await this.stripe.invoices.retrieveUpcoming(requestObject);
         } catch (error: any) {
           Sentry.withScope((scope) => {
             scope.setContext('previewInvoice.proratedInvoice', {
@@ -1718,9 +1717,8 @@ export class StripeHelper extends StripeHelperBase {
    * has not been processed) and have any payment attempts.
    */
   async hasOpenInvoiceWithPaymentAttempts(customer: Stripe.Customer) {
-    const invoices = await this.getLatestInvoicesForActiveSubscriptions(
-      customer
-    );
+    const invoices =
+      await this.getLatestInvoicesForActiveSubscriptions(customer);
     if (!invoices?.length) {
       return false;
     }
@@ -1772,9 +1770,8 @@ export class StripeHelper extends StripeHelperBase {
   async detachPaymentMethod(
     paymentMethodId: string
   ): Promise<Stripe.PaymentMethod> {
-    const paymentMethod = await this.stripe.paymentMethods.detach(
-      paymentMethodId
-    );
+    const paymentMethod =
+      await this.stripe.paymentMethods.detach(paymentMethodId);
     await this.stripeFirestore.removePaymentMethodRecord(paymentMethodId);
     return paymentMethod;
   }
@@ -2744,9 +2741,8 @@ export class StripeHelper extends StripeHelperBase {
     );
 
     // Use Firestore product configs if that exist
-    const planConfig: Partial<PlanConfig> = await this.maybeGetPlanConfig(
-      planId
-    );
+    const planConfig: Partial<PlanConfig> =
+      await this.maybeGetPlanConfig(planId);
 
     const { emailIconURL: planEmailIconURL = '', successActionButtonURL } = {
       emailIconURL: planConfig.urls?.emailIcon || productMetadata.emailIconURL,
@@ -2848,9 +2844,8 @@ export class StripeHelper extends StripeHelperBase {
 
     for (const subscription of customer.subscriptions.data) {
       if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
-        const formattedSubscription = await this.formatSubscriptionForEmail(
-          subscription
-        );
+        const formattedSubscription =
+          await this.formatSubscriptionForEmail(subscription);
         formattedSubscriptions.push(formattedSubscription);
       }
     }
@@ -3141,6 +3136,20 @@ export class StripeHelper extends StripeHelperBase {
       currency: invoiceTotalCurrency,
       created: invoiceDate,
     } = upcomingInvoiceWithInvoiceItem || invoice;
+
+    if (subscription.metadata['autoCancelledRedundantFor']) {
+      return {
+        updateType: SUBSCRIPTION_UPDATE_TYPES.REDUNDANT_OVERLAP,
+        email,
+        uid,
+        productId,
+        planId,
+        planEmailIconURL,
+        productName,
+        productMetadata,
+        planConfig,
+      };
+    }
 
     return {
       updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,

@@ -666,27 +666,30 @@ describe('#integration - StripeHelper', () => {
 
     it('returns latest invoices for any active subscriptions', async () => {
       const expected = [invoice];
-      const actual = await stripeHelper.getLatestInvoicesForActiveSubscriptions(
-        customerExpanded
-      );
+      const actual =
+        await stripeHelper.getLatestInvoicesForActiveSubscriptions(
+          customerExpanded
+        );
       assert.deepEqual(actual, expected);
     });
 
     it('returns [] if there are no active subscriptions', async () => {
       subscription.status = 'incomplete';
       const expected = [];
-      const actual = await stripeHelper.getLatestInvoicesForActiveSubscriptions(
-        customerExpanded
-      );
+      const actual =
+        await stripeHelper.getLatestInvoicesForActiveSubscriptions(
+          customerExpanded
+        );
       assert.deepEqual(actual, expected);
     });
 
     it('returns [] if no invoices are found', async () => {
       subscription.latest_invoice = null;
       const expected = [];
-      const actual = await stripeHelper.getLatestInvoicesForActiveSubscriptions(
-        customerExpanded
-      );
+      const actual =
+        await stripeHelper.getLatestInvoicesForActiveSubscriptions(
+          customerExpanded
+        );
       assert.deepEqual(actual, expected);
     });
   });
@@ -4583,9 +4586,8 @@ describe('#integration - StripeHelper', () => {
         invoice.payment_intent = unsuccessfulPaymentIntent;
 
         const expected = invoice.payment_intent;
-        const actual = await stripeHelper.fetchPaymentIntentFromInvoice(
-          invoice
-        );
+        const actual =
+          await stripeHelper.fetchPaymentIntentFromInvoice(invoice);
 
         assert.deepEqual(actual, expected);
         assert.isTrue(stripeHelper.stripe.paymentIntents.retrieve.notCalled);
@@ -4596,9 +4598,8 @@ describe('#integration - StripeHelper', () => {
       it('fetches the payment_intent from Stripe', async () => {
         const invoice = deepCopy(unpaidInvoice);
         const expected = unsuccessfulPaymentIntent;
-        const actual = await stripeHelper.fetchPaymentIntentFromInvoice(
-          invoice
-        );
+        const actual =
+          await stripeHelper.fetchPaymentIntentFromInvoice(invoice);
 
         assert.deepEqual(actual, expected);
         assert.isTrue(stripeHelper.stripe.paymentIntents.retrieve.calledOnce);
@@ -5149,9 +5150,8 @@ describe('#integration - StripeHelper', () => {
               subscription_id: subscription.id,
             },
           ];
-          const actual = await stripeHelper.formatSubscriptionsForSupport(
-            input
-          );
+          const actual =
+            await stripeHelper.formatSubscriptionsForSupport(input);
 
           assert.deepEqual(actual, expected);
         });
@@ -5180,9 +5180,8 @@ describe('#integration - StripeHelper', () => {
               subscription_id: subscription.id,
             },
           ];
-          const actual = await stripeHelper.formatSubscriptionsForSupport(
-            input
-          );
+          const actual =
+            await stripeHelper.formatSubscriptionsForSupport(input);
 
           assert.deepEqual(actual, expected);
         });
@@ -5206,9 +5205,8 @@ describe('#integration - StripeHelper', () => {
           data: [subscription1, subscription2, cancelledSubscription],
         };
 
-        const response = await stripeHelper.formatSubscriptionsForSupport(
-          input
-        );
+        const response =
+          await stripeHelper.formatSubscriptionsForSupport(input);
 
         assert.lengthOf(response, 3);
         assert.isDefined(
@@ -5542,9 +5540,8 @@ describe('#integration - StripeHelper', () => {
       });
 
       it('extracts expected details from an invoice that requires requests to expand', async () => {
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixture
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
@@ -5553,9 +5550,8 @@ describe('#integration - StripeHelper', () => {
 
       it('extracts expected details from an invoice when product is missing from cache', async () => {
         mockAllAbbrevProducts[0].product_id = 'nope';
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixture
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isTrue(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
@@ -5572,9 +5568,8 @@ describe('#integration - StripeHelper', () => {
         };
         fixture.customer = mockCustomer;
         fixture.charge = mockCharge;
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixture
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
@@ -5592,9 +5587,8 @@ describe('#integration - StripeHelper', () => {
         fixture.customer = mockCustomer;
         fixture.charge = null;
         expandMock.onCall(1).resolves(null);
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixture
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
@@ -5613,9 +5607,8 @@ describe('#integration - StripeHelper', () => {
         fixture.lines.data[0].type = 'invoiceitem';
         fixture.lines.data[1].period.end = subscriptionPeriodEnd;
 
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixture
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
 
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
@@ -5627,9 +5620,8 @@ describe('#integration - StripeHelper', () => {
       });
 
       it('extracts expected details from an invoice with invoiceitem for a previous subscription', async () => {
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixtureProrated
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixtureProrated);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
@@ -5637,9 +5629,8 @@ describe('#integration - StripeHelper', () => {
       });
 
       it('extracts expected details from an invoice with discount', async () => {
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixtureDiscount
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixtureDiscount);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
@@ -5656,9 +5647,8 @@ describe('#integration - StripeHelper', () => {
           invoiceTotalInCents: 0,
           showPaymentMethod: false,
         };
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixtureDiscount100
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixtureDiscount100);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
@@ -5678,9 +5668,8 @@ describe('#integration - StripeHelper', () => {
         ];
         stripeHelper.allAbbrevProducts.resolves(mockAllAbbrevProducts);
         const fixture = deepCopy(invoicePaidSubscriptionCreate);
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixture
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
@@ -5694,9 +5683,8 @@ describe('#integration - StripeHelper', () => {
       });
 
       it('extracts expected details for an invoice with tax', async () => {
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixtureTax
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixtureTax);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
@@ -5707,9 +5695,8 @@ describe('#integration - StripeHelper', () => {
       });
 
       it('extracts expected details from an invoice with discount and tax', async () => {
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixtureTaxDiscount
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixtureTaxDiscount);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
@@ -5865,9 +5852,8 @@ describe('#integration - StripeHelper', () => {
 
       it('uses and includes Firestore based configs when available', async () => {
         sandbox.stub(stripeHelper, 'maybeGetPlanConfig').resolves(planConfig);
-        const result = await stripeHelper.extractInvoiceDetailsForEmail(
-          fixture
-        );
+        const result =
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         const expectedWithPlanConfig = {
           ...expected,
           planConfig,
@@ -6600,9 +6586,8 @@ describe('#integration - StripeHelper', () => {
       });
 
       it('extracts from default payment method first when available', async () => {
-        const result = await stripeHelper.extractCustomerDefaultPaymentDetails(
-          mockCustomer
-        );
+        const result =
+          await stripeHelper.extractCustomerDefaultPaymentDetails(mockCustomer);
         assert.deepEqual(result, {
           lastFour: mockPaymentMethod.card.last4,
           cardType: mockPaymentMethod.card.brand,
@@ -6615,9 +6600,8 @@ describe('#integration - StripeHelper', () => {
         const customer = deepCopy(mockCustomer);
         delete customer.invoice_settings.default_payment_method.billing_details
           .address;
-        const result = await stripeHelper.extractCustomerDefaultPaymentDetails(
-          customer
-        );
+        const result =
+          await stripeHelper.extractCustomerDefaultPaymentDetails(customer);
         assert.deepEqual(result, {
           lastFour: mockPaymentMethod.card.last4,
           cardType: mockPaymentMethod.card.brand,
@@ -6630,9 +6614,8 @@ describe('#integration - StripeHelper', () => {
         expandMock.onCall(0).resolves(mockPaymentMethod);
         const customer = deepCopy(mockCustomer);
         customer.invoice_settings.default_payment_method = null;
-        const result = await stripeHelper.extractCustomerDefaultPaymentDetails(
-          customer
-        );
+        const result =
+          await stripeHelper.extractCustomerDefaultPaymentDetails(customer);
         assert.deepEqual(result, {
           lastFour: mockPaymentMethod.card.last4,
           cardType: mockPaymentMethod.card.brand,
@@ -6647,9 +6630,8 @@ describe('#integration - StripeHelper', () => {
         expandMock.onCall(0).resolves(noAddressPaymentMethod);
         const customer = deepCopy(mockCustomer);
         customer.invoice_settings.default_payment_method = null;
-        const result = await stripeHelper.extractCustomerDefaultPaymentDetails(
-          customer
-        );
+        const result =
+          await stripeHelper.extractCustomerDefaultPaymentDetails(customer);
         assert.deepEqual(result, {
           lastFour: mockPaymentMethod.card.last4,
           cardType: mockPaymentMethod.card.brand,
@@ -6662,9 +6644,8 @@ describe('#integration - StripeHelper', () => {
         const customer = deepCopy(mockCustomer);
         customer.invoice_settings.default_payment_method = null;
         customer.default_source = null;
-        const result = await stripeHelper.extractCustomerDefaultPaymentDetails(
-          customer
-        );
+        const result =
+          await stripeHelper.extractCustomerDefaultPaymentDetails(customer);
         assert.deepEqual(result, {
           lastFour: null,
           cardType: null,
@@ -6737,6 +6718,32 @@ describe('#integration - StripeHelper', () => {
           ),
           productMetadata: expectedBaseUpdateDetails.productMetadata,
           showOutstandingBalance: true,
+        });
+      });
+
+      it('extracts expected details for a subscription replacement', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        const subscription = event.data.object;
+        subscription.metadata = {
+          autoCancelledRedundantFor: 'REPLACEMENT_SUB_ID',
+        };
+        const result =
+          await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
+            event.data.object,
+            expectedBaseUpdateDetails,
+            mockInvoice,
+            undefined
+          );
+        assert.deepEqual(result, {
+          updateType: SUBSCRIPTION_UPDATE_TYPES.REDUNDANT_OVERLAP,
+          email,
+          uid,
+          productId,
+          planId,
+          planConfig: {},
+          planEmailIconURL: productIconURLNew,
+          productName,
+          productMetadata: expectedBaseUpdateDetails.productMetadata,
         });
       });
     });
@@ -7164,9 +7171,8 @@ describe('#integration - StripeHelper', () => {
       stripeHelper.fetchCustomer.restore();
       sandbox.stub(stripeHelper, 'fetchCustomer').resolves(undefined);
 
-      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
-        'uid'
-      );
+      const actual =
+        await stripeHelper.getBillingDetailsAndSubscriptions('uid');
 
       assert.equal(actual, null);
       sinon.assert.calledOnceWithExactly(stripeHelper.fetchCustomer, 'uid', [
@@ -7181,9 +7187,8 @@ describe('#integration - StripeHelper', () => {
         .stub(stripeHelper, 'extractBillingDetails')
         .resolves(billingDetails);
 
-      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
-        'uid'
-      );
+      const actual =
+        await stripeHelper.getBillingDetailsAndSubscriptions('uid');
 
       assert.deepEqual(actual, {
         customerId: customer.id,
@@ -7202,9 +7207,8 @@ describe('#integration - StripeHelper', () => {
         .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
         .returns(false);
 
-      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
-        'uid'
-      );
+      const actual =
+        await stripeHelper.getBillingDetailsAndSubscriptions('uid');
 
       assert.deepEqual(actual, {
         customerId: customer.id,
@@ -7226,9 +7230,8 @@ describe('#integration - StripeHelper', () => {
       stripeHelper.getCustomerPaypalAgreement.restore();
       sandbox.stub(stripeHelper, 'getCustomerPaypalAgreement').returns(null);
 
-      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
-        'uid'
-      );
+      const actual =
+        await stripeHelper.getBillingDetailsAndSubscriptions('uid');
 
       assert.deepEqual(actual, {
         customerId: customer.id,
@@ -7243,9 +7246,8 @@ describe('#integration - StripeHelper', () => {
       const openInvoice = { status: 'open' };
       getLatestInvoicesForActiveSubscriptionsStub.resolves([openInvoice]);
       getPaymentAttemptsStub.returns(1);
-      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
-        'uid'
-      );
+      const actual =
+        await stripeHelper.getBillingDetailsAndSubscriptions('uid');
 
       assert.deepEqual(actual, {
         customerId: customer.id,
@@ -7267,9 +7269,8 @@ describe('#integration - StripeHelper', () => {
       sandbox
         .stub(stripeHelper, 'hasOpenInvoiceWithPaymentAttempts')
         .returns(false);
-      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
-        'uid'
-      );
+      const actual =
+        await stripeHelper.getBillingDetailsAndSubscriptions('uid');
 
       assert.deepEqual(actual, {
         customerId: customer.id,
@@ -7297,9 +7298,8 @@ describe('#integration - StripeHelper', () => {
         .stub(stripeHelper, 'hasSubscriptionRequiringPaymentMethod')
         .returns(false);
 
-      const actual = await stripeHelper.getBillingDetailsAndSubscriptions(
-        'uid'
-      );
+      const actual =
+        await stripeHelper.getBillingDetailsAndSubscriptions('uid');
       assert.deepEqual(actual, {
         customerId: customer.id,
         subscriptions,

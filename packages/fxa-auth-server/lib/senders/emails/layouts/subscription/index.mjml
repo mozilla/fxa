@@ -97,7 +97,7 @@
           <mj-image css-class="mozilla-logo-footer"
             width="120px"
             href="https://www.mozilla.org"
-            src="https://accounts-static.cdn.mozilla.net/product-icons/mozilla-logo.png"
+            src="https://accounts-static.cdn.mozilla.net/product-icons/mozilla-logo-w.png"
             alt="Mozilla logo"
             title="Mozilla">
           </mj-image>

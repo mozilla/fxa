@@ -1666,7 +1666,6 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'Your subscription will automatically renew' },
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'include', expected: `alt="${MESSAGE.productNameNew}"` },
-      { test: 'include', expected: `alt="${MESSAGE.productNameOld}"` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -1790,6 +1789,31 @@ const TESTS: [string, any, Record<string, any>?][] = [
     {updateTemplateValues: x => (
       {...x, productMetadata: { ...MESSAGE.productMetadata, 'product:cancellationSurveyURL': SUBSCRIPTION_CANCELLATION_SURVEY_URL_CUSTOM}})}
   ],
+
+    ['subscriptionReplacedEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Your subscription has been updated as part of your upgrade` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionReplaced') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionReplaced' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionReplaced }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `Your individual ${MESSAGE.productName} subscription has been replaced and is now included in your new bundle.` },
+      { test: 'include', expected: `Your subscription has been updated` },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-replaced', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-replaced', 'subscription-terms')) },
+      { test: 'include', expected: `You’ll receive a credit for any unused time from your previous subscription. This credit will be automatically applied to your account and used toward future charges.` },
+      { test: 'include', expected: `No action is required on your part.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Your individual ${MESSAGE.productName} subscription has been replaced and is now included in your new bundle.` },
+      { test: 'include', expected: `Your subscription has been updated` },
+      { test: 'include', expected: `You’ll receive a credit for any unused time from your previous subscription. This credit will be automatically applied to your account and used toward future charges.` },
+      { test: 'include', expected: `No action is required on your part.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
 
   ['subscriptionFailedPaymentsCancellationEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
@@ -2526,20 +2550,18 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'Thank you for upgrading!' },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms')) },
-      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `You have successfully upgraded to ${MESSAGE.productNameNew}.` },
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
       { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect your subscription’s higher price for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
-      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `You have upgraded to ${MESSAGE.productNameNew}` },
       { test: 'include', expected: 'Thank you for upgrading!' },
-      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `You have successfully upgraded to ${MESSAGE.productNameNew}.` },
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
       { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect your subscription’s higher price for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
-      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
