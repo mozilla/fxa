@@ -81,6 +81,7 @@ export type BaseCartDTO = Omit<ResultCart, 'state'> & {
 
 export type StartCartDTO = BaseCartDTO & {
   state: CartState.START;
+  hasActiveSubscriptions: boolean;
 };
 
 export type ProcessingCartDTO = BaseCartDTO & {

@@ -6,32 +6,30 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { UpdateCartInput } from '@fxa/payments/cart';
 import { getApp } from '../nestapp/app';
+import { TaxAddress } from '@fxa/payments/customer';
 
 export const updateTaxAddressAction = async (
   cartId: string,
   version: number,
-  taxAddress: UpdateCartInput['taxAddress']
+  offeringId: string,
+  taxAddress: TaxAddress,
+  uid?: string
 ) => {
   const actionsService = getApp().getActionsService();
 
-  const { taxAddress: cartTaxAddress } = await actionsService.updateCart({
+  const result = await actionsService.updateTaxAddress({
     cartId,
     version,
-    cartDetails: {
-      taxAddress,
-    },
+    offeringId,
+    taxAddress,
+    uid,
   });
-
-  if (!cartTaxAddress) {
-    throw new Error('Cart address not updated');
-  }
 
   revalidatePath(
     '/[locale]/[offeringId]/[interval]/checkout/[cartId]/start',
     'page'
   );
 
-  return cartTaxAddress;
+  return result;
 };

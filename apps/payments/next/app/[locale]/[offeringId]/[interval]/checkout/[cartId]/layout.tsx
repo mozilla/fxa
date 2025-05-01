@@ -111,10 +111,28 @@ export default async function CheckoutLayout({
               <SelectTaxLocation
                 saveAction={async (countryCode, postalCode) => {
                   'use server';
-                  return updateTaxAddressAction(cart.id, cart.version, {
-                    countryCode,
-                    postalCode,
-                  });
+                  const result = await updateTaxAddressAction(
+                    cart.id,
+                    cart.version,
+                    params.offeringId,
+                    {
+                      countryCode,
+                      postalCode,
+                    },
+                    session?.user?.id
+                  );
+
+                  if (result.ok) {
+                    return {
+                      ok: true,
+                      data: result.taxAddress,
+                    };
+                  } else {
+                    return {
+                      ok: false,
+                      error: result.error,
+                    };
+                  }
                 }}
                 cmsCountries={cms.countries}
                 locale={locale.substring(0, 2)}
@@ -124,6 +142,8 @@ export default async function CheckoutLayout({
                 }
                 countryCode={cart.taxAddress?.countryCode}
                 postalCode={cart.taxAddress?.postalCode}
+                currentCurrency={cart.currency}
+                showNewTaxRateInfoMessage={cart.hasActiveSubscriptions}
               />
             </div>
           )}

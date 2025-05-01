@@ -10,6 +10,7 @@ import {
   CartService,
   CheckoutFailedError,
   SuccessCartDTO,
+  TaxChangeAllowedStatus,
   TaxService,
 } from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
@@ -28,7 +29,6 @@ import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
 import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithStripeActionArgs';
-import { GetProductAvailabilityForLocationActionArgs } from './validators/GetProductAvailabilityForLocationActionArgs';
 import { FetchCMSDataActionArgs } from './validators/FetchCMSDataActionArgs';
 import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
 import { GetCartActionArgs } from './validators/GetCartActionArgs';
@@ -57,9 +57,8 @@ import {
   TaxAddress,
   type SubplatInterval,
 } from '@fxa/payments/customer';
-import { EligibilityService } from '@fxa/payments/eligibility';
+import { EligibilityService, LocationStatus } from '@fxa/payments/eligibility';
 import { WithTypeCachableAsyncLocalStorage } from '@fxa/shared/db/type-cacheable';
-import { GetProductAvailabilityForLocationActionResult } from './validators/GetProductAvailabilityForLocationActionResult';
 import { GetPayPalCheckoutTokenResult } from './validators/GetPayPalCheckoutTokenResult';
 import { FetchCMSDataActionResult } from './validators/FetchCMSDataActionResult';
 import { getNeedsInputActionResult } from './validators/GetNeedsInputActionResult';
@@ -71,9 +70,11 @@ import { RestartCartActionResult } from './validators/RestartCartActionResult';
 import { GetTaxAddressArgs } from './validators/GetTaxAddressArgs';
 import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
 import { CartInvalidPromoCodeError } from 'libs/payments/cart/src/lib/cart.error';
-import { GetIsTaxLockedArgs } from './validators/GetIsTaxLockedArgs';
-import { GetIsTaxLockedResult } from './validators/GetIsTaxLockedResult';
 import { UpdateCartActionResult } from './validators/UpdateCartActionResult';
+import { ValidateLocationActionResult } from './validators/ValidateLocationActionResult';
+import { ValidateLocationActionArgs } from './validators/ValidateLocationActionArgs';
+import { UpdateTaxAddressActionArgs } from './validators/UpdateTaxAddressActionArgs';
+import { UpdateTaxAddressActionResult } from './validators/UpdateTaxAddressActionResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -93,7 +94,7 @@ export class NextJSActionsService {
     private currencyManager: CurrencyManager,
     private eligibilityService: EligibilityService,
     private productConfigurationManager: ProductConfigurationManager
-  ) { }
+  ) {}
 
   @SanitizeExceptions()
   @NextIOValidator(GetCartActionArgs, GetCartActionResult)
@@ -215,15 +216,6 @@ export class NextJSActionsService {
       args.ipAddress,
       args.uid
     );
-
-    return result;
-  }
-
-  @SanitizeExceptions()
-  @NextIOValidator(GetIsTaxLockedArgs, GetIsTaxLockedResult)
-  @WithTypeCachableAsyncLocalStorage()
-  async getIsTaxLocked(args: { uid: string }) {
-    const result = await this.taxService.getIsTaxLocked(args.uid);
 
     return result;
   }
@@ -367,18 +359,94 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
-  @NextIOValidator(
-    GetProductAvailabilityForLocationActionArgs,
-    GetProductAvailabilityForLocationActionResult
-  )
+  @NextIOValidator(UpdateTaxAddressActionArgs, UpdateTaxAddressActionResult)
   @WithTypeCachableAsyncLocalStorage()
-  async getProductAvailabilityForLocation(args: {
+  async updateTaxAddress(args: {
+    cartId: string;
+    version: number;
     offeringId: string;
-    countryCode?: string;
+    taxAddress: TaxAddress;
+    uid?: string;
+  }): Promise<
+    | {
+        ok: true;
+        taxAddress: TaxAddress;
+      }
+    | {
+        ok: false;
+        error: string;
+      }
+  > {
+    const { cartId, version, offeringId, taxAddress, uid } = args;
+
+    // Validate Tax Address before updating
+    const { isValid, status } = await this.validateLocation({
+      offeringId,
+      taxAddress,
+      uid,
+    });
+    if (!isValid) {
+      return {
+        ok: false,
+        error: status,
+      };
+    }
+
+    const { taxAddress: cartTaxAddress } = await this.updateCart({
+      cartId,
+      version,
+      cartDetails: {
+        taxAddress,
+      },
+    });
+
+    if (!cartTaxAddress) {
+      return {
+        ok: false,
+        error: 'cart_tax_address_not_updated',
+      };
+    }
+
+    return {
+      ok: true,
+      taxAddress,
+    };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(ValidateLocationActionArgs, ValidateLocationActionResult)
+  @WithTypeCachableAsyncLocalStorage()
+  async validateLocation(args: {
+    offeringId: string;
+    taxAddress?: TaxAddress;
+    uid?: string;
   }) {
-    return await this.eligibilityService.getProductAvailabilityForLocation(
-      args.offeringId,
-      args.countryCode
-    );
+    const { status: locationStatus } =
+      await this.eligibilityService.getProductAvailabilityForLocation(
+        args.offeringId,
+        args.taxAddress?.countryCode
+      );
+
+    if (locationStatus === LocationStatus.Valid) {
+      if (args.uid && args.taxAddress) {
+        const { status: taxChangeStatus, currentCurrency } =
+          await this.taxService.getTaxChangeStatus(args.uid, args.taxAddress);
+        return {
+          isValid: taxChangeStatus === TaxChangeAllowedStatus.Allowed,
+          status: taxChangeStatus,
+          currentCurrency,
+        };
+      } else {
+        return {
+          isValid: true,
+          status: locationStatus,
+        };
+      }
+    } else {
+      return {
+        isValid: false,
+        status: locationStatus,
+      };
+    }
   }
 }

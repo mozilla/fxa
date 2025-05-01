@@ -12,6 +12,7 @@ import {
   CustomerManager,
   SubscriptionManager,
   TaxAddress,
+  TaxAddressFactory,
 } from '@fxa/payments/customer';
 import {
   GeoDBManager,
@@ -27,6 +28,11 @@ import {
 } from '@fxa/payments/stripe';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import {
+  CurrencyManager,
+  MockCurrencyConfigProvider,
+} from '@fxa/payments/currency';
+import { TaxChangeAllowedStatus } from './tax.types';
 
 describe('TaxService', () => {
   let taxService: TaxService;
@@ -34,6 +40,7 @@ describe('TaxService', () => {
   let customerManager: CustomerManager;
   let geodbManager: GeoDBManager;
   let subscriptionManager: SubscriptionManager;
+  let currencyManager: CurrencyManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -49,6 +56,8 @@ describe('TaxService', () => {
         GeoDBManager,
         MockGeoDBNestFactory,
         SubscriptionManager,
+        CurrencyManager,
+        MockCurrencyConfigProvider,
       ],
     }).compile();
 
@@ -57,6 +66,7 @@ describe('TaxService', () => {
     customerManager = moduleRef.get(CustomerManager);
     geodbManager = moduleRef.get(GeoDBManager);
     subscriptionManager = moduleRef.get(SubscriptionManager);
+    currencyManager = moduleRef.get(CurrencyManager);
   });
 
   describe('getTaxAddress', () => {
@@ -165,54 +175,86 @@ describe('TaxService', () => {
     });
   });
 
-  describe('getIsTaxLocked', () => {
+  describe('getTaxChangeStatus', () => {
     const uid = faker.string.hexadecimal({ length: 32, casing: 'lower' });
-    const stripeCustomerId = faker.string.uuid();
+    const taxAddress = TaxAddressFactory();
+    const mockAccountCustomer = ResultAccountCustomerFactory();
+    const mockSubscriptions = [StripeSubscriptionFactory()];
+    const mockCustomer = StripeResponseFactory(
+      StripeCustomerFactory({
+        currency: 'USD',
+      })
+    );
 
-    it('returns true when customer has active subscriptions', async () => {
-      const mockAccountCustomer = ResultAccountCustomerFactory({
-        stripeCustomerId,
-      });
-
-      const mockSubscriptions = [StripeSubscriptionFactory()];
-
+    beforeEach(() => {
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue('USD');
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
       jest
         .spyOn(subscriptionManager, 'listForCustomer')
         .mockResolvedValue(mockSubscriptions);
-
-      const result = await taxService.getIsTaxLocked(uid);
-
-      expect(result).toEqual({ isTaxLocked: true });
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
     });
 
-    it('returns false when customer has no subscriptions', async () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('returns true when customer has active subscription but currency is the same', async () => {
+      const result = await taxService.getTaxChangeStatus(uid, taxAddress);
+
+      expect(result).toEqual({
+        status: TaxChangeAllowedStatus.Allowed,
+        currentCurrency: mockCustomer.currency,
+      });
+    });
+
+    it('returns true when customer has no stripe customer', async () => {
       const mockAccountCustomer = ResultAccountCustomerFactory({
-        stripeCustomerId,
+        stripeCustomerId: null,
       });
 
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
-      jest
-        .spyOn(taxService['subscriptionManager'], 'listForCustomer')
-        .mockResolvedValue([]);
 
-      const result = await taxService.getIsTaxLocked(uid);
+      const result = await taxService.getTaxChangeStatus(uid, taxAddress);
 
-      expect(result).toEqual({ isTaxLocked: false });
+      expect(result).toEqual({
+        status: TaxChangeAllowedStatus.Allowed,
+      });
     });
 
-    it('returns false when account customer not found', async () => {
+    it('returns false when currency is not found', async () => {
       jest
-        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
-        .mockRejectedValue(new AccountCustomerNotFoundError(uid));
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(undefined);
 
-      const result = await taxService.getIsTaxLocked(uid);
+      const result = await taxService.getTaxChangeStatus(uid, taxAddress);
 
-      expect(result).toEqual({ isTaxLocked: false });
+      expect(result).toEqual({
+        status: TaxChangeAllowedStatus.CurrencyNotFound,
+      });
+    });
+
+    it('returns false when customer has active subscription that also changes currency', async () => {
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          currency: 'EUR',
+        })
+      );
+
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+
+      const result = await taxService.getTaxChangeStatus(uid, taxAddress);
+
+      expect(result).toEqual({
+        status: TaxChangeAllowedStatus.CurrencyChange,
+        currentCurrency: 'EUR',
+      });
     });
 
     it('throws unexpected error from accountCustomerManager', async () => {
@@ -221,7 +263,9 @@ describe('TaxService', () => {
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockRejectedValue(error);
 
-      await expect(taxService.getIsTaxLocked(uid)).rejects.toThrow(error);
+      await expect(
+        taxService.getTaxChangeStatus(uid, taxAddress)
+      ).rejects.toThrow(error);
     });
   });
 });

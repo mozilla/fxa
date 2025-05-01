@@ -10,3 +10,4 @@ export { CartInvalidStateForActionError } from './lib/cart.error';
 export * from './lib/checkout.service';
 export * from './lib/checkout.error';
 export * from './lib/tax.service';
+export * from './lib/tax.types';

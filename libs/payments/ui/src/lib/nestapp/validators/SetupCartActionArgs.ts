@@ -4,14 +4,7 @@
 import { SubplatInterval } from '@fxa/payments/customer';
 import { Type } from 'class-transformer';
 import { IsOptional, IsString, ValidateNested } from 'class-validator';
-
-class TaxAddress {
-  @IsString()
-  countryCode!: string;
-
-  @IsString()
-  postalCode!: string;
-}
+import { TaxAddress } from './common/TaxAddress';
 
 export class SetupCartActionArgs {
   @IsString()

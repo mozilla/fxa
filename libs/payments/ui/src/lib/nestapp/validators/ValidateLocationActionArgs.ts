@@ -2,9 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
-export class GetIsTaxLockedArgs {
+export class ValidateLocationActionArgs {
   @IsString()
-  uid!: string;
+  offeringId!: string;
+
+  @IsString()
+  @IsOptional()
+  countryCode?: string;
+
+  @IsString()
+  @IsOptional()
+  uid?: string;
 }

@@ -2,13 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsOptional, IsString } from 'class-validator';
-
-export class GetProductAvailabilityForLocationActionArgs {
-  @IsString()
-  offeringId!: string;
-
-  @IsString()
-  @IsOptional()
-  countryCode?: string;
+export enum TaxChangeAllowedStatus {
+  CurrencyNotFound = 'currency_not_found',
+  CurrencyChange = 'currency_change',
+  Allowed = 'allowed',
 }

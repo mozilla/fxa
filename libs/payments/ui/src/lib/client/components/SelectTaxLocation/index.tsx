@@ -16,6 +16,25 @@ import { BaseButton, ButtonVariant, SubmitButton } from '@fxa/payments/ui';
 import { validateAndFormatPostalCode } from '@fxa/payments/ui/actions';
 import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
 
+enum SaveActionErrors {
+  CURRENCY_CHANGE_NOT_ALLOWED = 'currency_change', //TaxChangeAllowedStatus.CurrencyChange
+}
+
+type SaveActionSignature = (
+  countryCode: string,
+  postalCode: string
+) => Promise<
+  | {
+      ok: false;
+      error: string | { message: string; data: any };
+    }
+  | {
+      ok: true;
+      data: any;
+    }
+  | void
+>;
+
 interface CollapsedProps {
   countryCode: string | undefined;
   postalCode: string | undefined;
@@ -67,12 +86,14 @@ interface ExpandedProps {
   unsupportedLocations: string;
   countryCode: string | undefined;
   postalCode: string | undefined;
-  saveAction: (countryCode: string, postalCode: string) => Promise<void> | void;
+  currentCurrency?: string;
+  saveAction: SaveActionSignature;
   cancelAction?: () => void;
   buttonContent?: {
     ftlId: string;
     label: string;
   };
+  showNewTaxRateInfoMessage?: boolean;
 }
 
 const Expanded = ({
@@ -82,9 +103,11 @@ const Expanded = ({
   unsupportedLocations,
   countryCode,
   postalCode,
+  currentCurrency,
   saveAction,
   cancelAction,
   buttonContent,
+  showNewTaxRateInfoMessage = false,
 }: ExpandedProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCountryCode, setSelectedCountryCode] = useState<
@@ -105,6 +128,10 @@ const Expanded = ({
     invalidPostalCode: false,
     locationNotUpdated: false,
   });
+
+  const currentCurrencyDisplayName =
+    currentCurrency &&
+    new Intl.DisplayNames([locale], { type: 'currency' }).of(currentCurrency);
 
   useEffect(() => {
     if (countryCode) {
@@ -137,6 +164,7 @@ const Expanded = ({
       productNotAvailable: false,
       unsupportedCountries: false,
       invalidPostalCode: false,
+      invalidCurrencyChange: false,
     }));
 
     if (!event.target.value) {
@@ -183,10 +211,24 @@ const Expanded = ({
           setServerErrors((prev) => ({ ...prev, invalidPostalCode: true }));
           setIsLoading(false);
         } else {
-          await saveAction(
+          const result = await saveAction(
             selectedCountryCode,
             formattedPostalCode || selectedPostalCode
           );
+          if (result && !result.ok) {
+            if (result.error === SaveActionErrors.CURRENCY_CHANGE_NOT_ALLOWED) {
+              setServerErrors((prev) => ({
+                ...prev,
+                invalidCurrencyChange: true,
+              }));
+            } else {
+              setServerErrors((prev) => ({
+                ...prev,
+                locationNotUpdated: true,
+              }));
+            }
+            setIsLoading(false);
+          }
         }
       }
     } catch (err) {
@@ -319,6 +361,29 @@ const Expanded = ({
             </Localized>
           </Form.Message>
         )}
+        {serverErrors.invalidCurrencyChange && (
+          <Form.Message>
+            {currentCurrencyDisplayName ? (
+              <Localized
+                id="select-tax-location-invalid-currency-change"
+                vars={{
+                  currencyDisplayName: currentCurrencyDisplayName,
+                }}
+              >
+                <p className="mt-1 text-alert-red" role="alert">
+                  {`Your account is billed in ${currentCurrencyDisplayName}. Select a country that uses the ${currentCurrencyDisplayName}.`}
+                </p>
+              </Localized>
+            ) : (
+              <Localized id="select-tax-location-invalid-currency-change-default">
+                <p className="mt-1 text-alert-red" role="alert">
+                  Select a country that matches the currency of your active
+                  subscriptions.
+                </p>
+              </Localized>
+            )}
+          </Form.Message>
+        )}
       </Form.Field>
 
       <Form.Field name="postalCode">
@@ -399,6 +464,16 @@ const Expanded = ({
         </Localized>
       )}
 
+      {showNewTaxRateInfoMessage && (
+        <Localized id="select-tax-location-new-tax-rate-info">
+          <p className="mt-1 text-sm" role="alert">
+            Updating your location will apply the new tax rate to all active
+            subscriptions on your account, starting with your next billing
+            cycle.
+          </p>
+        </Localized>
+      )}
+
       <div className="flex gap-4 justify-between items-center">
         {!buttonContent && (
           <BaseButton
@@ -447,20 +522,19 @@ const Expanded = ({
 };
 
 interface SelectTaxLocationProps {
-  saveAction: (
-    countryCode: string,
-    postalCode: string
-  ) => Promise<{ countryCode: string; postalCode: string }>;
+  saveAction: SaveActionSignature;
   cmsCountries: string[];
   locale: string;
   productName: string;
   unsupportedLocations: string;
   countryCode: string | undefined;
   postalCode: string | undefined;
+  currentCurrency: string;
   buttonContent?: {
     ftlId: string;
     label: string;
   };
+  showNewTaxRateInfoMessage: boolean;
 }
 
 export function SelectTaxLocation({
@@ -471,7 +545,9 @@ export function SelectTaxLocation({
   unsupportedLocations,
   countryCode,
   postalCode,
+  currentCurrency,
   buttonContent,
+  showNewTaxRateInfoMessage = false,
 }: SelectTaxLocationProps) {
   const [expanded, setExpanded] = useState<boolean>(
     !countryCode || !postalCode
@@ -498,20 +574,25 @@ export function SelectTaxLocation({
       unsupportedLocations={unsupportedLocations}
       countryCode={countryCode}
       postalCode={postalCode}
+      currentCurrency={currentCurrency}
       saveAction={async (countryCode: string, postalCode: string) => {
-        const cartValues = await saveAction(countryCode, postalCode);
-        setExpanded(false);
-        setAlertStatus(true);
-        setLocalLocation({
-          countryCode: cartValues.countryCode,
-          postalCode: cartValues.postalCode,
-        });
+        const result = await saveAction(countryCode, postalCode);
+        if (result && result.ok) {
+          setExpanded(false);
+          setAlertStatus(true);
+          setLocalLocation({
+            countryCode: result.data.countryCode,
+            postalCode: result.data.postalCode,
+          });
+        }
+        return result;
       }}
       cancelAction={() => {
         setExpanded(false);
         setAlertStatus(false);
       }}
       buttonContent={buttonContent}
+      showNewTaxRateInfoMessage={showNewTaxRateInfoMessage}
     />
   ) : (
     <Collapsed
@@ -531,8 +612,12 @@ export function IsolatedSelectTaxLocation({
   locale,
   productName,
   unsupportedLocations,
-}: Omit<SelectTaxLocationProps, 'countryCode' | 'postalCode' | 'saveAction'> & {
-  saveAction: (countryCode: string, postalCode: string) => void;
+  currentCurrency,
+}: Omit<
+  SelectTaxLocationProps,
+  'countryCode' | 'postalCode' | 'currentCurrency'
+> & {
+  currentCurrency?: string;
 }) {
   const queryParams = useSearchParams();
 
@@ -548,7 +633,7 @@ export function IsolatedSelectTaxLocation({
       saveAction={async (countryCode: string, postalCode: string) => {
         setUpdatedCountryCode(countryCode);
         setUpdatedPostalCode(postalCode);
-        saveAction(countryCode, postalCode);
+        return await saveAction(countryCode, postalCode);
       }}
       cmsCountryCodes={cmsCountryCodes}
       locale={locale}
@@ -556,6 +641,7 @@ export function IsolatedSelectTaxLocation({
       unsupportedLocations={unsupportedLocations}
       countryCode={updatedCountryCode}
       postalCode={updatedPostalCode}
+      currentCurrency={currentCurrency}
       buttonContent={{
         ftlId: 'select-tax-location-continue-to-checkout-button',
         label: 'Continue to checkout',

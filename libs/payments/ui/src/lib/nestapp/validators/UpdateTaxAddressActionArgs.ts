@@ -11,29 +11,21 @@ import {
 } from 'class-validator';
 import { TaxAddress } from './common/TaxAddress';
 
-export class UpdateCartActionCartDetailsArgs {
-  @IsString()
-  @IsOptional()
-  uid?: string;
-
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => TaxAddress)
-  taxAddress?: TaxAddress;
-
-  @IsString()
-  @IsOptional()
-  couponCode?: string;
-}
-
-export class UpdateCartActionArgs {
+export class UpdateTaxAddressActionArgs {
   @IsString()
   cartId!: string;
 
   @IsNumber()
   version!: number;
 
-  @Type(() => UpdateCartActionCartDetailsArgs)
+  @IsString()
+  offeringId!: string;
+
   @ValidateNested()
-  cartDetails!: UpdateCartActionCartDetailsArgs;
+  @Type(() => TaxAddress)
+  taxAddress?: TaxAddress;
+
+  @IsOptional()
+  @IsString()
+  uid?: string;
 }

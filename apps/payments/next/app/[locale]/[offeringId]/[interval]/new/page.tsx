@@ -4,9 +4,8 @@
 
 import { auth } from 'apps/payments/next/auth';
 import { notFound, redirect } from 'next/navigation';
-import { LocationStatus } from '@fxa/payments/eligibility';
 import {
-  getProductAvailabilityForLocation,
+  validateLocationAction,
   getTaxAddressAction,
   setupCartAction,
 } from '@fxa/payments/ui/actions';
@@ -66,17 +65,20 @@ export default async function New({
 
   // Check if the customer is in a location not supported by Subscription Platform
   // or whether the product is not available in the customer's location
-  const { status } = await getProductAvailabilityForLocation(
+  const { isValid: locationIsValid } = await validateLocationAction(
     offeringId,
-    taxAddress?.countryCode
+    taxAddress,
+    fxaUid
   );
 
-  if (
-    !taxAddress ||
-    status === LocationStatus.SanctionedLocation ||
-    status === LocationStatus.ProductNotAvailable ||
-    status === LocationStatus.Unresolved
-  ) {
+  if (!taxAddress || !locationIsValid) {
+    if (taxAddress?.countryCode) {
+      searchParams.countryCode = taxAddress.countryCode;
+    }
+    if (taxAddress?.postalCode) {
+      searchParams.postalCode = taxAddress.postalCode;
+    }
+
     const locationPageUrl = new URL(
       buildRedirectUrl(
         params.offeringId,
