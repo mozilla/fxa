@@ -34,7 +34,7 @@ export class PaymentsGleanManager {
     cartMetricsData: CartMetrics;
     cmsMetricsData: CmsMetricsData;
   }) {
-    if (this.paymentsGleanConfig.enabled) {
+    if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupView(
         this.populateCommonMetrics(metrics)
       );
@@ -46,7 +46,7 @@ export class PaymentsGleanManager {
     cartMetricsData: CartMetrics;
     cmsMetricsData: CmsMetricsData;
   }) {
-    if (this.paymentsGleanConfig.enabled) {
+    if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupEngage(
         this.populateCommonMetrics(metrics)
       );
@@ -61,7 +61,7 @@ export class PaymentsGleanManager {
     },
     paymentProvider?: PaymentProvidersType
   ) {
-    if (this.paymentsGleanConfig.enabled) {
+    if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupSubmit({
         ...this.populateCommonMetrics(metrics),
         subscription_payment_provider:
@@ -80,7 +80,7 @@ export class PaymentsGleanManager {
   ) {
     const commonMetrics = this.populateCommonMetrics(metrics);
 
-    if (this.paymentsGleanConfig.enabled) {
+    if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupSuccess({
         ...commonMetrics,
         subscription_payment_provider:
@@ -99,7 +99,7 @@ export class PaymentsGleanManager {
   ) {
     const commonMetrics = this.populateCommonMetrics(metrics);
 
-    if (this.paymentsGleanConfig.enabled) {
+    if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupFail({
         ...commonMetrics,
         subscription_payment_provider:
@@ -117,7 +117,7 @@ export class PaymentsGleanManager {
   ) {
     const commonMetrics = this.populateCommonMetrics(metrics);
 
-    if (this.paymentsGleanConfig.enabled) {
+    if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordSubscriptionEnded({
         ...commonMetrics,
         subscription_payment_provider:
@@ -177,5 +177,9 @@ export class PaymentsGleanManager {
       ...mapUtm(commonMetricsData.searchParams),
       ...mapSubscriptionCancellation(subscriptionCancellationData),
     };
+  }
+
+  private get isEnabled() {
+    return this.paymentsGleanConfig.enabled && process.env['CI'] !== 'true';
   }
 }
