@@ -22,19 +22,24 @@ export const determinePaymentMethodType = (
   customer?: StripeCustomer,
   subscriptions?: StripeSubscription[]
 ): PaymentMethodTypeResponse => {
+  // First check if payment method is PayPal
+  // Note, this needs to happen first since a customer could also have a
+  // default payment method. However if PayPal is set as the payment method,
+  // it should take precedence.
+  if (
+    subscriptions?.length &&
+    subscriptions[0].collection_method === 'send_invoice'
+  ) {
+    return {
+      type: 'external_paypal',
+    };
+  }
+
   if (customer?.invoice_settings.default_payment_method) {
     return {
       type: 'stripe',
       paymentMethodId: customer.invoice_settings.default_payment_method,
     };
-  } else if (subscriptions?.length) {
-    const firstListedSubscription = subscriptions[0];
-    // fetch payment method info
-    if (firstListedSubscription.collection_method === 'send_invoice') {
-      return {
-        type: 'external_paypal',
-      };
-    }
   }
 
   return null;

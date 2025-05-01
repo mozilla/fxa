@@ -84,12 +84,6 @@ export class StripeClient {
     );
   }
 
-  @Cacheable({
-    cacheKey: (args: any) =>
-      cacheKeyForClient('customersRetrieve', args[0], args[1]),
-    strategy: new CacheFirstStrategy(),
-    client: new AsyncLocalStorageAdapter(),
-  })
   @CaptureTimingWithStatsD()
   async customersRetrieve(
     customerId: string,
