@@ -63,7 +63,7 @@ export const requestForGlean = {
 } as unknown as AuthRequest;
 
 export const isCloudTaskAlreadyExistsError = (error) =>
-  error.code === 10 && error.message.includes('entity already exists');
+  error.message.includes('entity already exists');
 
 export type InactiveStatusOAuthDb = Pick<
   typeof OAuthDb,
