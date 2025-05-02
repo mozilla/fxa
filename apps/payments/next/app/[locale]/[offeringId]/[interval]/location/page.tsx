@@ -84,7 +84,7 @@ export default async function Location({
 
   return (
     <section
-      className="w-full max-w-[576px] bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12"
+      className="w-full max-w-[576px] bg-white rounded-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 tablet:clip-shadow desktop:px-12 desktop:pb-12"
       aria-label="Determine currency and tax location"
     >
       <h1 className="font-bold text-grey-600 text-xl mt-10">

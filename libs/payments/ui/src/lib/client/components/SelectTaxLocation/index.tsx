@@ -284,7 +284,7 @@ const Expanded = ({
                   !serverErrors.missingCountryCode &&
                   !serverErrors.productNotAvailable &&
                   !serverErrors.unsupportedCountry,
-                'border-alert-red text-alert-red shadow-inputError':
+                'border-alert-red shadow-inputError':
                   serverErrors.missingCountryCode ||
                   serverErrors.productNotAvailable ||
                   serverErrors.unsupportedCountry,
