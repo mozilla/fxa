@@ -543,7 +543,7 @@ const init = async () => {
           // Note that the fxa cloud tasks lib already emitted some statsd metrics
           statsd.increment(
             'cloud-tasks.inactive-account-email.enqueue.error-code',
-            [cloudTaskQueueError.code as unknown as string]
+            { errorCode: cloudTaskQueueError.code as unknown as string }
           );
           await glean.inactiveAccountDeletion.firstEmailTaskRejected(
             requestForGlean,
