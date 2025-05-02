@@ -522,6 +522,10 @@ export class CheckoutService {
         // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
         [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
         [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+        [STRIPE_SUBSCRIPTION_METADATA.PreviousPlanId]: fromPriceId,
+        [STRIPE_SUBSCRIPTION_METADATA.PlanChangeDate]: Math.floor(
+          Date.now() / 1000
+        ),
       },
     });
   }

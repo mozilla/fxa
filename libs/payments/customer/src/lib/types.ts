@@ -48,6 +48,8 @@ export enum STRIPE_SUBSCRIPTION_METADATA {
   Currency = 'currency',
   Amount = 'amount',
   SubscriptionPromotionCode = 'appliedPromotionCode',
+  PreviousPlanId = 'previous_plan_id',
+  PlanChangeDate = 'plan_change_date',
 }
 
 export enum STRIPE_INVOICE_METADATA {
