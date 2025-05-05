@@ -38,6 +38,9 @@ recent-activity-account-recovery-phone-removed = Recovery phone removed
 recent-activity-account-recovery-codes-replaced = Recovery codes replaced
 recent-activity-account-recovery-codes-created = Recovery codes created
 recent-activity-account-recovery-codes-signin-complete = Sign-in with recovery codes completed
+recent-activity-password-reset-otp-sent = Reset password confirmation code sent
+recent-activity-password-reset-otp-verified = Reset password confirmation code verified
+recent-activity-must-reset-password = Password reset required
 
 # Security event was recorded, but the activity details are unknown or not shown to user
 recent-activity-unknown = Other account activity
