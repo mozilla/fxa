@@ -71,6 +71,13 @@ describe('InvoiceManager', () => {
   });
 
   describe('finalizeWithoutAutoAdvance', () => {
+    class MockStripeError extends Error {
+      raw: { message: string };
+      constructor(message: string) {
+        super('Invoice already finalized');
+        this.raw = { message: message };
+      }
+    }
     it('works successfully', async () => {
       const mockInvoice = StripeResponseFactory(
         StripeInvoiceFactory({
@@ -86,6 +93,73 @@ describe('InvoiceManager', () => {
         mockInvoice.id
       );
       expect(result).toEqual(mockInvoice);
+    });
+    it('throws an error when finalizing a non-draft invoice', async () => {
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({ status: 'open' })
+      );
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockRejectedValue(
+          new MockStripeError(
+            "This invoice is already finalized, you can't re-finalize a non-draft invoice."
+          )
+        );
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
+
+      await expect(
+        invoiceManager.finalizeWithoutAutoAdvance(mockInvoice.id)
+      ).rejects.toThrowError();
+    });
+  });
+
+  describe('safeFinalizeWithoutAutoAdvance', () => {
+    class MockStripeError extends Error {
+      raw: { message: string };
+      constructor(message: string) {
+        super('Invoice already finalized');
+        this.raw = { message: message };
+      }
+    }
+    it('works successfully', async () => {
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          status: 'draft',
+          auto_advance: false,
+        })
+      );
+
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockResolvedValue(mockInvoice);
+
+      const result = await invoiceManager.safeFinalizeWithoutAutoAdvance(
+        mockInvoice.id
+      );
+      expect(result).toEqual(mockInvoice);
+    });
+    it('allows re-finalization of an invoice', async () => {
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({ status: 'open' })
+      );
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockRejectedValue(
+          new MockStripeError(
+            "This invoice is already finalized, you can't re-finalize a non-draft invoice."
+          )
+        );
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
+
+      const invoice = await invoiceManager.safeFinalizeWithoutAutoAdvance(
+        mockInvoice.id
+      );
+      expect(invoice).toBe(mockInvoice);
+      expect(stripeClient.invoicesRetrieve).toHaveBeenCalled();
     });
   });
 
@@ -298,7 +372,7 @@ describe('InvoiceManager', () => {
       const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
 
       jest
-        .spyOn(invoiceManager, 'finalizeWithoutAutoAdvance')
+        .spyOn(invoiceManager, 'safeFinalizeWithoutAutoAdvance')
         .mockResolvedValue(mockInvoice);
 
       const result = await invoiceManager.processPayPalZeroInvoice(
@@ -306,7 +380,7 @@ describe('InvoiceManager', () => {
       );
 
       expect(result).toEqual(mockInvoice);
-      expect(invoiceManager.finalizeWithoutAutoAdvance).toBeCalledWith(
+      expect(invoiceManager.safeFinalizeWithoutAutoAdvance).toBeCalledWith(
         mockInvoice.id
       );
     });
@@ -648,14 +722,6 @@ describe('InvoiceManager', () => {
       expect(stripeClient.invoicesPay).toHaveBeenCalledWith(mockInvoice.id);
     });
     it('successfully handles invoices that were already finalized', async () => {
-      class MockStripeError extends Error {
-        raw: { message: string };
-        constructor(message: string) {
-          super('Invoice already finalized');
-          this.raw = { message: message };
-        }
-      }
-
       const mockPaymentAttemptCount = 1;
       const mockCustomer = StripeResponseFactory(
         StripeCustomerFactory({
@@ -678,11 +744,8 @@ describe('InvoiceManager', () => {
       );
       jest
         .spyOn(stripeClient, 'invoicesFinalizeInvoice')
-        .mockRejectedValue(
-          new MockStripeError(
-            "This invoice is already finalized, you can't re-finalize a non-draft invoice."
-          )
-        );
+        .mockResolvedValue(mockInvoice);
+      jest.spyOn(invoiceManager, 'safeFinalizeWithoutAutoAdvance');
 
       jest.spyOn(paypalClient, 'chargeCustomer').mockResolvedValue(
         ChargeResponseFactory({
@@ -699,6 +762,11 @@ describe('InvoiceManager', () => {
         mockCustomer,
         mockInvoice
       );
+
+      expect(stripeClient.invoicesFinalizeInvoice).toHaveBeenCalled();
+      expect(
+        invoiceManager.safeFinalizeWithoutAutoAdvance
+      ).toHaveBeenLastCalledWith(mockInvoice.id);
     });
   });
 });

@@ -47,7 +47,6 @@ import {
   StripeCustomerSessionFactory,
   StripeApiListFactory,
   StripeInvoiceFactory,
-  StripeDeletedInvoiceFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -294,13 +293,23 @@ describe('CartService', () => {
       );
     });
 
-    it('deletes a created draft invoice', async () => {
+    it('finalizes and voids a draft invoice', async () => {
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockInvoice = StripeResponseFactory(
         StripeInvoiceFactory({ status: 'draft' })
       );
-      const mockDeletedInvoice = StripeResponseFactory(
-        StripeDeletedInvoiceFactory({ id: mockInvoice.id })
+      const mockFinalizedInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          ...mockInvoice,
+          status: 'open',
+          auto_advance: false,
+        })
+      );
+      const mockVoidedInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          ...mockFinalizedInvoice,
+          status: 'void',
+        })
       );
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
@@ -325,8 +334,9 @@ describe('CartService', () => {
         .mockResolvedValue(mockSubscription);
       jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
       jest
-        .spyOn(invoiceManager, 'delete')
-        .mockResolvedValue(mockDeletedInvoice);
+        .spyOn(invoiceManager, 'safeFinalizeWithoutAutoAdvance')
+        .mockResolvedValue(mockFinalizedInvoice);
+      jest.spyOn(invoiceManager, 'void').mockResolvedValue(mockVoidedInvoice);
       jest
         .spyOn(subscriptionManager, 'getLatestPaymentIntent')
         .mockResolvedValue(undefined);
@@ -338,7 +348,10 @@ describe('CartService', () => {
         cartService.finalizeProcessingCart(mockCart.id)
       ).rejects.toThrow(Error);
 
-      expect(invoiceManager.delete).toHaveBeenCalledWith(mockInvoice.id);
+      expect(
+        invoiceManager.safeFinalizeWithoutAutoAdvance
+      ).toHaveBeenCalledWith(mockInvoice.id);
+      expect(invoiceManager.void).toHaveBeenCalledWith(mockInvoice.id);
     });
 
     it('voids a created finalized invoice', async () => {

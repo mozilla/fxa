@@ -18,7 +18,6 @@ export { StripeEventCustomerSubscriptionCreatedFactory } from './lib/factories/e
 export { StripeCustomerFactory } from './lib/factories/customer.factory';
 export { StripeCustomerSessionFactory } from './lib/factories/customer-session.factory';
 export { StripeDiscountFactory } from './lib/factories/discount.factory';
-export { StripeDeletedInvoiceFactory } from './lib/factories/deleted-invoice.factory';
 export { StripeInvoiceLineItemFactory } from './lib/factories/invoice-line-item.factory';
 export { StripeInvoiceFactory } from './lib/factories/invoice.factory';
 export { StripePlanFactory } from './lib/factories/plan.factory';
