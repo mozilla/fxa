@@ -788,6 +788,16 @@ describe('sendSigninNotifications', () => {
         uid: TEST_UID,
         ipAddr: CLIENT_ADDRESS,
         tokenId: 'SESSIONTOKEN',
+        additionalInfo: {
+          userAgent: 'test user-agent',
+          location: {
+            city: 'Mountain View',
+            country: 'United States',
+            countryCode: 'US',
+            state: 'California',
+            stateCode: 'CA',
+          },
+        },
       });
     });
   });

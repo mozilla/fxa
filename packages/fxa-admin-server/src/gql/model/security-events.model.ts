@@ -28,4 +28,10 @@ export class SecurityEvents {
 
   @Field({ nullable: true })
   public ipAddr!: string;
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'JSON data for additional info about the security event',
+  })
+  additionalInfo?: string;
 }

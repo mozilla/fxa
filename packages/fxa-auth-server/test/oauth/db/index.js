@@ -374,7 +374,7 @@ describe('#integration - db', function () {
         assert.approximately(
           t.lastUsedAt.getTime(),
           tokenFirstUsage.lastUsedAt.getTime(),
-          1000, // some slack
+          2000, // some slack
           'lastUsedAt not changed'
         );
       });

@@ -28,6 +28,7 @@ import AppError from '../error';
 import Localizer from '../l10n';
 import NodeRendererBindings from '../senders/renderer/bindings-node';
 import { AccountEventsManager } from '../account-events';
+import { recordSecurityEvent } from './utils/security-event';
 
 import { Container } from 'typedi';
 import { ConfigType } from '../../config';
@@ -107,11 +108,8 @@ class RecoveryPhoneHandler {
   };
 
   async sendCode(request: AuthRequest) {
-    const {
-      uid,
-      email,
-      id: sessionTokenId,
-    } = request.auth.credentials as SessionTokenAuthCredential;
+    const { uid, email } = request.auth
+      .credentials as SessionTokenAuthCredential;
 
     if (!email) {
       throw AppError.invalidToken();
@@ -168,11 +166,9 @@ class RecoveryPhoneHandler {
       this.statsd.increment('account.recoveryPhone.signinSendCode.success');
       await this.glean.twoStepAuthPhoneCode.sent(request);
 
-      this.accountEventsManager.recordSecurityEvent(this.db, {
-        name: 'account.recovery_phone_send_code',
-        uid,
-        ipAddr: request.app.clientAddress,
-        tokenId: sessionTokenId,
+      recordSecurityEvent('account.recovery_phone_send_code', {
+        db: this.db,
+        request,
       });
 
       return { status: RecoveryPhoneStatus.SUCCESS };
@@ -228,9 +224,8 @@ class RecoveryPhoneHandler {
 
         let nationalFormat: string | null = null;
         try {
-          nationalFormat = await this.recoveryPhoneService.getNationalFormat(
-            phoneNumber
-          );
+          nationalFormat =
+            await this.recoveryPhoneService.getNationalFormat(phoneNumber);
         } catch (e) {
           // This should not fail since the number was already validated with Twilio so
           // if it does it's a network problem - just return a null value and don't error out.
@@ -369,11 +364,9 @@ class RecoveryPhoneHandler {
             }
           );
 
-          this.accountEventsManager.recordSecurityEvent(this.db, {
-            name: 'account.recovery_phone_setup_complete',
-            uid,
-            ipAddr: request.app.clientAddress,
-            tokenId: sessionTokenId,
+          recordSecurityEvent('account.recovery_phone_setup_complete', {
+            db: this.db,
+            request,
           });
 
           return {
@@ -394,11 +387,9 @@ class RecoveryPhoneHandler {
         // this signals the end of the login flow
         await request.emitMetricsEvent('account.confirmed', { uid });
 
-        this.accountEventsManager.recordSecurityEvent(this.db, {
-          name: 'account.recovery_phone_signin_complete',
-          uid,
-          ipAddr: request.app.clientAddress,
-          tokenId: sessionTokenId,
+        recordSecurityEvent('account.recovery_phone_signin_complete', {
+          db: this.db,
+          request,
         });
 
         try {
@@ -431,11 +422,9 @@ class RecoveryPhoneHandler {
       return { status: RecoveryPhoneStatus.SUCCESS };
     }
 
-    this.accountEventsManager.recordSecurityEvent(this.db, {
-      name: 'account.recovery_phone_signin_failed',
-      uid,
-      ipAddr: request.app.clientAddress,
-      tokenId: sessionTokenId,
+    recordSecurityEvent('account.recovery_phone_signin_failed', {
+      db: this.db,
+      request,
     });
 
     throw AppError.invalidOrExpiredOtpCode();
@@ -473,11 +462,10 @@ class RecoveryPhoneHandler {
       const { acceptLanguage, geo, ua } = request.app;
 
       try {
-        this.accountEventsManager.recordSecurityEvent(this.db, {
-          name: 'account.recovery_phone_removed',
-          uid,
-          ipAddr: request.app.clientAddress,
-          tokenId: sessionToken.id,
+        recordSecurityEvent('account.recovery_phone_removed', {
+          db: this.db,
+          request,
+          account,
         });
 
         await this.mailer.sendPostRemoveRecoveryPhoneEmail(

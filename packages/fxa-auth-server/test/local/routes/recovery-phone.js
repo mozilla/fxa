@@ -134,6 +134,16 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
+          additionalInfo: {
+            userAgent: 'test user-agent',
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+          },
         }
       );
       assert.calledOnceWithExactly(
@@ -404,6 +414,16 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
+          additionalInfo: {
+            userAgent: 'test user-agent',
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+          },
         }
       );
 
@@ -485,6 +505,16 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
+          additionalInfo: {
+            userAgent: 'test user-agent',
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+          },
         }
       );
       assert.calledOnceWithExactly(
@@ -519,6 +549,16 @@ describe('/recovery_phone', () => {
             uid,
             ipAddr: '63.245.221.32',
             tokenId: undefined,
+            additionalInfo: {
+              userAgent: 'test user-agent',
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA',
+              },
+            },
           }
         );
       }
@@ -551,6 +591,16 @@ describe('/recovery_phone', () => {
           uid,
           ipAddr: '63.245.221.32',
           tokenId: undefined,
+          additionalInfo: {
+            userAgent: 'test user-agent',
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+          },
         }
       );
       assert.calledOnceWithExactly(

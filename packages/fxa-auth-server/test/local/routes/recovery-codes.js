@@ -100,9 +100,19 @@ describe('backup authentication codes', () => {
           db,
           {
             name: 'account.recovery_codes_replaced',
-            uid: UID,
+            uid: 'uid',
             ipAddr: '63.245.221.32',
             tokenId: undefined,
+            additionalInfo: {
+              userAgent: 'test user-agent',
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA',
+              },
+            },
           }
         );
       });
@@ -141,9 +151,19 @@ describe('backup authentication codes', () => {
           db,
           {
             name: 'account.recovery_codes_created',
-            uid: UID,
+            uid: 'uid',
             ipAddr: '63.245.221.32',
             tokenId: undefined,
+            additionalInfo: {
+              userAgent: 'test user-agent',
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA',
+              },
+            },
           }
         );
       });
@@ -204,9 +224,19 @@ describe('backup authentication codes', () => {
         db,
         {
           name: 'account.recovery_codes_signin_complete',
-          uid: UID,
+          uid: 'uid',
           ipAddr: '63.245.221.32',
           tokenId: undefined,
+          additionalInfo: {
+            userAgent: 'test user-agent',
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+          },
         }
       );
     });

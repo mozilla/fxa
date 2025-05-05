@@ -4,7 +4,6 @@
 
 'use strict';
 
-const { Container } = require('typedi');
 const error = require('../error');
 const isA = require('joi');
 const requestHelper = require('../routes/utils/request_helper');
@@ -16,7 +15,7 @@ const NodeRendererBindings =
 const SESSION_DOCS = require('../../docs/swagger/session-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
-const { AccountEventsManager } = require('../account-events');
+const { recordSecurityEvent } = require('./utils/security-event');
 
 module.exports = function (
   log,
@@ -43,7 +42,6 @@ module.exports = function (
   );
 
   const otpOptions = config.otp;
-  const accountEventsManager = Container.get(AccountEventsManager);
 
   const routes = [
     {
@@ -92,11 +90,9 @@ module.exports = function (
         }
 
         await db.deleteSessionToken(sessionToken);
-        await accountEventsManager.recordSecurityEvent(db, {
-          name: 'session.destroy',
-          uid,
-          ipAddr: request.app.clientAddress,
-          tokenId: sessionToken.id,
+        await recordSecurityEvent('session.destroy', {
+          db,
+          request,
         });
 
         return {};
@@ -325,9 +321,8 @@ module.exports = function (
           ...newTokenState,
           ...newUAInfo,
         };
-        const newSessionToken = await db.createSessionToken(
-          sessionTokenOptions
-        );
+        const newSessionToken =
+          await db.createSessionToken(sessionTokenOptions);
 
         const response = {
           uid: newSessionToken.uid,
