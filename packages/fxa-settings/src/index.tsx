@@ -5,7 +5,6 @@
 import sentryMetrics from 'fxa-shared/sentry/browser';
 
 import React from 'react';
-import { render } from 'react-dom';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
 import config, { readConfigMeta } from './lib/config';
@@ -18,6 +17,7 @@ import Storage from './lib/storage';
 import './styles/tailwind.out.css';
 import CookiesDisabled from './pages/CookiesDisabled';
 import { navigate } from '@reach/router';
+import { createRoot } from 'react-dom/client';
 
 export interface FlowQueryParams {
   broker?: string;
@@ -61,7 +61,12 @@ try {
         return <CookiesDisabled />;
       };
 
-  render(
+  const container = document.getElementById('root');
+  if (!container) throw new Error('Missing #root element');
+
+  const root = createRoot(container);
+
+  root.render(
     <React.StrictMode>
       <AppLocalizationProvider
         baseDir={config.l10n.baseUrl}
@@ -75,8 +80,7 @@ try {
           </AppContext.Provider>
         </AppErrorBoundary>
       </AppLocalizationProvider>
-    </React.StrictMode>,
-    document.getElementById('root')
+    </React.StrictMode>
   );
 } catch (error) {
   console.error('Error initializing FXA Settings', error);
