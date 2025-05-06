@@ -11,15 +11,15 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionUpgrade-upgrade-info" data-l10n-args="<%= JSON.stringify({productName, productNameOld}) %>">You have successfully upgraded from <%- productNameOld %> to <%- productName %>.</span>
+      <span data-l10n-id="subscriptionUpgrade-upgrade-info-2" data-l10n-args="<%= JSON.stringify({productName}) %>">You have successfully upgraded to <%- productName %>.</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionUpgrade-content-charge-info-different-cycle" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, paymentProrated, productPaymentCycleNew, productPaymentCycleOld}) %>">You will be charged a one-time fee of <%- paymentProrated %> to reflect your subscription’s higher price for the remainder of this <%- productPaymentCycleOld %>. Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>.</span>
+      <span data-l10n-id="subscriptionUpgrade-content-charge-info-different-cycle-2" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, paymentProrated, productPaymentCycleNew, productPaymentCycleOld}) %>">You have been charged a one-time fee of <%- paymentProrated %> to reflect your subscription’s higher price for the remainder of this <%- productPaymentCycleOld %>. Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>.</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionUpgrade-install" data-l10n-args="<%= JSON.stringify({productName}) %>">If there is new software for you to install in order to use <%- productName %>, you will receive a separate email with download instructions.</span>
+      <span data-l10n-id="subscriptionUpgrade-existing">If any of your existing subscriptions overlap with this upgrade, we’ll handle them and send you a separate email with the details. If your new plan includes products that require installation, we’ll send you a separate email with setup instructions.</span>
     </mj-text>
 
     <mj-text css-class="text-body">

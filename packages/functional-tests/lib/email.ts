@@ -14,6 +14,7 @@ function toUsername(emailAddress: string) {
 
 export enum EmailType {
   subscriptionReactivation,
+  subscriptionReplaced,
   subscriptionUpgrade,
   subscriptionDowngrade,
   subscriptionPaymentExpired,

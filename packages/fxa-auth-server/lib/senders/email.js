@@ -47,6 +47,7 @@ module.exports = function (log, config, bounces, statsd) {
     subscriptionAccountFinishSetup: 'subscription-account-finish-setup',
     subscriptionReactivation: 'subscription-reactivation',
     subscriptionRenewalReminder: 'subscription-renewal-reminder',
+    subscriptionReplaced: 'subscription-replaced',
     subscriptionUpgrade: 'subscription-upgrade',
     subscriptionDowngrade: 'subscription-downgrade',
     subscriptionPaymentExpired: 'subscription-payment-expired',
@@ -110,6 +111,7 @@ module.exports = function (log, config, bounces, statsd) {
     subscriptionAccountFinishSetup: 'subscriptions',
     subscriptionReactivation: 'subscriptions',
     subscriptionRenewalReminder: 'subscriptions',
+    subscriptionReplaced: 'subscriptions',
     subscriptionUpgrade: 'subscriptions',
     subscriptionDowngrade: 'subscriptions',
     subscriptionPaymentExpired: 'subscriptions',
@@ -409,9 +411,8 @@ module.exports = function (log, config, bounces, statsd) {
 
   Mailer.prototype.localize = async function (message) {
     message.layout = message.layout || 'fxa';
-    const { html, text, subject, preview } = await this.renderer.renderEmail(
-      message
-    );
+    const { html, text, subject, preview } =
+      await this.renderer.renderEmail(message);
 
     return {
       html,
@@ -700,9 +701,8 @@ module.exports = function (log, config, bounces, statsd) {
       1
     )}`;
 
-    templateNameToCampaignMap[
-      template
-    ] = `${key}-subscription-account-reminder`;
+    templateNameToCampaignMap[template] =
+      `${key}-subscription-account-reminder`;
     templateNameToContentMap[template] = 'subscription-account-create-email';
 
     Mailer.prototype[`${template}Email`] = async function (message) {
@@ -2061,6 +2061,39 @@ module.exports = function (log, config, bounces, statsd) {
     });
   };
 
+  Mailer.prototype.subscriptionReplacedEmail = async function (message) {
+    const { email, uid, productId, planId, productName } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionReplaced', {
+      enabled,
+      email,
+      productId,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionReplaced';
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      template,
+      templateValues: {
+        ...links,
+        uid,
+        email,
+        productName,
+      },
+    });
+  };
+
   Mailer.prototype.subscriptionUpgradeEmail = async function (message) {
     const {
       email,
@@ -2068,7 +2101,6 @@ module.exports = function (log, config, bounces, statsd) {
       productId,
       planId,
       productIconURLNew,
-      productIconURLOld,
       productNameOld,
       productNameNew,
       paymentAmountOldInCents,
@@ -2102,7 +2134,6 @@ module.exports = function (log, config, bounces, statsd) {
         uid,
         email,
         productIconURLNew,
-        productIconURLOld,
         productName: productNameNew,
         productNameOld,
         paymentAmountOld: this._getLocalizedCurrencyString(

@@ -28,6 +28,7 @@ INSERT INTO emailTypes (emailType) VALUES
   ('subscriptionReactivation'),
   ('subscriptionsPaymentExpired'),
   ('subscriptionsPaymentProviderCancelled'),
+  ('subscriptionReplaced'),
   ('subscriptionSubsequentInvoice'),
   ('subscriptionUpgrade'),
   ('unblockCode'),

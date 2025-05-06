@@ -536,9 +536,8 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
     const invoice = event.data.object as Stripe.Invoice;
-    const paypalInvoice = await this.stripeHelper.invoicePayableWithPaypal(
-      invoice
-    );
+    const paypalInvoice =
+      await this.stripeHelper.invoicePayableWithPaypal(invoice);
 
     if (!paypalInvoice || invoice.status !== 'draft') {
       return;
@@ -707,9 +706,8 @@ export class StripeWebhookHandler extends StripeHandler {
       return;
     }
 
-    const subscriptions = await this.stripeHelper.formatSubscriptionsForEmails(
-      customer
-    );
+    const subscriptions =
+      await this.stripeHelper.formatSubscriptionsForEmails(customer);
 
     if (!subscriptions.length) {
       reportSentryError(
@@ -738,9 +736,8 @@ export class StripeWebhookHandler extends StripeHandler {
     event: Stripe.Event
   ) {
     const source = event.data.object as Stripe.Source;
-    const sourceDetails = await this.stripeHelper.extractSourceDetailsForEmail(
-      source
-    );
+    const sourceDetails =
+      await this.stripeHelper.extractSourceDetailsForEmail(source);
     await this.sendSubscriptionPaymentExpiredEmail(sourceDetails);
   }
 
@@ -1006,6 +1003,7 @@ export class StripeWebhookHandler extends StripeHandler {
         await this.mailer.sendSubscriptionReactivationEmail(...mailParams);
         break;
       case SUBSCRIPTION_UPDATE_TYPES.CANCELLATION:
+      case SUBSCRIPTION_UPDATE_TYPES.REDUNDANT_OVERLAP:
         await this.mailer.sendSubscriptionCancellationEmail(...mailParams);
         break;
     }
@@ -1115,8 +1113,8 @@ export class StripeWebhookHandler extends StripeHandler {
       subscription.collection_method === 'send_invoice'
         ? 'paypal'
         : subscription.collection_method === 'charge_automatically'
-        ? 'stripe'
-        : 'not_chosen';
+          ? 'stripe'
+          : 'not_chosen';
     const countryCode: string | null | undefined =
       customer.shipping?.address?.country;
     const { id: planId, product: productId } = subscription.items.data[0].plan;

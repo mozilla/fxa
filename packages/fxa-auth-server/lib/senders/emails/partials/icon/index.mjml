@@ -3,20 +3,16 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
 <mj-section css-class="mb-8">
-  <% if (locals.productIconURLOld && locals.productIconURLNew) { %>
-    <mj-group>
-      <mj-column>
-        <mj-image width="58px" src="<%- productIconURLOld %>" alt="<%- productNameOld %>" title="<%- productNameOld %>" css-class="product-icon">
-        </mj-image>
-      </mj-column>
-      <mj-column>
-        <mj-image width="58px" src="<%- productIconURLNew %>" alt="<%- productName %>" title="<%- productName %>" css-class="product-icon">
-        </mj-image>
-      </mj-column>
-    </mj-group>
+  <% if (locals.productIconURLNew) { %>
+    <mj-column>
+      <mj-image width="58px" src="<%- productIconURLNew %>" alt="<%- productName %>" title="<%- productName %>"
+        css-class="product-icon">
+      </mj-image>
+    </mj-column>
   <% } else { %>
     <mj-column>
-      <mj-image width="58px" src="<%- icon %>" alt="<%- productName %>" title="<%- productName %>" css-class="product-icon"></mj-image>
+      <mj-image width="58px" src="<%- icon %>" alt="<%- productName %>" title="<%- productName %>"
+      css-class="product-icon"></mj-image>
     </mj-column>
   <% } %>
-</mj-section>
+  </mj-section>

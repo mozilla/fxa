@@ -28,6 +28,7 @@ const EMAIL_TYPES = {
   subscriptionAccountReminderSecond: 'subscription_account_finish_setup',
   subscriptionReactivation: 'subscription_reactivation',
   subscriptionRenewalReminder: 'subscription_renewal_reminder',
+  subscriptionReplaced: 'subscription_replaced',
   subscriptionUpgrade: 'subscription_upgrade',
   subscriptionDowngrade: 'subscription_downgrade',
   subscriptionPaymentExpired: 'subscription_payment_expired',
