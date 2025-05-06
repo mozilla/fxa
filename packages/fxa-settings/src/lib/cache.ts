@@ -54,13 +54,15 @@ export function currentAccount(
   // Current user can be specified in url params (ex. when clicking
   // `Manage account` from sync prefs.
   const forceUid = searchParam('uid', window.location.search);
-  if (forceUid && all[forceUid]) {
+  if (forceUid && !['__proto__', 'constructor', 'prototype'].includes(forceUid) && all[forceUid]) {
     storage.set('currentAccountUid', forceUid);
   }
 
   const uid = storage.get('currentAccountUid') as hexstring;
   if (account) {
-    all[account.uid] = account;
+    if (!['__proto__', 'constructor', 'prototype'].includes(account.uid)) {
+      all[account.uid] = account;
+    }
     accounts(all);
     return account;
   }
