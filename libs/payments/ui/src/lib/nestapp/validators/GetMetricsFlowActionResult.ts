@@ -8,9 +8,8 @@ export class GetMetricsFlowActionResult {
   @IsString()
   flowId!: string;
 
-  @IsString()
   @IsNumber()
-  flowBeginTime!: string | number;
+  flowBeginTime!: number;
 
   @IsOptional()
   @IsString()

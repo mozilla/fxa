@@ -4,6 +4,6 @@
 
 export type MetricsFlow = {
   flowId: string;
-  flowBeginTime: string | number;
+  flowBeginTime: number;
   deviceId?: undefined | string;
 };
