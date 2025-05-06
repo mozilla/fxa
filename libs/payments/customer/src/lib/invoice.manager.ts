@@ -102,9 +102,8 @@ export class InvoiceManager {
       discounts: [{ promotion_code: promoCode?.id }],
     };
 
-    const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming(
-      requestObject
-    );
+    const upcomingInvoice =
+      await this.stripeClient.invoicesRetrieveUpcoming(requestObject);
 
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
   }
@@ -133,9 +132,8 @@ export class InvoiceManager {
       subscription: fromSubscriptionItem.subscription,
     };
 
-    const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming(
-      requestObject
-    );
+    const upcomingInvoice =
+      await this.stripeClient.invoicesRetrieveUpcoming(requestObject);
 
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
   }
@@ -262,7 +260,7 @@ export class InvoiceManager {
       // Charge the PayPal customer after the invoice is finalized to prevent charges with a failed invoice
       try {
         // Duplicate calls to finalizeInvoice can be made due to race conditions. Failures from re-finalizing an invoice can be ignored.
-        await this.stripeClient.invoicesFinalizeInvoice(invoice.id);
+        await this.finalizeWithoutAutoAdvance(invoice.id);
       } catch (err) {
         // This is Stripe's only unique way of identifying this error. Remove as part of FXA-11460
         if (

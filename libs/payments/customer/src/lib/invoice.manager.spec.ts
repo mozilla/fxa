@@ -368,7 +368,8 @@ describe('InvoiceManager', () => {
         taxAmountInCents: mockInvoice.tax,
       });
       expect(stripeClient.invoicesFinalizeInvoice).toHaveBeenCalledWith(
-        mockInvoice.id
+        mockInvoice.id,
+        { auto_advance: false }
       );
       expect(stripeClient.invoicesUpdate).toHaveBeenNthCalledWith(
         1,
@@ -484,7 +485,8 @@ describe('InvoiceManager', () => {
         taxAmountInCents: mockInvoice.tax,
       });
       expect(stripeClient.invoicesFinalizeInvoice).toHaveBeenCalledWith(
-        mockInvoice.id
+        mockInvoice.id,
+        { auto_advance: false }
       );
       expect(stripeClient.invoicesUpdate).toHaveBeenNthCalledWith(
         1,
@@ -548,7 +550,8 @@ describe('InvoiceManager', () => {
         taxAmountInCents: mockInvoice.tax,
       });
       expect(stripeClient.invoicesFinalizeInvoice).toHaveBeenCalledWith(
-        mockInvoice.id
+        mockInvoice.id,
+        { auto_advance: false }
       );
       expect(stripeClient.invoicesUpdate).toHaveBeenNthCalledWith(
         1,
@@ -619,7 +622,8 @@ describe('InvoiceManager', () => {
         taxAmountInCents: mockInvoice.tax,
       });
       expect(stripeClient.invoicesFinalizeInvoice).toHaveBeenCalledWith(
-        mockInvoice.id
+        mockInvoice.id,
+        { auto_advance: false }
       );
       expect(stripeClient.invoicesUpdate).toHaveBeenNthCalledWith(
         1,
