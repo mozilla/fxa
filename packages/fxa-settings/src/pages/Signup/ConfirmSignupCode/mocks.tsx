@@ -7,14 +7,12 @@ import { LocationProvider } from '@reach/router';
 import ConfirmSignupCode from '.';
 import {
   IntegrationType,
-  OAuthIntegrationData,
   OAuthNativeClients,
   OAuthNativeIntegration,
   OAuthNativeServices,
   OAuthWebIntegration,
   RelierClientInfo,
   WebIntegration,
-  WebIntegrationData,
 } from '../../../models';
 import {
   MOCK_CLIENT_ID,
@@ -47,7 +45,9 @@ export const MOCK_SIGNUP_CODE = '123456';
 
 export function createMockWebIntegration({
   redirectTo = undefined,
-}: { redirectTo?: string } = {}): ConfirmSignupCodeBaseIntegration {
+}: {
+  redirectTo?: string;
+} = {}): ConfirmSignupCodeBaseIntegration {
   // Leaving for historical record. Remove once baked.
   // return {
   //   type: IntegrationType.Web,
@@ -72,10 +72,13 @@ export function createMockWebIntegration({
     })
   );
 
-  expect(integration.type).toEqual(IntegrationType.Web);
-  expect(integration.getService()).toEqual(MozServices.Default);
-  expect(integration.getClientId()).toBeUndefined();
-  expect(integration.isDesktopRelay()).toBeFalsy();
+  // only run assertions in tests - avoids issues with mocks shared with storybook
+  if (typeof expect !== 'undefined') {
+    expect(integration.type).toEqual(IntegrationType.Web);
+    expect(integration.getService()).toEqual(MozServices.Default);
+    expect(integration.getClientId()).toBeUndefined();
+    expect(integration.isDesktopRelay()).toBeFalsy();
+  }
 
   return integration;
 }
@@ -118,14 +121,16 @@ export function createMockOAuthWebIntegration(
     redirectUri: MOCK_REDIRECT_URI,
   } as RelierClientInfo;
 
-  expect(integration.type).toEqual(IntegrationType.OAuthWeb);
-  expect(integration.getRedirectUri()).toEqual(MOCK_REDIRECT_URI);
-  expect(integration.getService()).toEqual(serviceName);
-  expect(integration.getClientId()).toEqual(MOCK_CLIENT_ID);
-  expect(integration.wantsTwoStepAuthentication()).toEqual(false);
-  expect(integration.isSync()).toEqual(false);
-  expect(integration.getPermissions()).toEqual(['profile:email']);
-  expect(integration.isDesktopRelay()).toEqual(false);
+  if (typeof expect !== 'undefined') {
+    expect(integration.type).toEqual(IntegrationType.OAuthWeb);
+    expect(integration.getRedirectUri()).toEqual(MOCK_REDIRECT_URI);
+    expect(integration.getService()).toEqual(serviceName);
+    expect(integration.getClientId()).toEqual(MOCK_CLIENT_ID);
+    expect(integration.wantsTwoStepAuthentication()).toEqual(false);
+    expect(integration.isSync()).toEqual(false);
+    expect(integration.getPermissions()).toEqual(['profile:email']);
+    expect(integration.isDesktopRelay()).toEqual(false);
+  }
 
   return integration;
 }
@@ -177,16 +182,18 @@ export function createMockOAuthNativeIntegration(
     } as RelierClientInfo;
   }
 
-  expect(integration.type).toEqual(IntegrationType.OAuthNative);
-  expect(integration.getRedirectUri()).toEqual(MOCK_REDIRECT_URI);
-  expect(integration.getService()).toEqual(
-    isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay
-  );
-  expect(integration.getClientId()).toEqual(MOCK_CLIENT_ID);
-  expect(integration.wantsTwoStepAuthentication()).toEqual(false);
-  expect(integration.isSync()).toEqual(isSync);
-  expect(integration.getPermissions()).toEqual(['profile:email']);
-  expect(integration.isDesktopRelay()).toEqual(!isSync);
+  if (typeof expect !== 'undefined') {
+    expect(integration.type).toEqual(IntegrationType.OAuthNative);
+    expect(integration.getRedirectUri()).toEqual(MOCK_REDIRECT_URI);
+    expect(integration.getService()).toEqual(
+      isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay
+    );
+    expect(integration.getClientId()).toEqual(MOCK_CLIENT_ID);
+    expect(integration.wantsTwoStepAuthentication()).toEqual(false);
+    expect(integration.isSync()).toEqual(isSync);
+    expect(integration.getPermissions()).toEqual(['profile:email']);
+    expect(integration.isDesktopRelay()).toEqual(!isSync);
+  }
 
   return integration;
 }
