@@ -47,6 +47,7 @@ export default async function NeedsInputPage({
         amount={cart.amount}
         currency={cart.currency.toLowerCase()}
         locale={locale}
+        cart={cart}
       >
         <PaymentInputHandler cartId={params.cartId} />
       </StripeWrapper>

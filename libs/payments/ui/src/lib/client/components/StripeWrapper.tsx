@@ -73,15 +73,18 @@ function isStripeElementLocale(locale: string): locale is StripeElementLocale {
 interface StripeWrapperProps {
   amount: number;
   currency: string;
-  paymentInfo?: {
-    type:
-      | Stripe.PaymentMethod.Type
-      | 'google_iap'
-      | 'apple_iap'
-      | 'external_paypal';
-    last4?: string;
-    brand?: string;
-    customerSessionClientSecret?: string;
+  cart: {
+    paymentInfo?: {
+      type:
+        | Stripe.PaymentMethod.Type
+        | 'google_iap'
+        | 'apple_iap'
+        | 'external_paypal';
+      last4?: string;
+      brand?: string;
+      customerSessionClientSecret?: string;
+    };
+    hasActiveSubscriptions?: boolean;
   };
   children: React.ReactNode;
   locale: string;
@@ -90,7 +93,7 @@ interface StripeWrapperProps {
 export function StripeWrapper({
   amount,
   currency,
-  paymentInfo,
+  cart,
   locale,
   children,
 }: StripeWrapperProps) {
@@ -104,7 +107,7 @@ export function StripeWrapper({
     currency,
     paymentMethodCreation: 'manual',
     externalPaymentMethodTypes: ['external_paypal'],
-    customerSessionClientSecret: paymentInfo?.customerSessionClientSecret,
+    customerSessionClientSecret: cart.paymentInfo?.customerSessionClientSecret,
     appearance: {
       variables: {
         fontFamily:
@@ -134,9 +137,12 @@ export function StripeWrapper({
     },
   };
 
+  // Remove external_paypal if the customer has an active subscription
+  // paid with non-external_paypal payment method
   if (
-    paymentInfo?.type !== 'external_paypal' &&
-    paymentInfo?.customerSessionClientSecret
+    cart.paymentInfo?.type !== 'external_paypal' &&
+    cart.paymentInfo?.customerSessionClientSecret &&
+    cart.hasActiveSubscriptions
   ) {
     delete options.externalPaymentMethodTypes;
   }

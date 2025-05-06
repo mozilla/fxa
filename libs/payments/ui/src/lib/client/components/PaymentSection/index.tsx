@@ -38,6 +38,7 @@ interface PaymentFormProps {
       brand?: string;
       customerSessionClientSecret?: string;
     };
+    hasActiveSubscriptions: boolean;
   };
   locale: string;
 }
@@ -52,7 +53,7 @@ export function PaymentSection({
     <StripeWrapper
       amount={paymentsInfo.amount}
       currency={paymentsInfo.currency}
-      paymentInfo={cart.paymentInfo}
+      cart={cart}
       locale={locale}
     >
       <CheckoutForm
