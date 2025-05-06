@@ -138,7 +138,13 @@ export function createApolloClient(gqlServerUri: string) {
         data: { isSignedIn: false },
       });
       return new Observable((observer) => {
-        observer.next({ data: {} });
+        // Important! When calling next with fabricated data, we must make sure that required fields
+        // are present. Otherwise, we will get the following error:
+        //     https://www.apollographql.com/docs/react/errors#%7B%22version%22%3A%223.11.1%22%2C%22message%22%3A12%2C%22args%22%3A%5B%22account%22%2C%22%7B%7D%22%5D%7D
+        //
+        // The fact we can't resolve a session token, also means that we can't resolve the current account info. There fore setting the
+        // the account: null here seems like the right thing to do, and also avoids any errors writing to the current cache state.
+        observer.next({ data: { account: null } });
         observer.complete();
       });
     }
