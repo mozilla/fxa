@@ -232,6 +232,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN',
     },
+    recoveryPhonePasswordReset2fa: {
+      default: false,
+      doc: 'Enables recovery phone codes for 2FA in password reset',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_RECOVERY_PHONE_PASSWORD_RESET_2FA',
+    },
   },
   showReactApp: {
     emailFirstRoutes: {
