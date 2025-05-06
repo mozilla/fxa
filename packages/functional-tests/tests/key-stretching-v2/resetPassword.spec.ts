@@ -5,8 +5,6 @@
 import { expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 
-const AGE_21 = '21';
-
 /**
  * These tests represent various permutations between interacting with V1 and V2
  * key stretched passwords. We need to ensure that operations are interchangeable!
@@ -65,7 +63,7 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&${signupVersion.query}`
       );
       await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);

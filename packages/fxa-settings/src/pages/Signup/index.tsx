@@ -73,7 +73,6 @@ export const Signup = ({
 
   const [beginSignupLoading, setBeginSignupLoading] = useState<boolean>(false);
   const [bannerErrorText, setBannerErrorText] = useState<string>('');
-  const [ageCheckErrorText, setAgeCheckErrorText] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [
     isAccountSuggestionBannerVisible,
@@ -86,7 +85,6 @@ export const Signup = ({
     string[]
   >([]);
   const [client, setClient] = useState<MozServices | undefined>(undefined);
-  const [hasAgeInputFocused, setHasAgeInputFocused] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOAuth) {
@@ -112,20 +110,10 @@ export const Signup = ({
         email,
         newPassword: '',
         confirmPassword: '',
-        age: '',
       },
     });
 
   const ftlMsgResolver = useFtlMsgResolver();
-
-  const localizedAgeIsRequiredError = ftlMsgResolver.getMsg(
-    'auth-error-1031',
-    'You must enter your age to sign up'
-  );
-  const localizedValidAgeError = ftlMsgResolver.getMsg(
-    'auth-error-1032',
-    'You must enter a valid age to sign up'
-  );
 
   const onFocus = () => {
     if (!isFocused) {
@@ -134,41 +122,13 @@ export const Signup = ({
     }
   };
 
-  const onFocusAgeInput = () => {
-    setAgeCheckErrorText('');
-    if (!hasAgeInputFocused) {
-      GleanMetrics.registration.engage({ event: { reason: 'age' } });
-      setHasAgeInputFocused(true);
-    }
-  };
-
-  const onBlurAgeInput = () => {
-    getValues().age === '' && setAgeCheckErrorText(localizedAgeIsRequiredError);
-  };
-
   // TODO: Add metrics events to match parity with content-server in FXA-8302
   // The legacy amplitude events will eventually be replaced by Glean,
   // but until that is ready we must ensure the expected metrics continue to be emitted
   // to avoid breaking dashboards.
   const onSubmit = useCallback(
-    async ({ newPassword, age }: SignupFormData) => {
+    async ({ newPassword }: SignupFormData) => {
       GleanMetrics.registration.submit();
-      if (Number(age) < 13) {
-        // this is a session cookie. It will go away once:
-        // 1. the user closes the tab
-        // and
-        // 2. the user closes the browser
-        // Both of these have to happen or else the cookie
-        // hangs around like a bad smell.
-
-        // TODO: probably a better way to set this?
-        document.cookie = 'tooyoung=1;';
-        navigateWithQuery('/cannot_create_account');
-        return;
-      } else if (Number(age) > 130) {
-        setAgeCheckErrorText(localizedValidAgeError);
-        return;
-      }
 
       // Disable creating accounts with email masks
       if (isEmailMask(email)) {
@@ -291,7 +251,6 @@ export const Signup = ({
       offeredSyncEngines,
       selectedEngines,
       isSyncOAuth,
-      localizedValidAgeError,
       isDesktopRelay,
       isOAuth,
       sensitiveDataClient,
@@ -390,10 +349,6 @@ export const Signup = ({
           setDeclinedSyncEngines,
           isDesktopRelay,
           setSelectedNewsletterSlugs,
-          ageCheckErrorText,
-          setAgeCheckErrorText,
-          onFocusAgeInput,
-          onBlurAgeInput,
         }}
         loading={beginSignupLoading}
         onSubmit={handleSubmit(onSubmit)}

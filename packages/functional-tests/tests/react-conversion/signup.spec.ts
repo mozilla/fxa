@@ -6,9 +6,6 @@ import { FirefoxCommand, LinkAccountResponse } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import { syncDesktopV3QueryParams } from '../../lib/query-params';
 
-const AGE_12 = '12';
-const AGE_21 = '21';
-
 const eventDetailLinkAccount: LinkAccountResponse = {
   id: 'account_updates',
   message: {
@@ -32,7 +29,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.goto();
       await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password);
 
       await expect(page).toHaveURL(/confirm_signup_code/);
 
@@ -74,7 +71,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(signup.CWTSEngineCreditCards).toBeVisible();
       await expect(signup.CWTSEngineAddresses).toBeHidden();
 
-      await signup.fillOutSyncSignupForm(password, AGE_21);
+      await signup.fillOutSyncSignupForm(password);
 
       await signup.checkWebChannelMessage(FirefoxCommand.Login);
       await expect(page).toHaveURL(/confirm_signup_code/);
@@ -114,23 +111,6 @@ test.describe('severity-2 #smoke', () => {
       ).toBeVisible();
     });
 
-    test('coppa is too young', async ({
-      page,
-      pages: { signup },
-      testAccountTracker,
-    }) => {
-      const { email, password } =
-        testAccountTracker.generateSignupAccountDetails();
-      await signup.goto();
-
-      await signup.fillOutEmailForm(email);
-
-      await signup.fillOutSignupForm(password, AGE_12);
-
-      await expect(page).toHaveURL(/cannot_create_account/);
-      await expect(signup.cannotCreateAccountHeading).toBeVisible();
-    });
-
     test('signup via product subscription page and redirect after confirm', async ({
       page,
       target,
@@ -159,7 +139,7 @@ test.describe('severity-2 #smoke', () => {
       // Click the sign in link
       await subscribe.signinLink.click();
       await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);

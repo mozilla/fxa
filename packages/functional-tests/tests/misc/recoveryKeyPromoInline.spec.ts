@@ -27,7 +27,7 @@ test.describe('recovery key promo', () => {
       );
       await page.waitForURL(/\//);
       await signup.fillOutEmailForm(credentials.email);
-      await signup.fillOutSyncSignupForm(credentials.password, '21');
+      await signup.fillOutSyncSignupForm(credentials.password);
       await signup.page.waitForURL(/confirm_signup_code/);
 
       const code = await target.emailClient.getVerifyShortCode(

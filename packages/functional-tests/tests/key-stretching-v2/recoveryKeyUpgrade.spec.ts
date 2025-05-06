@@ -4,7 +4,6 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 
-const AGE_21 = '21';
 const HINT = 'secret key location';
 
 test.describe('severity-2 #smoke', () => {
@@ -19,7 +18,7 @@ test.describe('severity-2 #smoke', () => {
       `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=1`
     );
     await signup.fillOutEmailForm(email);
-    await signup.fillOutSignupForm(password, AGE_21);
+    await signup.fillOutSignupForm(password);
 
     await expect(page).toHaveURL(/confirm_signup_code/);
 

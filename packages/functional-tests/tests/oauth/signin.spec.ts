@@ -116,7 +116,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, '21');
+      await signup.fillOutSignupForm(password);
       // Dont verify account and attempt to login via relier
       await page.waitForURL(/confirm_signup_code/);
       await expect(page).toHaveURL(/confirm_signup_code/);
@@ -149,7 +149,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickChooseFlow();
       // Don't verify account and attempt to login via relier
       await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, '21');
+      await signup.fillOutSignupForm(password);
       await expect(page).toHaveURL(/confirm_signup_code/);
       // go back to the OAuth app, the /oauth flow should
       // now suggest a cached login

@@ -13,6 +13,7 @@ export class ConfigPage extends BaseLayout {
       const page = await this.page.context().newPage();
 
       await page.goto(this.baseUrl);
+      await page.waitForURL(this.baseUrl);
 
       // config is stored in the `meta` tag of the html page
       // we can check this tag to see if feature flags are enabled

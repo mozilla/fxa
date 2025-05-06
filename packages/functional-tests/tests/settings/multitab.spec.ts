@@ -56,7 +56,7 @@ test.describe('severity-1 #smoke', () => {
     await signin.useDifferentAccountLink.click();
 
     await signup.fillOutEmailForm(email2);
-    await signup.fillOutSignupForm(password2, '21');
+    await signup.fillOutSignupForm(password2);
     const code = await target.emailClient.getVerifyShortCode(email2);
     await expect(newTab).toHaveURL(/confirm_signup_code/);
     await confirmSignupCode.fillOutCodeForm(code);

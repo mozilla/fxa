@@ -25,10 +25,5 @@ export type FormSetupAccountProps = {
   setDeclinedSyncEngines: React.Dispatch<React.SetStateAction<string[]>>;
   isDesktopRelay: boolean;
   setSelectedNewsletterSlugs?: React.Dispatch<React.SetStateAction<string[]>>;
-  // Age check props, if not provided it will not be rendered
-  ageCheckErrorText?: string;
-  setAgeCheckErrorText?: React.Dispatch<React.SetStateAction<string>>;
-  onFocusAgeInput?: () => void;
-  onBlurAgeInput?: () => void;
   submitButtonGleanId?: string;
 };

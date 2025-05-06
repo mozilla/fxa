@@ -7,8 +7,6 @@ import { expect, test } from '../../lib/fixtures/standard';
 import { relayDesktopOAuthQueryParams } from '../../lib/query-params';
 import { getCode } from 'packages/fxa-settings/src/lib/totp';
 
-const AGE_21 = '21';
-
 test.describe('relay integration', () => {
   test('signup with Relay desktop', async ({
     target,
@@ -34,7 +32,6 @@ test.describe('relay integration', () => {
     ).toBeVisible();
 
     await signup.passwordTextbox.fill(password);
-    await signup.ageTextbox.fill(AGE_21);
     await signup.createAccountButton.click();
 
     await page.waitForURL(/confirm_signup_code/);

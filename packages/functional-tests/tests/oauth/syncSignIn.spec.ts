@@ -4,8 +4,6 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 
-const AGE_21 = '21';
-
 test.describe('severity-1 #smoke', () => {
   test.describe('signin with OAuth after Sync', () => {
     test('signin to OAuth with Sync creds', async ({
@@ -46,7 +44,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
       await signin.useDifferentAccountLink.click();
       await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const signupCode = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(signupCode);
@@ -83,7 +81,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const signupCode = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(signupCode);

@@ -4,8 +4,6 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 
-const AGE_21 = '21';
-
 test.describe('severity-1 #smoke', () => {
   test.describe('react OAuth signin', () => {
     test('verified account, no email confirmation required', async ({
@@ -129,7 +127,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.goto();
       await signup.fillOutEmailForm(email);
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password);
       // confirm reached confirm_signup_code page but do not confirm
       await expect(page).toHaveURL(/confirm_signup_code/);
 
@@ -167,7 +165,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signup.fillOutEmailForm(email);
       await expect(signup.signupFormHeading).toBeVisible();
-      await signup.fillOutSignupForm(password, AGE_21);
+      await signup.fillOutSignupForm(password);
       await expect(page).toHaveURL(/confirm_signup_code/);
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
