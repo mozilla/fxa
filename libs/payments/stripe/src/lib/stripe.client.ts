@@ -11,7 +11,6 @@ import {
   StripeCustomer,
   StripeCustomerSession,
   StripeDeletedCustomer,
-  StripeDeletedInvoice,
   StripeInvoice,
   StripePaymentIntent,
   StripePaymentMethod,
@@ -270,12 +269,6 @@ export class StripeClient {
       }
       throw err;
     }
-  }
-
-  @CaptureTimingWithStatsD()
-  async invoicesDelete(invoiceId: string) {
-    const result = await this.stripe.invoices.del(invoiceId);
-    return result as StripeResponse<StripeDeletedInvoice>;
   }
 
   @CaptureTimingWithStatsD()

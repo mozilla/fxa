@@ -162,7 +162,10 @@ export class CartService {
           if (invoice) {
             switch (invoice.status) {
               case 'draft':
-                await this.invoiceManager.delete(invoice.id);
+                await this.invoiceManager.safeFinalizeWithoutAutoAdvance(
+                  invoice.id
+                );
+                await this.invoiceManager.void(invoice.id);
                 break;
               case 'open':
               case 'uncollectible':
@@ -724,7 +727,11 @@ export class CartService {
 
     // Cart latest invoice data
     let latestInvoicePreview: InvoicePreview | undefined;
-    if (customer && cart.stripeSubscriptionId) {
+    if (
+      customer &&
+      cart.stripeSubscriptionId &&
+      cart.state !== CartState.FAIL
+    ) {
       const subscription = subscriptions.find(
         (subscription) => subscription.id === cart.stripeSubscriptionId
       );

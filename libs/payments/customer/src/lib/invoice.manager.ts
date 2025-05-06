@@ -43,10 +43,28 @@ export class InvoiceManager {
     private currencyManager: CurrencyManager
   ) {}
 
+  // Finalize an invoice, rejecting re-finalization of an invoice
   async finalizeWithoutAutoAdvance(invoiceId: string) {
     return this.stripeClient.invoicesFinalizeInvoice(invoiceId, {
       auto_advance: false,
     });
+  }
+
+  // Finalize an invoice, permitting re-finalization of an invoice
+  async safeFinalizeWithoutAutoAdvance(invoiceId: string) {
+    try {
+      return await this.finalizeWithoutAutoAdvance(invoiceId);
+    } catch (err) {
+      // This is Stripe's only unique way of identifying this error. Remove as part of FXA-11460
+      if (
+        err?.raw?.message !==
+        "This invoice is already finalized, you can't re-finalize a non-draft invoice."
+      ) {
+        throw err;
+      } else {
+        return this.stripeClient.invoicesRetrieve(invoiceId);
+      }
+    }
   }
 
   async previewUpcoming({
@@ -188,13 +206,6 @@ export class InvoiceManager {
   }
 
   /**
-   * Deletes an invoice. Invoice must be in Draft state.
-   */
-  async delete(invoiceId: string) {
-    return this.stripeClient.invoicesDelete(invoiceId);
-  }
-
-  /**
    * Voids an invoice. Invoice must be in Open or Uncollectable states.
    */
   async void(invoiceId: string) {
@@ -257,19 +268,7 @@ export class InvoiceManager {
     let paypalCharge: ChargeResponse;
     try {
       // Charge the PayPal customer after the invoice is finalized to prevent charges with a failed invoice
-      try {
-        // Duplicate calls to finalizeInvoice can be made due to race conditions. Failures from re-finalizing an invoice can be ignored.
-        await this.finalizeWithoutAutoAdvance(invoice.id);
-      } catch (err) {
-        // This is Stripe's only unique way of identifying this error. Remove as part of FXA-11460
-        if (
-          err?.raw?.message !==
-          "This invoice is already finalized, you can't re-finalize a non-draft invoice."
-        ) {
-          throw err;
-        }
-      }
-
+      this.safeFinalizeWithoutAutoAdvance(invoice.id);
       paypalCharge = await this.paypalClient.chargeCustomer(chargeOptions);
     } catch (error) {
       if (PayPalClientError.hasPayPalNVPError(error)) {
@@ -320,7 +319,7 @@ export class InvoiceManager {
     // It appears for subscriptions that do not require payment, the invoice
     // transitions to paid automatially.
     // https://stripe.com/docs/billing/invoices/subscription#sub-invoice-lifecycle
-    return this.finalizeWithoutAutoAdvance(invoiceId);
+    return this.safeFinalizeWithoutAutoAdvance(invoiceId);
   }
 
   /**
