@@ -42,7 +42,7 @@ describe('#integration - recorded future credentials search and account reset sc
         .toISOString()
         .split('T')[0];
 
-      const searchDomain = getOutputValue(outputLines, 'Domain');
+      const searchDomain = getOutputValue(outputLines, 'Domains');
       assert.equal(searchDomain, 'accounts.firefox.com');
 
       const filter = getOutputValue(outputLines, 'Filter');
@@ -56,17 +56,21 @@ describe('#integration - recorded future credentials search and account reset sc
     }
   });
 
-  it('uses the first downloaded date argument', async () => {
+  it('uses given arguments', async () => {
     try {
       const expectedDate = '2025-01-01';
       const cmd = [
         ...command,
         `--first-downloaded-date ${expectedDate}`,
-        `--email testo@example.gg`,
+        '--email testo@example.gg',
+        '--search-domain accounts.firefox.com',
+        '--search-domain allizom.com',
       ];
       const { stdout } = await exec(cmd.join(' '), execOptions);
       const outputLines = stdout.split('\n');
 
+      const searchDomains = getOutputValue(outputLines, 'Domains');
+      assert.equal(searchDomains, 'accounts.firefox.com, allizom.com');
       const filter = getOutputValue(outputLines, 'Filter');
       const firstDownloadedDateGte = filter?.substring(filter.length - 10);
       assert.equal(firstDownloadedDateGte, expectedDate);

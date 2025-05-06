@@ -64,7 +64,6 @@ const Token = TokenFn(log, config);
 const Password = PasswordFn(log, config);
 const DB = createDB(config, log, Token);
 
-const searchDomain = 'accounts.firefox.com';
 const resultsPerPageLimit = defaultPerPageLimit;
 const statsd = new StatsD({ ...config.statsd });
 const client = createClient<paths>({
@@ -79,6 +78,7 @@ let authDb: Awaited<ReturnType<typeof DB.connect>> | null;
 
 const checkAndReset = async () => {
   const program = new Command();
+  const searchDomains = collect();
   const accountEmails = collect();
 
   program
@@ -93,9 +93,10 @@ will be sent to the account holder.`
       Date.parse
     )
     .option(
-      '--concurrency [number]',
-      'The max number of inflight active password verify and reset as well as per second rate limit.  Defaults to 100.',
-      parseInt
+      '--search-domain [string]',
+      'The domains to search in Recorded Future.  Repeatable.  Defaults to accounts.firefox.com.',
+      searchDomains,
+      ['accounts.firefox.com']
     )
     .option(
       '--email [string]',
@@ -119,6 +120,7 @@ will be sent to the account holder.`
     );
   }
 
+  const domains = [...new Set(program.searchDomain as unknown as string[])];
   const firstDownloadedDatetime =
     program.firstDownloadedDate && !Number.isNaN(program.firstDownloadedDate)
       ? new Date(program.firstDownloadedDate)
@@ -129,7 +131,7 @@ will be sent to the account holder.`
 
   const accountsToReset = await (async () => {
     if (!resetWithEmailArgs) {
-      return await findLeakedAccounts(firstDownloadedDateIsoString);
+      return await findLeakedAccounts(firstDownloadedDateIsoString, domains);
     }
 
     const loginsFromEmailArgs = program.email.map((x) => ({
@@ -143,7 +145,7 @@ will be sent to the account holder.`
     console.log(`
 Dry run mode is on.  It is the default; use '--dry-run false' when you are ready.
 
-Domain: ${searchDomain}
+Domains: ${domains.join(', ')}
 Filter: first_downloaded_date_gte=${firstDownloadedDateIsoString}
 Limit: ${resultsPerPageLimit}
 Account emails to reset:
@@ -161,11 +163,14 @@ ${accountsToReset.map((x) => `${`\t`}${x.email}`).join('\n')}
   return 0;
 };
 
-async function findLeakedAccounts(firstDownloadedDate: string) {
+async function findLeakedAccounts(
+  firstDownloadedDate: string,
+  domains: string[]
+) {
   const accountsToReset: ResetableAccount[] = [];
   const usernamePropertiesFilter = ['Email'] as 'Email'[];
   const payload = {
-    domains: [searchDomain],
+    domains,
     filter: {
       first_downloaded_gte: firstDownloadedDate,
       username_properties: usernamePropertiesFilter,
