@@ -9,8 +9,8 @@ import {
   EligibilityManager,
   EligibilityService,
   EligibilityStatus,
-  SubscriptionEligibilityResultBlockedIAPFactory,
-  SubscriptionEligibilityResultDowngradeFactory,
+  SubscriptionEligibilityResultFactory,
+  SubscriptionEligibilityUpgradeDowngradeResultFactory,
 } from '@fxa/payments/eligibility';
 import {
   MockPaypalClientConfigProvider,
@@ -620,9 +620,11 @@ describe('CartService', () => {
         .spyOn(cartManager, 'createErrorCart')
         .mockResolvedValue(mockErrorCart);
       jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
-      jest
-        .spyOn(eligibilityService, 'checkEligibility')
-        .mockResolvedValue(SubscriptionEligibilityResultBlockedIAPFactory());
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue(
+        SubscriptionEligibilityResultFactory({
+          subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
+        })
+      );
 
       const result = await cartService.setupCart(args);
 
@@ -660,9 +662,11 @@ describe('CartService', () => {
         .spyOn(cartManager, 'createErrorCart')
         .mockResolvedValue(mockErrorCart);
       jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
-      jest
-        .spyOn(eligibilityService, 'checkEligibility')
-        .mockResolvedValue(SubscriptionEligibilityResultDowngradeFactory());
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue(
+        SubscriptionEligibilityUpgradeDowngradeResultFactory({
+          subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
+        })
+      );
 
       const result = await cartService.setupCart(args);
 

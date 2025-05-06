@@ -19,8 +19,8 @@ import {
   EligibilityManager,
   EligibilityService,
   EligibilityStatus,
-  SubscriptionEligibilityResultCreateFactory,
-  SubscriptionEligibilityResultUpgradeFactory,
+  SubscriptionEligibilityResultFactory,
+  SubscriptionEligibilityUpgradeDowngradeResultFactory,
 } from '@fxa/payments/eligibility';
 import {
   PaypalBillingAgreementManager,
@@ -574,8 +574,9 @@ describe('CheckoutService', () => {
           payment_intent: mockPaymentIntent.id,
         })
       );
-      const mockEligibilityResult =
-        SubscriptionEligibilityResultCreateFactory();
+      const mockEligibilityResult = SubscriptionEligibilityResultFactory({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
       const mockPrePayStepsResult = PrePayStepsResultFactory({
         uid: mockCart.uid,
         customer: mockCustomer,
@@ -682,7 +683,11 @@ describe('CheckoutService', () => {
 
       describe('upgrade', () => {
         const mockEligibilityResult =
-          SubscriptionEligibilityResultUpgradeFactory();
+          SubscriptionEligibilityUpgradeDowngradeResultFactory({
+            redundantOverlaps: [
+              SubscriptionEligibilityUpgradeDowngradeResultFactory(),
+            ],
+          });
         const mockPrePayStepsResult = PrePayStepsResultFactory({
           uid: mockCart.uid,
           customer: mockCustomer,
@@ -714,7 +719,8 @@ describe('CheckoutService', () => {
             mockCustomer.id,
             mockPrice.id,
             mockEligibilityResult.fromPrice.id,
-            mockCart
+            mockCart,
+            mockEligibilityResult.redundantOverlaps
           );
         });
       });
@@ -750,8 +756,9 @@ describe('CheckoutService', () => {
             payment_intent: mockPaymentIntent.id,
           })
         );
-        const mockEligibilityResult =
-          SubscriptionEligibilityResultCreateFactory();
+        const mockEligibilityResult = SubscriptionEligibilityResultFactory({
+          subscriptionEligibilityResult: EligibilityStatus.CREATE,
+        });
         const mockPrePayStepsResult = PrePayStepsResultFactory({
           uid: mockCart.uid,
           customer: mockCustomer,
@@ -813,8 +820,9 @@ describe('CheckoutService', () => {
         })
       );
       const mockPrice = StripePriceFactory();
-      const mockEligibilityResult =
-        SubscriptionEligibilityResultCreateFactory();
+      const mockEligibilityResult = SubscriptionEligibilityResultFactory({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
       const mockPrePayStepsResult = PrePayStepsResultFactory({
         uid: mockCart.uid,
         customer: mockCustomer,
@@ -959,7 +967,11 @@ describe('CheckoutService', () => {
 
       describe('upgrade', () => {
         const mockEligibilityResult =
-          SubscriptionEligibilityResultUpgradeFactory();
+          SubscriptionEligibilityUpgradeDowngradeResultFactory({
+            redundantOverlaps: [
+              SubscriptionEligibilityUpgradeDowngradeResultFactory(),
+            ],
+          });
         const mockPrePayStepsResult = PrePayStepsResultFactory({
           uid: mockCart.uid,
           customer: mockCustomer,
@@ -988,7 +1000,8 @@ describe('CheckoutService', () => {
             mockCustomer.id,
             mockPrice.id,
             mockEligibilityResult.fromPrice.id,
-            mockCart
+            mockCart,
+            mockEligibilityResult.redundantOverlaps
           );
         });
       });
@@ -1019,8 +1032,9 @@ describe('CheckoutService', () => {
             })
           );
           const mockPrice = StripePriceFactory();
-          const mockEligibilityResult =
-            SubscriptionEligibilityResultCreateFactory();
+          const mockEligibilityResult = SubscriptionEligibilityResultFactory({
+            subscriptionEligibilityResult: EligibilityStatus.CREATE,
+          });
           const mockPrePayStepsResult = PrePayStepsResultFactory({
             uid: mockCart.uid,
             customer: mockCustomer,
@@ -1073,24 +1087,69 @@ describe('CheckoutService', () => {
       const toPriceId = 'price_123';
       const fromPriceId = 'price_321';
       const cart = ResultCartFactory();
+      const redundantOverlaps = [
+        SubscriptionEligibilityUpgradeDowngradeResultFactory(),
+      ];
+      const subscription = StripeSubscriptionFactory();
+      const redundantSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+
       beforeEach(() => {
-        const subscription = StripeSubscriptionFactory();
-        jest
-          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
-          .mockResolvedValue(subscription);
         jest
           .spyOn(subscriptionManager, 'update')
+          .mockResolvedValueOnce(StripeResponseFactory(subscription))
+          .mockResolvedValueOnce(StripeResponseFactory(redundantSubscription));
+        jest
+          .spyOn(subscriptionManager, 'cancel')
           .mockResolvedValue(StripeResponseFactory(subscription));
       });
 
-      it('successfully called subscription update', async () => {
+      it('successfully calls subscription update', async () => {
+        jest
+          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+          .mockResolvedValueOnce(subscription)
+          .mockResolvedValueOnce(redundantSubscription);
+
         await checkoutService.upgradeSubscription(
           customerId,
           toPriceId,
           fromPriceId,
-          cart
+          cart,
+          []
         );
         expect(subscriptionManager.update).toHaveBeenCalledTimes(1);
+      });
+
+      it('successfully updates and cancels redundant subscriptions when present', async () => {
+        jest
+          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+          .mockResolvedValueOnce(subscription)
+          .mockResolvedValueOnce(redundantSubscription);
+
+        await checkoutService.upgradeSubscription(
+          customerId,
+          toPriceId,
+          fromPriceId,
+          cart,
+          redundantOverlaps
+        );
+        expect(subscriptionManager.update).toHaveBeenCalledTimes(2);
+        expect(subscriptionManager.update).toHaveBeenNthCalledWith(
+          2,
+          redundantSubscription.id,
+          {
+            metadata: {
+              redundantCancellation: 'true',
+              autoCancelledRedundantFor: subscription.id,
+              cancelled_for_customer_at: expect.anything(),
+            },
+          }
+        );
+        expect(subscriptionManager.cancel).toHaveBeenCalledWith(
+          redundantSubscription.id,
+          { prorate: true }
+        );
       });
 
       it('throws an error upgrade subscription could not be found', async () => {
@@ -1102,7 +1161,8 @@ describe('CheckoutService', () => {
             customerId,
             toPriceId,
             fromPriceId,
-            cart
+            cart,
+            redundantOverlaps
           )
         ).rejects.toBeInstanceOf(CheckoutUpgradeError);
       });
@@ -1116,7 +1176,8 @@ describe('CheckoutService', () => {
             customerId,
             toPriceId,
             fromPriceId,
-            cart
+            cart,
+            redundantOverlaps
           )
         ).rejects.toBeInstanceOf(Error);
       });

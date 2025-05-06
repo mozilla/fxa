@@ -5,7 +5,8 @@ import {
 import { PrePayStepsResult } from './checkout.types';
 import { ResultCartFactory } from './cart.factories';
 import { faker } from '@faker-js/faker';
-import { SubscriptionEligibilityResultCreateFactory } from '@fxa/payments/eligibility';
+import { SubscriptionEligibilityResultFactory } from '@fxa/payments/eligibility';
+import { EligibilityStatus } from '@fxa/payments/eligibility';
 
 export const PrePayStepsResultFactory = (
   override?: Partial<PrePayStepsResult>
@@ -18,7 +19,9 @@ export const PrePayStepsResultFactory = (
     customer: StripeCustomerFactory(),
     enableAutomaticTax: true,
     price: StripePriceFactory(),
-    eligibility: SubscriptionEligibilityResultCreateFactory(),
+    eligibility: SubscriptionEligibilityResultFactory({
+      subscriptionEligibilityResult: EligibilityStatus.CREATE,
+    }),
     ...override,
   };
 };

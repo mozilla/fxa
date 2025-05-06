@@ -27,6 +27,7 @@ import {
   IntervalComparison,
   intervalComparison,
   OfferingComparison,
+  type OfferingOverlapResult,
 } from '@fxa/payments/eligibility';
 import * as Sentry from '@sentry/node';
 import { SeverityLevel } from '@sentry/core';
@@ -470,14 +471,78 @@ export class CapabilityService {
         eligibleSourcePlan: iapRoadblockPlan,
       };
 
-    // Multiple existing overlapping plans, we can't merge them
-    if (overlaps.length > 1)
+    const overlapResults = stripeOverlaps.map((overlap) =>
+      this.compareOverlap(overlap, targetPlan, stripeSubscribedPlans)
+    );
+
+    if (overlapResults.length === 1) {
+      return overlapResults[0];
+    }
+
+    // All overlaps must be the same. We do not support multi-direcitonal upgrade/downgrade
+    const allSame = overlapResults.every(
+      (result) =>
+        result.subscriptionEligibilityResult ===
+        overlapResults[0].subscriptionEligibilityResult
+    );
+    const isInvalid =
+      overlapResults[0].subscriptionEligibilityResult ===
+      SubscriptionEligibilityResult.INVALID;
+    if (!allSame || isInvalid) {
       return {
         subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
       };
+    }
 
-    const overlap = overlaps[0];
-    const overlapAbbrev = stripeSubscribedPlans.find(
+    const sourceForUpgrade =
+      overlapResults.reduce<SubscriptionChangeEligibility | null>(
+        (highest, el) => {
+          const currentAmount = el.eligibleSourcePlan?.amount || 0;
+          const highestAmount = highest?.eligibleSourcePlan?.amount || 0;
+          if (!highestAmount || currentAmount > highestAmount) {
+            return el;
+          }
+
+          return highest;
+        },
+        null
+      );
+
+    // This condition should not be possible
+    if (!sourceForUpgrade) {
+      Sentry.captureMessage(
+        'CapabilityService.eligibilityFromEligibilityManager: No source for upgrade found',
+        {
+          extra: {
+            overlaps,
+            targetPlan,
+            stripePlanIds,
+          },
+        }
+      );
+      return {
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
+      };
+    }
+
+    const redundantOverlaps = overlapResults.filter(
+      (result) =>
+        result.eligibleSourcePlan?.plan_id !==
+        sourceForUpgrade.eligibleSourcePlan?.plan_id
+    );
+
+    return {
+      ...sourceForUpgrade,
+      redundantOverlaps,
+    };
+  }
+
+  compareOverlap(
+    overlap: OfferingOverlapResult,
+    targetPlan: AbbrevPlan,
+    subscribedPrices: AbbrevPlan[]
+  ): SubscriptionChangeEligibility {
+    const overlapAbbrev = subscribedPrices.find(
       (p) => p.plan_id === overlap.priceId
     );
 
@@ -995,9 +1060,8 @@ export class CapabilityService {
     }
 
     // TODO: will be removed in FXA-8918
-    const stripeCapabilities = await this.planIdsToClientCapabilitiesFromStripe(
-      subscribedPrices
-    );
+    const stripeCapabilities =
+      await this.planIdsToClientCapabilitiesFromStripe(subscribedPrices);
 
     if (!this.capabilityManager) return stripeCapabilities;
 

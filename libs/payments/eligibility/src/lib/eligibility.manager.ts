@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-
+import * as Sentry from '@sentry/nestjs';
 import { PriceManager, SubplatInterval } from '@fxa/payments/customer';
 import { StripePrice } from '@fxa/payments/stripe';
 import {
@@ -17,6 +17,7 @@ import {
   OfferingComparison,
   OfferingOverlapResult,
   SubscriptionEligibilityResult,
+  type SubscriptionEligibilityUpgradeDowngradeResult,
 } from './eligibility.types';
 import { intervalComparison, offeringComparison } from './utils';
 
@@ -83,7 +84,7 @@ export class EligibilityManager {
     return result;
   }
 
-  async compareOverlap(
+  async compareOverlaps(
     overlaps: OfferingOverlapResult[],
     targetOffering: EligibilityContentOfferingResult,
     interval: SubplatInterval,
@@ -94,15 +95,6 @@ export class EligibilityManager {
         subscriptionEligibilityResult: EligibilityStatus.CREATE,
       };
     }
-
-    // Multiple existing overlapping prices, we can't merge them
-    if (overlaps.length > 1) {
-      return {
-        subscriptionEligibilityResult: EligibilityStatus.INVALID,
-      };
-    }
-
-    const overlap = overlaps[0];
 
     const targetPriceIds = targetOffering.defaultPurchase.stripePlanChoices.map(
       (el) => el.stripePlanChoice
@@ -118,6 +110,87 @@ export class EligibilityManager {
       };
     }
 
+    const overlapResults = overlaps.map((overlap) =>
+      this.compareOverlap(overlap, targetPrice, subscribedPrices)
+    );
+
+    if (overlapResults.length === 1) {
+      return overlapResults[0];
+    }
+
+    if (
+      overlapResults.some(
+        (result) =>
+          result.subscriptionEligibilityResult === EligibilityStatus.SAME
+      )
+    ) {
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.SAME,
+      };
+    }
+
+    // All overlaps must be the same. We do not support multi-direcitonal upgrade/downgrade
+    const allSame = overlapResults.every(
+      (result) =>
+        result.subscriptionEligibilityResult ===
+        overlapResults[0].subscriptionEligibilityResult
+    );
+    const isInvalid =
+      overlapResults[0].subscriptionEligibilityResult ===
+      EligibilityStatus.INVALID;
+    if (!allSame || isInvalid) {
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.INVALID,
+      };
+    }
+
+    const overlapResultsFiltered =
+      overlapResults as SubscriptionEligibilityUpgradeDowngradeResult[];
+
+    const sourceForUpgrade =
+      overlapResultsFiltered.reduce<SubscriptionEligibilityUpgradeDowngradeResult | null>(
+        (highest, el) => {
+          const currentAmount = el.fromPrice.unit_amount || 0;
+          const highestAmount = highest?.fromPrice.unit_amount || 0;
+          if (!highestAmount || currentAmount > highestAmount) {
+            return el;
+          }
+
+          return highest;
+        },
+        null
+      );
+
+    // This condition should not be possible
+    if (!sourceForUpgrade) {
+      Sentry.captureMessage(
+        'EligibilityManager.compareOverlaps: No source for upgrade found',
+        {
+          extra: {
+            overlaps,
+            targetPrice: targetPrice.id,
+            subscribedPriceIds: subscribedPrices.map((price) => price.id),
+          },
+        }
+      );
+      return {
+        subscriptionEligibilityResult: EligibilityStatus.INVALID,
+      };
+    }
+
+    return {
+      ...sourceForUpgrade,
+      redundantOverlaps: overlapResultsFiltered.filter(
+        (result) => result.fromPrice.id !== sourceForUpgrade.fromPrice.id
+      ),
+    };
+  }
+
+  compareOverlap(
+    overlap: OfferingOverlapResult,
+    targetPrice: StripePrice,
+    subscribedPrices: StripePrice[]
+  ): SubscriptionEligibilityResult {
     const overlappingPrice = subscribedPrices.find(
       (price) => price.id === overlap.priceId
     );

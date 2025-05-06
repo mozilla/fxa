@@ -16,7 +16,7 @@ export const determineCancellation = (
   subscription: StripeSubscription,
   latestInvoice?: StripeInvoice
 ): CancellationReason | undefined => {
-  if (subscription.metadata['redundantCancellation']) {
+  if (subscription.metadata['redundantCancellation'] === 'true') {
     return CancellationReason.Redundant;
   }
 

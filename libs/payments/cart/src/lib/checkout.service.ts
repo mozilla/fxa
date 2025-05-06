@@ -3,11 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Inject, Injectable } from '@nestjs/common';
+import * as Sentry from '@sentry/nestjs';
 import { StatsD } from 'hot-shots';
 
 import {
   EligibilityService,
   EligibilityStatus,
+  type SubscriptionEligibilityUpgradeDowngradeResult,
 } from '@fxa/payments/eligibility';
 import {
   PaypalBillingAgreementManager,
@@ -258,6 +260,7 @@ export class CheckoutService {
         },
       });
     }
+
     await this.cartManager.finishCart(cart.id, version, {});
 
     this.statsd.increment('subscription_success', {
@@ -316,7 +319,8 @@ export class CheckoutService {
             customer.id,
             price.id,
             eligibility.fromPrice.id,
-            cart
+            cart,
+            eligibility.redundantOverlaps || []
           );
 
     await this.cartManager.updateFreshCart(cart.id, version, {
@@ -438,7 +442,8 @@ export class CheckoutService {
             customer.id,
             price.id,
             eligibility.fromPrice.id,
-            cart
+            cart,
+            eligibility.redundantOverlaps || []
           );
 
     await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
@@ -490,7 +495,8 @@ export class CheckoutService {
     customerId: string,
     toPriceId: string,
     fromPriceId: string,
-    cart: ResultCart
+    cart: ResultCart,
+    redundantOverlaps: SubscriptionEligibilityUpgradeDowngradeResult[]
   ) {
     const upgradeSubscription =
       await this.subscriptionManager.retrieveForCustomerAndPrice(
@@ -508,25 +514,74 @@ export class CheckoutService {
     const upgradeSubscriptionItem =
       retrieveSubscriptionItem(upgradeSubscription);
 
-    return this.subscriptionManager.update(upgradeSubscription.id, {
-      cancel_at_period_end: false,
-      items: [
-        {
-          id: upgradeSubscriptionItem.id,
-          price: toPriceId,
+    const upgradedSubscription = await this.subscriptionManager.update(
+      upgradeSubscription.id,
+      {
+        cancel_at_period_end: false,
+        items: [
+          {
+            id: upgradeSubscriptionItem.id,
+            price: toPriceId,
+          },
+        ],
+        proration_behavior: 'always_invoice',
+        payment_behavior: 'default_incomplete',
+        metadata: {
+          // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+          [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+          [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+          [STRIPE_SUBSCRIPTION_METADATA.PreviousPlanId]: fromPriceId,
+          [STRIPE_SUBSCRIPTION_METADATA.PlanChangeDate]: Math.floor(
+            Date.now() / 1000
+          ),
         },
-      ],
-      proration_behavior: 'always_invoice',
-      payment_behavior: 'default_incomplete',
-      metadata: {
-        // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-        [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
-        [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
-        [STRIPE_SUBSCRIPTION_METADATA.PreviousPlanId]: fromPriceId,
-        [STRIPE_SUBSCRIPTION_METADATA.PlanChangeDate]: Math.floor(
-          Date.now() / 1000
-        ),
-      },
-    });
+      }
+    );
+
+    try {
+      for (const redundantOverlap of redundantOverlaps) {
+        const redundantSubscription =
+          await this.subscriptionManager.retrieveForCustomerAndPrice(
+            customerId,
+            redundantOverlap.fromPrice.id
+          );
+
+        if (!redundantSubscription) {
+          Sentry.captureMessage(
+            `Redundant overlap subscription not found for customer`,
+            {
+              extra: {
+                customerId: customerId,
+                fromPriceId: redundantOverlap.fromPrice.id,
+                sp2: false,
+              },
+            }
+          );
+          continue;
+        }
+
+        await this.subscriptionManager.update(redundantSubscription.id, {
+          metadata: {
+            redundantCancellation: 'true',
+            autoCancelledRedundantFor: upgradedSubscription.id,
+            cancelled_for_customer_at: Math.floor(Date.now() / 1000),
+          },
+        });
+
+        await this.subscriptionManager.cancel(redundantSubscription.id, {
+          prorate: true,
+        });
+      }
+    } catch (error) {
+      Sentry.captureException(error, {
+        extra: {
+          customerId: customerId,
+          fromPriceId: fromPriceId,
+          sp2: false,
+        },
+      });
+    }
+
+    return upgradedSubscription;
   }
 }

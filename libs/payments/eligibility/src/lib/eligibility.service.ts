@@ -95,7 +95,7 @@ export class EligibilityService {
       targetOffering,
     });
 
-    const eligibility = await this.eligibilityManager.compareOverlap(
+    const eligibility = await this.eligibilityManager.compareOverlaps(
       overlaps,
       targetOffering,
       interval,

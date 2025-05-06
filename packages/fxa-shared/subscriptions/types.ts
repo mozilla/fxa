@@ -220,10 +220,11 @@ export class SubscriptionStripeError extends Error {
 
 export type InvoicePreview = [
   invoicePreview: Stripe.UpcomingInvoice,
-  proratedInvoice?: Stripe.UpcomingInvoice
+  proratedInvoice?: Stripe.UpcomingInvoice,
 ];
 
 export type SubscriptionChangeEligibility = {
   subscriptionEligibilityResult: SubscriptionEligibilityResult;
   eligibleSourcePlan?: AbbrevPlan;
+  redundantOverlaps?: SubscriptionChangeEligibility[];
 };
