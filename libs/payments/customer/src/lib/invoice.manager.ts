@@ -75,16 +75,15 @@ export class InvoiceManager {
       (!customer && taxAddress)
     );
 
-    const shipping =
-      !customer && taxAddress
-        ? {
-            name: '',
-            address: {
-              country: taxAddress.countryCode,
-              postal_code: taxAddress.postalCode,
-            },
-          }
-        : undefined;
+    const shipping = taxAddress
+      ? {
+          name: '',
+          address: {
+            country: taxAddress.countryCode,
+            postal_code: taxAddress.postalCode,
+          },
+        }
+      : undefined;
 
     const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
       currency,
@@ -102,9 +101,8 @@ export class InvoiceManager {
       discounts: [{ promotion_code: promoCode?.id }],
     };
 
-    const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming(
-      requestObject
-    );
+    const upcomingInvoice =
+      await this.stripeClient.invoicesRetrieveUpcoming(requestObject);
 
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
   }
@@ -133,9 +131,8 @@ export class InvoiceManager {
       subscription: fromSubscriptionItem.subscription,
     };
 
-    const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming(
-      requestObject
-    );
+    const upcomingInvoice =
+      await this.stripeClient.invoicesRetrieveUpcoming(requestObject);
 
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
   }
