@@ -54,8 +54,8 @@ const getIntervalPriceDetailsData = (
 };
 
 const getNextBillData = (
-  plan: Plan,
-  subsequentInvoice: SubsequentInvoicePreview
+  subsequentInvoice: SubsequentInvoicePreview,
+  currency: string
 ) => {
   const { period_start: subsequentInvoiceDate } = subsequentInvoice;
 
@@ -67,19 +67,19 @@ const getNextBillData = (
     : 'sub-next-bill-no-tax-1';
   const nextBillAmount = formatPriceAmount(
     invoiceDisplayTotal,
-    plan.currency,
+    currency,
     showInvoiceTax,
     taxAmount || null
   );
   const nextBillDate = getLocalizedDateString(subsequentInvoiceDate, true);
   const nextBillL10nVarsDefault = {
-    priceAmount: getLocalizedCurrency(invoiceDisplayTotal, plan.currency),
+    priceAmount: getLocalizedCurrency(invoiceDisplayTotal, currency),
     date: getLocalizedDate(subsequentInvoiceDate, true),
   };
   const nextBillL10nVars = showInvoiceTax
     ? {
         ...nextBillL10nVarsDefault,
-        taxAmount: getLocalizedCurrency(taxAmount, plan.currency),
+        taxAmount: getLocalizedCurrency(taxAmount, currency),
       }
     : nextBillL10nVarsDefault;
 
@@ -187,9 +187,10 @@ const CancelSubscriptionPanel = ({
     [onConfirmationChanged, engage]
   );
 
+  const invoiceCurrency = subsequentInvoice.currency;
   const intervalPriceDetailsData = getIntervalPriceDetailsData(invoice);
   const { nextBillL10nId, nextBillAmount, nextBillDate, nextBillL10nVars } =
-    getNextBillData(plan, subsequentInvoice);
+    getNextBillData(subsequentInvoice, invoiceCurrency);
 
   const { upgradeCTA } = uiContentFromProductConfig(
     plan,
@@ -224,7 +225,7 @@ const CancelSubscriptionPanel = ({
                               }
                               tax={intervalPriceDetailsData.taxAmount}
                               showTax={intervalPriceDetailsData.showInvoiceTax}
-                              currency={plan.currency}
+                              currency={invoiceCurrency}
                               interval={plan.interval}
                               intervalCount={plan.interval_count}
                               className="font-semibold mb-2"
@@ -239,7 +240,7 @@ const CancelSubscriptionPanel = ({
                             total={intervalPriceDetailsData.invoiceDisplayTotal}
                             tax={intervalPriceDetailsData.taxAmount}
                             showTax={intervalPriceDetailsData.showInvoiceTax}
-                            currency={plan.currency}
+                            currency={invoiceCurrency}
                             interval={plan.interval}
                             intervalCount={plan.interval_count}
                             className="font-semibold mb-2"
@@ -252,7 +253,7 @@ const CancelSubscriptionPanel = ({
                         total={intervalPriceDetailsData.invoiceDisplayTotal}
                         tax={intervalPriceDetailsData.taxAmount}
                         showTax={intervalPriceDetailsData.showInvoiceTax}
-                        currency={plan.currency}
+                        currency={invoiceCurrency}
                         interval={plan.interval}
                         intervalCount={plan.interval_count}
                         className="font-semibold mb-2"

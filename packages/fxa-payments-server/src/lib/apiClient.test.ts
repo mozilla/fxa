@@ -595,6 +595,7 @@ describe('API requests', () => {
 
     it(`GET {auth-server}${path}`, async () => {
       const invoicePreview: SubsequentInvoicePreview = {
+        currency: 'usd',
         subscriptionId: 'test',
         period_start: 0,
         subtotal: 100,

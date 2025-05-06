@@ -691,6 +691,7 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED = [
 
 export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
   {
+    currency: 'usd',
     subscriptionId: 'sub0.28964929339372136',
     period_start: 1565816388.815,
     subtotal: 500,
@@ -699,6 +700,7 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
     total_excluding_tax: null,
   },
   {
+    currency: 'usd',
     subscriptionId: 'sub0.21234123424',
     period_start: 1565816388.815,
     subtotal: 0,
@@ -708,6 +710,7 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
   },
   // 2 - With Exclusive tax
   {
+    currency: 'usd',
     subscriptionId: 'sub0.28964929339372136',
     period_start: 1565816388.815,
     subtotal: 500,
@@ -724,6 +727,7 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
   },
   // 3 - With Inclusive tax
   {
+    currency: 'usd',
     subscriptionId: 'sub0.28964929339372136',
     period_start: 1565816388.815,
     subtotal: 500,
@@ -740,6 +744,7 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
   },
   // 4 - With Exclusive tax and Discount
   {
+    currency: 'usd',
     subscriptionId: 'sub0.28964929339372136',
     period_start: 1565816388.815,
     subtotal: 500,
@@ -756,6 +761,7 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
   },
   // 5 - With Inclusive tax and Discount
   {
+    currency: 'usd',
     subscriptionId: 'sub0.28964929339372136',
     period_start: 1565816388.815,
     subtotal: 500,
@@ -771,6 +777,7 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
     ],
   },
   {
+    currency: 'usd',
     subscriptionId: MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED[0].subscriptionId,
     period_start: 1565816388.815,
     subtotal: 500,
@@ -780,6 +787,7 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
   },
   // 7 - With zero amount Exclusive tax
   {
+    currency: 'usd',
     subscriptionId: 'sub0.28964929339372136',
     period_start: 1565816388.815,
     subtotal: 500,

@@ -72,6 +72,7 @@ export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
 ): invoiceDTO.SubsequentInvoicePreview[] {
   return invoices.map((invoice) => {
     const invoicePreview: invoiceDTO.subsequentInvoicePreview = {
+      currency: invoice.currency,
       subscriptionId: invoice.subscription as string,
       period_start: invoice.period_end,
       subtotal: invoice.subtotal,

@@ -116,6 +116,7 @@ export type firstInvoicePreviewSchema = {
  * from the auth-server.
  */
 export interface SubsequentInvoicePreview {
+  currency: string;
   subscriptionId: string;
   period_start: number;
   subtotal: number;
@@ -127,6 +128,7 @@ export interface SubsequentInvoicePreview {
 
 export const subsequentInvoicePreviewsSchema = joi.array().items(
   joi.object({
+    currency: joi.string().required(),
     subscriptionId: joi.string().required(),
     period_start: joi.number().required(),
     subtotal: joi.number().required(),
@@ -142,6 +144,7 @@ export const subsequentInvoicePreviewsSchema = joi.array().items(
 );
 
 export type subsequentInvoicePreview = {
+  currency: string;
   subscriptionId: string;
   period_start: number;
   subtotal: number;
