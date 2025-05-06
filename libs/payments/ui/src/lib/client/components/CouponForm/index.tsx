@@ -8,7 +8,7 @@ import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import classNames from 'classnames';
 import { useSearchParams } from 'next/navigation';
-import { forwardRef, useEffect } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { ButtonVariant } from '../BaseButton';
 import { SubmitButton } from '../SubmitButton';
@@ -69,11 +69,13 @@ const CouponInput = forwardRef(
     {
       readOnly,
       routeCoupon,
-      error,
+      errorMessage,
+      onChange,
     }: {
       readOnly: boolean;
       routeCoupon?: string;
-      error?: CouponErrorMessageType | null | undefined;
+      errorMessage: boolean;
+      onChange: () => void;
     },
     ref
   ) => {
@@ -84,8 +86,8 @@ const CouponInput = forwardRef(
           className={classNames(
             'w-full border rounded-md p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none',
             {
-              'border-black/30': !error && !pending,
-              'border-alert-red text-alert-red shadow-inputError': error,
+              'border-black/30': !errorMessage && !pending,
+              'border-alert-red text-alert-red shadow-inputError': errorMessage,
               'cursor-not-allowed': pending,
             }
           )}
@@ -96,6 +98,7 @@ const CouponInput = forwardRef(
           disabled={pending || readOnly}
           defaultValue={routeCoupon}
           maxLength={25}
+          onChange={onChange}
         />
       </Localized>
     );
@@ -113,10 +116,16 @@ const WithoutCoupon = ({
   cartVersion,
   readOnly,
 }: WithoutCouponProps) => {
+  const [errorMessage, setErrorMessage] =
+    useState<CouponErrorMessageType | null>(null);
   async function applyCoupon(_: any, formData: FormData) {
     const promotionCode = formData.get('coupon') as string;
 
-    return applyCouponAction(cartId, cartVersion, promotionCode);
+    const result = await applyCouponAction(cartId, cartVersion, promotionCode);
+    if (result) {
+      setErrorMessage(result);
+    }
+    return result;
   }
   const routeCoupon = useSearchParams().get('coupon') || undefined;
   useEffect(() => {
@@ -147,7 +156,10 @@ const WithoutCoupon = ({
             <CouponInput
               readOnly={readOnly}
               routeCoupon={routeCoupon}
-              error={error}
+              errorMessage={!!errorMessage}
+              onChange={() => {
+                setErrorMessage(null);
+              }}
             />
           </Form.Control>
           <Form.Submit asChild>
@@ -161,7 +173,7 @@ const WithoutCoupon = ({
           </Form.Submit>
         </div>
 
-        {error && (
+        {errorMessage && error && (
           <Localized id={error}>
             <div className="text-alert-red mt-4" data-testid="coupon-error">
               {getFallbackTextByFluentId(error)}
