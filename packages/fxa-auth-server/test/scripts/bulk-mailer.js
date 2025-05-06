@@ -236,7 +236,8 @@ describe('#integration - scripts/bulk-mailer', function () {
 
   it('succeeds with valid input file and method, writing emails to stdout', async () => {
     const output = await execAsync(
-      `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendPasswordChangedEmail`,
+      'node',
+      ['-r', 'esbuild-register', 'scripts/bulk-mailer', '--input', USER_DUMP_PATH, '--method', 'sendPasswordChangedEmail'],
       execOptions
     );
     const result = output.stdout.toString();
@@ -253,7 +254,8 @@ describe('#integration - scripts/bulk-mailer', function () {
 
   it('succeeds with valid input file and method, sends', () => {
     return execAsync(
-      `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail --send`,
+      'node',
+      ['-r', 'esbuild-register', 'scripts/bulk-mailer', '--input', USER_DUMP_PATH, '--method', 'sendVerifyEmail', '--send'],
       execOptions
     );
   });
