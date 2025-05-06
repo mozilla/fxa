@@ -75,16 +75,15 @@ export class InvoiceManager {
       (!customer && taxAddress)
     );
 
-    const shipping =
-      !customer && taxAddress
-        ? {
-            name: '',
-            address: {
-              country: taxAddress.countryCode,
-              postal_code: taxAddress.postalCode,
-            },
-          }
-        : undefined;
+    const shipping = taxAddress
+      ? {
+          name: '',
+          address: {
+            country: taxAddress.countryCode,
+            postal_code: taxAddress.postalCode,
+          },
+        }
+      : undefined;
 
     const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
       currency,
