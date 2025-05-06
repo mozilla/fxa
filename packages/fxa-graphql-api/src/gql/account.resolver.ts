@@ -518,6 +518,10 @@ export class AccountResolver {
     @Args('input', { type: () => String! })
     input: string
   ): Promise<EmailBounceStatusPayload> {
+    // Short circuit if no email is provided.
+    if (input === '') {
+      return { hasHardBounce: false };
+    }
     const bounces = await EmailBounce.findByEmail(input);
     const hasHardBounce = bounces.some((bounce) => bounce.bounceType === 1);
     return { hasHardBounce };

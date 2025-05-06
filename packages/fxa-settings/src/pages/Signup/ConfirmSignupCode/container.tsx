@@ -95,7 +95,7 @@ const SignupConfirmCodeContainer = ({
   const { data } = useQuery<GetEmailBounceStatusResponse>(
     EMAIL_BOUNCE_STATUS_QUERY,
     {
-      variables: { input: email },
+      variables: { input: email || '' },
       pollInterval: POLL_INTERVAL,
     }
   );
