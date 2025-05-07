@@ -250,7 +250,7 @@
     "@types/i18n-abide": "^0",
     "@types/ioredis": "^4.26.4",
     "@types/ip": "^1",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "26.0.23",
     "@types/js-md5": "^0.4.2",
     "@types/lodash.clonedeep": "^4",
     "@types/lodash.omitby": "^4",
@@ -280,7 +280,7 @@
     "ts-loader": "^9.5.1",
     "tsc-alias": "^1.8.8",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.5.3",
+    "typescript": "5.5.3",
     "underscore": "^1.13.1",
     "uuid": "^10.0.0"
   },

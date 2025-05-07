@@ -75,7 +75,9 @@ describe('SessionTokenStrategy', () => {
     mockSession.SessionToken.findByTokenId.mockResolvedValue({
       tokenVerified: false,
     });
-    mockAuthClient.deriveHawkCredentials.mockRejectedValue('unauthorized');
+    mockAuthClient.deriveHawkCredentials.mockRejectedValue(
+      new Error('unauthorized')
+    );
     await expect(strategy.validate('DEADC0DE')).rejects.toThrowError(
       ExtendedError.withCause(
         'Unexpected error during authentication.',

@@ -50,8 +50,8 @@ export const RecoveryKeyPDF = ({
     fonts: [
       {
         src: notoSansMonoSemiBold,
-        style: 'normal',
-        weight: 'semibold',
+        fontStyle: 'normal',
+        fontWeight: 'semibold',
       },
     ],
   });

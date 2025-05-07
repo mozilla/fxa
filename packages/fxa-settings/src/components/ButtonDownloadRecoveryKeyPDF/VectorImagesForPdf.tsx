@@ -55,7 +55,7 @@ export const RecoveryKeySvg = () => {
           stroke: '#1DC5A0',
           strokeWidth: 5,
           fill: 'none',
-          strokeLineCap: 'round',
+          strokeLinecap: 'round',
         }}
       />
 

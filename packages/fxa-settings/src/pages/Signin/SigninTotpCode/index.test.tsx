@@ -78,9 +78,7 @@ describe('Sign in with TOTP code page', () => {
     screen.getByLabelText('Enter 6-digit code');
 
     // submit button is disabled by default until code entered in input
-    expect(
-      screen.getByRole('button', { name: 'Enter 6-digit code to continue' })
-    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
     screen.getByRole('link', { name: 'Use a different account' });
     screen.getByRole('link', { name: 'Trouble entering code?' });
     expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();

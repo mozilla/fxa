@@ -31,7 +31,9 @@ describe('HeaderLockup', () => {
     expect(headerMenu).toBeInTheDocument();
     expect(headerMenu).toHaveAttribute('title', 'Site navigation menu');
 
-    expect(screen.getByRole('link', { name: 'Help' })).toHaveAttribute(
+    expect(
+      screen.getByRole('link', { name: 'Help Opens in new window' })
+    ).toHaveAttribute(
       'href',
       'https://support.mozilla.org/products/mozilla-account'
     );
@@ -43,7 +45,9 @@ describe('HeaderLockup', () => {
 
   it('emits Glean event on help link click', async () => {
     renderWithLocalizationProvider(<HeaderLockup />);
-    await userEvent.click(screen.getByRole('link', { name: 'Help' }));
+    await userEvent.click(
+      screen.getByRole('link', { name: 'Help Opens in new window' })
+    );
     expect(GleanMetrics.accountPref.help).toHaveBeenCalled();
   });
 });
