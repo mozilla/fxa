@@ -457,7 +457,7 @@ export class StripeWebhookHandler extends StripeHandler {
       }
 
       const uid = customer.metadata.userid;
-      const account = await Account.findByUid(uid);
+      const account = await Account.findByUid(uid, { include: ['emails'] });
       if (
         // When SubPlat cannot collect a PayPal customer's first payment while
         // attempting to subscribe to a product, the subscription is canceled.
@@ -490,6 +490,26 @@ export class StripeWebhookHandler extends StripeHandler {
         customer,
         subscription
       );
+
+      if (
+        account &&
+        subscription.metadata['redundantCancellation'] === 'true'
+      ) {
+        const subscriptionDetails =
+          await this.stripeHelper.extractSubscriptionDeletedEventDetailsForEmail(
+            subscription
+          );
+
+        await this.mailer.sendSubscriptionReplacedEmail(
+          account.emails,
+          account,
+          {
+            acceptLanguage: account.locale,
+            ...subscriptionDetails,
+          }
+        );
+      }
+
       await request.emitMetricsEvent('subscription.ended', eventDetails);
     } catch (err) {
       // FIXME: If the customer was deleted, we don't send an email that their subscription
@@ -1003,7 +1023,6 @@ export class StripeWebhookHandler extends StripeHandler {
         await this.mailer.sendSubscriptionReactivationEmail(...mailParams);
         break;
       case SUBSCRIPTION_UPDATE_TYPES.CANCELLATION:
-      case SUBSCRIPTION_UPDATE_TYPES.REDUNDANT_OVERLAP:
         await this.mailer.sendSubscriptionCancellationEmail(...mailParams);
         break;
     }

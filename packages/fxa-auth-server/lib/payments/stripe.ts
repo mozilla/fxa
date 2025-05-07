@@ -111,7 +111,6 @@ export const SUBSCRIPTION_UPDATE_TYPES = {
   DOWNGRADE: 'downgrade',
   REACTIVATION: 'reactivation',
   CANCELLATION: 'cancellation',
-  REDUNDANT_OVERLAP: 'redundant_overlap',
 };
 
 export type FormattedSubscriptionForEmail = {
@@ -3109,6 +3108,30 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
+   * Helper for extractSubscriptionDeletedEventDetailsForEmail to further
+   * extract details in redundant case
+   */
+  async extractSubscriptionDeletedEventDetailsForEmail(
+    subscription: Stripe.Subscription
+  ) {
+    if (typeof subscription.latest_invoice !== 'string') {
+      throw error.internalValidationError(
+        'handleSubscriptionDeletedEvent',
+        {
+          subscriptionId: subscription.id,
+          subscriptionInvoiceType: typeof subscription.latest_invoice,
+        },
+        'Subscription latest_invoice was not a string.'
+      );
+    }
+    const invoice = await this.expandResource<Stripe.Invoice>(
+      subscription.latest_invoice,
+      INVOICES_RESOURCE
+    );
+    return this.extractInvoiceDetailsForEmail(invoice);
+  }
+
+  /**
    * Helper for extractSubscriptionUpdateEventDetailsForEmail to further
    * extract details in cancellation case
    */
@@ -3136,20 +3159,6 @@ export class StripeHelper extends StripeHelperBase {
       currency: invoiceTotalCurrency,
       created: invoiceDate,
     } = upcomingInvoiceWithInvoiceItem || invoice;
-
-    if (subscription.metadata['autoCancelledRedundantFor']) {
-      return {
-        updateType: SUBSCRIPTION_UPDATE_TYPES.REDUNDANT_OVERLAP,
-        email,
-        uid,
-        productId,
-        planId,
-        planEmailIconURL,
-        productName,
-        productMetadata,
-        planConfig,
-      };
-    }
 
     return {
       updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,

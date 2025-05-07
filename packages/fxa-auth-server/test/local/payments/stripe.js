@@ -6720,32 +6720,6 @@ describe('#integration - StripeHelper', () => {
           showOutstandingBalance: true,
         });
       });
-
-      it('extracts expected details for a subscription replacement', async () => {
-        const event = deepCopy(eventCustomerSubscriptionUpdated);
-        const subscription = event.data.object;
-        subscription.metadata = {
-          autoCancelledRedundantFor: 'REPLACEMENT_SUB_ID',
-        };
-        const result =
-          await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
-            event.data.object,
-            expectedBaseUpdateDetails,
-            mockInvoice,
-            undefined
-          );
-        assert.deepEqual(result, {
-          updateType: SUBSCRIPTION_UPDATE_TYPES.REDUNDANT_OVERLAP,
-          email,
-          uid,
-          productId,
-          planId,
-          planConfig: {},
-          planEmailIconURL: productIconURLNew,
-          productName,
-          productMetadata: expectedBaseUpdateDetails.productMetadata,
-        });
-      });
     });
   });
 

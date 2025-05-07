@@ -2239,8 +2239,6 @@ describe('StripeWebhookHandler', () => {
           'sendSubscriptionReactivationEmail',
         [SUBSCRIPTION_UPDATE_TYPES.CANCELLATION]:
           'sendSubscriptionCancellationEmail',
-        [SUBSCRIPTION_UPDATE_TYPES.REDUNDANT_OVERLAP]:
-          'sendSubscriptionCancellationEmail',
       }[updateType];
 
       assert.calledWith(
@@ -2277,13 +2275,6 @@ describe('StripeWebhookHandler', () => {
       'sends a cancellation email on subscription cancellation',
       commonSendSubscriptionUpdatedEmailTest(
         SUBSCRIPTION_UPDATE_TYPES.CANCELLATION
-      )
-    );
-
-    it(
-      'sends a replaced email on subscription replacement',
-      commonSendSubscriptionUpdatedEmailTest(
-        SUBSCRIPTION_UPDATE_TYPES.REDUNDANT_OVERLAP
       )
     );
   });
