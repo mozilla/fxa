@@ -16,33 +16,38 @@ export default class Nimbus {
   static experiments: any;
 
   static async initialize(clientId: string, context: any) {
-    const body = JSON.stringify({
-      client_id: clientId,
-      context,
-    });
+    // Important! Disabling this was requested in FXA-11622. There's a chance this call is
+    // hurting our perf metrics due to a cirrus side car issues. Disabling for now until
+    // nimbus teams can take a look at cirrus.
+    this.experiments = null;
 
-    try {
-      const resp = await fetch('/nimbus-experiments', {
-        method: 'POST',
-        body,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    //   const body = JSON.stringify({
+    //     client_id: clientId,
+    //     context,
+    //   });
 
-      if (resp.status === 200) {
-        const json = await resp.json();
-        this.experiments = json as NimbusResult;
-      } else {
-        this.experiments = null;
-      }
-    } catch (err) {
-      Sentry.captureException(err, {
-        tags: {
-          source: 'nimbus-experiments',
-        },
-      });
-      this.experiments = null;
-    }
+    //   try {
+    //     const resp = await fetch('/nimbus-experiments', {
+    //       method: 'POST',
+    //       body,
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //     });
+
+    //     if (resp.status === 200) {
+    //       const json = await resp.json();
+    //       this.experiments = json as NimbusResult;
+    //     } else {
+    //       this.experiments = null;
+    //     }
+    //   } catch (err) {
+    //     Sentry.captureException(err, {
+    //       tags: {
+    //         source: 'nimbus-experiments',
+    //       },
+    //     });
+    //     this.experiments = null;
+    //   }
   }
 }
