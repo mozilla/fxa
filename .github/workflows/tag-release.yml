@@ -38,7 +38,7 @@ jobs:
 
       - name: Initialize mandatory git config
         run: |
-          git config user.name "${TRIGGERING_ACTOR}"
+          git config user.name "${TRIGGERING_ACTOR }"
           git config user.email "noreply@github.com"
         env:
           TRIGGERING_ACTOR: "${{ github.triggering_actor }}"
