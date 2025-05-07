@@ -221,7 +221,7 @@ describe('EligibilityService', () => {
         .spyOn(eligibilityManager, 'getOfferingOverlap')
         .mockResolvedValue(mockOverlapResult);
 
-      jest.spyOn(eligibilityManager, 'compareOverlap').mockResolvedValue({
+      jest.spyOn(eligibilityManager, 'compareOverlaps').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
         fromOfferingConfigId: mockFromOfferingId,
         fromPrice: mockFromPrice,
@@ -244,7 +244,7 @@ describe('EligibilityService', () => {
         priceIds: [],
         targetOffering: mockOffering,
       });
-      expect(eligibilityManager.compareOverlap).toHaveBeenCalledWith(
+      expect(eligibilityManager.compareOverlaps).toHaveBeenCalledWith(
         mockOverlapResult,
         mockOffering,
         interval,

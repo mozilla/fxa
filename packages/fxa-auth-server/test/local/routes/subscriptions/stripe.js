@@ -429,6 +429,7 @@ describe('DirectStripeRoutes', () => {
     stripeHelperMock.stripe = {
       subscriptions: {
         del: sinon.spy(async (uid) => undefined),
+        cancel: sinon.spy(async () => undefined),
       },
     };
     mockCapabilityService.getPlanEligibility = sinon.stub();
@@ -550,9 +551,8 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.app.geo = {};
       buildTaxAddressStub.returns(undefined);
 
-      const actual = await directStripeRoutesInstance.createCustomer(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.createCustomer(VALID_REQUEST);
       const callArgs =
         directStripeRoutesInstance.stripeHelper.createPlainCustomer.getCall(0)
           .args[0];
@@ -578,9 +578,8 @@ describe('DirectStripeRoutes', () => {
       };
       buildTaxAddressStub.returns({ countryCode: 'US', postalCode: '92841' });
 
-      const actual = await directStripeRoutesInstance.createCustomer(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.createCustomer(VALID_REQUEST);
       const callArgs =
         directStripeRoutesInstance.stripeHelper.createPlainCustomer.getCall(0)
           .args[0];
@@ -603,9 +602,8 @@ describe('DirectStripeRoutes', () => {
       };
       VALID_REQUEST.app.geo = {};
       buildTaxAddressStub.returns(undefined);
-      const actual = await directStripeRoutesInstance.previewInvoice(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.previewInvoice(VALID_REQUEST);
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.customs.check,
         VALID_REQUEST,
@@ -653,9 +651,8 @@ describe('DirectStripeRoutes', () => {
       };
       VALID_REQUEST.app.geo = {};
       buildTaxAddressStub.returns(undefined);
-      const actual = await directStripeRoutesInstance.previewInvoice(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.previewInvoice(VALID_REQUEST);
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.customs.check,
         VALID_REQUEST,
@@ -706,9 +703,8 @@ describe('DirectStripeRoutes', () => {
       };
       buildTaxAddressStub.returns({ countryCode: 'US', postalCode: '92841' });
 
-      const actual = await directStripeRoutesInstance.previewInvoice(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.previewInvoice(VALID_REQUEST);
 
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.customs.check,
@@ -854,9 +850,8 @@ describe('DirectStripeRoutes', () => {
       },
     };
 
-    const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
-      VALID_REQUEST
-    );
+    const actual =
+      await directStripeRoutesInstance.subsequentInvoicePreviews(VALID_REQUEST);
 
     sinon.assert.calledOnceWithExactly(
       directStripeRoutesInstance.customs.check,
@@ -928,9 +923,10 @@ describe('DirectStripeRoutes', () => {
       });
       VALID_REQUEST.app.geo = {};
 
-      const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.subsequentInvoicePreviews(
+          VALID_REQUEST
+        );
 
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.customs.check,
@@ -948,9 +944,10 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(null);
       VALID_REQUEST.app.geo = {};
       const expected = [];
-      const actual = await directStripeRoutesInstance.subsequentInvoicePreviews(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.subsequentInvoicePreviews(
+          VALID_REQUEST
+        );
 
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.customs.check,
@@ -988,9 +985,8 @@ describe('DirectStripeRoutes', () => {
           postalCode: '92841',
         },
       };
-      const actual = await directStripeRoutesInstance.retrieveCouponDetails(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.retrieveCouponDetails(VALID_REQUEST);
 
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.customs.check,
@@ -1239,9 +1235,10 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.extractPromotionCode = sinon.stub().resolves({
         coupon: { id: 'couponId' },
       });
-      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
         {
@@ -1262,9 +1259,10 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
         true
       );
-      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
         {
@@ -1283,9 +1281,10 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.isCustomerTaxableWithSubscriptionCurrency.returns(
         false
       );
-      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
         {
@@ -1568,9 +1567,10 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey,
       };
 
-      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
 
       assert.deepEqual(
         {
@@ -1684,9 +1684,10 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey: uuidv4(),
       };
 
-      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
 
       sinon.assert.notCalled(
         directStripeRoutesInstance.stripeHelper.getPaymentMethod
@@ -1767,9 +1768,8 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey: uuidv4(),
       };
 
-      const actual = await directStripeRoutesInstance.retryInvoice(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.retryInvoice(VALID_REQUEST);
 
       sinon.assert.calledWith(
         directStripeRoutesInstance.customerChanged,
@@ -1809,9 +1809,8 @@ describe('DirectStripeRoutes', () => {
       );
       VALID_REQUEST.payload = {};
 
-      const actual = await directStripeRoutesInstance.createSetupIntent(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.createSetupIntent(VALID_REQUEST);
 
       assert.deepEqual(filterIntent(expected), actual);
     });
@@ -2057,9 +2056,10 @@ describe('DirectStripeRoutes', () => {
         paymentMethodId,
       };
 
-      const actual = await directStripeRoutesInstance.detachFailedPaymentMethod(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.detachFailedPaymentMethod(
+          VALID_REQUEST
+        );
 
       assert.deepEqual(actual, expected);
       sinon.assert.calledOnceWithExactly(
@@ -2081,9 +2081,10 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.payload = {
         paymentMethodId,
       };
-      const actual = await directStripeRoutesInstance.detachFailedPaymentMethod(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.detachFailedPaymentMethod(
+          VALID_REQUEST
+        );
 
       assert.deepEqual(actual, { id: paymentMethodId });
       sinon.assert.notCalled(
@@ -2126,9 +2127,8 @@ describe('DirectStripeRoutes', () => {
       const expected = { subscriptionId: subscription2.id };
 
       directStripeRoutesInstance.stripeHelper.cancelSubscriptionForCustomer.resolves();
-      const actual = await directStripeRoutesInstance.deleteSubscription(
-        deleteSubRequest
-      );
+      const actual =
+        await directStripeRoutesInstance.deleteSubscription(deleteSubRequest);
 
       assert.deepEqual(actual, expected);
     });
@@ -2151,9 +2151,10 @@ describe('DirectStripeRoutes', () => {
 
     it('returns an empty object', async () => {
       directStripeRoutesInstance.stripeHelper.reactivateSubscriptionForCustomer.resolves();
-      const actual = await directStripeRoutesInstance.reactivateSubscription(
-        reactivateRequest
-      );
+      const actual =
+        await directStripeRoutesInstance.reactivateSubscription(
+          reactivateRequest
+        );
 
       assert.isEmpty(actual);
     });
@@ -2193,11 +2194,57 @@ describe('DirectStripeRoutes', () => {
 
       sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
 
-      const actual = await directStripeRoutesInstance.updateSubscription(
-        VALID_REQUEST
-      );
+      const actual =
+        await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
 
       assert.deepEqual(actual, expected);
+    });
+
+    it('cancels redundant subscriptions when upgrading', async () => {
+      const subscriptionId = 'sub_123';
+      VALID_REQUEST.params = { subscriptionId: subscriptionId };
+
+      mockCapabilityService.getPlanEligibility = sinon.stub();
+      mockCapabilityService.getPlanEligibility.resolves({
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
+        eligibleSourcePlan: subscription2,
+        redundantOverlaps: [
+          {
+            eligibleSourcePlan: {
+              plan_id:
+                customerFixture.subscriptions.data[0].items.data[0].plan.id,
+            },
+          },
+        ],
+      });
+
+      directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
+      directStripeRoutesInstance.stripeHelper.updateSubscriptionAndBackfill.resolves();
+
+      sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+
+      await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
+
+      assert.isTrue(
+        directStripeRoutesInstance.stripeHelper.updateSubscriptionAndBackfill.calledOnceWith(
+          customerFixture.subscriptions.data[0],
+          {
+            metadata: {
+              redundantCancellation: 'true',
+              autoCancelledRedundantFor: subscription2.id,
+              cancelled_for_customer_at: Math.floor(Date.now() / 1000),
+            },
+          }
+        ),
+        'Expected updateSubscriptionAndBackfill to be called once'
+      );
+
+      assert.isTrue(
+        directStripeRoutesInstance.stripeHelper.stripe.subscriptions.cancel.calledOnceWith(
+          customerFixture.subscriptions.data[0].id
+        ),
+        'Expected subscription to be cancelled'
+      );
     });
 
     it('throws an error when the new plan is not an upgrade', async () => {
@@ -2300,9 +2347,8 @@ describe('DirectStripeRoutes', () => {
             emptyCustomer
           );
           const expected = [];
-          const actual = await directStripeRoutesInstance.listActive(
-            VALID_REQUEST
-          );
+          const actual =
+            await directStripeRoutesInstance.listActive(VALID_REQUEST);
           assert.deepEqual(actual, expected);
         });
       });
@@ -2361,9 +2407,8 @@ describe('DirectStripeRoutes', () => {
       it('returns an empty array', async () => {
         directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves();
         const expected = [];
-        const actual = await directStripeRoutesInstance.listActive(
-          VALID_REQUEST
-        );
+        const actual =
+          await directStripeRoutesInstance.listActive(VALID_REQUEST);
         assert.deepEqual(actual, expected);
       });
     });

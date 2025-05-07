@@ -52,11 +52,15 @@ export type SubscriptionEligibilityResult =
         | EligibilityStatus.INVALID
         | EligibilityStatus.SAME
         | EligibilityStatus.BLOCKED_IAP;
+      redundantOverlaps?: undefined;
     }
-  | {
-      subscriptionEligibilityResult:
-        | EligibilityStatus.UPGRADE
-        | EligibilityStatus.DOWNGRADE;
-      fromOfferingConfigId: string;
-      fromPrice: StripePrice;
-    };
+  | SubscriptionEligibilityUpgradeDowngradeResult;
+
+export type SubscriptionEligibilityUpgradeDowngradeResult = {
+  subscriptionEligibilityResult:
+    | EligibilityStatus.UPGRADE
+    | EligibilityStatus.DOWNGRADE;
+  fromOfferingConfigId: string;
+  fromPrice: StripePrice;
+  redundantOverlaps?: SubscriptionEligibilityUpgradeDowngradeResult[];
+};

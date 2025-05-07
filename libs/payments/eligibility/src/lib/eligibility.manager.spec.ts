@@ -27,7 +27,6 @@ import {
   ProductConfigurationManager,
   StrapiClient,
 } from '@fxa/shared/cms';
-import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 
 import { EligibilityManager } from './eligibility.manager';
 import {
@@ -406,48 +405,21 @@ describe('EligibilityManager', () => {
     });
   });
 
-  describe('compareOverlap', () => {
+  describe('compareOverlaps', () => {
     it('returns create status when there are no overlaps', async () => {
       const mockOverlapResult = [] as OfferingOverlapResult[];
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
       const interval = SubplatInterval.Monthly;
       const mockSubscribedPrices = [] as StripePrice[];
 
-      const result = await manager.compareOverlap(
+      const result = await manager.compareOverlaps(
         mockOverlapResult,
         mockTargetOffering,
         interval,
         mockSubscribedPrices
       );
       expect(result.subscriptionEligibilityResult).toEqual(
-        CartEligibilityStatus.CREATE
-      );
-    });
-
-    it('returns invalid when there are multiple existing overlap prices', async () => {
-      const mockOverlapResult = [
-        {
-          comparison: OfferingComparison.SAME,
-          priceId: 'prod_test1',
-        },
-        {
-          comparison: OfferingComparison.SAME,
-          priceId: 'prod_test2',
-        },
-      ] as OfferingOverlapResult[];
-      const mockTargetOffering = EligibilityContentOfferingResultFactory();
-      const interval = SubplatInterval.Monthly;
-      const mockPrice = StripePriceFactory();
-      const mockSubscribedPrices = [mockPrice, mockPrice];
-
-      const result = await manager.compareOverlap(
-        mockOverlapResult,
-        mockTargetOffering,
-        interval,
-        mockSubscribedPrices
-      );
-      expect(result.subscriptionEligibilityResult).toEqual(
-        CartEligibilityStatus.INVALID
+        EligibilityStatus.CREATE
       );
     });
 
@@ -470,49 +442,17 @@ describe('EligibilityManager', () => {
         .spyOn(priceManager, 'retrieveByInterval')
         .mockResolvedValue(mockTargetPrice);
 
-      const result = await manager.compareOverlap(
+      const result = await manager.compareOverlaps(
         mockOverlapResult,
         mockTargetOffering,
         interval,
         mockSubscribedPrices
       );
       expect(result).toEqual({
-        subscriptionEligibilityResult: CartEligibilityStatus.DOWNGRADE,
+        subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
         fromOfferingConfigId: mockFromOffering.apiIdentifier,
         fromPrice: mockFromPrice,
       });
-    });
-
-    it('returns invalid if there is no matching subscribed price for the passed overlap', async () => {
-      const mockOverlapResult = [
-        {
-          comparison: OfferingComparison.SAME,
-          priceId: 'price_test1',
-        },
-      ] as OfferingOverlapResult[];
-      const mockTargetOffering = EligibilityContentOfferingResultFactory();
-      const interval = SubplatInterval.Monthly;
-
-      const mockPrice = StripePriceFactory({
-        recurring: StripePriceRecurringFactory({
-          interval: 'month',
-        }),
-        id: faker.string.uuid(), // Does not match priceId from overlap
-      });
-
-      jest
-        .spyOn(priceManager, 'retrieveByInterval')
-        .mockResolvedValue(mockPrice);
-
-      const result = await manager.compareOverlap(
-        mockOverlapResult,
-        mockTargetOffering,
-        interval,
-        []
-      );
-      expect(result.subscriptionEligibilityResult).toEqual(
-        CartEligibilityStatus.INVALID
-      );
     });
 
     it('returns same if subscribed price with same id as target price', async () => {
@@ -532,7 +472,7 @@ describe('EligibilityManager', () => {
         .spyOn(priceManager, 'retrieveByInterval')
         .mockResolvedValue(mockPrice);
 
-      const result = await manager.compareOverlap(
+      const result = await manager.compareOverlaps(
         mockOverlapResult,
         mockTargetOffering,
         interval,
@@ -563,7 +503,7 @@ describe('EligibilityManager', () => {
         .spyOn(priceManager, 'retrieveByInterval')
         .mockResolvedValue(mockTargetPrice);
 
-      const result = await manager.compareOverlap(
+      const result = await manager.compareOverlaps(
         mockOverlapResult,
         mockTargetOffering,
         interval,
@@ -599,14 +539,14 @@ describe('EligibilityManager', () => {
         .spyOn(priceManager, 'retrieveByInterval')
         .mockResolvedValue(mockTargetPrice);
 
-      const result = await manager.compareOverlap(
+      const result = await manager.compareOverlaps(
         mockOverlapResult,
         mockTargetOffering,
         interval,
         [mockFromPrice]
       );
       expect(result).toEqual({
-        subscriptionEligibilityResult: CartEligibilityStatus.DOWNGRADE,
+        subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
         fromOfferingConfigId: mockTargetOffering.apiIdentifier,
         fromPrice: mockFromPrice,
       });
@@ -638,14 +578,14 @@ describe('EligibilityManager', () => {
         .spyOn(priceManager, 'retrieveByInterval')
         .mockResolvedValue(mockPrice2);
 
-      const result = await manager.compareOverlap(
+      const result = await manager.compareOverlaps(
         mockOverlapResult,
         mockTargetOffering,
         interval,
         [mockPrice1]
       );
       expect(result).toEqual({
-        subscriptionEligibilityResult: CartEligibilityStatus.UPGRADE,
+        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
         fromPrice: mockPrice1,
         fromOfferingConfigId: mockCurrentOffering.apiIdentifier,
       });
@@ -677,16 +617,269 @@ describe('EligibilityManager', () => {
         .spyOn(priceManager, 'retrieveByInterval')
         .mockResolvedValue(mockTargetPrice);
 
-      const result = await manager.compareOverlap(
+      const result = await manager.compareOverlaps(
         mockOverlapResult,
         mockTargetOffering,
         interval,
         [mockFromPrice]
       );
       expect(result).toEqual({
-        subscriptionEligibilityResult: CartEligibilityStatus.UPGRADE,
+        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
         fromPrice: mockFromPrice,
         fromOfferingConfigId: mockFromOfferingId,
+      });
+    });
+
+    describe('multiple overlaps', () => {
+      it('returns same when one of the overlaps is same', async () => {
+        const mockTargetOffering = EligibilityContentOfferingResultFactory();
+        const interval = SubplatInterval.Monthly;
+        const mockFromPrice = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'month',
+          }),
+        });
+        const mockTargetPrice = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'year',
+          }),
+        });
+        const mockOverlapResult = [
+          {
+            comparison: OfferingComparison.SAME,
+            priceId: mockTargetPrice.id,
+            fromOfferingId: mockTargetOffering.apiIdentifier,
+          },
+          {
+            comparison: OfferingComparison.UPGRADE,
+            priceId: faker.string.uuid(),
+            fromOfferingId: faker.string.uuid(),
+          },
+        ] as OfferingOverlapResult[];
+
+        jest
+          .spyOn(priceManager, 'retrieveByInterval')
+          .mockResolvedValue(mockTargetPrice);
+
+        const result = await manager.compareOverlaps(
+          mockOverlapResult,
+          mockTargetOffering,
+          interval,
+          [mockFromPrice, mockTargetPrice]
+        );
+        expect(result).toEqual({
+          subscriptionEligibilityResult: EligibilityStatus.SAME,
+        });
+      });
+
+      it('returns upgrade successfully with redundantOverlaps', async () => {
+        const mockSourceOffering = EligibilityContentOfferingResultFactory();
+        const mockTargetOffering = EligibilityContentOfferingResultFactory();
+        const interval = SubplatInterval.Monthly;
+        const mockFromPrice1 = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'month',
+          }),
+          unit_amount: 100,
+        });
+        const mockFromPrice2 = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'month',
+          }),
+          unit_amount: 200,
+        });
+        const mockTargetPrice = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'year',
+          }),
+        });
+        const mockOverlapResult = [
+          {
+            comparison: OfferingComparison.UPGRADE,
+            priceId: mockFromPrice1.id,
+            fromOfferingId: mockSourceOffering.apiIdentifier,
+          },
+          {
+            comparison: OfferingComparison.UPGRADE,
+            priceId: mockFromPrice2.id,
+            fromOfferingId: mockSourceOffering.apiIdentifier,
+          },
+        ] as OfferingOverlapResult[];
+
+        jest
+          .spyOn(priceManager, 'retrieveByInterval')
+          .mockResolvedValue(mockTargetPrice);
+
+        const result = await manager.compareOverlaps(
+          mockOverlapResult,
+          mockTargetOffering,
+          interval,
+          [mockFromPrice1, mockFromPrice2, mockTargetPrice]
+        );
+        expect(result).toEqual({
+          subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+          fromPrice: mockFromPrice2,
+          fromOfferingConfigId: mockSourceOffering.apiIdentifier,
+          redundantOverlaps: [
+            {
+              subscriptionEligibilityResult: OfferingComparison.UPGRADE,
+              fromPrice: mockFromPrice1,
+              fromOfferingConfigId: mockSourceOffering.apiIdentifier,
+            },
+          ],
+        });
+      });
+
+      it('returns downgrade successfully with redundantOverlaps', async () => {
+        const mockSourceOffering = EligibilityContentOfferingResultFactory();
+        const mockTargetOffering = EligibilityContentOfferingResultFactory();
+        const interval = SubplatInterval.Monthly;
+        const mockFromPrice1 = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'month',
+          }),
+          unit_amount: 200,
+        });
+        const mockFromPrice2 = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'month',
+          }),
+          unit_amount: 100,
+        });
+        const mockTargetPrice = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'year',
+          }),
+        });
+        const mockOverlapResult = [
+          {
+            comparison: OfferingComparison.DOWNGRADE,
+            priceId: mockFromPrice1.id,
+            fromOfferingId: mockSourceOffering.apiIdentifier,
+          },
+          {
+            comparison: OfferingComparison.DOWNGRADE,
+            priceId: mockFromPrice2.id,
+            fromOfferingId: mockSourceOffering.apiIdentifier,
+          },
+        ] as OfferingOverlapResult[];
+
+        jest
+          .spyOn(priceManager, 'retrieveByInterval')
+          .mockResolvedValue(mockTargetPrice);
+
+        const result = await manager.compareOverlaps(
+          mockOverlapResult,
+          mockTargetOffering,
+          interval,
+          [mockFromPrice1, mockFromPrice2, mockTargetPrice]
+        );
+        expect(result).toEqual({
+          subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
+          fromPrice: mockFromPrice1,
+          fromOfferingConfigId: mockSourceOffering.apiIdentifier,
+          redundantOverlaps: [
+            {
+              subscriptionEligibilityResult: OfferingComparison.DOWNGRADE,
+              fromPrice: mockFromPrice2,
+              fromOfferingConfigId: mockSourceOffering.apiIdentifier,
+            },
+          ],
+        });
+      });
+
+      it('returns invalid when at least one overlap is invalid', async () => {
+        const mockSourceOffering = EligibilityContentOfferingResultFactory();
+        const mockTargetOffering = EligibilityContentOfferingResultFactory();
+        const interval = SubplatInterval.Monthly;
+        const mockFromPrice1 = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'month',
+          }),
+        });
+        const mockFromPrice2 = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'month',
+          }),
+        });
+        const mockTargetPrice = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'year',
+          }),
+        });
+        const mockOverlapResult = [
+          {
+            comparison: OfferingComparison.UPGRADE,
+            priceId: mockFromPrice1.id,
+            fromOfferingId: mockSourceOffering.apiIdentifier,
+          },
+          {
+            comparison: OfferingComparison.UPGRADE,
+            priceId: mockFromPrice2.id,
+            fromOfferingId: mockSourceOffering.apiIdentifier,
+          },
+        ] as OfferingOverlapResult[];
+
+        jest
+          .spyOn(priceManager, 'retrieveByInterval')
+          .mockResolvedValue(mockTargetPrice);
+
+        const result = await manager.compareOverlaps(
+          mockOverlapResult,
+          mockTargetOffering,
+          interval,
+          []
+        );
+        expect(result).toEqual({
+          subscriptionEligibilityResult: EligibilityStatus.INVALID,
+        });
+      });
+
+      it('returns invalid when overlaps are not the same', async () => {
+        const mockSourceOffering = EligibilityContentOfferingResultFactory();
+        const mockTargetOffering = EligibilityContentOfferingResultFactory();
+        const interval = SubplatInterval.Monthly;
+        const mockFromPrice1 = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'month',
+          }),
+        });
+        const mockFromPrice2 = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'month',
+          }),
+        });
+        const mockTargetPrice = StripePriceFactory({
+          recurring: StripePriceRecurringFactory({
+            interval: 'year',
+          }),
+        });
+        const mockOverlapResult = [
+          {
+            comparison: OfferingComparison.UPGRADE,
+            priceId: mockFromPrice1.id,
+            fromOfferingId: mockSourceOffering.apiIdentifier,
+          },
+          {
+            comparison: OfferingComparison.DOWNGRADE,
+            priceId: mockFromPrice2.id,
+            fromOfferingId: mockSourceOffering.apiIdentifier,
+          },
+        ] as OfferingOverlapResult[];
+
+        jest
+          .spyOn(priceManager, 'retrieveByInterval')
+          .mockResolvedValue(mockTargetPrice);
+
+        const result = await manager.compareOverlaps(
+          mockOverlapResult,
+          mockTargetOffering,
+          interval,
+          [mockFromPrice1, mockFromPrice2, mockTargetPrice]
+        );
+        expect(result).toEqual({
+          subscriptionEligibilityResult: EligibilityStatus.INVALID,
+        });
       });
     });
   });

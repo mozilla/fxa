@@ -1,36 +1,29 @@
-import { faker } from '@faker-js/faker/locale/af_ZA';
 import {
   EligibilityStatus,
   SubscriptionEligibilityResult,
+  type SubscriptionEligibilityUpgradeDowngradeResult,
 } from './eligibility.types';
-import { StripePrice, StripePriceFactory } from '@fxa/payments/stripe';
+import { StripePriceFactory } from '@fxa/payments/stripe';
 
-export const SubscriptionEligibilityResultCreateFactory =
-  (): SubscriptionEligibilityResult => ({
-    subscriptionEligibilityResult: EligibilityStatus.CREATE,
-  });
-
-export const SubscriptionEligibilityResultBlockedIAPFactory =
-  (): SubscriptionEligibilityResult => ({
-    subscriptionEligibilityResult: EligibilityStatus.BLOCKED_IAP,
-  });
-
-export const SubscriptionEligibilityResultUpgradeFactory = (): {
-  subscriptionEligibilityResult: EligibilityStatus.UPGRADE;
-  fromOfferingConfigId: string;
-  fromPrice: StripePrice;
-} => ({
-  subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
-  fromOfferingConfigId: faker.helpers.arrayElement(['vpn']),
-  fromPrice: StripePriceFactory(),
+export const SubscriptionEligibilityResultFactory = (
+  override?: Partial<{
+    subscriptionEligibilityResult:
+      | EligibilityStatus.CREATE
+      | EligibilityStatus.INVALID
+      | EligibilityStatus.SAME
+      | EligibilityStatus.BLOCKED_IAP;
+  }>
+): SubscriptionEligibilityResult => ({
+  subscriptionEligibilityResult: EligibilityStatus.CREATE,
+  ...override,
 });
 
-export const SubscriptionEligibilityResultDowngradeFactory = (): {
-  subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE;
-  fromOfferingConfigId: string;
-  fromPrice: StripePrice;
-} => ({
-  subscriptionEligibilityResult: EligibilityStatus.DOWNGRADE,
-  fromOfferingConfigId: faker.helpers.arrayElement(['vpn']),
+export const SubscriptionEligibilityUpgradeDowngradeResultFactory = (
+  override?: Partial<SubscriptionEligibilityUpgradeDowngradeResult>
+): SubscriptionEligibilityUpgradeDowngradeResult => ({
+  subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+  fromOfferingConfigId: 'vpn',
   fromPrice: StripePriceFactory(),
+  redundantOverlaps: [],
+  ...override,
 });

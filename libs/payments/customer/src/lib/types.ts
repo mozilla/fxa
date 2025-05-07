@@ -50,6 +50,9 @@ export enum STRIPE_SUBSCRIPTION_METADATA {
   SubscriptionPromotionCode = 'appliedPromotionCode',
   PreviousPlanId = 'previous_plan_id',
   PlanChangeDate = 'plan_change_date',
+  AutoCancelledRedundantFor = 'autoCancelledRedundantFor',
+  RedundantCancellation = 'redundantCancellation',
+  CancelledForCustomerAt = 'cancelled_for_customer_at',
 }
 
 export enum STRIPE_INVOICE_METADATA {

@@ -52,7 +52,7 @@ import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
 import { CapabilityService } from '../../payments/capability';
 import Container from 'typedi';
-import { reportSentryMessage } from '../../sentry';
+import { reportSentryMessage, reportSentryError } from '../../sentry';
 
 // List of countries for which we need to look up the province/state of the
 // customer.
@@ -246,7 +246,9 @@ export class StripeHandler {
     // Verify the new plan currency and customer currency are compatible.
     // Stripe does not allow customers to change currency after a currency is set, which
     // occurs on initial subscription. (https://stripe.com/docs/billing/customer#payment)
-    const customer = await this.stripeHelper.fetchCustomer(uid);
+    const customer = await this.stripeHelper.fetchCustomer(uid, [
+      'subscriptions',
+    ]);
     const { currency: planCurrency } =
       await this.stripeHelper.findAbbrevPlanById(planId);
     if (customer && customer.currency !== planCurrency) {
@@ -255,6 +257,66 @@ export class StripeHandler {
 
     // Update the plan
     await this.stripeHelper.changeSubscriptionPlan(subscription, planId);
+
+    try {
+      for (const redundantOverlap of result.redundantOverlaps || []) {
+        if (!customer) continue;
+
+        const redundantSubscription = (customer.subscriptions?.data || []).find(
+          (s) =>
+            s.items.data.at(0)?.plan.id ===
+            redundantOverlap.eligibleSourcePlan?.plan_id
+        );
+
+        if (!redundantSubscription) {
+          this.log.error(
+            'subscriptions.updateSubscription no redundant overlapping subscription found',
+            {
+              uid,
+              redundantOverlap,
+              subscriptionId,
+            }
+          );
+          reportSentryMessage(
+            `Redundant overlap subscription not found for customer`,
+            {
+              stripeCustomerId: customer.id,
+              planId: redundantOverlap.eligibleSourcePlan?.plan_id,
+              sp2: true,
+            }
+          );
+          continue;
+        }
+
+        await this.stripeHelper.updateSubscriptionAndBackfill(
+          redundantSubscription,
+          {
+            metadata: {
+              redundantCancellation: 'true',
+              autoCancelledRedundantFor: subscription.id,
+              cancelled_for_customer_at: Math.floor(Date.now() / 1000),
+            },
+          }
+        );
+
+        await this.stripeHelper.stripe.subscriptions.cancel(
+          redundantSubscription.id,
+          {
+            prorate: true,
+          }
+        );
+      }
+    } catch (err) {
+      this.log.error('subscriptions.updateSubscription', {
+        err,
+        uid,
+      });
+      reportSentryError(err, {
+        uid,
+        subscriptionId,
+        planId,
+      });
+    }
 
     await this.customerChanged(request, uid, email);
 
@@ -657,9 +719,8 @@ export class StripeHandler {
 
       // Skip the payment source check if there's no payment method id.
       if (paymentMethodId) {
-        paymentMethod = await this.stripeHelper.getPaymentMethod(
-          paymentMethodId
-        );
+        paymentMethod =
+          await this.stripeHelper.getPaymentMethod(paymentMethodId);
         const paymentMethodCountry = paymentMethod.card?.country;
         if (
           !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
@@ -757,9 +818,8 @@ export class StripeHandler {
     if (!stripeCustomerId) {
       throw error.unknownCustomer(uid);
     }
-    const setupIntent = await this.stripeHelper.createSetupIntent(
-      stripeCustomerId
-    );
+    const setupIntent =
+      await this.stripeHelper.createSetupIntent(stripeCustomerId);
     return filterIntent(setupIntent);
   }
 
@@ -779,9 +839,8 @@ export class StripeHandler {
 
     const { paymentMethodId } = request.payload as Record<string, string>;
 
-    const paymentMethod = await this.stripeHelper.getPaymentMethod(
-      paymentMethodId
-    );
+    const paymentMethod =
+      await this.stripeHelper.getPaymentMethod(paymentMethodId);
     const paymentMethodCountry = paymentMethod.card?.country;
     if (
       !this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
