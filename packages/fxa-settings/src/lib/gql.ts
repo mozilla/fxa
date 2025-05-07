@@ -15,7 +15,7 @@ import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { cache, sessionToken, typeDefs } from './cache';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import * as Sentry from '@sentry/browser';
 
 /**
  * These operation names either require auth with a valid session token
@@ -77,7 +77,11 @@ const afterwareLink = new ApolloLink((operation, forward) => {
   });
 });
 
-export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
+export const errorHandler: ErrorHandler = ({
+  graphQLErrors,
+  networkError,
+  operation,
+}) => {
   if (graphQLErrors) {
     for (const error of graphQLErrors) {
       if (isUnauthorizedError(error)) {
@@ -99,15 +103,50 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
             data: { isSignedIn: false },
           });
         }
+      } else {
+        // Add error as bread crumb, so if there's a down stream exception, we can
+        // see potential gql problems.
+        Sentry.addBreadcrumb({
+          category: 'graphql.error',
+          message: error.message,
+          level: 'error',
+          data: {
+            operation: operation.operationName,
+            graphQLError: error,
+          },
+        });
       }
     }
-    console.error('graphQLErrors', graphQLErrors);
   }
+
   if (networkError) {
-    sentryMetrics.captureException(networkError);
-    console.error('networkError', networkError);
+    Sentry.captureException(networkError, {
+      extra: {
+        operation: operation.operationName,
+      },
+    });
   }
 };
+
+const sentryLink = new ApolloLink((operation, forward) => {
+  const { operationName, variables } = operation;
+
+  return forward(operation).map((response) => {
+    // Log the response
+    Sentry.addBreadcrumb({
+      category: 'graphql.response',
+      message: operationName || 'Unnamed operation',
+      level: 'info',
+      data: {
+        request: {
+          variables,
+        },
+      },
+    });
+
+    return response;
+  });
+});
 
 let apolloClientInstance: ApolloClient<NormalizedCacheObject>;
 export function createApolloClient(gqlServerUri: string) {
@@ -158,6 +197,7 @@ export function createApolloClient(gqlServerUri: string) {
     cache,
     link: from([
       errorLink,
+      sentryLink,
       sessionTokenCheckLink,
       authLink,
       afterwareLink,

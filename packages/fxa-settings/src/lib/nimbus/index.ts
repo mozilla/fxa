@@ -54,6 +54,10 @@ export async function initializeNimbus(
       return (await resp.json()) as NimbusResult;
     }
   } catch (err) {
+    // Important, if this fails it will just show up in Sentry as a
+    // TypeError: NetworkError when attempting to fetch resource.
+    // Look at the previous fetch bread crumb to understand what
+    // request is actually failing.
     Sentry.captureException(err, {
       tags: {
         source: 'nimbus-experiments',
