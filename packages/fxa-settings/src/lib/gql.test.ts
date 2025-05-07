@@ -7,7 +7,7 @@ import { Operation, NextLink, ServerError } from '@apollo/client/core';
 import { GraphQLError } from 'graphql';
 import { cache } from './cache';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
-import sentryMetrics from 'fxa-shared/sentry/browser';
+import * as Sentry from '@sentry/browser';
 
 describe('errorHandler', () => {
   beforeAll(() => {
@@ -26,8 +26,10 @@ describe('errorHandler', () => {
           originalError: { error: 'Unauthorized' },
         }),
       ],
-      operation: null as any as Operation,
-      forward: null as any as NextLink,
+      operation: {
+        operationName: 'foo',
+      } as Operation,
+      forward: jest.fn(),
     };
 
     errorHandler(errorResponse);
@@ -38,21 +40,55 @@ describe('errorHandler', () => {
     });
   });
 
+  it('adds breadcrumb on graphql error', () => {
+    const gqlError = new GraphQLError('Foo', null, null, null, null, null, {
+      originalError: { error: 'Boom' },
+    });
+    const errorResponse: ErrorResponse = {
+      graphQLErrors: [gqlError],
+      operation: {
+        operationName: 'Foo',
+      } as Operation,
+      forward: jest.fn(),
+    };
+
+    const addBreadcrumbMock = jest.fn();
+    jest.spyOn(Sentry, 'addBreadcrumb').mockImplementation(addBreadcrumbMock);
+
+    errorHandler(errorResponse);
+
+    expect(addBreadcrumbMock).toHaveBeenCalledWith({
+      category: 'graphql.error',
+      message: 'Foo',
+      level: 'error',
+      data: {
+        operation: 'Foo',
+        graphQLError: gqlError,
+      },
+    });
+  });
+
   it('logs network errors to Sentry', () => {
     let networkError: any;
     networkError = new Error('Network error') as ServerError;
     const errorResponse: ErrorResponse = {
       networkError,
-      operation: null as any as Operation,
-      forward: null as any as NextLink,
+      operation: {
+        operationName: 'foo',
+      } as any as Operation,
+      forward: jest.fn() as NextLink,
     };
     const captureExceptionMock = jest.fn();
     jest
-      .spyOn(sentryMetrics, 'captureException')
+      .spyOn(Sentry, 'captureException')
       .mockImplementation(captureExceptionMock);
 
     errorHandler(errorResponse);
 
-    expect(captureExceptionMock).toHaveBeenCalledWith(networkError);
+    expect(captureExceptionMock).toHaveBeenCalledWith(networkError, {
+      extra: {
+        operation: 'foo',
+      },
+    });
   });
 });
