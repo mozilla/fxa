@@ -33441,7 +33441,7 @@ __metadata:
     ioredis: ^4.28.2
     joi: ^17.13.3
     jose: ^5.9.6
-    jsonwebtoken: 9.0.0
+    jsonwebtoken: ^9.0.2
     jsxgettext-recursive-next: 1.1.0
     jwks-rsa: ^3.1.0
     jws: 4.0.0
@@ -40358,18 +40358,6 @@ __metadata:
   version: 5.0.1
   resolution: "jsonpointer@npm:5.0.1"
   checksum: 0b40f712900ad0c846681ea2db23b6684b9d5eedf55807b4708c656f5894b63507d0e28ae10aa1bddbea551241035afe62b6df0800fc94c2e2806a7f3adecd7c
-  languageName: node
-  linkType: hard
-
-"jsonwebtoken@npm:9.0.0":
-  version: 9.0.0
-  resolution: "jsonwebtoken@npm:9.0.0"
-  dependencies:
-    jws: ^3.2.2
-    lodash: ^4.17.21
-    ms: ^2.1.1
-    semver: ^7.3.8
-  checksum: b9181cecf9df99f1dc0253f91ba000a1aa4d91f5816d1608c0dba61a5623726a0bfe200b51df25de18c1a6000825d231ad7ce2788aa54fd48dcb760ad9eb9514
   languageName: node
   linkType: hard
 
