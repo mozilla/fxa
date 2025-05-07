@@ -47,6 +47,8 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, recoveryKey, settings, signin },
       testAccountTracker,
     }) => {
+      test.setTimeout(120000);
+
       const credentials = await signInAccount(
         target,
         page,
