@@ -74,7 +74,7 @@ jobs:
           gcloud storage cp --cache-control='public,max-age=86400' --content-disposition=attachment -r assets/legal/* gs://fxa-content-cdn-prod-distbucket/legal/
 
       - name: "Post to fxa-team Slack channel"
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@v2.1.0
         with:
           channel-id: 'CLV3KMZ8B'
           slack-message: "New assets have been uploaded to CDN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
