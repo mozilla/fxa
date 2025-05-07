@@ -38,7 +38,7 @@ export const PreparedImage = (props: PreparedImageProps) => {
   return (
     <>
       {showAriaLabel ? (
-        <FtlMsg id={props.ariaLabelFtlId} attrs={{ ariaLabel: true }}>
+        <FtlMsg id={props.ariaLabelFtlId} attrs={{ "aria-label": true }}>
           <Image role="img" aria-label={props.ariaLabel} {...{ className }} />
         </FtlMsg>
       ) : (
