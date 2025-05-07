@@ -374,13 +374,13 @@ module.exports = function (
               uid: passwordChangeToken.uid,
             });
 
-            await recordSecurityEvent('account.password_upgrade_success', {
+            recordSecurityEvent('account.password_upgrade_success', {
               db,
               request,
               account: passwordChangeToken,
             });
 
-            await recordSecurityEvent('account.password_upgraded', {
+            recordSecurityEvent('account.password_upgraded', {
               db,
               request,
               account: passwordChangeToken,
@@ -404,13 +404,13 @@ module.exports = function (
             uid: passwordChangeToken.uid,
           });
 
-          await recordSecurityEvent('account.password_reset_success', {
+          recordSecurityEvent('account.password_reset_success', {
             db,
             request,
             account: passwordChangeToken,
           });
 
-          await recordSecurityEvent('account.password_changed', {
+          recordSecurityEvent('account.password_changed', {
             db,
             request,
             account: passwordChangeToken,
@@ -955,6 +955,7 @@ module.exports = function (
             request,
           }),
         ]);
+
         return {
           passwordForgotToken: passwordForgotToken.data,
           ttl: passwordForgotToken.ttl(),

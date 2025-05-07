@@ -14,13 +14,13 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const TOTP_DOCS = require('../../docs/swagger/totp-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const { Container } = require('typedi');
-const { AccountEventsManager } = require('../account-events');
 const {
   RecoveryPhoneService,
   RecoveryNumberNotExistsError,
   RecoveryNumberRemoveMissingBackupCodes,
 } = require('@fxa/accounts/recovery-phone');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
+const { recordSecurityEvent } = require('./utils/security-event');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
@@ -55,7 +55,6 @@ module.exports = (
 
   promisify(qrcode.toDataURL);
 
-  const accountEventsManager = Container.get(AccountEventsManager);
   const recoveryPhoneService = Container.get(RecoveryPhoneService);
   const backupCodeManager = Container.get(BackupCodeManager);
 
@@ -225,11 +224,9 @@ module.exports = (
           }
         }
 
-        accountEventsManager.recordSecurityEvent(db, {
-          name: 'account.two_factor_removed',
-          uid,
-          ipAddr: request.app.clientAddress,
-          tokenId: sessionToken && sessionToken.id,
+        recordSecurityEvent('account.two_factor_removed', {
+          db,
+          request,
         });
 
         // Clean up the recovery phone if it was registered.
@@ -537,11 +534,9 @@ module.exports = (
             enabled: true,
           });
 
-          accountEventsManager.recordSecurityEvent(db, {
-            name: 'account.two_factor_added',
-            uid,
-            ipAddr: request.app.clientAddress,
-            tokenId: sessionToken && sessionToken.id,
+          recordSecurityEvent('account.two_factor_added', {
+            db,
+            request,
           });
 
           glean.twoFactorAuth.codeComplete(request, { uid });
@@ -564,11 +559,9 @@ module.exports = (
           await request.emitMetricsEvent('account.confirmed', { uid });
           glean.login.totpSuccess(request, { uid });
 
-          accountEventsManager.recordSecurityEvent(db, {
-            name: 'account.two_factor_challenge_success',
-            uid,
-            ipAddr: request.app.clientAddress,
-            tokenId: sessionToken && sessionToken.id,
+          recordSecurityEvent('account.two_factor_challenge_success', {
+            db,
+            request,
           });
         } else {
           log.info('totp.unverified', { uid });
@@ -580,11 +573,9 @@ module.exports = (
           });
           await request.emitMetricsEvent('totpToken.unverified', { uid });
 
-          accountEventsManager.recordSecurityEvent(db, {
-            name: 'account.two_factor_challenge_failure',
-            uid,
-            ipAddr: request.app.clientAddress,
-            tokenId: sessionToken && sessionToken.id,
+          recordSecurityEvent('account.two_factor_challenge_failure', {
+            db,
+            request,
           });
         }
 

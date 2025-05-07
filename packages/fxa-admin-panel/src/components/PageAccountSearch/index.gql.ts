@@ -35,6 +35,8 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
         verified
         createdAt
         name
+        ipAddr
+        additionalInfo
       }
       totp {
         verified

@@ -391,13 +391,19 @@ export const Account = ({
 
         <h3 className="header-lg">Account History</h3>
         {securityEvents && securityEvents.length > 0 ? (
-          <TableXHeaders rowHeaders={['Event', 'Timestamp']}>
-            {securityEvents.map((securityEvent: SecurityEventsType) => (
-              <TableRowXHeader key={securityEvent.uid}>
-                <>{securityEvent.name}</>
-                <>{getFormattedDate(securityEvent.createdAt)}</>
-              </TableRowXHeader>
-            ))}
+          <TableXHeaders
+            rowHeaders={['Event', 'Timestamp', 'IP', 'Additional Info']}
+          >
+            {securityEvents.map((securityEvent: SecurityEventsType) => {
+              return (
+                <TableRowXHeader key={securityEvent.uid}>
+                  <>{securityEvent.name}</>
+                  <>{getFormattedDate(securityEvent.createdAt)}</>
+                  <>{securityEvent.ipAddr}</>
+                  <>{securityEvent.additionalInfo}</>
+                </TableRowXHeader>
+              );
+            })}
           </TableXHeaders>
         ) : (
           <p data-testid="account-security-events" className="result-none">

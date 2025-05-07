@@ -753,6 +753,16 @@ describe('/session/destroy', () => {
         uid: 'foo',
         ipAddr: '63.245.221.32',
         tokenId: undefined,
+        additionalInfo: {
+          userAgent: 'test user-agent',
+          location: {
+            city: 'Mountain View',
+            country: 'United States',
+            countryCode: 'US',
+            state: 'California',
+            stateCode: 'CA',
+          },
+        },
       });
     });
   });

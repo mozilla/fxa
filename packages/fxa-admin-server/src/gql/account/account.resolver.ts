@@ -78,7 +78,13 @@ const EMAIL_COLUMNS = [
   'uid',
 ];
 
-const SECURITY_EVENTS_COLUMNS = ['uid', 'verified', 'createdAt'];
+const SECURITY_EVENTS_COLUMNS = [
+  'uid',
+  'verified',
+  'createdAt',
+  'ipAddr',
+  'additionalInfo',
+];
 const EMAIL_BOUNCE_COLUMNS = [
   'email',
   'bounceType',
@@ -533,9 +539,8 @@ export class AccountResolver {
     const results = [];
     for (const taskName of taskNames) {
       try {
-        const [result] = await this.cloudTask.accountTasks.getTaskStatus(
-          taskName
-        );
+        const [result] =
+          await this.cloudTask.accountTasks.getTaskStatus(taskName);
         if (result == null) {
           results.push({
             taskName,

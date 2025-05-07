@@ -16,5 +16,9 @@ export function recordSecurityEvent(name: any, opts: any) {
     uid: opts?.account?.uid || opts?.request?.auth?.credentials?.uid,
     ipAddr: opts?.request?.app?.clientAddress,
     tokenId: opts?.request?.auth?.credentials?.id,
+    additionalInfo: {
+      userAgent: opts?.request.headers['user-agent'],
+      location: opts?.request.app.geo.location,
+    },
   });
 }

@@ -88,6 +88,9 @@ type SecurityEvents {
   tokenVerificationId: String
   name: String
   ipAddr: String
+
+  """JSON data for additional info about the security event"""
+  additionalInfo: String
 }
 
 type Totp {

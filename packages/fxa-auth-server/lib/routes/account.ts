@@ -47,6 +47,7 @@ import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
 import { StatsD } from 'hot-shots';
+import { recordSecurityEvent } from './utils/security-event';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -579,11 +580,10 @@ export class AccountHandler {
       });
     }
 
-    await this.accountEventsManager.recordSecurityEvent(this.db, {
-      name: 'account.create',
-      uid: account.uid,
-      ipAddr: request.app.clientAddress,
-      tokenId: sessionToken.id,
+    recordSecurityEvent('account.create', {
+      db: this.db,
+      request,
+      account,
     });
 
     return this.accountCreateResponse({
@@ -952,10 +952,10 @@ export class AccountHandler {
         request.app.clientAddress
       );
       if (!match) {
-        this.accountEventsManager.recordSecurityEvent(this.db, {
-          name: 'account.login.failure',
-          uid: accountRecord.uid,
-          ipAddr: request.app.clientAddress,
+        recordSecurityEvent('account.login.failure', {
+          db: this.db,
+          request,
+          account: accountRecord,
         });
         throw error.incorrectPassword(accountRecord.email, email);
       }
@@ -1740,15 +1740,6 @@ export class AccountHandler {
       }
     };
 
-    const recordSecurityEvent = () => {
-      this.accountEventsManager.recordSecurityEvent(this.db, {
-        name: 'account.reset',
-        uid: account.uid,
-        ipAddr: request.app.clientAddress,
-        tokenId: sessionToken && sessionToken.id,
-      });
-    };
-
     const createResponse = () => {
       // If no sessionToken, this could be a legacy client
       // attempting to reset an account password, return legacy response.
@@ -1786,7 +1777,11 @@ export class AccountHandler {
     await recoveryKeyDeleteAndEmailNotification();
     await createSessionToken();
     await createKeyFetchToken();
-    await recordSecurityEvent();
+    recordSecurityEvent('account.reset', {
+      db: this.db,
+      account,
+      request,
+    });
     return createResponse();
   }
 

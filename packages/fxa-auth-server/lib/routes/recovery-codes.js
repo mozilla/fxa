@@ -11,7 +11,7 @@ const { Container } = require('typedi');
 const RECOVERY_CODES_DOCS =
   require('../../docs/swagger/recovery-codes-api').default;
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
-const { AccountEventsManager } = require('../account-events');
+const { recordSecurityEvent } = require('./utils/security-event');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
@@ -19,7 +19,6 @@ module.exports = (log, db, config, customs, mailer, glean) => {
   const codeConfig = config.recoveryCodes;
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
   const backupCodeManager = Container.get(BackupCodeManager);
-  const accountEventsManager = Container.get(AccountEventsManager);
 
   // Validate backup authentication codes
   const recoveryCodesSchema = validators.recoveryCodes(
@@ -43,11 +42,7 @@ module.exports = (log, db, config, customs, mailer, glean) => {
       async handler(request) {
         log.begin('replaceRecoveryCodes', request);
 
-        const {
-          authenticatorAssuranceLevel,
-          uid,
-          id: sessionTokenId,
-        } = request.auth.credentials;
+        const { authenticatorAssuranceLevel, uid } = request.auth.credentials;
 
         // Since TOTP and backup authentication codes go hand in hand, you should only be
         // able to replace backup authentication codes in a TOTP verified session.
@@ -60,11 +55,9 @@ module.exports = (log, db, config, customs, mailer, glean) => {
           RECOVERY_CODE_COUNT
         );
 
-        accountEventsManager.recordSecurityEvent(db, {
-          name: 'account.recovery_codes_replaced',
-          uid,
-          ipAddr: request.app.clientAddress,
-          tokenId: sessionTokenId,
+        recordSecurityEvent('account.recovery_codes_replaced', {
+          db,
+          request,
         });
 
         const account = await db.account(uid);
@@ -107,11 +100,7 @@ module.exports = (log, db, config, customs, mailer, glean) => {
       async handler(request) {
         log.begin('updateRecoveryCodes', request);
 
-        const {
-          authenticatorAssuranceLevel,
-          uid,
-          id: sessionTokenId,
-        } = request.auth.credentials;
+        const { authenticatorAssuranceLevel, uid } = request.auth.credentials;
 
         // Since TOTP and backup authentication codes go hand in hand, you should only be
         // able to replace backup authentication codes in a TOTP verified session.
@@ -137,11 +126,10 @@ module.exports = (log, db, config, customs, mailer, glean) => {
           uid,
         });
 
-        accountEventsManager.recordSecurityEvent(db, {
-          name: 'account.recovery_codes_created',
-          uid,
-          ipAddr: request.app.clientAddress,
-          tokenId: sessionTokenId,
+        recordSecurityEvent('account.recovery_codes_created', {
+          db,
+          request,
+          account,
         });
 
         log.info('account.recoveryCode.replaced', { uid });
@@ -267,11 +255,10 @@ module.exports = (log, db, config, customs, mailer, glean) => {
         await request.emitMetricsEvent('account.confirmed', { uid });
         glean.login.recoveryCodeSuccess(request, { uid });
 
-        accountEventsManager.recordSecurityEvent(db, {
-          name: 'account.recovery_codes_signin_complete',
-          uid,
-          ipAddr: request.app.clientAddress,
-          tokenId,
+        recordSecurityEvent('account.recovery_codes_signin_complete', {
+          db,
+          request,
+          account,
         });
 
         return { remaining };

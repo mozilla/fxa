@@ -78,6 +78,7 @@ export class SecurityEvent extends BaseAuthModel {
   name!: SecurityEventNames;
   createdAt!: number;
   verified!: boolean;
+  additionalInfo!: any; // JSON data for additional info about the security event (ie phone number, user agent, etc)
 
   static async create({
     uid,
@@ -85,12 +86,14 @@ export class SecurityEvent extends BaseAuthModel {
     ipAddr,
     ipHmacKey,
     tokenId,
+    additionalInfo,
   }: {
     uid: string;
     name: SecurityEventNames;
     ipAddr: string;
     ipHmacKey: string;
     tokenId?: string;
+    additionalInfo?: any;
   }) {
     const id = uuidTransformer.to(uid);
     const ipAddrHmac = ipHmac(Buffer.from(ipHmacKey), id, ipAddr);
@@ -104,7 +107,8 @@ export class SecurityEvent extends BaseAuthModel {
         EVENT_NAMES[name],
         ipAddrHmac,
         Date.now(),
-        ipAddr
+        ipAddr,
+        additionalInfo ? JSON.stringify(additionalInfo) : null
       );
     } catch (e) {
       console.error(e);
@@ -121,7 +125,8 @@ export class SecurityEvent extends BaseAuthModel {
         'securityEventNames.name as name',
         'securityEvents.verified as verified',
         'securityEvents.createdAt as createdAt',
-        'securityEvents.ipAddr as ipAddr'
+        'securityEvents.ipAddr as ipAddr',
+        'securityEvents.additionalInfo as additionalInfo'
       )
       .leftJoin(
         'securityEventNames',
@@ -141,7 +146,8 @@ export class SecurityEvent extends BaseAuthModel {
         'securityEventNames.name as name',
         'securityEvents.verified as verified',
         'securityEvents.createdAt as createdAt',
-        'securityEvents.ipAddr as ipAddr'
+        'securityEvents.ipAddr as ipAddr',
+        'securityEvents.additionalInfo as additionalInfo'
       )
       .leftJoin(
         'securityEventNames',
@@ -166,7 +172,8 @@ export class SecurityEvent extends BaseAuthModel {
         'securityEventNames.name as name',
         'securityEvents.verified as verified',
         'securityEvents.createdAt as createdAt',
-        'securityEvents.ipAddr as ipAddr'
+        'securityEvents.ipAddr as ipAddr',
+        'securityEvents.additionalInfo as additionalInfo'
       )
       .leftJoin(
         'securityEventNames',

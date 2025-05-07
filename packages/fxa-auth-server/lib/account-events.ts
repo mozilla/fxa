@@ -22,11 +22,25 @@ type EmailEvent = BaseEvent & {
   template: string;
 };
 
+interface SecurityEventAdditionalInfo {
+  userAgent?: string;
+  location?: {
+    city?: string;
+    country?: string;
+    latitude?: number;
+    longitude?: number;
+  };
+  recoveryPhone?: {
+    phoneNumber?: string;
+  };
+}
+
 type SecurityEvent = BaseEvent & {
   uid: string;
   name: SecurityEventNames;
   ipAddr: string;
   tokenId?: string;
+  additionalInfo?: SecurityEventAdditionalInfo;
 };
 
 type AuthDatabase = {
@@ -62,6 +76,24 @@ export class AccountEventsManager {
     }
 
     this.statsd = Container.get(StatsD);
+  }
+
+  /**
+   * This function removes null or undefined values from an object. This ideally
+   * saves of database storage space. This function could be optimized but instead
+   * leaned on the simple approach of using JSON.stringify and JSON.parse because
+   * security events are not blocking events and recorded aysnc.
+   *
+   * @param obj
+   * @private
+   */
+  private cleanObject(obj: any): any {
+    return JSON.parse(
+      JSON.stringify(obj, (key, value) => {
+        if (value === null || value === undefined) return undefined;
+        return value;
+      })
+    );
   }
 
   /**
@@ -127,15 +159,22 @@ export class AccountEventsManager {
    * @param message - message
    */
   public recordSecurityEvent(db: AuthDatabase, message: SecurityEvent) {
-    const { uid, name, ipAddr, tokenId } = message;
+    const { uid, name, ipAddr, tokenId, additionalInfo } = message;
+
+    const eventData: SecurityEvent = {
+      name,
+      uid,
+      ipAddr,
+      tokenId,
+      ...(additionalInfo && {
+        // Remove all undefined or null values from additionalInfo, we don't want to
+        // store them in the database
+        additionalInfo: this.cleanObject(additionalInfo),
+      }),
+    };
 
     try {
-      db.securityEvent({
-        name,
-        uid,
-        ipAddr,
-        tokenId,
-      });
+      db.securityEvent(eventData);
       this.statsd.increment(`accountEvents.recordSecurityEvent.write.${name}`);
     } catch (err) {
       // Failing to write to events shouldn't break anything

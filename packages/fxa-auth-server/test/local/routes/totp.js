@@ -185,6 +185,16 @@ describe('totp', () => {
             uid: 'uid',
             ipAddr: '63.245.221.32',
             tokenId: 'id',
+            additionalInfo: {
+              userAgent: 'test user-agent',
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA',
+              },
+            },
           }
         );
         assert.equal(mockRecoveryPhoneService.removePhoneNumber.callCount, 1);
@@ -326,6 +336,16 @@ describe('totp', () => {
           uid: 'uid',
           ipAddr: '63.245.221.32',
           tokenId: 'id',
+          additionalInfo: {
+            userAgent: 'test user-agent',
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+          },
         });
 
         sinon.assert.calledOnce(glean.twoFactorAuth.codeComplete);
@@ -335,6 +355,16 @@ describe('totp', () => {
           uid: 'uid',
           ipAddr: '63.245.221.32',
           tokenId: 'id',
+          additionalInfo: {
+            userAgent: 'test user-agent',
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+          },
         });
       });
     });
@@ -406,6 +436,16 @@ describe('totp', () => {
             uid: 'uid',
             ipAddr: '63.245.221.32',
             tokenId: 'id',
+            additionalInfo: {
+              userAgent: 'test user-agent',
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA',
+              },
+            },
           }
         );
 
@@ -516,6 +556,16 @@ describe('totp', () => {
             uid: 'uid',
             ipAddr: '63.245.221.32',
             tokenId: 'id',
+            additionalInfo: {
+              userAgent: 'test user-agent',
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA',
+              },
+            },
           }
         );
 

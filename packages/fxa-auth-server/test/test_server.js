@@ -17,6 +17,10 @@ const { AppConfig } = require('../lib/types');
 
 /* eslint-disable no-console */
 function TestServer(config, printLogs, options = {}) {
+  if (config?.gleanMetrics?.enabled) {
+    // To avoid cluttering the test output with Glean logs, we disable it
+    config.gleanMetrics.enabled = false;
+  }
   Container.set(AppConfig, config);
   if (!Container.has(CapabilityService)) {
     Container.set(CapabilityService, {

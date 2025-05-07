@@ -15,7 +15,7 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const testServerFactory = require('../test_server');
 const { CapabilityService } = require('../../lib/payments/capability');
 const { StripeHelper } = require('../../lib/payments/stripe');
-const { AuthLogger } = require('../../lib/types');
+const { AuthLogger, AppConfig } = require('../../lib/types');
 const { ProfileClient } = require('@fxa/profile/client');
 const {
   PlaySubscriptions,
@@ -45,6 +45,7 @@ const PRODUCT_NAME = 'All Done Pro';
         sharedSecret: 'wibble',
         paymentsServer: config.subscriptions.paymentsServer,
       };
+      Container.set(AppConfig, config);
     });
 
     describe('config.subscriptions.enabled = true and direct stripe access:', function () {
@@ -195,10 +196,6 @@ const PRODUCT_NAME = 'All Done Pro';
           });
         });
 
-        afterEach(() => {
-          Container.reset();
-        });
-
         it('should not return any subscription capabilities by default with session token', async () => {
           const response = await client.accountProfile();
           assert.isUndefined(response.subscriptions);
@@ -286,10 +283,6 @@ const PRODUCT_NAME = 'All Done Pro';
               failure_message: undefined,
             },
           ];
-        });
-
-        afterEach(() => {
-          Container.reset();
         });
 
         it('should return all subscription capabilities with session token', async () => {

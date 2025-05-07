@@ -249,8 +249,8 @@ module.exports = (
 
       let sessions;
 
-      const { deviceId, flowId, flowBeginTime } = await request.app
-        .metricsContext;
+      const { deviceId, flowId, flowBeginTime } =
+        await request.app.metricsContext;
 
       const mustVerifySession =
         sessionToken.mustVerify && !sessionToken.tokenVerified;
@@ -493,6 +493,10 @@ module.exports = (
           uid: accountRecord.uid,
           ipAddr: request.app.clientAddress,
           tokenId: sessionToken.id,
+          additionalInfo: {
+            userAgent: request.headers['user-agent'],
+            location: request.app.geo.location,
+          },
         });
       }
     },
