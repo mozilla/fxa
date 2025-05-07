@@ -7,13 +7,9 @@ import {
   TraceExporterOptions as GcpTraceExporterOptions,
 } from '@google-cloud/opentelemetry-cloud-trace-exporter';
 import { ExportResult } from '@opentelemetry/core';
-import {
-  BasicTracerProvider,
-  ReadableSpan,
-} from '@opentelemetry/sdk-trace-node';
+import { ReadableSpan } from '@opentelemetry/sdk-trace-node';
 import { TracingOpts } from '../config';
 import { TracingPiiFilter } from '../pii-filters';
-import { addExporter } from './exporters';
 import { checkDuration } from './util';
 import { ILogger } from '../../log';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
@@ -40,9 +36,8 @@ export class FxaGcpTraceExporter extends GcpTraceExporter {
   }
 }
 
-export function addGcpTraceExporter(
+export function getGcpTraceExporter(
   opts: TracingOpts,
-  provider: NodeTracerProvider,
   filter?: TracingPiiFilter,
   logger?: ILogger
 ) {
@@ -52,6 +47,5 @@ export function addGcpTraceExporter(
 
   logger?.debug('Adding Gcp Trace Exporter');
   const exporter = new FxaGcpTraceExporter(filter);
-  addExporter(opts, provider, exporter);
   return exporter;
 }

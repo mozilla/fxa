@@ -18,11 +18,20 @@
         "platform": "node"
       }
     },
-    "test": {
+    "test-unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/shared/otel/jest.config.ts"
+        "jestConfig": "libs/shared/otel/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    },
+    "test-integration": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/otel/jest.config.ts",
+        "testPathPattern": ["\\.in\\.spec\\.ts$"]
       }
     }
   }

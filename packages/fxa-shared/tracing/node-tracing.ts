@@ -7,16 +7,25 @@ import { suppressTracing } from '@opentelemetry/core';
 import { ILogger } from '../log';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
+import {
+  BatchSpanProcessor,
+  NodeTracerProvider,
+  ParentBasedSampler,
+  SimpleSpanProcessor,
+  SpanExporter,
+  SpanProcessor,
+  TraceIdRatioBasedSampler,
+} from '@opentelemetry/sdk-trace-node';
 import { checkSampleRate, checkServiceName, TracingOpts } from './config';
-import { addConsoleExporter } from './exporters/fxa-console';
-import { addGcpTraceExporter } from './exporters/fxa-gcp';
-import { addOtlpTraceExporter } from './exporters/fxa-otlp';
+import { getConsoleTraceExporter } from './exporters/fxa-console';
+import { getGcpTraceExporter } from './exporters/fxa-gcp';
+import { getOtlpTraceExporter } from './exporters/fxa-otlp';
 import { createPiiFilter } from './pii-filters';
-import { createNodeProvider } from './providers/node-provider';
+import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
+import { resourceFromAttributes } from '@opentelemetry/resources';
 const log_type = 'node-tracing';
 
-export const TRACER_NAME = 'fxa-tracer';
+export const TRACER_NAME = 'fxa';
 
 /**
  * Responsible for initializing node tracing from a config object. This uses the auto instrumentation feature
@@ -34,15 +43,45 @@ export class NodeTracingInitializer {
     checkServiceName(this.opts);
     checkSampleRate(this.opts);
 
-    this.provider = createNodeProvider(this.opts);
-
     const filter = createPiiFilter(!!this.opts?.filterPii, this.logger);
-    addGcpTraceExporter(opts, this.provider, filter, this.logger);
-    addOtlpTraceExporter(opts, this.provider, undefined, filter, this.logger);
-    addConsoleExporter(opts, this.provider, filter);
+
+    const spanProcessors = [
+      this.makeSpanProcessor(
+        getOtlpTraceExporter(this.opts, undefined, filter)
+      ),
+      this.makeSpanProcessor(getGcpTraceExporter(this.opts, filter)),
+      this.makeSpanProcessor(getConsoleTraceExporter(this.opts, filter)),
+      // add more exporters here
+    ].filter((x) => x !== undefined);
+
+    this.provider = new NodeTracerProvider({
+      sampler: new ParentBasedSampler({
+        root: new TraceIdRatioBasedSampler(this.opts.sampleRate),
+      }),
+      resource: resourceFromAttributes({
+        [ATTR_SERVICE_NAME]: this.opts.serviceName,
+      }),
+      spanProcessors,
+    });
 
     this.register();
   }
+
+  /**
+   * Creates a new span processor for the exporter.
+   * @param exporter
+   * @returns
+   */
+  private makeSpanProcessor = (
+    exporter: SpanExporter | undefined
+  ): SpanProcessor | undefined => {
+    if (!exporter) {
+      return undefined;
+    }
+    return this.opts.batchProcessor
+      ? new BatchSpanProcessor(exporter)
+      : new SimpleSpanProcessor(exporter);
+  };
 
   protected register() {
     registerInstrumentations({
@@ -90,6 +129,10 @@ export class NodeTracingInitializer {
     const parentId = `${version}-${spanContext.traceId}-${spanContext.spanId}-${sampleDecision}`;
     span.end();
     return parentId;
+  }
+
+  public getProvider() {
+    return this.provider;
   }
 }
 

@@ -28,10 +28,10 @@ export function initMonitoring(opts: MonitoringConfig) {
   }
   initialized = true;
 
-  if (config && config.sentry) {
-    initSentry(config, log || console);
-  }
   if (config.tracing) {
     initTracing(config.tracing, log || console);
+  }
+  if (config && config.sentry) {
+    initSentry(config, log || console);
   }
 }

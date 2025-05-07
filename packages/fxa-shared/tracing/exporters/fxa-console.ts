@@ -4,13 +4,11 @@
 
 import { ExportResult } from '@opentelemetry/core';
 import {
-  BasicTracerProvider,
   ConsoleSpanExporter,
   ReadableSpan,
 } from '@opentelemetry/sdk-trace-node';
 import { TracingOpts } from '../config';
 import { TracingPiiFilter } from '../pii-filters';
-import { addExporter } from './exporters';
 import { checkDuration } from './util';
 import { ILogger } from '../../log';
 
@@ -32,9 +30,8 @@ export class FxaConsoleSpanExporter extends ConsoleSpanExporter {
   }
 }
 
-export function addConsoleExporter(
+export function getConsoleTraceExporter(
   opts: TracingOpts,
-  provider: BasicTracerProvider,
   filter?: TracingPiiFilter,
   logger?: ILogger
 ) {
@@ -43,6 +40,5 @@ export function addConsoleExporter(
   }
   logger?.debug('Adding Console Exporter');
   const exporter = new FxaConsoleSpanExporter(filter);
-  addExporter(opts, provider, exporter);
   return exporter;
 }

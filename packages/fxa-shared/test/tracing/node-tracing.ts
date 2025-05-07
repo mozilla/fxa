@@ -5,10 +5,17 @@
 import * as api from '@opentelemetry/api';
 import { Span } from '@opentelemetry/api';
 import { AsyncHooksContextManager } from '@opentelemetry/context-async-hooks';
-import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
+import {
+  BatchSpanProcessor,
+  NodeTracerProvider,
+  SimpleSpanProcessor,
+  SpanExporter,
+} from '@opentelemetry/sdk-trace-node';
 import { expect } from 'chai';
 import proxyquire from 'proxyquire';
 import sinon from 'sinon';
+import { TracingOpts } from '../../tracing/config';
+import { ILogger } from '../../../../libs/shared/log/src';
 
 proxyquire.noCallThru();
 
@@ -32,9 +39,9 @@ describe('node-tracing', () => {
     },
   };
   const mocks: any = {
-    addGcpTraceExporter: sandbox.mock().callsFake(() => {}),
-    addConsoleExporter: sandbox.mock().callsFake(() => {}),
-    addOtlpTraceExporter: sandbox.mock().callsFake(() => {}),
+    getGcpTraceExporter: sandbox.mock().callsFake(() => {}),
+    getConsoleExporter: sandbox.mock().callsFake(() => {}),
+    getOtlpTraceExporter: sandbox.mock().callsFake(() => {}),
   };
 
   // Proxy require exporters to prevent pulling in extra modules and to isolate tests.
@@ -46,13 +53,13 @@ describe('node-tracing', () => {
     reset,
   } = proxyquire('../../tracing/node-tracing', {
     './exporters/fxa-console': {
-      addConsoleExporter: mocks.addConsoleExporter,
+      getConsoleTraceExporter: mocks.getConsoleExporter,
     },
     './exporters/fxa-gcp': {
-      addGcpTraceExporter: mocks.addGcpTraceExporter,
+      getGcpTraceExporter: mocks.getGcpTraceExporter,
     },
     './exporters/fxa-otlp': {
-      addOtlpTraceExporter: mocks.addOtlpTraceExporter,
+      getOtlpTraceExporter: mocks.getOtlpTraceExporter,
     },
   });
 
@@ -83,13 +90,12 @@ describe('node-tracing', () => {
         serviceName: 'test',
         sampleRate: 1,
       },
-      () => {},
       spies.logger
     );
 
-    sinon.assert.calledOnce(mocks.addConsoleExporter);
-    sinon.assert.calledOnce(mocks.addGcpTraceExporter);
-    sinon.assert.calledOnce(mocks.addOtlpTraceExporter);
+    sinon.assert.calledOnce(mocks.getConsoleExporter);
+    sinon.assert.calledOnce(mocks.getGcpTraceExporter);
+    sinon.assert.calledOnce(mocks.getOtlpTraceExporter);
   });
 
   it('starts span', async () => {
@@ -101,7 +107,7 @@ describe('node-tracing', () => {
           enabled: true,
         },
       },
-      () => {}
+      spies.logger
     );
 
     tracing.startSpan('test', (span: Span) => {
@@ -115,7 +121,7 @@ describe('node-tracing', () => {
         serviceName: 'test',
         sampleRate: 1,
       },
-      () => {}
+      spies.logger
     );
 
     let traceId: string;
@@ -239,5 +245,52 @@ describe('node-tracing', () => {
         msg: 'Trace initialization skipped. Tracing already initialized, ignoring new opts.',
       });
     });
+  });
+
+  /**
+   * Because `makeSpanProcessor` is private, we create a subclass
+   * to access it for testing.
+   */
+  class TestableNodeTracingInitializer extends NodeTracingInitializer {
+    constructor(opts: TracingOpts, logger: ILogger) {
+      super(opts, logger);
+    }
+    public testMakeSpanProcessor(exporter: SpanExporter | undefined) {
+      return this.makeSpanProcessor(exporter);
+    }
+  }
+
+  it('creates a BatchSpanProcessor when batchProcessor is true', () => {
+    const opts: TracingOpts = {
+      batchProcessor: true,
+      sampleRate: 1,
+      serviceName: 'test-service',
+      clientName: 'test-client',
+      corsUrls: '.*',
+      filterPii: true,
+    };
+    const initializer = new TestableNodeTracingInitializer(opts, spies.logger);
+
+    const exporter = { export: () => {}, shutdown: () => Promise.resolve() };
+    const processor = initializer.testMakeSpanProcessor(exporter);
+
+    expect(processor).to.be.instanceOf(BatchSpanProcessor);
+  });
+
+  it('creates a SimpleSpanProcessor when batchProcessor is false', () => {
+    const opts: TracingOpts = {
+      batchProcessor: false,
+      sampleRate: 1,
+      serviceName: 'test-service',
+      clientName: 'test-client',
+      corsUrls: '.*',
+      filterPii: true,
+    };
+    const initializer = new TestableNodeTracingInitializer(opts, spies.logger);
+
+    const exporter = { export: () => {}, shutdown: () => Promise.resolve() };
+    const processor = initializer.testMakeSpanProcessor(exporter);
+
+    expect(processor).to.be.instanceOf(SimpleSpanProcessor);
   });
 });

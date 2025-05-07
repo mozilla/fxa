@@ -43,6 +43,7 @@ storybooks-publish
 tsconfig.tsbuildinfo
 tailwind.out.*
 .idea
+**/*.tmp.*
 
 # Dependencies
 **/node_modules

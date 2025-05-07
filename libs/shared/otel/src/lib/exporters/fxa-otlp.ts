@@ -5,13 +5,9 @@
 import { ExportResult } from '@opentelemetry/core';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { OTLPExporterConfigBase } from '@opentelemetry/otlp-exporter-base';
-import {
-  BasicTracerProvider,
-  ReadableSpan,
-} from '@opentelemetry/sdk-trace-node';
+import { ReadableSpan } from '@opentelemetry/sdk-trace-node';
 import { TracingOpts, logType } from '../config';
 import { TracingPiiFilter } from '../pii-filters';
-import { addExporter } from './exporters';
 import { checkDuration } from './util';
 import { ILogger } from '@fxa/shared/log';
 
@@ -22,7 +18,7 @@ export type FxaOtlpTracingHeaders = {
 };
 
 /** OTLP exporter customized for FxA */
-export class FxaOtlpWebExporter extends OTLPTraceExporter {
+export class FxaOtlpTraceExporter extends OTLPTraceExporter {
   constructor(
     protected readonly filter?: TracingPiiFilter,
     config?: OTLPExporterConfigBase,
@@ -48,9 +44,8 @@ export class FxaOtlpWebExporter extends OTLPTraceExporter {
   }
 }
 
-export function addOtlpTraceExporter(
+export function getOtlpTraceExporter(
   opts: TracingOpts,
-  provider: BasicTracerProvider,
   headers?: FxaOtlpTracingHeaders,
   filter?: TracingPiiFilter,
   logger?: ILogger
@@ -68,7 +63,6 @@ export function addOtlpTraceExporter(
     headers,
     concurrencyLimit: opts.otel?.concurrencyLimit,
   };
-  const exporter = new FxaOtlpWebExporter(filter, config, logger);
-  addExporter(opts, provider, exporter);
+  const exporter = new FxaOtlpTraceExporter(filter, config, logger);
   return exporter;
 }

@@ -20,6 +20,9 @@ updates:
       one-package-per-pr: # prevent grouping of unrelated PRs
         patterns:
           - '*'
+      opentelemetry-packages:
+        patterns:
+          - '@opentelemetry/*'
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:

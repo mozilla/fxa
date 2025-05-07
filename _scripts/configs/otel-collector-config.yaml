@@ -2,20 +2,28 @@ receivers:
   otlp:
     protocols:
       http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins: ["*"]
+          allowed_headers: ["*"]
+      grpc:
+        endpoint: 0.0.0.0:4317
 
 exporters:
-  logging:
-    loglevel: debug
-  jaeger:
-    endpoint: "jaeger.fxa:14250"
+  # if you have the vscode plugin, this will yell about the version, but
+  # as of v0.86.0, logging is deprecated in favor of debug
+  # see: https://opentelemetry.io/docs/collector/configuration/#exporters
+  debug:
+    verbosity: normal
+  otlp/jaeger:
+    endpoint: "jaeger.fxa:4317"
     tls:
       insecure: true
   googlecloud:
     project: '${TRACING_GCP_PROJECT}'
-    retry_on_failure:
-      enabled: false
     log:
       default_log_name: opentelemetry.io/collector-exported-log
+
 
 processors:
   batch:
@@ -31,6 +39,10 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      # Set env EXPORTERS to toggle exporters. ie to turn all exporters set as:
-      #    EXPORTERS=logging,jaeger,googlecloud
-      exporters: '${EXPORTERS}'
+      # We can't put an array into env vars to dynamically set exports from
+      # the shell command, and because this is expected to be an array
+      # this template gets `sed`ed and we replace the placeholder with
+      # the actual value, then pipe it into the collector container
+      #
+      # See `_scripts/otel-collector.sh` for more.
+      exporters: [__EXPORTERS__]
