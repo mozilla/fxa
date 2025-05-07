@@ -41,7 +41,7 @@
     "chai": "^4.5.0",
     "eslint": "^8.19.0",
     "fxa-shared": "workspace:*",
-    "mocha": "^10.4.0",
+    "mocha": "^11.2.2",
     "nyc": "^17.1.0",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",

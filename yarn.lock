@@ -30474,7 +30474,7 @@ __metadata:
   dependencies:
     eslint: 6.6.0
     eslint-config-prettier: 9.1.0
-    mocha: ^10.4.0
+    mocha: ^11.2.2
     ramda: ^0.30.0
   peerDependencies:
     eslint: ">=6.6.0"
@@ -33354,7 +33354,7 @@ __metadata:
     eslint: ^8.38.0
     eslint-config-react-app: ^7.0.1
     fast-text-encoding: ^1.0.4
-    mocha: ^10.4.0
+    mocha: ^11.2.2
     node-fetch: ^2.6.7
     prettier: ^3.5.3
     typescript: 5.5.3
@@ -33461,7 +33461,7 @@ __metadata:
     mailparser: 0.6.1
     mjml: ^4.15.3
     mjml-browser: ^4.15.3
-    mocha: ^10.4.0
+    mocha: ^11.2.2
     moment: ^2.30.1
     moment-timezone: ^0.5.35
     mozlog: ^3.0.2
@@ -33615,7 +33615,7 @@ __metadata:
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
     mkdirp: 3.0.1
-    mocha: ^10.4.0
+    mocha: ^11.2.2
     morgan: ^1.10.0
     mozlog: ^3.0.2
     mustache: 4.2.0
@@ -33778,7 +33778,7 @@ __metadata:
     cron: 4.1.3
     eslint: ^8.19.0
     fxa-shared: "workspace:*"
-    mocha: ^10.4.0
+    mocha: ^11.2.2
     mozlog: ^3.0.2
     nyc: ^17.1.0
     prettier: ^3.5.3
@@ -33986,7 +33986,7 @@ __metadata:
     insist: 1.0.1
     joi: ^17.13.3
     lodash: ^4.17.21
-    mocha: ^10.4.0
+    mocha: ^11.2.2
     mocha-text-cov: 0.1.1
     mozlog: ^3.0.2
     mysql: ^2.18.1
@@ -34255,7 +34255,7 @@ __metadata:
     lodash.clonedeep: ^4.5.0
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
-    mocha: ^10.4.0
+    mocha: ^11.2.2
     moment: ^2.30.1
     mozlog: ^3.0.2
     mysql: ^2.18.1
@@ -43508,34 +43508,34 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mocha@npm:^10.4.0":
-  version: 10.8.2
-  resolution: "mocha@npm:10.8.2"
+"mocha@npm:^11.2.2":
+  version: 11.2.2
+  resolution: "mocha@npm:11.2.2"
   dependencies:
-    ansi-colors: ^4.1.3
     browser-stdout: ^1.3.1
-    chokidar: ^3.5.3
+    chokidar: ^4.0.1
     debug: ^4.3.5
     diff: ^5.2.0
     escape-string-regexp: ^4.0.0
     find-up: ^5.0.0
-    glob: ^8.1.0
+    glob: ^10.4.5
     he: ^1.2.0
     js-yaml: ^4.1.0
     log-symbols: ^4.1.0
     minimatch: ^5.1.6
     ms: ^2.1.3
+    picocolors: ^1.1.1
     serialize-javascript: ^6.0.2
     strip-json-comments: ^3.1.1
     supports-color: ^8.1.1
     workerpool: ^6.5.1
-    yargs: ^16.2.0
-    yargs-parser: ^20.2.9
+    yargs: ^17.7.2
+    yargs-parser: ^21.1.1
     yargs-unparser: ^2.0.0
   bin:
     _mocha: bin/_mocha
     mocha: bin/mocha.js
-  checksum: 68cb519503f1e8ffd9b0651e1aef75dfe4754425186756b21e53169da44b5bcb1889e2b743711205082763d3f9a42eb8eb2c13bb1a718a08cb3a5f563bfcacdc
+  checksum: ac012ac2413e1705077a30e9b7d0172095ccc027fea54da0d84688754b42c2bca32dc24aaff2502ea869f53901d2b970b5a0697cf32b19433f350f89196d6e47
   languageName: node
   linkType: hard
 
