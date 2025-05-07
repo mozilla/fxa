@@ -131,7 +131,7 @@ export const InlineRecoverySetupContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  if (totpStatus?.account.totp.verified) {
+  if (totpStatus?.account?.totp.verified) {
     navigateWithQuery('/signin_totp_code', {
       state: signinLocationState,
     });

@@ -88,7 +88,7 @@ export const InlineTotpSetupContainer = ({
   useEffect(() => {
     if (
       totp !== undefined ||
-      totpStatus?.account.totp.verified === true ||
+      totpStatus?.account?.totp.verified === true ||
       isTotpCreating.current
     ) {
       return;
@@ -114,8 +114,7 @@ export const InlineTotpSetupContainer = ({
       navTo('/signin_token_code', signinState ? signinState : undefined);
     } else if (
       totpStatusLoading === false &&
-      totpStatus !== undefined &&
-      totpStatus.account.totp.verified
+      totpStatus?.account?.totp.verified
     ) {
       navTo('/signin_totp_code', signinState ? signinState : undefined);
     }
