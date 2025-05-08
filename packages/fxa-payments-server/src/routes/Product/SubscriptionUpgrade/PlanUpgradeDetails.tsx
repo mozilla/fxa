@@ -29,7 +29,8 @@ export const PlanUpgradeDetails = ({
   className?: string;
 }) => {
   const { navigatorLanguages, config } = useContext(AppContext);
-  const { product_name, amount, currency, interval, interval_count } =
+  const invoiceCurrency = invoicePreview.line_items[0].currency;
+  const { product_name, amount, interval, interval_count } =
     selectedPlan;
   const formattedInterval = formatPlanInterval({
     interval: interval,
@@ -64,13 +65,13 @@ export const PlanUpgradeDetails = ({
         <Localized id="sub-update-current-plan-label">Current plan</Localized>
       </p>
 
-      <PlanDetailsCard className="from-plan" plan={upgradeFromPlan} />
+      <PlanDetailsCard className="from-plan" plan={upgradeFromPlan} currency={invoiceCurrency} />
 
       <p className="plan-label new-plan-label">
         <Localized id="sub-update-new-plan-label">New plan</Localized>
       </p>
 
-      <PlanDetailsCard className="to-plan" plan={selectedPlan} />
+      <PlanDetailsCard className="to-plan" plan={selectedPlan} currency={invoiceCurrency} />
 
       <div className="py-6 border-t-0">
         {showTax && !!subTotal && !!exclusiveTaxRates.length && (
@@ -93,7 +94,7 @@ export const PlanUpgradeDetails = ({
 
               <PriceDetails
                 total={subTotal}
-                currency={currency}
+                currency={invoiceCurrency}
                 dataTestId="plan-upgrade-subtotal"
               />
             </div>
@@ -106,7 +107,7 @@ export const PlanUpgradeDetails = ({
 
                 <PriceDetails
                   total={exclusiveTaxRates[0].amount}
-                  currency={currency}
+                  currency={invoiceCurrency}
                   dataTestId="plan-upgrade-tax-amount"
                 />
               </div>
@@ -118,7 +119,7 @@ export const PlanUpgradeDetails = ({
 
                   <PriceDetails
                     total={taxRate.amount}
-                    currency={currency}
+                    currency={invoiceCurrency}
                     dataTestId="plan-upgrade-tax-amount"
                   />
                 </div>
@@ -134,7 +135,7 @@ export const PlanUpgradeDetails = ({
 
             <PriceDetails
               total={totalAmount}
-              currency={currency}
+              currency={invoiceCurrency}
               interval={interval}
               intervalCount={interval_count}
               className="total-price"
@@ -159,7 +160,7 @@ export const PlanUpgradeDetails = ({
 
               <PriceDetails
                 total={oneTimeCharge}
-                currency={currency}
+                currency={invoiceCurrency}
                 className="total-price"
                 dataTestId="prorated-amount"
               />
@@ -173,13 +174,15 @@ export const PlanUpgradeDetails = ({
 
 export const PlanDetailsCard = ({
   plan,
+  currency,
   className = '',
 }: {
   plan: Plan;
+  currency: string,
   className?: string;
 }) => {
   const { navigatorLanguages, config } = useContext(AppContext);
-  const { product_name, amount, currency, interval, interval_count } = plan;
+  const { product_name, amount, interval, interval_count } = plan;
   const { webIcon, webIconBackground } = webIconConfigFromProductConfig(
     plan,
     navigatorLanguages,
