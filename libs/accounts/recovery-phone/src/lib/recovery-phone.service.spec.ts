@@ -462,7 +462,7 @@ describe('RecoveryPhoneService', () => {
     it('can confirm valid sms code', async () => {
       mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue({});
 
-      const result = await service.confirmSigninCode(uid, code);
+      const result = await service.confirmCode(uid, code);
 
       expect(result).toBeTruthy();
       expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
@@ -473,7 +473,7 @@ describe('RecoveryPhoneService', () => {
         isSetup: true,
       });
 
-      const result = await service.confirmSigninCode(uid, code);
+      const result = await service.confirmCode(uid, code);
 
       expect(result).toBeFalsy();
     });
@@ -481,7 +481,7 @@ describe('RecoveryPhoneService', () => {
     it('will not confirm unknown sms code used', async () => {
       mockRecoveryPhoneManager.getUnconfirmed.mockReturnValue(null);
 
-      const result = await service.confirmSigninCode(uid, code);
+      const result = await service.confirmCode(uid, code);
 
       expect(result).toBeFalsy();
     });
@@ -692,7 +692,7 @@ describe('RecoveryPhoneService', () => {
       expect(service.confirmSetupCode(uid, '000000')).rejects.toEqual(
         new RecoveryPhoneNotEnabled()
       );
-      expect(service.confirmSigninCode(uid, '000000')).rejects.toEqual(
+      expect(service.confirmCode(uid, '000000')).rejects.toEqual(
         new RecoveryPhoneNotEnabled()
       );
       expect(service.sendCode(uid, mockGetFormattedMessage)).rejects.toEqual(

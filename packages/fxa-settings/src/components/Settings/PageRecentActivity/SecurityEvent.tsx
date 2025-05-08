@@ -41,6 +41,8 @@ enum SecurityEventName {
   PasswordResetOtpSent = 'account.password_reset_otp_sent',
   PasswordResetOtpVerified = 'account.password_reset_otp_verified',
   MustReset = 'account.must_reset',
+  RecoveryPhoneResetPasswordComplete = 'account.recovery_phone_reset_password_complete',
+  RecoveryPhoneResetPasswordFailed = 'account.recovery_phone_reset_password_failed',
 }
 
 const getSecurityEventNameL10n = (name: string) => {
@@ -253,6 +255,18 @@ const getSecurityEventNameL10n = (name: string) => {
       return {
         ftlId: 'recent-activity-must-reset-password',
         fallbackText: 'Password reset required',
+      };
+    }
+    case SecurityEventName.RecoveryPhoneResetPasswordComplete: {
+      return {
+        ftlId: 'recent-activity-recovery-phone-reset-password-complete',
+        fallbackText: 'Password reset with recovery phone completed',
+      };
+    }
+    case SecurityEventName.RecoveryPhoneResetPasswordFailed: {
+      return {
+        ftlId: 'recent-activity-recovery-phone-reset-password-failed',
+        fallbackText: 'Password reset with recovery phone failed',
       };
     }
     default: {

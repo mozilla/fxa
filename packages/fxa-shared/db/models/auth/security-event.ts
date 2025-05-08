@@ -47,6 +47,8 @@ export const EVENT_NAMES = {
   'account.recovery_codes_created': 33,
   'account.recovery_codes_signin_complete': 34,
   'account.must_reset': 35,
+  'account.recovery_phone_reset_password_success': 36,
+  'account.recovery_phone_reset_password_failed': 37,
 } as const;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;

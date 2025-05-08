@@ -254,6 +254,16 @@ export function gleanMetrics(config: ConfigType) {
       recoveryKeyCreatePasswordSuccess: createEventFn(
         'password_reset_recovery_key_create_success'
       ),
+
+      recoveryPhoneCodeSent: createEventFn(
+        'password_reset_recovery_phone_code_sent'
+      ),
+      recoveryPhoneCodeSendError: createEventFn(
+        'password_reset_recovery_phone_code_send_error'
+      ),
+      recoveryPhoneCodeComplete: createEventFn(
+        'password_reset_recovery_phone_code_complete'
+      ),
     },
 
     oauth: {
