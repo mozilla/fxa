@@ -228,9 +228,14 @@ const SigninTokenCode = ({
 
       <EmailCodeImage />
 
-      <FtlMsg id="signin-token-code-instruction" vars={{ email }}>
+      <FtlMsg
+        id="signin-token-code-instruction-v2"
+        vars={{ email }}
+        elems={{ email: <span className="break-all" /> }}
+      >
         <p id="verification-email-message" className="my-4 text-sm">
-          Enter the code that was sent to {email} within 5 minutes.
+          Enter the code that was sent to{' '}
+          <span className="break-all">{email}</span> within 5 minutes.
         </p>
       </FtlMsg>
 

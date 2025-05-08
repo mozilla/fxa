@@ -104,7 +104,10 @@ describe('SigninTokenCode page', () => {
       'Enter confirmation code for your Mozilla account'
     );
     screen.getByText(
-      `Enter the code that was sent to ${MOCK_EMAIL} within 5 minutes.`
+      (_, element) =>
+        element?.tagName === 'P' &&
+        element?.textContent ===
+          `Enter the code that was sent to ${MOCK_EMAIL} within 5 minutes.`
     );
     screen.getByLabelText('Enter 6-digit code');
     screen.getByRole('button', { name: 'Confirm' });
