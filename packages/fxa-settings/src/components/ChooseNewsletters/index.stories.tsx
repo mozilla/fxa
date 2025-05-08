@@ -6,7 +6,7 @@ import React from 'react';
 import ChooseNewsletters from '.';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
-import { Subject } from './mocks';
+import { SubjectWithNewsletters, SubjectWithNone } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
@@ -15,10 +15,18 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => {
+export const DefaultNone = () => {
   return (
     <AppLayout>
-      <Subject />
+      <SubjectWithNone />
+    </AppLayout>
+  );
+};
+
+export const DefaultLetters = () => {
+  return (
+    <AppLayout>
+      <SubjectWithNewsletters />
     </AppLayout>
   );
 };

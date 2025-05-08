@@ -30,6 +30,10 @@ const ChooseNewsletters = ({
       });
     };
 
+  if (newsletters.length === 0) {
+    return null;
+  }
+
   return (
     <>
       <FtlMsg id="choose-newsletters-prompt-2">

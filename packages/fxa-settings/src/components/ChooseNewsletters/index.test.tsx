@@ -7,8 +7,7 @@ import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
-import { Subject } from './mocks';
-import { newsletters } from './newsletters';
+import { SubjectWithNewsletters, SubjectWithNone } from './mocks';
 
 describe('ChooseNewsletters component', () => {
   let bundle: FluentBundle;
@@ -16,12 +15,19 @@ describe('ChooseNewsletters component', () => {
     bundle = await getFtlBundle('settings');
   });
   it('renders newsletter options as expected', async () => {
-    renderWithLocalizationProvider(<Subject />);
+    renderWithLocalizationProvider(<SubjectWithNewsletters />);
     testAllL10n(screen, bundle);
 
     screen.getByText('Get more from Mozilla:');
 
     const checkboxes = await screen.findAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(newsletters.length);
+    expect(checkboxes).toHaveLength(1);
+  });
+
+  it('does not render with empty newletters', async () => {
+    renderWithLocalizationProvider(<SubjectWithNone />);
+    expect(
+      screen.queryByText('Get more from Mozilla:')
+    ).not.toBeInTheDocument();
   });
 });
