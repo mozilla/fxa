@@ -95,6 +95,7 @@ export const FormPasswordWithBalloons = ({
     useState<string>();
   const [srOnlyConfirmPwdFeedbackMessage, setSROnlyConfirmPwdFeedbackMessage] =
     useState<string>();
+  const [emitEngageEvent, setEmitEngageEvent] = useState<boolean>(false);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPasswordMatchError = ftlMsgResolver.getMsg(
@@ -154,12 +155,30 @@ export const FormPasswordWithBalloons = ({
     setSROnlyConfirmPwdFeedbackMessage('');
     setPasswordMatchErrorText('');
     if (!hasNewPwdFocused) {
-      if (onFocusMetricsEvent) {
-        onFocusMetricsEvent();
-      }
       setHasNewPwdFocused(true);
     }
   };
+
+  // We are currently on React form hook V6 and this version
+  // does not expose any focus methods. Upgrading is major refactor
+  // so instead we pass an optional `inputRefDOM` that can
+  // trigger focus and click events.
+  const newPasswordRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus the new password input on mount
+  useEffect(() => {
+    if (newPasswordRef.current) {
+      newPasswordRef.current.focus();
+      newPasswordRef.current.click();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hasUserTakenAction && onFocusMetricsEvent && !emitEngageEvent) {
+      onFocusMetricsEvent();
+      setEmitEngageEvent(true);
+    }
+  }, [hasUserTakenAction, onFocusMetricsEvent, emitEngageEvent]);
 
   const onNewPwdBlur = () => {
     // do not hide the password strength balloon if there are errors in the new password
@@ -326,6 +345,7 @@ export const FormPasswordWithBalloons = ({
                   },
                 },
               })}
+              inputRefDOM={newPasswordRef}
               prefixDataTestId="new-password"
               aria-describedby="password-requirements"
             />
