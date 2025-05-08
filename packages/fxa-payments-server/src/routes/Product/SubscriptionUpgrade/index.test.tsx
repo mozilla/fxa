@@ -93,7 +93,7 @@ async function rendersAsExpected(
   // and interval count match or not.
   const expectedInvoiceDate =
     upgradeFromPlan.interval !== selectedPlan.interval &&
-    selectedPlan.interval_count === upgradeFromPlan.interval_count
+      selectedPlan.interval_count === upgradeFromPlan.interval_count
       ? getLocalizedDateString(invoicePreview.line_items[0].period.end)
       : getLocalizedDateString(customerWebSubscription.current_period_end);
 
@@ -342,7 +342,7 @@ describe('PlanDetailsCard', () => {
       expectedMsgId: string,
       expectedMsg: string
     ) {
-      const props = { plan: plan };
+      const props = { plan: plan, currency: plan.currency };
 
       const testRenderer = TestRenderer.create(
         withLocalizationProvider(<PlanDetailsCard {...props} />)
@@ -365,7 +365,7 @@ describe('PlanDetailsCard', () => {
       const plan_id = 'plan_withname';
       const plan = findMockPlan(plan_id);
 
-      const props = { plan: plan };
+      const props = { plan: plan, currency: plan.currency };
 
       const testRenderer = TestRenderer.create(
         withLocalizationProvider(<PlanDetailsCard {...props} />)
@@ -384,7 +384,7 @@ describe('PlanDetailsCard', () => {
       const plan_id = 'plan_daily';
       const plan = findMockPlan(plan_id);
 
-      const props = { plan: plan };
+      const props = { plan: plan, currency: plan.currency };
 
       const testRenderer = TestRenderer.create(
         withLocalizationProvider(<PlanDetailsCard {...props} />)
