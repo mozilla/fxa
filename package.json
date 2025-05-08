@@ -264,6 +264,8 @@
     "@babel/traverse": "7.25.7",
     "@babel/types": "7.25.7",
     "@graphql-typed-document-node/core": "3.2.0",
+    "@react-pdf/layout": "3.9.1",
+    "@react-pdf/textkit": "4.3.0",
     "@svgr/webpack": "^8.0.1",
     "@types/node": "^20.11.1",
     "@types/react": "18.2.14",
