@@ -7,7 +7,7 @@
 # can stand alone as "{ -product-mozilla-account }"
 signin-token-code-heading-2 = Enter confirmation code<span> for your { -product-mozilla-account }</span>
 # { $email } represents the email that the user entered to sign in
-signin-token-code-instruction = Enter the code that was sent to { $email } within 5 minutes.
+signin-token-code-instruction-v2 = Enter the code that was sent to <email>{ $email }</email> within 5 minutes.
 signin-token-code-input-label-v2 = Enter 6-digit code
 # Form button to confirm if the confirmation code entered by the user is valid
 signin-token-code-confirm-button = Confirm
