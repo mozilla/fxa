@@ -12777,6 +12777,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-pdf/fns@npm:2.1.0":
+  version: 2.1.0
+  resolution: "@react-pdf/fns@npm:2.1.0"
+  dependencies:
+    "@babel/runtime": ^7.20.13
+  checksum: b7360daa769971ffa4cf8c45d953a30bd35c33fdaf03b9ef5bf3ab5f82d6b46f2450b061019aeabc6309024cae4a83333b08656aa79d1a11f962c656ca74487f
+  languageName: node
+  linkType: hard
+
 "@react-pdf/fns@npm:2.2.1":
   version: 2.2.1
   resolution: "@react-pdf/fns@npm:2.2.1"
@@ -12793,7 +12802,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pdf/font@npm:^2.3.6":
+"@react-pdf/font@npm:^2.4.0":
   version: 2.5.2
   resolution: "@react-pdf/font@npm:2.5.2"
   dependencies:
@@ -12818,7 +12827,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pdf/image@npm:^2.3.6":
+"@react-pdf/image@npm:^2.3.0":
   version: 2.3.6
   resolution: "@react-pdf/image@npm:2.3.6"
   dependencies:
@@ -12830,27 +12839,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pdf/layout@npm:^3.6.2":
-  version: 3.13.0
-  resolution: "@react-pdf/layout@npm:3.13.0"
+"@react-pdf/layout@npm:3.9.1":
+  version: 3.9.1
+  resolution: "@react-pdf/layout@npm:3.9.1"
   dependencies:
     "@babel/runtime": ^7.20.13
-    "@react-pdf/fns": 2.2.1
-    "@react-pdf/image": ^2.3.6
-    "@react-pdf/pdfkit": ^3.2.0
+    "@react-pdf/fns": 2.1.0
+    "@react-pdf/image": ^2.3.0
+    "@react-pdf/pdfkit": ^3.1.0
     "@react-pdf/primitives": ^3.1.1
-    "@react-pdf/stylesheet": ^4.3.0
-    "@react-pdf/textkit": ^4.4.1
-    "@react-pdf/types": ^2.6.0
+    "@react-pdf/stylesheet": ^4.2.0
+    "@react-pdf/textkit": ^4.3.0
+    "@react-pdf/types": ^2.3.5
     cross-fetch: ^3.1.5
     emoji-regex: ^10.3.0
     queue: ^6.0.1
     yoga-layout: ^2.0.1
-  checksum: d4014cc860292d0aba6b2d174647afa5003067bb3e98b53f983cb2d32e397514f77a030b53341a082e2682f257badac98792156e0483303a7df79be5e414eaab
+  checksum: 223f73565ace20f3ca61fc9459acc180426fc86b61aee1e4ba1e6edae443e075a4bd72f3e98847d92e38e47d0b4a26509aef61265473508d6cf1afb5ad8f2e28
   languageName: node
   linkType: hard
 
-"@react-pdf/pdfkit@npm:^3.0.2, @react-pdf/pdfkit@npm:^3.2.0":
+"@react-pdf/pdfkit@npm:^3.1.0":
   version: 3.2.0
   resolution: "@react-pdf/pdfkit@npm:3.2.0"
   dependencies:
@@ -12899,7 +12908,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pdf/primitives@npm:^3.0.0, @react-pdf/primitives@npm:^3.1.1":
+"@react-pdf/primitives@npm:^3.1.1":
   version: 3.1.1
   resolution: "@react-pdf/primitives@npm:3.1.1"
   checksum: a52c0cfff74d29d36e2e4c1c2b8935faf2f13bbe3800901e93354ea044385d8716166e45f3a49bb729e6d9944d7a8239056f5af80b345cb2984e245b2e719c1d
@@ -12913,7 +12922,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pdf/render@npm:^3.2.6":
+"@react-pdf/render@npm:^3.3.1":
   version: 3.5.0
   resolution: "@react-pdf/render@npm:3.5.0"
   dependencies:
@@ -12931,17 +12940,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pdf/renderer@npm:3.1.12":
-  version: 3.1.12
-  resolution: "@react-pdf/renderer@npm:3.1.12"
+"@react-pdf/renderer@npm:3.2.1":
+  version: 3.2.1
+  resolution: "@react-pdf/renderer@npm:3.2.1"
   dependencies:
     "@babel/runtime": ^7.20.13
-    "@react-pdf/font": ^2.3.6
-    "@react-pdf/layout": ^3.6.2
-    "@react-pdf/pdfkit": ^3.0.2
-    "@react-pdf/primitives": ^3.0.0
-    "@react-pdf/render": ^3.2.6
-    "@react-pdf/types": ^2.3.3
+    "@react-pdf/font": ^2.4.0
+    "@react-pdf/layout": ^3.9.1
+    "@react-pdf/pdfkit": ^3.1.0
+    "@react-pdf/primitives": ^3.1.1
+    "@react-pdf/render": ^3.3.1
+    "@react-pdf/types": ^2.3.5
     events: ^3.3.0
     object-assign: ^4.1.1
     prop-types: ^15.6.2
@@ -12949,11 +12958,11 @@ __metadata:
     scheduler: ^0.17.0
   peerDependencies:
     react: ^16.8.6 || ^17.0.0 || ^18.0.0
-  checksum: 7fa9779c8594e8e650fc121de5b89a40268ccab62b89a87c32f110bb4ea97adacd1d0fb2893533e3834613478bed71de2c1161e88e42916862b1523d7f10367e
+  checksum: c29e5364fd6ab4e169fc72f875bf4abee438cd9ff96e1d07904b1cc6e146a155daa32f2916535def1d53808f2a40cce03e3089829c539477612b5a40ba3e2fae
   languageName: node
   linkType: hard
 
-"@react-pdf/stylesheet@npm:^4.3.0":
+"@react-pdf/stylesheet@npm:^4.2.0":
   version: 4.3.0
   resolution: "@react-pdf/stylesheet@npm:4.3.0"
   dependencies:
@@ -12982,20 +12991,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-pdf/textkit@npm:^4.4.1":
-  version: 4.4.1
-  resolution: "@react-pdf/textkit@npm:4.4.1"
+"@react-pdf/textkit@npm:4.3.0":
+  version: 4.3.0
+  resolution: "@react-pdf/textkit@npm:4.3.0"
   dependencies:
     "@babel/runtime": ^7.20.13
-    "@react-pdf/fns": 2.2.1
-    bidi-js: ^1.0.2
+    "@react-pdf/fns": 2.1.0
     hyphen: ^1.6.4
     unicode-properties: ^1.4.1
-  checksum: e07b7574bab13999a2859dd6e8ddbbe3650ae63736c77ea36fc7f355d743a8954bfa8e59f43f8d0ecd5379e239a64882d0b88eb47a654019fb7575df0a235510
+  checksum: d4ce3e405160be1337241580cb0043f1b2117accfe5850e84d813a07c5c0d2cc106bed6c9c70fd1eff324c1fd7f8bf276ef314fe39addde5c9eb986130267e62
   languageName: node
   linkType: hard
 
-"@react-pdf/types@npm:^2.3.3, @react-pdf/types@npm:^2.6.0, @react-pdf/types@npm:^2.9.0":
+"@react-pdf/types@npm:^2.3.5, @react-pdf/types@npm:^2.6.0, @react-pdf/types@npm:^2.9.0":
   version: 2.9.0
   resolution: "@react-pdf/types@npm:2.9.0"
   dependencies:
@@ -24764,15 +24772,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bidi-js@npm:^1.0.2":
-  version: 1.0.3
-  resolution: "bidi-js@npm:1.0.3"
-  dependencies:
-    require-from-string: ^2.0.2
-  checksum: 877c5dcfd69a35fd30fee9e49a03faf205a7a4cd04a38af7648974a659cab7b1cd51fa881d7957c07bd1fc5adf22b90a56da3617bb0885ee69d58ff41117658c
-  languageName: node
-  linkType: hard
-
 "big-integer@npm:^1.6.44":
   version: 1.6.52
   resolution: "big-integer@npm:1.6.52"
@@ -34157,7 +34156,7 @@ __metadata:
     "@material-ui/core": v5.0.0-alpha.24
     "@pmmmwh/react-refresh-webpack-plugin": ^0.5.3
     "@reach/router": ^1.3.4
-    "@react-pdf/renderer": 3.1.12
+    "@react-pdf/renderer": 3.2.1
     "@storybook/addon-actions": 8.0.0
     "@storybook/addon-essentials": 7.6.15
     "@storybook/addon-interactions": 7.6.16
