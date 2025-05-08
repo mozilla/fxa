@@ -73,7 +73,7 @@ export class RateLimit {
       throw new ActionNotFound(action);
     }
 
-    const openBlocks = [];
+    const openBlocks = new Array<BlockStatus>();
 
     // Important! Set timestamp of check upfront.
     // This reduces small variance because of wait on IO operations.
@@ -159,9 +159,7 @@ export class RateLimit {
       //    - Open question, do we also want to no blocks with shorter bans? Or just the block with largest
       //      ban (ie the biggest retryAfter value).
 
-      return {
-        ...block,
-      };
+      return block;
     }
 
     // Made it through the gauntlet of rules. No blocks found!
