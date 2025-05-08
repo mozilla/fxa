@@ -7,16 +7,26 @@ import { parseConfigRules } from './config';
 import { Redis } from 'ioredis';
 import { BlockRecord, Rule } from './models';
 import { calculateRetryAfter, getKey } from './util';
+import { StatsD } from 'hot-shots';
 
 describe('rate-limit', () => {
   let redis: Redis;
+  let mockIncrement: jest.Mock;
+  let statsd: StatsD;
   let rateLimit: RateLimit;
 
   beforeAll(() => {
+    mockIncrement = jest.fn();
+
     redis = {} as unknown as Redis;
+    statsd = {
+      increment: mockIncrement,
+    } as unknown as StatsD;
   });
 
-  afterEach(async () => {});
+  afterEach(async () => {
+    mockIncrement.mockReset();
+  });
 
   it('creates rate limiter', () => {
     rateLimit = new RateLimit({}, redis);

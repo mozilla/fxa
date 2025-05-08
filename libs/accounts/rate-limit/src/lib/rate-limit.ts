@@ -7,6 +7,8 @@ import { BlockStatus, BlockRecord, Rule, BlockReason } from './models';
 import { ActionNotFound, MissingOption } from './error';
 import { calculateRetryAfter, getKey } from './util';
 
+import { StatsD } from '@fxa/shared/metrics/statsd';
+
 /**
  * Class that controls 'rate-limiting' specific actions.
  * This used to be customs-server, but has been simplified quite a bit by
@@ -20,7 +22,8 @@ export class RateLimit {
    */
   constructor(
     public readonly rules: Record<string, Rule[]>,
-    private readonly redis: Redis
+    private readonly redis: Redis,
+    private readonly statsd?: StatsD
   ) {}
 
   /**
@@ -38,6 +41,11 @@ export class RateLimit {
           await Promise.all([
             this.redis.del(blockKey),
             this.redis.del(attemptsKey),
+          ]);
+
+          this.statsd?.increment(`rate_limit.unblock`, [
+            `on:${rule.blockingOn}`,
+            `action:${rule.action}`,
           ]);
         }
       }
@@ -113,6 +121,11 @@ export class RateLimit {
           await Promise.all([
             this.redis.expire(blockKey, rule.blockDurationInSeconds),
             this.redis.expire(attemptsKey, 0),
+          ]);
+
+          this.statsd?.increment(`rate_limit.block`, [
+            `on:${rule.blockingOn}`,
+            `action:${rule.action}`,
           ]);
         }
       }
