@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/nextjs';
 import { Inject } from '@nestjs/common';
 import { ILogger } from '@fxa/shared/log';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { GENERIC_ERROR_MESSAGE } from './error';
 
 type Constructor<T> = new (...args: any[]) => T;
 
@@ -97,5 +98,5 @@ function handleException(args: {
     },
   });
 
-  return new Error('Something went wrong');
+  return new Error(GENERIC_ERROR_MESSAGE);
 }

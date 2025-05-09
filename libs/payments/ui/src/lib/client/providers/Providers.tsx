@@ -12,6 +12,7 @@ import {
 } from '@paypal/react-paypal-js';
 import { initSentryForNextjsClient } from '@fxa/shared/sentry/client';
 import { getClient as sentryGetClient } from '@sentry/nextjs';
+import { GENERIC_ERROR_MESSAGE } from '@fxa/shared/error/error';
 
 interface ProvidersProps {
   config: ConfigContextValues;
@@ -38,7 +39,11 @@ export function Providers({
   if (!sentryGetClient()) {
     initSentryForNextjsClient({
       release: process.env.version,
-      sentry: config.sentry,
+      sentry: {
+        ...config.sentry,
+        dsn: config.sentry.clientDsn,
+        ignoreErrors: [new RegExp(`^${GENERIC_ERROR_MESSAGE}$`)],
+      },
     });
   }
 

@@ -11,8 +11,10 @@ export interface ConfigContextValues {
   paypalClientId: string;
   sentry: {
     dsn?: string;
+    clientDsn?: string;
     env: string;
     clientName: string;
+    ignoreErrors?: (string | RegExp)[];
     sampleRate: number;
     tracesSampleRate: number;
   };
@@ -23,8 +25,10 @@ export const ConfigContext = createContext<ConfigContextValues>({
   paypalClientId: '',
   sentry: {
     dsn: '',
+    clientDsn: '',
     env: '',
     clientName: '',
+    ignoreErrors: [],
     sampleRate: 1,
     tracesSampleRate: 1,
   },

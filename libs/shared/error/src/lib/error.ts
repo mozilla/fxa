@@ -25,3 +25,5 @@ export class TypeError extends BaseError {
     super(...args);
   }
 }
+
+export const GENERIC_ERROR_MESSAGE = 'Something went wrong';

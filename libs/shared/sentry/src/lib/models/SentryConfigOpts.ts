@@ -21,6 +21,9 @@ export type SentryConfigOpts = {
     clientName?: string;
     /** The name of the active server. */
     serverName?: string;
+    /** The string messages of errors that should be ignored. Strings and regex patterns are permitted.
+     * When using strings, partial matches will be filtered out. If you need to filter by exact match, use regex patterns instead */
+    ignoreErrors?: (string | RegExp)[];
 
     /** When set to true, building a configuration will throw an error critical fields are missing. */
     strict?: boolean;
