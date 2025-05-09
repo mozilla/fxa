@@ -3303,7 +3303,7 @@ export class StripeHelper extends StripeHelperBase {
       id: invoiceId,
       number: invoiceNumber,
       currency: paymentProratedCurrency,
-      amount_due: invoiceAmountDue,
+      total: invoiceTotal,
     } = invoice;
 
     // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L643
@@ -3344,7 +3344,7 @@ export class StripeHelper extends StripeHelperBase {
       paymentAmountNewCurrency: nextInvoiceCurrency,
       invoiceNumber,
       invoiceId,
-      paymentProratedInCents: invoiceAmountDue,
+      paymentProratedInCents: invoiceTotal,
       paymentProratedCurrency,
     };
   }

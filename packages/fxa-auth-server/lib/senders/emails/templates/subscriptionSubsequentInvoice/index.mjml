@@ -22,7 +22,7 @@
     <%- include ('/partials/paymentProvider/index.mjml') %>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionSubsequentInvoice-content-next-invoice" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">
+      <span data-l10n-id="subscriptionSubsequentInvoice-content-next-invoice-date" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">
         Next Invoice: <%- nextInvoiceDateOnly %>
       </span>
     </mj-text>
