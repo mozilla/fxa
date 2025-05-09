@@ -6,6 +6,6 @@ subscriptionSubsequentInvoice-content-received = "We received your latest paymen
 
 <%- include ('/partials/viewInvoice/index.txt') %><%- include ('/partials/subscriptionCharges/index.txt') %>
 <%- include ('/partials/viewInvoice/index.txt') %><%- include ('/partials/paymentProvider/index.txt') %>
-subscriptionSubsequentInvoice-content-next-invoice = "Next Invoice: <%- nextInvoiceDateOnly %>"
+subscriptionSubsequentInvoice-content-next-invoice-date = "Next Invoice: <%- nextInvoiceDateOnly %>"
 
 <%- include ('/partials/subscriptionSupport/index.txt') %>
