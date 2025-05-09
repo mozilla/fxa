@@ -4,7 +4,14 @@ subscriptionUpgrade-title = "Thank you for upgrading!"
 
 subscriptionUpgrade-upgrade-info-2 = "You have successfully upgraded to <%- productName %>."
 
-subscriptionUpgrade-content-charge-info-different-cycle-2 = "You have been charged a one-time fee of <%- paymentProrated %> to reflect your subscription’s higher price for the remainder of this <%- productPaymentCycleOld %>. Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>."
+<% if (locals.paymentProratedInCents < 0) { %>
+subscriptionUpgrade-content-charge-credit = "You have received an account credit in the amount of <%- paymentProrated %>."
+<% } else if (locals.paymentProratedInCents > 0) { %>
+subscriptionUpgrade-content-charge-prorated = "You have been charged a one-time fee of <%- paymentProrated %> to reflect your subscription’s higher price for the remainder of this billing period (<%- productPaymentCycleOld %>)."
+<% } %>
+
+subscriptionUpgrade-content-starting = "Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>."
+
 
 subscriptionUpgrade-existing = "If any of your existing subscriptions overlap with this upgrade, we’ll handle them and send you a separate email with the details. If your new plan includes products that require installation, we’ll send you a separate email with setup instructions."
 
