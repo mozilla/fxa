@@ -5,15 +5,15 @@
 import React, { useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
-import ConfirmTotpResetPassword from '.';
+import ConfirmBackupCodeResetPassword from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
-const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
+const ConfirmBackupCodeResetPasswordContainer = (_: RouteComponentProps) => {
   const authClient = useAuthClient();
   const location = useLocation();
+
   const {
     code,
     email,
@@ -44,53 +44,24 @@ const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
     });
   };
 
-  const verifyCode = async (totpCode: string) => {
+  const verifyBackupCode = async (backupCode: string) => {
     setCodeErrorMessage('');
     try {
-      const result = await authClient.checkTotpTokenCodeWithPasswordForgotToken(
+      await authClient.consumeRecoveryCodeWithPasswordForgotToken(
         token,
-        totpCode
+        backupCode
       );
-      if (result.success) {
-        onSuccess();
-      } else {
-        setCodeErrorMessage(
-          getLocalizedErrorMessage(
-            ftlMsgResolver,
-            AuthUiErrors.INVALID_OTP_CODE
-          )
-        );
-      }
+      onSuccess();
     } catch (error) {
       setCodeErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
     }
   };
 
-  const onTroubleWithCode = () => {
-    navigateWithQuery('/confirm_backup_code_reset_password', {
-      state: {
-        code,
-        email,
-        emailToHashWith,
-        estimatedSyncDeviceCount,
-        recoveryKeyExists,
-        token,
-        uid,
-      },
-      replace: false,
-    });
-  };
-
   return (
-    <ConfirmTotpResetPassword
-      {...{
-        verifyCode,
-        codeErrorMessage,
-        setCodeErrorMessage,
-        onTroubleWithCode,
-      }}
+    <ConfirmBackupCodeResetPassword
+      {...{ verifyBackupCode, codeErrorMessage, setCodeErrorMessage }}
     />
   );
 };
 
-export default ConfirmTotpResetPasswordContainer;
+export default ConfirmBackupCodeResetPasswordContainer;

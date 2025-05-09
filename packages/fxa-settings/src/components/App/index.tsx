@@ -56,6 +56,7 @@ import ConfirmResetPasswordContainer from '../../pages/ResetPassword/ConfirmRese
 import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
 import AccountRecoveryConfirmKeyContainer from '../../pages/ResetPassword/AccountRecoveryConfirmKey/container';
 import ConfirmTotpResetPasswordContainer from '../../pages/ResetPassword/ConfirmTotpResetPassword/container';
+import ConfirmBackupCodeResetPasswordContainer from '../../pages/ResetPassword/ConfirmBackupCodeResetPassword/container';
 import ResetPasswordConfirmedContainer from '../../pages/ResetPassword/ResetPasswordConfirmed/container';
 import ResetPasswordWithRecoveryKeyVerifiedContainer from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified/container';
 import CompleteSigninContainer from '../../pages/Signin/CompleteSignin/container';
@@ -373,6 +374,7 @@ const AuthAndAccountSetupRoutes = ({
       />
       <ConfirmResetPasswordContainer path="/confirm_reset_password/*" />
       <ConfirmTotpResetPasswordContainer path="/confirm_totp_reset_password/*" />
+      <ConfirmBackupCodeResetPasswordContainer path="/confirm_backup_code_reset_password/*" />
       <CompleteResetPasswordContainer
         path="/complete_reset_password/*"
         {...{ integration }}
