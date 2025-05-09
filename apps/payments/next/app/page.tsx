@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Link from 'next/link';
+import { headers } from 'next/headers';
 
 export default function Index() {
   // TODO - Remove before launch -
@@ -10,6 +11,13 @@ export default function Index() {
   // The Subscription Platform doesn't currently have a root page,
   // and instead redirects to the Subscription Management page.
   // This page will be fixed before launch by FXA-8304
+  const acceptLanguage = headers().get('accept-language') || '';
+  const browserLocale = acceptLanguage
+    .split(',')
+    .map(p => p.split(';')[0].trim())
+    .find(l => l.length > 0) || 'en';
+  const locale = browserLocale.split('-')[0];
+
   return (
     <>
       <main className="mt-16 min-h-[calc(100vh_-_4rem)]">
@@ -21,7 +29,7 @@ export default function Index() {
               <h2>VPN - Monthly</h2>
               <Link
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                href="/en/vpn/monthly/landing"
+                href={`/${locale}/vpn/monthly/landing`}
               >
                 Redirect
               </Link>
@@ -30,7 +38,7 @@ export default function Index() {
               <h2>VPN - Yearly</h2>
               <Link
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                href="/en/vpn/yearly/landing"
+                href={`/${locale}/vpn/yearly/landing`}
               >
                 Redirect
               </Link>
@@ -42,7 +50,7 @@ export default function Index() {
               <h2>123Done Pro - Monthly</h2>
               <Link
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                href="/en/123donepro/monthly/new"
+                href={`/${locale}/123donepro/monthly/new`}
               >
                 Redirect
               </Link>

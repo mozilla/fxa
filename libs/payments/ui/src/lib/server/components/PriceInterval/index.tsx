@@ -19,6 +19,6 @@ export async function PriceInterval(props: PriceIntervalProps) {
     {
       amount: l10n.getLocalizedCurrency(amount, currency),
     },
-    formatPlanPricing(amount, currency, interval)
+    formatPlanPricing(amount, currency, interval, false, 0, l10n.locale)
   );
 }

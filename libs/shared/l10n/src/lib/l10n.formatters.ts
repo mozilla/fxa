@@ -36,12 +36,13 @@ export function getLocalizedCurrency(
  */
 export function getLocalizedCurrencyString(
   amountInCents: number | null,
-  currency: string
+  currency: string,
+  locale = 'en'
 ): string {
   const decimal = (amountInCents || 0) / 100;
   const options = { ...baseCurrencyOptions, currency };
 
-  return new Intl.NumberFormat('en', options).format(decimal);
+  return new Intl.NumberFormat(locale, options).format(decimal);
 }
 
 /**

@@ -98,7 +98,7 @@ describe('LocalizerRsc', () => {
     it('should call getLocalizedCurrencyString', () => {
       const spy = jest.spyOn(formatters, 'getLocalizedCurrencyString');
       localizerRsc.getLocalizedCurrencyString(amountInCents, currency);
-      expect(spy).toBeCalledWith(amountInCents, currency);
+      expect(spy).toBeCalledWith(amountInCents, currency, localizerRsc.locale);
     });
 
     it('should call getLocalizedDate', () => {
