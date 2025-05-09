@@ -47,20 +47,33 @@ describe('ConfirmTotpResetPassword', () => {
     const user = userEvent.setup();
     renderWithLocalizationProvider(<Subject verifyCode={mockVerifyCode} />);
 
-    await waitFor(() =>
-      screen.getByRole('textbox', { name: 'Enter 6-digit code' }).click()
-    );
-    await waitFor(() => {
-      user.paste('123456');
-    });
+    await waitFor(() => user.type(screen.getByRole('textbox'), '123456'));
 
     const submitButton = screen.getByRole('button', {
       name: 'Confirm',
     });
-    expect(submitButton).toBeEnabled();
+    await waitFor(() => expect(submitButton).toBeEnabled());
 
-    await waitFor(() => user.click(submitButton));
-    expect(mockVerifyCode).toHaveBeenCalledTimes(1);
+    user.click(submitButton);
+    await waitFor(() => expect(mockVerifyCode).toHaveBeenCalledTimes(1));
     expect(mockVerifyCode).toHaveBeenCalledWith('123456');
+  });
+
+  it('shows an error string passed via props', async () => {
+    renderWithLocalizationProvider(<Subject errorMessage="Bad code" />);
+
+    expect(await screen.findByText('Bad code')).toBeInTheDocument();
+  });
+
+  it('invokes onTroubleWithCode when the link is clicked', async () => {
+    const onTrouble = jest.fn();
+    const user = userEvent.setup();
+
+    renderWithLocalizationProvider(<Subject onTroubleWithCode={onTrouble} />);
+
+    const link = screen.getByRole('button', { name: /trouble entering code/i });
+    await user.click(link);
+
+    expect(onTrouble).toHaveBeenCalledTimes(1);
   });
 });

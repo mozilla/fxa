@@ -33,7 +33,6 @@ import * as UseValidateModule from '../../lib/hooks/useValidate';
 import * as FirefoxModule from '../../lib/channels/firefox';
 import * as CryptoModule from 'fxa-auth-client/lib/crypto';
 import * as ReachRouterModule from '@reach/router';
-import * as ReactUtils from 'fxa-react/lib/utils';
 
 // Typical imports
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';

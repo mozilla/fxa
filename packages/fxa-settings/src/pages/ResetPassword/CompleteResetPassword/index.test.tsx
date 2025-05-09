@@ -6,7 +6,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { Subject } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MOCK_EMAIL, MOCK_PASSWORD } from '../../mocks';
+import { MOCK_PASSWORD } from '../../mocks';
 import GleanMetrics from '../../../lib/glean';
 
 const mockSubmitNewPassword = jest.fn((newPassword: string) =>
@@ -73,7 +73,7 @@ describe('CompleteResetPassword page', () => {
       expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
     });
 
-    it('renders expected text when service=relay', () => {
+    it('renders expected text when service=relay', async () => {
       renderWithLocalizationProvider(
         <Subject
           isDesktopServiceRelay={true}
@@ -81,7 +81,9 @@ describe('CompleteResetPassword page', () => {
           recoveryKeyExists={false}
         />
       );
-      screen.getByText(serviceRelayText);
+      await waitFor(() =>
+        expect(screen.getByText(serviceRelayText)).toBeVisible()
+      );
     });
 
     it('renders as expected for account without sync', async () => {

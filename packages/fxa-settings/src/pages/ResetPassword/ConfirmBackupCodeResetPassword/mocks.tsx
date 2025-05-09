@@ -3,23 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import ConfirmTotpResetPassword from '.';
+import ConfirmBackupCodeResetPassword from '.';
 import { LocationProvider } from '@reach/router';
 
 export const Subject = ({
-  verifyCode = () => Promise.resolve(),
+  verifyBackupCode = () => Promise.resolve(),
   errorMessage = '',
-  onTroubleWithCode = () => {},
 }) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState(errorMessage);
   return (
     <LocationProvider>
-      <ConfirmTotpResetPassword
+      <ConfirmBackupCodeResetPassword
         {...{
-          verifyCode,
+          verifyBackupCode,
           codeErrorMessage,
           setCodeErrorMessage,
-          onTroubleWithCode,
         }}
       />
     </LocationProvider>

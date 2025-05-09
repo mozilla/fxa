@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ConfirmTotpResetPassword from '.';
+import ConfirmBackupCodeResetPassword from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Subject } from './mocks';
 
 export default {
-  title: 'Pages/ResetPassword/ConfirmTotpResetPassword',
-  component: ConfirmTotpResetPassword,
+  title: 'Pages/ResetPassword/ConfirmBackupCodeResetPassword',
+  component: ConfirmBackupCodeResetPassword,
   decorators: [withLocalization],
 } as Meta;
 
