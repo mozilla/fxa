@@ -30,6 +30,7 @@ function mockedResponse(data = '', headers = {}) {
     Object.assign(responseOptions, {
       headers,
       statusCode: 200,
+      removeHeader: function () {},
       on(name, callback) {
         const args = [];
 
@@ -46,14 +47,47 @@ function mockedResponse(data = '', headers = {}) {
 registerSuite('beta settings', {
   tests: {
     'replaces beta meta string with config data': function () {
-      const config = { kenny: 'spenny' };
+      const config = {
+        kenny: 'spenny',
+        sentry: { dsn: 'https://00000000.ingest.sentry.io/0000000' },
+        servers: {
+          gql: {
+            url: 'https://graphql.accounts.firefox.com/',
+          },
+          auth: {
+            url: 'https://api.accounts.firefox.com',
+          },
+          oauth: {
+            url: 'https://api.accounts.firefox.com',
+          },
+          profile: {
+            url: 'https://api.accounts.firefox.com',
+          },
+        },
+      };
       const encodedConfig = encodeURIComponent(JSON.stringify(config));
 
       const result = swapBetaMeta(dummyHtml, {
         __SERVER_CONFIG__: config,
+        __GQL_URL_PRECONNECT__: `<link rel="preconnect" href="${config.servers.gql.url}">`,
+        __AUTH_URL_PRECONNECT__: `<link rel="preconnect" href="${config.servers.auth.url}">`,
+        __OAUTH_URL_PRECONNECT__: `<link rel="preconnect" href="${config.servers.oauth.url}">`,
+        __SENTRY_URL_PRECONNECT__: `<link rel="preconnect" href="${config.sentry.dsn.replace(/sentry.io.*/, 'sentry.io')}">`,
       });
 
       expect(result).to.contain(encodedConfig);
+      expect(result).to.contain(
+        `<link rel="preconnect" href="${config.servers.gql.url}">`
+      );
+      expect(result).to.contain(
+        `<link rel="preconnect" href="${config.servers.auth.url}">`
+      );
+      expect(result).to.contain(
+        `<link rel="preconnect" href="${config.servers.oauth.url}">`
+      );
+      expect(result).to.contain(
+        `<link rel="preconnect" href="${config.sentry.dsn.replace(/sentry.io.*/, 'sentry.io')}">`
+      );
     },
     'proxies the response': function () {
       const headers = { 'x-foo': 'bar' };
@@ -79,6 +113,10 @@ registerSuite('beta settings', {
         __SERVER_CONFIG__: settingsConfig,
         __TRACE_PARENT__: '00-0-0-00',
         __TRACE_STATE__: '',
+        __GQL_URL_PRECONNECT__: `<link rel="preconnect" href="${settingsConfig.servers.gql.url}">`,
+        __AUTH_URL_PRECONNECT__: `<link rel="preconnect" href="${settingsConfig.servers.auth.url}">`,
+        __OAUTH_URL_PRECONNECT__: ``,
+        __SENTRY_URL_PRECONNECT__: ``,
       });
 
       expect(proxiedResponse.send).to.be.calledWith(
