@@ -38,6 +38,10 @@ class SentryServerConfig {
   @IsString()
   dsn?: string;
 
+  @IsOptional()
+  @IsString()
+  clientDsn?: string;
+
   @IsString()
   env!: string;
 
