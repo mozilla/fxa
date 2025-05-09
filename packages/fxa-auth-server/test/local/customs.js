@@ -726,6 +726,15 @@ describe('Customs', () => {
       suspect: true,
       unblock: true,
       blockReason: 'other',
+      // Important! Values with high cardinality like retryAfter
+      // should be sent to statsd!
+      retryAfter: 1111,
+    };
+    const validTags = {
+      block: true,
+      suspect: true,
+      unblock: true,
+      blockReason: 'other',
     };
 
     beforeEach(() => {
@@ -739,10 +748,10 @@ describe('Customs', () => {
         await customsWithUrl.check(request, email, action);
         assert.fail('should have failed');
       } catch (err) {
-        assert.isTrue(
+          assert.isTrue(
           statsd.increment.calledWithExactly('customs.request.check', {
             action,
-            ...tags,
+            ...validTags,
           })
         );
         assert.isTrue(statsd.timing.calledWithMatch('customs.check.success'));
@@ -765,7 +774,7 @@ describe('Customs', () => {
         assert.isTrue(
           statsd.increment.calledWithExactly('customs.request.checkIpOnly', {
             action,
-            ...tags,
+            ...validTags,
           })
         );
         assert.isTrue(

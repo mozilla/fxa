@@ -175,7 +175,19 @@ class CustomsClient {
     }
 
     if (this.statsd) {
-      const tags = { action, block: options.block, ...options };
+      const tags = { action };
+      if (options.block != null) {
+        tags.block = options.block;
+      }
+      if (options.suspect != null) {
+        tags.suspect = options.suspect;
+      }
+      if (options.unblock != null) {
+        tags.unblock = options.unblock;
+      }
+      if (options.blockReason != null) {
+        tags.blockReason = options.blockReason;
+      }
       this.statsd.increment(`${serviceName}.${name}`, tags);
     }
   }
