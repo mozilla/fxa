@@ -19,4 +19,8 @@ subscriptionFirstInvoice-content-invoice-number-plaintext = "Invoice Number: <%-
   subscriptionFirstInvoiceDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"
 <% } %>
 <% } %>
+<% if (invoiceTotalInCents >= 0 ) { %>
 subscriptionFirstInvoice-content-charge = "Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>"
+<% } else { %>
+subscriptionFirstInvoice-content-credit = "You have received an account credit of <%- invoiceTotal %>, which will be applied to your future invoices."
+<% } %>

@@ -2358,6 +2358,46 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
       { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
       { test: 'include', expected: `Mastercard card ending in 5309` },
+      { test: 'include', expected: `You have received an account credit of ${MESSAGE_FORMATTED.invoiceTotal}, which will be applied to your future invoices.`},
+      { test: 'notInclude', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View your invoice` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment received` },
+      { test: 'include', expected: 'Thank you for being a subscriber!' },
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+      { test: 'include', expected: `Mastercard card ending in 5309` },
+      { test: 'include', expected: `You have received an account credit of ${MESSAGE_FORMATTED.invoiceTotal}, which will be applied to your future invoices.`},
+      { test: 'notInclude', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+      { test: 'notInclude', expected: 'PayPal' },
+    ]]
+  ]),
+    {updateTemplateValues: x => ({...x, invoiceTotalInCents: -1000000})}
+  ],
+  ['subscriptionSubsequentInvoiceEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Thank you for being a subscriber!' },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
+      { test: 'include', expected: `Mastercard card ending in 5309` },
       { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'include', expected: `View your invoice` },
@@ -2552,7 +2592,74 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms')) },
       { test: 'include', expected: `You have successfully upgraded to ${MESSAGE.productNameNew}.` },
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
-      { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect your subscription’s higher price for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+      { test: 'include', expected: `You have been charged a one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect your subscription’s higher price for the remainder of this billing period (${MESSAGE.productPaymentCycleOld}).` },
+      { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+      { test: 'notInclude', expected: `You have received an account credit in the amount of ${MESSAGE_FORMATTED.paymentProrated}.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `You have upgraded to ${MESSAGE.productNameNew}` },
+      { test: 'include', expected: 'Thank you for upgrading!' },
+      { test: 'include', expected: `You have successfully upgraded to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
+      { test: 'include', expected: `You have been charged a one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect your subscription’s higher price for the remainder of this billing period (${MESSAGE.productPaymentCycleOld}).` },
+      { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+      { test: 'notInclude', expected: `You have received an account credit in the amount of ${MESSAGE_FORMATTED.paymentProrated}.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]), {updateTemplateValues: x => (
+    {...x, productName: MESSAGE.productNameNew, paymentProratedInCents: 523100 })}
+  ],
+
+    ['subscriptionUpgradeEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `You have upgraded to ${MESSAGE.productNameNew}` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionUpgrade') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionUpgrade' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionUpgrade }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `You have upgraded to ${MESSAGE.productNameNew}` },
+      { test: 'include', expected: 'Thank you for upgrading!' },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms')) },
+      { test: 'include', expected: `You have successfully upgraded to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `You have received an account credit in the amount of ${MESSAGE_FORMATTED.paymentProrated}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
+      { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect your subscription’s higher price for the remainder of this billing period (${MESSAGE.productPaymentCycleOld}).` },
+      { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `You have upgraded to ${MESSAGE.productNameNew}` },
+      { test: 'include', expected: 'Thank you for upgrading!' },
+      { test: 'include', expected: `You have successfully upgraded to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `You have received an account credit in the amount of ${MESSAGE_FORMATTED.paymentProrated}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
+      { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect your subscription’s higher price for the remainder of this billing period (${MESSAGE.productPaymentCycleOld}).` },
+      { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]), {updateTemplateValues: x => (
+    {...x, productName: MESSAGE.productNameNew, paymentProratedInCents: -523100, })}
+  ],
+
+    ['subscriptionUpgradeEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `You have upgraded to ${MESSAGE.productNameNew}` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionUpgrade') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionUpgrade' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionUpgrade }],
+    ])],
+    ['html', [
+      { test: 'include', expected: `You have upgraded to ${MESSAGE.productNameNew}` },
+      { test: 'include', expected: 'Thank you for upgrading!' },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms')) },
+      { test: 'include', expected: `You have successfully upgraded to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
+      { test: 'notInclude', expected: `You have received an account credit in the amount of ${MESSAGE_FORMATTED.paymentProrated}.` },
+      { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect your subscription’s higher price for the remainder of this billing period (${MESSAGE.productPaymentCycleOld}).` },
       { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -2561,12 +2668,13 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'Thank you for upgrading!' },
       { test: 'include', expected: `You have successfully upgraded to ${MESSAGE.productNameNew}.` },
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
-      { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect your subscription’s higher price for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
+      { test: 'notInclude', expected: `You have received an account credit in the amount of ${MESSAGE_FORMATTED.paymentProrated}.` },
+      { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect your subscription’s higher price for the remainder of this billing period (${MESSAGE.productPaymentCycleOld}).` },
       { test: 'notInclude', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ]), {updateTemplateValues: x => (
-    {...x, productName: MESSAGE.productNameNew })}
+    {...x, productName: MESSAGE.productNameNew, paymentProratedInCents: 0 })}
   ],
 
   // Template partial specific tests (choose a template containing the partial)

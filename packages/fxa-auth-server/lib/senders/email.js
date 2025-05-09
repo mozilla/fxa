@@ -2147,10 +2147,11 @@ module.exports = function (log, config, bounces, statsd) {
           message.acceptLanguage
         ),
         paymentProrated: this._getLocalizedCurrencyString(
-          paymentProratedInCents,
+          Math.abs(paymentProratedInCents),
           paymentProratedCurrency,
           message.acceptLanguage
         ),
+        paymentProratedInCents,
         productPaymentCycleNew,
         productPaymentCycleOld,
         icon: productIconURLNew,
@@ -2717,8 +2718,9 @@ module.exports = function (log, config, bounces, statsd) {
         invoiceLink,
         invoiceNumber,
         invoiceDate,
+        invoiceTotalInCents,
         invoiceTotal: this._getLocalizedCurrencyString(
-          invoiceTotalInCents,
+          Math.abs(invoiceTotalInCents),
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
