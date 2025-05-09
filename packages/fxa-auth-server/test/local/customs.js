@@ -11,6 +11,7 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../mocks');
 const error = require(`${ROOT_DIR}/lib/error.js`);
 const nock = require('nock');
+const { AUTH_SERVER_ERRNOS } = require('fxa-shared/lib/errors');
 
 const CUSTOMS_URL_REAL = 'http://localhost:7000';
 const CUSTOMS_URL_MISSING = 'http://localhost:7001';
@@ -717,6 +718,40 @@ describe('Customs', () => {
         undefined,
         'nothing is returned when /check succeeds - 1'
       );
+    });
+  });
+
+  describe('customs v2', () => {
+    it('can rate limit checkAccountStatus with rate-limit lib', async () => {
+      const mockRateLimit = {
+        check: sinon.spy(),
+      };
+      mockRateLimit.check.returnValues = [
+        null,
+        {
+          retryAfter: 1000,
+          reason: 'too-many-attempts',
+        },
+      ];
+      const customs = new Customs(
+        CUSTOMS_URL_REAL,
+        log,
+        error,
+        statsd,
+        mockRateLimit
+      );
+      await customs.checkRateLimit(request, email, 'accountStatusCheck');
+      try {
+        await customs.checkRateLimit(request, email, 'accountStatusCheck');
+        throw new Error(
+          'Expected checkRateLimit to throw tooManyRequests error'
+        );
+      } catch (err) {
+        assert.equal(err.code, 429);
+        assert.equal(err.error, 'Too Many Requests');
+        assert.equal(err.errno, AUTH_SERVER_ERRNOS.THROTTLED);
+        assert.equal(err.message, 'Client has sent too many requests');
+      }
     });
   });
 

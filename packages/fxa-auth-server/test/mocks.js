@@ -34,6 +34,10 @@ const CUSTOMS_METHOD_NAMES = [
   'checkIpOnly',
   'flag',
   'reset',
+  // V2 methods
+  'checkRateLimit',
+  'checkAuthenticatedRateLimit',
+  'checkIpOnlyRateLimit',
 ];
 
 const DB_METHOD_NAMES = [

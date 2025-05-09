@@ -17,10 +17,12 @@ const localizeTimestamp =
 const serviceName = 'customs';
 
 class CustomsClient {
-  constructor(url, log, error, statsd) {
+  constructor(url, log, error, statsd, rateLimit) {
     this.log = log;
     this.error = error;
     this.statsd = statsd;
+    this.rateLimit = rateLimit;
+
     const customsHttpAgentConfig = config.get('customsHttpAgent');
 
     if (url !== 'none') {
@@ -86,7 +88,7 @@ class CustomsClient {
     }
   }
 
-  async check(request, email, action) {
+  async check(request, email, action, version) {
     const result = await this.makeRequest('/check', {
       ...this.sanitizePayload({
         ip: request.app.clientAddress,
@@ -205,7 +207,7 @@ class CustomsClient {
         throw this.error.tooManyRequests(
           result.retryAfter,
           retryAfterLocalized,
-          unblock
+          false
         );
       }
 
@@ -245,6 +247,90 @@ class CustomsClient {
       });
     }
   }
+
+  // #region Customs V2
+
+  /**
+   * Version 2 Customs Approach
+   * =======================================================================================
+   * We are versioning the function names in order to make the upgrade easy. Once customs v2
+   * (aka the rate limiting lib) has baked and we are confident in the functionality we can
+   * deprecate the old functions, and use these instead. Note, that v2 uses a library which
+   * makes the calls more direct and simplifies things a bit
+   */
+
+  async checkRateLimit(request, action, email) {
+    this._rateLimit('check', action, {
+      ip: request?.app?.clientAddress,
+      email,
+    });
+  }
+
+  async checkAuthenticatedRateLimit(request, uid, action) {
+    this._rateLimit('checkAuthenticated', action, {
+      ip: request?.app?.clientAddress,
+      uid,
+    });
+  }
+
+  async checkIpOnlyRateLimit(request, action) {
+    this._rateLimit('checkIpOnly', action, {
+      ip: request?.app?.clientAddress,
+    });
+  }
+
+  async _rateLimit(type, action, opts) {
+    const result = await this.rateLimit.check(action, opts);
+
+    // If statsd was provided, record metrics
+    if (this.statsd) {
+      this.statsd.increment(`${serviceName}.request.v2.${type}`, {
+        action,
+        block: result != null,
+        blockReason: result?.reason || '',
+      });
+    }
+
+    // If no result, we can short circuit
+    if (result == null) {
+      return;
+    }
+
+    // We use the rate limiter to allow X number unblock attempts per day. Once
+    // unblock attempts have been exhausted, the user cannot request an unblock
+    // code and must wait until the unblockEmail ban duration has expired. Similar
+    // logic existed in the old customs server, but these sorts of decisions are
+    // actually domain of the service using customs and not customs itself, so
+    // this is the revised approach.
+    let canUnblock = false;
+    if (email) {
+      const unblockResult = this.rateLimit.check('unblockEmail', {
+        email,
+      });
+      canUnblock = unblockResult == null;
+    }
+
+    request.emitMetricsEvent('customs.blocked');
+
+    if (result.retryAfter) {
+      const retryAfterLocalized = localizeTimestamp.format(
+        Date.now() + result.retryAfter * 1000,
+        request.headers['accept-language']
+      );
+      throw this.error.tooManyRequests(
+        result.retryAfter,
+        retryAfterLocalized,
+        canUnblock
+      );
+    } else {
+      // Note, the previous implementation would throw this error if there was no
+      // retryAfter value. However, in the new implementation there is always a retry
+      // after value, because not having one creates bad UX. Therefore, the following
+      // error should not actually be raised in practice.
+      throw this.error.requestBlocked(unblock);
+    }
+  }
+  // #endregion
 }
 
 module.exports = CustomsClient;

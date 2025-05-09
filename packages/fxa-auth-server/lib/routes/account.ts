@@ -1346,7 +1346,7 @@ export class AccountHandler {
       invalidDomain = await this.checkEmailDomainValidity(email);
     }
 
-    await this.customs.check(request, email, 'accountStatusCheck');
+    await this.customs.checkRateLimit(request, email, 'accountStatusCheck');
 
     const result: {
       exists: boolean;
