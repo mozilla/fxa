@@ -6,18 +6,26 @@ import { RateLimit } from './rate-limit';
 import { parseConfigRules } from './config';
 import Redis from 'ioredis';
 import { after } from 'node:test';
+import { StatsD } from 'hot-shots';
 
 describe('rate-limit', () => {
+  let mockIncrement: jest.Mock;
+  let statsd: StatsD;
   let redis: Redis.Redis;
   let rateLimit: RateLimit;
 
   beforeAll(() => {
     redis = new Redis('localhost');
+    mockIncrement = jest.fn();
+    statsd = {
+      increment: mockIncrement,
+    } as unknown as StatsD;
   });
 
   beforeEach(async () => {
     await redis.flushall();
-    rateLimit = new RateLimit({}, redis);
+    rateLimit = new RateLimit({}, redis, statsd);
+    mockIncrement.mockReset();
   });
 
   after(async () => {
@@ -28,7 +36,8 @@ describe('rate-limit', () => {
     it('should block on ' + blockOn, async () => {
       rateLimit = new RateLimit(
         parseConfigRules(['testBlock:ip:1:1s:1s']),
-        redis
+        redis,
+        statsd
       );
 
       const check1 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
@@ -37,13 +46,20 @@ describe('rate-limit', () => {
       expect(check1).toBeNull();
       expect(check2?.reason).toEqual('too-many-attempts');
       expect(check2?.retryAfter).toEqual(1000);
+
+      expect(mockIncrement).toBeCalledTimes(1);
+      expect(mockIncrement).toBeCalledWith('rate_limit.block', [
+        'on:ip',
+        'action:testBlock',
+      ]);
     });
   }
 
   it(`should not block after window clears`, async () => {
     rateLimit = new RateLimit(
       parseConfigRules(['testWindowCleared:ip:1:1s:1s']),
-      redis
+      redis,
+      statsd
     );
 
     const check1 = await rateLimit.check('testWindowCleared', {
@@ -61,7 +77,8 @@ describe('rate-limit', () => {
   it('can block multiple rules on a single action', async () => {
     rateLimit = new RateLimit(
       parseConfigRules(['testMulti:ip:2:10s:2s', 'testMulti:email:2:10s:3s']),
-      redis
+      redis,
+      statsd
     );
     const check1 = await rateLimit.check('testMulti', {
       ip: '127.0.0.1',
@@ -107,7 +124,8 @@ describe('rate-limit', () => {
         'testDouble:email:2:10s:2s',
         'testDouble:email:3:10s:4s',
       ]),
-      redis
+      redis,
+      statsd
     );
     const check1 = await rateLimit.check('testDouble', {
       email: 'foo@mozilla.com',
@@ -134,7 +152,11 @@ describe('rate-limit', () => {
     /**
      * Note that once the ban kicks in the window disappears. So despite
      */
-    rateLimit = new RateLimit(parseConfigRules(['test:ip:1:20s:1s']), redis);
+    rateLimit = new RateLimit(
+      parseConfigRules(['test:ip:1:20s:1s']),
+      redis,
+      statsd
+    );
 
     const check1 = await rateLimit.check('test', { ip: '127.0.0.1' });
     const check2 = await rateLimit.check('test', { ip: '127.0.0.1' });
@@ -153,7 +175,8 @@ describe('rate-limit', () => {
   it('can unblock', async () => {
     rateLimit = new RateLimit(
       parseConfigRules(['testBlock:ip:1:1s:1s']),
-      redis
+      redis,
+      statsd
     );
 
     const check1 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
@@ -165,5 +188,15 @@ describe('rate-limit', () => {
     expect(check2?.reason).toEqual('too-many-attempts');
     expect(check2?.retryAfter).toEqual(1000);
     expect(check3).toBeNull();
+
+    expect(statsd.increment).toBeCalledTimes(2);
+    expect(statsd.increment).toBeCalledWith('rate_limit.block', [
+      'on:ip',
+      'action:testBlock',
+    ]);
+    expect(statsd.increment).toBeCalledWith('rate_limit.unblock', [
+      'on:ip',
+      'action:testBlock',
+    ]);
   });
 });

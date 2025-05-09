@@ -7,31 +7,45 @@ import { parseConfigRules } from './config';
 import { Redis } from 'ioredis';
 import { BlockRecord, Rule } from './models';
 import { calculateRetryAfter, getKey } from './util';
+import { StatsD } from 'hot-shots';
 
 describe('rate-limit', () => {
   let redis: Redis;
+  let mockIncrement: jest.Mock;
+  let statsd: StatsD;
   let rateLimit: RateLimit;
 
   beforeAll(() => {
+    mockIncrement = jest.fn();
+
     redis = {} as unknown as Redis;
+    statsd = {
+      increment: mockIncrement,
+    } as unknown as StatsD;
   });
 
-  afterEach(async () => {});
+  afterEach(async () => {
+    mockIncrement.mockReset();
+  });
 
   it('creates rate limiter', () => {
-    rateLimit = new RateLimit({}, redis);
+    rateLimit = new RateLimit({}, redis, statsd);
     expect(rateLimit).toBeDefined();
   });
 
   it('throws if no action can be found', async () => {
-    rateLimit = new RateLimit({}, redis);
+    rateLimit = new RateLimit({}, redis, statsd);
     expect(rateLimit.check('foo', {})).rejects.toThrow(
       `Could not locate the 'foo' action.`
     );
   });
 
   it('throws error if option is missing', async () => {
-    rateLimit = new RateLimit(parseConfigRules(['test:ip:1:1s:1s']), redis);
+    rateLimit = new RateLimit(
+      parseConfigRules(['test:ip:1:1s:1s']),
+      redis,
+      statsd
+    );
 
     expect(
       rateLimit.check('test', { email: 'foo@mozilla.com' })
