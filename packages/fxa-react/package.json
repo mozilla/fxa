@@ -47,11 +47,6 @@
     "tailwindcss-dir": "^4.0.0"
   },
   "devDependencies": {
-    "@babel/core": "7.25.7",
-    "@babel/plugin-transform-typescript": "7.26.8",
-    "@babel/preset-env": "7.25.7",
-    "@babel/preset-react": "7.25.7",
-    "@babel/preset-typescript": "7.25.7",
     "@storybook/addon-actions": "8.0.0",
     "@storybook/addon-links": "7.6.4",
     "@storybook/addon-styling": "1.3.0",
@@ -62,7 +57,6 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/user-event": "^14.6.0",
-    "@types/babel__preset-env": "^7",
     "@types/camelcase": "5.2.0",
     "@types/classnames": "2.3.1",
     "@types/file-loader": "^5.0.0",
@@ -105,6 +99,16 @@
   "keywords": [
     "fxa"
   ],
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": "> 0.25%, last 2 versions, not dead"
+        }
+      ]
+    ]
+  },
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "bugs": {
