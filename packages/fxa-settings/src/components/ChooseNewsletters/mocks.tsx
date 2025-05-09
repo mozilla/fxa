@@ -6,7 +6,25 @@ import React, { useState } from 'react';
 import ChooseNewsletters from '.';
 import { newsletters } from './newsletters';
 
-export const Subject = () => {
+export const SubjectWithNewsletters = () => {
+  const [, setSelected] = useState<string[]>([]);
+
+  const newsletters = [
+    {
+      label: 'Early access to test new products',
+      slug: ['test-pilot'],
+      ftlId: 'choose-newsletters-option-test-pilot',
+    },
+  ];
+  return (
+    <ChooseNewsletters
+      {...{ newsletters }}
+      setSelectedNewsletterSlugs={setSelected}
+    />
+  );
+};
+
+export const SubjectWithNone = () => {
   const [, setSelected] = useState<string[]>([]);
 
   return (

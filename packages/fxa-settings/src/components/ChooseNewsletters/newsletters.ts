@@ -14,20 +14,22 @@ export type Newsletter = {
   ftlId: string;
 };
 
-export const newsletters: Newsletter[] = [
-  {
-    label: 'Get our latest news and product updates',
-    slug: ['mozilla-and-you', 'mozilla-accounts'],
-    ftlId: 'choose-newsletters-option-latest-news',
-  },
-  {
-    label: 'Action alerts to reclaim the internet',
-    slug: ['mozilla-foundation'],
-    ftlId: 'choose-newsletters-option-reclaim-the-internet',
-  },
-  {
-    label: 'Early access to test new products',
-    slug: ['test-pilot'],
-    ftlId: 'choose-newsletters-option-test-pilot',
-  },
-];
+/**
+ * Example newsletters:
+ *   [{
+ *     label: 'Get our latest news and product updates',
+ *     slug: ['mozilla-and-you', 'mozilla-accounts'],
+ *     ftlId: 'choose-newsletters-option-latest-news',
+ *   },
+ *   {
+ *     label: 'Action alerts to reclaim the internet',
+ *     slug: ['mozilla-foundation'],
+ *     ftlId: 'choose-newsletters-option-reclaim-the-internet',
+ *   },
+ *   {
+ *     label: 'Early access to test new products',
+ *     slug: ['test-pilot'],
+ *     ftlId: 'choose-newsletters-option-test-pilot',
+ *   }]
+ */
+export const newsletters: Newsletter[] = [];

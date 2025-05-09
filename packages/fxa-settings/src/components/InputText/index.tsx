@@ -24,6 +24,7 @@ export type InputTextProps = {
   className?: string;
   inputOnlyClassName?: string;
   inputRef?: Ref<HTMLInputElement>;
+  inputRefDOM?: Ref<HTMLInputElement>;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   onFocusCb?: () => void;
   onBlurCb?: () => void;
@@ -63,6 +64,7 @@ export const InputText = ({
   className = '',
   inputOnlyClassName = '',
   inputRef,
+  inputRefDOM,
   type = 'text',
   name,
   prefixDataTestId = '',
@@ -117,6 +119,20 @@ export const InputText = ({
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
   }
 
+  const combinedRef = useCallback(
+    (element: HTMLInputElement | null) => {
+      if (inputRefDOM) {
+        (
+          inputRefDOM as React.MutableRefObject<HTMLInputElement | null>
+        ).current = element;
+      }
+      if (inputRef && typeof inputRef === 'function') {
+        inputRef(element);
+      }
+    },
+    [inputRef, inputRefDOM]
+  );
+
   return (
     <label
       className={classNames(
@@ -157,7 +173,8 @@ export const InputText = ({
           )}
           data-testid={formatDataTestId('input-field')}
           onChange={textFieldChange}
-          ref={inputRef}
+          ref={combinedRef}
+          // ref={inputRef}
           {...{
             name,
             disabled,
