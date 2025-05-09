@@ -27,6 +27,7 @@ type UpgradePurchaseDetailsProps = {
     productName: string;
     webIcon: string;
   };
+  locale: string;
 };
 
 export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
@@ -37,6 +38,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
     invoice,
     l10n,
     purchaseDetails,
+    locale
   } = props;
   const { productName, subtitle, webIcon } = purchaseDetails;
   const {
@@ -77,6 +79,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
               amount={fromPrice.listAmount}
               currency={fromPrice.currency}
               interval={fromPrice.interval}
+              locale={locale}
             />
             {fromPurchaseDetails.subtitle && (
               <span>
@@ -112,6 +115,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
               amount={listAmount}
               currency={currency}
               interval={interval}
+              locale={locale}
             />
             {subtitle && (
               <span>
@@ -138,7 +142,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
                 `${productName} (${formatPlanInterval(interval)})`
               )}
             </p>
-            <p>{l10n.getLocalizedCurrencyString(listAmount, currency)}</p>
+            <p>{l10n.getLocalizedCurrencyString(listAmount, currency, locale)}</p>
           </li>
         )}
 
@@ -151,7 +155,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
               )}
             </p>
             <p>
-              {l10n.getLocalizedCurrencyString(-1 * discountAmount, currency)}
+              {l10n.getLocalizedCurrencyString(-1 * discountAmount, currency, locale)}
             </p>
           </li>
         )}
@@ -167,7 +171,8 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
             <p>
               {l10n.getLocalizedCurrencyString(
                 exclusiveTaxRates[0].amount,
-                currency
+                currency,
+                locale
               )}
             </p>
           </li>
@@ -183,7 +188,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
                 >
                   <p>{l10n.getString('tax', taxRate.title)}</p>
                   <p>
-                    {l10n.getLocalizedCurrencyString(taxRate.amount, currency)}
+                    {l10n.getLocalizedCurrencyString(taxRate.amount, currency, locale)}
                   </p>
                 </li>
               )
@@ -205,6 +210,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
               amount={totalAmount}
               currency={currency}
               interval={interval}
+              locale={locale}
             />
           </p>
         </li>
@@ -224,7 +230,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
               className="overflow-hidden text-ellipsis whitespace-nowrap"
               data-testid="prorated-price"
             >
-              {l10n.getLocalizedCurrencyString(oneTimeCharge, currency)}
+              {l10n.getLocalizedCurrencyString(oneTimeCharge, currency, locale)}
             </p>
           </div>
         </>

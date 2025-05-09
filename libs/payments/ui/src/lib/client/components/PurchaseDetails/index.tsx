@@ -25,10 +25,11 @@ type PurchaseDetailsProps = {
     webIcon: string;
   };
   totalPrice: React.ReactNode;
+  locale: string;
 };
 
 export function PurchaseDetails(props: PurchaseDetailsProps) {
-  const { invoice, priceInterval, purchaseDetails, totalPrice } = props;
+  const { invoice, priceInterval, purchaseDetails, totalPrice, locale } = props;
   const { details, productName, subtitle, webIcon } = purchaseDetails;
   const {
     currency,
@@ -92,7 +93,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
               <Localized id="next-plan-details-list-price">
                 <p>List Price</p>
               </Localized>
-              <p>{getLocalizedCurrencyString(listAmount, currency)}</p>
+              <p>{getLocalizedCurrencyString(listAmount, currency, locale)}</p>
             </li>
           )}
 
@@ -101,7 +102,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
               <Localized id="next-coupon-promo-code">
                 <p>Promo Code</p>
               </Localized>
-              <p>{getLocalizedCurrencyString(-1 * discountAmount, currency)}</p>
+              <p>{getLocalizedCurrencyString(-1 * discountAmount, currency, locale)}</p>
             </li>
           )}
 
@@ -114,7 +115,8 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
                 <p>
                   {getLocalizedCurrencyString(
                     exclusiveTaxRates[0].amount,
-                    currency
+                    currency,
+                    locale
                   )}
                 </p>
               </li>
@@ -132,7 +134,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
                       <p>{taxRate.title}</p>
                     </Localized>
                     <p>
-                      {getLocalizedCurrencyString(taxRate.amount, currency)}
+                      {getLocalizedCurrencyString(taxRate.amount, currency, locale)}
                     </p>
                   </li>
                 )
