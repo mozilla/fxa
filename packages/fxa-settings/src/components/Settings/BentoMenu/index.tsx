@@ -25,6 +25,7 @@ import {
 import { LINK } from '../../../constants';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 import GleanMetrics from '../../../lib/glean';
+import classNames from 'classnames';
 
 export const BentoMenu = () => {
   const [isRevealed, setRevealed] = useState(false);
@@ -113,7 +114,10 @@ export const BentoMenu = () => {
         aria-label={bentoMenuTitle}
         aria-expanded={!!isRevealed}
         aria-haspopup="menu"
-        className="rounded p-2 mx-2 border-transparent hover:bg-grey-100 transition-standard desktop:mx-8"
+        className={classNames(
+          'rounded p-2 mx-2 border-transparent hover:bg-grey-100 transition-standard desktop:mx-8',
+          'focus-visible:outline focus-visible:outline-blue-500 focus-visible:outline-2'
+        )}
       >
         <BentoIcon className="w-5 text-violet-900" />
       </button>

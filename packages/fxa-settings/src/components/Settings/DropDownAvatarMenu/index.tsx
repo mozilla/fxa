@@ -64,7 +64,7 @@ export const DropDownAvatarMenu = () => {
           aria-label={dropDownMenuTitle}
           aria-expanded={!!isRevealed}
           aria-haspopup="menu"
-          className="rounded-full border border-transparent hover:border-purple-500 focus:border-purple-500 focus:outline-none active:border-purple-700 transition-standard"
+          className="rounded-full border border-transparent hover:border-purple-500 focus-visible:outline focus-visible:outline-blue-500 focus-visible:outline-2 active:border-purple-700 transition-standard"
         >
           <Avatar className="w-10 rounded-full" {...{ avatar }} />
         </button>

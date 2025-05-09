@@ -6,9 +6,18 @@ import React from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import LinkExternal from '../LinkExternal';
 import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
+import classNames from 'classnames';
 
 export const Footer = () => {
   const { l10n } = useLocalization();
+  // This is different from the link-grey class! This one is one shade lighter
+  // and is only underlined on hover.
+  const greyFocusOutlineClasses =
+    'focus:shadow-input-grey-focus focus-visible:shadow-input-grey-focus focus-visible:outline-none';
+  const greyLinkClasses = classNames(
+    'transition-standard text-xs hover:text-grey-500 hover:underline mobileLandscape:self-end',
+    greyFocusOutlineClasses
+  );
   return (
     <footer
       className="py-4 mt-16 mx-4 flex-wrap mobileLandscape:flex-nowrap mobileLandscape:mx-8 mobileLandscape:pb-6 flex border-t border-grey-100 text-grey-400"
@@ -17,6 +26,8 @@ export const Footer = () => {
       <LinkExternal
         href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
         data-testid="link-mozilla"
+        // Using grey outline here to match the rest of the footer
+        className={greyFocusOutlineClasses}
       >
         <img
           src={mozLogo}
@@ -33,7 +44,7 @@ export const Footer = () => {
           <LinkExternal
             data-testid="link-privacy"
             href="https://www.mozilla.org/privacy/websites/"
-            className="transition-standard text-xs hover:text-grey-500 hover:underline mobileLandscape:self-end"
+            className={greyLinkClasses}
           >
             Website Privacy Notice
           </LinkExternal>
@@ -44,7 +55,7 @@ export const Footer = () => {
           <LinkExternal
             data-testid="link-terms"
             href="https://www.mozilla.org/about/legal/terms/services/"
-            className="transition-standard text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline"
+            className={greyLinkClasses}
           >
             Terms of Service
           </LinkExternal>
