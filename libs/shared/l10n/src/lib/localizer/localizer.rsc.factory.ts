@@ -63,7 +63,7 @@ export class LocalizerRscFactory extends LocalizerBase {
       }
     });
 
-    return new LocalizerRsc(supportedBundles, this.parseMarkup());
+    return new LocalizerRsc(supportedBundles, this.parseMarkup(), undefined, currentLocales[0]);
   }
 
   getFetchedMessages(

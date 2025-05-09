@@ -6,6 +6,15 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import Index from '../../app/page';
 
+jest.mock('next/headers', () => ({
+  headers: () => ({
+    get: (key: string) => {
+      if (key === 'accept-language') return 'en-US,en;q=0.5';
+      return null;
+    },
+  }),
+}))
+
 describe('Page', () => {
   it('renders Page as expected', async () => {
     render(Index());

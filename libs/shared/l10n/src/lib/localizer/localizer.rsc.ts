@@ -33,12 +33,15 @@ import {
  */
 export class LocalizerRsc {
   private l10n: ReactLocalization;
+  public locale: string;
   constructor(
     bundles: Iterable<FluentBundle>,
     parseMarkup?: MarkupParser | null,
-    reportError?: (error: Error) => void
+    reportError?: (error: Error) => void,
+    locale = 'en'
   ) {
     this.l10n = new ReactLocalization(bundles, parseMarkup, reportError);
+    this.locale = locale;
   }
 
   private createFragment(id: string) {
@@ -107,7 +110,7 @@ export class LocalizerRsc {
   }
 
   getLocalizedCurrencyString(amountInCents: number | null, currency: string) {
-    return getLocalizedCurrencyString(amountInCents, currency);
+    return getLocalizedCurrencyString(amountInCents, currency, this.locale);
   }
 
   getLocalizedDate(unixSeconds: number, numericDate = false): FluentDateTime {

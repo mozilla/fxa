@@ -99,6 +99,7 @@ export default async function CheckoutLayout({
                 interval={cart.interval}
               />
             }
+            locale={ l10n.locale }
           />
           {cart.state === CartState.START && (
             <div
