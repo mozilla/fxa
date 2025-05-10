@@ -224,9 +224,8 @@ export class RecoveryPhoneService {
     // OTP confirm page before then. "Basic lookups" from Twilio are free, so don't
     // bother persisting in redis.
     // https://www.twilio.com/en-us/user-authentication-identity/pricing/lookup
-    const { nationalFormat } = await this.smsManager.phoneNumberLookup(
-      phoneNumber
-    );
+    const { nationalFormat } =
+      await this.smsManager.phoneNumberLookup(phoneNumber);
     return nationalFormat;
   }
 
@@ -322,7 +321,7 @@ export class RecoveryPhoneService {
    * @param code A otp code
    * @returns True if successful
    */
-  public async confirmSigninCode(uid: string, code: string) {
+  public async confirmCode(uid: string, code: string) {
     if (!this.config.enabled) {
       throw new RecoveryPhoneNotEnabled();
     }
@@ -353,9 +352,8 @@ export class RecoveryPhoneService {
    * @returns True if successful
    */
   public async removePhoneNumber(uid: string) {
-    const hasRecoveryCodes = await this.recoveryPhoneManager.hasRecoveryCodes(
-      uid
-    );
+    const hasRecoveryCodes =
+      await this.recoveryPhoneManager.hasRecoveryCodes(uid);
 
     // TBD: Random, obs. why do we do this? It seems like a potential edge case, what if the user
     // consumes all the recovery codes? This could then return false...

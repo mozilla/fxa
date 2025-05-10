@@ -63,6 +63,7 @@ const SMS_SENDING_ACTION = {
   connectDeviceSms: true,
   recoveryPhoneSendSigninCode: true,
   recoveryPhoneSendSetupCode: true,
+  recoveryPhoneSendResetPasswordCode: true,
 };
 
 // Actions that may grant access to an account but

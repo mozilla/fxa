@@ -32,6 +32,7 @@ import { recordSecurityEvent } from './utils/security-event';
 
 import { Container } from 'typedi';
 import { ConfigType } from '../../config';
+import { PasswordForgotToken } from 'fxa-shared/db/models/auth';
 
 enum RecoveryPhoneStatus {
   SUCCESS = 'success',
@@ -45,6 +46,36 @@ export type Customs = {
     uid: string,
     action: string
   ) => Promise<void>;
+};
+
+const l10nTypeMap = {
+  setup: {
+    id: 'recovery-phone-setup-sms-body',
+    fallbackMessage:
+      '${code} is your Mozilla verification code. Expires in 5 minutes.',
+  },
+  'setup-short': {
+    id: 'recovery-phone-setup-sms-short-body',
+    fallbackMessage: 'Mozilla verification code: ${code}',
+  },
+  signin: {
+    id: 'recovery-phone-signin-sms-body',
+    fallbackMessage:
+      '${code} is your Mozilla recovery code. Expires in 5 minutes.',
+  },
+  'signin-short': {
+    id: 'recovery-phone-signin-sms-short-body',
+    fallbackMessage: 'Mozilla code: ${code}',
+  },
+  'reset-password': {
+    id: 'recovery-phone-reset-password-sms-body',
+    fallbackMessage:
+      '${code} is your Mozilla recovery code. Expires in 5 minutes.',
+  },
+  'reset-password-short': {
+    id: 'recovery-phone-reset-password-sms-short-body',
+    fallbackMessage: 'Mozilla code: ${code}',
+  },
 };
 
 class RecoveryPhoneHandler {
@@ -70,29 +101,8 @@ class RecoveryPhoneHandler {
   getLocalizedMessage = async (
     request: AuthRequest,
     code: string,
-    type: 'setup' | 'signin' | 'setup-short' | 'signin-short'
+    type: keyof typeof l10nTypeMap
   ) => {
-    const l10nTypeMap = {
-      setup: {
-        id: 'recovery-phone-setup-sms-body',
-        fallbackMessage:
-          '${code} is your Mozilla verification code. Expires in 5 minutes.',
-      },
-      'setup-short': {
-        id: 'recovery-phone-setup-sms-short-body',
-        fallbackMessage: 'Mozilla verification code: ${code}',
-      },
-      signin: {
-        id: 'recovery-phone-signin-sms-body',
-        fallbackMessage:
-          '${code} is your Mozilla recovery code. Expires in 5 minutes.',
-      },
-      'signin-short': {
-        id: 'recovery-phone-signin-sms-short-body',
-        fallbackMessage: 'Mozilla code: ${code}',
-      },
-    };
-
     const l10n = l10nTypeMap[type];
     const localizedStrings = await this.localizer.localizeStrings(
       request.app.locale,
@@ -107,7 +117,7 @@ class RecoveryPhoneHandler {
     return localizedStrings[l10n.id];
   };
 
-  async sendCode(request: AuthRequest) {
+  async sendSigninCode(request: AuthRequest) {
     const { uid, email } = request.auth
       .credentials as SessionTokenAuthCredential;
 
@@ -156,7 +166,7 @@ class RecoveryPhoneHandler {
 
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
-        'sendCode',
+        'sendSigninCode',
         { uid },
         error
       );
@@ -175,6 +185,84 @@ class RecoveryPhoneHandler {
     }
 
     await this.glean.twoStepAuthPhoneCode.sendError(request);
+    return { status: RecoveryPhoneStatus.FAILURE };
+  }
+
+  async sendResetPasswordCode(request: AuthRequest) {
+    const { uid, email } = request.auth.credentials as PasswordForgotToken;
+
+    if (!email) {
+      throw AppError.invalidToken();
+    }
+
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      'recoveryPhoneSendResetPasswordCode'
+    );
+
+    const getFormattedMessage = async (code: string) => {
+      const localizedMessage = await this.getLocalizedMessage(
+        request,
+        code,
+        'reset-password'
+      );
+      const shortLocalizedMessage = await this.getLocalizedMessage(
+        request,
+        code,
+        'reset-password-short'
+      );
+      return {
+        msg: localizedMessage,
+        shortMsg: shortLocalizedMessage,
+        failsafeMsg: `Mozilla: ${code}`,
+      };
+    };
+
+    let success = false;
+    try {
+      success = await this.recoveryPhoneService.sendCode(
+        uid,
+        getFormattedMessage
+      );
+    } catch (error) {
+      if (error instanceof RecoveryNumberNotExistsError) {
+        throw AppError.recoveryPhoneNumberDoesNotExist();
+      }
+
+      if (error instanceof SmsSendRateLimitExceededError) {
+        throw AppError.smsSendRateLimitExceeded();
+      }
+
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        throw AppError.featureNotEnabled();
+      }
+
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'sendResetPasswordCode',
+        { uid },
+        error
+      );
+    }
+
+    if (success) {
+      this.statsd.increment(
+        'account.recoveryPhone.resetPasswordSendCode.success'
+      );
+
+      this.glean.resetPassword.recoveryPhoneCodeSent(request);
+
+      recordSecurityEvent('account.recovery_phone_send_code', {
+        db: this.db,
+        request,
+      });
+
+      return { status: RecoveryPhoneStatus.SUCCESS };
+    }
+
+    this.glean.resetPassword.recoveryPhoneCodeSendError(request);
+
     return { status: RecoveryPhoneStatus.FAILURE };
   }
 
@@ -220,6 +308,10 @@ class RecoveryPhoneHandler {
       );
       if (success) {
         this.statsd.increment('account.recoveryPhone.setupPhoneNumber.success');
+        recordSecurityEvent('account.recovery_phone_send_code', {
+          db: this.db,
+          request,
+        });
         await this.glean.twoStepAuthPhoneCode.sent(request);
 
         let nationalFormat: string | null = null;
@@ -267,7 +359,7 @@ class RecoveryPhoneHandler {
     }
   }
 
-  async confirmCode(request: AuthRequest, isSetup: boolean) {
+  async confirmSigninCode(request: AuthRequest, isSetup: boolean) {
     const {
       id: sessionTokenId,
       uid,
@@ -299,7 +391,7 @@ class RecoveryPhoneHandler {
         // This is a sign in attempt. This will check the code, and if valid, mark the
         // session token verified. This session will have a security level that allows
         // the user to remove totp devices.
-        success = await this.recoveryPhoneService.confirmSigninCode(uid, code);
+        success = await this.recoveryPhoneService.confirmCode(uid, code);
 
         // Mark session as verified
         if (success) {
@@ -423,6 +515,62 @@ class RecoveryPhoneHandler {
     }
 
     recordSecurityEvent('account.recovery_phone_signin_failed', {
+      db: this.db,
+      request,
+    });
+
+    throw AppError.invalidOrExpiredOtpCode();
+  }
+
+  async confirmResetPasswordCode(request: AuthRequest) {
+    const { uid, email } = request.auth.credentials as PasswordForgotToken;
+
+    const { code } = request.payload as unknown as {
+      code: string;
+    };
+
+    if (!email) {
+      throw AppError.invalidToken();
+    }
+
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      'verifyRecoveryPhoneTotpCode'
+    );
+
+    let success = false;
+    try {
+      success = await this.recoveryPhoneService.confirmCode(uid, code);
+    } catch (error) {
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        throw AppError.featureNotEnabled();
+      }
+
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'confirmCode',
+        { uid },
+        error
+      );
+    }
+
+    if (success) {
+      await this.glean.resetPassword.recoveryPhoneCodeComplete(request);
+
+      this.statsd.increment('account.resetPassword.recoveryPhone.success');
+
+      recordSecurityEvent('account.recovery_phone_reset_password_complete', {
+        db: this.db,
+        request,
+      });
+
+      // @TODO send email in FXA-11600
+
+      return { status: RecoveryPhoneStatus.SUCCESS };
+    }
+
+    recordSecurityEvent('account.recovery_phone_reset_password_failed', {
       db: this.db,
       request,
     });
@@ -719,7 +867,7 @@ export const recoveryPhoneRoutes = (
       },
       handler: function (request: AuthRequest) {
         log.begin('recoveryPhoneConfirmSetup', request);
-        return recoveryPhoneHandler.confirmCode(request, true);
+        return recoveryPhoneHandler.confirmSigninCode(request, true);
       },
     },
     {
@@ -733,7 +881,7 @@ export const recoveryPhoneRoutes = (
       },
       handler: function (request: AuthRequest) {
         log.begin('recoveryPhoneSigninSendCode', request);
-        return recoveryPhoneHandler.sendCode(request);
+        return recoveryPhoneHandler.sendSigninCode(request);
       },
     },
     {
@@ -747,7 +895,35 @@ export const recoveryPhoneRoutes = (
       },
       handler: function (request: AuthRequest) {
         log.begin('recoveryPhoneSigninConfirmCode', request);
-        return recoveryPhoneHandler.confirmCode(request, false);
+        return recoveryPhoneHandler.confirmSigninCode(request, false);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recovery_phone/reset_password/send_code',
+      options: {
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'passwordForgotToken',
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneResetPasswordSendCode', request);
+        return recoveryPhoneHandler.sendResetPasswordCode(request);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recovery_phone/reset_password/confirm',
+      options: {
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'passwordForgotToken',
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneResetPasswordConfirmCode', request);
+        return recoveryPhoneHandler.confirmResetPasswordCode(request);
       },
     },
     {
