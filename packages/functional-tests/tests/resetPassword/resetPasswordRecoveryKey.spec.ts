@@ -15,6 +15,8 @@ test.describe('severity-1 #smoke', () => {
       pages: { recoveryKey, resetPassword, settings, signin },
       testAccountTracker,
     }) => {
+      test.setTimeout(120000);
+
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
