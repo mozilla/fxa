@@ -122,6 +122,26 @@ function swapBetaMeta(html, tmplContent = {}) {
   return result;
 }
 
+const preconnectLinks = [];
+function preconnect(val) {
+  if (!val) {
+    return '';
+  }
+
+  // Don't create duplicate pre-connect links
+  if (preconnectLinks.includes(val)) {
+    return '';
+  }
+
+  // Don't allow more than 5 pre-connects
+  if (preconnectLinks.length > 5) {
+    return '';
+  }
+
+  preconnectLinks.push(val);
+  return `<link rel="preconnect" href="${val}">`;
+}
+
 // Conditionally modify the response
 function modifyProxyRes(proxyRes, req, res) {
   const bodyChunks = [];
@@ -146,10 +166,22 @@ function modifyProxyRes(proxyRes, req, res) {
     ) {
       let html = body.toString();
       const flowEventData = flowMetrics.create(FLOW_ID_KEY);
+
+      // Using '?' will breaks l10n extraction :9
+      let gqlUrl, authUrl, oauthUrl, sentryUrl;
+      try { gqlUrl = settingsConfig.servers.gql.url; } catch (e) {}
+      try { authUrl = settingsConfig.servers.auth.url; } catch (e) {}
+      try { oauthUrl = settingsConfig.servers.oauth.url; } catch (e) {}
+      try { sentryUrl = settingsConfig.sentry.dsn.replace(/\/\d*$/, ''); } catch (e) {}
+
       html = swapBetaMeta(html, {
         __SERVER_CONFIG__: settingsConfig,
         __FLOW_ID__: flowEventData.flowId,
         __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
+        __GQL_URL_PRECONNECT__: preconnect(gqlUrl),
+        __AUTH_URL_PRECONNECT__: preconnect(authUrl),
+        __OAUTH_URL_PRECONNECT__: preconnect(oauthUrl),
+        __SENTRY_URL_PRECONNECT__: preconnect(sentryUrl),
       });
       res.send(new Buffer.from(html));
     } else {
