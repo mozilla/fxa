@@ -74,8 +74,11 @@ export const ModalVerifySession = ({
     getStatus();
   }, [session, onCompleted]);
 
-  const buttonDisabled =
-    !formState.isDirty || !formState.isValid || account.loading;
+  // Destructure formState in advance to avoid logical operator short-circuiting
+  // causing the isValid field to be conditionally subscribed.
+  const { isDirty, isValid } = formState;
+  const buttonDisabled = !isDirty || !isValid || account.loading;
+
   return (
     !session.verified && (
       <Modal
