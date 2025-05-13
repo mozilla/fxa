@@ -67,6 +67,9 @@ const recordInactiveAccountDeletionFinalEmailSkippedStub = sinon.stub();
 const recordInactiveAccountDeletionDeletionScheduledStub = sinon.stub();
 const recordInactiveAccountDeletionDeletionSkippedStub = sinon.stub();
 const recordEmailDeliverySuccessStub = sinon.stub();
+const recordPasswordResetRecoveryPhoneCodeSentStub = sinon.stub();
+const recordPasswordResetRecoveryPhoneCodeSendErrorStub = sinon.stub();
+const recordPasswordResetRecoveryPhoneCodeCompleteStub = sinon.stub();
 
 const gleanProxy = proxyquire('../../../lib/metrics/glean', {
   './server_events': {
@@ -159,6 +162,12 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
       recordInactiveAccountDeletionDeletionSkipped:
         recordInactiveAccountDeletionDeletionSkippedStub,
       recordEmailDeliverySuccess: recordEmailDeliverySuccessStub,
+      recordPasswordResetRecoveryPhoneCodeSent:
+        recordPasswordResetRecoveryPhoneCodeSentStub,
+      recordPasswordResetRecoveryPhoneCodeSendError:
+        recordPasswordResetRecoveryPhoneCodeSendErrorStub,
+      recordPasswordResetRecoveryPhoneCodeComplete:
+        recordPasswordResetRecoveryPhoneCodeCompleteStub,
     }),
   },
 });

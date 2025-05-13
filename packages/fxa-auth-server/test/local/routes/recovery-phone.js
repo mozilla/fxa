@@ -53,11 +53,16 @@ describe('/recovery_phone', () => {
     twoStepAuthPhoneRemove: {
       success: sandbox.fake(),
     },
+    resetPassword: {
+      recoveryPhoneCodeSent: sandbox.fake(),
+      recoveryPhoneCodeSendError: sandbox.fake(),
+      recoveryPhoneCodeComplete: sandbox.fake(),
+    },
   };
   const mockRecoveryPhoneService = {
     setupPhoneNumber: sandbox.fake(),
     getNationalFormat: sandbox.fake(),
-    confirmSigninCode: sandbox.fake(),
+    confirmCode: sandbox.fake(),
     confirmSetupCode: sandbox.fake(),
     removePhoneNumber: sandbox.fake(),
     stripPhoneNumber: sandbox.fake(),
@@ -196,6 +201,125 @@ describe('/recovery_phone', () => {
         'POST'
       );
       assert.equal(route.options.auth.strategy, 'sessionToken');
+    });
+  });
+
+  describe('POST /recovery_phone/reset_password/send_code', () => {
+    it('sends recovery phone code', async () => {
+      mockRecoveryPhoneService.sendCode = sinon.fake.returns(true);
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/reset_password/send_code',
+        credentials: { uid, email },
+      });
+
+      // artificial delay since the metrics and security event related calls
+      // are not awaited
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      assert.isDefined(resp);
+      assert.equal(resp.status, 'success');
+      assert.equal(mockRecoveryPhoneService.sendCode.callCount, 1);
+      assert.equal(mockRecoveryPhoneService.sendCode.getCall(0).args[0], uid);
+
+      assert.equal(mockGlean.resetPassword.recoveryPhoneCodeSent.callCount, 1);
+      assert.equal(
+        mockGlean.resetPassword.recoveryPhoneCodeSendError.callCount,
+        0
+      );
+
+      assert.equal(mockCustoms.checkAuthenticated.callCount, 1);
+      assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[1], uid);
+      assert.equal(
+        mockCustoms.checkAuthenticated.getCall(0).args[2],
+        'recoveryPhoneSendResetPasswordCode'
+      );
+
+      assert.calledOnceWithExactly(
+        mockAccountEventsManager.recordSecurityEvent,
+        mockDb,
+        {
+          name: 'account.recovery_phone_send_code',
+          uid,
+          ipAddr: '63.245.221.32',
+          tokenId: undefined,
+          additionalInfo: {
+            userAgent: 'test user-agent',
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+          },
+        }
+      );
+      assert.calledOnceWithExactly(
+        mockStatsd.increment,
+        'account.recoveryPhone.resetPasswordSendCode.success'
+      );
+    });
+
+    it('handles failure to send recovery phone code', async () => {
+      mockRecoveryPhoneService.sendCode = sinon.fake.returns(false);
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/reset_password/send_code',
+        credentials: { uid, email },
+      });
+
+      // artificial delay since the metrics and security event related calls
+      // are not awaited
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      assert.isDefined(resp);
+      assert.equal(resp.status, 'failure');
+      assert.equal(mockRecoveryPhoneService.sendCode.callCount, 1);
+      assert.equal(mockRecoveryPhoneService.sendCode.getCall(0).args[0], uid);
+
+      assert.equal(mockGlean.resetPassword.recoveryPhoneCodeSent.callCount, 0);
+      assert.equal(
+        mockGlean.resetPassword.recoveryPhoneCodeSendError.callCount,
+        1
+      );
+    });
+
+    it('handles unexpected backend error', async () => {
+      mockRecoveryPhoneService.sendCode = sinon.fake.returns(
+        Promise.reject(new Error('BOOM'))
+      );
+
+      const promise = makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/reset_password/send_code',
+        credentials: { uid, email },
+      });
+
+      await assert.isRejected(promise, 'System unavailable, try again soon');
+      assert.equal(mockRecoveryPhoneService.sendCode.callCount, 1);
+      assert.equal(mockRecoveryPhoneService.sendCode.getCall(0).args[0], uid);
+
+      // artificial delay since the metrics and security event related calls
+      // are not awaited
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      assert.equal(mockGlean.resetPassword.recoveryPhoneCodeSent.callCount, 0);
+      assert.equal(
+        mockGlean.resetPassword.recoveryPhoneCodeSendError.callCount,
+        0
+      );
+    });
+
+    it('requires a passwordForgotToken', () => {
+      const route = getRoute(
+        routes,
+        '/recovery_phone/reset_password/send_code',
+        'POST'
+      );
+      assert.equal(route.options.auth.strategy, 'passwordForgotToken');
     });
   });
 
@@ -474,7 +598,7 @@ describe('/recovery_phone', () => {
 
   describe('POST /recovery_phone/signin/confirm', async () => {
     it('confirms a code during signin', async () => {
-      mockRecoveryPhoneService.confirmSigninCode = sinon.fake.returns(true);
+      mockRecoveryPhoneService.confirmCode = sinon.fake.returns(true);
 
       const resp = await makeRequest({
         method: 'POST',
@@ -485,13 +609,13 @@ describe('/recovery_phone', () => {
 
       assert.isDefined(resp);
       assert.equal(resp.status, 'success');
-      assert.equal(mockRecoveryPhoneService.confirmSigninCode.callCount, 1);
+      assert.equal(mockRecoveryPhoneService.confirmCode.callCount, 1);
       assert.equal(
-        mockRecoveryPhoneService.confirmSigninCode.getCall(0).args[0],
+        mockRecoveryPhoneService.confirmCode.getCall(0).args[0],
         uid
       );
       assert.equal(
-        mockRecoveryPhoneService.confirmSigninCode.getCall(0).args[1],
+        mockRecoveryPhoneService.confirmCode.getCall(0).args[1],
         code
       );
       assert.equal(mockAccountManager.verifySession.callCount, 1);
@@ -529,7 +653,7 @@ describe('/recovery_phone', () => {
     });
 
     it('fails confirms a code during signin', async () => {
-      mockRecoveryPhoneService.confirmSigninCode = sinon.fake.returns(false);
+      mockRecoveryPhoneService.confirmCode = sinon.fake.returns(false);
 
       try {
         await makeRequest({
@@ -546,6 +670,99 @@ describe('/recovery_phone', () => {
           mockDb,
           {
             name: 'account.recovery_phone_signin_failed',
+            uid,
+            ipAddr: '63.245.221.32',
+            tokenId: undefined,
+            additionalInfo: {
+              userAgent: 'test user-agent',
+              location: {
+                city: 'Mountain View',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'California',
+                stateCode: 'CA',
+              },
+            },
+          }
+        );
+      }
+    });
+  });
+
+  describe('POST /recovery_phone/reset_password/confirm', async () => {
+    it('successfully confirms the code', async () => {
+      mockRecoveryPhoneService.confirmCode = sinon.fake.returns(true);
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/reset_password/confirm',
+        credentials: { uid, email },
+        payload: { code },
+      });
+
+      // artificial delay since the metrics and security event related calls
+      // are not awaited
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      assert.isDefined(resp);
+      assert.equal(resp.status, 'success');
+      assert.equal(mockRecoveryPhoneService.confirmCode.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.confirmCode.getCall(0).args[0],
+        uid
+      );
+      assert.equal(
+        mockRecoveryPhoneService.confirmCode.getCall(0).args[1],
+        code
+      );
+      assert.equal(
+        mockGlean.resetPassword.recoveryPhoneCodeComplete.callCount,
+        1
+      );
+      assert.calledOnceWithExactly(
+        mockAccountEventsManager.recordSecurityEvent,
+        mockDb,
+        {
+          name: 'account.recovery_phone_reset_password_complete',
+          uid,
+          ipAddr: '63.245.221.32',
+          tokenId: undefined,
+          additionalInfo: {
+            userAgent: 'test user-agent',
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
+          },
+        }
+      );
+      assert.calledOnceWithExactly(
+        mockStatsd.increment,
+        'account.resetPassword.recoveryPhone.success'
+      );
+    });
+
+    it('fails confirms a code during signin', async () => {
+      mockRecoveryPhoneService.confirmCode = sinon.fake.returns(false);
+
+      try {
+        await makeRequest({
+          method: 'POST',
+          path: '/recovery_phone/reset_password/confirm',
+          credentials: { uid, email },
+          payload: { code },
+        });
+      } catch (err) {
+        assert.isDefined(err);
+        assert.equal(err.errno, 183);
+        assert.calledOnceWithExactly(
+          mockAccountEventsManager.recordSecurityEvent,
+          mockDb,
+          {
+            name: 'account.recovery_phone_reset_password_failed',
             uid,
             ipAddr: '63.245.221.32',
             tokenId: undefined,

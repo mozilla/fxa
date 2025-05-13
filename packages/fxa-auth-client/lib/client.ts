@@ -2228,6 +2228,51 @@ export default class AuthClient {
   }
 
   /**
+   * Sends a code to the users phone during password reset.
+   *
+   * @param passwordForgotToken
+   * @param headers
+   */
+  async recoveryPhonePasswordResetSendCode(
+    passwordForgotToken: string,
+    headers?: Headers
+  ) {
+    return this.hawkRequest(
+      'POST',
+      '/recovery_phone/reset_password/send_code',
+      passwordForgotToken,
+      tokenType.passwordForgotToken,
+      {},
+      headers
+    );
+  }
+
+  /**
+   * Confirms the code sent to the recovery phone during a password reset.
+   *
+   *
+   * @param passwordForgotToken
+   * @param code The otp code sent to the user's phone
+   * @param headers
+   */
+  async recoveryPhoneResetPasswordConfirm(
+    passwordForgotToken: string,
+    code: string,
+    headers?: Headers
+  ) {
+    return this.hawkRequest(
+      'POST',
+      '/recovery_phone/reset_password/confirm',
+      passwordForgotToken,
+      tokenType.passwordForgotToken,
+      {
+        code,
+      },
+      headers
+    );
+  }
+
+  /**
    * Removes a recovery phone from the user's account
    *
    * @param sessionToken The user's current session token
