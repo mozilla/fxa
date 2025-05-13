@@ -13,6 +13,7 @@ apps.push({
   name: 'content',
   script: 'node --inspect=9130 server/bin/fxa-content-server.js',
   cwd: __dirname,
+  watch: ['server/**/*.js', 'server/**/*.html', 'server/**/*.json'],
   env: {
     NODE_ENV: 'development',
     NODE_OPTIONS: '--openssl-legacy-provider --dns-result-order=ipv4first',
