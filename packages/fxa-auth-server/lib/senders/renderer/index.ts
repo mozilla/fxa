@@ -80,9 +80,8 @@ class Renderer extends Localizer {
        * `subject` goes inside `mj-title` and `action` goes in a script in `metadata.mjml`
        * 2) We need to return a localized `subject` back to the mailer
        */
-      const { subject, action, preview } = await this.getGlobalTemplateValues(
-        context
-      );
+      const { subject, action, preview } =
+        await this.getGlobalTemplateValues(context);
       const localizeAndRenderSubject = this.localizeAndRender(
         l10n,
         subject,
@@ -147,10 +146,7 @@ class Renderer extends Localizer {
     // eslint-disable-next-line no-useless-catch
     try {
       // make this a switch statement on 'template' if more cases arise?
-      if (
-        context.template === 'lowRecoveryCodes' ||
-        context.template === 'postConsumeRecoveryCode'
-      ) {
+      if (context.template === 'lowRecoveryCodes') {
         return (
           await require(`../emails/templates/${context.template}/includes`)
         ).getIncludes(context.numberRemaining);

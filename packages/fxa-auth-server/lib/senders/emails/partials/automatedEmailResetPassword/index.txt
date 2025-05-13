@@ -1,1 +1,4 @@
 automated-email-reset-plaintext-v2 = "If you did not authorize this action, please reset your password now at <%- resetLink %>"
+
+automated-email-support-plaintext = "For more info, visit Mozilla Support:"
+<%- supportUrl %>

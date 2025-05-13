@@ -1,9 +1,7 @@
-postConsumeRecoveryCode-title-2 = You used a backup authentication code
+postConsumeRecoveryCode-title-3 = Your backup authentication code was used to confirm a password reset
 # After the colon, there is description of the device that the backup authentication code was used on
-postConsumeRecoveryCode-description-2 = It was used on:
+# E.g., Firefox Nightly on Mac OSX, Thursday Sept 2, 2024
+postConsumeRecoveryCode-description-3 = Code used from:
 postConsumeRecoveryCode-action = Manage account
-postConsumeRecoveryCode-subject-2 =
-    { $numberRemaining ->
-        [one]  1 backup authentication code left
-       *[other] { $numberRemaining } backup authentication codes left
-   }
+postConsumeRecoveryCode-subject-v3 = Backup authentication code used
+postConsumeRecoveryCode-preview = Check to make sure this was you

@@ -2352,6 +2352,10 @@ convictConf.set(
   `${baseUri}/settings/account_recovery`
 );
 convictConf.set(
+  'smtp.manageTwoFactorSettingsUrl',
+  `${baseUri}/settings#two-step-authentication`
+);
+convictConf.set(
   'smtp.verifyPrimaryEmailUrl',
   `${baseUri}/verify_primary_email`
 );
