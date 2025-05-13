@@ -225,6 +225,44 @@ describe('IndexContainer', () => {
     });
   });
 
+  it('should display LoadingSpinner at initial load and remove when ready', async () => {
+    // Mock the initial state and dependencies
+    mockLocationState = {};
+    mockUseValidatedQueryParams.mockReturnValue({
+      queryParamModel: { email: 'test@example.com' },
+      validationError: null,
+    });
+
+    // simulate rejecting from auth client after a delay
+    const rejectingMock = jest.fn(() => new Promise((_, reject) => {
+      setTimeout(() => reject('mock delayed error'), 50);
+    }));
+
+    mockUseAuthClient.mockReturnValue({
+      accountStatusByEmail: rejectingMock,
+    })
+
+    const { getByText, queryByText } = renderWithLocalizationProvider(
+      <LocationProvider>
+        <IndexContainer
+          {...{ integration, serviceName: MozServices.Default }}
+        />
+      </LocationProvider>
+    );
+
+    // Assert that the LoadingSpinner is rendered initially
+    expect(getByText('LoadingSpinner')).toBeInTheDocument();
+
+    // Wait for the mock to be called and
+    // then check that the LoadingSpinner is removed
+    await waitFor(() => {
+      expect(rejectingMock).toHaveBeenCalledTimes(1);
+      expect(queryByText('LoadingSpinner')).not.toBeInTheDocument();
+    });
+
+    expect(IndexModule.default).toHaveBeenCalled();
+  });
+
   describe('redirections', () => {
     it('should prioritize prefillEmail over email and prevent redirection', async () => {
       mockLocationState = { prefillEmail: MOCK_EMAIL };
