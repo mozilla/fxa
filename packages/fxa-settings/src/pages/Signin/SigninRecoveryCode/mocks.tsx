@@ -4,7 +4,6 @@
 
 import { MozServices } from '../../../lib/types';
 import {
-  Integration,
   IntegrationType,
   OAuthNativeIntegration,
   WebIntegration,

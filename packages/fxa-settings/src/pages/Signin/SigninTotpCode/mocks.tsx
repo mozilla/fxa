@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { LocationProvider, redirectTo } from '@reach/router';
+import { LocationProvider } from '@reach/router';
 import {
   IntegrationData,
   IntegrationType,
-  OAuthIntegrationData,
 } from '../../../models';
 import { SigninTotpCode, SigninTotpCodeProps } from '.';
 import {

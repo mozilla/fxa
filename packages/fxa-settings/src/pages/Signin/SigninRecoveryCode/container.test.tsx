@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ReachRouterModule from '@reach/router';
-import * as ReactUtils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../../lib/cache';
 import * as SigninRecoveryCodeModule from './index';
 
