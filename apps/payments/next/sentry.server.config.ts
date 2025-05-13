@@ -7,11 +7,15 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 import { initSentryForNextjsServer } from '@fxa/shared/sentry';
 import { config } from './config';
+import { GENERIC_ERROR_MESSAGE } from '@fxa/shared/error/error';
 
 initSentryForNextjsServer(
   {
     release: process.env.version,
-    sentry: config.sentry,
+    sentry: {
+      ...config.sentry,
+      ignoreErrors: [new RegExp(`^${GENERIC_ERROR_MESSAGE}$`)],
+    },
   },
   console
 );

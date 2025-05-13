@@ -71,6 +71,7 @@
         "libs/shared/db/type-cacheable/src/index.ts"
       ],
       "@fxa/shared/error": ["libs/shared/error/src/index.ts"],
+      "@fxa/shared/error/error": ["libs/shared/error/src/lib/error.ts"],
       "@fxa/shared/geodb": ["libs/shared/geodb/src/index.ts"],
       "@fxa/shared/glean": ["libs/shared/metrics/glean/src/index.ts"],
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index.ts"],
