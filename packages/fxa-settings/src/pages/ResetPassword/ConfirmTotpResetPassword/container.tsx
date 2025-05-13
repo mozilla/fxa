@@ -67,7 +67,7 @@ const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
   };
 
   const onTroubleWithCode = () => {
-    navigateWithQuery('/confirm_backup_code_reset_password', {
+    navigateWithQuery('/reset_password_totp_recovery_choice', {
       state: {
         code,
         email,

@@ -4,19 +4,16 @@
 
 import * as ModelsModule from '../../../models';
 import * as ReachRouterModule from '@reach/router';
-import * as CacheModule from '../../../lib/cache';
-import * as SigninRecoveryChoiceModule from './index';
+import * as ResetPasswordRecoveryChoiceModule from './index';
 
 import { waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
   MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
-  MOCK_STORED_ACCOUNT,
   mockLoadingSpinnerModule,
 } from '../../mocks';
-import { mockSigninLocationState } from '../mocks';
-import SigninRecoveryChoiceContainer from './container';
+import ResetPasswordRecoveryChoiceContainer from './container';
 import AuthClient from 'fxa-auth-client/lib/client';
 
 jest.mock('../../../models', () => {
@@ -39,29 +36,20 @@ function mockModelsModule({
     exists: true,
     phoneNumber: MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
   }),
-  mockRecoveryPhoneSigninSendCode = jest.fn().mockResolvedValue(true),
+  mockRecoveryPhonePasswordResetSendCode = jest.fn().mockResolvedValue(true),
 }) {
-  mockAuthClient.getRecoveryCodesExist = mockGetRecoveryCodesExist;
-  mockAuthClient.recoveryPhoneGet = mockRecoveryPhoneGet;
-  mockAuthClient.recoveryPhoneSigninSendCode = mockRecoveryPhoneSigninSendCode;
+  mockAuthClient.getRecoveryCodesExistWithPasswordForgotToken =
+    mockGetRecoveryCodesExist;
+  mockAuthClient.recoveryPhoneGetWithPasswordForgotToken = mockRecoveryPhoneGet;
+  mockAuthClient.recoveryPhonePasswordResetSendCode =
+    mockRecoveryPhonePasswordResetSendCode;
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
   );
 }
 
-function mockSigninRecoveryChoiceModule() {
-  jest.spyOn(SigninRecoveryChoiceModule, 'default');
-}
-
-function mockCache(opts: any = {}, isEmpty = false) {
-  jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(
-    isEmpty
-      ? undefined
-      : {
-          sessionToken: '123',
-          ...(opts || {}),
-        }
-  );
+function mockResetPasswordRecoveryChoiceModule() {
+  jest.spyOn(ResetPasswordRecoveryChoiceModule, 'default');
 }
 
 const mockLocation = (pathname: string, mockLocationState: Object) => {
@@ -85,48 +73,32 @@ function applyDefaultMocks() {
   jest.resetAllMocks();
   jest.restoreAllMocks();
   mockModelsModule({});
-  mockSigninRecoveryChoiceModule();
+  mockResetPasswordRecoveryChoiceModule();
   mockLoadingSpinnerModule();
-  mockCache();
-  mockReachRouter('signin_recovery_choice', mockSigninLocationState);
+  mockReachRouter('reset_password_totp_recovery_choice', {
+    token: 'tok',
+  });
 }
 
 function render() {
   renderWithLocalizationProvider(
     <LocationProvider>
-      <SigninRecoveryChoiceContainer />
+      <ResetPasswordRecoveryChoiceContainer />
     </LocationProvider>
   );
 }
 
-describe('SigninRecoveryChoice container', () => {
+describe('ResetPasswordRecoveryChoice container', () => {
   beforeEach(() => {
     applyDefaultMocks();
   });
 
   describe('initial state', () => {
-    it('redirects if page is reached without location state or cached account', async () => {
-      mockReachRouter('signin_recovery_choice');
-      mockCache({}, true);
-      await render();
-      expect(SigninRecoveryChoiceModule.default).not.toBeCalled();
-      expect(mockNavigate).toBeCalledWith('/signin');
-    });
-
-    it('redirects if there is no sessionToken', async () => {
-      mockReachRouter('signin_recovery_choice');
-      mockCache({ sessionToken: '' });
-      await render();
-      expect(SigninRecoveryChoiceModule.default).not.toBeCalled();
-      expect(mockNavigate).toBeCalledWith('/signin');
-    });
-
-    it('retrieves the session token from local storage if no location state', async () => {
-      mockReachRouter('signin_recovery_choice', {});
-      mockCache(MOCK_STORED_ACCOUNT);
-      await waitFor(() => render());
-      expect(mockNavigate).not.toBeCalled();
-      expect(SigninRecoveryChoiceModule.default).toBeCalled();
+    it('redirects if page is reached without location state', async () => {
+      mockReachRouter('reset_password_totp_recovery_choice');
+      render();
+      expect(ResetPasswordRecoveryChoiceModule.default).not.toBeCalled();
+      expect(mockNavigate).toBeCalledWith('/reset_password');
     });
   });
 
@@ -134,20 +106,24 @@ describe('SigninRecoveryChoice container', () => {
     it('fetches recovery codes and phone number successfully', async () => {
       render();
       await waitFor(() => {
-        expect(mockAuthClient.getRecoveryCodesExist).toHaveBeenCalled();
-        expect(mockAuthClient.recoveryPhoneGet).toHaveBeenCalled();
-        expect(SigninRecoveryChoiceModule.default).toBeCalled();
+        expect(
+          mockAuthClient.getRecoveryCodesExistWithPasswordForgotToken
+        ).toHaveBeenCalled();
+        expect(
+          mockAuthClient.recoveryPhoneGetWithPasswordForgotToken
+        ).toHaveBeenCalled();
+        expect(ResetPasswordRecoveryChoiceModule.default).toBeCalled();
       });
     });
 
     it('passes the correct props to the child component', async () => {
       render();
       await waitFor(() => {
-        expect(SigninRecoveryChoiceModule.default).toBeCalledWith(
+        expect(ResetPasswordRecoveryChoiceModule.default).toBeCalledWith(
           expect.objectContaining({
             lastFourPhoneDigits: '1234',
             numBackupCodes: 3,
-            signinState: mockSigninLocationState,
+            completeResetPasswordLocationState: { token: 'tok' },
           }),
           {}
         );
@@ -160,12 +136,16 @@ describe('SigninRecoveryChoice container', () => {
       });
       render();
       await waitFor(() => {
-        expect(mockAuthClient.getRecoveryCodesExist).toHaveBeenCalled();
-        expect(mockAuthClient.recoveryPhoneGet).toHaveBeenCalled();
-        expect(SigninRecoveryChoiceModule.default).not.toBeCalled();
-        expect(mockNavigate).toBeCalledWith('/signin_recovery_code', {
+        expect(
+          mockAuthClient.getRecoveryCodesExistWithPasswordForgotToken
+        ).toHaveBeenCalled();
+        expect(
+          mockAuthClient.recoveryPhoneGetWithPasswordForgotToken
+        ).toHaveBeenCalled();
+        expect(ResetPasswordRecoveryChoiceModule.default).not.toBeCalled();
+        expect(mockNavigate).toBeCalledWith('/confirm_totp_reset_password', {
           replace: true,
-          state: { signinState: mockSigninLocationState },
+          state: { token: 'tok' },
         });
       });
     });

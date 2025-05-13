@@ -400,6 +400,12 @@ const recordEventMetric = (
     case 'password_reset_view':
       passwordReset.view.record();
       break;
+    case 'password_reset_backup_choice_view':
+      passwordReset.backupChoiceView.record();
+      break;
+    case 'password_reset_backup_choice_submit':
+      passwordReset.backupChoiceSubmit.record();
+      break;
     case 'third_party_auth_google_reg_start':
       thirdPartyAuth.googleRegStart.record();
       break;
