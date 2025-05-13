@@ -45,6 +45,11 @@ export interface AuthApp extends RequestApplicationState {
   };
 }
 
+export interface AuthCredential {
+  uid: string;
+  email: string | null;
+}
+
 // Type declaration for SessionToken found in lib/tokens/session_token.js
 export interface SessionTokenAuthCredential {
   id: string;

@@ -84,6 +84,7 @@ import SigninRecoveryPhoneContainer from '../../pages/Signin/SigninRecoveryPhone
 import { IndexContainer } from '../../pages/Index/container';
 import AuthorizationContainer from '../../pages/Authorization/container';
 import CookiesDisabled from '../../pages/CookiesDisabled';
+import ResetPasswordRecoveryChoiceContainer from '../../pages/ResetPassword/ResetPasswordRecoveryChoice/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -373,6 +374,7 @@ const AuthAndAccountSetupRoutes = ({
         {...{ flowQueryParams, serviceName }}
       />
       <ConfirmResetPasswordContainer path="/confirm_reset_password/*" />
+      <ResetPasswordRecoveryChoiceContainer path="/reset_password_totp_recovery_choice/*" />
       <ConfirmTotpResetPasswordContainer path="/confirm_totp_reset_password/*" />
       <ConfirmBackupCodeResetPasswordContainer path="/confirm_backup_code_reset_password/*" />
       <CompleteResetPasswordContainer
