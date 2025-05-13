@@ -16,6 +16,7 @@ const createStory = subplatStoryWithProps(
     productName: 'Firefox Fortress',
     invoiceDateOnly: '12/14/2021',
     invoiceNumber: '8675309',
+    invoiceTotalInCents: 2000,
     invoiceTotal: '$20.00',
     invoiceSubtotal: null,
     invoiceTaxAmount: null,

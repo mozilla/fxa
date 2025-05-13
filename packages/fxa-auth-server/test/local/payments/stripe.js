@@ -6333,7 +6333,7 @@ describe('#integration - StripeHelper', () => {
             paymentAmountNewCurrency: upcomingInvoice.currency,
             paymentAmountNewInCents: upcomingInvoice.total,
             paymentProratedCurrency: mockInvoice.currency,
-            paymentProratedInCents: mockInvoice.amount_due,
+            paymentProratedInCents: mockInvoice.total,
             invoiceNumber: mockInvoice.number,
             invoiceId: mockInvoice.id,
           });

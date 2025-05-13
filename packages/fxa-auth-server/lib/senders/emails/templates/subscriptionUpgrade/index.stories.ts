@@ -26,4 +26,26 @@ const createStory = subplatStoryWithProps(
   }
 );
 
-export const Default = createStory();
+export const PositiveProrated = createStory(
+  {
+    paymentProrated: '$60.00',
+    paymentProratedInCents: 6000,
+  },
+  'Charge - Prorated amount is positive'
+);
+
+export const NegativeProrated = createStory(
+  {
+    paymentProrated: '$60.00',
+    paymentProratedInCents: -6000,
+  },
+  'Credit - Prorated amount is negative'
+);
+
+export const NoProrated = createStory(
+  {
+    paymentProrated: '$0.00',
+    paymentProratedInCents: 0,
+  },
+  'Prorated amount is zero'
+);

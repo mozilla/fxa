@@ -20,6 +20,7 @@ const createStory = subplatStoryWithProps(
       'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
     invoiceNumber: '8675309',
     invoiceTotal: '$20.00',
+    invoiceTotalInCents: 2000,
     invoiceSubtotal: null,
     invoiceTaxAmount: null,
     invoiceDiscountAmount: null,
