@@ -27,6 +27,7 @@ import {
 } from './cart.factories';
 import { CartManager } from './cart.manager';
 import { ResultCart } from './cart.types';
+import { type StatsD } from '@fxa/shared/metrics/statsd';
 
 // Fail action, which sometimes isn't here due to a weird issue defined here:
 // https://github.com/jestjs/jest/issues/11698#issuecomment-922351139
@@ -57,7 +58,9 @@ describe('CartManager', () => {
 
   beforeAll(async () => {
     db = await testAccountDatabaseSetup(['accounts', 'carts']);
-    cartManager = new CartManager(db);
+    cartManager = new CartManager(db, {
+      timing: jest.fn(),
+    } as unknown as StatsD);
     await db
       .insertInto('carts')
       .values({

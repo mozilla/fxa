@@ -7,6 +7,7 @@ import { Inject } from '@nestjs/common';
 import { ILogger } from '@fxa/shared/log';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { GENERIC_ERROR_MESSAGE } from './error';
+import { StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
 
 type Constructor<T> = new (...args: any[]) => T;
 
@@ -20,6 +21,7 @@ export function SanitizeExceptions(
   { allowlist }: { allowlist: Constructor<Error>[] } = { allowlist: [] }
 ) {
   const injectLogger = Inject(LOGGER_PROVIDER);
+  const injectStatsD = Inject(StatsDService);
 
   return function (
     target: any,
@@ -27,6 +29,9 @@ export function SanitizeExceptions(
     descriptor: PropertyDescriptor
   ) {
     injectLogger(target, 'logger');
+    if (!target.statsd) {
+      injectStatsD(target, 'statsd');
+    }
 
     const originalMethod = descriptor.value;
     const isAsync = originalMethod.constructor.name === 'AsyncFunction';
@@ -43,6 +48,7 @@ export function SanitizeExceptions(
               methodName: propertyKey,
               allowlist,
               logger: this.logger,
+              statsd: this.statsd,
             });
           }
         }
@@ -56,6 +62,7 @@ export function SanitizeExceptions(
               methodName: propertyKey,
               allowlist,
               logger: this.logger,
+              statsd: this.statsd,
             });
           }
         };
@@ -70,6 +77,7 @@ function handleException(args: {
   methodName: string;
   allowlist: Constructor<Error>[];
   logger: ILogger;
+  statsd: StatsD;
 }): Error {
   const { error, className, methodName, allowlist, logger } = args;
 
@@ -97,6 +105,8 @@ function handleException(args: {
       },
     },
   });
+
+  args.statsd.increment('unexpected_error_sanitized');
 
   return new Error(GENERIC_ERROR_MESSAGE);
 }

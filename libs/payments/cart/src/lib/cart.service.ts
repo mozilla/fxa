@@ -146,6 +146,10 @@ export class CartService {
 
       const errorReasonId = resolveErrorInstance(error);
 
+      this.statsd.increment('checkout_failure_unexpected', {
+        errorReasonId,
+      });
+
       try {
         await this.cartManager.finishErrorCart(cartId, {
           errorReasonId,

@@ -27,6 +27,10 @@ export function CaptureTimingWithStatsD<
           sourceClass: this.constructor.name,
           ...options?.tags,
         });
+        this.statsd.timing(this.constructor.name, elapsed, {
+          methodName: key,
+          ...options?.tags,
+        });
       };
       const handler = options?.handle || defaultHandler;
 
