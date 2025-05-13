@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
 import { GoogleManager } from '@fxa/google';
 import {
@@ -75,6 +75,7 @@ import { ValidateLocationActionResult } from './validators/ValidateLocationActio
 import { ValidateLocationActionArgs } from './validators/ValidateLocationActionArgs';
 import { UpdateTaxAddressActionArgs } from './validators/UpdateTaxAddressActionArgs';
 import { UpdateTaxAddressActionResult } from './validators/UpdateTaxAddressActionResult';
+import { CaptureTimingWithStatsD, StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -93,12 +94,14 @@ export class NextJSActionsService {
     private geodbManager: GeoDBManager,
     private currencyManager: CurrencyManager,
     private eligibilityService: EligibilityService,
-    private productConfigurationManager: ProductConfigurationManager
+    private productConfigurationManager: ProductConfigurationManager,
+    @Inject(StatsDService) public statsd: StatsD
   ) {}
 
   @SanitizeExceptions()
   @NextIOValidator(GetCartActionArgs, GetCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async getCart(args: { cartId: string }) {
     const cart = await this.cartService.getCart(args.cartId);
 
@@ -110,6 +113,7 @@ export class NextJSActionsService {
   })
   @NextIOValidator(GetCartActionArgs, GetSuccessCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async getSuccessCart(args: { cartId: string }): Promise<SuccessCartDTO> {
     const cart = await this.cartService.getCart(args.cartId);
 
@@ -129,6 +133,7 @@ export class NextJSActionsService {
   })
   @NextIOValidator(UpdateCartActionArgs, UpdateCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async updateCart(args: {
     cartId: string;
     version: number;
@@ -151,6 +156,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(RestartCartActionArgs, RestartCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async restartCart(args: { cartId: string }) {
     const cart = await this.cartService.restartCart(args.cartId);
 
@@ -162,6 +168,7 @@ export class NextJSActionsService {
   })
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async setupCart(args: {
     interval: SubplatInterval;
     offeringConfigId: string;
@@ -180,6 +187,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(FinalizeCartWithErrorArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async finalizeCartWithError(args: {
     cartId: string;
     errorReasonId: CartErrorReasonId;
@@ -193,6 +201,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(FinalizeProcessingCartActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async finalizeProcessingCart(args: { cartId: string }) {
     await this.cartService.finalizeProcessingCart(args.cartId);
   }
@@ -200,6 +209,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(GetPayPalCheckoutTokenArgs, GetPayPalCheckoutTokenResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async getPayPalCheckoutToken(args: { currencyCode: string }) {
     const token = await this.checkoutTokenManager.get(args.currencyCode);
 
@@ -211,6 +221,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(GetTaxAddressArgs, GetTaxAddressResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async getTaxAddress(args: { ipAddress: string; uid?: string }) {
     const result = await this.taxService.getTaxAddress(
       args.ipAddress,
@@ -223,6 +234,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(CheckoutCartWithPaypalActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async checkoutCartWithPaypal(args: {
     cartId: string;
     version: number;
@@ -240,6 +252,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(CheckoutCartWithStripeActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async checkoutCartWithStripe(args: {
     cartId: string;
     version: number;
@@ -257,6 +270,7 @@ export class NextJSActionsService {
   @SanitizeExceptions({ allowlist: [ProductConfigError] })
   @NextIOValidator(FetchCMSDataActionArgs, FetchCMSDataActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async fetchCMSData(args: {
     offeringId: string;
     acceptLanguage?: string | null;
@@ -274,6 +288,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(RecordEmitterEventArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async recordEmitterEvent(args: {
     eventName: string;
     requestArgs: CommonMetrics;
@@ -307,6 +322,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(GetNeedsInputActionArgs, getNeedsInputActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async getNeedsInput(args: { cartId: string }) {
     return await this.cartService.getNeedsInput(args.cartId);
   }
@@ -316,12 +332,14 @@ export class NextJSActionsService {
   })
   @NextIOValidator(SubmitNeedsInputActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async submitNeedsInput(args: { cartId: string }) {
     await this.cartService.submitNeedsInput(args.cartId);
   }
 
   @SanitizeExceptions()
   @NextIOValidator(undefined, GetMetricsFlowActionResult)
+  @CaptureTimingWithStatsD()
   async getMetricsFlow() {
     return this.contentServerManager.getMetricsFlow();
   }
@@ -329,6 +347,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(ValidatePostalCodeActionArgs, ValidatePostalCodeActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async validateAndFormatPostalCode(args: {
     postalCode: string;
     countryCode: string;
@@ -342,6 +361,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(DetermineCurrencyActionArgs, DetermineCurrencyActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async determineCurrency(args: { ip: string }) {
     const location = this.geodbManager.getTaxAddress(args.ip);
 
@@ -361,6 +381,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(UpdateTaxAddressActionArgs, UpdateTaxAddressActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async updateTaxAddress(args: {
     cartId: string;
     version: number;
@@ -416,6 +437,7 @@ export class NextJSActionsService {
   @SanitizeExceptions()
   @NextIOValidator(ValidateLocationActionArgs, ValidateLocationActionResult)
   @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
   async validateLocation(args: {
     offeringId: string;
     taxAddress?: TaxAddress;

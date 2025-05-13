@@ -5,6 +5,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SanitizeExceptions } from './sanitizeExceptionsDecorator';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 // Mock Sentry
 jest.mock('@sentry/nextjs', () => ({
@@ -67,6 +68,7 @@ describe('SanitizeExceptions Decorator', () => {
           provide: LOGGER_PROVIDER,
           useValue: mockLogger,
         },
+        MockStatsDProvider
       ],
     }).compile();
 

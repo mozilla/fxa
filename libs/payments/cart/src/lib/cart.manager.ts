@@ -22,7 +22,7 @@ import {
   fetchCartsByUid,
   updateCart,
 } from './cart.repository';
-import {
+import type {
   FinishCart,
   FinishErrorCart,
   ResultCart,
@@ -35,6 +35,7 @@ import type {
   CartErrorReasonId,
 } from '@fxa/shared/db/mysql/account';
 import assert from 'assert';
+import { CaptureTimingWithStatsD, StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
 // For an action to be executed, the cart state needs to be in one of
 // valid states listed in the array of CartStates below
 const ACTIONS_VALID_STATE = {
@@ -57,7 +58,10 @@ const isAction = (action: string): action is keyof typeof ACTIONS_VALID_STATE =>
 
 @Injectable()
 export class CartManager {
-  constructor(@Inject(AccountDbProvider) private db: AccountDatabase) {}
+  constructor(
+    @Inject(AccountDbProvider) private db: AccountDatabase,
+    @Inject(StatsDService) public statsd: StatsD
+  ) {}
 
   /**
    * Ensure that the action being executed has a valid Cart state for
@@ -92,6 +96,7 @@ export class CartManager {
     return cart;
   }
 
+  @CaptureTimingWithStatsD()
   public async createCart(input: SetupCart): Promise<ResultCart> {
     const now = Date.now();
     try {
@@ -123,6 +128,7 @@ export class CartManager {
     }
   }
 
+  @CaptureTimingWithStatsD()
   public async createErrorCart(
     input: SetupCart,
     errorReasonId: CartErrorReasonId
@@ -158,6 +164,7 @@ export class CartManager {
     }
   }
 
+  @CaptureTimingWithStatsD()
   public async fetchCartById(id: string): Promise<ResultCart> {
     try {
       const cart = await fetchCartById(this.db, Buffer.from(id, 'hex'));
@@ -176,6 +183,7 @@ export class CartManager {
     }
   }
 
+  @CaptureTimingWithStatsD()
   public async fetchCartsByUid(uid: string): Promise<ResultCart[]> {
     const carts = await fetchCartsByUid(this.db, Buffer.from(uid, 'hex'));
 
@@ -190,6 +198,7 @@ export class CartManager {
     });
   }
 
+  @CaptureTimingWithStatsD()
   public async updateFreshCart(
     cartId: string,
     version: number,
@@ -214,6 +223,7 @@ export class CartManager {
     }
   }
 
+  @CaptureTimingWithStatsD()
   public async finishCart(cartId: string, version: number, items: FinishCart) {
     const cart = await this.fetchAndValidateCartVersion(cartId, version);
 
@@ -231,6 +241,7 @@ export class CartManager {
     }
   }
 
+  @CaptureTimingWithStatsD()
   public async finishErrorCart(cartId: string, items: FinishErrorCart) {
     const cart = await this.fetchCartById(cartId);
 
@@ -248,6 +259,7 @@ export class CartManager {
     }
   }
 
+  @CaptureTimingWithStatsD()
   public async setNeedsInputCart(cartId: string) {
     const cart = await this.fetchCartById(cartId);
 
@@ -263,6 +275,7 @@ export class CartManager {
     }
   }
 
+  @CaptureTimingWithStatsD()
   public async setProcessingCart(cartId: string) {
     const cart = await this.fetchCartById(cartId);
 
@@ -278,6 +291,7 @@ export class CartManager {
     }
   }
 
+  @CaptureTimingWithStatsD()
   public async deleteCart(cart: ResultCart) {
     this.checkActionForValidCartState(cart, 'deleteCart');
 

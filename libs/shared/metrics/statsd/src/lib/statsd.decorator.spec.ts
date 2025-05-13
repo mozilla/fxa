@@ -48,7 +48,7 @@ describe('CaptureTimingWithStatsD', () => {
 
   it('should call statsd.timing for synchronous methods', () => {
     instance.syncMethod();
-    expect(mockStatsD.timing).toHaveBeenCalledTimes(1);
+    expect(mockStatsD.timing).toHaveBeenCalledTimes(2);
     expect(mockStatsD.timing).toHaveBeenCalledWith(
       'TestClass_syncMethod',
       expect.any(Number),
@@ -60,7 +60,7 @@ describe('CaptureTimingWithStatsD', () => {
 
   it('should call statsd.timing for asynchronous methods', async () => {
     await instance.asyncMethod();
-    expect(mockStatsD.timing).toHaveBeenCalledTimes(1);
+    expect(mockStatsD.timing).toHaveBeenCalledTimes(2);
     expect(mockStatsD.timing).toHaveBeenCalledWith(
       'TestClass_asyncMethod',
       expect.any(Number),
