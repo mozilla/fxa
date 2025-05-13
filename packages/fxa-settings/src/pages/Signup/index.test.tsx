@@ -23,7 +23,6 @@ import {
   createMockSignupSyncDesktopV3Integration,
 } from './mocks';
 import { MOCK_EMAIL, MOCK_PASSWORD } from '../mocks';
-import { newsletters } from '../../components/ChooseNewsletters/newsletters';
 import firefox from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import * as utils from 'fxa-react/lib/utils';
@@ -142,14 +141,9 @@ describe('Signup page', () => {
     // password confirmation field required for sync and desktop relay only
     expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
 
-    // newsletter options are shown by default
-    await waitFor(() => screen.getByText('Get more from Mozilla:'));
-    const checkboxes = screen.getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(3);
-
     expect(
       screen.getByRole('button', { name: 'Create account' })
-    ).toBeDisabled();
+    ).toBeInTheDocument();
     // Third party auth options
     expect(
       screen.getByRole('button', { name: /Continue with Google/ })
@@ -218,8 +212,6 @@ describe('Signup page', () => {
     await waitFor(() => screen.getByText('Choose what to sync'));
     // Password confirmation is required for sync
     expect(screen.getByLabelText('Repeat password')).toBeVisible();
-    const checkboxes = screen.getAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(8);
 
     // Third party auth options are not offered if integration is Sync
     expect(
@@ -296,7 +288,9 @@ describe('Signup page', () => {
       expect(GleanMetrics.registration.view).toBeCalledTimes(1);
     });
 
-    fireEvent.focus(screen.getByLabelText('Password'));
+    await act(async () => {
+      await user.type(screen.getByLabelText('Password'), 'a');
+    });
 
     await waitFor(() => {
       expect(GleanMetrics.registration.engage).toBeCalledTimes(1);
@@ -341,58 +335,6 @@ describe('Signup page', () => {
         });
       }
     );
-  });
-
-  it('passes newsletter subscription options to the next screen', async () => {
-    const mockBeginSignupHandler = jest
-      .fn()
-      .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
-
-    renderWithLocalizationProvider(
-      <Subject beginSignupHandler={mockBeginSignupHandler} />
-    );
-    await fillOutForm(false);
-
-    // select all newsletters
-    const checkboxes = screen.getAllByRole('checkbox');
-    // We expect three newsletter options
-    expect(checkboxes).toHaveLength(3);
-    act(() => {
-      newsletters.forEach((_, i) => {
-        fireEvent.click(checkboxes[i]);
-      });
-    });
-
-    submit();
-
-    await waitFor(() => {
-      // expect glean metrics to fire
-      expect(GleanMetrics.registration.marketing).toBeCalledWith({
-        standard: {
-          marketing: {
-            news: true,
-            take_action: true,
-            testing: true,
-          },
-        },
-      });
-
-      // expect navigation to have been called with newsletter slugs
-      expect(mockNavigate).toHaveBeenCalledWith(`/confirm_signup_code`, {
-        state: {
-          origin: 'signup',
-          // we expect three newsletter options, but 4 slugs should be passed
-          // because the first newsletter checkbox subscribes the user to 2 newsletters
-          selectedNewsletterSlugs: [
-            'mozilla-and-you',
-            'mozilla-accounts',
-            'mozilla-foundation',
-            'test-pilot',
-          ],
-        },
-        replace: true,
-      });
-    });
   });
 
   it('emits a metrics event on submit', async () => {

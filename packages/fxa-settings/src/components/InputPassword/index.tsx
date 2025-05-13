@@ -8,7 +8,9 @@ import { ReactComponent as OpenEye } from './eye-open.svg';
 import { ReactComponent as ClosedEye } from './eye-closed.svg';
 import { useFtlMsgResolver } from '../../models';
 
-export type InputPasswordProps = Omit<InputTextProps, 'type'>;
+export type InputPasswordProps = Omit<InputTextProps, 'type'> & {
+  inputRefDOM?: React.RefObject<HTMLInputElement>;
+};
 
 export const InputPassword = ({
   defaultValue,
@@ -20,6 +22,7 @@ export const InputPassword = ({
   onFocusCb,
   onBlurCb,
   inputRef,
+  inputRefDOM,
   hasErrors,
   errorText,
   name,
@@ -69,6 +72,7 @@ export const InputPassword = ({
         aria-describedby=""
         isPasswordInput={true}
         {...{
+          inputRefDOM,
           defaultValue,
           disabled,
           label,

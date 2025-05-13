@@ -17,7 +17,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const [saveBtnDisabled, setSaveBtnDisabled] = useState(true);
   const [errorText, setErrorText] = useState<string>();
   const [email, setEmail] = useState<string>();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRefDOM = useRef<HTMLInputElement>(null);
   const { l10n } = useLocalization();
 
   const subtitleText = l10n.getString(
@@ -60,10 +60,11 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
 
   const checkEmail = useCallback(
     (ev: ChangeEvent<HTMLInputElement>) => {
-      const email = inputRef.current?.value || '';
+      const email = inputRefDOM.current?.value || '';
       const isValid = isEmailValid(email);
+      
       setSaveBtnDisabled(!isValid);
-      setEmail(inputRef.current?.value);
+      setEmail(inputRefDOM.current?.value);
       setErrorText('');
 
       if (isEmailMask(email)) {
@@ -86,7 +87,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
         <form
           onSubmit={(ev) => {
             ev.preventDefault();
-            if (inputRef.current) {
+            if (inputRefDOM.current) {
               createSecondaryEmail(email!);
               logViewEvent('settings.emails', 'submit');
             }
@@ -101,7 +102,8 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
                 label="Enter email address"
                 type="email"
                 onChange={checkEmail}
-                {...{ inputRef, errorText }}
+                inputRefDOM={inputRefDOM}
+                {...{ errorText }}
               />
             </Localized>
           </div>
