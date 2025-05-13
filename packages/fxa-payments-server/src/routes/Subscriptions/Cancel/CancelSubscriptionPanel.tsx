@@ -226,8 +226,6 @@ const CancelSubscriptionPanel = ({
                               tax={intervalPriceDetailsData.taxAmount}
                               showTax={intervalPriceDetailsData.showInvoiceTax}
                               currency={invoiceCurrency}
-                              interval={plan.interval}
-                              intervalCount={plan.interval_count}
                               className="font-semibold mb-2"
                               dataTestId="price-details-standalone"
                             />
@@ -241,24 +239,53 @@ const CancelSubscriptionPanel = ({
                             tax={intervalPriceDetailsData.taxAmount}
                             showTax={intervalPriceDetailsData.showInvoiceTax}
                             currency={invoiceCurrency}
-                            interval={plan.interval}
-                            intervalCount={plan.interval_count}
                             className="font-semibold mb-2"
                             dataTestId="price-details-standalone"
                           />
                         </span>
                       </Localized>
-                    ) : (
+                    ) : intervalPriceDetailsData.invoiceDisplayTotal >= 0 ? (
                       <PriceDetails
                         total={intervalPriceDetailsData.invoiceDisplayTotal}
                         tax={intervalPriceDetailsData.taxAmount}
                         showTax={intervalPriceDetailsData.showInvoiceTax}
                         currency={invoiceCurrency}
-                        interval={plan.interval}
-                        intervalCount={plan.interval_count}
                         className="font-semibold mb-2"
                         dataTestId="price-details-standalone"
                       />
+                    ) : (
+                      <Localized
+                        id="subscription-management-account-credit-balance"
+                        elems={{
+                          priceDetails: (
+                            <PriceDetails
+                              total={
+                                intervalPriceDetailsData.invoiceDisplayTotal
+                              }
+                              tax={intervalPriceDetailsData.taxAmount}
+                              showTax={intervalPriceDetailsData.showInvoiceTax}
+                              currency={invoiceCurrency}
+                              className="font-semibold mb-2"
+                              dataTestId="price-details-standalone"
+                            />
+                          ),
+                        }}
+                      >
+                        <span>
+                          This subscription payment resulted in a credit to your
+                          account balance:{' '}
+                          <PriceDetails
+                            total={Math.abs(
+                              intervalPriceDetailsData.invoiceDisplayTotal
+                            )}
+                            tax={intervalPriceDetailsData.taxAmount}
+                            showTax={intervalPriceDetailsData.showInvoiceTax}
+                            currency={invoiceCurrency}
+                            className="font-semibold mb-2"
+                            dataTestId="price-details-standalone"
+                          />
+                        </span>
+                      </Localized>
                     )}
                   </div>
                   <Localized id={nextBillL10nId} vars={nextBillL10nVars}>

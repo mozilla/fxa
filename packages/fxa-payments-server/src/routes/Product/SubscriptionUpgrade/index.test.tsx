@@ -93,7 +93,7 @@ async function rendersAsExpected(
   // and interval count match or not.
   const expectedInvoiceDate =
     upgradeFromPlan.interval !== selectedPlan.interval &&
-      selectedPlan.interval_count === upgradeFromPlan.interval_count
+    selectedPlan.interval_count === upgradeFromPlan.interval_count
       ? getLocalizedDateString(invoicePreview.line_items[0].period.end)
       : getLocalizedDateString(customerWebSubscription.current_period_end);
 
@@ -115,12 +115,34 @@ async function rendersAsExpected(
     ).toBeInTheDocument();
   }
 
-  if (!!invoicePreview.one_time_charge && invoicePreview.one_time_charge > 0) {
-    expect(queryByTestId('sub-update-prorated-upgrade')).toBeInTheDocument();
-    expect(queryByTestId('prorated-amount')).toBeInTheDocument();
+  if (!!invoicePreview.one_time_charge) {
+    if (invoicePreview.one_time_charge > 0) {
+      expect(queryByTestId('sub-update-prorated-upgrade')).toBeInTheDocument();
+      expect(queryByTestId('prorated-amount')).toBeInTheDocument();
+      expect(
+        queryByTestId('sub-update-prorated-upgrade-credit')
+      ).not.toBeInTheDocument();
+    } else if (invoicePreview.one_time_charge < 0) {
+      expect(queryByTestId('sub-update-prorated-upgrade')).toBeInTheDocument();
+      expect(queryByTestId('prorated-amount')).toBeInTheDocument();
+      expect(
+        queryByTestId('sub-update-prorated-upgrade-credit')
+      ).toBeInTheDocument();
+    } else {
+      expect(
+        queryByTestId('sub-update-prorated-upgrade')
+      ).not.toBeInTheDocument();
+      expect(
+        queryByTestId('sub-update-prorated-upgrade-credit')
+      ).not.toBeInTheDocument();
+      expect(queryByTestId('prorated-amount')).not.toBeInTheDocument();
+    }
   } else {
     expect(
       queryByTestId('sub-update-prorated-upgrade')
+    ).not.toBeInTheDocument();
+    expect(
+      queryByTestId('sub-update-prorated-upgrade-credit')
     ).not.toBeInTheDocument();
     expect(queryByTestId('prorated-amount')).not.toBeInTheDocument();
   }
