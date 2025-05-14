@@ -27,7 +27,7 @@ export class EligibilityService {
     private subscriptionManager: SubscriptionManager,
     private googleIapPurchaseManager: GoogleIapPurchaseManager,
     private appleIapPurchaseManager: AppleIapPurchaseManager
-  ) {}
+  ) { }
 
   /**
    * Checks if user is eligible to subscribe to price
@@ -122,8 +122,8 @@ export class EligibilityService {
 
     const isSanctionedLocation = countryCode
       ? this.locationConfig.subscriptionsUnsupportedLocations.includes(
-          countryCode
-        )
+        countryCode
+      )
       : undefined;
 
     const isSupportedLocation = countryCode

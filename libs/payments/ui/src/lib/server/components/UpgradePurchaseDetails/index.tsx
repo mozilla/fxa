@@ -12,7 +12,7 @@ type UpgradePurchaseDetailsProps = {
   fromPrice: {
     currency: string;
     interval: string;
-    listAmount: number;
+    unitAmount: number;
   };
   fromPurchaseDetails: {
     subtitle: string | null;
@@ -74,7 +74,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
           <p className="text-grey-400 mt-1 mb-0">
             <PriceInterval
               l10n={l10n}
-              amount={fromPrice.listAmount}
+              amount={fromPrice.unitAmount}
               currency={fromPrice.currency}
               interval={fromPrice.interval}
             />

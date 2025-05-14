@@ -28,6 +28,12 @@ export class PlanIntervalMultiplePlansError extends PaymentsCustomerError {
   }
 }
 
+export class PriceForCurrencyNotFoundError extends PaymentsCustomerError {
+  constructor(priceId: string, currency: string) {
+    super('Price for currency not found', { info: { priceId, currency } });
+  }
+}
+
 export class PromotionCodeCouldNotBeAttachedError extends PaymentsCustomerError {
   customerId?: string;
   subscriptionId?: string;
