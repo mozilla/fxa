@@ -222,4 +222,21 @@ export class ResetPasswordPage extends BaseLayout {
   async continueWithoutDownloadingRecoveryKey() {
     return this.page.getByText('Continue without downloading').click();
   }
+
+  // Password reset with recovery phone
+  async fillRecoveryPhoneCodeForm(code: string) {
+    await this.page.locator('input[name="code"]').fill(code);
+  }
+
+  async clickConfirmButton() {
+    await this.page.getByRole('button', { name: 'Confirm' }).click();
+  }
+
+  async clickChoosePhone() {
+    return this.page.locator('.input-radio-wrapper').first().click();
+  }
+
+  async clickContinueButton() {
+    return this.page.getByRole('button', { name: 'Continue' });
+  }
 }

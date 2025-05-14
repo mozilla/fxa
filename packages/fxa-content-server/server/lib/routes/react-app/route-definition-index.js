@@ -55,6 +55,9 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN = config.get(
     'featureFlags.recoveryCodeSetupOnSyncSignIn'
   );
+  const FEATURE_FLAGS_RECOVERY_PHONE_PASSWORD_RESET_2FA = config.get(
+    'featureFlags.recoveryPhonePasswordReset2fa'
+  );
   const NIMBUS_PREVIEW = config.get('nimbusPreview');
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
@@ -116,6 +119,7 @@ function getIndexRouteDefinition(config) {
       sendFxAStatusOnSettings: FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS,
       recoveryCodeSetupOnSyncSignIn:
         FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
+      recoveryPhonePasswordReset2fa: FEATURE_FLAGS_RECOVERY_PHONE_PASSWORD_RESET_2FA
     },
     nimbusPreview: NIMBUS_PREVIEW,
     glean: {

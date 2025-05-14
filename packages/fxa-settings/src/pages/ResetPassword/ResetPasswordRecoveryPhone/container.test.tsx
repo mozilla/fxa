@@ -9,14 +9,16 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 
 import { MOCK_EMAIL, MOCK_PASSWORD_CHANGE_TOKEN, MOCK_UID } from '../../mocks';
 
-import ConfirmTotpResetPasswordContainer from './container';
+import ResetPasswordRecoveryPhoneContainer from './container';
 
-const mockCheckTotp = jest.fn();
+const mockRecoveryPhoneResetPasswordConfirm = jest.fn();
+const mockRecoveryPhonePasswordResetSendCode = jest.fn();
 const mockRecoveryPhoneGetWithPasswordForgotToken = jest.fn();
 jest.mock('../../../models', () => ({
   __esModule: true,
   useAuthClient: () => ({
-    checkTotpTokenCodeWithPasswordForgotToken: mockCheckTotp,
+    recoveryPhoneResetPasswordConfirm: mockRecoveryPhoneResetPasswordConfirm,
+    recoveryPhonePasswordResetSendCode: mockRecoveryPhonePasswordResetSendCode,
     recoveryPhoneGetWithPasswordForgotToken: mockRecoveryPhoneGetWithPasswordForgotToken,
   }),
   useFtlMsgResolver: () => ({
@@ -47,7 +49,7 @@ jest.mock('@reach/router', () => {
   return {
     ...actual,
     useLocation: () => ({
-      pathname: '/confirm_totp_reset_password',
+      pathname: '/reset_password_recovery_phone',
       state: mockLocationState,
     }),
   };
@@ -62,22 +64,20 @@ jest.mock('.', () => (props: any) => {
 async function renderComponent() {
   renderWithLocalizationProvider(
     <LocationProvider>
-      <ConfirmTotpResetPasswordContainer />
+      <ResetPasswordRecoveryPhoneContainer />
     </LocationProvider>
   );
 }
 
-describe('ConfirmTotpResetPasswordContainer', () => {
+describe('ResetPasswordRecoveryPhoneContainer', () => {
   beforeEach(() => {
     capturedProps = undefined;
-    mockCheckTotp.mockReset();
-    mockNavigate.mockReset();
-    mockRecoveryPhoneGetWithPasswordForgotToken.mockReset();
+    mockRecoveryPhoneResetPasswordConfirm.mockReset();
+    mockRecoveryPhonePasswordResetSendCode.mockReset();
   });
 
   it('calls authClient then navigates on success', async () => {
-    mockCheckTotp.mockResolvedValueOnce({ success: true });
-    mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({ exists: false });
+    mockRecoveryPhoneResetPasswordConfirm.mockResolvedValueOnce({ success: true });
 
     await renderComponent();
 
@@ -85,7 +85,7 @@ describe('ConfirmTotpResetPasswordContainer', () => {
       await capturedProps.verifyCode('123456');
     });
 
-    expect(mockCheckTotp).toHaveBeenCalledWith(
+    expect(mockRecoveryPhoneResetPasswordConfirm).toHaveBeenCalledWith(
       MOCK_PASSWORD_CHANGE_TOKEN,
       '123456'
     );
@@ -98,39 +98,5 @@ describe('ConfirmTotpResetPasswordContainer', () => {
       }),
       replace: true,
     });
-  });
-
-  it('sets localized error message when authClient returns success: false', async () => {
-    mockCheckTotp.mockResolvedValueOnce({ success: false });
-    mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({ exists: false });
-
-    await renderComponent();
-
-    await act(async () => {
-      await capturedProps.verifyCode('000000');
-    });
-
-    expect(capturedProps.codeErrorMessage).toBe('Valid code required');
-  });
-
-  it.only('forwards location.state when onTroubleWithCode is invoked', async () => {
-    mockCheckTotp.mockResolvedValueOnce({ success: true });
-    mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({ exists: true });
-
-    await renderComponent();
-
-    await capturedProps.onTroubleWithCode();
-
-    expect(mockNavigate).toHaveBeenCalledWith(
-      '/reset_password_totp_recovery_choice',
-      {
-        state: expect.objectContaining({
-          token: MOCK_PASSWORD_CHANGE_TOKEN,
-          email: MOCK_EMAIL,
-          uid: MOCK_UID,
-        }),
-        replace: false,
-      }
-    );
   });
 });

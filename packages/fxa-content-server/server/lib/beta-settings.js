@@ -101,6 +101,9 @@ const settingsConfig = {
     recoveryCodeSetupOnSyncSignIn: config.get(
       'featureFlags.recoveryCodeSetupOnSyncSignIn'
     ),
+    recoveryPhonePasswordReset2fa: config.get(
+      'featureFlags.recoveryPhonePasswordReset2fa'
+    ),
   },
   nimbusPreview: config.get('nimbusPreview'),
 };

@@ -136,6 +136,7 @@ export const ResetPasswordRecoveryChoiceContainer = (
   if (!numBackupCodes || numBackupCodes === 0) {
     navigateWithQuery('/reset_password_recovery_phone', {
       state: {
+        ...locationState.state,
         lastFourPhoneDigits: phoneData.lastFourPhoneDigits,
       },
       // ensure back button on signin_recovery_code page skips choice page and
