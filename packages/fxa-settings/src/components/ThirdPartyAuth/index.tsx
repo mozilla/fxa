@@ -198,7 +198,7 @@ const ThirdPartySignInForm = ({
 
       <button
         type="submit"
-        className="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center"
+        className="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center focus-visible-default outline-offset-2"
         onClick={onClick}
       >
         {buttonText}

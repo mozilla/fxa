@@ -37,7 +37,7 @@ export function ConnectAnotherDevicePromo() {
       </div>
       <div className="flex flex-2 justify-center mt-5 mobileLandscape:mt-0 mobileLandscape:justify-end mobileLandscape:rtl:justify-start">
         <LinkExternal
-          className="self-center"
+          className="self-center rounded focus-visible-default outline-offset-2"
           data-testid="play-store-link"
           href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dorg.mozilla.firefox"
           onClick={() => GleanMetrics.accountPref.googlePlaySubmit()}
@@ -53,7 +53,7 @@ export function ConnectAnotherDevicePromo() {
           </Localized>
         </LinkExternal>
         <LinkExternal
-          className="self-center p-2"
+          className="self-center m-2 rounded focus-visible-default outline-offset-2"
           data-testid="app-store-link"
           href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926"
           onClick={() => GleanMetrics.accountPref.appleSubmit()}

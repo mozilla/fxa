@@ -64,7 +64,7 @@ export const DropDownAvatarMenu = () => {
           aria-label={dropDownMenuTitle}
           aria-expanded={!!isRevealed}
           aria-haspopup="menu"
-          className="rounded-full border border-transparent hover:border-purple-500 focus:border-purple-500 focus:outline-none active:border-purple-700 transition-standard"
+          className="rounded-full border border-transparent hover:border-purple-500 active:border-purple-700 transition-standard focus-visible-default focus-visible:border-transparent"
         >
           <Avatar className="w-10 rounded-full" {...{ avatar }} />
         </button>
@@ -96,7 +96,7 @@ export const DropDownAvatarMenu = () => {
                 <div className="bg-gradient-to-r from-blue-500 via-pink-700 to-yellow-500 h-px" />
                 <div className="px-4 py-5">
                   <button
-                    className="pl-3 group"
+                    className="ml-3 group rounded-sm focus-visible-default outline-offset-2"
                     onClick={signOut}
                     data-testid="avatar-menu-sign-out"
                   >

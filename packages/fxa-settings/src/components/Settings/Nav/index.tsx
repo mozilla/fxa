@@ -18,6 +18,8 @@ export interface NavRefProps {
 }
 
 const navActiveClass = 'nav-active';
+const navItemClasses =
+  'inline-block py-1 px-2 hover:bg-grey-100 rounded-sm focus-visible-default';
 
 // Update the active nav class when this percentage of a section is shown on screen
 const STANDARD_SECTION_THRESHOLD = 0.8;
@@ -151,10 +153,7 @@ export const Nav = ({
                   data-testid="nav-link-profile"
                   href="#profile"
                   ref={profileLinkRef}
-                  className={classNames(
-                    navActiveClass,
-                    'inline-block py-1 px-2 hover:bg-grey-100'
-                  )}
+                  className={classNames(navActiveClass, navItemClasses)}
                 >
                   Profile
                 </a>
@@ -165,7 +164,7 @@ export const Nav = ({
                 <a
                   href="#security"
                   data-testid="nav-link-security"
-                  className="inline-block py-1 px-2 hover:bg-grey-100"
+                  className={navItemClasses}
                   ref={securityLinkRef}
                 >
                   Security
@@ -177,7 +176,7 @@ export const Nav = ({
                 <a
                   href="#connected-services"
                   data-testid="nav-link-connected-services"
-                  className="inline-block py-1 px-2 hover:bg-grey-100"
+                  className={navItemClasses}
                   ref={connectedServicesLinkRef}
                 >
                   Connected Services
@@ -190,7 +189,7 @@ export const Nav = ({
                   <a
                     href="#linked-accounts"
                     data-testid="nav-link-linked-accounts"
-                    className="inline-block py-1 px-2 hover:bg-grey-100"
+                    className={navItemClasses}
                     ref={linkedAccountsLinkRef}
                   >
                     Linked Accounts
@@ -203,7 +202,7 @@ export const Nav = ({
                 <a
                   href="#data-collection"
                   data-testid="nav-link-data-collection"
-                  className="inline-block py-1 px-2 hover:bg-grey-100"
+                  className={navItemClasses}
                   ref={dataCollectionLinkRef}
                 >
                   Data Collection and Use
@@ -216,7 +215,7 @@ export const Nav = ({
         {hasSubscription && (
           <li className="mb-5">
             <LinkExternal
-              className="font-bold"
+              className="font-bold focus-visible-default rounded-sm outline-offset-2"
               data-testid="nav-link-subscriptions"
               href="/subscriptions"
             >
@@ -232,7 +231,7 @@ export const Nav = ({
         {marketingCommPrefLink && (
           <li>
             <LinkExternal
-              className="font-bold"
+              className="font-bold focus-visible-default rounded-sm outline-offset-2"
               data-testid="nav-link-newsletters"
               href={marketingCommPrefLink}
             >

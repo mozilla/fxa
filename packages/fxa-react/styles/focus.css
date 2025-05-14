@@ -1,0 +1,14 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* This class is a baseline styling for the "focus" interactive state shared
+ * across components, with shape-specific styles (e.g., border-radius,
+ * outline-offset, etc) applied elsewhere.
+ * Design document for reference: https://www.figma.com/design/2ruSnPauajQGprFy6K333u
+ * NOTE: Using focus-visible instead of focus here because focus-visible is only
+ * triggered when navigating with keyboard, while focus is also triggered by
+ * mouse press, which is not the desired behavior for button-like components. */
+.focus-visible-default:focus-visible {
+  @apply outline outline-blue-500 outline-2;
+}

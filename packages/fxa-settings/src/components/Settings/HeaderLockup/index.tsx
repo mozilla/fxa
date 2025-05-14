@@ -30,7 +30,7 @@ export const HeaderLockup = () => {
   const left = (
     <>
       <button
-        className="desktop:hidden me-6 p-2 self-center -m-2 z-[1] rounded hover:bg-grey-100"
+        className="desktop:hidden me-6 p-2 self-center -m-2 z-[1] rounded hover:bg-grey-100 focus-visible-default"
         data-testid="header-menu"
         aria-label={localizedMenuText}
         title={localizedMenuText}
@@ -50,15 +50,15 @@ export const HeaderLockup = () => {
         <a
           href="#"
           title="Back to top"
-          className="flex"
+          // use gap instead of margin to make the focus outline look right
+          // when the header title is invisible
+          className="flex gap-4 rounded-sm focus-visible:outline focus-visible:outline-blue-500 focus:outline-2 outline-offset-4"
           data-testid="back-to-top"
         >
           <LogoLockup>
             <>
               <Localized id="header-title-2">
-                <span className="font-bold ltr:mr-2 rtl:ml-2">
-                  Mozilla account
-                </span>
+                <span className="font-bold">Mozilla account</span>
               </Localized>
             </>
           </LogoLockup>
@@ -71,7 +71,7 @@ export const HeaderLockup = () => {
       <LinkExternal
         href="https://support.mozilla.org/products/mozilla-account"
         title={localizedHelpText}
-        className="inline-block relative p-2 -m-2 z-[1] rounded hover:bg-grey-100"
+        className="inline-block relative p-2 -m-2 z-[1] rounded hover:bg-grey-100 focus-visible-default"
         onClick={handleHelpLinkClick}
       >
         <Help
