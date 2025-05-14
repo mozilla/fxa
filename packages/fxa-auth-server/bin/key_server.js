@@ -227,7 +227,16 @@ async function run(config) {
     ...config.redis,
     ...config.redis.customs,
   });
-  const rateLimit = new RateLimit(rules, rateLimitRedis, statsd);
+  const rateLimit = new RateLimit(
+    {
+      rules,
+      ignoreIPs: config.rateLimit.ignoreIPs,
+      ignoreEmails: config.rateLimit.ignoreEmails,
+      ignoreUIDs: config.rateLimit.ignoreUIDs,
+    },
+    rateLimitRedis,
+    statsd
+  );
   Container.set(RateLimit, rateLimit);
 
   // Create Recovery Phone Service

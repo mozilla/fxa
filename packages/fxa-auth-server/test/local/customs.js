@@ -721,9 +721,11 @@ describe('Customs', () => {
 
   describe('customs v2', () => {
     const mockRateLimit = {
-      supportsAction: sinon.spy(() => true),
       check: sinon.spy(),
+      skip: sinon.spy(),
+      supportsAction: sinon.spy(),
     };
+
     const customs = new Customs(
       CUSTOMS_URL_REAL,
       log,
@@ -731,6 +733,12 @@ describe('Customs', () => {
       statsd,
       mockRateLimit
     );
+
+    beforeEach(() => {
+      mockRateLimit.check = sinon.spy();
+      mockRateLimit.skip = sinon.spy(() => false);
+      mockRateLimit.supportsAction = sinon.spy(() => true);
+    });
 
     it('can allow checkAccountStatus with rate-limit lib', async () => {
       mockRateLimit.check = sandbox.spy(async () => {
@@ -762,6 +770,24 @@ describe('Customs', () => {
         customsError.output.payload.message,
         'Client has sent too many requests'
       );
+    });
+
+    it('can skip certain emails, ips, and uids', async () => {
+      mockRateLimit.skip = sandbox.spy(() => true);
+      mockRateLimit.check = sandbox.spy(async () => {
+        return await Promise.resolve({
+          retryAfter: 1000,
+          reason: 'too-many-attempts',
+        });
+      });
+
+      // Should not throw despite, check being mocked to return an error. The
+      // skip check should be called first, and since it indicates a skip should
+      // occur, the actual customs check shouldn't ever happen.
+      await customs.check(request, email, 'accountStatusCheck');
+
+      assert.calledWith(mockRateLimit.skip, { ip, email });
+      assert.callCount(mockRateLimit.check, 0);
     });
   });
 

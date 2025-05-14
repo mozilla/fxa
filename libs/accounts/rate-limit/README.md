@@ -34,3 +34,18 @@ would replicate the pre-existing behavior:
    passwordForgotVerifyOtp    : email    : 10 attempts  : 24 hours       : 24 hours
 
 ```
+
+### Testing & Development Considerations
+
+When developing new features, running functional test suites locally, or running smoke tests remotely, rate-limiting behavior can be annoying — or even downright disruptive. To work around this, there are a few options:
+
+#### Disable the rules:
+You can simply remove the rate-limiting rules. Our servers typically hold the rules as a string in the environment, e.g., RATE_LIMIT__RULES=['some','rules']. Override this value with an empty string, and rate limiting will effectively be disabled. Want to test a single rate limit? Just specify that one rule. It doesn’t get much simpler than that.
+
+#### Exclude specific attributes like ip, email, or UID
+When running smoke tests against a remote server, the first approach may not work — so we also support excluding specific emails, user IDs (UIDs), or IP addresses from being checked by the rate limiter. To do this, define these values in your server's config file and pass them to the rate limiter.
+
+ - Email ignore values can use regex filters.
+ - IP addresses and UIDs must be exact string matches.
+
+Ideally, the IP filter should be used. This is the preferred method because all requests contain an IP address, making it the lowest common denominator for rate-limiting attributes. Other advantages of using the IP filter include its consistency and ease of configuration.

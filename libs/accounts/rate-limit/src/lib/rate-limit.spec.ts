@@ -29,13 +29,13 @@ describe('rate-limit', () => {
   });
 
   it('creates rate limiter', () => {
-    rateLimit = new RateLimit({}, redis, statsd);
+    rateLimit = new RateLimit({ rules: {} }, redis, statsd);
     expect(rateLimit).toBeDefined();
   });
 
   it('can determine if action is supported', () => {
     rateLimit = new RateLimit(
-      parseConfigRules(['test:ip:1:1s:1s']),
+      { rules: parseConfigRules(['test:ip:1:1s:1s']) },
       redis,
       statsd
     );
@@ -45,7 +45,7 @@ describe('rate-limit', () => {
   });
 
   it('throws if no action can be found', async () => {
-    rateLimit = new RateLimit({}, redis, statsd);
+    rateLimit = new RateLimit({ rules: {} }, redis, statsd);
     expect(rateLimit.check('foo', {})).rejects.toThrow(
       `Could not locate the 'foo' action.`
     );
@@ -53,7 +53,7 @@ describe('rate-limit', () => {
 
   it('throws error if option is missing', async () => {
     rateLimit = new RateLimit(
-      parseConfigRules(['test:ip:1:1s:1s']),
+      { rules: parseConfigRules(['test:ip:1:1s:1s']) },
       redis,
       statsd
     );
@@ -96,6 +96,57 @@ describe('rate-limit', () => {
     expect(getKey('block', rule, '127.0.0.1')).toEqual(
       `rate-limit:block:ip=127.0.0.1:foo:1-2-3`
     );
+  });
+
+  it('can ignore certain emails', () => {
+    rateLimit = new RateLimit(
+      {
+        rules: {},
+        ignoreEmails: ['@mozilla.com$', 'foo@firefox.com'],
+      },
+      redis,
+      statsd
+    );
+
+    expect(rateLimit.skip({ email: 'foo@mozilla.com' })).toBeTruthy();
+    expect(rateLimit.skip({ email: 'bar@mozilla.com' })).toBeTruthy();
+    expect(rateLimit.skip({ email: 'bar@mozilla.com ' })).toBeFalsy();
+    expect(rateLimit.skip({ email: 'foo@firefox.com' })).toBeTruthy();
+    expect(rateLimit.skip({ email: 'bar@firefox.com ' })).toBeFalsy();
+    expect(rateLimit.skip({})).toBeFalsy();
+    expect(statsd.increment).toBeCalledWith('rate_limit.ignore.email');
+  });
+
+  it('can ignore certain ips', () => {
+    rateLimit = new RateLimit(
+      {
+        rules: {},
+        ignoreIPs: ['127.0.0.1'],
+      },
+      redis,
+      statsd
+    );
+
+    expect(rateLimit.skip({ ip: '127.0.0.1' })).toBeTruthy();
+    expect(rateLimit.skip({ ip: '0.0.0.0' })).toBeFalsy();
+    expect(rateLimit.skip({})).toBeFalsy();
+    expect(statsd.increment).toBeCalledWith('rate_limit.ignore.ip');
+  });
+
+  it('can ignore certain uids', () => {
+    rateLimit = new RateLimit(
+      {
+        rules: {},
+        ignoreUIDs: ['000-000-000'],
+      },
+      redis,
+      statsd
+    );
+
+    expect(rateLimit.skip({ uid: '000-000-000' })).toBeTruthy();
+    expect(rateLimit.skip({ uid: '000-000-001' })).toBeFalsy();
+    expect(rateLimit.skip({})).toBeFalsy();
+    expect(statsd.increment).toBeCalledWith('rate_limit.ignore.uid');
   });
 
   describe('configuration rules', () => {

@@ -2161,6 +2161,24 @@ const convictConf = convict({
     },
   },
   rateLimit: {
+    ignoreIPs: {
+      default: undefined,
+      doc: 'Set of IPs to ignore while rate limiting. Rules will not apply to these values.',
+      env: 'RATE_LIMIT__IGNORE_IPS',
+      format: Array,
+    },
+    ignoreUIDs: {
+      default: undefined,
+      doc: 'Set of UIDs to ignore while rate limiting. Rules will not apply to these values.',
+      env: 'RATE_LIMIT__IGNORE_UIDS',
+      format: Array,
+    },
+    ignoreEmails: {
+      default: undefined,
+      doc: 'Set of emails to ignore while rate limiting. Rules will not apply to these values. Values can be a string or parsable regex.',
+      env: 'RATE_LIMIT__IGNORE_EMAILS',
+      format: Array,
+    },
     rules: {
       default: [
         'unblockEmail          : email  : 10   : 24 hours    : 24 hours    ',
