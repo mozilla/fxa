@@ -20,6 +20,9 @@ jest.mock('../../../models', () => ({
   useFtlMsgResolver: () => ({
     getMsg: (_id: string, fallback: string) => fallback,
   }),
+  useConfig: () => ({
+    featureFlags: { recoveryPhonePasswordReset2fa: true },
+  }),
 }));
 
 const mockNavigate = jest.fn();
