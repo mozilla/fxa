@@ -15,12 +15,7 @@ export const LogoLockup = ({ children, className = '' }: LogoLockupProps) => {
   return (
     <>
       <Localized id="app-logo-alt-3">
-        <img
-          src={logo}
-          data-testid="logo"
-          className="ltr:mr-4 rtl:ml-4"
-          alt="Mozilla m logo"
-        />
+        <img src={logo} data-testid="logo" alt="Mozilla m logo" />
       </Localized>
       <h1
         data-testid="logo-text"

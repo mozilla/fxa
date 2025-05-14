@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .switch {
-  @apply relative min-w-16 align-top border bg-transparent rounded-full overflow-hidden;
+  @apply relative min-w-16 align-top border bg-transparent rounded-full overflow-hidden focus-visible-default;
   height: calc(1.5rem + 2px); /* 2px increase accounts for the border */
 
   .slider {

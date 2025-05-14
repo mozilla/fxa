@@ -93,7 +93,7 @@ export const InputPassword = ({
       <button
         type="button"
         data-testid={formatDataTestId('visibility-toggle')}
-        className="absolute end-0 inset-y-0 my-auto mx-2 px-2 text-grey-500 box-content"
+        className="absolute end-0 inset-y-0 my-auto mx-2 px-2 text-grey-500 box-content focus-visible-default rounded"
         onClick={changeVisibilityStatus}
         title={
           visible

@@ -34,7 +34,7 @@ const ButtonBack = ({
       data-testid={dataTestId}
       title={localizedButtonTitle}
       aria-label={localizedButtonAriaLabel}
-      className="me-4 tablet:me-0 tablet:p-4 tablet:absolute tablet:-start-24"
+      className="me-4 tablet:me-0 tablet:p-4 tablet:absolute tablet:-start-24 rounded focus-visible-default"
     >
       <BackArrow className="w-6 h-auto text-grey-400 rtl:transform rtl:-scale-x-100" />
     </button>

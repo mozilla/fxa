@@ -17,6 +17,7 @@ export const Footer = () => {
       <LinkExternal
         href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
         data-testid="link-mozilla"
+        className="focus-visible-default rounded-sm outline-offset-2"
       >
         <img
           src={mozLogo}
@@ -33,7 +34,7 @@ export const Footer = () => {
           <LinkExternal
             data-testid="link-privacy"
             href="https://www.mozilla.org/privacy/websites/"
-            className="transition-standard text-xs hover:text-grey-500 hover:underline mobileLandscape:self-end"
+            className="transition-standard text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline focus-visible-default rounded-sm"
           >
             Website Privacy Notice
           </LinkExternal>
@@ -44,7 +45,7 @@ export const Footer = () => {
           <LinkExternal
             data-testid="link-terms"
             href="https://www.mozilla.org/about/legal/terms/services/"
-            className="transition-standard text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline"
+            className="transition-standard text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline focus-visible-default rounded-sm"
           >
             Terms of Service
           </LinkExternal>

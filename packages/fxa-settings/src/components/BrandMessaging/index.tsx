@@ -154,7 +154,7 @@ export const BrandMessaging = ({
             attrs={{ ariaLabel: true }}
           >
             <button
-              className="w-4 h-4"
+              className="w-4 h-4 rounded-sm focus-visible-default outline-offset-2"
               data-testid="close-brand-messaging"
               type="button"
               aria-label="Close banner"

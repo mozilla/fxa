@@ -113,7 +113,7 @@ export const BentoMenu = () => {
         aria-label={bentoMenuTitle}
         aria-expanded={!!isRevealed}
         aria-haspopup="menu"
-        className="rounded p-2 mx-2 border-transparent hover:bg-grey-100 transition-standard desktop:mx-8"
+        className="rounded p-2 mx-2 border-transparent hover:bg-grey-100 transition-standard desktop:mx-8 focus-visible-default"
       >
         <BentoIcon className="w-5 text-violet-900" />
       </button>
@@ -128,12 +128,15 @@ export const BentoMenu = () => {
         >
           <div className="flex flex-wrap">
             <div className="flex w-full py-4 gap-2 items-center flex-col tablet:w-auto tablet:relative">
-              <button onClick={closeFn} title="Close">
-                <CloseIcon
-                  width="16"
-                  height="16"
-                  className="absolute top-5 end-5 mobileLandscape:hidden fill-current"
-                />
+              <button
+                onClick={closeFn}
+                title="Close"
+                /* Clicking the bento icon again closes the menu, so
+                   there is no need to display the close button for non-mobile
+                   devices, even for screen readers. */
+                className="absolute top-5 end-5 mobileLandscape:hidden rounded-sm focus-visible-default outline-offset-2"
+              >
+                <CloseIcon width="16" height="16" className="fill-current" />
               </button>
               <div className="mt-12 px-8 text-center mobileLandscape:mt-0">
                 <FtlMsg id="bento-menu-tagline">
@@ -146,7 +149,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="desktop-link"
                       href={desktopLink}
-                      className="block p-2 ps-6 hover:bg-grey-100"
+                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
                       onClick={() =>
                         GleanMetrics.accountPref.bentoFirefoxDesktop()
                       }
@@ -163,7 +166,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="mobile-link"
                       href={mobileLink}
-                      className="block p-2 ps-6 hover:bg-grey-100"
+                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
                       onClick={() =>
                         GleanMetrics.accountPref.bentoFirefoxMobile()
                       }
@@ -180,7 +183,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="monitor-link"
                       href={monitorLink}
-                      className="block p-2 ps-6 hover:bg-grey-100"
+                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
                       onClick={() => GleanMetrics.accountPref.bentoMonitor()}
                     >
                       <div className={iconClassNames}>
@@ -193,7 +196,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="relay-link"
                       href={relayLink}
-                      className="block p-2 ps-6 hover:bg-grey-100"
+                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
                       onClick={() => GleanMetrics.accountPref.bentoRelay()}
                     >
                       <div className={iconClassNames}>
@@ -208,7 +211,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="vpn-link"
                       href={vpnLink}
-                      className="block p-2 ps-6 hover:bg-grey-100"
+                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
                       onClick={() => GleanMetrics.accountPref.bentoVpn()}
                     >
                       <div className={iconClassNames}>
@@ -221,7 +224,7 @@ export const BentoMenu = () => {
                     <LinkExternal
                       data-testid="pocket-link"
                       href="https://app.adjust.com/hr2n0yz?redirect_macos=https%3A%2F%2Fgetpocket.com%2Fpocket-and-firefox&redirect_windows=https%3A%2F%2Fgetpocket.com%2Fpocket-and-firefox&engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447"
-                      className="block p-2 ps-6 hover:bg-grey-100"
+                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
                       onClick={() => GleanMetrics.accountPref.bentoPocket()}
                     >
                       <div className={iconClassNames}>

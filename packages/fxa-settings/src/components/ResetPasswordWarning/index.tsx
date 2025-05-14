@@ -37,8 +37,8 @@ const ResetPasswordWarning = ({
         setExpanded((e.currentTarget as HTMLDetailsElement).open)
       }
     >
-      {/* Arbitrary varaite [&::-webkit-details-marker]:hidden removes the list arrow on webkit based browsers */}
-      <summary className="flex items-center cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+      {/* Arbitrary variant [&::-webkit-details-marker]:hidden removes the list arrow on webkit based browsers */}
+      <summary className="flex items-center cursor-pointer list-none [&::-webkit-details-marker]:hidden rounded-sm focus-visible-default outline-offset-2">
         <WarnIcon
           role="img"
           className="me-4"
