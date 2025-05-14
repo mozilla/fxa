@@ -113,7 +113,7 @@ describe('ConfirmTotpResetPasswordContainer', () => {
     capturedProps.onTroubleWithCode();
 
     expect(mockNavigate).toHaveBeenCalledWith(
-      '/confirm_backup_code_reset_password',
+      '/reset_password_totp_recovery_choice',
       {
         state: expect.objectContaining({
           token: MOCK_PASSWORD_CHANGE_TOKEN,
