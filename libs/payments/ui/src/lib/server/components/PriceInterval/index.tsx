@@ -10,15 +10,16 @@ type PriceIntervalProps = {
   amount: number;
   currency: string;
   interval: string;
+  locale: string;
 };
 
 export async function PriceInterval(props: PriceIntervalProps) {
-  const { l10n, amount, currency, interval } = props;
+  const { l10n, amount, currency, interval, locale } = props;
   return l10n.getString(
     `plan-price-interval-${interval}`,
     {
       amount: l10n.getLocalizedCurrency(amount, currency),
     },
-    formatPlanPricing(amount, currency, interval)
+    formatPlanPricing(amount, currency, interval, false, 0, locale)
   );
 }

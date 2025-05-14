@@ -17,14 +17,16 @@ export function formatPriceAmount(
   amount: number | null,
   currency: string,
   showTax: boolean,
-  tax: number | null
+  tax: number | null,
+  locale: string
 ) {
   return showTax
     ? `${getLocalizedCurrencyString(
         amount,
-        currency
-      )} + ${getLocalizedCurrencyString(tax, currency)} tax`
-    : getLocalizedCurrencyString(amount, currency);
+        currency,
+        locale
+      )} + ${getLocalizedCurrencyString(tax, currency, locale)} tax`
+    : getLocalizedCurrencyString(amount, currency, locale);
 }
 
 /**
@@ -45,9 +47,10 @@ export function formatPlanPricing(
   currency: string,
   interval: string,
   showTax = false,
-  tax = 0
+  tax = 0,
+  locale: string
 ): string {
-  const formattedAmount = formatPriceAmount(amount, currency, showTax, tax);
+  const formattedAmount = formatPriceAmount(amount, currency, showTax, tax, locale);
   switch (interval) {
     case 'daily':
     case 'day':

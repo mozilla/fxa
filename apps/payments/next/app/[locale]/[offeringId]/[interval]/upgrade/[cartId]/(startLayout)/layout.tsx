@@ -73,6 +73,7 @@ export default async function UpgradeLayout({
             fromPrice={cart.fromPrice}
             fromPurchaseDetails={currentPurchaseDetails}
             purchaseDetails={purchaseDetails}
+            locale={locale}
           />
         </section>
 

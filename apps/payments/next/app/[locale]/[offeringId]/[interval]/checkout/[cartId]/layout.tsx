@@ -89,6 +89,7 @@ export default async function CheckoutLayout({
                 amount={cart.upcomingInvoicePreview.listAmount}
                 currency={cart.upcomingInvoicePreview.currency}
                 interval={cart.interval}
+                locale={locale}
               />
             }
             totalPrice={
@@ -97,8 +98,10 @@ export default async function CheckoutLayout({
                 amount={cart.upcomingInvoicePreview.totalAmount}
                 currency={cart.upcomingInvoicePreview.currency}
                 interval={cart.interval}
+                locale={locale}
               />
             }
+            locale={ locale }
           />
           {cart.state === CartState.START && (
             <div

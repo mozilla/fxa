@@ -123,7 +123,8 @@ export default async function UpgradeSuccess({
           <div className="flex items-center justify-between text-grey-400">
             {l10n.getLocalizedCurrencyString(
               cart.latestInvoicePreview?.totalAmount,
-              cart.latestInvoicePreview?.currency
+              cart.latestInvoicePreview?.currency,
+              locale
             )}
             {cart.paymentInfo.type === 'external_paypal' ? (
               <Image src={getCardIcon('paypal')} alt="paypal" />

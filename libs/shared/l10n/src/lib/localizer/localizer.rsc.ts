@@ -106,8 +106,8 @@ export class LocalizerRsc {
     return getLocalizedCurrency(amountInCents, currency);
   }
 
-  getLocalizedCurrencyString(amountInCents: number | null, currency: string) {
-    return getLocalizedCurrencyString(amountInCents, currency);
+  getLocalizedCurrencyString(amountInCents: number | null, currency: string, locale: string) {
+    return getLocalizedCurrencyString(amountInCents, currency, locale);
   }
 
   getLocalizedDate(unixSeconds: number, numericDate = false): FluentDateTime {
