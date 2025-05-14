@@ -24,7 +24,7 @@ describe('rate-limit', () => {
 
   beforeEach(async () => {
     await redis.flushall();
-    rateLimit = new RateLimit({}, redis, statsd);
+    rateLimit = new RateLimit({ rules: {} }, redis, statsd);
     mockIncrement.mockReset();
   });
 
@@ -35,7 +35,7 @@ describe('rate-limit', () => {
   for (const blockOn of ['ip', 'email', 'uid']) {
     it('should block on ' + blockOn, async () => {
       rateLimit = new RateLimit(
-        parseConfigRules(['testBlock:ip:1:1s:1s']),
+        { rules: parseConfigRules(['testBlock:ip:1:1s:1s']) },
         redis,
         statsd
       );
@@ -57,7 +57,7 @@ describe('rate-limit', () => {
 
   it(`should not block after window clears`, async () => {
     rateLimit = new RateLimit(
-      parseConfigRules(['testWindowCleared:ip:1:1s:1s']),
+      { rules: parseConfigRules(['testWindowCleared:ip:1:1s:1s']) },
       redis,
       statsd
     );
@@ -76,7 +76,12 @@ describe('rate-limit', () => {
 
   it('can block multiple rules on a single action', async () => {
     rateLimit = new RateLimit(
-      parseConfigRules(['testMulti:ip:2:10s:2s', 'testMulti:email:2:10s:3s']),
+      {
+        rules: parseConfigRules([
+          'testMulti:ip:2:10s:2s',
+          'testMulti:email:2:10s:3s',
+        ]),
+      },
       redis,
       statsd
     );
@@ -120,10 +125,12 @@ describe('rate-limit', () => {
 
   it('can block a doubled up rule', async () => {
     rateLimit = new RateLimit(
-      parseConfigRules([
-        'testDouble:email:2:10s:2s',
-        'testDouble:email:3:10s:4s',
-      ]),
+      {
+        rules: parseConfigRules([
+          'testDouble:email:2:10s:2s',
+          'testDouble:email:3:10s:4s',
+        ]),
+      },
       redis,
       statsd
     );
@@ -153,7 +160,9 @@ describe('rate-limit', () => {
      * Note that once the ban kicks in the window disappears. So despite
      */
     rateLimit = new RateLimit(
-      parseConfigRules(['test:ip:1:20s:1s']),
+      {
+        rules: parseConfigRules(['test:ip:1:20s:1s']),
+      },
       redis,
       statsd
     );
@@ -174,7 +183,9 @@ describe('rate-limit', () => {
 
   it('can unblock', async () => {
     rateLimit = new RateLimit(
-      parseConfigRules(['testBlock:ip:1:1s:1s']),
+      {
+        rules: parseConfigRules(['testBlock:ip:1:1s:1s']),
+      },
       redis,
       statsd
     );

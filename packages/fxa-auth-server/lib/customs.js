@@ -306,6 +306,18 @@ class CustomsClient {
       return false;
     }
 
+    // The config can specify that certain ips, emails, or uids should be excluded
+    // from rate limit checks.
+    const skip = this.rateLimit.skip(opts);
+    if (skip) {
+      this.statsd.increment(`${serviceName}.check.v2.skip`, [
+        opts.ip ? 'ip':'',
+        opts.email ? 'email':'',
+        opts.uid ? 'uid':'',
+      ]);
+      return true;
+    }
+
     // Otherwise, call the new nx lib instead of the legacy service
     this.statsd?.increment(`${serviceName}.check.v2`, [`action:${action}`]);
     const result = await this.rateLimit.check(action, opts);
