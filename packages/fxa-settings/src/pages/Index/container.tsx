@@ -30,6 +30,7 @@ import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
 import { IndexContainerProps, LocationState } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 export const IndexContainer = ({
   integration,
@@ -45,7 +46,8 @@ export const IndexContainer = ({
   const [errorBannerMessage, setErrorBannerMessage] = useState('');
   const [successBannerMessage, setSuccessBannerMessage] = useState('');
   const [tooltipErrorMessage, setTooltipErrorMessage] = useState('');
-  const [hasTriedAutoProcess, setHasTriedAutoProcess] = useState(false);
+  const [hasFailedAutoEmailProcessing, setHasFailedAutoEmailProcessing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { queryParamModel, validationError } = useValidatedQueryParams(
     IndexQueryParams,
@@ -187,6 +189,7 @@ export const IndexContainer = ({
         // if email verification fails, clear from params to avoid re-use
         if (!isManualSubmission) {
           clearEmailParams();
+          setHasFailedAutoEmailProcessing(true);
         }
         handleEmailSubmissionError(email, error);
       }
@@ -210,16 +213,20 @@ export const IndexContainer = ({
   const shouldTrySuggestedEmail = suggestedEmail && !prefillEmail;
 
   useEffect(() => {
-    if (shouldTrySuggestedEmail && !hasTriedAutoProcess) {
-      setHasTriedAutoProcess(true);
+    if (isUnsupportedContext(integration.data.context)) {
+      hardNavigate('/update_firefox', {}, true);
+    } else if (shouldTrySuggestedEmail && !hasFailedAutoEmailProcessing) {
       processEmailSubmission(suggestedEmail, false);
+    } else {
+      setIsLoading(false);
     }
   }, [
     ftlMsgResolver,
-    hasTriedAutoProcess,
+    hasFailedAutoEmailProcessing,
     processEmailSubmission,
     suggestedEmail,
     shouldTrySuggestedEmail,
+    integration.data.context,
   ]);
 
   useEffect(() => {
@@ -244,13 +251,11 @@ export const IndexContainer = ({
     }
   }, [ftlMsgResolver, deleteAccountSuccess]);
 
-  if (isUnsupportedContext(integration.data.context)) {
-    hardNavigate('/update_firefox', {}, true);
-  }
-
   const initialPrefill = prefillEmail || suggestedEmail;
 
-  return (
+  return isLoading ? (
+    <LoadingSpinner fullScreen />
+  ) : (
     <Index
       {...{
         integration,
