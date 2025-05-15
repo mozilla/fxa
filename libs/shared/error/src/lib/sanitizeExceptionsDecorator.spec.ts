@@ -4,8 +4,8 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { SanitizeExceptions } from './sanitizeExceptionsDecorator';
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { Logger } from '@nestjs/common';
 
 // Mock Sentry
 jest.mock('@sentry/nextjs', () => ({
@@ -53,19 +53,19 @@ class MockService {
 
 describe('SanitizeExceptions Decorator', () => {
   let service: MockService;
-  let mockLogger: { error: jest.Mock; info: jest.Mock };
+  let mockLogger: { error: jest.Mock; log: jest.Mock };
 
   beforeEach(async () => {
     mockLogger = {
       error: jest.fn(),
-      info: jest.fn(),
+      log: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MockService,
         {
-          provide: LOGGER_PROVIDER,
+          provide: Logger,
           useValue: mockLogger,
         },
         MockStatsDProvider

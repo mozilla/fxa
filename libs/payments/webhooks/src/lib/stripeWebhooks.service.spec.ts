@@ -40,6 +40,7 @@ import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import * as Sentry from '@sentry/node';
+import { Logger } from '@nestjs/common';
 
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
@@ -49,9 +50,18 @@ describe('StripeWebhookService', () => {
   let stripeEventManager: StripeEventManager;
   let stripeWebhookService: StripeWebhookService;
 
+  const mockLogger = {
+    error: jest.fn(),
+    log: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
+        {
+          provide: Logger,
+          useValue: mockLogger,
+        },
         MockStripeConfigProvider,
         StripeClient,
         StripeEventManager,
