@@ -681,6 +681,26 @@ describe('CheckoutService', () => {
         });
       });
 
+      it('handles free payments', async () => {
+        const freeInvoice = StripeResponseFactory(
+          StripeInvoiceFactory({
+            payment_intent: mockPaymentIntent.id,
+            total: 0,
+            amount_due: 0,
+            total_excluding_tax: 0,
+            status: 'paid',
+          })
+        );
+        jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(freeInvoice);
+        await expect(
+          await checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockCustomerData
+          )
+        ).resolves;
+      });
+
       describe('upgrade', () => {
         const mockEligibilityResult =
           SubscriptionEligibilityUpgradeDowngradeResultFactory({
