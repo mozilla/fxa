@@ -20,15 +20,28 @@ import ProductPromo, {
   ProductPromoType,
 } from '../ProductPromo';
 import SideBar from '../Sidebar';
-import NotificationPromoBanner from '../../NotificationPromoBanner';
-import keyImage from '../../NotificationPromoBanner/key.svg';
 import Head from 'fxa-react/components/Head';
 import { SettingsIntegration } from '../interfaces';
+import {
+  AccountRecoveryKeyPromoBanner,
+  RecoveryPhonePromoBanner,
+} from '../../PromotionBanner';
+import {
+  isRecoveryKeyPromoDismissed,
+  isRecoveryPhonePromoDismissed,
+} from '../../../lib/promo-dismissal';
 
 export const PageSettings = ({
   integration,
 }: RouteComponentProps & { integration?: SettingsIntegration }) => {
-  const { uid, recoveryKey, attachedClients, subscriptions } = useAccount();
+  const {
+    uid,
+    recoveryKey,
+    attachedClients,
+    subscriptions,
+    totp,
+    recoveryPhone,
+  } = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
 
@@ -76,6 +89,7 @@ export const PageSettings = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // -- Relying parting promotion checks --
   useEffect(() => {
     // We want this view event to fire whenever the account settings page view
     // event fires, if the user is shown the promo.
@@ -90,6 +104,8 @@ export const PageSettings = ({
     }
   }, [attachedClients, subscriptions, productPromoGleanEventSent]);
 
+  // -- Account feature promotion checks --
+
   // The estimated Sync devices is optionally returned by the auth-server,
   // if it is not present, we default to 0.
   let estimatedSyncDeviceCount = 0;
@@ -97,25 +113,22 @@ export const PageSettings = ({
     estimatedSyncDeviceCount = recoveryKey.estimatedSyncDeviceCount;
   }
 
-  const accountRecoveryNotificationProps = {
-    headerImage: keyImage,
-    ctaText: ftlMsgResolver.getMsg(
-      'account-recovery-notification-cta',
-      'Create'
-    ),
-    headerValue: ftlMsgResolver.getMsg(
-      'account-recovery-notification-header-value',
-      'Don’t lose your data if you forget your password'
-    ),
-    headerDescription: ftlMsgResolver.getMsg(
-      'account-recovery-notification-header-description',
-      'Create an account recovery key to restore your sync browsing data if you ever forget your password.'
-    ),
-    route: '/settings/account_recovery',
-    dismissKey: 'account-recovery-dismissed',
-    metricsKey: 'create_recovery_key',
-    isVisible: estimatedSyncDeviceCount > 0 && !recoveryKey.exists,
-  };
+  const dismissedRecoveryPhonePromo = isRecoveryPhonePromoDismissed();
+  const dismissedRecoveryKeyPromo = isRecoveryKeyPromoDismissed();
+
+  // Recovery phone promo is prioritized if user is eligible for both
+  const eligibleForRecoveryPhonePromo =
+    !dismissedRecoveryPhonePromo &&
+    totp.exists &&
+    totp.verified &&
+    !recoveryPhone.exists &&
+    recoveryPhone.available;
+
+  const eligibleForRecoveryKeyPromo =
+    (!eligibleForRecoveryPhonePromo || dismissedRecoveryPhonePromo) &&
+    !dismissedRecoveryKeyPromo &&
+    estimatedSyncDeviceCount > 0 &&
+    !recoveryKey.exists;
 
   // Scroll to effect
   const profileRef = useRef<HTMLDivElement>(null);
@@ -139,7 +152,8 @@ export const PageSettings = ({
         />
       </div>
       <div className="flex flex-col flex-7 max-w-full gap-8 mt-10">
-        <NotificationPromoBanner {...accountRecoveryNotificationProps} />
+        {eligibleForRecoveryPhonePromo && <RecoveryPhonePromoBanner />}
+        {eligibleForRecoveryKeyPromo && <AccountRecoveryKeyPromoBanner />}
         <Profile ref={profileRef} />
         <Security ref={securityRef} />
         <ConnectedServices ref={connectedServicesRef} />
