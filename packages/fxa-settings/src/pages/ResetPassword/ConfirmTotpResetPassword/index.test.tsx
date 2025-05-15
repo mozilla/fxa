@@ -76,4 +76,37 @@ describe('ConfirmTotpResetPassword', () => {
 
     expect(onTrouble).toHaveBeenCalledTimes(1);
   });
+
+  describe('glean click event', () => {
+    it('is included on the submit button', () => {
+      renderWithLocalizationProvider(<Subject verifyCode={mockVerifyCode} />);
+      const submitButton = screen.getByRole('button', {
+        name: 'Confirm',
+      });
+      expect(submitButton).toHaveAttribute(
+        'data-glean-id',
+        'reset_password_confirm_totp_code_submit_button'
+      );
+    });
+    it('is included on the trouble with code button', () => {
+      renderWithLocalizationProvider(<Subject verifyCode={mockVerifyCode} />);
+      const troubleButton = screen.getByRole('button', {
+        name: 'Trouble entering code?',
+      });
+      expect(troubleButton).toHaveAttribute(
+        'data-glean-id',
+        'reset_password_confirm_totp_trouble_with_code_button'
+      );
+    });
+    it('is included on the user different account button', () => {
+      renderWithLocalizationProvider(<Subject verifyCode={mockVerifyCode} />);
+      const differentAccountButton = screen.getByRole('button', {
+        name: 'Use different account',
+      });
+      expect(differentAccountButton).toHaveAttribute(
+        'data-glean-id',
+        'reset_password_confirm_totp_use_different_account_button'
+      );
+    })
+  });
 });
