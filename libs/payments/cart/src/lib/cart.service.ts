@@ -220,9 +220,9 @@ export class CartService {
               'checkout_failure_subscription_not_cancelled'
             );
 
-            this.log.log('checkout failed, subscription not canceled', {
-              eligibility_status: cart.eligibilityStatus,
-              offering_id: cart.offeringConfigId,
+            this.log.log('cartService.wrapWithCartCatch.subscriptionNotCancelled', {
+              eligibilityStatus: cart.eligibilityStatus,
+              offeringId: cart.offeringConfigId,
               interval: cart.interval,
             });
           }
