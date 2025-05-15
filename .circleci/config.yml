@@ -53,7 +53,7 @@ executors:
   tiny-executor:
     resource_class: small
     docker:
-      - image: cimg/node:22.14.0
+      - image: cimg/node:22.15.1
     environment:
       HUSKY_SKIP_INSTALL: 1
 
@@ -65,7 +65,7 @@ executors:
         default: medium+
       image:
         type: string
-        default: cimg/node:22.14.0
+        default: cimg/node:22.15.1
     resource_class: << parameters.resource_class >>
     docker:
       - image: << parameters.image >>
@@ -1002,7 +1002,7 @@ workflows:
           name: Deploy CI Images
           executor:
             name: docker-build-executor
-            image: cimg/node:22.14.0-browsers
+            image: cimg/node:22.15.1-browsers
           filters:
             branches:
               only:
@@ -1276,7 +1276,7 @@ workflows:
           name: Deploy CI Images (nightly)
           executor:
             name: docker-build-executor
-            image: cimg/node:22.14.0-browsers
+            image: cimg/node:22.15.1-browsers
           # Note, setting force-deploy as true will result in rebuilding the images regardless
           # of whether or not there are package modifications.
           force-deploy: true
