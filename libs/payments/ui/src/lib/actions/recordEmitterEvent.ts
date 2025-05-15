@@ -11,26 +11,6 @@ import { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
 async function recordEmitterEventAction(
   eventName: PaymentsEmitterEventsKeysType,
   params: Record<string, string | string[]>,
-  searchParams: Record<string, string>
-): Promise<void>;
-
-async function recordEmitterEventAction(
-  eventName: 'checkoutFail',
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string>,
-  paymentProvider?: PaymentProvidersType
-): Promise<void>;
-
-async function recordEmitterEventAction(
-  eventName: 'checkoutSubmit' | 'checkoutSuccess',
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string>,
-  paymentProvider: PaymentProvidersType
-): Promise<void>;
-
-async function recordEmitterEventAction(
-  eventName: PaymentsEmitterEventsKeysType,
-  params: Record<string, string | string[]>,
   searchParams: Record<string, string>,
   paymentProvider?: PaymentProvidersType
 ) {
