@@ -7,6 +7,8 @@ import { BaseError } from '@fxa/shared/error';
 export class CurrencyError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
+    this.name = 'CurrencyError';
+    Object.setPrototypeOf(this, CurrencyError.prototype);
   }
 }
 
@@ -18,6 +20,8 @@ export class CurrencyCodeInvalidError extends CurrencyError {
       },
       cause,
     });
+    this.name = 'CurrencyCodeInvalidError';
+    Object.setPrototypeOf(this, CurrencyCodeInvalidError.prototype);
   }
 }
 
@@ -29,6 +33,8 @@ export class CountryCodeInvalidError extends CurrencyError {
       },
       cause,
     });
+    this.name = 'CountryCodeInvalidError';
+    Object.setPrototypeOf(this, CountryCodeInvalidError.prototype);
   }
 }
 
@@ -41,5 +47,7 @@ export class CurrencyCountryMismatchError extends CurrencyError {
       },
       cause,
     });
+    this.name = 'CurrencyCountryMismatchError';
+    Object.setPrototypeOf(this, CurrencyCountryMismatchError.prototype);
   }
 }

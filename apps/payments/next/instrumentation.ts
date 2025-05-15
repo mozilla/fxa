@@ -6,7 +6,10 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     await import('./sentry.server.config');
     const { getApp } = await import('@fxa/payments/ui/server');
+    const { monkeyPatchServerLogging } = await import('@fxa/shared/log');
 
     await getApp().initialize();
+
+    monkeyPatchServerLogging();
   }
 }

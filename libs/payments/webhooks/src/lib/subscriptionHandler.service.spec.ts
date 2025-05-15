@@ -52,6 +52,7 @@ import {
   CancellationReason,
   determineCancellation,
 } from './util/determineCancellation';
+import { Logger } from '@nestjs/common';
 
 jest.mock('@fxa/payments/customer');
 const mockDeterminePaymentMethodType = jest.mocked(determinePaymentMethodType);
@@ -68,6 +69,10 @@ describe('SubscriptionEventsService', () => {
   const mockEmitter = {
     emit: jest.fn(),
   };
+  const mockLogger = {
+    error: jest.fn(),
+    log: jest.fn(),
+  };
 
   const { event: mockEvent, eventObjectData: mockEventObjectData } =
     CustomerSubscriptionDeletedResponseFactory();
@@ -75,6 +80,10 @@ describe('SubscriptionEventsService', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
+        {
+          provide: Logger,
+          useValue: mockLogger,
+        },
         MockStripeConfigProvider,
         StripeClient,
         StripeEventManager,

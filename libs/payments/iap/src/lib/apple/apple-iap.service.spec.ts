@@ -108,11 +108,7 @@ describe('AppleIapService', () => {
       ).rejects.toThrowError(AppleIapInvalidOriginalTransactionIdError);
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'registerToUserAccount.PurchaseUpdateError.InvalidOriginalTransactionId',
-        {
-          err: expect.any(AppleIapInvalidOriginalTransactionIdError),
-          originalTransactionId: mockOriginalTransactionId,
-        }
+        expect.any(AppleIapInvalidOriginalTransactionIdError)
       );
     });
 
@@ -134,11 +130,7 @@ describe('AppleIapService', () => {
       ).rejects.toThrowError(AppleIapConflictError);
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'registerToUserAccount.PurchaseUpdateError.Conflict',
-        {
-          err: expect.any(AppleIapConflictError),
-          originalTransactionId: mockOriginalTransactionId,
-        }
+        expect.any(AppleIapConflictError)
       );
     });
   });

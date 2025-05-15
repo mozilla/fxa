@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { NotFoundError } from 'objection';
 import { v4 as uuidv4 } from 'uuid';
-
+import type { LoggerService } from '@nestjs/common';
 import { AccountDbProvider, CartState } from '@fxa/shared/db/mysql/account';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import {
   CartInvalidStateForActionError,
@@ -35,7 +35,11 @@ import type {
   CartErrorReasonId,
 } from '@fxa/shared/db/mysql/account';
 import assert from 'assert';
-import { CaptureTimingWithStatsD, StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
+import {
+  CaptureTimingWithStatsD,
+  StatsDService,
+  type StatsD,
+} from '@fxa/shared/metrics/statsd';
 // For an action to be executed, the cart state needs to be in one of
 // valid states listed in the array of CartStates below
 const ACTIONS_VALID_STATE = {
@@ -60,7 +64,8 @@ const isAction = (action: string): action is keyof typeof ACTIONS_VALID_STATE =>
 export class CartManager {
   constructor(
     @Inject(AccountDbProvider) private db: AccountDatabase,
-    @Inject(StatsDService) public statsd: StatsD
+    @Inject(StatsDService) public statsd: StatsD,
+    @Inject(Logger) private log: LoggerService
   ) {}
 
   /**
@@ -123,7 +128,7 @@ export class CartManager {
         currency: cart.currency,
       };
     } catch (error) {
-      console.log(error);
+      this.log.error(error);
       throw new CartNotCreatedError(input, error);
     }
   }
@@ -159,7 +164,7 @@ export class CartManager {
         currency: cart.currency,
       };
     } catch (error) {
-      console.log(error);
+      this.log.error(error);
       throw new CartNotCreatedError(input, error);
     }
   }

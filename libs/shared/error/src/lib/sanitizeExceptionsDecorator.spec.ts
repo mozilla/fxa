@@ -4,8 +4,8 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { SanitizeExceptions } from './sanitizeExceptionsDecorator';
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { Logger } from '@nestjs/common';
 
 // Mock Sentry
 jest.mock('@sentry/nextjs', () => ({
@@ -18,6 +18,8 @@ class SensitiveError extends Error {
   constructor(message: string) {
     super(message);
     this.subtype = 'SensitiveError';
+    this.name = 'SensitiveError';
+    Object.setPrototypeOf(this, SensitiveError.prototype);
   }
 }
 
@@ -26,6 +28,8 @@ class AcceptableError extends Error {
   constructor(message: string) {
     super(message);
     this.subtype = 'AcceptableError';
+    this.name = 'AcceptableError';
+    Object.setPrototypeOf(this, AcceptableError.prototype);
   }
 }
 
@@ -53,22 +57,22 @@ class MockService {
 
 describe('SanitizeExceptions Decorator', () => {
   let service: MockService;
-  let mockLogger: { error: jest.Mock; info: jest.Mock };
+  let mockLogger: { error: jest.Mock; log: jest.Mock };
 
   beforeEach(async () => {
     mockLogger = {
       error: jest.fn(),
-      info: jest.fn(),
+      log: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MockService,
         {
-          provide: LOGGER_PROVIDER,
+          provide: Logger,
           useValue: mockLogger,
         },
-        MockStatsDProvider
+        MockStatsDProvider,
       ],
     }).compile();
 
@@ -83,7 +87,6 @@ describe('SanitizeExceptions Decorator', () => {
     it('should pass acceptable errors through', () => {
       expect(() => service.throwAcceptableError()).toThrow(AcceptableError);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error caught by SanitizeExceptions decorator in MockService.throwAcceptableError',
         expect.any(AcceptableError)
       );
     });
@@ -94,7 +97,6 @@ describe('SanitizeExceptions Decorator', () => {
       );
       expect(() => service.throwSensitiveError()).not.toThrow(SensitiveError);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error caught by SanitizeExceptions decorator in MockService.throwSensitiveError',
         expect.any(SensitiveError)
       );
     });
@@ -106,7 +108,6 @@ describe('SanitizeExceptions Decorator', () => {
         AcceptableError
       );
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error caught by SanitizeExceptions decorator in MockService.throwAcceptableErrorAsync',
         expect.any(AcceptableError)
       );
     });
@@ -119,7 +120,6 @@ describe('SanitizeExceptions Decorator', () => {
         SensitiveError
       );
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'Error caught by SanitizeExceptions decorator in MockService.throwSensitiveErrorAsync',
         expect.any(SensitiveError)
       );
     });

@@ -47,13 +47,7 @@ export class AppleIapService {
           'Invalid original transaction id',
           { cause: err }
         );
-        this.log.error(
-          'registerToUserAccount.PurchaseUpdateError.InvalidOriginalTransactionId',
-          {
-            err: libraryError,
-            originalTransactionId,
-          }
-        );
+        this.log.error(libraryError);
         throw libraryError;
       }
     }
@@ -73,10 +67,7 @@ export class AppleIapService {
       const libraryError = new AppleIapConflictError(
         'Purchase has been registered to another user'
       );
-      this.log.error('registerToUserAccount.PurchaseUpdateError.Conflict', {
-        err: libraryError,
-        originalTransactionId,
-      });
+      this.log.error(libraryError);
       throw libraryError;
     }
 

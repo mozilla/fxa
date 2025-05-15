@@ -1,4 +1,4 @@
-import { logger } from './logging';
+import { winstonLogger } from './logging';
 
 type ConsoleFn = typeof console.log;
 
@@ -32,7 +32,8 @@ const consoleLogWrapper = (logFn: ConsoleFn) =>
 export const monkeyPatchServerLogging = () => {
   // NextJS internally uses console functions directly, eg on error. It's also
   // rare to load a logging library in react code.
-  console.log = consoleLogWrapper(logger.info.bind(logger));
+  const logger = winstonLogger('PaymentsNext');
+  console.log = consoleLogWrapper(logger.log.bind(logger));
   console.warn = consoleLogWrapper(logger.warn.bind(logger));
   console.error = consoleLogWrapper(logger.error.bind(logger));
 };

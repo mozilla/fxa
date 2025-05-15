@@ -223,13 +223,7 @@ export class AppleIapPurchaseManager {
       const libraryError = new AppleIapUnknownError('Unknown error', {
         cause: err,
       });
-      this.log.error(
-        'querySubscriptionPurchase.PurchaseQueryError.OtherError',
-        {
-          err: libraryError,
-          originalTransactionId,
-        }
-      );
+      this.log.error(libraryError);
       throw libraryError;
     }
   }

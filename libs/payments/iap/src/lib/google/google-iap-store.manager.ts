@@ -21,10 +21,7 @@ export class GoogleIapPurchaseManager {
       this.log.debug('rtdn', { message });
       return message;
     } catch (err) {
-      this.log.error('rtdn', {
-        message: 'Failure to load message payload',
-        err,
-      });
+      this.log.error(err);
       throw new GoogleIapInvalidMessagePayloadError('Invalid message payload');
     }
   }

@@ -46,6 +46,7 @@ import {
 } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
 import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
+import { Logger } from '@nestjs/common';
 
 jest.mock('./util/retrieveAdditionalMetricsData');
 const mockedRetrieveAdditionalMetricsData = jest.mocked(
@@ -69,10 +70,18 @@ describe('PaymentsEmitterService', () => {
     paymentProvider: 'stripe' as PaymentProvidersType,
   };
   let retrieveOptOutMock: jest.SpyInstance<any, unknown[], any>;
+  const mockLogger = {
+    error: jest.fn(),
+    log: jest.fn(),
+  };
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
+        {
+          provide: Logger,
+          useValue: mockLogger,
+        },
         MockPaymentsGleanConfigProvider,
         MockAccountDatabaseNestFactory,
         MockPaymentsGleanFactory,

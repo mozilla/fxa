@@ -59,9 +59,10 @@ export class PayPalClientError extends BaseMultiError {
 
   constructor(errors: PayPalNVPError[], raw: string, data: NVPErrorResponse) {
     super(errors);
-    this.name = 'PayPalClientError';
     this.raw = raw;
     this.data = data;
+    this.name = 'PayPalClientError';
+    Object.setPrototypeOf(this, PayPalClientError.prototype);
   }
 
   getPrimaryError(): PayPalNVPError {
@@ -103,7 +104,6 @@ export class PayPalNVPError extends BaseError {
   constructor(raw: string, data: NVPErrorResponse, params: any) {
     const { message, cause, errorCode } = params;
     super(message, {
-      name: 'PayPalNVPError',
       cause,
       info: {
         raw,
@@ -114,6 +114,8 @@ export class PayPalNVPError extends BaseError {
     this.raw = raw;
     this.data = data;
     this.errorCode = errorCode;
+    this.name = 'PayPalNVPError';
+    Object.setPrototypeOf(this, PayPalNVPError.prototype);
   }
 }
 
@@ -122,12 +124,16 @@ export class PaymentsCustomError extends BaseError {
     super(message, {
       cause,
     });
+    this.name = 'PaymentsCustomError';
+    Object.setPrototypeOf(this, PaymentsCustomError.prototype);
   }
 }
 
 export class PaypalBillingAgreementManagerError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
+    this.name = 'PaypalBillingAgreementManagerError';
+    Object.setPrototypeOf(this, PaypalBillingAgreementManagerError.prototype);
   }
 }
 
@@ -138,29 +144,39 @@ export class AmountExceedsPayPalCharLimitError extends BaseError {
         amountInCents,
       },
     });
+    this.name = 'AmountExceedsPayPalCharLimitError';
+    Object.setPrototypeOf(this, AmountExceedsPayPalCharLimitError.prototype);
   }
 }
 
 export class UnexpectedPayPalError extends PaymentsCustomError {
   constructor(error: Error) {
     super('An unexpected PayPal error occured', error);
+    this.name = 'UnexpectedPayPalError';
+    Object.setPrototypeOf(this, UnexpectedPayPalError.prototype);
   }
 }
 
 export class UnexpectedPayPalErrorCode extends PaymentsCustomError {
   constructor(error: Error) {
     super('Encountered an unexpected PayPal error code', error);
+    this.name = 'UnexpectedPayPalErrorCode';
+    Object.setPrototypeOf(this, UnexpectedPayPalErrorCode.prototype);
   }
 }
 
 export class PayPalPaymentMethodError extends PaymentsCustomError {
   constructor(error: Error) {
     super('PayPal payment method failed', error);
+    this.name = 'PayPalPaymentMethodError';
+    Object.setPrototypeOf(this, PayPalPaymentMethodError.prototype);
   }
 }
 
 export class PayPalServiceUnavailableError extends PaymentsCustomError {
   constructor(error: Error) {
     super('PayPal service is temporarily unavailable', error);
+    this.name = 'PayPalServiceUnavailableError';
+    Object.setPrototypeOf(this, PayPalServiceUnavailableError.prototype);
   }
 }
