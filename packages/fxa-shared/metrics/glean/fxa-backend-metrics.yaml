@@ -1094,6 +1094,11 @@ two_step_auth_phone_code:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates where the code submission originated, e.g. "login", "setup", or "reset".
+        type: string
 
 two_step_auth_remove:
   success:
