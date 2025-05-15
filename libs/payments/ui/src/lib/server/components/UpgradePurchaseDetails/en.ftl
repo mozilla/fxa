@@ -14,3 +14,5 @@ upgrade-purchase-details-new-plan-weekly = { $productName } (Weekly)
 upgrade-purchase-details-new-plan-monthly = { $productName } (Monthly)
 upgrade-purchase-details-new-plan-halfyearly = { $productName } (6-month)
 upgrade-purchase-details-new-plan-yearly = { $productName } (Yearly)
+
+upgrade-purchase-details-prorated-credits = Negative balance shown will be applied as credits to your account and used towards future invoices.

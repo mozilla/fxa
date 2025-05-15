@@ -30,8 +30,7 @@ export const PlanUpgradeDetails = ({
 }) => {
   const { navigatorLanguages, config } = useContext(AppContext);
   const invoiceCurrency = invoicePreview.line_items[0].currency;
-  const { product_name, amount, interval, interval_count } =
-    selectedPlan;
+  const { product_name, amount, interval, interval_count } = selectedPlan;
   const formattedInterval = formatPlanInterval({
     interval: interval,
     intervalCount: 1,
@@ -65,13 +64,21 @@ export const PlanUpgradeDetails = ({
         <Localized id="sub-update-current-plan-label">Current plan</Localized>
       </p>
 
-      <PlanDetailsCard className="from-plan" plan={upgradeFromPlan} currency={invoiceCurrency} />
+      <PlanDetailsCard
+        className="from-plan"
+        plan={upgradeFromPlan}
+        currency={invoiceCurrency}
+      />
 
       <p className="plan-label new-plan-label">
         <Localized id="sub-update-new-plan-label">New plan</Localized>
       </p>
 
-      <PlanDetailsCard className="to-plan" plan={selectedPlan} currency={invoiceCurrency} />
+      <PlanDetailsCard
+        className="to-plan"
+        plan={selectedPlan}
+        currency={invoiceCurrency}
+      />
 
       <div className="py-6 border-t-0">
         {showTax && !!subTotal && !!exclusiveTaxRates.length && (
@@ -144,7 +151,7 @@ export const PlanUpgradeDetails = ({
           </div>
         )}
 
-        {oneTimeCharge && (
+        {!!oneTimeCharge && (
           <>
             <hr className="m-0 my-5 unit-row-hr" />
 
@@ -165,6 +172,15 @@ export const PlanUpgradeDetails = ({
                 dataTestId="prorated-amount"
               />
             </div>
+
+            {oneTimeCharge < 0 && (
+              <Localized id="sub-update-prorated-upgrade-credit">
+                <p className="text-base">
+                  Negative balance shown will be applied as credits to your
+                  account and used towards future invoices.
+                </p>
+              </Localized>
+            )}
           </>
         )}
       </div>
@@ -178,7 +194,7 @@ export const PlanDetailsCard = ({
   className = '',
 }: {
   plan: Plan;
-  currency: string,
+  currency: string;
   className?: string;
 }) => {
   const { navigatorLanguages, config } = useContext(AppContext);

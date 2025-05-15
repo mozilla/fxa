@@ -89,11 +89,11 @@ describe('CancelSubscriptionPanel', () => {
             <CancelSubscriptionPanel {...props} />
           );
 
-          const planPrice = formatPlanPricing(
+          const planPrice = formatPriceAmount(
             props.invoice.total,
             props.plan.currency,
-            props.plan.interval,
-            props.plan.interval_count
+            false,
+            0
           );
           const nextBillDate = getLocalizedDateString(
             props.subsequentInvoice.period_start,
@@ -305,7 +305,7 @@ describe('CancelSubscriptionPanel', () => {
             />
           </LocalizationProvider>
         );
-        expect(queryByText('$20.00 fooly')).toBeInTheDocument();
+        expect(queryByText('$20.00')).toBeInTheDocument();
         expect(queryByText('quuz 13/09/2019')).toBeInTheDocument();
         expect(queryByText('blee')).toBeInTheDocument();
       });
@@ -313,9 +313,9 @@ describe('CancelSubscriptionPanel', () => {
       it('displays the correct pricing info with interval > 1', () => {
         const bundle = new FluentBundle('gd', { useIsolating: false });
         [
-          `price-details-no-tax-day = { $intervalCount ->
-            [one] { $priceAmount } fooly
-            *[other] { $priceAmount } barly { $intervalCount } 24hrs
+          `price-details-no-tax = { $intervalCount ->
+            [one] { $priceAmount }
+            *[other] { $priceAmount }
           }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
@@ -325,15 +325,15 @@ describe('CancelSubscriptionPanel', () => {
             <CancelSubscriptionPanel {...baseProps} plan={plan} />
           </LocalizationProvider>
         );
-        expect(queryByText('$20.00 barly 8 24hrs')).toBeInTheDocument();
+        expect(queryByText('$20.00')).toBeInTheDocument();
       });
 
       it('displays the correct pricing and exclusive tax info with interval of 1', () => {
         const bundle = new FluentBundle('gd', { useIsolating: false });
         [
-          `price-details-tax-day = { $intervalCount ->
-            [one] { $priceAmount } + { $taxAmount } tax fooly
-            *[other] { $priceAmount } + { $taxAmount } tax barly { $intervalCount } 24hrs
+          `price-details-tax = { $intervalCount ->
+            [one] { $priceAmount } + { $taxAmount } tax
+            *[other] { $priceAmount } + { $taxAmount } tax
           }`,
           'payment-cancel-btn = blee',
           `price-details-tax = { $priceAmount } + { $taxAmount } taxes`,
@@ -354,7 +354,7 @@ describe('CancelSubscriptionPanel', () => {
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$20.00 + $3.00 tax fooly'
+          '$20.00 + $3.00 tax'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Next bill of $5.00 + $1.23 taxes is due 13/09/2019'
@@ -365,9 +365,9 @@ describe('CancelSubscriptionPanel', () => {
       it('displays the correct pricing and exclusive tax info with interval > 1', () => {
         const bundle = new FluentBundle('gd', { useIsolating: false });
         [
-          `price-details-tax-day = { $intervalCount ->
-            [one] { $priceAmount } + { $taxAmount } tax fooly
-            *[other] { $priceAmount } + { $taxAmount } tax barly { $intervalCount } 24hrs
+          `price-details-tax = { $intervalCount ->
+            [one] { $priceAmount } + { $taxAmount } tax
+            *[other] { $priceAmount } + { $taxAmount } tax
           }`,
           `price-details-tax = { $priceAmount } + { $taxAmount } taxes`,
           `sub-next-bill-tax-1 = Next bill of { $priceAmount } + { $taxAmount } taxes is due { $date }`,
@@ -385,7 +385,7 @@ describe('CancelSubscriptionPanel', () => {
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$20.00 + $3.00 tax barly 8 24hrs'
+          '$20.00 + $3.00 tax'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Next bill of $5.00 + $1.23 taxes is due 14/08/2019'
@@ -395,9 +395,9 @@ describe('CancelSubscriptionPanel', () => {
       it('displays the correct pricing and exclusive tax with discount info with interval > 1', () => {
         const bundle = new FluentBundle('gd', { useIsolating: false });
         [
-          `price-details-tax-day = { $intervalCount ->
-            [one] { $priceAmount } + { $taxAmount } tax fooly
-            *[other] { $priceAmount } + { $taxAmount } tax barly { $intervalCount } 24hrs
+          `price-details-tax = { $intervalCount ->
+            [one] { $priceAmount } + { $taxAmount } tax
+            *[other] { $priceAmount } + { $taxAmount } tax
           }`,
           `sub-next-bill-tax-1 = Next bill of { $priceAmount } + { $taxAmount } taxes is due { $date }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
@@ -414,7 +414,7 @@ describe('CancelSubscriptionPanel', () => {
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$19.50 + $3.00 tax barly 8 24hrs'
+          '$19.50 + $3.00 tax'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Next bill of $4.50 + $1.23 taxes is due 14/08/2019'
@@ -424,9 +424,9 @@ describe('CancelSubscriptionPanel', () => {
       it('displays the correct pricing and hides tax for zero tax amount', () => {
         const bundle = new FluentBundle('gd', { useIsolating: false });
         [
-          `price-details-tax-day = { $intervalCount ->
-            [one] { $priceAmount } + { $taxAmount } tax fooly
-            *[other] { $priceAmount } + { $taxAmount } tax barly { $intervalCount } 24hrs
+          `price-details-tax = { $intervalCount ->
+            [one] { $priceAmount } + { $taxAmount } tax
+            *[other] { $priceAmount } + { $taxAmount } tax
           }`,
           'payment-cancel-btn = blee',
           `price-details-tax = { $priceAmount } + { $taxAmount } taxes`,
@@ -448,7 +448,7 @@ describe('CancelSubscriptionPanel', () => {
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$20.00 daily'
+          '$20.00'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Next bill of $5.00 prices is due 13/09/2019'
@@ -459,9 +459,9 @@ describe('CancelSubscriptionPanel', () => {
       it('displays the correct pricing and inclusive tax info with interval of 1', () => {
         const bundle = new FluentBundle('gd', { useIsolating: false });
         [
-          `price-details-no-tax-day = { $intervalCount ->
-            [one] { $priceAmount } fooly
-            *[other] { $priceAmount } barly { $intervalCount } 24hrs
+          `price-details-no-tax = { $intervalCount ->
+            [one] { $priceAmount }
+            *[other] { $priceAmount }
           }`,
           'payment-cancel-btn = blee',
           `sub-next-bill-no-tax-1 = Next bill of { $priceAmount } prices is due { $date }`,
@@ -481,7 +481,7 @@ describe('CancelSubscriptionPanel', () => {
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$20.00 fooly'
+          '$20.00'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Next bill of $5.00 prices is due 13/09/2019'
@@ -492,9 +492,9 @@ describe('CancelSubscriptionPanel', () => {
       it('displays the correct pricing and inclusive tax info with interval > 1', () => {
         const bundle = new FluentBundle('gd', { useIsolating: false });
         [
-          `price-details-no-tax-day = { $intervalCount ->
-            [one] { $priceAmount } fooly
-            *[other] { $priceAmount } barly { $intervalCount } 24hrs
+          `price-details-no-tax = { $intervalCount ->
+            [one] { $priceAmount }
+            *[other] { $priceAmount }
           }`,
           `sub-next-bill-no-tax-1 = Next bill of { $priceAmount } prices is due { $date }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
@@ -511,7 +511,7 @@ describe('CancelSubscriptionPanel', () => {
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$20.00 barly 8 24hrs'
+          '$20.00'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Next bill of $5.00 prices is due 14/08/2019'
@@ -521,9 +521,9 @@ describe('CancelSubscriptionPanel', () => {
       it('displays the correct pricing and inclusive tax with discount info with interval > 1', () => {
         const bundle = new FluentBundle('gd', { useIsolating: false });
         [
-          `price-details-no-tax-day = { $intervalCount ->
-            [one] { $priceAmount } fooly
-            *[other] { $priceAmount } barly { $intervalCount } 24hrs
+          `price-details-no-tax = { $intervalCount ->
+            [one] { $priceAmount }
+            *[other] { $priceAmount }
           }`,
           `sub-next-bill-no-tax-1 = Next bill of { $priceAmount } prices is due { $date }`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
@@ -540,7 +540,7 @@ describe('CancelSubscriptionPanel', () => {
           </LocalizationProvider>
         );
         expect(queryByTestId('price-details-standalone')).toHaveTextContent(
-          '$19.50 barly 8 24hrs'
+          '$19.50'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Next bill of $4.50 prices is due 14/08/2019'

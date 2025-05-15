@@ -22,4 +22,4 @@ sub-update-new-plan-weekly = { $productName } (Weekly)
 sub-update-new-plan-monthly = { $productName } (Monthly)
 sub-update-new-plan-yearly = { $productName } (Yearly)
 
-##
+sub-update-prorated-upgrade-credit = Negative balance shown will be applied as credits to your account and used towards future invoices.

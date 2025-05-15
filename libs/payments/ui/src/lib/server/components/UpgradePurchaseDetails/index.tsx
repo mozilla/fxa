@@ -233,6 +233,15 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
               {l10n.getLocalizedCurrencyString(oneTimeCharge, currency, locale)}
             </p>
           </div>
+
+          {oneTimeCharge < 0 && (
+            <p className="pb-4">
+              {l10n.getString(
+                'upgrade-purchase-details-prorated-credits',
+                'Negative balance shown will be applied as credits to your account and used towards future invoices.'
+              )}
+            </p>
+          )}
         </>
       )}
     </div>
