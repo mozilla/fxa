@@ -6007,6 +6007,38 @@ describe('#integration - StripeHelper', () => {
       );
     });
 
+    describe('extractSubscriptionDeletedEventDetailsForEmail', () => {
+      it('returns subscription invoice details', async () => {
+        const mockSubscription = deepCopy(subscription1);
+        const mockInvoice = deepCopy(invoicePaidSubscriptionCreate);
+        stripeHelper.extractInvoiceDetailsForEmail = sandbox
+          .stub()
+          .resolves(mockInvoice);
+
+        const result =
+          await stripeHelper.extractSubscriptionDeletedEventDetailsForEmail(
+            mockSubscription
+          );
+        assert.equal(result, mockInvoice);
+        sinon.assert.calledOnce(stripeHelper.extractInvoiceDetailsForEmail);
+      });
+
+      it('throws internalValidationError if latest_invoice is not present', async () => {
+        const mockSubscription = deepCopy(subscription1);
+        mockSubscription.latest_invoice = null;
+        let thrownError = null;
+        try {
+          await stripeHelper.extractSubscriptionDeletedEventDetailsForEmail(
+            mockSubscription
+          );
+        } catch (err) {
+          thrownError = err;
+        }
+        assert.isNotNull(thrownError);
+        assert.equal(thrownError.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+      });
+    });
+
     describe('extractSubscriptionUpdateEventDetailsForEmail', () => {
       const mockReactivationDetails = 'mockReactivationDetails';
       const mockCancellationDetails = 'mockCancellationDetails';
