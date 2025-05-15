@@ -49,6 +49,7 @@
   "postRemoveAccountRecovery": 8,
   "postAddRecoveryPhone": 1,
   "postChangeRecoveryPhone": 1,
+  "postPasswordResetRecoveryPhone": 1,
   "postRemoveRecoveryPhone": 1,
   "postSigninRecoveryPhone": 1,
   "postSigninRecoveryCode": 1,

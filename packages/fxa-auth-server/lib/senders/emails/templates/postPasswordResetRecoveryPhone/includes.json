@@ -1,0 +1,14 @@
+{
+  "subject": {
+    "id": "postPasswordResetRecoveryPhone-subject",
+    "message": "Recovery phone used"
+  },
+  "action": {
+    "id": "postPasswordResetRecoveryPhone-action",
+    "message": "Manage account"
+  },
+  "preview": {
+    "id": "postPasswordResetRecoveryPhone-preview",
+    "message": "Check to make sure this was you"
+  }
+}

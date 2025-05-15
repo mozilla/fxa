@@ -90,6 +90,7 @@ module.exports = function (log, config, bounces, statsd) {
     postRemoveAccountRecovery: 'account-recovery-removed',
     postAddRecoveryPhone: 'recovery-phone-added',
     postChangeRecoveryPhone: 'recovery-phone-changed',
+    postPasswordResetRecoveryPhone: 'password-reset-recovery-phone',
     postRemoveRecoveryPhone: 'recovery-phone-removed',
     postSigninRecoveryPhone: 'signin-recovery-phone',
     postSigninRecoveryCode: 'signin-recovery-code',
@@ -148,6 +149,7 @@ module.exports = function (log, config, bounces, statsd) {
     postNewRecoveryCodes: 'manage-account',
     postAddAccountRecovery: 'manage-account',
     postChangeAccountRecovery: 'manage-account',
+    postPasswordResetRecoveryPhone: 'manage-account',
     postRemoveAccountRecovery: 'manage-account',
     postAddRecoveryPhone: 'manage-account',
     postSigninRecoveryPhone: 'manage-account',
@@ -1676,6 +1678,36 @@ module.exports = function (log, config, bounces, statsd) {
         date,
         device: this._formatUserAgentInfo(message),
         privacyUrl: links.privacyUrl,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
+    });
+  };
+
+  Mailer.prototype.postPasswordResetRecoveryPhoneEmail = function (message) {
+    const templateName = 'postPasswordResetRecoveryPhone';
+    const links = this._generateSettingLinks(message, templateName);
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        privacyUrl: links.privacyUrl,
+        link: links.link,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,
