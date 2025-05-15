@@ -4,7 +4,7 @@
 
 # Runs tests and common CI operations. Needs minimal install. Assumes
 # workspace will be restored into the project folder.
-FROM cimg/node:22.14 AS test-runner
+FROM cimg/node:22.15 AS test-runner
 RUN sudo apt-get update && sudo apt-get install -y \
     python3-venv
 WORKDIR /home/circleci
