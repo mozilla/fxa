@@ -28,6 +28,7 @@ const invoiceFixture = require('../../payments/fixtures/stripe/invoice_paid.json
 const subscriptionCreated = require('../../payments/fixtures/stripe/subscription_created.json');
 const subscriptionCreatedIncomplete = require('../../payments/fixtures/stripe/subscription_created_incomplete.json');
 const subscriptionDeleted = require('../../payments/fixtures/stripe/subscription_deleted.json');
+const subscriptionReplaced = require('../../payments/fixtures/stripe/subscription_replaced.json');
 const subscriptionUpdated = require('../../payments/fixtures/stripe/subscription_updated.json');
 const subscriptionUpdatedFromIncomplete = require('../../payments/fixtures/stripe/subscription_updated_from_incomplete.json');
 const eventInvoiceCreated = require('../../payments/fixtures/stripe/event_invoice_created.json');
@@ -1117,6 +1118,54 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.paypalHelper
             .conditionallyRemoveBillingAgreement,
           customerFixture
+        );
+      });
+
+      it('sends subscriptionReplaced email if metadata includes redundantCancellation', async () => {
+        const mockCustomer = deepCopy(customerFixture);
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          mockCustomer
+        );
+        const deletedEvent = deepCopy(subscriptionReplaced);
+        const account = {
+          email: customerFixture.email,
+          emails: customerFixture.email,
+          locale: 'en',
+        };
+        sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
+        const mockInvoice = deepCopy(invoiceFixture);
+        StripeWebhookHandlerInstance.stripeHelper.extractSubscriptionDeletedEventDetailsForEmail.resolves(
+          mockInvoice
+        );
+        StripeWebhookHandlerInstance.mailer.sendSubscriptionReplacedEmail =
+          sandbox.stub();
+        await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
+          {},
+          deletedEvent
+        );
+        assert.calledWith(mockCapabilityService.stripeUpdate, {
+          sub: deletedEvent.data.object,
+          uid: customerFixture.metadata.userid,
+        });
+        assert.notCalled(authDbModule.getUidAndEmailByStripeCustomerId);
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.paypalHelper
+            .conditionallyRemoveBillingAgreement,
+          customerFixture
+        );
+        assert.calledOnceWithExactly(
+          StripeWebhookHandlerInstance.stripeHelper
+            .extractSubscriptionDeletedEventDetailsForEmail,
+          deletedEvent.data.object
+        );
+        assert.calledWith(
+          StripeWebhookHandlerInstance.mailer.sendSubscriptionReplacedEmail,
+          account.emails,
+          account,
+          {
+            acceptLanguage: account.locale,
+            ...mockInvoice,
+          }
         );
       });
 
