@@ -688,6 +688,50 @@ describe('CheckoutService', () => {
         });
       });
 
+      it('handles free payments for customers with default payment method', async () => {
+        const freeInvoice = StripeResponseFactory(
+          StripeInvoiceFactory({
+            payment_intent: mockPaymentIntent.id,
+            amount_due: 0,
+            status: 'paid',
+          })
+        );
+        const existingPayentMethod = StripeResponseFactory(
+          StripePaymentMethodFactory()
+        );
+        jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(freeInvoice);
+        jest
+          .spyOn(customerManager, 'getDefaultPaymentMethod')
+          .mockResolvedValue(existingPayentMethod);
+        await expect(
+          checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockCustomerData
+          )
+        ).resolves;
+      });
+      it('rejects free payments for customers without default payment method', async () => {
+        const freeInvoice = StripeResponseFactory(
+          StripeInvoiceFactory({
+            payment_intent: mockPaymentIntent.id,
+            amount_due: 0,
+            status: 'paid',
+          })
+        );
+        jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(freeInvoice);
+        jest
+          .spyOn(customerManager, 'getDefaultPaymentMethod')
+          .mockResolvedValue(undefined);
+        await expect(
+          checkoutService.payWithStripe(
+            mockCart,
+            mockConfirmationToken.id,
+            mockCustomerData
+          )
+        ).rejects.toThrow();
+      });
+
       describe('upgrade', () => {
         const mockEligibilityResult =
           SubscriptionEligibilityUpgradeDowngradeResultFactory({

@@ -60,6 +60,7 @@ import {
   CartInvalidStateForActionError,
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
+  PaidInvoiceOnFailedCartError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import type {
@@ -178,11 +179,26 @@ export class CartService {
                 await this.invoiceManager.void(invoice.id);
                 break;
               case 'paid':
-                throw new CartError('Paid invoice found on failed cart', {
+                const paidInvoiceError = new PaidInvoiceOnFailedCartError(
                   cartId,
-                  stripeCustomerId: cart.stripeCustomerId,
-                  invoiceId: invoice.id,
-                });
+                  {
+                    error,
+                    stripeCustomerId: cart.stripeCustomerId,
+                    invoiceId: invoice.id,
+                  }
+                );
+                this.log.error(paidInvoiceError);
+
+                // swallow the error to allow cancellation of the subscription only when payment total is 0
+                if (invoice.total !== 0) {
+                  this.statsd.increment('non_zero_paid_invoice_on_failed_cart');
+                  Sentry.captureException(paidInvoiceError, {
+                    extra: {
+                      cartId,
+                    },
+                  });
+                  throw paidInvoiceError;
+                }
             }
           }
 
@@ -201,6 +217,7 @@ export class CartService {
             }
           } catch (e) {
             // swallow the error to allow cancellation of the subscription
+            this.log.error(e);
             Sentry.captureException(e, {
               extra: {
                 cartId,

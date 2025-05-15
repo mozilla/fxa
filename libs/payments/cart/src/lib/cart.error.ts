@@ -209,3 +209,14 @@ export class CartSubscriptionNotFoundError extends CartError {
     Object.setPrototypeOf(this, CartSubscriptionNotFoundError.prototype);
   }
 }
+
+export class PaidInvoiceOnFailedCartError extends CartError {
+  constructor(cartId: string, args?: Record<string, any>) {
+    super('Paid invoice found on failed cart', {
+      cartId,
+      ...args,
+    });
+    this.name = 'PaidInvoiceOnFailedCartError';
+    Object.setPrototypeOf(this, PaidInvoiceOnFailedCartError.prototype);
+  }
+}
