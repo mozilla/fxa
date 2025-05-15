@@ -71,7 +71,7 @@ export default async function UpgradeSuccess({
     'checkoutSuccess',
     { ...params },
     searchParams,
-    cart.paymentInfo.type
+    cart.paymentInfo?.type
   );
 
   const { successActionButtonUrl, successActionButtonLabel } =
@@ -143,7 +143,7 @@ export default async function UpgradeSuccess({
               cart.latestInvoicePreview?.currency,
               locale
             )}
-            {cart.paymentInfo.type === 'external_paypal' ? (
+            {cart.paymentInfo && (cart.paymentInfo.type === 'external_paypal' ? (
               <Image src={getCardIcon('paypal')} alt="paypal" />
             ) : (
               <span className="flex items-center gap-2">
@@ -161,7 +161,7 @@ export default async function UpgradeSuccess({
                   `Card ending in ${cart.paymentInfo.last4}`
                 )}
               </span>
-            )}
+            ))}
           </div>
         </div>
 

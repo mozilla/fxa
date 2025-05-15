@@ -90,7 +90,7 @@ export type ProcessingCartDTO = BaseCartDTO & {
 export type SuccessCartDTO = BaseCartDTO & {
   state: CartState.SUCCESS;
   latestInvoicePreview: Invoice;
-  paymentInfo: PaymentInfo;
+  paymentInfo?: PaymentInfo;
 };
 
 export type NeedsInputCartDTO = BaseCartDTO & {

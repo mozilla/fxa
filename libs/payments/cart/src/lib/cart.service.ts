@@ -106,8 +106,8 @@ export class CartService {
     private productConfigurationManager: ProductConfigurationManager,
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
-    @Inject(StatsDService) private statsd: StatsD,
-  ) { }
+    @Inject(StatsDService) private statsd: StatsD
+  ) {}
 
   /**
    * Should be used to wrap any method that mutates an existing cart.
@@ -390,12 +390,12 @@ export class CartService {
 
       const accountCustomer = oldCart.uid
         ? await this.accountCustomerManager
-          .getAccountCustomerByUid(oldCart.uid)
-          .catch((error) => {
-            if (!(error instanceof AccountCustomerNotFoundError)) {
-              throw error;
-            }
-          })
+            .getAccountCustomerByUid(oldCart.uid)
+            .catch((error) => {
+              if (!(error instanceof AccountCustomerNotFoundError)) {
+                throw error;
+              }
+            })
         : undefined;
 
       if (!(oldCart.taxAddress && oldCart.currency)) {
@@ -721,7 +721,10 @@ export class CartService {
       customer,
       subscriptions
     );
-    if (paymentMethodType?.type === 'stripe') {
+    if (
+      paymentMethodType?.type === 'stripe' &&
+      paymentMethodType.paymentMethodId
+    ) {
       const paymentMethodPromise = this.paymentMethodManager.retrieve(
         paymentMethodType.paymentMethodId
       );
@@ -742,6 +745,12 @@ export class CartService {
       paymentInfo = {
         type: 'external_paypal',
       };
+    } else if (cart.state == CartState.SUCCESS) {
+      this.statsd.increment('payment_method_missing_on_cart');
+      this.log.error('cartService.getCart.paymentMethod.missing', {
+        cartId: cart.id,
+        customerId: customer?.id,
+      });
     }
 
     // Cart latest invoice data
@@ -766,7 +775,6 @@ export class CartService {
         latestInvoicePreview,
         'latestInvoicePreview not present for success cart'
       );
-      assert(paymentInfo, 'paymentInfo not present for success cart');
 
       return {
         ...cart,
@@ -782,11 +790,18 @@ export class CartService {
     if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
       assert('fromPrice' in eligibility, 'fromPrice not present for upgrade');
 
-      const { price: priceForCurrency, unitAmountForCurrency } = await this.priceManager.retrievePricingForCurrency(eligibility.fromPrice.id, cart.currency);
+      const { price: priceForCurrency, unitAmountForCurrency } =
+        await this.priceManager.retrievePricingForCurrency(
+          eligibility.fromPrice.id,
+          cart.currency
+        );
       assertNotNull(unitAmountForCurrency);
       assertNotNull(priceForCurrency.recurring);
 
-      const interval = getSubplatInterval(priceForCurrency.recurring.interval, priceForCurrency.recurring.interval_count);
+      const interval = getSubplatInterval(
+        priceForCurrency.recurring.interval,
+        priceForCurrency.recurring.interval_count
+      );
       assert(interval, 'Interval not found but is required');
 
       fromPrice = {

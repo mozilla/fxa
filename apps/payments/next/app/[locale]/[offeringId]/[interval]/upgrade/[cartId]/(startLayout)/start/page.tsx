@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import assert from 'assert';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import {
@@ -67,7 +66,6 @@ export default async function Upgrade({
     locale
   );
   const [cart, cms] = await Promise.all([cartDataPromise, cmsDataPromise]);
-  assert(cart.paymentInfo, 'paymentInfo is missing in cart');
 
   return (
     <section aria-label="Upgrade" data-testid="subscription-upgrade">
@@ -78,27 +76,29 @@ export default async function Upgrade({
         )}
       </h3>
 
-      <div className="flex items-center justify-between mt-4 text-sm">
-        {cart.paymentInfo.type === 'external_paypal' ? (
-          <Image src={getCardIcon('paypal')} alt="paypal" />
-        ) : (
-          <span className="flex items-center gap-2">
-            {cart.paymentInfo.brand && (
-              <Image
-                src={getCardIcon(cart.paymentInfo.brand)}
-                alt={cart.paymentInfo.brand}
-              />
-            )}
-            {l10n.getString(
-              'next-payment-confirmation-cc-card-ending-in',
-              {
-                last4: cart.paymentInfo.last4 ?? '',
-              },
-              `Card ending in ${cart.paymentInfo.last4}`
-            )}
-          </span>
-        )}
-      </div>
+      {cart.paymentInfo && (
+        <div className="flex items-center justify-between mt-4 text-sm">
+          {cart.paymentInfo.type === 'external_paypal' ? (
+            <Image src={getCardIcon('paypal')} alt="paypal" />
+          ) : (
+            <span className="flex items-center gap-2">
+              {cart.paymentInfo.brand && (
+                <Image
+                  src={getCardIcon(cart.paymentInfo.brand)}
+                  alt={cart.paymentInfo.brand}
+                />
+              )}
+              {l10n.getString(
+                'next-payment-confirmation-cc-card-ending-in',
+                {
+                  last4: cart.paymentInfo.last4 ?? '',
+                },
+                `Card ending in ${cart.paymentInfo.last4}`
+              )}
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="border-b border-grey-200 my-6"></div>
 
