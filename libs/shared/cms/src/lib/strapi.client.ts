@@ -152,7 +152,7 @@ export class StrapiClient {
   ): Promise<Result> {
     const requestStartTime = Date.now();
   
-    console.log("asdf");
+    console.log("asdf", query, variables);
 
     try {
       const response = await this.client.request<Result, any>({
