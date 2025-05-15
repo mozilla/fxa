@@ -743,6 +743,7 @@ describe('/recovery_phone', () => {
         mockStatsd.increment,
         'account.resetPassword.recoveryPhone.success'
       );
+      assert.calledOnce(mockMailer.sendPasswordResetRecoveryPhoneEmail);
     });
 
     it('fails confirms a code during signin', async () => {

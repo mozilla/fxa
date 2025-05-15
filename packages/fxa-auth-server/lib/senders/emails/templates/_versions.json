@@ -23,6 +23,7 @@
   "passwordChangeRequired": 3,
   "passwordForgotOtp": 1,
   "passwordReset": 6,
+  "passwordResetRecoveryPhone": 1,
   "postAddLinkedAccount": 1,
   "postChangePrimary": 5,
   "postRemoveSecondary": 5,

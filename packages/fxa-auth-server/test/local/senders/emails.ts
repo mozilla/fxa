@@ -1261,6 +1261,38 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
   ])],
 
+  ['passwordResetRecoveryPhoneEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Recovery phone used' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordResetRecoveryPhone') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordResetRecoveryPhone' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordResetRecoveryPhone }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Your recovery phone was used' },
+      { test: 'include', expected: 'Recovery phone used from:' },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'password-reset-recovery-phone', 'manage-account', 'email', 'uid')) },
+      { test: 'include', expected: decodeUrl(configHref('initiatePasswordResetUrl', 'password-reset-recovery-phone', 'reset-password', 'email',  'email_to_hash_with=')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'password-reset-recovery-phone', 'support')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-reset-recovery-phone', 'privacy')) },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Your recovery phone was used' },
+      { test: 'include', expected: 'Recovery phone used from:' },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'password-reset-recovery-phone', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'password-reset-recovery-phone', 'support')}` },
+      { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'password-reset-recovery-phone', 'privacy')}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
   ['postRemoveRecoveryPhoneEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Recovery phone removed' }],
     ['headers', new Map([

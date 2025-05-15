@@ -565,7 +565,32 @@ class RecoveryPhoneHandler {
         request,
       });
 
-      // @TODO send email in FXA-11600
+      const account = await this.db.account(uid);
+      const { acceptLanguage, geo, ua } = request.app;
+
+      try {
+        await this.mailer.sendPasswordResetRecoveryPhoneEmail(
+          account.emails,
+          account,
+          {
+            acceptLanguage,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          }
+        );
+      } catch (error) {
+        this.log.error(
+          'account.recoveryPhone.phonePasswordResetNotification.error',
+          {
+            error,
+          }
+        );
+      }
 
       return { status: RecoveryPhoneStatus.SUCCESS };
     }
