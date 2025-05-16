@@ -575,93 +575,8 @@ class RecoveryPhoneHandler {
         error
       );
     }
-    if (removedSuccess) {
-      // we've now removed their existing number and attempt to add the new one.
 
-      // setup new phone number recovery with code provided
-      let confirmNewSuccess = false;
-      try {
-        confirmNewSuccess = await this.recoveryPhoneService.confirmSetupCode(
-          uid,
-          code
-        );
-      } catch (error) {
-        if (error instanceof RecoveryPhoneNotEnabled) {
-          throw AppError.featureNotEnabled();
-        } else if (error instanceof RecoveryNumberNotExistsError) {
-          throw AppError.recoveryPhoneNumberDoesNotExist();
-        } else if (error instanceof RecoveryNumberAlreadyExistsError) {
-          throw AppError.recoveryPhoneNumberAlreadyExists();
-        } else {
-          throw AppError.backendServiceFailure(
-            'RecoveryPhoneService',
-            'confirmCode',
-            { uid },
-            error
-          );
-        }
-      }
-      if (confirmNewSuccess) {
-        // @TODO, add glean event.
-        // await this.glean.twoStepAuthPhoneReplace.success(request);
-        this.statsd.increment(
-          'account.recoveryPhone.replacePhoneNumber.success'
-        );
-
-        const { phoneNumber, nationalFormat } =
-          await this.recoveryPhoneService.hasConfirmed(uid);
-        const { acceptLanguage, geo, ua } = request.app;
-        const account = await this.db.account(uid);
-
-        try {
-          // todo: need to update params passed in here.
-          await this.mailer.postChangeRecoveryPhoneEmail(
-            account.emails,
-            account,
-            {
-              acceptLanguage,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            }
-          );
-
-          // if we want a new event it needs to be added in `security-events`, and a migration to add it
-          recordSecurityEvent('account.recovery_phone_setup_complete', {
-            db: this.db,
-            request,
-          });
-        } catch (error) {
-          // log error, but don't throw
-          // user should be allowed to proceed
-          this.log.trace(
-            'account.recoveryPhone.phoneReplacedNotification.error',
-            {
-              error,
-            }
-          );
-        }
-
-        return {
-          phoneNumber,
-          nationalFormat,
-          status: RecoveryPhoneStatus.SUCCESS,
-        };
-      } else {
-        // if we get here, the code was invalid, but we removed the phone number.
-        // this is a failure, but not a catastrophic one.
-        this.statsd.increment(
-          'account.recoveryPhone.replacePhoneNumber.failure'
-        );
-        return {
-          status: RecoveryPhoneStatus.FAILURE,
-        };
-      }
-    } else {
+    if (!removedSuccess) {
       // removing the first phone failed and we can't proceed, this is v bad.
       // is this a new AppError, or just a one off?
       throw AppError.backendServiceFailure(
@@ -671,6 +586,94 @@ class RecoveryPhoneHandler {
         new Error('Failed to remove existing phone number')
       );
     }
+
+    // setup new phone number recovery with code provided
+    let confirmNewSuccess = false;
+    try {
+      confirmNewSuccess = await this.recoveryPhoneService.confirmSetupCode(
+        uid,
+        code
+      );
+    } catch (error) {
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        throw AppError.featureNotEnabled();
+      } else if (error instanceof RecoveryNumberNotExistsError) {
+        throw AppError.recoveryPhoneNumberDoesNotExist();
+      } else if (error instanceof RecoveryNumberAlreadyExistsError) {
+        throw AppError.recoveryPhoneNumberAlreadyExists();
+      } else {
+        throw AppError.backendServiceFailure(
+          'RecoveryPhoneService',
+          'confirmCode',
+          { uid },
+          error
+        );
+      }
+    }
+
+    if(!confirmNewSuccess) {
+      // if we get here, the code was invalid, but we removed the phone number.
+      // this is bad. It might make sense to return a new, unique, error that the
+      // client can handle and direct the user to re-add their phone number
+      // through the standard flow.
+      await this.glean.twoStepAuthPhoneReplace.failure(request);
+      this.statsd.increment(
+        'account.recoveryPhone.replacePhoneNumber.failure'
+      );
+      return {
+        status: RecoveryPhoneStatus.FAILURE,
+      };
+    }
+
+
+    await this.glean.twoStepAuthPhoneReplace.success(request);
+    this.statsd.increment(
+      'account.recoveryPhone.replacePhoneNumber.success'
+    );
+
+    const { phoneNumber, nationalFormat } = await this.recoveryPhoneService.hasConfirmed(uid);
+    const { acceptLanguage, geo, ua } = request.app;
+    const account = await this.db.account(uid);
+
+    try {
+      await this.mailer.postChangeRecoveryPhoneEmail(
+        account.emails,
+        account,
+        {
+          acceptLanguage,
+          timeZone: geo.timeZone,
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uid,
+        }
+      );
+
+      // if we want a new event it needs to be added in `security-events`, and a migration to add it
+      // should this be recorded here, or higher up in the try/catch around `confirmSetupCode`?
+      recordSecurityEvent('account.recovery_phone_setup_complete', {
+        db: this.db,
+        request,
+      });
+    } catch (error) {
+      // log error, but don't throw
+      // user should be allowed to proceed if email or security event fails
+      this.log.trace(
+        'account.recoveryPhone.phoneReplacedNotification.error',
+        {
+          error,
+        }
+      );
+    }
+    // fini
+    return {
+      phoneNumber,
+      nationalFormat,
+      status: RecoveryPhoneStatus.SUCCESS,
+    };
+
   }
 
   async confirmResetPasswordCode(request: AuthRequest) {
