@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { TaxAddress } from '@fxa/payments/customer';
+import { TaxAddress, type SubplatInterval } from '@fxa/payments/customer';
 import {
   Cart,
   CartEligibilityStatus,
   CartErrorReasonId,
   CartState,
 } from '@fxa/shared/db/mysql/account';
-import { StripePrice } from '@fxa/payments/stripe';
 import Stripe from 'stripe';
 
 export type CheckoutCustomerData = {
@@ -64,8 +63,8 @@ export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
 
 export type FromPrice = {
   currency: string;
-  interval: NonNullable<StripePrice['recurring']>['interval'];
-  listAmount: number;
+  interval: SubplatInterval;
+  unitAmount: number;
 };
 
 export type BaseCartDTO = Omit<ResultCart, 'state'> & {

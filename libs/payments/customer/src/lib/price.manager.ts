@@ -5,17 +5,37 @@
 import { Injectable } from '@nestjs/common';
 
 import { StripeClient, StripePrice } from '@fxa/payments/stripe';
-import { PlanIntervalMultiplePlansError } from './error';
-import { SubplatInterval } from './types';
+import { PlanIntervalMultiplePlansError, PriceForCurrencyNotFoundError } from './error';
+import { SubplatInterval, type PricingForCurrency } from './types';
 import { doesPriceMatchSubplatInterval } from './util/doesPriceMatchSubplatInterval';
+import { determinePriceUnitAmount } from './util/determinePriceUnitAmount';
 
 @Injectable()
 export class PriceManager {
-  constructor(private stripeClient: StripeClient) {}
+  constructor(private stripeClient: StripeClient) { }
 
   async retrieve(priceId: string) {
     const price = await this.stripeClient.pricesRetrieve(priceId);
     return price;
+  }
+
+  async retrievePricingForCurrency(priceId: string, currency: string): Promise<PricingForCurrency> {
+    const stripeCurrency = currency.toLowerCase();
+    const price = await this.retrieve(priceId);
+
+    const currencyOptionForCurrency = price.currency_options[stripeCurrency];
+
+    if (!currencyOptionForCurrency) {
+      throw new PriceForCurrencyNotFoundError(priceId, currency);
+    }
+
+    const unitAmountForCurrency = determinePriceUnitAmount(currencyOptionForCurrency)
+
+    return {
+      price,
+      unitAmountForCurrency,
+      currencyOptionForCurrency,
+    }
   }
 
   async retrieveByInterval(priceIds: string[], interval: SubplatInterval) {

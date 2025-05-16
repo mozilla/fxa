@@ -11,10 +11,12 @@ import {
   StripePriceRecurringFactory,
   MockStripeConfigProvider,
 } from '@fxa/payments/stripe';
-import { PlanIntervalMultiplePlansError } from './error';
+import { PlanIntervalMultiplePlansError, PriceForCurrencyNotFoundError } from './error';
 import { PriceManager } from './price.manager';
 import { SubplatInterval } from './types';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { StripePriceCurrencyOptionFactory } from 'libs/payments/stripe/src/lib/factories/price.factory';
+import { faker } from '@faker-js/faker/.';
 
 describe('PriceManager', () => {
   let priceManager: PriceManager;
@@ -93,4 +95,59 @@ describe('PriceManager', () => {
       ).rejects.toBeInstanceOf(PlanIntervalMultiplePlansError);
     });
   });
+
+  describe('retrievePricingForCurrency', () => {
+    it('returns price data if currency matches default currency of price', async () => {
+      const mockPrice = StripeResponseFactory(
+        StripePriceFactory()
+      );
+
+      jest.spyOn(priceManager, 'retrieve').mockResolvedValue(mockPrice);
+
+      const result = await priceManager.retrievePricingForCurrency(mockPrice.id, mockPrice.currency)
+      expect(result).toEqual({
+        price: mockPrice,
+        unitAmountForCurrency: mockPrice.unit_amount,
+        currencyOptionForCurrency: mockPrice.currency_options[mockPrice.currency],
+      })
+    })
+
+    it('returns price currency options data if price does not match default currency of price', async () => {
+      const defaultCurrency = 'usd';
+      const currencyOption = 'eur';
+      const mockPrice = StripeResponseFactory(
+        StripePriceFactory({
+          currency_options: {
+            [defaultCurrency]: StripePriceCurrencyOptionFactory({
+              unit_amount: faker.number.int({ max: 1000 }),
+              unit_amount_decimal: faker.commerce.price({ min: 1000 }),
+            }),
+            [currencyOption]: StripePriceCurrencyOptionFactory({
+              unit_amount: faker.number.int({ max: 1000 }),
+              unit_amount_decimal: faker.commerce.price({ min: 1000 }),
+            }),
+          },
+        })
+      );
+
+      jest.spyOn(priceManager, 'retrieve').mockResolvedValue(mockPrice);
+
+      const result = await priceManager.retrievePricingForCurrency(mockPrice.id, currencyOption)
+      expect(result).toEqual({
+        price: mockPrice,
+        unitAmountForCurrency: mockPrice.currency_options[currencyOption].unit_amount,
+        currencyOptionForCurrency: mockPrice.currency_options[currencyOption],
+      })
+    })
+
+    it('throws an error if price does not have provided currency', async () => {
+      const mockPrice = StripeResponseFactory(
+        StripePriceFactory()
+      );
+
+      jest.spyOn(priceManager, 'retrieve').mockResolvedValue(mockPrice);
+
+      await expect(priceManager.retrievePricingForCurrency(mockPrice.id, 'invalid')).rejects.toBeInstanceOf(PriceForCurrencyNotFoundError)
+    })
+  })
 });

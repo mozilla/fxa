@@ -16,7 +16,7 @@ import { InvalidPaymentIntentError, PaymentIntentNotFoundError } from './error';
 
 @Injectable()
 export class SubscriptionManager {
-  constructor(private stripeClient: StripeClient) {}
+  constructor(private stripeClient: StripeClient) { }
 
   async cancel(
     subscriptionId: string,

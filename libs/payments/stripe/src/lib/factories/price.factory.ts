@@ -4,31 +4,53 @@
 
 import { faker } from '@faker-js/faker';
 import { StripePrice } from '../stripe.client.types';
+import { Stripe } from 'stripe';
 
-export const StripePriceFactory = (
-  override?: Partial<StripePrice>
-): StripePrice => ({
-  id: `price_${faker.string.alphanumeric({ length: 24 })}`,
-  object: 'price',
-  active: true,
-  billing_scheme: 'per_unit',
-  created: faker.number.int(),
-  currency: faker.finance.currencyCode(),
+export const StripePriceCurrencyOptionFactory = (
+  override?: Partial<Stripe.Price.CurrencyOptions>
+): Stripe.Price.CurrencyOptions => ({
   custom_unit_amount: null,
-  livemode: false,
-  lookup_key: null,
-  metadata: {},
-  nickname: null,
-  product: `prod_${faker.string.alphanumeric({ length: 14 })}`,
-  recurring: StripePriceRecurringFactory(),
   tax_behavior: 'exclusive',
-  tiers_mode: null,
-  transform_quantity: null,
-  type: 'recurring',
   unit_amount: faker.number.int({ max: 1000 }),
   unit_amount_decimal: faker.commerce.price({ min: 1000 }),
   ...override,
-});
+})
+
+export const StripePriceFactory = (
+  override?: Partial<StripePrice>
+): StripePrice => {
+  const currency = override?.currency || faker.finance.currencyCode().toLowerCase();
+  const unit_amount = override?.unit_amount || faker.number.int({ max: 1000 });
+  const unit_amount_decimal = override?.unit_amount_decimal || faker.commerce.price({ min: 1000 });
+  return {
+    id: `price_${faker.string.alphanumeric({ length: 24 })}`,
+    object: 'price',
+    active: true,
+    billing_scheme: 'per_unit',
+    created: faker.number.int(),
+    currency,
+    currency_options: {
+      [currency]: StripePriceCurrencyOptionFactory({
+        unit_amount,
+        unit_amount_decimal,
+      }),
+    },
+    custom_unit_amount: null,
+    livemode: false,
+    lookup_key: null,
+    metadata: {},
+    nickname: null,
+    product: `prod_${faker.string.alphanumeric({ length: 14 })}`,
+    recurring: StripePriceRecurringFactory(),
+    tax_behavior: 'exclusive',
+    tiers_mode: null,
+    transform_quantity: null,
+    type: 'recurring',
+    unit_amount,
+    unit_amount_decimal,
+    ...override,
+  }
+}
 
 export const StripePriceRecurringFactory = (
   override?: Partial<StripePrice['recurring']>

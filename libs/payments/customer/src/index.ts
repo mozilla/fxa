@@ -13,6 +13,7 @@ export * from './lib/product.manager';
 export * from './lib/promotionCode.manager';
 export * from './lib/subscription.manager';
 export * from './lib/types';
+export * from './lib/factories/pricing-for-currency.factory';
 export * from './lib/factories/tax-address.factory';
 export * from './lib/error';
 export * from './lib/util/stripeInvoiceToFirstInvoicePreviewDTO';

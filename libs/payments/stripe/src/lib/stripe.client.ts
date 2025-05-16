@@ -336,7 +336,7 @@ export class StripeClient {
   async pricesRetrieve(id: string, params?: Stripe.PriceRetrieveParams) {
     const result = await this.stripe.prices.retrieve(id, {
       ...params,
-      expand: undefined,
+      expand: ['currency_options'],
     });
     return result as StripeResponse<StripePrice>;
   }

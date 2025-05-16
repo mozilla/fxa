@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { StripePrice } from '@fxa/payments/stripe';
+import { Stripe } from 'stripe';
 
 export type InvoicePreview = {
   currency: string;
@@ -22,6 +23,12 @@ export type InvoicePreview = {
 export interface Interval {
   interval: NonNullable<StripePrice['recurring']>['interval'];
   intervalCount: number;
+}
+
+export interface PricingForCurrency {
+  price: StripePrice,
+  unitAmountForCurrency: number | null;
+  currencyOptionForCurrency: Stripe.Price.CurrencyOptions;
 }
 
 export interface TaxAmount {

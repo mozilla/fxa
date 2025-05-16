@@ -27,6 +27,7 @@ import {
   PaymentIntentManager,
   PaymentMethodManager,
   PriceManager,
+  PricingForCurrencyFactory,
   ProductManager,
   PromotionCodeManager,
   SubplatInterval,
@@ -47,6 +48,7 @@ import {
   StripeCustomerSessionFactory,
   StripeApiListFactory,
   StripeInvoiceFactory,
+  StripePriceRecurringFactory,
 } from '@fxa/payments/stripe';
 import {
   MockProfileClientConfigProvider,
@@ -144,6 +146,7 @@ describe('CartService', () => {
   let productConfigurationManager: ProductConfigurationManager;
   let subscriptionManager: SubscriptionManager;
   let paymentMethodManager: PaymentMethodManager;
+  let priceManager: PriceManager;
 
   const mockLogger = {
     error: jest.fn(),
@@ -226,6 +229,7 @@ describe('CartService', () => {
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     subscriptionManager = moduleRef.get(SubscriptionManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
+    priceManager = moduleRef.get(PriceManager);
   });
 
   describe('wrapCartWithCatch', () => {
@@ -1452,10 +1456,13 @@ describe('CartService', () => {
         eligibilityStatus: CartEligibilityStatus.UPGRADE,
       });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockPrice = StripePriceFactory();
+      const mockPrice = StripePriceFactory({ currency: mockCart.currency });
       const mockInvoicePreview = InvoicePreviewFactory();
       const mockFromOfferingId = faker.string.uuid();
-      const mockFromPrice = StripePriceFactory();
+      const mockFromPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({ interval: 'month' })
+      });
+      const mockPricingForCurrency = PricingForCurrencyFactory({ price: mockFromPrice })
       const mockSubscription = StripeSubscriptionFactory();
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
@@ -1474,6 +1481,7 @@ describe('CartService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
         .mockResolvedValue(mockSubscription);
+      jest.spyOn(priceManager, 'retrievePricingForCurrency').mockResolvedValue(mockPricingForCurrency);
 
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
@@ -1488,9 +1496,9 @@ describe('CartService', () => {
         metricsOptedOut: false,
         fromOfferingConfigId: mockFromOfferingId,
         fromPrice: {
-          currency: mockFromPrice.currency,
-          interval: mockFromPrice.recurring?.interval,
-          listAmount: mockFromPrice.unit_amount,
+          currency: mockCart.currency,
+          interval: 'monthly',
+          unitAmount: mockFromPrice.unit_amount,
         },
         hasActiveSubscriptions: true,
       });

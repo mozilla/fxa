@@ -92,7 +92,7 @@ class FromPriceInfo {
   interval!: string;
 
   @IsNumber()
-  listAmount!: number;
+  unitAmount!: number;
 }
 
 export class GetCartActionResult {
