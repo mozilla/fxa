@@ -5,11 +5,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postConsumeRecoveryCode-title-2">You used a backup authentication code</span>
+      <span data-l10n-id="postConsumeRecoveryCode-title-3">Your backup authentication code was used to confirm a password reset</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="postConsumeRecoveryCode-description-2">It was used on:</span>
+      <span data-l10n-id="postConsumeRecoveryCode-description-3">Code used from:</span>
     </mj-text>
   </mj-column>
 </mj-section>
@@ -21,4 +21,4 @@
   buttonText: "Manage account"
 }) %>
 
-<%- include('/partials/automatedEmailChangePassword/index.mjml') %>
+<%- include('/partials/automatedEmailResetPasswordTwoFactor/index.mjml') %>

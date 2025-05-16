@@ -329,6 +329,7 @@ module.exports = function (log, config, bounces, statsd) {
     this.subscriptionTermsUrl = mailerConfig.subscriptionTermsUrl;
     this.supportUrl = mailerConfig.supportUrl;
     this.syncUrl = mailerConfig.syncUrl;
+    this.manageTwoFactorSettingsUrl = mailerConfig.manageTwoFactorSettingsUrl;
     this.unsubscribeUrl = mailerConfig.unsubscribeUrl;
     this.verificationUrl = mailerConfig.verificationUrl;
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
@@ -352,6 +353,15 @@ module.exports = function (log, config, bounces, statsd) {
   ) {
     return linkAttributes(
       this.createPasswordResetLink(email, templateName, emailToHashWith)
+    );
+  };
+
+  Mailer.prototype._twoFactorSettingsLinkAttributes = function (
+    email,
+    templateName
+  ) {
+    return linkAttributes(
+      this.createTwoFactorSettingsLink(email, templateName)
     );
   };
 
@@ -1557,12 +1567,13 @@ module.exports = function (log, config, bounces, statsd) {
         email: message.email,
         iosLink: links.iosLink,
         link: links.link,
-        numberRemaining: message.numberRemaining,
-        passwordChangeLink: links.passwordChangeLink,
-        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
+        twoFactorSettingsLink: links.twoFactorSettingsLink,
+        twoFactorSettingsLinkAttributes: links.twoFactorSettingsLinkAttributes,
         time,
       },
     });
@@ -3043,6 +3054,7 @@ module.exports = function (log, config, bounces, statsd) {
     templateName,
     content
   ) {
+    console.log(link);
     const parsedLink = new URL(link);
 
     Object.keys(query).forEach((key) => {
@@ -3206,6 +3218,13 @@ module.exports = function (log, config, bounces, statsd) {
       templateName,
       query.emailToHashWith
     );
+
+    links['twoFactorSettingsLink'] = this.createTwoFactorSettingsLink(
+      email,
+      templateName
+    );
+    links['twoFactorSettingsLinkAttributes'] =
+      this._twoFactorSettingsLinkAttributes(email, templateName);
 
     links['androidLink'] = this._generateUTMLink(
       this.androidUrl,
@@ -3371,11 +3390,8 @@ module.exports = function (log, config, bounces, statsd) {
     templateName,
     emailToHashWith
   ) {
-    // Default `reset_password_confirm` to false, to show warnings about
-    // resetting password and sync data
     const query = {
       email: email,
-      reset_password_confirm: false,
       email_to_hash_with: emailToHashWith,
     };
 
@@ -3395,6 +3411,20 @@ module.exports = function (log, config, bounces, statsd) {
       query,
       templateName,
       'change-password'
+    );
+  };
+
+  Mailer.prototype.createTwoFactorSettingsLink = function (
+    email,
+    templateName
+  ) {
+    const query = { email: email };
+
+    return this._generateUTMLink(
+      this.manageTwoFactorSettingsUrl,
+      query,
+      templateName,
+      'manage-two-factor'
     );
   };
 

@@ -41,7 +41,7 @@
   "verifySecondaryCode": 3,
   "postAddTwoStepAuthentication": 9,
   "postRemoveTwoStepAuthentication": 9,
-  "postConsumeRecoveryCode": 7,
+  "postConsumeRecoveryCode": 8,
   "postNewRecoveryCodes": 7,
   "passwordResetAccountRecovery": 9,
   "postAddAccountRecovery": 9,

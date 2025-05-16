@@ -1,4 +1,5 @@
 automated-email-change-plaintext-2 = "If you didn’t take this action, change your password right away:"
 <%- passwordChangeLink %>
+
 automated-email-support-plaintext = "For more info, visit Mozilla Support:"
 <%- supportUrl %>

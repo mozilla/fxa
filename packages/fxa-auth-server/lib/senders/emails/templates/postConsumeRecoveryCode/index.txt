@@ -1,9 +1,9 @@
-postConsumeRecoveryCode-title-2 = "You used a backup authentication code"
+postConsumeRecoveryCode-title-3 = "Your backup authentication code was used to confirm a password reset"
 
-postConsumeRecoveryCode-description-2 = "It was used on:"
+postConsumeRecoveryCode-description-3 = "Code used from:"
 
 <%- include('/partials/userInfo/index.txt') %>
 
 <%- include('/partials/manageAccount/index.txt') %>
 
-<%- include('/partials/automatedEmailChangePassword/index.txt') %>
+<%- include('/partials/automatedEmailResetPasswordTwoFactor/index.txt') %>

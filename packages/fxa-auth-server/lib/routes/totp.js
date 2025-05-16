@@ -434,7 +434,6 @@ module.exports = (
             acceptLanguage,
             ip,
             location: geo.location,
-            numberRemaining: remaining,
             timeZone: geo.timeZone,
             uaBrowser: ua.browser,
             uaBrowserVersion: ua.browserVersion,

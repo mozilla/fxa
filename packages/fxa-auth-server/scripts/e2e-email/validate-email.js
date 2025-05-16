@@ -50,7 +50,7 @@ const messageContentChecks = [
   {
     subject: 'Your Firefox Account password has been changed',
     pathname: '/reset_password',
-    args: ['email', 'reset_password_confirm'],
+    args: ['email'],
     xheaders: [],
   },
   {
@@ -62,7 +62,7 @@ const messageContentChecks = [
   {
     subject: 'Your Firefox Account password has been reset',
     pathname: '/reset_password',
-    args: ['email', 'reset_password_confirm'],
+    args: ['email'],
     xheaders: [],
   },
 ];
