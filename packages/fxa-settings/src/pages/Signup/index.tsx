@@ -53,6 +53,7 @@ export const Signup = ({
     setDeclinedSyncEngines,
     selectedEngines,
   },
+  deeplink
 }: SignupProps) => {
   const sensitiveDataClient = useSensitiveDataClient();
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -256,6 +257,12 @@ export const Signup = ({
       sensitiveDataClient,
     ]
   );
+
+  const isDeeplinking = !!deeplink;
+  if (isDeeplinking) {
+    // To avoid flickering, we only render third party auth and navigate
+    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} />
+  }
 
   return (
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):

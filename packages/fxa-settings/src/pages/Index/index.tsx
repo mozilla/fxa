@@ -31,6 +31,7 @@ export const Index = ({
   setErrorBannerMessage,
   setSuccessBannerMessage,
   setTooltipErrorMessage,
+  deeplink
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
@@ -42,10 +43,9 @@ export const Index = ({
 
   const emailEngageEventEmitted = useRef(false);
 
+  const isDeeplinking = !!deeplink;
+
   useEffect(() => {
-    // Note we might not need this later due to automatic page load events,
-    // but it's here for now to match parity with Backbone. This will be closely
-    // monitored for the `service=relay` flow for some time.
     GleanMetrics.emailFirst.view();
   }, []);
 
@@ -75,6 +75,11 @@ export const Index = ({
       email: prefillEmail,
     },
   });
+
+  if (isDeeplinking) {
+    // To avoid flickering, we just render third party auth when deeplinking
+    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} />
+  }
 
   return (
     <AppLayout>
