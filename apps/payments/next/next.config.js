@@ -34,15 +34,15 @@ const nextConfig = {
       '@googleapis/androidpublisher',
       '@googlemaps/google-maps-services-js',
       '@grpc',
-      "@nestjs/apollo",
-      "@nestjs/common",
-      "@nestjs/config",
-      "@nestjs/core",
-      "@nestjs/graphql",
-      "@nestjs/mapped-types",
-      "@nestjs/passport",
-      "@nestjs/platform-express",
-      "@nestjs/schedule",
+      '@nestjs/apollo',
+      '@nestjs/common',
+      '@nestjs/config',
+      '@nestjs/core',
+      '@nestjs/graphql',
+      '@nestjs/mapped-types',
+      '@nestjs/passport',
+      '@nestjs/platform-express',
+      '@nestjs/schedule',
       '@opentelemetry',
       '@prisma/instrumentation',
       '@sentry',
@@ -71,6 +71,7 @@ const nextConfig = {
       'whatwg-url',
       'winston',
     ],
+    serverMinification: false, // https://github.com/vercel/next.js/issues/59594
   },
   images: {
     remotePatterns: [
@@ -97,8 +98,8 @@ const sentryOptions = {
   // For all available options, see:
   // https://github.com/getsentry/sentry-webpack-plugin#options
 
-  org: "mozilla",
-  project: "fxa-payments-next",
+  org: 'mozilla',
+  project: 'fxa-payments-next',
 
   // Enable source maps
   authToken: process.env.SENTRY_AUTH_TOKEN,
@@ -121,14 +122,14 @@ const sentryOptions = {
   // This can increase your server load as well as your hosting bill.
   // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
   // side errors will fail.
-  tunnelRoute: "/monitoring",
+  tunnelRoute: '/monitoring',
 
   // Hides source maps from generated client bundles
   hideSourceMaps: true,
 
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
-}
+};
 
 // Bundle Analyzer
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
