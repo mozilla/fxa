@@ -46,9 +46,8 @@ export class ProfileClient {
     });
 
     // Authorization header is required for all requests to the profile server
-    this.axiosInstance.defaults.headers.common[
-      'Authorization'
-    ] = `Bearer ${config.secretBearerToken}`;
+    this.axiosInstance.defaults.headers.common['Authorization'] =
+      `Bearer ${config.secretBearerToken}`;
   }
 
   private async makeRequest(
@@ -86,7 +85,10 @@ export class ProfileClient {
         'delete'
       );
     } catch (err) {
-      this.log.error('profile.deleteCache.failed', uid, err);
+      this.log.error('profileClient.deleteCache.failed', {
+        uid,
+        error: err.toString(),
+      });
       throw err;
     }
   }
@@ -99,7 +101,11 @@ export class ProfileClient {
         'post'
       );
     } catch (err) {
-      this.log.error('profile.updateDisplayName.failed', uid, name, err);
+      this.log.error('profileClient.updateDisplayName.failed', {
+        uid,
+        name,
+        error: err.toString(),
+      });
       throw err;
     }
   }
