@@ -58,7 +58,7 @@ export default async function CheckoutSuccess({
     'checkoutSuccess',
     { ...params },
     searchParams,
-    cart.paymentInfo.type
+    cart.paymentInfo?.type
   );
 
   const { successActionButtonUrl, successActionButtonLabel } =
@@ -130,25 +130,26 @@ export default async function CheckoutSuccess({
               cart.latestInvoicePreview?.currency,
               locale
             )}
-            {cart.paymentInfo.type === 'external_paypal' ? (
-              <Image src={getCardIcon('paypal')} alt="paypal" />
-            ) : (
-              <span className="flex items-center gap-2">
-                {cart.paymentInfo.brand && (
-                  <Image
-                    src={getCardIcon(cart.paymentInfo.brand)}
-                    alt={cart.paymentInfo.brand}
-                  />
-                )}
-                {l10n.getString(
-                  'next-payment-confirmation-cc-card-ending-in',
-                  {
-                    last4: cart.paymentInfo.last4 ?? '',
-                  },
-                  `Card ending in ${cart.paymentInfo.last4}`
-                )}
-              </span>
-            )}
+            {cart.paymentInfo &&
+              (cart.paymentInfo.type === 'external_paypal' ? (
+                <Image src={getCardIcon('paypal')} alt="paypal" />
+              ) : (
+                <span className="flex items-center gap-2">
+                  {cart.paymentInfo.brand && (
+                    <Image
+                      src={getCardIcon(cart.paymentInfo.brand)}
+                      alt={cart.paymentInfo.brand}
+                    />
+                  )}
+                  {l10n.getString(
+                    'next-payment-confirmation-cc-card-ending-in',
+                    {
+                      last4: cart.paymentInfo.last4 ?? '',
+                    },
+                    `Card ending in ${cart.paymentInfo.last4}`
+                  )}
+                </span>
+              ))}
           </div>
         </div>
 

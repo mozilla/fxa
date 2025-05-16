@@ -108,7 +108,7 @@ describe('CartManager', () => {
       });
       const cart = await cartManager.createErrorCart(
         setupCart,
-        CartErrorReasonId.CartEligibilityStatusSame
+        CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME
       );
       expect(cart).toEqual(expect.objectContaining(setupCart));
     });
@@ -121,7 +121,7 @@ describe('CartManager', () => {
       try {
         await cartManager.createErrorCart(
           setupCart,
-          CartErrorReasonId.CartEligibilityStatusInvalid
+          CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME
         );
       } catch (error) {
         expect(error).toBeInstanceOf(CartNotCreatedError);
