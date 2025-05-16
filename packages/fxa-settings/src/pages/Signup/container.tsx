@@ -213,6 +213,7 @@ const SignupContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
+  const deeplink = queryParamModel.deeplink;
   return (
     <Signup
       {...{
@@ -220,6 +221,7 @@ const SignupContainer = ({
         email,
         beginSignupHandler,
         useSyncEnginesResult,
+        deeplink
       }}
     />
   );

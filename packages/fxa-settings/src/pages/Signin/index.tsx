@@ -61,6 +61,7 @@ const Signin = ({
   finishOAuthFlowHandler,
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
+  deeplink
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -84,6 +85,8 @@ const Signin = ({
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
   const isRelayClient = isOAuth && isClientRelay(clientId);
   const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
+
+  const isDeeplinking = !!deeplink;
 
   // We must use a ref because we may update this value in a callback
   let isPasswordNeededRef = useRef(
@@ -319,6 +322,11 @@ const Signin = ({
       sessionToken,
     ]
   );
+
+  if (isDeeplinking) {
+    // To avoid flickering, we only render third party auth and navigate
+    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} />
+  }
 
   return (
     <AppLayout>

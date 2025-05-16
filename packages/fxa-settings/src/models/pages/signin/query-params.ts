@@ -11,6 +11,7 @@ import {
   MaxLength,
   Matches,
   Validate,
+  IsIn,
 } from 'class-validator';
 import {
   bind,
@@ -50,4 +51,9 @@ export class SigninQueryParams extends ModelDataProvider {
   @Validate(IsFxaRedirectToUrl, {})
   @bind(T.snakeCase)
   redirectTo: string | undefined = undefined;
+
+  @IsOptional()
+  @IsIn(['googleLogin', 'appleLogin'])
+  @bind(T.snakeCase)
+  deeplink!: string;
 }

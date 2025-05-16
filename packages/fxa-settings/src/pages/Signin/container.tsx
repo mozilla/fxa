@@ -475,6 +475,8 @@ const SigninContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
+  const deeplink = queryParamModel.deeplink;
+
   return (
     <Signin
       {...{
@@ -493,6 +495,7 @@ const SigninContainer = ({
         finishOAuthFlowHandler,
         localizedSuccessBannerHeading,
         localizedSuccessBannerDescription,
+        deeplink
       }}
     />
   );

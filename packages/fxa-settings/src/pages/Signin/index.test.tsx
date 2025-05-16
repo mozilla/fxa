@@ -56,6 +56,7 @@ jest.mock('../../lib/metrics', () => ({
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
   default: {
+    isDone: jest.fn(),
     login: {
       forgotPassword: jest.fn(),
       view: jest.fn(),
@@ -73,6 +74,10 @@ jest.mock('../../lib/glean', () => ({
     },
     thirdPartyAuth: {
       loginNoPwView: jest.fn(),
+      startGoogleAuthFromLogin: jest.fn(),
+      startAppleAuthFromLogin: jest.fn(),
+      appleDeeplink: jest.fn(),
+      googleDeeplink: jest.fn(),
     },
   },
 }));
@@ -780,6 +785,22 @@ describe('Signin component', () => {
       differentAccountLinkRendered();
 
       passwordInputNotRendered();
+    });
+
+    it('does not render when deeplinking third party auth', () => {
+      renderWithLocalizationProvider(
+        <Subject
+          sessionToken={MOCK_SESSION_TOKEN}
+          deeplink="appleLogin"
+        />
+      );
+
+      expect(
+        screen.queryByRole('button', { name: /Continue with Google/ })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /Continue with Apple/ })
+      ).not.toBeInTheDocument();
     });
 
     it('emits an event on forgot password link click', async () => {
