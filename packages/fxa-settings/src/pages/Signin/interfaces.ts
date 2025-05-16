@@ -87,6 +87,7 @@ export interface SigninProps {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   localizedSuccessBannerHeading?: string;
   localizedSuccessBannerDescription?: string;
+  deeplink?: string;
 }
 
 export type BeginSigninHandler = (

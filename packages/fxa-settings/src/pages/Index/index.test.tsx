@@ -115,6 +115,19 @@ describe('Index page', () => {
     );
   });
 
+  it('does not render when deeplinking third party auth', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockIndexOAuthIntegration({
+          clientId: POCKET_CLIENTIDS[0],
+        })}
+        deeplink="appleLogin"
+      />
+    );
+
+    thirdPartyAuthNotRendered();
+  });
+
   it('renders as expected when client is Pocket', () => {
     renderWithLocalizationProvider(
       <Subject

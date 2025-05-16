@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsBoolean, IsEmail, IsOptional } from 'class-validator';
-import { bind, ModelDataProvider } from '../../../lib/model-data';
+import { IsBoolean, IsEmail, IsIn, IsOptional } from 'class-validator';
+import { bind, KeyTransforms as T, ModelDataProvider } from '../../../lib/model-data';
 
 export class SignupQueryParams extends ModelDataProvider {
   // 'email' will be optional once the index page is converted to React
@@ -20,4 +20,9 @@ export class SignupQueryParams extends ModelDataProvider {
   @IsBoolean()
   @bind()
   emailStatusChecked: boolean = false;
+
+  @IsOptional()
+  @IsIn(['googleLogin', 'appleLogin'])
+  @bind(T.snakeCase)
+  deeplink!: string;
 }
