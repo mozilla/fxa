@@ -8,7 +8,6 @@ import { OtpManager } from '@fxa/shared/otp';
 import { RecoveryPhoneConfig } from './recovery-phone.service.config';
 import {
   PhoneNumberLookupData,
-  RecoveryPhoneData,
   RecoveryPhoneManager,
 } from './recovery-phone.manager';
 import {

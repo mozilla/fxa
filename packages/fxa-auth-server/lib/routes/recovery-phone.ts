@@ -616,7 +616,7 @@ class RecoveryPhoneHandler {
       // this is bad. It might make sense to return a new, unique, error that the
       // client can handle and direct the user to re-add their phone number
       // through the standard flow.
-      await this.glean.twoStepAuthPhoneReplace.failure(request);
+      // await this.glean.twoStepAuthPhoneReplace.failure(request);
       this.statsd.increment(
         'account.recoveryPhone.replacePhoneNumber.failure'
       );
@@ -626,7 +626,7 @@ class RecoveryPhoneHandler {
     }
 
 
-    await this.glean.twoStepAuthPhoneReplace.success(request);
+    // await this.glean.twoStepAuthPhoneReplace.success(request);
     this.statsd.increment(
       'account.recoveryPhone.replacePhoneNumber.success'
     );

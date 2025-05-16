@@ -69,6 +69,7 @@ describe('/recovery_phone', () => {
     hasConfirmed: sandbox.fake(),
     onMessageStatusUpdate: sandbox.fake(),
     validateTwilioWebhookCallback: sandbox.fake(),
+    validateSetupCode: sandbox.fake(),
   };
   const mockAccountManager = {
     verifySession: sandbox.fake(),
@@ -593,6 +594,24 @@ describe('/recovery_phone', () => {
 
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 0);
       assert.notCalled(mockMailer.sendPostAddRecoveryPhoneEmail);
+    });
+  });
+
+  describe('POST /recovery_phone/replace', async () => {
+    it('replaces a recovery phone number', async () => {
+      mockRecoveryPhoneService.setupPhoneNumber = sinon.fake.returns(true);
+      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({exists: true});
+      mockRecoveryPhoneService.getNationalFormat =
+        sinon.fake.returns(nationalFormat);
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/replace',
+        credentials: { uid, email },
+        payload: { code },
+      });
+
+      assert.isDefined(resp);
     });
   });
 
