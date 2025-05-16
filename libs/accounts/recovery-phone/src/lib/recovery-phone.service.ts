@@ -8,6 +8,7 @@ import { OtpManager } from '@fxa/shared/otp';
 import { RecoveryPhoneConfig } from './recovery-phone.service.config';
 import {
   PhoneNumberLookupData,
+  RecoveryPhoneData,
   RecoveryPhoneManager,
 } from './recovery-phone.manager';
 import {
@@ -232,6 +233,10 @@ export class RecoveryPhoneService {
   /**
    * Confirms a UID code. This will also and finalizes the phone number setup if the code provided was
    * intended for phone number setup.
+   * @throws {RecoveryPhoneNotEnabled} If the recovery phone feature is not enabled
+   * @throws {RecoveryPhoneRegistrationLimitReached} If the phone number has been registered for too many accounts
+   * @throws {RecoveryNumberNotSupportedError} If the phone number is not supported
+   * @throws {RecoveryNumberNotSupportedError} If the number is suspected of sim pumping
    * @param uid An account id
    * @param code A otp code
    * @returns True if successful
@@ -348,6 +353,7 @@ export class RecoveryPhoneService {
    * Remove phone number from an account. Each user can only have one associated
    * phone number. A user must have backup codes before removing a phone number.
    *
+   * @throws {RecoveryNumberRemoveMissingBackupCodes} If the user does not have backup codes
    * @param uid An account id
    * @returns True if successful
    */
@@ -549,6 +555,23 @@ export class RecoveryPhoneService {
       hasTwilioParams: !!twilio?.params,
     });
     return false;
+  }
+
+  /**
+   * Validates that the provided code is for setup and not for sign in.
+   *
+   * !IMPORTANT! This information should never be resurfaced to the user.
+   *
+   * No further actions are taken; the code is left in redis for completing the
+   * setup process.
+   */
+  public async validateSetupCode(uid: string, code: string) {
+    const data = await this.recoveryPhoneManager.getUnconfirmed(uid, code);
+    if (data == null || data.isSetup !== true) {
+      // There is no result, or it's a login code not setup code.
+      return false;
+    }
+    return true;
   }
 
   /**

@@ -524,47 +524,49 @@ class RecoveryPhoneHandler {
 
   async replacePhoneNumber(request: AuthRequest) {
     // need to check first that there is an existing phone number
-    const {
-      id: sessionTokenId,
-      uid,
-      email } = request.auth.credentials as SessionTokenAuthCredential;
+    const { uid, email } = request.auth
+      .credentials as SessionTokenAuthCredential;
 
     const { code } = request.payload as unknown as {
-      code: string
-    }
+      code: string;
+    };
 
     //guard against invalid token
     if (!email) {
       throw AppError.invalidToken();
     }
 
-    // TODO: need to check how customs is setup and if this requires additional changes
-    await this.customs.checkAuthenticated(
-      request,
+    // check if user has a confirmed recovery phone number
+    const { exists /* phoneNumber */ } =
+      await this.recoveryPhoneService.hasConfirmed(uid);
+    const codeIsValid = await this.recoveryPhoneService.validateSetupCode(
       uid,
-      'recoveryPhoneReplacePhoneNumber'
+      code
     );
 
-    // check if user has a confirmed recovery phone number
-    const {exists, /* phoneNumber */} = await this.recoveryPhoneService.hasConfirmed(uid);
-    // can we do anything with this?
-    // const startingPhone = phoneNumber || null;
-
     if (!exists) {
-      // if not, throw, they shouldn't be here.
-      // do we want to throw this, or make a new error?
       throw AppError.recoveryPhoneNumberDoesNotExist();
     }
 
+    if (!codeIsValid) {
+      // if the code is invalid, we need to throw so that we don't remove their old
+      // phone before we confirm the new one.
+      throw AppError.invalidOrExpiredOtpCode();
+    }
+
     let removedSuccess = false;
-    // attempt to delete existing recovery phone number
     try {
       removedSuccess = await this.recoveryPhoneService.removePhoneNumber(uid);
+      if (removedSuccess) {
+        recordSecurityEvent('account.recovery_phone_remove', {
+          db: this.db,
+          request,
+        });
+      }
     } catch (error) {
       if (error instanceof RecoveryNumberRemoveMissingBackupCodes) {
         throw AppError.recoveryPhoneRemoveMissingRecoveryCodes();
       }
-      // what other errors should we check for? look at service.
 
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
@@ -575,24 +577,16 @@ class RecoveryPhoneHandler {
     }
     if (removedSuccess) {
       // we've now removed their existing number and attempt to add the new one.
-      // If possible, we should validate the code before removing so that it's less likely
-      // to fail when we get here.
 
       // setup new phone number recovery with code provided
-      let confirmSuccessful = false;
+      let confirmNewSuccess = false;
       try {
-        confirmSuccessful = await this.recoveryPhoneService.confirmSetupCode(uid, code);
-
-        if (confirmSuccessful) {
-          await this.accountManager.verifySession(
-            uid,
-            sessionTokenId,
-            VerificationMethods.sms2fa
-          );
-        }
-
+        confirmNewSuccess = await this.recoveryPhoneService.confirmSetupCode(
+          uid,
+          code
+        );
       } catch (error) {
-        if(error instanceof RecoveryPhoneNotEnabled) {
+        if (error instanceof RecoveryPhoneNotEnabled) {
           throw AppError.featureNotEnabled();
         } else if (error instanceof RecoveryNumberNotExistsError) {
           throw AppError.recoveryPhoneNumberDoesNotExist();
@@ -607,26 +601,25 @@ class RecoveryPhoneHandler {
           );
         }
       }
-      if (confirmSuccessful) {
+      if (confirmNewSuccess) {
         // @TODO, add glean event.
         // await this.glean.twoStepAuthPhoneReplace.success(request);
-        this.statsd.increment('account.recoveryPhone.phoneAdded.success');
+        this.statsd.increment(
+          'account.recoveryPhone.replacePhoneNumber.success'
+        );
 
-        const { phoneNumber, nationalFormat } = await this.recoveryPhoneService.hasConfirmed(uid);
+        const { phoneNumber, nationalFormat } =
+          await this.recoveryPhoneService.hasConfirmed(uid);
         const { acceptLanguage, geo, ua } = request.app;
         const account = await this.db.account(uid);
 
         try {
-          // how do I confirm these are the right params
+          // todo: need to update params passed in here.
           await this.mailer.postChangeRecoveryPhoneEmail(
             account.emails,
             account,
             {
               acceptLanguage,
-              maskedLastFourPhoneNumber: `••••••${this.recoveryPhoneService.stripPhoneNumber(
-                phoneNumber || '',
-                4
-              )}`,
               timeZone: geo.timeZone,
               uaBrowser: ua.browser,
               uaBrowserVersion: ua.browserVersion,
@@ -637,12 +630,11 @@ class RecoveryPhoneHandler {
             }
           );
 
-          // or does this just use the same event as the setup?
-          recordSecurityEvent('account.recovery_phone_replace_complete', {
+          // if we want a new event it needs to be added in `security-events`, and a migration to add it
+          recordSecurityEvent('account.recovery_phone_setup_complete', {
             db: this.db,
             request,
           });
-
         } catch (error) {
           // log error, but don't throw
           // user should be allowed to proceed
@@ -652,7 +644,6 @@ class RecoveryPhoneHandler {
               error,
             }
           );
-
         }
 
         return {
@@ -660,8 +651,16 @@ class RecoveryPhoneHandler {
           nationalFormat,
           status: RecoveryPhoneStatus.SUCCESS,
         };
+      } else {
+        // if we get here, the code was invalid, but we removed the phone number.
+        // this is a failure, but not a catastrophic one.
+        this.statsd.increment(
+          'account.recoveryPhone.replacePhoneNumber.failure'
+        );
+        return {
+          status: RecoveryPhoneStatus.FAILURE,
+        };
       }
-
     } else {
       // removing the first phone failed and we can't proceed, this is v bad.
       // is this a new AppError, or just a one off?
@@ -672,11 +671,6 @@ class RecoveryPhoneHandler {
         new Error('Failed to remove existing phone number')
       );
     }
-
-    // If we reach here, it means the phone number replacement failed unexpectedly.
-    return {
-      status: RecoveryPhoneStatus.FAILURE,
-    };
   }
 
   async confirmResetPasswordCode(request: AuthRequest) {

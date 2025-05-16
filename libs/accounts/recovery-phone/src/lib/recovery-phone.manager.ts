@@ -32,6 +32,15 @@ export type PhoneNumberLookupData = ReturnType<
 >;
 
 /**
+ * @TODO: figure out a better name for this
+ */
+export type RecoveryPhoneData = {
+  phoneNumber: string;
+  isSetup: boolean;
+  lookupData: PhoneNumberLookupData | null;
+};
+
+/**
  * Standard prefix for all recovery phone entries in redis.
  */
 export const RECOVERY_PHONE_REDIS_PREFIX = 'recovery-phone:sms-attempt';
@@ -157,11 +166,7 @@ export class RecoveryPhoneManager {
   async getUnconfirmed(
     uid: string,
     code: string
-  ): Promise<{
-    phoneNumber: string;
-    isSetup: boolean;
-    lookupData: Record<string, any> | null;
-  } | null> {
+  ): Promise<RecoveryPhoneData | null> {
     const redisKey = `${RECOVERY_PHONE_REDIS_PREFIX}:${uid}:${code}`;
     const data = await this.redisClient.get(redisKey);
 
