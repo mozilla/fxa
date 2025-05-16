@@ -1,32 +1,12 @@
 {
-  "extends": [
-    "next",
-    "next/core-web-vitals",
-    "../../../.eslintrc.json"
-  ],
-  "ignorePatterns": ["!**/*", ".next/**/*"],
+  "extends": ["next", "next/core-web-vitals", "../../../.eslintrc.json"],
+  "ignorePatterns": ["!**/*", ".next/**/*", "build/**/*"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "rules": {
-        "@next/next/no-html-link-for-pages": [
-          "error",
-          "apps/payments/next/pages"
-        ]
-      }
-    },
-    {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {}
-    },
-    {
-      "files": ["*.js", "*.jsx"],
       "rules": {}
     }
   ],
-  "rules": {
-    "@next/next/no-html-link-for-pages": "off"
-  },
   "env": {
     "jest": true
   }
