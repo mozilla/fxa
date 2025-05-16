@@ -89,6 +89,7 @@ export const Subject = ({
   initialErrorBanner = '',
   initialSuccessBanner = '',
   initialTooltipMessage = '',
+  deeplink,
 }: {
   integration?: IndexIntegration;
   serviceName?: MozServices;
@@ -96,6 +97,7 @@ export const Subject = ({
   initialErrorBanner?: string;
   initialSuccessBanner?: string;
   initialTooltipMessage?: string;
+  deeplink?: string;
 }) => {
   const [errorBannerMessage, setErrorBannerMessage] =
     React.useState(initialErrorBanner);
@@ -118,6 +120,7 @@ export const Subject = ({
           setErrorBannerMessage,
           setSuccessBannerMessage,
           setTooltipErrorMessage,
+          deeplink
         }}
       />
     </LocationProvider>

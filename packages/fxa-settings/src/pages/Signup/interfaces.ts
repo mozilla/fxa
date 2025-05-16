@@ -41,6 +41,7 @@ export interface SignupProps {
   email: string;
   beginSignupHandler: BeginSignupHandler;
   useSyncEnginesResult: ReturnType<typeof useSyncEngines>;
+  deeplink?: string;
 }
 
 export type SignupIntegration = SignupOAuthIntegration | SignupBaseIntegration;

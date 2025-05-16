@@ -4,7 +4,7 @@
 
 import * as Sentry from '@sentry/browser';
 
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { isEmail } from 'class-validator';
 
@@ -249,6 +249,7 @@ export const IndexContainer = ({
   }
 
   const initialPrefill = prefillEmail || suggestedEmail;
+  const deeplink = queryParamModel.deeplink;
 
   return (
     <Index
@@ -262,6 +263,7 @@ export const IndexContainer = ({
         errorBannerMessage,
         successBannerMessage,
         tooltipErrorMessage,
+        deeplink
       }}
       prefillEmail={initialPrefill}
     />

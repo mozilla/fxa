@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef, FormEventHandler, useEffect } from 'react';
+import React, { useRef, FormEventHandler, useEffect, useCallback } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 import { ReactComponent as GoogleLogo } from './google-logo.svg';
@@ -18,6 +18,7 @@ export type ThirdPartyAuthProps = {
   onContinueWithApple?: FormEventHandler<HTMLFormElement>;
   showSeparator?: boolean;
   viewName?: string;
+  deeplink?: string;
 };
 
 /**
@@ -30,6 +31,7 @@ const ThirdPartyAuth = ({
   onContinueWithApple,
   showSeparator = true,
   viewName = 'unknown',
+  deeplink,
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
 
@@ -76,6 +78,7 @@ const ThirdPartyAuth = ({
                   </FtlMsg>
                 </>
               ),
+              deeplink
             }}
           />
           <ThirdPartySignInForm
@@ -98,6 +101,7 @@ const ThirdPartyAuth = ({
                   </FtlMsg>
                 </>
               ),
+              deeplink
             }}
           />
         </div>
@@ -125,6 +129,7 @@ const ThirdPartySignInForm = ({
   buttonText,
   onSubmit,
   viewName,
+  deeplink
 }: {
   party: 'google' | 'apple';
   authorizationEndpoint: string;
@@ -139,11 +144,14 @@ const ThirdPartySignInForm = ({
   buttonText: ReactElement;
   onSubmit?: FormEventHandler<HTMLFormElement>;
   viewName?: string;
+  deeplink?: string;
 }) => {
   const { logViewEventOnce } = useMetrics();
   const stateRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const isDeeplinking = deeplink !== undefined;
 
-  async function onClick() {
+  const onClick = useCallback(async () => {
     logViewEventOnce(`flow.${party}`, 'oauth-start');
 
     switch (`${party}-${viewName}`) {
@@ -165,20 +173,40 @@ const ThirdPartySignInForm = ({
       case 'apple-signup':
         GleanMetrics.thirdPartyAuth.startAppleAuthFromReg();
         break;
+      case 'google-deeplink':
+        GleanMetrics.thirdPartyAuth.googleDeeplink();
+        break;
+      case 'apple-deeplink':
+        GleanMetrics.thirdPartyAuth.appleDeeplink();
+        break;
     }
 
     // wait for all the Glean events to be sent before the page unloads
     await GleanMetrics.isDone();
 
-    stateRef.current!.value = getState();
-  }
+    if (stateRef.current) {
+      stateRef.current.value = getState();
+    }
+  }, [party, viewName, logViewEventOnce]);
+
 
   if (onSubmit === undefined) {
     onSubmit = () => true;
   }
 
+  useEffect(() => {
+    if (deeplink && formRef.current) {
+      // Only deeplink if this is the correct button
+      if ((deeplink === "googleLogin" && party === "google") || (deeplink === "appleLogin" && party === "apple")) {
+        onClick();
+        formRef.current.submit();
+      }
+    }
+
+  }, [deeplink, onClick, party]);
+
   return (
-    <form action={authorizationEndpoint} method="GET" onSubmit={onSubmit}>
+    <form action={authorizationEndpoint} method="GET" onSubmit={onSubmit} ref={formRef}>
       <input
         data-testid={`${party}-signin-form-state`}
         ref={stateRef}
@@ -196,13 +224,15 @@ const ThirdPartySignInForm = ({
         <input type="hidden" name="response_mode" value={responseMode} />
       )}
 
-      <button
-        type="submit"
-        className="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center"
-        onClick={onClick}
-      >
-        {buttonText}
-      </button>
+      {!isDeeplinking ? (
+        <button
+          type="submit"
+          className="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center focus-visible-default outline-offset-2"
+          onClick={onClick}
+        >
+          {buttonText}
+        </button>
+      ) : null}
     </form>
   );
 };
@@ -213,7 +243,7 @@ function deleteParams(searchParams: URLSearchParams, paramsToDelete: string[]) {
 }
 
 function getState() {
-  // We stash originating location in the state oauth param
+  // We stash the originating location in the state oauth param
   // because we will need it to use it to reconstruct the redirect URL for RP
   const params = new URLSearchParams(window.location.search);
   // we won't need these params that are used for internal backbone/react navigation
@@ -225,12 +255,10 @@ function getState() {
     'forceExperimentGroup',
     'showReactApp',
   ]);
-  const state = encodeURIComponent(
-    `${window.location.origin}${
-      window.location.pathname
+  return encodeURIComponent(
+    `${window.location.origin}${window.location.pathname
     }?${modifiedParams.toString()}`
   );
-  return state;
 }
 
 export default ThirdPartyAuth;
