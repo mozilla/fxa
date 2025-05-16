@@ -1024,6 +1024,18 @@ describe('lib/glean', () => {
         );
         sinon.assert.calledOnce(spy);
       });
+
+      it('submits a ping with the account_banner_add_recovery_phone_view event name', async () => {
+        GleanMetrics.accountBanner.addRecoveryPhoneView();
+        const spy = sandbox.spy(accountBanner.addRecoveryPhoneView, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'account_banner_add_recovery_phone_view'
+        );
+        sinon.assert.calledOnce(spy);
+      });
     });
 
     describe('deleteAccount', () => {

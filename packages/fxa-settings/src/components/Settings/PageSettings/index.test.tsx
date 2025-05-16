@@ -22,6 +22,7 @@ import {
 import { MOCK_SERVICES } from '../ConnectedServices/mocks';
 import { mockWebIntegration } from '../../../pages/Signin/SigninRecoveryCode/mocks';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { Constants } from '../../../lib/constants';
 
 jest.mock('../../../models/AlertBarInfo');
 
@@ -41,6 +42,8 @@ jest.mock('../../../lib/glean', () => ({
       settingsSubmit: jest.fn(),
     },
     accountBanner: {
+      addRecoveryPhoneView: jest.fn(),
+      createRecoveryKeyView: jest.fn(),
       reactivationSuccessView: jest.fn(),
     },
   },
@@ -145,6 +148,7 @@ describe('PageSettings', () => {
         expect(GleanMetrics.accountPref.promoMonitorView).not.toBeCalled();
       });
     });
+
     describe('inactive account verified', () => {
       const alertBarInfo = {
         success: jest.fn(),
@@ -171,6 +175,178 @@ describe('PageSettings', () => {
           GleanMetrics.accountBanner.reactivationSuccessView
         ).toBeCalledTimes(1);
       });
+    });
+  });
+
+  describe('feature promotion banners', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it('shows phone banner when eligible', () => {
+      // eligible for recovery phone only
+      const account = {
+        ...MOCK_ACCOUNT,
+        totp: { exists: true, verified: true },
+        backupCodes: {
+          hasBackupCodes: true,
+          count: 3,
+        },
+        recoveryPhone: {
+          exists: false,
+          phoneNumber: null,
+          available: true,
+          nationalFormat: null,
+        },
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <PageSettings integration={mockWebIntegration} />
+        </AppContext.Provider>
+      );
+      expect(
+        screen.getByTestId('submit_add_recovery_phone')
+      ).toBeInTheDocument();
+    });
+
+    it('shows key banner when eligible', () => {
+      // eligible for recovery key only
+      const account = {
+        ...MOCK_ACCOUNT,
+        recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 },
+        totp: { exists: false, verified: false },
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <PageSettings integration={mockWebIntegration} />
+        </AppContext.Provider>
+      );
+      expect(
+        screen.getByTestId('submit_create_recovery_key')
+      ).toBeInTheDocument();
+    });
+
+    it('prioritizes recovery phone banner when eligible for both', () => {
+      // eligible for both features
+      const account = {
+        ...MOCK_ACCOUNT,
+        recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 },
+        totp: { exists: true, verified: true },
+        backupCodes: {
+          hasBackupCodes: true,
+          count: 3,
+        },
+        recoveryPhone: {
+          exists: false,
+          phoneNumber: null,
+          available: true,
+          nationalFormat: null,
+        },
+      } as unknown as Account;
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <PageSettings integration={mockWebIntegration} />
+        </AppContext.Provider>
+      );
+      expect(
+        screen.getByTestId('submit_add_recovery_phone')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('submit_create_recovery_key')
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not show phone banner if eligible but dismissed', () => {
+      // eligible for recovery phone only
+      const account = {
+        ...MOCK_ACCOUNT,
+        totp: { exists: true, verified: true },
+        backupCodes: {
+          hasBackupCodes: true,
+          count: 3,
+        },
+        recoveryPhone: {
+          exists: false,
+          phoneNumber: null,
+          available: true,
+          nationalFormat: null,
+        },
+      } as unknown as Account;
+
+      localStorage.setItem(
+        Constants.DISABLE_PROMO_RECOVERY_PHONE_BANNER,
+        'true'
+      );
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <PageSettings integration={mockWebIntegration} />
+        </AppContext.Provider>
+      );
+      expect(
+        screen.queryByTestId('submit_add_recovery_phone')
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not show key banner if eligible but dismissed', () => {
+      // eligible for recovery key only
+      const account = {
+        ...MOCK_ACCOUNT,
+        recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 },
+        totp: { exists: false, verified: false },
+      } as unknown as Account;
+
+      localStorage.setItem(
+        Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_BANNER,
+        'true'
+      );
+
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <PageSettings integration={mockWebIntegration} />
+        </AppContext.Provider>
+      );
+      expect(
+        screen.queryByTestId('submit_create_recovery_key')
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows key banner when phone is dismissed', () => {
+      // eligible for both features
+      const account = {
+        ...MOCK_ACCOUNT,
+        recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 },
+        totp: { exists: true, verified: true },
+        backupCodes: {
+          hasBackupCodes: true,
+          count: 3,
+        },
+        recoveryPhone: {
+          exists: false,
+          phoneNumber: null,
+          available: true,
+          nationalFormat: null,
+        },
+      } as unknown as Account;
+
+      localStorage.setItem(
+        Constants.DISABLE_PROMO_RECOVERY_PHONE_BANNER,
+        'true'
+      );
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <PageSettings integration={mockWebIntegration} />
+        </AppContext.Provider>
+      );
+      expect(
+        screen.getByTestId('submit_create_recovery_key')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('submit_add_recovery_phone')
+      ).not.toBeInTheDocument();
     });
   });
 });
