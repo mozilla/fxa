@@ -8,6 +8,7 @@ import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { AppConfig } from '../config';
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { ConfigService } from '@nestjs/config';
+import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 export const MySQLConfigFactory: Provider<MySQLConfig> = {
   provide: MySQLConfig,
@@ -19,7 +20,7 @@ export const MySQLConfigFactory: Provider<MySQLConfig> = {
 };
 
 @Module({
-  providers: [MySQLConfigFactory, AccountDatabaseNestFactory, CartManager],
+  providers: [MySQLConfigFactory, AccountDatabaseNestFactory, CartManager, LegacyStatsDProvider],
   exports: [CartManager],
 })
-export class CartModule {}
+export class CartModule { }
