@@ -1,9 +1,9 @@
 {
-  "name": "@fxa/accounts/rate-limit",
+  "name": "@fxa/shared/nestjs/customs",
   "version": "0.0.1",
-  "dependencies": {},
+  "private": true,
   "type": "commonjs",
   "main": "./index.cjs",
   "types": "./index.d.ts",
-  "private": true
+  "dependencies": {}
 }

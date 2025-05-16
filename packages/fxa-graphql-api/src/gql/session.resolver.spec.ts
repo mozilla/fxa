@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
+import { CustomsService } from '@fxa/shared/nestjs/customs';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 
 import { AuthClientService } from '../backend/auth-client.service';

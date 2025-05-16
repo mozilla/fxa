@@ -11,6 +11,15 @@ export class RateLimitConfig {
   @IsString()
   @IsArray()
   rules!: Array<string> | string;
+
+  @IsArray()
+  ignoreIPs!: Array<string>;
+
+  @IsArray()
+  ignoreEmails!: Array<string>;
+
+  @IsArray()
+  ignoreUIDs!: Array<string>;
 }
 
 /**

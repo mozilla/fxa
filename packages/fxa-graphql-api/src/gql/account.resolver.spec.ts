@@ -5,7 +5,7 @@ import { Logger, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Account, SessionToken } from 'fxa-shared/db/models/auth';
-import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
+import { CustomsService } from '@fxa/shared/nestjs/customs';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { Knex } from 'knex';
 

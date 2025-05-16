@@ -79,17 +79,23 @@ export class RateLimit {
       return true;
     }
 
-    if (opts.uid != null && this.config.ignoreUIDs?.some((x) => opts.uid === x)) {
+    if (
+      opts.uid != null &&
+      this.config.ignoreUIDs?.some((x) => opts.uid === x)
+    ) {
       this.statsd?.increment('rate_limit.ignore.uid');
       return true;
     }
 
-    if (opts.email != null && this.config.ignoreEmails?.some((x) => opts.email?.match(x))) {
+    if (
+      opts.email != null &&
+      this.config.ignoreEmails?.some((x) => opts.email?.match(x))
+    ) {
       this.statsd?.increment('rate_limit.ignore.email');
       return true;
     }
 
-    return false
+    return false;
   }
 
   /**
