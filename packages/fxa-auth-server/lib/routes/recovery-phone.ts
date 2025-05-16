@@ -522,6 +522,163 @@ class RecoveryPhoneHandler {
     throw AppError.invalidOrExpiredOtpCode();
   }
 
+  async replacePhoneNumber(request: AuthRequest) {
+    // need to check first that there is an existing phone number
+    const {
+      id: sessionTokenId,
+      uid,
+      email } = request.auth.credentials as SessionTokenAuthCredential;
+
+    const { code } = request.payload as unknown as {
+      code: string
+    }
+
+    //guard against invalid token
+    if (!email) {
+      throw AppError.invalidToken();
+    }
+
+    // TODO: need to check how customs is setup and if this requires additional changes
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      'recoveryPhoneReplacePhoneNumber'
+    );
+
+    // check if user has a confirmed recovery phone number
+    const {exists, /* phoneNumber */} = await this.recoveryPhoneService.hasConfirmed(uid);
+    // can we do anything with this?
+    // const startingPhone = phoneNumber || null;
+
+    if (!exists) {
+      // if not, throw, they shouldn't be here.
+      // do we want to throw this, or make a new error?
+      throw AppError.recoveryPhoneNumberDoesNotExist();
+    }
+
+    let removedSuccess = false;
+    // attempt to delete existing recovery phone number
+    try {
+      removedSuccess = await this.recoveryPhoneService.removePhoneNumber(uid);
+    } catch (error) {
+      if (error instanceof RecoveryNumberRemoveMissingBackupCodes) {
+        throw AppError.recoveryPhoneRemoveMissingRecoveryCodes();
+      }
+      // what other errors should we check for? look at service.
+
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'removePhoneNumber',
+        { uid },
+        error
+      );
+    }
+    if (removedSuccess) {
+      // we've now removed their existing number and attempt to add the new one.
+      // If possible, we should validate the code before removing so that it's less likely
+      // to fail when we get here.
+
+      // setup new phone number recovery with code provided
+      let confirmSuccessful = false;
+      try {
+        confirmSuccessful = await this.recoveryPhoneService.confirmSetupCode(uid, code);
+
+        if (confirmSuccessful) {
+          await this.accountManager.verifySession(
+            uid,
+            sessionTokenId,
+            VerificationMethods.sms2fa
+          );
+        }
+
+      } catch (error) {
+        if(error instanceof RecoveryPhoneNotEnabled) {
+          throw AppError.featureNotEnabled();
+        } else if (error instanceof RecoveryNumberNotExistsError) {
+          throw AppError.recoveryPhoneNumberDoesNotExist();
+        } else if (error instanceof RecoveryNumberAlreadyExistsError) {
+          throw AppError.recoveryPhoneNumberAlreadyExists();
+        } else {
+          throw AppError.backendServiceFailure(
+            'RecoveryPhoneService',
+            'confirmCode',
+            { uid },
+            error
+          );
+        }
+      }
+      if (confirmSuccessful) {
+        // @TODO, add glean event.
+        // await this.glean.twoStepAuthPhoneReplace.success(request);
+        this.statsd.increment('account.recoveryPhone.phoneAdded.success');
+
+        const { phoneNumber, nationalFormat } = await this.recoveryPhoneService.hasConfirmed(uid);
+        const { acceptLanguage, geo, ua } = request.app;
+        const account = await this.db.account(uid);
+
+        try {
+          // how do I confirm these are the right params
+          await this.mailer.postChangeRecoveryPhoneEmail(
+            account.emails,
+            account,
+            {
+              acceptLanguage,
+              maskedLastFourPhoneNumber: `••••••${this.recoveryPhoneService.stripPhoneNumber(
+                phoneNumber || '',
+                4
+              )}`,
+              timeZone: geo.timeZone,
+              uaBrowser: ua.browser,
+              uaBrowserVersion: ua.browserVersion,
+              uaOS: ua.os,
+              uaOSVersion: ua.osVersion,
+              uaDeviceType: ua.deviceType,
+              uid,
+            }
+          );
+
+          // or does this just use the same event as the setup?
+          recordSecurityEvent('account.recovery_phone_replace_complete', {
+            db: this.db,
+            request,
+          });
+
+        } catch (error) {
+          // log error, but don't throw
+          // user should be allowed to proceed
+          this.log.trace(
+            'account.recoveryPhone.phoneReplacedNotification.error',
+            {
+              error,
+            }
+          );
+
+        }
+
+        return {
+          phoneNumber,
+          nationalFormat,
+          status: RecoveryPhoneStatus.SUCCESS,
+        };
+      }
+
+    } else {
+      // removing the first phone failed and we can't proceed, this is v bad.
+      // is this a new AppError, or just a one off?
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'replacePhoneNumber',
+        { uid },
+        new Error('Failed to remove existing phone number')
+      );
+    }
+
+    // If we reach here, it means the phone number replacement failed unexpectedly.
+    return {
+      status: RecoveryPhoneStatus.FAILURE,
+    };
+  }
+
   async confirmResetPasswordCode(request: AuthRequest) {
     const { uid, email } = request.auth.credentials as PasswordForgotToken;
 
@@ -868,6 +1025,26 @@ export const recoveryPhoneRoutes = (
       handler: function (request: AuthRequest) {
         log.begin('recoveryPhoneConfirmSetup', request);
         return recoveryPhoneHandler.confirmSigninCode(request, true);
+      },
+    },
+    //TODO: delete comment - only for reference
+    {
+      method: 'POST',
+      path: '/recovery_phone/replace',
+      options: {
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: isA.object({
+            code: isA.string().min(6).max(8),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneReplace', request);
+        return recoveryPhoneHandler.replacePhoneNumber(request);
       },
     },
     {
