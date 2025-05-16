@@ -60,6 +60,7 @@ describe('RecoveryPhoneService', () => {
     hasRecoveryCodes: jest.fn(),
     removeCode: jest.fn(),
     getCountByPhoneNumber: jest.fn(),
+    replacePhoneNumber: jest.fn(),
   };
 
   const mockOtpManager = {
@@ -884,6 +885,71 @@ describe('RecoveryPhoneService', () => {
         expect(url).toContain('?fxaSignature=');
         expect(url).toContain('&fxaMessage=');
       });
+    });
+  });
+
+  describe('validate setup code', () => {
+    it('returns true for a valid setup code', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce({
+        isSetup: true,
+      });
+      const result = await service.validateSetupCode(uid, code);
+
+      expect(result).toBe(true);
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledTimes(1);
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
+    });
+    it('returns false if data is null', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce(null);
+      const result = await service.validateSetupCode(uid, code);
+
+      expect(result).toBe(false);
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledTimes(1);
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
+    });
+
+    it('returns false if data is not a setup code', async () => {
+      mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce({
+        isSetup: false,
+      });
+      const result = await service.validateSetupCode(uid, code);
+
+      expect(result).toBe(false);
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledTimes(1);
+      expect(mockRecoveryPhoneManager.getUnconfirmed).toBeCalledWith(uid, code);
+    });
+  });
+
+  describe('replace phone number', () => {
+    it('replaces code successfully', async () => {
+      mockRecoveryPhoneManager.replacePhoneNumber.mockResolvedValue(true);
+      mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce({
+        isSetup: true,
+        phoneNumber,
+      });
+      const result = await service.replacePhoneNumber(uid, code);
+
+      expect(result).toBe(true);
+    });
+
+    it('returns false if there is no existing unconfirmed code', async () => {
+      mockRecoveryPhoneManager.replacePhoneNumber.mockResolvedValue(true);
+      mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce({});
+
+      const result = await service.replacePhoneNumber(uid, code);
+
+      expect(result).toBe(false);
+    });
+
+    it('returns false if existing unconfirmed code is not for setup', async () => {
+      mockRecoveryPhoneManager.replacePhoneNumber.mockResolvedValue(true);
+      mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce({
+        isSetup: false,
+        phoneNumber,
+      });
+      const result = await service.replacePhoneNumber(uid, code);
+
+      expect(result).toBe(false);
     });
   });
 });

@@ -186,6 +186,18 @@ describe('RecoveryPhoneManager', () => {
     expect(deleteFromSpy).toBeCalledWith('recoveryPhones');
   });
 
+  it('should replace a recovery phone', async () => {
+    const mockPhone = RecoveryPhoneFactory();
+
+    const res = await recoveryPhoneManager.replacePhoneNumber(
+      mockPhone.uid.toString('hex'),
+      mockPhone.phoneNumber,
+      mockLookUpData
+    );
+
+    expect(res).toBe(true);
+  });
+
   it('should handle database errors gracefully', async () => {
     const insertIntoSpy = jest
       .spyOn(db, 'insertInto')
@@ -321,9 +333,8 @@ describe('RecoveryPhoneManager', () => {
       })
       .execute();
 
-    const result = await recoveryPhoneManager.getCountByPhoneNumber(
-      phoneNumber
-    );
+    const result =
+      await recoveryPhoneManager.getCountByPhoneNumber(phoneNumber);
 
     expect(result).toBe(2);
   });

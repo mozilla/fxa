@@ -232,6 +232,10 @@ export class RecoveryPhoneService {
   /**
    * Confirms a UID code. This will also and finalizes the phone number setup if the code provided was
    * intended for phone number setup.
+   * @throws {RecoveryPhoneNotEnabled} If the recovery phone feature is not enabled
+   * @throws {RecoveryPhoneRegistrationLimitReached} If the phone number has been registered for too many accounts
+   * @throws {RecoveryNumberNotSupportedError} If the phone number is not supported
+   * @throws {RecoveryNumberNotSupportedError} If the number is suspected of sim pumping
    * @param uid An account id
    * @param code A otp code
    * @returns True if successful
@@ -264,43 +268,8 @@ export class RecoveryPhoneService {
       throw new RecoveryPhoneRegistrationLimitReached(data.phoneNumber);
     }
 
-    // If this was for a setup operation. Register the phone number to the uid.
-    const lookupData: PhoneNumberLookupData = await (async () => {
-      try {
-        return await this.smsManager.phoneNumberLookup(data.phoneNumber);
-      } catch (error) {
-        this.log?.error('RecoveryPhoneService.confirmSetupCode', error);
-
-        throw new RecoveryNumberNotSupportedError(data.phoneNumber, error);
-      }
-    })();
-
-    // Reject numbers suspected of sim pumping
-    const smsPumpingRiskThreshold = this.config.sms?.smsPumpingRiskThreshold;
-    const smsPumpingRisk = lookupData?.smsPumpingRisk;
-    if (
-      typeof smsPumpingRiskThreshold === 'number' &&
-      typeof smsPumpingRisk === 'number'
-    ) {
-      this.metrics.gauge('sim_pumping_risk', smsPumpingRisk);
-
-      if (smsPumpingRisk > smsPumpingRiskThreshold) {
-        this.metrics.increment('sim_pumping_risk.denied');
-
-        const error = new RecoveryNumberNotSupportedError(
-          data.phoneNumber,
-          new Error('Sim pumping risk threshold exceeded')
-        );
-        this.log?.error('RecoveryPhoneService.smsPumpingRisk', {
-          phoneNumber: data.phoneNumber,
-          smsPumpingRisk,
-        });
-
-        throw error;
-      } else {
-        this.metrics.increment('sim_pumping_risk.allowed');
-      }
-    }
+    const lookupData = await this.getPhoneNumberLookupData(data.phoneNumber);
+    await this.validateLookupDataForSmsPumping(lookupData);
 
     await this.recoveryPhoneManager.registerPhoneNumber(
       uid,
@@ -348,6 +317,7 @@ export class RecoveryPhoneService {
    * Remove phone number from an account. Each user can only have one associated
    * phone number. A user must have backup codes before removing a phone number.
    *
+   * @throws {RecoveryNumberRemoveMissingBackupCodes} If the user does not have backup codes
    * @param uid An account id
    * @returns True if successful
    */
@@ -366,6 +336,43 @@ export class RecoveryPhoneService {
     }
 
     return await this.recoveryPhoneManager.removePhoneNumber(uid);
+  }
+
+  /**
+   * Updates the existing recovery phone number with the new one associated to the code provided.
+   *
+   * @param uid
+   * @param code
+   * @returns
+   */
+  public async replacePhoneNumber(uid: string, code: string): Promise<boolean> {
+    const unconfirmedCode = await this.recoveryPhoneManager.getUnconfirmed(
+      uid,
+      code
+    );
+    if (unconfirmedCode == null) {
+      // there are no codes for the new number, can't proceed.
+      return false;
+    }
+    const { phoneNumber, isSetup } = unconfirmedCode;
+
+    if (isSetup !== true) {
+      // this code was not for a setup operation, can't proceed.
+      return false;
+    }
+
+    const lookupData = await this.getPhoneNumberLookupData(phoneNumber);
+    await this.validateLookupDataForSmsPumping(lookupData);
+    await this.recoveryPhoneManager.replacePhoneNumber(
+      uid,
+      phoneNumber,
+      lookupData
+    );
+
+    // after we're done, remove code from redis.
+    await this.recoveryPhoneManager.removeCode(uid, code);
+
+    return true;
   }
 
   /**
@@ -552,6 +559,21 @@ export class RecoveryPhoneService {
   }
 
   /**
+   * Validates that the provided code is for setup and not for sign in.
+   *
+   * No further actions are taken; the code is left in redis for completing the
+   * setup process. This is used in `recovery_phone/replace` and we need
+   * to ensure the code is valid before removing the existing phone number.
+   */
+  public async validateSetupCode(uid: string, code: string) {
+    const data = await this.recoveryPhoneManager.getUnconfirmed(uid, code);
+    if (data == null || data.isSetup !== true) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
    * Gets the most appropriately sized message body. We have a certain limit
    * of sms segments that we want to allow, typically this is just a single segment.
    *
@@ -595,5 +617,67 @@ export class RecoveryPhoneService {
     // TBD: Need to check other message states?
 
     return true;
+  }
+
+  /**
+   * Gets the twilio lookup data for the phone number.
+   *
+   * @throws {RecoveryNumberNotSupportedError} If the phone number is not supported
+   * @param phoneNumber
+   */
+  private async getPhoneNumberLookupData(
+    phoneNumber: string
+  ): Promise<PhoneNumberLookupData> {
+    // If this was for a setup operation. Register the phone number to the uid.
+    const lookupData: PhoneNumberLookupData = await (async () => {
+      try {
+        return await this.smsManager.phoneNumberLookup(phoneNumber);
+      } catch (error) {
+        this.log?.error('RecoveryPhoneService.confirmSetupCode', error);
+
+        throw new RecoveryNumberNotSupportedError(phoneNumber, error);
+      }
+    })();
+
+    return lookupData;
+  }
+
+  /**
+   * Runs validation against the {@link PhoneNumberLookupData} for risk of sms pumping.
+   *
+   * @param lookupData The lookup data for the phone number
+   * @throws {RecoveryNumberNotSupportedError} If the phone number is at risk of sms pumping.
+   */
+  private async validateLookupDataForSmsPumping(
+    lookupData: PhoneNumberLookupData
+  ): Promise<void> {
+    const { phoneNumber } = lookupData;
+
+    // Reject numbers suspected of sms pumping
+    const smsPumpingRiskThreshold = this.config.sms?.smsPumpingRiskThreshold;
+    const smsPumpingRisk = lookupData?.smsPumpingRisk;
+    if (
+      typeof smsPumpingRiskThreshold === 'number' &&
+      typeof smsPumpingRisk === 'number'
+    ) {
+      this.metrics.gauge('sim_pumping_risk', smsPumpingRisk);
+
+      if (smsPumpingRisk > smsPumpingRiskThreshold) {
+        this.metrics.increment('sim_pumping_risk.denied');
+
+        const error = new RecoveryNumberNotSupportedError(
+          phoneNumber,
+          new Error('Sim pumping risk threshold exceeded')
+        );
+        this.log?.error('RecoveryPhoneService.smsPumpingRisk', {
+          phoneNumber: phoneNumber,
+          smsPumpingRisk,
+        });
+
+        throw error;
+      } else {
+        this.metrics.increment('sim_pumping_risk.allowed');
+      }
+    }
   }
 }

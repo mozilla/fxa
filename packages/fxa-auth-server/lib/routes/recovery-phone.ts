@@ -522,6 +522,108 @@ class RecoveryPhoneHandler {
     throw AppError.invalidOrExpiredOtpCode();
   }
 
+  async replacePhoneNumber(request: AuthRequest) {
+    // need to check first that there is an existing phone number
+    const { uid } = request.auth
+      .credentials as SessionTokenAuthCredential;
+
+    const { code } = request.payload as unknown as {
+      code: string;
+    };
+
+    // check if user has a confirmed recovery phone number
+    const { exists } = await this.recoveryPhoneService.hasConfirmed(uid);
+
+    if (!exists) {
+      throw AppError.recoveryPhoneNumberDoesNotExist();
+    }
+
+    // check their code is valid before moving on. Code is
+    // not removed until the replace is successful.
+    const codeIsValid = await this.recoveryPhoneService.validateSetupCode(
+      uid,
+      code
+    );
+
+    if (!codeIsValid) {
+      throw AppError.invalidOrExpiredOtpCode();
+    }
+
+    // replace the existing phone number with the new one associated with the code.
+    let replacedSuccess = false;
+    try {
+      replacedSuccess = await this.recoveryPhoneService.replacePhoneNumber(
+        uid,
+        code
+      );
+    } catch (error) {
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        throw AppError.featureNotEnabled();
+      } else if (error instanceof RecoveryNumberNotExistsError) {
+        throw AppError.recoveryPhoneNumberDoesNotExist();
+      } else if (error instanceof RecoveryNumberAlreadyExistsError) {
+        throw AppError.recoveryPhoneNumberAlreadyExists();
+      } else {
+        throw AppError.backendServiceFailure(
+          'RecoveryPhoneService',
+          'confirmCode',
+          { uid },
+          error
+        );
+      }
+    }
+
+    if (!replacedSuccess) {
+      await this.glean.twoStepAuthPhoneReplace.failure(request);
+      this.statsd.increment('account.recoveryPhone.replacePhoneNumber.failure');
+      recordSecurityEvent('account.recovery_phone_replace_failed', {
+        db: this.db,
+        request,
+      });
+      return {
+        status: RecoveryPhoneStatus.FAILURE,
+      };
+    }
+
+    await this.glean.twoStepAuthPhoneReplace.success(request);
+    this.statsd.increment('account.recoveryPhone.replacePhoneNumber.success');
+
+    const { phoneNumber, nationalFormat } =
+      await this.recoveryPhoneService.hasConfirmed(uid);
+    const { acceptLanguage, geo, ua } = request.app;
+    const account = await this.db.account(uid);
+
+    try {
+      await this.mailer.postChangeRecoveryPhoneEmail(account.emails, account, {
+        acceptLanguage,
+        timeZone: geo.timeZone,
+        uaBrowser: ua.browser,
+        uaBrowserVersion: ua.browserVersion,
+        uaOS: ua.os,
+        uaOSVersion: ua.osVersion,
+        uaDeviceType: ua.deviceType,
+        uid,
+      });
+
+      recordSecurityEvent('account.recovery_phone_replace_complete', {
+        db: this.db,
+        request,
+      });
+    } catch (error) {
+      // log error, but don't throw
+      // user should be allowed to proceed if email or security event fails
+      this.log.trace('account.recoveryPhone.phoneReplacedNotification.error', {
+        error,
+      });
+    }
+
+    return {
+      phoneNumber,
+      nationalFormat,
+      status: RecoveryPhoneStatus.SUCCESS,
+    };
+  }
+
   async confirmResetPasswordCode(request: AuthRequest) {
     const { uid, email } = request.auth.credentials as PasswordForgotToken;
 
@@ -893,6 +995,25 @@ export const recoveryPhoneRoutes = (
       handler: function (request: AuthRequest) {
         log.begin('recoveryPhoneConfirmSetup', request);
         return recoveryPhoneHandler.confirmSigninCode(request, true);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recovery_phone/replace',
+      options: {
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: isA.object({
+            code: isA.string().min(6).max(8),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        log.begin('recoveryPhoneReplace', request);
+        return recoveryPhoneHandler.replacePhoneNumber(request);
       },
     },
     {

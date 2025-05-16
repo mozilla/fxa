@@ -323,6 +323,10 @@ export function gleanMetrics(config: ConfigType) {
       sendError: createEventFn('two_step_auth_phone_code_send_error'),
       complete: createEventFn('two_step_auth_phone_code_complete'),
     },
+    twoStepAuthPhoneReplace: {
+      success: createEventFn('two_step_auth_phone_replace_success'),
+      failure: createEventFn('two_step_auth_phone_replace_failure'),
+    },
     twoStepAuthRemove: {
       success: createEventFn('two_step_auth_remove_success'),
     },
@@ -433,7 +437,7 @@ export const logErrorWithGlean = ({
     const funnelFns =
       glean[
         funnel as keyof Omit<
-          ReturnType<typeof gleanMetrics>,
+          GleanMetricsType,
           | 'resetPassword'
           | 'oauth'
           | 'thirdPartyAuth'
@@ -442,6 +446,7 @@ export const logErrorWithGlean = ({
           | 'twoFactorAuthSetup'
           | 'inactiveAccountDeletion'
           | 'twoStepAuthPhoneRemove'
+          | 'twoStepAuthPhoneReplace'
           | 'twoStepAuthRemove'
           | 'emailDelivery'
         >
