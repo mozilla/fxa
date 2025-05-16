@@ -7,6 +7,42 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * Event that indicates the user chose to use one of their recovery methods during
+ * password reset.
+ *
+ * Generated from `password_reset.backup_choice_submit`.
+ */
+export const backupChoiceSubmit = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'password_reset',
+    name: 'backup_choice_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * User viewed the choice screen to choose a 2FA recovery method (recovery phone
+ * or backup authentication codes).
+ *
+ * Generated from `password_reset.backup_choice_view`.
+ */
+export const backupChoiceView = new EventMetricType(
+  {
+    category: 'password_reset',
+    name: 'backup_choice_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Reset Password Create New Password See Recovery Key Question Click
  * User clicks the button for "reset your password with your recovery key"'
  *

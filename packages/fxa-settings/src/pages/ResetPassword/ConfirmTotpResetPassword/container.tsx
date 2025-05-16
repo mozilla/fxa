@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { useAuthClient, useFtlMsgResolver, useConfig } from '../../../models';
 import ConfirmTotpResetPassword from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
@@ -12,6 +12,7 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
+  const config = useConfig();
   const authClient = useAuthClient();
   const location = useLocation();
   const {
@@ -67,7 +68,10 @@ const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
   };
 
   const onTroubleWithCode = () => {
-    navigateWithQuery('/confirm_backup_code_reset_password', {
+    const nextRoute = config.featureFlags?.recoveryPhonePasswordReset2fa
+      ? '/reset_password_totp_recovery_choice'
+      : '/confirm_backup_code_reset_password';
+    navigateWithQuery(nextRoute, {
       state: {
         code,
         email,
