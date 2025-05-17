@@ -7,17 +7,34 @@ import {
   LoadingSpinner,
   StripeWrapper,
   PaymentInputHandler,
+  buildPageMetadata,
 } from '@fxa/payments/ui';
 import { getApp, SupportedPages } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import type { Metadata } from 'next';
+import { config } from 'apps/payments/next/config';
 
-export const metadata: Metadata = {
-  title: 'Action required',
-  description:
+export async function generateMetadata(
+  {
+    params,
+    searchParams,
+  }: {
+    params: CheckoutParams;
+    searchParams: Record<string, string> | undefined;
+  },
+): Promise<Metadata> {
+  return buildPageMetadata(
+    params,
+    'Action required',
     'Please complete the required action to proceed with your payment.',
-};
+    'needs_input',
+    'checkout',
+    headers().get('accept-language'),
+    config.paymentsNextHostedUrl,
+    searchParams
+  );
+}
 
 export default async function NeedsInputPage({
   params,

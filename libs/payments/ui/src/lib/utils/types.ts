@@ -19,3 +19,16 @@ export interface BaseParams {
 export interface CheckoutParams extends BaseParams {
   cartId: string;
 }
+
+export type Page =
+    | 'landing'
+    | 'new'
+    | 'start'
+    | 'success'
+    | 'error'
+    | 'location'
+    | 'page-not-found'
+    | 'processing'
+    | 'needs_input';
+
+export type PageType = 'checkout' | 'upgrade';
