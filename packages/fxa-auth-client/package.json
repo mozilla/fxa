@@ -61,7 +61,7 @@
     "eslint": "^8.38.0",
     "eslint-config-react-app": "^7.0.1",
     "fast-text-encoding": "^1.0.4",
-    "mocha": "^10.4.0",
+    "mocha": "^11.2.2",
     "prettier": "^3.5.3",
     "typescript": "5.5.3",
     "webcrypto-liner": "^1.4.0"
