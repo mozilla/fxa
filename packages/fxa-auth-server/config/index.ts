@@ -2160,6 +2160,18 @@ const convictConf = convict({
       },
     },
   },
+  rateLimit: {
+    rules: {
+      default: [
+        'unblockEmail          : email  : 10   : 24 hours    : 24 hours    ',
+        'accountStatusCheck    : ip     : 20   : 15 minutes  : 15 minutes  ',
+        'accountStatusCheck    : email  : 20   : 15 minutes  : 15 minutes  ',
+      ],
+      doc: 'Rules for rate limiting user actions. These are essentially customs v2 rules.',
+      env: 'RATE_LIMIT__RULES',
+      format: Array,
+    },
+  },
   recoveryPhone: {
     enabled: {
       default: false,
