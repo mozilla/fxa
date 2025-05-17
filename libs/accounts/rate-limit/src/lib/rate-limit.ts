@@ -21,7 +21,12 @@ export class RateLimit {
    * @param redis A Redis client
    */
   constructor(
-    public readonly rules: Record<string, Rule[]>,
+    public readonly config: {
+      rules: Record<string, Rule[]>;
+      ignoreIPs?: Array<string>;
+      ignoreEmails?: Array<string>;
+      ignoreUIDs?: Array<string>;
+    },
     private readonly redis: Redis,
     private readonly statsd?: StatsD
   ) {}
@@ -32,8 +37,8 @@ export class RateLimit {
    * @returns Null if no block is found. Or a status containing info about the block.
    */
   async unblock(opts: { ip?: string; email?: string; uid?: string }) {
-    for (const action in this.rules) {
-      for (const rule of this.rules[action]) {
+    for (const action in this.config.rules) {
+      for (const rule of this.config.rules[action]) {
         const blockedValue = opts[rule.blockingOn];
         if (blockedValue) {
           const attemptsKey = getKey('attempts', rule, blockedValue);
@@ -53,6 +58,41 @@ export class RateLimit {
   }
 
   /**
+   * Checks to see if there are rules for a given action.
+   * @param action - Name of action
+   * @returns - True if action has rules, otherwise false.
+   */
+  supportsAction(action: string) {
+    return this.config.rules[action] != null;
+  }
+
+  /**
+   * Determines if a check can be skipped, due to an ignored ip, email, or uid.
+   * When testing and developing it's often helpful to disable customs rules for
+   * certain users.
+   * @param opts - The current properties being checked.
+   * @returns
+   */
+  skip(opts: { ip?: string; email?: string; uid?: string }) {
+    if (opts.ip != null && this.config.ignoreIPs?.some((x) => opts.ip === x)) {
+      this.statsd?.increment('rate_limit.ignore.ip');
+      return true;
+    }
+
+    if (opts.uid != null && this.config.ignoreUIDs?.some((x) => opts.uid === x)) {
+      this.statsd?.increment('rate_limit.ignore.uid');
+      return true;
+    }
+
+    if (opts.email != null && this.config.ignoreEmails?.some((x) => opts.email?.match(x))) {
+      this.statsd?.increment('rate_limit.ignore.email');
+      return true;
+    }
+
+    return false
+  }
+
+  /**
    * Checks to see if a rate limit has been exceeded.
    * @param action The action being conducted. Important, if the action is not defined, a runtime error will occur!
    * @param opts Pass as many of these in as possible! If a rule requires one of these options
@@ -68,12 +108,12 @@ export class RateLimit {
     }
   ): Promise<BlockStatus | null> {
     // Make sure action actually exists
-    const rules = this.rules[action];
+    const rules = this.config.rules[action];
     if (!rules) {
       throw new ActionNotFound(action);
     }
 
-    const openBlocks = [];
+    const openBlocks = new Array<BlockStatus>();
 
     // Important! Set timestamp of check upfront.
     // This reduces small variance because of wait on IO operations.
@@ -159,9 +199,7 @@ export class RateLimit {
       //    - Open question, do we also want to no blocks with shorter bans? Or just the block with largest
       //      ban (ie the biggest retryAfter value).
 
-      return {
-        ...block,
-      };
+      return block;
     }
 
     // Made it through the gauntlet of rules. No blocks found!

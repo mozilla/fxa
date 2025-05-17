@@ -2160,6 +2160,36 @@ const convictConf = convict({
       },
     },
   },
+  rateLimit: {
+    ignoreIPs: {
+      default: undefined,
+      doc: 'Set of IPs to ignore while rate limiting. Rules will not apply to these values.',
+      env: 'RATE_LIMIT__IGNORE_IPS',
+      format: Array,
+    },
+    ignoreUIDs: {
+      default: undefined,
+      doc: 'Set of UIDs to ignore while rate limiting. Rules will not apply to these values.',
+      env: 'RATE_LIMIT__IGNORE_UIDS',
+      format: Array,
+    },
+    ignoreEmails: {
+      default: undefined,
+      doc: 'Set of emails to ignore while rate limiting. Rules will not apply to these values. Values can be a string or parsable regex.',
+      env: 'RATE_LIMIT__IGNORE_EMAILS',
+      format: Array,
+    },
+    rules: {
+      default: [
+        'unblockEmail          : email  : 10   : 24 hours    : 24 hours    ',
+        'accountStatusCheck    : ip     : 20   : 15 minutes  : 15 minutes  ',
+        'accountStatusCheck    : email  : 20   : 15 minutes  : 15 minutes  ',
+      ],
+      doc: 'Rules for rate limiting user actions. These are essentially customs v2 rules.',
+      env: 'RATE_LIMIT__RULES',
+      format: Array,
+    },
+  },
   recoveryPhone: {
     enabled: {
       default: false,

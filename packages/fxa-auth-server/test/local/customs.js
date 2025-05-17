@@ -4,12 +4,11 @@
 
 'use strict';
 
-const ROOT_DIR = '../..';
 
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../mocks');
-const error = require(`${ROOT_DIR}/lib/error.js`);
+const error = require(`../../lib/error.js`);
 const nock = require('nock');
 
 const CUSTOMS_URL_REAL = 'http://localhost:7000';
@@ -18,7 +17,7 @@ const CUSTOMS_URL_MISSING = 'http://localhost:7001';
 const customsServer = nock(CUSTOMS_URL_REAL).defaultReplyHeaders({
   'Content-Type': 'application/json',
 });
-const Customs = require(`${ROOT_DIR}/lib/customs.js`);
+const Customs = require(`../../lib/customs.js`);
 
 describe('Customs', () => {
   let customsNoUrl;
@@ -720,6 +719,78 @@ describe('Customs', () => {
     });
   });
 
+  describe('customs v2', () => {
+    const mockRateLimit = {
+      check: sinon.spy(),
+      skip: sinon.spy(),
+      supportsAction: sinon.spy(),
+    };
+
+    const customs = new Customs(
+      CUSTOMS_URL_REAL,
+      log,
+      error,
+      statsd,
+      mockRateLimit
+    );
+
+    beforeEach(() => {
+      mockRateLimit.check = sinon.spy();
+      mockRateLimit.skip = sinon.spy(() => false);
+      mockRateLimit.supportsAction = sinon.spy(() => true);
+    });
+
+    it('can allow checkAccountStatus with rate-limit lib', async () => {
+      mockRateLimit.check = sandbox.spy(async () => {
+        return await Promise.resolve(null);
+      });
+      // Should no throw
+      await customs.check(request, email, 'accountStatusCheck');
+    });
+
+    it('can block checkAccountStatus with rate-limit lib', async () => {
+      mockRateLimit.check = sandbox.spy(async () => {
+        return await Promise.resolve({
+          retryAfter: 1000,
+          reason: 'too-many-attempts',
+        });
+      });
+
+      let customsError = undefined;
+      try {
+        await customs.check(request, email, 'accountStatusCheck');
+      } catch (err) {
+        customsError = err;
+      }
+
+      assert.isDefined(error);
+      assert.equal(customsError.errno, 114);
+      assert.equal(customsError.output.payload.error, 'Too Many Requests');
+      assert.equal(
+        customsError.output.payload.message,
+        'Client has sent too many requests'
+      );
+    });
+
+    it('can skip certain emails, ips, and uids', async () => {
+      mockRateLimit.skip = sandbox.spy(() => true);
+      mockRateLimit.check = sandbox.spy(async () => {
+        return await Promise.resolve({
+          retryAfter: 1000,
+          reason: 'too-many-attempts',
+        });
+      });
+
+      // Should not throw despite, check being mocked to return an error. The
+      // skip check should be called first, and since it indicates a skip should
+      // occur, the actual customs check shouldn't ever happen.
+      await customs.check(request, email, 'accountStatusCheck');
+
+      assert.calledWith(mockRateLimit.skip, { ip, email });
+      assert.callCount(mockRateLimit.check, 0);
+    });
+  });
+
   describe('statsd metrics', () => {
     const tags = {
       block: true,
@@ -748,7 +819,7 @@ describe('Customs', () => {
         await customsWithUrl.check(request, email, action);
         assert.fail('should have failed');
       } catch (err) {
-          assert.isTrue(
+        assert.isTrue(
           statsd.increment.calledWithExactly('customs.request.check', {
             action,
             ...validTags,
