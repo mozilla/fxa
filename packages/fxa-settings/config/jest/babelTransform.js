@@ -1,7 +1,5 @@
 // This file was created by react-scripts' (create-react-app) eject script.
 
-'use strict';
-
 const babelJest = require('babel-jest').default;
 
 const hasJsxRuntime = (() => {
