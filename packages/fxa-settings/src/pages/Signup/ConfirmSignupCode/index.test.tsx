@@ -35,6 +35,7 @@ import { OAUTH_ERRORS } from '../../../lib/oauth';
 import firefox from '../../../lib/channels/firefox';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { mockWebIntegration } from '../../Signin/SigninRecoveryCode/mocks';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -268,6 +269,24 @@ describe('ConfirmSignupCode page', () => {
       });
       expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
     });
+
+    it('submits when a valid code is pasted', async () => {
+      const user = userEvent.setup();
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: jest.fn(),
+      });
+      const input = screen.getByRole('textbox', {
+        name: 'Enter 6-digit code',
+      });
+      input.focus();
+      await user.paste('123456');
+      expect(session.verifySession).toHaveBeenCalledWith(
+        '123456',
+        expect.anything()
+      );
+    });
   });
 
   describe('OAuth native integration', () => {
@@ -314,6 +333,22 @@ describe('ConfirmSignupCode page', () => {
           ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
         });
       });
+    });
+
+    it('does not submit on paste when service=sync', async () => {
+      const user = userEvent.setup();
+      const integration = createMockOAuthNativeIntegration();
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+      });
+      const input = screen.getByRole('textbox', {
+        name: 'Enter 6-digit code',
+      });
+      input.focus();
+      await user.paste('123456');
+      expect(session.verifySession).not.toHaveBeenCalled();
     });
   });
 

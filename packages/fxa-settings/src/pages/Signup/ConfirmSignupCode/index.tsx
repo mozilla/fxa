@@ -68,6 +68,7 @@ const ConfirmSignupCode = ({
   const navigateWithQuery = useNavigateWithQuery();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const isDesktopRelay = integration.isDesktopRelay();
+  const submitFormOnPaste = !integration.isSync();
 
   // Make sure data is valid. If it isn't fail fast.
   integration.data.validate();
@@ -327,6 +328,7 @@ const ConfirmSignupCode = ({
           localizedCustomCodeRequiredMessage,
           codeErrorMessage,
           setCodeErrorMessage,
+          submitFormOnPaste,
         }}
       />
 

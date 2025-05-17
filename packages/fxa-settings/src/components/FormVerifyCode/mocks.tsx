@@ -5,8 +5,14 @@
 import React, { useState } from 'react';
 import FormVerifyCode, { FormAttributes, FormVerifyCodeProps } from '.';
 
+const onFormSubmit = async () => {
+  alert('Trying to submit');
+};
+
 export const Subject = ({
   localizedCustomCodeRequiredMessage = '',
+  verifyCode = onFormSubmit,
+  submitFormOnPaste = true,
 }: Partial<FormVerifyCodeProps>) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
 
@@ -19,17 +25,14 @@ export const Subject = ({
     submitButtonText: 'Check that code',
   };
 
-  const onFormSubmit = async () => {
-    alert('Trying to submit');
-  };
-
   return (
     <FormVerifyCode
-      verifyCode={onFormSubmit}
       viewName="default-view"
       {...{
         formAttributes,
         localizedCustomCodeRequiredMessage,
+        verifyCode,
+        submitFormOnPaste,
         codeErrorMessage,
         setCodeErrorMessage,
       }}

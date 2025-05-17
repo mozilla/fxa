@@ -44,6 +44,7 @@ export type FormVerifyCodeProps = {
   setClearMessages?: React.Dispatch<React.SetStateAction<boolean>>;
   isLoading?: boolean;
   gleanDataAttrs?: GleanClickEventDataAttrs;
+  submitFormOnPaste?: boolean;
 };
 
 type FormData = {
@@ -59,6 +60,7 @@ const FormVerifyCode = ({
   setCodeErrorMessage,
   setClearMessages,
   gleanDataAttrs,
+  submitFormOnPaste,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -109,6 +111,14 @@ const FormVerifyCode = ({
     setIsSubmitting(false);
   };
 
+  const onPaste = async (event: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedText = event.clipboardData.getData('text').trim();
+    const isValid = new RegExp(formAttributes.pattern).test(pastedText);
+    if (isValid) {
+      onSubmit({ code: pastedText });
+    }
+  };
+
   return (
     <form
       noValidate
@@ -128,6 +138,7 @@ const FormVerifyCode = ({
             : () => setCodeErrorMessage('')
         }
         onFocusCb={viewName ? onFocus : undefined}
+        onPaste={submitFormOnPaste ? onPaste : undefined}
         errorText={codeErrorMessage}
         autoFocus
         pattern={formAttributes.pattern}
@@ -138,7 +149,9 @@ const FormVerifyCode = ({
         spellCheck={false}
         prefixDataTestId={viewName}
         tooltipPosition="bottom"
-        inputRef={register({ required: true })}
+        inputRef={register({
+          required: true,
+        })}
       />
 
       <FtlMsg id={formAttributes.submitButtonFtlId}>
