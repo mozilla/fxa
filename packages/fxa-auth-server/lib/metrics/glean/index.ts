@@ -446,6 +446,7 @@ export const logErrorWithGlean = ({
           | 'twoFactorAuthSetup'
           | 'inactiveAccountDeletion'
           | 'twoStepAuthPhoneRemove'
+          | 'twoStepAuthPhoneReplace'
           | 'twoStepAuthRemove'
           | 'emailDelivery'
         >
