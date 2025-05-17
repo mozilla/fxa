@@ -179,6 +179,7 @@ const MAILER_METHOD_NAMES = [
   'sendVerifyLoginCodeEmail',
   'sendVerifySecondaryCodeEmail',
   'sendPostAddRecoveryPhoneEmail',
+  'sendPostPasswordResetRecoveryPhoneEmail',
   'sendPostRemoveRecoveryPhoneEmail',
   'sendPostSigninRecoveryPhoneEmail',
   'sendPostSigninRecoveryCodeEmail',

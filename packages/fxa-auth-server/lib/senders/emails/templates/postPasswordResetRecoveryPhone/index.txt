@@ -1,0 +1,10 @@
+postPasswordResetRecoveryPhone-title = "Your recovery phone was used to confirm a password reset"
+
+postPasswordResetRecoveryPhone-device = "Recovery phone used from:"
+<%- include('/partials/userInfo/index.txt') %>
+
+<%- include('/partials/manageAccount/index.txt') %>
+
+<%- include('/partials/automatedEmailResetPassword/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>
