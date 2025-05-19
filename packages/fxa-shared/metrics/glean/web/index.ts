@@ -151,6 +151,8 @@ export const eventsMap = {
     startGoogleAuthFromLogin: 'third_party_auth_google_login_start',
     startAppleAuthFromLogin: 'third_party_auth_apple_login_start',
     loginNoPwView: 'third_party_auth_login_no_pw_view',
+    googleDeeplink: 'third_party_auth_google_deeplink',
+    appleDeeplink: 'third_party_auth_apple_deeplink',
   },
 
   thirdPartyAuthSetPassword: {

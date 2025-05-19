@@ -415,6 +415,12 @@ const recordEventMetric = (
     case 'third_party_auth_apple_login_start':
       thirdPartyAuth.appleLoginStart.record();
       break;
+    case 'third_party_auth_apple_deeplink':
+      thirdPartyAuth.appleDeeplink.record();
+      break;
+    case 'third_party_auth_google_deeplink':
+      thirdPartyAuth.googleDeeplink.record();
+      break;
     case 'cad_firefox_notnow_submit':
       cadFirefox.notnowSubmit.record();
       break;

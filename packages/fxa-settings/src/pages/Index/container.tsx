@@ -4,7 +4,7 @@
 
 import * as Sentry from '@sentry/browser';
 
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { isEmail } from 'class-validator';
 
@@ -252,6 +252,7 @@ export const IndexContainer = ({
   }, [ftlMsgResolver, deleteAccountSuccess]);
 
   const initialPrefill = prefillEmail || suggestedEmail;
+  const deeplink = queryParamModel.deeplink;
 
   return isLoading ? (
     <LoadingSpinner fullScreen />
@@ -267,6 +268,7 @@ export const IndexContainer = ({
         errorBannerMessage,
         successBannerMessage,
         tooltipErrorMessage,
+        deeplink
       }}
       prefillEmail={initialPrefill}
     />
