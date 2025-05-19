@@ -167,10 +167,7 @@ const webpackConfig = {
                 [
                   '@babel/preset-env',
                   {
-                    targets: {
-                      firefox: '60',
-                      edge: '16',
-                    },
+                    targets: '> 0.25%, last 2 versions, not dead',
                     corejs: 3,
                     include: [
                       // these are all for edge - setting the target isn't enough
@@ -185,6 +182,7 @@ const webpackConfig = {
                 ['@babel/preset-react', {}],
                 '@babel/preset-typescript',
               ],
+              ignore: ['node_modules/**', 'tests/**', 'scripts/**'],
               plugins: [
                 '@babel/syntax-dynamic-import',
                 '@babel/plugin-proposal-class-properties',
