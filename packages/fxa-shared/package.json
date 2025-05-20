@@ -264,7 +264,7 @@
     "audit-filter": "^0.5.0",
     "chai": "^4.5.0",
     "chance": "^1.1.8",
-    "esbuild": "^0.17.15",
+    "esbuild": "^0.25.4",
     "esbuild-register": "^3.5.0",
     "eslint": "^7.32.0",
     "jest": "27.5.1",
