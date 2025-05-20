@@ -33114,6 +33114,7 @@ __metadata:
     typescript: 5.5.3
     uuid: ^10.0.0
     winston: ^3.17.0
+    zod: ^3.25.7
   languageName: unknown
   linkType: soft
 
@@ -57666,6 +57667,13 @@ __metadata:
   version: 3.24.4
   resolution: "zod@npm:3.24.4"
   checksum: 62829789765a9187bd72bed3972a7c1a39fdfe6c59bc752eedabec5f99af701658471b8577d22e0fee2081e6e35d4efc93c02c90e13350755a36feadbf72bbbc
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.25.7":
+  version: 3.25.7
+  resolution: "zod@npm:3.25.7"
+  checksum: b2ca317f082a6b2715efe10c9bdff682bf0d9b5b9c9b9880c3098e3b1ed23fc5a76cac14391756c8e81bf28fe29acb38abf3dbf8929f4607456f23e6993e68c6
   languageName: node
   linkType: hard
 
