@@ -28,6 +28,7 @@ export type InputTextProps = {
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   onFocusCb?: () => void;
   onBlurCb?: () => void;
+  onPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void;
   type?: 'text' | 'email' | 'tel' | 'number' | 'url' | 'password';
   name?: string;
   prefixDataTestId?: string;
@@ -59,6 +60,7 @@ export const InputText = ({
   onChange,
   onFocusCb,
   onBlurCb,
+  onPaste,
   hasErrors,
   errorText,
   className = '',
@@ -174,12 +176,12 @@ export const InputText = ({
           data-testid={formatDataTestId('input-field')}
           onChange={textFieldChange}
           ref={combinedRef}
-          // ref={inputRef}
           {...{
             name,
             disabled,
             onFocus,
             onBlur,
+            onPaste,
             placeholder,
             type,
             autoFocus,

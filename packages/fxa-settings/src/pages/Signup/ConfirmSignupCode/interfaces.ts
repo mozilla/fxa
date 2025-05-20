@@ -39,7 +39,7 @@ export interface ConfirmSignupCodeFormData {
 
 export type ConfirmSignupCodeBaseIntegration = Pick<
   Integration,
-  'type' | 'data' | 'getService' | 'getClientId' | 'isDesktopRelay'
+  'type' | 'data' | 'getService' | 'getClientId' | 'isDesktopRelay' | 'isSync'
 >;
 
 export type ConfirmSignupCodeOAuthIntegration = Pick<

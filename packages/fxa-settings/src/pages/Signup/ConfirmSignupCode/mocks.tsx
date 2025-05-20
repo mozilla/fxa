@@ -78,6 +78,7 @@ export function createMockWebIntegration({
     expect(integration.getService()).toEqual(MozServices.Default);
     expect(integration.getClientId()).toBeUndefined();
     expect(integration.isDesktopRelay()).toBeFalsy();
+    expect(integration.isSync()).toBeFalsy();
   }
 
   return integration;

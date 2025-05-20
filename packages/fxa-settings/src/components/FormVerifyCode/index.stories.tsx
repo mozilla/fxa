@@ -26,3 +26,9 @@ export const WithCustomErrorMessage = () => (
     <Subject localizedCustomCodeRequiredMessage="This is a spoofed custom error" />
   </AppLayout>
 );
+
+export const SubmitOnPasteDisabled = () => (
+  <AppLayout>
+    <Subject submitFormOnPaste={false} />
+  </AppLayout>
+);
