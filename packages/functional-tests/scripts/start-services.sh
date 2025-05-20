@@ -15,7 +15,7 @@ pwd
 ls -la .nx/cache
 
 # Make sure we have built the latest
-CI=false NODE_ENV=test npx nx run-many \
+NX_CACHE_DIRECTORY=.nx/cache CI=false NODE_ENV=test npx nx run-many \
     -t start \
     --parallel=1 \
     --verbose \
