@@ -1544,6 +1544,7 @@ describe('/account/status', () => {
     );
     const mockMailer = mocks.mockMailer();
     const mockPush = mocks.mockPush();
+    const mockCustoms = mocks.mockCustoms();
     const verificationReminders = mocks.mockVerificationReminders();
     const subscriptionAccountReminders = mocks.mockVerificationReminders();
     const accountRoutes = makeRoutes({
@@ -1551,6 +1552,7 @@ describe('/account/status', () => {
       db: mockDB,
       log: mockLog,
       mailer: mockMailer,
+      customs: mockCustoms,
       Password: function () {
         return {
           unwrap: function () {

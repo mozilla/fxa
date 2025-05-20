@@ -432,7 +432,7 @@ AppError.tooManyRequests = function (
     extraData.verificationReason = 'login';
   }
 
-  return new AppError(
+  const error = new AppError(
     {
       code: 429,
       error: 'Too Many Requests',
@@ -444,6 +444,8 @@ AppError.tooManyRequests = function (
       'retry-after': retryAfter,
     }
   );
+
+  return error;
 };
 
 AppError.requestBlocked = function (canUnblock) {

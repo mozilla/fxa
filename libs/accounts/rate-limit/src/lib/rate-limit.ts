@@ -53,6 +53,15 @@ export class RateLimit {
   }
 
   /**
+   * Checks to see if there are rules for a given action.
+   * @param action - Name of action
+   * @returns - True if action has rules, otherwise false.
+   */
+  supportsAction(action:string) {
+    return this.rules[action] != null;
+  }
+
+  /**
    * Checks to see if a rate limit has been exceeded.
    * @param action The action being conducted. Important, if the action is not defined, a runtime error will occur!
    * @param opts Pass as many of these in as possible! If a rule requires one of these options
@@ -73,7 +82,7 @@ export class RateLimit {
       throw new ActionNotFound(action);
     }
 
-    const openBlocks = [];
+    const openBlocks = new Array<BlockStatus>();
 
     // Important! Set timestamp of check upfront.
     // This reduces small variance because of wait on IO operations.
@@ -159,9 +168,7 @@ export class RateLimit {
       //    - Open question, do we also want to no blocks with shorter bans? Or just the block with largest
       //      ban (ie the biggest retryAfter value).
 
-      return {
-        ...block,
-      };
+      return block;
     }
 
     // Made it through the gauntlet of rules. No blocks found!

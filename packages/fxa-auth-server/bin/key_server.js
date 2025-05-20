@@ -51,6 +51,7 @@ const {
   RecoveryPhoneService,
   TwilioFactory,
 } = require('@fxa/accounts/recovery-phone');
+const { parseConfigRules, RateLimit } = require('@fxa/accounts/rate-limit');
 const { AccountManager } = require('@fxa/shared/account/account');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { EmailCloudTaskManager } = require('../lib/email-cloud-tasks');
@@ -220,6 +221,16 @@ async function run(config) {
     Container.get(AppleIAP);
   }
 
+  // Create rate limiter (aka customs v2)
+  const rules = parseConfigRules(config.rateLimit.rules);
+  const rateLimitRedis = new Redis({
+    ...config.redis,
+    ...config.redis.customs,
+  });
+  const rateLimit = new RateLimit(rules, rateLimitRedis, statsd);
+  Container.set(RateLimit, rateLimit);
+
+  // Create Recovery Phone Service
   const twilio = TwilioFactory.useFactory(config.twilio);
   const recoveryPhoneRedis = new Redis({
     ...config.redis,
@@ -308,7 +319,7 @@ async function run(config) {
     config.domain
   );
   const Password = require('../lib/crypto/password')(log, config);
-  const customs = new Customs(config.customsUrl, log, error, statsd);
+  const customs = new Customs(config.customsUrl, log, error, statsd, rateLimit);
   const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
     config
   );
