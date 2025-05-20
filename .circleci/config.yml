@@ -279,6 +279,21 @@ commands:
             - fxa-yarn-002-{{ checksum "yarn.lock" }}
             - fxa-yarn-002-
 
+  cache-save-nx:
+    steps:
+      - save_cache:
+          key: fxa-nx-001-{{ checksum "yarn.lock" }}-{{ .Revision }}
+          paths:
+            - .nx/cache
+
+    cache-restore-nx:
+      steps:
+        - restore_cache:
+            keys:
+              - fxa-nx-001-{{ checksum "yarn.lock" }}-{{ .Revision }}
+              - fxa-nx-001-{{ checksum "yarn.lock" }}-
+              - fxa-nx-001-
+
   wait-for-infrastructure:
     steps:
       - run:
@@ -603,6 +618,7 @@ jobs:
     resource_class: large
     steps:
       - git-checkout
+      - cache-restore-nx
       - provision
       - save-init-workspace
 
@@ -612,8 +628,10 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
+      - cache-restore-nx
       - build
       - save-build-workspace
+      - cache-save-nx
 
   # Runs linter on packages that have changes.
   lint:
@@ -700,6 +718,7 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
+      - cache-restore-nx
       - gcp-cli/setup
       - wait-for-infrastructure
       - run:
@@ -772,6 +791,7 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
+      - cache-restore-nx
       - gcp-cli/setup
       - run:
           name: Add localhost
