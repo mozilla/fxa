@@ -67,6 +67,7 @@ const EMAIL_TYPES = {
   postConsumeRecoveryCode: '2fa',
   postNewRecoveryCodes: '2fa',
   postAddRecoveryPhone: '2fa',
+  passwordResetRecoveryPhone: 'account_recovery',
   postRemoveRecoveryPhone: '2fa',
   postChangeRecoveryPhone: '2fa',
   postSigninRecoveryPhone: 'login',

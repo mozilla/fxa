@@ -75,6 +75,7 @@ module.exports = function (log, config, bounces, statsd) {
     passwordForgotOtp: 'password-forgot-otp',
     passwordReset: 'password-reset-success',
     passwordResetAccountRecovery: 'password-reset-account-recovery-success',
+    passwordResetRecoveryPhone: 'password-reset-recovery-phone',
     passwordResetWithRecoveryKeyPrompt: 'password-reset-w-recovery-key-prompt',
     postAddLinkedAccount: 'account-linked',
     postRemoveSecondary: 'account-email-removed',
@@ -136,6 +137,7 @@ module.exports = function (log, config, bounces, statsd) {
     passwordForgotOtp: 'password-reset',
     passwordReset: 'password-reset',
     passwordResetAccountRecovery: 'manage-account',
+    passwordResetRecoveryPhone: 'manage-account',
     passwordResetWithRecoveryKeyPrompt: 'create-recovery-key',
     postAddLinkedAccount: 'manage-account',
     postRemoveSecondary: 'account-email-removed',
@@ -1696,6 +1698,38 @@ module.exports = function (log, config, bounces, statsd) {
     });
   };
 
+  Mailer.prototype.passwordResetRecoveryPhoneEmail = function (message) {
+    const templateName = 'passwordResetRecoveryPhone';
+    const links = this._generateSettingLinks(message, templateName);
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        date,
+        device: this._formatUserAgentInfo(message),
+        privacyUrl: links.privacyUrl,
+        link: links.link,
+        resetLink: links.resetLink,
+        resetLinkAttributes: links.resetLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        twoFactorSettingsLink: links.twoFactorSettingsLink,
+        twoFactorSettingsLinkAttributes: links.twoFactorSettingsLinkAttributes,
+        time,
+      },
+    });
+  };
+
   Mailer.prototype.postRemoveRecoveryPhoneEmail = function (message) {
     const templateName = 'postRemoveRecoveryPhone';
     const links = this._generateLinks(
@@ -3054,7 +3088,6 @@ module.exports = function (log, config, bounces, statsd) {
     templateName,
     content
   ) {
-    console.log(link);
     const parsedLink = new URL(link);
 
     Object.keys(query).forEach((key) => {
