@@ -26,7 +26,6 @@ NX_CACHE_DIRECTORY=.nx/cache CI=false NODE_ENV=test npx nx run-many \
     fxa-graphql-api \
     fxa-payments-server \
     fxa-profile-server \
-    fxa-settings \
-    > ~/.pm2/logs/startup.log
+    fxa-settings
 
 npx pm2 ls
