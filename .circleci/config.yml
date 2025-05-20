@@ -291,8 +291,6 @@ commands:
       - restore_cache:
           keys:
             - fxa-nx-001-{{ checksum "yarn.lock" }}-{{ .Revision }}
-            - fxa-nx-001-{{ checksum "yarn.lock" }}-
-            - fxa-nx-001-
 
   wait-for-infrastructure:
     steps:
