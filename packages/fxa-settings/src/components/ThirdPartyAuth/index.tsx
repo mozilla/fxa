@@ -187,7 +187,7 @@ const ThirdPartySignInForm = ({
     if (stateRef.current) {
       stateRef.current.value = getState();
     }
-  }, [party, viewName, logViewEventOnce]);
+  }, [party, stateRef, viewName, logViewEventOnce]);
 
 
   if (onSubmit === undefined) {
