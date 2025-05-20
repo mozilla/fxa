@@ -13,7 +13,7 @@ CREATE TABLE `carts` (
   `couponCode` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `stripeCustomerId` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL,
   `email` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
-  `amount` int unsigned NOT NULL,
+  `amount` int NOT NULL,
   `version` smallint unsigned DEFAULT 0 NOT NULL,
   `eligibilityStatus` enum('create', 'upgrade', 'downgrade', 'blocked_iap', 'invalid') COLLATE utf8mb4_bin NOT NULL,
   PRIMARY KEY (`id`),

@@ -99,6 +99,14 @@ describe('CartManager', () => {
         expect(error.jse_cause).not.toBeUndefined();
       }
     });
+
+    it('succeeds - creates a cart with a negative amount', async () => {
+      const setupCart = SetupCartFactory({
+        amount: -500,
+      });
+      const cart = await cartManager.createCart(setupCart);
+      expect(cart).toEqual(expect.objectContaining(setupCart));
+    });
   });
 
   describe('createErrorCart', () => {
@@ -108,7 +116,7 @@ describe('CartManager', () => {
       });
       const cart = await cartManager.createErrorCart(
         setupCart,
-        CartErrorReasonId.CartEligibilityStatusSame
+        CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME
       );
       expect(cart).toEqual(expect.objectContaining(setupCart));
     });
@@ -121,7 +129,7 @@ describe('CartManager', () => {
       try {
         await cartManager.createErrorCart(
           setupCart,
-          CartErrorReasonId.CartEligibilityStatusInvalid
+          CartErrorReasonId.CART_ELIGIBILITY_STATUS_INVALID
         );
       } catch (error) {
         expect(error).toBeInstanceOf(CartNotCreatedError);
