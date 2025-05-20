@@ -814,7 +814,7 @@ jobs:
             pwd
             ls -la .nx/cache
             # Run Nx command to start services
-            NX_CACHE_DIRECTORY=$PWD/.nx/cache CI=true NODE_ENV=test npx nx run-many \
+            NX_CACHE_DIRECTORY=$PWD/.nx/cache CI=true npx nx run-many \
                 -t start \
                 --parallel=8 \
                 --verbose \
