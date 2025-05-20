@@ -11,6 +11,8 @@ mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
 chmod +x node_modules/@nestjs/cli/bin/nest.js
 
+npx nx cache verify
+
 # Make sure we have built the latest
 CI=false NODE_ENV=test npx nx run-many \
     -t start \
