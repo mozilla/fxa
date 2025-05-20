@@ -331,7 +331,7 @@ const Signin = ({
           }}
         />
       )}
-      {isPasswordNeededRef.current ? (
+      {isPasswordNeededRef.current && hasPassword ? (
         <CardHeader
           headingText="Enter your password"
           headingAndSubheadingFtlId="signin-password-needed-header-2"
