@@ -125,7 +125,7 @@
     "convict-format-with-validator": "^6.2.0",
     "dayjs": "^1.11.5",
     "eslint-plugin-jest": "^27.6.0",
-    "express": "^4.21.2",
+    "express": "^5.0.0",
     "fxa-auth-server": "workspace:*",
     "fxa-geodb": "workspace:*",
     "fxa-react": "workspace:*",
@@ -150,7 +150,7 @@
     "redux": "^4.2.0",
     "redux-promise-middleware": "^6.2.0",
     "redux-thunk": "^2.4.1",
-    "serve-static": "^1.16.0",
+    "serve-static": "^2.1.0",
     "uuid": "^10.0.0"
   },
   "readmeFilename": "README.md",
