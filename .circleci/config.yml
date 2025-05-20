@@ -890,7 +890,7 @@ workflows:
             - fail-fast
       - integration-test:
           name: Integration Test - Frontends (PR)
-          resource_class: xlarge
+          resource_class: large
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
@@ -1101,7 +1101,7 @@ workflows:
             - Build
       - integration-test:
           name: Integration Test - Frontends
-          resource_class: xlarge
+          resource_class: large
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
           workflow: test_and_deploy_tag
@@ -1224,7 +1224,7 @@ workflows:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Frontends (nightly)
-          resource_class: xlarge
+          resource_class: large
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
           workflow: nightly
