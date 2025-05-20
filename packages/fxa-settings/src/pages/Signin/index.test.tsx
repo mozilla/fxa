@@ -763,6 +763,19 @@ describe('Signin component', () => {
           screen.queryByRole('button', { name: 'Sign in' })
         ).not.toBeInTheDocument();
       });
+
+      it('renders third party auth options for sync with linked account', () => {
+        const integration = createMockSigninOAuthNativeSyncIntegration();
+        render({ integration, hasPassword: false, hasLinkedAccount: true });
+
+        signInHeaderRendered();
+        expect(
+          screen.queryByRole('button', { name: /Continue with Google/ })
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: /Continue with Apple/ })
+        ).toBeInTheDocument();
+      });
     });
   });
 
