@@ -33,6 +33,17 @@ describe('rate-limit', () => {
     expect(rateLimit).toBeDefined();
   });
 
+  it('can determine if action is supported', () => {
+    rateLimit = new RateLimit(
+      parseConfigRules(['test:ip:1:1s:1s']),
+      redis,
+      statsd
+    );
+
+    expect(rateLimit.supportsAction('test')).toBeTruthy();
+    expect(rateLimit.supportsAction('foo')).toBeFalsy();
+  });
+
   it('throws if no action can be found', async () => {
     rateLimit = new RateLimit({}, redis, statsd);
     expect(rateLimit.check('foo', {})).rejects.toThrow(

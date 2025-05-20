@@ -17,10 +17,12 @@ const localizeTimestamp =
 const serviceName = 'customs';
 
 class CustomsClient {
-  constructor(url, log, error, statsd) {
+  constructor(url, log, error, statsd, rateLimit) {
     this.log = log;
     this.error = error;
     this.statsd = statsd;
+    this.rateLimit = rateLimit;
+
     const customsHttpAgentConfig = config.get('customsHttpAgent');
 
     if (url !== 'none') {
@@ -87,6 +89,14 @@ class CustomsClient {
   }
 
   async check(request, email, action) {
+    const checked = await this.checkV2(request, 'check', action, {
+      ip: request?.app?.clientAddress,
+      email,
+    });
+    if (checked) {
+      return;
+    }
+
     const result = await this.makeRequest('/check', {
       ...this.sanitizePayload({
         ip: request.app.clientAddress,
@@ -108,6 +118,14 @@ class CustomsClient {
   }
 
   async checkAuthenticated(request, uid, action) {
+    const checked = await this.checkV2(request, 'checkAuthenticated', action, {
+      ip: request?.app?.clientAddress,
+      uid,
+    });
+    if (checked) {
+      return;
+    }
+
     const result = await this.makeRequest('/checkAuthenticated', {
       ...this.sanitizePayload({
         action,
@@ -121,6 +139,13 @@ class CustomsClient {
   }
 
   async checkIpOnly(request, action) {
+    const checked = await this.checkV2(request, 'checkIpOnly', action, {
+      ip: request?.app?.clientAddress,
+    });
+    if (checked) {
+      return;
+    }
+
     const result = await this.makeRequest('/checkIpOnly', {
       ...this.sanitizePayload({
         action,
@@ -257,6 +282,76 @@ class CustomsClient {
       });
     }
   }
+
+  // #region Customs V2
+
+  /**
+   * Version 2 Customs Approach
+   * =======================================================================================
+   * This uses a library provided by libs and works directly with Redis to make rate limiting
+   * decisions. The previous customs check to see if there is 'new' configuration for the
+   * customs action being checked. If there is, we will call into this code instead of calling
+   * the legacy customs service.
+   */
+  async checkV2(request, type, action, opts) {
+    // Short circuit if rate limit wasn't provided.
+    if (this.rateLimit == null) {
+      return false;
+    }
+
+    // Fallback to the legacy customs service approach, if v2 action isn't configured
+    const actionConfigured = this.rateLimit.supportsAction(action);
+    if (!actionConfigured) {
+      this.statsd?.increment(`${serviceName}.check.v1`, [`action:${action}`]);
+      return false;
+    }
+
+    // Otherwise, call the new nx lib instead of the legacy service
+    this.statsd?.increment(`${serviceName}.check.v2`, [`action:${action}`]);
+    const result = await this.rateLimit.check(action, opts);
+
+    // If statsd was provided, record metrics
+    this.statsd?.increment(`${serviceName}.request.v2.${type}`, {
+      action,
+      block: result != null,
+      blockReason: result?.reason || '',
+    });
+
+
+    // If no result, we exit. Check essentially passes.
+    if (result == null) {
+      return true;
+    }
+
+    // We use the rate limiter to allow X number unblock attempts per day. Once
+    // unblock attempts have been exhausted, the user cannot request an unblock
+    // code and must wait until the unblockEmail ban duration has expired. Similar
+    // logic existed in the old customs server, but these sorts of decisions are
+    // actually domain of the service using customs and not customs itself, so
+    // this is the revised approach.
+    let canUnblock = false;
+    const { email } = opts;
+    if (email) {
+      const unblockResult = await this.rateLimit.check('unblockEmail', {
+        email,
+      });
+      canUnblock = unblockResult == null;
+    }
+
+    request.emitMetricsEvent('customs.blocked');
+    const retryAfterLocalized = localizeTimestamp.format(
+      Date.now() + result.retryAfter * 1000,
+      request.headers['accept-language']
+    );
+
+    throw this.error.tooManyRequests(
+      result.retryAfter,
+      retryAfterLocalized,
+      canUnblock
+    );
+
+  }
+  // #endregion
 }
 
 module.exports = CustomsClient;

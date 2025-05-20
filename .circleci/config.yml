@@ -177,6 +177,7 @@ executors:
       CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
       AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR: true
+      RATE_LIMIT__RULES: ""
 
   # Contains a pre-installed fxa stack and browsers for doing ui test
   # automation. Perfect for running smoke tests against remote targets.
