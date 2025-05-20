@@ -136,8 +136,8 @@ const ThirdPartyAuthCallback = ({
 
       // Extract relayed fxa parameters
       const params = new URLSearchParams(fxaParams || '');
-      const flowId = params.get('flowId') || undefined;
-      const flowBeginTime = params.get('flowBeginTime') || undefined;
+      const flowId = params.get('flowId') || params.get('flow_id') || undefined;
+      const flowBeginTime = params.get('flowBeginTime') || params.get('flow_begin_time') || undefined;
       const originalService =
         params.get('service') || params.get('client_id') || undefined;
       const linkedAccount: LinkedAccountData =
