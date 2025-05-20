@@ -2720,6 +2720,23 @@ account_banner:
     expires: never
     data_sensitivity:
       - interaction
+  add_recovery_phone_view:
+    type: event
+    description: |
+      User sees the promotion to setup a recovery phone in settings page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11619
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
   reactivation_success_view:
     type: event
     description: |

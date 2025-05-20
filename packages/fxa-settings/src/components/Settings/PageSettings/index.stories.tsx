@@ -46,9 +46,9 @@ const partiallyFilledOutAccount = {
 const accountWithoutRecoveryKey = {
   ...MOCK_ACCOUNT,
   displayName: null,
-  recoveryKey: { exists: false },
-  totp: { exists: true, verified: false },
-  attachedClients: SERVICES_NON_MOBILE,
+  recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 },
+  totp: { exists: false, verified: false },
+  attachedClients: MOCK_SERVICES,
   linkedAccounts: MOCK_LINKED_ACCOUNTS,
 } as unknown as Account;
 
@@ -58,6 +58,33 @@ const completelyFilledOutAccount = {
   emails: [mockEmail(), mockEmail('johndope2@gmail.com', false)],
   attachedClients: SERVICES_NON_MOBILE,
   linkedAccounts: MOCK_LINKED_ACCOUNTS,
+  totp: { exists: true, verified: true },
+  backupCodes: {
+    hasBackupCodes: true,
+    count: 3,
+  },
+  recoveryPhone: {
+    exists: true,
+    phoneNumber: '1234',
+    available: true,
+    nationalFormat: '',
+  },
+};
+
+const accountEligibleForRecoveryPhone = {
+  ...MOCK_ACCOUNT,
+  recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 },
+  totp: { exists: true, verified: true },
+  backupCodes: {
+    hasBackupCodes: true,
+    count: 3,
+  },
+  recoveryPhone: {
+    exists: false,
+    phoneNumber: null,
+    available: true,
+    nationalFormat: null,
+  },
 };
 
 const storyWithContext = (
@@ -97,4 +124,9 @@ export const CompletelyFilledOut = storyWithContext(
 export const PartiallyFilledOutWithKeyPromo = storyWithContext(
   accountWithoutRecoveryKey,
   'with recovery key promo'
+);
+
+export const PartiallyFilledOutWithPhonePromo = storyWithContext(
+  accountEligibleForRecoveryPhone,
+  'with recovery phone promo'
 );

@@ -7,7 +7,9 @@ const tailwindcssDir = require('tailwindcss-dir');
 
 const screenSizes = {
   mobileLandscape: '480px',
-  tablet: { raw: '(min-width: 768px) and (min-height: 481px)' },
+  tablet: {
+    raw: '(min-width: 768px) and (min-height: 481px)',
+  },
   desktop: '1024px',
   desktopXl: '1441px',
 };

@@ -222,6 +222,7 @@ export const eventsMap = {
 
   accountBanner: {
     createRecoveryKeyView: 'account_banner_create_recovery_key_view',
+    addRecoveryPhoneView: 'account_banner_add_recovery_phone_view',
     reactivationSuccessView: 'account_banner_reactivation_success_view',
   },
 
