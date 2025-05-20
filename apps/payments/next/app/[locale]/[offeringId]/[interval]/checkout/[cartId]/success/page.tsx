@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import { auth } from 'apps/payments/next/auth';
-import { getCardIcon } from '@fxa/payments/ui';
+import { getCardIcon, buildPageMetadata } from '@fxa/payments/ui';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
@@ -17,14 +17,30 @@ import {
   CheckoutParams,
   SupportedPages,
 } from '@fxa/payments/ui/server';
+import { config } from 'apps/payments/next/config';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Success',
-  description:
-    'Congratulations! You have successfully completed your purchase.',
-};
+export async function generateMetadata(
+  {
+    params,
+    searchParams
+  }: {
+    params: CheckoutParams;
+    searchParams: Record<string, string> | undefined;
+  },
+): Promise<Metadata> {
+  return buildPageMetadata({
+    params,
+    titlePrefix: 'Success',
+    description: 'Congratulations! You have successfully completed your purchase.',
+    page: 'success',
+    pageType: 'checkout',
+    acceptLanguage: headers().get('accept-language'),
+    baseUrl: config.paymentsNextHostedUrl,
+    searchParams
+  });
+}
 
 export default async function CheckoutSuccess({
   params,

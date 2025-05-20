@@ -4,7 +4,7 @@
 
 import { headers } from 'next/headers';
 import { auth } from 'apps/payments/next/auth';
-import { getCardIcon } from '@fxa/payments/ui';
+import { getCardIcon, buildPageMetadata } from '@fxa/payments/ui';
 import { SupportedPages, getApp } from '@fxa/payments/ui/server';
 import {
   fetchCMSData,
@@ -14,13 +14,30 @@ import {
 import { CheckoutParams } from '@fxa/payments/ui/server';
 import Image from 'next/image';
 import { Metadata } from 'next';
+import { config } from 'apps/payments/next/config';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Success',
-  description: 'Congratulations! You have successfully completed your upgrade.',
-};
+export async function generateMetadata(
+  {
+    params,
+    searchParams,
+  }: {
+    params: CheckoutParams;
+    searchParams: Record<string, string> | undefined;
+  },
+): Promise<Metadata> {
+  return buildPageMetadata({
+    params,
+    titlePrefix: 'Success',
+    description: 'Congratulations! You have successfully completed your upgrade.',
+    page: 'success',
+    pageType: 'upgrade',
+    acceptLanguage: headers().get('accept-language'),
+    baseUrl: config.paymentsNextHostedUrl,
+    searchParams
+  });
+}
 
 export default async function UpgradeSuccess({
   params,

@@ -5,7 +5,11 @@
 import assert from 'assert';
 import { headers } from 'next/headers';
 import Image from 'next/image';
-import { getCardIcon, PaymentSection } from '@fxa/payments/ui';
+import {
+  getCardIcon,
+  PaymentSection,
+  buildPageMetadata,
+} from '@fxa/payments/ui';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
@@ -16,13 +20,30 @@ import {
   SupportedPages,
 } from '@fxa/payments/ui/server';
 import { Metadata } from 'next';
+import { config } from 'apps/payments/next/config';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Upgrade',
-  description: 'Enter your payment details to complete your upgrade.',
-};
+export async function generateMetadata(
+  {
+    params,
+    searchParams,
+  }: {
+    params: CheckoutParams;
+    searchParams: Record<string, string> | undefined;
+  },
+): Promise<Metadata> {
+  return buildPageMetadata({
+    params,
+    titlePrefix: 'Upgrade',
+    description: 'Enter your payment details to complete your upgrade.',
+    page: 'start',
+    pageType: 'upgrade',
+    acceptLanguage: headers().get('accept-language'),
+    baseUrl: config.paymentsNextHostedUrl,
+    searchParams
+  });
+}
 
 export default async function Upgrade({
   params,

@@ -11,6 +11,7 @@ import {
   ButtonVariant,
   PaymentSection,
   SignInForm,
+  buildPageMetadata,
 } from '@fxa/payments/ui';
 import {
   getApp,
@@ -30,10 +31,26 @@ import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Checkout',
-  description: 'Enter your payment details to complete your purchase.',
-};
+export async function generateMetadata(
+  {
+    params,
+    searchParams,
+  }: {
+    params: CheckoutParams;
+    searchParams: Record<string, string> | undefined;
+  },
+): Promise<Metadata> {
+  return buildPageMetadata({
+    params,
+    titlePrefix: 'Checkout',
+    description: 'Enter your payment details to complete your purchase.',
+    page: 'start',
+    pageType: 'checkout',
+    acceptLanguage: headers().get('accept-language'),
+    baseUrl: config.paymentsNextHostedUrl,
+    searchParams
+  });
+}
 
 export default async function Checkout({
   params,

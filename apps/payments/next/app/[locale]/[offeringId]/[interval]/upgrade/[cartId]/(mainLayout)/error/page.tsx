@@ -19,16 +19,32 @@ import {
 } from '@fxa/payments/ui/actions';
 import { config } from 'apps/payments/next/config';
 import { Metadata } from 'next';
+import { buildPageMetadata } from '@fxa/payments/ui';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Error',
-  description:
-    'There was an error processing your upgrade. If this problem persists, please contact support.',
-};
+export async function generateMetadata(
+  {
+    params,
+    searchParams,
+  }: {
+    params: CheckoutParams;
+    searchParams: Record<string, string> | undefined;
+  },
+): Promise<Metadata> {
+  return buildPageMetadata({
+    params,
+    titlePrefix: 'Error',
+    description: 'There was an error processing your upgrade. If this problem persists, please contact support.',
+    page: 'error',
+    pageType: 'upgrade',
+    acceptLanguage: headers().get('accept-language'),
+    baseUrl: config.paymentsNextHostedUrl,
+    searchParams
+  });
+}
 
 export default async function UpgradeError({
   params,
