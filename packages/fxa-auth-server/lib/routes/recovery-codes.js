@@ -144,7 +144,10 @@ module.exports = (log, db, config, customs, mailer, glean) => {
       path: '/recoveryCodes/exists',
       options: {
         auth: {
-          strategy: 'sessionToken',
+          strategies: [
+            'multiStrategySessionToken',
+            'multiStrategyPasswordForgotToken',
+          ],
           payload: 'required',
         },
         response: {

@@ -1807,6 +1807,20 @@ export default class AuthClient {
     return this.sessionGet('/recoveryCodes/exists', sessionToken, headers);
   }
 
+  async getRecoveryCodesExistWithPasswordForgotToken(
+    passwordForgotToken: hexstring,
+    headers?: Headers
+  ): Promise<{ hasBackupCodes?: boolean; count?: number }> {
+    return this.hawkRequest(
+      'GET',
+      '/recoveryCodes/exists',
+      passwordForgotToken,
+      tokenType.passwordForgotToken,
+      null,
+      headers
+    );
+  }
+
   async consumeRecoveryCode(
     sessionToken: hexstring,
     code: string,
@@ -2312,6 +2326,24 @@ export default class AuthClient {
    */
   async recoveryPhoneGet(sessionToken: string, headers?: Headers) {
     return this.sessionGet('/recovery_phone', sessionToken, headers);
+  }
+
+  async recoveryPhoneGetWithPasswordForgotToken(
+    passwordForgotToken: string,
+    headers?: Headers
+  ): Promise<{
+    exists: boolean;
+    phoneNumber?: string;
+    nationalFormat?: string;
+  }> {
+    return this.hawkRequest(
+      'GET',
+      '/recovery_phone',
+      passwordForgotToken,
+      tokenType.passwordForgotToken,
+      null,
+      headers
+    );
   }
 
   protected async getPayloadV2({

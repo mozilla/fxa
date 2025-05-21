@@ -22,7 +22,11 @@ import {
   VerificationMethods,
 } from '@fxa/shared/account/account';
 import { GleanMetricsType } from '../metrics/glean';
-import { AuthRequest, SessionTokenAuthCredential } from '../types';
+import {
+  AuthCredential,
+  AuthRequest,
+  SessionTokenAuthCredential,
+} from '../types';
 import { E164_NUMBER } from './validators';
 import AppError from '../error';
 import Localizer from '../l10n';
@@ -813,14 +817,20 @@ class RecoveryPhoneHandler {
   }
 
   async exists(request: AuthRequest) {
-    const { uid, emailVerified, mustVerify, tokenVerified } = request.auth
-      .credentials as SessionTokenAuthCredential;
-
     // To ensure no data is leaked, we will never expose the full phone number, if
     // the session is not verified. e.g. The user has entered the correct password,
     // but failed to provide 2FA.
-    const phoneNumberStrip =
-      !emailVerified || (mustVerify && !tokenVerified) ? 4 : undefined;
+    const shouldStripNumber = (() => {
+      if (request.auth.strategy === 'multiStrategySessionToken') {
+        const { emailVerified, mustVerify, tokenVerified } = request.auth
+          .credentials as SessionTokenAuthCredential;
+        return !emailVerified || (mustVerify && !tokenVerified);
+      }
+      return true;
+    })();
+
+    const phoneNumberStrip = shouldStripNumber ? 4 : undefined;
+    const { uid } = request.auth.credentials as AuthCredential;
 
     try {
       return await this.recoveryPhoneService.hasConfirmed(
@@ -830,7 +840,7 @@ class RecoveryPhoneHandler {
     } catch (error) {
       throw AppError.backendServiceFailure(
         'RecoveryPhoneService',
-        'destroy',
+        'exists',
         { uid },
         error
       );
@@ -1090,7 +1100,10 @@ export const recoveryPhoneRoutes = (
       path: '/recovery_phone',
       options: {
         auth: {
-          strategy: 'sessionToken',
+          strategies: [
+            'multiStrategySessionToken',
+            'multiStrategyPasswordForgotToken',
+          ],
         },
       },
       handler: function (request: AuthRequest) {

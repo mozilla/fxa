@@ -143,6 +143,9 @@ export const eventsMap = {
 
     recoveryKeyResetSuccessView:
       'password_reset_recovery_key_create_success_view',
+
+    backupChoiceView: 'password_reset_backup_choice_view',
+    backupChoiceSubmit: 'password_reset_backup_choice_submit',
   },
 
   thirdPartyAuth: {
