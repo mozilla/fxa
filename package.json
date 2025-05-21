@@ -134,8 +134,7 @@
     "twilio": "5.3.5",
     "typedi": "^0.8.0",
     "uuid": "^10.0.0",
-    "winston": "^3.17.0",
-    "zod": "^3.25.7"
+    "winston": "^3.17.0"
   },
   "engines": {
     "node": "^22.15.1"
@@ -265,7 +264,6 @@
     "@react-pdf/layout": "3.9.1",
     "@react-pdf/textkit": "4.3.0",
     "@svgr/webpack": "^8.0.1",
-    "@types/node": "^20.11.1",
     "@types/react": "18.2.14",
     "asn1.js": ">=5.4.1",
     "bn.js": "^5.2.1",
