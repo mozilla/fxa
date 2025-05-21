@@ -81,7 +81,7 @@ describe('PaypalBillingAgreementManager', () => {
       const mockBillingAgreementId = faker.string.uuid();
 
       jest
-        .spyOn(paypalBillingAgreementManager, 'retrieveId')
+        .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
         .mockResolvedValue(undefined);
 
       jest
@@ -258,8 +258,8 @@ describe('PaypalBillingAgreementManager', () => {
     });
   });
 
-  describe('getCustomerBillingAgreementId', () => {
-    it("returns the customer's current PayPal billing agreement ID", async () => {
+  describe('retrieveActiveId', () => {
+    it("returns the customer's current active PayPal billing agreement ID", async () => {
       const uid = faker.string.uuid();
       const mockPayPalCustomer = ResultPaypalCustomerFactory();
 
@@ -267,7 +267,7 @@ describe('PaypalBillingAgreementManager', () => {
         .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
         .mockResolvedValue([mockPayPalCustomer]);
 
-      const result = await paypalBillingAgreementManager.retrieveId(uid);
+      const result = await paypalBillingAgreementManager.retrieveActiveId(uid);
       expect(result).toEqual(mockPayPalCustomer.billingAgreementId);
     });
 
@@ -278,7 +278,19 @@ describe('PaypalBillingAgreementManager', () => {
         .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
         .mockResolvedValue([]);
 
-      const result = await paypalBillingAgreementManager.retrieveId(uid);
+      const result = await paypalBillingAgreementManager.retrieveActiveId(uid);
+      expect(result).toEqual(undefined);
+    });
+
+    it('returns undefined if billing agreement is not active', async () => {
+      const uid = faker.string.uuid();
+      const mockPayPalCustomer = ResultPaypalCustomerFactory({ status: 'Cancelled' });
+
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
+        .mockResolvedValue([mockPayPalCustomer]);
+
+      const result = await paypalBillingAgreementManager.retrieveActiveId(uid);
       expect(result).toEqual(undefined);
     });
 
@@ -292,7 +304,7 @@ describe('PaypalBillingAgreementManager', () => {
         .mockResolvedValue([mockPayPalCustomer1, mockPayPalCustomer2]);
 
       await expect(
-        paypalBillingAgreementManager.retrieveId(uid)
+        paypalBillingAgreementManager.retrieveActiveId(uid)
       ).rejects.toBeInstanceOf(PaypalCustomerMultipleRecordsError);
     });
   });
