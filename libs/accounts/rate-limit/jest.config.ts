@@ -14,7 +14,7 @@ export default {
       'jest-junit',
       {
         outputDirectory: 'artifacts/tests/lib/accounts/rate-limit',
-        outputName: 'nestjs-customs-jest-unit-results.xml',
+        outputName: 'accounts-rate-limit-jest-unit-results.xml',
       },
     ],
   ],
