@@ -13,11 +13,13 @@ import {
   hasRecoveryCodes,
   registerPhoneNumber,
   removePhoneNumber,
+  replacePhoneNumber,
 } from './recovery-phone.repository';
 import {
   RecoveryNumberAlreadyExistsError,
   RecoveryNumberInvalidFormatError,
   RecoveryNumberNotExistsError,
+  RecoveryNumberReplaceNotExistsError,
 } from './recovery-phone.errors';
 import { Redis } from 'ioredis';
 import { PhoneNumberInstance } from 'twilio/lib/rest/lookups/v2/phoneNumber';
@@ -112,6 +114,34 @@ export class RecoveryPhoneManager {
       throw new RecoveryNumberNotExistsError(uid);
     }
 
+    return true;
+  }
+
+  /**
+   * Replaces an existing phone number with a new one.
+   *
+   * @param uid The user's unique identifier
+   * @param phoneNumber The new phone number to replace the existing one
+   * @param lookupData Lookup data for twilio cross-check
+   */
+  async replacePhoneNumber(
+    uid: string,
+    phoneNumber: string,
+    lookupData: PhoneNumberLookupData
+  ): Promise<boolean> {
+    const uidBuffer = Buffer.from(uid, 'hex');
+    const now = Date.now();
+    const results = await replacePhoneNumber(this.db, {
+      uid: uidBuffer,
+      phoneNumber,
+      lastConfirmed: now,
+      createdAt: now,
+      lookupData: JSON.stringify(lookupData),
+    });
+
+    if (results < 1) {
+      throw new RecoveryNumberReplaceNotExistsError(uid);
+    }
     return true;
   }
 

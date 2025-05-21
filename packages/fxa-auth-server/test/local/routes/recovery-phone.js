@@ -58,6 +58,10 @@ describe('/recovery_phone', () => {
       recoveryPhoneCodeSendError: sandbox.fake(),
       recoveryPhoneCodeComplete: sandbox.fake(),
     },
+    twoStepAuthPhoneReplace: {
+      success: sandbox.fake(),
+      failure: sandbox.fake(),
+    },
   };
   const mockRecoveryPhoneService = {
     setupPhoneNumber: sandbox.fake(),
@@ -69,6 +73,8 @@ describe('/recovery_phone', () => {
     hasConfirmed: sandbox.fake(),
     onMessageStatusUpdate: sandbox.fake(),
     validateTwilioWebhookCallback: sandbox.fake(),
+    validateSetupCode: sandbox.fake(),
+    replacePhoneNumber: sandbox.fake(),
   };
   const mockAccountManager = {
     verifySession: sandbox.fake(),
@@ -593,6 +599,118 @@ describe('/recovery_phone', () => {
 
       assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 0);
       assert.notCalled(mockMailer.sendPostAddRecoveryPhoneEmail);
+    });
+  });
+
+  describe('POST /recovery_phone/replace', async () => {
+    beforeEach(() => {
+      // setup default mocks for a successful request. individual tests
+      // modify mocks as needed to "break" the request at the expected points.
+      mockRecoveryPhoneService.replacePhoneNumber = sinon.fake.returns(true);
+      mockRecoveryPhoneService.setupPhoneNumber = sinon.fake.returns(true);
+      mockRecoveryPhoneService.hasConfirmed = sinon
+        .stub()
+        .onCall(0)
+        .returns({ exists: true }) // first call is for guard clause
+        .onCall(1)
+        .returns({ phoneNumber, nationalFormat }); // second call is for email, security, and response
+
+      mockRecoveryPhoneService.getNationalFormat =
+        sinon.fake.returns(nationalFormat);
+      mockRecoveryPhoneService.validateSetupCode = sinon.fake.returns(true);
+    });
+
+    it('replaces a recovery phone number', async () => {
+      const expectedSuccess = {
+        phoneNumber,
+        nationalFormat,
+        status: 'success',
+      };
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/replace',
+        credentials: { uid, email },
+        payload: { code },
+      });
+
+      assert.isDefined(resp);
+      assert.callCount(mockRecoveryPhoneService.replacePhoneNumber, 1);
+      assert.calledOnce(mockGlean.twoStepAuthPhoneReplace.success);
+      assert.deepEqual(resp, expectedSuccess);
+    });
+
+    it('rejects if code is invalid', async () => {
+      mockRecoveryPhoneService.validateSetupCode = sinon.fake.returns(false);
+
+      try {
+        await makeRequest({
+          method: 'POST',
+          path: '/recovery_phone/replace',
+          credentials: { uid, email },
+          payload: { code },
+        });
+      } catch (err) {
+        assert.instanceOf(err, AppError);
+        assert.equal(err.errno, 183);
+        assert.equal(err.message, 'Invalid or expired confirmation code');
+      }
+    });
+
+    it('rejects if there is an unexpected service error while removing phone', async () => {
+      mockRecoveryPhoneService.replacePhoneNumber = sinon.fake.returns(
+        Promise.reject(new Error('BOOM'))
+      );
+      try {
+        await makeRequest({
+          method: 'POST',
+          path: '/recovery_phone/replace',
+          credentials: { uid, email },
+          payload: { code },
+        });
+        throw new Error('Should not have succeeded');
+      } catch (err) {
+        assert.instanceOf(err, AppError);
+        assert.equal(err.errno, 203);
+        assert.equal(err.message, 'System unavailable, try again soon');
+      }
+    });
+
+    it('does not reject if removing phone is not successful and does not error', async () => {
+      mockRecoveryPhoneService.replacePhoneNumber = sinon.fake.returns(false);
+
+      const response = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/replace',
+        credentials: { uid, email },
+        payload: { code },
+      });
+
+      assert.deepEqual(response, {
+        status: 'failure',
+      });
+    });
+
+    it('does not reject if email does not send', async () => {
+      mockMailer.postChangeRecoveryPhoneEmail = sinon.fake.returns(
+        Promise.reject(new Error('BOOM'))
+      );
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/replace',
+        credentials: { uid, email },
+        payload: { code },
+      });
+
+      assert.isDefined(resp);
+      assert.calledOnce(mockMailer.postChangeRecoveryPhoneEmail);
+      assert.deepEqual(resp, {
+        status: 'success',
+        phoneNumber,
+        nationalFormat,
+      });
+      assert.calledOnce(mockLog.trace);
     });
   });
 

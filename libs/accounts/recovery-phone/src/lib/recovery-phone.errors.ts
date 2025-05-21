@@ -54,6 +54,16 @@ export class RecoveryNumberRemoveMissingBackupCodes extends RecoveryPhoneError {
   }
 }
 
+export class RecoveryNumberReplaceNotExistsError extends RecoveryPhoneError {
+  constructor(uid: string, cause?: Error) {
+    super(
+      'Existing recovery number does not exist for replacing.',
+      { uid },
+      cause
+    );
+  }
+}
+
 export class SmsSendRateLimitExceededError extends RecoveryPhoneError {
   constructor(
     uid: string,

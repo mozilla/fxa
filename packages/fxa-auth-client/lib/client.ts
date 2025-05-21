@@ -2191,6 +2191,28 @@ export default class AuthClient {
   }
 
   /**
+   * Confirms the code sent to the new recovery phone and replaces the phone.
+   *
+   * @param sessionToken The user's current session token
+   * @param code The otp code sent to the user's phone
+   * @param headers
+   */
+    async recoveryPhoneReplace(
+      sessionToken: string,
+      code: string,
+      headers?: Headers
+    ): Promise<{ nationalFormat?: string }> {
+      return this.sessionPost(
+        '/recovery_phone/replace',
+        sessionToken,
+        {
+          code,
+        },
+        headers
+      );
+    }
+
+  /**
    * Sends a code to the users phone during a signin flow.
    *
    * @param sessionToken The user's current session token

@@ -37,6 +37,24 @@ export async function registerPhoneNumber(
   await db.insertInto('recoveryPhones').values(recoveryPhone).execute();
 }
 
+/**
+ * Updates a recoveryPhones record with the new data. The original `createdAt` is not preserved.
+ *
+ * @returns The number of rows updated
+ */
+export async function replacePhoneNumber(
+  db: AccountDatabase,
+  recoveryPhone: RecoveryPhone
+): Promise<number> {
+  const result = await db
+    .updateTable('recoveryPhones')
+    .where('uid', '=', recoveryPhone.uid)
+    .set(recoveryPhone)
+    .execute();
+
+  return result.length;
+}
+
 export async function removePhoneNumber(
   db: AccountDatabase,
   uid: Buffer

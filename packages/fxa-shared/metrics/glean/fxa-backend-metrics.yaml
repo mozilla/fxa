@@ -1095,6 +1095,42 @@ two_step_auth_phone_code:
     data_sensitivity:
       - interaction
 
+two_step_auth_phone_replace:
+  success:
+    type: event
+    description: |
+      Event that indicates a user has successfully replaced their existing 2fa phone number'
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11668
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  failure:
+    type: event
+    description: |
+      Event that indicates a user has failed to replace their existing 2fa phone number'
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11668
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+
 two_step_auth_remove:
   success:
     type: event
