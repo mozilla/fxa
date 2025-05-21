@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as Sentry from '@sentry/browser';
+// import * as Sentry from '@sentry/browser';
 
 /**
  * A collection of attributes about the client that will be used for
@@ -30,40 +30,43 @@ export interface NimbusResult {
  * @returns the experiment and enrollment information for that `clientId`.
  */
 export async function initializeNimbus(
-  clientId: string,
-  previewEnabled: boolean,
-  context: NimbusContextT
+  _clientId: string,
+  _previewEnabled: boolean,
+  _context: NimbusContextT
 ): Promise<NimbusResult | null> {
-  const body = JSON.stringify({
-    client_id: clientId,
-    context,
-  });
+  // Disabling experiment request for now. Leaving code here for the future
+  // when we re-enable.
 
-  try {
-    const query =
-      previewEnabled === true ? `?nimbusPreview=${previewEnabled}` : '';
-    const resp = await fetch(`/nimbus-experiments${query}`, {
-      method: 'POST',
-      body,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+  // const body = JSON.stringify({
+  //   client_id: clientId,
+  //   context,
+  // });
 
-    if (resp.status === 200) {
-      return (await resp.json()) as NimbusResult;
-    }
-  } catch (err) {
-    // Important, if this fails it will just show up in Sentry as a
-    // TypeError: NetworkError when attempting to fetch resource.
-    // Look at the previous fetch bread crumb to understand what
-    // request is actually failing.
-    Sentry.captureException(err, {
-      tags: {
-        source: 'nimbus-experiments',
-      },
-    });
-  }
+  // try {
+  //   const query =
+  //     previewEnabled === true ? `?nimbusPreview=${previewEnabled}` : '';
+  //   const resp = await fetch(`/nimbus-experiments${query}`, {
+  //     method: 'POST',
+  //     body,
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   });
+
+  //   if (resp.status === 200) {
+  //     return (await resp.json()) as NimbusResult;
+  //   }
+  // } catch (err) {
+  //   // Important, if this fails it will just show up in Sentry as a
+  //   // TypeError: NetworkError when attempting to fetch resource.
+  //   // Look at the previous fetch bread crumb to understand what
+  //   // request is actually failing.
+  //   Sentry.captureException(err, {
+  //     tags: {
+  //       source: 'nimbus-experiments',
+  //     },
+  //   });
+  // }
 
   return null;
 }
