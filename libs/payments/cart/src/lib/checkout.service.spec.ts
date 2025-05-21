@@ -37,6 +37,7 @@ import {
   PaymentIntentManager,
   PaymentMethodManager,
   PriceManager,
+  PricingForCurrencyFactory,
   ProductManager,
   PromotionCodeManager,
   STRIPE_SUBSCRIPTION_METADATA,
@@ -125,6 +126,7 @@ describe('CheckoutService', () => {
   let paymentIntentManager: PaymentIntentManager;
   let paypalBillingAgreementManager: PaypalBillingAgreementManager;
   let paypalCustomerManager: PaypalCustomerManager;
+  let priceManager: PriceManager;
   let privateMethod: any;
   let productConfigurationManager: ProductConfigurationManager;
   let profileClient: ProfileClient;
@@ -207,6 +209,7 @@ describe('CheckoutService', () => {
       PaypalBillingAgreementManager
     );
     paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
+    priceManager = moduleRef.get(PriceManager);
     privateMethod = jest
       .spyOn(checkoutService as any, 'customerChanged')
       .mockResolvedValue({});
@@ -584,11 +587,15 @@ describe('CheckoutService', () => {
         price: mockPrice,
         eligibility: mockEligibilityResult,
       });
+      const mockPricingForCurrency = PricingForCurrencyFactory();
 
       beforeEach(async () => {
         jest
           .spyOn(checkoutService, 'prePaySteps')
           .mockResolvedValue(mockPrePayStepsResult);
+        jest
+          .spyOn(priceManager, 'retrievePricingForCurrency')
+          .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockSubscription);
@@ -640,7 +647,7 @@ describe('CheckoutService', () => {
             payment_behavior: 'default_incomplete',
             currency: mockCart.currency,
             metadata: {
-              amount: mockCart.amount,
+              amount: mockPricingForCurrency.unitAmountForCurrency,
               currency: mockCart.currency,
             },
           },
@@ -696,11 +703,15 @@ describe('CheckoutService', () => {
           version: mockCart.version + 1,
           eligibility: mockEligibilityResult,
         });
+        const mockPricingForCurrency = PricingForCurrencyFactory();
 
         beforeEach(async () => {
           jest
             .spyOn(checkoutService, 'prePaySteps')
             .mockResolvedValue(PrePayStepsResultFactory(mockPrePayStepsResult));
+          jest
+            .spyOn(priceManager, 'retrievePricingForCurrency')
+            .mockResolvedValue(mockPricingForCurrency);
           jest
             .spyOn(checkoutService, 'upgradeSubscription')
             .mockResolvedValue(mockSubscription);
@@ -766,10 +777,16 @@ describe('CheckoutService', () => {
           price: mockPrice,
           eligibility: mockEligibilityResult,
         });
+        const mockPricingForCurrency = PricingForCurrencyFactory({
+          unitAmountForCurrency: 1000,
+        });
 
         jest
           .spyOn(checkoutService, 'prePaySteps')
           .mockResolvedValue(mockPrePayStepsResult);
+        jest
+          .spyOn(priceManager, 'retrievePricingForCurrency')
+          .mockResolvedValue(mockPricingForCurrency);
         jest
           .spyOn(subscriptionManager, 'create')
           .mockResolvedValue(mockSubscription);
@@ -831,6 +848,7 @@ describe('CheckoutService', () => {
         version: mockCart.version + 1,
         eligibility: mockEligibilityResult,
       });
+      const mockPricingForCurrency = PricingForCurrencyFactory();
 
       beforeEach(async () => {
         jest
@@ -842,6 +860,9 @@ describe('CheckoutService', () => {
         jest
           .spyOn(paypalBillingAgreementManager, 'retrieveOrCreateId')
           .mockResolvedValue(mockBillingAgreementId);
+        jest
+          .spyOn(priceManager, 'retrievePricingForCurrency')
+          .mockResolvedValue(mockPricingForCurrency);
         jest.spyOn(statsd, 'increment');
         jest
           .spyOn(subscriptionManager, 'create')
@@ -913,7 +934,7 @@ describe('CheckoutService', () => {
             ],
             currency: mockCart.currency,
             metadata: {
-              amount: mockCart.amount,
+              amount: mockPricingForCurrency.unitAmountForCurrency,
               currency: mockCart.currency,
             },
           },
@@ -980,11 +1001,15 @@ describe('CheckoutService', () => {
           version: mockCart.version + 1,
           eligibility: mockEligibilityResult,
         });
+        const mockPricingForCurrency = PricingForCurrencyFactory();
 
         beforeEach(async () => {
           jest
             .spyOn(checkoutService, 'prePaySteps')
             .mockResolvedValue(PrePayStepsResultFactory(mockPrePayStepsResult));
+          jest
+            .spyOn(priceManager, 'retrievePricingForCurrency')
+            .mockResolvedValue(mockPricingForCurrency);
           jest
             .spyOn(checkoutService, 'upgradeSubscription')
             .mockResolvedValue(mockSubscription);
@@ -1081,106 +1106,111 @@ describe('CheckoutService', () => {
         });
       });
     });
+  });
 
-    describe('upgradeSubscription', () => {
-      const customerId = 'cus_123';
-      const toPriceId = 'price_123';
-      const fromPriceId = 'price_321';
-      const cart = ResultCartFactory();
-      const redundantOverlaps = [
-        SubscriptionEligibilityUpgradeDowngradeResultFactory(),
-      ];
-      const subscription = StripeSubscriptionFactory();
-      const redundantSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory()
+  describe('upgradeSubscription', () => {
+    const customerId = 'cus_123';
+    const toPriceId = 'price_123';
+    const fromPriceId = 'price_321';
+    const cart = ResultCartFactory();
+    const redundantOverlaps = [
+      SubscriptionEligibilityUpgradeDowngradeResultFactory(),
+    ];
+    const subscription = StripeSubscriptionFactory();
+    const redundantSubscription = StripeResponseFactory(
+      StripeSubscriptionFactory()
+    );
+    const mockPricingForCurrency = PricingForCurrencyFactory();
+
+    beforeEach(() => {
+      jest
+        .spyOn(priceManager, 'retrievePricingForCurrency')
+        .mockResolvedValueOnce(mockPricingForCurrency);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValueOnce(StripeResponseFactory(subscription))
+        .mockResolvedValueOnce(StripeResponseFactory(redundantSubscription));
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(StripeResponseFactory(subscription));
+    });
+
+    it('successfully calls subscription update', async () => {
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValueOnce(subscription)
+        .mockResolvedValueOnce(redundantSubscription);
+
+      await checkoutService.upgradeSubscription(
+        customerId,
+        toPriceId,
+        fromPriceId,
+        cart,
+        []
       );
+      expect(priceManager.retrievePricingForCurrency).toHaveBeenCalled();
+      expect(subscriptionManager.update).toHaveBeenCalledTimes(1);
+    });
 
-      beforeEach(() => {
-        jest
-          .spyOn(subscriptionManager, 'update')
-          .mockResolvedValueOnce(StripeResponseFactory(subscription))
-          .mockResolvedValueOnce(StripeResponseFactory(redundantSubscription));
-        jest
-          .spyOn(subscriptionManager, 'cancel')
-          .mockResolvedValue(StripeResponseFactory(subscription));
-      });
+    it('successfully updates and cancels redundant subscriptions when present', async () => {
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValueOnce(subscription)
+        .mockResolvedValueOnce(redundantSubscription);
 
-      it('successfully calls subscription update', async () => {
-        jest
-          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
-          .mockResolvedValueOnce(subscription)
-          .mockResolvedValueOnce(redundantSubscription);
+      await checkoutService.upgradeSubscription(
+        customerId,
+        toPriceId,
+        fromPriceId,
+        cart,
+        redundantOverlaps
+      );
+      expect(subscriptionManager.update).toHaveBeenCalledTimes(2);
+      expect(subscriptionManager.update).toHaveBeenNthCalledWith(
+        2,
+        redundantSubscription.id,
+        {
+          metadata: {
+            redundantCancellation: 'true',
+            autoCancelledRedundantFor: subscription.id,
+            cancelled_for_customer_at: expect.anything(),
+          },
+        }
+      );
+      expect(subscriptionManager.cancel).toHaveBeenCalledWith(
+        redundantSubscription.id,
+        { prorate: true }
+      );
+    });
 
-        await checkoutService.upgradeSubscription(
-          customerId,
-          toPriceId,
-          fromPriceId,
-          cart,
-          []
-        );
-        expect(subscriptionManager.update).toHaveBeenCalledTimes(1);
-      });
-
-      it('successfully updates and cancels redundant subscriptions when present', async () => {
-        jest
-          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
-          .mockResolvedValueOnce(subscription)
-          .mockResolvedValueOnce(redundantSubscription);
-
-        await checkoutService.upgradeSubscription(
+    it('throws an error upgrade subscription could not be found', async () => {
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValue(undefined);
+      await expect(
+        checkoutService.upgradeSubscription(
           customerId,
           toPriceId,
           fromPriceId,
           cart,
           redundantOverlaps
-        );
-        expect(subscriptionManager.update).toHaveBeenCalledTimes(2);
-        expect(subscriptionManager.update).toHaveBeenNthCalledWith(
-          2,
-          redundantSubscription.id,
-          {
-            metadata: {
-              redundantCancellation: 'true',
-              autoCancelledRedundantFor: subscription.id,
-              cancelled_for_customer_at: expect.anything(),
-            },
-          }
-        );
-        expect(subscriptionManager.cancel).toHaveBeenCalledWith(
-          redundantSubscription.id,
-          { prorate: true }
-        );
-      });
+        )
+      ).rejects.toBeInstanceOf(CheckoutUpgradeError);
+    });
 
-      it('throws an error upgrade subscription could not be found', async () => {
-        jest
-          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
-          .mockResolvedValue(undefined);
-        await expect(
-          checkoutService.upgradeSubscription(
-            customerId,
-            toPriceId,
-            fromPriceId,
-            cart,
-            redundantOverlaps
-          )
-        ).rejects.toBeInstanceOf(CheckoutUpgradeError);
-      });
-
-      it('throws unhandled error', async () => {
-        jest
-          .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
-          .mockRejectedValue(new Error('unhandled error'));
-        await expect(
-          checkoutService.upgradeSubscription(
-            customerId,
-            toPriceId,
-            fromPriceId,
-            cart,
-            redundantOverlaps
-          )
-        ).rejects.toBeInstanceOf(Error);
-      });
+    it('throws unhandled error', async () => {
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockRejectedValue(new Error('unhandled error'));
+      await expect(
+        checkoutService.upgradeSubscription(
+          customerId,
+          toPriceId,
+          fromPriceId,
+          cart,
+          redundantOverlaps
+        )
+      ).rejects.toBeInstanceOf(Error);
     });
   });
 });

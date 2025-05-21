@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ServerRoute } from '@hapi/hapi';
+import assertNotNull from 'assert';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
 import { SeverityLevel } from '@sentry/core';
@@ -249,14 +250,20 @@ export class StripeHandler {
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',
     ]);
-    const { currency: planCurrency } =
+    const { amount: planAmount, currency: planCurrency } =
       await this.stripeHelper.findAbbrevPlanById(planId);
+    assertNotNull(planAmount, 'planAmount');
     if (customer && customer.currency !== planCurrency) {
       throw error.currencyCurrencyMismatch(customer.currency, planCurrency);
     }
 
     // Update the plan
-    await this.stripeHelper.changeSubscriptionPlan(subscription, planId);
+    await this.stripeHelper.changeSubscriptionPlan(
+      subscription,
+      planId,
+      planAmount,
+      planCurrency
+    );
 
     try {
       for (const redundantOverlap of result.redundantOverlaps || []) {

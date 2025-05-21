@@ -2082,7 +2082,9 @@ export class StripeHelper extends StripeHelperBase {
    */
   async changeSubscriptionPlan(
     subscription: Stripe.Subscription,
-    newPlanId: string
+    newPlanId: string,
+    newPlanAmount: number,
+    newPlanCurrency: string
   ): Promise<Stripe.Subscription> {
     const currentPlanId = subscription.items.data[0].plan.id;
     if (currentPlanId === newPlanId) {
@@ -2091,6 +2093,8 @@ export class StripeHelper extends StripeHelperBase {
 
     const updatedMetadata = {
       ...subscription.metadata,
+      amount: newPlanAmount,
+      currency: newPlanCurrency,
       previous_plan_id: currentPlanId,
       plan_change_date: moment().unix(),
     };
