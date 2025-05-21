@@ -27,7 +27,13 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       featureFlagOn: showReactApp.emailFirstRoutes,
       // the order of the routes in the array is important.  do not put '/'
       // first.
-      routes: reactRoute.getRoutes(['authorization', 'oauth', '/']),
+      routes: reactRoute.getRoutes([
+        'authorization',
+        // We have to temporarily remove the `/oauth` because Fx desktop uses
+        // that path to initiate the pairing flow
+        // 'oauth'
+        '/'
+      ]),
       fullProdRollout: true,
     },
     simpleRoutes: {
