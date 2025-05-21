@@ -1307,6 +1307,45 @@ password_reset:
     expires: never
     data_sensitivity:
       - interaction
+  backup_choice_view:
+    type: event
+    description: |
+      User viewed the choice screen to choose a 2FA recovery method (recovery phone or backup authentication codes).
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11509
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  backup_choice_submit:
+    type: event
+    description: |
+      Event that indicates the user chose to use one of their recovery methods during password reset.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11509
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates which recovery method ("phone" or "codes") the user chose to authenticate with instead of their authenticator app.
+        type: string
 
 reg:
   engage:
