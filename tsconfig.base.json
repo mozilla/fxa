@@ -81,6 +81,7 @@
       "@fxa/shared/metrics/glean": ["libs/shared/metrics/glean/src/index.ts"],
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index.ts"],
+      "@fxa/shared/nestjs/customs": ["libs/shared/nestjs/customs/src/index.ts"],
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index.ts"],
       "@fxa/shared/otel": ["libs/shared/otel/src/index.ts"],
       "@fxa/shared/otp": ["libs/shared/otp/src/index.ts"],

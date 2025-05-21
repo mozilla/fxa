@@ -24,6 +24,7 @@ import Config, { AppConfig } from './config';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
 import { GqlModule, GraphQLConfigFactory } from './gql/gql.module';
+import { CustomsModule } from '@fxa/shared/nestjs/customs';
 
 const version = getVersionInfo(__dirname);
 
@@ -51,6 +52,7 @@ const version = getVersionInfo(__dirname);
         extraHealthData: () => db.dbHealthCheck(),
       }),
     }),
+    CustomsModule
   ],
   controllers: [],
   providers: [

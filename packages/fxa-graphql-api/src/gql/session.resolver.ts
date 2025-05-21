@@ -74,7 +74,7 @@ export class SessionResolver {
   }
 
   @Query((returns) => SessionStatus)
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard('sessionStatus'))
   public sessionStatus(
     @GqlUserId() uid: hexstring,
     @GqlUserState() state: SessionVerifiedState

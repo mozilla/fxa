@@ -267,7 +267,7 @@ export class AccountResolver {
   @Mutation((returns) => UpdateDisplayNamePayload, {
     description: 'Update the display name.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard('updateDisplayName'))
   @CatchGatewayError
   public async updateDisplayName(
     @GqlSessionToken() token: string,
@@ -312,7 +312,7 @@ export class AccountResolver {
   @Mutation((returns) => BasicPayload, {
     description: 'Delete the avatar.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard('deleteAvatar'))
   @CatchGatewayError
   public async deleteAvatar(
     @GqlSessionToken() token: string,
@@ -418,7 +418,7 @@ export class AccountResolver {
     description:
       "Destroy all tokens held by a connected client, disconnecting it from the user's account.",
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard('attachedClientDisconnect'))
   @CatchGatewayError
   public async attachedClientDisconnect(
     @GqlSessionToken() token: string,
@@ -463,7 +463,7 @@ export class AccountResolver {
     description:
       'Set the metrics opt in or out state, and notify RPs of the change',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(GqlAuthGuard, GqlCustomsGuard('metricsOpt'))
   @CatchGatewayError
   public async metricsOpt(
     @GqlXHeaders() headers: Headers,

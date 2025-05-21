@@ -4,8 +4,7 @@
 
 import { createContext, SentryPlugin } from '@fxa/shared/sentry';
 import { NextFunction, Request, Response } from 'express';
-import { CustomsModule } from 'fxa-shared/nestjs/customs/customs.module';
-import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
+import { CustomsModule } from '@fxa/shared/nestjs/customs';
 import path, { join } from 'path';
 
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
@@ -30,11 +29,6 @@ import { ClientInfoResolver } from './clientInfo.resolver';
 import { LegalResolver } from './legal.resolver';
 import { SessionResolver } from './session.resolver';
 import { SubscriptionResolver } from './subscription.resolver';
-import {
-  OtpConfigProvider,
-  OtpManagerProvider,
-  OtpRedisStorageProvider,
-} from '@fxa/shared/otp';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MySQLConfigProvider } from '@fxa/shared/db/mysql/core';
 
@@ -65,7 +59,6 @@ export const GraphQLConfigFactory = async (
   providers: [
     AccountResolver,
     ClientInfoResolver,
-    CustomsService,
     LegacyNotifierServiceProvider,
     LegacyNotifierSnsFactory,
     LegacyStatsDProvider,
