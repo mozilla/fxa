@@ -7,7 +7,7 @@
 import {
   getNeedsInputAction,
   submitNeedsInputAndRedirectAction,
-  getCartOrRedirectAction,
+  validateCartStateAndRedirectAction,
 } from '@fxa/payments/ui/actions';
 import { useEffect } from 'react';
 import { useStripe } from '@stripe/react-stripe-js';
@@ -34,7 +34,7 @@ export function PaymentInputHandler({ cartId }: { cartId: string }) {
           await submitNeedsInputAndRedirectAction(cartId);
           break;
         case 'notRequired':
-          await getCartOrRedirectAction(
+          await validateCartStateAndRedirectAction(
             cartId,
             SupportedPages.NEEDS_INPUT,
             searchParamsRecord

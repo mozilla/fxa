@@ -5,9 +5,9 @@
 'use client';
 
 import { SupportedPages } from '@fxa/payments/ui';
-import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
+import { validateCartStateAndRedirectAction } from '../../../actions/validateCartStateAndRedirect';
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
@@ -24,7 +24,7 @@ export function PaymentStateObserver({ cartId }: { cartId: string }) {
     const poll = async () => {
       if (!isPolling) return;
 
-      await getCartOrRedirectAction(
+      await validateCartStateAndRedirectAction(
         cartId,
         SupportedPages.PROCESSING,
         searchParamsRecord
