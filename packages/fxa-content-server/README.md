@@ -51,12 +51,6 @@ This package uses Selenium to perform functional tests. By default `npm test` wi
 yarn test -- --grep="change password, sign in with new password"
 ```
 
-If you need to run tests for a particular suite, you can like so:
-
-```bash
-node tests/intern.js --suites=server --grep='check resources entrained by /signin in all locales'
-```
-
 #### Changing the Auth Server
 
 To change the default Auth Server edit `server/config/*.json` on your deployed instance.
