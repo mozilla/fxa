@@ -199,6 +199,37 @@ const conf = convict({
         doc: 'Key prefix for access tokens in Redis',
       },
     },
+    customs: {
+      enabled: {
+        default: false,
+        doc: 'Enable Redis for customs server rate limiting',
+        format: Boolean,
+        env: 'CUSTOMS_REDIS_ENABLED',
+      },
+      host: {
+        default: 'localhost',
+        env: 'CUSTOMS_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'CUSTOMS_REDIS_PORT',
+        format: 'port',
+      },
+      password: {
+        default: '',
+        env: 'CUSTOMS_REDIS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to redis`,
+      },
+      prefix: {
+        default: 'customs:',
+        env: 'CUSTOMS_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for custom server records in Redis',
+      },
+    },
   },
   port: {
     default: 8290,
@@ -265,6 +296,28 @@ const conf = convict({
         env: 'SNS_TOPIC_ENDPOINT',
         default: undefined,
       },
+    },
+  },
+  rateLimit: {
+    rules: {
+      format: Array,
+      env: 'RATE_LIMIT__RULES',
+      default: [
+        '#  action              | blockOn  | maxAttempts  | windowDuration | banDuration ',
+        '   unblockEmail        : email    : 10            : 24 hours      : 24 hours    ',
+        '   updateDisplayName   : ip       : 60            : 15 minutes    : 15 minutes  ',
+      ],
+    },
+  },
+  l10n: {
+    defaultLanguage: {
+      default: 'en',
+      env: 'L10N__DEFAULT_LANGUAGE',
+    },
+    supportedLanguages: {
+      default: 'en,fr',
+      env: 'L10N__SUPPORTED_LANGUAGES',
+      format: Array,
     },
   },
 });

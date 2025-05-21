@@ -15,7 +15,9 @@
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index"],
       "@fxa/shared/sentry": ["libs/shared/sentry/src/index"],
       "@fxa/shared/otp": ["libs/shared/otp/src/index"],
-      "@fxa/shared/error": ["libs/shared/error/src/index"]
+      "@fxa/shared/error": ["libs/shared/error/src/index"],
+      "@fxa/shared/nestjs/customs": ["libs/shared/nestjs/customs/src/index"],
+      "@fxa/accounts/rate-limit": ["libs/accounts/rate-limit/src/index"]
     }
   }
 }
