@@ -3811,6 +3811,8 @@ describe('#integration - StripeHelper', () => {
       const subscription = deepCopy(subscription1);
       subscription.metadata = {
         key: 'value',
+        amount: 1000,
+        currency: 'usd',
         previous_plan_id: 'plan_123',
         plan_change_date: 12345678,
       };
@@ -3822,7 +3824,9 @@ describe('#integration - StripeHelper', () => {
 
       const actual = await stripeHelper.changeSubscriptionPlan(
         subscription,
-        'plan_G93mMKnIFCjZek'
+        'plan_G93mMKnIFCjZek',
+        1000,
+        'usd'
       );
 
       assert.deepEqual(actual, subscription2);
@@ -3840,6 +3844,8 @@ describe('#integration - StripeHelper', () => {
           proration_behavior: 'always_invoice',
           metadata: {
             key: 'value',
+            amount: 1000,
+            currency: 'usd',
             previous_plan_id: subscription1.items.data[0].plan.id,
             plan_change_date: unixTimestamp,
           },

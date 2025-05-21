@@ -4,6 +4,7 @@
 
 import { Inject, Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/nestjs';
+import assertNotNull from 'assert';
 import { StatsD } from 'hot-shots';
 
 import {
@@ -19,6 +20,7 @@ import {
   CustomerManager,
   InvoiceManager,
   PaymentIntentManager,
+  PriceManager,
   PromotionCodeManager,
   retrieveSubscriptionItem,
   STRIPE_CUSTOMER_METADATA,
@@ -67,6 +69,7 @@ export class CheckoutService {
     private paymentIntentManager: PaymentIntentManager,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
+    private priceManager: PriceManager,
     private productConfigurationManager: ProductConfigurationManager,
     private profileClient: ProfileClient,
     private promotionCodeManager: PromotionCodeManager,
@@ -289,6 +292,13 @@ export class CheckoutService {
       payment_provider: 'stripe',
     });
 
+    const { unitAmountForCurrency } =
+      await this.priceManager.retrievePricingForCurrency(
+        price.id,
+        cart.currency
+      );
+    assertNotNull(unitAmountForCurrency);
+
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
         ? await this.subscriptionManager.create(
@@ -307,7 +317,7 @@ export class CheckoutService {
               currency: cart.currency ?? undefined,
               metadata: {
                 // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-                [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+                [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
                 [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
               },
             },
@@ -407,6 +417,13 @@ export class CheckoutService {
         token
       );
 
+    const { unitAmountForCurrency } =
+      await this.priceManager.retrievePricingForCurrency(
+        price.id,
+        cart.currency
+      );
+    assertNotNull(unitAmountForCurrency);
+
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'paypal',
     });
@@ -430,7 +447,7 @@ export class CheckoutService {
               currency: cart.currency ?? undefined,
               metadata: {
                 // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-                [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+                [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
                 [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
               },
             },
@@ -514,6 +531,13 @@ export class CheckoutService {
     const upgradeSubscriptionItem =
       retrieveSubscriptionItem(upgradeSubscription);
 
+    const { unitAmountForCurrency } =
+      await this.priceManager.retrievePricingForCurrency(
+        toPriceId,
+        cart.currency
+      );
+    assertNotNull(unitAmountForCurrency);
+
     const upgradedSubscription = await this.subscriptionManager.update(
       upgradeSubscription.id,
       {
@@ -528,7 +552,7 @@ export class CheckoutService {
         payment_behavior: 'default_incomplete',
         metadata: {
           // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-          [STRIPE_SUBSCRIPTION_METADATA.Amount]: cart.amount,
+          [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
           [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
           [STRIPE_SUBSCRIPTION_METADATA.PreviousPlanId]: fromPriceId,
           [STRIPE_SUBSCRIPTION_METADATA.PlanChangeDate]: Math.floor(
