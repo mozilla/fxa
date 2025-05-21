@@ -15,9 +15,7 @@ import {
   FailCartDTO,
   SuccessCartDTO,
   CartDTO,
-  CartInvalidStateForActionError,
 } from '@fxa/payments/cart';
-import { VError } from 'verror';
 
 /**
  * Get Cart or Redirect if cart state does not match supported page
@@ -55,34 +53,11 @@ async function getCartOrRedirectAction(
   page: SupportedPages,
   searchParams?: Record<string, string>
 ): Promise<CartDTO> {
-  let cart: CartDTO | undefined;
   const urlSearchParams = new URLSearchParams(searchParams);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
-  switch (page) {
-    case SupportedPages.SUCCESS: {
-      try {
-        cart = await getApp().getActionsService().getSuccessCart({
-          cartId,
-        });
-      } catch (error) {
-        if (error instanceof CartInvalidStateForActionError) {
-          redirect(getRedirect(VError.info(error).state) + params);
-        } else {
-          throw error;
-        }
-      }
-      break;
-    }
-    case SupportedPages.START:
-    case SupportedPages.PROCESSING:
-    case SupportedPages.NEEDS_INPUT:
-    case SupportedPages.ERROR: {
-      cart = await getApp().getActionsService().getCart({
-        cartId,
-      });
-      break;
-    }
-  }
+  const cart = await getApp().getActionsService().getCart({
+    cartId,
+  });
 
   if (!validateCartState(cart.state, page)) {
     redirect(getRedirect(cart.state) + params);

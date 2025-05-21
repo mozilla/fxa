@@ -1268,6 +1268,25 @@ describe('CartService', () => {
     });
   });
 
+  describe('getCartState', () => {
+    it('returns cart state', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.START,
+        stripeSubscriptionId: null,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+      });
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+      const result = await cartService.getCartState(mockCart.id);
+      expect(result).toEqual({
+        state: mockCart.state
+      });
+
+      expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
+    });
+  });
+
   describe('getCart', () => {
     const mockCustomerSession = StripeResponseFactory(
       StripeCustomerSessionFactory()

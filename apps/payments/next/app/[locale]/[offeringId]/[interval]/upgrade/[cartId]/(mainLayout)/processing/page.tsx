@@ -9,7 +9,7 @@ import {
 } from '@fxa/payments/ui';
 import { getApp, SupportedPages } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
-import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
+import { validateCartStateAndRedirectAction } from '@fxa/payments/ui/actions';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ export default async function ProcessingPage({
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
-  const cart = await getCartOrRedirectAction(
+  await validateCartStateAndRedirectAction(
     params.cartId,
     SupportedPages.PROCESSING,
     searchParams
@@ -38,7 +38,7 @@ export default async function ProcessingPage({
       data-testid="payment-processing"
     >
       <LoadingSpinner className="w-10 h-10" />
-      <PaymentStateObserver cartId={cart.id} />
+      <PaymentStateObserver cartId={params.cartId} />
       {l10n.getString(
         'next-payment-processing-message',
         `Please wait while we process your payment…`

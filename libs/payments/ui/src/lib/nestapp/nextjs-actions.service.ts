@@ -76,6 +76,8 @@ import { ValidateLocationActionArgs } from './validators/ValidateLocationActionA
 import { UpdateTaxAddressActionArgs } from './validators/UpdateTaxAddressActionArgs';
 import { UpdateTaxAddressActionResult } from './validators/UpdateTaxAddressActionResult';
 import { CaptureTimingWithStatsD, StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
+import { GetCartStateActionArgs } from './validators/GetCartStateActionArgs';
+import { GetCartStateActionResult } from './validators/GetCartStateActionResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -97,6 +99,16 @@ export class NextJSActionsService {
     private productConfigurationManager: ProductConfigurationManager,
     @Inject(StatsDService) public statsd: StatsD
   ) {}
+
+  @SanitizeExceptions()
+  @NextIOValidator(GetCartStateActionArgs, GetCartStateActionResult)
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getCartState(args: { cartId: string }) {
+    const cart = await this.cartService.getCartState(args.cartId);
+
+    return cart;
+  }
 
   @SanitizeExceptions()
   @NextIOValidator(GetCartActionArgs, GetCartActionResult)

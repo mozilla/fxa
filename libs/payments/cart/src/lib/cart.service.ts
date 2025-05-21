@@ -636,6 +636,18 @@ export class CartService {
    * Fetch a cart from the database by ID
    */
   @SanitizeExceptions()
+  async getCartState(cartId: string): Promise<{ state: CartState }> {
+    const cart = await this.cartManager.fetchCartById(cartId);
+
+    return {
+      state: cart.state,
+    };
+  }
+
+  /**
+   * Fetch a cart from the database by ID
+   */
+  @SanitizeExceptions()
   async getCart(cartId: string): Promise<CartDTO> {
     const cart = (await this.cartManager.fetchCartById(
       cartId
