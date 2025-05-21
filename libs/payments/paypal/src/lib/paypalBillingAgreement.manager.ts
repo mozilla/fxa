@@ -15,14 +15,14 @@ export class PaypalBillingAgreementManager {
   constructor(
     private client: PayPalClient,
     private paypalCustomerManager: PaypalCustomerManager
-  ) {}
+  ) { }
 
   public async retrieveOrCreateId(
     uid: string,
     hasSubscriptions: boolean,
     token?: string
   ) {
-    const existingBillingAgreementId = await this.retrieveId(uid);
+    const existingBillingAgreementId = await this.retrieveActiveId(uid);
     if (existingBillingAgreementId) return existingBillingAgreementId;
 
     if (hasSubscriptions) {
@@ -96,12 +96,12 @@ export class PaypalBillingAgreementManager {
    * Retrieves the customer’s current paypal billing agreement ID from the
    * auth database via the Paypal repository
    */
-  async retrieveId(uid: string): Promise<string | undefined> {
+  async retrieveActiveId(uid: string): Promise<string | undefined> {
     const paypalCustomer =
       await this.paypalCustomerManager.fetchPaypalCustomersByUid(uid);
     const firstRecord = paypalCustomer.at(0);
 
-    if (!firstRecord) return;
+    if (!firstRecord || firstRecord?.status !== 'active') return;
     if (paypalCustomer.length > 1)
       throw new PaypalCustomerMultipleRecordsError(uid);
 
