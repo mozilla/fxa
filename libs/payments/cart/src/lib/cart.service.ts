@@ -766,7 +766,6 @@ export class CartService {
         latestInvoicePreview,
         'latestInvoicePreview not present for success cart'
       );
-      assert(paymentInfo, 'paymentInfo not present for success cart');
 
       return {
         ...cart,
