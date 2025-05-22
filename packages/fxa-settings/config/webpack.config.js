@@ -26,6 +26,8 @@ const ForkTsCheckerWebpackPlugin =
     : require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const { sentryWebpackPlugin } = require('@sentry/webpack-plugin/webpack5');
 
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash');
 
@@ -781,6 +783,27 @@ module.exports = function (webpackEnv) {
             },
           },
         }),
+      sentryWebpackPlugin({
+        // These settings should allow better source map resolution for errors / debugging.
+        // The auth token is used during packing to upload sources to the sentry for later use.
+        org: 'mozilla',
+        project: 'fxa-content',
+        authToken: process.env.SENTRY_SOURCE_MAP_AUTH_TOKEN,
+        bundleSizeOptimizations: {
+          excludeDebugStatements: true,
+          excludeTracing: false, // Used for perf metrics!
+          excludeReplayCanvas: true,
+          excludeReplayShadowDom: true,
+          excludeReplayIframe: true,
+          excludeReplayWorker: true,
+        },
+      }),
+      new BundleAnalyzerPlugin({
+        analyzerMode: 'static',
+        generateStatsFile: true,
+        reportFilename: 'bundle-report.html',
+        openAnalyzer: false,
+      }),
     ].filter(Boolean),
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter
