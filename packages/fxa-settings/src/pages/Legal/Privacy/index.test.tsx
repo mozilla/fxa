@@ -4,7 +4,7 @@
 
 import React from 'react';
 import LegalPrivacy, { viewName } from '.';
-import { screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { FluentBundle } from '@fluent/bundle';
@@ -40,13 +40,15 @@ describe('Legal/Privacy', () => {
     jest.clearAllMocks();
   });
 
-  it('renders as expected', () => {
+  it('renders as expected', async () => {
     renderWithLocalizationProvider(<LegalPrivacy />);
-    testAllL10n(screen, bundle);
+    await waitFor(() => {
+      testAllL10n(screen, bundle);
 
-    // renders if `markdown` is undefined
-    screen.getByRole('heading', {
-      name: 'Privacy Notice',
+      // renders if `markdown` is undefined
+      screen.getByRole('heading', {
+        name: 'Privacy Notice',
+      });
     });
   });
 
