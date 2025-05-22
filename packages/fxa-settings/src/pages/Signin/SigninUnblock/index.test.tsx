@@ -245,7 +245,7 @@ describe('SigninUnblock', () => {
       await waitFor(() => {
         expect(signinWithUnblockCode).toHaveBeenCalledTimes(1);
       });
-      expect(navigate).toHaveBeenCalledWith('/settings');
+      expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
     });
 
     it('emits expected metrics events', async () => {
@@ -286,7 +286,7 @@ describe('SigninUnblock', () => {
     beforeEach(() => {
       hardNavigateSpy = jest
         .spyOn(utils, 'hardNavigate')
-        .mockImplementation(() => {});
+        .mockImplementation(() => { });
     });
 
     afterEach(() => {
@@ -304,7 +304,7 @@ describe('SigninUnblock', () => {
       submitButton.click();
 
       await waitFor(() => {
-        expect(hardNavigateSpy).toHaveBeenCalledWith(redirectTo);
+        expect(hardNavigateSpy).toHaveBeenCalledWith(redirectTo, undefined, undefined, false);
       });
     });
 
@@ -321,7 +321,7 @@ describe('SigninUnblock', () => {
       submitButton.click();
 
       await waitFor(() => {
-        expect(navigate).toHaveBeenCalledWith('/settings');
+        expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
       });
     });
 
@@ -334,7 +334,7 @@ describe('SigninUnblock', () => {
       submitButton.click();
 
       await waitFor(() => {
-        expect(navigate).toHaveBeenCalledWith('/settings');
+        expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
       });
     });
   });

@@ -32,6 +32,7 @@ interface NavigationTarget {
   shouldHardNavigate?: boolean;
   oauthData?: OAuthData;
   error?: undefined;
+  replace?: boolean;
 }
 interface NavigationTargetError {
   to?: undefined;
@@ -221,7 +222,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         state: oauthData.state,
       });
     }
-    performNavigation({ to, locationState, shouldHardNavigate });
+    performNavigation({ to, locationState, shouldHardNavigate, replace: true });
   }
 
   return { error: undefined };
@@ -305,14 +306,15 @@ function performNavigation({
   to,
   shouldHardNavigate = false,
   locationState,
-}: Pick<NavigationTarget, 'to' | 'locationState' | 'shouldHardNavigate'>) {
+  replace = false,
+}: Pick<NavigationTarget, 'to' | 'locationState' | 'shouldHardNavigate' | 'replace'>) {
   if (shouldHardNavigate) {
     // Hard navigate to RP, or (temp until CAD/pair is Reactified)
-    hardNavigate(to);
+    hardNavigate(to, undefined, undefined, replace);
   } else if (locationState) {
-    navigate(to, { state: locationState });
+    navigate(to, { state: locationState, replace });
   } else {
-    navigate(to);
+    navigate(to, { replace });
   }
 }
 

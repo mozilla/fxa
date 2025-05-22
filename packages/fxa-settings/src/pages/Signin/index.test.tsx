@@ -310,6 +310,7 @@ describe('Signin component', () => {
             enterPasswordAndSubmit();
             await waitFor(() => {
               expect(navigate).toHaveBeenCalledWith('/signin_totp_code', {
+                replace: false,
                 state: {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
@@ -334,6 +335,7 @@ describe('Signin component', () => {
             enterPasswordAndSubmit();
             await waitFor(() => {
               expect(navigate).toHaveBeenCalledWith('/confirm_signup_code', {
+                replace: false,
                 state: {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
@@ -357,6 +359,7 @@ describe('Signin component', () => {
             enterPasswordAndSubmit();
             await waitFor(() => {
               expect(navigate).toHaveBeenCalledWith('/signin_token_code', {
+                replace: false,
                 state: {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
@@ -385,6 +388,7 @@ describe('Signin component', () => {
               expect(navigate).toHaveBeenCalledWith(
                 '/inline_recovery_key_setup?',
                 {
+                  replace: true,
                   state: {
                     email: MOCK_EMAIL,
                     uid: MOCK_UID,
@@ -407,7 +411,7 @@ describe('Signin component', () => {
 
             enterPasswordAndSubmit();
             await waitFor(() => {
-              expect(navigate).toHaveBeenCalledWith('/settings');
+              expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
             });
           });
 
@@ -419,7 +423,7 @@ describe('Signin component', () => {
               fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
-                .mockImplementation(() => {});
+                .mockImplementation(() => { });
             });
             it('is sent if Sync integration and navigates to CAD', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
@@ -446,7 +450,7 @@ describe('Signin component', () => {
                 });
               });
               expect(hardNavigateSpy).toHaveBeenCalledWith(
-                '/pair?showSuccessMessage=true'
+                '/pair?showSuccessMessage=true', undefined, undefined, false
               );
             });
             it('is not sent if user has 2FA enabled', async () => {
@@ -479,7 +483,7 @@ describe('Signin component', () => {
               fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
-                .mockImplementation(() => {});
+                .mockImplementation(() => { });
               finishOAuthFlowHandler = jest
                 .fn()
                 .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
@@ -503,6 +507,7 @@ describe('Signin component', () => {
               enterPasswordAndSubmit();
               await waitFor(() => {
                 expect(navigate).toHaveBeenCalledWith('/confirm_signup_code', {
+                  replace: false,
                   state: {
                     email: MOCK_EMAIL,
                     uid: MOCK_UID,
@@ -531,6 +536,7 @@ describe('Signin component', () => {
               enterPasswordAndSubmit();
               await waitFor(() => {
                 expect(navigate).toHaveBeenCalledWith('/confirm_signup_code', {
+                  replace: false,
                   state: {
                     email: MOCK_EMAIL,
                     uid: MOCK_UID,
@@ -559,7 +565,10 @@ describe('Signin component', () => {
               await waitFor(() => {
                 expect(fxaOAuthLoginSpy).not.toHaveBeenCalled();
                 expect(hardNavigateSpy).toHaveBeenCalledWith(
-                  MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect
+                  MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+                  undefined,
+                  undefined,
+                  true
                 );
               });
             });
@@ -599,7 +608,7 @@ describe('Signin component', () => {
                 expect(fxaLoginCallOrder).toBeLessThan(fxaOAuthLoginCallOrder);
 
                 expect(hardNavigateSpy).toHaveBeenCalledWith(
-                  '/pair?showSuccessMessage=true'
+                  '/pair?showSuccessMessage=true', undefined, undefined, true
                 );
               });
             });
@@ -642,7 +651,7 @@ describe('Signin component', () => {
                 // Ensure fxaLogin is called first
                 expect(fxaLoginCallOrder).toBeLessThan(fxaOAuthLoginCallOrder);
 
-                expect(navigate).toHaveBeenCalledWith('/settings');
+                expect(navigate).toHaveBeenCalledWith('/settings', { replace: true });
               });
             });
           });
@@ -852,7 +861,7 @@ describe('Signin component', () => {
         beforeEach(() => {
           hardNavigateSpy = jest
             .spyOn(utils, 'hardNavigate')
-            .mockImplementation(() => {});
+            .mockImplementation(() => { });
         });
 
         afterEach(() => {
@@ -884,7 +893,7 @@ describe('Signin component', () => {
 
           enterPasswordAndSubmit();
           await waitFor(() => {
-            expect(hardNavigateSpy).toHaveBeenCalledWith('someUri');
+            expect(hardNavigateSpy).toHaveBeenCalledWith('someUri', undefined, undefined, true);
           });
         });
         it('handles error due to TOTP required or insufficent ARC value', async () => {
@@ -910,6 +919,7 @@ describe('Signin component', () => {
           expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
 
           expect(navigate).toHaveBeenCalledWith('/inline_totp_setup', {
+            replace: true,
             state: {
               email: MOCK_EMAIL,
               keyFetchToken: signinResponse.data.signIn.keyFetchToken,
@@ -1015,7 +1025,7 @@ describe('Signin component', () => {
     beforeEach(() => {
       hardNavigateSpy = jest
         .spyOn(utils, 'hardNavigate')
-        .mockImplementation(() => {});
+        .mockImplementation(() => { });
     });
     afterEach(() => {
       hardNavigateSpy.mockRestore();

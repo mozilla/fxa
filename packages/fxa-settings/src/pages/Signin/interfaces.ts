@@ -34,16 +34,16 @@ export type SigninUnblockIntegration = Pick<
 
 export type SigninIntegration =
   | Pick<
-      Integration,
-      | 'type'
-      | 'isSync'
-      | 'getService'
-      | 'getClientId'
-      | 'wantsKeys'
-      | 'data'
-      | 'isDesktopSync'
-      | 'isDesktopRelay'
-    >
+    Integration,
+    | 'type'
+    | 'isSync'
+    | 'getService'
+    | 'getClientId'
+    | 'wantsKeys'
+    | 'data'
+    | 'isDesktopSync'
+    | 'isDesktopRelay'
+  >
   | SigninOAuthIntegration;
 
 export type SigninOAuthIntegration = Pick<
@@ -201,6 +201,7 @@ export interface NavigationOptions {
   integration: SigninIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   redirectTo?: string;
+  replace?: boolean;
   queryParams: string;
   showInlineRecoveryKeySetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;

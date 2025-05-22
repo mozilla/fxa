@@ -51,7 +51,7 @@ jest.mock('@reach/router', () => {
     __esModule: true,
     ...jest.requireActual('@reach/router'),
     navigate: jest.fn(),
-    useLocation: () => () => {},
+    useLocation: () => () => { },
   };
 });
 
@@ -69,7 +69,7 @@ function render(
 }
 
 function mockReactUtilsModule() {
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => { });
 }
 
 const serviceRelayText =
@@ -107,7 +107,7 @@ describe('SigninTokenCode page', () => {
       (_, element) =>
         element?.tagName === 'P' &&
         element?.textContent ===
-          `Enter the code that was sent to ${MOCK_EMAIL} within 5 minutes.`
+        `Enter the code that was sent to ${MOCK_EMAIL} within 5 minutes.`
     );
     screen.getByLabelText('Enter 6-digit code');
     screen.getByRole('button', { name: 'Confirm' });
@@ -237,7 +237,7 @@ describe('SigninTokenCode page', () => {
       beforeEach(() => {
         hardNavigateSpy = jest
           .spyOn(ReactUtils, 'hardNavigate')
-          .mockImplementation(() => {});
+          .mockImplementation(() => { });
       });
       afterEach(() => {
         hardNavigateSpy.mockRestore();
@@ -260,7 +260,7 @@ describe('SigninTokenCode page', () => {
 
         await expectSuccessGleanEvents();
         expect(mockOnSessionVerified).toHaveBeenCalledTimes(1);
-        expect(navigate).toHaveBeenCalledWith('/settings');
+        expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
       });
       it('when verificationReason is a force password change', async () => {
         session = mockSession();
@@ -286,13 +286,13 @@ describe('SigninTokenCode page', () => {
         const integration = createMockSigninOAuthIntegration();
         const hardNavigate = jest
           .spyOn(ReactUtils, 'hardNavigate')
-          .mockImplementation(() => {});
+          .mockImplementation(() => { });
 
         render({ finishOAuthFlowHandler, integration });
         submitCode();
         await expectSuccessGleanEvents();
         await waitFor(() => {
-          expect(hardNavigate).toHaveBeenCalledWith('someUri');
+          expect(hardNavigate).toHaveBeenCalledWith('someUri', undefined, undefined, true);
         });
       });
     });

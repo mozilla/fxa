@@ -98,7 +98,7 @@ function mockSigninPushCodeModule() {
 }
 
 function mockReactUtilsModule() {
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => { });
 }
 
 // Set this when testing local storage
@@ -224,7 +224,10 @@ describe('SigninPushCode container', () => {
 
       await waitFor(() =>
         expect(ReactUtils.hardNavigate).toBeCalledWith(
-          '/pair?showSuccessMessage=true'
+          '/pair?showSuccessMessage=true',
+          undefined,
+          undefined,
+          false
         )
       );
     });
