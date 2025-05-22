@@ -4,8 +4,12 @@
 
 import { headers } from 'next/headers';
 import { auth } from 'apps/payments/next/auth';
-import { getCardIcon, buildPageMetadata } from '@fxa/payments/ui';
-import { SupportedPages, getApp } from '@fxa/payments/ui/server';
+import { getCardIcon } from '@fxa/payments/ui';
+import {
+  SupportedPages,
+  getApp,
+  buildPageMetadata,
+} from '@fxa/payments/ui/server';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
@@ -29,8 +33,6 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   return buildPageMetadata({
     params,
-    titlePrefix: 'Success',
-    description: 'Congratulations! You have successfully completed your upgrade.',
     page: 'success',
     pageType: 'upgrade',
     acceptLanguage: headers().get('accept-language'),

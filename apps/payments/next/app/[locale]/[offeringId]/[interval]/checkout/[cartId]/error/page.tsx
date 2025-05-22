@@ -13,6 +13,7 @@ import {
   CheckoutParams,
   SupportedPages,
   getErrorFtlInfo,
+  buildPageMetadata,
 } from '@fxa/payments/ui/server';
 import {
   getCartOrRedirectAction,
@@ -21,7 +22,6 @@ import {
 import { config } from 'apps/payments/next/config';
 import type { Metadata } from 'next';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
-import { buildPageMetadata } from '@fxa/payments/ui';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
@@ -38,8 +38,6 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   return buildPageMetadata({
     params,
-    titlePrefix: 'Error',
-    description: 'There was an error processing your subscription. If this problem persists, please contact support.',
     page: 'error',
     pageType: 'checkout',
     acceptLanguage: headers().get('accept-language'),
