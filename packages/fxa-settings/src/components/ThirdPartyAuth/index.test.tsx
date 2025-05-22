@@ -75,6 +75,9 @@ describe('ThirdPartyAuthComponent', () => {
   it('renders', async () => {
     renderWith({
       enabled: true,
+      flowQueryParams: {
+        flowId: '123'
+      }
     });
 
     await screen.findByText('Continue with Google');
@@ -85,13 +88,13 @@ describe('ThirdPartyAuthComponent', () => {
       (await screen.findByTestId('google-signin-form-state')).getAttribute(
         'value'
       )
-    ).toEqual('http%3A%2F%2Flocalhost%2F%3F');
+    ).toEqual('http%3A%2F%2Flocalhost%2F%3FflowId%3D123');
 
     expect(
       (await screen.findByTestId('apple-signin-form-state')).getAttribute(
         'value'
       )
-    ).toEqual('http%3A%2F%2Flocalhost%2F%3F');
+    ).toEqual('http%3A%2F%2Flocalhost%2F%3FflowId%3D123');
   });
 
   it('submits apple form', async () => {

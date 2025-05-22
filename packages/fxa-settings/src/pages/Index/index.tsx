@@ -31,7 +31,8 @@ export const Index = ({
   setErrorBannerMessage,
   setSuccessBannerMessage,
   setTooltipErrorMessage,
-  deeplink
+  deeplink,
+  flowQueryParams
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
@@ -78,7 +79,7 @@ export const Index = ({
 
   if (isDeeplinking) {
     // To avoid flickering, we just render third party auth when deeplinking
-    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} />
+    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} flowQueryParams={flowQueryParams}/>
   }
 
   return (
@@ -164,7 +165,7 @@ export const Index = ({
           </FtlMsg>
         </p>
       ) : (
-        !isDesktopRelay && <ThirdPartyAuth showSeparator viewName="index" />
+        !isDesktopRelay && <ThirdPartyAuth showSeparator viewName="index" flowQueryParams={flowQueryParams}/>
       )}
       <TermsPrivacyAgreement
         {...{ isPocketClient, isMonitorClient, isDesktopRelay, isRelayClient }}

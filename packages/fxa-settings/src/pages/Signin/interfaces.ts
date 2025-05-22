@@ -10,6 +10,7 @@ import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { MozServices } from '../../lib/types';
 import { Account, Integration } from '../../models';
+import { QueryParams } from '../..';
 
 export interface AvatarResponse {
   account: {
@@ -88,6 +89,7 @@ export interface SigninProps {
   localizedSuccessBannerHeading?: string;
   localizedSuccessBannerDescription?: string;
   deeplink?: string;
+  flowQueryParams?: QueryParams;
 }
 
 export type BeginSigninHandler = (
