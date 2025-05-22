@@ -6,6 +6,7 @@ import { HandledError } from '../../lib/error-utils';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
 import { Integration, OAuthIntegration } from '../../models';
 import { MetricsContext } from '@fxa/shared/glean';
+import { QueryParams } from '../..';
 
 export interface BeginSignupResponse {
   signUp: {
@@ -42,6 +43,7 @@ export interface SignupProps {
   beginSignupHandler: BeginSignupHandler;
   useSyncEnginesResult: ReturnType<typeof useSyncEngines>;
   deeplink?: string;
+  flowQueryParams?: QueryParams;
 }
 
 export type SignupIntegration = SignupOAuthIntegration | SignupBaseIntegration;
