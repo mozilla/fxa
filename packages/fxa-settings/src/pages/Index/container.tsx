@@ -34,6 +34,7 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 export const IndexContainer = ({
   integration,
   serviceName,
+  flowQueryParams
 }: IndexContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -263,7 +264,8 @@ export const IndexContainer = ({
         errorBannerMessage,
         successBannerMessage,
         tooltipErrorMessage,
-        deeplink
+        deeplink,
+        flowQueryParams
       }}
       prefillEmail={initialPrefill}
     />

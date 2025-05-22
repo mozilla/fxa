@@ -4,6 +4,7 @@
 
 import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
+import { QueryParams } from '../../index'
 
 export type IndexIntegration = Pick<
   Integration,
@@ -13,6 +14,7 @@ export type IndexIntegration = Pick<
 export interface IndexContainerProps {
   integration: IndexIntegration;
   serviceName: MozServices;
+  flowQueryParams?: QueryParams;
 }
 
 export interface LocationState {
@@ -32,6 +34,7 @@ export interface IndexProps extends LocationState {
   successBannerMessage?: string;
   tooltipErrorMessage?: string;
   deeplink?: string
+  flowQueryParams?: QueryParams;
 }
 
 export interface IndexFormData {

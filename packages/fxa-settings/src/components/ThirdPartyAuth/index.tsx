@@ -12,6 +12,7 @@ import { useConfig } from '../../models';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { useMetrics } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
+import { QueryParams } from '../..';
 
 export type ThirdPartyAuthProps = {
   onContinueWithGoogle?: FormEventHandler<HTMLFormElement>;
@@ -19,6 +20,7 @@ export type ThirdPartyAuthProps = {
   showSeparator?: boolean;
   viewName?: string;
   deeplink?: string;
+  flowQueryParams?: QueryParams;
 };
 
 /**
@@ -32,6 +34,7 @@ const ThirdPartyAuth = ({
   showSeparator = true,
   viewName = 'unknown',
   deeplink,
+  flowQueryParams
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
 
@@ -63,7 +66,7 @@ const ThirdPartyAuth = ({
             {...{
               party: 'google',
               ...config.googleAuthConfig,
-              state: getState(),
+              state: getState(flowQueryParams),
               scope: 'openid email profile',
               responseType: 'code',
               accessType: 'offline',
@@ -85,7 +88,7 @@ const ThirdPartyAuth = ({
             {...{
               party: 'apple',
               ...config.appleAuthConfig,
-              state: getState(),
+              state: getState(flowQueryParams),
               scope: 'email',
               responseType: 'code id_token',
               accessType: 'offline',
@@ -129,7 +132,8 @@ const ThirdPartySignInForm = ({
   buttonText,
   onSubmit,
   viewName,
-  deeplink
+  deeplink,
+  flowQueryParams
 }: {
   party: 'google' | 'apple';
   authorizationEndpoint: string;
@@ -145,6 +149,7 @@ const ThirdPartySignInForm = ({
   onSubmit?: FormEventHandler<HTMLFormElement>;
   viewName?: string;
   deeplink?: string;
+  flowQueryParams?: QueryParams;
 }) => {
   const { logViewEventOnce } = useMetrics();
   const stateRef = useRef<HTMLInputElement>(null);
@@ -153,7 +158,6 @@ const ThirdPartySignInForm = ({
 
   const onClick = useCallback(async () => {
     logViewEventOnce(`flow.${party}`, 'oauth-start');
-
     switch (`${party}-${viewName}`) {
       case 'google-index':
         GleanMetrics.emailFirst.googleOauthStart();
@@ -185,9 +189,9 @@ const ThirdPartySignInForm = ({
     await GleanMetrics.isDone();
 
     if (stateRef.current) {
-      stateRef.current.value = getState();
+      stateRef.current.value = getState(flowQueryParams);
     }
-  }, [party, stateRef, viewName, logViewEventOnce]);
+  }, [party, stateRef, viewName, logViewEventOnce, flowQueryParams]);
 
 
   if (onSubmit === undefined) {
@@ -242,12 +246,22 @@ function deleteParams(searchParams: URLSearchParams, paramsToDelete: string[]) {
   return searchParams;
 }
 
-function getState() {
+function getState(flowQueryParams: QueryParams | undefined) {
   // We stash the originating location in the state oauth param
   // because we will need it to use it to reconstruct the redirect URL for RP
   const params = new URLSearchParams(window.location.search);
-  // we won't need these params that are used for internal backbone/react navigation
-  const modifiedParams = deleteParams(params, [
+
+  // Combine flowQueryParams and paramsObject, ensuring all values are strings
+  const paramsObject = Object.fromEntries(params.entries());
+  const combinedParams = {
+    ...paramsObject,
+    ...Object.fromEntries(
+      Object.entries(flowQueryParams || {}).map(([key, value]) => [key, String(value)])
+    ),
+  };
+
+  // Remove unwanted keys
+  const filteredParams = deleteParams(new URLSearchParams(combinedParams), [
     'deeplink',
     'email',
     'emailStatusChecked',
@@ -255,9 +269,10 @@ function getState() {
     'forceExperimentGroup',
     'showReactApp',
   ]);
+  // we won't need these params that are used for internal backbone/react navigation
   return encodeURIComponent(
     `${window.location.origin}${window.location.pathname
-    }?${modifiedParams.toString()}`
+    }?${filteredParams.toString()}`
   );
 }
 

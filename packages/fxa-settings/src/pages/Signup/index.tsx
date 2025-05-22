@@ -53,7 +53,8 @@ export const Signup = ({
     setDeclinedSyncEngines,
     selectedEngines,
   },
-  deeplink
+  deeplink,
+  flowQueryParams
 }: SignupProps) => {
   const sensitiveDataClient = useSensitiveDataClient();
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -261,7 +262,7 @@ export const Signup = ({
   const isDeeplinking = !!deeplink;
   if (isDeeplinking) {
     // To avoid flickering, we only render third party auth and navigate
-    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} />
+    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} flowQueryParams={flowQueryParams}/>
   }
 
   return (
@@ -362,7 +363,7 @@ export const Signup = ({
       />
 
       {/* Third party auth is not currently supported for sync */}
-      {!isSync && !isDesktopRelay && <ThirdPartyAuth viewName="signup" />}
+      {!isSync && !isDesktopRelay && <ThirdPartyAuth viewName="signup" flowQueryParams={flowQueryParams}/>}
 
       <TermsPrivacyAgreement
         isPocketClient={client === MozServices.Pocket}

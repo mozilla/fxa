@@ -341,8 +341,8 @@ const AuthAndAccountSetupRoutes = ({
   return (
     <Router>
       {/* Index */}
-      <IndexContainer path="/" {...{ integration, serviceName }} />
-      <IndexContainer path="/oauth" {...{ integration, serviceName }} />
+      <IndexContainer path="/" {...{ integration, serviceName, flowQueryParams }} />
+      <IndexContainer path="/oauth" {...{ integration, serviceName, flowQueryParams }} />
 
       {/* Legal */}
       <Legal path="/legal/*" />

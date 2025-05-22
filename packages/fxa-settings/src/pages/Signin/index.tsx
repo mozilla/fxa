@@ -61,7 +61,8 @@ const Signin = ({
   finishOAuthFlowHandler,
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
-  deeplink
+  deeplink,
+  flowQueryParams
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -325,7 +326,7 @@ const Signin = ({
 
   if (isDeeplinking) {
     // To avoid flickering, we only render third party auth and navigate
-    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} />
+    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} flowQueryParams={flowQueryParams}/>
   }
 
   return (
@@ -445,7 +446,7 @@ const Signin = ({
       {!hideThirdPartyAuth && (
         <ThirdPartyAuth
           showSeparator={!hasLinkedAccountAndNoPassword}
-          {...{ viewName }}
+          {...{ viewName, flowQueryParams }}
         />
       )}
 
