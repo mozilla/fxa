@@ -221,7 +221,8 @@ const SignupContainer = ({
         email,
         beginSignupHandler,
         useSyncEnginesResult,
-        deeplink
+        deeplink,
+        flowQueryParams
       }}
     />
   );

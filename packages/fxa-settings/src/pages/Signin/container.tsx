@@ -495,7 +495,8 @@ const SigninContainer = ({
         finishOAuthFlowHandler,
         localizedSuccessBannerHeading,
         localizedSuccessBannerDescription,
-        deeplink
+        deeplink,
+        flowQueryParams
       }}
     />
   );

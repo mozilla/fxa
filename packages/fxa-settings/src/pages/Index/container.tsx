@@ -35,6 +35,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 export const IndexContainer = ({
   integration,
   serviceName,
+  flowQueryParams
 }: IndexContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -268,7 +269,8 @@ export const IndexContainer = ({
         errorBannerMessage,
         successBannerMessage,
         tooltipErrorMessage,
-        deeplink
+        deeplink,
+        flowQueryParams
       }}
       prefillEmail={initialPrefill}
     />
