@@ -60,7 +60,7 @@ describe('RecoveryPhoneService', () => {
     hasRecoveryCodes: jest.fn(),
     removeCode: jest.fn(),
     getCountByPhoneNumber: jest.fn(),
-    replacePhoneNumber: jest.fn(),
+    changePhoneNumber: jest.fn(),
   };
 
   const mockOtpManager = {
@@ -922,32 +922,32 @@ describe('RecoveryPhoneService', () => {
 
   describe('replace phone number', () => {
     it('replaces code successfully', async () => {
-      mockRecoveryPhoneManager.replacePhoneNumber.mockResolvedValue(true);
+      mockRecoveryPhoneManager.changePhoneNumber.mockResolvedValue(true);
       mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce({
         isSetup: true,
         phoneNumber,
       });
-      const result = await service.replacePhoneNumber(uid, code);
+      const result = await service.changePhoneNumber(uid, code);
 
       expect(result).toBe(true);
     });
 
     it('returns false if there is no existing unconfirmed code', async () => {
-      mockRecoveryPhoneManager.replacePhoneNumber.mockResolvedValue(true);
+      mockRecoveryPhoneManager.changePhoneNumber.mockResolvedValue(true);
       mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce({});
 
-      const result = await service.replacePhoneNumber(uid, code);
+      const result = await service.changePhoneNumber(uid, code);
 
       expect(result).toBe(false);
     });
 
     it('returns false if existing unconfirmed code is not for setup', async () => {
-      mockRecoveryPhoneManager.replacePhoneNumber.mockResolvedValue(true);
+      mockRecoveryPhoneManager.changePhoneNumber.mockResolvedValue(true);
       mockRecoveryPhoneManager.getUnconfirmed.mockResolvedValueOnce({
         isSetup: false,
         phoneNumber,
       });
-      const result = await service.replacePhoneNumber(uid, code);
+      const result = await service.changePhoneNumber(uid, code);
 
       expect(result).toBe(false);
     });

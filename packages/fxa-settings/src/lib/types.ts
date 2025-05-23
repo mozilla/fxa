@@ -14,6 +14,12 @@ export enum GleanClickEventType2FA {
   replace = 'replace',
 }
 
+export enum RecoveryPhoneSetupReason {
+  inline = 'inline setup',
+  setup = 'setup',
+  change = 'change',
+}
+
 export enum LinkType {
   'reset-password',
   'signin',

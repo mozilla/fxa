@@ -345,7 +345,7 @@ export class RecoveryPhoneService {
    * @param code
    * @returns
    */
-  public async replacePhoneNumber(uid: string, code: string): Promise<boolean> {
+  public async changePhoneNumber(uid: string, code: string): Promise<boolean> {
     const unconfirmedCode = await this.recoveryPhoneManager.getUnconfirmed(
       uid,
       code
@@ -363,7 +363,7 @@ export class RecoveryPhoneService {
 
     const lookupData = await this.getPhoneNumberLookupData(phoneNumber);
     await this.validateLookupDataForSmsPumping(lookupData);
-    await this.recoveryPhoneManager.replacePhoneNumber(
+    await this.recoveryPhoneManager.changePhoneNumber(
       uid,
       phoneNumber,
       lookupData
@@ -562,7 +562,7 @@ export class RecoveryPhoneService {
    * Validates that the provided code is for setup and not for sign in.
    *
    * No further actions are taken; the code is left in redis for completing the
-   * setup process. This is used in `recovery_phone/replace` and we need
+   * setup process. This is used in `recovery_phone/change` and we need
    * to ensure the code is valid before removing the existing phone number.
    */
   public async validateSetupCode(uid: string, code: string) {

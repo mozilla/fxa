@@ -6,16 +6,17 @@ import { Page } from '@playwright/test';
 import { ConnectedService } from './connectedService';
 
 export class UnitRow {
-  constructor(readonly page: Page, readonly id: string) {}
+  constructor(
+    readonly page: Page,
+    readonly id: string
+  ) {}
 
   get status() {
     return this.page.getByTestId(`${this.id}-unit-row-header-value`);
   }
 
   async screenshot() {
-    const el = await this.page.waitForSelector(
-      `[data-testid=${this.id}-unit-row]`
-    );
+    const el = this.page.getByTestId(`${this.id}-unit-row`);
     return el.screenshot();
   }
 }
@@ -93,12 +94,20 @@ export class TotpRow extends UnitRow {
     return this.page.getByTestId('two-step-disable-button-unit-row-modal');
   }
 
-  get changeButton() {
-    return this.page.getByRole('button', { name: 'Create new codes' });
+  get getNewBackupCodesButton() {
+    return this.page.getByTestId('backup-codes-get-new-button');
+  }
+
+  get addCodesButton() {
+    return this.page.getByTestId('backup-codes-add-button');
   }
 
   get addRecoveryPhoneButton() {
-    return this.page.getByRole('button', { name: 'Add' });
+    return this.page.getByTestId('recovery-phone-add-button');
+  }
+
+  get changeRecoveryPhoneButton() {
+    return this.page.getByTestId('recovery-phone-change-button');
   }
 
   get removeRecoveryPhoneButton() {

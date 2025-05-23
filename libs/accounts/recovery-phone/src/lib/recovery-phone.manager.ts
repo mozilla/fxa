@@ -13,7 +13,7 @@ import {
   hasRecoveryCodes,
   registerPhoneNumber,
   removePhoneNumber,
-  replacePhoneNumber,
+  changePhoneNumber,
 } from './recovery-phone.repository';
 import {
   RecoveryNumberAlreadyExistsError,
@@ -124,14 +124,14 @@ export class RecoveryPhoneManager {
    * @param phoneNumber The new phone number to replace the existing one
    * @param lookupData Lookup data for twilio cross-check
    */
-  async replacePhoneNumber(
+  async changePhoneNumber(
     uid: string,
     phoneNumber: string,
     lookupData: PhoneNumberLookupData
   ): Promise<boolean> {
     const uidBuffer = Buffer.from(uid, 'hex');
     const now = Date.now();
-    const results = await replacePhoneNumber(this.db, {
+    const results = await changePhoneNumber(this.db, {
       uid: uidBuffer,
       phoneNumber,
       lastConfirmed: now,

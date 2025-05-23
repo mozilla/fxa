@@ -15,6 +15,7 @@ describe('SubRow', () => {
   const defaultProps = {
     ctaGleanId: 'glean-test',
     ctaMessage: 'Create new codes',
+    ctaTestId: 'cta-button',
     icon: <div>Icon</div>,
     idPrefix: 'test',
     localizedDescription: 'More info message',
@@ -121,7 +122,7 @@ describe('BackupPhoneSubRow', () => {
     phoneNumber: MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER,
   };
 
-  it('renders correctly when phone number unavailable', () => {
+  it('renders correctly when no phone number added', () => {
     renderWithLocalizationProvider(
       <BackupPhoneSubRow onCtaClick={jest.fn()} />
     );
@@ -136,16 +137,15 @@ describe('BackupPhoneSubRow', () => {
     expect(screen.getByText(/Learn about SIM swap risk/)).toBeInTheDocument();
   });
 
-  it('renders correctly when phone number is available and delete is not an option', () => {
+  it('renders correctly when phone number exists and delete is not an option', () => {
     renderWithLocalizationProvider(<BackupPhoneSubRow {...defaultProps} />);
     expect(screen.getByText('Recovery phone')).toBeInTheDocument();
     expect(
       screen.getByText(MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER)
     ).toBeInTheDocument();
-    // Temporary until we work on the change flow for SMS phase 2, FXA-10995
     expect(
       screen.queryByRole('button', { name: 'Change' })
-    ).not.toBeInTheDocument();
+    ).toBeInTheDocument();
     expect(
       screen.getByText(
         'If you want to remove your recovery phone, add backup authentication codes or disable two-step authentication first to avoid getting locked out of your account.'
@@ -169,7 +169,7 @@ describe('BackupPhoneSubRow', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders correctly when phone number is available and delete is an option', () => {
+  it('renders correctly when phone number exists and delete is an option', () => {
     renderWithLocalizationProvider(
       <BackupPhoneSubRow {...defaultProps} onDeleteClick={jest.fn()} />
     );
@@ -177,10 +177,9 @@ describe('BackupPhoneSubRow', () => {
     expect(
       screen.getByText(MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER)
     ).toBeInTheDocument();
-    // Temporary until we work on the change flow for SMS phase 2, FXA-10995
     expect(
       screen.queryByRole('button', { name: 'Change' })
-    ).not.toBeInTheDocument();
+    ).toBeInTheDocument();
     const deleteButtons = screen.getAllByTitle(/Remove/);
     expect(deleteButtons).toHaveLength(2);
     expect(
@@ -193,9 +192,17 @@ describe('BackupPhoneSubRow', () => {
     ).not.toBeInTheDocument();
   });
 
-  // Temporary skip we work on the change flow for SMS phase 2, FXA-10995
-  it.skip('calls onCtaClick when CTA button is clicked', () => {
-    renderWithLocalizationProvider(<BackupPhoneSubRow {...defaultProps} />);
+  it('calls onCtaClick when no phone number added', () => {
+    const onCtaClick = jest.fn();
+    renderWithLocalizationProvider(<BackupPhoneSubRow {...{ onCtaClick }} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    expect(onCtaClick).toHaveBeenCalled();
+  });
+
+  it('calls onCtaClick when phone number exists and CTA button is clicked', () => {
+    renderWithLocalizationProvider(
+      <BackupPhoneSubRow {...defaultProps} onDeleteClick={jest.fn()} />
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Change' }));
     expect(defaultProps.onCtaClick).toHaveBeenCalled();
   });

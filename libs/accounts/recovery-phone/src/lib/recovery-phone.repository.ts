@@ -42,7 +42,7 @@ export async function registerPhoneNumber(
  *
  * @returns The number of rows updated
  */
-export async function replacePhoneNumber(
+export async function changePhoneNumber(
   db: AccountDatabase,
   recoveryPhone: RecoveryPhone
 ): Promise<number> {

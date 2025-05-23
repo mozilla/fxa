@@ -186,10 +186,10 @@ describe('RecoveryPhoneManager', () => {
     expect(deleteFromSpy).toBeCalledWith('recoveryPhones');
   });
 
-  it('should replace a recovery phone', async () => {
+  it('should change a recovery phone', async () => {
     const mockPhone = RecoveryPhoneFactory();
 
-    const res = await recoveryPhoneManager.replacePhoneNumber(
+    const res = await recoveryPhoneManager.changePhoneNumber(
       mockPhone.uid.toString('hex'),
       mockPhone.phoneNumber,
       mockLookUpData
