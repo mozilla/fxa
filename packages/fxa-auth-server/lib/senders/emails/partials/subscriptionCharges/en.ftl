@@ -28,3 +28,5 @@ subscriptionCharges-content-tax = Taxes & fees: { $invoiceTaxAmount }
 ##  $invoiceTotal (String) - The amount, after discount, of the subscription invoice, including currency, e.g. $8.00
 subscriptionFirstInvoice-content-charge = Charged { $invoiceTotal } on { $invoiceDateOnly }
 subscriptionFirstInvoice-content-credit = You have received an account credit of { $invoiceTotal }, which will be applied to your future invoices.
+
+##
