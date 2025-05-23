@@ -91,7 +91,9 @@ test.describe('severity-1 #smoke', () => {
 
       await recoveryPhone.enterPhoneNumber('1234567890');
       await recoveryPhone.clickSendCode();
-      await expect(recoveryPhone.addErrorBanner).toHaveText(/invalid phone number/i);
+      await expect(recoveryPhone.addErrorBanner).toHaveText(
+        /invalid phone number/i
+      );
 
       await settings.goto();
       await settings.disconnectTotp();
@@ -155,6 +157,55 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/settings/);
       await expect(settings.totp.addRecoveryPhoneButton).toBeVisible();
+
+      await settings.disconnectTotp();
+    });
+
+    test('can change recovery phone', async ({
+      target,
+      pages: { page, settings, signin, recoveryPhone, totp },
+      testAccountTracker,
+    }) => {
+      const credentials = await signInAccount(
+        target,
+        page,
+        settings,
+        signin,
+        testAccountTracker
+      );
+
+      await settings.goto();
+      await setupRecoveryPhone({
+        settings,
+        totp,
+        recoveryPhone,
+        page,
+        credentials,
+        target,
+      });
+
+      await settings.totp.changeRecoveryPhoneButton.click();
+      await page.waitForURL(/recovery_phone\/setup/);
+
+      await expect(page.getByText('Change recovery phone')).toBeVisible();
+
+      await expect(recoveryPhone.addHeader()).toBeVisible();
+
+      await recoveryPhone.enterPhoneNumber(getPhoneNumber(target.name));
+      await recoveryPhone.clickSendCode();
+
+      await expect(recoveryPhone.confirmHeader).toBeVisible();
+
+      const code = await target.smsClient.getCode(
+        getPhoneNumber(target.name),
+        credentials.uid
+      );
+
+      await recoveryPhone.enterCode(code);
+      await recoveryPhone.clickConfirm();
+
+      await page.waitForURL(/settings/);
+      await expect(settings.alertBar).toHaveText('Recovery phone changed');
 
       await settings.disconnectTotp();
     });

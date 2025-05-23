@@ -22,8 +22,8 @@ import LinkExternal, {
 
 type SubRowProps = {
   ctaGleanId: string;
-  // temporarily this prop is optional until we enable 'Change' in phase 2, FXA-10995
-  ctaMessage?: string;
+  ctaMessage: string;
+  ctaTestId: string;
   icon: React.ReactNode;
   idPrefix: string;
   isEnabled: boolean;
@@ -49,6 +49,7 @@ export type BackupPhoneSubRowProps = Pick<
 const SubRow = ({
   ctaGleanId,
   ctaMessage,
+  ctaTestId,
   icon,
   idPrefix,
   isEnabled,
@@ -121,12 +122,12 @@ const SubRow = ({
             </p>
           )}
         </div>
-        {/* temporary check until we enable changing in SMS phase 2, FXA-10995 */}
         {ctaMessage && (
           <button
             className="cta-base-common cta-neutral cta-base-p shrink-0 mt-0 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
             onClick={onCtaClick}
             data-glean-id={ctaGleanId}
+            data-testid={ctaTestId}
           >
             {ctaMessage}
           </button>
@@ -205,11 +206,16 @@ export const BackupCodesSubRow = ({
     ? 'account_pref_two_step_auth_codes_get_new_submit'
     : 'account_pref_two_step_auth_codes_add_submit';
 
+  const ctaTestId = hasCodesRemaining
+    ? 'backup-codes-get-new-button'
+    : 'backup-codes-add-button';
+
   return (
     <SubRow
       {...{
         ctaGleanId,
         ctaMessage,
+        ctaTestId,
         icon,
         message,
         onCtaClick,
@@ -249,14 +255,16 @@ export const BackupPhoneSubRow = ({
     </FtlMsg>
   );
   const ctaMessage = hasPhoneNumber
-    ? // Temporary until we enable changing in phase 2, FXA-10995
-      // ? ftlMsgResolver.getMsg('tfa-row-backup-phone-change-cta', 'Change')
-      undefined
+    ? ftlMsgResolver.getMsg('tfa-row-backup-phone-change-cta', 'Change')
     : ftlMsgResolver.getMsg('tfa-row-backup-phone-add-cta', 'Add');
 
   const ctaGleanId = hasPhoneNumber
     ? 'account_pref_two_step_auth_phone_change_submit'
     : 'account_pref_two_step_auth_phone_add_submit';
+
+  const ctaTestId = hasPhoneNumber
+    ? 'recovery-phone-change-button'
+    : 'recovery-phone-add-button';
 
   // Do not display 'delete' button if user does not have a phone number
   const localizedDeleteIconTitle = hasPhoneNumber
@@ -300,6 +308,7 @@ export const BackupPhoneSubRow = ({
       {...{
         ctaGleanId,
         ctaMessage,
+        ctaTestId,
         icon,
         message,
         onCtaClick,

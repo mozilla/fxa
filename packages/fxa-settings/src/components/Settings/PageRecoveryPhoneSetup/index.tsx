@@ -9,7 +9,8 @@ import { useAccount, useFtlMsgResolver } from '../../../models';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { RecoveryPhoneSetupReason } from '../../../lib/types';
 
 const numberOfSteps = 2;
 
@@ -17,6 +18,9 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();
+  const location = useLocation();
+  const reason: RecoveryPhoneSetupReason =
+    (location as any)?.state?.reason ?? RecoveryPhoneSetupReason.setup;
 
   const [phoneData, setPhoneData] = useState<{
     phoneNumber: string;
@@ -33,10 +37,16 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
       replace: true,
     });
 
-  const localizedPageTitle = ftlMsgResolver.getMsg(
-    'page-setup-recovery-phone-heading',
-    'Add recovery phone'
-  );
+  const localizedPageTitle =
+    reason === RecoveryPhoneSetupReason.change
+      ? ftlMsgResolver.getMsg(
+          'page-change-recovery-phone-heading',
+          'Change recovery phone'
+        )
+      : ftlMsgResolver.getMsg(
+          'page-setup-recovery-phone-heading',
+          'Add recovery phone'
+        );
 
   const localizedBackButtonTitle =
     currentStep === 1
@@ -77,7 +87,12 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
 
   const verifyRecoveryCode = async (code: string) => {
     // try/catch is in the component that calls this function
-    await account.confirmRecoveryPhone(code, phoneData.phoneNumber);
+    reason === RecoveryPhoneSetupReason.change
+      ? await account.changeRecoveryPhone(code)
+      : await account.confirmRecoveryPhone(code, phoneData.phoneNumber);
+    // get the latest status of recovery phone info
+    // ensure correct data is shown on the settings page
+    await account.refresh('recoveryPhone');
   };
 
   const verifyPhoneNumber = async (phoneNumberInput: string) => {
@@ -103,6 +118,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
             verifyPhoneNumber,
             currentStep,
             numberOfSteps,
+            reason
           }}
         />
       )}
@@ -123,6 +139,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
             verifyRecoveryCode,
             currentStep,
             numberOfSteps,
+            reason
           }}
         />
       )}

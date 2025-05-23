@@ -9,6 +9,7 @@ import SettingsLayout from '../SettingsLayout';
 import { action } from '@storybook/addon-actions';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import FlowSetupRecoveryPhoneSubmitNumber from '.';
+import { RecoveryPhoneSetupReason } from '../../../lib/types';
 
 export default {
   title: 'Components/Settings/FlowSetupRecoveryPhoneSubmitNumber',
@@ -34,6 +35,21 @@ const verifyNumberSuccess = async (phoneNumber: string) => {
 const verifyNumberFailure = async (phoneNumber: string) => {
   return Promise.reject(AuthUiErrors.UNEXPECTED_ERROR);
 };
+
+export const ChangePhone = () => (
+  <SettingsLayout>
+    <FlowSetupRecoveryPhoneSubmitNumber
+      {...{
+        localizedBackButtonTitle,
+        localizedPageTitle,
+        navigateBackward,
+        navigateForward,
+      }}
+      reason={RecoveryPhoneSetupReason.change}
+      verifyPhoneNumber={verifyNumberSuccess}
+    />
+  </SettingsLayout>
+);
 
 export const Success = () => (
   <SettingsLayout>

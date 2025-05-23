@@ -11,7 +11,7 @@ import FormVerifyTotp from '../../FormVerifyTotp';
 import { BackupRecoveryPhoneCodeImage } from '../../images';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useAlertBar, useFtlMsgResolver } from '../../../models';
-import { ResendStatus } from '../../../lib/types';
+import { RecoveryPhoneSetupReason, ResendStatus } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
 
 export type FlowSetupRecoveryPhoneConfirmCodeProps = {
@@ -22,6 +22,7 @@ export type FlowSetupRecoveryPhoneConfirmCodeProps = {
   navigateBackward: () => void;
   navigateForward: () => void;
   numberOfSteps?: number;
+  reason?: RecoveryPhoneSetupReason;
   sendCode: () => Promise<void>;
   verifyRecoveryCode: (code: string) => Promise<void>;
 };
@@ -34,6 +35,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
   navigateBackward,
   navigateForward,
   numberOfSteps = 2,
+  reason = RecoveryPhoneSetupReason.setup,
   sendCode,
   verifyRecoveryCode,
 }: FlowSetupRecoveryPhoneConfirmCodeProps) => {
@@ -44,8 +46,10 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
   );
 
   useEffect(() => {
-    GleanMetrics.accountPref.twoStepAuthPhoneVerifyView();
-  }, []);
+    GleanMetrics.accountPref.twoStepAuthPhoneVerifyView({
+      event: { reason },
+    });
+  }, [reason]);
 
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -72,11 +76,17 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
 
     try {
       await verifyRecoveryCode(code);
+
       alertBar.success(
-        ftlMsgResolver.getMsg(
-          'flow-setup-phone-confirm-code-success-message-v2',
-          'Recovery phone added'
-        )
+        reason === RecoveryPhoneSetupReason.setup
+          ? ftlMsgResolver.getMsg(
+              'flow-setup-phone-confirm-code-success-message-v2',
+              'Recovery phone added'
+            )
+          : ftlMsgResolver.getMsg(
+              'flow-change-phone-confirm-code-success-message',
+              'Recovery phone changed'
+            )
       );
       navigateForward();
     } catch (error) {
@@ -152,6 +162,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
         errorBannerId="flow-setup-phone-confirm-code-error"
         gleanDataAttrs={{
           id: 'two_step_auth_phone_verify_submit',
+          type: reason,
         }}
       />
       <div className="flex flex-wrap gap-2 mt-6 justify-center text-center">
@@ -163,6 +174,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
             className="link-blue"
             onClick={handleResendCode}
             data-glean-id="two_step_auth_phone_verify_resend_code"
+            data-glean-type={reason}
           >
             Resend code
           </button>

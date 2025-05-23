@@ -1447,6 +1447,13 @@ export class Account implements AccountData {
     return result;
   }
 
+  async changeRecoveryPhone(code: string) {
+    const result = await this.withLoadingStatus(
+      this.authClient.recoveryPhoneChange(sessionToken()!, code)
+    );
+    return result;
+  }
+
   async confirmRecoveryPhone(code: string, phoneNumber: string) {
     const { nationalFormat } = await this.withLoadingStatus(
       this.authClient.recoveryPhoneConfirmSetup(sessionToken()!, code)
