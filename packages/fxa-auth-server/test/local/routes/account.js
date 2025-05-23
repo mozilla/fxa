@@ -3847,13 +3847,14 @@ describe('/account/destroy', () => {
   const tokenVerified = true;
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
-  let mockDB, mockLog, mockRequest, mockPush, mockPushbox;
+  let mockDB, mockLog, mockRequest, mockPush, mockPushbox, mockCustoms;
 
   beforeEach(async () => {
     mockDB = {
       ...mocks.mockDB({ email: email, uid: uid }),
     };
     mockLog = mocks.mockLog();
+    mockCustoms = mocks.mockCustoms();
     mockRequest = mocks.mockRequest({
       credentials: { uid, email, tokenVerified },
       log: mockLog,
@@ -3889,6 +3890,7 @@ describe('/account/destroy', () => {
       log: mockLog,
       push: mockPush,
       pushbox: mockPushbox,
+      customs: mockCustoms
     });
     return getRoute(accountRoutes, '/account/destroy');
   }
@@ -3968,6 +3970,26 @@ describe('/account/destroy', () => {
         uid,
       });
     });
+  });
+
+  it('should fail for mismatch session and account ui', async () => {
+    mockDB = { ...mocks.mockDB({ email, uid }) };
+    mockRequest = mocks.mockRequest({
+      credentials: { uid: 'anotherone', email: `another@one.net`, tokenVerified },
+      log: mockLog,
+      payload: {
+        email,
+      },
+    });
+    const route = buildRoute();
+
+    try {
+      await runTest(route, mockRequest);
+      sinon.assert.fail('should have errored');
+    } catch (error) {
+      sinon.assert.calledOnceWithExactly(mockCustoms.flag, "63.245.221.32", { email, errno: 102 });
+      assert.equal(error.errno, 102, 'unknown account');
+    }
   });
 });
 
