@@ -383,7 +383,6 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             <div className="mt-6 flex flex-col items-center justify-between">
               <DataBlock
                 value={totpInfo.result.recoveryCodes.map((x) => x)}
-                separator=" "
                 onAction={logDataTrioActionEvent}
                 onCopy={copyRecoveryCodes}
                 contentType="Backup authentication codes"

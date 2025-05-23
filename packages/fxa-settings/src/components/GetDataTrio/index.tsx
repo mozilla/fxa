@@ -4,10 +4,10 @@
 
 import React, { useCallback } from 'react';
 import { copy } from '../../lib/clipboard';
-import { ReactComponent as CopyIcon } from './copy.svg';
+import { ReactComponent as CopyIcon } from './copy.min.svg';
 import { ReactComponent as InlineCopyIcon } from './copy-inline.svg';
-import { ReactComponent as DownloadIcon } from './download.svg';
-import { ReactComponent as PrintIcon } from './print.svg';
+import { ReactComponent as DownloadIcon } from './download.min.svg';
+import { ReactComponent as PrintIcon } from './print.min.svg';
 import { useFtlMsgResolver } from '../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { GleanClickEventType2FA } from '../../lib/types';
@@ -46,6 +46,9 @@ export type GetDataTrioProps = {
   };
 };
 
+const trioButtonClassName =
+  'w-24 h-20 p-1 relative text-grey-600 text-sm rounded-xl flex flex-col items-center justify-center hover:text-blue-600 active:text-blue-500 focus-visible-default outline-offset-2 hover:bg-gradient-to-tr hover:from-blue-600/10 hover:to-purple-500/10 focus-visible:bg-gradient-to-tr focus-visible:from-blue-600/10 focus-visible:to-purple-500/10';
+
 export const GetDataCopySingleton = ({
   value,
   onAction,
@@ -53,7 +56,14 @@ export const GetDataCopySingleton = ({
   gleanDataAttrs,
 }: GetDataTrioProps) => {
   return (
-    <FtlMsg id="get-data-trio-copy-2" attrs={{ title: true, ariaLabel: true }}>
+    <FtlMsg
+      id="get-data-trio-copy-v3"
+      attrs={{ title: true }}
+      elems={{
+        icon: <CopyIcon aria-hidden className="w-8 h-8 fill-current" />,
+        label: <span className="truncate w-full text-center" />,
+      }}
+    >
       <button
         title="Copy"
         type="button"
@@ -65,16 +75,12 @@ export const GetDataCopySingleton = ({
         }}
         onBlur={() => setTooltipVisible(false)}
         data-testid="databutton-copy"
-        className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
+        className={trioButtonClassName}
         data-glean-id={gleanDataAttrs.copy?.id}
         data-glean-type={gleanDataAttrs.copy?.type}
       >
-        <CopyIcon
-          aria-label="Copy"
-          width="21"
-          height="24"
-          className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
-        />
+        <CopyIcon aria-hidden className="w-8 h-8 fill-current" />
+        <span className="truncate w-full text-center">Copy</span>
       </button>
     </FtlMsg>
   );
@@ -87,33 +93,29 @@ export const GetDataCopySingletonInline = ({
   gleanDataAttrs,
 }: GetDataTrioProps) => {
   return (
-    <>
-      <FtlMsg
-        id="get-data-trio-copy-2"
-        attrs={{ title: true, ariaLabel: true }}
+    <FtlMsg
+      id="get-data-trio-copy-inline"
+      attrs={{ title: true, 'aria-label': true }}
+    >
+      <button
+        title="Copy"
+        type="button"
+        onClick={async () => {
+          const copyValue = Array.isArray(value) ? value.join('\r\n') : value;
+          await copy(copyValue);
+          onAction?.('copy');
+          setTooltipVisible(true);
+        }}
+        onBlur={() => setTooltipVisible(false)}
+        aria-label="Copy"
+        data-testid="databutton-copy"
+        data-glean-id={gleanDataAttrs.copy?.id}
+        data-glean-type={gleanDataAttrs.copy?.type}
+        className="-my-2 -me-4 p-3 rounded text-grey-500 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-50"
       >
-        <button
-          title="Copy"
-          type="button"
-          onClick={async () => {
-            const copyValue = Array.isArray(value) ? value.join('\r\n') : value;
-            await copy(copyValue);
-            onAction?.('copy');
-            setTooltipVisible(true);
-          }}
-          onBlur={() => setTooltipVisible(false)}
-          data-testid="databutton-copy"
-          data-glean-id={gleanDataAttrs.copy?.id}
-          data-glean-type={gleanDataAttrs.copy?.type}
-          className="-my-2 -me-4 p-3 rounded text-grey-500 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-50"
-        >
-          <InlineCopyIcon
-            aria-label="Copy"
-            className="w-6 h-6 items-center justify-center stroke-current"
-          />
-        </button>
-      </FtlMsg>
-    </>
+        <InlineCopyIcon className="w-6 h-6 items-center justify-center stroke-current" />
+      </button>
+    </FtlMsg>
   );
 };
 
@@ -161,10 +163,14 @@ export const GetDataTrio = ({
   }, [value, pageTitle]);
 
   return (
-    <div className="flex justify-between w-4/5 max-w-48">
+    <div className="flex justify-center w-full">
       <FtlMsg
-        id="get-data-trio-download-2"
-        attrs={{ title: true, ariaLabel: true }}
+        id="get-data-trio-download-v3"
+        attrs={{ title: true }}
+        elems={{
+          icon: <DownloadIcon aria-hidden className="w-8 h-8 fill-current" />,
+          label: <span className="truncate w-full text-center" />,
+        }}
       >
         <a
           title="Download"
@@ -175,7 +181,7 @@ export const GetDataTrio = ({
           )}
           download={`${email} ${contentType}.txt`}
           data-testid="databutton-download"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
+          className={trioButtonClassName}
           onClick={() => {
             onAction?.('download');
             setTooltipVisible(true);
@@ -186,12 +192,8 @@ export const GetDataTrio = ({
           data-glean-id={gleanDataAttrs.download?.id}
           data-glean-type={gleanDataAttrs.download?.type}
         >
-          <DownloadIcon
-            aria-label="Download"
-            height="24"
-            width="18"
-            className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
-          />
+          <DownloadIcon aria-hidden className="w-8 h-8 fill-current" />
+          <span className="truncate w-full text-center">Download</span>
         </a>
       </FtlMsg>
 
@@ -203,8 +205,12 @@ export const GetDataTrio = ({
        *   for triggering the print screen.
        **/}
       <FtlMsg
-        id="get-data-trio-print-2"
-        attrs={{ title: true, ariaLabel: true }}
+        id="get-data-trio-print-v3"
+        attrs={{ title: true }}
+        elems={{
+          icon: <PrintIcon aria-hidden className="w-8 h-8 fill-current" />,
+          label: <span className="truncate w-full text-center" />,
+        }}
       >
         <button
           title="Print"
@@ -216,16 +222,12 @@ export const GetDataTrio = ({
           }}
           onBlur={() => setTooltipVisible(false)}
           data-testid="databutton-print"
-          className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
+          className={trioButtonClassName}
           data-glean-id={gleanDataAttrs.print?.id}
           data-glean-type={gleanDataAttrs.print?.type}
         >
-          <PrintIcon
-            aria-label="Print"
-            height="24"
-            width="24"
-            className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
-          />
+          <PrintIcon aria-hidden className="w-8 h-8 fill-current" />
+          <span className="truncate w-full text-center">Print</span>
         </button>
       </FtlMsg>
     </div>
