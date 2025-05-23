@@ -1,6 +1,7 @@
 ## PageSetupRecoveryPhone
 
 page-setup-recovery-phone-heading = Add recovery phone
+page-change-recovery-phone = Change recovery phone
 
 page-setup-recovery-phone-back-button-title = Back to settings
 # Back arrow to return to step 1 of recovery phone setup flow

@@ -13,6 +13,7 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useAlertBar, useFtlMsgResolver } from '../../../models';
 import { ResendStatus } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
+import { RecoveryPhoneSetupReason } from '../PageRecoveryPhoneSetup';
 
 export type FlowSetupRecoveryPhoneConfirmCodeProps = {
   currentStep?: number;
@@ -22,6 +23,7 @@ export type FlowSetupRecoveryPhoneConfirmCodeProps = {
   navigateBackward: () => void;
   navigateForward: () => void;
   numberOfSteps?: number;
+  reason?: RecoveryPhoneSetupReason;
   sendCode: () => Promise<void>;
   verifyRecoveryCode: (code: string) => Promise<void>;
 };
@@ -34,6 +36,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
   navigateBackward,
   navigateForward,
   numberOfSteps = 2,
+  reason = RecoveryPhoneSetupReason.setup,
   sendCode,
   verifyRecoveryCode,
 }: FlowSetupRecoveryPhoneConfirmCodeProps) => {
@@ -72,11 +75,17 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
 
     try {
       await verifyRecoveryCode(code);
+
       alertBar.success(
-        ftlMsgResolver.getMsg(
-          'flow-setup-phone-confirm-code-success-message-v2',
-          'Recovery phone added'
-        )
+        reason === RecoveryPhoneSetupReason.setup
+          ? ftlMsgResolver.getMsg(
+              'flow-setup-phone-confirm-code-success-message-v2',
+              'Recovery phone added'
+            )
+          : ftlMsgResolver.getMsg(
+              'flow-change-phone-confirm-code-success-message',
+              'Recovery phone changed'
+            )
       );
       navigateForward();
     } catch (error) {
