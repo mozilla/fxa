@@ -13,6 +13,15 @@ export enum FirefoxCommand {
   Error = 'fxError',
   OAuthLogin = 'fxaccounts:oauth_login',
   CanLinkAccount = 'fxaccounts:can_link_account',
+  // opens sync preferences if user is signed in to sync
+  // use as: firefox.send(FirefoxCommand.SyncPreferences, {ok: true});
+  // caveat: if browser does not support the command
+  // or the user is not signed in to sync
+  // there is no response and the command fails silently
+  // As of May 2025, this command is available on desktop
+  // support will be added on Android (https://bugzilla.mozilla.org/show_bug.cgi?id=1968130)
+  // and iOS (https://github.com/mozilla-mobile/firefox-ios/issues/26837)
+  SyncPreferences = 'fxaccounts:sync_preferences',
 }
 
 export interface FirefoxMessageDetail {
