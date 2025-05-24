@@ -280,6 +280,19 @@ commands:
             - fxa-yarn-002-{{ checksum "yarn.lock" }}
             - fxa-yarn-002-
 
+  cache-save-nx:
+    steps:
+      - save_cache:
+          key: fxa-nx-001-{{ checksum "yarn.lock" }}-{{ .Revision }}
+          paths:
+            - .nx/cache
+
+  cache-restore-nx:
+    steps:
+      - restore_cache:
+          keys:
+            - fxa-nx-001-{{ checksum "yarn.lock" }}-{{ .Revision }}
+
   wait-for-infrastructure:
     steps:
       - run:
@@ -402,7 +415,6 @@ commands:
           name: Save Build Workspace
           root: /home/circleci/project
           paths:
-            - .nx/cache
             - packages/**/dist
             - packages/**/public
             - packages/**/src/styles
@@ -604,6 +616,7 @@ jobs:
     resource_class: large
     steps:
       - git-checkout
+      - cache-restore-nx
       - provision
       - save-init-workspace
 
@@ -613,8 +626,10 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
+      - cache-restore-nx
       - build
       - save-build-workspace
+      - cache-save-nx
 
   # Runs linter on packages that have changes.
   lint:
@@ -701,6 +716,7 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
+      - cache-restore-nx
       - gcp-cli/setup
       - wait-for-infrastructure
       - run:
@@ -773,6 +789,7 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
+      - cache-restore-nx
       - gcp-cli/setup
       - run:
           name: Add localhost
@@ -782,7 +799,33 @@ jobs:
       - wait-for-infrastructure
       - run:
           name: Start services for playwright tests
-          command: ./packages/functional-tests/scripts/start-services.sh
+          command: |
+            set -ex
+            # Change to workspace root (assuming script runs from packages/functional-tests/scripts)
+            cd $HOME/project
+            # Create directories
+            mkdir -p ~/.pm2/logs
+            mkdir -p artifacts/tests
+            # Set permissions for NestJS CLI
+            chmod +x node_modules/@nestjs/cli/bin/nest.js
+            # Log directory and cache info
+            pwd
+            ls -la .nx/cache
+            # Run Nx command to start services
+            NX_CACHE_DIRECTORY=$PWD/.nx/cache CI=true npx nx run-many \
+                -t start \
+                --parallel=8 \
+                --verbose \
+                -p \
+                123done \
+                fxa-auth-server \
+                fxa-content-server \
+                fxa-graphql-api \
+                fxa-payments-server \
+                fxa-profile-server \
+                fxa-settings
+            # Check PM2 processes
+            npx pm2 ls
           environment:
             NODE_ENV: test
       - run-playwright-tests:
@@ -871,7 +914,7 @@ workflows:
             - fail-fast
       - integration-test:
           name: Integration Test - Frontends (PR)
-          resource_class: xlarge
+          resource_class: large
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
@@ -1082,7 +1125,7 @@ workflows:
             - Build
       - integration-test:
           name: Integration Test - Frontends
-          resource_class: xlarge
+          resource_class: large
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
           workflow: test_and_deploy_tag
@@ -1205,7 +1248,7 @@ workflows:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Frontends (nightly)
-          resource_class: xlarge
+          resource_class: large
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
           workflow: nightly
