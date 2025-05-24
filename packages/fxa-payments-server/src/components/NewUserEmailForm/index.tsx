@@ -15,6 +15,7 @@ import { useCallbackOnce } from '../../lib/hooks';
 import { apiFetchAccountStatus } from '../../lib/apiClient';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { ACCESS_TOKEN_KEY } from '../..';
 
 const CHECKOUT_TYPE = CheckoutType.WITHOUT_ACCOUNT;
 const DEFAULT_NEWSLETTER_STRING_ID =
@@ -116,6 +117,8 @@ export const NewUserEmailForm = ({
   }, [onFormEngaged]);
 
   const onClickSignInButton = () => {
+    // Clear any remaining access token from a previous session
+    localStorage.removeItem(ACCESS_TOKEN_KEY)
     selectedPlan.other = 'click-signnin';
     Amplitude.createAccountSignIn({
       ...selectedPlan,
@@ -289,7 +292,7 @@ export async function emailInputValidationAndAccountCheck(
 
   const errorMsg = getString
     ? /* istanbul ignore next - not testing l10n here */
-      getString('new-user-email-validate')
+    getString('new-user-email-validate')
     : 'Email is not valid';
 
   const accountExistsMsg = (
@@ -355,7 +358,7 @@ export function emailConfirmationValidation(
 
   const errorMsg = getString
     ? /* istanbul ignore next - not testing l10n here */
-      getString('new-user-email-validate-confirm')
+    getString('new-user-email-validate-confirm')
     : 'Emails do not match';
 
   return {
