@@ -10,9 +10,9 @@ import {
   PrinterIconListItem,
 } from '../IconListItem';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import DataBlock from '../DataBlock';
 import { logViewEvent } from '../../lib/metrics';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import DataBlockInline from '../DataBlockInline';
 
 interface RecoveryKeySetupDownloadProps {
   navigateForward: () => void;
@@ -38,12 +38,11 @@ export const InlineRecoveryKeySetupDownload = ({
   return (
     <>
       <div className="rounded p-2 text-sm border-2 border-grey-100">
-        <DataBlock
+        <DataBlockInline
           value={recoveryKeyValue}
           onAction={() =>
             logViewEvent(`flow.${viewName}`, `recovery-key.copy-option`)
           }
-          isInline
           {...{ email }}
           gleanDataAttrs={{
             copy: {

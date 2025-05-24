@@ -132,7 +132,7 @@ const PromotionBanner = ({
            isClosing ? 'translate-x-full' : 'translate-x-0'
          }`}
     >
-      <FtlMsg id="promo-banner-dismiss-button" attrs={{ ariaLabel: true }}>
+      <FtlMsg id="promo-banner-dismiss-button" attrs={{ 'aria-label': true }}>
         <button
           type="button"
           aria-label="Dismiss banner"

@@ -154,7 +154,6 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
               {recoveryCodes.length > 0 ? (
                 <DataBlock
                   value={recoveryCodes}
-                  separator=" "
                   onCopy={copyRecoveryCodes}
                   contentType="Backup authentication codes"
                   email={account.email}

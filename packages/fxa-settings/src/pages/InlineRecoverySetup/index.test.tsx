@@ -55,8 +55,8 @@ describe('InlineRecoverySetup', () => {
     screen.getByText(
       'Store these one-time use codes in a safe place for when you don’t have your mobile device.'
     );
-    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Print' })).toBeInTheDocument();
+    expect(screen.getByText('Copy')).toBeInTheDocument();
+    expect(screen.getByText('Print')).toBeInTheDocument();
     expect(screen.getByTestId('databutton-download')).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
