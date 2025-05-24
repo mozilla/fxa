@@ -11,13 +11,13 @@ import {
   ButtonVariant,
   PaymentSection,
   SignInForm,
-  buildPageMetadata,
 } from '@fxa/payments/ui';
 import {
   getApp,
   SupportedPages,
   CheckoutParams,
   SignedIn,
+  buildPageMetadata,
 } from '@fxa/payments/ui/server';
 import AppleLogo from '@fxa/shared/assets/images/apple-logo.svg';
 import GoogleLogo from '@fxa/shared/assets/images/google-logo.svg';
@@ -40,10 +40,9 @@ export async function generateMetadata(
     searchParams: Record<string, string> | undefined;
   },
 ): Promise<Metadata> {
+
   return buildPageMetadata({
     params,
-    titlePrefix: 'Checkout',
-    description: 'Enter your payment details to complete your purchase.',
     page: 'start',
     pageType: 'checkout',
     acceptLanguage: headers().get('accept-language'),
