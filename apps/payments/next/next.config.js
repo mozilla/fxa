@@ -77,7 +77,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'accounts-static.cdn.mozilla.net',
+        hostname: 'cdn.accounts.firefox.com',
         port: '',
         pathname: '/product-icons/**',
       },
