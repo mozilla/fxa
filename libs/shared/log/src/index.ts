@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/logging';
+export * from './lib/types';
+export * from './lib/util';
 export { monkeyPatchServerLogging } from './lib/monkey-patch';
 export { LoggingModule, LOGGER_PROVIDER } from './lib/nest/logging.module';
 export type { Logger } from './lib/nest/logging.module';

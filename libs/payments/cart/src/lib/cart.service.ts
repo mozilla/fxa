@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import assert from 'assert';
@@ -51,7 +51,6 @@ import {
   CartState,
 } from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 import {
@@ -99,15 +98,15 @@ export class CartService {
     private customerSessionManager: CustomerSessionManager,
     private eligibilityService: EligibilityService,
     private invoiceManager: InvoiceManager,
-    @Inject(LOGGER_PROVIDER) private log: LoggerService,
+    @Inject(Logger) private log: LoggerService,
     private paymentMethodManager: PaymentMethodManager,
     private paymentIntentManager: PaymentIntentManager,
     private priceManager: PriceManager,
     private productConfigurationManager: ProductConfigurationManager,
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
-    @Inject(StatsDService) private statsd: StatsD,
-  ) { }
+    @Inject(StatsDService) private statsd: StatsD
+  ) {}
 
   /**
    * Should be used to wrap any method that mutates an existing cart.
@@ -220,11 +219,14 @@ export class CartService {
               'checkout_failure_subscription_not_cancelled'
             );
 
-            this.log.log('checkout failed, subscription not canceled', {
-              eligibility_status: cart.eligibilityStatus,
-              offering_id: cart.offeringConfigId,
-              interval: cart.interval,
-            });
+            this.log.log(
+              'cartService.wrapWithCartCatch.subscriptionNotCancelled',
+              {
+                eligibilityStatus: cart.eligibilityStatus,
+                offeringId: cart.offeringConfigId,
+                interval: cart.interval,
+              }
+            );
           }
         }
       } catch (e) {
@@ -358,7 +360,6 @@ export class CartService {
         CartErrorReasonId.IAP_UPGRADE_CONTACT_SUPPORT
       );
     }
-
     return this.cartManager.createCart(createCartParams);
   }
 
@@ -390,12 +391,12 @@ export class CartService {
 
       const accountCustomer = oldCart.uid
         ? await this.accountCustomerManager
-          .getAccountCustomerByUid(oldCart.uid)
-          .catch((error) => {
-            if (!(error instanceof AccountCustomerNotFoundError)) {
-              throw error;
-            }
-          })
+            .getAccountCustomerByUid(oldCart.uid)
+            .catch((error) => {
+              if (!(error instanceof AccountCustomerNotFoundError)) {
+                throw error;
+              }
+            })
         : undefined;
 
       if (!(oldCart.taxAddress && oldCart.currency)) {
@@ -782,11 +783,18 @@ export class CartService {
     if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
       assert('fromPrice' in eligibility, 'fromPrice not present for upgrade');
 
-      const { price: priceForCurrency, unitAmountForCurrency } = await this.priceManager.retrievePricingForCurrency(eligibility.fromPrice.id, cart.currency);
+      const { price: priceForCurrency, unitAmountForCurrency } =
+        await this.priceManager.retrievePricingForCurrency(
+          eligibility.fromPrice.id,
+          cart.currency
+        );
       assertNotNull(unitAmountForCurrency);
       assertNotNull(priceForCurrency.recurring);
 
-      const interval = getSubplatInterval(priceForCurrency.recurring.interval, priceForCurrency.recurring.interval_count);
+      const interval = getSubplatInterval(
+        priceForCurrency.recurring.interval,
+        priceForCurrency.recurring.interval_count
+      );
       assert(interval, 'Interval not found but is required');
 
       fromPrice = {

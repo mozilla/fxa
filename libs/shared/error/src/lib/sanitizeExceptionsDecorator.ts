@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/nextjs';
-import { Inject } from '@nestjs/common';
-import { ILogger } from '@fxa/shared/log';
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
+import { Inject, Logger } from '@nestjs/common';
 import { GENERIC_ERROR_MESSAGE } from './error';
 import { StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
 
@@ -20,7 +18,7 @@ type Constructor<T> = new (...args: any[]) => T;
 export function SanitizeExceptions(
   { allowlist }: { allowlist: Constructor<Error>[] } = { allowlist: [] }
 ) {
-  const injectLogger = Inject(LOGGER_PROVIDER);
+  const injectLogger = Inject(Logger);
   const injectStatsD = Inject(StatsDService);
 
   return function (
@@ -76,15 +74,12 @@ function handleException(args: {
   className: string;
   methodName: string;
   allowlist: Constructor<Error>[];
-  logger: ILogger;
+  logger: Logger;
   statsd: StatsD;
 }): Error {
   const { error, className, methodName, allowlist, logger } = args;
 
-  logger.error(
-    `Error caught by SanitizeExceptions decorator in ${className}.${methodName}`,
-    error
-  );
+  logger.error(error);
 
   const isAllowedError =
     error instanceof Error &&
