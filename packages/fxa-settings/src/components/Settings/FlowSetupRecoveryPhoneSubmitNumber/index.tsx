@@ -11,6 +11,7 @@ import { BackupRecoveryPhoneImage } from '../../images';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useFtlMsgResolver } from '../../../models';
 import FormPhoneNumber from '../../FormPhoneNumber';
+import { RecoveryPhoneSetupReason } from '../PageRecoveryPhoneSetup';
 
 export type FlowSetupRecoveryPhoneSubmitNumberProps = {
   currentStep?: number;
@@ -19,6 +20,7 @@ export type FlowSetupRecoveryPhoneSubmitNumberProps = {
   navigateBackward: () => void;
   navigateForward: () => void;
   numberOfSteps?: number;
+  reason?: RecoveryPhoneSetupReason;
   verifyPhoneNumber: (phoneNumber: string) => Promise<void>;
 };
 
@@ -29,6 +31,7 @@ export const FlowSetupRecoveryPhoneSubmitNumber = ({
   navigateBackward,
   navigateForward,
   numberOfSteps = 2,
+  reason = RecoveryPhoneSetupReason.setup,
   verifyPhoneNumber,
 }: FlowSetupRecoveryPhoneSubmitNumberProps) => {
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =

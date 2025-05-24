@@ -22,7 +22,6 @@ import LinkExternal, {
 
 type SubRowProps = {
   ctaGleanId: string;
-  // temporarily this prop is optional until we enable 'Change' in phase 2, FXA-10995
   ctaMessage?: string;
   icon: React.ReactNode;
   idPrefix: string;
@@ -121,7 +120,6 @@ const SubRow = ({
             </p>
           )}
         </div>
-        {/* temporary check until we enable changing in SMS phase 2, FXA-10995 */}
         {ctaMessage && (
           <button
             className="cta-base-common cta-neutral cta-base-p shrink-0 mt-0 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
@@ -249,9 +247,7 @@ export const BackupPhoneSubRow = ({
     </FtlMsg>
   );
   const ctaMessage = hasPhoneNumber
-    ? // Temporary until we enable changing in phase 2, FXA-10995
-      // ? ftlMsgResolver.getMsg('tfa-row-backup-phone-change-cta', 'Change')
-      undefined
+    ? ftlMsgResolver.getMsg('tfa-row-backup-phone-change-cta', 'Change')
     : ftlMsgResolver.getMsg('tfa-row-backup-phone-add-cta', 'Add');
 
   const ctaGleanId = hasPhoneNumber
