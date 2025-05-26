@@ -227,7 +227,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
               )}
             </h3>
             <p
-              className="overflow-hidden text-ellipsis whitespace-nowrap"
+              className="flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
               data-testid="prorated-price"
             >
               {l10n.getLocalizedCurrencyString(oneTimeCharge, currency, locale)}
