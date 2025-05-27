@@ -20,8 +20,7 @@
  }
 
  [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-   describe(`#integration${testOptions.version} - remote securityEvents`, function () {
-     this.timeout(60000);
+   describe(`#integration${testOptions.version} - #serial - remote securityEvents`, function () {
      let server;
 
      before(async function () {

@@ -8,9 +8,9 @@ const AppError = require('../../../lib/error');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const { AccountManager } = require('@fxa/shared/account/account');
-
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...chai.assert };
+
 const mocks = require('../../mocks');
 const { recoveryPhoneRoutes } = require('../../../lib/routes/recovery-phone');
 const {
@@ -20,10 +20,11 @@ const {
   RecoveryPhoneRegistrationLimitReached,
 } = require('@fxa/accounts/recovery-phone');
 
+chai.use(chaiAsPromised);
+
 const { getRoute } = require('../../routes_helpers');
 const { mockRequest } = require('../../mocks');
 const { Container } = require('typedi');
-chai.use(chaiAsPromised);
 
 describe('/recovery_phone', () => {
   const sandbox = sinon.createSandbox();

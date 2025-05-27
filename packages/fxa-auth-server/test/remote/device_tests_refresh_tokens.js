@@ -6,13 +6,14 @@
 
 const { assert } = require('chai');
 const crypto = require('crypto');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const buf = require('buf').hex;
 const testUtils = require('../lib/util');
 const encrypt = require('fxa-shared/auth/encrypt');
 const log = { trace() {}, info() {}, error() {}, debug() {}, warn() {} };
+const { uniqueEmail } = require('../lib/util');
+
 
 const lastAccessTimeUpdates = {
   enabled: true,
@@ -34,14 +35,12 @@ const UNKNOWN_REFRESH_TOKEN =
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote device with refresh tokens`, function () {
-    this.timeout(60000);
     let client;
     let db;
     let email;
     let oauthServerDb;
     let password;
     let refreshToken;
-    let server;
 
     before(async () => {
       config.lastAccessTimeUpdates = lastAccessTimeUpdates;
@@ -49,19 +48,17 @@ const UNKNOWN_REFRESH_TOKEN =
       const DB = createDB(config, log, Token);
 
       testUtils.disableLogs();
-      server = await TestServer.start(config, false);
       db = await DB.connect(config);
       oauthServerDb = require('../../lib/oauth/db');
     });
 
     after(async () => {
-      await TestServer.stop(server);
       await db.close();
       testUtils.restoreStdoutWrite();
     });
 
     beforeEach(() => {
-      email = server.uniqueEmail();
+      email = uniqueEmail();
       password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (c) => {

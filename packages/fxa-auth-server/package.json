@@ -41,7 +41,9 @@
     "test": "VERIFIER_VERSION=0 scripts/test-local.sh",
     "test-unit": "VERIFIER_VERSION=0 TEST_TYPE=unit scripts/test-ci.sh",
     "test-integration": "VERIFIER_VERSION=0 TEST_TYPE=integration scripts/test-ci.sh",
+    "test-integration-serial": "VERIFIER_VERSION=0 TEST_TYPE=integration-serial scripts/test-ci.sh",
     "test-integration-v2": "VERIFIER_VERSION=0 TEST_TYPE=integration-v2 scripts/test-ci.sh",
+    "test-integration-v2-serial": "VERIFIER_VERSION=0 TEST_TYPE=integration-v2-serial scripts/test-ci.sh",
     "populate-firestore-customers": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/populate-firestore-customers.ts",
     "populate-vat-taxes": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/populate-vat-taxes.ts",
     "paypal-processor": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/paypal-processor.ts",
@@ -198,7 +200,7 @@
   },
   "mocha": {
     "reporter": "mocha-multi",
-    "reporterOptions": "spec=-,mocha-junit-reporter=-"
+    "reporterOptions": "spec=-"
   },
   "nx": {
     "tags": [

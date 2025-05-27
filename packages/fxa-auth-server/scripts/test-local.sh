@@ -28,19 +28,25 @@ if [[ ! -e config/key.json ]]; then
 fi
 
 GLOB=$*
+
+
 if [ -z "$GLOB" ]; then
-  echo "Local tests"
-  mocha $DEFAULT_ARGS $GREP_TESTS test/local
+  for TEST_DIR in test/local test/oauth test/remote test/scripts; do
+    echo "Running tests in: $TEST_DIR"
+    MOCHA_ARGS="$DEFAULT_ARGS"
 
-  echo "Oauth tests"
-  mocha $DEFAULT_ARGS $GREP_TESTS test/oauth
-
-  echo "Remote tests"
-  mocha $DEFAULT_ARGS $GREP_TESTS test/remote
-
-  echo "Script tests"
-  mocha $DEFAULT_ARGS $GREP_TESTS test/scripts
-
+    if [[ "$TEST_DIR" == "test/remote" ]]; then
+      MOCHA_ARGS="$MOCHA_ARGS --require test/server_setup.js"
+    fi
+    echo "Running tests with args: $MOCHA_ARGS, grep: $GREP_TESTS, and directory: $TEST_DIR"
+    mocha $MOCHA_ARGS $GREP_TESTS "$TEST_DIR"
+  done
 else
-  mocha $DEFAULT_ARGS $GLOB $GREP_TESTS
+  MOCHA_ARGS="$DEFAULT_ARGS"
+  if [[ "$GLOB" == *"remote"* ]]; then
+    MOCHA_ARGS="$MOCHA_ARGS --require test/server_setup.js"
+  fi
+
+  echo "Running tests with args: $MOCHA_ARGS, glob: $GLOB, and grep: $GREP_TESTS"
+  mocha $MOCHA_ARGS $GLOB $GREP_TESTS
 fi
