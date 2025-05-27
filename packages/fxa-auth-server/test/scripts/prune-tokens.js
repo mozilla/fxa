@@ -45,7 +45,6 @@ const redis = require('../../lib/redis')(
 );
 
 describe('#integration - scripts/prune-tokens', function () {
-  this.timeout(10000);
   let db;
 
   const toRandomBuff = (size) =>

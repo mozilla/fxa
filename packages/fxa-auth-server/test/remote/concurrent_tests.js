@@ -5,43 +5,53 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
-
+const { uniqueEmail } = require('../lib/util');
 const config = require('../../config').default.getProperties();
+const TestServer = require('../test_server');
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
+[{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
+  describe(`#integration${testOptions.version} - #serial - remote concurrent`, function () {
+    let server;
+    before(async function () {
+      server = await TestServer.start(config);
+    });
 
-describe(`#integration${testOptions.version} - remote concurrent`, function () {
-  this.timeout(60000);
-  let server;
+    after(async function () {
+      await TestServer.stop(server);
+    });
 
-  before(async () => {
-    config.verifierVersion = 1;
-    server = await TestServer.start(config);
-  });
+    it('concurrent create requests', async function () {
+      // Two shall enter, only one shall survive!
+      const email = uniqueEmail();
+      const password = 'abcdef';
 
-  after(async () => {
-    await TestServer.stop(server);
-  });
-
-  it('concurrent create requests', () => {
-    const email = server.uniqueEmail();
-    const password = 'abcdef';
-    // Two shall enter, only one shall survive!
-    const r1 = Client.create(config.publicUrl, email, password, testOptions);
-    const r2 = Client.create(config.publicUrl, email, password, testOptions);
-    return Promise.allSettled([r1, r2])
-      .then((results) => {
-        const rejected = results.filter((p) => p.status === 'rejected');
-        assert(rejected.length === 1, 'one request should have failed');
-      })
-      .then(() => {
-        return server.mailbox.waitForEmail(email);
+      // wrap the start of each request to the same tick
+      let start;
+      const startSignal = new Promise((resolve) => {
+        start = resolve;
       });
+
+      const createUser = () =>
+        startSignal.then(() =>
+          Client.create(config.publicUrl, email, password, testOptions)
+        );
+
+      // release both requests on the same tick
+      start();
+
+      // Start both requests concurrently
+      const r1 = createUser();
+      const r2 = createUser();
+
+      // Wait for both to settle
+      const results = await Promise.allSettled([r1, r2]);
+
+      const rejected = results.filter((p) => p.status === 'rejected');
+      assert.strictEqual(rejected.length, 1, 'one request should have failed');
+
+      // Wait for the resulting email (from the successful create)
+      await server.mailbox.waitForEmail(email);
+    });
   });
-
-
-});
-
 });

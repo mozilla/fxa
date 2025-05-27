@@ -5,148 +5,133 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
-
 const config = require('../../config').default.getProperties();
+const { uniqueEmail, uniqueUnicodeEmail } = require('../lib/util');
 
 // Note, intentionally not indenting for code review.
-[{version:""},{version:"V2"}].forEach((testOptions) => {
+[{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
+  describe(`#integration${testOptions.version} - remote account status`, function () {
+    it('account status with existing account', () => {
+      return Client.create(
+        config.publicUrl,
+        uniqueEmail(),
+        'password',
+        testOptions
+      )
+        .then((c) => {
+          return c.api.accountStatus(c.uid);
+        })
+        .then((response) => {
+          assert.ok(response.exists, 'account exists');
+        });
+    });
 
-describe(`#integration${testOptions.version} - remote account status`, function () {
-  this.timeout(60000);
-  let server;
-  before(async () => {
-    server = await TestServer.start(config);
-  });
-
-  after(async () => {
-    await TestServer.stop(server);
-  });
-
-  it('account status with existing account', () => {
-    return Client.create(
-      config.publicUrl,
-      server.uniqueEmail(),
-      'password',
-      testOptions
-    )
-      .then((c) => {
-        return c.api.accountStatus(c.uid);
+    it('account status includes locale when authenticated', () => {
+      return Client.create(config.publicUrl, uniqueEmail(), 'password', {
+        ...testOptions,
+        lang: 'en-US',
       })
-      .then((response) => {
-        assert.ok(response.exists, 'account exists');
-      });
-  });
+        .then((c) => {
+          return c.api.accountStatus(c.uid, c.sessionToken);
+        })
+        .then((response) => {
+          assert.equal(response.locale, 'en-US', 'locale is stored');
+        });
+    });
 
-  it('account status includes locale when authenticated', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      ...testOptions,
-      lang: 'en-US',
-    })
-      .then((c) => {
-        return c.api.accountStatus(c.uid, c.sessionToken);
+    it('account status does not include locale when unauthenticated', () => {
+      return Client.create(config.publicUrl, uniqueEmail(), 'password', {
+        ...testOptions,
+        lang: 'en-US',
       })
-      .then((response) => {
-        assert.equal(response.locale, 'en-US', 'locale is stored');
-      });
-  });
+        .then((c) => {
+          return c.api.accountStatus(c.uid);
+        })
+        .then((response) => {
+          assert.ok(!response.locale, 'locale is not present');
+        });
+    });
 
-  it('account status does not include locale when unauthenticated', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      ...testOptions,
-      lang: 'en-US',
-    })
-      .then((c) => {
-        return c.api.accountStatus(c.uid);
+    it('account status unauthenticated with no uid returns an error', () => {
+      return Client.create(config.publicUrl, uniqueEmail(), 'password', {
+        ...testOptions,
+        lang: 'en-US',
       })
-      .then((response) => {
-        assert.ok(!response.locale, 'locale is not present');
-      });
+        .then((c) => {
+          return c.api.accountStatus();
+        })
+        .then(
+          () => {
+            assert(false, 'should get an error');
+          },
+          (e) => {
+            assert.equal(e.code, 400, 'correct error status code');
+            assert.equal(e.errno, 108, 'correct errno');
+          }
+        );
+    });
+
+    it('account status with non-existing account', () => {
+      const api = new Client.Api(config.publicUrl, testOptions);
+      return api
+        .accountStatus('0123456789ABCDEF0123456789ABCDEF')
+        .then((response) => {
+          assert.ok(!response.exists, 'account does not exist');
+        });
+    });
+
+    it('account status by email with existing account', () => {
+      const email = uniqueEmail();
+      return Client.create(config.publicUrl, email, 'password', testOptions)
+        .then((c) => {
+          return c.api.accountStatusByEmail(email);
+        })
+        .then((response) => {
+          assert.ok(response.exists, 'account exists');
+        });
+    });
+
+    it('account status by email with non-existing account', () => {
+      const email = uniqueEmail();
+      return Client.create(config.publicUrl, email, 'password', testOptions)
+        .then((c) => {
+          const nonExistEmail = uniqueEmail();
+          return c.api.accountStatusByEmail(nonExistEmail);
+        })
+        .then((response) => {
+          assert.ok(!response.exists, 'account does not exist');
+        });
+    });
+
+    it('account status by email with an invalid email', () => {
+      const email = uniqueEmail();
+      return Client.create(config.publicUrl, email, 'password', testOptions)
+        .then((c) => {
+          const invalidEmail = 'notAnEmail';
+          return c.api.accountStatusByEmail(invalidEmail);
+        })
+        .then(
+          () => {
+            assert(false, 'should not have successful request');
+          },
+          (err) => {
+            assert.equal(err.code, 400);
+            assert.equal(err.errno, 107);
+            assert.equal(err.message, 'Invalid parameter in request body');
+          }
+        );
+    });
+
+    it('account status by email works with unicode email address', () => {
+      const email = uniqueUnicodeEmail();
+      return Client.create(config.publicUrl, email, 'password', testOptions)
+        .then((c) => {
+          return c.api.accountStatusByEmail(email);
+        })
+        .then((response) => {
+          assert.ok(response.exists, 'account exists');
+        });
+    });
   });
-
-  it('account status unauthenticated with no uid returns an error', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      ...testOptions,
-      lang: 'en-US',
-    })
-      .then((c) => {
-        return c.api.accountStatus();
-      })
-      .then(
-        () => {
-          assert(false, 'should get an error');
-        },
-        (e) => {
-          assert.equal(e.code, 400, 'correct error status code');
-          assert.equal(e.errno, 108, 'correct errno');
-        }
-      );
-  });
-
-  it('account status with non-existing account', () => {
-    const api = new Client.Api(config.publicUrl, testOptions);
-    return api
-      .accountStatus('0123456789ABCDEF0123456789ABCDEF')
-      .then((response) => {
-        assert.ok(!response.exists, 'account does not exist');
-      });
-  });
-
-  it('account status by email with existing account', () => {
-    const email = server.uniqueEmail();
-    return Client.create(config.publicUrl, email, 'password', testOptions)
-      .then((c) => {
-        return c.api.accountStatusByEmail(email);
-      })
-      .then((response) => {
-        assert.ok(response.exists, 'account exists');
-      });
-  });
-
-  it('account status by email with non-existing account', () => {
-    const email = server.uniqueEmail();
-    return Client.create(config.publicUrl, email, 'password', testOptions)
-      .then((c) => {
-        const nonExistEmail = server.uniqueEmail();
-        return c.api.accountStatusByEmail(nonExistEmail);
-      })
-      .then((response) => {
-        assert.ok(!response.exists, 'account does not exist');
-      });
-  });
-
-  it('account status by email with an invalid email', () => {
-    const email = server.uniqueEmail();
-    return Client.create(config.publicUrl, email, 'password', testOptions)
-      .then((c) => {
-        const invalidEmail = 'notAnEmail';
-        return c.api.accountStatusByEmail(invalidEmail);
-      })
-      .then(
-        () => {
-          assert(false, 'should not have successful request');
-        },
-        (err) => {
-          assert.equal(err.code, 400);
-          assert.equal(err.errno, 107);
-          assert.equal(err.message, 'Invalid parameter in request body');
-        }
-      );
-  });
-
-  it('account status by email works with unicode email address', () => {
-    const email = server.uniqueUnicodeEmail();
-    return Client.create(config.publicUrl, email, 'password', testOptions)
-      .then((c) => {
-        return c.api.accountStatusByEmail(email);
-      })
-      .then((response) => {
-        assert.ok(response.exists, 'account exists');
-      });
-  });
-
-
-});
-
 });

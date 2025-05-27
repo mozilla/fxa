@@ -45,12 +45,11 @@ function createRandomEmailAddr(template) {
   return `${Math.random() + template}`;
 }
 
-describe('#integration - scripts/check-users:', function () {
-  this.timeout(60000);
-
+describe('#integration - #series - scripts/check-users:', function () {
   let server, db, validClient, invalidClient, filename;
 
   before(async () => {
+    this.timeout(15000);
     server = await TestServer.start(config);
     db = await DB.connect(config);
     validClient = await AuthClient.create(
