@@ -7,6 +7,7 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
+const getPort = require('get-port');
 
 const config = require('../../config').default.getProperties();
 config.redis.sessionTokens.enabled = false;
@@ -18,6 +19,16 @@ config.redis.sessionTokens.enabled = false;
     let server;
 
     before(async () => {
+      const [smtpApiPort, smtpPort] = await Promise.all([
+        getPort({
+          port: config.smtp.api.port
+        }),
+        getPort({
+          port: config.smtp.port
+        })
+      ]);
+      config.smtp.api.port = smtpApiPort;
+      config.smtp.port = smtpPort;
       server = await TestServer.start(config);
     });
 

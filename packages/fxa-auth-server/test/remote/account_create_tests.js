@@ -10,6 +10,7 @@ const crypto = require('crypto');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const mocks = require('../mocks');
+const getPort = require('get-port');
 const { default: Container } = require('typedi');
 const {
   PlaySubscriptions,
@@ -25,6 +26,14 @@ const {
     let server;
 
     before(async function () {
+      const [smtpApiPort, smtpPort] = await Promise.all([
+        getPort({
+          port: config.smtp.api.port
+        }),
+        getPort({
+          port: config.smtp.port
+        })
+      ]);
       config.subscriptions = {
         enabled: true,
         stripeApiKey: 'fake_key',
@@ -36,6 +45,12 @@ const {
         },
         productConfigsFirestore: { enabled: true },
       };
+      // assign specific, safe, ports for this test.
+      config.smtp.api.port = smtpApiPort;
+      config.smtp.port = smtpPort;
+      console.debug('Account create test using SMTP API port:', smtpApiPort);
+      console.debug('Account create test using SMTP port:', smtpPort);
+      // console.debug('Using config from: ', config);
       const mockStripeHelper = {};
       mockStripeHelper.hasActiveSubscription = async () =>
         Promise.resolve(false);
@@ -56,6 +71,7 @@ const {
     });
 
     after(async function () {
+      console.log('Stopping test server - inside test afterhook');
       await TestServer.stop(server);
     });
 

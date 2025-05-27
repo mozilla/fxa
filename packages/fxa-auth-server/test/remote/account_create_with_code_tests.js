@@ -10,6 +10,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const otplib = require('otplib');
+const getPort = require('get-port');
 
 // Note, intentionally not indenting for code review.
 [{version:""},{version:"V2"}].forEach((testOptions) => {
@@ -20,6 +21,16 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
   let server, client, email, emailStatus, emailData;
 
   before(async () => {
+    const [smtpApiPort, smtpPort] = await Promise.all([
+      getPort({
+        port: config.smtp.api.port
+      }),
+      getPort({
+        port: config.smtp.port
+      })
+    ]);
+    config.smtp.api.port = smtpApiPort;
+    config.smtp.port = smtpPort;
     server = await TestServer.start(config);
   });
 

@@ -11,6 +11,7 @@ const otplib = require('otplib');
 const crypto = require('crypto');
 
 const config = require('../../config').default.getProperties();
+const getPort = require('get-port');
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
@@ -20,6 +21,16 @@ const config = require('../../config').default.getProperties();
     let tempConfigValue;
 
     before(async function () {
+      const [smtpApiPort, smtpPort] = await Promise.all([
+        getPort({
+          port: config.smtp.api.port
+        }),
+        getPort({
+          port: config.smtp.port
+        })
+      ]);
+      config.smtp.api.port = smtpApiPort;
+      config.smtp.port = smtpPort;
       // Important, this config impacts test logic. By default this is enabled
       // in development/test with a very large max time. In the real world the max time
       // is much lower, and confirmation is not skipped very often.The test cases in this

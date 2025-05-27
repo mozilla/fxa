@@ -71,16 +71,16 @@ TestServer.start = async function (config, printLogs, options) {
 
 TestServer.prototype.start = async function () {
   const { authServerMockDependencies = {} } = this.options;
-  const createAuthServer = proxyquire(
+  const {main: createAuthServer} = proxyquire(
     '../bin/key_server',
     authServerMockDependencies
   );
 
   this.server = await createAuthServer(this.config);
-  this.mail = await createMailHelper(this.printLogs);
+  this.mail = await createMailHelper(this.config, this.printLogs);
 
   if (this.config.profileServer.url) {
-    this.profileServer = await createProfileHelper();
+    this.profileServer = await createProfileHelper(this.config);
   }
 };
 

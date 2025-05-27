@@ -109,8 +109,7 @@ describe('#integration - scripts/bulk-mailer', function () {
   });
 
   it('fails if --input missing', () => {
-    return cp
-      .execAsync(
+    return execAsync(
         'node -r esbuild-register scripts/bulk-mailer --method sendVerifyEmail',
         execOptions
       )
@@ -123,8 +122,7 @@ describe('#integration - scripts/bulk-mailer', function () {
   });
 
   it('fails if --input file missing', () => {
-    return cp
-      .execAsync(
+    return execAsync(
         'node -r esbuild-register scripts/bulk-mailer --input does_not_exist --method sendVerifyEmail',
         execOptions
       )
@@ -137,8 +135,7 @@ describe('#integration - scripts/bulk-mailer', function () {
   });
 
   it('fails if --method missing', () => {
-    return cp
-      .execAsync(
+    return execAsync(
         'node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH}',
         execOptions
       )
@@ -151,8 +148,7 @@ describe('#integration - scripts/bulk-mailer', function () {
   });
 
   it('fails if --method is invalid', () => {
-    return cp
-      .execAsync(
+    return execAsync(
         'node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method doesNotExist',
         execOptions
       )
@@ -166,8 +162,7 @@ describe('#integration - scripts/bulk-mailer', function () {
 
   it('succeeds with valid input file and method, writing files to disk', () => {
     this.timeout(10000);
-    return cp
-      .execAsync(
+    return execAsync(
         `node -r esbuild-register scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendPasswordChangedEmail --write ${OUTPUT_DIRECTORY}`,
         execOptions
       )

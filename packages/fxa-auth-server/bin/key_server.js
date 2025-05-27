@@ -427,9 +427,10 @@ async function run(config) {
   };
 }
 
-async function main() {
+async function main(overrideConfig) {
   try {
-    const server = await run(config.getProperties());
+    const cfg = overrideConfig || config.getProperties();
+    const server = await run(cfg);
     process.on('uncaughtException', (err) => {
       server.log.fatal('uncaughtException', err);
       process.exit(8);
@@ -457,5 +458,5 @@ async function main() {
 if (require.main === module) {
   main();
 } else {
-  module.exports = run;
+  module.exports = {run, main}
 }

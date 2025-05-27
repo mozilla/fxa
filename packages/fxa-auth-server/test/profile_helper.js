@@ -15,6 +15,8 @@ module.exports = () => {
       port: parseInt(url.parse(config.profileServer.url).port),
     });
 
+    console.debug('Starting profile server at: ', url.parse(config.profileServer.url).hostname);
+    console.debug('Profile server port: ', url.parse(config.profileServer.url).port);
     api.route([
       {
         method: 'DELETE',

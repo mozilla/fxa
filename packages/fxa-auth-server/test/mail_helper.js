@@ -61,7 +61,7 @@ function emailName(emailAddress) {
   return utf8Address.split('@')[0];
 }
 
-module.exports = (printLogs) => {
+module.exports = async (configOverride, printLogs) => {
   printLogs = printLogs || process.env.MAIL_HELPER_LOGS;
   const console = printLogs
     ? global.console
@@ -134,11 +134,13 @@ module.exports = (printLogs) => {
       }
     );
 
-    smtp.listen(config.smtp.port, (err) => {
+    console.debug('Starting local SMTP server at: ', configOverride.smtp.port);
+    smtp.listen(configOverride.smtp.port, (err) => {
       if (!err) {
-        console.log(`Local SMTP server listening on port ${config.smtp.port}`);
+        console.log(`Local SMTP server listening on port ${configOverride.smtp.port}`);
       } else {
         console.log('Error starting SMTP server...');
+        console.debug("Error", err);
         console.log(err.message);
       }
     });
@@ -147,8 +149,8 @@ module.exports = (printLogs) => {
 
     const hapi = require('@hapi/hapi');
     const api = new hapi.Server({
-      host: config.smtp.api.host,
-      port: config.smtp.api.port,
+      host: configOverride.smtp.api.host,
+      port: configOverride.smtp.api.port,
     });
 
     function loop(email, cb) {
