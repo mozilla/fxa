@@ -5,7 +5,6 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const log = { trace() {}, info() {}, debug() {}, warn() {}, error() {} };
 
@@ -34,9 +33,8 @@ const {
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote verifier upgrade`, function () {
-    this.timeout(60000);
 
-    let client, db, server;
+    let client, db;
 
     before(async () => {
       config.verifierVersion = 0;
@@ -45,12 +43,10 @@ const {
       Container.set(PlaySubscriptions, {});
       Container.set(AppStoreSubscriptions, {});
 
-      server = await TestServer.start(config);
       db = await DB.connect(config);
     });
 
     after(async () => {
-      await TestServer.stop(server);
       await db.close();
     });
 
@@ -67,10 +63,8 @@ const {
       let account = await db.account(client.uid);
 
       assert.equal(account.verifierVersion, 0, 'wrong version');
-      await TestServer.stop(server);
 
       config.verifierVersion = 1;
-      server = await TestServer.start(config);
 
       client = await Client.login(
         config.publicUrl,

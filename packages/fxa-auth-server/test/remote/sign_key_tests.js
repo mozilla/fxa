@@ -8,12 +8,11 @@ const { assert } = require('chai');
 const superagent = require('superagent');
 const TestServer = require('../test_server');
 const path = require('path');
+const config = require('../../config').default.getProperties();
 
-describe(`#integration - remote sign key`, function () {
-  this.timeout(60000);
+describe(`#integration - #serial - remote sign key`, function () {
   let server;
   before(async () => {
-    const config = require('../../config').default.getProperties();
     config.oldPublicKeyFile = path.resolve(
       __dirname,
       '../../config/public-key.json'

@@ -5,20 +5,19 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
+const config = require('../../config').default.getProperties();
+const TestServer = require('../test_server');
 
-let config, server, client, email, secondEmail;
-const password = 'allyourbasearebelongtous',
-  newPassword = 'newpassword';
+let client, email, secondEmail;
+const password = 'allyourbasearebelongtous';
+const newPassword = 'newpassword';
 
 [ {version:""}, {version:"V2"}].forEach((testOptions) => {
 
-describe(`#integration${testOptions.version} - remote change email`, function () {
-  this.timeout(60000);
-
+describe(`#integration${testOptions.version} - #serial - remote change email`, function () {
+  let server;
   before(async () => {
-    config = require('../../config').default.getProperties();
     config.securityHistory.ipProfiling = {};
     server = await TestServer.start(config);
   });

@@ -18,8 +18,7 @@ function getSessionTokenId(sessionTokenHex) {
 }
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote password change`, function () {
-    this.timeout(60000);
+  describe(`#integration${testOptions.version} - #serial - remote password change`, function () {
     let server;
     before(async () => {
       config.securityHistory.ipProfiling.allowedRecency = 0;

@@ -8,18 +8,21 @@ const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
-config.redis.sessionTokens.enabled = false;
 const url = require('url');
-
 const mocks = require('../mocks');
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote account signin verification`, function () {
-    this.timeout(60000);
+  /**
+   * Note, these tests are run in #serial because they modify the
+   * config from it's defaults and require the unique config when
+   * starting the test server.
+   */
+  describe(`#integration${testOptions.version} - #serial - remote account signin verification`, function () {
     let server;
 
     before(async () => {
+      config.redis.sessionTokens.enabled = false;
       config.securityHistory.ipProfiling.allowedRecency = 0;
       config.signinConfirmation.skipForNewAccounts.enabled = false;
       server = await TestServer.start(config);

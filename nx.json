@@ -116,7 +116,31 @@
       ],
       "cache": true
     },
+    "test-integration-serial": {
+      "dependsOn": ["build", "gen-keys"],
+      "inputs": ["test", "^test"],
+      "outputs": [
+        "{workspaceRoot}/artifacts/tests",
+        "{projectRoot}/coverage",
+        "{projectRoot}/.nyc_output",
+        "{projectRoot}/test-results.xml",
+        "{projectRoot}/test/scripts/test_output"
+      ],
+      "cache": true
+    },
     "test-integration-v2": {
+      "dependsOn": ["build", "gen-keys"],
+      "inputs": ["test", "^test"],
+      "outputs": [
+        "{workspaceRoot}/artifacts/tests",
+        "{projectRoot}/coverage",
+        "{projectRoot}/.nyc_output",
+        "{projectRoot}/test-results.xml",
+        "{projectRoot}/test/scripts/test_output"
+      ],
+      "cache": true
+    },
+    "test-integration-v2-serial": {
       "dependsOn": ["build", "gen-keys"],
       "inputs": ["test", "^test"],
       "outputs": [

@@ -3,44 +3,84 @@
 DIR=$(dirname "$0")
 cd "$DIR/.."
 
-rm -rf coverage
-rm -rf .nyc_output
+# Clean up previous coverage and nyc output
+rm -rf coverage .nyc_output
 
-if [ -z "$NODE_ENV" ]; then export NODE_ENV=dev; fi;
-if [ -z "$CORS_ORIGIN" ]; then export CORS_ORIGIN="http://foo,http://bar"; fi;
-if [ -z "$FIRESTORE_EMULATOR_HOST" ]; then export FIRESTORE_EMULATOR_HOST="localhost:9090"; fi;
-if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; fi;
-if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep /#integration\s-/"; fi;
-if [ "$TEST_TYPE" == 'integration-v2' ]; then GREP_TESTS="--grep /#integrationV2\s-/"; fi;
+# Set environment variables if not already set
+: "${NODE_ENV:=dev}"
+: "${CORS_ORIGIN:=http://foo,http://bar}"
+: "${FIRESTORE_EMULATOR_HOST:=localhost:9090}"
 
-DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 5000 --exit"
+# Set grep patterns based on TEST_TYPE
+case "$TEST_TYPE" in
+  unit)
+    GREP_TESTS="--grep #integration --invert "
+    ;;
+  integration)
+    GREP_TESTS="--grep /#integration\\s-/"
+    ;;
+  integration-v2)
+    GREP_TESTS="--grep /#integrationV2\\s-/"
+    ;;
+  integration-serial)
+    GREP_TESTS="--grep /(?=.*#integration\\s-)(?=.*#serial\\s-)/"
+    ;;
+  integration-v2-serial)
+    GREP_TESTS="--grep /(?=.*#integrationV2\\s-)(?=.*#serial\\s-)/"
+    ;;
+esac
 
-if [[ ! -e config/secret-key.json ]]; then
-  node -r esbuild-register ./scripts/gen_keys.js
+# Base mocha args
+DEFAULT_ARGS=(
+  --require esbuild-register
+  --require tsconfig-paths/register
+  --recursive
+  --timeout 5000
+  --exit
+)
+
+# Add parallel mode for integration and integration-v2, but not for serial types
+if [[ "$TEST_TYPE" == "integration" || "$TEST_TYPE" == "integration-v2" ]]; then
+  DEFAULT_ARGS+=(--parallel --jobs=4)
 fi
 
-if [[ ! -e config/vapid-keys.json ]]; then
-  node -r esbuild-register ./scripts/gen_vapid_keys.js
+# Ensure required key files exist
+[[ -e config/secret-key.json ]] || node -r esbuild-register ./scripts/gen_keys.js
+[[ -e config/vapid-keys.json ]] || node -r esbuild-register ./scripts/gen_vapid_keys.js
+[[ -e config/key.json ]] || node -r esbuild-register ./scripts/oauth_gen_keys.js
+
+# Known test directories
+KNOWN_TESTS=(local oauth remote scripts)
+ARGS=("$@")
+
+run_mocha() {
+  local test_dir="$1"
+  local extra_args=()
+  if [[ "$test_dir" == "remote" ]]; then
+    extra_args+=(--require test/server_setup.js)
+  fi
+  mocha "${DEFAULT_ARGS[@]}" "${extra_args[@]}" $GREP_TESTS "test/$test_dir"
+}
+
+# If no arguments, run all test dirs
+if [[ ${#ARGS[@]} -eq 0 ]]; then
+  for test_dir in "${KNOWN_TESTS[@]}"; do
+    run_mocha "$test_dir"
+  done
+  exit $?
 fi
 
-if [[ ! -e config/key.json ]]; then
-  node -r esbuild-register ./scripts/oauth_gen_keys.js
+# If argument matches a known test dir, run just that dir
+if [[ " ${KNOWN_TESTS[*]} " =~ " ${ARGS[0]} " && ${#ARGS[@]} -eq 1 ]]; then
+  run_mocha "${ARGS[0]}"
+  exit $?
 fi
 
-GLOB=$*
-if [ -z "$GLOB" ]; then
-  echo "Local tests"
-  mocha $DEFAULT_ARGS $GREP_TESTS test/local
-
-  echo "Oauth tests"
-  mocha $DEFAULT_ARGS $GREP_TESTS test/oauth
-
-  echo "Remote tests"
-  mocha $DEFAULT_ARGS $GREP_TESTS test/remote
-
-  echo "Script tests"
-  mocha $DEFAULT_ARGS $GREP_TESTS test/scripts
-
-else
-  mocha $DEFAULT_ARGS $GLOB $GREP_TESTS
+# Otherwise, treat as a glob (could be a file, pattern, etc.)
+GLOB="$*"
+EXTRA_ARGS=()
+if [[ "$GLOB" == *"remote"* ]]; then
+  EXTRA_ARGS+=(--require test/server_setup.js)
 fi
+
+mocha "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" $GLOB $GREP_TESTS

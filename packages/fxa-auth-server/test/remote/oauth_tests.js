@@ -5,12 +5,12 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const error = require('../../lib/error');
 const testUtils = require('../lib/util');
+const mailbox = require('../mailbox')();
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
@@ -25,30 +25,26 @@ const { decodeJWT } = testUtils;
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - /oauth/ routes`, function () {
-    this.timeout(60000);
     let client;
     let email;
     let password;
-    let server;
 
     before(async () => {
       testUtils.disableLogs();
-      server = await TestServer.start(config, false);
     });
 
     after(async () => {
-      await TestServer.stop(server);
       testUtils.restoreStdoutWrite();
     });
 
     beforeEach(async () => {
-      email = server.uniqueEmail();
+      email = testUtils.uniqueEmail();
       password = 'test password';
       client = await Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       );
     });
@@ -390,7 +386,7 @@ const { decodeJWT } = testUtils;
       )[OAUTH_SCOPE_OLD_SYNC];
 
       await client.changePassword('new password');
-      await server.mailbox.waitForEmail(email);
+      await mailbox.waitForEmail(email);
       // eslint-disable-next-line require-atomic-updates
       client = await Client.login(
         config.publicUrl,
@@ -398,7 +394,7 @@ const { decodeJWT } = testUtils;
         'new password',
         testOptions
       );
-      await server.mailbox.waitForEmail(email);
+      await mailbox.waitForEmail(email);
 
       const keyData2 = (
         await client.getScopedKeyData({
@@ -413,10 +409,10 @@ const { decodeJWT } = testUtils;
       );
 
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
+      const code = await mailbox.waitForCode(email);
       await client.verifyPasswordResetCode(code);
       await client.resetPassword(password, {});
-      await server.mailbox.waitForEmail(email);
+      await mailbox.waitForEmail(email);
 
       const keyData3 = (
         await client.getScopedKeyData({

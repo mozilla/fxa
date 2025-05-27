@@ -7,7 +7,8 @@
 const assert = require('assert');
 const Client = require('../client')();
 const crypto = require('crypto');
-const TestServer = require('../test_server');
+const mailbox = require('../mailbox')()
+const { uniqueEmail, uniqueUnicodeEmail } = require('../lib/util');
 
 const config = require('../../config').default.getProperties();
 
@@ -15,27 +16,15 @@ const config = require('../../config').default.getProperties();
 [{version:""}, {version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote account login`, () => {
-  let server;
-
-  before(async function () {
-    this.timeout(60000);
-    config.securityHistory.ipProfiling.allowedRecency = 0;
-    config.signinConfirmation.skipForNewAccounts.enabled = false;
-    server = await TestServer.start(config);
-  });
-
-  after(async function () {
-    await TestServer.stop(server);
-  });
 
   it('the email is returned in the error on Incorrect password errors', () => {
-    const email = server.uniqueEmail();
+  const email = uniqueEmail();
     const password = 'abcdef';
     return Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     )
       .then(() => {
@@ -67,14 +56,14 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       return;
     }
 
-    const signupEmail = server.uniqueEmail();
+    const signupEmail = uniqueEmail();
     const loginEmail = signupEmail.toUpperCase();
     const password = 'abcdef';
     return Client.createAndVerify(
       config.publicUrl,
       signupEmail,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     )
       .then(() => {
@@ -97,7 +86,7 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
 
   it('Unknown account should not exist', () => {
     const client = new Client(config.publicUrl, testOptions);
-    client.email = server.uniqueEmail();
+    client.email = uniqueEmail();
     client.authPW = crypto.randomBytes(32);
     client.authPWVersion2 = crypto.randomBytes(32);
     return client.login().then(
@@ -111,13 +100,13 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
   });
 
   it('No keyFetchToken without keys=true', () => {
-    const email = server.uniqueEmail();
+    const email = uniqueEmail();
     const password = 'abcdef';
     return Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     )
       .then((c) => {
@@ -132,13 +121,13 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
   });
 
   it('login works with unicode email address', () => {
-    const email = server.uniqueUnicodeEmail();
+    const email = uniqueUnicodeEmail();
     const password = 'wibble';
     return Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     )
       .then(() => {
@@ -150,12 +139,12 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
   });
 
   it('account login works with minimal metricsContext metadata', () => {
-    const email = server.uniqueEmail();
+    const email = uniqueEmail();
     return Client.createAndVerify(
       config.publicUrl,
       email,
       'foo',
-      server.mailbox,
+      mailbox,
       testOptions
     )
       .then(() => {
@@ -174,12 +163,12 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
   });
 
   it('account login fails with invalid metricsContext flowId', () => {
-    const email = server.uniqueEmail();
+    const email = uniqueEmail();
     return Client.createAndVerify(
       config.publicUrl,
       email,
       'foo',
-      server.mailbox,
+      mailbox,
       testOptions
     )
       .then(() => {
@@ -203,12 +192,12 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
   });
 
   it('account login fails with invalid metricsContext flowBeginTime', () => {
-    const email = server.uniqueEmail();
+    const email = uniqueEmail();
     return Client.createAndVerify(
       config.publicUrl,
       email,
       'foo',
-      server.mailbox,
+      mailbox,
       testOptions
     )
       .then(() => {
@@ -235,12 +224,12 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
     let client, email;
     const password = 'foo';
     beforeEach(() => {
-      email = server.uniqueEmail('@mozilla.com');
+      email = uniqueEmail('@mozilla.com');
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       );
     });
@@ -283,7 +272,7 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
             false,
             'session is not verified'
           );
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'verifyLogin');
@@ -325,7 +314,7 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
             false,
             'session is not verified'
           );
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
@@ -335,12 +324,12 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
     });
 
     it('can use `totp-2fa` verification', () => {
-      email = server.uniqueEmail();
+      email = uniqueEmail();
       return Client.createAndVerifyAndTOTP(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,

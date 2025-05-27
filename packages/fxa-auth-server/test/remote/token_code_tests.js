@@ -6,7 +6,8 @@
 
 const { assert } = require('chai');
 const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
+const { uniqueEmail } = require('../lib/util');
+const mailbox = require('../mailbox')();
 const Client = require('../client')();
 const error = require('../../lib/error');
 const { default: Container } = require('typedi');
@@ -20,28 +21,22 @@ const {
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote tokenCodes`, function () {
-  this.timeout(60000);
 
-  let server, client, email, code;
+  let client, email, code;
   const password = 'pssssst';
 
   before(async () => {
     Container.set(PlaySubscriptions, {});
     Container.set(AppStoreSubscriptions, {});
-    server = await TestServer.start(config);
-  });
-
-  after(async () => {
-    await TestServer.stop(server);
   });
 
   beforeEach(() => {
-    email = server.uniqueEmail('@mozilla.com');
+    email = uniqueEmail('@mozilla.com');
     return Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     ).then((x) => {
       client = x;
@@ -138,7 +133,7 @@ describe(`#integration${testOptions.version} - remote tokenCodes`, function () {
         assert.equal(status.verified, false, 'account is not verified');
         assert.equal(status.emailVerified, true, 'email is verified');
         assert.equal(status.sessionVerified, false, 'session is not verified');
-        return server.mailbox.waitForEmail(email);
+        return mailbox.waitForEmail(email);
       })
       .then((emailData) => {
         assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
@@ -165,7 +160,7 @@ describe(`#integration${testOptions.version} - remote tokenCodes`, function () {
     })
       .then((res) => {
         client = res;
-        return server.mailbox.waitForEmail(email);
+        return mailbox.waitForEmail(email);
       })
       .then((emailData) => {
         assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
@@ -192,7 +187,7 @@ describe(`#integration${testOptions.version} - remote tokenCodes`, function () {
     })
       .then((res) => {
         client = res;
-        return server.mailbox.waitForEmail(email);
+        return mailbox.waitForEmail(email);
       })
       .then((emailData) => {
         assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
@@ -219,7 +214,7 @@ describe(`#integration${testOptions.version} - remote tokenCodes`, function () {
       keys: true,
     });
 
-    let emailData = await server.mailbox.waitForEmail(email);
+    let emailData = await mailbox.waitForEmail(email);
     const originalMessageId = emailData['messageId'];
     const originalCode = emailData.headers['x-verify-short-code'];
 
@@ -227,7 +222,7 @@ describe(`#integration${testOptions.version} - remote tokenCodes`, function () {
 
     await client.resendVerifyShortCodeEmail();
 
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
 
     assert.notEqual(

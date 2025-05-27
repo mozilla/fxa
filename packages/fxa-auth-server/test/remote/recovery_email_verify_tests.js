@@ -7,25 +7,16 @@
 const { assert } = require('chai');
 const url = require('url');
 const Client = require('../client')();
-const TestServer = require('../test_server');
-
+const mailbox = require('../mailbox')();
 const config = require('../../config').default.getProperties();
+const { uniqueEmail } = require('../lib/util');
+
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
-
 describe(`#integration${testOptions.version} - remote recovery email verify`, function () {
-  this.timeout(60000);
-  let server;
-  before(async () => {
-    server = await TestServer.start(config);
-  });
-
-  after(async () => {
-    await TestServer.stop(server);
-  });
 
   it('create account verify with incorrect code', () => {
-    const email = server.uniqueEmail();
+    const email = uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
     return Client.create(config.publicUrl, email, password, testOptions)
@@ -62,7 +53,7 @@ describe(`#integration${testOptions.version} - remote recovery email verify`, fu
   });
 
   it('verification email link', () => {
-    const email = server.uniqueEmail();
+    const email = uniqueEmail();
     const password = 'something';
     const options = {
       ...testOptions,
@@ -71,7 +62,7 @@ describe(`#integration${testOptions.version} - remote recovery email verify`, fu
     };
     return Client.create(config.publicUrl, email, password, options)
       .then(() => {
-        return server.mailbox.waitForEmail(email);
+        return mailbox.waitForEmail(email);
       })
       .then((emailData) => {
         const link = emailData.headers['x-link'];

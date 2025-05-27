@@ -5,29 +5,19 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
-
 const config = require('../../config').default.getProperties();
+const { uniqueEmail } = require('../lib/util');
 
 // Note, intentionally not indenting for code review.
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote account unlock`, function () {
-  this.timeout(60000);
-  let server;
-  before(async () => {
-    server = await TestServer.start(config);
-  });
-
-  after(async () => {
-    await TestServer.stop(server);
-  });
 
   it('/account/lock is no longer supported', () => {
     return Client.create(
       config.publicUrl,
-      server.uniqueEmail(),
+      uniqueEmail(),
       'password',
       testOptions
     )
@@ -47,7 +37,7 @@ describe(`#integration${testOptions.version} - remote account unlock`, function 
   it('/account/unlock/resend_code is no longer supported', () => {
     return Client.create(
       config.publicUrl,
-      server.uniqueEmail(),
+      uniqueEmail(),
       'password',
       testOptions
     )
@@ -67,7 +57,7 @@ describe(`#integration${testOptions.version} - remote account unlock`, function 
   it('/account/unlock/verify_code is no longer supported', () => {
     return Client.create(
       config.publicUrl,
-      server.uniqueEmail(),
+      uniqueEmail(),
       'password',
       testOptions
     )
