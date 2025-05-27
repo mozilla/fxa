@@ -17,6 +17,8 @@ import { actions } from './store/actions';
 import './styles/tailwind.out.css';
 import './index.scss';
 
+export const ACCESS_TOKEN_KEY = 'fxa-access-token';
+
 async function init() {
   readConfigFromMeta(headQuerySelector);
 
@@ -109,7 +111,6 @@ async function getHashParams() {
   return hashParams;
 }
 
-const ACCESS_TOKEN_KEY = 'fxa-access-token';
 type getVerifiedAccessTokenArgs = { accessToken?: string | null };
 async function getVerifiedAccessToken({
   accessToken = '',
