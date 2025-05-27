@@ -1815,12 +1815,22 @@ export class AccountHandler {
     this.log.begin('Account.destroy', request);
 
     const { authPW, email: emailAddress } = request.payload as any;
+    const sessionToken = request.auth && request.auth.credentials as unknown as {
+      uid: string;
+      email: string;
+      tokenVerified: boolean;
+      tokenVerificationId?: string;
+      authenticatorAssuranceLevel?: number;
+    }
 
     await this.customs.check(request, emailAddress, 'accountDestroy');
 
     let accountRecord: Account;
     try {
       accountRecord = await this.db.accountRecord(emailAddress);
+      if (accountRecord.uid !== sessionToken.uid) {
+        throw error.unknownAccount(emailAddress);
+      }
     } catch (err) {
       if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
         await this.customs.flag(request.app.clientAddress, {
@@ -1832,7 +1842,6 @@ export class AccountHandler {
       throw err;
     }
 
-    const sessionToken = request.auth && request.auth.credentials;
     const hasTotpToken = await this.otpUtils.hasTotpToken(accountRecord);
 
     // Someone tried to delete an account with TOTP but did not specify a session.
