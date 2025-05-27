@@ -3,14 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { AccountEventsManager } = require('../../../lib/account-events');
+const { AccountManager } = require('@fxa/shared/account/account');
 const AppError = require('../../../lib/error');
 
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const { AccountManager } = require('@fxa/shared/account/account');
-
 const sinon = require('sinon');
+chai.use(chaiAsPromised);
 const assert = { ...sinon.assert, ...chai.assert };
+
+
 const mocks = require('../../mocks');
 const { recoveryPhoneRoutes } = require('../../../lib/routes/recovery-phone');
 const {
@@ -24,7 +26,6 @@ const {
 const { getRoute } = require('../../routes_helpers');
 const { mockRequest } = require('../../mocks');
 const { Container } = require('typedi');
-chai.use(chaiAsPromised);
 
 describe('/recovery_phone', () => {
   const sandbox = sinon.createSandbox();

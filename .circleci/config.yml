@@ -316,12 +316,12 @@ commands:
     steps:
       - run:
           name: Pre building shared libraries
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2 --verbose
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=4 --verbose
           environment:
             NODE_ENV: test
       - run:
           name: Compiling TypeScript
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=1 -t compile
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=4 -t compile
           environment:
             NODE_ENV: test
 
@@ -382,7 +382,7 @@ commands:
     steps:
       - run:
           name: Build
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --parallel=2 --all --verbose
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --parallel=8 --all --verbose
           environment:
             NODE_ENV: test
 

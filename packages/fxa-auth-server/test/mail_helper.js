@@ -61,7 +61,7 @@ function emailName(emailAddress) {
   return utf8Address.split('@')[0];
 }
 
-module.exports = (printLogs) => {
+module.exports = async (config, printLogs) => {
   printLogs = printLogs || process.env.MAIL_HELPER_LOGS;
   const console = printLogs
     ? global.console
@@ -139,6 +139,7 @@ module.exports = (printLogs) => {
         console.log(`Local SMTP server listening on port ${config.smtp.port}`);
       } else {
         console.log('Error starting SMTP server...');
+        console.debug("Error", err);
         console.log(err.message);
       }
     });
