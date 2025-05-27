@@ -14,8 +14,7 @@ const password = 'allyourbasearebelongtous';
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
-describe(`#integration${testOptions.version} - remote emails`, function () {
-  this.timeout(60000);
+describe(`#integration${testOptions.version} - #series - remote emails`, function () {
 
   before(async function () {
     config = require('../../config').default.getProperties();

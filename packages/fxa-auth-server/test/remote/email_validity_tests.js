@@ -7,15 +7,12 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-
 const config = require('../../config').default.getProperties();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote email validity`, function () {
-    this.timeout(60000);
+  describe(`#integration${testOptions.version} - #series - remote email validity`, function () {
     let server;
     const temp = {};
-
     before(async () => {
       temp.requireVerifiedAccount =
         config.accountDestroy.requireVerifiedAccount;
@@ -36,49 +33,52 @@ const config = require('../../config').default.getProperties();
       await TestServer.stop(server);
     });
 
-    it('/account/create with a variety of malformed email addresses', () => {
-      const pwd = '123456';
+    const invalidEmails = [
+      'notAnEmailAddress',
+      '\n@example.com',
+      'me@hello world.com',
+      'me@hello+world.com',
+      'me@.example',
+      'me@example',
+      'me@example.com-',
+      'me@example..com',
+      'me@example-.com',
+      'me@example.-com',
+      '\uD83D\uDCA9@unicodepooforyou.com',
+    ];
 
-      const emails = [
-        'notAnEmailAddress',
-        '\n@example.com',
-        'me@hello world.com',
-        'me@hello+world.com',
-        'me@.example',
-        'me@example',
-        'me@example.com-',
-        'me@example..com',
-        'me@example-.com',
-        'me@example.-com',
-        '\uD83D\uDCA9@unicodepooforyou.com',
-      ];
-      emails.forEach((email, i) => {
-        emails[i] = Client.create(
+    invalidEmails.forEach(email => {
+      // these are currently getting a false positive
+      // they're getting a `400` back, but the
+      it(`/account/create rejects malformed email address: ${email}`, () => {
+        const pwd = '123456';
+        return Client.create(
           config.publicUrl,
           email,
           pwd,
           testOptions
         ).then(assert.fail, (err) => {
           assert.equal(err.code, 400, 'http 400 : malformed email is rejected');
+          assert.equal(err.errno, 107, 'errno 107 : malformed email is rejected');
+          assert.equal(err.message, "Invalid parameter in request body", )
         });
       });
-
-      return Promise.all(emails);
     });
 
-    it('/account/create with a variety of unusual but valid email addresses', () => {
-      const pwd = '123456';
+    const validEmails = [
+      'tim@tim-example.net',
+      'a+b+c@example.com',
+      '#!?-@t-e-s-assert.c-o-m',
+      `${String.fromCharCode(1234)}@example.com`,
+      `test@${String.fromCharCode(5678)}.com`,
+    ];
 
-      const emails = [
-        'tim@tim-example.net',
-        'a+b+c@example.com',
-        '#!?-@t-e-s-assert.c-o-m',
-        `${String.fromCharCode(1234)}@example.com`,
-        `test@${String.fromCharCode(5678)}.com`,
-      ];
-
-      emails.forEach((email, i) => {
-        emails[i] = Client.create(
+    // iterate over each and individually test so
+    // that, should one email fail, we still test the others
+    validEmails.forEach((email) => {
+      it(`/account/create allows unusual but valid email addresses: ${email}`, () => {
+        const pwd = '123456';
+        return Client.create(
           config.publicUrl,
           email,
           pwd,
@@ -88,6 +88,11 @@ const config = require('../../config').default.getProperties();
             return c.destroyAccount();
           },
           (_err) => {
+            console.debug('An email address that should have been allowed was rejected:',
+              {
+                email,
+                _err
+              });
             assert(
               false,
               `Email address ${email} should have been allowed, but it wasn't`
@@ -95,8 +100,6 @@ const config = require('../../config').default.getProperties();
           }
         );
       });
-
-      return Promise.all(emails);
     });
   });
 });

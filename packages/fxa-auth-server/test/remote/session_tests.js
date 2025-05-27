@@ -10,8 +10,7 @@ const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote session`, function () {
-    this.timeout(60000);
+  describe(`#integration${testOptions.version} - #series - remote session`, function () {
     let server;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
     before(async () => {

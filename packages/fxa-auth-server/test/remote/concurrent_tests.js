@@ -5,28 +5,24 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
+const { TestUtilities } = require('../test_utilities');
+const mailbox = require('../mailbox')();
 
 const config = require('../../config').default.getProperties();
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote concurrent`, function () {
-  this.timeout(60000);
-  let server;
 
   before(async () => {
-    config.verifierVersion = 1;
-    server = await TestServer.start(config);
   });
 
   after(async () => {
-    await TestServer.stop(server);
   });
 
   it('concurrent create requests', () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     const password = 'abcdef';
     // Two shall enter, only one shall survive!
     const r1 = Client.create(config.publicUrl, email, password, testOptions);
@@ -37,7 +33,7 @@ describe(`#integration${testOptions.version} - remote concurrent`, function () {
         assert(rejected.length === 1, 'one request should have failed');
       })
       .then(() => {
-        return server.mailbox.waitForEmail(email);
+        return mailbox.waitForEmail(email);
       });
   });
 

@@ -7,14 +7,14 @@
 const { assert } = require('chai');
 const config = require('../../config').default.getProperties();
 const crypto = require('crypto');
-const TestServer = require('../test_server');
 const Client = require('../client')();
+const mailbox = require('../mailbox')();
+const { TestUtilities } = require('../test_utilities');
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote recovery keys`, function () {
-    this.timeout(60000);
 
-    let server, client, email;
+    let client, email;
     const password = '(-.-)Zzz...';
 
     let recoveryKeyId;
@@ -40,20 +40,18 @@ const Client = require('../client')();
     }
 
     before(async () => {
-      server = await TestServer.start(config);
     });
 
     after(async () => {
-      await TestServer.stop(server);
     });
 
-    beforeEach(() => {
-      email = server.uniqueEmail();
-      return Client.createAndVerify(
+    beforeEach(async () => {
+      email = TestUtilities.uniqueEmail();
+      await Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -71,11 +69,15 @@ const Client = require('../client')();
           return createMockRecoveryKey(client.uid, keys.kB).then((result) => {
             recoveryKeyId = result.recoveryKeyId;
             recoveryData = result.recoveryData;
+            console.debug('Recovery Key Data:', {recoveryKeyId, recoveryData});
             // Should create account recovery key
             return client
               .createRecoveryKey(result.recoveryKeyId, result.recoveryData)
-              .then((res) => assert.ok(res, 'empty response'))
-              .then(() => server.mailbox.waitForEmail(email))
+              .then((res) => {
+                console.debug('Recovery Key Created:', res);
+                assert.ok(res, 'empty response');
+              })
+              .then(() => mailbox.waitForEmail(email))
               .then((emailData) => {
                 assert.equal(
                   emailData.headers['x-template-name'],
@@ -87,7 +89,7 @@ const Client = require('../client')();
     });
 
     it('should get account recovery key', () => {
-      return getAccountResetToken(client, server, email)
+      return getAccountResetToken(client, email)
         .then(() => client.getRecoveryKey(recoveryKeyId))
         .then((res) => {
           assert.equal(res.recoveryData, recoveryData, 'recoveryData returned');
@@ -95,7 +97,7 @@ const Client = require('../client')();
     });
 
     it('should fail to get unknown account recovery key', () => {
-      return getAccountResetToken(client, server, email)
+      return getAccountResetToken(client, email)
         .then(() => client.getRecoveryKey('abce1234567890'))
         .then(assert.fail, (err) => {
           assert.equal(err.errno, 159, 'account recovery key is not valid');
@@ -103,7 +105,7 @@ const Client = require('../client')();
     });
 
     async function checkPayloadV2(mutate, restore) {
-      await getAccountResetToken(client, server, email);
+      await getAccountResetToken(client, email);
       await client.getRecoveryKey(recoveryKeyId);
       let err;
       try {
@@ -181,7 +183,7 @@ const Client = require('../client')();
         return this.skip();
       }
 
-      return getAccountResetToken(client, server, email)
+      return getAccountResetToken(client, email)
         .then(() => client.getRecoveryKey(recoveryKeyId))
         .then((res) =>
           assert.equal(res.recoveryData, recoveryData, 'recoveryData returned')
@@ -205,7 +207,7 @@ const Client = require('../client')();
         return this.skip();
       }
 
-      return getAccountResetToken(client, server, email)
+      return getAccountResetToken(client, email)
         .then(() => client.getRecoveryKey(recoveryKeyId))
         .then((res) =>
           assert.equal(res.recoveryData, recoveryData, 'recoveryData returned')
@@ -225,7 +227,7 @@ const Client = require('../client')();
     });
 
     it('should reset password while keeping kB', async () => {
-      await getAccountResetToken(client, server, email);
+      await getAccountResetToken(client, email);
       let res = await client.getRecoveryKey(recoveryKeyId);
       assert.equal(res.recoveryData, recoveryData, 'recoveryData returned');
 
@@ -241,7 +243,7 @@ const Client = require('../client')();
       assert.equal(res.uid, client.uid, 'uid returned');
       assert.ok(res.sessionToken, 'sessionToken return');
 
-      const emailData = await server.mailbox.waitForEmail(email);
+      const emailData = await mailbox.waitForEmail(email);
       assert.equal(
         emailData.headers['x-template-name'],
         'passwordResetAccountRecovery',
@@ -278,7 +280,7 @@ const Client = require('../client')();
           .then((result) => {
             assert.equal(result.exists, false, 'account recovery key deleted');
           })
-          .then(() => server.mailbox.waitForEmail(email))
+          .then(() => mailbox.waitForEmail(email))
           .then((emailData) => {
             assert.equal(
               emailData.headers['x-template-name'],
@@ -303,18 +305,19 @@ const Client = require('../client')();
     describe('check account recovery key status', () => {
       describe('with sessionToken', () => {
         it('should return true if account recovery key exists and enabled', () => {
+          console.debug('staring problem test');
           return client.getRecoveryKeyExists().then((res) => {
             assert.equal(res.exists, true, 'account recovery key exists');
           });
         });
 
         it("should return false if account recovery key doesn't exist", () => {
-          email = server.uniqueEmail();
+          email = TestUtilities.uniqueEmail();
           return Client.createAndVerify(
             config.publicUrl,
             email,
             password,
-            server.mailbox,
+            mailbox,
             {
               ...testOptions,
               keys: true,
@@ -334,12 +337,12 @@ const Client = require('../client')();
         });
 
         it('should return false if account recovery key exist but not enabled', async () => {
-          const email2 = server.uniqueEmail();
+          const email2 = TestUtilities.uniqueEmail();
           const client2 = await Client.createAndVerify(
             config.publicUrl,
             email2,
             password,
-            server.mailbox,
+            mailbox,
             {
               ...testOptions,
               keys: true,
@@ -363,10 +366,10 @@ const Client = require('../client')();
     });
   });
 
-  function getAccountResetToken(client, server, email) {
+  function getAccountResetToken(client, email) {
     return client
       .forgotPassword()
-      .then(() => server.mailbox.waitForCode(email))
+      .then(() => mailbox.waitForCode(email))
       .then((code) =>
         client.verifyPasswordResetCode(
           code,

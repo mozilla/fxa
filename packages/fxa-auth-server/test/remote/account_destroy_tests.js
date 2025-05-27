@@ -14,8 +14,7 @@ const config = require('../../config').default.getProperties();
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote account destroy`, function () {
-    this.timeout(60000);
+  describe(`#integration${testOptions.version} - #series - remote account destroy`, function () {
     let server;
     let tempConfigValue;
 

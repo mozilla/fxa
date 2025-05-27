@@ -1,246 +1,244 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
 
 const { assert } = require('chai');
 const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const error = require('../../lib/error');
 const { default: Container } = require('typedi');
 const {
-  PlaySubscriptions,
+PlaySubscriptions,
 } = require('../../lib/payments/iap/google-play/subscriptions');
 const {
-  AppStoreSubscriptions,
+AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
+const { TestUtilities } = require("../test_utilities");
+const mailbox = require('../mailbox')();
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote tokenCodes`, function () {
-  this.timeout(60000);
 
-  let server, client, email, code;
-  const password = 'pssssst';
+let client, email, code;
+const password = 'pssssst';
 
-  before(async () => {
-    Container.set(PlaySubscriptions, {});
-    Container.set(AppStoreSubscriptions, {});
-    server = await TestServer.start(config);
+before(async () => {
+  Container.set(PlaySubscriptions, {});
+  Container.set(AppStoreSubscriptions, {});
+});
+
+after(async () => {
+});
+
+beforeEach(() => {
+  email = TestUtilities.uniqueEmail('@mozilla.com');
+  return Client.createAndVerify(
+    config.publicUrl,
+    email,
+    password,
+    mailbox,
+    testOptions
+  ).then((x) => {
+    client = x;
+    assert.ok(client.authAt, 'authAt was set');
   });
+});
 
-  after(async () => {
-    await TestServer.stop(server);
-  });
-
-  beforeEach(() => {
-    email = server.uniqueEmail('@mozilla.com');
-    return Client.createAndVerify(
-      config.publicUrl,
-      email,
-      password,
-      server.mailbox,
-      testOptions
-    ).then((x) => {
-      client = x;
-      assert.ok(client.authAt, 'authAt was set');
+it('should error with invalid code', () => {
+  return Client.login(config.publicUrl, email, password, {
+    ...testOptions,
+    verificationMethod: 'email-2fa',
+    keys: true,
+  })
+    .then((res) => {
+      client = res;
+      assert.equal(
+        res.verificationMethod,
+        'email-2fa',
+        'sets correct verification method'
+      );
+      return client.verifyShortCodeEmail('011001');
+    })
+    .then(
+      () => {
+        assert.fail('consumed invalid code');
+      },
+      (err) => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.INVALID_EXPIRED_OTP_CODE,
+          'correct errno'
+        );
+        return client.emailStatus();
+      }
+    )
+    .then((status) => {
+      assert.equal(status.verified, false, 'account is not verified');
+      assert.equal(status.emailVerified, true, 'email is verified');
+      assert.equal(status.sessionVerified, false, 'session is not verified');
     });
-  });
+});
 
-  it('should error with invalid code', () => {
-    return Client.login(config.publicUrl, email, password, {
-      ...testOptions,
-      verificationMethod: 'email-2fa',
-      keys: true,
+it('should error with invalid request param when using wrong code format', () => {
+  return Client.login(config.publicUrl, email, password, {
+    ...testOptions,
+    verificationMethod: 'email-2fa',
+    keys: true,
+  })
+    .then((res) => {
+      client = res;
+      assert.equal(
+        res.verificationMethod,
+        'email-2fa',
+        'sets correct verification method'
+      );
+      return client.verifyShortCodeEmail('Cool Runnings 4 u');
     })
-      .then((res) => {
-        client = res;
+    .then(
+      () => {
+        assert.fail('consumed invalid code');
+      },
+      (err) => {
         assert.equal(
-          res.verificationMethod,
-          'email-2fa',
-          'sets correct verification method'
-        );
-        return client.verifyShortCodeEmail('011001');
-      })
-      .then(
-        () => {
-          assert.fail('consumed invalid code');
-        },
-        (err) => {
-          assert.equal(
-            err.errno,
-            error.ERRNO.INVALID_EXPIRED_OTP_CODE,
-            'correct errno'
-          );
-          return client.emailStatus();
-        }
-      )
-      .then((status) => {
-        assert.equal(status.verified, false, 'account is not verified');
-        assert.equal(status.emailVerified, true, 'email is verified');
-        assert.equal(status.sessionVerified, false, 'session is not verified');
-      });
-  });
-
-  it('should error with invalid request param when using wrong code format', () => {
-    return Client.login(config.publicUrl, email, password, {
-      ...testOptions,
-      verificationMethod: 'email-2fa',
-      keys: true,
-    })
-      .then((res) => {
-        client = res;
-        assert.equal(
-          res.verificationMethod,
-          'email-2fa',
-          'sets correct verification method'
-        );
-        return client.verifyShortCodeEmail('Cool Runnings 4 u');
-      })
-      .then(
-        () => {
-          assert.fail('consumed invalid code');
-        },
-        (err) => {
-          assert.equal(
-            err.errno,
-            error.ERRNO.INVALID_PARAMETER,
-            'correct errno'
-          );
-          return client.emailStatus();
-        }
-      )
-      .then((status) => {
-        assert.equal(status.verified, false, 'account is not verified');
-        assert.equal(status.emailVerified, true, 'email is verified');
-        assert.equal(status.sessionVerified, false, 'session is not verified');
-      });
-  });
-
-  it('should consume valid code', () => {
-    return Client.login(config.publicUrl, email, password, {
-      ...testOptions,
-      verificationMethod: 'email-2fa',
-      keys: true,
-    })
-      .then((res) => {
-        client = res;
-        assert.equal(
-          res.verificationMethod,
-          'email-2fa',
-          'sets correct verification method'
+          err.errno,
+          error.ERRNO.INVALID_PARAMETER,
+          'correct errno'
         );
         return client.emailStatus();
-      })
-      .then((status) => {
-        assert.equal(status.verified, false, 'account is not verified');
-        assert.equal(status.emailVerified, true, 'email is verified');
-        assert.equal(status.sessionVerified, false, 'session is not verified');
-        return server.mailbox.waitForEmail(email);
-      })
-      .then((emailData) => {
-        assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
-        code = emailData.headers['x-signin-verify-code'];
-        assert.ok(code, 'code is sent');
-        return client.verifyShortCodeEmail(code);
-      })
-      .then((res) => {
-        assert.ok(res, 'verified successful response');
-        return client.emailStatus();
-      })
-      .then((status) => {
-        assert.equal(status.verified, true, 'account is verified');
-        assert.equal(status.emailVerified, true, 'email is verified');
-        assert.equal(status.sessionVerified, true, 'session is verified');
-      });
-  });
-
-  it('should accept optional uid parameter in request body', () => {
-    return Client.login(config.publicUrl, email, password, {
-      ...testOptions,
-      verificationMethod: 'email-2fa',
-      keys: true,
-    })
-      .then((res) => {
-        client = res;
-        return server.mailbox.waitForEmail(email);
-      })
-      .then((emailData) => {
-        assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
-        code = emailData.headers['x-signin-verify-code'];
-        assert.ok(code, 'code is sent');
-        return client.verifyShortCodeEmail(code, { uid: client.uid });
-      })
-      .then((res) => {
-        assert.ok(res, 'verified successful response');
-        return client.emailStatus();
-      })
-      .then((status) => {
-        assert.equal(status.verified, true, 'account is verified');
-        assert.equal(status.emailVerified, true, 'email is verified');
-        assert.equal(status.sessionVerified, true, 'session is verified');
-      });
-  });
-
-  it('should retrieve account keys', () => {
-    return Client.login(config.publicUrl, email, password, {
-      ...testOptions,
-      verificationMethod: 'email-2fa',
-      keys: true,
-    })
-      .then((res) => {
-        client = res;
-        return server.mailbox.waitForEmail(email);
-      })
-      .then((emailData) => {
-        assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
-        code = emailData.headers['x-signin-verify-code'];
-        assert.ok(code, 'code is sent');
-        return client.verifyShortCodeEmail(code);
-      })
-      .then((res) => {
-        assert.ok(res, 'verified successful response');
-
-        return client.keys();
-      })
-      .then((keys) => {
-        assert.ok(keys.kA, 'has kA keys');
-        assert.ok(keys.kB, 'has kB keys');
-        assert.ok(keys.wrapKb, 'has wrapKb keys');
-      });
-  });
-
-  it('should resend authentication code', async () => {
-    await Client.login(config.publicUrl, email, password, {
-      ...testOptions,
-      verificationMethod: 'email-2fa',
-      keys: true,
+      }
+    )
+    .then((status) => {
+      assert.equal(status.verified, false, 'account is not verified');
+      assert.equal(status.emailVerified, true, 'email is verified');
+      assert.equal(status.sessionVerified, false, 'session is not verified');
     });
+});
 
-    let emailData = await server.mailbox.waitForEmail(email);
-    const originalMessageId = emailData['messageId'];
-    const originalCode = emailData.headers['x-verify-short-code'];
+it('should consume valid code', () => {
+  return Client.login(config.publicUrl, email, password, {
+    ...testOptions,
+    verificationMethod: 'email-2fa',
+    keys: true,
+  })
+    .then((res) => {
+      client = res;
+      assert.equal(
+        res.verificationMethod,
+        'email-2fa',
+        'sets correct verification method'
+      );
+      return client.emailStatus();
+    })
+    .then((status) => {
+      assert.equal(status.verified, false, 'account is not verified');
+      assert.equal(status.emailVerified, true, 'email is verified');
+      assert.equal(status.sessionVerified, false, 'session is not verified');
+      return mailbox.waitForEmail(email);
+    })
+    .then((emailData) => {
+      assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+      code = emailData.headers['x-signin-verify-code'];
+      assert.ok(code, 'code is sent');
+      return client.verifyShortCodeEmail(code);
+    })
+    .then((res) => {
+      assert.ok(res, 'verified successful response');
+      return client.emailStatus();
+    })
+    .then((status) => {
+      assert.equal(status.verified, true, 'account is verified');
+      assert.equal(status.emailVerified, true, 'email is verified');
+      assert.equal(status.sessionVerified, true, 'session is verified');
+    });
+});
 
-    assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+it('should accept optional uid parameter in request body', () => {
+  return Client.login(config.publicUrl, email, password, {
+    ...testOptions,
+    verificationMethod: 'email-2fa',
+    keys: true,
+  })
+    .then((res) => {
+      client = res;
+      return mailbox.waitForEmail(email);
+    })
+    .then((emailData) => {
+      assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+      code = emailData.headers['x-signin-verify-code'];
+      assert.ok(code, 'code is sent');
+      return client.verifyShortCodeEmail(code, { uid: client.uid });
+    })
+    .then((res) => {
+      assert.ok(res, 'verified successful response');
+      return client.emailStatus();
+    })
+    .then((status) => {
+      assert.equal(status.verified, true, 'account is verified');
+      assert.equal(status.emailVerified, true, 'email is verified');
+      assert.equal(status.sessionVerified, true, 'session is verified');
+    });
+});
 
-    await client.resendVerifyShortCodeEmail();
+it('should retrieve account keys', () => {
+  return Client.login(config.publicUrl, email, password, {
+    ...testOptions,
+    verificationMethod: 'email-2fa',
+    keys: true,
+  })
+    .then((res) => {
+      client = res;
+      return mailbox.waitForEmail(email);
+    })
+    .then((emailData) => {
+      assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+      code = emailData.headers['x-signin-verify-code'];
+      assert.ok(code, 'code is sent');
+      return client.verifyShortCodeEmail(code);
+    })
+    .then((res) => {
+      assert.ok(res, 'verified successful response');
 
-    emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+      return client.keys();
+    })
+    .then((keys) => {
+      assert.ok(keys.kA, 'has kA keys');
+      assert.ok(keys.kB, 'has kB keys');
+      assert.ok(keys.wrapKb, 'has wrapKb keys');
+    });
+});
 
-    assert.notEqual(
-      originalMessageId,
-      emailData['messageId'],
-      'different email was sent'
-    );
-    assert.equal(
-      originalCode,
-      emailData.headers['x-verify-short-code'],
-      'codes match'
-    );
+it('should resend authentication code', async () => {
+  await Client.login(config.publicUrl, email, password, {
+    ...testOptions,
+    verificationMethod: 'email-2fa',
+    keys: true,
   });
+
+  let emailData = await mailbox.waitForEmail(email);
+  const originalMessageId = emailData['messageId'];
+  const originalCode = emailData.headers['x-verify-short-code'];
+
+  assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+
+  await client.resendVerifyShortCodeEmail();
+
+  emailData = await mailbox.waitForEmail(email);
+  assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+
+  assert.notEqual(
+    originalMessageId,
+    emailData['messageId'],
+    'different email was sent'
+  );
+  assert.equal(
+    originalCode,
+    emailData.headers['x-verify-short-code'],
+    'codes match'
+  );
+});
 
 
 });

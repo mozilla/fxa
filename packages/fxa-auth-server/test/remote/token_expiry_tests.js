@@ -21,8 +21,7 @@ function fail() {
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
-describe(`#integration${testOptions.version} - remote token expiry`, function () {
-  this.timeout(60000);
+describe(`#integration${testOptions.version} -  #series - remote token expiry`, function () {
   let server, config;
 
   before(async () => {

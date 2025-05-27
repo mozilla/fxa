@@ -12,8 +12,7 @@ const config = require('../../config').default.getProperties();
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
-describe(`#integration${testOptions.version} - remote recovery email resend code`, function () {
-  this.timeout(60000);
+describe(`#integration${testOptions.version} - #series - remote recovery email resend code`, function () {
   let server;
   before(async () => {
     config.securityHistory.ipProfiling.allowedRecency = 0;

@@ -14,7 +14,6 @@ export async function setupAccountDatabase(opts: MySQLConfig) {
   const db = new Kysely<DB>({
     dialect,
   });
-
   /**
    * Important! We've observed that connection pools aren't being destroyed.
    * In theory Kysely should do this when the instance is destroyed, but it
