@@ -34,11 +34,10 @@ test.describe('severity-2 #smoke', () => {
           },
         },
       };
-
+      await signin.respondToWebChannelMessage(eventDetailStatus);
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
-      await signin.respondToWebChannelMessage(eventDetailStatus);
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       // nothing to suggest
       await expect(signin.emailTextbox).toHaveValue('');
@@ -69,10 +68,10 @@ test.describe('severity-2 #smoke', () => {
         },
       };
 
+      await signin.respondToWebChannelMessage(eventDetailStatus);
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
-      await signin.respondToWebChannelMessage(eventDetailStatus);
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       // account signed into browser suggested
       await expect(signin.cachedSigninHeading).toBeVisible();

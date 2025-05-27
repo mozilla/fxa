@@ -161,7 +161,7 @@ export abstract class BaseLayout {
     const expectedCommand = webChannelMessage.message.command;
     const response = webChannelMessage.message.data;
 
-    await this.page.evaluate(
+    await this.page.addInitScript(
       ({ expectedCommand, response }) => {
         function listener(e: CustomEvent) {
           const detail = JSON.parse(e.detail);

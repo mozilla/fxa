@@ -72,12 +72,13 @@ test.describe('severity-2 #smoke', () => {
           },
         },
       };
+
+      await signin.respondToWebChannelMessage(eventDetailStatus);
       await page.goto(
         `${
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
-      await signin.respondToWebChannelMessage(eventDetailStatus);
       await signin.checkWebChannelMessage(FirefoxCommand.FxAStatus);
       // password confirmation required to sign in to sync
       await expect(signin.passwordFormHeading).toBeVisible();
