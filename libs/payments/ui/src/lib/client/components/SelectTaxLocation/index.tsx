@@ -25,13 +25,13 @@ type SaveActionSignature = (
   postalCode: string
 ) => Promise<
   | {
-      ok: false;
-      error: string | { message: string; data: any };
-    }
+    ok: false;
+    error: string | { message: string; data: any };
+  }
   | {
-      ok: true;
-      data: any;
-    }
+    ok: true;
+    data: any;
+  }
   | void
 >;
 
