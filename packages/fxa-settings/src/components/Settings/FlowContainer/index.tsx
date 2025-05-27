@@ -12,7 +12,9 @@ type FlowContainerProps = {
   title?: string;
   subtitle?: string;
   onBackButtonClick?: (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    event:
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>
+      | React.KeyboardEvent<HTMLButtonElement>
   ) => void;
   hideBackButton?: boolean;
   localizedBackButtonTitle?: string;

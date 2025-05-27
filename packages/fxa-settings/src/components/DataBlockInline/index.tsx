@@ -9,6 +9,7 @@ import {
 } from '../GetDataTrio';
 import { Tooltip } from '../Tooltip';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import classNames from 'classnames';
 
 export type DataBlockInlineProps = {
   value: string;
@@ -16,6 +17,7 @@ export type DataBlockInlineProps = {
   onCopy?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
   onAction?: () => void;
   gleanDataAttr?: GetDataTrioGleanData;
+  extraClassnames?: string;
 };
 
 export const DataBlockInline = ({
@@ -24,6 +26,7 @@ export const DataBlockInline = ({
   onCopy,
   onAction = () => {},
   gleanDataAttr,
+  extraClassnames,
 }: DataBlockInlineProps) => {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const dataTestId = prefixDataTestId
@@ -32,7 +35,10 @@ export const DataBlockInline = ({
 
   return (
     <div
-      className="relative flex font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 border border-transparent max-w-lg flex-nowrap w-full rounded py-2 px-3"
+      className={classNames(
+        'relative flex font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 border border-transparent max-w-lg flex-nowrap w-full rounded py-2 px-3',
+        extraClassnames
+      )}
       data-testid={dataTestId}
       {...{ onCopy }}
     >
