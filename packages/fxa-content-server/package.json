@@ -16,7 +16,7 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "l10n-create-json": "NODE_OPTIONS=--openssl-legacy-provider grunt l10n-create-json",
     "l10n-prime": "yarn l10n:prime packages/fxa-content-server",
-    "lint": "yarn lint-glean && eslint app server tests --cache",
+    "lint": "yarn lint-glean && eslint app server --cache",
     "lint-glean": "npx glean glinter ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml",
     "start": "pm2 start pm2.config.js && yarn check:url localhost:3030/bundle/app.bundle.js",
     "stop": "pm2 stop pm2.config.js",
@@ -24,8 +24,6 @@
     "delete": "pm2 delete pm2.config.js",
     "start-production": "NODE_ENV=production grunt build && yarn build-css && CONFIG_FILES=server/config/local.json,server/config/production.json,server/config/secrets.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
-    "test": "node tests/intern.js --unit=true",
-    "test-server": "node tests/intern.js --suites=server",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {
@@ -153,7 +151,6 @@
     "grunt-todo": "0.5.0",
     "htmlparser2": "9.1.0",
     "install": "0.13.0",
-    "intern": "^4.10.1",
     "jsqr": "1.4.0",
     "otplib": "^11.0.1",
     "pm2": "^5.4.2",

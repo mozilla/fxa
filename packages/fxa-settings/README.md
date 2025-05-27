@@ -661,26 +661,6 @@ Functional testing for this project requires the entire FxA stack to be running.
 
 Running and adding new functional test for settings is very similar to adding a functional test for the content-server. For an overview of functional testing in content-server check out this [document](https://github.com/mozilla/ecosystem-platform/blob/master/docs/fxa-engineering/functional-testing.md).
 
-### Running tests
-
-```
-cd packages/fxa-content-server
-node tests/intern.js --suites="settings"
-```
-
-#### Single test
-
-```
-cd packages/fxa-content-server
-node tests/intern.js --suites="settings" --grep="name of test here"
-```
-
-### Adding a new test
-
-- Create your test file in [packages/fxa-content-server/tests/functional/settings](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/tests/functional/settings_v2)
-  - Existing tests are a good starting point
-- Add your test to the settings [suite](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/tests/functional_settings.js)
-
 ## License
 
 MPL-2.0
