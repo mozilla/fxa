@@ -403,7 +403,7 @@ describe('lib/server', () => {
 
           it('parsed location correctly', () => {
             console.debug(`************************ \n\
-TEST DEBUG: geo location:\n\t${JSON.stringify(request.app, null, 2)} \n\
+TEST DEBUG: geo location:\n\t${JSON.stringify(request.app.geo, null, 2)} \n\
 ************************\n`);
             const geo = request.app.geo;
             assert.ok(geo);
