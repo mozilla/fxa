@@ -49,14 +49,14 @@ export const Tooltip = ({
       data-testid={formatDataTestId('tooltip')}
       aria-live="polite"
       className={classNames(
-        `z-50 absolute py-2 px-6 text-center text-white
+        `z-50 absolute py-2 px-6 text-white
          rounded text-xs font-header font-bold
           shadow-tooltip-grey-drop border-transparent border border-solid
          `,
         type === 'error' ? 'bg-red-600' : 'bg-grey-500',
         className,
         {
-          'ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2':
+          'ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2 w-max max-w-full':
             anchorPosition === 'middle',
           'start-0': anchorPosition === 'start',
           'end-0 me-1': anchorPosition === 'end',

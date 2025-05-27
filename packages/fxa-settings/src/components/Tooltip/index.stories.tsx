@@ -28,6 +28,17 @@ export const Default = () => (
     <Tooltip message="My tooltip message here" />
   </>
 );
+
+export const MultilineMessage = () => (
+  <>
+    <p>Default tooltip pointing to this text</p>
+    <Tooltip
+      message="This is a very very very very very very long message"
+      anchorPosition="start"
+    />
+  </>
+);
+
 export const Bottom = () => (
   <>
     <p>Default tooltip pointing to this text</p>
