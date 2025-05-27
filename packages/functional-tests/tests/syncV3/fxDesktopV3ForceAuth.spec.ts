@@ -121,7 +121,6 @@ test.describe('severity-1 #smoke', () => {
       target,
       testAccountTracker,
     }) => {
-      test.skip(true, 'FXA-9868');
       const credentials = await testAccountTracker.signUpBlocked();
       const nonBlockedEmail = await testAccountTracker.generateEmail();
       const uid = makeUid();
