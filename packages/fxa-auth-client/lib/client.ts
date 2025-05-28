@@ -2211,13 +2211,13 @@ export default class AuthClient {
    * @param code The otp code sent to the user's phone
    * @param headers
    */
-    async recoveryPhoneReplace(
+    async recoveryPhoneChange(
       sessionToken: string,
       code: string,
       headers?: Headers
     ): Promise<{ nationalFormat?: string }> {
       return this.sessionPost(
-        '/recovery_phone/replace',
+        '/recovery_phone/change',
         sessionToken,
         {
           code,

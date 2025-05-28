@@ -74,7 +74,7 @@ describe('/recovery_phone', () => {
     onMessageStatusUpdate: sandbox.fake(),
     validateTwilioWebhookCallback: sandbox.fake(),
     validateSetupCode: sandbox.fake(),
-    replacePhoneNumber: sandbox.fake(),
+    changePhoneNumber: sandbox.fake(),
   };
   const mockAccountManager = {
     verifySession: sandbox.fake(),
@@ -602,11 +602,11 @@ describe('/recovery_phone', () => {
     });
   });
 
-  describe('POST /recovery_phone/replace', async () => {
+  describe('POST /recovery_phone/change', async () => {
     beforeEach(() => {
       // setup default mocks for a successful request. individual tests
       // modify mocks as needed to "break" the request at the expected points.
-      mockRecoveryPhoneService.replacePhoneNumber = sinon.fake.returns(true);
+      mockRecoveryPhoneService.changePhoneNumber = sinon.fake.returns(true);
       mockRecoveryPhoneService.setupPhoneNumber = sinon.fake.returns(true);
       mockRecoveryPhoneService.hasConfirmed = sinon
         .stub()
@@ -629,13 +629,13 @@ describe('/recovery_phone', () => {
 
       const resp = await makeRequest({
         method: 'POST',
-        path: '/recovery_phone/replace',
+        path: '/recovery_phone/change',
         credentials: { uid, email },
         payload: { code },
       });
 
       assert.isDefined(resp);
-      assert.callCount(mockRecoveryPhoneService.replacePhoneNumber, 1);
+      assert.callCount(mockRecoveryPhoneService.changePhoneNumber, 1);
       assert.calledOnce(mockGlean.twoStepAuthPhoneReplace.success);
       assert.deepEqual(resp, expectedSuccess);
     });
@@ -646,7 +646,7 @@ describe('/recovery_phone', () => {
       try {
         await makeRequest({
           method: 'POST',
-          path: '/recovery_phone/replace',
+          path: '/recovery_phone/change',
           credentials: { uid, email },
           payload: { code },
         });
@@ -658,13 +658,13 @@ describe('/recovery_phone', () => {
     });
 
     it('rejects if there is an unexpected service error while removing phone', async () => {
-      mockRecoveryPhoneService.replacePhoneNumber = sinon.fake.returns(
+      mockRecoveryPhoneService.changePhoneNumber = sinon.fake.returns(
         Promise.reject(new Error('BOOM'))
       );
       try {
         await makeRequest({
           method: 'POST',
-          path: '/recovery_phone/replace',
+          path: '/recovery_phone/change',
           credentials: { uid, email },
           payload: { code },
         });
@@ -677,11 +677,11 @@ describe('/recovery_phone', () => {
     });
 
     it('does not reject if removing phone is not successful and does not error', async () => {
-      mockRecoveryPhoneService.replacePhoneNumber = sinon.fake.returns(false);
+      mockRecoveryPhoneService.changePhoneNumber = sinon.fake.returns(false);
 
       const response = await makeRequest({
         method: 'POST',
-        path: '/recovery_phone/replace',
+        path: '/recovery_phone/change',
         credentials: { uid, email },
         payload: { code },
       });
@@ -698,7 +698,7 @@ describe('/recovery_phone', () => {
 
       const resp = await makeRequest({
         method: 'POST',
-        path: '/recovery_phone/replace',
+        path: '/recovery_phone/change',
         credentials: { uid, email },
         payload: { code },
       });

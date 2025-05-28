@@ -944,13 +944,22 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the account_pref_two_step_auth_phone_verify_view event name', async () => {
-        GleanMetrics.accountPref.twoStepAuthPhoneVerifyView();
+        GleanMetrics.accountPref.twoStepAuthPhoneVerifyView({
+          event: { reason: 'quux' },
+        });
+        const spy = sandbox.spy(
+          accountPref.twoStepAuthPhoneVerifyView,
+          'record'
+        );
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
           setEventNameStub,
           'account_pref_two_step_auth_phone_verify_view'
         );
+        sinon.assert.calledOnce(spy);
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
 
       it('submits a ping with the account_pref_two_step_auth_phone_remove_success_view event name', async () => {

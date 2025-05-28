@@ -2317,6 +2317,10 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: Page is viewed to 'setup' (from settings), 'inline setup' or 'change' a recovery phone
+        type: string
   two_step_auth_phone_remove_success_view:
     type: event
     description: |

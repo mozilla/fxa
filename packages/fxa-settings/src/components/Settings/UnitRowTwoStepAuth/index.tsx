@@ -20,6 +20,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
+import { RecoveryPhoneSetupReason } from '../../../lib/types';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
@@ -176,7 +177,13 @@ export const UnitRowTwoStepAuth = () => {
             onCtaClick={() => {
               navigateWithQuery(
                 `${SETTINGS_PATH}/recovery_phone/setup`,
-                undefined,
+                {
+                  state: {
+                    reason: !!recoveryPhone.exists
+                      ? RecoveryPhoneSetupReason.change
+                      : RecoveryPhoneSetupReason.setup,
+                  },
+                },
                 false
               );
             }}

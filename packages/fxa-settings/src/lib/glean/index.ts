@@ -546,7 +546,9 @@ const recordEventMetric = (
       });
       break;
     case 'account_pref_two_step_auth_phone_verify_view':
-      accountPref.twoStepAuthPhoneVerifyView.record();
+      accountPref.twoStepAuthPhoneVerifyView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'account_pref_two_step_auth_phone_remove_success_view':
       accountPref.twoStepAuthPhoneRemoveSuccessView.record();

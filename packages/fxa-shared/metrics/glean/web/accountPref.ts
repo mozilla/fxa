@@ -496,7 +496,9 @@ export const twoStepAuthPhoneRemoveSuccessView = new EventMetricType(
  *
  * Generated from `account_pref.two_step_auth_phone_verify_view`.
  */
-export const twoStepAuthPhoneVerifyView = new EventMetricType(
+export const twoStepAuthPhoneVerifyView = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'account_pref',
     name: 'two_step_auth_phone_verify_view',
@@ -504,7 +506,7 @@ export const twoStepAuthPhoneVerifyView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**

@@ -526,10 +526,9 @@ class RecoveryPhoneHandler {
     throw AppError.invalidOrExpiredOtpCode();
   }
 
-  async replacePhoneNumber(request: AuthRequest) {
+  async changePhoneNumber(request: AuthRequest) {
     // need to check first that there is an existing phone number
-    const { uid } = request.auth
-      .credentials as SessionTokenAuthCredential;
+    const { uid } = request.auth.credentials as SessionTokenAuthCredential;
 
     const { code } = request.payload as unknown as {
       code: string;
@@ -556,7 +555,7 @@ class RecoveryPhoneHandler {
     // replace the existing phone number with the new one associated with the code.
     let replacedSuccess = false;
     try {
-      replacedSuccess = await this.recoveryPhoneService.replacePhoneNumber(
+      replacedSuccess = await this.recoveryPhoneService.changePhoneNumber(
         uid,
         code
       );
@@ -579,7 +578,7 @@ class RecoveryPhoneHandler {
 
     if (!replacedSuccess) {
       await this.glean.twoStepAuthPhoneReplace.failure(request);
-      this.statsd.increment('account.recoveryPhone.replacePhoneNumber.failure');
+      this.statsd.increment('account.recoveryPhone.changePhoneNumber.failure');
       recordSecurityEvent('account.recovery_phone_replace_failed', {
         db: this.db,
         request,
@@ -590,7 +589,7 @@ class RecoveryPhoneHandler {
     }
 
     await this.glean.twoStepAuthPhoneReplace.success(request);
-    this.statsd.increment('account.recoveryPhone.replacePhoneNumber.success');
+    this.statsd.increment('account.recoveryPhone.changePhoneNumber.success');
 
     const { phoneNumber, nationalFormat } =
       await this.recoveryPhoneService.hasConfirmed(uid);
@@ -1009,7 +1008,7 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'POST',
-      path: '/recovery_phone/replace',
+      path: '/recovery_phone/change',
       options: {
         pre: [{ method: featureEnabledCheck }],
         auth: {
@@ -1022,8 +1021,8 @@ export const recoveryPhoneRoutes = (
         },
       },
       handler: function (request: AuthRequest) {
-        log.begin('recoveryPhoneReplace', request);
-        return recoveryPhoneHandler.replacePhoneNumber(request);
+        log.begin('recoveryPhoneChange', request);
+        return recoveryPhoneHandler.changePhoneNumber(request);
       },
     },
     {

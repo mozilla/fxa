@@ -87,7 +87,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.disconnectTotp();
     });
 
-    test('can change backup authentication codes', async ({
+    test('can get new backup authentication codes', async ({
       target,
       pages: {
         page,
@@ -109,7 +109,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       const { recoveryCodes } = await addTotp(settings, totp);
-      await settings.totp.changeButton.click();
+      await settings.totp.getNewBackupCodesButton.click();
 
       const newCodes = await totp.getRecoveryCodes();
       expect(newCodes.some((c) => recoveryCodes.includes(c))).toBe(false);

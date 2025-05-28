@@ -128,10 +128,6 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" />;
   }
 
-  const canRemoveRecoveryPhone =
-    account.recoveryPhone.phoneNumber &&
-    account.backupCodes.hasBackupCodes === true;
-
   return (
     <SettingsLayout>
       <Head />
@@ -185,17 +181,8 @@ export const Settings = ({
           {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
           <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
 
-          {account.recoveryPhone.available ? (
-            <PageRecoveryPhoneSetup path="/recovery_phone/setup" />
-          ) : (
-            <Redirect from="/recovery_phone/setup" to="/settings" noThrow />
-          )}
-
-          {canRemoveRecoveryPhone ? (
-            <PageRecoveryPhoneRemove path="/recovery_phone/remove" />
-          ) : (
-            <Redirect from="/recovery_phone/remove" to="/settings" noThrow />
-          )}
+          <PageRecoveryPhoneSetup path="/recovery_phone/setup" />
+          <PageRecoveryPhoneRemove path="/recovery_phone/remove" />
         </ScrollToTop>
       </Router>
     </SettingsLayout>
