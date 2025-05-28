@@ -9,6 +9,7 @@ const MailParser = require('mailparser').MailParser;
 const simplesmtp = require('simplesmtp');
 const Redis = require('ioredis');
 const config = require('../config').default.getProperties();
+const getPort = require('get-port');
 const { RECOVERY_PHONE_REDIS_PREFIX } = require('@fxa/accounts/recovery-phone');
 
 const TEMPLATES_WITH_NO_CODE = new Set(['passwordResetEmail']);
@@ -134,14 +135,19 @@ module.exports = (printLogs) => {
       }
     );
 
-    smtp.listen(config.smtp.port, (err) => {
-      if (!err) {
-        console.log(`Local SMTP server listening on port ${config.smtp.port}`);
-      } else {
-        console.log('Error starting SMTP server...');
-        console.log(err.message);
-      }
-    });
+    (async () => {
+      const smtpSafePort = getPort({port: config.smtp.port});
+
+      smtp.listen(smtpSafePort, (err) => {
+        if (!err) {
+          console.log(`Local SMTP server listening on port ${smtpSafePort}`);
+        } else {
+          console.log('Error starting SMTP server...');
+          console.debug("Error", err);
+          console.log(err.message);
+        }
+      });
+    })();
 
     // HTTP half
 

@@ -17,6 +17,7 @@ const {
 const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
+const getPort = require('get-port');
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
@@ -25,6 +26,9 @@ const {
     let server;
 
     before(async function () {
+      const safePort = await getPort();
+      console.debug('Using safe port for smtp:', safePort);
+      config.smtp.port = safePort;
       config.subscriptions = {
         enabled: true,
         stripeApiKey: 'fake_key',
@@ -56,6 +60,7 @@ const {
     });
 
     after(async function () {
+      console.log('Stopping test server - inside test afterhook');
       await TestServer.stop(server);
     });
 
