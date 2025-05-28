@@ -894,7 +894,8 @@ workflows:
           start_customs: true
           test_suite: servers-auth-integration
           workflow: test_pull_request
-          parallel: --parallel=2
+          # default resource class is large, so run nx with 4 parallel.
+          parallel: --parallel=4
           requires:
             - Build (PR)
       - integration-test:
