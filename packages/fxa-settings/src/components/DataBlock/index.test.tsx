@@ -5,7 +5,6 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { act } from 'react-dom/test-utils';
 import { Subject } from './mocks';
 
 const singleValue = 'ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F';
@@ -38,18 +37,8 @@ it('can render multiple values', () => {
   });
 });
 
-it('can apply spacing to multiple values', () => {
-  renderWithLocalizationProvider(<Subject value={multiValue} separator=" " />);
-
-  expect(screen.getByTestId('datablock').textContent?.trim()).toEqual(
-    multiValue.join(' ')
-  );
-});
-
 it('displays only Copy icon in iOS', () => {
-  renderWithLocalizationProvider(
-    <Subject value={multiValue} separator=" " isIOS />
-  );
+  renderWithLocalizationProvider(<Subject value={multiValue} isIOS />);
 
   expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
   expect(
@@ -62,9 +51,7 @@ it('displays only Copy icon in iOS', () => {
 
 it('displays a tooltip on action', async () => {
   renderWithLocalizationProvider(<Subject value={multiValue} />);
-  await act(async () => {
-    fireEvent.click(await screen.findByTestId('databutton-copy'));
-  });
+  fireEvent.click(await screen.findByTestId('databutton-copy'));
   expect(
     await screen.findByTestId('datablock-copy-tooltip')
   ).toBeInTheDocument();

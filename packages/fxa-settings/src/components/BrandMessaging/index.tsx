@@ -151,7 +151,7 @@ export const BrandMessaging = ({
         <div className="flex justify-end mx-2 my-1 ms-auto">
           <FtlMsg
             id="brand-banner-dismiss-button-2"
-            attrs={{ ariaLabel: true }}
+            attrs={{ 'aria-label': true }}
           >
             <button
               className="w-4 h-4 rounded-sm focus-visible-default outline-offset-2"

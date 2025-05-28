@@ -165,3 +165,14 @@ export const constructHrefWithUtm = (
 ) => {
   return `${pathname}?utm_source=${utmSource}&utm_medium=${utmMedium}&utm_term=${utmTerm}&utm_content=${utmContent}&utm_campaign=${utmCampaign}`;
 };
+
+/**
+ * Formats an authenticator secret into a human-readable format.
+ * The secret is converted to uppercase and split into groups of 4 characters.
+ *
+ * @param {string} secret - The authenticator secret to format.
+ * @returns {string} - The formatted secret.
+ */
+export const formatSecret = (secret: string) => {
+  return secret.toUpperCase().match(/.{4}/g)!.join(' ');
+};
