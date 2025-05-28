@@ -7,7 +7,7 @@
 import { Localized } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 import classNames from 'classnames';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { forwardRef, useEffect, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { ButtonVariant } from '../BaseButton';
@@ -30,8 +30,21 @@ const WithCoupon = ({
   couponCode,
   readOnly,
 }: WithCouponProps) => {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const promoCode = searchParams.get('coupon');
+
   async function removeCoupon() {
     await applyCouponAction(cartId, cartVersion, '');
+
+    if (promoCode) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('coupon');
+      const newQuery = params.toString();
+      const newUrl = newQuery ? `${pathname}?${newQuery}` : pathname;
+      router.push(newUrl);
+    }
   }
 
   return (
@@ -42,9 +55,7 @@ const WithCoupon = ({
     >
       <Form.Field name="appliedCouponCode">
         <Localized id="next-coupon-promo-code-applied">
-          <Form.Label className="font-semibold text-grey-600">
-            <h2>Promo Code Applied</h2>
-          </Form.Label>
+          <h2 className="font-semibold text-grey-600">Promo Code Applied</h2>
         </Localized>
         <div className="mt-4 flex gap-4 justify-between items-center">
           <span className="break-all">{couponCode}</span>
@@ -92,6 +103,7 @@ const CouponInput = forwardRef(
             }
           )}
           type="text"
+          id="coupon"
           name="coupon"
           data-testid="coupon-input"
           placeholder="Enter code"
@@ -146,7 +158,7 @@ const WithoutCoupon = ({
     >
       <Form.Field name="couponCode">
         <Localized id="next-coupon-promo-code">
-          <Form.Label className="font-semibold text-grey-600">
+          <Form.Label htmlFor="coupon" className="font-semibold text-grey-600">
             <h2>Promo Code</h2>
           </Form.Label>
         </Localized>
