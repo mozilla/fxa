@@ -25,22 +25,20 @@ import { Metadata } from 'next';
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata(
-  {
-    params,
-    searchParams,
-  }: {
-    params: CheckoutParams;
-    searchParams: Record<string, string> | undefined;
-  },
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: CheckoutParams;
+  searchParams: Record<string, string> | undefined;
+}): Promise<Metadata> {
   return buildPageMetadata({
     params,
     page: 'error',
     pageType: 'upgrade',
     acceptLanguage: headers().get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams
+    searchParams,
   });
 }
 
@@ -78,7 +76,7 @@ export default async function UpgradeError({
         aria-label="Payment error"
       >
         <Image src={errorIcon} alt="" className="mt-16 mb-10" />
-        <p className="text-grey-400 max-w-sm text-sm px-7 py-0 mb-4 ">
+        <p className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 ">
           {l10n.getString(errorReason.messageFtl, errorReason.message)}
         </p>
 

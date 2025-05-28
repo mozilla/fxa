@@ -40,7 +40,7 @@ export const cartEligibilityDetailsMap: Record<
   [EligibilityStatus.BLOCKED_IAP]: {
     eligibilityStatus: CartEligibilityStatus.BLOCKED_IAP,
     state: CartState.FAIL,
-    errorReasonId: CartErrorReasonId.IAP_UPGRADE_CONTACT_SUPPORT,
+    errorReasonId: CartErrorReasonId.IAP_BLOCKED_CONTACT_SUPPORT,
   },
   [EligibilityStatus.SAME]: {
     eligibilityStatus: CartEligibilityStatus.INVALID,

@@ -39,14 +39,14 @@ export function getErrorFtlInfo(
         message: 'You’ve already subscribed to this product.',
         messageFtl: 'checkout-error-already-subscribed',
       };
-    case CartErrorReasonId.IAP_UPGRADE_CONTACT_SUPPORT:
+    case CartErrorReasonId.IAP_BLOCKED_CONTACT_SUPPORT:
       return {
         buttonFtl: 'next-payment-error-manage-subscription-button',
         buttonLabel: 'Manage my subscription',
         buttonUrl: `${config.contentServerUrl}/subscriptions`,
         message:
-          'You can still get this product — please contact support so we can help you.',
-        messageFtl: 'next-iap-upgrade-contact-support',
+          'You have a mobile in-app subscription that conflicts with this product — please contact support so we can help you.',
+        messageFtl: 'next-iap-blocked-contact-support',
       };
     case CartErrorReasonId.CART_CURRENCY_NOT_DETERMINED:
       return {

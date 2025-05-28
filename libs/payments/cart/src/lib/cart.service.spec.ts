@@ -645,7 +645,7 @@ describe('CartService', () => {
           eligibilityStatus: CartEligibilityStatus.BLOCKED_IAP,
           couponCode: args.promoCode,
         },
-        CartErrorReasonId.IAP_UPGRADE_CONTACT_SUPPORT
+        CartErrorReasonId.IAP_BLOCKED_CONTACT_SUPPORT
       );
       expect(result).toEqual(mockErrorCart);
     });
@@ -1280,7 +1280,7 @@ describe('CartService', () => {
 
       const result = await cartService.getCartState(mockCart.id);
       expect(result).toEqual({
-        state: mockCart.state
+        state: mockCart.state,
       });
 
       expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
@@ -1479,9 +1479,11 @@ describe('CartService', () => {
       const mockInvoicePreview = InvoicePreviewFactory();
       const mockFromOfferingId = faker.string.uuid();
       const mockFromPrice = StripePriceFactory({
-        recurring: StripePriceRecurringFactory({ interval: 'month' })
+        recurring: StripePriceRecurringFactory({ interval: 'month' }),
       });
-      const mockPricingForCurrency = PricingForCurrencyFactory({ price: mockFromPrice })
+      const mockPricingForCurrency = PricingForCurrencyFactory({
+        price: mockFromPrice,
+      });
       const mockSubscription = StripeSubscriptionFactory();
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
@@ -1500,7 +1502,9 @@ describe('CartService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
         .mockResolvedValue(mockSubscription);
-      jest.spyOn(priceManager, 'retrievePricingForCurrency').mockResolvedValue(mockPricingForCurrency);
+      jest
+        .spyOn(priceManager, 'retrievePricingForCurrency')
+        .mockResolvedValue(mockPricingForCurrency);
 
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
