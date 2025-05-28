@@ -106,8 +106,8 @@ export class CartService {
     private productConfigurationManager: ProductConfigurationManager,
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
-    @Inject(StatsDService) private statsd: StatsD,
-  ) { }
+    @Inject(StatsDService) private statsd: StatsD
+  ) {}
 
   /**
    * Should be used to wrap any method that mutates an existing cart.
@@ -355,7 +355,7 @@ export class CartService {
     if (cartEligibilityStatus === CartEligibilityStatus.BLOCKED_IAP) {
       return this.cartManager.createErrorCart(
         createCartParams,
-        CartErrorReasonId.IAP_UPGRADE_CONTACT_SUPPORT
+        CartErrorReasonId.IAP_BLOCKED_CONTACT_SUPPORT
       );
     }
 
@@ -390,12 +390,12 @@ export class CartService {
 
       const accountCustomer = oldCart.uid
         ? await this.accountCustomerManager
-          .getAccountCustomerByUid(oldCart.uid)
-          .catch((error) => {
-            if (!(error instanceof AccountCustomerNotFoundError)) {
-              throw error;
-            }
-          })
+            .getAccountCustomerByUid(oldCart.uid)
+            .catch((error) => {
+              if (!(error instanceof AccountCustomerNotFoundError)) {
+                throw error;
+              }
+            })
         : undefined;
 
       if (!(oldCart.taxAddress && oldCart.currency)) {
@@ -782,11 +782,18 @@ export class CartService {
     if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
       assert('fromPrice' in eligibility, 'fromPrice not present for upgrade');
 
-      const { price: priceForCurrency, unitAmountForCurrency } = await this.priceManager.retrievePricingForCurrency(eligibility.fromPrice.id, cart.currency);
+      const { price: priceForCurrency, unitAmountForCurrency } =
+        await this.priceManager.retrievePricingForCurrency(
+          eligibility.fromPrice.id,
+          cart.currency
+        );
       assertNotNull(unitAmountForCurrency);
       assertNotNull(priceForCurrency.recurring);
 
-      const interval = getSubplatInterval(priceForCurrency.recurring.interval, priceForCurrency.recurring.interval_count);
+      const interval = getSubplatInterval(
+        priceForCurrency.recurring.interval,
+        priceForCurrency.recurring.interval_count
+      );
       assert(interval, 'Interval not found but is required');
 
       fromPrice = {

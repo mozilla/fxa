@@ -81,7 +81,7 @@ export default function Error({
           ),
         }}
       >
-        <p className="text-grey-400 max-w-sm text-sm px-7 py-0 mb-4 ">
+        <p className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 ">
           Something went wrong. Please try again or
           <Link href={SUPPORT_URL} className="underline hover:text-grey-400">
             contact support.
