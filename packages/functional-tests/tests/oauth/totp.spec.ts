@@ -106,7 +106,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(signin.page.getByText('Enter code manually')).toBeVisible();
 
       const secret = (
-        await signin.page.getByTestId('manual-code').innerText()
+        await signin.page.getByTestId('manual-datablock').innerText()
       )?.replace(/\s/g, '');
       const code = await getCode(secret);
 

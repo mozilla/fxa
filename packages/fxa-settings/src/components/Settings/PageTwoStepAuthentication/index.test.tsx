@@ -160,7 +160,7 @@ describe('step 1', () => {
       await fireEvent.click(screen.getByTestId('cant-scan-code'));
     });
 
-    expect(screen.getByTestId('manual-code')).toBeInTheDocument();
+    expect(screen.getByTestId('manual-datablock')).toBeInTheDocument();
     expect(GleanMetrics.accountPref.twoStepAuthScanCodeLink).toHaveBeenCalled();
   });
 });
@@ -184,9 +184,10 @@ describe('step 2', () => {
     expect(screen.getByTestId('2fa-recovery-codes')).toHaveTextContent(
       totp.recoveryCodes[0]
     );
-    expect(screen.getByTestId('datablock').textContent?.trim()).toEqual(
-      totp.recoveryCodes.join(' ')
-    );
+    screen
+      .getByTestId('datablock')
+      .querySelectorAll('li')
+      .forEach((li, i) => expect(li).toHaveTextContent(totp.recoveryCodes[i]));
     expect(screen.getByTestId('databutton-download')).toHaveAttribute(
       'download',
       expect.stringContaining('Backup authentication codes')

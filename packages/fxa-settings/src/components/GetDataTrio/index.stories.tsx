@@ -37,7 +37,6 @@ export const SingleCopyButton = () => {
     <div className="p-10 max-w-xs">
       <GetDataCopySingleton
         value="Copy that"
-        email={MOCK_EMAIL}
         {...{ setTooltipVisible }}
         gleanDataAttrs={{}}
       />
@@ -51,9 +50,7 @@ export const SingleCopyButtonInline = () => {
     <div className="p-10 max-w-xs">
       <GetDataCopySingletonInline
         value="Copy that"
-        email={MOCK_EMAIL}
         {...{ setTooltipVisible }}
-        gleanDataAttrs={{}}
       />
     </div>
   );

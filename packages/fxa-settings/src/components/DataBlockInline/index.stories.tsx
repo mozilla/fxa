@@ -5,14 +5,13 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import DataBlockManual from '.';
+import { Subject } from './mocks';
+import DataBlockInline from '.';
 
 export default {
-  title: 'Components/DataBlockManual',
-  component: DataBlockManual,
+  title: 'Components/DataBlockInline',
+  component: DataBlockInline,
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => (
-  <DataBlockManual secret={'MMMMOOOOZZZZIIIILLLLLLLLAAAAYAAY'} />
-);
+export const SingleCodeInlineCopy = () => <Subject />;

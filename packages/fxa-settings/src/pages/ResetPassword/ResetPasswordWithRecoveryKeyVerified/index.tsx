@@ -10,7 +10,7 @@ import AppLayout from '../../../components/AppLayout';
 import { useFtlMsgResolver } from '../../../models';
 import GleanMetrics from '../../../lib/glean';
 import { RecoveryKeyImage } from '../../../components/images';
-import DataBlock from '../../../components/DataBlock';
+import DataBlockInline from '../../../components/DataBlockInline';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import RecoveryKeySetupHint from '../../../components/RecoveryKeySetupHint';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
@@ -126,17 +126,13 @@ const ResetPasswordWithRecoveryKeyVerified = ({
             </b>
           </p>
         </FtlMsg>
-        <DataBlock
+        <DataBlockInline
           value={newRecoveryKey}
           onAction={() =>
             logViewEvent(`flow.${viewName}`, `recovery-key.copy-option`)
           }
-          isInline
-          {...{ email }}
-          gleanDataAttrs={{
-            copy: {
-              id: 'account_pref_recovery_key_copy',
-            },
+          gleanDataAttr={{
+            id: 'account_pref_recovery_key_copy',
           }}
         />
         <Suspense fallback={spinner}>

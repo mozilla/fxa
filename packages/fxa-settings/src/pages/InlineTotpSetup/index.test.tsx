@@ -9,7 +9,7 @@ import InlineTotpSetup from '.';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { MozServices } from '../../lib/types';
 import { MOCK_EMAIL, MOCK_TOTP_TOKEN } from './mocks';
-import { formatSecret } from '../../components/DataBlockManual';
+import { formatSecret } from '../../lib/utilities';
 
 const cancelSetupHandler = jest.fn();
 const verifyCodeHandler = jest.fn();

@@ -19,9 +19,10 @@ import { Localized, useLocalization } from '@fluent/react';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useAsync } from 'react-async-hook';
 import { getErrorFtlId } from '../../../lib/error-utils';
-import DataBlockManual from '../../DataBlockManual';
 import GleanMetrics from '../../../lib/glean';
 import { GleanClickEventType2FA } from '../../../lib/types';
+import DataBlockInline from '../../DataBlockInline';
+import { formatSecret } from '../../../lib/utilities';
 
 export const metricsPreInPostFix = 'settings.two-step-authentication';
 
@@ -312,13 +313,18 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
           {!showQrCode && totpInfo.result && (
             <div className="mt-4 flex flex-col">
               <Localized id="tfa-enter-secret-key">
-                <p>Enter this secret key into your authenticator app:</p>
+                <p className="mb-1">
+                  Enter this secret key into your authenticator app:
+                </p>
               </Localized>
-              <DataBlockManual secret={totpInfo.result.secret} />
+              <DataBlockInline
+                value={formatSecret(totpInfo.result.secret)}
+                prefixDataTestId="manual"
+              />
             </div>
           )}
           <Localized id="tfa-enter-totp-v2">
-            <p>
+            <p className="mt-1">
               Now enter the authentication code from the authentication app.
             </p>
           </Localized>
@@ -383,7 +389,6 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             <div className="mt-6 flex flex-col items-center justify-between">
               <DataBlock
                 value={totpInfo.result.recoveryCodes.map((x) => x)}
-                separator=" "
                 onAction={logDataTrioActionEvent}
                 onCopy={copyRecoveryCodes}
                 contentType="Backup authentication codes"

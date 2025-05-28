@@ -14,8 +14,6 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const SingleCodeInlineCopy = () => <Subject isInline />;
-
 export const SingleCode = () => <Subject />;
 
 export const SingleCodeOnIOS = () => <Subject isIOS />;
@@ -23,14 +21,14 @@ export const SingleCodeOnIOS = () => <Subject isIOS />;
 export const MultipleCodes = () => (
   <Subject
     value={[
-      'C1OFZW7R04',
-      'XVKRLKERT4',
-      'CF0V94X204',
-      'C3THX2SGZ4',
-      'UXC6NRQT54',
-      '24RF9WFA44',
-      'ZBULPFN7J4',
-      'D4J6KY8FL4',
+      'c1ofzw7r04',
+      'xvkrlkert4',
+      'cf0v94x204',
+      'c3thx2sgz4',
+      'uxc6nrqt54',
+      '24rf9wfa44',
+      'zbulpfn7j4',
+      'd4j6ky8fl4',
     ]}
   />
 );
