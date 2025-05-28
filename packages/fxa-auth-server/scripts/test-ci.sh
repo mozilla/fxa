@@ -6,13 +6,11 @@ cd "$DIR/.."
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 
-# TODO: remove the circle-ci-get-cpu.js script before landing this PR.
+DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 20000 --exit --parallel "
 
-DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --require ./circle-ci-get-cpu.js --recursive --timeout 20000 --exit "
-
-if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; DEFAULT_ARGS="$DEFAULT_ARGS --parallel=6"; fi;
-if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep /#integration\s-/"; DEFAULT_ARGS="$DEFAULT_ARGS --parallel=4"; fi;
-if [ "$TEST_TYPE" == 'integration-v2' ]; then GREP_TESTS="--grep /#integrationV2\s-/"; DEFAULT_ARGS="$DEFAULT_ARGS --parallel=4"; fi;
+if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; DEFAULT_ARGS="$DEFAULT_ARGS --jobs=4"; fi;
+if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep /#integration\s-/"; DEFAULT_ARGS="$DEFAULT_ARGS --jobs=4"; fi;
+if [ "$TEST_TYPE" == 'integration-v2' ]; then GREP_TESTS="--grep /#integrationV2\s-/"; DEFAULT_ARGS="$DEFAULT_ARGS --jobs=4"; fi;
 
 
 TESTS=(local oauth remote scripts)
