@@ -27,4 +27,3 @@ export * from './lib/utils/types';
 export * from './lib/utils/get-cart';
 export * from './lib/utils/buildRedirectUrl';
 export * from './lib/utils/getCardIcon';
-export * from './lib/utils/pageMetadata';

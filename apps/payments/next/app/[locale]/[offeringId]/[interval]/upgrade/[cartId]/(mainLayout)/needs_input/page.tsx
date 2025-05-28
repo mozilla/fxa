@@ -7,9 +7,12 @@ import {
   LoadingSpinner,
   StripeWrapper,
   PaymentInputHandler,
-  buildPageMetadata,
 } from '@fxa/payments/ui';
-import { getApp, SupportedPages } from '@fxa/payments/ui/server';
+import {
+  getApp,
+  SupportedPages,
+  buildPageMetadata,
+} from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { Metadata } from 'next';
@@ -26,8 +29,6 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   return buildPageMetadata({
     params,
-    titlePrefix: 'Action required',
-    description: 'Please complete the required action to proceed with your payment.',
     page: 'needs_input',
     pageType: 'upgrade',
     acceptLanguage: headers().get('accept-language'),
