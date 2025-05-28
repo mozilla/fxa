@@ -382,7 +382,7 @@ commands:
     steps:
       - run:
           name: Build
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --parallel=2 --all --verbose
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --parallel=6 --all --verbose
           environment:
             NODE_ENV: test
 
@@ -662,7 +662,7 @@ jobs:
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
       - run:
           name: Run unit tests
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=2 -t test-unit
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=$() -t test-unit
           environment:
             NODE_ENV: test
       - store-artifacts
