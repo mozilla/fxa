@@ -6,9 +6,8 @@ import {
   PaymentStateObserver,
   CheckoutParams,
   LoadingSpinner,
-  buildPageMetadata,
 } from '@fxa/payments/ui';
-import { getApp, SupportedPages } from '@fxa/payments/ui/server';
+import { getApp, SupportedPages, buildPageMetadata } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { validateCartStateAndRedirectAction } from '@fxa/payments/ui/actions';
 import type { Metadata } from 'next';
@@ -25,8 +24,6 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   return buildPageMetadata({
     params,
-    titlePrefix: 'Processing',
-    description: 'Please wait while we finish processing your payment.',
     page: 'processing',
     pageType: 'checkout',
     acceptLanguage: headers().get('accept-language'),

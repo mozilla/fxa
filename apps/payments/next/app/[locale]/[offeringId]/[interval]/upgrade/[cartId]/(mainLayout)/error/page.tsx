@@ -12,6 +12,7 @@ import {
   CheckoutParams,
   SupportedPages,
   getErrorFtlInfo,
+  buildPageMetadata,
 } from '@fxa/payments/ui/server';
 import {
   getCartOrRedirectAction,
@@ -19,7 +20,6 @@ import {
 } from '@fxa/payments/ui/actions';
 import { config } from 'apps/payments/next/config';
 import { Metadata } from 'next';
-import { buildPageMetadata } from '@fxa/payments/ui';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
@@ -36,8 +36,6 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   return buildPageMetadata({
     params,
-    titlePrefix: 'Error',
-    description: 'There was an error processing your upgrade. If this problem persists, please contact support.',
     page: 'error',
     pageType: 'upgrade',
     acceptLanguage: headers().get('accept-language'),

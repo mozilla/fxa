@@ -14,3 +14,5 @@ export * from './lib/server/components/UpgradePurchaseDetails';
 export * from './lib/utils/types';
 export * from './lib/utils/getIpAddress';
 export * from './lib/utils/getErrorFtlInfo';
+export * from './lib/utils/getPageMetadataFtlInfo';
+export * from './lib/utils/pageMetadata';

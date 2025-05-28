@@ -8,7 +8,6 @@ import Image from 'next/image';
 import {
   getCardIcon,
   PaymentSection,
-  buildPageMetadata,
 } from '@fxa/payments/ui';
 import {
   fetchCMSData,
@@ -18,6 +17,7 @@ import {
   getApp,
   CheckoutParams,
   SupportedPages,
+  buildPageMetadata,
 } from '@fxa/payments/ui/server';
 import { Metadata } from 'next';
 import { config } from 'apps/payments/next/config';
@@ -35,8 +35,6 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   return buildPageMetadata({
     params,
-    titlePrefix: 'Upgrade',
-    description: 'Enter your payment details to complete your upgrade.',
     page: 'start',
     pageType: 'upgrade',
     acceptLanguage: headers().get('accept-language'),

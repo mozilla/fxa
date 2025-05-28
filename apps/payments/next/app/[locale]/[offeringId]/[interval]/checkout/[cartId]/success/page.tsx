@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import { auth } from 'apps/payments/next/auth';
-import { getCardIcon, buildPageMetadata } from '@fxa/payments/ui';
+import { getCardIcon } from '@fxa/payments/ui';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
@@ -16,6 +16,7 @@ import {
   getApp,
   CheckoutParams,
   SupportedPages,
+  buildPageMetadata,
 } from '@fxa/payments/ui/server';
 import { config } from 'apps/payments/next/config';
 
@@ -32,8 +33,6 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   return buildPageMetadata({
     params,
-    titlePrefix: 'Success',
-    description: 'Congratulations! You have successfully completed your purchase.',
     page: 'success',
     pageType: 'checkout',
     acceptLanguage: headers().get('accept-language'),
