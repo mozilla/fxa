@@ -154,7 +154,7 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(1);
-      expect(navigate).toHaveBeenCalledWith('/settings');
+      expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
     });
 
     describe('fxaLogin webchannel message', () => {
@@ -164,7 +164,7 @@ describe('Sign in with TOTP code page', () => {
         fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
         hardNavigateSpy = jest
           .spyOn(utils, 'hardNavigate')
-          .mockImplementation(() => {});
+          .mockImplementation(() => { });
       });
       it('is sent if Sync integration and navigates to pair', async () => {
         const integration = createMockSigninOAuthNativeSyncIntegration();
@@ -173,7 +173,10 @@ describe('Sign in with TOTP code page', () => {
         );
         expect(fxaLoginSpy).toHaveBeenCalled();
         expect(hardNavigateSpy).toHaveBeenCalledWith(
-          '/pair?showSuccessMessage=true'
+          '/pair?showSuccessMessage=true',
+          undefined,
+          undefined,
+          true
         );
       });
       it('is not sent otherwise', async () => {
@@ -215,7 +218,7 @@ describe('Sign in with TOTP code page', () => {
           .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
         const hardNavigate = jest
           .spyOn(ReactUtils, 'hardNavigate')
-          .mockImplementationOnce(() => {});
+          .mockImplementationOnce(() => { });
 
         await waitFor(() =>
           renderAndSubmitTotpCode({}, finishOAuthFlowHandler, integration)
@@ -224,7 +227,7 @@ describe('Sign in with TOTP code page', () => {
         expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
         expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(1);
         await waitFor(() =>
-          expect(hardNavigate).toHaveBeenCalledWith('someUri')
+          expect(hardNavigate).toHaveBeenCalledWith('someUri', undefined, undefined, true)
         );
       });
 

@@ -13,7 +13,8 @@ import React from 'react';
 export function hardNavigate(
   href: string,
   additionalQueryParams = {},
-  includeCurrentQueryParams = false
+  includeCurrentQueryParams = false,
+  replace: boolean = false,
 ) {
   // If there are any query params in the href, we automatically include them in the new url.
   const url = new URL(href, window.location.origin);
@@ -32,7 +33,11 @@ export function hardNavigate(
     url.searchParams.append(key, value);
   });
 
-  window.location.href = url.href;
+  if (replace) {
+    window.location.replace(url.href);
+  } else {
+    window.location.href = url.href;
+  }
 }
 
 export enum LocalizedDateOptions {
@@ -98,7 +103,7 @@ export class FtlMsgResolver {
   constructor(
     public readonly l10n: ReactLocalization,
     public readonly strict: boolean
-  ) {}
+  ) { }
 
   /**
    * A wrapper around l10n.getString that provides more safety. When strict is true, using this function ensures:
