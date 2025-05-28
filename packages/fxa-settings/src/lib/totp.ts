@@ -54,7 +54,7 @@ export async function checkCode(
   return false;
 }
 
-export function copyRecoveryCodes(event: React.ClipboardEvent<HTMLDivElement>) {
+export function copyRecoveryCodes(event: React.ClipboardEvent<HTMLElement>) {
   const selection = document.getSelection();
   if (selection) {
     event.clipboardData.setData(

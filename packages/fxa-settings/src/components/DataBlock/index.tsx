@@ -6,12 +6,12 @@ import React, { useState } from 'react';
 import GetDataTrio, {
   DownloadContentType,
   GetDataCopySingleton,
-  GetDataCopySingletonInline,
   GetDataTrioGleanData,
 } from '../GetDataTrio';
 import { Tooltip } from '../Tooltip';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
+import { ReactComponent as CodeIcon } from './code.min.svg';
 const actionTypeToNotification = {
   download: 'Downloaded',
   copy: 'Copied',
@@ -25,11 +25,9 @@ export type DataBlockProps = {
   value: string | string[];
   contentType?: DownloadContentType;
   prefixDataTestId?: string;
-  separator?: string;
-  onCopy?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
+  onCopy?: (event: React.ClipboardEvent<HTMLElement>) => void;
   onAction?: actionFn;
   isIOS?: boolean;
-  isInline?: boolean;
   email: string;
   gleanDataAttrs: {
     copy?: GetDataTrioGleanData;
@@ -42,11 +40,9 @@ export const DataBlock = ({
   value,
   contentType,
   prefixDataTestId,
-  separator,
   onCopy,
   onAction = () => {},
   isIOS = false,
-  isInline = false,
   email,
   gleanDataAttrs,
 }: DataBlockProps) => {
@@ -65,58 +61,40 @@ export const DataBlock = ({
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <div
+    <div className="w-full flex flex-col gap-3 items-center bg-white rounded-xl border-2 border-grey-100 px-5 pt-5 pb-3">
+      <ul
         className={classNames(
-          'relative flex font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 border border-transparent',
-          valueIsArray ? 'max-w-sm' : 'max-w-lg',
-          isInline
-            ? 'flex-nowrap w-full rounded py-2 px-3'
-            : 'flex-wrap mb-8 rounded-lg px-6 py-4'
+          'relative gap-2 w-full text-black text-sm font-mono font-bold',
+          valueIsArray ? 'grid grid-cols-2 max-w-sm' : 'flex flex-col max-w-lg'
         )}
-        data-testid={dataTestId}
         {...{ onCopy }}
+        data-testid={dataTestId}
       >
-        {valueIsArray ? (
-          (value as string[]).map((item) => (
-            <span key={item} className="flex-50% py-1">
-              {item}
-              {separator || ''}
-            </span>
-          ))
-        ) : (
-          <span
-            className={classNames({
-              'flex flex-col self-center align-middle grow': isInline,
-            })}
+        {(valueIsArray ? value : [value]).map((item) => (
+          <li
+            key={item}
+            className="px-3 py-[10px] flex items-center gap-3 rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10 text-center justify-center mobileLandscape:justify-start"
           >
-            {value}
-          </span>
-        )}
+            <CodeIcon
+              className="w-6 h-auto hidden mobileLandscape:block"
+              aria-hidden
+            />
+            {item}
+          </li>
+        ))}
         {performedAction && tooltipVisible && (
           <FtlMsg id={`datablock-${performedAction}`} attrs={{ message: true }}>
             <Tooltip
               prefixDataTestId={`datablock-${performedAction}`}
               message={actionTypeToNotification[performedAction]}
-              anchorPosition={isInline ? 'end' : 'middle'}
-              position={isInline ? 'top' : 'bottom'}
+              anchorPosition="middle"
+              position="bottom"
               className="mt-1"
             ></Tooltip>
           </FtlMsg>
         )}
-        {isInline && (
-          <GetDataCopySingletonInline
-            {...{
-              value,
-              onAction: actionCb,
-              setTooltipVisible,
-              email,
-              gleanDataAttrs,
-            }}
-          />
-        )}
-      </div>
-      {isIOS && !isInline && (
+      </ul>
+      {isIOS ? (
         <GetDataCopySingleton
           {...{
             value,
@@ -126,8 +104,7 @@ export const DataBlock = ({
             gleanDataAttrs,
           }}
         />
-      )}
-      {!isIOS && !isInline && (
+      ) : (
         <GetDataTrio
           {...{
             value,

@@ -34,7 +34,7 @@ export class TotpPage extends SettingsLayout {
   }
 
   get step1ManualCode() {
-    return this.page.getByTestId('manual-code');
+    return this.page.getByTestId('manual-datablock');
   }
 
   get step1QRCode() {
@@ -116,8 +116,11 @@ export class TotpPage extends SettingsLayout {
   }
 
   async getRecoveryCodes(): Promise<string[]> {
-    const codesRaw = await this.step2recoveryCodes.textContent();
-    return codesRaw ? codesRaw.trim().split(/\s+/) : [];
+    await expect(this.step2recoveryCodes).toBeVisible();
+    const codeList = await this.step2recoveryCodes
+      .getByRole('listitem')
+      .allTextContents();
+    return codeList ? codeList : [];
   }
 
   async fillOutStep2Form(): Promise<string[]> {

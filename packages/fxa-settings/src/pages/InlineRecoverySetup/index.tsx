@@ -229,7 +229,6 @@ const InlineRecoverySetup = ({
             </FtlMsg>
             <DataBlock
               value={recoveryCodes}
-              separator=" "
               onCopy={copyRecoveryCodes}
               contentType="Backup authentication codes"
               {...{ email }}

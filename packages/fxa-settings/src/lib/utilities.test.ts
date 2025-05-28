@@ -5,6 +5,7 @@
 import {
   constructHrefWithUtm,
   deepMerge,
+  formatSecret,
   isBase32Crockford,
   isMobileDevice,
   once,
@@ -206,5 +207,12 @@ describe('check for mobile device', () => {
   it('handles client without name', () => {
     // See FXA-10326. Somehow an undefined value sneaks in here...
     expect(isMobileDevice({ deviceType: 'mobile', name: null })).toBeTruthy();
+  });
+});
+
+describe('format authenticator secret', () => {
+  it('formats a secret into a human-readable format', () => {
+    const secret = 'qwerty123456';
+    expect(formatSecret(secret)).toBe('QWER TY12 3456');
   });
 });

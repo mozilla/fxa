@@ -5,7 +5,7 @@
 import { MOCK_SESSION_TOKEN, MOCK_UID } from '../mocks';
 
 export const MOCK_TOTP_TOKEN = {
-  secret: '1234567890',
+  secret: 'I5KTS23HJBUDOUTMHBCDCTDZGJSFGTCB',
   qrCodeUrl: 'data:image/png;base64,pewpewpew',
   recoveryCodes: ['recoveryCode1', 'recoveryCode2'],
 };

@@ -12,10 +12,11 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode from '../../components/FormVerifyCode';
 import AppLayout from '../../components/AppLayout';
 import { InlineTotpSetupProps } from './interfaces';
-import DataBlockManual from '../../components/DataBlockManual';
 import { GleanClickEventType2FA } from '../../lib/types';
 import Banner from '../../components/Banner';
 import GleanMetrics from '../../lib/glean';
+import DataBlockInline from '../../components/DataBlockInline';
+import { formatSecret } from '../../lib/utilities';
 
 export const InlineTotpSetup = ({
   totp,
@@ -236,7 +237,7 @@ export const InlineTotpSetup = ({
                       ),
                     }}
                   >
-                    <p className="text-sm mt-4">
+                    <p className="text-sm mt-4 mb-1">
                       Type this secret key into your authentication app.{' '}
                       <button
                         onClick={() => {
@@ -248,7 +249,10 @@ export const InlineTotpSetup = ({
                       </button>
                     </p>
                   </FtlMsg>
-                  <DataBlockManual secret={totp.secret} />
+                  <DataBlockInline
+                    value={formatSecret(totp.secret)}
+                    prefixDataTestId="manual"
+                  />
                   <FtlMsg id="inline-totp-setup-on-completion-description">
                     <p className="text-sm mb-4">
                       Once complete, it will begin generating authentication
