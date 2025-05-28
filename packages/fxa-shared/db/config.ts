@@ -308,6 +308,38 @@ export function makeRedisConfig() {
       },
     },
 
+    ratelimit: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for customs server rate limiting',
+        format: Boolean,
+        env: 'RATELIMIT_REDIS_ENABLED',
+      },
+      host: {
+        default: 'localhost',
+        env: 'RATELIMIT_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'RATELIMIT_REDIS_PORT',
+        format: 'port',
+      },
+      password: {
+        default: '',
+        env: 'RATELIMIT_REDIS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to redis`,
+      },
+      prefix: {
+        default: 'ratelimit:',
+        env: 'RATELIMIT_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for custom server records in Redis',
+      },
+    },
+
     metrics: {
       enabled: {
         default: true,

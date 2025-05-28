@@ -19,7 +19,7 @@ export const RateLimitRedisProvider: Provider = {
       throw new Error('Missing config for redis');
     }
 
-    const redisRateLimitConfig = config.get<RedisOptions>('redis.customs');
+    const redisRateLimitConfig = config.get<RedisOptions>('redis.ratelimit');
     if (redisRateLimitConfig == null) {
       throw new Error('Missing config for redis.customs');
     }
