@@ -199,33 +199,33 @@ const conf = convict({
         doc: 'Key prefix for access tokens in Redis',
       },
     },
-    customs: {
+    ratelimit: {
       enabled: {
-        default: false,
+        default: true,
         doc: 'Enable Redis for customs server rate limiting',
         format: Boolean,
-        env: 'CUSTOMS_REDIS_ENABLED',
+        env: 'RATELIMIT_REDIS_ENABLED',
       },
       host: {
         default: 'localhost',
-        env: 'CUSTOMS_REDIS_HOST',
+        env: 'RATELIMIT_REDIS_HOST',
         format: String,
       },
       port: {
         default: 6379,
-        env: 'CUSTOMS_REDIS_PORT',
+        env: 'RATELIMIT_REDIS_PORT',
         format: 'port',
       },
       password: {
         default: '',
-        env: 'CUSTOMS_REDIS_PASSWORD',
+        env: 'RATELIMIT_REDIS_PASSWORD',
         format: String,
         sensitive: true,
         doc: `Password for connecting to redis`,
       },
       prefix: {
-        default: 'customs:',
-        env: 'CUSTOMS_REDIS_KEY_PREFIX',
+        default: 'ratelimit:',
+        env: 'RATELIMIT_REDIS_KEY_PREFIX',
         format: String,
         doc: 'Key prefix for custom server records in Redis',
       },

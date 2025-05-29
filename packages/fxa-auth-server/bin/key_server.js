@@ -225,7 +225,7 @@ async function run(config) {
   const rules = parseConfigRules(config.rateLimit.rules);
   const rateLimitRedis = new Redis({
     ...config.redis,
-    ...config.redis.customs,
+    ...config.redis.ratelimit,
   });
   const rateLimit = new RateLimit(
     {
