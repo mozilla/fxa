@@ -43,49 +43,119 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 
 // Pages
-import CannotCreateAccount from '../../pages/CannotCreateAccount';
-import Clear from '../../pages/Clear';
-import InlineRecoverySetupContainer from '../../pages/InlineRecoverySetup/container';
-import InlineTotpSetupContainer from '../../pages/InlineTotpSetup/container';
-import Legal from '../../pages/Legal';
-import LegalPrivacy from '../../pages/Legal/Privacy';
-import LegalTerms from '../../pages/Legal/Terms';
-import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
-import ResetPasswordContainer from '../../pages/ResetPassword/ResetPassword/container';
-import ConfirmResetPasswordContainer from '../../pages/ResetPassword/ConfirmResetPassword/container';
-import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
-import AccountRecoveryConfirmKeyContainer from '../../pages/ResetPassword/AccountRecoveryConfirmKey/container';
-import ConfirmTotpResetPasswordContainer from '../../pages/ResetPassword/ConfirmTotpResetPassword/container';
-import ConfirmBackupCodeResetPasswordContainer from '../../pages/ResetPassword/ConfirmBackupCodeResetPassword/container';
-import ResetPasswordConfirmedContainer from '../../pages/ResetPassword/ResetPasswordConfirmed/container';
-import ResetPasswordWithRecoveryKeyVerifiedContainer from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified/container';
-import CompleteSigninContainer from '../../pages/Signin/CompleteSignin/container';
-import SigninContainer from '../../pages/Signin/container';
-import ReportSigninContainer from '../../pages/Signin/ReportSignin/container';
-import SigninBounced from '../../pages/Signin/SigninBounced';
-import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
-import SigninRecoveryCodeContainer from '../../pages/Signin/SigninRecoveryCode/container';
-import SigninReported from '../../pages/Signin/SigninReported';
-import SigninTokenCodeContainer from '../../pages/Signin/SigninTokenCode/container';
-import SigninTotpCodeContainer from '../../pages/Signin/SigninTotpCode/container';
-import SigninPushCodeContainer from '../../pages/Signin/SigninPushCode/container';
-import SigninPushCodeConfirmContainer from '../../pages/Signin/SigninPushCodeConfirm/container';
-import SigninUnblockContainer from '../../pages/Signin/SigninUnblock/container';
-import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
-import SignupContainer from '../../pages/Signup/container';
-import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
-import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
-import WebChannelExample from '../../pages/WebChannelExample';
-import SignoutSync from '../Settings/SignoutSync';
-import InlineRecoveryKeySetupContainer from '../../pages/InlineRecoveryKeySetup/container';
-import SetPasswordContainer from '../../pages/PostVerify/SetPassword/container';
-import SigninRecoveryChoiceContainer from '../../pages/Signin/SigninRecoveryChoice/container';
-import SigninRecoveryPhoneContainer from '../../pages/Signin/SigninRecoveryPhone/container';
-import { IndexContainer } from '../../pages/Index/container';
-import AuthorizationContainer from '../../pages/Authorization/container';
-import CookiesDisabled from '../../pages/CookiesDisabled';
-import ResetPasswordRecoveryChoiceContainer from '../../pages/ResetPassword/ResetPasswordRecoveryChoice/container';
-import ResetPasswordRecoveryPhoneContainer from '../../pages/ResetPassword/ResetPasswordRecoveryPhone/container';
+const IndexContainer = lazy(() => import('../../pages/Index/container'));
+const CannotCreateAccount = lazy(
+  () => import('../../pages/CannotCreateAccount')
+);
+const Clear = lazy(() => import('../../pages/Clear'));
+const InlineRecoverySetupContainer = lazy(
+  () => import('../../pages/InlineRecoverySetup/container')
+);
+const InlineTotpSetupContainer = lazy(
+  () => import('../../pages/InlineTotpSetup/container')
+);
+
+const Legal = lazy(() => import('../../pages/Legal'));
+const LegalPrivacy = lazy(() => import('../../pages/Legal/Privacy'));
+const LegalTerms = lazy(() => import('../../pages/Legal/Terms'));
+const ThirdPartyAuthCallback = lazy(
+  () => import('../../pages/PostVerify/ThirdPartyAuthCallback')
+);
+const ResetPasswordContainer = lazy(
+  () => import('../../pages/ResetPassword/ResetPassword/container')
+);
+const ConfirmResetPasswordContainer = lazy(
+  () => import('../../pages/ResetPassword/ConfirmResetPassword/container')
+);
+const CompleteResetPasswordContainer = lazy(
+  () => import('../../pages/ResetPassword/CompleteResetPassword/container')
+);
+const AccountRecoveryConfirmKeyContainer = lazy(
+  () => import('../../pages/ResetPassword/AccountRecoveryConfirmKey/container')
+);
+const ConfirmTotpResetPasswordContainer = lazy(
+  () => import('../../pages/ResetPassword/ConfirmTotpResetPassword/container')
+);
+const ConfirmBackupCodeResetPasswordContainer = lazy(
+  () =>
+    import('../../pages/ResetPassword/ConfirmBackupCodeResetPassword/container')
+);
+const ResetPasswordConfirmedContainer = lazy(
+  () => import('../../pages/ResetPassword/ResetPasswordConfirmed/container')
+);
+const ResetPasswordWithRecoveryKeyVerifiedContainer = lazy(
+  () =>
+    import(
+      '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified/container'
+    )
+);
+const CompleteSigninContainer = lazy(
+  () => import('../../pages/Signin/CompleteSignin/container')
+);
+const SigninContainer = lazy(() => import('../../pages/Signin/container'));
+const ReportSigninContainer = lazy(
+  () => import('../../pages/Signin/ReportSignin/container')
+);
+const SigninBounced = lazy(() => import('../../pages/Signin/SigninBounced'));
+const SigninConfirmed = lazy(
+  () => import('../../pages/Signin/SigninConfirmed')
+);
+const SigninRecoveryCodeContainer = lazy(
+  () => import('../../pages/Signin/SigninRecoveryCode/container')
+);
+const SigninReported = lazy(() => import('../../pages/Signin/SigninReported'));
+const SigninTokenCodeContainer = lazy(
+  () => import('../../pages/Signin/SigninTokenCode/container')
+);
+const SigninTotpCodeContainer = lazy(
+  () => import('../../pages/Signin/SigninTotpCode/container')
+);
+const SigninPushCodeContainer = lazy(
+  () => import('../../pages/Signin/SigninPushCode/container')
+);
+const SigninPushCodeConfirmContainer = lazy(
+  () => import('../../pages/Signin/SigninPushCodeConfirm/container')
+);
+const SigninUnblockContainer = lazy(
+  () => import('../../pages/Signin/SigninUnblock/container')
+);
+const ConfirmSignupCodeContainer = lazy(
+  () => import('../../pages/Signup/ConfirmSignupCode/container')
+);
+const SignupContainer = lazy(() => import('../../pages/Signup/container'));
+const PrimaryEmailVerified = lazy(
+  () => import('../../pages/Signup/PrimaryEmailVerified')
+);
+const SignupConfirmed = lazy(
+  () => import('../../pages/Signup/SignupConfirmed')
+);
+const WebChannelExample = lazy(() => import('../../pages/WebChannelExample'));
+const SignoutSync = lazy(() => import('../Settings/SignoutSync'));
+const InlineRecoveryKeySetupContainer = lazy(
+  () => import('../../pages/InlineRecoveryKeySetup/container')
+);
+const SetPasswordContainer = lazy(
+  () => import('../../pages/PostVerify/SetPassword/container')
+);
+const SigninRecoveryChoiceContainer = lazy(
+  () => import('../../pages/Signin/SigninRecoveryChoice/container')
+);
+const SigninRecoveryPhoneContainer = lazy(
+  () => import('../../pages/Signin/SigninRecoveryPhone/container')
+);
+
+const AuthorizationContainer = lazy(
+  () => import('../../pages/Authorization/container')
+);
+const CookiesDisabled = lazy(() => import('../../pages/CookiesDisabled'));
+const ResetPasswordRecoveryChoiceContainer = lazy(
+  () =>
+    import('../../pages/ResetPassword/ResetPasswordRecoveryChoice/container')
+);
+const ResetPasswordRecoveryPhoneContainer = lazy(
+  () =>
+    import('../../pages/ResetPassword/ResetPasswordRecoveryPhone/container')
+);
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -342,32 +412,39 @@ const AuthAndAccountSetupRoutes = ({
   }, [location.pathname, gleanEnabled]);
 
   return (
-    <Router>
-      {/* Index */}
-      <IndexContainer path="/" {...{ integration, serviceName, flowQueryParams }} />
-      <IndexContainer path="/oauth" {...{ integration, serviceName, flowQueryParams }} />
+    <Suspense fallback={<LoadingSpinner fullScreen />}>
+      <Router>
+        {/* Index */}
+        <IndexContainer
+          path="/"
+          {...{ integration, serviceName, flowQueryParams }}
+        />
+        <IndexContainer
+          path="/oauth"
+          {...{ integration, serviceName, flowQueryParams }}
+        />
 
-      {/* Legal */}
-      <Legal path="/legal/*" />
-      <LegalPrivacy path="/:locale/legal/privacy/*" />
-      <LegalTerms path="/:locale/legal/terms/*" />
-      <LegalPrivacy path="/legal/privacy/*" />
-      <LegalTerms path="/legal/terms/*" />
+        {/* Legal */}
+        <Legal path="/legal/*" />
+        <LegalPrivacy path="/:locale/legal/privacy/*" />
+        <LegalTerms path="/:locale/legal/terms/*" />
+        <LegalPrivacy path="/legal/privacy/*" />
+        <LegalTerms path="/legal/terms/*" />
 
-      {/* Other */}
-      <Clear path="/clear/*" />
-      <WebChannelExample path="/web_channel_example/*" />
-      <CookiesDisabled path="cookies_disabled" />
+        {/* Other */}
+        <Clear path="/clear/*" />
+        <WebChannelExample path="/web_channel_example/*" />
+        <CookiesDisabled path="cookies_disabled" />
 
-      {/* Post verify */}
-      <ThirdPartyAuthCallback
-        path="/post_verify/third_party_auth/callback/*"
-        {...{ flowQueryParams, integration }}
-      />
-      <SetPasswordContainer
-        path="/post_verify/third_party_auth/set_password/*"
-        {...{ flowQueryParams, integration }}
-      />
+        {/* Post verify */}
+        <ThirdPartyAuthCallback
+          path="/post_verify/third_party_auth/callback/*"
+          {...{ flowQueryParams, integration }}
+        />
+        <SetPasswordContainer
+          path="/post_verify/third_party_auth/set_password/*"
+          {...{ flowQueryParams, integration }}
+        />
 
       {/* Reset password */}
       <ResetPasswordContainer
@@ -404,106 +481,107 @@ const AuthAndAccountSetupRoutes = ({
         {...{ integration, serviceName }}
       />
 
-      {/* Signin */}
-      <AuthorizationContainer path="/authorization/*" {...{ integration }} />
-      <ReportSigninContainer path="/report_signin/*" />
-      <SigninContainer
-        path="/oauth/force_auth/*"
-        {...{ integration, serviceName, flowQueryParams }}
-      />
-      <SigninContainer
-        path="/force_auth/*"
-        {...{ integration, serviceName, flowQueryParams }}
-      />
-      <SigninContainer
-        path="/oauth/signin/*"
-        {...{ integration, serviceName, flowQueryParams }}
-      />
-      <SigninContainer
-        path="/signin/*"
-        {...{ integration, serviceName, flowQueryParams }}
-      />
-      <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
-      <CompleteSigninContainer path="/complete_signin/*" />
-      <SigninConfirmed
-        path="/signin_confirmed/*"
-        {...{ isSignedIn, serviceName }}
-      />
-      <SigninRecoveryChoiceContainer path="/signin_recovery_choice/*" />
-      <SigninRecoveryPhoneContainer
-        path="/signin_recovery_phone/*"
-        {...{ integration }}
-      />
-      <SigninRecoveryCodeContainer
-        path="/signin_recovery_code/*"
-        {...{ integration }}
-      />
-      <SigninReported path="/signin_reported/*" />
-      <SigninTokenCodeContainer
-        path="/signin_token_code/*"
-        {...{ integration }}
-      />
-      <SigninTotpCodeContainer
-        path="/signin_totp_code/*"
-        {...{ integration, serviceName }}
-      />
-      <SigninPushCodeContainer
-        path="/signin_push_code/*"
-        {...{ integration, serviceName }}
-      />
-      <SigninPushCodeConfirmContainer
-        path="/signin_push_code_confirm/*"
-        {...{ integration, serviceName }}
-      />
-      <SigninConfirmed
-        path="/signin_verified/*"
-        {...{ isSignedIn, serviceName }}
-      />
-      <SigninUnblockContainer
-        path="/signin_unblock/*"
-        {...{ integration, flowQueryParams }}
-      />
-      <InlineRecoveryKeySetupContainer path="/inline_recovery_key_setup/*" />
+        {/* Signin */}
+        <AuthorizationContainer path="/authorization/*" {...{ integration }} />
+        <ReportSigninContainer path="/report_signin/*" />
+        <SigninContainer
+          path="/oauth/force_auth/*"
+          {...{ integration, serviceName, flowQueryParams }}
+        />
+        <SigninContainer
+          path="/force_auth/*"
+          {...{ integration, serviceName, flowQueryParams }}
+        />
+        <SigninContainer
+          path="/oauth/signin/*"
+          {...{ integration, serviceName, flowQueryParams }}
+        />
+        <SigninContainer
+          path="/signin/*"
+          {...{ integration, serviceName, flowQueryParams }}
+        />
+        <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
+        <CompleteSigninContainer path="/complete_signin/*" />
+        <SigninConfirmed
+          path="/signin_confirmed/*"
+          {...{ isSignedIn, serviceName }}
+        />
+        <SigninRecoveryChoiceContainer path="/signin_recovery_choice/*" />
+        <SigninRecoveryPhoneContainer
+          path="/signin_recovery_phone/*"
+          {...{ integration }}
+        />
+        <SigninRecoveryCodeContainer
+          path="/signin_recovery_code/*"
+          {...{ integration }}
+        />
+        <SigninReported path="/signin_reported/*" />
+        <SigninTokenCodeContainer
+          path="/signin_token_code/*"
+          {...{ integration }}
+        />
+        <SigninTotpCodeContainer
+          path="/signin_totp_code/*"
+          {...{ integration, serviceName }}
+        />
+        <SigninPushCodeContainer
+          path="/signin_push_code/*"
+          {...{ integration, serviceName }}
+        />
+        <SigninPushCodeConfirmContainer
+          path="/signin_push_code_confirm/*"
+          {...{ integration, serviceName }}
+        />
+        <SigninConfirmed
+          path="/signin_verified/*"
+          {...{ isSignedIn, serviceName }}
+        />
+        <SigninUnblockContainer
+          path="/signin_unblock/*"
+          {...{ integration, flowQueryParams }}
+        />
+        <InlineRecoveryKeySetupContainer path="/inline_recovery_key_setup/*" />
 
-      {/* Signup */}
-      <CannotCreateAccount path="/cannot_create_account/*" />
-      <ConfirmSignupCodeContainer
-        path="/confirm_signup_code/*"
-        {...{ integration, flowQueryParams }}
-      />
-      <SignupContainer
-        path="/oauth/signup/*"
-        {...{ integration, serviceName, flowQueryParams }}
-      />
-      <PrimaryEmailVerified
-        path="/primary_email_verified/*"
-        {...{ isSignedIn, serviceName }}
-      />
-      <SignupContainer
-        path="/signup/*"
-        {...{ integration, serviceName, flowQueryParams }}
-      />
-      <SignupConfirmed
-        path="/signup_confirmed/*"
-        {...{ isSignedIn, serviceName }}
-      />
-      <SignupConfirmed
-        path="/signup_verified/*"
-        {...{ isSignedIn, serviceName }}
-      />
+        {/* Signup */}
+        <CannotCreateAccount path="/cannot_create_account/*" />
+        <ConfirmSignupCodeContainer
+          path="/confirm_signup_code/*"
+          {...{ integration, flowQueryParams }}
+        />
+        <SignupContainer
+          path="/oauth/signup/*"
+          {...{ integration, serviceName, flowQueryParams }}
+        />
+        <PrimaryEmailVerified
+          path="/primary_email_verified/*"
+          {...{ isSignedIn, serviceName }}
+        />
+        <SignupContainer
+          path="/signup/*"
+          {...{ integration, serviceName, flowQueryParams }}
+        />
+        <SignupConfirmed
+          path="/signup_confirmed/*"
+          {...{ isSignedIn, serviceName }}
+        />
+        <SignupConfirmed
+          path="/signup_verified/*"
+          {...{ isSignedIn, serviceName }}
+        />
 
-      <InlineTotpSetupContainer
-        path="/inline_totp_setup/*"
-        integration={integration}
-        {...{ isSignedIn, serviceName, flowQueryParams }}
-      />
+        <InlineTotpSetupContainer
+          path="/inline_totp_setup/*"
+          integration={integration}
+          {...{ isSignedIn, serviceName, flowQueryParams }}
+        />
 
-      <InlineRecoverySetupContainer
-        path="/inline_recovery_setup/*"
-        integration={integration}
-        {...{ isSignedIn, serviceName }}
-      />
-    </Router>
+        <InlineRecoverySetupContainer
+          path="/inline_recovery_setup/*"
+          integration={integration}
+          {...{ isSignedIn, serviceName }}
+        />
+      </Router>
+    </Suspense>
   );
 };
 

@@ -12,7 +12,7 @@ import { render, waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { Integration, IntegrationType, WebIntegration } from '../../models';
-import { IndexContainer } from './container';
+import IndexContainer from './container';
 import { MozServices } from '../../lib/types';
 import AuthClient from 'fxa-auth-client/browser';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
