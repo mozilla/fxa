@@ -105,9 +105,7 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async getCartState(args: { cartId: string }) {
-    const cart = await this.cartService.getCartState(args.cartId);
-
-    return cart;
+    return this.cartService.getCartState(args.cartId);
   }
 
   @SanitizeExceptions()
@@ -115,9 +113,7 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async getCart(args: { cartId: string }) {
-    const cart = await this.cartService.getCart(args.cartId);
-
-    return cart;
+    return this.cartService.getCart(args.cartId);
   }
 
   @SanitizeExceptions({
@@ -170,9 +166,7 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async restartCart(args: { cartId: string }) {
-    const cart = await this.cartService.restartCart(args.cartId);
-
-    return cart;
+    return this.cartService.restartCart(args.cartId);
   }
 
   @SanitizeExceptions({
@@ -189,11 +183,10 @@ export class NextJSActionsService {
     uid?: string;
     taxAddress: TaxAddress;
   }) {
-    const cart = await this.cartService.setupCart({
+    return this.cartService.setupCart({
       ...args,
     });
 
-    return cart;
   }
 
   @SanitizeExceptions()
@@ -204,7 +197,7 @@ export class NextJSActionsService {
     cartId: string;
     errorReasonId: CartErrorReasonId;
   }) {
-    await this.cartService.finalizeCartWithError(
+    return this.cartService.finalizeCartWithError(
       args.cartId,
       args.errorReasonId
     );
@@ -215,7 +208,7 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async finalizeProcessingCart(args: { cartId: string }) {
-    await this.cartService.finalizeProcessingCart(args.cartId);
+    return this.cartService.finalizeProcessingCart(args.cartId);
   }
 
   @SanitizeExceptions()
@@ -235,12 +228,10 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async getTaxAddress(args: { ipAddress: string; uid?: string }) {
-    const result = await this.taxService.getTaxAddress(
+    return this.taxService.getTaxAddress(
       args.ipAddress,
       args.uid
     );
-
-    return result;
   }
 
   @SanitizeExceptions()
@@ -253,7 +244,7 @@ export class NextJSActionsService {
     customerData: { locale: string; displayName: string };
     token?: string;
   }) {
-    await this.cartService.checkoutCartWithPaypal(
+    return this.cartService.checkoutCartWithPaypal(
       args.cartId,
       args.version,
       args.customerData,
@@ -271,7 +262,7 @@ export class NextJSActionsService {
     confirmationTokenId: string;
     customerData: { locale: string; displayName: string };
   }) {
-    await this.cartService.checkoutCartWithStripe(
+    return this.cartService.checkoutCartWithStripe(
       args.cartId,
       args.version,
       args.confirmationTokenId,
@@ -288,13 +279,11 @@ export class NextJSActionsService {
     acceptLanguage?: string | null;
     selectedLanguage?: string;
   }) {
-    const offering = await this.productConfigurationManager.fetchCMSData(
+    return this.productConfigurationManager.fetchCMSData(
       args.offeringId,
       args.acceptLanguage || undefined,
       args.selectedLanguage
     );
-
-    return offering;
   }
 
   @SanitizeExceptions()
@@ -336,7 +325,7 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async getNeedsInput(args: { cartId: string }) {
-    return await this.cartService.getNeedsInput(args.cartId);
+    return this.cartService.getNeedsInput(args.cartId);
   }
 
   @SanitizeExceptions({
@@ -346,7 +335,7 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async submitNeedsInput(args: { cartId: string }) {
-    await this.cartService.submitNeedsInput(args.cartId);
+    return this.cartService.submitNeedsInput(args.cartId);
   }
 
   @SanitizeExceptions()
@@ -364,7 +353,7 @@ export class NextJSActionsService {
     postalCode: string;
     countryCode: string;
   }) {
-    return await this.googleManager.validateAndFormatPostalCode(
+    return this.googleManager.validateAndFormatPostalCode(
       args.postalCode,
       args.countryCode
     );
