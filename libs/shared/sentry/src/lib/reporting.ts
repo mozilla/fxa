@@ -6,6 +6,7 @@ import { ApolloServerErrorCode } from '@apollo/server/errors';
 import { GraphQLError } from 'graphql';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import * as Sentry from '@sentry/node';
+import { httpRequestToRequestData } from '@sentry/core';
 import { ErrorEvent } from '@sentry/core';
 import { SQS } from 'aws-sdk';
 import { Request } from 'express';
@@ -169,7 +170,7 @@ export function reportRequestException(
   Sentry.withScope((scope: Sentry.Scope) => {
     scope.addEventProcessor((event) => {
       if (request) {
-        event.request = Sentry.extractRequestData(request);
+        event.request = httpRequestToRequestData(request);
         event.level = 'error';
         return event;
       }
