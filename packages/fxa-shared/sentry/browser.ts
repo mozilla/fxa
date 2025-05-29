@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as Sentry from '@sentry/browser';
+import { SamplingContext } from '@sentry/core';
 import { SentryConfigOpts } from './models/SentryConfigOpts';
 import { ILogger } from '../log';
 import { tagFxaName } from './tag';
@@ -167,12 +168,20 @@ function configure(config: SentryConfigOpts, log?: ILogger) {
   disable();
 
   const opts = buildSentryConfig(config, log);
+
+  // If tracing is configured, add the integration.
+  const integrations = [];
+  if (opts.tracesSampleRate || opts.tracesSampler) {
+    integrations.push(Sentry.browserTracingIntegration())
+  }
+
   try {
     Sentry.init({
       ...opts,
       beforeSend: function (event: Sentry.ErrorEvent, hint?: Sentry.EventHint) {
         return beforeSend(opts, event, hint);
       },
+      integrations,
     });
   } catch (e) {
     log.error(e);
