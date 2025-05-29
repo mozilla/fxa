@@ -5,14 +5,13 @@
 import 'server-only';
 
 import { NestFactory } from '@nestjs/core';
-
-import { logger } from '@fxa/shared/log';
 import { AppModule } from './app.module';
 import { LocalizerRscFactory } from '@fxa/shared/l10n/server';
 import { singleton } from '../utils/singleton';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import { StripeWebhookService } from '@fxa/payments/webhooks';
+import { winstonLogger } from '@fxa/shared/log';
 
 class AppSingleton {
   private app!: Awaited<
@@ -22,7 +21,7 @@ class AppSingleton {
   async initialize() {
     if (!this.app) {
       this.app = await NestFactory.createApplicationContext(AppModule, {
-        logger,
+        logger: winstonLogger('NestApplication')
       });
     }
   }

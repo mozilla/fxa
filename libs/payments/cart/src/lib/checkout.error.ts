@@ -7,23 +7,31 @@ import { BaseError } from '@fxa/shared/error';
 export class CheckoutError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
+    this.name = 'CheckoutError';
+    Object.setPrototypeOf(this, CheckoutError.prototype);
   }
 }
 
 export class CheckoutPaymentError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
+    this.name = 'CheckoutPaymentError';
+    Object.setPrototypeOf(this, CheckoutPaymentError.prototype);
   }
 }
 
 export class CheckoutFailedError extends CheckoutError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
+    this.name = 'CheckoutFailedError';
+    Object.setPrototypeOf(this, CheckoutFailedError.prototype);
   }
 }
 
 export class CheckoutUpgradeError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
+    this.name = 'CheckoutUpgradeError';
+    Object.setPrototypeOf(this, CheckoutUpgradeError.prototype);
   }
 }

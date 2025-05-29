@@ -8,6 +8,8 @@ import { Options } from 'verror';
 export class ProfileClientError extends BaseError {
   constructor(cause: Error) {
     super('Profile Client Error', { cause });
+    this.name = 'ProfileClientError';
+    Object.setPrototypeOf(this, ProfileClientError.prototype);
   }
 }
 
@@ -22,5 +24,7 @@ export class ProfileClientServiceFailureError extends BaseError {
       },
     };
     super('Profile Client service failure', options);
+    this.name = 'ProfileClientServiceFailureError';
+    Object.setPrototypeOf(this, ProfileClientServiceFailureError.prototype);
   }
 }

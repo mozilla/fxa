@@ -10,18 +10,24 @@ import { BaseError, BaseMultiError } from '@fxa/shared/error';
 export class CMSError extends BaseMultiError {
   constructor(...args: ConstructorParameters<typeof BaseMultiError>) {
     super(...args);
+    this.name = 'CMSError';
+    Object.setPrototypeOf(this, CMSError.prototype);
   }
 }
 
 export class ProductConfigError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
+    this.name = 'ProductConfigError';
+    Object.setPrototypeOf(this, ProductConfigError.prototype);
   }
 }
 
 export class QueriesUtilError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
+    this.name = 'QueriesUtilError';
+    Object.setPrototypeOf(this, QueriesUtilError.prototype);
   }
 }
 
@@ -32,6 +38,8 @@ export class FetchCmsInvalidOfferingError extends ProductConfigError {
       cause: error,
       info: { offeringId },
     });
+    this.name = 'FetchCmsInvalidOfferingError';
+    Object.setPrototypeOf(this, FetchCmsInvalidOfferingError.prototype);
   }
 }
 
@@ -41,6 +49,8 @@ export class RetrieveStripePriceNotFoundError extends ProductConfigError {
       name: 'RetrieveStripePriceNotFoundError',
       info: { offeringId, interval },
     });
+    this.name = 'RetrieveStripePriceNotFoundError';
+    Object.setPrototypeOf(this, RetrieveStripePriceNotFoundError.prototype);
   }
 }
 
@@ -51,17 +61,26 @@ export class RetrieveStripePriceInvalidOfferingError extends ProductConfigError 
       cause: error,
       info: { offeringId },
     });
+    this.name = 'RetrieveStripePriceInvalidOfferingError';
+    Object.setPrototypeOf(
+      this,
+      RetrieveStripePriceInvalidOfferingError.prototype
+    );
   }
 }
 
 export class OfferingNotFoundError extends QueriesUtilError {
   constructor() {
     super('Offering not found');
+    this.name = 'OfferingNotFoundError';
+    Object.setPrototypeOf(this, OfferingNotFoundError.prototype);
   }
 }
 
 export class OfferingMultipleError extends QueriesUtilError {
   constructor() {
     super('More than one offering found');
+    this.name = 'OfferingMultipleError';
+    Object.setPrototypeOf(this, OfferingMultipleError.prototype);
   }
 }

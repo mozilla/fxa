@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Module, Provider } from '@nestjs/common';
+import { Logger, Module, Provider } from '@nestjs/common';
 import { CartManager } from '@fxa/payments/cart';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { AppConfig } from '../config';
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { ConfigService } from '@nestjs/config';
 import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 export const MySQLConfigFactory: Provider<MySQLConfig> = {
   provide: MySQLConfig,
@@ -20,7 +21,17 @@ export const MySQLConfigFactory: Provider<MySQLConfig> = {
 };
 
 @Module({
-  providers: [MySQLConfigFactory, AccountDatabaseNestFactory, CartManager, LegacyStatsDProvider],
+  providers: [
+    MySQLConfigFactory,
+    AccountDatabaseNestFactory,
+    CartManager,
+    LegacyStatsDProvider,
+    MozLoggerService,
+    {
+      provide: Logger,
+      useClass: MozLoggerService,
+    },
+  ],
   exports: [CartManager],
 })
-export class CartModule { }
+export class CartModule {}

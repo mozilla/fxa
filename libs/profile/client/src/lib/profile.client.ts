@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LOGGER_PROVIDER } from '@fxa/shared/log';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
 import Agent from 'agentkeepalive';
 import axios, { AxiosInstance } from 'axios';
@@ -26,7 +25,7 @@ type SupportedMethods = 'post' | 'delete';
 export class ProfileClient {
   private axiosInstance: AxiosInstance;
   constructor(
-    @Inject(LOGGER_PROVIDER) private log: LoggerService,
+    @Inject(Logger) private log: LoggerService,
     private config: ProfileClientConfig
   ) {
     this.axiosInstance = axios.create({
@@ -46,9 +45,8 @@ export class ProfileClient {
     });
 
     // Authorization header is required for all requests to the profile server
-    this.axiosInstance.defaults.headers.common[
-      'Authorization'
-    ] = `Bearer ${config.secretBearerToken}`;
+    this.axiosInstance.defaults.headers.common['Authorization'] =
+      `Bearer ${config.secretBearerToken}`;
   }
 
   private async makeRequest(
@@ -85,9 +83,9 @@ export class ProfileClient {
         {},
         'delete'
       );
-    } catch (err) {
-      this.log.error('profile.deleteCache.failed', uid, err);
-      throw err;
+    } catch (error) {
+      this.log.error(error);
+      throw error;
     }
   }
 
@@ -98,9 +96,9 @@ export class ProfileClient {
         { name },
         'post'
       );
-    } catch (err) {
-      this.log.error('profile.updateDisplayName.failed', uid, name, err);
-      throw err;
+    } catch (error) {
+      this.log.error(error);
+      throw error;
     }
   }
 }

@@ -16,6 +16,7 @@ import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { Test } from '@nestjs/testing';
 import { CheckoutParamsFactory } from '@fxa/payments/metrics';
 import { retrieveAdditionalMetricsData } from './retrieveAdditionalMetricsData';
+import { Logger } from '@nestjs/common';
 
 const mockStripePlan = StripePriceFactory();
 const mockCart = ResultCartFactory();
@@ -45,10 +46,18 @@ const emptyCartMetricsData = {
 describe('retrieveAdditionalMetricsData', () => {
   let productConfigurationManager: ProductConfigurationManager;
   let cartManager: CartManager;
+  const mockLogger = {
+    error: jest.fn(),
+    log: jest.fn(),
+  };
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
+        {
+          provide: Logger,
+          useValue: mockLogger,
+        },
         MockAccountDatabaseNestFactory,
         MockStrapiClientConfigProvider,
         MockStripeConfigProvider,

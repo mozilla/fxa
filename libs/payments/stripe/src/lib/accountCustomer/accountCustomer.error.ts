@@ -11,6 +11,8 @@ import {
 export class AccountCustomerManagerError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
+    this.name = 'AccountCustomerManagerError';
+    Object.setPrototypeOf(this, AccountCustomerManagerError.prototype);
   }
 }
 
@@ -22,6 +24,8 @@ export class AccountCustomerNotCreatedError extends AccountCustomerManagerError 
       },
       cause,
     });
+    this.name = 'AccountCustomerNotCreatedError';
+    Object.setPrototypeOf(this, AccountCustomerNotCreatedError.prototype);
   }
 }
 
@@ -33,6 +37,8 @@ export class AccountCustomerNotFoundError extends AccountCustomerManagerError {
       },
       cause,
     });
+    this.name = 'AccountCustomerNotFoundError';
+    Object.setPrototypeOf(this, AccountCustomerNotFoundError.prototype);
   }
 }
 
@@ -45,6 +51,8 @@ export class AccountCustomerNotUpdatedError extends AccountCustomerManagerError 
       },
       cause,
     });
+    this.name = 'AccountCustomerNotUpdatedError';
+    Object.setPrototypeOf(this, AccountCustomerNotUpdatedError.prototype);
   }
 }
 
@@ -56,5 +64,7 @@ export class AccountCustomerNotDeletedError extends AccountCustomerManagerError 
       },
       cause,
     });
+    this.name = 'AccountCustomerNotDeletedError';
+    Object.setPrototypeOf(this, AccountCustomerNotDeletedError.prototype);
   }
 }

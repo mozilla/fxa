@@ -9,6 +9,8 @@ export class AccountError extends BaseError {
       name: 'AccountError',
       cause,
     });
+    this.name = 'AccountError';
+    Object.setPrototypeOf(this, AccountError.prototype);
   }
 }
 
@@ -18,6 +20,8 @@ export class AccountAlreadyExistsError extends AccountError {
   constructor(email: string) {
     super('Account already exists: ' + email);
     this.email = email;
+    this.name = 'AccountAlreadyExistsError';
+    Object.setPrototypeOf(this, AccountAlreadyExistsError.prototype);
   }
 }
 
@@ -27,6 +31,8 @@ export class AccountNotCreatedError extends AccountError {
   constructor(email: string, cause: Error) {
     super('Account not created: ' + email, cause);
     this.email = email;
+    this.name = 'AccountNotCreatedError';
+    Object.setPrototypeOf(this, AccountNotCreatedError.prototype);
   }
 }
 
@@ -35,5 +41,7 @@ export class AccountNotFoundError extends AccountError {
   constructor(accountId: string, cause: Error) {
     super('Account not found', cause);
     this.accountId = accountId;
+    this.name = 'AccountNotFoundError';
+    Object.setPrototypeOf(this, AccountNotFoundError.prototype);
   }
 }

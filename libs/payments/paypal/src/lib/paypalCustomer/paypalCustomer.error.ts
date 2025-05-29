@@ -10,6 +10,8 @@ import {
 export class PaypalCustomerManagerError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
+    this.name = 'PaypalCustomerManagerError';
+    Object.setPrototypeOf(this, PaypalCustomerManagerError.prototype);
   }
 }
 
@@ -19,6 +21,8 @@ export class PaypalCustomerNotCreatedError extends PaypalCustomerManagerError {
       info: data,
       cause,
     });
+    this.name = 'PaypalCustomerNotCreatedError';
+    Object.setPrototypeOf(this, PaypalCustomerNotCreatedError.prototype);
   }
 }
 
@@ -30,6 +34,8 @@ export class PaypalCustomerNotFoundError extends PaypalCustomerManagerError {
       },
       cause,
     });
+    this.name = 'PaypalCustomerNotFoundError';
+    Object.setPrototypeOf(this, PaypalCustomerNotFoundError.prototype);
   }
 }
 export class PaypalCustomerNotUpdatedError extends PaypalCustomerManagerError {
@@ -47,6 +53,8 @@ export class PaypalCustomerNotUpdatedError extends PaypalCustomerManagerError {
       },
       cause,
     });
+    this.name = 'PaypalCustomerNotUpdatedError';
+    Object.setPrototypeOf(this, PaypalCustomerNotUpdatedError.prototype);
   }
 }
 export class PaypalCustomerNotDeletedError extends PaypalCustomerManagerError {
@@ -58,6 +66,8 @@ export class PaypalCustomerNotDeletedError extends PaypalCustomerManagerError {
       },
       cause,
     });
+    this.name = 'PaypalCustomerNotDeletedError';
+    Object.setPrototypeOf(this, PaypalCustomerNotDeletedError.prototype);
   }
 }
 
@@ -69,5 +79,7 @@ export class PaypalCustomerMultipleRecordsError extends PaypalCustomerManagerErr
       },
       cause,
     });
+    this.name = 'PaypalCustomerMultipleRecordsError';
+    Object.setPrototypeOf(this, PaypalCustomerMultipleRecordsError.prototype);
   }
 }
