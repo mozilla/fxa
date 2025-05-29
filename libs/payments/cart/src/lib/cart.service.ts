@@ -36,8 +36,6 @@ import {
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
-  StripeCustomer,
-  StripeSubscription,
 } from '@fxa/payments/stripe';
 import {
   ProductConfigError,
@@ -656,31 +654,35 @@ export class CartService {
 
     assert(cart.taxAddress !== null, 'Cart must have a tax address');
     assert(cart.currency !== null, 'Cart must have a currency');
-
-    const [price, metricsOptedOut] = await Promise.all([
+    const [
+      price,
+      metricsOptedOut,
+      eligibility,
+      customer,
+      subscriptions,
+      customerSession,
+    ] = await Promise.all([
       this.productConfigurationManager.retrieveStripePrice(
         cart.offeringConfigId,
         cart.interval as SubplatInterval
       ),
       this.metricsOptedOut(cart.uid),
-    ]);
-
-    let customer: StripeCustomer | undefined;
-    let subscriptions: StripeSubscription[] = [];
-    if (cart.stripeCustomerId) {
-      [customer, subscriptions] = await Promise.all([
-        this.customerManager.retrieve(cart.stripeCustomerId),
-        this.subscriptionManager.listForCustomer(cart.stripeCustomerId),
-      ]);
-    }
-
-    const eligibility = await this.eligibilityService.checkEligibility(
-      cart.interval as SubplatInterval,
-      cart.offeringConfigId,
-      cart.uid,
+      this.eligibilityService.checkEligibility(
+        cart.interval as SubplatInterval,
+        cart.offeringConfigId,
+        cart.uid,
+        cart.stripeCustomerId
+      ),
       cart.stripeCustomerId
-    );
-
+        ? this.customerManager.retrieve(cart.stripeCustomerId)
+        : undefined,
+      cart.stripeCustomerId
+        ? this.subscriptionManager.listForCustomer(cart.stripeCustomerId)
+        : undefined,
+      cart.stripeCustomerId
+        ? this.customerSessionManager.create(cart.stripeCustomerId)
+        : undefined,
+    ]);
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
@@ -723,16 +725,9 @@ export class CartService {
       subscriptions
     );
     if (paymentMethodType?.type === 'stripe') {
-      const paymentMethodPromise = this.paymentMethodManager.retrieve(
+      const paymentMethod = await this.paymentMethodManager.retrieve(
         paymentMethodType.paymentMethodId
       );
-      const customerSessionPromise = cart.stripeCustomerId
-        ? this.customerSessionManager.create(cart.stripeCustomerId)
-        : undefined;
-      const [paymentMethod, customerSession] = await Promise.all([
-        paymentMethodPromise,
-        customerSessionPromise,
-      ]);
       paymentInfo = {
         type: paymentMethod.type,
         last4: paymentMethod.card?.last4,
@@ -750,6 +745,7 @@ export class CartService {
     if (
       customer &&
       cart.stripeSubscriptionId &&
+      subscriptions &&
       cart.state !== CartState.FAIL
     ) {
       const subscription = subscriptions.find(
@@ -816,7 +812,7 @@ export class CartService {
           ? eligibility.fromOfferingConfigId
           : undefined,
       fromPrice: 'fromPrice' in eligibility ? fromPrice : undefined,
-      hasActiveSubscriptions: !!subscriptions.length,
+      hasActiveSubscriptions: !!subscriptions?.length,
     };
   }
 
