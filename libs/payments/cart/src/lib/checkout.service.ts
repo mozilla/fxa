@@ -347,47 +347,62 @@ export class CheckoutService {
       subscription.latest_invoice
     );
 
-    assert(
-      invoice.payment_intent,
-      'payment_intent does not exist on subscription'
-    );
-    // Confirm intent with collected payment method
-    const paymentIntent = await this.paymentIntentManager.confirm(
-      invoice.payment_intent,
-      {
-        confirmation_token: confirmationTokenId,
-        off_session: false,
-      }
-    );
+    if (invoice.amount_due === 0) {
+      // invoices without charge do not generate a payent intent
+      assert(
+        invoice.status === 'paid',
+        'Zero-charge stripe invoice expected to be in a paid status'
+      );
+      const paymentMethod = await this.customerManager.getDefaultPaymentMethod(
+        customer.id
+      );
+      assert(
+        !!paymentMethod,
+        'Payment method expected on customer for stripe zero-charge payment processing'
+      );
+    } else {
+      assert(
+        invoice.payment_intent,
+        'payment_intent does not exist on subscription'
+      );
+      // Confirm intent with collected payment method
+      const paymentIntent = await this.paymentIntentManager.confirm(
+        invoice.payment_intent,
+        {
+          confirmation_token: confirmationTokenId,
+          off_session: false,
+        }
+      );
 
-    if (paymentIntent.status === 'requires_action') {
-      await this.cartManager.setNeedsInputCart(cart.id);
-      return;
-    } else if (paymentIntent.status === 'succeeded') {
-      if (paymentIntent.payment_method) {
-        await this.customerManager.update(customer.id, {
-          invoice_settings: {
-            default_payment_method: paymentIntent.payment_method,
-          },
-        });
+      if (paymentIntent.status === 'requires_action') {
+        await this.cartManager.setNeedsInputCart(cart.id);
+        return;
+      } else if (paymentIntent.status === 'succeeded') {
+        if (paymentIntent.payment_method) {
+          await this.customerManager.update(customer.id, {
+            invoice_settings: {
+              default_payment_method: paymentIntent.payment_method,
+            },
+          });
+        } else {
+          throw new CartError(
+            'Failed to update customer default payment method',
+            { cartId: cart.id }
+          );
+        }
       } else {
-        throw new CartError(
-          'Failed to update customer default payment method',
-          { cartId: cart.id }
+        throw new CheckoutPaymentError(
+          `Expected payment intent status to be one of [requires_action, succeeded], instead found: ${paymentIntent.status}`
         );
       }
-      await this.postPaySteps({
-        cart,
-        version: updatedVersion,
-        subscription,
-        uid,
-        paymentProvider: 'stripe',
-      });
-    } else {
-      throw new CheckoutPaymentError(
-        `Expected payment intent status to be one of [requires_action, succeeded], instead found: ${paymentIntent.status}`
-      );
     }
+    await this.postPaySteps({
+      cart,
+      version: updatedVersion,
+      subscription,
+      uid,
+      paymentProvider: 'stripe',
+    });
   }
 
   async payWithPaypal(
