@@ -17,10 +17,10 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('oauth prompt none', () => {
-    test('fails if no user logged in', async ({
+    test('redirects to signup if no user logged in', async ({
       page,
       target,
-      pages: { relier },
+      pages: { relier, signup },
       testAccountTracker,
     }) => {
       const { email } = testAccountTracker.generateAccountDetails();
@@ -32,9 +32,8 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
       await relier.signInPromptNone();
 
-      //Verify error message
-      await page.waitForURL(/authorization/);
-      await expect(page.getByText('User is not signed in')).toBeVisible();
+      await page.waitForURL(/oauth/);
+      await expect(signup.signupFormHeading).toBeVisible();
     });
 
     test('fails RP that is not allowed', async ({
@@ -93,10 +92,10 @@ test.describe('severity-1 #smoke', () => {
       ).toBeVisible();
     });
 
-    test('fails if session is no longer valid', async ({
+    test('redirects if session is no longer valid', async ({
       page,
       target,
-      pages: { relier, settings, signin },
+      pages: { relier, settings, signin, signup },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -120,9 +119,8 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
       await relier.signInPromptNone();
 
-      // Verify error message
-      await page.waitForURL(/authorization/);
-      await expect(page.getByText('User is not signed in')).toBeVisible();
+      await page.waitForURL(/oauth/);
+      await expect(signup.signupFormHeading).toBeVisible();
     });
 
     test('fails if account is not verified', async ({

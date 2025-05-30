@@ -18,7 +18,11 @@ import { currentAccount } from '../../lib/cache';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import OAuthDataError from '../../components/OAuthDataError';
 import { cachedSignIn, handleNavigation } from '../Signin/utils';
-import { AuthError, OAuthError } from '../../lib/oauth/oauth-errors';
+import {
+  AuthError,
+  OAUTH_ERRORS,
+  OAuthError,
+} from '../../lib/oauth/oauth-errors';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
@@ -120,6 +124,14 @@ const AuthorizationContainer = ({
         return;
       }
 
+      if (
+        !(integration as OAuthWebIntegration).returnOnError() &&
+        err.errno === OAUTH_ERRORS['PROMPT_NONE_NOT_SIGNED_IN'].errno
+      ) {
+        navigateWithQuery('/oauth');
+        return;
+      }
+
       setOauthError(err);
     }
   }, [
@@ -127,6 +139,7 @@ const AuthorizationContainer = ({
     finishOAuthFlowHandler,
     integration,
     location.search,
+    navigateWithQuery,
     session,
   ]);
 
