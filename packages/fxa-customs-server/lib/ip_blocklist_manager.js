@@ -35,10 +35,10 @@ module.exports = function (log, config) {
     });
 
     if (logOnlyLists) {
-      loadedLists = loadedLists.concat(
-        logOnlyLists.map(function (listPath) {
-          var blocklist = new IPBlocklist();
-          blocklist.logOnly = true;
+      logOnlyLists.map(function (listPath) {
+        var blocklist = new IPBlocklist();
+        loadedLists = loadedLists.concat(
+        blocklist.logOnly = true;
           self.ipBlocklists.push(blocklist);
           return blocklist.load(listPath);
         })

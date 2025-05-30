@@ -18,13 +18,13 @@ const serviceName = 'customs';
 
 class CustomsClient {
   constructor(url, log, error, statsd, rateLimit) {
+
     this.log = log;
     this.error = error;
     this.statsd = statsd;
     this.rateLimit = rateLimit;
 
     const customsHttpAgentConfig = config.get('customsHttpAgent');
-
     if (url !== 'none') {
       this.httpAgent = createHttpAgent(
         customsHttpAgentConfig.maxSockets,
@@ -65,6 +65,8 @@ class CustomsClient {
           performance.now() - startTime
         );
       }
+
+      // console.log('!!! request', endpoint, requestData, response.data);
 
       return response.data;
     } catch (err) {

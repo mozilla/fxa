@@ -44,7 +44,9 @@ export function parseConfigRules(
   // Loop overrules and group by the rule's action value.
   const ruleMap: Record<string, Rule[]> = {};
   const keys: Array<string> = [];
+  let lineNumber = 0;
   for (let line of rules) {
+    lineNumber++;
     // Clean up whitespace first.
     line = line.trim();
 
@@ -62,7 +64,7 @@ export function parseConfigRules(
 
     if (parts.length !== 5) {
       throw new InvalidRule(
-        `Rules must have 5 parts separated delimited by :. But was ${line}`,
+        `Issue detected on line ${lineNumber}. Rules must have 5 parts separated delimited by :. `,
         line
       );
     }

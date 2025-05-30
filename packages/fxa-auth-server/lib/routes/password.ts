@@ -697,7 +697,12 @@ module.exports = function (
         statsd.increment('otp.passwordForgot.attempt');
 
         const { email, code } = request.payload;
+
+        // Typical 15 minute window limit
         await customs.check(request, email, 'passwordForgotVerifyOtp');
+
+        // Daily limit, will be checked if and only if the default limit above passes
+        await customs.check(request, email, 'passwordForgotVerifyOtpPerDay');
 
         request.validateMetricsContext();
 
