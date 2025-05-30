@@ -8,6 +8,7 @@ import {
   validateLocationAction,
   getTaxAddressAction,
   setupCartAction,
+  restartCartAction,
 } from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
@@ -57,6 +58,7 @@ export default async function New({
   const coupon = searchParams.coupon || undefined;
   const countryCode = searchParams.countryCode;
   const postalCode = searchParams.postalCode;
+  const oldCartId = searchParams.oldCartId;
 
   const taxAddress =
     countryCode && postalCode
@@ -95,42 +97,44 @@ export default async function New({
     redirect(locationPageUrl.href);
   }
 
-  let redirectToUrl: URL;
-  try {
-    const cart = await setupCartAction(
-      interval as SubplatInterval,
-      offeringId,
-      taxAddress,
-      undefined,
-      coupon,
-      fxaUid
-    );
-
-    redirectToUrl = getRedirectToUrl(cart, params, searchParams);
-  } catch (error) {
-    if (error.name === 'CartInvalidPromoCodeError') {
-      const cart = await setupCartAction(
+  let cart: ResultCart;
+  if (session?.user && oldCartId) {
+    cart = await restartCartAction(oldCartId);
+  } else {
+    try {
+      cart = await setupCartAction(
         interval as SubplatInterval,
         offeringId,
         taxAddress,
         undefined,
-        undefined,
+        coupon,
         fxaUid
       );
-
-      redirectToUrl = getRedirectToUrl(cart, params, searchParams);
-    } else if (
-      error.name === 'RetrieveStripePriceInvalidOfferingError' ||
-      error.name === 'RetrieveStripePriceNotFoundError'
-    ) {
-      notFound();
-    } else {
-      throw error;
+    } catch (error) {
+      if (error.name === 'CartInvalidPromoCodeError') {
+        cart = await setupCartAction(
+          interval as SubplatInterval,
+          offeringId,
+          taxAddress,
+          undefined,
+          undefined,
+          fxaUid
+        );
+      } else if (
+        error.name === 'RetrieveStripePriceInvalidOfferingError' ||
+        error.name === 'RetrieveStripePriceNotFoundError'
+      ) {
+        notFound();
+      } else {
+        throw error;
+      }
     }
   }
+  const redirectToUrl = getRedirectToUrl(cart, params, searchParams);
 
   redirectToUrl.searchParams.delete('countryCode');
   redirectToUrl.searchParams.delete('postalCode');
+  redirectToUrl.searchParams.delete('oldCartId');
 
   redirect(redirectToUrl.href);
 }
