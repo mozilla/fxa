@@ -67,10 +67,15 @@ const ConfirmTotpResetPasswordContainer = (_: RouteComponentProps) => {
     }
   };
 
-  const onTroubleWithCode = () => {
-    const nextRoute = config.featureFlags?.recoveryPhonePasswordReset2fa
-      ? '/reset_password_totp_recovery_choice'
-      : '/confirm_backup_code_reset_password';
+  const onTroubleWithCode = async () => {
+    let nextRoute = '/confirm_backup_code_reset_password';
+
+    const { exists } = await authClient.recoveryPhoneGetWithPasswordForgotToken(token);
+
+    if (config.featureFlags?.recoveryPhonePasswordReset2fa && exists) {
+      nextRoute = '/reset_password_totp_recovery_choice';
+    }
+
     navigateWithQuery(nextRoute, {
       state: {
         code,

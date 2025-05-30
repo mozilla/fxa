@@ -4,6 +4,32 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 import { getCode } from 'fxa-settings/src/lib/totp';
+import { TargetName, getFromEnvWithFallback } from '../../lib/targets';
+
+// Default test number, see Twilio test credentials phone numbers:
+// https://www.twilio.com/docs/iam/test-credentials
+const TEST_NUMBER = '4159929960';
+
+/**
+ * Checks the process env for a configured twilio test phone number. Defaults
+ * to generic magic test number if one is not provided.
+ * @param targetName The test target name. eg local, stage, prod.
+ * @returns
+ */
+function getPhoneNumber(targetName: TargetName) {
+  if (targetName === 'local') {
+    return TEST_NUMBER;
+  }
+  return getFromEnvWithFallback(
+    'FUNCTIONAL_TESTS__TWILIO__TEST_NUMBER',
+    targetName,
+    TEST_NUMBER
+  );
+}
+
+function usingRealTestPhoneNumber(targetName: TargetName) {
+  return getPhoneNumber(targetName) !== TEST_NUMBER;
+}
 
 test.describe('severity-1 #smoke', () => {
   test('can reset password with 2FA enabled', async ({
@@ -332,3 +358,130 @@ test.describe('severity-1 #smoke', () => {
     credentials.password = newPassword;
   });
 });
+
+test.describe('reset password with recovery phone', () => {
+  test.describe.configure({ mode: 'serial' });
+
+  test.beforeAll(async ({ target }) => {
+    /**
+     * Important! Twilio does not allow you to fetch messages when using test
+     * credentials. Twilio also does not allow you to send messages to magic
+     * test numbers with real credentials.
+     *
+     * Therefore, if a 'magic' test number is configured, then we need to
+     * use redis to peek at codes sent out, and if a 'real' testing phone
+     * number is being being used, then we need to check the Twilio API for
+     * the message sent out and look at the code within.
+     */
+    if (
+      usingRealTestPhoneNumber(target.name) &&
+      !target.smsClient.isTwilioEnabled()
+    ) {
+      throw new Error(
+        'Twilio must be enabled when using a real test number.'
+      );
+    }
+    if (
+      !usingRealTestPhoneNumber(target.name) &&
+      !target.smsClient.isRedisEnabled()
+    ) {
+      throw new Error('Redis must be enabled when using a real test number.');
+    }
+  });
+
+  test.beforeEach(async ({ pages: { configPage } }) => {
+    // Ensure that the feature flag is enabled
+    const config = await configPage.getConfig();
+    test.skip(config.featureFlags.recoveryPhonePasswordReset2fa !== true);
+  });
+
+  test('can reset password with 2FA enabled using recovery phone', async ({
+                                                                            page,
+                                                                            target,
+                                                                            pages: { signin, resetPassword, settings, totp, recoveryPhone },
+                                                                            testAccountTracker,
+                                                                          }) => {
+    const credentials = await testAccountTracker.signUp();
+    const newPassword = testAccountTracker.generatePassword();
+
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.totp.status).toHaveText('Disabled');
+
+    await settings.totp.addButton.click();
+    await totp.fillOutTotpForms();
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toHaveText(
+      'Two-step authentication has been enabled'
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await settings.totp.addRecoveryPhoneButton.click();
+    await page.waitForURL(/recovery_phone\/setup/);
+
+    await expect(recoveryPhone.addHeader()).toBeVisible();
+
+    await recoveryPhone.enterPhoneNumber(getPhoneNumber(target.name));
+    await recoveryPhone.clickSendCode();
+
+    await expect(recoveryPhone.confirmHeader).toBeVisible();
+
+    let smsCode = await target.smsClient.getCode(
+      getPhoneNumber(target.name),
+      credentials.uid
+    );
+
+    await recoveryPhone.enterCode(smsCode);
+    await recoveryPhone.clickConfirm();
+
+    await page.waitForURL(/settings/);
+    await expect(settings.alertBar).toHaveText('Recovery phone added');
+
+    await settings.signOut();
+
+    await resetPassword.goto();
+
+    await resetPassword.fillOutEmailForm(credentials.email);
+
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    await page.waitForURL(/confirm_totp_reset_password/);
+
+    await resetPassword.clickTroubleEnteringCode();
+
+    await page.waitForURL(/reset_password_totp_recovery_choice/);
+
+    await resetPassword.clickChoosePhone();
+    await resetPassword.clickContinueButton();
+
+    await page.waitForURL(/reset_password_recovery_phone/);
+
+    smsCode = await target.smsClient.getCode(
+      getPhoneNumber(target.name),
+      credentials.uid
+    );
+
+    await resetPassword.fillRecoveryPhoneCodeForm(smsCode);
+
+    await resetPassword.clickConfirmButton();
+
+    // Create and submit new password
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+
+    await expect(settings.alertBar).toHaveText('Your password has been reset');
+
+    await expect(settings.settingsHeading).toBeVisible();
+
+    // Remove TOTP before teardown
+    await settings.disconnectTotp();
+    // Cleanup requires setting this value to correct password
+    credentials.password = newPassword;
+  });
+})

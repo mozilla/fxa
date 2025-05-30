@@ -85,6 +85,7 @@ import { IndexContainer } from '../../pages/Index/container';
 import AuthorizationContainer from '../../pages/Authorization/container';
 import CookiesDisabled from '../../pages/CookiesDisabled';
 import ResetPasswordRecoveryChoiceContainer from '../../pages/ResetPassword/ResetPasswordRecoveryChoice/container';
+import ResetPasswordRecoveryPhoneContainer from '../../pages/ResetPassword/ResetPasswordRecoveryPhone/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -375,6 +376,9 @@ const AuthAndAccountSetupRoutes = ({
       />
       <ConfirmResetPasswordContainer path="/confirm_reset_password/*" />
       <ResetPasswordRecoveryChoiceContainer path="/reset_password_totp_recovery_choice/*" />
+      <ResetPasswordRecoveryPhoneContainer path="/reset_password_recovery_phone/*"
+                                           {...{ integration }}
+      />
       <ConfirmTotpResetPasswordContainer path="/confirm_totp_reset_password/*" />
       <ConfirmBackupCodeResetPasswordContainer path="/confirm_backup_code_reset_password/*" />
       <CompleteResetPasswordContainer

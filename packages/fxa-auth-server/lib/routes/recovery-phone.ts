@@ -628,7 +628,11 @@ class RecoveryPhoneHandler {
   }
 
   async confirmResetPasswordCode(request: AuthRequest) {
-    const { uid, email } = request.auth.credentials as PasswordForgotToken;
+    const { id, uid, email } = request.auth.credentials as unknown as {
+      id: string;
+      uid: string;
+      email: string;
+    };
 
     const { code } = request.payload as unknown as {
       code: string;
@@ -661,6 +665,11 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
+      await this.db.verifyPasswordForgotTokenWithMethod(
+        id,
+        'totp-2fa'
+      );
+
       await this.glean.resetPassword.recoveryPhoneCodeComplete(request);
 
       this.statsd.increment('account.resetPassword.recoveryPhone.success');
