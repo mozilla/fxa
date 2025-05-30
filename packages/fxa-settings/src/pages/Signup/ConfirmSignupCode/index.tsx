@@ -247,6 +247,7 @@ const ConfirmSignupCode = ({
         }
       }
     } catch (error) {
+      GleanMetrics.signupConfirmation.error({ event: { reason: error.errno?.toString() } });
       let localizedErrorMessage: string;
       // Intercept invalid parameter error and set the error message to INVALID_EXPIRED_OTP_CODE
       // This error occurs when the submitted code does not pass validation for the code param

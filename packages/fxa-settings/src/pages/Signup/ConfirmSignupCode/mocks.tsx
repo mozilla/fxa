@@ -41,6 +41,15 @@ export const MOCK_AUTH_ERROR = {
   message: 'Something broke',
 };
 
+export const MOCK_AUTH_ERROR_INVALID_CODE = {
+  errno: 183,
+  message: 'Invalid or expired confirmation code',
+};
+
+export const MOCK_AUTH_ERROR_RATE_LIMIT = {
+  errno: 114,
+  message: 'Client has sent too many requests',
+};
 export const MOCK_SIGNUP_CODE = '123456';
 
 export function createMockWebIntegration({
