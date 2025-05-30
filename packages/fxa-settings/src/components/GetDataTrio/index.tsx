@@ -47,7 +47,7 @@ export type GetDataTrioProps = {
 };
 
 const trioButtonClassName =
-  'w-24 h-20 shrink p-1 relative text-grey-600 text-sm rounded-xl flex flex-col items-center justify-center hover:text-blue-600 active:text-blue-500 focus-visible-default outline-offset-2 hover:bg-gradient-to-tr hover:from-blue-600/10 hover:to-purple-500/10 active:bg-gradient-to-tr active:from-blue-600/10 active:to-purple-500/10 focus-visible:bg-gradient-to-tr focus-visible:from-blue-600/10 focus-visible:to-purple-500/10';
+  'w-12 h-12 p-1 relative text-grey-600 text-sm rounded flex flex-col items-center justify-center hover:text-blue-600 active:text-blue-500 focus-visible-default outline-offset-2 hover:bg-gradient-to-tr hover:from-blue-600/10 hover:to-purple-500/10 active:bg-gradient-to-tr active:from-blue-600/10 active:to-purple-500/10 focus-visible:bg-gradient-to-tr focus-visible:from-blue-600/10 focus-visible:to-purple-500/10';
 
 export const GetDataCopySingleton = ({
   value,
@@ -76,7 +76,7 @@ export const GetDataCopySingleton = ({
         data-glean-id={gleanDataAttrs.copy?.id}
         data-glean-type={gleanDataAttrs.copy?.type}
       >
-        <CopyIcon aria-hidden className="w-10 h-10 fill-current" />
+        <CopyIcon aria-hidden className="w-8 h-8 fill-current" />
       </button>
     </FtlMsg>
   );
@@ -169,7 +169,7 @@ export const GetDataTrio = ({
   }, [value, pageTitle]);
 
   return (
-    <div className="flex justify-center w-full">
+    <div className="flex justify-between max-w-52 w-4/5">
       <FtlMsg
         id="get-data-trio-download-2"
         attrs={{ title: true, 'aria-label': true }}
@@ -195,7 +195,7 @@ export const GetDataTrio = ({
           data-glean-id={gleanDataAttrs.download?.id}
           data-glean-type={gleanDataAttrs.download?.type}
         >
-          <DownloadIcon aria-hidden className="w-10 h-10 fill-current" />
+          <DownloadIcon aria-hidden className="w-8 h-8 fill-current" />
         </a>
       </FtlMsg>
 
@@ -225,7 +225,7 @@ export const GetDataTrio = ({
           data-glean-id={gleanDataAttrs.print?.id}
           data-glean-type={gleanDataAttrs.print?.type}
         >
-          <PrintIcon aria-hidden className="w-10 h-10 fill-current" />
+          <PrintIcon aria-hidden className="w-7 h-7 fill-current" />
         </button>
       </FtlMsg>
     </div>
