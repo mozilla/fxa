@@ -1408,6 +1408,27 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+  signup_code_submit_frontend_error:
+    type: event
+    description: |
+      Emit any frontend errors that occur when a user attempts to submit the code on registration confirmation page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: additional context-dependent info, e.g. the cause of an error
+        type: string
   submit:
     type: event
     description: |

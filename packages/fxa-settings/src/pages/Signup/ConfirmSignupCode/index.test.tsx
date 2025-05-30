@@ -17,7 +17,7 @@ import {
   Subject,
   createMockOAuthNativeIntegration,
   createMockOAuthWebIntegration,
-  createMockWebIntegration,
+  createMockWebIntegration, MOCK_AUTH_ERROR_INVALID_CODE, MOCK_AUTH_ERROR_RATE_LIMIT,
 } from './mocks';
 import {
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
@@ -64,6 +64,7 @@ jest.mock('../../../lib/glean', () => ({
     signupConfirmation: {
       view: jest.fn(),
       submit: jest.fn(),
+      error: jest.fn(),
     },
     isDone: jest.fn(),
   },
@@ -317,6 +318,7 @@ describe('ConfirmSignupCode page', () => {
         });
       });
     });
+
     it('sends expected web channel messages when service=relay', async () => {
       const integration = createMockOAuthNativeIntegration(false);
       renderWithSession({
@@ -421,7 +423,52 @@ describe('ConfirmSignupCode page with error states', () => {
     });
   });
 
-  // TODO add test for expected behaviour on verifySession fail in FXA-8303
+  it('renders an error tooltip when the form is submitted with invalid code', async () => {
+    session = {
+      verifySession: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR_INVALID_CODE),
+    } as unknown as Session;
+
+    renderWithSession({ session, integration: createMockWebIntegration({}) });
+
+    const codeInput = screen.getByLabelText('Enter 6-digit code');
+    fireEvent.change(codeInput, {
+      target: { value: '123123' },
+    });
+
+    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    fireEvent.click(submitButton);
+    await waitFor(() => {
+      expect(screen.getByTestId('tooltip')).toHaveTextContent(
+        'Invalid or expired confirmation code'
+      );
+      expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalled();
+      expect(GleanMetrics.signupConfirmation.error).toHaveBeenCalledWith({
+        event: { reason: MOCK_AUTH_ERROR_INVALID_CODE.errno.toString() }
+      });
+    });
+  });
+
+  it('renders an error when the form is submitted with rate limit', async () => {
+    session = {
+      verifySession: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR_RATE_LIMIT),
+    } as unknown as Session;
+
+    renderWithSession({ session, integration: createMockWebIntegration({}) });
+
+    const codeInput = screen.getByLabelText('Enter 6-digit code');
+    fireEvent.change(codeInput, {
+      target: { value: '123123' },
+    });
+
+    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    fireEvent.click(submitButton);
+    await waitFor(() => {
+      expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalled();
+      expect(GleanMetrics.signupConfirmation.error).toHaveBeenCalledWith({
+        event: { reason: MOCK_AUTH_ERROR_RATE_LIMIT.errno.toString() }
+      });
+    });
+  });
 });
 
 describe('Resending a new code from ConfirmSignupCode page', () => {
