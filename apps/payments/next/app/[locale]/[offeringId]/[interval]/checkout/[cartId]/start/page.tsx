@@ -86,6 +86,8 @@ export default async function Checkout({
     redirectSearchParams.postalCode = cart.taxAddress.postalCode;
   }
 
+  redirectSearchParams.oldCartId = params.cartId;
+
   const redirectTo = buildRedirectUrl(
     params.offeringId,
     params.interval,
