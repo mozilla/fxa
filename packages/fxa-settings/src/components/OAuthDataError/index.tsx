@@ -2,16 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import { AuthError } from '../../lib/oauth';
 import { useFtlMsgResolver } from '../../models';
 import AppLayout from '../AppLayout';
 import Banner from '../Banner';
 import CardHeader from '../CardHeader';
+import GleanMetrics from '../../lib/glean';
 
 const OAuthDataError = ({ error }: { error: AuthError }) => {
   const ftlMsgResolver = useFtlMsgResolver();
+
+  useEffect(() => {
+    GleanMetrics.signupConfirmation.error({ event: { reason: error.message } });
+  }, [error]);
 
   return (
     <AppLayout>

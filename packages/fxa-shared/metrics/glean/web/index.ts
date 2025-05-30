@@ -74,6 +74,7 @@ export const eventsMap = {
   signupConfirmation: {
     view: 'reg_signup_code_view',
     submit: 'reg_signup_code_submit',
+    error: 'reg_signup_code_submit_frontend_error',
   },
 
   login: {

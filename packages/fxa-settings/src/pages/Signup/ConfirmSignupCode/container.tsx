@@ -131,9 +131,11 @@ const SignupConfirmCodeContainer = ({
   }
 
   if (oAuthDataError) {
+    console.log(oAuthDataError);
     return <OAuthDataError error={oAuthDataError} />;
   }
   if (oAuthKeysCheckError) {
+    console.error('OAuth keys check error:', oAuthKeysCheckError);
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
