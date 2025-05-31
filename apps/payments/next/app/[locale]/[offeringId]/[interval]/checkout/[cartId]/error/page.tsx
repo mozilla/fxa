@@ -80,7 +80,7 @@ export default async function CheckoutError({
         {
           // Once more conditionals are added, move this to a separate component
           cart.errorReasonId ===
-          CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
+            CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
             <Image
               src={checkIcon}
               alt="check-icon"

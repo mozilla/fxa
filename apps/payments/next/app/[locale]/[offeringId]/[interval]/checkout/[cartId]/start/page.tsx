@@ -172,7 +172,7 @@ export default async function Checkout({
           className={clsx(
             'font-semibold text-grey-600 text-lg mt-10 mb-5',
             !session?.user?.email &&
-              'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
+            'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
           )}
           data-testid="header-prefix"
         >
@@ -201,7 +201,7 @@ export default async function Checkout({
         className={clsx(
           'font-semibold text-grey-600 text-start',
           !session?.user?.email &&
-            'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
+          'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
         )}
       >
         {l10n.getString(

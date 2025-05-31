@@ -101,7 +101,7 @@ export default async function CheckoutLayout({
                 locale={locale}
               />
             }
-            locale={ locale }
+            locale={locale}
           />
           {cart.state === CartState.START && (
             <div

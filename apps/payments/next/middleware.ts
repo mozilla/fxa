@@ -26,25 +26,14 @@ export function middleware(request: NextRequest) {
   const PROFILE_DEFAULT_IMAGES_URL = process.env.PROFILE_DEFAULT_IMAGES_URL;
   const PROFILE_UPLOADED_IMAGES_URL = process.env.PROFILE_UPLOADED_IMAGES_URL;
 
-  /*
-   * CSP Notes
-   *  - Next.js next/image currently causes an inline style CSP error.
-   *    There is a work around available, however at this time, we've opted
-   *    to use 'unsafe-inline' to match what's in fxa-payments-server
-   *    https://github.com/vercel/next.js/issues/45184
-   */
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const cspHeader = `
     default-src 'self';
     connect-src 'self' https://api.stripe.com ${PAYPAL_API_URL};
-    frame-src https://js.stripe.com https://hooks.stripe.com ${PAYPAL_API_URL} ${PAYPAL_SCRIPT_URL};
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: http: 'unsafe-inline' ${
-    process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
-  } https://js.stripe.com ${PAYPAL_SCRIPT_URL};
-    script-src-elem 'self' 'nonce-${nonce}' 'strict-dynamic' https: http: 'unsafe-inline' ${
-    process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
-  } https://js.stripe.com;
-    style-src 'self' 'unsafe-inline';
+    frame-src https://*.js.stripe.com https://js.stripe.com https://hooks.stripe.com ${PAYPAL_API_URL} ${PAYPAL_SCRIPT_URL};
+    script-src 'self' 'nonce-${nonce}' ${process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
+    } https://*.js.stripe.com https://js.stripe.com ${PAYPAL_SCRIPT_URL};
+    style-src 'self' 'unsafe-hashes' 'sha256-0hAheEzaMe6uXIKV4EehS9pu1am1lj/KnnzrOYqckXk=' 'sha256-GsQC5AaXpdCaKTyWbxBzn7nitfp0Otwn7I/zu0rUKOs=' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=';
     img-src 'self' blob: data: ${accountsStaticCdn} ${PAYPAL_OBJECTS} ${PROFILE_CLIENT_URL} ${PROFILE_DEFAULT_IMAGES_URL} ${PROFILE_UPLOADED_IMAGES_URL};
     font-src 'self';
     object-src 'none';
