@@ -23,6 +23,7 @@ export interface Config {
     dsn: string;
     env: string;
     sampleRate: number;
+    tracesSampleRate: number;
     serverName: string;
     clientName: string;
     version: string;

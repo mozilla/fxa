@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { SamplingContext } from '@sentry/core';
 
 export type SentryConfigOpts = {
   /** Name of release */
@@ -27,5 +28,8 @@ export type SentryConfigOpts = {
 
     /** The tracing sample rate. Setting this above 0 will aso result in performance metrics being captured. */
     tracesSampleRate?: number;
+
+    /** Call back to dynamically determine sampling rate. When defined, tracesSampleRate won't be used. */
+    tracesSampler?: (context: SamplingContext) => number | boolean;
   };
 };

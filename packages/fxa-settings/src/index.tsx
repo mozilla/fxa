@@ -48,6 +48,16 @@ try {
     release: config.version,
     sentry: {
       ...config.sentry,
+      tracesSampler: (context) => {
+        let rate = 0;
+        // We only want to sample the index page for now.
+        if (context.name === '/') {
+          if (typeof config.sentry.tracesSampleRate === 'number') {
+            rate = config.sentry.tracesSampleRate;
+          }
+        }
+        return rate;
+      },
     },
   });
 
