@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/nestjs';
+import { httpRequestToRequestData } from '@sentry/core';
 import { ExecutionContext, HttpException } from '@nestjs/common';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import { ApolloServerErrorCode } from '@apollo/server/errors';
@@ -118,7 +119,7 @@ export function reportRequestException(
   Sentry.withScope((scope: Sentry.Scope) => {
     scope.addEventProcessor((event) => {
       if (request) {
-        event.request = Sentry.extractRequestData(request);
+        event.request = httpRequestToRequestData(request);
         event.level = 'error';
         return event;
       }

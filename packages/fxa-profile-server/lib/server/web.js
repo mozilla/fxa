@@ -7,6 +7,7 @@ const logger = require('../logging')('server.web');
 
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
+const { httpRequestToRequestData } = require('@sentry/core');
 const cloneDeep = require('lodash/cloneDeep');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
@@ -110,7 +111,7 @@ exports.create = async function createServer() {
           op: 'profile-server',
           name: `${request.method.toUpperCase()} ${request.path}`,
           forceTransaction: true,
-          request: Sentry.extractRequestData(request.raw.req),
+          request: httpRequestToRequestData(request.raw.req),
         });
 
         request.app.sentry = {
