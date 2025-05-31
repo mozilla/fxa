@@ -6,10 +6,13 @@ cd "$DIR/.."
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 
-DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 20000 --exit --parallel=1 "
-if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; fi;
+# DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 20000 --exit --parallel --reporter=list"
+DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 20000 --exit "
+
+if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; DEFAULT_ARGS="$DEFAULT_ARGS --jobs=3"; fi;
+# if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep /#integration\s-/"; DEFAULT_ARGS="$DEFAULT_ARGS --jobs=2"; fi;
 if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep /#integration\s-/"; fi;
-if [ "$TEST_TYPE" == 'integration-v2' ]; then GREP_TESTS="--grep /#integrationV2\s-/"; fi;
+if [ "$TEST_TYPE" == 'integration-v2' ]; then GREP_TESTS="--grep /#integrationV2\s-/"; DEFAULT_ARGS="$DEFAULT_ARGS --jobs=2"; fi;
 
 
 TESTS=(local oauth remote scripts)

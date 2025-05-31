@@ -13,7 +13,7 @@ if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; 
 if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep /#integration\s-/"; fi;
 if [ "$TEST_TYPE" == 'integration-v2' ]; then GREP_TESTS="--grep /#integrationV2\s-/"; fi;
 
-DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 5000 --exit"
+DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --parallel --reporter=list --recursive --timeout 5000 --exit"
 
 if [[ ! -e config/secret-key.json ]]; then
   node -r esbuild-register ./scripts/gen_keys.js
