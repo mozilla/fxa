@@ -16,10 +16,12 @@ export default function NotFoundPage() {
   return (
     <section
       className="flex flex-col items-center text-center max-w-lg mx-auto mt-6 p-16 tablet:my-10 gap-16 bg-white shadow tablet:rounded-xl border border-transparent"
-      aria-label="Payment error"
+      aria-labelledby="page-information-heading"
     >
       <Localized id="page-not-found-title">
-        <h1 className="text-xl font-bold">Page not found</h1>
+        <h1 id="page-information-heading" className="text-xl font-bold">
+          Page not found
+        </h1>
       </Localized>
       <Image src={errorIcon} alt="" />
       <p className="flex flex-col gap-6 items-center text-grey-400 max-w-md text-sm">

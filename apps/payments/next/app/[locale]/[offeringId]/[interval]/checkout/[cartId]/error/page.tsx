@@ -75,7 +75,7 @@ export default async function CheckoutError({
     <>
       <section
         className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
-        aria-label="Payment error"
+        aria-labelledby="page-information-heading"
       >
         {
           // Once more conditionals are added, move this to a separate component
@@ -94,7 +94,10 @@ export default async function CheckoutError({
             />
           )
         }
-        <p className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 ">
+        <p
+          id="page-information-heading"
+          className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 "
+        >
           {l10n.getString(errorReason.messageFtl, errorReason.message)}
         </p>
 

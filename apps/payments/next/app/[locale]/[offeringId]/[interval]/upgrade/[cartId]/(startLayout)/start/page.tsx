@@ -5,10 +5,7 @@
 import assert from 'assert';
 import { headers } from 'next/headers';
 import Image from 'next/image';
-import {
-  getCardIcon,
-  PaymentSection,
-} from '@fxa/payments/ui';
+import { getCardIcon, PaymentSection } from '@fxa/payments/ui';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
@@ -24,22 +21,20 @@ import { config } from 'apps/payments/next/config';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata(
-  {
-    params,
-    searchParams,
-  }: {
-    params: CheckoutParams;
-    searchParams: Record<string, string> | undefined;
-  },
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: CheckoutParams;
+  searchParams: Record<string, string> | undefined;
+}): Promise<Metadata> {
   return buildPageMetadata({
     params,
     page: 'start',
     pageType: 'upgrade',
     acceptLanguage: headers().get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams
+    searchParams,
   });
 }
 
@@ -68,8 +63,14 @@ export default async function Upgrade({
   assert(cart.paymentInfo, 'paymentInfo is missing in cart');
 
   return (
-    <section aria-label="Upgrade" data-testid="subscription-upgrade">
-      <h3 className="font-semibold text-grey-600 text-start">
+    <section
+      aria-labelledby="upgrade-subscription-heading"
+      data-testid="subscription-upgrade"
+    >
+      <h3
+        id="upgrade-subscription-heading"
+        className="font-semibold text-grey-600 text-start"
+      >
         {l10n.getString(
           'upgrade-page-payment-information',
           'Payment information'
@@ -98,7 +99,11 @@ export default async function Upgrade({
         )}
       </div>
 
-      <div className="border-b border-grey-200 my-6"></div>
+      <div
+        className="border-b border-grey-200 my-6"
+        role="separator"
+        aria-hidden="true"
+      ></div>
 
       <p className="leading-5 text-sm" data-testid="sub-update-acknowledgment">
         {l10n.getString(
@@ -117,7 +122,11 @@ export default async function Upgrade({
         )}
       </p>
 
-      <div className="border-b border-grey-200 my-6"></div>
+      <div
+        className="border-b border-grey-200 my-6"
+        role="separator"
+        aria-hidden="true"
+      ></div>
 
       {/*
         If currency could not be determiend, it is most likely due to an invalid

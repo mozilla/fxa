@@ -17,9 +17,9 @@ export default function NotFoundPage() {
   return (
     <section
       className="flex flex-col items-center text-center max-w-lg mx-auto mt-6 p-16 tablet:my-10 gap-16 bg-white shadow tablet:rounded-xl border border-transparent"
-      aria-label="Payment error"
+      aria-labelledby="page-not-found-heading"
     >
-      <h1 className="text-xl font-bold">
+      <h1 id="page-not-found-heading" className="text-xl font-bold">
         {l10n.getString('page-not-found-title', 'Page not found')}
       </h1>
       <Image src={errorIcon} alt="" />

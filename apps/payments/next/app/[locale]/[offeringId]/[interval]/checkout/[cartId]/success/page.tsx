@@ -81,10 +81,10 @@ export default async function CheckoutSuccess({
 
   return (
     <>
-      <section className="h-[640px]" aria-label="Payment confirmation">
+      <section className="h-[640px]" aria-labelledby="success-page-heading">
         <div className="flex flex-col items-center text-center pb-16 border-b border-grey-200">
           <div className="bg-[#D5F9FF] rounded-md py-5 px-8 mt-5">
-            <h4 className="text-xl font-medium mx-0 mb-2">
+            <h4 id="success-page-heading" className="text-xl font-medium mx-0 mb-2">
               {l10n.getString(
                 'next-payment-confirmation-thanks-heading-account-exists',
                 'Thanks, now check your email!'

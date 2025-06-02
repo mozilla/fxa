@@ -466,7 +466,11 @@ const Expanded = ({
 
       {showNewTaxRateInfoMessage && (
         <Localized id="select-tax-location-new-tax-rate-info">
-          <p className="mt-1 text-sm" role="alert">
+          <p
+            className="mt-1 text-sm"
+            role="alert"
+            aria-describedby="form-information"
+          >
             Updating your location will apply the new tax rate to all active
             subscriptions on your account, starting with your next billing
             cycle.
@@ -495,6 +499,9 @@ const Expanded = ({
             type="submit"
             disabled={blockingErrorExists || isLoading}
             aria-disabled={blockingErrorExists || isLoading}
+            {...((buttonContent?.label || showNewTaxRateInfoMessage) && {
+              'aria-describedby': 'form-information',
+            })}
           >
             {isLoading ? (
               <>
