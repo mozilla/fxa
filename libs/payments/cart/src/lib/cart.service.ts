@@ -776,6 +776,7 @@ export class CartService {
         metricsOptedOut,
         latestInvoicePreview,
         paymentInfo,
+        hasActiveSubscriptions: !!subscriptions.length,
       };
     }
 

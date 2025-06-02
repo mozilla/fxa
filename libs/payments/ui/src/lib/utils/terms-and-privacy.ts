@@ -29,10 +29,14 @@ export const PaymentProviders = {
 export type PaymentProvidersType = typeof PaymentProviders;
 export type PaymentProvider = PaymentProvidersType[keyof PaymentProvidersType];
 
-export function buildPaymentTerms(provider?: PaymentInfo): GenericTermItem[] {
+export function buildPaymentTerms(
+  provider?: PaymentInfo,
+  hasActiveSubscriptions?: boolean
+): GenericTermItem[] {
   let providerString = '';
   let titleLocalizationId = '';
-  const providerType = provider ? provider.type : undefined;
+  const providerType =
+    hasActiveSubscriptions && provider ? provider.type : undefined;
   const items: GenericTermsListItem[] = [];
   switch (providerType) {
     case PaymentProviders.stripe:
