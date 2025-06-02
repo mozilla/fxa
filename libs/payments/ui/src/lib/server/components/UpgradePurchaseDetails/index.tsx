@@ -38,7 +38,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
     invoice,
     l10n,
     purchaseDetails,
-    locale
+    locale,
   } = props;
   const { productName, subtitle, webIcon } = purchaseDetails;
   const {
@@ -53,8 +53,11 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
     (taxAmount) => !taxAmount.inclusive
   );
   return (
-    <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm pt-4 px-4 rounded-t-none clip-shadow tablet:rounded-t-lg">
-      <h2 className="font-semibold py-2">
+    <section
+      aria-labelledby="current-plan new-plan"
+      className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm pt-4 px-4 rounded-t-none clip-shadow tablet:rounded-t-lg"
+    >
+      <h2 id="current-plan" className="font-semibold py-2">
         {l10n.getString(
           'upgrade-purchase-details-current-plan-label',
           'Current plan'
@@ -91,7 +94,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
         </div>
       </div>
 
-      <h2 className="font-semibold py-2">
+      <h2 id="new-plan" className="font-semibold py-2">
         {l10n.getString('upgrade-purchase-details-new-plan-label', 'New plan')}
       </h2>
       <div className="flex gap-4 my-0 py-4">
@@ -127,7 +130,11 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
         </div>
       </div>
 
-      <div className="border-b border-grey-200"></div>
+      <div
+        className="border-b border-grey-200"
+        role="separator"
+        aria-hidden="true"
+      ></div>
 
       <ul className="pt-6">
         {!!listAmount && listAmount > 0 && (
@@ -142,7 +149,9 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
                 `${productName} (${formatPlanInterval(interval)})`
               )}
             </p>
-            <p>{l10n.getLocalizedCurrencyString(listAmount, currency, locale)}</p>
+            <p>
+              {l10n.getLocalizedCurrencyString(listAmount, currency, locale)}
+            </p>
           </li>
         )}
 
@@ -155,7 +164,11 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
               )}
             </p>
             <p>
-              {l10n.getLocalizedCurrencyString(-1 * discountAmount, currency, locale)}
+              {l10n.getLocalizedCurrencyString(
+                -1 * discountAmount,
+                currency,
+                locale
+              )}
             </p>
           </li>
         )}
@@ -188,7 +201,11 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
                 >
                   <p>{l10n.getString('tax', taxRate.title)}</p>
                   <p>
-                    {l10n.getLocalizedCurrencyString(taxRate.amount, currency, locale)}
+                    {l10n.getLocalizedCurrencyString(
+                      taxRate.amount,
+                      currency,
+                      locale
+                    )}
                   </p>
                 </li>
               )
@@ -218,7 +235,11 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
 
       {!!oneTimeCharge && (
         <>
-          <div className="border-b border-grey-200"></div>
+          <div
+            className="border-b border-grey-200"
+            role="separator"
+            aria-hidden="true"
+          ></div>
           <div className="flex items-center justify-between gap-2 leading-5 text-base text-grey-600 mt-6 pb-6 font-semibold">
             <h3>
               {l10n.getString(
@@ -244,7 +265,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
           )}
         </>
       )}
-    </div>
+    </section>
   );
 }
 
