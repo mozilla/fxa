@@ -1,4 +1,5 @@
 {
+  "root": true,
   "extends": [
     "react-app",
     "react-app/jest"
@@ -10,7 +11,17 @@
     "import/no-named-as-default-member": "off",
     "import/no-unresolved": "off",
     "jest/no-jest-import": "off",
-    "jest/valid-describe": "off"
+    "jest/valid-describe": "off",
+    "testing-library/no-wait-for-multiple-assertions": "off",
+    "testing-library/no-render-in-setup": "off",
+    "testing-library/prefer-find-by": "off",
+    "testing-library/no-wait-for-side-effects": "off",
+    "testing-library/prefer-presence-queries": "off",
+    "testing-library/no-node-access": "off",
+    "testing-library/render-result-naming-convention": "off",
+    "testing-library/prefer-screen-queries": "off",
+    "testing-library/no-unnecessary-act": "off",
+    "testing-library/no-container": "off"
   },
-  "ignorePatterns": ["build/"]
+  "ignorePatterns": ["build/", "scripts/build.js"]
 }

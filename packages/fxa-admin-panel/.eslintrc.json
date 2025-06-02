@@ -5,11 +5,36 @@
   ],
   "ignorePatterns": [
     "build",
-    "storybook-static"
+    "storybook-static",
+    "coverage/lcov-report/block-navigation.js",
+    "coverage/lcov-report/prettify.js",
+    "coverage/lcov-report/sorter.js",
+    "server/coverage/lcov-report/block-navigation.js",
+    "server/coverage/lcov-report/prettify.js",
+    "server/coverage/lcov-report/sorter.js",
+    "server/jest.config.js",
+    "pm2.config.js",
+    "postcss.config.js",
+    "tailwind.config.js",
+    "src/setupTests.js"
   ],
   "rules": {
     "jest/no-jest-import": "off",
-    "jest/valid-describe": "off"
+    "jest/valid-describe": "off",
+    "testing-library/await-async-query": "off",
+    "testing-library/no-await-sync-query": "off",
+    "testing-library/no-wait-for-empty-callback": "off",
+    "testing-library/no-wait-for-multiple-assertions": "off",
+    "testing-library/no-render-in-setup": "off",
+    "testing-library/prefer-find-by": "off",
+    "testing-library/no-wait-for-side-effects": "off",
+    "testing-library/prefer-presence-queries": "off",
+    "testing-library/no-node-access": "off",
+    "testing-library/render-result-naming-convention": "off",
+    "testing-library/prefer-screen-queries": "off",
+    "testing-library/no-unnecessary-act": "off",
+    "testing-library/no-container": "off"
+
   },
   "root": true
 }
