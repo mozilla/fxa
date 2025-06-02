@@ -254,6 +254,11 @@ const recordEventMetric = (
     case 'reg_signup_code_submit':
       reg.signupCodeSubmit.record();
       break;
+    case 'reg_signup_code_submit_frontend_error':
+      reg.signupCodeSubmitFrontendError.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'reg_success_view':
       reg.successView.record();
       break;

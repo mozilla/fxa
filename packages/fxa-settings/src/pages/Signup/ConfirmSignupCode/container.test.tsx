@@ -19,6 +19,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import SignupConfirmCodeContainer from './container';
 import { Integration } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
+import GleanMetrics from '../../../lib/glean';
 
 import {
   MOCK_EMAIL,
@@ -44,6 +45,17 @@ const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    signupConfirmation: {
+      view: jest.fn(),
+      submit: jest.fn(),
+      error: jest.fn(),
+    }
+  },
 }));
 
 // Global instances
@@ -272,7 +284,7 @@ describe('confirm-signup-container', () => {
                   };
                 }
               ),
-            oAuthDataError: { message: 'BOOM', errno: 1, version: 1 },
+            oAuthDataError: { message: 'Something went wrong. Please close this tab and try again.', errno: 1, version: 1 },
           };
         });
       render();
@@ -280,6 +292,9 @@ describe('confirm-signup-container', () => {
         expect(screen.getByText('Bad Request')).toBeInTheDocument()
       );
       expect(screen.getByText('Unexpected error')).toBeInTheDocument();
+      expect(GleanMetrics.signupConfirmation.error).toHaveBeenCalledWith({
+        event: { reason: "1" }
+      })
     });
   });
   describe('useOAuthKeysCheck', () => {

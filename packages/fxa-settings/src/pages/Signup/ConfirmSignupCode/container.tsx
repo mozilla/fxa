@@ -23,6 +23,7 @@ import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import GleanMetrics from '../../../lib/glean';
 
 export const POLL_INTERVAL = 5000;
 
@@ -131,10 +132,10 @@ const SignupConfirmCodeContainer = ({
   }
 
   if (oAuthDataError) {
-    return <OAuthDataError error={oAuthDataError} />;
+    return <OAuthDataError error={oAuthDataError} gleanMetric={GleanMetrics.signupConfirmation.error} />;
   }
   if (oAuthKeysCheckError) {
-    return <OAuthDataError error={oAuthKeysCheckError} />;
+    return <OAuthDataError error={oAuthKeysCheckError} gleanMetric={GleanMetrics.signupConfirmation.error}/>;
   }
 
   return (
