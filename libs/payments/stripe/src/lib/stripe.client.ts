@@ -325,6 +325,16 @@ export class StripeClient {
     return result as StripeResponse<StripePaymentMethod>;
   }
 
+  @CaptureTimingWithStatsD()
+  async customerDefaultPaymentMethodRetrieve(customerId: string) {
+    const result = await this.stripe.customers.retrieve(customerId, {
+      expand: ['invoice_settings.default_payment_method'],
+    });
+    if (result.deleted) return undefined;
+    return result.invoice_settings
+      .default_payment_method as StripeResponse<StripePaymentMethod>;
+  }
+
   @Cacheable({
     cacheKey: (args: any) =>
       cacheKeyForClient('pricesRetrieve', args[0], args[1]),

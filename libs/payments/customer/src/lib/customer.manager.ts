@@ -105,4 +105,8 @@ export class CustomerManager {
   isTaxEligible(customer: StripeCustomer) {
     return isCustomerTaxEligible(customer);
   }
+
+  async getDefaultPaymentMethod(customerId: string) {
+    return this.stripeClient.customerDefaultPaymentMethodRetrieve(customerId);
+  }
 }
