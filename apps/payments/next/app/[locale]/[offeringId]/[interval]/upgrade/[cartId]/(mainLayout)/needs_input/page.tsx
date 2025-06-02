@@ -18,22 +18,20 @@ import { getCartOrRedirectAction } from '@fxa/payments/ui/actions';
 import { Metadata } from 'next';
 import { config } from 'apps/payments/next/config';
 
-export async function generateMetadata(
-  {
-    params,
-    searchParams,
-  }: {
-    params: CheckoutParams;
-    searchParams: Record<string, string> | undefined;
-  },
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: CheckoutParams;
+  searchParams: Record<string, string> | undefined;
+}): Promise<Metadata> {
   return buildPageMetadata({
     params,
     page: 'needs_input',
     pageType: 'upgrade',
     acceptLanguage: headers().get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams
+    searchParams,
   });
 }
 
@@ -59,6 +57,7 @@ export default async function NeedsInputPage({
     <section
       className="flex flex-col text-center text-sm"
       data-testid="payment-processing"
+      aria-labelledby="processing-payment-heading"
     >
       <LoadingSpinner className="w-10 h-10" />
       <StripeWrapper
@@ -69,10 +68,12 @@ export default async function NeedsInputPage({
       >
         <PaymentInputHandler cartId={params.cartId} />
       </StripeWrapper>
-      {l10n.getString(
-        'next-payment-processing-message',
-        `Please wait while we process your payment…`
-      )}
+      <h2 id="processing-payment-heading">
+        {l10n.getString(
+          'next-payment-processing-message',
+          `Please wait while we process your payment…`
+        )}
+      </h2>
     </section>
   );
 }

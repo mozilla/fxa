@@ -19,5 +19,5 @@ export default function NotFoundPage() {
       )}
       button={l10n.getString('page-not-found-back-button', 'Go back')}
     />
-  )
+  );
 }

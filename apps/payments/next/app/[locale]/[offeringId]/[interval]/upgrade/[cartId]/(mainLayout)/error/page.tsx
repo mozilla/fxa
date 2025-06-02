@@ -73,12 +73,15 @@ export default async function UpgradeError({
     <>
       <section
         className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
-        aria-label="Payment error"
+        aria-labelledby="page-information-heading"
       >
         <Image src={errorIcon} alt="" className="mt-16 mb-10" />
-        <p className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 ">
+        <h2
+          id="page-information-heading"
+          className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 "
+        >
           {l10n.getString(errorReason.messageFtl, errorReason.message)}
-        </p>
+        </h2>
 
         {errorReason.buttonUrl && (
           <Link

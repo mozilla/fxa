@@ -31,23 +31,20 @@ import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata(
-  {
-    params,
-    searchParams,
-  }: {
-    params: CheckoutParams;
-    searchParams: Record<string, string> | undefined;
-  },
-): Promise<Metadata> {
-
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: CheckoutParams;
+  searchParams: Record<string, string> | undefined;
+}): Promise<Metadata> {
   return buildPageMetadata({
     params,
     page: 'start',
     pageType: 'checkout',
     acceptLanguage: headers().get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams
+    searchParams,
   });
 }
 
@@ -97,10 +94,13 @@ export default async function Checkout({
   );
 
   return (
-    <section aria-label="Checkout">
+    <>
       {!session?.user && (
-        <>
-          <h2 className="font-semibold text-grey-600 text-lg mt-10">
+        <section aria-labelledby="signin-heading">
+          <h2
+            id="signin-heading"
+            className="font-semibold text-grey-600 text-lg mt-10"
+          >
             {l10n.getString(
               'checkout-signin-or-create',
               '1. Sign in or create a Mozilla account'
@@ -117,7 +117,11 @@ export default async function Checkout({
             newsletterLabel={cms.commonContent.newsletterLabelTextCode}
           />
 
-          <div className="text-sm flex items-center justify-center my-6">
+          <div
+            role="separator"
+            aria-hidden="true"
+            className="text-sm flex items-center justify-center my-6"
+          >
             <div className="flex-1 h-px bg-grey-400 divide-x"></div>
 
             <div className="mx-4 text-base text-grey-400 font-extralight">
@@ -137,12 +141,20 @@ export default async function Checkout({
                 );
               }}
             >
-              <BaseButton variant={ButtonVariant.ThirdParty}>
-                <Image src={GoogleLogo} alt="" />
-                {l10n.getString(
+              <BaseButton
+                variant={ButtonVariant.ThirdParty}
+                aria-label={l10n.getString(
                   'continue-signin-with-google-button',
                   'Continue with Google'
                 )}
+              >
+                <Image src={GoogleLogo} alt="" aria-hidden="true" />
+                <span id="continue-with-google">
+                  {l10n.getString(
+                    'continue-signin-with-google-button',
+                    'Continue with Google'
+                  )}
+                </span>
               </BaseButton>
             </form>
             <form
@@ -151,40 +163,56 @@ export default async function Checkout({
                 await signIn('fxa', { redirectTo }, { deeplink: 'appleLogin' });
               }}
             >
-              <BaseButton variant={ButtonVariant.ThirdParty}>
-                <Image src={AppleLogo} alt="" />
-                {l10n.getString(
+              <BaseButton
+                variant={ButtonVariant.ThirdParty}
+                aria-label={l10n.getString(
                   'continue-signin-with-apple-button',
                   'Continue with Apple'
                 )}
+              >
+                <Image src={AppleLogo} alt="" aria-hidden="true" />
+                <span id="continue-with-apple">
+                  {l10n.getString(
+                    'continue-signin-with-apple-button',
+                    'Continue with Apple'
+                  )}
+                </span>
               </BaseButton>
             </form>
           </div>
 
           <hr className="mx-auto w-full border-grey-200" />
-        </>
+        </section>
       )}
 
-      {!session?.user?.email ? (
-        <h2
-          className={clsx(
-            'font-semibold text-grey-600 text-lg mt-10 mb-5',
-            !session?.user?.email &&
-            'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
-          )}
-          data-testid="header-prefix"
+      {session?.user?.email && (
+        <section
+          aria-labelledby="signedin-heading"
+          className="hidden tablet:block"
         >
-          {l10n.getString(
-            'payment-method-header-second-step-next',
-            '2. Choose your payment method2'
-          )}
-        </h2>
-      ) : (
-        <>
-          <div className="hidden tablet:block">
-            <SignedIn email={session.user.email} />
-          </div>
+          <SignedIn email={session.user.email} />
+        </section>
+      )}
+
+      <section aria-labelledby="payment-heading">
+        {!session?.user?.email ? (
           <h2
+            id="payment-heading"
+            className={clsx(
+              'font-semibold text-grey-600 text-lg mt-10 mb-5',
+              !session?.user?.email &&
+                'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
+            )}
+            data-testid="header-prefix"
+          >
+            {l10n.getString(
+              'payment-method-header-second-step-next',
+              '2. Choose your payment method2'
+            )}
+          </h2>
+        ) : (
+          <h2
+            id="payment-heading"
             className="font-semibold text-grey-600 text-lg mt-10 mb-5"
             data-testid="header"
           >
@@ -193,48 +221,48 @@ export default async function Checkout({
               'Choose your payment method'
             )}
           </h2>
-        </>
-      )}
-      <h3
-        className={clsx(
-          'font-semibold text-grey-600 text-start',
-          !session?.user?.email &&
-          'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
         )}
-      >
-        {l10n.getString(
-          'next-payment-method-first-approve',
-          'First you’ll need to approve your subscription'
-        )}
-      </h3>
+        <h3
+          className={clsx(
+            'font-semibold text-grey-600 text-start',
+            !session?.user?.email &&
+              'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
+          )}
+        >
+          {l10n.getString(
+            'next-payment-method-first-approve',
+            'First you’ll need to approve your subscription'
+          )}
+        </h3>
 
-      {/*
+        {/*
         If currency could not be determiend, it is most likely due to an invalid
         or undetermined tax address. Future work will add the Tax Location picker
         which should allow a customer to set their tax location, which would then
         provide a valid currency.
       */}
-      {cart.currency &&
-        cart.taxAddress?.countryCode &&
-        cart.taxAddress?.postalCode && (
-          <PaymentSection
-            cmsCommonContent={cms.commonContent}
-            paymentsInfo={{
-              amount: cart.amount,
-              currency: cart.currency.toLowerCase(),
-            }}
-            cart={{
-              ...cart,
-              currency: cart.currency,
-              taxAddress: {
-                countryCode: cart.taxAddress.countryCode,
-                postalCode: cart.taxAddress.postalCode,
-              },
-            }}
-            locale={locale}
-            sessionUid={session?.user?.id}
-          />
-        )}
-    </section>
+        {cart.currency &&
+          cart.taxAddress?.countryCode &&
+          cart.taxAddress?.postalCode && (
+            <PaymentSection
+              cmsCommonContent={cms.commonContent}
+              paymentsInfo={{
+                amount: cart.amount,
+                currency: cart.currency.toLowerCase(),
+              }}
+              cart={{
+                ...cart,
+                currency: cart.currency,
+                taxAddress: {
+                  countryCode: cart.taxAddress.countryCode,
+                  postalCode: cart.taxAddress.postalCode,
+                },
+              }}
+              locale={locale}
+              sessionUid={session?.user?.id}
+            />
+          )}
+      </section>
+    </>
   );
 }

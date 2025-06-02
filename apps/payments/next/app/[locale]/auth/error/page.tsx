@@ -20,9 +20,11 @@ export default function AuthErrorPage({
   const redirectUrl =
     cookieStore.get('__Secure-authjs.callback-url')?.value ||
     cookieStore.get('authjs.callback-url')?.value;
-  const supportUrl = config.supportUrl
+  const supportUrl = config.supportUrl;
   const l10n = getApp().getL10n();
-  getApp().getEmitterService().emit('auth', { type: 'error', errorMessage: searchParams?.error });
+  getApp()
+    .getEmitterService()
+    .emit('auth', { type: 'error', errorMessage: searchParams?.error });
 
   return (
     <>
@@ -41,46 +43,55 @@ export default function AuthErrorPage({
       </header>
       <section
         className="flex flex-col items-center text-center max-w-lg mx-auto mt-6 p-16 tablet:my-10 gap-16 bg-white shadow tablet:rounded-xl border border-transparent"
-        aria-labelledby='unable-to-signin-heading'
+        aria-labelledby="unable-to-signin-heading"
       >
         <h1 id="unable-to-signin-heading" className="text-xl font-bold">
           {l10n.getString('auth-error-page-title', 'We Couldn’t Sign You In')}
         </h1>
-        <Image src={errorIcon} alt="" />
-        <p className="flex flex-col gap-6 items-center text-grey-400 max-w-md text-sm">
+        <Image src={errorIcon} alt="" aria-hidden="true" />
+        <div className="flex flex-col gap-6 items-center text-grey-400 max-w-md text-sm">
           <span>
-            {l10n.getFragmentWithSource('checkout-error-boundary-basic-error-message',
+            {l10n.getFragmentWithSource(
+              'checkout-error-boundary-basic-error-message',
               {
                 elems: {
                   contactSupportLink: (
-                    <Link href={supportUrl} className="underline hover:text-grey-400">
+                    <Link
+                      href={supportUrl}
+                      className="underline hover:text-grey-400"
+                    >
                       contact support.
                     </Link>
-                  )
-                }
-              }
-              ,
+                  ),
+                },
+              },
               <>
                 Something went wrong. Please try again or{' '}
-                <Link href={supportUrl} className="underline hover:text-grey-400">
+                <Link
+                  href={supportUrl}
+                  className="underline hover:text-grey-400"
+                >
                   contact support.
                 </Link>
               </>
             )}
           </span>
-          {redirectUrl &&
+          {redirectUrl && (
             <Link href={redirectUrl}>
               <BaseButton
+                aria-label={l10n.getString(
+                  'next-payment-error-retry-button',
+                  'Try again'
+                )}
                 variant={ButtonVariant.Primary}
                 className="text-base"
               >
-                Try again
+                {l10n.getString('next-payment-error-retry-button', 'Try again')}
               </BaseButton>
             </Link>
-          }
-        </p>
+          )}
+        </div>
       </section>
     </>
   );
 }
-
