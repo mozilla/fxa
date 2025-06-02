@@ -48,30 +48,35 @@ const WithCoupon = ({
   }
 
   return (
-    <Form.Root
-      action={removeCoupon}
-      className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
-      data-testid="coupon-hascoupon"
-    >
-      <Form.Field name="appliedCouponCode">
-        <Localized id="next-coupon-promo-code-applied">
-          <h2 className="font-semibold text-grey-600">Promo Code Applied</h2>
-        </Localized>
-        <div className="mt-4 flex gap-4 justify-between items-center">
-          <span className="break-all">{couponCode}</span>
-          {readOnly ? null : (
-            <Form.Submit asChild>
-              <SubmitButton
-                variant={ButtonVariant.Secondary}
-                data-testid="coupon-remove-button"
-              >
-                <Localized id="next-coupon-remove">Remove</Localized>
-              </SubmitButton>
-            </Form.Submit>
-          )}
-        </div>
-      </Form.Field>
-    </Form.Root>
+    <section aria-labelledby="coupon-heading">
+      <Form.Root
+        aria-describedby="Applied promotion code"
+        action={removeCoupon}
+        className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
+        data-testid="coupon-hascoupon"
+      >
+        <Form.Field name="appliedCouponCode">
+          <Localized id="next-coupon-promo-code-applied">
+            <h2 id="coupon-heading" className="font-semibold text-grey-600">
+              Promo Code Applied
+            </h2>
+          </Localized>
+          <div className="mt-4 flex gap-4 justify-between items-center">
+            <span className="break-all">{couponCode}</span>
+            {readOnly ? null : (
+              <Form.Submit asChild>
+                <SubmitButton
+                  variant={ButtonVariant.Secondary}
+                  data-testid="coupon-remove-button"
+                >
+                  <Localized id="next-coupon-remove">Remove</Localized>
+                </SubmitButton>
+              </Form.Submit>
+            )}
+          </div>
+        </Form.Field>
+      </Form.Root>
+    </section>
   );
 };
 
@@ -151,49 +156,54 @@ const WithoutCoupon = ({
   const [error, formAction] = useFormState(applyCoupon, null);
 
   return (
-    <Form.Root
-      action={formAction}
-      className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
-      data-testid="coupon-form"
-    >
-      <Form.Field name="couponCode">
-        <Localized id="next-coupon-promo-code">
-          <Form.Label htmlFor="coupon" className="font-semibold text-grey-600">
-            <h2>Promo Code</h2>
-          </Form.Label>
-        </Localized>
-
-        <div className="mt-4 flex gap-4 justify-between items-center">
-          <Form.Control asChild>
-            <CouponInput
-              readOnly={readOnly}
-              routeCoupon={routeCoupon}
-              errorMessage={!!errorMessage}
-              onChange={() => {
-                setErrorMessage(null);
-              }}
-            />
-          </Form.Control>
-          <Form.Submit asChild>
-            <SubmitButton
-              variant={ButtonVariant.Primary}
-              data-testid="coupon-button"
-              disabled={readOnly}
+    <section aria-labelledby="coupon-heading">
+      <Form.Root
+        action={formAction}
+        className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
+        data-testid="coupon-form"
+      >
+        <Form.Field name="couponCode">
+          <Localized id="next-coupon-promo-code">
+            <Form.Label
+              htmlFor="coupon"
+              className="font-semibold text-grey-600"
             >
-              <Localized id="next-coupon-submit">Apply</Localized>
-            </SubmitButton>
-          </Form.Submit>
-        </div>
-
-        {errorMessage && error && (
-          <Localized id={error}>
-            <div className="text-alert-red mt-4" data-testid="coupon-error">
-              {getFallbackTextByFluentId(error)}
-            </div>
+              <h2 id="coupon-heading">Promo Code</h2>
+            </Form.Label>
           </Localized>
-        )}
-      </Form.Field>
-    </Form.Root>
+
+          <div className="mt-4 flex gap-4 justify-between items-center">
+            <Form.Control asChild>
+              <CouponInput
+                readOnly={readOnly}
+                routeCoupon={routeCoupon}
+                errorMessage={!!errorMessage}
+                onChange={() => {
+                  setErrorMessage(null);
+                }}
+              />
+            </Form.Control>
+            <Form.Submit asChild>
+              <SubmitButton
+                variant={ButtonVariant.Primary}
+                data-testid="coupon-button"
+                disabled={readOnly}
+              >
+                <Localized id="next-coupon-submit">Apply</Localized>
+              </SubmitButton>
+            </Form.Submit>
+          </div>
+
+          {errorMessage && error && (
+            <Localized id={error}>
+              <div className="text-alert-red mt-4" data-testid="coupon-error">
+                {getFallbackTextByFluentId(error)}
+              </div>
+            </Localized>
+          )}
+        </Form.Field>
+      </Form.Root>
+    </section>
   );
 };
 

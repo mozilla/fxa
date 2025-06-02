@@ -92,16 +92,24 @@ export async function SubscriptionTitle({
     );
 
   return (
-    <div
+    <section
       className="bg-white shadow-sm shadow-grey-300 text-center my-0 pt-5 px-4 pb-px tablet:mx-0"
-      aria-label={l10n.getString(componentTitle.titleFtl, componentTitle.title)}
+      aria-labelledby="subscription-heading"
     >
       {cart.state === CartState.SUCCESS && (
         <div className="flex items-center justify-center padding pb-6">
-          <Image src={circledConfirm} alt="" className="w-30 h-30" />
+          <Image
+            src={circledConfirm}
+            alt=""
+            className="w-30 h-30"
+            role="presentation"
+          />
         </div>
       )}
-      <h1 className="font-semibold leading-8 mb-1 text-grey-600 text-xl">
+      <h1
+        id="subscription-heading"
+        className="font-semibold leading-8 mb-1 text-grey-600 text-xl"
+      >
         {l10n.getString(componentTitle.titleFtl, componentTitle.title)}
       </h1>
 
@@ -116,6 +124,6 @@ export async function SubscriptionTitle({
           </span>
         </div>
       )}
-    </div>
+    </section>
   );
 }

@@ -44,7 +44,10 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
   );
   const [detailsHidden, setDetailsState] = useState(true);
   return (
-    <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm px-4 rounded-t-none clip-shadow tablet:rounded-t-lg">
+    <section
+      aria-labelledby="product-details-heading"
+      className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm px-4 rounded-t-none clip-shadow tablet:rounded-t-lg"
+    >
       <div className="flex gap-4 my-0 py-4">
         <Image
           src={webIcon}
@@ -56,7 +59,10 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
         />
 
         <div className="text-start">
-          <h2 className="text-grey-600 font-semibold leading-5 my-0 break-words">
+          <h2
+            id="product-details-heading"
+            className="text-grey-600 font-semibold leading-5 my-0 break-words"
+          >
             {productName}
           </h2>
 
@@ -72,7 +78,11 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
         </div>
       </div>
 
-      <div className="border-b border-grey-200"></div>
+      <div
+        className="border-b border-grey-200"
+        role="separator"
+        aria-hidden="true"
+      ></div>
 
       <div className={detailsHidden ? 'hidden tablet:block' : 'block'}>
         <Localized id="next-plan-details-header">
@@ -102,7 +112,13 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
               <Localized id="next-coupon-promo-code">
                 <p>Promo Code</p>
               </Localized>
-              <p>{getLocalizedCurrencyString(-1 * discountAmount, currency, locale)}</p>
+              <p>
+                {getLocalizedCurrencyString(
+                  -1 * discountAmount,
+                  currency,
+                  locale
+                )}
+              </p>
             </li>
           )}
 
@@ -134,26 +150,34 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
                       <p>{taxRate.title}</p>
                     </Localized>
                     <p>
-                      {getLocalizedCurrencyString(taxRate.amount, currency, locale)}
+                      {getLocalizedCurrencyString(
+                        taxRate.amount,
+                        currency,
+                        locale
+                      )}
                     </p>
                   </li>
                 )
             )}
-
-          <div className="border-t border-grey-200 mt-6"></div>
-
-          <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm mt-6 pt-4 pb-6 font-semibold">
-            <Localized id="next-plan-details-total-label">
-              <h3 className="text-base">Total</h3>
-            </Localized>
-            <p
-              className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
-              data-testid="total-price"
-            >
-              {totalPrice}
-            </p>
-          </li>
         </ul>
+
+        <div
+          className="border-t border-grey-200 mt-6"
+          role="separator"
+          aria-hidden="true"
+        ></div>
+
+        <div className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm mt-6 pt-4 pb-6 font-semibold">
+          <Localized id="next-plan-details-total-label">
+            <h3 className="text-base">Total</h3>
+          </Localized>
+          <p
+            className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
+            data-testid="total-price"
+          >
+            {totalPrice}
+          </p>
+        </div>
 
         {!discountType || discountType === 'forever' ? null : discountEnd ? (
           <div
@@ -212,7 +236,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
           )}
         </button>
       </div>
-    </div>
+    </section>
   );
 }
 
