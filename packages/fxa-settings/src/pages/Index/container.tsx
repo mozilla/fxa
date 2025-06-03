@@ -32,10 +32,10 @@ import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
-export const IndexContainer = ({
+const IndexContainer = ({
   integration,
   serviceName,
-  flowQueryParams
+  flowQueryParams,
 }: IndexContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -47,7 +47,8 @@ export const IndexContainer = ({
   const [errorBannerMessage, setErrorBannerMessage] = useState('');
   const [successBannerMessage, setSuccessBannerMessage] = useState('');
   const [tooltipErrorMessage, setTooltipErrorMessage] = useState('');
-  const [hasFailedAutoEmailProcessing, setHasFailedAutoEmailProcessing] = useState(false);
+  const [hasFailedAutoEmailProcessing, setHasFailedAutoEmailProcessing] =
+    useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const { queryParamModel, validationError } = useValidatedQueryParams(
@@ -270,9 +271,11 @@ export const IndexContainer = ({
         successBannerMessage,
         tooltipErrorMessage,
         deeplink,
-        flowQueryParams
+        flowQueryParams,
       }}
       prefillEmail={initialPrefill}
     />
   );
 };
+
+export default IndexContainer;
