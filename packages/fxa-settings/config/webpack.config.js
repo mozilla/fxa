@@ -688,33 +688,6 @@ module.exports = function (webpackEnv) {
           filename: 'static/css/[name].[contenthash:8].css',
           chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
         }),
-      isEnvProduction &&
-        new (class {
-          apply(compiler) {
-            compiler.hooks.compilation.tap(
-              'LinkTagRewritePlugin',
-              (compilation) => {
-                HtmlWebpackPlugin.getHooks(compilation).alterAssetTagGroups.tap(
-                  'LinkTagRewritePlugin',
-                  (data) => {
-                    data.headTags.forEach((tag) => {
-                      if (
-                        tag.tagName === 'link' &&
-                        tag.attributes.rel === 'stylesheet'
-                      ) {
-                        tag.attributes.rel = 'preload';
-                        tag.attributes.as = 'style';
-                        tag.attributes.onload =
-                          "this.onload=null; this.rel='stylesheet';";
-                        tag.attributes.crossorigin = 'anonymous';
-                      }
-                    });
-                  }
-                );
-              }
-            );
-          }
-        })(),
       // Generate an asset manifest file with the following content:
       // - "files" key: Mapping of all asset filenames to their corresponding
       //   output file so that tools can pick it up without having to parse
