@@ -44,8 +44,8 @@ export class AppleIapService {
       } catch (err) {
         // Error when attempt to query purchase. Return not found error to caller.
         const libraryError = new AppleIapInvalidOriginalTransactionIdError(
-          'Invalid original transaction id',
-          { cause: err }
+          userId,
+          err
         );
         this.log.error(libraryError);
         throw libraryError;
@@ -65,7 +65,8 @@ export class AppleIapService {
       // this.log.info('Purchase already registered', { purchase });
       // Purchase record already registered to different user. Return 'conflict' to caller
       const libraryError = new AppleIapConflictError(
-        'Purchase has been registered to another user'
+        userId,
+        purchase.transactionId
       );
       this.log.error(libraryError);
       throw libraryError;

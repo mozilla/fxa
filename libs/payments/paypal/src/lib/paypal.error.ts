@@ -62,7 +62,6 @@ export class PayPalClientError extends BaseMultiError {
     this.raw = raw;
     this.data = data;
     this.name = 'PayPalClientError';
-    Object.setPrototypeOf(this, PayPalClientError.prototype);
   }
 
   getPrimaryError(): PayPalNVPError {
@@ -81,16 +80,16 @@ export class PayPalClientError extends BaseMultiError {
     const primaryError = err.getPrimaryError();
     const code = primaryError.errorCode;
     if (!code || PAYPAL_APP_ERRORS.includes(code)) {
-      throw new UnexpectedPayPalErrorCode(err);
+      throw new UnexpectedPayPalErrorCode(code, err);
     }
     if (
       PAYPAL_SOURCE_ERRORS.includes(code) ||
       code === PAYPAL_BILLING_AGREEMENT_INVALID
     ) {
-      throw new PayPalPaymentMethodError(err);
+      throw new PayPalPaymentMethodError(code, err);
     }
     if (PAYPAL_RETRY_ERRORS.includes(code)) {
-      throw new PayPalServiceUnavailableError(err);
+      throw new PayPalServiceUnavailableError(code, err);
     }
     throw new UnexpectedPayPalError(err);
   }
@@ -115,68 +114,73 @@ export class PayPalNVPError extends BaseError {
     this.data = data;
     this.errorCode = errorCode;
     this.name = 'PayPalNVPError';
-    Object.setPrototypeOf(this, PayPalNVPError.prototype);
   }
 }
 
-export class PaymentsCustomError extends BaseError {
-  constructor(message: string, cause?: Error) {
-    super(message, {
-      cause,
+/**
+ * PayPalError is not intended for direct use, except for type-checking errors.
+ * When throwing a new PayPalError, create a unique extension of the class.
+ */
+export class PayPalError extends BaseError {
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, { info, cause });
+    this.name = 'PayPalError';
+  }
+}
+
+export class PayPalActiveSubscriptionsMissingAgreementError extends PayPalError {
+  constructor(uid: string) {
+    super('PayPal customer has active subscriptions but no billing agreement', {
+      uid,
     });
-    this.name = 'PaymentsCustomError';
-    Object.setPrototypeOf(this, PaymentsCustomError.prototype);
+    this.name = 'PayPalActiveSubscriptionsMissingAgreementError';
   }
 }
 
-export class PaypalBillingAgreementManagerError extends BaseError {
-  constructor(...args: ConstructorParameters<typeof BaseError>) {
-    super(...args);
-    this.name = 'PaypalBillingAgreementManagerError';
-    Object.setPrototypeOf(this, PaypalBillingAgreementManagerError.prototype);
+export class PaypalBillingAgreementMissingTokenError extends PayPalError {
+  constructor(uid: string) {
+    super(
+      'Must pay using PayPal token if customer has no existing billing agreement',
+      { uid }
+    );
+    this.name = 'PaypalBillingAgreementMissingTokenError';
   }
 }
 
-export class AmountExceedsPayPalCharLimitError extends BaseError {
-  constructor(amountInCents: number) {
+export class AmountExceedsPayPalCharLimitError extends PayPalError {
+  constructor(amountInCents: number, currency: string) {
     super('Amount must be less than 10 characters', {
-      info: {
-        amountInCents,
-      },
+      amountInCents,
+      currency,
     });
     this.name = 'AmountExceedsPayPalCharLimitError';
-    Object.setPrototypeOf(this, AmountExceedsPayPalCharLimitError.prototype);
   }
 }
 
-export class UnexpectedPayPalError extends PaymentsCustomError {
+export class UnexpectedPayPalError extends PayPalError {
   constructor(error: Error) {
-    super('An unexpected PayPal error occured', error);
+    super('An unexpected PayPal error occured', {}, error);
     this.name = 'UnexpectedPayPalError';
-    Object.setPrototypeOf(this, UnexpectedPayPalError.prototype);
   }
 }
 
-export class UnexpectedPayPalErrorCode extends PaymentsCustomError {
-  constructor(error: Error) {
-    super('Encountered an unexpected PayPal error code', error);
+export class UnexpectedPayPalErrorCode extends PayPalError {
+  constructor(code: number, error: Error) {
+    super('Encountered an unexpected PayPal error code', { code }, error);
     this.name = 'UnexpectedPayPalErrorCode';
-    Object.setPrototypeOf(this, UnexpectedPayPalErrorCode.prototype);
   }
 }
 
-export class PayPalPaymentMethodError extends PaymentsCustomError {
-  constructor(error: Error) {
-    super('PayPal payment method failed', error);
+export class PayPalPaymentMethodError extends PayPalError {
+  constructor(code: number, error: Error) {
+    super('PayPal payment method failed', { code }, error);
     this.name = 'PayPalPaymentMethodError';
-    Object.setPrototypeOf(this, PayPalPaymentMethodError.prototype);
   }
 }
 
-export class PayPalServiceUnavailableError extends PaymentsCustomError {
-  constructor(error: Error) {
-    super('PayPal service is temporarily unavailable', error);
+export class PayPalServiceUnavailableError extends PayPalError {
+  constructor(code: number, error: Error) {
+    super('PayPal service is temporarily unavailable', { code }, error);
     this.name = 'PayPalServiceUnavailableError';
-    Object.setPrototypeOf(this, PayPalServiceUnavailableError.prototype);
   }
 }

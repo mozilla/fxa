@@ -7,7 +7,7 @@ import { DEFAULT_LOCALE } from './constants';
 import { offeringQuery } from './queries/offering/query';
 import { StrapiClient } from './strapi.client';
 import { OfferingQuery } from '../__generated__/graphql';
-import { CMSError } from './cms.error';
+import { StrapiQueryError } from './cms.error';
 import { MockStrapiClientConfigProvider } from './strapi.client.config';
 import { LocalesResultFactory } from './queries/locales';
 import { Test } from '@nestjs/testing';
@@ -62,6 +62,7 @@ describe('StrapiClient', () => {
     const mockResponse = faker.string.sample();
     const id = faker.string.sample();
     const locale = faker.string.sample();
+    const queryArgs = { id, locale };
 
     describe('success', () => {
       let result: OfferingQuery | null;
@@ -97,11 +98,8 @@ describe('StrapiClient', () => {
       jest.spyOn(strapiClient.client, 'request').mockRejectedValueOnce(error);
 
       await expect(() =>
-        strapiClient.query(offeringQuery, {
-          id,
-          locale,
-        })
-      ).rejects.toThrow(new CMSError([error]));
+        strapiClient.query(offeringQuery, queryArgs)
+      ).rejects.toThrow(new StrapiQueryError(offeringQuery, queryArgs, error));
 
       expect(onCallback).toHaveBeenCalledWith(
         expect.objectContaining({

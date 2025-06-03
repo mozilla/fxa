@@ -20,7 +20,7 @@ export function getPayPalAmountStringFromAmountInCents(
     return String(amountInCents);
   }
   if (amountInCents.toString().length > 9) {
-    throw new AmountExceedsPayPalCharLimitError(amountInCents);
+    throw new AmountExceedsPayPalCharLimitError(amountInCents, currencyCode);
   }
   // Left pad with zeros if necessary, so we always get a minimum of 0.01.
   const amountAsString = String(amountInCents).padStart(3, '0');

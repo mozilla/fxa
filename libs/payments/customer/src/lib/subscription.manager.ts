@@ -12,11 +12,14 @@ import {
 } from '@fxa/payments/stripe';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/payments/stripe';
 import { STRIPE_SUBSCRIPTION_METADATA } from './types';
-import { InvalidPaymentIntentError, PaymentIntentNotFoundError } from './error';
+import {
+  InvalidPaymentIntentError,
+  PaymentIntentNotFoundError,
+} from './customer.error';
 
 @Injectable()
 export class SubscriptionManager {
-  constructor(private stripeClient: StripeClient) { }
+  constructor(private stripeClient: StripeClient) {}
 
   async cancel(
     subscriptionId: string,
@@ -127,12 +130,16 @@ export class SubscriptionManager {
     const paymentIntent = await this.getLatestPaymentIntent(subscription);
 
     if (!paymentIntent) {
-      throw new PaymentIntentNotFoundError();
+      throw new PaymentIntentNotFoundError(subscription.id);
     }
 
     if (paymentIntent.last_payment_error) {
       await this.cancel(subscription.id);
-      throw new InvalidPaymentIntentError();
+      throw new InvalidPaymentIntentError(
+        subscription.id,
+        paymentIntent.id,
+        paymentIntent.last_payment_error.message
+      );
     }
 
     if (paymentIntent.status === 'requires_confirmation') {

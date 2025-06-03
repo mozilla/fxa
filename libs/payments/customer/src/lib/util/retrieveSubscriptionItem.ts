@@ -5,13 +5,16 @@ import {
 import {
   SubscriptionItemMissingItemError,
   SubscriptionItemMultipleItemsError,
-} from '../error';
+} from '../customer.error';
 
 export function retrieveSubscriptionItem(
   subscription: StripeSubscription
 ): StripeSubscriptionItem {
   if (subscription.items.data.length > 1) {
-    throw new SubscriptionItemMultipleItemsError(subscription.id);
+    throw new SubscriptionItemMultipleItemsError(
+      subscription.id,
+      subscription.items.data.map((subscriptionItem) => subscriptionItem.id)
+    );
   }
 
   const firstSubscriptionItem = subscription.items.data.at(0);

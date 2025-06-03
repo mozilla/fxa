@@ -13,7 +13,7 @@ import {
 } from './factories';
 import { PayPalClient } from './paypal.client';
 import { MockPaypalClientConfigProvider } from './paypal.client.config';
-import { PaypalBillingAgreementManagerError } from './paypal.error';
+import { PayPalActiveSubscriptionsMissingAgreementError, PaypalBillingAgreementMissingTokenError } from './paypal.error';
 import { BillingAgreementStatus } from './paypal.types';
 import { PaypalBillingAgreementManager } from './paypalBillingAgreement.manager';
 import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
@@ -112,7 +112,7 @@ describe('PaypalBillingAgreementManager', () => {
 
       await expect(
         paypalBillingAgreementManager.retrieveOrCreateId(uid, true, token)
-      ).rejects.toBeInstanceOf(PaypalBillingAgreementManagerError);
+      ).rejects.toBeInstanceOf(PayPalActiveSubscriptionsMissingAgreementError);
       expect(paypalClient.createBillingAgreement).not.toBeCalled();
     });
 
@@ -130,7 +130,7 @@ describe('PaypalBillingAgreementManager', () => {
 
       await expect(
         paypalBillingAgreementManager.retrieveOrCreateId(uid, false)
-      ).rejects.toBeInstanceOf(PaypalBillingAgreementManagerError);
+      ).rejects.toBeInstanceOf(PaypalBillingAgreementMissingTokenError);
       expect(paypalClient.createBillingAgreement).not.toBeCalled();
     });
   });

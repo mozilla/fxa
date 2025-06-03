@@ -3,26 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseError } from '@fxa/shared/error';
 
+/**
+ * GeoDBError is not intended for direct use, except for type-checking errors.
+ * When throwing a new GeoDBError, create a unique extension of the class.
+ */
 export class GeoDBError extends BaseError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, { info, cause });
     this.name = 'GeoDBError';
-    Object.setPrototypeOf(this, GeoDBError.prototype);
   }
 }
 
 export class GeoDBInvalidIp extends GeoDBError {
   constructor() {
-    super('IP is invalid');
+    super('IP is invalid', {});
     this.name = 'GeoDBInvalidIp';
-    Object.setPrototypeOf(this, GeoDBInvalidIp.prototype);
   }
 }
 
 export class GeoDBFetchDataFailed extends GeoDBError {
   constructor() {
-    super('Unable to fetch data');
+    super('Unable to fetch data', {});
     this.name = 'GeoDBFetchDataFailed';
-    Object.setPrototypeOf(this, GeoDBFetchDataFailed.prototype);
   }
 }

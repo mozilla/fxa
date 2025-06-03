@@ -13,6 +13,8 @@ import {
   CurrencyCodeInvalidError,
   CountryCodeInvalidError,
   CurrencyCountryMismatchError,
+  CurrencyCodeMissingError,
+  CountryCodeMissingError,
 } from './currency.error';
 import { CurrencyConfig } from './currency.config';
 
@@ -32,8 +34,8 @@ export class CurrencyManager {
    * @returns True if currency is compatible with country, else throws error
    */
   assertCurrencyCompatibleWithCountry(currency: string, country: string): void {
-    if (!currency) throw new CurrencyCodeInvalidError(currency);
-    if (!country) throw new CountryCodeInvalidError(country);
+    if (!currency) throw new CurrencyCodeMissingError();
+    if (!country) throw new CountryCodeMissingError();
 
     if (
       !VALID_CURRENCY_CODES.includes(currency) ||

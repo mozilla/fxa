@@ -20,7 +20,7 @@ import {
 } from '@fxa/shared/db/type-cacheable';
 import { determineLocale } from '@fxa/shared/l10n';
 import { DEFAULT_LOCALE } from './constants';
-import { CMSError } from './cms.error';
+import { StrapiQueryError } from './cms.error';
 import { CMS_QUERY_CACHE_KEY, cacheKeyForQuery } from './util';
 import { StrapiClientConfig } from './strapi.client.config';
 import { LocalesResult, localesQuery } from './queries/locales';
@@ -172,7 +172,7 @@ export class StrapiClient {
         cache: false,
       });
 
-      throw new CMSError([e]);
+      throw new StrapiQueryError(query, variables, e);
     }
   }
 

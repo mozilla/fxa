@@ -14,6 +14,13 @@ import {
   CartNotFoundError,
   CartNotUpdatedError,
   CartVersionMismatchError,
+  DeleteCartFailedError,
+  ErrorCartNotCreatedError,
+  FinishCartFailedError,
+  FinishErrorCartFailedError,
+  SetNeedsInputCartFailedError,
+  SetProcessingCartFailedError,
+  UpdateFreshCartFailedError,
 } from './cart.error';
 import {
   createCart,
@@ -165,7 +172,7 @@ export class CartManager {
       };
     } catch (error) {
       this.log.error(error);
-      throw new CartNotCreatedError(input, error);
+      throw new ErrorCartNotCreatedError(input, error);
     }
   }
 
@@ -224,7 +231,7 @@ export class CartManager {
       });
     } catch (error) {
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
-      throw new CartNotUpdatedError(cart.id, items, cause);
+      throw new UpdateFreshCartFailedError(cart.id, items, cause);
     }
   }
 
@@ -233,7 +240,6 @@ export class CartManager {
     const cart = await this.fetchAndValidateCartVersion(cartId, version);
 
     this.checkActionForValidCartState(cart, 'finishCart');
-
     try {
       await updateCart(this.db, Buffer.from(cartId, 'hex'), version, {
         ...items,
@@ -242,7 +248,7 @@ export class CartManager {
       });
     } catch (error) {
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
-      throw new CartNotUpdatedError(cartId, items, cause);
+      throw new FinishCartFailedError(cart.id, version, cause);
     }
   }
 
@@ -251,7 +257,6 @@ export class CartManager {
     const cart = await this.fetchCartById(cartId);
 
     this.checkActionForValidCartState(cart, 'finishErrorCart');
-
     try {
       await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
         ...items,
@@ -260,7 +265,7 @@ export class CartManager {
       });
     } catch (error) {
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
-      throw new CartNotUpdatedError(cartId, items, cause);
+      throw new FinishErrorCartFailedError(cart.id, items, cause);
     }
   }
 
@@ -269,14 +274,13 @@ export class CartManager {
     const cart = await this.fetchCartById(cartId);
 
     this.checkActionForValidCartState(cart, 'setNeedsInputCart');
-
     try {
       await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
         state: CartState.NEEDS_INPUT,
       });
     } catch (error) {
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
-      throw new CartNotUpdatedError(cartId, cause);
+      throw new SetNeedsInputCartFailedError(cart.id, cause);
     }
   }
 
@@ -292,14 +296,13 @@ export class CartManager {
       });
     } catch (error) {
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
-      throw new CartNotUpdatedError(cartId, cause);
+      throw new SetProcessingCartFailedError(cart.id, cause);
     }
   }
 
   @CaptureTimingWithStatsD()
   public async deleteCart(cart: ResultCart) {
     this.checkActionForValidCartState(cart, 'deleteCart');
-
     try {
       if (!(await deleteCart(this.db, cart))) {
         throw new CartNotDeletedError(cart.id);
@@ -307,7 +310,7 @@ export class CartManager {
       return true;
     } catch (error) {
       const cause = error instanceof CartNotDeletedError ? undefined : error;
-      throw new CartNotDeletedError(cart.id, cause);
+      throw new DeleteCartFailedError(cart.id, cause);
     }
   }
 }

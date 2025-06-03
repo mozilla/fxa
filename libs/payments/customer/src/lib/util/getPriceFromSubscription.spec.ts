@@ -8,7 +8,7 @@ import {
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
 } from '@fxa/payments/stripe';
-import { PromotionCodeCouldNotBeAttachedError } from '../error';
+import { UniqueSubscriptionItemNotFoundError } from '../customer.error';
 import { getPriceFromSubscription } from './getPriceFromSubscription';
 
 describe('getPriceFromSubscription', () => {
@@ -31,7 +31,7 @@ describe('getPriceFromSubscription', () => {
     });
 
     expect(() => getPriceFromSubscription(mockSubscription)).toThrowError(
-      PromotionCodeCouldNotBeAttachedError
+      UniqueSubscriptionItemNotFoundError
     );
   });
 
@@ -43,7 +43,7 @@ describe('getPriceFromSubscription', () => {
     });
 
     expect(() => getPriceFromSubscription(mockSubscription)).toThrowError(
-      PromotionCodeCouldNotBeAttachedError
+      UniqueSubscriptionItemNotFoundError
     );
   });
 });

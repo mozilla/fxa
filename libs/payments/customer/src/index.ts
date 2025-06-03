@@ -16,7 +16,7 @@ export * from './lib/subscription.manager';
 export * from './lib/types';
 export * from './lib/factories/pricing-for-currency.factory';
 export * from './lib/factories/tax-address.factory';
-export * from './lib/error';
+export * from './lib/customer.error';
 export * from './lib/util/stripeInvoiceToFirstInvoicePreviewDTO';
 export * from './lib/util/getSubplatInterval';
 export * from './lib/util/determinePaymentMethodType';

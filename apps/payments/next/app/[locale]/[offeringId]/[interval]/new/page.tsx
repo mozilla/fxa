@@ -13,9 +13,16 @@ import {
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
-import type { SubplatInterval } from '@fxa/payments/customer';
+import {
+  type SubplatInterval,
+} from '@fxa/payments/customer';
 import type { ResultCart } from '@fxa/payments/cart';
 import { getIpAddress } from '@fxa/payments/ui/server';
+import { hasClassname } from '@fxa/payments/ui/utils';
+import {
+  RetrieveStripePriceInvalidOfferingError,
+  RetrieveStripePriceNotFoundError,
+} from '@fxa/shared/cms';
 
 function getRedirectToUrl(
   cart: ResultCart,
@@ -131,8 +138,8 @@ export default async function New({
 
       redirectToUrl = getRedirectToUrl(cart, params, searchParams);
     } else if (
-      error.name === 'RetrieveStripePriceInvalidOfferingError' ||
-      error.name === 'RetrieveStripePriceNotFoundError'
+      hasClassname(error, RetrieveStripePriceInvalidOfferingError) ||
+      hasClassname(error, RetrieveStripePriceNotFoundError)
     ) {
       notFound();
     } else {

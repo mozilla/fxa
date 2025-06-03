@@ -11,7 +11,7 @@ import {
   testAccountDatabaseSetup,
 } from '@fxa/shared/db/mysql/account';
 
-import { AccountCustomerNotUpdatedError } from './accountCustomer.error';
+import { AccountCustomerUpdatedNoEffectError } from './accountCustomer.error';
 import {
   createAccountCustomer,
   deleteAccountCustomer,
@@ -121,7 +121,7 @@ describe('AccountCustomer Repository', () => {
         updateAccountCustomer(kyselyDb, mockAccountCustomer.uid, {
           stripeCustomerId: '',
         })
-      ).rejects.toThrow(AccountCustomerNotUpdatedError);
+      ).rejects.toThrow(AccountCustomerUpdatedNoEffectError);
     });
   });
 

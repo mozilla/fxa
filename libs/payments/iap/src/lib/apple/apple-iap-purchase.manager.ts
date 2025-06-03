@@ -27,7 +27,7 @@ import { AppleIapClient } from './apple-iap.client';
 import {
   AppleIapNotFoundError,
   AppleIapNoTransactionsFoundError,
-  AppleIapUnknownError,
+  GetFromAppStoreIapUnknownError,
 } from './apple-iap.error';
 
 @Injectable()
@@ -140,7 +140,10 @@ export class AppleIapPurchaseManager {
       (item) => item.originalTransactionId === originalTransactionId
     );
     if (!item) {
-      throw new AppleIapNoTransactionsFoundError('No transactions found');
+      throw new AppleIapNoTransactionsFoundError(
+        bundleId,
+        originalTransactionId
+      );
     }
     const subscriptionStatus = item.status;
     const transactionInfo = await decodeTransaction(item.signedTransactionInfo);
@@ -220,9 +223,7 @@ export class AppleIapPurchaseManager {
         return subscriptionPurchase;
       }
     } catch (err) {
-      const libraryError = new AppleIapUnknownError('Unknown error', {
-        cause: err,
-      });
+      const libraryError = new GetFromAppStoreIapUnknownError(err);
       this.log.error(libraryError);
       throw libraryError;
     }

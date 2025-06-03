@@ -16,10 +16,14 @@ import {
 } from './paypalCustomer.repository';
 import { ResultPaypalCustomer } from './paypalCustomer.types';
 import {
+  PaypalCustomerByUidNotFoundError,
+  PaypalCustomerDeletionFailedError,
   PaypalCustomerNotCreatedError,
-  PaypalCustomerNotDeletedError,
+  PaypalCustomerNotDeletedByUidError,
+  PaypalCustomerNoEntriesDeletedError,
   PaypalCustomerNotFoundError,
   PaypalCustomerNotUpdatedError,
+  PaypalCustomersByBillingAgreementNotFoundError,
 } from './paypalCustomer.error';
 import {
   CreatePaypalCustomer,
@@ -82,7 +86,7 @@ export class PaypalCustomerManager {
         uid: paypalCustomer.uid.toString('hex'),
       }));
     } catch (error) {
-      throw new PaypalCustomerNotFoundError(uid, error);
+      throw new PaypalCustomerByUidNotFoundError(uid, error);
     }
   }
 
@@ -99,7 +103,10 @@ export class PaypalCustomerManager {
         uid: paypalCustomer.uid.toString('hex'),
       }));
     } catch (error) {
-      throw new PaypalCustomerNotFoundError(billingAgreementId, error);
+      throw new PaypalCustomersByBillingAgreementNotFoundError(
+        billingAgreementId,
+        error
+      );
     }
   }
 
@@ -140,7 +147,7 @@ export class PaypalCustomerManager {
         paypalCustomer.billingAgreementId
       );
       if (!result) {
-        throw new PaypalCustomerNotDeletedError(
+        throw new PaypalCustomerNoEntriesDeletedError(
           paypalCustomer.uid,
           paypalCustomer.billingAgreementId
         );
@@ -148,8 +155,8 @@ export class PaypalCustomerManager {
       return true;
     } catch (error) {
       const cause =
-        error instanceof PaypalCustomerNotDeletedError ? undefined : error;
-      throw new PaypalCustomerNotDeletedError(
+        error instanceof PaypalCustomerNoEntriesDeletedError ? undefined : error;
+      throw new PaypalCustomerDeletionFailedError(
         paypalCustomer.uid,
         paypalCustomer.billingAgreementId,
         cause
@@ -165,7 +172,7 @@ export class PaypalCustomerManager {
       );
       return result;
     } catch (error) {
-      throw new PaypalCustomerNotDeletedError(uid, '', error);
+      throw new PaypalCustomerNotDeletedByUidError(uid, error);
     }
   }
 }

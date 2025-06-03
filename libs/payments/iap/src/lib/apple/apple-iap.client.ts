@@ -4,10 +4,11 @@
 
 import { Injectable } from '@nestjs/common';
 import {
+  AppleIapClientBundleError,
+  AppleIapClientBundleUnknownError,
   AppleIapError,
   AppleIapMissingCredentialsError,
   AppleIapNotFoundError,
-  AppleIapUnknownError,
 } from './apple-iap.error';
 import {
   AppStoreError,
@@ -80,19 +81,15 @@ export class AppleIapClient {
     }
 
     if (e instanceof AppStoreError && e.errorCode === 4040010) {
-      return new AppleIapNotFoundError('Apple IAP Not Found (4040010)', {
-        cause: e,
-      });
+      return new AppleIapNotFoundError(e);
     }
 
     if (e instanceof Error) {
-      return new AppleIapUnknownError('Unknown Apple IAP Error', {
-        cause: e,
-      });
+      return new AppleIapClientBundleError(e);
     }
 
-    return new AppleIapUnknownError('Unknown Apple IAP Error', {
-      cause: new Error(`Unknown error: ${e}`),
-    });
+    return new AppleIapClientBundleUnknownError(
+      new Error(`Unknown error: ${JSON.stringify(e)}`)
+    );
   }
 }
