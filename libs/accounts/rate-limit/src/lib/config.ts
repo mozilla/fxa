@@ -16,6 +16,9 @@ export class RateLimitConfig {
   ignoreIPs!: Array<string>;
 
   @IsArray()
+  ignoreIPsByDns!: Array<string>;
+
+  @IsArray()
   ignoreEmails!: Array<string>;
 
   @IsArray()

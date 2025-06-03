@@ -2161,6 +2161,12 @@ const convictConf = convict({
     },
   },
   rateLimit: {
+    ignoreIPsByDns: {
+      default: ['all.knownips.circleci.com'],
+      doc: 'Set of dig lookups to run to determine IP filters.',
+      env: 'RATE_LIMIT__IGNORE_IPS_BY_DNS',
+      format: Array,
+    },
     ignoreIPs: {
       default: undefined,
       doc: 'Set of IPs to ignore while rate limiting. Rules will not apply to these values.',

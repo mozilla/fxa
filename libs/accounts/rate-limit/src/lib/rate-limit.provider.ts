@@ -47,6 +47,7 @@ export const RateLimitProvider = {
         rules,
         ignoreEmails: rateLimitConfig.ignoreEmails,
         ignoreIPs: rateLimitConfig.ignoreIPs,
+        ignoreIPsByDns: rateLimitConfig.ignoreIPsByDns,
         ignoreUIDs: rateLimitConfig.ignoreUIDs,
       },
       redis,

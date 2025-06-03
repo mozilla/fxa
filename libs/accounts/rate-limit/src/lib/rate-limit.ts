@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Redis } from 'ioredis';
+import { resolveIp4 } from 'dns-dig';
 import { BlockStatus, BlockRecord, Rule, BlockReason } from './models';
 import { ActionNotFound, MissingOption } from './error';
 import { calculateRetryAfter, getKey } from './util';
-
 import { StatsD } from '@fxa/shared/metrics/statsd';
 
 /**
@@ -15,6 +15,8 @@ import { StatsD } from '@fxa/shared/metrics/statsd';
  * using explicit configuration and a more generalized approach to defining rules.
  */
 export class RateLimit {
+  private ignoreIPs: Array<string> | undefined;
+
   /**
    * Creates a new RateLimit instance
    * @param rules A set of rules. See parseRules in config for more info!
@@ -23,6 +25,7 @@ export class RateLimit {
   constructor(
     public readonly config: {
       rules: Record<string, Rule[]>;
+      ignoreIPsByDns?: Array<string>;
       ignoreIPs?: Array<string>;
       ignoreEmails?: Array<string>;
       ignoreUIDs?: Array<string>;
@@ -66,6 +69,28 @@ export class RateLimit {
     return this.config.rules[action] != null;
   }
 
+  /** Use dig dns to look up IPs to ignore */
+  private async getIpIgnoreList() {
+    if (this.ignoreIPs != null) {
+      return this.ignoreIPs;
+    }
+
+    // Only setup once
+    this.ignoreIPs = new Array<string>();
+    if (this.config.ignoreIPs) {
+      this.ignoreIPs.push(...this.config.ignoreIPs);
+    }
+    if (this.config.ignoreIPsByDns) {
+      for (const lookup of this.config.ignoreIPsByDns) {
+        const ipList = await resolveIp4(lookup);
+        if (ipList) {
+          this.ignoreIPs.push(...ipList);
+        }
+      }
+    }
+    return this.ignoreIPs;
+  }
+
   /**
    * Determines if a check can be skipped, due to an ignored ip, email, or uid.
    * When testing and developing it's often helpful to disable customs rules for
@@ -73,23 +98,31 @@ export class RateLimit {
    * @param opts - The current properties being checked.
    * @returns
    */
-  skip(opts: { ip?: string; email?: string; uid?: string }) {
-    if (opts.ip != null && this.config.ignoreIPs?.some((x) => opts.ip === x)) {
+  async skip(opts: { ip?: string; email?: string; uid?: string }) {
+    const ignoreIPs = await this.getIpIgnoreList();
+
+    if (opts.ip != null && ignoreIPs?.some((x) => opts.ip === x)) {
       this.statsd?.increment('rate_limit.ignore.ip');
       return true;
     }
 
-    if (opts.uid != null && this.config.ignoreUIDs?.some((x) => opts.uid === x)) {
+    if (
+      opts.uid != null &&
+      this.config.ignoreUIDs?.some((x) => opts.uid === x)
+    ) {
       this.statsd?.increment('rate_limit.ignore.uid');
       return true;
     }
 
-    if (opts.email != null && this.config.ignoreEmails?.some((x) => opts.email?.match(x))) {
+    if (
+      opts.email != null &&
+      this.config.ignoreEmails?.some((x) => opts.email?.match(x))
+    ) {
       this.statsd?.increment('rate_limit.ignore.email');
       return true;
     }
 
-    return false
+    return false;
   }
 
   /**

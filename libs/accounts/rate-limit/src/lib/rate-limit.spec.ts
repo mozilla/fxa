@@ -98,7 +98,7 @@ describe('rate-limit', () => {
     );
   });
 
-  it('can ignore certain emails', () => {
+  it('can ignore certain emails', async () => {
     rateLimit = new RateLimit(
       {
         rules: {},
@@ -108,32 +108,48 @@ describe('rate-limit', () => {
       statsd
     );
 
-    expect(rateLimit.skip({ email: 'foo@mozilla.com' })).toBeTruthy();
-    expect(rateLimit.skip({ email: 'bar@mozilla.com' })).toBeTruthy();
-    expect(rateLimit.skip({ email: 'bar@mozilla.com ' })).toBeFalsy();
-    expect(rateLimit.skip({ email: 'foo@firefox.com' })).toBeTruthy();
-    expect(rateLimit.skip({ email: 'bar@firefox.com ' })).toBeFalsy();
-    expect(rateLimit.skip({})).toBeFalsy();
+    expect(await rateLimit.skip({ email: 'foo@mozilla.com' })).toBeTruthy();
+    expect(await rateLimit.skip({ email: 'bar@mozilla.com' })).toBeTruthy();
+    expect(await rateLimit.skip({ email: 'bar@mozilla.com ' })).toBeFalsy();
+    expect(await rateLimit.skip({ email: 'foo@firefox.com' })).toBeTruthy();
+    expect(await rateLimit.skip({ email: 'bar@firefox.com ' })).toBeFalsy();
+    expect(await rateLimit.skip({})).toBeFalsy();
     expect(statsd.increment).toBeCalledWith('rate_limit.ignore.email');
   });
 
-  it('can ignore certain ips', () => {
+  it('can ignore certain ips', async () => {
     rateLimit = new RateLimit(
       {
         rules: {},
         ignoreIPs: ['127.0.0.1'],
+        ignoreIPsByDns: ['all.knownips.circleci.com'],
       },
       redis,
       statsd
     );
 
-    expect(rateLimit.skip({ ip: '127.0.0.1' })).toBeTruthy();
-    expect(rateLimit.skip({ ip: '0.0.0.0' })).toBeFalsy();
-    expect(rateLimit.skip({})).toBeFalsy();
+    expect(await rateLimit.skip({ ip: '127.0.0.1' })).toBeTruthy();
+    expect(await rateLimit.skip({ ip: '3.228.39.90' })).toBeTruthy(); // known circleip
+    expect(await rateLimit.skip({ ip: '0.0.0.0' })).toBeFalsy();
+    expect(await rateLimit.skip({})).toBeFalsy();
     expect(statsd.increment).toBeCalledWith('rate_limit.ignore.ip');
   });
 
-  it('can ignore certain uids', () => {
+  it('can ignore certain ips by dns lookup', async () => {
+    rateLimit = new RateLimit(
+      {
+        rules: {},
+        ignoreIPsByDns: ['all.knownips.circleci.com'],
+      },
+      redis,
+      statsd
+    );
+
+    expect(await rateLimit.skip({ ip: '3.228.39.90' })).toBeTruthy();
+    expect(statsd.increment).toBeCalledWith('rate_limit.ignore.ip');
+  });
+
+  it('can ignore certain uids', async () => {
     rateLimit = new RateLimit(
       {
         rules: {},
@@ -143,9 +159,9 @@ describe('rate-limit', () => {
       statsd
     );
 
-    expect(rateLimit.skip({ uid: '000-000-000' })).toBeTruthy();
-    expect(rateLimit.skip({ uid: '000-000-001' })).toBeFalsy();
-    expect(rateLimit.skip({})).toBeFalsy();
+    expect(await rateLimit.skip({ uid: '000-000-000' })).toBeTruthy();
+    expect(await rateLimit.skip({ uid: '000-000-001' })).toBeFalsy();
+    expect(await rateLimit.skip({})).toBeFalsy();
     expect(statsd.increment).toBeCalledWith('rate_limit.ignore.uid');
   });
 

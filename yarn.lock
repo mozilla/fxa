@@ -24739,6 +24739,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"child_process@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "child_process@npm:1.0.2"
+  checksum: bd814d82bc8c6e85ed6fb157878978121cd03b5296c09f6135fa3d081fd9a6a617a6d509c50397711df713af403331241a9c0397a7fad30672051485e156c2a1
+  languageName: node
+  linkType: hard
+
 "chokidar@npm:4.0.1":
   version: 4.0.1
   resolution: "chokidar@npm:4.0.1"
@@ -27703,6 +27710,15 @@ __metadata:
   version: 1.1.3
   resolution: "dlv@npm:1.1.3"
   checksum: d7381bca22ed11933a1ccf376db7a94bee2c57aa61e490f680124fa2d1cd27e94eba641d9f45be57caab4f9a6579de0983466f620a2cd6230d7ec93312105ae7
+  languageName: node
+  linkType: hard
+
+"dns-dig@npm:^1.3.4":
+  version: 1.3.4
+  resolution: "dns-dig@npm:1.3.4"
+  dependencies:
+    child_process: ^1.0.2
+  checksum: 5eb55a420a7704aa34a433ab423b7918e2f98a7a2c49daf53f8426c2cd2a21f7c9925533c5bec37d9132b2e144fee0d4a30eb68db1bcb934232f2879deba9d78
   languageName: node
   linkType: hard
 
@@ -32820,6 +32836,7 @@ __metadata:
     class-validator: 0.14.1
     clsx: ^2.1.1
     diffparser: ^2.0.1
+    dns-dig: ^1.3.4
     dotenv: ^16.4.5
     esbuild: ^0.17.15
     esbuild-register: ^3.5.0
