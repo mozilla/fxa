@@ -42489,7 +42489,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-forge@npm:>=1.3.0":
+"node-forge@npm:^1, node-forge@npm:^1.2.1":
   version: 1.3.1
   resolution: "node-forge@npm:1.3.1"
   checksum: 08fb072d3d670599c89a1704b3e9c649ff1b998256737f0e06fbd1a5bf41cae4457ccaee32d95052d80bbafd9ffe01284e078c8071f0267dc9744e51c5ed42a9
