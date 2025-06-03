@@ -1204,11 +1204,11 @@ describe('/session/verify_code', () => {
     gleanMock.registration.complete.reset();
     const response = await runTest(route, request);
     assert.deepEqual(response, {});
-    assert.calledOnce(customs.check);
+    assert.calledOnce(customs.checkAuthenticated);
     assert.calledWithExactly(
-      customs.check,
+      customs.checkAuthenticated,
       request,
-      signupCodeAccount.email,
+      signupCodeAccount.uid,
       'verifySessionCode'
     );
     assert.calledOnce(db.account);
@@ -1457,9 +1457,9 @@ describe('/session/verify/verify_push', () => {
     assert.deepEqual(response, {});
 
     assert.calledOnceWithExactly(
-      customs.check,
+      customs.checkAuthenticated,
       request,
-      'foo@example.org',
+      'foo',
       'verifySessionCode'
     );
     assert.calledOnceWithExactly(db.devices, 'foo');
@@ -1522,9 +1522,9 @@ describe('/session/verify/verify_push', () => {
       assert.fail('should have thrown');
     } catch (err) {
       assert.calledOnceWithExactly(
-        customs.check,
+        customs.checkAuthenticated,
         request,
-        'foo@example.org',
+        'foo',
         'verifySessionCode'
       );
 
