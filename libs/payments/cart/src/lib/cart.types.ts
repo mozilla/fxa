@@ -91,6 +91,7 @@ export type SuccessCartDTO = BaseCartDTO & {
   state: CartState.SUCCESS;
   latestInvoicePreview: Invoice;
   paymentInfo: PaymentInfo;
+  hasActiveSubscriptions: boolean;
 };
 
 export type NeedsInputCartDTO = BaseCartDTO & {

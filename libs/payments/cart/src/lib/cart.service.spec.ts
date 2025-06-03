@@ -1427,6 +1427,73 @@ describe('CartService', () => {
       );
     });
 
+    it('returns cart with success state', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.SUCCESS,
+        stripeSubscriptionId: mockSubscription.id,
+      });
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPrice = StripePriceFactory();
+      const mockUpcomingInvoicePreview = InvoicePreviewFactory();
+      const mockLatestInvoicePreview = InvoicePreviewFactory();
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({})
+      );
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.CREATE,
+      });
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+      jest
+        .spyOn(productConfigurationManager, 'retrieveStripePrice')
+        .mockResolvedValue(mockPrice);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(invoiceManager, 'previewUpcoming')
+        .mockResolvedValue(mockUpcomingInvoicePreview);
+      jest
+        .spyOn(invoiceManager, 'preview')
+        .mockResolvedValue(mockLatestInvoicePreview);
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
+
+      const result = await cartService.getCart(mockCart.id);
+      expect(result).toEqual({
+        ...mockCart,
+        upcomingInvoicePreview: mockUpcomingInvoicePreview,
+        latestInvoicePreview: mockLatestInvoicePreview,
+        metricsOptedOut: false,
+        paymentInfo: {
+          type: mockPaymentMethod.type,
+          last4: mockPaymentMethod.card?.last4,
+          brand: mockPaymentMethod.card?.brand,
+          customerSessionClientSecret: mockCustomerSession.client_secret,
+        },
+        hasActiveSubscriptions: true,
+      });
+      expect(
+        'latestInvoicePreview' in result && result.latestInvoicePreview
+      ).not.toEqual(result.upcomingInvoicePreview);
+
+      expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
+      expect(
+        productConfigurationManager.retrieveStripePrice
+      ).toHaveBeenCalledWith(mockCart.offeringConfigId, mockCart.interval);
+      expect(customerManager.retrieve).toHaveBeenCalledWith(
+        mockCart.stripeCustomerId
+      );
+      expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
+        priceId: mockPrice.id,
+        currency: mockCart.currency,
+        customer: mockCustomer,
+        taxAddress: mockCart.taxAddress,
+      });
+      expect(invoiceManager.preview).toHaveBeenCalledWith(
+        mockSubscription.latest_invoice
+      );
+    });
+
     it('returns cart and upcomingInvoicePreview if customer is undefined', async () => {
       const mockCart = ResultCartFactory({
         stripeCustomerId: null,

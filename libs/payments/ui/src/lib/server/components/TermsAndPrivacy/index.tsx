@@ -68,6 +68,7 @@ export interface TermsAndPrivacyProps {
   privacyNoticeUrl: string;
   contentServerUrl: string;
   showFXALinks?: boolean;
+  hasActiveSubscriptions?: boolean;
 }
 
 export async function TermsAndPrivacy({
@@ -79,9 +80,10 @@ export async function TermsAndPrivacy({
   privacyNoticeUrl,
   contentServerUrl,
   showFXALinks = false,
+  hasActiveSubscriptions,
 }: TermsAndPrivacyProps) {
   const terms: GenericTermItem[] = [
-    ...buildPaymentTerms(paymentInfo),
+    ...buildPaymentTerms(paymentInfo, hasActiveSubscriptions),
     ...buildFirefoxAccountsTerms(showFXALinks, contentServerUrl),
     ...buildProductTerms(
       productName,
