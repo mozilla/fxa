@@ -27,7 +27,7 @@ export type DataBlockProps = {
   prefixDataTestId?: string;
   onCopy?: (event: React.ClipboardEvent<HTMLElement>) => void;
   onAction?: actionFn;
-  isIOS?: boolean;
+  isMobile?: boolean;
   email: string;
   gleanDataAttrs: {
     copy?: GetDataTrioGleanData;
@@ -42,7 +42,7 @@ export const DataBlock = ({
   prefixDataTestId,
   onCopy,
   onAction = () => {},
-  isIOS = false,
+  isMobile = false,
   email,
   gleanDataAttrs,
 }: DataBlockProps) => {
@@ -61,10 +61,10 @@ export const DataBlock = ({
   };
 
   return (
-    <div className="w-full flex flex-col gap-3 items-center bg-white rounded-xl border-2 border-grey-100 px-5 pt-5 pb-3">
+    <div className="w-full flex flex-col items-center bg-white rounded-xl border-2 border-grey-100 p-5">
       <ul
         className={classNames(
-          'relative gap-2 w-full text-black text-sm font-mono font-bold',
+          'relative gap-2 mobileLandscape:gap-4 w-full mb-5 text-black text-sm font-mono font-bold',
           valueIsArray ? 'grid grid-cols-2 max-w-sm' : 'flex flex-col max-w-lg'
         )}
         {...{ onCopy }}
@@ -88,13 +88,13 @@ export const DataBlock = ({
               prefixDataTestId={`datablock-${performedAction}`}
               message={actionTypeToNotification[performedAction]}
               anchorPosition="middle"
-              position="bottom"
+              position="top"
               className="mt-1"
             ></Tooltip>
           </FtlMsg>
         )}
       </ul>
-      {isIOS ? (
+      {isMobile ? (
         <GetDataCopySingleton
           {...{
             value,

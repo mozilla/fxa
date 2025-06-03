@@ -38,7 +38,7 @@ it('can render multiple values', () => {
 });
 
 it('displays only Copy icon in iOS', () => {
-  renderWithLocalizationProvider(<Subject value={multiValue} isIOS />);
+  renderWithLocalizationProvider(<Subject value={multiValue} isMobile />);
 
   expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
   expect(

@@ -16,7 +16,7 @@ export default {
 
 export const SingleCode = () => <Subject />;
 
-export const SingleCodeOnIOS = () => <Subject isIOS />;
+export const SingleCodeOnIOS = () => <Subject isMobile />;
 
 export const MultipleCodes = () => (
   <Subject
