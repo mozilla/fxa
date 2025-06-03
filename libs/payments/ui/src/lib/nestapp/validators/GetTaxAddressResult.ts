@@ -6,9 +6,17 @@ import { IsOptional, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TaxAddress } from './common/TaxAddress';
 
-export class GetTaxAddressResult {
+// Additional nesting is required to support undefined results;
+class TaxAddressResult {
   @IsOptional()
   @ValidateNested()
   @Type(() => TaxAddress)
-  taxAddress?: TaxAddress;
+  result?: TaxAddress;
+}
+
+export class GetTaxAddressResult {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TaxAddressResult)
+  taxAddress?: TaxAddressResult
 }

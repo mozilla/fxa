@@ -23,8 +23,8 @@ export class TaxService {
     private customerManager: CustomerManager,
     private geodbManager: GeoDBManager,
     private subscriptionManager: SubscriptionManager,
-    private currencyManager: CurrencyManager
-  ) {}
+    private currencyManager: CurrencyManager,
+  ) { }
 
   async getTaxAddress(ipAddress: string, uid?: string) {
     if (uid) {
