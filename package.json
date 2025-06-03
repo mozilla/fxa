@@ -270,7 +270,6 @@
     "css-minimizer-webpack-plugin": ">=4 <5",
     "compression": "1.7.4",
     "elliptic": ">=6.5.4",
-    "fbjs/isomorphic-fetch": "^3.0.0",
     "flat": "5.0.2",
     "gobbledygook": "https://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2",
     "minimist": "^1.2.6",
