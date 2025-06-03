@@ -6,6 +6,7 @@ import {
   AdditionalMetricsData,
   SP3RolloutEvent,
   SubscriptionEndedEvents,
+  type AuthEvents,
 } from './emitter.types';
 import {
   CancellationReason,
@@ -13,6 +14,13 @@ import {
   CmsMetricsDataFactory,
 } from '@fxa/payments/metrics';
 import { SubplatInterval } from '@fxa/payments/customer';
+
+export const AuthEventsFactory = (
+  override?: Partial<AuthEvents>
+): AuthEvents => ({
+  type: faker.helpers.arrayElement(['signin', 'signout', 'prompt_none_fail', 'error']),
+  ...override
+})
 
 export const AdditionalMetricsDataFactory = (
   override?: AdditionalMetricsData

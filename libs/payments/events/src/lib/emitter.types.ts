@@ -44,6 +44,11 @@ export type SP3RolloutEvent = {
   shadowMode: boolean;
 };
 
+export type AuthEvents = {
+  type: 'signin' | 'signout' | 'prompt_none_fail' | 'error';
+  errorMessage?: string;
+}
+
 export type PaymentsEmitterEvents = {
   checkoutView: CheckoutEvents;
   checkoutEngage: CheckoutEvents;
@@ -53,6 +58,7 @@ export type PaymentsEmitterEvents = {
   subscriptionEnded: SubscriptionEndedEvents;
   sp3Rollout: SP3RolloutEvent;
   locationView: LocationStatus | TaxChangeAllowedStatus;
+  auth: AuthEvents;
 };
 
 export type AdditionalMetricsData = {

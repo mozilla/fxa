@@ -37,6 +37,7 @@ import { CartManager } from '@fxa/payments/cart';
 import { PaymentsEmitterService } from './emitter.service';
 import {
   AdditionalMetricsDataFactory,
+  AuthEventsFactory,
   SP3RolloutEventFactory,
   SubscriptionEndedFactory,
 } from './emitter.factories';
@@ -47,6 +48,7 @@ import {
 import { AccountManager } from '@fxa/shared/account/account';
 import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 import { Logger } from '@nestjs/common';
+import { EmitterServiceHandleAuthError } from './emitter.error';
 
 jest.mock('./util/retrieveAdditionalMetricsData');
 const mockedRetrieveAdditionalMetricsData = jest.mocked(
@@ -60,6 +62,7 @@ describe('PaymentsEmitterService', () => {
   let productConfigurationManager: ProductConfigurationManager;
   let cartManager: CartManager;
   let statsd: StatsD;
+  let logger: Logger;
 
   const additionalMetricsData = AdditionalMetricsDataFactory();
   const mockCommonMetricsData = CommonMetricsFactory({
@@ -106,6 +109,7 @@ describe('PaymentsEmitterService', () => {
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
     cartManager = moduleRef.get(CartManager);
     statsd = moduleRef.get<StatsD>(StatsDService);
+    logger = moduleRef.get<Logger>(Logger);
   });
 
   it('should be defined', () => {
@@ -122,6 +126,30 @@ describe('PaymentsEmitterService', () => {
     mockedRetrieveAdditionalMetricsData.mockResolvedValue(
       additionalMetricsData
     );
+  });
+
+  describe('handleAuthEvent', () => {
+    const authEventData = AuthEventsFactory();
+    beforeEach(() => {
+      jest.spyOn(statsd, 'increment').mockReturnValue();
+    });
+
+    it('should call manager record method', async () => {
+      await paymentsEmitterService.handleAuthEvent(authEventData);
+
+      expect(statsd.increment).toHaveBeenCalledWith(
+        `auth_event`,
+        { type: authEventData.type }
+      );
+    });
+
+    it('should log the error if provided', async () => {
+      const errorMessage = 'Error message text'
+      const authEventData = AuthEventsFactory({ errorMessage });
+      await paymentsEmitterService.handleAuthEvent(authEventData);
+
+      expect(logger.error).toHaveBeenCalledWith(new EmitterServiceHandleAuthError(errorMessage))
+    })
   });
 
   describe('handleCheckoutView', () => {

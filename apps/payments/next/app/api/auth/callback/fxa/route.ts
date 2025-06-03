@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { GET as AuthJsGET } from '../../../../../auth';
 import { redirect } from 'next/navigation';
+import { getApp } from '@fxa/payments/ui/server';
 
 export { POST } from '../../../../../auth';
 
@@ -21,6 +22,7 @@ export async function GET(request: NextRequest) {
       cookieStore.get('__Secure-authjs.callback-url') ||
       cookieStore.get('authjs.callback-url');
     if (redirectUrl?.value) {
+      getApp().getEmitterService().emit('auth', { type: 'prompt_none_fail' });
       redirect(redirectUrl.value);
     }
   }
