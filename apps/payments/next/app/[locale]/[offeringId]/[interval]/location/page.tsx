@@ -40,9 +40,9 @@ export default async function Location({
   const taxAddress =
     providedCountryCode && providedPostalCode
       ? {
-          countryCode: providedCountryCode,
-          postalCode: providedPostalCode,
-        }
+        countryCode: providedCountryCode,
+        postalCode: providedPostalCode,
+      }
       : undefined;
 
   const fxaUid = session?.user?.id;
