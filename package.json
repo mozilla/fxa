@@ -60,7 +60,7 @@
     "@nestjs/graphql": "^12.2.0",
     "@nestjs/mapped-types": "^2.0.5",
     "@nestjs/passport": "^10.0.3",
-    "@nestjs/platform-express": "^10.4.1",
+    "@nestjs/platform-express": "^10.4.18",
     "@nestjs/schedule": "^4.0.1",
     "@next/bundle-analyzer": "^15.1.6",
     "@nx/next": "19.5.3",
