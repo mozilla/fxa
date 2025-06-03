@@ -63,7 +63,7 @@ export default async function UpgradeLayout({
         <SubscriptionTitle cart={cart} l10n={l10n} />
 
         <section
-          className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:col-end-auto tablet:row-start-1 tablet:row-end-3"
+          className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3"
           aria-label="Upgrade details"
         >
           <UpgradePurchaseDetails

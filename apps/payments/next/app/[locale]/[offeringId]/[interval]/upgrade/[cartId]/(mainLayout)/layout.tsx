@@ -51,7 +51,7 @@ export default async function UpgradeSuccessLayout({
       <div className="mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
         <SubscriptionTitle cart={cart} l10n={l10n} />
         <section
-          className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:col-end-auto tablet:row-start-1 tablet:row-end-3"
+          className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3"
           aria-label="Upgrade details"
         >
           <PurchaseDetails
@@ -75,7 +75,7 @@ export default async function UpgradeSuccessLayout({
                 locale={locale}
               />
             }
-            locale={ locale }
+            locale={locale}
           />
         </section>
         <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
