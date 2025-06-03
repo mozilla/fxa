@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { OfferingMultipleError, OfferingNotFoundError } from '../../cms.error';
+import {
+  EligibilityContentOfferingNotFoundError,
+  MultipleEligilityContentOfferingResultsError,
+} from '../../cms.error';
 import {
   EligibilityContentByOfferingResult,
   EligibilityContentOfferingResult,
@@ -13,8 +16,11 @@ export class EligibilityContentByOfferingResultUtil {
 
   getOffering(): EligibilityContentOfferingResult {
     const offering = this.offerings.at(0);
-    if (!offering) throw new OfferingNotFoundError();
-    if (this.offerings.length > 1) throw new OfferingMultipleError();
+    if (!offering) throw new EligibilityContentOfferingNotFoundError();
+    if (this.offerings.length > 1)
+      throw new MultipleEligilityContentOfferingResultsError(
+        this.offerings.map((offering) => offering.stripeProductId)
+      );
     return offering;
   }
 

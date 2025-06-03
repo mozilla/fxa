@@ -8,6 +8,7 @@ import { revalidatePath } from 'next/cache';
 
 import { getApp } from '../nestapp/app';
 import { CouponErrorMessageType } from '../utils/error-ftl-messages';
+import { isInstanceOf } from '@fxa/payments/ui/utils';
 
 export const applyCouponAction = async (
   cartId: string,
@@ -25,11 +26,11 @@ export const applyCouponAction = async (
       },
     });
   } catch (err) {
-    if (err.name === 'CouponErrorExpired') {
+    if (isInstanceOf(err, 'CouponErrorExpired')) {
       return CouponErrorMessageType.Expired;
-    } else if (err.name === 'CouponErrorGeneric') {
+    } else if (isInstanceOf(err, 'CouponErrorGeneric')) {
       return CouponErrorMessageType.Generic;
-    } else if (err.name === 'CouponErrorLimitReached') {
+    } else if (isInstanceOf(err, 'CouponErrorLimitReached')) {
       return CouponErrorMessageType.LimitReached;
     } else {
       return CouponErrorMessageType.Invalid;

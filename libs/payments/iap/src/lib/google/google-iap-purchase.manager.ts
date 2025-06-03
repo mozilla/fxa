@@ -15,7 +15,7 @@ import {
 } from './google-iap-purchase.repository';
 import type { NotificationType } from './types';
 import { GoogleIapClient } from './google-iap.client';
-import { GoogleIapUnknownError } from './google-iap.error';
+import { GoogleIapGetFromPlayStoreUnknownError } from './google-iap.error';
 import { REPLACED_PURCHASE_USERID_PLACEHOLDER } from './constants';
 
 @Injectable()
@@ -167,9 +167,7 @@ export class GoogleIapPurchaseManager {
       }
     } catch (err) {
       // Some unexpected error has occurred while interacting with Firestore.
-      throw new GoogleIapUnknownError('Unknown error', {
-        cause: err,
-      });
+      throw new GoogleIapGetFromPlayStoreUnknownError(packageName, sku, err);
     }
   }
 

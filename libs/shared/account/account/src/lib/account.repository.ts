@@ -5,6 +5,7 @@ import { AccountDatabase, NewAccount } from '@fxa/shared/db/mysql/account';
 
 import {
   AccountAlreadyExistsError,
+  AccountEmailRecordNotCreatedError,
   AccountNotCreatedError,
 } from './account.error';
 
@@ -53,10 +54,7 @@ export function createAccount(db: AccountDatabase, account: NewAccount) {
       })
       .executeTakeFirst();
     if (!emailResult.numInsertedOrUpdatedRows) {
-      throw new AccountNotCreatedError(
-        account.email,
-        new Error('Failed to insert email record')
-      );
+      throw new AccountEmailRecordNotCreatedError(account.email);
     }
     return true;
   });

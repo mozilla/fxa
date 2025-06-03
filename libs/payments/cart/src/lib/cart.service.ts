@@ -17,9 +17,6 @@ import {
   SubscriptionManager,
   InvoicePreview,
   PaymentMethodManager,
-  CouponErrorExpired,
-  CouponErrorGeneric,
-  CouponErrorLimitReached,
   CustomerSessionManager,
   PaymentIntentManager,
   determinePaymentMethodType,
@@ -28,6 +25,7 @@ import {
   TaxAddress,
   PriceManager,
   getSubplatInterval,
+  PromotionCodeSanitizedError,
 } from '@fxa/payments/customer';
 import {
   EligibilityService,
@@ -52,13 +50,23 @@ import { SanitizeExceptions } from '@fxa/shared/error';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 import {
-  CartError,
-  CartCurrencyNotFoundError,
-  CartInvalidPromoCodeError,
-  CartInvalidStateForActionError,
-  CartStateProcessingError,
-  CartSubscriptionNotFoundError,
   PaidInvoiceOnFailedCartError,
+  PaidPaymentIntendOnFailedCartError,
+  SubscriptionPaymentIntentMissingCartError,
+  NeedsInputPaymentMethodMissingCartError,
+  FinalizeWithoutUidCartError,
+  TaxAndCurrencyRequiredCartError,
+  UpdateStripeProcessingCartError,
+  UpdatePayPalProcessingCartError,
+  CartSetupInvalidPromoCodeError,
+  CartRestartInvalidPromoCodeError,
+  SetupCartCurrencyNotFoundError,
+  UpdateCartCurrencyNotFoundError,
+  FinalizeWithoutSubscriptionIdCartError,
+  FinalizeWithoutSubscriptionCartError,
+  GetInputWithoutSubscriptionIdCartError,
+  GetInputWithoutSubscriptionCartError,
+  InvalidPromoCodeCartError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import type {
@@ -76,7 +84,7 @@ import type {
 } from './cart.types';
 import { NeedsInputType } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
-import { CheckoutFailedError } from './checkout.error';
+import { SubmitNeedsInputFailedError } from './checkout.error';
 import { CheckoutService } from './checkout.service';
 import { resolveErrorInstance } from './util/resolveErrorInstance';
 
@@ -179,11 +187,9 @@ export class CartService {
               case 'paid':
                 const paidInvoiceError = new PaidInvoiceOnFailedCartError(
                   cartId,
-                  {
-                    error,
-                    stripeCustomerId: cart.stripeCustomerId,
-                    invoiceId: invoice.id,
-                  }
+                  cart.stripeCustomerId ?? undefined,
+                  invoice.id,
+                  error
                 );
                 this.log.error(paidInvoiceError);
 
@@ -203,11 +209,11 @@ export class CartService {
           const paymentIntent =
             await this.subscriptionManager.getLatestPaymentIntent(subscription);
           if (paymentIntent?.status === 'succeeded') {
-            throw new CartError('Paid payment intent found on failed cart', {
+            throw new PaidPaymentIntendOnFailedCartError(
               cartId,
-              stripeCustomerId: cart.stripeCustomerId,
-              paymentIntentId: paymentIntent.id,
-            });
+              cart.stripeCustomerId ?? undefined,
+              paymentIntent.id
+            );
           }
           try {
             if (paymentIntent) {
@@ -262,7 +268,7 @@ export class CartService {
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
    */
   @SanitizeExceptions({
-    allowlist: [CartInvalidPromoCodeError, ProductConfigError],
+    allowlist: [InvalidPromoCodeCartError, ProductConfigError],
   })
   async setupCart(args: {
     interval: SubplatInterval;
@@ -297,10 +303,9 @@ export class CartService {
       args.taxAddress.countryCode
     );
     if (!currency) {
-      throw new CartCurrencyNotFoundError(
+      throw new SetupCartCurrencyNotFoundError(
         currency,
-        args.taxAddress.countryCode,
-        undefined
+        args.taxAddress.countryCode
       );
     }
 
@@ -331,7 +336,11 @@ export class CartService {
           currency
         );
       } catch (e) {
-        throw new CartInvalidPromoCodeError(args.promoCode);
+        this.log.error(e);
+        throw new CartSetupInvalidPromoCodeError(
+          args.promoCode,
+          args.offeringConfigId
+        );
       }
     }
 
@@ -381,7 +390,7 @@ export class CartService {
   /**
    * Create a new cart with the contents of an existing cart, in the initial state.
    */
-  @SanitizeExceptions()
+  @SanitizeExceptions({ allowlist: [InvalidPromoCodeCartError] })
   async restartCart(cartId: string): Promise<ResultCart> {
     return this.wrapWithCartCatch(cartId, async () => {
       const oldCart = await this.cartManager.fetchCartById(cartId);
@@ -400,7 +409,12 @@ export class CartService {
             oldCart.currency
           );
         } catch (e) {
-          throw new CartInvalidPromoCodeError(oldCart.couponCode);
+          this.log.error(e);
+          throw new CartRestartInvalidPromoCodeError(
+            oldCart.couponCode,
+            oldCart.offeringConfigId,
+            cartId
+          );
         }
       }
 
@@ -415,13 +429,10 @@ export class CartService {
         : undefined;
 
       if (!(oldCart.taxAddress && oldCart.currency)) {
-        throw new CartError(
-          'Cart must have a tax address and currency to restart',
-          {
-            cartId: oldCart.id,
-            taxAddress: oldCart.taxAddress,
-            currency: oldCart.currency,
-          }
+        throw new TaxAndCurrencyRequiredCartError(
+          oldCart.id,
+          oldCart.taxAddress ?? undefined,
+          oldCart.currency,
         );
       }
 
@@ -461,7 +472,8 @@ export class CartService {
           version + 1
         );
       } catch (e) {
-        throw new CartStateProcessingError(cartId, e);
+        this.log.error(e);
+        throw new UpdateStripeProcessingCartError(cartId, e);
       }
 
       // Intentionally non-blocking
@@ -496,7 +508,8 @@ export class CartService {
           version + 1
         );
       } catch (e) {
-        throw new CartStateProcessingError(cartId, e);
+        this.log.error(e);
+        throw new UpdatePayPalProcessingCartError(cartId, e);
       }
 
       // Intentionally non-blocking
@@ -516,17 +529,20 @@ export class CartService {
       const cart = await this.cartManager.fetchCartById(cartId);
 
       if (!cart.uid) {
-        throw new CartError('Cart must have a uid to finalize', { cartId });
+        throw new FinalizeWithoutUidCartError(cartId);
       }
 
       if (!cart.stripeSubscriptionId) {
-        throw new CartSubscriptionNotFoundError(cartId);
+        throw new FinalizeWithoutSubscriptionIdCartError(cartId);
       }
       const subscription = await this.subscriptionManager.retrieve(
         cart.stripeSubscriptionId
       );
       if (!subscription) {
-        throw new CartSubscriptionNotFoundError(cartId);
+        throw new FinalizeWithoutSubscriptionCartError(
+          cartId,
+          cart.stripeSubscriptionId
+        );
       }
       await this.checkoutService.postPaySteps({
         cart,
@@ -564,11 +580,7 @@ export class CartService {
    * Update a cart in the database by ID or with an existing cart reference
    */
   @SanitizeExceptions({
-    allowlist: [
-      CouponErrorExpired,
-      CouponErrorGeneric,
-      CouponErrorLimitReached,
-    ],
+    allowlist: [PromotionCodeSanitizedError],
   })
   async updateCart(
     cartId: string,
@@ -589,7 +601,7 @@ export class CartService {
             cartDetailsInput.taxAddress?.countryCode
           );
           if (!cartDetails.currency) {
-            throw new CartCurrencyNotFoundError(
+            throw new UpdateCartCurrencyNotFoundError(
               cartDetails.currency,
               cartDetailsInput.taxAddress.countryCode,
               cartId
@@ -848,33 +860,29 @@ export class CartService {
   @SanitizeExceptions()
   async getNeedsInput(cartId: string): Promise<GetNeedsInputResponse> {
     const cart = await this.cartManager.fetchCartById(cartId);
-
-    if (cart.state !== CartState.NEEDS_INPUT) {
-      throw new CartInvalidStateForActionError(
-        cartId,
-        cart.state,
-        'getNeedsInput'
-      );
-    }
+    this.cartManager.checkActionForValidCartState(cart, 'getNeedsInputCart');
 
     if (!cart.stripeSubscriptionId) {
-      throw new CartSubscriptionNotFoundError(cartId);
+      throw new GetInputWithoutSubscriptionIdCartError(cartId);
     }
 
     const subscription = await this.subscriptionManager.retrieve(
       cart.stripeSubscriptionId
     );
     if (!subscription) {
-      throw new CartSubscriptionNotFoundError(cartId);
+      throw new GetInputWithoutSubscriptionCartError(
+        cartId,
+        cart.stripeSubscriptionId
+      );
     }
 
     const paymentIntent =
       await this.subscriptionManager.getLatestPaymentIntent(subscription);
     if (!paymentIntent) {
-      throw new CartError('no payment intent found for cart subscription', {
+      throw new SubscriptionPaymentIntentMissingCartError(
         cartId,
-        subscription: subscription.id,
-      });
+        subscription.id
+      );
     }
 
     if (paymentIntent.status === 'requires_action') {
@@ -888,7 +896,7 @@ export class CartService {
     }
   }
 
-  @SanitizeExceptions({ allowlist: [CheckoutFailedError] })
+  @SanitizeExceptions({ allowlist: [SubmitNeedsInputFailedError] })
   async submitNeedsInput(cartId: string) {
     return this.wrapWithCartCatch(cartId, async () => {
       const cart = await this.cartManager.fetchCartById(cartId);
@@ -898,14 +906,10 @@ export class CartService {
         'Cart must have a stripeSubscriptionId'
       );
       assert(cart.uid, 'Cart must have a uid');
-
-      if (cart.state !== CartState.NEEDS_INPUT) {
-        throw new CartInvalidStateForActionError(
-          cartId,
-          cart.state,
-          'submitNeedsInput'
-        );
-      }
+      this.cartManager.checkActionForValidCartState(
+        cart,
+        'submitNeedsInputCart'
+      );
 
       const subscription = await this.subscriptionManager.retrieve(
         cart.stripeSubscriptionId
@@ -925,9 +929,9 @@ export class CartService {
             },
           });
         } else {
-          throw new CartError(
-            'Failed to update customer default payment method',
-            { cartId: cart.id }
+          throw new NeedsInputPaymentMethodMissingCartError(
+            cartId,
+            customer.id
           );
         }
         const subscription = await this.subscriptionManager.retrieve(
@@ -943,7 +947,10 @@ export class CartService {
         });
       } else {
         const promises: Promise<any>[] = [
-          this.finalizeCartWithError(cartId, CartErrorReasonId.UNKNOWN),
+          this.finalizeCartWithError(
+            cartId,
+            CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR
+          ),
         ];
         if (cart.stripeSubscriptionId) {
           promises.push(
@@ -951,7 +958,7 @@ export class CartService {
           );
         }
         await Promise.all([promises]);
-        throw new CheckoutFailedError(`Payment failed for cart ${cartId}`);
+        throw new SubmitNeedsInputFailedError(cartId);
       }
     });
   }

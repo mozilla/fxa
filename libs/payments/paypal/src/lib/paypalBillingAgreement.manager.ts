@@ -8,7 +8,10 @@ import { PayPalClient } from './paypal.client';
 import { BillingAgreement, BillingAgreementStatus } from './paypal.types';
 import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
-import { PaypalBillingAgreementManagerError } from './paypal.error';
+import {
+  PayPalActiveSubscriptionsMissingAgreementError,
+  PaypalBillingAgreementMissingTokenError,
+} from './paypal.error';
 
 @Injectable()
 export class PaypalBillingAgreementManager {
@@ -26,14 +29,10 @@ export class PaypalBillingAgreementManager {
     if (existingBillingAgreementId) return existingBillingAgreementId;
 
     if (hasSubscriptions) {
-      throw new PaypalBillingAgreementManagerError(
-        'Customer missing billing agreement ID with active subscriptions'
-      );
+      throw new PayPalActiveSubscriptionsMissingAgreementError(uid);
     }
     if (!token) {
-      throw new PaypalBillingAgreementManagerError(
-        'Must pay using PayPal token if customer has no existing billing agreement'
-      );
+      throw new PaypalBillingAgreementMissingTokenError(uid);
     }
 
     const newBillingAgreementId = await this.create(uid, token);
@@ -104,7 +103,10 @@ export class PaypalBillingAgreementManager {
     );
 
     if (activeRecords.length > 1) {
-      throw new PaypalCustomerMultipleRecordsError(uid);
+      throw new PaypalCustomerMultipleRecordsError(
+        uid,
+        activeRecords.map((record) => record.billingAgreementId)
+      );
     }
 
     const firstRecord = activeRecords.at(0);

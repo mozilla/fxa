@@ -22,7 +22,7 @@ export class GoogleIapPurchaseManager {
       return message;
     } catch (err) {
       this.log.error(err);
-      throw new GoogleIapInvalidMessagePayloadError('Invalid message payload');
+      throw new GoogleIapInvalidMessagePayloadError(messageData, err);
     }
   }
 }

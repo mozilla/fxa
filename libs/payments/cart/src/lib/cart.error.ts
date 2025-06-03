@@ -2,36 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseError } from '@fxa/shared/error';
-import {
-  FinishCart,
-  FinishErrorCart,
-  SetupCart,
-  UpdateCart,
-} from './cart.types';
+import { SetupCart } from './cart.types';
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 
 export class CartError extends BaseError {
-  constructor(
-    message: string,
-    info: Record<string, any>,
-    cause?: Error,
-    name?: string
-  ) {
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
     super(message, {
-      name: name || 'CartError',
-      cause,
       info,
+      cause,
     });
     this.name = 'CartError';
-    Object.setPrototypeOf(this, CartError.prototype);
   }
 }
 
 export class CartNotCreatedError extends CartError {
-  constructor(data: SetupCart, cause: Error) {
-    super('Cart not created', data, cause);
+  constructor(setupCart: SetupCart, cause: Error) {
+    super('Cart not created', { setupCart }, cause);
     this.name = 'CartNotCreatedError';
-    Object.setPrototypeOf(this, CartNotCreatedError.prototype);
+  }
+}
+
+export class ErrorCartNotCreatedError extends CartError {
+  constructor(setupCart: SetupCart, cause: Error) {
+    super('Error cart not created', { setupCart }, cause);
+    this.name = 'ErrorCartNotCreatedError';
   }
 }
 
@@ -39,7 +33,6 @@ export class CartNotFoundError extends CartError {
   constructor(cartId: string, cause: Error) {
     super('Cart not found', { cartId }, cause);
     this.name = 'CartNotFoundError';
-    Object.setPrototypeOf(this, CartNotFoundError.prototype);
   }
 }
 
@@ -47,58 +40,51 @@ export class CartVersionMismatchError extends CartError {
   constructor(cartId: string) {
     super('Cart version mismatch', { cartId });
     this.name = 'CartVersionMismatchError';
-    Object.setPrototypeOf(this, CartVersionMismatchError.prototype);
   }
 }
 
 export class CartNotUpdatedError extends CartError {
-  constructor(
-    cartId: string,
-    data?: FinishCart | FinishErrorCart | UpdateCart,
-    cause?: Error
-  ) {
-    super(
-      'Cart not updated',
-      {
-        ...data,
-        cartId,
-      },
-      cause
-    );
+  constructor(cartId: string) {
+    super('Cart not updated', {
+      cartId,
+    });
     this.name = 'CartNotUpdatedError';
-    Object.setPrototypeOf(this, CartNotUpdatedError.prototype);
   }
 }
 
 export class CartStateProcessingError extends CartError {
-  constructor(cartId: string, cause: Error) {
-    super('Cart state not changed to processing', { cartId }, cause);
+  constructor(message: string, cartId: string, cause: Error) {
+    super(message, { cartId }, cause);
     this.name = 'CartStateProcessingError';
-    Object.setPrototypeOf(this, CartStateProcessingError.prototype);
   }
 }
 
-export class CartStateFinishedError extends CartError {
-  constructor() {
-    super('Cart state is already finished', {});
-    this.name = 'CartStateFinishedError';
-    Object.setPrototypeOf(this, CartStateFinishedError.prototype);
+export class UpdateStripeProcessingCartError extends CartStateProcessingError {
+  constructor(cartId: string, cause: Error) {
+    super(
+      'Stripe checkout cart state not changed to processing',
+      cartId,
+      cause
+    );
+    this.name = 'UpdateStripeProcessingCartError';
+  }
+}
+
+export class UpdatePayPalProcessingCartError extends CartStateProcessingError {
+  constructor(cartId: string, cause: Error) {
+    super(
+      'PayPal checkout cart state not changed to processing',
+      cartId,
+      cause
+    );
+    this.name = 'UpdatePayPalProcessingCartError';
   }
 }
 
 export class CartNotDeletedError extends CartError {
-  constructor(cartId: string, cause?: Error) {
-    super('Cart not deleted', { cartId }, cause);
+  constructor(cartId: string) {
+    super('Cart not deleted', { cartId });
     this.name = 'CartNotDeletedError';
-    Object.setPrototypeOf(this, CartNotDeletedError.prototype);
-  }
-}
-
-export class CartNotRestartedError extends CartError {
-  constructor(previousCartId: string, cause: Error) {
-    super('Cart not created', { previousCartId }, cause);
-    this.name = 'CartNotRestartedError';
-    Object.setPrototypeOf(this, CartNotRestartedError.prototype);
   }
 }
 
@@ -110,7 +96,6 @@ export class CartInvalidStateForActionError extends CartError {
       action,
     });
     this.name = 'CartInvalidStateForActionError';
-    Object.setPrototypeOf(this, CartInvalidStateForActionError.prototype);
   }
 }
 
@@ -118,7 +103,6 @@ export class CartTotalMismatchError extends CartError {
   constructor(cartId: string, cartAmount: number, invoiceAmount: number) {
     super('Cart total mismatch', { cartId, cartAmount, invoiceAmount });
     this.name = 'CartTotalMismatchError';
-    Object.setPrototypeOf(this, CartTotalMismatchError.prototype);
   }
 }
 
@@ -134,7 +118,6 @@ export class CartEligibilityMismatchError extends CartError {
       incomingEligibility,
     });
     this.name = 'CartEligibilityMismatchError';
-    Object.setPrototypeOf(this, CartEligibilityMismatchError.prototype);
   }
 }
 
@@ -144,7 +127,6 @@ export class CartAccountNotFoundError extends CartError {
       cartId,
     });
     this.name = 'CartAccountNotFoundError';
-    Object.setPrototypeOf(this, CartAccountNotFoundError.prototype);
   }
 }
 
@@ -154,39 +136,116 @@ export class CartUidNotFoundError extends CartError {
       cartId,
     });
     this.name = 'CartUidNotFoundError';
-    Object.setPrototypeOf(this, CartUidNotFoundError.prototype);
   }
 }
 
-export class CartInvalidPromoCodeError extends CartError {
-  constructor(promoCode: string, cartId?: string) {
+export class InvalidPromoCodeCartError extends CartError {
+  constructor(
+    message: string,
+    promoCode: string,
+    offeringConfigId: string,
+    cartId?: string
+  ) {
+    super(message, {
+      cartId,
+      offeringConfigId,
+      promoCode,
+    });
+    this.name = 'InvalidPromoCodeCartError';
+  }
+}
+
+export class CartSetupInvalidPromoCodeError extends InvalidPromoCodeCartError {
+  constructor(promoCode: string, offeringConfigId: string) {
     super(
-      'Cart specified promo code does not exist',
-      {
-        cartId,
-        promoCode,
-      },
-      undefined,
-      'CartInvalidPromoCodeError'
+      'Cart specified promo code does not exist in cart setup',
+      promoCode,
+      offeringConfigId
     );
-    this.name = 'CartInvalidPromoCodeError';
-    Object.setPrototypeOf(this, CartInvalidPromoCodeError.prototype);
+    this.name = 'CartSetupInvalidPromoCodeError';
+  }
+}
+
+export class CartRestartInvalidPromoCodeError extends InvalidPromoCodeCartError {
+  constructor(promoCode: string, offeringConfigId: string, cartId?: string) {
+    super(
+      'Cart specified promo code does not exist in cart restart',
+      promoCode,
+      offeringConfigId,
+      cartId
+    );
+    this.name = 'CartRestartInvalidPromoCodeError';
   }
 }
 
 export class CartCurrencyNotFoundError extends CartError {
   constructor(
+    message: string,
     currency: string | undefined,
     country: string | undefined,
     cartId?: string
   ) {
-    super('Cart currency could not be determined', {
+    super(message, {
       cartId,
       currency,
       country,
     });
     this.name = 'CartCurrencyNotFoundError';
-    Object.setPrototypeOf(this, CartCurrencyNotFoundError.prototype);
+  }
+}
+
+export class PrepayCartCurrencyNotFoundError extends CartCurrencyNotFoundError {
+  constructor(
+    currency: string | undefined,
+    country: string | undefined,
+    cartId: string | undefined
+  ) {
+    super(
+      'Cart currency could not be determined during prepay steps',
+      currency,
+      country,
+      cartId
+    );
+    this.name = 'PrepayCartCurrencyNotFoundError';
+  }
+}
+
+export class SetupCartCurrencyNotFoundError extends CartCurrencyNotFoundError {
+  constructor(currency: string | undefined, country: string | undefined) {
+    super('Cart currency could not be determined in setup', currency, country);
+    this.name = 'SetupCartCurrencyNotFoundError';
+  }
+}
+
+export class UpdateCartCurrencyNotFoundError extends CartCurrencyNotFoundError {
+  constructor(
+    currency: string | undefined,
+    country: string | undefined,
+    cartId: string | undefined
+  ) {
+    super(
+      'Cart currency could not be determined in update',
+      currency,
+      country,
+      cartId
+    );
+    this.name = 'UpdateCartCurrencyNotFoundError';
+  }
+}
+
+export class PrePayCartCurrencyNotFoundError extends CartCurrencyNotFoundError {
+  constructor(
+    currency: string | undefined,
+    country: string | undefined,
+    cartId: string | undefined
+  ) {
+    super(
+      'Cart currency could not be determined in prepayment',
+      currency,
+      country,
+      cartId
+    );
+    this.name = 'PrePayCartCurrencyNotFoundError';
   }
 }
 
@@ -196,27 +255,135 @@ export class CartNoTaxAddressError extends CartError {
       cartId,
     });
     this.name = 'CartNoTaxAddressError';
-    Object.setPrototypeOf(this, CartNoTaxAddressError.prototype);
   }
 }
 
 export class CartSubscriptionNotFoundError extends CartError {
-  constructor(cartId: string) {
-    super('Cart subscription not found', {
+  constructor(message: string, cartId: string, subscriptionId?: string) {
+    super(message, {
       cartId,
+      subscriptionId,
     });
     this.name = 'CartSubscriptionNotFoundError';
-    Object.setPrototypeOf(this, CartSubscriptionNotFoundError.prototype);
+  }
+}
+
+export class FinalizeWithoutSubscriptionIdCartError extends CartSubscriptionNotFoundError {
+  constructor(cartId: string) {
+    super('Cart missing subscription id in finalization', cartId);
+    this.name = 'FinalizeWithoutSubscriptionIdCartError';
+  }
+}
+
+export class FinalizeWithoutSubscriptionCartError extends CartSubscriptionNotFoundError {
+  constructor(cartId: string, subscriptionId: string) {
+    super(
+      'Cart subscription id has no matching subscription',
+      cartId,
+      subscriptionId
+    );
+    this.name = 'FinalizeWithoutSubscriptionCartError';
+  }
+}
+
+export class GetInputWithoutSubscriptionIdCartError extends CartSubscriptionNotFoundError {
+  constructor(cartId: string) {
+    super('Cart missing subscription id in finalization', cartId);
+    this.name = 'GetInputWithoutSubscriptionIdCartError';
+  }
+}
+
+export class GetInputWithoutSubscriptionCartError extends CartSubscriptionNotFoundError {
+  constructor(cartId: string, subscriptionId: string) {
+    super(
+      'Cart subscription id has no matching subscription',
+      cartId,
+      subscriptionId
+    );
+    this.name = 'GetInputWithoutSubscriptionCartError';
   }
 }
 
 export class PaidInvoiceOnFailedCartError extends CartError {
-  constructor(cartId: string, args?: Record<string, any>) {
-    super('Paid invoice found on failed cart', {
-      cartId,
-      ...args,
-    });
+  constructor(
+    cartId: string,
+    stripeCustomerId: string | undefined,
+    invoiceId: string,
+    cause: Error
+  ) {
+    super(
+      'Paid invoice found on failed cart',
+      {
+        cartId,
+        stripeCustomerId,
+        invoiceId,
+      },
+      cause
+    );
     this.name = 'PaidInvoiceOnFailedCartError';
-    Object.setPrototypeOf(this, PaidInvoiceOnFailedCartError.prototype);
+  }
+}
+
+export class PaidPaymentIntendOnFailedCartError extends CartError {
+  constructor(
+    cartId: string,
+    stripeCustomerId: string | undefined,
+    paymentIntentId: string
+  ) {
+    super('Paid payment intent found on failed cart', {
+      cartId,
+      stripeCustomerId,
+      paymentIntentId,
+    });
+    this.name = 'PaidPaymentIntendOnFailedCartError';
+  }
+}
+
+export class SubscriptionPaymentIntentMissingCartError extends CartError {
+  constructor(cartId: string, subscriptionId: string) {
+    super('Subscription on cart has no payment intent', {
+      cartId,
+      subscriptionId,
+    });
+    this.name = 'SubscriptionPaymentIntentMissingCartError';
+  }
+}
+
+export class NeedsInputPaymentMethodMissingCartError extends CartError {
+  constructor(cartId: string, customerId: string) {
+    super('Payment method required for processing needs_input cart', {
+      cartId,
+      customerId,
+    });
+    this.name = 'NeedsInputPaymentMethodMissingCartError';
+  }
+}
+
+export class FinalizeWithoutUidCartError extends CartError {
+  constructor(cartId: string) {
+    super('uid required for cart finalization', {
+      cartId,
+    });
+    this.name = 'FinalizeWithoutUidCartError';
+  }
+}
+
+export class TaxAndCurrencyRequiredCartError extends CartError {
+  constructor(
+    cartId: string,
+    taxAddress:
+      | {
+          countryCode: string;
+          postalCode: string;
+        }
+      | undefined,
+    currency: string | undefined
+  ) {
+    super('Cart must have a tax address and currency to restart', {
+      cartId,
+      taxAddress,
+      currency,
+    });
+    this.name = 'TaxAndCurrencyRequiredCartError';
   }
 }

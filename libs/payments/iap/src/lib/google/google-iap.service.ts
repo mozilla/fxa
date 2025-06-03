@@ -12,7 +12,8 @@ import { GoogleIapPurchaseManager } from './google-iap-purchase.manager';
 import { PlayStoreSubscriptionPurchase } from './subscription-purchase';
 import {
   GoogleIapConflictError,
-  GoogleIapInvalidPurchaseTokenError,
+  GoogleIapGetPurchaseError,
+  GoogleIapNonRegisterablePurchaseError,
 } from './google-iap.error';
 
 @Injectable()
@@ -85,18 +86,13 @@ export class GoogleIapService {
         );
       } catch (err) {
         // Error when attempt to query purchase. Return invalid token to caller.
-        throw new GoogleIapInvalidPurchaseTokenError(err.message, {
-          info: { purchaseToken, userId },
-        });
+        throw new GoogleIapGetPurchaseError(packageName, sku, userId, err);
       }
     }
 
     // STEP 2. Check if the purchase is registerable.
     if (!purchase.isRegisterable()) {
-      throw new GoogleIapInvalidPurchaseTokenError(
-        'Purchase is not registerable',
-        { info: { purchaseToken, userId } }
-      );
+      throw new GoogleIapNonRegisterablePurchaseError(packageName, sku, userId);
     }
 
     // STEP 3. Check if the purchase has been registered to an user. If it is, then return conflict error to our caller.
@@ -107,8 +103,7 @@ export class GoogleIapService {
       this.log.log('purchase already registered', { purchase });
       // Purchase record already registered to different user. Return 'conflict' to caller
       throw new GoogleIapConflictError(
-        'Purchase has been registered to another user',
-        { info: { purchaseToken, userId } }
+        userId, purchase.orderId
       );
     }
 

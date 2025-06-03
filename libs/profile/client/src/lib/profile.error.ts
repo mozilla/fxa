@@ -3,28 +3,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { BaseError } from '@fxa/shared/error';
-import { Options } from 'verror';
 
-export class ProfileClientError extends BaseError {
-  constructor(cause: Error) {
-    super('Profile Client Error', { cause });
-    this.name = 'ProfileClientError';
-    Object.setPrototypeOf(this, ProfileClientError.prototype);
+export class ProfileError extends BaseError {
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, { info, cause });
+    this.name = 'ProfileError';
   }
 }
 
-export class ProfileClientServiceFailureError extends BaseError {
-  constructor(serviceName: string, method: string, path: string, error: Error) {
-    const options: Options = {
-      cause: error,
-      info: {
+export class ProfileClientError extends ProfileError {
+  constructor(cause: Error) {
+    super('Profile Client Error', {}, cause);
+    this.name = 'ProfileClientError';
+  }
+}
+
+export class ProfileClientServiceFailureError extends ProfileError {
+  constructor(serviceName: string, method: string, path: string, cause: Error) {
+    super(
+      'Profile Client service failure',
+      {
         serviceName,
         method,
         path,
       },
-    };
-    super('Profile Client service failure', options);
+      cause
+    );
     this.name = 'ProfileClientServiceFailureError';
-    Object.setPrototypeOf(this, ProfileClientServiceFailureError.prototype);
   }
 }

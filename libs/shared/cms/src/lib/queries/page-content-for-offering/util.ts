@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { OfferingMultipleError, OfferingNotFoundError } from '../../cms.error';
+import {
+  ContentOfferingNotFoundError,
+  MultipleContentOfferingResultsError,
+} from '../../cms.error';
 import {
   PageContentForOfferingResult,
   PageContentOfferingTransformed,
@@ -20,10 +23,12 @@ export class PageContentForOfferingResultUtil {
   getOffering(): PageContentOfferingTransformed {
     const offering = this.offerings.at(0);
     if (!offering) {
-      throw new OfferingNotFoundError();
+      throw new ContentOfferingNotFoundError();
     }
     if (this.offerings.length > 1) {
-      throw new OfferingMultipleError();
+      throw new MultipleContentOfferingResultsError(
+        this.offerings.map((offering) => offering.stripeProductId)
+      );
     }
 
     return {

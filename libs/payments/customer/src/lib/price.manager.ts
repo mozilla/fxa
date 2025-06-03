@@ -5,7 +5,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { StripeClient, StripePrice } from '@fxa/payments/stripe';
-import { PlanIntervalMultiplePlansError, PriceForCurrencyNotFoundError } from './error';
+import { PlanIntervalMultiplePlansError, PriceForCurrencyNotFoundError } from './customer.error';
 import { SubplatInterval, type PricingForCurrency } from './types';
 import { doesPriceMatchSubplatInterval } from './util/doesPriceMatchSubplatInterval';
 import { determinePriceUnitAmount } from './util/determinePriceUnitAmount';
@@ -46,7 +46,7 @@ export class PriceManager {
         prices.push(price);
       }
     }
-    if (prices.length > 1) throw new PlanIntervalMultiplePlansError();
+    if (prices.length > 1) throw new PlanIntervalMultiplePlansError(priceIds, interval);
     return prices.at(0);
   }
 }

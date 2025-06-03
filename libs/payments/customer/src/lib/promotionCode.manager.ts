@@ -10,9 +10,12 @@ import {
   StripePromotionCode,
 } from '@fxa/payments/stripe';
 import {
-  CouponErrorInvalid,
+  CouponErrorInvalidCurrency,
   PromotionCodeCouldNotBeAttachedError,
-} from './error';
+  PromotionCodeCustomerSubscriptionMismatchError,
+  PromotionCodeNotFoundError,
+  PromotionCodeSubscriptionInactiveError,
+} from './customer.error';
 import { assertPromotionCodeApplicableToPrice } from './util/assertPromotionCodeApplicableToPrice';
 import { assertPromotionCodeActive } from './util/assertPromotionCodeActive';
 import { getPriceFromSubscription } from './util/getPriceFromSubscription';
@@ -40,15 +43,20 @@ export class PromotionCodeManager {
     cartCurrency: string
   ) {
     const promoCode = await this.retrieveByName(promoCodeName);
-    if (!promoCode)
-      throw new PromotionCodeCouldNotBeAttachedError('PromoCode not found');
+    if (!promoCode) {
+      throw new PromotionCodeNotFoundError(
+        promoCodeName,
+        price.id,
+        cartCurrency
+      );
+    }
 
     // promotion code currency may be null, in which case it is applicable to all currencies
     if (
       promoCode.coupon.currency &&
       promoCode.coupon.currency.toLowerCase() !== cartCurrency.toLowerCase()
     )
-      throw new CouponErrorInvalid();
+      throw new CouponErrorInvalidCurrency();
 
     await this.assertValidPromotionCodeForPrice(promoCode, price);
   }
@@ -71,24 +79,23 @@ export class PromotionCodeManager {
     promotionId: string
   ) {
     try {
-      const subscription = await this.stripeClient.subscriptionsRetrieve(
-        subscriptionId
-      );
-      if (subscription?.status !== 'active')
-        throw new PromotionCodeCouldNotBeAttachedError(
-          'Subscription is not active',
-          undefined,
-          { subscriptionId }
+      const subscription =
+        await this.stripeClient.subscriptionsRetrieve(subscriptionId);
+      if (subscription?.status !== 'active') {
+        throw new PromotionCodeSubscriptionInactiveError(
+          subscriptionId,
+          promotionId,
+          customerId
         );
-      if (subscription.customer !== customerId)
-        throw new PromotionCodeCouldNotBeAttachedError(
-          'subscription.customerId does not match passed in customerId',
-          undefined,
-          {
-            customerId,
-            subscriptionId,
-          }
+      }
+      if (subscription.customer !== customerId) {
+        throw new PromotionCodeCustomerSubscriptionMismatchError(
+          customerId,
+          subscriptionId,
+          subscription.customer,
+          promotionId
         );
+      }
 
       const price = getPriceFromSubscription(subscription);
       const promoCode = await this.retrieve(promotionId);
@@ -108,13 +115,10 @@ export class PromotionCodeManager {
     } catch (err) {
       if (err.type === 'StripeInvalidRequestError') {
         throw new PromotionCodeCouldNotBeAttachedError(
-          'Promotion code could not be attached to subscription',
           err,
-          {
-            customerId,
-            subscriptionId,
-            promotionId,
-          }
+          customerId,
+          subscriptionId,
+          promotionId
         );
       } else {
         throw err;

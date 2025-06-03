@@ -8,7 +8,7 @@ import { GoogleManager } from '@fxa/google';
 import {
   CartInvalidStateForActionError,
   CartService,
-  CheckoutFailedError,
+  SubmitNeedsInputFailedError,
   SuccessCartDTO,
   TaxChangeAllowedStatus,
   TaxService,
@@ -51,9 +51,7 @@ import type {
 import { GetCartActionResult } from './validators/GetCartActionResult';
 import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionResult';
 import {
-  CouponErrorExpired,
-  CouponErrorGeneric,
-  CouponErrorLimitReached,
+  PromotionCodeSanitizedError,
   TaxAddress,
   type SubplatInterval,
 } from '@fxa/payments/customer';
@@ -69,13 +67,17 @@ import { SetupCartActionResult } from './validators/SetupCartActionResult';
 import { RestartCartActionResult } from './validators/RestartCartActionResult';
 import { GetTaxAddressArgs } from './validators/GetTaxAddressArgs';
 import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
-import { CartInvalidPromoCodeError } from 'libs/payments/cart/src/lib/cart.error';
+import { InvalidPromoCodeCartError } from 'libs/payments/cart/src/lib/cart.error';
 import { UpdateCartActionResult } from './validators/UpdateCartActionResult';
 import { ValidateLocationActionResult } from './validators/ValidateLocationActionResult';
 import { ValidateLocationActionArgs } from './validators/ValidateLocationActionArgs';
 import { UpdateTaxAddressActionArgs } from './validators/UpdateTaxAddressActionArgs';
 import { UpdateTaxAddressActionResult } from './validators/UpdateTaxAddressActionResult';
-import { CaptureTimingWithStatsD, StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
+import {
+  CaptureTimingWithStatsD,
+  StatsDService,
+  type StatsD,
+} from '@fxa/shared/metrics/statsd';
 import { GetCartStateActionArgs } from './validators/GetCartStateActionArgs';
 import { GetCartStateActionResult } from './validators/GetCartStateActionResult';
 
@@ -137,11 +139,7 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({
-    allowlist: [
-      CouponErrorExpired,
-      CouponErrorGeneric,
-      CouponErrorLimitReached,
-    ],
+    allowlist: [PromotionCodeSanitizedError],
   })
   @NextIOValidator(UpdateCartActionArgs, UpdateCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
@@ -176,7 +174,7 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({
-    allowlist: [CartInvalidPromoCodeError, ProductConfigError],
+    allowlist: [InvalidPromoCodeCartError, ProductConfigError],
   })
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
@@ -340,7 +338,7 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({
-    allowlist: [CheckoutFailedError],
+    allowlist: [SubmitNeedsInputFailedError],
   })
   @NextIOValidator(SubmitNeedsInputActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()

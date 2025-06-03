@@ -10,8 +10,9 @@ import {
   auth,
 } from '@googleapis/androidpublisher';
 import {
-  GoogleIapTokenNotFoundError,
-  GoogleIapUnknownError,
+  GoogleIapClientUnexpectedTypeError,
+  GoogleIapClientUnknownError,
+  GoogleIapSubscriptionNotFoundError,
 } from './google-iap.error';
 
 @Injectable()
@@ -48,9 +49,7 @@ export class GoogleIapClient {
       return apiResponse.data;
     } catch (e) {
       if (e instanceof Error && 'code' in e && e.code === 404) {
-        throw new GoogleIapTokenNotFoundError('Google IAP Not Found Error', {
-          cause: e,
-        });
+        throw new GoogleIapSubscriptionNotFoundError(packageName, sku, e);
       }
 
       throw this.convertError(e);
@@ -59,13 +58,11 @@ export class GoogleIapClient {
 
   private convertError(e: unknown) {
     if (e instanceof Error) {
-      return new GoogleIapUnknownError('Unknown Google IAP Error', {
-        cause: e,
-      });
+      return new GoogleIapClientUnknownError(e);
     } else {
-      return new GoogleIapUnknownError('Unknown Google IAP Error', {
-        cause: new Error(`Unknown error: ${e}`),
-      });
+      return new GoogleIapClientUnexpectedTypeError(
+        new Error(`Unknown error: ${JSON.stringify(e)}`)
+      );
     }
   }
 }

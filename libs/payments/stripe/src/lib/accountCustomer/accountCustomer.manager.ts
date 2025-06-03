@@ -7,6 +7,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
 import { AccountDbProvider } from '@fxa/shared/db/mysql/account';
 import {
+  AccountCustomerDeleteAccountError,
   AccountCustomerNotCreatedError,
   AccountCustomerNotDeletedError,
   AccountCustomerNotFoundError,
@@ -75,12 +76,10 @@ export class AccountCustomerManager {
         data
       );
     } catch (error) {
-      const cause =
-        error instanceof AccountCustomerNotUpdatedError ? undefined : error;
       throw new AccountCustomerNotUpdatedError(
         accountCustomer.uid,
         accountCustomer,
-        cause
+        error
       );
     }
   }
@@ -98,7 +97,7 @@ export class AccountCustomerManager {
     } catch (error) {
       const cause =
         error instanceof AccountCustomerNotDeletedError ? undefined : error;
-      throw new AccountCustomerNotDeletedError(accountCustomer.uid, cause);
+      throw new AccountCustomerDeleteAccountError(accountCustomer.uid, cause);
     }
   }
 }

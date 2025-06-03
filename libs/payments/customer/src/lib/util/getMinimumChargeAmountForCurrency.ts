@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { STRIPE_MINIMUM_CHARGE_AMOUNTS } from '@fxa/payments/stripe';
-import { StripeNoMinimumChargeAmountAvailableError } from '../error';
+import { StripeNoMinimumChargeAmountAvailableError } from '../customer.error';
 
 /**
  * Returns minimum charge amount for currency
@@ -14,5 +14,5 @@ export function getMinimumChargeAmountForCurrency(currency: string): number {
     return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
   }
 
-  throw new StripeNoMinimumChargeAmountAvailableError();
+  throw new StripeNoMinimumChargeAmountAvailableError(currency);
 }

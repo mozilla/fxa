@@ -9,8 +9,8 @@ import {
 } from '@fxa/shared/db/mysql/account';
 
 import {
-  AccountCustomerManagerError,
-  AccountCustomerNotUpdatedError,
+  AccountCustomerUpdatedNoEffectError,
+  AccountCustomerUpdateRequiredFieldsError,
 } from './accountCustomer.error';
 
 export async function createAccountCustomer(
@@ -56,14 +56,7 @@ export async function updateAccountCustomer(
   _update.createdAt = update.createdAt;
   _update.updatedAt = update.updatedAt;
   if (Object.values(_update).length === 0) {
-    throw new AccountCustomerManagerError(
-      'Must provide at least one update param',
-      {
-        info: {
-          uid,
-        },
-      }
-    );
+    throw new AccountCustomerUpdateRequiredFieldsError(uid.toString());
   }
   const updatedRows = await db
     .updateTable('accountCustomers')
@@ -71,7 +64,7 @@ export async function updateAccountCustomer(
     .where('uid', '=', uid)
     .executeTakeFirst();
   if (updatedRows.numUpdatedRows === BigInt(0)) {
-    throw new AccountCustomerNotUpdatedError(uid.toString());
+    throw new AccountCustomerUpdatedNoEffectError(uid.toString());
   }
   return true;
 }

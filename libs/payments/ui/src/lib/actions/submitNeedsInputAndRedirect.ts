@@ -6,7 +6,7 @@
 
 import { getApp } from '../nestapp/app';
 import { redirect } from 'next/navigation';
-import { CheckoutFailedError } from '@fxa/payments/cart';
+import { SubmitNeedsInputFailedError } from '@fxa/payments/cart';
 
 export const submitNeedsInputAndRedirectAction = async (cartId: string) => {
   try {
@@ -14,7 +14,7 @@ export const submitNeedsInputAndRedirectAction = async (cartId: string) => {
     redirect('success');
   } catch (error) {
     console.error('Error submitting needs input', error);
-    if (error instanceof CheckoutFailedError) {
+    if (error instanceof SubmitNeedsInputFailedError) {
       redirect('error');
     } else {
       throw error;

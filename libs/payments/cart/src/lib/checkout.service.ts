@@ -43,18 +43,22 @@ import {
   CartTotalMismatchError,
   CartEligibilityMismatchError,
   CartAccountNotFoundError,
-  CartInvalidPromoCodeError,
-  CartCurrencyNotFoundError,
   CartUidNotFoundError,
-  CartError,
   CartNoTaxAddressError,
+  PrepayCartCurrencyNotFoundError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { PrePayStepsResult } from './checkout.types';
 import assert from 'assert';
-import { CheckoutPaymentError, CheckoutUpgradeError } from './checkout.error';
+import {
+  InvalidInvoiceStateCheckoutError,
+  InvalidPaymentIntentStateError,
+  LatestInvoiceNotFoundOnSubscriptionError,
+  PaymentMethodUpdateFailedError,
+  UpgradeForSubscriptionNotFoundError,
+} from './checkout.error';
 
 @Injectable()
 export class CheckoutService {
@@ -104,9 +108,10 @@ export class CheckoutService {
     let version = cart.version;
 
     if (!cart.currency) {
-      throw new CartCurrencyNotFoundError(
+      throw new PrepayCartCurrencyNotFoundError(
         cart.currency || undefined,
-        taxAddress.countryCode
+        taxAddress.countryCode,
+        cart.id,
       );
     }
 
@@ -214,19 +219,15 @@ export class CheckoutService {
 
     let promotionCode: StripePromotionCode | undefined;
     if (cart.couponCode) {
-      try {
-        await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
-          cart.couponCode,
-          price,
-          cart.currency
-        );
+      await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+        cart.couponCode,
+        price,
+        cart.currency
+      );
 
-        promotionCode = await this.promotionCodeManager.retrieveByName(
-          cart.couponCode
-        );
-      } catch (e) {
-        throw new CartInvalidPromoCodeError(cart.couponCode, cart.id);
-      }
+      promotionCode = await this.promotionCodeManager.retrieveByName(
+        cart.couponCode
+      );
     }
 
     return {
@@ -385,14 +386,13 @@ export class CheckoutService {
             },
           });
         } else {
-          throw new CartError(
-            'Failed to update customer default payment method',
-            { cartId: cart.id }
-          );
+          throw new PaymentMethodUpdateFailedError(cart.id, customer.id);
         }
       } else {
-        throw new CheckoutPaymentError(
-          `Expected payment intent status to be one of [requires_action, succeeded], instead found: ${paymentIntent.status}`
+        throw new InvalidPaymentIntentStateError(
+          cart.id,
+          paymentIntent.id,
+          paymentIntent.status
         );
       }
     }
@@ -499,9 +499,10 @@ export class CheckoutService {
     const updatedVersion = version + 1;
 
     if (!subscription.latest_invoice) {
-      throw new CartError('No latest invoice found for subscription', {
-        subscriptionId: subscription.id,
-      });
+      throw new LatestInvoiceNotFoundOnSubscriptionError(
+        cart.id,
+        subscription.id
+      );
     }
     const latestInvoice = await this.invoiceManager.retrieve(
       subscription.latest_invoice
@@ -517,8 +518,10 @@ export class CheckoutService {
         paymentProvider: 'paypal',
       });
     } else {
-      throw new CheckoutPaymentError(
-        `Expected processed invoice status to be one of [paid, open], instead found: ${processedInvoice.status}`
+      throw new InvalidInvoiceStateCheckoutError(
+        cart.id,
+        processedInvoice.id,
+        processedInvoice.status ?? undefined
       );
     }
   }
@@ -537,9 +540,11 @@ export class CheckoutService {
       );
 
     if (!upgradeSubscription) {
-      throw new CheckoutUpgradeError(
-        'Could not determine subscription for upgrade',
-        { info: { customerId, toPriceId, fromPriceId } }
+      throw new UpgradeForSubscriptionNotFoundError(
+        cart.id,
+        customerId,
+        fromPriceId,
+        toPriceId
       );
     }
 

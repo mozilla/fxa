@@ -12,8 +12,8 @@ import {
   CartNotCreatedError,
   CartNotDeletedError,
   CartNotFoundError,
-  CartNotUpdatedError,
   CartVersionMismatchError,
+  ErrorCartNotCreatedError,
 } from './cart.error';
 import {
   createCart,
@@ -54,6 +54,8 @@ const ACTIONS_VALID_STATE = {
   restartCart: [CartState.START, CartState.PROCESSING, CartState.FAIL],
   setProcessingCart: [CartState.START, CartState.NEEDS_INPUT],
   setNeedsInputCart: [CartState.PROCESSING],
+  getNeedsInputCart: [CartState.NEEDS_INPUT],
+  submitNeedsInputCart: [CartState.NEEDS_INPUT]
 };
 
 // Type guard to check if action is valid key in ACTIONS_VALID_STATE
@@ -73,7 +75,7 @@ export class CartManager {
    * that action. For example, updateFreshCart is only allowed on carts
    * with state CartState.START.
    */
-  private checkActionForValidCartState(
+  public checkActionForValidCartState(
     cart: ResultCart,
     action: keyof typeof ACTIONS_VALID_STATE
   ) {
@@ -165,7 +167,7 @@ export class CartManager {
       };
     } catch (error) {
       this.log.error(error);
-      throw new CartNotCreatedError(input, error);
+      throw new ErrorCartNotCreatedError(input, error);
     }
   }
 
@@ -213,19 +215,14 @@ export class CartManager {
 
     this.checkActionForValidCartState(cart, 'updateFreshCart');
 
-    try {
-      await updateCart(this.db, Buffer.from(cartId, 'hex'), version, {
-        ...items,
-        taxAddress: items.taxAddress
-          ? JSON.stringify(items.taxAddress)
-          : undefined,
-        currency: items.currency,
-        uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
-      });
-    } catch (error) {
-      const cause = error instanceof CartNotUpdatedError ? undefined : error;
-      throw new CartNotUpdatedError(cart.id, items, cause);
-    }
+    await updateCart(this.db, Buffer.from(cartId, 'hex'), version, {
+      ...items,
+      taxAddress: items.taxAddress
+        ? JSON.stringify(items.taxAddress)
+        : undefined,
+      currency: items.currency,
+      uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
+    });
   }
 
   @CaptureTimingWithStatsD()
@@ -234,16 +231,11 @@ export class CartManager {
 
     this.checkActionForValidCartState(cart, 'finishCart');
 
-    try {
-      await updateCart(this.db, Buffer.from(cartId, 'hex'), version, {
-        ...items,
-        uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
-        state: CartState.SUCCESS,
-      });
-    } catch (error) {
-      const cause = error instanceof CartNotUpdatedError ? undefined : error;
-      throw new CartNotUpdatedError(cartId, items, cause);
-    }
+    await updateCart(this.db, Buffer.from(cartId, 'hex'), version, {
+      ...items,
+      uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
+      state: CartState.SUCCESS,
+    });
   }
 
   @CaptureTimingWithStatsD()
@@ -252,16 +244,11 @@ export class CartManager {
 
     this.checkActionForValidCartState(cart, 'finishErrorCart');
 
-    try {
-      await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
-        ...items,
-        uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
-        state: CartState.FAIL,
-      });
-    } catch (error) {
-      const cause = error instanceof CartNotUpdatedError ? undefined : error;
-      throw new CartNotUpdatedError(cartId, items, cause);
-    }
+    await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
+      ...items,
+      uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
+      state: CartState.FAIL,
+    });
   }
 
   @CaptureTimingWithStatsD()
@@ -270,14 +257,9 @@ export class CartManager {
 
     this.checkActionForValidCartState(cart, 'setNeedsInputCart');
 
-    try {
-      await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
-        state: CartState.NEEDS_INPUT,
-      });
-    } catch (error) {
-      const cause = error instanceof CartNotUpdatedError ? undefined : error;
-      throw new CartNotUpdatedError(cartId, cause);
-    }
+    await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
+      state: CartState.NEEDS_INPUT,
+    });
   }
 
   @CaptureTimingWithStatsD()
@@ -286,28 +268,18 @@ export class CartManager {
 
     this.checkActionForValidCartState(cart, 'setProcessingCart');
 
-    try {
-      await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
-        state: CartState.PROCESSING,
-      });
-    } catch (error) {
-      const cause = error instanceof CartNotUpdatedError ? undefined : error;
-      throw new CartNotUpdatedError(cartId, cause);
-    }
+    await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
+      state: CartState.PROCESSING,
+    });
   }
 
   @CaptureTimingWithStatsD()
   public async deleteCart(cart: ResultCart) {
     this.checkActionForValidCartState(cart, 'deleteCart');
 
-    try {
-      if (!(await deleteCart(this.db, cart))) {
-        throw new CartNotDeletedError(cart.id);
-      }
-      return true;
-    } catch (error) {
-      const cause = error instanceof CartNotDeletedError ? undefined : error;
-      throw new CartNotDeletedError(cart.id, cause);
+    if (!(await deleteCart(this.db, cart))) {
+      throw new CartNotDeletedError(cart.id);
     }
+    return true;
   }
 }

@@ -21,6 +21,7 @@ import type { PageContentOfferingTransformed } from '@fxa/shared/cms';
 import { config } from 'apps/payments/next/config';
 import { auth } from 'apps/payments/next/auth';
 import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
+import { isInstanceOf } from '@fxa/payments/ui/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,9 +41,9 @@ export default async function Location({
   const taxAddress =
     providedCountryCode && providedPostalCode
       ? {
-        countryCode: providedCountryCode,
-        postalCode: providedPostalCode,
-      }
+          countryCode: providedCountryCode,
+          postalCode: providedPostalCode,
+        }
       : undefined;
 
   const fxaUid = session?.user?.id;
@@ -61,7 +62,7 @@ export default async function Location({
 
     emitterService.emit('locationView', locationStatus);
   } catch (error) {
-    if (error.name === 'FetchCmsInvalidOfferingError') {
+    if (isInstanceOf(error, 'FetchCmsInvalidOfferingError')) {
       notFound();
     } else {
       throw error;

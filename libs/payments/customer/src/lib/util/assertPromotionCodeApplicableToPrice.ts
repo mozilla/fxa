@@ -7,7 +7,9 @@ import {
   StripeProduct,
   StripePromotionCode,
 } from '@fxa/payments/stripe';
-import { PromotionCodeCouldNotBeAttachedError } from '../error';
+import {
+  PromotionCodePriceNotValidError,
+} from '../customer.error';
 import { STRIPE_PRICE_METADATA, STRIPE_PRODUCT_METADATA } from '../types';
 
 export const assertPromotionCodeApplicableToPrice = (
@@ -34,12 +36,6 @@ export const assertPromotionCodeApplicableToPrice = (
     );
   }
   if (!validPromotionCodes.includes(code.code)) {
-    throw new PromotionCodeCouldNotBeAttachedError(
-      "Promotion code restricted to a product that doesn't match the product on this subscription",
-      undefined,
-      {
-        promotionId: code.id,
-      }
-    );
+    throw new PromotionCodePriceNotValidError(code.id, price.id, product?.id);
   }
 };

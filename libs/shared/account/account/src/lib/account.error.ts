@@ -4,44 +4,29 @@
 import { BaseError } from '@fxa/shared/error';
 
 export class AccountError extends BaseError {
-  constructor(message: string, cause?: Error) {
-    super(message, {
-      name: 'AccountError',
-      cause,
-    });
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, { info, cause });
     this.name = 'AccountError';
-    Object.setPrototypeOf(this, AccountError.prototype);
   }
 }
 
 export class AccountAlreadyExistsError extends AccountError {
-  email: string;
-
   constructor(email: string) {
-    super('Account already exists: ' + email);
-    this.email = email;
+    super('Account already exists', { email });
     this.name = 'AccountAlreadyExistsError';
-    Object.setPrototypeOf(this, AccountAlreadyExistsError.prototype);
   }
 }
 
 export class AccountNotCreatedError extends AccountError {
-  email: string;
-
   constructor(email: string, cause: Error) {
-    super('Account not created: ' + email, cause);
-    this.email = email;
+    super('Account not created', { email }, cause);
     this.name = 'AccountNotCreatedError';
-    Object.setPrototypeOf(this, AccountNotCreatedError.prototype);
   }
 }
 
-export class AccountNotFoundError extends AccountError {
-  accountId: string;
-  constructor(accountId: string, cause: Error) {
-    super('Account not found', cause);
-    this.accountId = accountId;
-    this.name = 'AccountNotFoundError';
-    Object.setPrototypeOf(this, AccountNotFoundError.prototype);
+export class AccountEmailRecordNotCreatedError extends AccountError {
+  constructor(email: string) {
+    super('Email record not created', { email });
+    this.name = 'AccountEmailRecordNotCreatedError';
   }
 }

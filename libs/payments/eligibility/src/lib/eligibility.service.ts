@@ -27,7 +27,7 @@ export class EligibilityService {
     private subscriptionManager: SubscriptionManager,
     private googleIapPurchaseManager: GoogleIapPurchaseManager,
     private appleIapPurchaseManager: AppleIapPurchaseManager
-  ) { }
+  ) {}
 
   /**
    * Checks if user is eligible to subscribe to price
@@ -40,9 +40,7 @@ export class EligibilityService {
   ): Promise<SubscriptionEligibilityResult> {
     if (!uid) {
       if (stripeCustomerId) {
-        throw new EligibilityError(
-          "'uid' is required when 'stripeCustomerId' is provided"
-        );
+        throw new EligibilityError(stripeCustomerId);
       }
 
       return {
@@ -122,8 +120,8 @@ export class EligibilityService {
 
     const isSanctionedLocation = countryCode
       ? this.locationConfig.subscriptionsUnsupportedLocations.includes(
-        countryCode
-      )
+          countryCode
+        )
       : undefined;
 
     const isSupportedLocation = countryCode

@@ -29,11 +29,12 @@ import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
 import { stripeInvoiceToInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
 import { getMinimumChargeAmountForCurrency } from './util/getMinimumChargeAmountForCurrency';
 import {
-  InvalidInvoiceError,
+  InvalidInvoiceStateCustomerError,
   PayPalPaymentFailedError,
   StripePayPalAgreementNotFoundError,
+  TransactionMissingOnPaidInvoiceError,
   UpgradeCustomerMissingCurrencyInvoiceError,
-} from './error';
+} from './customer.error';
 
 @Injectable()
 export class InvoiceManager {
@@ -165,9 +166,7 @@ export class InvoiceManager {
     fromSubscriptionItem: StripeSubscriptionItem;
   }): Promise<InvoicePreview> {
     if (!customer.currency) {
-      throw new UpgradeCustomerMissingCurrencyInvoiceError(
-        'Customer should have currency for upgrade'
-      );
+      throw new UpgradeCustomerMissingCurrencyInvoiceError(customer.id);
     }
 
     // This is a preview of the invoice a customer would receive for the new plan
@@ -225,14 +224,13 @@ export class InvoiceManager {
     }
     if (invoice.status === 'paid') {
       if (!invoice.metadata?.[STRIPE_INVOICE_METADATA.PaypalTransactionId]) {
-        throw new InvalidInvoiceError(
-          `Invoice ${invoice.id} is marked paid without a transaction id`
-        );
+        throw new TransactionMissingOnPaidInvoiceError(invoice.id, customer.id);
       }
       return invoice;
     } else if (!['draft', 'open'].includes(invoice.status ?? '')) {
-      throw new InvalidInvoiceError(
-        `Invoice is in ${invoice.status} state, expected draft or open`
+      throw new InvalidInvoiceStateCustomerError(
+        invoice.id,
+        invoice.status ?? undefined
       );
     }
 
@@ -308,7 +306,10 @@ export class InvoiceManager {
       case 'Voided':
       case 'Expired':
       default:
-        throw new PayPalPaymentFailedError(paypalCharge.paymentStatus);
+        throw new PayPalPaymentFailedError(
+          customer.id,
+          paypalCharge.paymentStatus
+        );
     }
   }
 

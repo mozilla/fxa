@@ -15,6 +15,7 @@ import { config } from 'apps/payments/next/config';
 import type { SubplatInterval } from '@fxa/payments/customer';
 import type { ResultCart } from '@fxa/payments/cart';
 import { getIpAddress } from '@fxa/payments/ui/server';
+import { isInstanceOf } from '@fxa/payments/ui/utils';
 
 function getRedirectToUrl(
   cart: ResultCart,
@@ -108,7 +109,7 @@ export default async function New({
 
     redirectToUrl = getRedirectToUrl(cart, params, searchParams);
   } catch (error) {
-    if (error.name === 'CartInvalidPromoCodeError') {
+    if (isInstanceOf(error, 'CartInvalidPromoCodeError')) {
       const cart = await setupCartAction(
         interval as SubplatInterval,
         offeringId,
@@ -120,8 +121,8 @@ export default async function New({
 
       redirectToUrl = getRedirectToUrl(cart, params, searchParams);
     } else if (
-      error.name === 'RetrieveStripePriceInvalidOfferingError' ||
-      error.name === 'RetrieveStripePriceNotFoundError'
+      isInstanceOf(error, 'RetrieveStripePriceInvalidOfferingError') ||
+      isInstanceOf(error, 'RetrieveStripePriceNotFoundError')
     ) {
       notFound();
     } else {
