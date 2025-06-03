@@ -15,7 +15,7 @@ export class PaypalBillingAgreementManager {
   constructor(
     private client: PayPalClient,
     private paypalCustomerManager: PaypalCustomerManager
-  ) { }
+  ) {}
 
   public async retrieveOrCreateId(
     uid: string,
@@ -99,11 +99,16 @@ export class PaypalBillingAgreementManager {
   async retrieveActiveId(uid: string): Promise<string | undefined> {
     const paypalCustomer =
       await this.paypalCustomerManager.fetchPaypalCustomersByUid(uid);
-    const firstRecord = paypalCustomer.at(0);
+    const activeRecords = paypalCustomer.filter(
+      (customer) => customer.status === 'active'
+    );
 
-    if (!firstRecord || firstRecord?.status !== 'active') return;
-    if (paypalCustomer.length > 1)
+    if (activeRecords.length > 1) {
       throw new PaypalCustomerMultipleRecordsError(uid);
+    }
+
+    const firstRecord = activeRecords.at(0);
+    if (!firstRecord) return;
 
     return firstRecord.billingAgreementId;
   }

@@ -143,9 +143,8 @@ describe('PaypalBillingAgreementManager', () => {
         .spyOn(paypalClient, 'baUpdate')
         .mockResolvedValue(NVPBAUpdateTransactionResponseFactory());
 
-      const result = await paypalBillingAgreementManager.cancel(
-        billingAgreementId
-      );
+      const result =
+        await paypalBillingAgreementManager.cancel(billingAgreementId);
 
       expect(result).toBeUndefined();
       expect(paypalClient.baUpdate).toBeCalledWith({
@@ -211,9 +210,8 @@ describe('PaypalBillingAgreementManager', () => {
         .spyOn(paypalClient, 'baUpdate')
         .mockResolvedValue(nvpBillingAgreementMock);
 
-      const result = await paypalBillingAgreementManager.retrieve(
-        billingAgreementId
-      );
+      const result =
+        await paypalBillingAgreementManager.retrieve(billingAgreementId);
       expect(result).toEqual({
         city: nvpBillingAgreementMock.CITY,
         countryCode: nvpBillingAgreementMock.COUNTRYCODE,
@@ -239,9 +237,8 @@ describe('PaypalBillingAgreementManager', () => {
         .spyOn(paypalClient, 'baUpdate')
         .mockResolvedValue(nvpBillingAgreementMock);
 
-      const result = await paypalBillingAgreementManager.retrieve(
-        billingAgreementId
-      );
+      const result =
+        await paypalBillingAgreementManager.retrieve(billingAgreementId);
       expect(result).toEqual({
         city: nvpBillingAgreementMock.CITY,
         countryCode: nvpBillingAgreementMock.COUNTRYCODE,
@@ -271,6 +268,33 @@ describe('PaypalBillingAgreementManager', () => {
       expect(result).toEqual(mockPayPalCustomer.billingAgreementId);
     });
 
+    it("returns the customer's current active PayPal billing agreement ID with multiple records", async () => {
+      const uid = faker.string.uuid();
+      const mockPayPalCustomerRecord1 = ResultPaypalCustomerFactory({
+        uid,
+        status: 'Cancelled',
+      });
+      const mockPayPalCustomerRecord2 = ResultPaypalCustomerFactory({
+        uid,
+        status: 'active',
+      });
+      const mockPayPalCustomerRecord3 = ResultPaypalCustomerFactory({
+        uid,
+        status: 'Cancelled',
+      });
+
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
+        .mockResolvedValue([
+          mockPayPalCustomerRecord1,
+          mockPayPalCustomerRecord2,
+          mockPayPalCustomerRecord3,
+        ]);
+
+      const result = await paypalBillingAgreementManager.retrieveActiveId(uid);
+      expect(result).toEqual(mockPayPalCustomerRecord2.billingAgreementId);
+    });
+
     it('returns undefined if no PayPal customer record', async () => {
       const uid = faker.string.uuid();
 
@@ -284,7 +308,9 @@ describe('PaypalBillingAgreementManager', () => {
 
     it('returns undefined if billing agreement is not active', async () => {
       const uid = faker.string.uuid();
-      const mockPayPalCustomer = ResultPaypalCustomerFactory({ status: 'Cancelled' });
+      const mockPayPalCustomer = ResultPaypalCustomerFactory({
+        status: 'Cancelled',
+      });
 
       jest
         .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
@@ -294,14 +320,28 @@ describe('PaypalBillingAgreementManager', () => {
       expect(result).toEqual(undefined);
     });
 
-    it('throws PaypalCustomerMultipleRecordsError if more than one PayPal customer found', async () => {
+    it('throws PaypalCustomerMultipleRecordsError if more than one active PayPal customer found', async () => {
       const uid = faker.string.uuid();
-      const mockPayPalCustomer1 = ResultPaypalCustomerFactory();
-      const mockPayPalCustomer2 = ResultPaypalCustomerFactory();
+      const mockPayPalCustomerRecord1 = ResultPaypalCustomerFactory({
+        uid,
+        status: 'active',
+      });
+      const mockPayPalCustomerRecord2 = ResultPaypalCustomerFactory({
+        uid,
+        status: 'active',
+      });
+      const mockPayPalCustomerRecord3 = ResultPaypalCustomerFactory({
+        uid,
+        status: 'Cancelled',
+      });
 
       jest
         .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
-        .mockResolvedValue([mockPayPalCustomer1, mockPayPalCustomer2]);
+        .mockResolvedValue([
+          mockPayPalCustomerRecord1,
+          mockPayPalCustomerRecord2,
+          mockPayPalCustomerRecord3,
+        ]);
 
       await expect(
         paypalBillingAgreementManager.retrieveActiveId(uid)
