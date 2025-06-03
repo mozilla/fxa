@@ -224,5 +224,8 @@
         "serveStaticTargetName": "serve-static"
       }
     }
-  ]
+  ],
+  "tui": {
+    "enabled": false
+  }
 }

@@ -652,7 +652,7 @@ jobs:
       workflow:
         type: string
     executor: default-executor
-    resource_class: medium+
+    resource_class: large
     steps:
       - git-checkout
       - restore-workspace
@@ -716,7 +716,7 @@ jobs:
       - run:
           name: Run API Integration Tests
           command: |
-            npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
+            NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
           environment:
             NODE_ENV: test
           no_output_timeout: 20m
@@ -785,6 +785,7 @@ jobs:
           command: ./packages/functional-tests/scripts/start-services.sh
           environment:
             NODE_ENV: test
+          no_output_timeout: 20m
       - run-playwright-tests:
           project: local
       - store-artifacts
