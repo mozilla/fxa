@@ -72,46 +72,44 @@ export default async function CheckoutError({
   const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config);
 
   return (
-    <>
-      <section
-        className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
-        aria-labelledby="page-information-heading"
+    <div
+      className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
+      aria-labelledby="page-information-heading"
+    >
+      {
+        // Once more conditionals are added, move this to a separate component
+        cart.errorReasonId ===
+        CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
+          <Image
+            src={checkIcon}
+            alt=""
+            aria-hidden="true"
+            className="h-20 w-20 mt-16 mb-10"
+          />
+        ) : (
+          <Image
+            src={errorIcon}
+            alt=""
+            aria-hidden="true"
+            className="h-20 w-20 mt-16 mb-10"
+          />
+        )
+      }
+      <h2
+        id="page-information-heading"
+        className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 "
       >
-        {
-          // Once more conditionals are added, move this to a separate component
-          cart.errorReasonId ===
-          CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
-            <Image
-              src={checkIcon}
-              alt=""
-              aria-hidden="true"
-              className="h-20 w-20 mt-16 mb-10"
-            />
-          ) : (
-            <Image
-              src={errorIcon}
-              alt=""
-              aria-hidden="true"
-              className="h-20 w-20 mt-16 mb-10"
-            />
-          )
-        }
-        <h2
-          id="page-information-heading"
-          className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 "
-        >
-          {l10n.getString(errorReason.messageFtl, errorReason.message)}
-        </h2>
+        {l10n.getString(errorReason.messageFtl, errorReason.message)}
+      </h2>
 
-        {errorReason.buttonUrl && (
-          <Link
-            className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
-            href={errorReason.buttonUrl}
-          >
-            {l10n.getString(errorReason.buttonFtl, errorReason.buttonLabel)}
-          </Link>
-        )}
-      </section>
-    </>
+      {errorReason.buttonUrl && (
+        <Link
+          className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
+          href={errorReason.buttonUrl}
+        >
+          {l10n.getString(errorReason.buttonFtl, errorReason.buttonLabel)}
+        </Link>
+      )}
+    </div>
   );
 }
