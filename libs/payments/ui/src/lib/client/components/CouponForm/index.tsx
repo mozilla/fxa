@@ -52,7 +52,7 @@ const WithCoupon = ({
       <Form.Root
         aria-describedby="Applied promotion code"
         action={removeCoupon}
-        className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
+        className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base"
         data-testid="coupon-hascoupon"
       >
         <Form.Field name="appliedCouponCode">
@@ -159,7 +159,7 @@ const WithoutCoupon = ({
     <section aria-labelledby="coupon-heading">
       <Form.Root
         action={formAction}
-        className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8"
+        className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base"
         data-testid="coupon-form"
       >
         <Form.Field name="couponCode">

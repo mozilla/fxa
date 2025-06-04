@@ -94,7 +94,7 @@ export async function TermsAndPrivacy({
   ];
 
   return (
-    <aside className="pt-14" aria-label="Terms and Privacy Notices">
+    <aside aria-label="Terms and Privacy Notices">
       {terms.map((term) => (
         <GenericTerms {...term} titleId={term.key} key={term.key} l10n={l10n} />
       ))}
