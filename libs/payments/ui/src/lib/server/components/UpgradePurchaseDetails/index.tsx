@@ -28,6 +28,7 @@ type UpgradePurchaseDetailsProps = {
     webIcon: string;
   };
   locale: string;
+  sessionExists?: boolean;
 };
 
 export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
@@ -39,6 +40,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
     l10n,
     purchaseDetails,
     locale,
+    sessionExists,
   } = props;
   const { productName, subtitle, webIcon } = purchaseDetails;
   const {
@@ -55,7 +57,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
   return (
     <section
       aria-labelledby="current-plan new-plan"
-      className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm pt-4 px-4 rounded-t-none clip-shadow tablet:rounded-t-lg"
+      className={`bg-white clip-shadow rounded-b-lg shadow-sm shadow-grey-300 text-sm pt-4 px-4 ${sessionExists ? 'mt-0 rounded-t-none tablet:rounded-t-lg' : 'mt-6 rounded-t-lg'}`}
     >
       <h2 id="current-plan" className="font-semibold py-2">
         {l10n.getString(

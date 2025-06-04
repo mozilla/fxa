@@ -26,10 +26,18 @@ type PurchaseDetailsProps = {
   };
   totalPrice: React.ReactNode;
   locale: string;
+  sessionExists?: boolean;
 };
 
 export function PurchaseDetails(props: PurchaseDetailsProps) {
-  const { invoice, priceInterval, purchaseDetails, totalPrice, locale } = props;
+  const {
+    invoice,
+    priceInterval,
+    purchaseDetails,
+    totalPrice,
+    locale,
+    sessionExists,
+  } = props;
   const { details, productName, subtitle, webIcon } = purchaseDetails;
   const {
     currency,
@@ -46,7 +54,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
   return (
     <section
       aria-labelledby="product-details-heading"
-      className="bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm px-4 rounded-t-none clip-shadow tablet:rounded-t-lg"
+      className={`bg-white rounded-b-lg shadow-sm shadow-grey-300 text-sm px-4 clip-shadow ${sessionExists ? 'mt-0 rounded-t-none tablet:rounded-t-lg' : 'mt-6 rounded-t-lg'}`}
     >
       <div className="flex gap-4 my-0 py-4">
         <Image

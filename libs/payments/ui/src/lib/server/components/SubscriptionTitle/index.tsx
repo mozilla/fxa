@@ -93,7 +93,7 @@ export async function SubscriptionTitle({
 
   return (
     <section
-      className="bg-white shadow-sm shadow-grey-300 text-center my-0 pt-5 px-4 pb-px tablet:mx-0"
+      className="bg-white clip-shadow shadow-sm shadow-grey-300 text-center my-0 pt-5 px-4 pb-px tablet:mx-0"
       aria-labelledby="subscription-heading"
     >
       {cart.state === CartState.SUCCESS && (
