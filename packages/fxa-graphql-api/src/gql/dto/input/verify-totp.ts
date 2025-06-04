@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Field, InputType } from '@nestjs/graphql';
+import { MetricsContext } from './metrics-context';
 
 @InputType()
 export class VerifyTotpInput {
@@ -16,4 +17,7 @@ export class VerifyTotpInput {
 
   @Field({ nullable: true })
   public service?: string;
+
+  @Field(() => MetricsContext, { nullable: true })
+  public metricsContext?: MetricsContext;
 }

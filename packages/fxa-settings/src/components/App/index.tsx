@@ -522,7 +522,7 @@ const AuthAndAccountSetupRoutes = ({
         />
         <SigninTotpCodeContainer
           path="/signin_totp_code/*"
-          {...{ integration, serviceName }}
+          {...{ integration, serviceName, flowQueryParams }}
         />
         <SigninPushCodeContainer
           path="/signin_push_code/*"
