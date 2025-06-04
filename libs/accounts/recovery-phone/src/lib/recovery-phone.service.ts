@@ -442,6 +442,24 @@ export class RecoveryPhoneService {
   }
 
   /**
+   * Masks a phone number by replacing all but the last N digits with dots.
+   *
+   * This is useful for displaying a phone number in a privacy-preserving format,
+   * such as `••••••1234`.
+   *
+   * @param phoneNumber The actual phone number
+   * @param lastN The number of digits at the end of the phone number to show
+   * @returns A string with masked characters followed by the last N digits
+   */
+  public maskPhoneNumber(phoneNumber: string, lastN = 4): string {
+    const digits = phoneNumber.replace(/\D/g, '');
+    const visible = digits.slice(-lastN);
+    const numMasked = Math.max(digits.length - lastN, 0);
+    const mask = '•'.repeat(numMasked);
+    return `${mask}${visible}`;
+  }
+
+  /**
    * Sends a new totp code to a user and revokes any previous unconfirmed codes.
    *
    * @param uid Account id

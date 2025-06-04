@@ -1,7 +1,7 @@
 {
   "subject": {
-    "id": "postAddTwoStepAuthentication-subject-2",
-    "message": "Two-step authentication turned on"
+    "id": "postAddTwoStepAuthentication-subject-v3",
+    "message": "Two-step authentication is on"
   },
   "action": {
     "id": "postAddTwoStepAuthentication-action",
