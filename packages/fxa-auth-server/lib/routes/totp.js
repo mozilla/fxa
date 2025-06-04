@@ -491,6 +491,7 @@ module.exports = (
               .required()
               .description(DESCRIPTION.codeTotp),
             service: validators.service,
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }),
         },
         response: {
