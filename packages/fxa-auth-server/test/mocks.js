@@ -34,6 +34,7 @@ const CUSTOMS_METHOD_NAMES = [
   'checkIpOnly',
   'flag',
   'reset',
+  'v2Enabled'
 ];
 
 const DB_METHOD_NAMES = [
@@ -355,6 +356,7 @@ function mockCustoms(errors) {
     checkAuthenticated: optionallyThrow(errors, 'checkAuthenticated'),
     checkIpOnly: optionallyThrow(errors, 'checkIpOnly'),
     checkV2: sinon.spy(() => false),
+    v2Enabled: sinon.spy(() => true),
   });
 }
 

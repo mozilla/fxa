@@ -17,6 +17,11 @@ const { AppConfig } = require('../lib/types');
 
 /* eslint-disable no-console */
 function TestServer(config, printLogs, options = {}) {
+  // By default disable customs for local ips
+  if (options.enableCustomsChecks !== true) {
+    config.rateLimit.rules = '';
+  }
+
   if (config?.gleanMetrics?.enabled) {
     // To avoid cluttering the test output with Glean logs, we disable it
     config.gleanMetrics.enabled = false;
@@ -98,7 +103,7 @@ TestServer.prototype.stop = async function () {
   }
 };
 
-TestServer.prototype.uniqueEmail = function (domain, enableCustomsChecks) {
+TestServer.prototype.uniqueEmail = function (domain) {
   if (!domain) {
     domain = '@restmail.net';
   }
@@ -107,7 +112,7 @@ TestServer.prototype.uniqueEmail = function (domain, enableCustomsChecks) {
   // The enable_customs_ prefix will skip the 'isAllowedEmail' check in customs
   // that is typically used to by pass customs during testing... This can
   // be useful if a test that expects customs to activate is run.
-  const prefix = enableCustomsChecks ? 'enable_customs_' : '';
+  const prefix = this.options.enableCustomsChecks ? 'enable_customs_' : '';
   return `${prefix}${base}${domain}`;
 };
 

@@ -105,10 +105,14 @@ module.exports = function (
 
         const sessionToken = request.auth.credentials;
         if (sessionToken) {
+
+          console.log('!!! customs.v2Enabled', customs.v2Enabled());
           await customs.checkAuthenticated(
             request,
             sessionToken.uid,
-            'passwordChange'
+            customs.v2Enabled()
+              ? 'authenticatedPasswordChange'
+              : 'passwordChange'
           );
           statsd.increment('passwordChange.start.authenticated');
         } else {
@@ -697,7 +701,16 @@ module.exports = function (
         statsd.increment('otp.passwordForgot.attempt');
 
         const { email, code } = request.payload;
+
+        // Typical 15 minute window limit
         await customs.check(request, email, 'passwordForgotVerifyOtp');
+
+        if (customs.v2Enabled()) {
+          // Daily limit, will be checked if and only if the default limit above passes.
+          // This replicates logic that was coded into the customs v1 service.
+          await customs.check(request, email, 'passwordForgotVerifyOtpPerDay');
+        }
+
 
         request.validateMetricsContext();
 

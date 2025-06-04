@@ -5,6 +5,7 @@
 import { BoolString } from '../../../fxa-auth-client/lib/client';
 import { TargetName } from '.';
 import { BaseTarget, Credentials } from './base';
+import { RateLimitClient } from '../ratelimit';
 
 const RELIER_CLIENT_ID = 'dcdb5ae7add825d2';
 const SUB_PRODUCT = 'prod_GqM9ToKK62qjkK';
@@ -23,9 +24,15 @@ export class LocalTarget extends BaseTarget {
     name: SUB_PRODUCT_NAME,
     plan: SUB_PLAN,
   };
+  readonly rateLimitClient: RateLimitClient;
 
   constructor() {
     super('http://localhost:9000', 'http://localhost:9001');
+    this.rateLimitClient = new RateLimitClient();
+  }
+
+  async clearRateLimits() {
+    this.rateLimitClient.resetCounts();
   }
 
   async createAccount(
@@ -33,6 +40,8 @@ export class LocalTarget extends BaseTarget {
     password: string,
     options = { lang: 'en', preVerified: 'true' as BoolString }
   ) {
+    // Quick and dirty way to see if this works...
+    await this.rateLimitClient.resetCounts();
     const result = await this.authClient.signUp(email, password, options);
     await this.authClient.deviceRegister(
       result.sessionToken,

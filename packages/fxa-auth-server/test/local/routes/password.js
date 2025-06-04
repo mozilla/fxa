@@ -293,11 +293,18 @@ describe('/password', () => {
           'validateMetricsContext was called'
         );
 
-        sinon.assert.calledOnceWithExactly(
+        sinon.assert.calledWithExactly(
           mockCustoms.check,
           mockRequest,
           TEST_EMAIL,
           'passwordForgotVerifyOtp'
+        );
+
+        sinon.assert.calledWithExactly(
+          mockCustoms.check,
+          mockRequest,
+          TEST_EMAIL,
+          'passwordForgotVerifyOtpPerDay'
         );
 
         sinon.assert.callCount(mockStatsd.increment, 2);
@@ -840,7 +847,7 @@ describe('/password', () => {
         mockCustoms.checkAuthenticated,
         mockRequest,
         uid,
-        'passwordChange'
+        'authenticatedPasswordChange'
       );
       sinon.assert.calledWith(mockDB.accountRecord, TEST_EMAIL);
       sinon.assert.calledOnce(mockDB.createKeyFetchToken);

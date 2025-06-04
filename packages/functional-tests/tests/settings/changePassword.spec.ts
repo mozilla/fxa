@@ -10,6 +10,11 @@ import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('change password tests', () => {
+
+    test.beforeEach(async ({ target }) => {
+      await target.clearRateLimits();
+    });
+
     test('change password with an incorrect old password', async ({
       target,
       pages: { page, changePassword, settings, signin },

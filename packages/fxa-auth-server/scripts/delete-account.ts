@@ -70,6 +70,7 @@ DB.connect(config).then(async (db: any) => {
     check: () => {
       return Promise.resolve();
     },
+    v2Enabled: () => true,
   };
 
   // Bypass password checks.

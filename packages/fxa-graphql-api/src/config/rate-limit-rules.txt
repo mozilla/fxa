@@ -1,0 +1,18 @@
+#  action                               | blockOn       | maxAttempts   | windowDuration    | banDuration
+# ----------------------------------------------------------------------------------------------------------
+  unblockEmail                          : email         : 10            : 24 hours          : 24 hours
+  updateDisplayName                     : ip            : 60            : 15 minutes        : 15 minutes
+#
+## Code Search Results
+##
+## The following section outlines all actions found in code base. Actions
+## That are currently missing customs server configuration won't be rate
+## limited. We need to follow up to see if we still want rate limiting, and
+## if so, what the policy should be.
+#
+# Actions sent to /check
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  updateDisplayName (There's currently a placeholder rule in place...)
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  deleteAvatar
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  attachedClientDisconnect
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  metricsOpt
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  sessionStatus
