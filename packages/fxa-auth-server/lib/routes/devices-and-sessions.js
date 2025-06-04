@@ -322,6 +322,7 @@ module.exports = (
         let { ttl } = request.payload;
         const credentials = request.auth.credentials;
         const uid = credentials.uid;
+        const email = credentials.email;
         const sender = credentials.deviceId;
 
         if (
@@ -331,7 +332,12 @@ module.exports = (
           throw new error.featureNotEnabled();
         }
 
-        await customs.checkAuthenticated(request, uid, 'invokeDeviceCommand');
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          email,
+          'invokeDeviceCommand'
+        );
 
         const targetDevice = await db.device(uid, target);
 
@@ -468,6 +474,7 @@ module.exports = (
         const body = request.payload;
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
+        const email = sessionToken.email;
         const payload = body.payload;
         const endpointAction = body._endpointAction || 'devicesNotify';
 
@@ -484,7 +491,7 @@ module.exports = (
         }
 
         let [, deviceArray] = await Promise.all([
-          customs.checkAuthenticated(request, uid, endpointAction),
+          customs.checkAuthenticated(request, uid, email, endpointAction),
           request.app.devices,
         ]);
 

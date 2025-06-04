@@ -108,6 +108,7 @@ module.exports = function (
           await customs.checkAuthenticated(
             request,
             sessionToken.uid,
+            sessionToken.email,
             customs.v2Enabled()
               ? 'authenticatedPasswordChange'
               : 'passwordChange'

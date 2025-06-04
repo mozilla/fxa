@@ -203,7 +203,7 @@ module.exports = (
         log.begin('verifyRecoveryKey', request);
 
         const sessionToken = request.auth.credentials;
-        const { uid } = sessionToken;
+        const { uid, email } = sessionToken;
 
         try {
           if (sessionToken.tokenVerificationId) {
@@ -212,7 +212,12 @@ module.exports = (
 
           // This route can let you check if a key is valid therefore we
           // rate limit it.
-          await customs.checkAuthenticated(request, uid, 'getRecoveryKey');
+          await customs.checkAuthenticated(
+            request,
+            uid,
+            email,
+            'getRecoveryKey'
+          );
 
           const { recoveryKeyId } = request.payload;
 
@@ -278,10 +283,10 @@ module.exports = (
       handler: async function (request) {
         log.begin('getRecoveryKey', request);
 
-        const { uid } = request.auth.credentials;
+        const { uid, email } = request.auth.credentials;
         const { recoveryKeyId } = request.params;
 
-        await customs.checkAuthenticated(request, uid, 'getRecoveryKey');
+        await customs.checkAuthenticated(request, uid, email, 'getRecoveryKey');
 
         const { recoveryData } = await db.getRecoveryKey(uid, recoveryKeyId);
 

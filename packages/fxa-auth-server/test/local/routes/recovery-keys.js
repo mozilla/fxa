@@ -355,10 +355,11 @@ describe('POST /recoveryKey', () => {
     it('called customs.checkAuthenticated correctly', () => {
       assert.equal(customs.checkAuthenticated.callCount, 1);
       const args = customs.checkAuthenticated.args[0];
-      assert.equal(args.length, 3);
+      assert.equal(args.length, 4);
       assert.deepEqual(args[0], request);
       assert.equal(args[1], uid);
-      assert.equal(args[2], 'getRecoveryKey');
+      assert.equal(args[2], email);
+      assert.equal(args[3], 'getRecoveryKey');
     });
 
     it('called db.updateRecoveryKey correctly', () => {
@@ -531,10 +532,11 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
     it('called customs.checkAuthenticated correctly', () => {
       assert.equal(customs.checkAuthenticated.callCount, 1);
       const args = customs.checkAuthenticated.args[0];
-      assert.equal(args.length, 3);
+      assert.equal(args.length, 4);
       assert.deepEqual(args[0], request);
       assert.equal(args[1], uid);
-      assert.equal(args[2], 'getRecoveryKey');
+      assert.equal(args[2], email);
+      assert.equal(args[3], 'getRecoveryKey');
     });
 
     it('called db.getRecoveryKey correctly', () => {

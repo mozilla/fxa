@@ -511,6 +511,7 @@ describe('Customs', () => {
 
     action = 'devicesNotify';
     const uid = 'foo';
+    const email = 'bar@mozilla.com';
 
     function checkRequestBody(body) {
       assert.deepEqual(
@@ -540,14 +541,14 @@ describe('Customs', () => {
       .reply(200, '{"block":true,"retryAfter":10001}');
 
     return customsWithUrl
-      .checkAuthenticated(request, uid, action)
+      .checkAuthenticated(request, uid, email, action)
       .then((result) => {
         assert.equal(
           result,
           undefined,
           'Nothing is returned when /checkAuthenticated succeeds - 1'
         );
-        return customsWithUrl.checkAuthenticated(request, uid, action);
+        return customsWithUrl.checkAuthenticated(request, uid, email, action);
       })
       .then((result) => {
         assert.equal(
@@ -555,7 +556,7 @@ describe('Customs', () => {
           undefined,
           'Nothing is returned when /checkAuthenticated succeeds - 2'
         );
-        return customsWithUrl.checkAuthenticated(request, uid, action);
+        return customsWithUrl.checkAuthenticated(request, uid, email, action);
       })
       .then((result) => {
         assert.equal(
@@ -563,7 +564,7 @@ describe('Customs', () => {
           undefined,
           'Nothing is returned when /checkAuthenticated succeeds - 3'
         );
-        return customsWithUrl.checkAuthenticated(request, uid, action);
+        return customsWithUrl.checkAuthenticated(request, uid, email, action);
       })
       .then((result) => {
         assert.equal(
@@ -571,11 +572,11 @@ describe('Customs', () => {
           undefined,
           'Nothing is returned when /checkAuthenticated succeeds - 4'
         );
-        return customsWithUrl.checkAuthenticated(request, uid, action);
+        return customsWithUrl.checkAuthenticated(request, uid, email, action);
       })
       .then(() => {
         // request is blocked
-        return customsWithUrl.checkAuthenticated(request, uid, action);
+        return customsWithUrl.checkAuthenticated(request, uid, email, action);
       })
       .then(
         () => {
@@ -861,7 +862,12 @@ describe('Customs', () => {
       });
 
       try {
-        await customsWithUrl.checkAuthenticated(request, 'uid', action);
+        await customsWithUrl.checkAuthenticated(
+          request,
+          'uid',
+          'email',
+          action
+        );
         assert.fail('should have failed');
       } catch (err) {
         assert.isTrue(

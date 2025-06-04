@@ -237,8 +237,9 @@ describe('/recovery_phone', () => {
 
       assert.equal(mockCustoms.checkAuthenticated.callCount, 1);
       assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[1], uid);
+      assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[2], email);
       assert.equal(
-        mockCustoms.checkAuthenticated.getCall(0).args[2],
+        mockCustoms.checkAuthenticated.getCall(0).args[3],
         'recoveryPhoneSendResetPasswordCode'
       );
 
@@ -363,8 +364,9 @@ describe('/recovery_phone', () => {
 
       assert.equal(mockCustoms.checkAuthenticated.callCount, 1);
       assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[1], uid);
+      assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[2], email);
       assert.equal(
-        mockCustoms.checkAuthenticated.getCall(0).args[2],
+        mockCustoms.checkAuthenticated.getCall(0).args[3],
         'recoveryPhoneSendSetupCode'
       );
       assert.calledOnceWithExactly(
