@@ -89,6 +89,7 @@ const ConfirmResetPassword = ({
           setErrorMessage,
           verifyCode,
         }}
+        className="my-6"
       />
       <LinkRememberPassword {...{ email }} clickHandler={signinClickHandler} />
       <div className="flex justify-between mt-5 text-sm">

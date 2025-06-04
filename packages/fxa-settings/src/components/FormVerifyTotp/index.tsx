@@ -9,6 +9,7 @@ import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import { useFtlMsgResolver } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { FormVerifyTotpProps, VerifyTotpFormData } from './interfaces';
+import classNames from 'classnames';
 
 // Split inputs are not recommended for accesibility
 // Code inputs should be a single input field
@@ -25,6 +26,7 @@ const FormVerifyTotp = ({
   setErrorMessage,
   verifyCode,
   gleanDataAttrs,
+  className = '',
 }: FormVerifyTotpProps) => {
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
@@ -87,7 +89,7 @@ const FormVerifyTotp = ({
   return (
     <form
       noValidate
-      className="flex flex-col gap-4 my-6"
+      className={classNames('flex flex-col gap-4', className)}
       onSubmit={handleSubmit(onSubmit)}
     >
       {/* Using `type="text" inputmode="numeric"` shows the numeric keyboard on mobile
@@ -105,7 +107,7 @@ const FormVerifyTotp = ({
         spellCheck={false}
         inputRef={register({ required: true })}
         hasErrors={!!errorMessage}
-        aria-describedby={errorBannerId}
+        ariaDescribedBy={errorBannerId}
       />
       <button
         type="submit"

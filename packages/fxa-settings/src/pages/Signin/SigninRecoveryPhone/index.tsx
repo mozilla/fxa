@@ -178,6 +178,7 @@ const SigninRecoveryPhone = ({
           setErrorMessage,
         }}
         gleanDataAttrs={{ id: 'login_backup_phone_submit' }}
+        className="my-6"
       />
       <div className="flex justify-between mt-5 text-sm">
         <FtlMsg id="signin-recovery-phone-resend-code-button">
