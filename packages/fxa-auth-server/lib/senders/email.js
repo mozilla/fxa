@@ -1431,6 +1431,7 @@ module.exports = function (log, config, bounces, statsd) {
     log.trace('mailer.postAddTwoStepAuthenticationEmail', {
       email: message.email,
       uid: message.uid,
+      recoveryMethod: message.recoveryMethod,
     });
 
     const templateName = 'postAddTwoStepAuthentication';
@@ -1455,9 +1456,11 @@ module.exports = function (log, config, bounces, statsd) {
         email: message.email,
         iosLink: links.iosLink,
         link: links.link,
+        maskedPhoneNumber: message.maskedPhoneNumber,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
+        recoveryMethod: message.recoveryMethod,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1617,11 +1620,11 @@ module.exports = function (log, config, bounces, statsd) {
   };
 
   Mailer.prototype.postAddRecoveryPhoneEmail = function (message) {
-    const { maskedLastFourPhoneNumber } = message;
+    const { maskedPhoneNumber } = message;
     log.trace('mailer.postAddRecoveryPhoneEmail', {
       email: message.email,
       uid: message.uid,
-      maskedLastFourPhoneNumber,
+      maskedPhoneNumber,
     });
 
     const templateName = 'postAddRecoveryPhone';
@@ -1650,7 +1653,7 @@ module.exports = function (log, config, bounces, statsd) {
          * rendering, and adding them to our templateValues for Fluent. Because
          * of this, for now, we'll pass the variable with the bulleted mask
          * instead of handling the bulleted mask in the template itself. */
-        maskedLastFourPhoneNumber,
+        maskedPhoneNumber,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
         supportLinkAttributes: links.supportLinkAttributes,

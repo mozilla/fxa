@@ -450,7 +450,7 @@ class RecoveryPhoneHandler {
             account,
             {
               acceptLanguage,
-              maskedLastFourPhoneNumber: `••••••${this.recoveryPhoneService.stripPhoneNumber(
+              maskedPhoneNumber: `••••••${this.recoveryPhoneService.stripPhoneNumber(
                 phoneNumber || '',
                 4
               )}`,
