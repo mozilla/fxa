@@ -98,7 +98,7 @@ export class NextJSActionsService {
     private eligibilityService: EligibilityService,
     private productConfigurationManager: ProductConfigurationManager,
     @Inject(StatsDService) public statsd: StatsD
-  ) {}
+  ) { }
 
   @SanitizeExceptions()
   @NextIOValidator(GetCartStateActionArgs, GetCartStateActionResult)
@@ -240,7 +240,9 @@ export class NextJSActionsService {
       args.uid
     );
 
-    return result;
+    return {
+      result
+    }
   }
 
   @SanitizeExceptions()
@@ -402,13 +404,13 @@ export class NextJSActionsService {
     uid?: string;
   }): Promise<
     | {
-        ok: true;
-        taxAddress: TaxAddress;
-      }
+      ok: true;
+      taxAddress: TaxAddress;
+    }
     | {
-        ok: false;
-        error: string;
-      }
+      ok: false;
+      error: string;
+    }
   > {
     const { cartId, version, offeringId, taxAddress, uid } = args;
 
