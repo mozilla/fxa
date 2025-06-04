@@ -68,7 +68,7 @@
   verifyRecoveryCode                    : ip                : 10            : 10 minutes        : 30 minutes
   verifyRecoveryCode                    : email             : 10            : 15 minutes        : 15 minutes
   verifySessionCode                     : ip                : 10            : 10 minutes        : 30 minutes
-  verifySessionCode                     : email             : 10            : 15 minutes        : 15 minutes
+  verifySessionCode                     : uid               : 10            : 15 minutes        : 15 minutes
 
 # Verify TOTP Code Limits
   verifyTotpCode                        : uid               : 10            : 30 seconds        : 15 minutes
