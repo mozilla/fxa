@@ -177,7 +177,8 @@ executors:
       CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
       AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR: true
-      RATE_LIMIT__RULES: ""
+      # Seeing if clear customs approach works! RATE_LIMIT__RULES: ""
+      RATE_LIMIT__IGNORE_EMAILS: .*@restmail.net$
 
   # Contains a pre-installed fxa stack and browsers for doing ui test
   # automation. Perfect for running smoke tests against remote targets.

@@ -2,11 +2,15 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "entryFile": "packages/fxa-graphql-api/src/main.js",
-
   "compilerOptions": {
     "assets": [
       {
         "include": "config/gql/allowlist/",
+        "outDir": "dist/packages/fxa-graphql-api/src",
+        "watchAssets": true
+      },
+      {
+        "include": "config/rate-limit-rules.txt",
         "outDir": "dist/packages/fxa-graphql-api/src",
         "watchAssets": true
       }

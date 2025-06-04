@@ -300,13 +300,12 @@ const conf = convict({
   },
   rateLimit: {
     rules: {
-      format: Array,
+      format: String,
       env: 'RATE_LIMIT__RULES',
-      default: [
-        '#  action              | blockOn  | maxAttempts  | windowDuration | banDuration ',
-        '   unblockEmail        : email    : 10            : 24 hours      : 24 hours    ',
-        '   updateDisplayName   : ip       : 60            : 15 minutes    : 15 minutes  ',
-      ],
+      default: fs.readFileSync(
+        `${__dirname}/config/rate-limit-rules.txt`,
+        'utf-8'
+      ),
     },
   },
   l10n: {

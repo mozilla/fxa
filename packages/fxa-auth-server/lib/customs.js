@@ -284,6 +284,9 @@ class CustomsClient {
   }
 
   // #region Customs V2
+  v2Enabled() {
+    return this.rateLimit != null;
+  }
 
   /**
    * Version 2 Customs Approach
@@ -320,7 +323,14 @@ class CustomsClient {
 
     // Otherwise, call the new nx lib instead of the legacy service
     this.statsd?.increment(`${serviceName}.check.v2`, [`action:${action}`]);
-    const result = await this.rateLimit.check(action, opts);
+
+    let result = null;
+    try {
+      result = await this.rateLimit.check(action, opts);
+    } catch (err) {
+      this.log?.error('customs-client', err);
+      throw err;
+    }
 
     // If statsd was provided, record metrics
     this.statsd?.increment(`${serviceName}.request.v2.${type}`, {

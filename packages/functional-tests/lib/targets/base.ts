@@ -44,7 +44,10 @@ export abstract class BaseTarget {
     return this.contentServerUrl;
   }
 
-  constructor(readonly authServerUrl: string, emailUrl?: string) {
+  constructor(
+    readonly authServerUrl: string,
+    emailUrl?: string
+  ) {
     const keyStretchVersion = parseInt(
       process.env.AUTH_CLIENT_KEY_STRETCH_VERSION || '1'
     );
@@ -64,6 +67,8 @@ export abstract class BaseTarget {
       keyStretchVersion: keyStretchVersion as SaltVersion,
     });
   }
+
+  abstract clearRateLimits(): Promise<void>;
 
   abstract createAccount(
     email: string,

@@ -139,7 +139,7 @@ module.exports = (
             await customs.checkAuthenticated(
               request,
               checkAuthenticatedUid,
-              'accountLogin'
+              customs.v2Enabled ? 'authenticatedAccountLogin' : 'accountLogin'
             );
           } else {
             await customs.check(request, email, 'accountLogin');

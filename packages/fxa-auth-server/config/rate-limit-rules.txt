@@ -1,0 +1,148 @@
+#  action                               | blockOn           | maxAttempts   | windowDuration    | banDuration
+# -------------------------------------------------------------------------------------------------------------
+# Account Check Limits - These are unsecured actions. Many of these are designed to slow down the mining of
+# of account details. e.g. Trying random emails until an error code indicates one might exist.
+  accountCreate                         : ip                : 100           : 15 minutes        : 15 minutes
+  accountCreate                         : email             : 100           : 15 minutes        : 15 minutes
+  accountLogin                          : ip                : 100           : 15 minutes        : 15 minutes
+  accountLogin                          : email             : 100           : 15 minutes        : 15 minutes
+  accountDestroy                        : ip                : 100           : 15 minutes        : 15 minutes
+  accountDestroy                        : email             : 100           : 15 minutes        : 15 minutes
+  passwordChange                        : ip                : 100           : 15 minutes        : 15 minutes
+  passwordChange                        : email             : 100           : 15 minutes        : 15 minutes
+  passwordForgotSendCode                : ip                : 100           : 15 minutes        : 15 minutes
+  passwordForgotSendCode                : email             : 100           : 15 minutes        : 15 minutes
+  accountStatusCheck                    : ip                : 100           : 15 minutes        : 15 minutes
+  accountStatusCheck                    : email             : 100           : 15 minutes        : 15 minutes
+  sendUnblockCode                       : ip                : 100           : 15 minutes        : 15 minutes
+  sendUnblockCode                       : email             : 100           : 15 minutes        : 15 minutes
+  recoveryKeyExists                     : ip                : 100           : 15 minutes        : 15 minutes
+  recoveryKeyExists                     : email             : 100           : 15 minutes        : 15 minutes
+  getCredentialsStatus                  : ip                : 100           : 15 minutes        : 15 minutes
+  getCredentialsStatus                  : email             : 100           : 15 minutes        : 15 minutes
+  passwordForgotSendOtp                 : ip                : 5             : 10 minutes        : 15 minutes
+  passwordForgotSendOtp                 : email             : 5             : 10 minutes        : 15 minutes
+  passwordForgotVerifyOtp               : ip                : 5             : 10 minutes        : 10 minutes
+  passwordForgotVerifyOtp               : email             : 5             : 10 minutes        : 10 minutes
+  passwordForgotVerifyOtpPerDay         : ip                : 10            : 24 hours          : 24 hours
+  passwordForgotVerifyOtpPerDay         : email             : 10            : 24 hours          : 24 hours
+
+# Email Send - These are limits on rate at which emails can be sent out. We limit both IP and email address
+# since many of these operations do not require authentication. Some operations, however, require sessions
+# and for these we should switch over to using UID. See FXA-11777 for more details.
+  createEmail                           : email             : 5             : 15 minutes        : 15 minutes
+  createEmail                           : ip                : 5             : 10 minutes        : 30 minutes
+  recoveryEmailResendCode               : email             : 5             : 15 minutes        : 15 minutes
+  recoveryEmailResendCode               : ip                : 5             : 10 minutes        : 30 minutes
+  recoveryEmailSecondaryResendCode      : email             : 5             : 15 minutes        : 15 minutes
+  recoveryEmailSecondaryResendCode      : ip                : 5             : 10 minutes        : 30 minutes
+  passwordForgotSendCode                : email             : 5             : 15 minutes        : 15 minutes
+  passwordForgotSendCode                : ip                : 5             : 10 minutes        : 30 minutes
+  passwordForgotResendCode              : email             : 5             : 15 minutes        : 15 minutes
+  passwordForgotResendCode              : ip                : 5             : 10 minutes        : 30 minutes
+  sendVerifyCode                        : email             : 5             : 15 minutes        : 15 minutes
+  sendVerifyCode                        : ip                : 5             : 10 minutes        : 30 minutes
+  sendUnblockCode                       : email             : 5             : 15 minutes        : 15 minutes
+  sendUnblockCode                       : ip                : 5             : 10 minutes        : 30 minutes
+
+# Bad Login Attempts - These are specific to login failures. Again, the user hasn't authenticated yet, so we check both
+# email and ip.
+  accountLogin                          : email             : 5             : 15 minutes        : 15 minutes
+  accountLogin                          : ip                : 5             : 10 minutes        : 30 minutes
+  accountDestroy                        : email             : 5             : 15 minutes        : 15 minutes
+  accountDestroy                        : ip                : 5             : 10 minutes        : 30 minutes
+  passwordChange                        : email             : 5             : 15 minutes        : 15 minutes
+  passwordChange                        : ip                : 5             : 10 minutes        : 30 minutes
+  authenticatedAccountLogin             : uid               : 5             : 15 minutes        : 15 minutes
+  authenticatedPasswordChange           : uid               : 5             : 15 minutes        : 15 minutes
+
+# Verify Code Limits - Limits the number of attempts a user can make at providing a token code. Note that currently
+# these are all ip/email checks, however, they should probably uid checks. In every use, a uid is available and the
+# user has already procured a session token. See FXA-11777 for more details.
+  recoveryEmailVerifyCode               : ip                : 10            : 10 minutes        : 30 minutes
+  recoveryEmailVerifyCode               : email             : 10            : 15 minutes        : 15 minutes
+  recoveryEmailSecondaryVerifyCode      : ip                : 10            : 10 minutes        : 30 minutes
+  recoveryEmailSecondaryVerifyCode      : email             : 10            : 15 minutes        : 15 minutes
+  passwordForgotVerifyCode              : ip                : 10            : 10 minutes        : 30 minutes
+  passwordForgotVerifyCode              : email             : 10            : 15 minutes        : 15 minutes
+  verifyRecoveryCode                    : ip                : 10            : 10 minutes        : 30 minutes
+  verifyRecoveryCode                    : email             : 10            : 15 minutes        : 15 minutes
+  verifySessionCode                     : ip                : 10            : 10 minutes        : 30 minutes
+  verifySessionCode                     : email             : 10            : 15 minutes        : 15 minutes
+
+# Verify TOTP Code Limits
+  verifyTotpCode                        : uid               : 10            : 30 seconds        : 15 minutes
+
+# Recovery Phone Limits
+  verifyRecoveryPhoneTotpCode           : uid               : 5             : 5 minutes         : 15 minutes
+  recoveryPhoneSendSigninCode           : uid               : 6             : 24 hours          : 24 hours
+  recoveryPhoneSendSetupCode            : uid               : 9             : 24 hours          : 24 hours
+  recoveryPhoneSendResetPasswordCode    : uid               : 9             : 24 hours          : 24 hours
+
+## Code Search Results
+##
+## The following section outlines all actions found in auth-server. Actions
+## That are currently missing customs server configuration won't be rate
+## limited! We need to follow up to see if we still want rate limiting, and
+## if so, what the policy should be.
+##
+## Actions sent to /check
+# accountCreate
+# setPassword
+# accountStatusCheck
+# getCredentialsStatus
+# accountDestroy
+# recoveryEmailVerifyCode
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  createEmail
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  deleteEmail
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  setPrimaryEmail
+# recoveryEmailSecondaryResendCode
+# recoveryEmailSecondaryVerifyCode
+# passwordChange
+# passwordForgotSendOtp
+# passwordForgotVerifyOtp
+# passwordForgotSendCode
+# passwordForgotResendCode
+# passwordForgotVerifyCode
+# verifyRecoveryCode
+# recoveryPhoneSendSigninCode
+# verifySessionCode
+# verifySessionCode
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  totpCreate
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  totpDestroy
+# verifyRecoveryCode
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  sendUnblockCode
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  mozillaSubscriptionsCustomerBillingAndSubscriptions
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  mozillaSubscriptionsValidatePlanEligibility
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  getCheckoutToken
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  updatePaypalBillingAgreement
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  deleteSubscription
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  reactivateSubscription
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  updateSubscription
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  createCustomer
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  retryInvoice
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  previewInvoice
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  subsequentInvoicePreviews
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  retrieveCouponDetails
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  applyPromotionCodeToSubscription
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  createSubscriptionWithPMI
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  createSetupIntent
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  updateDefaultPaymentMethod
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  detachFailedPaymentMethod
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  supportRequest
+# accountLogin
+
+## Actions sent to /checkIpOnly
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  previewInvoice
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  retrieveCouponDetails
+
+## Actions sent to /checkAuthenticated
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  invokeDeviceCommand
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  devicesNotify|_endpointAction -- TBD, what can be in _endpointAction?
+# passwordChange
+# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  getRecoveryKey
+# recoveryPhoneSendResetPasswordCode
+# recoveryPhoneSendSetupCode
+# verifyRecoveryPhoneTotpCode
+# verifyTotpCode
+# accountLogin

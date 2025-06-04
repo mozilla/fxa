@@ -43,6 +43,10 @@ test.describe('severity-2 #smoke', () => {
     { signupVersion: v2, changeVersion: v2 },
   ];
 
+  test.beforeEach(async ({ target }) => {
+    await target.clearRateLimits();
+  });
+
   for (const { signupVersion, changeVersion } of TestCases) {
     test(`signs up as v${signupVersion.version} changes password from settings as v${changeVersion.version} for backbone`, async ({
       page,

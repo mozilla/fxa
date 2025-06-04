@@ -5,6 +5,10 @@
 import { BaseTarget, Credentials } from './base';
 
 export abstract class RemoteTarget extends BaseTarget {
+  async clearRateLimits() {
+    // no-op: We can't clear customs for smoke tests.
+  }
+
   async createAccount(
     email: string,
     password: string,

@@ -349,7 +349,9 @@ describe(`#integration - recovery phone - customs checks`, function () {
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
     config.customsUrl = 'http://127.0.0.1:7000';
-    server = await TestServer.start(config);
+    server = await TestServer.start(config, undefined, {
+      enableCustomsChecks: true,
+    });
   });
 
   after(async () => {
@@ -358,7 +360,7 @@ describe(`#integration - recovery phone - customs checks`, function () {
   });
 
   beforeEach(async function () {
-    email = server.uniqueEmail(null, true);
+    email = server.uniqueEmail();
     client = await Client.createAndVerify(
       config.publicUrl,
       email,

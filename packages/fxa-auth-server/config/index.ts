@@ -2180,14 +2180,10 @@ const convictConf = convict({
       format: Array,
     },
     rules: {
-      default: [
-        'unblockEmail          : email  : 10   : 24 hours    : 24 hours    ',
-        'accountStatusCheck    : ip     : 20   : 15 minutes  : 15 minutes  ',
-        'accountStatusCheck    : email  : 20   : 15 minutes  : 15 minutes  ',
-      ],
+      default: fs.readFileSync(`${__dirname}/rate-limit-rules.txt`, 'utf8'),
       doc: 'Rules for rate limiting user actions. These are essentially customs v2 rules.',
       env: 'RATE_LIMIT__RULES',
-      format: Array,
+      format: String,
     },
   },
   recoveryPhone: {
