@@ -28,6 +28,7 @@ let log,
 
 const glean = mocks.mockGlean();
 const mockRecoveryPhoneService = {
+  hasConfirmed: sinon.fake(),
   removePhoneNumber: sinon.fake.resolves(true),
 };
 const mockBackupCodeManager = {
@@ -330,6 +331,8 @@ describe('totp', () => {
         // correct emails sent
         assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 1);
+
+        assert.equal(mockRecoveryPhoneService.hasConfirmed.callCount, 1, 'check for recovery phone');
 
         assert.calledWithExactly(accountEventsManager.recordSecurityEvent, db, {
           name: 'account.two_factor_added',

@@ -1160,7 +1160,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['postAddTwoStepAuthenticationEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Two-step authentication turned on' }],
+    ['subject', { test: 'equal', expected: 'Two-step authentication is on' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postAddTwoStepAuthentication') }],
@@ -1169,7 +1169,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: 'You turned on two-step authentication' },
-      { test: 'include', expected: 'Security codes from your authentication app are now required every time you sign in.' },
+      { test: 'include', expected: 'You now need to use your authenticator app every time you sign in.' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-enabled', 'privacy')) },
@@ -1181,7 +1181,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: 'You turned on two-step authentication' },
-      { test: 'include', expected: 'Security codes from your authentication app are now required every time you sign in.' },
+      { test: 'include', expected: 'You now need to use your authenticator app every time you sign in.' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `change your password right away:\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'account-two-step-enabled', 'privacy')}` },
@@ -1192,6 +1192,48 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  // Test for postAddTwoStepAuthentication with recovery phone added as recovery method
+  [
+    'postAddTwoStepAuthenticationEmail',
+    new Map<string, Test | any>([
+      ['html', [
+        { test: 'include', expected: 'You also added ••••••1234 as your recovery phone number.' },
+        { test: 'notInclude', expected: /backup authentication codes'/ }, // make sure the codes copy is *not* present
+      ]],
+      ['text', [
+        { test: 'include', expected: 'You also added ••••••1234 as your recovery phone number.' },
+        { test: 'notInclude', expected: 'Backup authentication codes help you' },
+      ]],
+    ]),
+    {
+      updateTemplateValues: v => ({
+        ...v,
+        maskedPhoneNumber: '••••••1234',
+      }),
+    }
+  ],
+
+  // Test for postAddTwoStepAuthentication with recovery codes added as recovery method (default)
+  [
+    'postAddTwoStepAuthenticationEmail',
+    new Map<string, Test | any>([
+      ['html', [
+        { test: 'include', expected: 'You also added backup authentication codes as your recovery method.' },
+        { test: 'notInclude', expected: /recovery phone/ },
+      ]],
+      ['text', [
+        { test: 'include', expected: 'You also added backup authentication codes as your recovery method.' },
+        { test: 'notInclude', expected: /recovery phone/ },
+      ]],
+    ]),
+    {
+      updateTemplateValues: v => ({
+        ...v,
+        maskedPhoneNumber: undefined,
+      }),
+    }
+  ],
 
   ['postAddRecoveryPhoneEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Recovery phone added' }],
