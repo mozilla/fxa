@@ -98,7 +98,10 @@ export default async function Checkout({
   return (
     <>
       {!session?.user && (
-        <section aria-labelledby="signin-heading">
+        <section
+          className="order-2 bg-white shadow-sm shadow-grey-300 clip-shadow p-4 rounded-b-lg text-base tablet:rounded-b-none"
+          aria-labelledby="signin-heading"
+        >
           <h2
             id="signin-heading"
             className="font-semibold text-grey-600 text-lg mt-10"
@@ -180,7 +183,7 @@ export default async function Checkout({
           </div>
 
           <div
-            className="border-b border-grey-200"
+            className="tablet:border-b tablet:border-grey-200"
             role="separator"
             aria-hidden="true"
           ></div>
@@ -190,18 +193,21 @@ export default async function Checkout({
       {session?.user?.email && (
         <section
           aria-labelledby="signin-heading"
-          className="hidden tablet:block"
+          className="order-2 bg-white clip-shadow shadow-sm shadow-grey-300 pt-4 px-4 pb-0 text-base hidden tablet:block "
         >
           <SignedIn email={session.user.email} />
         </section>
       )}
 
-      <section aria-labelledby="payment-heading">
+      <section
+        className="order-4 mt-6 bg-white clip-shadow shadow-sm shadow-grey-300 pt-0 px-4 pb-4 rounded-t-lg text-base tablet:col-start-1 tablet:mt-0 tablet:rounded-t-none"
+        aria-labelledby="payment-heading"
+      >
         {!session?.user?.email ? (
           <h2
             id="payment-heading"
             className={clsx(
-              'font-semibold text-grey-600 text-lg mt-10 mb-5',
+              'font-semibold text-grey-600 text-lg mb-5 mt-4 tablet:mt-6',
               !session?.user?.email &&
                 'cursor-not-allowed relative focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus after:absolute after:content-[""] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10 select-none'
             )}
@@ -215,7 +221,7 @@ export default async function Checkout({
         ) : (
           <h2
             id="payment-heading"
-            className="font-semibold text-grey-600 text-lg mt-10 mb-5"
+            className="font-semibold text-grey-600 text-lg mb-5 mt-4 tablet:mt-10"
             data-testid="header"
           >
             {l10n.getString(
