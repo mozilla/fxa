@@ -346,6 +346,7 @@ module.exports = (
         await customs.checkAuthenticated(
           request,
           passwordForgotToken.uid,
+          passwordForgotToken.email,
           'verifyTotpCode'
         );
 
@@ -505,7 +506,7 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const { uid, email } = sessionToken;
 
-        await customs.checkAuthenticated(request, uid, 'verifyTotpCode');
+        await customs.checkAuthenticated(request, uid, email, 'verifyTotpCode');
 
         const token = await db.totpToken(sessionToken.uid);
         const sharedSecret = token.sharedSecret;

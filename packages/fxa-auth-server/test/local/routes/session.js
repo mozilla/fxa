@@ -1209,6 +1209,7 @@ describe('/session/verify_code', () => {
       customs.checkAuthenticated,
       request,
       signupCodeAccount.uid,
+      signupCodeAccount.email,
       'verifySessionCode'
     );
     assert.calledOnce(db.account);
@@ -1459,7 +1460,8 @@ describe('/session/verify/verify_push', () => {
     assert.calledOnceWithExactly(
       customs.checkAuthenticated,
       request,
-      'foo',
+      signupCodeAccount.uid,
+      signupCodeAccount.email,
       'verifySessionCode'
     );
     assert.calledOnceWithExactly(db.devices, 'foo');
@@ -1525,6 +1527,7 @@ describe('/session/verify/verify_push', () => {
         customs.checkAuthenticated,
         request,
         'foo',
+        'foo@example.org',
         'verifySessionCode'
       );
 

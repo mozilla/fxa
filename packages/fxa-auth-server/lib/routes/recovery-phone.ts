@@ -48,6 +48,7 @@ export type Customs = {
   checkAuthenticated: (
     req: AuthRequest,
     uid: string,
+    email: string,
     action: string
   ) => Promise<void>;
 };
@@ -202,6 +203,7 @@ class RecoveryPhoneHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
+      email,
       'recoveryPhoneSendResetPasswordCode'
     );
 
@@ -285,6 +287,7 @@ class RecoveryPhoneHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
+      email,
       'recoveryPhoneSendSetupCode'
     );
 
@@ -381,6 +384,7 @@ class RecoveryPhoneHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
+      email,
       'verifyRecoveryPhoneTotpCode'
     );
 
@@ -645,6 +649,7 @@ class RecoveryPhoneHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
+      email,
       'verifyRecoveryPhoneTotpCode'
     );
 
@@ -665,10 +670,7 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
-      await this.db.verifyPasswordForgotTokenWithMethod(
-        id,
-        'totp-2fa'
-      );
+      await this.db.verifyPasswordForgotTokenWithMethod(id, 'totp-2fa');
 
       await this.glean.resetPassword.recoveryPhoneCodeComplete(request);
 

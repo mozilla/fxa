@@ -806,6 +806,7 @@ describe('/password', () => {
       const mockRequest = mocks.mockRequest({
         credentials: {
           uid,
+          email: TEST_EMAIL,
         },
         payload: {
           email: TEST_EMAIL,
@@ -847,6 +848,7 @@ describe('/password', () => {
         mockCustoms.checkAuthenticated,
         mockRequest,
         uid,
+        TEST_EMAIL,
         'authenticatedPasswordChange'
       );
       sinon.assert.calledWith(mockDB.accountRecord, TEST_EMAIL);
