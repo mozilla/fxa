@@ -44,6 +44,7 @@
   sendVerifyCode                        : ip                : 5             : 10 minutes        : 30 minutes
   sendUnblockCode                       : email             : 5             : 15 minutes        : 15 minutes
   sendUnblockCode                       : ip                : 5             : 10 minutes        : 30 minutes
+  unblockEmail                          : email             : 5             : 15 minutes        : 15 minutes
 
 # Bad Login Attempts - These are specific to login failures. Again, the user hasn't authenticated yet, so we check both
 # email and ip.
