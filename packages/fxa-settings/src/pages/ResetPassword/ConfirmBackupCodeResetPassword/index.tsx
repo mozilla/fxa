@@ -79,6 +79,7 @@ const ConfirmBackupCodeResetPassword = ({
           id: 'password_reset_backup_code_submit',
         }}
         errorBannerId="confirm-backup-code-reset-password-error-banner"
+        className="my-6"
       />
 
       <div className="mt-5 link-blue text-sm flex justify-end">

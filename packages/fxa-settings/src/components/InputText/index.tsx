@@ -48,6 +48,7 @@ export type InputTextProps = {
   required?: boolean;
   tooltipPosition?: 'top' | 'bottom';
   isPasswordInput?: boolean;
+  ariaDescribedBy?: string;
 };
 
 export const InputText = ({
@@ -80,6 +81,7 @@ export const InputText = ({
   required,
   tooltipPosition,
   isPasswordInput = false,
+  ariaDescribedBy,
 }: InputTextProps) => {
   const [focused, setFocused] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
@@ -176,6 +178,7 @@ export const InputText = ({
           data-testid={formatDataTestId('input-field')}
           onChange={textFieldChange}
           ref={combinedRef}
+          aria-describedby={ariaDescribedBy}
           {...{
             name,
             disabled,

@@ -15,6 +15,7 @@ export type FormVerifyTotpProps = {
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
   verifyCode: (code: string) => void;
   gleanDataAttrs?: GleanClickEventDataAttrs;
+  className?: string;
 };
 
 export type VerifyTotpFormData = {

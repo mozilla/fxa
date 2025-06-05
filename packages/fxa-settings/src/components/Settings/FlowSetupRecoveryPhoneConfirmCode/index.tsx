@@ -164,6 +164,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
           id: 'two_step_auth_phone_verify_submit',
           type: reason,
         }}
+        className="my-6"
       />
       <div className="flex flex-wrap gap-2 mt-6 justify-center text-center">
         <FtlMsg id="flow-setup-phone-confirm-code-expired">
