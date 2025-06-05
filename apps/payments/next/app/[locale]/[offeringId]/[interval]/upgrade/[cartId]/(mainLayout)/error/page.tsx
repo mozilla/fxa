@@ -70,28 +70,31 @@ export default async function UpgradeError({
   const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config);
 
   return (
-    <>
-      <section
-        className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
-        aria-labelledby="page-information-heading"
+    <section
+      className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
+      aria-labelledby="page-information-heading"
+    >
+      <Image
+        src={errorIcon}
+        alt=""
+        className="mt-16 mb-10"
+        aria-hidden="true"
+      />
+      <h2
+        id="page-information-heading"
+        className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 "
       >
-        <Image src={errorIcon} alt="" className="mt-16 mb-10" />
-        <h2
-          id="page-information-heading"
-          className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 "
-        >
-          {l10n.getString(errorReason.messageFtl, errorReason.message)}
-        </h2>
+        {l10n.getString(errorReason.messageFtl, errorReason.message)}
+      </h2>
 
-        {errorReason.buttonUrl && (
-          <Link
-            className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
-            href={errorReason.buttonUrl}
-          >
-            {l10n.getString(errorReason.buttonFtl, errorReason.buttonLabel)}
-          </Link>
-        )}
-      </section>
-    </>
+      {errorReason.buttonUrl && (
+        <Link
+          className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
+          href={errorReason.buttonUrl}
+        >
+          {l10n.getString(errorReason.buttonFtl, errorReason.buttonLabel)}
+        </Link>
+      )}
+    </section>
   );
 }

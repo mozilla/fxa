@@ -71,6 +71,7 @@ export default async function UpgradeLayout({
             fromPurchaseDetails={currentPurchaseDetails}
             purchaseDetails={purchaseDetails}
             locale={locale}
+            sessionExists={!!session}
           />
         </div>
 
