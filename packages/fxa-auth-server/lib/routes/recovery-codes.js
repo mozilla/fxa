@@ -207,7 +207,12 @@ module.exports = (log, db, config, customs, mailer, glean) => {
           uid,
         } = request.auth.credentials;
 
-        await customs.check(request, email, 'verifyRecoveryCode');
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          email,
+          'verifyRecoveryCode'
+        );
 
         const { code } = request.payload;
         const { remaining } = await db.consumeRecoveryCode(uid, code);

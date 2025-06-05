@@ -120,6 +120,7 @@ class CustomsClient {
   async checkAuthenticated(request, uid, email, action) {
     const checked = await this.checkV2(request, 'checkAuthenticated', action, {
       ip: request?.app?.clientAddress,
+      email,
       uid,
     });
     if (checked) {

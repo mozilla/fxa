@@ -171,9 +171,8 @@ const makeRoutes = function (options = {}, requireMocks) {
   const log = options.log || mocks.mockLog();
   db = options.db || mocks.mockDB();
   const customs = options.customs || {
-    check: function () {
-      return Promise.resolve(true);
-    },
+    check: () => Promise.resolve(),
+    checkAuthenticated: () => Promise.resolve(),
   };
   const push = options.push || require('../../../lib/push')(log, db, {});
   const mailer = options.mailer || {};

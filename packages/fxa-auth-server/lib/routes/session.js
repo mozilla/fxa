@@ -454,8 +454,9 @@ module.exports = function (
         const account = await db.account(sessionToken.uid);
         const secret = account.primaryEmail.emailCode;
 
-        await customs.check(
+        await customs.checkAuthenticated(
           request,
+          account.uid,
           account.primaryEmail.normalizedEmail,
           'sendVerifyCode'
         );

@@ -195,8 +195,9 @@ describe('subscriptions payPalRoutes', () => {
         defaultRequestOptions
       );
       sinon.assert.calledOnceWithExactly(
-        customs.check,
+        customs.checkAuthenticated,
         request,
+        UID,
         TEST_EMAIL,
         'getCheckoutToken'
       );

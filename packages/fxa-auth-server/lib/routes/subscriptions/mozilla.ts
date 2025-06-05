@@ -38,8 +38,9 @@ export class MozillaSubscriptionHandler {
     );
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(
+    await this.customs.checkAuthenticated(
       request,
+      uid,
       email,
       'mozillaSubscriptionsCustomerBillingAndSubscriptions'
     );
@@ -84,8 +85,9 @@ export class MozillaSubscriptionHandler {
     this.log.begin('mozillaSubscriptions.validatePlanEligibility', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(
+    await this.customs.checkAuthenticated(
       request,
+      uid,
       email,
       'mozillaSubscriptionsValidatePlanEligibility'
     );

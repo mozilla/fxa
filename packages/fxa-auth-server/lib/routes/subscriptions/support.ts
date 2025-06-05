@@ -32,7 +32,7 @@ export const supportRoutes = (
       return handleAuth(db, request.auth, true);
     }
 
-    // auth stratey is supportSecret here.
+    // auth strategy is supportSecret here.
     // The ticket might not be from a FxA user at all.
     const { email } = request.payload as Record<string, any>;
 
@@ -98,7 +98,7 @@ export const supportRoutes = (
 
         const { uid, email } = await getAccountInfo(request);
         const { location } = request.app.geo;
-        await customs.check(request, email, 'supportRequest');
+        await customs.checkAuthenticated(request, uid, email, 'supportRequest');
 
         const {
           productName,
