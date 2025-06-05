@@ -694,7 +694,7 @@ describe('/recovery_phone', () => {
     });
 
     it('does not reject if email does not send', async () => {
-      mockMailer.postChangeRecoveryPhoneEmail = sinon.fake.returns(
+      mockMailer.sendPostChangeRecoveryPhoneEmail = sinon.fake.returns(
         Promise.reject(new Error('BOOM'))
       );
 
@@ -706,7 +706,7 @@ describe('/recovery_phone', () => {
       });
 
       assert.isDefined(resp);
-      assert.calledOnce(mockMailer.postChangeRecoveryPhoneEmail);
+      assert.calledOnce(mockMailer.sendPostChangeRecoveryPhoneEmail);
       assert.deepEqual(resp, {
         status: 'success',
         phoneNumber,
