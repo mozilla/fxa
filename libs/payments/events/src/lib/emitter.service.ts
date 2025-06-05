@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import Emittery from 'emittery';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CartManager, TaxChangeAllowedStatus } from '@fxa/payments/cart';
 import { PaymentsGleanManager } from '@fxa/payments/metrics';
 import { LocationStatus } from '@fxa/payments/eligibility';
@@ -13,12 +13,14 @@ import {
   PaymentsEmitterEvents,
   SP3RolloutEvent,
   SubscriptionEndedEvents,
+  type AuthEvents,
 } from './emitter.types';
 import { AccountManager } from '@fxa/shared/account/account';
 import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
 import { getSubplatInterval } from '@fxa/payments/customer';
 import * as Sentry from '@sentry/nestjs';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
+import { EmitterServiceHandleAuthError } from './emitter.error';
 
 @Injectable()
 export class PaymentsEmitterService {
@@ -29,7 +31,8 @@ export class PaymentsEmitterService {
     private paymentsGleanManager: PaymentsGleanManager,
     private cartManager: CartManager,
     private accountManager: AccountManager,
-    @Inject(StatsDService) public statsd: StatsD
+    @Inject(StatsDService) public statsd: StatsD,
+    private log: Logger
   ) {
     this.emitter = new Emittery<PaymentsEmitterEvents>();
     this.emitter.on('checkoutView', this.handleCheckoutView.bind(this));
@@ -43,10 +46,20 @@ export class PaymentsEmitterService {
     );
     this.emitter.on('sp3Rollout', this.handleSP3Rollout.bind(this));
     this.emitter.on('locationView', this.handleLocationView.bind(this));
+    this.emitter.on('auth', this.handleAuthEvent.bind(this));
   }
 
   getEmitter(): Emittery<PaymentsEmitterEvents> {
     return this.emitter;
+  }
+
+  async handleAuthEvent(eventData: AuthEvents) {
+    const { type, errorMessage } = eventData;
+    this.statsd.increment('auth_event', { type });
+
+    if (errorMessage) {
+      this.log.error(new EmitterServiceHandleAuthError(errorMessage))
+    }
   }
 
   async handleCheckoutView(eventData: CheckoutEvents) {
