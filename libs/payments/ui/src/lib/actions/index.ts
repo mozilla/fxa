@@ -24,3 +24,4 @@ export { submitNeedsInputAndRedirectAction } from './submitNeedsInputAndRedirect
 export { validateAndFormatPostalCode } from './validateAndFormatPostalCode';
 export { validateCartStateAndRedirectAction } from './validateCartStateAndRedirect';
 export { validateLocationAction } from './validateLocation';
+export { updateCartUidAction } from './updateCartUid';
