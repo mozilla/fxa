@@ -130,8 +130,8 @@ export interface RecoveryEmailStatusResponse {
 
 export interface CachedSigninHandlerResponse {
   data?: {
-    verificationMethod: VerificationMethods;
-    verificationReason: VerificationReasons;
+    verificationMethod?: VerificationMethods;
+    verificationReason?: VerificationReasons;
     uid: hexstring;
   } & RecoveryEmailStatusResponse;
   error?: AuthUiError;

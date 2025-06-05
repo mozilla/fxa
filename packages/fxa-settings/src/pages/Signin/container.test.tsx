@@ -62,6 +62,7 @@ import {
   OAuthQueryParams,
   SigninQueryParams,
 } from '../../models/pages/signin';
+import { OAuthError } from '../../lib/oauth';
 
 jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),
@@ -1045,6 +1046,16 @@ describe('signin container', () => {
     });
 
     it('runs handler, calls accountProfile and recoveryEmailStatus', async () => {
+      mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
+        authenticationMethods: ['pwd', 'email'],
+        authenticatorAssuranceLevel: 1 // email verified session
+      });
+      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
+        verified: false,
+        sessionVerified: false,
+        emailVerified: true,
+      });
+
       mockUseValidateModule();
       render([mockGqlAvatarUseQuery()]);
 
@@ -1068,20 +1079,21 @@ describe('signin container', () => {
         expect(handlerResult?.data?.verificationReason).toEqual(
           VerificationReasons.SIGN_IN
         );
-        expect(handlerResult?.data?.verified).toEqual(true);
-        expect(handlerResult?.data?.sessionVerified).toEqual(true);
+        expect(handlerResult?.data?.verified).toEqual(false);
+        expect(handlerResult?.data?.sessionVerified).toEqual(false);
         expect(handlerResult?.data?.emailVerified).toEqual(true);
       });
     });
 
-    it('returns TOTP_2FA verification method and SIGN_UP verification reason when expected', async () => {
+    it('does not return a verification reason with verified 2FA session', async () => {
       mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
         authenticationMethods: ['pwd', 'email', 'otp'],
+        authenticatorAssuranceLevel: 2 // 2FA verified session
       });
       mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
         verified: true,
         sessionVerified: true,
-        emailVerified: false,
+        emailVerified: true,
       });
 
       mockUseValidateModule();
@@ -1091,13 +1103,32 @@ describe('signin container', () => {
         const handlerResult =
           await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
 
-        expect(handlerResult?.data?.verificationMethod).toEqual(
-          VerificationMethods.TOTP_2FA
-        );
-        expect(handlerResult?.data?.verificationReason).toEqual(
-          VerificationReasons.SIGN_UP
-        );
-        expect(handlerResult?.data?.emailVerified).toEqual(false);
+        expect(handlerResult?.data?.verificationMethod).toBeUndefined()
+        expect(handlerResult?.data?.verificationReason).toBeUndefined()
+        expect(handlerResult?.data?.emailVerified).toEqual(true);
+      });
+    });
+
+    it('throws if mismatch 2FA and assurance level', async () => {
+      mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
+        authenticationMethods: ['pwd', 'email', 'otp'],
+        authenticatorAssuranceLevel: 1 // Session verified by email
+      });
+      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
+        verified: true,
+        sessionVerified: true,
+        emailVerified: true,
+      });
+
+      mockUseValidateModule();
+      render([mockGqlAvatarUseQuery()]);
+
+      await waitFor(async () => {
+        const handlerResult =
+          await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
+        expect(handlerResult).toEqual({
+          error: new OAuthError('PROMPT_NONE_NOT_SIGNED_IN'),
+        });
       });
     });
 
