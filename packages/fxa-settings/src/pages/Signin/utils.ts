@@ -20,7 +20,7 @@ import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
-import { AuthError } from '../../lib/oauth';
+import { AuthError, OAuthError } from '../../lib/oauth';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
 import { InMemoryCache } from '@apollo/client';
@@ -78,10 +78,9 @@ export const cachedSignIn = async (
   session: ReturnType<typeof useSession>
 ) => {
   try {
-    // might need scope `profile:amr` for OAuth
     const {
-      authenticationMethods,
-    }: { authenticationMethods: AuthenticationMethods[] } =
+      authenticationMethods, authenticatorAssuranceLevel
+    }: { authenticationMethods: AuthenticationMethods[], authenticatorAssuranceLevel: number } =
       await authClient.accountProfile(sessionToken);
 
     const totpIsActive = authenticationMethods.includes(
@@ -109,16 +108,26 @@ export const cachedSignIn = async (
       sessionToken
     );
 
-    const verificationMethod = totpIsActive
-      ? VerificationMethods.TOTP_2FA
-      : VerificationMethods.EMAIL_OTP;
+    let verificationMethod;
+    let verificationReason;
 
-    const verificationReason = emailVerified
-      ? VerificationReasons.SIGN_IN
-      : VerificationReasons.SIGN_UP;
+    if (totpIsActive) {
+      if (authenticatorAssuranceLevel >=2 ) {
+        // user is a valid and verified 2FA session, don't set any verification method
+      } else {
+        // user has 2FA enabled but is in a non-2FA session; it shouldn't happen
+        // in practice, redirect them to log in again
+        throw new OAuthError('PROMPT_NONE_NOT_SIGNED_IN');
+      }
+    } else if (!sessionVerified) {
+      verificationMethod = VerificationMethods.EMAIL_OTP;
+      verificationReason = emailVerified
+        ? VerificationReasons.SIGN_IN
+        : VerificationReasons.SIGN_UP;
 
-    if (!verified) {
-      await session.sendVerificationCode();
+      if (!verified && session.sendVerificationCode) {
+        await session.sendVerificationCode();
+      }
     }
 
     const storedLocalAccount = currentAccount();
