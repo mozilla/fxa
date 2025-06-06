@@ -108,7 +108,7 @@ export class CustomsService {
         throw new GraphQLError('Client has sent too many requests', {
           extensions: {
             code: 429,
-            error: 'Too Many Requests',
+            error: `Too Many Requests On ${options.action}.`,
             errno: 114,
             ...extraData,
           },
