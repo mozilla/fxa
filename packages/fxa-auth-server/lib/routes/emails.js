@@ -273,8 +273,9 @@ module.exports = (
           return {};
         }
 
-        await customs.check(
+        await customs.checkAuthenticated(
           request,
+          sessionToken.uid,
           sessionToken.email,
           'recoveryEmailResendCode'
         );
@@ -577,7 +578,12 @@ module.exports = (
           uid: uid,
         };
 
-        await customs.check(request, primaryEmail, 'createEmail');
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          primaryEmail,
+          'createEmail'
+        );
 
         const account = await db.account(uid);
         const secondaryEmails = account.emails.filter(
@@ -724,7 +730,12 @@ module.exports = (
         const primaryEmail = sessionToken.email;
         const email = request.payload.email;
 
-        await customs.check(request, primaryEmail, 'deleteEmail');
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          primaryEmail,
+          'deleteEmail'
+        );
         const account = await db.account(uid);
 
         if (sessionToken.tokenVerificationId) {
@@ -789,7 +800,12 @@ module.exports = (
 
         log.begin('Account.RecoveryEmailSetPrimary', request);
 
-        await customs.check(request, currentEmail, 'setPrimaryEmail');
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          currentEmail,
+          'setPrimaryEmail'
+        );
 
         if (sessionToken.tokenVerificationId) {
           throw error.unverifiedSession();
@@ -902,8 +918,9 @@ module.exports = (
         const geoData = request.app.geo;
         const { email } = request.payload;
 
-        await customs.check(
+        await customs.checkAuthenticated(
           request,
+          sessionToken.uid,
           sessionToken.email,
           'recoveryEmailSecondaryResendCode'
         );
@@ -988,8 +1005,9 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const { email, code } = request.payload;
 
-        await customs.check(
+        await customs.checkAuthenticated(
           request,
+          sessionToken.uid,
           sessionToken.email,
           'recoveryEmailSecondaryVerifyCode'
         );

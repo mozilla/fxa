@@ -371,10 +371,15 @@ module.exports = function (
         const options = request.payload;
         const sessionToken = request.auth.credentials;
         const { code } = options;
-        const { uid } = sessionToken;
+        const { uid, email } = sessionToken;
         const devices = await request.app.devices;
 
-        await customs.checkAuthenticated(request, uid, 'verifySessionCode');
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          email,
+          'verifySessionCode'
+        );
 
         request.emitMetricsEvent('session.verify_code');
 
@@ -449,8 +454,9 @@ module.exports = function (
         const account = await db.account(sessionToken.uid);
         const secret = account.primaryEmail.emailCode;
 
-        await customs.check(
+        await customs.checkAuthenticated(
           request,
+          account.uid,
           account.primaryEmail.normalizedEmail,
           'sendVerifyCode'
         );
@@ -618,10 +624,15 @@ module.exports = function (
         log.begin('Session.verify_push', request);
         const options = request.payload;
         const sessionToken = request.auth.credentials;
-        const { uid } = sessionToken;
+        const { uid, email } = sessionToken;
         const { code, tokenVerificationId } = options;
 
-        await customs.checkAuthenticated(request, uid, 'verifySessionCode');
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          email,
+          'verifySessionCode'
+        );
         request.emitMetricsEvent('session.verify_push');
 
         const device = await db.deviceFromTokenVerificationId(

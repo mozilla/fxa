@@ -251,8 +251,9 @@ describe('backup authentication codes', () => {
         (err) => {
           assert.equal(err.errno, error.ERRNO.RECOVERY_CODE_NOT_FOUND);
           assert.calledWithExactly(
-            customs.check,
+            customs.checkAuthenticated,
             request,
+            UID,
             TEST_EMAIL,
             'verifyRecoveryCode'
           );

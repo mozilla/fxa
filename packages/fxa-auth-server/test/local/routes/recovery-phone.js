@@ -130,10 +130,11 @@ describe('/recovery_phone', () => {
       assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 1);
       assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 0);
 
-      assert.equal(mockCustoms.check.callCount, 1);
-      assert.equal(mockCustoms.check.getCall(0).args[1], email);
+      assert.equal(mockCustoms.checkAuthenticated.callCount, 1);
+      assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[1], uid);
+      assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[2], email);
       assert.equal(
-        mockCustoms.check.getCall(0).args[2],
+        mockCustoms.checkAuthenticated.getCall(0).args[3],
         'recoveryPhoneSendSigninCode'
       );
 
@@ -237,8 +238,9 @@ describe('/recovery_phone', () => {
 
       assert.equal(mockCustoms.checkAuthenticated.callCount, 1);
       assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[1], uid);
+      assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[2], email);
       assert.equal(
-        mockCustoms.checkAuthenticated.getCall(0).args[2],
+        mockCustoms.checkAuthenticated.getCall(0).args[3],
         'recoveryPhoneSendResetPasswordCode'
       );
 
@@ -363,8 +365,9 @@ describe('/recovery_phone', () => {
 
       assert.equal(mockCustoms.checkAuthenticated.callCount, 1);
       assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[1], uid);
+      assert.equal(mockCustoms.checkAuthenticated.getCall(0).args[2], email);
       assert.equal(
-        mockCustoms.checkAuthenticated.getCall(0).args[2],
+        mockCustoms.checkAuthenticated.getCall(0).args[3],
         'recoveryPhoneSendSetupCode'
       );
       assert.calledOnceWithExactly(
@@ -692,7 +695,7 @@ describe('/recovery_phone', () => {
     });
 
     it('does not reject if email does not send', async () => {
-      mockMailer.postChangeRecoveryPhoneEmail = sinon.fake.returns(
+      mockMailer.sendPostChangeRecoveryPhoneEmail = sinon.fake.returns(
         Promise.reject(new Error('BOOM'))
       );
 
@@ -704,7 +707,7 @@ describe('/recovery_phone', () => {
       });
 
       assert.isDefined(resp);
-      assert.calledOnce(mockMailer.postChangeRecoveryPhoneEmail);
+      assert.calledOnce(mockMailer.sendPostChangeRecoveryPhoneEmail);
       assert.deepEqual(resp, {
         status: 'success',
         phoneNumber,

@@ -8,6 +8,7 @@ import {
   validateLocationAction,
   getTaxAddressAction,
   setupCartAction,
+  updateCartUidAction,
 } from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
@@ -96,41 +97,53 @@ export default async function New({
   }
 
   let redirectToUrl: URL;
-  try {
-    const cart = await setupCartAction(
-      interval as SubplatInterval,
-      offeringId,
-      taxAddress,
-      undefined,
-      coupon,
-      fxaUid
+  let cart: ResultCart;
+
+  if (searchParams.cartId && fxaUid && searchParams.cartVersion) {
+    cart = await updateCartUidAction(
+      searchParams.cartId,
+      Number(searchParams.cartVersion),
+      fxaUid,
     );
 
     redirectToUrl = getRedirectToUrl(cart, params, searchParams);
-  } catch (error) {
-    if (error.name === 'CartInvalidPromoCodeError') {
-      const cart = await setupCartAction(
+  } else {
+    try {
+      cart = await setupCartAction(
         interval as SubplatInterval,
         offeringId,
         taxAddress,
         undefined,
-        undefined,
+        coupon,
         fxaUid
       );
 
       redirectToUrl = getRedirectToUrl(cart, params, searchParams);
-    } else if (
-      error.name === 'RetrieveStripePriceInvalidOfferingError' ||
-      error.name === 'RetrieveStripePriceNotFoundError'
-    ) {
-      notFound();
-    } else {
-      throw error;
+    } catch (error) {
+      if (error.name === 'CartInvalidPromoCodeError') {
+        cart = await setupCartAction(
+          interval as SubplatInterval,
+          offeringId,
+          taxAddress,
+          undefined,
+          undefined,
+          fxaUid
+        );
+
+        redirectToUrl = getRedirectToUrl(cart, params, searchParams);
+      } else if (
+        error.name === 'RetrieveStripePriceInvalidOfferingError' ||
+        error.name === 'RetrieveStripePriceNotFoundError'
+      ) {
+        notFound();
+      } else {
+        throw error;
+      }
     }
   }
 
-  redirectToUrl.searchParams.delete('countryCode');
-  redirectToUrl.searchParams.delete('postalCode');
+  redirectToUrl.searchParams.delete('cartId');
+  redirectToUrl.searchParams.delete('cartVersion');
 
   redirect(redirectToUrl.href);
 }

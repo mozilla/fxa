@@ -79,6 +79,7 @@ const ConfirmTotpResetPassword = ({
           id: 'reset_password_confirm_totp_code_submit_button',
         }}
         errorBannerId="confirm-totp-reset-password-error-banner"
+        className="my-6"
       />
 
       <div className="mt-5 flex justify-between items-center">

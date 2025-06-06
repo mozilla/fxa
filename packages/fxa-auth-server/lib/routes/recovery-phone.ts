@@ -48,6 +48,7 @@ export type Customs = {
   checkAuthenticated: (
     req: AuthRequest,
     uid: string,
+    email: string,
     action: string
   ) => Promise<void>;
 };
@@ -129,7 +130,12 @@ class RecoveryPhoneHandler {
       throw AppError.invalidToken();
     }
 
-    await this.customs.check(request, email, 'recoveryPhoneSendSigninCode');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'recoveryPhoneSendSigninCode'
+    );
 
     const getFormattedMessage = async (code: string) => {
       const localizedMessage = await this.getLocalizedMessage(
@@ -202,6 +208,7 @@ class RecoveryPhoneHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
+      email,
       'recoveryPhoneSendResetPasswordCode'
     );
 
@@ -285,6 +292,7 @@ class RecoveryPhoneHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
+      email,
       'recoveryPhoneSendSetupCode'
     );
 
@@ -381,6 +389,7 @@ class RecoveryPhoneHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
+      email,
       'verifyRecoveryPhoneTotpCode'
     );
 
@@ -527,7 +536,6 @@ class RecoveryPhoneHandler {
   }
 
   async changePhoneNumber(request: AuthRequest) {
-    // need to check first that there is an existing phone number
     const { uid } = request.auth.credentials as SessionTokenAuthCredential;
 
     const { code } = request.payload as unknown as {
@@ -593,11 +601,17 @@ class RecoveryPhoneHandler {
 
     const { phoneNumber, nationalFormat } =
       await this.recoveryPhoneService.hasConfirmed(uid);
+
+    recordSecurityEvent('account.recovery_phone_replace_complete', {
+      db: this.db,
+      request,
+    });
+
     const { acceptLanguage, geo, ua } = request.app;
     const account = await this.db.account(uid);
 
     try {
-      await this.mailer.postChangeRecoveryPhoneEmail(account.emails, account, {
+      await this.mailer.sendPostChangeRecoveryPhoneEmail(account.emails, account, {
         acceptLanguage,
         timeZone: geo.timeZone,
         uaBrowser: ua.browser,
@@ -606,11 +620,6 @@ class RecoveryPhoneHandler {
         uaOSVersion: ua.osVersion,
         uaDeviceType: ua.deviceType,
         uid,
-      });
-
-      recordSecurityEvent('account.recovery_phone_replace_complete', {
-        db: this.db,
-        request,
       });
     } catch (error) {
       // log error, but don't throw
@@ -645,6 +654,7 @@ class RecoveryPhoneHandler {
     await this.customs.checkAuthenticated(
       request,
       uid,
+      email,
       'verifyRecoveryPhoneTotpCode'
     );
 
@@ -665,10 +675,7 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
-      await this.db.verifyPasswordForgotTokenWithMethod(
-        id,
-        'totp-2fa'
-      );
+      await this.db.verifyPasswordForgotTokenWithMethod(id, 'totp-2fa');
 
       await this.glean.resetPassword.recoveryPhoneCodeComplete(request);
 

@@ -822,7 +822,7 @@ export class AccountHandler {
     const account = await this.db.account(uid as string);
     const email = account.primaryEmail?.email;
 
-    await this.customs.check(request, email, 'setPassword');
+    await this.customs.checkAuthenticated(request, uid, email, 'setPassword');
 
     const response: Record<string, any> = {};
     response.uid = uid;
@@ -1823,7 +1823,12 @@ export class AccountHandler {
       authenticatorAssuranceLevel?: number;
     }
 
-    await this.customs.check(request, emailAddress, 'accountDestroy');
+    await this.customs.checkAuthenticated(
+      request,
+      sessionToken.uid,
+      sessionToken.email,
+      'accountDestroy'
+    );
 
     let accountRecord: Account;
     try {

@@ -93,7 +93,12 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
 
-        await customs.check(request, sessionToken.email, 'totpCreate');
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          sessionToken.email,
+          'totpCreate'
+        );
 
         if (sessionToken.tokenVerificationId) {
           throw errors.unverifiedSession();
@@ -166,7 +171,12 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const { uid } = sessionToken;
 
-        await customs.check(request, sessionToken.email, 'totpDestroy');
+        await customs.checkAuthenticated(
+          request,
+          sessionToken.uid,
+          sessionToken.email,
+          'totpDestroy'
+        );
 
         // If a TOTP token is not verified, we should be able to safely delete regardless of session
         // verification state.
@@ -346,6 +356,7 @@ module.exports = (
         await customs.checkAuthenticated(
           request,
           passwordForgotToken.uid,
+          passwordForgotToken.email,
           'verifyTotpCode'
         );
 
@@ -490,6 +501,7 @@ module.exports = (
               .required()
               .description(DESCRIPTION.codeTotp),
             service: validators.service,
+            metricsContext: METRICS_CONTEXT_SCHEMA
           }),
         },
         response: {
@@ -505,7 +517,7 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const { uid, email } = sessionToken;
 
-        await customs.checkAuthenticated(request, uid, 'verifyTotpCode');
+        await customs.checkAuthenticated(request, uid, email, 'verifyTotpCode');
 
         const token = await db.totpToken(sessionToken.uid);
         const sharedSecret = token.sharedSecret;

@@ -5,6 +5,18 @@
 import NextAuth from 'next-auth';
 import { authConfig } from './auth.config';
 import { config } from './config';
+import { BaseError } from '@fxa/shared/error';
+
+import { getApp } from '@fxa/payments/ui/server';
+
+
+export class AuthError extends BaseError {
+  constructor(...args: ConstructorParameters<typeof BaseError>) {
+    super(...args);
+    this.name = 'AuthError';
+    Object.setPrototypeOf(this, AuthError.prototype);
+  }
+}
 
 export const {
   handlers: { GET, POST },
@@ -13,6 +25,9 @@ export const {
   signOut,
 } = NextAuth({
   ...authConfig,
+  pages: {
+    error: '/auth/error',
+  },
   providers: [
     {
       id: 'fxa',
@@ -56,4 +71,17 @@ export const {
       };
     },
   },
+  events: {
+    async signIn() {
+      getApp().getEmitterService().emit('auth', { type: 'signin' });
+    },
+    async signOut() {
+      getApp().getEmitterService().emit('auth', { type: 'signout' });
+    }
+  },
+  logger: {
+    error(error: Error) {
+      console.error(new AuthError(error.message, { cause: error }))
+    }
+  }
 });

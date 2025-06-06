@@ -80,9 +80,8 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     options.Password || require('../../../lib/crypto/password')(log, config);
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
-    check: () => {
-      return Promise.resolve(true);
-    },
+    check: () => Promise.resolve(true),
+    checkAuthenticated: () => Promise.resolve(true),
   };
   const signinUtils =
     options.signinUtils ||
@@ -2142,6 +2141,7 @@ describe('/account/login', () => {
   const mockPush = mocks.mockPush();
   const mockCustoms = {
     check: () => Promise.resolve(),
+    checkAuthenticated: () => Promise.resolve(),
     flag: () => Promise.resolve(),
   };
   const mockCadReminders = mocks.mockCadReminders();

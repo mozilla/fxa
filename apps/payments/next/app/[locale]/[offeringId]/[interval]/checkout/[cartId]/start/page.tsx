@@ -81,10 +81,8 @@ export default async function Checkout({
   ]);
 
   const redirectSearchParams: Record<string, string> = searchParams || {};
-  if (cart.taxAddress) {
-    redirectSearchParams.countryCode = cart.taxAddress.countryCode;
-    redirectSearchParams.postalCode = cart.taxAddress.postalCode;
-  }
+  redirectSearchParams.cartId = cart.id;
+  redirectSearchParams.cartVersion = cart.version.toString();
 
   const redirectTo = buildRedirectUrl(
     params.offeringId,

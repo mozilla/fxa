@@ -605,8 +605,9 @@ describe('DirectStripeRoutes', () => {
       const actual =
         await directStripeRoutesInstance.previewInvoice(VALID_REQUEST);
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.check,
+        directStripeRoutesInstance.customs.checkAuthenticated,
         VALID_REQUEST,
+        UID,
         TEST_EMAIL,
         'previewInvoice'
       );
@@ -654,8 +655,9 @@ describe('DirectStripeRoutes', () => {
       const actual =
         await directStripeRoutesInstance.previewInvoice(VALID_REQUEST);
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.check,
+        directStripeRoutesInstance.customs.checkAuthenticated,
         VALID_REQUEST,
+        UID,
         TEST_EMAIL,
         'previewInvoice'
       );
@@ -707,8 +709,9 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.previewInvoice(VALID_REQUEST);
 
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.check,
+        directStripeRoutesInstance.customs.checkAuthenticated,
         VALID_REQUEST,
+        UID,
         TEST_EMAIL,
         'previewInvoice'
       );
@@ -854,8 +857,9 @@ describe('DirectStripeRoutes', () => {
       await directStripeRoutesInstance.subsequentInvoicePreviews(VALID_REQUEST);
 
     sinon.assert.calledOnceWithExactly(
-      directStripeRoutesInstance.customs.check,
+      directStripeRoutesInstance.customs.checkAuthenticated,
       VALID_REQUEST,
+      UID,
       TEST_EMAIL,
       'subsequentInvoicePreviews'
     );
@@ -929,8 +933,9 @@ describe('DirectStripeRoutes', () => {
         );
 
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.check,
+        directStripeRoutesInstance.customs.checkAuthenticated,
         VALID_REQUEST,
+        UID,
         TEST_EMAIL,
         'subsequentInvoicePreviews'
       );
@@ -950,8 +955,9 @@ describe('DirectStripeRoutes', () => {
         );
 
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.check,
+        directStripeRoutesInstance.customs.checkAuthenticated,
         VALID_REQUEST,
+        UID,
         TEST_EMAIL,
         'subsequentInvoicePreviews'
       );
@@ -989,8 +995,9 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.retrieveCouponDetails(VALID_REQUEST);
 
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.check,
+        directStripeRoutesInstance.customs.checkAuthenticated,
         VALID_REQUEST,
+        UID,
         TEST_EMAIL,
         'retrieveCouponDetails'
       );
@@ -1149,8 +1156,9 @@ describe('DirectStripeRoutes', () => {
         );
 
       sinon.assert.calledOnceWithExactly(
-        directStripeRoutesInstance.customs.check,
+        directStripeRoutesInstance.customs.checkAuthenticated,
         VALID_REQUEST,
+        UID,
         TEST_EMAIL,
         'applyPromotionCodeToSubscription'
       );

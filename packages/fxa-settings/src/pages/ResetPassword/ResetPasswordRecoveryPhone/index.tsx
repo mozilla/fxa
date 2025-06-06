@@ -178,6 +178,7 @@ const ResetPasswordRecoveryPhone = ({
           setErrorMessage,
         }}
         gleanDataAttrs={{ id: 'reset_password_backup_phone_submit' }}
+        className="my-6"
       />
       <div className="flex justify-between mt-5 text-sm">
         <FtlMsg id="reset-password-recovery-phone-resend-code-button">
@@ -193,7 +194,9 @@ const ResetPasswordRecoveryPhone = ({
           <LinkExternal
             href="https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication"
             className="link-blue mt-4 text-sm"
-            gleanDataAttrs={{ id: 'reset_password_backup_phone_locked_out_link' }}
+            gleanDataAttrs={{
+              id: 'reset_password_backup_phone_locked_out_link',
+            }}
           >
             Are you locked out?
           </LinkExternal>

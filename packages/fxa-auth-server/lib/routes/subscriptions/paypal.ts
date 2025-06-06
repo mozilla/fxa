@@ -59,8 +59,13 @@ export class PayPalHandler extends StripeWebhookHandler {
    */
   async getCheckoutToken(request: AuthRequest) {
     this.log.begin('subscriptions.getCheckoutToken', request);
-    const { email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(request, email, 'getCheckoutToken');
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'getCheckoutToken'
+    );
 
     const { currencyCode } = request.payload as Record<string, string>;
     const token = await this.paypalHelper.getCheckoutToken({ currencyCode });
@@ -87,7 +92,12 @@ export class PayPalHandler extends StripeWebhookHandler {
     );
 
     try {
-      await this.customs.check(request, email, 'createSubscriptionWithPaypal');
+      await this.customs.checkAuthenticated(
+        request,
+        uid,
+        email,
+        'createSubscriptionWithPaypal'
+      );
 
       const taxAddress = buildTaxAddress(
         this.log,
@@ -370,7 +380,12 @@ export class PayPalHandler extends StripeWebhookHandler {
   async updatePaypalBillingAgreement(request: AuthRequest) {
     this.log.begin('subscriptions.updatePaypalBillingAgreement', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(request, email, 'updatePaypalBillingAgreement');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'updatePaypalBillingAgreement'
+    );
 
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',

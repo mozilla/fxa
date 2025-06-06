@@ -597,6 +597,7 @@ describe('totp', () => {
         customs.checkAuthenticated,
         request,
         'uid',
+        TEST_EMAIL,
         'verifyTotpCode'
       );
     });
@@ -618,6 +619,7 @@ describe('totp', () => {
         customs.checkAuthenticated,
         request,
         'uid',
+        TEST_EMAIL,
         'verifyTotpCode'
       );
     });

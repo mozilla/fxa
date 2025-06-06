@@ -159,7 +159,12 @@ export class StripeHandler {
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
 
-    await this.customs.check(request, email, 'deleteSubscription');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'deleteSubscription'
+    );
 
     const subscriptionId = request.params.subscriptionId;
 
@@ -184,7 +189,12 @@ export class StripeHandler {
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
 
-    await this.customs.check(request, email, 'reactivateSubscription');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'reactivateSubscription'
+    );
 
     const { subscriptionId } = request.payload as Record<string, string>;
 
@@ -209,7 +219,12 @@ export class StripeHandler {
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
 
-    await this.customs.check(request, email, 'updateSubscription');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'updateSubscription'
+    );
 
     const { subscriptionId } = request.params;
     const { planId } = request.payload as Record<string, string>;
@@ -401,7 +416,12 @@ export class StripeHandler {
   ): Promise<DeepPartial<Stripe.Customer>> {
     this.log.begin('subscriptions.createCustomer', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(request, email, 'createCustomer');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'createCustomer'
+    );
 
     let customer = await this.stripeHelper.fetchCustomer(uid);
     if (customer) {
@@ -433,7 +453,7 @@ export class StripeHandler {
   async retryInvoice(request: AuthRequest) {
     this.log.begin('subscriptions.retryInvoice', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(request, email, 'retryInvoice');
+    await this.customs.checkAuthenticated(request, uid, email, 'retryInvoice');
 
     const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
     if (!stripeCustomerId) {
@@ -470,7 +490,12 @@ export class StripeHandler {
     let customer: Stripe.Customer | void = undefined;
     if (request.auth.credentials) {
       const { uid, email } = await handleAuth(this.db, request.auth, true);
-      await this.customs.check(request, email, 'previewInvoice');
+      await this.customs.checkAuthenticated(
+        request,
+        uid,
+        email,
+        'previewInvoice'
+      );
       try {
         customer = await this.stripeHelper.fetchCustomer(uid, [
           'subscriptions',
@@ -551,7 +576,12 @@ export class StripeHandler {
   ): Promise<invoiceDTO.subsequentInvoicePreviewsSchema> {
     this.log.begin('subscriptions.subsequentInvoicePreview', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(request, email, 'subsequentInvoicePreviews');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'subsequentInvoicePreviews'
+    );
 
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',
@@ -586,8 +616,13 @@ export class StripeHandler {
     >;
 
     if (request.auth.credentials) {
-      const { email } = await handleAuth(this.db, request.auth, true);
-      await this.customs.check(request, email, 'retrieveCouponDetails');
+      const { uid, email } = await handleAuth(this.db, request.auth, true);
+      await this.customs.checkAuthenticated(
+        request,
+        uid,
+        email,
+        'retrieveCouponDetails'
+      );
     } else {
       await this.customs.checkIpOnly(request, 'retrieveCouponDetails');
     }
@@ -614,8 +649,9 @@ export class StripeHandler {
     this.log.begin('subscriptions.applyPromotionCodeToSubscription', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(
+    await this.customs.checkAuthenticated(
       request,
+      uid,
       email,
       'applyPromotionCodeToSubscription'
     );
@@ -665,7 +701,12 @@ export class StripeHandler {
       request.auth,
       true
     );
-    await this.customs.check(request, email, 'createSubscriptionWithPMI');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'createSubscriptionWithPMI'
+    );
 
     const taxAddress = buildTaxAddress(
       this.log,
@@ -819,7 +860,12 @@ export class StripeHandler {
   async createSetupIntent(request: AuthRequest) {
     this.log.begin('subscriptions.createSetupIntent', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(request, email, 'createSetupIntent');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'createSetupIntent'
+    );
 
     const { stripeCustomerId } = (await getAccountCustomerByUid(uid)) || {};
     if (!stripeCustomerId) {
@@ -837,7 +883,12 @@ export class StripeHandler {
   async updateDefaultPaymentMethod(request: AuthRequest) {
     this.log.begin('subscriptions.updateDefaultPaymentMethod', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(request, email, 'updateDefaultPaymentMethod');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'updateDefaultPaymentMethod'
+    );
 
     let customer = await this.stripeHelper.fetchCustomer(uid);
     if (!customer) {
@@ -902,7 +953,12 @@ export class StripeHandler {
   async detachFailedPaymentMethod(request: AuthRequest) {
     this.log.begin('subscriptions.detachFailedPaymentMethod', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    await this.customs.check(request, email, 'detachFailedPaymentMethod');
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'detachFailedPaymentMethod'
+    );
 
     const customer = await this.stripeHelper.fetchCustomer(uid, [
       'subscriptions',

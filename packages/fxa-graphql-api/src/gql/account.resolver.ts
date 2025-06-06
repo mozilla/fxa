@@ -199,10 +199,14 @@ export class AccountResolver {
     @Args('input', { type: () => VerifyTotpInput })
     input: VerifyTotpInput
   ): Promise<VerifyTotpPayload> {
+    const options = {
+      service: input.service,
+      metricsContext: input.metricsContext,
+    };
     const result = await this.authAPI.verifyTotpCode(
       token,
       input.code,
-      input.service ? { service: input.service } : undefined,
+      options,
       headers
     );
     return {

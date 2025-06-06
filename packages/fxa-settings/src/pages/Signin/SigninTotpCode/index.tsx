@@ -163,6 +163,7 @@ export const SigninTotpCode = ({
         )}
         setErrorMessage={setBannerError}
         verifyCode={onSubmit}
+        className="my-6"
       />
       <div className="mt-8 link-blue text-sm flex justify-between">
         <FtlMsg id="signin-totp-code-other-account-link">

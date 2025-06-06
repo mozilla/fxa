@@ -91,7 +91,23 @@ import OAuthDataError from '../../components/OAuthDataError';
  */
 
 function getAccountInfo(email?: string) {
-  const storedLocalAccount = currentAccount() || lastStoredAccount();
+
+  const storedLocalAccount = (() => {
+    let account = currentAccount();
+    if (account) {
+      return account;
+    }
+
+    // Important, a lot of the code following this assumes that if a session
+    // token is provided, it belongs to the current account. If this assumption
+    // is violated, weird things happen! Maybe this is the 'fix'?
+    account = lastStoredAccount();
+    if (account) {
+      setCurrentAccount(account.uid);
+    }
+
+    return account;
+  })();
 
   if (email) {
     // Try to use local storage values if email matches the email in local storage
@@ -107,7 +123,6 @@ function getAccountInfo(email?: string) {
   }
 
   if (storedLocalAccount) {
-    setCurrentAccount(storedLocalAccount.uid);
     return {
       email: storedLocalAccount.email,
       sessionToken: storedLocalAccount.sessionToken,

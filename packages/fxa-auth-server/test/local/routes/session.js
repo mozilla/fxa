@@ -1209,6 +1209,7 @@ describe('/session/verify_code', () => {
       customs.checkAuthenticated,
       request,
       signupCodeAccount.uid,
+      signupCodeAccount.email,
       'verifySessionCode'
     );
     assert.calledOnce(db.account);
@@ -1286,7 +1287,10 @@ describe('/session/resend_code', () => {
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
     push = mocks.mockPush();
-    customs = { check: sinon.stub() };
+    customs = {
+      check: sinon.stub(),
+      checkAuthenticated: sinon.stub(),
+    };
     const config = {};
     const routes = makeRoutes({ log, config, db, mailer, push, customs });
     route = getRoute(routes, '/session/resend_code');
@@ -1317,8 +1321,9 @@ describe('/session/resend_code', () => {
     assert.equal(args[2].timeZone, 'America/Los_Angeles');
 
     sinon.assert.calledWithExactly(
-      customs.check,
+      customs.checkAuthenticated,
       request,
+      signupCodeAccount.uid,
       signupCodeAccount.email,
       'sendVerifyCode'
     );
@@ -1459,7 +1464,8 @@ describe('/session/verify/verify_push', () => {
     assert.calledOnceWithExactly(
       customs.checkAuthenticated,
       request,
-      'foo',
+      signupCodeAccount.uid,
+      signupCodeAccount.email,
       'verifySessionCode'
     );
     assert.calledOnceWithExactly(db.devices, 'foo');
@@ -1525,6 +1531,7 @@ describe('/session/verify/verify_push', () => {
         customs.checkAuthenticated,
         request,
         'foo',
+        'foo@example.org',
         'verifySessionCode'
       );
 

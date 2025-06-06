@@ -117,9 +117,10 @@ class CustomsClient {
     return this.handleCustomsResult(request, result);
   }
 
-  async checkAuthenticated(request, uid, action) {
+  async checkAuthenticated(request, uid, email, action) {
     const checked = await this.checkV2(request, 'checkAuthenticated', action, {
       ip: request?.app?.clientAddress,
+      email,
       uid,
     });
     if (checked) {
@@ -361,8 +362,9 @@ class CustomsClient {
     }
 
     request.emitMetricsEvent('customs.blocked');
+
     const retryAfterLocalized = localizeTimestamp.format(
-      Date.now() + result.retryAfter * 1000,
+      Date.now() + result.retryAfter,
       request.headers['accept-language']
     );
 

@@ -105,11 +105,10 @@ module.exports = function (
 
         const sessionToken = request.auth.credentials;
         if (sessionToken) {
-
-          console.log('!!! customs.v2Enabled', customs.v2Enabled());
           await customs.checkAuthenticated(
             request,
             sessionToken.uid,
+            sessionToken.email,
             customs.v2Enabled()
               ? 'authenticatedPasswordChange'
               : 'passwordChange'

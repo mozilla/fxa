@@ -1766,6 +1766,7 @@ export default class AuthClient {
     code: string,
     options: {
       service?: string;
+      metricsContext?: MetricsContext;
     } = {},
     headers?: Headers
   ) {

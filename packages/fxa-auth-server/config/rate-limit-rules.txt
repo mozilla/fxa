@@ -6,8 +6,7 @@
   accountCreate                         : email             : 100           : 15 minutes        : 15 minutes
   accountLogin                          : ip                : 100           : 15 minutes        : 15 minutes
   accountLogin                          : email             : 100           : 15 minutes        : 15 minutes
-  accountDestroy                        : ip                : 100           : 15 minutes        : 15 minutes
-  accountDestroy                        : email             : 100           : 15 minutes        : 15 minutes
+  accountDestroy                        : uid               : 100           : 15 minutes        : 15 minutes
   passwordChange                        : ip                : 100           : 15 minutes        : 15 minutes
   passwordChange                        : email             : 100           : 15 minutes        : 15 minutes
   passwordForgotSendCode                : ip                : 100           : 15 minutes        : 15 minutes
@@ -30,20 +29,18 @@
 # Email Send - These are limits on rate at which emails can be sent out. We limit both IP and email address
 # since many of these operations do not require authentication. Some operations, however, require sessions
 # and for these we should switch over to using UID. See FXA-11777 for more details.
-  createEmail                           : email             : 5             : 15 minutes        : 15 minutes
-  createEmail                           : ip                : 5             : 10 minutes        : 30 minutes
-  recoveryEmailResendCode               : email             : 5             : 15 minutes        : 15 minutes
-  recoveryEmailResendCode               : ip                : 5             : 10 minutes        : 30 minutes
+  createEmail                           : uid               : 5             : 15 minutes        : 15 minutes
+  recoveryEmailResendCode               : uid               : 5             : 15 minutes        : 15 minutes
   recoveryEmailSecondaryResendCode      : email             : 5             : 15 minutes        : 15 minutes
   recoveryEmailSecondaryResendCode      : ip                : 5             : 10 minutes        : 30 minutes
   passwordForgotSendCode                : email             : 5             : 15 minutes        : 15 minutes
   passwordForgotSendCode                : ip                : 5             : 10 minutes        : 30 minutes
   passwordForgotResendCode              : email             : 5             : 15 minutes        : 15 minutes
   passwordForgotResendCode              : ip                : 5             : 10 minutes        : 30 minutes
-  sendVerifyCode                        : email             : 5             : 15 minutes        : 15 minutes
-  sendVerifyCode                        : ip                : 5             : 10 minutes        : 30 minutes
+  sendVerifyCode                        : uid               : 5             : 15 minutes        : 15 minutes
   sendUnblockCode                       : email             : 5             : 15 minutes        : 15 minutes
   sendUnblockCode                       : ip                : 5             : 10 minutes        : 30 minutes
+  unblockEmail                          : email             : 5             : 15 minutes        : 15 minutes
 
 # Bad Login Attempts - These are specific to login failures. Again, the user hasn't authenticated yet, so we check both
 # email and ip.
@@ -67,8 +64,7 @@
   passwordForgotVerifyCode              : email             : 10            : 15 minutes        : 15 minutes
   verifyRecoveryCode                    : ip                : 10            : 10 minutes        : 30 minutes
   verifyRecoveryCode                    : email             : 10            : 15 minutes        : 15 minutes
-  verifySessionCode                     : ip                : 10            : 10 minutes        : 30 minutes
-  verifySessionCode                     : email             : 10            : 15 minutes        : 15 minutes
+  verifySessionCode                     : uid               : 10            : 15 minutes        : 15 minutes
 
 # Verify TOTP Code Limits
   verifyTotpCode                        : uid               : 10            : 30 seconds        : 15 minutes
