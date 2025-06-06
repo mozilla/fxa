@@ -361,8 +361,9 @@ class CustomsClient {
     }
 
     request.emitMetricsEvent('customs.blocked');
+
     const retryAfterLocalized = localizeTimestamp.format(
-      Date.now() + result.retryAfter * 1000,
+      Date.now() + result.retryAfter,
       request.headers['accept-language']
     );
 
