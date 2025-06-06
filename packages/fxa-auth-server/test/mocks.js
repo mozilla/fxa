@@ -184,7 +184,7 @@ const MAILER_METHOD_NAMES = [
   'sendPostRemoveRecoveryPhoneEmail',
   'sendPostSigninRecoveryPhoneEmail',
   'sendPostSigninRecoveryCodeEmail',
-  'postChangeRecoveryPhoneEmail',
+  'sendPostChangeRecoveryPhoneEmail',
 ];
 
 const METRICS_CONTEXT_METHOD_NAMES = [
