@@ -54,10 +54,10 @@ interface CheckoutFormProps {
     };
     paymentInfo?: {
       type:
-      | Stripe.PaymentMethod.Type
-      | 'google_iap'
-      | 'apple_iap'
-      | 'external_paypal';
+        | Stripe.PaymentMethod.Type
+        | 'google_iap'
+        | 'apple_iap'
+        | 'external_paypal';
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
@@ -185,12 +185,12 @@ export function CheckoutForm({
     const confirmationTokenParams: ConfirmationTokenCreateParams | undefined =
       !isSavedPaymentMethod
         ? {
-          payment_method_data: {
-            billing_details: {
-              name: fullName,
+            payment_method_data: {
+              billing_details: {
+                name: fullName,
+              },
             },
-          },
-        }
+          }
         : undefined;
 
     // Create the ConfirmationToken using the details collected by the Payment Element
@@ -348,7 +348,7 @@ export function CheckoutForm({
                   borderRadius: 6, // This should match 0.375rem
                   tagline: false,
                 }}
-                className="mt-6"
+                className="mt-6 flex justify-center w-full"
                 createOrder={async () => getPayPalCheckoutToken(cart.currency)}
                 onApprove={async (data: { orderID: string }) => {
                   await checkoutCartWithPaypal(
