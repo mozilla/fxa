@@ -1,6 +1,6 @@
 postAddRecoveryPhone-title-v2 = "You added a recovery phone number"
 
-postAddRecoveryPhone-description-v2 = "You added <%- maskedLastFourPhoneNumber %> as your recovery phone number"
+postAddRecoveryPhone-description-v2 = "You added <%- maskedPhoneNumber %> as your recovery phone number"
 
 postAddRecoveryPhone-how-protect-plaintext = "How this protects your account:"
 <%- twoFactorSupportLink %>

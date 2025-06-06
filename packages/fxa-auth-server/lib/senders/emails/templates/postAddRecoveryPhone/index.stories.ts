@@ -15,7 +15,7 @@ const createStory = storyWithProps(
   'Sent when a user adds their phone number as a backup recovery method',
   {
     ...MOCK_USER_INFO,
-    maskedLastFourPhoneNumber: '••••••1234',
+    maskedPhoneNumber: '••••••1234',
     link: 'http://localhost:3030/settings',
     resetLink: 'http://localhost:3030/reset_password',
     twoFactorSupportLink:
