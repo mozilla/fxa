@@ -9,13 +9,15 @@ import {
   getTaxAddressAction,
   setupCartAction,
   updateCartUidAction,
+  updateTaxAddressAction,
+  getCartAction
 } from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
 import type { SubplatInterval } from '@fxa/payments/customer';
 import type { ResultCart } from '@fxa/payments/cart';
-import { getIpAddress } from '@fxa/payments/ui/server';
+//import { getIpAddress } from '@fxa/payments/ui/server';
 
 function getRedirectToUrl(
   cart: ResultCart,
@@ -51,7 +53,8 @@ export default async function New({
   searchParams: Record<string, string>;
 }) {
   const { offeringId, interval } = params;
-  const ipAddress = getIpAddress();
+  //const ipAddress = getIpAddress();
+  const ipAddress = "47.89.231.98";  //CA for postal code 90001?
   const session = await auth();
 
   const fxaUid = session?.user?.id;
@@ -63,6 +66,9 @@ export default async function New({
     countryCode && postalCode
       ? { countryCode, postalCode }
       : await getTaxAddressAction(ipAddress, fxaUid);
+
+  console.log('tax address from above', taxAddress);
+  console.log('IP address: ', ipAddress);
 
   // Check if the customer is in a location not supported by Subscription Platform
   // or whether the product is not available in the customer's location
@@ -99,12 +105,32 @@ export default async function New({
   let redirectToUrl: URL;
   let cart: ResultCart;
 
+  console.log('cartId: ', searchParams.cartId);
+  console.log('fxaid: ', fxaUid);
+  console.log('cartV: ', searchParams.cartVersion);
   if (searchParams.cartId && fxaUid && searchParams.cartVersion) {
     cart = await updateCartUidAction(
       searchParams.cartId,
       Number(searchParams.cartVersion),
       fxaUid,
     );
+
+    const updateTaxResult = await updateTaxAddressAction(
+      cart.id,
+      cart.version,
+      offeringId,
+      {
+        countryCode: taxAddress.countryCode,
+        postalCode: taxAddress.postalCode,
+      },
+      fxaUid
+    );
+    console.log('update tax resilt: ', updateTaxResult);
+
+
+    cart = await getCartAction(cart.id);  //remove!!
+
+    console.log('new cart: ', cart);
 
     redirectToUrl = getRedirectToUrl(cart, params, searchParams);
   } else {
