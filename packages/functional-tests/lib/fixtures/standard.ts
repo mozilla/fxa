@@ -38,6 +38,7 @@ export const test = base.extend<TestOptions, WorkerOptions>({
   target: [
     async ({ targetName }, use) => {
       const target = create(targetName);
+      await target.clearRateLimits();
       await use(target);
     },
     { scope: 'worker', auto: true },
