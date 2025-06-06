@@ -113,7 +113,7 @@ describe('Customs Service', () => {
         error: 'Too Many Requests',
         'retry-after': 100,
         // Since an 'acceptLanguage' of 'fr' was provided
-        retryAfterLocalized: 'dans 2 minutes',
+        retryAfterLocalized: 'dans quelques secondes',
         // Since we mocked an unblock being allowed.
         verificationMethod: 'email-captcha',
         verificationReason: 'login',
@@ -178,7 +178,7 @@ describe('Customs Service', () => {
         errno: 114,
         error: 'Too Many Requests',
         'retry-after': 101,
-        retryAfterLocalized: 'dans 2 minutes',
+        retryAfterLocalized: 'dans quelques secondes',
       });
     });
   });

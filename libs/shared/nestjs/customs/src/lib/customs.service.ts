@@ -92,7 +92,7 @@ export class CustomsService {
         // Respect user's preferred locale
         if (options.acceptLanguage) {
           const retryAfterLocalized = this.l10nTimestampFormatter.format(
-            Date.now() + response.retryAfter * 1000,
+            Date.now() + response.retryAfter,
             options.acceptLanguage
           );
           extraData.retryAfterLocalized = retryAfterLocalized;
