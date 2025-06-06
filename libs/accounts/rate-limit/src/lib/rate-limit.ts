@@ -41,8 +41,8 @@ export class RateLimit {
       for (const rule of this.config.rules[action]) {
         const blockedValue = opts[rule.blockingOn];
         if (blockedValue) {
-          const attemptsKey = getKey('attempts', rule, blockedValue);
-          const blockKey = getKey('block', rule, blockedValue);
+          const attemptsKey = getKey('attempts', action, rule, blockedValue);
+          const blockKey = getKey('block', action, rule, blockedValue);
           await Promise.all([
             this.redis.del(blockKey),
             this.redis.del(attemptsKey),
@@ -50,7 +50,7 @@ export class RateLimit {
 
           this.statsd?.increment(`rate_limit.unblock`, [
             `on:${rule.blockingOn}`,
-            `action:${rule.action}`,
+            `action:${action}`,
           ]);
         }
       }
@@ -63,7 +63,9 @@ export class RateLimit {
    * @returns - True if action has rules, otherwise false.
    */
   supportsAction(action: string) {
-    return this.config.rules[action] != null;
+    return (
+      this.config.rules['default'] != null || this.config.rules[action] != null
+    );
   }
 
   /**
@@ -79,17 +81,23 @@ export class RateLimit {
       return true;
     }
 
-    if (opts.uid != null && this.config.ignoreUIDs?.some((x) => opts.uid === x)) {
+    if (
+      opts.uid != null &&
+      this.config.ignoreUIDs?.some((x) => opts.uid === x)
+    ) {
       this.statsd?.increment('rate_limit.ignore.uid');
       return true;
     }
 
-    if (opts.email != null && this.config.ignoreEmails?.some((x) => opts.email?.match(x))) {
+    if (
+      opts.email != null &&
+      this.config.ignoreEmails?.some((x) => opts.email?.match(x))
+    ) {
       this.statsd?.increment('rate_limit.ignore.email');
       return true;
     }
 
-    return false
+    return false;
   }
 
   /**
@@ -108,10 +116,7 @@ export class RateLimit {
     }
   ): Promise<BlockStatus | null> {
     // Make sure action actually exists
-    const rules = this.config.rules[action];
-    if (!rules) {
-      throw new ActionNotFound(action);
-    }
+    const { rules, usedDefaultRule } = this.getRulesOrDefault(action);
 
     const openBlocks = new Array<BlockStatus>();
 
@@ -132,8 +137,8 @@ export class RateLimit {
 
       // Check to see if there are any blocks that currently exist in Redis.
       // Create a new block and add set of openBlocks.
-      const attemptsKey = getKey('attempts', rule, blockedValue);
-      const blockKey = getKey('block', rule, blockedValue);
+      const attemptsKey = getKey('attempts', action, rule, blockedValue);
+      const blockKey = getKey('block', action, rule, blockedValue);
 
       let block = JSON.parse((await this.redis.get(blockKey)) || 'null');
       let attempts = 0;
@@ -147,7 +152,8 @@ export class RateLimit {
         // If we've exceeded the max number of attempts, then create a block
         if (attempts > rule.maxAttempts) {
           block = {
-            action: rule.action,
+            action: action,
+            usedDefaultRule,
             startTime: now,
             duration: rule.blockDurationInSeconds,
             blockingOn: rule.blockingOn,
@@ -165,7 +171,7 @@ export class RateLimit {
 
           this.statsd?.increment(`rate_limit.block`, [
             `on:${rule.blockingOn}`,
-            `action:${rule.action}`,
+            `action:${action}`,
           ]);
         }
       }
@@ -177,7 +183,7 @@ export class RateLimit {
           attempt: block.attempt,
           retryAfter: calculateRetryAfter(now, block),
           reason: 'too-many-attempts' as BlockReason,
-          action: rule.action,
+          action,
           blockingOn: rule.blockingOn,
         });
       }
@@ -204,5 +210,27 @@ export class RateLimit {
 
     // Made it through the gauntlet of rules. No blocks found!
     return null;
+  }
+
+  /**
+   * Attempts to locate the rules for a given action. If the action is not found, then rules for the 'default' action
+   * will be returned. If there are no rules for a 'default' action, then an ActionNotFound error is raised.
+   * @param action The action to target
+   * @throws ActionNotFound
+   * @returns A set of rules
+   */
+  private getRulesOrDefault(action: string) {
+    let rules = this.config.rules[action];
+    let usedDefaultRule = false;
+    if (!rules) {
+      usedDefaultRule = true;
+      const defaultRules = this.config.rules['default'];
+      if (defaultRules?.length > 0) {
+        rules = defaultRules;
+      } else {
+        throw new ActionNotFound(action);
+      }
+    }
+    return { rules, usedDefaultRule };
   }
 }
