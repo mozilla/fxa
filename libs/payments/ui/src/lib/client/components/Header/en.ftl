@@ -20,7 +20,6 @@ payments-header-bento-firefox-mobile = { -brand-firefox } Browser for Mobile
 payments-header-bento-monitor = { -product-mozilla-monitor }
 payments-header-bento-firefox-relay = { -product-firefox-relay }
 payments-header-bento-vpn = { -product-mozilla-vpn }
-payments-header-bento-pocket = { -product-pocket }
 payments-header-bento-made-by-mozilla = Made by { -brand-mozilla }
 
 payments-header-avatar =
