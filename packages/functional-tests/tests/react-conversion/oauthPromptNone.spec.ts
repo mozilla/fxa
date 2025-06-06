@@ -150,13 +150,109 @@ test.describe('severity-1 #smoke', () => {
       //Verify error message
       await expect(page.getByText('Unverified user or session')).toBeVisible();
     });
-  });
 
-  test.describe('oauth prompt none with emails', () => {
-    test('succeeds if login_hint same as logged in user', async ({
+    test.describe('with emails', () => {
+      test('succeeds if login_hint same as logged in user', async ({
+        page,
+        target,
+        pages: { relier, settings, signin },
+        testAccountTracker,
+      }) => {
+        const { email } = await signInAccount(
+          target,
+          page,
+          settings,
+          signin,
+          testAccountTracker
+        );
+
+        const query = new URLSearchParams({
+          login_hint: email,
+          return_on_error: 'false',
+        });
+        await page.goto(`${target.relierUrl}/?${query.toString()}`);
+        await relier.signInPromptNone();
+
+        //Verify logged in to relier
+        expect(await relier.isLoggedIn()).toBe(true);
+      });
+
+      test('succeeds if no login_hint is provided', async ({
+        page,
+        target,
+        pages: { relier, settings, signin },
+        testAccountTracker,
+      }) => {
+        await signInAccount(target, page, settings, signin, testAccountTracker);
+
+        const query = new URLSearchParams({
+          return_on_error: 'false',
+        });
+        await page.goto(`${target.relierUrl}/?${query.toString()}`);
+        await relier.signInPromptNone();
+
+        //Verify logged in to relier
+        expect(await relier.isLoggedIn()).toBe(true);
+      });
+
+      test('fails if login_hint is different to logged in user', async ({
+        page,
+        target,
+        pages: { relier, settings, signin },
+        testAccountTracker,
+      }) => {
+        const loginHintAccount = testAccountTracker.generateAccountDetails();
+        await signInAccount(target, page, settings, signin, testAccountTracker);
+
+        const query = new URLSearchParams({
+          login_hint: loginHintAccount.email,
+          return_on_error: 'false',
+        });
+        await page.goto(`${target.relierUrl}/?${query.toString()}`);
+        await relier.signInPromptNone();
+
+        //Verify error message
+        await expect(
+          page.getByText('A different user is signed in')
+        ).toBeVisible();
+      });
+    });
+
+    test('redirects if return_on_error=true and not signed in', async ({
       page,
       target,
       pages: { relier, settings, signin },
+      testAccountTracker,
+    }) => {
+      {
+        const { email } = await signInAccount(
+          target,
+          page,
+          settings,
+          signin,
+          testAccountTracker
+        );
+
+        await settings.signOut();
+
+        const query = new URLSearchParams({
+          login_hint: email,
+          return_on_error: 'true',
+        });
+        await page.goto(`${target.relierUrl}/?${query.toString()}`);
+        await relier.signInPromptNone();
+
+        await page.waitForResponse(/api\/oauth\?error=login_required/);
+        // RP handled it by taking the user back to sign in
+        await page.waitForURL(/oauth\/signin/);
+        await expect(signin.passwordFormHeading).toBeVisible();
+      }
+    });
+
+    test('redirect to RP with prompt=none and 2FA setup', async ({
+      page,
+      target,
+      pages: { relier, settings, signin, totp, deleteAccount },
       testAccountTracker,
     }) => {
       const { email } = await signInAccount(
@@ -167,87 +263,26 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker
       );
 
-      const query = new URLSearchParams({
-        login_hint: email,
-        return_on_error: 'false',
-      });
-      await page.goto(`${target.relierUrl}/?${query.toString()}`);
-      await relier.signInPromptNone();
+      await settings.totp.addButton.click();
 
-      //Verify logged in to relier
-      expect(await relier.isLoggedIn()).toBe(true);
-    });
-
-    test('succeeds if no login_hint is provided', async ({
-      page,
-      target,
-      pages: { relier, settings, signin },
-      testAccountTracker,
-    }) => {
-      await signInAccount(target, page, settings, signin, testAccountTracker);
-
-      const query = new URLSearchParams({
-        return_on_error: 'false',
-      });
-      await page.goto(`${target.relierUrl}/?${query.toString()}`);
-      await relier.signInPromptNone();
-
-      //Verify logged in to relier
-      expect(await relier.isLoggedIn()).toBe(true);
-    });
-
-    test('fails if login_hint is different to logged in user', async ({
-      page,
-      target,
-      pages: { relier, settings, signin },
-      testAccountTracker,
-    }) => {
-      const loginHintAccount = testAccountTracker.generateAccountDetails();
-      await signInAccount(target, page, settings, signin, testAccountTracker);
-
-      const query = new URLSearchParams({
-        login_hint: loginHintAccount.email,
-        return_on_error: 'false',
-      });
-      await page.goto(`${target.relierUrl}/?${query.toString()}`);
-      await relier.signInPromptNone();
-
-      //Verify error message
-      await expect(
-        page.getByText('A different user is signed in')
-      ).toBeVisible();
-    });
-  });
-
-  test('redirects if return_on_error=true and not signed in', async ({
-    page,
-    target,
-    pages: { relier, settings, signin },
-    testAccountTracker,
-  }) => {
-    {
-      const { email } = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
+      await totp.fillOutTotpForms();
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication has been enabled'
       );
 
-      await settings.signOut();
-
+      // Keep user signed in with a verified TOTP session
       const query = new URLSearchParams({
         login_hint: email,
-        return_on_error: 'true',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
       await relier.signInPromptNone();
 
-      await page.waitForResponse(/api\/oauth\?error=login_required/);
-      // RP handled it by taking the user back to sign in
-      await page.waitForURL(/oauth\/signin/);
-      await expect(signin.passwordFormHeading).toBeVisible();
-    }
+      //Verify logged in to relier
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      await settings.goto();
+      await settings.disconnectTotp(); // Required before teardown
+    });
   });
 });
 

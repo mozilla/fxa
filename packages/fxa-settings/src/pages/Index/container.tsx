@@ -149,6 +149,7 @@ const IndexContainer = ({
         if (!isEmail(email)) {
           throw AuthUiErrors.EMAIL_REQUIRED;
         }
+
         const { exists, hasLinkedAccount, hasPassword } =
           await authClient.accountStatusByEmail(email, {
             thirdPartyAuthStatus: true,
@@ -229,6 +230,7 @@ const IndexContainer = ({
     suggestedEmail,
     shouldTrySuggestedEmail,
     integration.data.context,
+    integration
   ]);
 
   useEffect(() => {

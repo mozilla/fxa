@@ -13,7 +13,7 @@ import {
   useSession,
 } from '../../models';
 import { cache } from '../../lib/cache';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { currentAccount } from '../../lib/cache';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import OAuthDataError from '../../components/OAuthDataError';
@@ -61,11 +61,15 @@ const AuthorizationContainer = ({
     authClient,
     integration
   );
+  const promptNoneCallCount = useRef(0);
+
   if (oAuthDataError) {
     setOauthError(oAuthDataError);
   }
 
   const promptNoneHandler = useCallback(async () => {
+    promptNoneCallCount.current += 1;
+
     const account = currentAccount();
     const relierAccount = convertToRelierAccount(account, authClient);
 
@@ -145,6 +149,10 @@ const AuthorizationContainer = ({
 
   useEffect(() => {
     if (oauthError) {
+      return;
+    }
+
+    if (promptNoneCallCount.current > 0) {
       return;
     }
 
