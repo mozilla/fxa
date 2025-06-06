@@ -275,6 +275,7 @@
     "elliptic": ">=6.5.4",
     "flat": "5.0.2",
     "gobbledygook": "https://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2",
+    "koa": "^2.16.1",
     "minimist": "^1.2.6",
     "nest-typed-config/class-validator": "0.14.1",
     "parse-asn1": ">=5.1.7",
