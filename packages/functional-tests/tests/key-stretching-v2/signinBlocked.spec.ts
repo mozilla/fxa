@@ -14,14 +14,8 @@ import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 test.describe('severity-2 #smoke', () => {
   type Version = { version: 1 | 2; query: string };
   type TestCase = { signupVersion: Version; signinVersion: Version };
-  const v1: Version = { version: 1, query: '' };
   const v2: Version = { version: 2, query: 'stretch=2' };
-  const TestCases: TestCase[] = [
-    { signupVersion: v1, signinVersion: v1 },
-    { signupVersion: v1, signinVersion: v2 },
-    { signupVersion: v2, signinVersion: v1 },
-    { signupVersion: v2, signinVersion: v2 },
-  ];
+  const TestCases: TestCase[] = [{ signupVersion: v2, signinVersion: v2 }];
 
   for (const { signupVersion, signinVersion } of TestCases) {
     test(`signs up as v${signupVersion.version}, rate limited, unblocked, signs in as v${signinVersion.version}`, async ({

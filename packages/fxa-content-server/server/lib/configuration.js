@@ -220,12 +220,6 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS',
     },
-    keyStretchV2: {
-      default: true,
-      doc: 'Enables V2 key stretching',
-      format: Boolean,
-      env: 'FEATURE_FLAGS_KEY_STRETCH_V2',
-    },
     recoveryCodeSetupOnSyncSignIn: {
       default: false,
       doc: 'Enables setting up a recovery code after a Sync sign in',
@@ -869,12 +863,6 @@ const conf = (module.exports = convict({
     format: String,
   },
   rolloutRates: {
-    keyStretchV2: {
-      default: 0,
-      doc: 'The rollout rate for key stretching changes. Valid values are from 0 to 1.0',
-      env: 'ROLLOUT_KEY_STRETCH_V2',
-      format: Number,
-    },
     generalizedReactApp: {
       default: 0,
       doc: 'The rollout rate for the generalized react app experiment. Valid values are from 0 to 1.0. Applies to react route groups that are enabled but not set to fullProdRollout',

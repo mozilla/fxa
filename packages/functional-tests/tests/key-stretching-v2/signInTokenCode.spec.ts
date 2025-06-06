@@ -15,12 +15,11 @@ import { SigninPage } from '../../pages/signin';
 test.describe('severity-2 #smoke', () => {
   type Version = { version: 1 | 2; query: string };
   type TestCase = { signinVersion: Version };
-  const v1: Version = { version: 1, query: '' };
   const v2: Version = { version: 2, query: 'stretch=2' };
-  const TestCases: TestCase[] = [{ signinVersion: v1 }, { signinVersion: v2 }];
+  const TestCases: TestCase[] = [{ signinVersion: v2 }];
 
   for (const { signinVersion } of TestCases) {
-    test(`signs up as v1, sign in within token code, signs  as v${signinVersion.version}`, async ({
+    test(`signs up as v2, sign in within token code, signs  as v${signinVersion.version}`, async ({
       page,
       target,
       pages: {

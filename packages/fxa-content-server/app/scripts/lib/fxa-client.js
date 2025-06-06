@@ -134,18 +134,6 @@ function FxaClientWrapper(options = {}) {
   }
 }
 
-function determineKeyStretchVersion() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('stretch') === '2') {
-    return 2;
-  }
-  if (ExperimentMixin.isInExperimentGroup('keyStretchV2', 'v2')) {
-    return 2;
-  }
-
-  return 1;
-}
-
 FxaClientWrapper.prototype = {
   _getClient() {
     if (this._client) {
@@ -153,7 +141,7 @@ FxaClientWrapper.prototype = {
     }
 
     const options = {
-      keyStretchVersion: determineKeyStretchVersion(),
+      keyStretchVersion: 2,
     };
 
     return AuthClient.create(this._authServerUrl, options).then((client) => {

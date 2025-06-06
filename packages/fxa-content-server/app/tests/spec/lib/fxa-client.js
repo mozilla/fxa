@@ -34,7 +34,7 @@ function trim(str) {
   return $.trim(str);
 }
 
-[{ keyStretchVersion: 1 }, { keyStretchVersion: 2 }].forEach((testOptions) => {
+[{ keyStretchVersion: 2 }].forEach((testOptions) => {
   describe('lib/fxa-client', function () {
     beforeEach(function () {
       email = ' ' + testHelpers.createEmail() + ' ';

@@ -43,7 +43,6 @@ import {
   randomTotp,
 } from 'fxa-shared/test/db/models/auth/helpers';
 import { Knex } from 'knex';
-import { AuthClientService } from '../../backend/auth-client.service';
 import { CloudTasksService } from '../../backend/cloud-tasks.service';
 import { FirestoreService } from '../../backend/firestore.service';
 import { ProfileClientService } from '../../backend/profile-client.service';
@@ -220,10 +219,6 @@ describe('#integration - AccountResolver', () => {
     };
 
     authClient = {};
-    const MockAuthClient = {
-      provide: AuthClientService,
-      useValue: authClient,
-    };
 
     // Not ideal, but we have to do this because
     // of the nested nature of the Firestore documents
@@ -273,7 +268,6 @@ describe('#integration - AccountResolver', () => {
         MockBasket,
         MockDb,
         MockFirestoreService,
-        MockAuthClient,
         MockCloudTasks,
         MockNotifier,
         MockProfileClient,

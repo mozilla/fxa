@@ -171,8 +171,6 @@ const SigninContainer = ({
     !isOAuthNativeIntegrationSync(integration)
   );
 
-  const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
-
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
     integration
@@ -313,7 +311,7 @@ const SigninContainer = ({
       const service = integration.getService();
       const clientId = integration.getClientId();
 
-      const v2Enabled = keyStretchExp.queryParamModel.isV2(config);
+      const v2Enabled = true;
 
       // Create client to handle key stretching upgrades
       const upgradeClient = new GqlKeyStretchUpgrade(
@@ -432,7 +430,6 @@ const SigninContainer = ({
       credentialStatus,
       getWrappedKeys,
       integration,
-      keyStretchExp.queryParamModel,
       passwordChangeFinish,
       passwordChangeStart,
       wantsKeys,

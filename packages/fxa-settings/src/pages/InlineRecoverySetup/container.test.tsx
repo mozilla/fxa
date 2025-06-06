@@ -76,7 +76,7 @@ jest.mock('../../lib/oauth/hooks.tsx', () => {
 const mockSensitiveDataClient = createMockSensitiveDataClient();
 mockSensitiveDataClient.getDataType = jest.fn();
 const mockAuthClient = new AuthClient('http://localhost:9000', {
-  keyStretchVersion: 1,
+  keyStretchVersion: 2,
 });
 let mockSessionHook: () => any = () => ({ token: 'ABBA' });
 jest.mock('../../models', () => {

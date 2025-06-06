@@ -60,7 +60,7 @@ jest.mock('../../../lib/glean', () => ({
 
 // Global instances
 let integration: Integration;
-let mockAuthClient = new AuthClient('localhost:9000', { keyStretchVersion: 1 });
+let mockAuthClient = new AuthClient('localhost:9000', { keyStretchVersion: 2 });
 let currentProps: any | undefined;
 let mockEmailBounceStatusQuery = jest.fn();
 const mockSensitiveDataClient = createMockSensitiveDataClient();

@@ -4,8 +4,6 @@
 import { Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import superagent from 'superagent';
-
-import { AuthClientService } from './auth-client.service';
 import { ProfileClientService } from './profile-client.service';
 import { ConfigService } from '@nestjs/config';
 
@@ -32,11 +30,7 @@ describe('ProfileClientService', () => {
       },
     };
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ProfileClientService,
-        MockConfig,
-        { provide: AuthClientService, useValue: authClient },
-      ],
+      providers: [ProfileClientService, MockConfig],
     }).compile();
 
     service = module.get<ProfileClientService>(ProfileClientService);

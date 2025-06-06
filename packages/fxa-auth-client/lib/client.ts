@@ -203,6 +203,14 @@ export default class AuthClient {
       requireHeaders?: boolean;
     } = {}
   ) {
+
+    if (options.keyStretchVersion === 1) {
+      throw new Error(
+        'Temporary Sanity Check!!! Version 1 should not be provided!'
+      );
+    }
+
+
     if (new RegExp(`/${AuthClient.VERSION}$`).test(authServerUri)) {
       this.uri = authServerUri;
     } else {

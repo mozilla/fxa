@@ -24,7 +24,6 @@ import {
 } from 'fxa-auth-client/lib/crypto';
 import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
-import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
 import { handleGQLError } from './utils';
 import VerificationMethods from '../../constants/verification-methods';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
@@ -67,7 +66,6 @@ const SignupContainer = ({
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
-  const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
   const navigateWithQuery = useNavigateWithQuery();
   const config = useConfig();
   const location = useLocation() as ReturnType<typeof useLocation> & {
@@ -142,23 +140,21 @@ const SignupContainer = ({
         // If enabled, add in V2 key stretching support
         let credentialsV2 = undefined;
         let passwordV2 = undefined;
-        if (keyStretchExp.queryParamModel.isV2(config)) {
-          credentialsV2 = await getCredentialsV2({
-            password,
-            clientSalt: await createSaltV2(),
-          });
-          const { wrapKb, wrapKbVersion2 } = await getKeysV2({
-            v1: credentialsV1,
-            v2: credentialsV2,
-          });
+        credentialsV2 = await getCredentialsV2({
+          password,
+          clientSalt: await createSaltV2(),
+        });
+        const { wrapKb, wrapKbVersion2 } = await getKeysV2({
+          v1: credentialsV1,
+          v2: credentialsV2,
+        });
 
-          passwordV2 = {
-            wrapKb,
-            wrapKbVersion2,
-            authPWVersion2: credentialsV2.authPW,
-            clientSalt: credentialsV2.clientSalt,
-          };
-        }
+        passwordV2 = {
+          wrapKb,
+          wrapKbVersion2,
+          authPWVersion2: credentialsV2.authPW,
+          clientSalt: credentialsV2.clientSalt,
+        };
 
         const authPW = credentialsV1.authPW;
         const input =
@@ -198,14 +194,7 @@ const SignupContainer = ({
         return handleGQLError(error);
       }
     },
-    [
-      integration,
-      wantsKeys,
-      flowQueryParams,
-      keyStretchExp.queryParamModel,
-      config,
-      beginSignup,
-    ]
+    [integration, wantsKeys, flowQueryParams, config, beginSignup]
   );
 
   if (validationError || !email) {
@@ -222,7 +211,7 @@ const SignupContainer = ({
         beginSignupHandler,
         useSyncEnginesResult,
         deeplink,
-        flowQueryParams
+        flowQueryParams,
       }}
     />
   );

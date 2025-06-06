@@ -48,23 +48,13 @@ export abstract class BaseTarget {
     readonly authServerUrl: string,
     emailUrl?: string
   ) {
-    const keyStretchVersion = parseInt(
-      process.env.AUTH_CLIENT_KEY_STRETCH_VERSION || '1'
-    );
-    this.authClient = this.createAuthClient(keyStretchVersion);
+    this.authClient = this.createAuthClient(2);
     this.emailClient = new EmailClient(emailUrl);
   }
 
-  createAuthClient(keyStretchVersion = 1): AuthClient {
-    if (![1, 2].includes(keyStretchVersion)) {
-      throw new Error(
-        `Invalid keyStretchVersion =${keyStretchVersion}. The` +
-          `process.env.AUTH_CLIENT_KEY_STRETCH_VERSION= ` +
-          `${process.env.AUTH_CLIENT_KEY_STRETCH_VERSION}, is it set correctly?`
-      );
-    }
+  createAuthClient(keyStretchVersion: 1 | 2): AuthClient {
     return new AuthClient(this.authServerUrl, {
-      keyStretchVersion: keyStretchVersion as SaltVersion,
+      keyStretchVersion: keyStretchVersion,
     });
   }
 

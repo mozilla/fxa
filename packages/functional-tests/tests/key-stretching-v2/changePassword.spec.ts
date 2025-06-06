@@ -34,14 +34,8 @@ test.describe('severity-2 #smoke', () => {
 
   type Version = { version: 1 | 2; query: string };
   type TestCase = { signupVersion: Version; changeVersion: Version };
-  const v1: Version = { version: 1, query: '' };
   const v2: Version = { version: 2, query: 'stretch=2' };
-  const TestCases: TestCase[] = [
-    { signupVersion: v1, changeVersion: v1 },
-    { signupVersion: v1, changeVersion: v2 },
-    { signupVersion: v2, changeVersion: v1 },
-    { signupVersion: v2, changeVersion: v2 },
-  ];
+  const TestCases: TestCase[] = [{ signupVersion: v2, changeVersion: v2 }];
 
   test.beforeEach(async ({ target }) => {
     await target.clearRateLimits();

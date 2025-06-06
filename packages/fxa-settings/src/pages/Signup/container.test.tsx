@@ -162,7 +162,7 @@ jest.mock('../../models', () => {
 });
 function mockModelsModule() {
   let mockAuthClient = new AuthClient('localhost:9000', {
-    keyStretchVersion: 1,
+    keyStretchVersion: 2,
   });
   mockAuthClient.accountStatusByEmail = jest
     .fn()

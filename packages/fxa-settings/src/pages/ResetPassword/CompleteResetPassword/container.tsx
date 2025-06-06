@@ -42,8 +42,6 @@ const CompleteResetPasswordContainer = ({
 }: {
   integration: Integration;
 } & RouteComponentProps) => {
-  const keyStretchExperiment = useValidatedQueryParams(KeyStretchExperiment);
-
   const account = useAccount();
   const alertBar = useAlertBar();
   const config = useConfig();
@@ -180,9 +178,8 @@ const CompleteResetPasswordContainer = ({
     };
 
     // TODO in FXA-9672: do not use Account model in reset password pages
-    const accountResetData = await account.resetPasswordWithRecoveryKey(
-      options
-    );
+    const accountResetData =
+      await account.resetPasswordWithRecoveryKey(options);
 
     return accountResetData;
   };
@@ -197,7 +194,7 @@ const CompleteResetPasswordContainer = ({
     // TODO in FXA-9672: do not use Account model in reset password pages
     const accountResetData: AccountResetData =
       await account.completeResetPassword(
-        keyStretchExperiment.queryParamModel.isV2(config),
+        true,
         token,
         code,
         emailToUse,

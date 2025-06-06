@@ -52,7 +52,7 @@ jest.mock('../../../lib/glean', () => ({
 }));
 
 const mockAuthClient = new AuthClient('http://localhost:9000', {
-  keyStretchVersion: 1,
+  keyStretchVersion: 2,
 });
 jest.mock('../../../lib/oauth/hooks.tsx', () => {
   return {

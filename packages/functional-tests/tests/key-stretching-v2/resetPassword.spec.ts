@@ -38,16 +38,8 @@ test.describe('severity-2 #smoke', () => {
     resetVersion: Version;
     signinVersion: Version;
   };
-  const v1: Version = { version: 1, query: '' };
   const v2: Version = { version: 2, query: 'stretch=2' };
   const TestCases: TestCase[] = [
-    { signupVersion: v1, resetVersion: v1, signinVersion: v1 },
-    { signupVersion: v1, resetVersion: v1, signinVersion: v2 },
-    { signupVersion: v1, resetVersion: v2, signinVersion: v1 },
-    { signupVersion: v1, resetVersion: v2, signinVersion: v2 },
-    { signupVersion: v2, resetVersion: v1, signinVersion: v1 },
-    { signupVersion: v2, resetVersion: v1, signinVersion: v2 },
-    { signupVersion: v2, resetVersion: v2, signinVersion: v1 },
     { signupVersion: v2, resetVersion: v2, signinVersion: v2 },
   ];
 

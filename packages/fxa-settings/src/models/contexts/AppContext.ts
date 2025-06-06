@@ -10,9 +10,6 @@ import { createApolloClient } from '../../lib/gql';
 import { Account } from '../Account';
 import { Session } from '../Session';
 import { AlertBarInfo } from '../AlertBarInfo';
-import { KeyStretchExperiment } from '../experiments/key-stretch-experiment';
-import { UrlQueryData } from '../../lib/model-data';
-import { ReachRouterWindow } from '../../lib/window';
 import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { initializeNimbus, NimbusContextT } from '../../lib/nimbus';
 import { parseAcceptLanguage } from '../../../../../libs/shared/l10n/src';
@@ -70,11 +67,8 @@ export function initializeAppContext() {
     return document.head.querySelector(name);
   });
 
-  const keyStretchExperiment = new KeyStretchExperiment(
-    new UrlQueryData(new ReachRouterWindow())
-  );
   const authClient = new AuthClient(config.servers.auth.url, {
-    keyStretchVersion: keyStretchExperiment.isV2(config) ? 2 : 1,
+    keyStretchVersion: 2,
   });
   const apolloClient = createApolloClient(config.servers.gql.url);
   const account = new Account(authClient, apolloClient);

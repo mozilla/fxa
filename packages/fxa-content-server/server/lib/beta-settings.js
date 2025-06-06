@@ -93,11 +93,9 @@ const settingsConfig = {
     emailFirstRoutes: config.get('showReactApp.emailFirstRoutes'),
   },
   rolloutRates: {
-    keyStretchV2: config.get('rolloutRates.keyStretchV2'),
     generalizedReactApp: config.get('rolloutRates.generalizedReactApp'),
   },
   featureFlags: {
-    keyStretchV2: config.get('featureFlags.keyStretchV2'),
     recoveryCodeSetupOnSyncSignIn: config.get(
       'featureFlags.recoveryCodeSetupOnSyncSignIn'
     ),

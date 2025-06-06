@@ -189,7 +189,7 @@ describe('ReportSigninContainer', () => {
     it('returns an error message when unblock code is invalid', async () => {
       // override locally with rejected value
       const mockAuthClient = new AuthClient('localhost:9000', {
-        keyStretchVersion: 1,
+        keyStretchVersion: 2,
       });
       mockAuthClient.rejectUnblockCode = jest
         .fn()

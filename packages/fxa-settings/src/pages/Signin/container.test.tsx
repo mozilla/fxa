@@ -175,7 +175,7 @@ jest.mock('../../models', () => {
   };
 });
 const mockAuthClient = new AuthClient('http://localhost:9000', {
-  keyStretchVersion: 1,
+  keyStretchVersion: 2,
 });
 const mockSensitiveDataClient = createMockSensitiveDataClient();
 mockSensitiveDataClient.setDataType = jest.fn();

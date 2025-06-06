@@ -70,7 +70,6 @@
     "recoveryCodeSetupOnSyncSignIn": true
   },
   "rolloutRates": {
-    "keyStretchV2": 1,
     "generalizedReactApp": 0
   }
 }
