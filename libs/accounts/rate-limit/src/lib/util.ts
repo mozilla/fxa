@@ -9,11 +9,12 @@ import { BlockRecord, Rule } from './models';
  */
 export function getKey(
   type: 'block' | 'attempts',
+  action: string,
   rule: Rule,
   blockedValue: string
 ) {
   const sanitizedBlockedValue = sanitizeKeyValue(blockedValue);
-  return `rate-limit:${type}:${rule.blockingOn}=${sanitizedBlockedValue}:${rule.action}:${rule.maxAttempts}-${rule.windowDurationInSeconds}-${rule.blockDurationInSeconds}`;
+  return `rate-limit:${type}:${rule.blockingOn}=${sanitizedBlockedValue}:${action}:${rule.maxAttempts}-${rule.windowDurationInSeconds}-${rule.blockDurationInSeconds}`;
 }
 
 /**
