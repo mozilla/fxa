@@ -1287,7 +1287,10 @@ describe('/session/resend_code', () => {
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
     push = mocks.mockPush();
-    customs = { check: sinon.stub() };
+    customs = {
+      check: sinon.stub(),
+      checkAuthenticated: sinon.stub(),
+    };
     const config = {};
     const routes = makeRoutes({ log, config, db, mailer, push, customs });
     route = getRoute(routes, '/session/resend_code');
@@ -1318,8 +1321,9 @@ describe('/session/resend_code', () => {
     assert.equal(args[2].timeZone, 'America/Los_Angeles');
 
     sinon.assert.calledWithExactly(
-      customs.check,
+      customs.checkAuthenticated,
       request,
+      signupCodeAccount.uid,
       signupCodeAccount.email,
       'sendVerifyCode'
     );
