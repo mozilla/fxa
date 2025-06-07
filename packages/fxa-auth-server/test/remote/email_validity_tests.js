@@ -5,35 +5,36 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 
 const config = require('../../config').default.getProperties();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote email validity`, function () {
-    this.timeout(60000);
-    let server;
-    const temp = {};
 
     before(async () => {
-      temp.requireVerifiedAccount =
-        config.accountDestroy.requireVerifiedAccount;
-      temp.requireVerifiedSession =
-        config.accountDestroy.requireVerifiedSession;
+      // temp.requireVerifiedAccount =
+      //   config.accountDestroy.requireVerifiedAccount;
+      // temp.requireVerifiedSession =
+      //   config.accountDestroy.requireVerifiedSession;
 
-      // Temporarily disable this so we can destroy the unverified accounts in the test below.
-      config.accountDestroy.requireVerifiedAccount = false;
-      config.accountDestroy.requireVerifiedSession = false;
-      server = await TestServer.start(config);
+      // // Temporarily disable this so we can destroy the unverified accounts in the test below.
+      // config.accountDestroy.requireVerifiedAccount = false;
+      // config.accountDestroy.requireVerifiedSession = false;
+      // server = await TestServer.start(config);
+
+      // requireVerifiedAccount is defaulted to false so we don't need to change that
+      process.env.ACCOUNT_DESTROY__REQUIRE_VERIFIED_SESSION = 'false';
+
     });
 
     after(async () => {
-      config.accountDestroy.requireVerifiedAccount =
-        temp.requireVerifiedAccount;
-      config.accountDestroy.requireVerifiedSession =
-        temp.requireVerifiedSession;
-      await TestServer.stop(server);
+      // config.accountDestroy.requireVerifiedAccount =
+      //   temp.requireVerifiedAccount;
+      // config.accountDestroy.requireVerifiedSession =
+      //   temp.requireVerifiedSession;
+      // await TestServer.stop(server);
+      process.env.ACCOUNT_DESTROY__REQUIRE_VERIFIED_SESSION = 'true';
     });
 
     it('/account/create with a variety of malformed email addresses', () => {

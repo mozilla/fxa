@@ -5,13 +5,15 @@
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const Client = require('../client')();
-const TestServer = require('../test_server');
 const config = require('../../config').default.getProperties();
 const Redis = require('ioredis');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { RECOVERY_PHONE_REDIS_PREFIX } = require('@fxa/accounts/recovery-phone');
 const otplib = require('otplib');
 const crypto = require('crypto');
+const mailbox = require('../mailbox')();
+const { TestUtilities } = require('../test_utilities');
+
 const { assert } = chai;
 chai.use(chaiAsPromised);
 
@@ -62,7 +64,6 @@ describe(`#integration - recovery phone`, function () {
   // TODO: Something flakes... figure out where the slowdown is.
   this.timeout(10000);
 
-  let server;
   let client;
   let email;
   let db;
@@ -85,7 +86,6 @@ describe(`#integration - recovery phone`, function () {
 
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
-    server = await TestServer.start(config);
     db = await setupAccountDatabase(config.database.mysql.auth);
   });
 
@@ -98,12 +98,12 @@ describe(`#integration - recovery phone`, function () {
   }
 
   beforeEach(async function () {
-    email = server.uniqueEmail();
+    email = TestUtilities.uniqueEmail();
     client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       {
         version: 'V2',
       }
@@ -125,7 +125,6 @@ describe(`#integration - recovery phone`, function () {
 
   after(async () => {
     config.twilio.credentialMode = temp.credentialMode;
-    await TestServer.stop(server);
     await db.destroy();
   });
 
@@ -286,10 +285,14 @@ describe(`#integration - recovery phone`, function () {
 });
 
 describe('#integration - recovery phone - feature flag check', () => {
-  let server;
   const temp = {};
 
   before(async function () {
+
+    // similar to other tests, we need to check if these
+    // are actually being used properly. If not,
+    // we can look to target these in a "serial" approach
+
     temp.enabled = config.recoveryPhone.enabled;
     temp.credentialMode = config.twilio.credentialMode;
 
@@ -297,23 +300,21 @@ describe('#integration - recovery phone - feature flag check', () => {
     config.twilio.credentialMode = 'test';
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
-    server = await TestServer.start(config, true);
   });
 
   after(async function () {
     config.recoveryPhone.enabled = temp.enabled;
     config.twilio.credentialMode = temp.credentialMode;
-    await TestServer.stop(server);
   });
 
   it('returns feature not enabled error', async () => {
     try {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const client = await Client.createAndVerify(
         config.publicUrl,
         email,
         'topsecretz',
-        server.mailbox,
+        mailbox,
         {
           version: 'V2',
         }
@@ -336,7 +337,6 @@ describe('#integration - recovery phone - feature flag check', () => {
 describe(`#integration - recovery phone - customs checks`, function () {
   let email;
   let client;
-  let server;
 
   const backupConfig = {
     customsUrl: config.customsUrl,
@@ -349,23 +349,23 @@ describe(`#integration - recovery phone - customs checks`, function () {
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
     config.customsUrl = 'http://127.0.0.1:7000';
-    server = await TestServer.start(config, undefined, {
-      enableCustomsChecks: true,
-    });
+    // server = await TestTestUtilities.start(config, undefined, {
+    //   enableCustomsChecks: true,
+    // });
   });
 
   after(async () => {
     config.customsUrl = backupConfig.customsUrl;
-    await TestServer.stop(server);
+    // await TestTestUtilities.stop(server);
   });
 
   beforeEach(async function () {
-    email = server.uniqueEmail();
+    email = TestUtilities.uniqueEmail();
     client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       {
         version: 'V2',
       }

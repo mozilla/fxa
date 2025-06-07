@@ -6,21 +6,25 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const superagent = require('superagent');
+const { TestUtilities } = require('../test_utilities');
+const getMailbox = require('../mailbox');
 
 const config = require('../../config').default.getProperties();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote misc`, function () {
-    this.timeout(60000);
-    let server;
+    let mailbox;
     before(async () => {
-      server = await TestServer.start(config);
+      mailbox = getMailbox(
+        config.smtp.api.host,
+        config.smtp.api.port,
+        false
+      );
     });
     after(async () => {
-      await TestServer.stop(server);
+
     });
 
     function testVersionRoute(route) {
@@ -143,7 +147,7 @@ const config = require('../../config').default.getProperties();
     });
 
     it('timestamp header', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let url = null;
       let client = null;
@@ -151,7 +155,7 @@ const config = require('../../config').default.getProperties();
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       )
         .then((c) => {
@@ -250,7 +254,7 @@ const config = require('../../config').default.getProperties();
     });
 
     it('ignores fail on hawk payload mismatch', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let url = null;
       let client = null;
@@ -258,7 +262,7 @@ const config = require('../../config').default.getProperties();
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       )
         .then((c) => {

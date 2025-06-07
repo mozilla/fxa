@@ -4,13 +4,18 @@
 
 'use strict';
 
+const chai = require('chai');
 const { assert } = require('chai');
-const TestServer = require('../test_server');
+const chaiAsPromised = require('chai-as-promised');
+chai.use(chaiAsPromised);
+
+const { TestUtilities } = require('../test_utilities');
+const mailbox = require('../mailbox')();
+
 const crypto = require('crypto');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const mocks = require('../mocks');
-const getPort = require('get-port');
 const { default: Container } = require('typedi');
 const {
   PlaySubscriptions,
@@ -19,21 +24,18 @@ const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
+
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account create`, function () {
     this.timeout(60000);
-    let server;
 
     before(async function () {
-      const [smtpApiPort, smtpPort] = await Promise.all([
-        getPort({
-          port: config.smtp.api.port
-        }),
-        getPort({
-          port: config.smtp.port
-        })
-      ]);
+      // mailbox = getMailbox(
+      //   config.smtp.api.host,
+      //   config.smtp.api.port,
+      //   false // printLogs
+      // )
       config.subscriptions = {
         enabled: true,
         stripeApiKey: 'fake_key',
@@ -45,12 +47,6 @@ const {
         },
         productConfigsFirestore: { enabled: true },
       };
-      // assign specific, safe, ports for this test.
-      config.smtp.api.port = smtpApiPort;
-      config.smtp.port = smtpPort;
-      console.debug('Account create test using SMTP API port:', smtpApiPort);
-      console.debug('Account create test using SMTP port:', smtpPort);
-      // console.debug('Using config from: ', config);
       const mockStripeHelper = {};
       mockStripeHelper.hasActiveSubscription = async () =>
         Promise.resolve(false);
@@ -59,24 +55,14 @@ const {
       Container.set(PlaySubscriptions, {});
       Container.set(AppStoreSubscriptions, {});
 
-      server = await TestServer.start(config, false, {
-        authServerMockDependencies: {
-          '../lib/payments/stripe': {
-            StripeHelper: mockStripeHelper,
-            createStripeHelper: () => mockStripeHelper,
-          },
-        },
-      });
-      return server;
     });
 
     after(async function () {
-      console.log('Stopping test server - inside test afterhook');
-      await TestServer.stop(server);
+
     });
 
     it('unverified account fail when getting keys', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.create(config.publicUrl, email, password, testOptions)
@@ -103,7 +89,7 @@ const {
     });
 
     it('create and verify sync account', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.create(config.publicUrl, email, password, {
@@ -121,7 +107,7 @@ const {
           assert.equal(status.verified, false);
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-mailer'], undefined);
@@ -132,7 +118,7 @@ const {
           return client.verifyEmail(verifyCode, { service: 'sync' });
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(
@@ -150,7 +136,7 @@ const {
     });
 
     it('create account with service identifier and resume', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       return Client.create(config.publicUrl, email, password, {
         ...testOptions,
@@ -158,7 +144,7 @@ const {
         resume: 'foo',
       })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-service-id'], 'abcdef');
@@ -167,7 +153,7 @@ const {
     });
 
     it('create account allows localization of emails', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.create(config.publicUrl, email, password, testOptions)
@@ -175,7 +161,7 @@ const {
           client = x;
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then(async (emailData) => {
           assert.include(emailData.text, 'Confirm account', 'en-US');
@@ -195,7 +181,7 @@ const {
           client = x;
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then(async (emailData) => {
           assert.notInclude(emailData.text, 'Confirm email', 'not en-US');
@@ -209,7 +195,7 @@ const {
 
     it('Unknown account should not exist', () => {
       const client = new Client(config.publicUrl, testOptions);
-      client.email = server.uniqueEmail();
+      client.email = TestUtilities.uniqueEmail();
       client.authPW = crypto.randomBytes(32);
       client.authPWVersion2 = crypto.randomBytes(32);
       return client.auth().then(
@@ -223,7 +209,7 @@ const {
     });
 
     it('stubs account and finishes setup', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ilikepancakes';
       const client = new Client(config.publicUrl, testOptions);
       await client.setupCredentials(email, password);
@@ -256,7 +242,7 @@ const {
     });
 
     it('cannot stub the same account twice', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ilikepancakes';
       const stub = async () => {
         const client = new Client(config.publicUrl, testOptions);
@@ -277,7 +263,7 @@ const {
     });
 
     it('fails to create account with a corrupt setup token', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ilikepancakes';
       const client = new Client(config.publicUrl, testOptions);
       await client.setupCredentials(email, password);
@@ -299,7 +285,7 @@ const {
     });
 
     it('fails to call finish setup again', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ilikepancakes';
       const client = new Client(config.publicUrl, testOptions);
       await client.setupCredentials(email, password);
@@ -316,14 +302,14 @@ const {
     });
 
     it('/account/create works with proper data', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ilikepancakes';
       let client;
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       )
         .then((x) => {
@@ -339,7 +325,7 @@ const {
     });
 
     it('/account/create returns a sessionToken', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ilikepancakes';
       const client = new Client(config.publicUrl, testOptions);
       return client.setupCredentials(email, password).then((c) => {
@@ -355,7 +341,7 @@ const {
     });
 
     it('/account/create returns a keyFetchToken when keys=true', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ilikepancakes';
       const client = new Client(config.publicUrl, testOptions);
       return client.setupCredentials(email, password).then((c) => {
@@ -369,14 +355,14 @@ const {
     });
 
     it('signup with same email, different case', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const email2 = email.toUpperCase();
       const password = 'abcdef';
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       )
         .then((c) => {
@@ -394,19 +380,19 @@ const {
     });
 
     it('re-signup against an unverified email', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'abcdef';
       return Client.create(config.publicUrl, email, password, testOptions)
         .then(() => {
           // delete the first verification email
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then(() => {
           return Client.createAndVerify(
             config.publicUrl,
             email,
             password,
-            server.mailbox,
+            mailbox,
             testOptions
           );
         })
@@ -417,7 +403,7 @@ const {
 
     it('invalid redirectTo', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -439,7 +425,7 @@ const {
 
     it('another invalid redirectTo', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -464,7 +450,7 @@ const {
 
     it('valid metricsContext', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -485,7 +471,7 @@ const {
 
     it('empty metricsContext', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -497,7 +483,7 @@ const {
 
     it('invalid entrypoint', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -520,7 +506,7 @@ const {
 
     it('invalid entrypointExperiment', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -543,7 +529,7 @@ const {
 
     it('invalid entrypointVariation', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -566,7 +552,7 @@ const {
 
     it('invalid utmCampaign', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -589,7 +575,7 @@ const {
 
     it('invalid utmContent', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -612,7 +598,7 @@ const {
 
     it('invalid utmMedium', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -635,7 +621,7 @@ const {
 
     it('invalid utmSource', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -658,7 +644,7 @@ const {
 
     it('invalid utmTerm', () => {
       const api = new Client.Api(config.publicUrl, testOptions);
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const authPW =
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
       const options = {
@@ -680,13 +666,13 @@ const {
     });
 
     it('create account with service query parameter', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         ...testOptions,
         serviceQuery: 'bar',
       })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(
@@ -698,11 +684,11 @@ const {
     });
 
     it('account creation works with unicode email address', () => {
-      const email = server.uniqueUnicodeEmail();
+      const email = TestUtilities.uniqueUnicodeEmail();
       return Client.create(config.publicUrl, email, 'foo', testOptions)
         .then((client) => {
           assert.ok(client, 'created account');
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.ok(emailData, 'received email');
@@ -710,7 +696,7 @@ const {
     });
 
     it('account creation fails with invalid metricsContext flowId', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         ...testOptions,
         metricsContext: {
@@ -728,7 +714,7 @@ const {
     });
 
     it('account creation fails with invalid metricsContext flowBeginTime', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         ...testOptions,
         metricsContext: {
@@ -747,7 +733,7 @@ const {
     });
 
     it('account creation works with maximal metricsContext metadata', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const options = {
         ...testOptions,
         metricsContext: mocks.generateMetricsContext(),
@@ -755,7 +741,7 @@ const {
       return Client.create(config.publicUrl, email, 'foo', options)
         .then((client) => {
           assert.ok(client, 'created account');
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(
@@ -772,7 +758,7 @@ const {
     });
 
     it('account creation works with empty metricsContext metadata', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         ...testOptions,
         metricsContext: {},
@@ -782,7 +768,7 @@ const {
     });
 
     it('account creation fails with missing flowBeginTime', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         ...testOptions,
         metricsContext: {
@@ -800,7 +786,7 @@ const {
     });
 
     it('account creation fails with missing flowId', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       return Client.create(config.publicUrl, email, 'foo', {
         ...testOptions,
         metricsContext: {
@@ -817,7 +803,7 @@ const {
     });
 
     it('create account for non-sync service, gets generic sign-up email and does not get post-verify email', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.create(config.publicUrl, email, password, testOptions)
@@ -826,7 +812,7 @@ const {
           assert.ok('account was created');
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'verify');
@@ -848,7 +834,7 @@ const {
           return client.forgotPassword();
         })
         .then(() => {
-          return server.mailbox.waitForCode(email);
+          return mailbox.waitForCode(email);
         })
         .then((code) => {
           assert.ok(code, 'the next email was reset-password, not post-verify');
@@ -856,7 +842,7 @@ const {
     });
 
     it('create account for unspecified service does not get create sync email and no post-verify email', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.create(config.publicUrl, email, password, testOptions)
@@ -865,7 +851,7 @@ const {
           assert.ok('account was created');
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'verify');
@@ -887,7 +873,7 @@ const {
           return client.forgotPassword();
         })
         .then(() => {
-          return server.mailbox.waitForCode(email);
+          return mailbox.waitForCode(email);
         })
         .then((code) => {
           assert.ok(code, 'the next email was reset-password, not post-verify');
@@ -895,7 +881,7 @@ const {
     });
 
     it('create account and subscribe to newsletters', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.create(config.publicUrl, email, password, {
@@ -907,7 +893,7 @@ const {
           assert.ok('account was created');
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           return emailData.headers['x-verify-code'];
@@ -925,7 +911,7 @@ const {
           assert.equal(status.verified, true);
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'postVerify');
@@ -937,14 +923,14 @@ const {
         return this.skip();
       }
 
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'F00BAR';
 
       const client = await Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -979,14 +965,14 @@ const {
         return this.skip();
       }
 
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'F00BAR';
 
       const client = await Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,

@@ -5,39 +5,40 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
-config.redis.sessionTokens.enabled = false;
 const url = require('url');
+const getMailbox = require('../mailbox');
+const {TestUtilities} = require('../test_utilities');
 
 const mocks = require('../mocks');
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account signin verification`, function () {
-    this.timeout(60000);
-    let server;
+    let mailbox;
 
     before(async () => {
-      config.securityHistory.ipProfiling.allowedRecency = 0;
-      config.signinConfirmation.skipForNewAccounts.enabled = false;
-      server = await TestServer.start(config);
+      mailbox = getMailbox(
+        config.smtp.api.host,
+        config.smtp.api.port,
+        false
+      );
     });
 
     after(async () => {
-      await TestServer.stop(server);
+
     });
 
     it('account signin without keys does not set challenge', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       )
         .then((x) => {
@@ -61,14 +62,14 @@ const mocks = require('../mocks');
     });
 
     it('account signin with keys does set challenge', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       )
         .then((x) => {
@@ -100,7 +101,7 @@ const mocks = require('../mocks');
     });
 
     it('account can verify new sign-in from email', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       let uid;
@@ -113,7 +114,7 @@ const mocks = require('../mocks');
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       )
         .then((x) => {
@@ -143,7 +144,7 @@ const mocks = require('../mocks');
           assert.equal(response.verified, false, 'verified set to false');
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           uid = emailData.headers['x-uid'];
@@ -189,7 +190,7 @@ const mocks = require('../mocks');
     });
 
     it('Account verification links still work after session verification', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       let emailCode, tokenCode, uid;
@@ -200,7 +201,7 @@ const mocks = require('../mocks');
           client = x;
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           // Ensure correct email sent
@@ -214,7 +215,7 @@ const mocks = require('../mocks');
           return client.login({ keys: true });
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           // Verify sign-confirm email
@@ -246,7 +247,7 @@ const mocks = require('../mocks');
     });
 
     it('sign-in verification email link', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'something';
       let client = null;
       const options = {
@@ -260,7 +261,7 @@ const mocks = require('../mocks');
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         options
       )
         .then((c) => {
@@ -270,7 +271,7 @@ const mocks = require('../mocks');
           return client.login(options);
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           const link = emailData.headers['x-link'];
@@ -284,7 +285,7 @@ const mocks = require('../mocks');
     });
 
     it('sign-in verification from different client', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'something';
       let client = null;
       let client2 = null;
@@ -299,7 +300,7 @@ const mocks = require('../mocks');
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         options
       )
         .then((c) => {
@@ -309,7 +310,7 @@ const mocks = require('../mocks');
           return client.login(options);
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           const link = emailData.headers['x-link'];
@@ -329,13 +330,13 @@ const mocks = require('../mocks');
         })
         .then(() => {
           // Clears inbox of new signin email
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then(() => {
           return client2.login(options);
         })
         .then(() => {
-          return server.mailbox.waitForCode(email);
+          return mailbox.waitForCode(email);
         })
         .then((code) => {
           // Verify account from client2
@@ -368,7 +369,7 @@ const mocks = require('../mocks');
     });
 
     it('account keys, return keys on verified account', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       let tokenCode;
@@ -395,7 +396,7 @@ const mocks = require('../mocks');
           );
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.subject, 'Finish creating your account');
@@ -445,7 +446,7 @@ const mocks = require('../mocks');
     });
 
     it('account keys, return keys on verified login', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       let tokenCode;
@@ -454,7 +455,7 @@ const mocks = require('../mocks');
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         { ...testOptions, keys: true }
       )
         .then((c) => {
@@ -464,7 +465,7 @@ const mocks = require('../mocks');
         })
         .then((c) => {
           client = c;
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.subject, 'Confirm sign-in');
@@ -528,7 +529,7 @@ const mocks = require('../mocks');
     });
 
     it('unverified account is verified on sign-in confirmation', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       let tokenCode;
@@ -539,7 +540,7 @@ const mocks = require('../mocks');
       })
         .then((c) => {
           client = c;
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'verify');
@@ -551,7 +552,7 @@ const mocks = require('../mocks');
         })
         .then((c) => {
           client = c;
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'verify');

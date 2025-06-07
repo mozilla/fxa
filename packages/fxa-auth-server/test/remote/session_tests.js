@@ -5,25 +5,22 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
+const { TestUtilities } = require('../test_utilities');
+const mailbox = require('../mailbox')();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote session`, function () {
-    this.timeout(60000);
-    let server;
-    config.signinConfirmation.skipForNewAccounts.enabled = false;
     before(async () => {
-      server = await TestServer.start(config);
+
     });
     after(async () => {
-      await TestServer.stop(server);
     });
 
     describe('destroy', () => {
       it('deletes a valid session', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'foobar';
         let client = null;
         let sessionToken = null;
@@ -31,7 +28,7 @@ const config = require('../../config').default.getProperties();
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           testOptions
         )
           .then((x) => {
@@ -58,7 +55,7 @@ const config = require('../../config').default.getProperties();
       });
 
       it('deletes a different custom token', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'foobar';
         let client = null;
         let tokenId = null;
@@ -100,7 +97,7 @@ const config = require('../../config').default.getProperties();
       });
 
       it('fails with a bad custom token', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'foobar';
         let client = null;
         let sessionTokenCreate = null;
@@ -143,14 +140,14 @@ const config = require('../../config').default.getProperties();
 
     describe('duplicate', () => {
       it('duplicates a valid session into a new, independent session', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'foobar';
         let client1, client2;
         return Client.createAndVerify(
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           testOptions
         )
           .then((x) => {
@@ -200,7 +197,7 @@ const config = require('../../config').default.getProperties();
       });
 
       it('creates independent verification state for the new token', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'foobar';
         let client1, client2, client3;
         return Client.create(config.publicUrl, email, password, testOptions)
@@ -212,7 +209,7 @@ const config = require('../../config').default.getProperties();
             client2 = x;
             assert.ok(!client1.verified, 'client1 session is not verified');
             assert.ok(!client2.verified, 'client2 session is not verified');
-            return server.mailbox.waitForCode(email);
+            return mailbox.waitForCode(email);
           })
           .then((code) => {
             return client1.verifyEmail(code);
@@ -241,7 +238,7 @@ const config = require('../../config').default.getProperties();
             return client2.requestVerifyEmail();
           })
           .then(() => {
-            return server.mailbox.waitForCode(email);
+            return mailbox.waitForCode(email);
           })
           .then((code) => {
             return client2.verifyEmail(code);
@@ -269,14 +266,14 @@ const config = require('../../config').default.getProperties();
 
     describe('reauth', () => {
       it('allocates a new keyFetchToken', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'foobar';
         let client, kA, kB;
         return Client.createAndVerify(
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           {
             ...testOptions,
             keys: true,
@@ -315,14 +312,14 @@ const config = require('../../config').default.getProperties();
       });
 
       it('rejects incorrect passwords', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'foobar';
         let client;
         return Client.createAndVerify(
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           testOptions
         )
           .then((x) => {
@@ -351,7 +348,7 @@ const config = require('../../config').default.getProperties();
       });
 
       it('has sane account-verification behaviour', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'foobar';
         let client;
 
@@ -360,7 +357,7 @@ const config = require('../../config').default.getProperties();
             client = x;
             assert.ok(!client.verified, 'account is not verified');
             // Clear the verification email, without verifying.
-            return server.mailbox.waitForCode(email);
+            return mailbox.waitForCode(email);
           })
           .then(() => {
             return client.reauth();
@@ -377,7 +374,7 @@ const config = require('../../config').default.getProperties();
           })
           .then(() => {
             // The reauth should have triggerd a second email.
-            return server.mailbox.waitForCode(email);
+            return mailbox.waitForCode(email);
           })
           .then((code) => {
             return client.verifyEmail(code);
@@ -395,14 +392,14 @@ const config = require('../../config').default.getProperties();
       });
 
       it('has sane session-verification behaviour', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'foobar';
         let client;
         return Client.createAndVerify(
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           {
             ...testOptions,
             keys: false,
@@ -417,7 +414,7 @@ const config = require('../../config').default.getProperties();
           .then((x) => {
             client = x;
             // Clears inbox of new signin email
-            return server.mailbox.waitForEmail(email);
+            return mailbox.waitForEmail(email);
           })
           .then(() => {
             return client.sessionStatus();
@@ -456,7 +453,7 @@ const config = require('../../config').default.getProperties();
               'email status now reports unverified, because mustVerify=true'
             );
             // The reauth should have triggerd a verification email.
-            return server.mailbox.waitForCode(email);
+            return mailbox.waitForCode(email);
           })
           .then((code) => {
             return client.verifyEmail(code);
@@ -482,14 +479,14 @@ const config = require('../../config').default.getProperties();
       });
 
       it('does not send notification emails on verified sessions', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'foobar';
         let client;
         return Client.createAndVerify(
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           {
             ...testOptions,
             keys: true,
@@ -505,7 +502,7 @@ const config = require('../../config').default.getProperties();
             return client.forgotPassword();
           })
           .then(() => {
-            return server.mailbox.waitForEmail(email);
+            return mailbox.waitForEmail(email);
           })
           .then((msg) => {
             assert.ok(
@@ -518,14 +515,14 @@ const config = require('../../config').default.getProperties();
 
     describe('status', () => {
       it('succeeds with valid token', () => {
-        const email = server.uniqueEmail();
+        const email = TestUtilities.uniqueEmail();
         const password = 'testx';
         let uid = null;
         return Client.createAndVerify(
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           testOptions
         )
           .then((c) => {

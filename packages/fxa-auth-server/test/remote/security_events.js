@@ -6,8 +6,9 @@
 
  const { assert } = require('chai');
  const Client = require('../client')();
- const TestServer = require('../test_server');
  const config = require('../../config').default.getProperties();
+ const { TestUtilities } = require('../test_utilities');
+ const mailbox = require('../mailbox')();
 
  function resetPassword(client, code, newPassword, options) {
    return client.verifyPasswordResetCode(code).then(() => {
@@ -21,21 +22,16 @@
 
  [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
    describe(`#integration${testOptions.version} - remote securityEvents`, function () {
-     this.timeout(60000);
-     let server;
 
      before(async function () {
-       config.securityHistory.ipProfiling.allowedRecency = 0;
-       config.signinConfirmation.skipForNewAccounts.enabled = false;
-       server = await TestServer.start(config);
+
      });
 
      after(async () => {
-       await TestServer.stop(server);
      });
 
      it('returns securityEvents on creating and login into an account', () => {
-       const email = server.uniqueEmail();
+       const email = TestUtilities.uniqueEmail();
        const password = 'abcdef';
        let client;
 
@@ -43,7 +39,7 @@
          config.publicUrl,
          email,
          password,
-         server.mailbox,
+         mailbox,
          testOptions
        )
          .then((x) => {
@@ -67,7 +63,7 @@
      });
 
      it('returns security events after account reset w/o keys, with sessionToken', () => {
-       const email = server.uniqueEmail();
+       const email = TestUtilities.uniqueEmail();
        const password = 'oldPassword';
        const newPassword = 'newPassword';
        let client;
@@ -76,7 +72,7 @@
          config.publicUrl,
          email,
          password,
-         server.mailbox,
+         mailbox,
          testOptions
        )
          .then((x) => {
@@ -86,7 +82,7 @@
            return client.forgotPassword();
          })
          .then(() => {
-           return server.mailbox.waitForCode(email);
+           return mailbox.waitForCode(email);
          })
          .then((code) => {
            assert.isRejected(client.resetPassword(newPassword));

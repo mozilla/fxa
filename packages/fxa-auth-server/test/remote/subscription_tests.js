@@ -37,7 +37,6 @@ const PRODUCT_NAME = 'All Done Pro';
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote subscriptions:`, function () {
-    this.timeout(60000);
 
     before(async () => {
       config.subscriptions.stripeApiKey = null;

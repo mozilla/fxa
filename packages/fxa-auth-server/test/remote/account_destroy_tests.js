@@ -5,32 +5,22 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
+const { TestUtilities } = require('../test_utilities');
 const Client = require('../client')();
 const otplib = require('otplib');
 const crypto = require('crypto');
+const getMailbox = require('../mailbox');
 
 const config = require('../../config').default.getProperties();
-const getPort = require('get-port');
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account destroy`, function () {
     this.timeout(60000);
-    let server;
+    let mailbox;
     let tempConfigValue;
 
     before(async function () {
-      const [smtpApiPort, smtpPort] = await Promise.all([
-        getPort({
-          port: config.smtp.api.port
-        }),
-        getPort({
-          port: config.smtp.port
-        })
-      ]);
-      config.smtp.api.port = smtpApiPort;
-      config.smtp.port = smtpPort;
       // Important, this config impacts test logic. By default this is enabled
       // in development/test with a very large max time. In the real world the max time
       // is much lower, and confirmation is not skipped very often.The test cases in this
@@ -38,12 +28,16 @@ const getPort = require('get-port');
       // this config will always be disabled here.
       tempConfigValue = config.signinConfirmation.skipForNewAccounts.enabled;
       config.signinConfirmation.skipForNewAccounts.enabled = false;
-      server = await TestServer.start(config);
+      // server = await TestTestUtilities.start(config);
+      mailbox = getMailbox(
+        config.smtp.api.host,
+        config.smtp.api.port,
+        false
+      );
     });
 
     after(async function () {
       config.signinConfirmation.skipForNewAccounts.enabled = tempConfigValue;
-      await TestServer.stop(server);
     });
 
     // Note that this test case most closely aligns with what most users experience.
@@ -51,7 +45,7 @@ const getPort = require('get-port');
     // and no totp. When this occurs our UI will send an OTP email to user and prompt
     // them to enter the code prior to deleting the account.
     it('can delete account by providing short code', async function () {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ok';
       await Client.create(config.publicUrl, email, password, {
         ...testOptions,
@@ -68,7 +62,7 @@ const getPort = require('get-port');
       // In the UI this happens when a user clicks on delete account, and
       // OTP message box pops up.
       await client.resendVerifyShortCodeEmail();
-      const emailData = await server.mailbox.waitForEmail(email);
+      const emailData = await mailbox.waitForEmail(email);
       let code;
       for (let i = 0; i < emailData.length; i++) {
         if (emailData[i].headers['x-verify-short-code']) {
@@ -83,7 +77,7 @@ const getPort = require('get-port');
     });
 
     it('can delete account by providing verify code', async function () {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ok';
       await Client.create(config.publicUrl, email, password, {
         ...testOptions,
@@ -96,7 +90,7 @@ const getPort = require('get-port');
         keys: true,
       });
 
-      const emailData = await server.mailbox.waitForEmail(email);
+      const emailData = await mailbox.waitForEmail(email);
       const code = emailData[emailData.length - 1].headers['x-verify-code'];
       await client.verifyEmail(code);
 
@@ -105,13 +99,13 @@ const getPort = require('get-port');
     });
 
     it('cannot delete account with invalid authPW', async function () {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ok';
       const c = await Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       );
 
@@ -135,14 +129,14 @@ const getPort = require('get-port');
     });
 
     it('cannot delete account without verifying TOTP', async function () {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ok';
 
       await Client.createAndVerifyAndTOTP(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -170,7 +164,7 @@ const getPort = require('get-port');
     });
 
     it('cannot delete account with TOTP by supplying email otp code', async function () {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ok';
       await Client.create(config.publicUrl, email, password, {
         ...testOptions,
@@ -187,7 +181,7 @@ const getPort = require('get-port');
       // In the UI this happens when a user clicks on delete account, and
       // OTP message box pops up.
       await client.resendVerifyShortCodeEmail();
-      const emailData = await server.mailbox.waitForEmail(email);
+      const emailData = await mailbox.waitForEmail(email);
       let code;
       for (let i = 0; i < emailData.length; i++) {
         if (emailData[i].headers['x-verify-short-code']) {
@@ -242,13 +236,13 @@ const getPort = require('get-port');
     });
 
     it('cannot delete without verifying session', async function () {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ok';
       let client = await Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       );
 
@@ -267,7 +261,7 @@ const getPort = require('get-port');
     });
 
     it('cannot delete without verifying account', async function () {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ok';
       await Client.create(config.publicUrl, email, password, {
         ...testOptions,

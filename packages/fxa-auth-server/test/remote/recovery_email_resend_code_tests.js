@@ -6,27 +6,23 @@
 
 const { assert } = require('chai');
 const Client = require('../client')();
-const TestServer = require('../test_server');
+const mailbox = require('../mailbox')();
+const { TestUtilities } = require('../test_utilities');
 
 const config = require('../../config').default.getProperties();
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote recovery email resend code`, function () {
-  this.timeout(60000);
-  let server;
   before(async () => {
-    config.securityHistory.ipProfiling.allowedRecency = 0;
-    config.signinConfirmation.skipForNewAccounts.enabled = false;
-    server = await TestServer.start(config);
+
   });
 
   after(async () => {
-    await TestServer.stop(server);
   });
 
   it('sign-in verification resend email verify code', () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     const password = 'something';
     let verifyEmailCode = '';
     let client = null;
@@ -41,17 +37,17 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
       .then((c) => {
         client = c;
         // Clear first account create email and login again
-        return server.mailbox
+        return mailbox
           .waitForEmail(email)
           .then(() => Client.login(config.publicUrl, email, password, options))
           .then((c) => (client = c));
       })
-      .then(() => server.mailbox.waitForCode(email))
+      .then(() => mailbox.waitForCode(email))
       .then((code) => {
         verifyEmailCode = code;
         return client.requestVerifyEmail();
       })
-      .then(() => server.mailbox.waitForCode(email))
+      .then(() => mailbox.waitForCode(email))
       .then((code) => {
         assert.equal(code, verifyEmailCode, 'code equal to verify email code');
         return client.verifyEmail(code);
@@ -69,7 +65,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
   });
 
   it('sign-in verification resend login verify code', () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     const password = 'something';
     let verifyEmailCode = '';
     let client2 = null;
@@ -84,7 +80,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       options
     )
       .then(() => {
@@ -96,20 +92,20 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
       })
       .then(() => {
         // Clears inbox of new signin email
-        return server.mailbox.waitForEmail(email);
+        return mailbox.waitForEmail(email);
       })
       .then(() => {
         return client2.login(options);
       })
       .then(() => {
-        return server.mailbox.waitForCode(email);
+        return mailbox.waitForCode(email);
       })
       .then((code) => {
         verifyEmailCode = code;
         return client2.requestVerifyEmail();
       })
       .then(() => {
-        return server.mailbox.waitForCode(email);
+        return mailbox.waitForCode(email);
       })
       .then((code) => {
         assert.equal(code, verifyEmailCode, 'code equal to verify email code');
@@ -130,8 +126,8 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
   });
 
   it('fail when resending verification email when not owned by account', () => {
-    const email = server.uniqueEmail();
-    const secondEmail = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
+    const secondEmail = TestUtilities.uniqueEmail();
     const password = 'something';
     let client = null;
     const options = {
@@ -143,7 +139,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         options
       ),
       Client.create(config.publicUrl, secondEmail, password, options),
@@ -166,7 +162,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
   });
 
   it('should be able to upgrade unverified session to verified session', () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     const password = 'something';
     let client = null;
     const options = {
@@ -177,7 +173,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       options
     )
       .then((c) => {
@@ -188,7 +184,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
           .then((c) => {
             client = c;
             // Clear the verify account email
-            return server.mailbox.waitForCode(email);
+            return mailbox.waitForCode(email);
           })
           .then(() => client.sessionStatus());
       })
@@ -198,7 +194,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
         client.options.type = 'upgradeSession';
         return client.requestVerifyEmail();
       })
-      .then(() => server.mailbox.waitForEmail(email))
+      .then(() => mailbox.waitForEmail(email))
       .then((emailData) => {
         assert.equal(emailData.headers['x-template-name'], 'verifyPrimary');
         const code = emailData.headers['x-verify-code'];

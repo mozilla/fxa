@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -112,7 +113,7 @@ TestServer.prototype.uniqueEmail = function (domain) {
   // The enable_customs_ prefix will skip the 'isAllowedEmail' check in customs
   // that is typically used to by pass customs during testing... This can
   // be useful if a test that expects customs to activate is run.
-  const prefix = this.options.enableCustomsChecks ? 'enable_customs_' : '';
+  const prefix = this.config.enableCustomsChecks ? 'enable_customs_' : '';
   return `${prefix}${base}${domain}`;
 };
 

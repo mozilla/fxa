@@ -5,7 +5,6 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const { default: Container } = require('typedi');
 const {
@@ -14,6 +13,7 @@ const {
 const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
+const mailbox = require('../mailbox')();
 
 function fail() {
   throw new Error();
@@ -22,8 +22,7 @@ function fail() {
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote token expiry`, function () {
-  this.timeout(60000);
-  let server, config;
+  let config;
 
   before(async () => {
     config = require('../../config').default.getProperties();
@@ -33,11 +32,9 @@ describe(`#integration${testOptions.version} - remote token expiry`, function ()
     Container.set(PlaySubscriptions, {});
     Container.set(AppStoreSubscriptions, {});
 
-    server = await TestServer.start(config);
   });
 
   after(async () => {
-    await TestServer.stop(server);
   });
 
   it('token expiry', () => {
@@ -61,7 +58,7 @@ describe(`#integration${testOptions.version} - remote token expiry`, function ()
       config.publicUrl,
       `${Math.random()}@example.com`,
       'wibble',
-      server.mailbox,
+      mailbox,
       testOptions
     ).then((client) =>
       client.sessionStatus().then(

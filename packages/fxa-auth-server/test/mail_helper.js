@@ -134,13 +134,11 @@ module.exports = async (configOverride, printLogs) => {
       }
     );
 
-    console.debug('Starting local SMTP server at: ', configOverride.smtp.port);
     smtp.listen(configOverride.smtp.port, (err) => {
       if (!err) {
         console.log(`Local SMTP server listening on port ${configOverride.smtp.port}`);
       } else {
         console.log('Error starting SMTP server...');
-        console.debug("Error", err);
         console.log(err.message);
       }
     });

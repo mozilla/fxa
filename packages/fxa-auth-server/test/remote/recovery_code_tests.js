@@ -6,16 +6,17 @@
 
 const { assert } = require('chai');
 const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
+const { TestUtilities } = require('../test_utilities');
 const Client = require('../client')();
 const otplib = require('otplib');
 const BASE_36 = require('../../lib/routes/validators').BASE_36;
+const mailbox = require('../mailbox')();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote backup authentication codes`, function () {
     this.timeout(60000);
 
-    let server, client, email, recoveryCodes;
+    let client, email, recoveryCodes;
     const recoveryCodeCount = 9;
     const password = 'pssssst';
     const metricsContext = {
@@ -32,20 +33,18 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
     before(async () => {
       config.totp.recoveryCodes.count = recoveryCodeCount;
       config.totp.recoveryCodes.notifyLowCount = recoveryCodeCount - 2;
-      server = await TestServer.start(config);
     });
 
     after(async () => {
-      await TestServer.stop(server);
     });
 
     beforeEach(() => {
-      email = server.uniqueEmail();
+      email = TestUtilities.uniqueEmail();
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       ).then((x) => {
         client = x;
@@ -68,7 +67,7 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
             .then((response) => {
               assert.equal(response.success, true, 'totp codes match');
 
-              return server.mailbox.waitForEmail(email);
+              return mailbox.waitForEmail(email);
             })
             .then((emailData) => {
               assert.equal(
@@ -108,7 +107,7 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
             'backup authentication codes should not match'
           );
 
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(
@@ -153,7 +152,7 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
           })
           .then((res) => {
             assert.equal(res.sessionVerified, true, 'session verified');
-            return server.mailbox.waitForEmail(email);
+            return mailbox.waitForEmail(email);
           })
           .then((emailData) => {
             assert.equal(
@@ -172,7 +171,7 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
               recoveryCodeCount - 1,
               'correct remaining codes'
             );
-            return server.mailbox.waitForEmail(email);
+            return mailbox.waitForEmail(email);
           })
           .then((emailData) => {
             assert.equal(
@@ -183,7 +182,7 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
           })
           .then((result) => {
             assert.ok(result, 'delete totp token successfully');
-            return server.mailbox.waitForEmail(email);
+            return mailbox.waitForEmail(email);
           })
           .then((emailData) => {
             assert.equal(
@@ -216,7 +215,7 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
               recoveryCodeCount - 1,
               'correct remaining codes'
             );
-            return server.mailbox.waitForEmail(email);
+            return mailbox.waitForEmail(email);
           })
           .then((emailData) => {
             assert.equal(
@@ -233,7 +232,7 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
               recoveryCodeCount - 2,
               'correct remaining codes'
             );
-            return server.mailbox.waitForEmail(email);
+            return mailbox.waitForEmail(email);
           })
           .then((emails) => {
             // The order in which the emails are sent is not guaranteed, test for both possible templates

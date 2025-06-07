@@ -7,8 +7,9 @@
 const { assert } = require('chai');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
 const url = require('url');
+const { TestUtilities } = require('../test_utilities');
+const getMailbox = require('../mailbox');
 
 const tokens = require('../../lib/tokens')({ trace: function () {} });
 function getSessionTokenId(sessionTokenHex) {
@@ -19,21 +20,29 @@ function getSessionTokenId(sessionTokenHex) {
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote password change`, function () {
-    this.timeout(60000);
-    let server;
+    let mailbox;
     before(async () => {
-      config.securityHistory.ipProfiling.allowedRecency = 0;
-      config.signinConfirmation.skipForNewAccounts.enabled = false;
-
-      server = await TestServer.start(config);
+      // these might not work how we think... need to test.
+      // config.securityHistory.ipProfiling.allowedRecency = 0;
+      process.env.IP_PROFILING_RECENCY = 0;
+      // config.signinConfirmation.skipForNewAccounts.enabled = false;
+      process.env.SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS = false;
+      mailbox = getMailbox(
+        config.smtp.api.host,
+        config.smtp.api.port,
+        false
+      );
     });
 
     after(async () => {
-      await TestServer.stop(server);
+      process.env.SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS =
+        config.signinConfirmation.skipForNewAccounts.enabled
+      process.env.IP_PROFILING_RECENCY =
+        config.securityHistory.ipProfiling.allowedRecency;
     });
 
     it('password change, with unverified session', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'foobar';
       let kB, kA, client, firstAuthPW, originalSessionToken;
@@ -42,7 +51,7 @@ function getSessionTokenId(sessionTokenHex) {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -76,7 +85,7 @@ function getSessionTokenId(sessionTokenHex) {
         })
         .then(() => {
           // Ignore confirm login email
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then(() => {
           return client.emailStatus();
@@ -112,7 +121,7 @@ function getSessionTokenId(sessionTokenHex) {
           );
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           const subject = emailData.headers['subject'];
@@ -139,7 +148,7 @@ function getSessionTokenId(sessionTokenHex) {
             config.publicUrl,
             email,
             newPassword,
-            server.mailbox,
+            mailbox,
             {
               ...testOptions,
               keys: true,
@@ -157,7 +166,7 @@ function getSessionTokenId(sessionTokenHex) {
     });
 
     it('password change, with verified session', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'foobar';
       let kB, kA, client, firstAuthPW, originalSessionToken;
@@ -166,7 +175,7 @@ function getSessionTokenId(sessionTokenHex) {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -208,7 +217,7 @@ function getSessionTokenId(sessionTokenHex) {
           );
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           const subject = emailData.headers['subject'];
@@ -228,7 +237,7 @@ function getSessionTokenId(sessionTokenHex) {
             config.publicUrl,
             email,
             newPassword,
-            server.mailbox,
+            mailbox,
             {
               ...testOptions,
               keys: true,
@@ -246,7 +255,7 @@ function getSessionTokenId(sessionTokenHex) {
     });
 
     it('password change, with raw session data rather than session token id, return invalid token error', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'foobar';
       let client;
@@ -255,7 +264,7 @@ function getSessionTokenId(sessionTokenHex) {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -293,7 +302,7 @@ function getSessionTokenId(sessionTokenHex) {
     });
 
     it('password change w/o sessionToken', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'foobar';
       let kB, kA, client, firstAuthPW;
@@ -302,7 +311,7 @@ function getSessionTokenId(sessionTokenHex) {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -330,7 +339,7 @@ function getSessionTokenId(sessionTokenHex) {
           );
         })
         .then(() => {
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           const subject = emailData.headers['subject'];
@@ -344,7 +353,7 @@ function getSessionTokenId(sessionTokenHex) {
             config.publicUrl,
             email,
             newPassword,
-            server.mailbox,
+            mailbox,
             {
               ...testOptions,
               keys: true,
@@ -362,7 +371,7 @@ function getSessionTokenId(sessionTokenHex) {
     });
 
     it('password change does not update keysChangedAt', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'foobar';
 
@@ -370,20 +379,20 @@ function getSessionTokenId(sessionTokenHex) {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       );
 
       const profileBefore = await client.accountProfile();
 
       await client.changePassword(newPassword);
-      await server.mailbox.waitForEmail(email);
+      await mailbox.waitForEmail(email);
 
       client = await Client.loginAndVerify(
         config.publicUrl,
         email,
         newPassword,
-        server.mailbox,
+        mailbox,
         testOptions
       );
 
@@ -395,14 +404,14 @@ function getSessionTokenId(sessionTokenHex) {
     });
 
     it('wrong password on change start', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -428,14 +437,14 @@ function getSessionTokenId(sessionTokenHex) {
     });
 
     it("shouldn't change password on account with TOTP without passing sessionToken", () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ok';
       let client;
       return Client.createAndVerifyAndTOTP(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -453,7 +462,7 @@ function getSessionTokenId(sessionTokenHex) {
     });
 
     it('should change password on account with TOTP with verified TOTP sessionToken', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ok';
       let client, firstAuthPW, secondAuthPW;
       return (
@@ -461,7 +470,7 @@ function getSessionTokenId(sessionTokenHex) {
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           {
             ...testOptions,
             keys: true,
@@ -502,7 +511,7 @@ function getSessionTokenId(sessionTokenHex) {
     });
 
     it("shouldn't change password on account with TOTP with unverified sessionToken", () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ok';
       let client;
       return (
@@ -510,7 +519,7 @@ function getSessionTokenId(sessionTokenHex) {
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           {
             ...testOptions,
             keys: true,

@@ -7,7 +7,6 @@
 const { assert } = require('chai');
 const crypto = require('crypto');
 const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const otplib = require('otplib');
 const { default: Container } = require('typedi');
@@ -17,12 +16,13 @@ const {
 const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
+const { TestUtilities } = require('../test_utilities');
+const mailbox = require('../mailbox')();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote totp`, function () {
-    this.timeout(60000);
 
-    let server, client, email, totpToken, authenticator;
+    let client, email, totpToken, authenticator;
     const password = 'pssssst';
     const metricsContext = {
       flowBeginTime: Date.now(),
@@ -43,11 +43,9 @@ const {
       Container.set(PlaySubscriptions, {});
       Container.set(AppStoreSubscriptions, {});
 
-      server = await TestServer.start(config);
     });
 
     after(async () => {
-      await TestServer.stop(server);
     });
 
     function verifyTOTP(client) {
@@ -76,7 +74,7 @@ const {
         })
         .then((response) => {
           assert.equal(response.success, true, 'totp codes match');
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(
@@ -87,12 +85,12 @@ const {
     }
 
     beforeEach(() => {
-      email = server.uniqueEmail();
+      email = TestUtilities.uniqueEmail();
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       ).then((x) => {
         client = x;
@@ -120,12 +118,12 @@ const {
     });
 
     it('should not fail to delete unknown totp token', () => {
-      email = server.uniqueEmail();
+      email = TestUtilities.uniqueEmail();
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       ).then((x) => {
         client = x;
@@ -143,7 +141,7 @@ const {
         .deleteTotpToken()
         .then((result) => {
           assert.ok(result, 'delete totp token successfully');
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           assert.equal(
@@ -160,12 +158,12 @@ const {
 
     it('should allow verified sessions before totp enabled to delete totp token', () => {
       let client2, code;
-      email = server.uniqueEmail();
+      email = TestUtilities.uniqueEmail();
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       )
         .then((x) => {
@@ -184,7 +182,7 @@ const {
             'challenge reason set to signin'
           );
           assert.equal(response.verified, false, 'verified set to false');
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then((emailData) => {
           code = emailData.headers['x-verify-code'];
@@ -196,7 +194,7 @@ const {
             config.publicUrl,
             email,
             password,
-            server.mailbox,
+            mailbox,
             {
               ...testOptions,
               keys: true,
@@ -211,7 +209,7 @@ const {
           // Delete totp from original client that only was email verified
           return client.deleteTotpToken().then((result) => {
             assert.ok(result, 'delete totp token successfully');
-            return server.mailbox.waitForEmail(email);
+            return mailbox.waitForEmail(email);
           });
         })
         .then((emailData) => {
@@ -228,12 +226,12 @@ const {
     });
 
     it('should not allow unverified sessions before totp enabled to delete totp token', () => {
-      email = server.uniqueEmail();
+      email = TestUtilities.uniqueEmail();
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       )
         .then((x) => {
@@ -253,7 +251,7 @@ const {
           );
           assert.equal(response.verified, false, 'verified set to false');
 
-          return server.mailbox.waitForEmail(email);
+          return mailbox.waitForEmail(email);
         })
         .then(() => {
           // Login with a new client and enabled TOTP
@@ -261,7 +259,7 @@ const {
             config.publicUrl,
             email,
             password,
-            server.mailbox,
+            mailbox,
             {
               ...testOptions,
               keys: true,
@@ -392,7 +390,7 @@ const {
         'verification reason set'
       );
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
+      const code = await mailbox.waitForCode(email);
       await client.verifyPasswordResetCode(code);
 
       try {
@@ -425,7 +423,7 @@ const {
         'verification reason set'
       );
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
+      const code = await mailbox.waitForCode(email);
 
       const totpCode = authenticator.generate();
       await client.verifyTotpCodeForPasswordReset(totpCode);
@@ -480,12 +478,12 @@ const {
       });
 
       it('should fail to verify totp code that does not have totp token', () => {
-        email = server.uniqueEmail();
+        email = TestUtilities.uniqueEmail();
         return Client.createAndVerify(
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           testOptions
         ).then((x) => {
           client = x;
@@ -505,7 +503,7 @@ const {
           .verifyTotpCode(code, { metricsContext, service: 'sync' })
           .then((response) => {
             assert.equal(response.success, true, 'totp codes match');
-            return server.mailbox.waitForEmail(email);
+            return mailbox.waitForEmail(email);
           })
           .then((emailData) => {
             assert.equal(
@@ -525,7 +523,7 @@ const {
           .verifyTotpCode(code, { metricsContext, service: 'sync' })
           .then((response) => {
             assert.equal(response.success, true, 'totp codes match');
-            return server.mailbox.waitForEmail(email);
+            return mailbox.waitForEmail(email);
           })
           .then((emailData) => {
             assert.equal(

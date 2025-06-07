@@ -6,11 +6,11 @@
 'use strict';
 
 const assert = require('../assert');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const otplib = require('otplib');
-const getPort = require('get-port');
+const getMailbox = require('../mailbox');
+const { TestUtilities } = require('../test_utilities');
 
 // Note, intentionally not indenting for code review.
 [{version:""},{version:"V2"}].forEach((testOptions) => {
@@ -18,28 +18,21 @@ const getPort = require('get-port');
 describe(`#integration${testOptions.version} - remote account create with sign-up code`, function () {
   this.timeout(60000);
   const password = '4L6prUdlLNfxGIoj';
-  let server, client, email, emailStatus, emailData;
+  let mailbox, client, email, emailStatus, emailData;
 
   before(async () => {
-    const [smtpApiPort, smtpPort] = await Promise.all([
-      getPort({
-        port: config.smtp.api.port
-      }),
-      getPort({
-        port: config.smtp.port
-      })
-    ]);
-    config.smtp.api.port = smtpApiPort;
-    config.smtp.port = smtpPort;
-    server = await TestServer.start(config);
+    mailbox = getMailbox(
+      config.smtp.api.host,
+      config.smtp.api.port,
+      false
+    );
   });
 
   after(async function () {
-    await TestServer.stop(server);
   });
 
   it('create and verify sync account', async () => {
-    email = server.uniqueEmail();
+    email = TestUtilities.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
       ...testOptions,
@@ -51,7 +44,7 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     emailStatus = await client.emailStatus();
     assert.equal(emailStatus.verified, false);
 
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
 
     await client.verifyShortCodeEmail(
@@ -61,7 +54,7 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
       }
     );
 
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     assert.include(emailData.headers['x-link'], config.smtp.syncUrl);
 
     emailStatus = await client.emailStatus();
@@ -69,7 +62,7 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
   });
 
   it('create and verify account', async () => {
-    email = server.uniqueEmail();
+    email = TestUtilities.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
       ...testOptions,
@@ -80,7 +73,7 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     emailStatus = await client.emailStatus();
     assert.equal(emailStatus.verified, false);
 
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
 
     await client.verifyShortCodeEmail(emailData.headers['x-verify-short-code']);
@@ -93,14 +86,14 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     // that there wasn't anything in the queue before it.
     await client.forgotPassword();
 
-    const code = await server.mailbox.waitForCode(email);
+    const code = await mailbox.waitForCode(email);
     assert.ok(code, 'the next email was reset-password, not post-verify');
   });
 
   it('throws for expired code', async () => {
     // To generate an expired code, you have to retrieve the accounts `emailCode`
     // and create the otp authenticator with the previous time window.
-    email = server.uniqueEmail();
+    email = TestUtilities.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
       ...testOptions,
@@ -108,11 +101,11 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     });
     assert.ok(client.authAt, 'authAt was set');
 
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
 
     await client.requestVerifyEmail();
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verify');
 
     const secret = emailData.headers['x-verify-code'];
@@ -132,7 +125,7 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
   });
 
   it('throws for invalid code', async () => {
-    email = server.uniqueEmail();
+    email = TestUtilities.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
       ...testOptions,
@@ -140,7 +133,7 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     });
     assert.ok(client.authAt, 'authAt was set');
 
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
 
     const invalidCode = emailData.headers['x-verify-short-code'] + 1;
@@ -152,14 +145,14 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
   });
 
   it('create and resend authentication code', async () => {
-    email = server.uniqueEmail();
+    email = TestUtilities.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
       ...testOptions,
       verificationMethod: 'email-otp',
     });
 
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     const originalMessageId = emailData['messageId'];
     const originalCode = emailData.headers['x-verify-short-code'];
 
@@ -167,7 +160,7 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
 
     await client.resendVerifyShortCodeEmail();
 
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
 
     assert.notEqual(
@@ -183,18 +176,18 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
   });
 
   it('should verify code from previous code window', async () => {
-    email = server.uniqueEmail();
+    email = TestUtilities.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
       ...testOptions,
       verificationMethod: 'email-otp',
     });
 
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
 
     await client.requestVerifyEmail();
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
 
     // Each code window is 10 minutes
     const secret = emailData.headers['x-verify-code'];
@@ -214,18 +207,18 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
   });
 
   it('should not verify code from future code window', async () => {
-    email = server.uniqueEmail();
+    email = TestUtilities.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
       ...testOptions,
       verificationMethod: 'email-otp',
     });
 
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
 
     await client.requestVerifyEmail();
-    emailData = await server.mailbox.waitForEmail(email);
+    emailData = await mailbox.waitForEmail(email);
 
     // Each code window is 10 minutes
     const secret = emailData.headers['x-verify-code'];

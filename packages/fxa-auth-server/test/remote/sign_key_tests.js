@@ -6,22 +6,17 @@
 
 const { assert } = require('chai');
 const superagent = require('superagent');
-const TestServer = require('../test_server');
 const path = require('path');
 
 describe(`#integration - remote sign key`, function () {
-  this.timeout(60000);
-  let server;
   before(async () => {
     const config = require('../../config').default.getProperties();
     config.oldPublicKeyFile = path.resolve(
       __dirname,
       '../../config/public-key.json'
     );
-    server = await TestServer.start(config);
   });
   after(async () => {
-    await TestServer.stop(server);
   });
 
   it('.well-known/browserid has keys', () => {
