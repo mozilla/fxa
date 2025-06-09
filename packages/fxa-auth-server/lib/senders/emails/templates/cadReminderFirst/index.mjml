@@ -8,7 +8,7 @@
       <span data-l10n-id="cadReminderFirst-title-1">It takes two to sync</span>
     </mj-text>
 
-    <mj-image width="240px" css-class="graphic-devices" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
+    <mj-image width="240px" css-class="graphic-devices" alt="Devices" src="https://cdn.accounts.firefox.com/other/graphic-laptop-mobile.png"></mj-image>
 
     <mj-text css-class="text-body">
       <span data-l10n-id="cadReminderFirst-description-v2">Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox.</span>

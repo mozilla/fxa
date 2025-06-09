@@ -946,7 +946,7 @@ const convictConf = convict({
       },
       schemaValidation: {
         cdnUrlRegex: {
-          default: '^https://accounts-static.cdn.mozilla.net',
+          default: '^https://cdn.accounts.firefox.com',
           doc: 'CDN URL Regex',
           env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_CDN_URL_REGEX',
           format: String,

@@ -3652,9 +3652,9 @@ describe('#integration - StripeHelper', () => {
         const goodPlan = deepCopy(plan1);
         goodPlan.product = deepCopy(product1);
         goodPlan.product.metadata['product:privacyNoticeURL'] =
-          'https://accounts-static.cdn.mozilla.net/legal/privacy\n\n';
+          'https://cdn.accounts.firefox.com/legal/privacy\n\n';
         goodPlan.metadata['product:privacyNoticeURL'] =
-          'https://accounts-static.cdn.mozilla.net/legal/privacy\n\n';
+          'https://cdn.accounts.firefox.com/legal/privacy\n\n';
         const dupeGoodPlan = deepCopy(goodPlan);
 
         const planList = [
