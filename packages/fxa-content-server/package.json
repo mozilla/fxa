@@ -55,7 +55,6 @@
     "duration-js": "4.0.0",
     "expose-loader": "5.0.0",
     "express": "^4.21.2",
-    "extract-loader": "5.1.0",
     "fast-text-encoding": "^1.0.4",
     "file-loader": "^6.2.0",
     "fxa-auth-client": "workspace:*",

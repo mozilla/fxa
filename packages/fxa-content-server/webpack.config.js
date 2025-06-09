@@ -206,9 +206,6 @@ const webpackConfig = {
             },
           },
           {
-            loader: 'extract-loader',
-          },
-          {
             loader: 'css-loader',
           },
           {
