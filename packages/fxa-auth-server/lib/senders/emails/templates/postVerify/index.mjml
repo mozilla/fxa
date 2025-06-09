@@ -10,7 +10,7 @@
     <mj-text css-class="text-sub-body">
       <span data-l10n-id="postVerify-title-2">Want to see the same tab on two devices?</span>
     </mj-text>
-    <mj-image width="240px" css-class="sync-logo" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
+    <mj-image width="240px" css-class="sync-logo" alt="Devices" src="https://cdn.accounts.firefox.com/other/graphic-laptop-mobile.png"></mj-image>
   </mj-column>
 </mj-section>
 
