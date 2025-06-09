@@ -479,6 +479,17 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'account_pref_two_step_auth_backup_choice_view':
+      accountPref.twoStepAuthBackupChoiceView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_two_step_auth_backup_choice_submit':
+      accountPref.twoStepAuthBackupChoiceSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+        choice: gleanPingMetrics?.event?.['choice'] || '',
+      });
+      break;
     case 'account_pref_change_password_submit':
       accountPref.changePasswordSubmit.record();
       break;

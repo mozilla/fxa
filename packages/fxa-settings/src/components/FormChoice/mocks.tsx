@@ -21,14 +21,14 @@ export const commonFormChoiceProps = {
     {
       id: 'recovery-choice-phone',
       value: CHOICES.phone,
-      image: <BackupRecoveryPhoneSmsImage />,
+      image: <BackupRecoveryPhoneSmsImage ariaHidden />,
       localizedChoiceTitle: '1st Choice Example',
       localizedChoiceInfo: '1st example description',
     },
     {
       id: 'recovery-choice-code',
       value: CHOICES.code,
-      image: <BackupAuthenticationCodesImage />,
+      image: <BackupAuthenticationCodesImage ariaHidden />,
       localizedChoiceTitle: '2nd Choice Example',
       localizedChoiceInfo: '2nd example description',
     },

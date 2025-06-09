@@ -8,6 +8,19 @@ import BooleanMetricType from '@mozilla/glean/private/metrics/boolean';
 import StringMetricType from '@mozilla/glean/private/metrics/string';
 
 /**
+ * the choice made by the user in a given event
+ *
+ * Generated from `event.choice`.
+ */
+export const choice = new StringMetricType({
+  category: 'event',
+  name: 'choice',
+  sendInPings: ['accounts-events'],
+  lifetime: 'ping',
+  disabled: false,
+});
+
+/**
  * The name of the event
  *
  * Generated from `event.name`.

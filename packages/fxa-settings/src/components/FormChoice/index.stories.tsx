@@ -8,6 +8,10 @@ import FormChoice from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import AppLayout from '../AppLayout';
 import { commonFormChoiceProps } from './mocks';
+import {
+  BackupAuthenticationCodesImage,
+  BackupRecoveryPhoneSmsImage,
+} from '../images';
 
 export default {
   title: 'components/FormChoice',
@@ -20,8 +24,58 @@ export const DefaultLeftAlignedImages = () => (
     <FormChoice {...commonFormChoiceProps} />
   </AppLayout>
 );
+
+export const WithBadges = () => (
+  <AppLayout>
+    <FormChoice
+      {...commonFormChoiceProps}
+      formChoices={[
+        {
+          ...commonFormChoiceProps.formChoices[0],
+          localizedChoiceBadge: '1st badge',
+        },
+        {
+          ...commonFormChoiceProps.formChoices[1],
+          localizedChoiceBadge: '2nd badge',
+        },
+      ]}
+    />
+  </AppLayout>
+);
+
+export const TopAlignedImages = () => (
+  <AppLayout>
+    <FormChoice
+      {...commonFormChoiceProps}
+      contentAlignVertical="top"
+      formChoices={[
+        {
+          ...commonFormChoiceProps.formChoices[0],
+          localizedChoiceBadge: '1st badge',
+          image: (
+            <BackupRecoveryPhoneSmsImage
+              ariaHidden
+              className="max-h-44 mt-[6px]"
+            />
+          ),
+        },
+        {
+          ...commonFormChoiceProps.formChoices[1],
+          localizedChoiceBadge: '2nd badge',
+          image: (
+            <BackupAuthenticationCodesImage
+              ariaHidden
+              className="max-h-44 mt-[6px]"
+            />
+          ),
+        },
+      ]}
+    />
+  </AppLayout>
+);
+
 export const RightAlignedImages = () => (
   <AppLayout>
-    <FormChoice alignImage="end" {...commonFormChoiceProps} />
+    <FormChoice imagePosition="end" {...commonFormChoiceProps} />
   </AppLayout>
 );

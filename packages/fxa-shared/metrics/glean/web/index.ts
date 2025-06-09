@@ -22,7 +22,11 @@ export type GleanMetricsConfig = {
 };
 
 export const booleanEventPropertyNames = ['thirdPartyLinks'] as const;
-export const stringEventPropertyNames = ['reason', 'nimbusUserId'] as const;
+export const stringEventPropertyNames = [
+  'reason',
+  'nimbusUserId',
+  'choice',
+] as const;
 
 export type PropertyNameStringT = typeof stringEventPropertyNames;
 export type PropertyNameString = PropertyNameStringT[number];
@@ -195,6 +199,10 @@ export const eventsMap = {
     twoStepAuthEnterCodeView: 'account_pref_two_step_auth_enter_code_view',
     twoStepAuthEnterCodeSuccessView:
       'account_pref_two_step_auth_enter_code_success_view',
+    twoStepAuthBackupChoiceView:
+      'account_pref_two_step_auth_backup_choice_view',
+    twoStepAuthBackupChoiceSubmit:
+      'account_pref_two_step_auth_backup_choice_submit',
     twoStepAuthPhoneVerifyView: 'account_pref_two_step_auth_phone_verify_view',
     twoStepAuthPhoneRemoveSuccessView:
       'account_pref_two_step_auth_phone_remove_success_view',

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -9,13 +10,15 @@ export type FormChoiceOption = {
   id: string;
   value: FormChoiceData['choice'];
   image: ReactElement;
+  localizedChoiceBadge?: string;
   localizedChoiceTitle: string;
   localizedChoiceInfo: string;
 };
 
 export type FormChoiceProps = {
   legendEl: ReactElement;
-  alignImage?: 'start' | 'end';
+  imagePosition?: 'start' | 'end';
+  contentAlignVertical?: 'top' | 'center';
   formChoices: FormChoiceOption[];
   onSubmit: (data: FormChoiceData) => void;
   isSubmitting: boolean;
@@ -26,20 +29,23 @@ export const CHOICES = {
   code: 'code',
 } as const;
 
+export type Choice = (typeof CHOICES)[keyof typeof CHOICES];
+
 export type FormChoiceData = {
-  choice: (typeof CHOICES)[keyof typeof CHOICES];
+  choice: Choice;
 };
 
 const FormChoice = ({
   legendEl,
-  alignImage = 'start',
+  imagePosition = 'start',
+  contentAlignVertical = 'center',
   formChoices,
   onSubmit,
   isSubmitting,
 }: FormChoiceProps) => {
   const { register, handleSubmit, watch } = useForm<FormChoiceData>();
   const selectedOption = watch('choice');
-  const startAlignImage = alignImage === 'start';
+  const startAlignImage = imagePosition === 'start';
 
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)}>
@@ -59,7 +65,10 @@ const FormChoice = ({
               ref={register({ required: true })}
             />
             <label
-              className="input-radio-label w-full items-center"
+              className={classNames(
+                'input-radio-label w-full',
+                contentAlignVertical === 'center' && 'items-center'
+              )}
               htmlFor={choice.id}
             >
               {startAlignImage && <div>{choice.image}</div>}
@@ -67,6 +76,11 @@ const FormChoice = ({
                 <strong className="block mb-1 text-base">
                   {choice.localizedChoiceTitle}
                 </strong>
+                {choice.localizedChoiceBadge && (
+                  <span className="h-6 px-2 py-1 mb-1 flex w-fit bg-blue-50 rounded items-center text-sm text-blue-900 font-semibold">
+                    {choice.localizedChoiceBadge}
+                  </span>
+                )}
                 <span className="text-sm">{choice.localizedChoiceInfo}</span>
               </div>
               {!startAlignImage && <div>{choice.image}</div>}

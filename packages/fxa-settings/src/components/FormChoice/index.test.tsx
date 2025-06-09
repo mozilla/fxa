@@ -10,10 +10,28 @@ import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 function render({
-  alignImage = 'start',
-}: Pick<FormChoiceProps, 'alignImage'> = {}) {
+  imagePosition = 'start',
+}: Pick<FormChoiceProps, 'imagePosition'> = {}) {
   renderWithLocalizationProvider(
-    <FormChoice {...commonFormChoiceProps} {...{ alignImage }} />
+    <FormChoice {...commonFormChoiceProps} {...{ imagePosition }} />
+  );
+}
+
+function renderWithBadges() {
+  renderWithLocalizationProvider(
+    <FormChoice
+      {...commonFormChoiceProps}
+      formChoices={[
+        {
+          ...commonFormChoiceProps.formChoices[0],
+          localizedChoiceBadge: '1st badge',
+        },
+        {
+          ...commonFormChoiceProps.formChoices[1],
+          localizedChoiceBadge: '2nd badge',
+        },
+      ]}
+    />
   );
 }
 
@@ -55,8 +73,17 @@ describe('FormChoice', () => {
     expect(firstImage?.nextElementSibling).toBe(firstTextContainer);
   });
 
+  it('renders badges when provided', () => {
+    renderWithBadges();
+    const firstBadge = screen.getByText('1st badge');
+    const secondBadge = screen.getByText('2nd badge');
+
+    expect(firstBadge).toBeInTheDocument();
+    expect(secondBadge).toBeInTheDocument();
+  });
+
   it('renders as expected when `alignImage` is `end`', () => {
-    render({ alignImage: 'end' });
+    render({ imagePosition: 'end' });
     const firstLabel = screen.getAllByRole('radio')[0].closest('label');
     const firstImage = firstLabel?.querySelector('svg');
     const firstTextContainer = firstLabel?.querySelector('div:nth-child(1)');
