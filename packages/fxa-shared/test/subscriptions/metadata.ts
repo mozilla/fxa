@@ -306,18 +306,18 @@ describe('subscriptions/metadata', () => {
         stripePriceId: 'price_1KGUhNBVqmGyQTMai6nMkbsq',
         urls: {
           webIcon:
-            'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+            'https://cdn.accounts.firefox.com/legal/mozilla_vpn_tos',
           termsOfService:
-            'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+            'https://cdn.accounts.firefox.com/legal/mozilla_vpn_tos',
           privacyNoticeDownload:
-            'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+            'https://cdn.accounts.firefox.com/legal/mozilla_vpn_tos',
           successActionButton: 'https://foxkeh.com/buttons/',
           termsOfServiceDownload:
-            'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+            'https://cdn.accounts.firefox.com/legal/mozilla_vpn_tos',
           privacyNotice:
-            'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+            'https://cdn.accounts.firefox.com/legal/mozilla_vpn_tos',
           cancellationSurvey:
-            'https://accounts-static.cdn.mozilla.net/legal/mozilla_cancellation_survey_url',
+            'https://cdn.accounts.firefox.com/legal/mozilla_cancellation_survey_url',
         },
         uiContent: { details: ['Testing Foxkeh', 'Product Detail line 2'] },
         styles: {},
