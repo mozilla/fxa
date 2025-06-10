@@ -93,6 +93,7 @@ export interface Config {
     keyStretchV2?: boolean;
     recoveryCodeSetupOnSyncSignIn?: boolean;
     recoveryPhonePasswordReset2fa?: boolean;
+    updated2faSetupFlow?: boolean;
   };
   nimbusPreview: boolean;
 }
@@ -172,6 +173,7 @@ export function getDefault() {
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,
       recoveryPhonePasswordReset2fa: false,
+      updated2faSetupFlow: false,
     },
     nimbusPreview: false,
   } as Config;

@@ -21,6 +21,15 @@ jest.mock('../../models', () => ({
   useInitialSettingsState: jest.fn(),
 }));
 
+jest.mock('../../lib/totp-utils', () => {
+  const mockBackupCodes = ['0123456789'];
+  return {
+    totpUtils: {
+      generateRecoveryCodes: jest.fn().mockResolvedValue(mockBackupCodes),
+    },
+  };
+});
+
 jest.mock('./ScrollToTop', () => ({
   __esModule: true,
   ScrollToTop: ({ children }: { children: ReactNode }) => (
@@ -34,7 +43,7 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-describe('App component', () => {
+describe('Settings App', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -45,7 +54,11 @@ describe('App component', () => {
     (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
       loading: true,
     });
-    const { getByLabelText } = renderWithRouter(<Subject />);
+    const { getByLabelText } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>
+    );
 
     expect(getByLabelText('Loading…')).toBeInTheDocument();
   });
@@ -54,7 +67,11 @@ describe('App component', () => {
     (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
       error: { message: 'Error' },
     });
-    const { getByRole } = renderWithRouter(<Subject />);
+    const { getByRole } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>
+    );
 
     expect(getByRole('heading', { level: 2 })).toHaveTextContent(
       'General application error'
@@ -65,9 +82,14 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<Subject />, {
-      route: SETTINGS_PATH,
-    });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>,
+      {
+        route: SETTINGS_PATH,
+      }
+    );
 
     await navigate(SETTINGS_PATH);
 
@@ -78,7 +100,12 @@ describe('App component', () => {
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<Subject />, { route: SETTINGS_PATH });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
 
     await navigate(SETTINGS_PATH + '/display_name');
 
@@ -89,9 +116,14 @@ describe('App component', () => {
     const {
       getAllByTestId,
       history: { navigate },
-    } = renderWithRouter(<Subject />, {
-      route: SETTINGS_PATH,
-    });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>,
+      {
+        route: SETTINGS_PATH,
+      }
+    );
 
     await navigate(SETTINGS_PATH + '/avatar');
 
@@ -204,9 +236,14 @@ describe('App component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(<Subject />, {
-      route: SETTINGS_PATH,
-    });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>,
+      {
+        route: SETTINGS_PATH,
+      }
+    );
 
     await navigate(SETTINGS_PATH + '/clients');
 
@@ -217,9 +254,14 @@ describe('App component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(<Subject />, {
-      route: SETTINGS_PATH,
-    });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>,
+      {
+        route: SETTINGS_PATH,
+      }
+    );
 
     await navigate(SETTINGS_PATH + '/avatar/change');
 
@@ -230,7 +272,12 @@ describe('App component', () => {
     const {
       history,
       history: { navigate },
-    } = renderWithRouter(<Subject />, { route: SETTINGS_PATH });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
 
     await navigate(SETTINGS_PATH + '/create_password');
     expect(history.location.pathname).toBe('/settings/change_password');

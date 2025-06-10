@@ -15,9 +15,14 @@ test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
     test('add and remove totp', async ({
       target,
-      pages: { page, settings, totp, signin },
+      pages: { page, settings, totp, signin, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -38,9 +43,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('totp use QR code', async ({
       target,
-      pages: { page, settings, signin, totp },
+      pages: { page, settings, signin, totp, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       await signInAccount(target, page, settings, signin, testAccountTracker);
 
       await settings.goto();
@@ -66,9 +76,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('add TOTP and sign in', async ({
       target,
-      pages: { page, settings, signin, signinTotpCode, totp },
+      pages: { page, settings, signin, signinTotpCode, totp, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -96,9 +111,22 @@ test.describe('severity-1 #smoke', () => {
 
     test('delete account with totp enabled', async ({
       target,
-      pages: { page, deleteAccount, settings, signin, signinTotpCode, totp },
+      pages: {
+        page,
+        deleteAccount,
+        settings,
+        signin,
+        signinTotpCode,
+        totp,
+        configPage,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,

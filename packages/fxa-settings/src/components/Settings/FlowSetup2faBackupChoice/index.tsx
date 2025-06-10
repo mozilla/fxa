@@ -20,7 +20,7 @@ type FlowSetup2faBackupChoiceProps = {
   currentStep?: number;
   numberOfSteps?: number;
   hideBackButton?: boolean;
-  localizedFlowTitle: string;
+  localizedPageTitle: string;
   onBackButtonClick?: () => void;
   showProgressBar?: boolean;
   onSubmitCb: (choice: Choice) => void;
@@ -31,7 +31,7 @@ export const FlowSetup2faBackupChoice = ({
   currentStep,
   numberOfSteps,
   hideBackButton = false,
-  localizedFlowTitle,
+  localizedPageTitle,
   onBackButtonClick,
   showProgressBar = true,
   onSubmitCb,
@@ -61,7 +61,7 @@ export const FlowSetup2faBackupChoice = ({
 
   return (
     <FlowContainer
-      title={localizedFlowTitle}
+      title={localizedPageTitle}
       {...{ hideBackButton, onBackButtonClick }}
     >
       {showProgressBar && currentStep != null && numberOfSteps != null && (
@@ -150,3 +150,5 @@ export const FlowSetup2faBackupChoice = ({
     </FlowContainer>
   );
 };
+
+export default FlowSetup2faBackupChoice;

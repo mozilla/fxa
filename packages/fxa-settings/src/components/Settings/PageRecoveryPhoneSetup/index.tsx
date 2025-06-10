@@ -89,7 +89,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     // try/catch is in the component that calls this function
     reason === RecoveryPhoneSetupReason.change
       ? await account.changeRecoveryPhone(code)
-      : await account.confirmRecoveryPhone(code, phoneData.phoneNumber);
+      : await account.confirmRecoveryPhone(code, phoneData.phoneNumber, false);
     // get the latest status of recovery phone info
     // ensure correct data is shown on the settings page
     await account.refresh('recoveryPhone');

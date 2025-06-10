@@ -117,7 +117,8 @@ describe('PageRecoveryPhoneSetup', () => {
     await waitFor(() => expect(confirmRecoveryPhone).toHaveBeenCalledTimes(1));
     expect(confirmRecoveryPhone).toHaveBeenCalledWith(
       otpCode,
-      MOCK_FULL_PHONE_NUMBER
+      MOCK_FULL_PHONE_NUMBER,
+      false
     );
   });
 

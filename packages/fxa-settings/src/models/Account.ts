@@ -21,7 +21,6 @@ import {
 } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
-import random from '../lib/random';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 import { LinkedAccountProviderIds, MozServices } from '../lib/types';
 import {
@@ -1034,6 +1033,10 @@ export class Account implements AccountData {
     return linkedAccount;
   }
 
+  // This handler replaces the recovery codes in one step without requiring confirming
+  // Contrasts with updateRecoveryCodes which is called with locally created recovery codes
+  // and only updated in database after the codes are confirmed
+  // Not currently in use but could be handy if we move towards removing the confirmation requirement
   async replaceRecoveryCodes() {
     return this.withLoadingStatus(
       this.authClient.replaceRecoveryCodes(sessionToken()!)
@@ -1056,18 +1059,21 @@ export class Account implements AccountData {
     }
   }
 
-  async generateRecoveryCodes(count: number, length: number) {
-    const recoveryCodes: string[] = [];
-    const gen = random.base32(length);
-    while (recoveryCodes.length < count) {
-      const rc = (await gen()).toLowerCase();
-      if (recoveryCodes.indexOf(rc) === -1) {
-        recoveryCodes.push(rc);
-      }
-    }
-    return recoveryCodes;
+  /**
+   * Set recovery codes - intended for initial 2FA setup.
+   */
+  async setRecoveryCodes(recoveryCodes: string[]) {
+    const result = await this.withLoadingStatus(
+      this.authClient.setRecoveryCodes(sessionToken()!, recoveryCodes)
+    );
+    await this.refresh('backupCodes');
+    return result;
   }
 
+  /**
+   * Update recovery codes - replace existing codes with new codes generated client-side.
+   * Allows for local code confirmation before updating.
+   */
   async updateRecoveryCodes(recoveryCodes: string[]) {
     const result = await this.withLoadingStatus(
       this.authClient.updateRecoveryCodes(sessionToken()!, recoveryCodes)
@@ -1125,6 +1131,7 @@ export class Account implements AccountData {
     await this.withLoadingStatus(
       this.authClient.deleteTotpToken(sessionToken()!)
     );
+
     const cache = this.apolloClient.cache;
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
@@ -1134,6 +1141,8 @@ export class Account implements AccountData {
         },
       },
     });
+    await this.refresh('recoveryPhone');
+    await this.refresh('backupCodes');
   }
 
   async deleteRecoveryKey() {
@@ -1217,9 +1226,10 @@ export class Account implements AccountData {
     );
   }
 
-  async createTotp() {
+  async createTotp(skipRecoveryCodes = false) {
+    const opts = skipRecoveryCodes ? { skipRecoveryCodes } : {};
     const totp = await this.withLoadingStatus(
-      this.authClient.createTotpToken(sessionToken()!)
+      this.authClient.createTotpToken(sessionToken()!, opts)
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1454,9 +1464,17 @@ export class Account implements AccountData {
     return result;
   }
 
-  async confirmRecoveryPhone(code: string, phoneNumber: string) {
+  async confirmRecoveryPhone(
+    code: string,
+    phoneNumber: string,
+    isInitial2faSetup: boolean
+  ) {
     const { nationalFormat } = await this.withLoadingStatus(
-      this.authClient.recoveryPhoneConfirmSetup(sessionToken()!, code)
+      this.authClient.recoveryPhoneConfirmSetup(
+        sessionToken()!,
+        code,
+        isInitial2faSetup
+      )
     );
     const cache = this.apolloClient.cache;
     cache.modify({

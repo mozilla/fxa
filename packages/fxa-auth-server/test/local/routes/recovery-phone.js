@@ -17,7 +17,6 @@ const {
   RecoveryNumberNotSupportedError,
   SmsSendRateLimitExceededError,
   RecoveryPhoneService,
-  RecoveryNumberRemoveMissingBackupCodes,
   RecoveryPhoneRegistrationLimitReached,
 } = require('@fxa/accounts/recovery-phone');
 
@@ -446,25 +445,6 @@ describe('/recovery_phone', () => {
       );
       assert.equal(mockGlean.twoStepAuthPhoneCode.sent.callCount, 0);
       assert.equal(mockGlean.twoStepAuthPhoneCode.sendError.callCount, 1);
-    });
-
-    it('indicates that recovery phone cannot be removed due to missing backup authentication codes', async () => {
-      mockRecoveryPhoneService.removePhoneNumber = sinon.fake.returns(
-        Promise.reject(new RecoveryNumberRemoveMissingBackupCodes(uid))
-      );
-
-      const promise = makeRequest({
-        method: 'DELETE',
-        path: '/recovery_phone',
-        credentials: { uid, email },
-        payload: { phoneNumber: '+495550005555' },
-      });
-
-      await assert.isRejected(
-        promise,
-        'Unable to remove recovery phone, missing backup authentication codes.'
-      );
-      assert.equal(mockGlean.twoStepAuthPhoneRemove.success.callCount, 0);
     });
 
     it('handles unexpected backend error', async () => {

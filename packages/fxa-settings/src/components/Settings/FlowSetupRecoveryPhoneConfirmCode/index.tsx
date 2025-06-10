@@ -17,8 +17,9 @@ import GleanMetrics from '../../../lib/glean';
 export type FlowSetupRecoveryPhoneConfirmCodeProps = {
   currentStep?: number;
   nationalFormatPhoneNumber: string;
-  localizedBackButtonTitle: string;
+  localizedBackButtonTitle?: string;
   localizedPageTitle: string;
+  localizedSuccessMessage?: string;
   navigateBackward: () => void;
   navigateForward: () => void;
   numberOfSteps?: number;
@@ -32,6 +33,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
   nationalFormatPhoneNumber,
   localizedBackButtonTitle,
   localizedPageTitle,
+  localizedSuccessMessage,
   navigateBackward,
   navigateForward,
   numberOfSteps = 2,
@@ -53,6 +55,18 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
 
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
+
+  const successMessage = localizedSuccessMessage
+    ? localizedSuccessMessage
+    : reason === RecoveryPhoneSetupReason.setup
+      ? ftlMsgResolver.getMsg(
+          'flow-setup-phone-confirm-code-success-message-v2',
+          'Recovery phone added'
+        )
+      : ftlMsgResolver.getMsg(
+          'flow-change-phone-confirm-code-success-message',
+          'Recovery phone changed'
+        );
 
   const clearBanners = async () => {
     setResendStatus(ResendStatus.none);
@@ -77,17 +91,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
     try {
       await verifyRecoveryCode(code);
 
-      alertBar.success(
-        reason === RecoveryPhoneSetupReason.setup
-          ? ftlMsgResolver.getMsg(
-              'flow-setup-phone-confirm-code-success-message-v2',
-              'Recovery phone added'
-            )
-          : ftlMsgResolver.getMsg(
-              'flow-change-phone-confirm-code-success-message',
-              'Recovery phone changed'
-            )
-      );
+      alertBar.success(successMessage);
       navigateForward();
     } catch (error) {
       const localizedError = getLocalizedErrorMessage(ftlMsgResolver, error);
@@ -166,7 +170,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
         }}
         className="my-6"
       />
-      <div className="flex flex-wrap gap-2 mt-6 justify-center text-center">
+      <div className="flex flex-wrap gap-2 mt-2 justify-center text-center text-sm">
         <FtlMsg id="flow-setup-phone-confirm-code-expired">
           <p>Code expired?</p>
         </FtlMsg>

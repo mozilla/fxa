@@ -67,3 +67,9 @@ export enum LinkedAccountProviderIds {
 export type UnlinkAccountLocationState = {
   wantsUnlinkProviderId?: LinkedAccountProviderIds;
 };
+
+export type TotpInfo = {
+  qrCodeUrl: string;
+  secret: string;
+  recoveryCodes?: string[];
+};
