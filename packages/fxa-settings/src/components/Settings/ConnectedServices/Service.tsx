@@ -131,7 +131,7 @@ export function Service({
             </div>
             <div className="flex flex-start mobileLandscape:justify-center mobileLandscape:flex-1">
               <p className="text-sm" data-testid="service-last-access">
-                {lastAccessTimeFormatted}
+                last logged : {lastAccessTimeFormatted}
               </p>
             </div>
           </div>
