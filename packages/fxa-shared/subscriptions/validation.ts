@@ -7,7 +7,7 @@ import Joi from 'joi';
 export const capabilitiesClientIdPattern = /^capabilities/;
 
 export const legalResourceDomainPattern =
-  /^https:\/\/accounts-static\.cdn\.mozilla\.net\/legal\/(.*)/;
+  /^https:\/\/cdn\.accounts\.firefox\.com\/legal\/(.*)/;
 
 export const commaArray = Joi.extend((joi) => ({
   base: joi.array(),
