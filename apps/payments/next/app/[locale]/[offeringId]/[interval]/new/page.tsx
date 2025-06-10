@@ -31,6 +31,10 @@ function getRedirectToUrl(
       ? 'upgrade'
       : 'checkout';
 
+  if (searchParams.coupon && pageType === CartEligibilityStatus.UPGRADE) {
+    delete searchParams.coupon;
+  }
+
   return new URL(
     buildRedirectUrl(offeringId, interval, page, pageType, {
       locale,
@@ -103,7 +107,7 @@ export default async function New({
     cart = await updateCartUidAction(
       searchParams.cartId,
       Number(searchParams.cartVersion),
-      fxaUid,
+      fxaUid
     );
 
     redirectToUrl = getRedirectToUrl(cart, params, searchParams);
@@ -117,7 +121,6 @@ export default async function New({
         coupon,
         fxaUid
       );
-
       redirectToUrl = getRedirectToUrl(cart, params, searchParams);
     } catch (error) {
       if (error.name === 'CartInvalidPromoCodeError') {

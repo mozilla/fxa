@@ -27,6 +27,8 @@ export const applyCouponAction = async (
   } catch (err) {
     if (err.name === 'CouponErrorExpired') {
       return CouponErrorMessageType.Expired;
+    } else if (err.name === 'CouponErrorCannotRedeem') {
+      return CouponErrorMessageType.CannotRedeem;
     } else if (err.name === 'CouponErrorGeneric') {
       return CouponErrorMessageType.Generic;
     } else if (err.name === 'CouponErrorLimitReached') {

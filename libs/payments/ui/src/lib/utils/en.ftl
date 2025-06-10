@@ -37,6 +37,7 @@ metadata-description-default = The page you requested was not found.
 
 ## Coupon Error Messages
 
+next-coupon-error-cannot-redeem = The code you entered cannot be redeemed — your account has a previous subscription to one of our services.
 next-coupon-error-expired = The code you entered has expired.
 next-coupon-error-generic = An error occurred processing the code. Please try again.
 next-coupon-error-invalid = The code you entered is invalid.
