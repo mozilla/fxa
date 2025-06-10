@@ -13,9 +13,22 @@ test.describe('severity-1 #smoke', () => {
   test.describe('OAuth totp', () => {
     test('can add TOTP to account and confirm oauth signin', async ({
       target,
-      pages: { page, signin, relier, settings, totp, signinTotpCode },
+      pages: {
+        page,
+        signin,
+        relier,
+        settings,
+        totp,
+        signinTotpCode,
+        configPage,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -50,22 +63,30 @@ test.describe('severity-1 #smoke', () => {
 
     test('can remove TOTP from account and skip confirmation', async ({
       target,
-      pages: { page, relier, settings, signin, totp },
+      pages: { page, relier, settings, signin, totp, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       await signInAccount(target, page, settings, signin, testAccountTracker);
       await settings.goto();
       await settings.totp.addButton.click();
       await totp.fillOutTotpForms();
       await expect(settings.totp.status).toHaveText('Enabled');
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication has been enabled'
+      );
       await settings.totp.disableButton.click();
       await settings.clickModalConfirm();
 
-      // wait for alert bar message
-      await expect(
-        page.getByText('Two-step authentication disabled')
-      ).toBeVisible();
+      await expect(settings.modalConfirmButton).toBeHidden();
       await expect(settings.totp.status).toHaveText('Disabled');
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication disabled'
+      );
 
       await relier.goto();
       await relier.clickEmailFirst();

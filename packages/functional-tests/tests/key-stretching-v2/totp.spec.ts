@@ -30,9 +30,15 @@ test.describe('severity-2 #smoke', () => {
         signinTotpCode,
         totp,
         confirmSignupCode,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const { email, password } = testAccountTracker.generateAccountDetails();
 
       await page.goto(
