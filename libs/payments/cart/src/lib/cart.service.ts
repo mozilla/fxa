@@ -11,6 +11,7 @@ import { StatsD } from 'hot-shots';
 
 import {
   CustomerManager,
+  CouponErrorCannotRedeem,
   InvoiceManager,
   SubplatInterval,
   PromotionCodeManager,
@@ -283,7 +284,11 @@ export class CartService {
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
    */
   @SanitizeExceptions({
-    allowlist: [InvalidPromoCodeCartError, ProductConfigError],
+    allowlist: [
+      CouponErrorCannotRedeem,
+      InvalidPromoCodeCartError,
+      ProductConfigError,
+    ],
   })
   async setupCart(args: {
     interval: SubplatInterval;
@@ -324,38 +329,55 @@ export class CartService {
       );
     }
 
-    const [upcomingInvoice, eligibility] = await Promise.all([
-      this.invoiceManager.previewUpcoming({
-        priceId: price.id,
-        currency,
-        customer: stripeCustomer,
-        taxAddress: args.taxAddress,
-        couponCode: args.promoCode,
-      }),
-      this.eligibilityService.checkEligibility(
-        args.interval,
-        args.offeringConfigId,
-        args.uid,
-        accountCustomer?.stripeCustomerId
-      ),
-    ]);
+    const eligibility = await this.eligibilityService.checkEligibility(
+      args.interval,
+      args.offeringConfigId,
+      args.uid,
+      accountCustomer?.stripeCustomerId
+    );
 
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
-    if (args.promoCode) {
-      try {
-        await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
-          args.promoCode,
-          price,
-          currency
-        );
-      } catch (error) {
-        throw new CartSetupInvalidPromoCodeError(
-          args.promoCode,
-          args.offeringConfigId,
-          error
-        );
+    let couponCode: string | undefined = args.promoCode;
+    if (couponCode) {
+      if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
+        couponCode = undefined;
+      } else {
+        try {
+          await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+            couponCode,
+            price,
+            currency
+          );
+        } catch (error) {
+          throw new CartSetupInvalidPromoCodeError(
+            couponCode,
+            args.offeringConfigId,
+            error
+          );
+        }
+      }
+    }
+
+    let upcomingInvoice: InvoicePreview | undefined;
+    try {
+      upcomingInvoice = await this.invoiceManager.previewUpcoming({
+        priceId: price.id,
+        currency,
+        customer: stripeCustomer,
+        taxAddress: args.taxAddress,
+        couponCode,
+      });
+    } catch (e) {
+      if (
+        e.type === 'StripeInvalidRequestError' &&
+        e.message ===
+          'This promotion code cannot be redeemed because the associated customer has prior transactions.'
+      ) {
+        throw new CouponErrorCannotRedeem();
+      } else {
+        throw e;
       }
     }
 
@@ -369,7 +391,7 @@ export class CartService {
       taxAddress: args.taxAddress,
       currency,
       eligibilityStatus: cartEligibilityStatus,
-      couponCode: args.promoCode,
+      couponCode,
     };
 
     if (eligibility.subscriptionEligibilityResult === EligibilityStatus.SAME) {
@@ -668,6 +690,30 @@ export class CartService {
             price,
             cartDetails.currency || oldCart.currency
           );
+
+          if (oldCart.stripeCustomerId) {
+            try {
+              const customer = await this.customerManager.retrieve(
+                oldCart.stripeCustomerId
+              );
+              await this.invoiceManager.previewUpcoming({
+                priceId: price.id,
+                currency: oldCart.currency,
+                customer,
+                couponCode: cartDetailsInput.couponCode,
+              });
+            } catch (error) {
+              if (
+                error.type === 'StripeInvalidRequestError' &&
+                error.message ===
+                  'This promotion code cannot be redeemed because the associated customer has prior transactions.'
+              ) {
+                throw new CouponErrorCannotRedeem();
+              } else {
+                throw error;
+              }
+            }
+          }
         }
 
         await this.cartManager.updateFreshCart(cartId, version, cartDetails);

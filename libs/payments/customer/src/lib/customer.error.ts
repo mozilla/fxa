@@ -87,10 +87,10 @@ export class PromotionCodeCustomerSubscriptionMismatchError extends PromotionCod
 }
 
 export class PromotionCodePriceNotValidError extends PromotionCodeError {
-  constructor(promotionCode: string, priceId: string, productId?: string) {
+  constructor(promotionId: string, priceId: string, productId?: string) {
     super(
       "Promotion code restricted to a product that doesn't match the product on this subscription",
-      { promotionCode, priceId, productId }
+      { promotionId, priceId, productId }
     );
     this.name = 'PromotionCodePriceNotValidError';
   }
@@ -124,6 +124,16 @@ export class PromotionCodeSanitizedError extends PromotionCodeError {
   constructor(message: string, code: string) {
     super(message, { name: code });
     this.name = 'PromotionCodeGenericError';
+  }
+}
+
+export class CouponErrorCannotRedeem extends PromotionCodeSanitizedError {
+  constructor() {
+    super(
+      'The code you entered cannot be applied — your account has a previous subscription to one of our services.',
+      'CouponErrorCannotRedeem'
+    );
+    this.name = 'CouponErrorCannotRedeem';
   }
 }
 

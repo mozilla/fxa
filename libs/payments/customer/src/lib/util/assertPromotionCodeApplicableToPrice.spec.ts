@@ -17,7 +17,11 @@ describe('assertPromotionCodeApplicableToPrice', () => {
     const mockPromoCode = StripePromotionCodeFactory();
 
     expect(() =>
-      assertPromotionCodeApplicableToPrice(mockPromoCode, mockPrice, undefined)
+      assertPromotionCodeApplicableToPrice(
+        mockPromoCode.id,
+        mockPrice,
+        undefined
+      )
     ).toThrowError(PromotionCodePriceNotValidError);
   });
 

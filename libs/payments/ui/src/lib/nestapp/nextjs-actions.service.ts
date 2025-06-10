@@ -53,6 +53,7 @@ import type {
 import { GetCartActionResult } from './validators/GetCartActionResult';
 import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionResult';
 import {
+  CouponErrorCannotRedeem,
   PromotionCodeSanitizedError,
   TaxAddress,
   type SubplatInterval,
@@ -102,7 +103,7 @@ export class NextJSActionsService {
     private eligibilityService: EligibilityService,
     private productConfigurationManager: ProductConfigurationManager,
     @Inject(StatsDService) public statsd: StatsD
-  ) { }
+  ) {}
 
   @SanitizeExceptions()
   @NextIOValidator(GetCartStateActionArgs, GetCartStateActionResult)
@@ -169,10 +170,7 @@ export class NextJSActionsService {
   @NextIOValidator(GetCouponArgs, GetCouponResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async getCoupon(args: {
-    cartId: string;
-    version: number;
-  }) {
+  async getCoupon(args: { cartId: string; version: number }) {
     const couponCode = await this.cartService.getCoupon({
       cartId: args.cartId,
       version: args.version,
@@ -191,7 +189,11 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({
-    allowlist: [InvalidPromoCodeCartError, ProductConfigError],
+    allowlist: [
+      CouponErrorCannotRedeem,
+      InvalidPromoCodeCartError,
+      ProductConfigError,
+    ],
   })
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
@@ -256,8 +258,8 @@ export class NextJSActionsService {
     );
 
     return {
-      result
-    }
+      result,
+    };
   }
 
   @SanitizeExceptions()
@@ -423,13 +425,13 @@ export class NextJSActionsService {
     uid?: string;
   }): Promise<
     | {
-      ok: true;
-      taxAddress: TaxAddress;
-    }
+        ok: true;
+        taxAddress: TaxAddress;
+      }
     | {
-      ok: false;
-      error: string;
-    }
+        ok: false;
+        error: string;
+      }
   > {
     const { cartId, version, offeringId, taxAddress, uid } = args;
 

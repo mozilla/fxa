@@ -7,9 +7,7 @@ import {
   StripeProduct,
   StripePromotionCode,
 } from '@fxa/payments/stripe';
-import {
-  PromotionCodePriceNotValidError,
-} from '../customer.error';
+import { PromotionCodePriceNotValidError } from '../customer.error';
 import { STRIPE_PRICE_METADATA, STRIPE_PRODUCT_METADATA } from '../types';
 
 export const assertPromotionCodeApplicableToPrice = (

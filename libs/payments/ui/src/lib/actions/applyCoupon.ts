@@ -5,7 +5,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-
 import { getApp } from '../nestapp/app';
 import { CouponErrorMessageType } from '../utils/error-ftl-messages';
 
@@ -26,12 +25,15 @@ export const applyCouponAction = async (
     });
   } catch (err) {
     switch (err.name) {
+      case 'CouponErrorCannotRedeem':
+        return CouponErrorMessageType.CannotRedeem;
       case 'CouponErrorExpired':
         return CouponErrorMessageType.Expired;
       case 'CouponErrorGeneric':
         return CouponErrorMessageType.Generic;
       case 'CouponErrorLimitReached':
         return CouponErrorMessageType.LimitReached;
+      case 'CouponErrorInvalid':
       default:
         return CouponErrorMessageType.Invalid;
     }

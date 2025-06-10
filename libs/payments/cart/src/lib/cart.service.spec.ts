@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
+import { Stripe } from 'stripe';
 
 import {
   EligibilityManager,
@@ -19,6 +20,7 @@ import {
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import {
+  CouponErrorCannotRedeem,
   CouponErrorInvalidCode,
   CustomerManager,
   CustomerSessionManager,
@@ -592,6 +594,45 @@ describe('CartService', () => {
       expect(cartManager.createCart).not.toHaveBeenCalled();
     });
 
+    it('removes couponCode if cart eligibility status is upgrade', async () => {
+      const mockResultCart = ResultCartFactory();
+      const mockResolvedCurrency = faker.finance.currencyCode();
+      const mockFromOfferingId = faker.string.uuid();
+      const mockFromPrice = StripePriceFactory({
+        recurring: StripePriceRecurringFactory({ interval: 'month' }),
+      });
+
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
+        fromOfferingConfigId: mockFromOfferingId,
+        fromPrice: mockFromPrice,
+      });
+      jest
+        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
+
+      const result = await cartService.setupCart(args);
+
+      expect(cartManager.createCart).toHaveBeenCalledWith({
+        interval: args.interval,
+        offeringConfigId: args.offeringConfigId,
+        amount: mockInvoicePreview.subtotal,
+        uid: args.uid,
+        stripeCustomerId: mockAccountCustomer.stripeCustomerId,
+        experiment: args.experiment,
+        taxAddress,
+        currency: mockResolvedCurrency,
+        eligibilityStatus: CartEligibilityStatus.UPGRADE,
+      });
+      expect(result).toEqual(mockResultCart);
+      expect(result.couponCode).toBeNull();
+    });
+
     it('throws an error when country to currency result is invalid', async () => {
       const mockAccount = AccountFactory();
 
@@ -789,11 +830,16 @@ describe('CartService', () => {
         couponCode: 'COUPON',
       });
 
-      jest.spyOn(cartManager, 'fetchAndValidateCartVersion').mockResolvedValue(mockCart);
+      jest
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockResolvedValue(mockCart);
 
-      const result = await cartService.getCoupon({ cartId: mockCartId, version: mockVersion });
+      const result = await cartService.getCoupon({
+        cartId: mockCartId,
+        version: mockVersion,
+      });
       expect(result).toEqual({
-        couponCode: 'COUPON'
+        couponCode: 'COUPON',
       });
 
       expect(cartManager.fetchAndValidateCartVersion).toHaveBeenCalledWith(
@@ -804,14 +850,18 @@ describe('CartService', () => {
 
     it('throws an error when version does not match', async () => {
       const mismatchError = new CartVersionMismatchError(mockCartId);
-      jest.spyOn(cartManager, 'fetchAndValidateCartVersion').mockRejectedValue(mismatchError);
+      jest
+        .spyOn(cartManager, 'fetchAndValidateCartVersion')
+        .mockRejectedValue(mismatchError);
 
       await expect(
         cartService.getCoupon({ cartId: mockCartId, version: mockVersion })
       ).rejects.toBeInstanceOf(CartVersionMismatchError);
 
-      expect(cartManager.fetchAndValidateCartVersion)
-        .toHaveBeenCalledWith(mockCartId, mockVersion);
+      expect(cartManager.fetchAndValidateCartVersion).toHaveBeenCalledWith(
+        mockCartId,
+        mockVersion
+      );
     });
   });
 
@@ -1253,9 +1303,6 @@ describe('CartService', () => {
     });
 
     describe('updates cart with coupon code', () => {
-      const mockCart = ResultCartFactory({
-        stripeSubscriptionId: undefined,
-      });
       const mockPrice = StripePriceFactory();
       const mockUpdateCartInput = UpdateCartInputFactory({
         couponCode: faker.word.noun(),
@@ -1265,7 +1312,6 @@ describe('CartService', () => {
       };
 
       beforeEach(async () => {
-        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
         jest
           .spyOn(productConfigurationManager, 'retrieveStripePrice')
           .mockResolvedValue(mockPrice);
@@ -1275,7 +1321,13 @@ describe('CartService', () => {
         jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
       });
 
-      it('success if coupon is valid', async () => {
+      it('success if coupon is valid for new customer', async () => {
+        const mockCart = ResultCartFactory({
+          stripeCustomerId: undefined,
+          stripeSubscriptionId: undefined,
+        });
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
         await cartService.updateCart(
           mockCart.id,
           mockCart.version,
@@ -1289,7 +1341,54 @@ describe('CartService', () => {
         );
       });
 
+      it('success if coupon is valid for existing customer', async () => {
+        const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+        const mockCart = ResultCartFactory({
+          stripeCustomerId: mockCustomer.id,
+          stripeSubscriptionId: undefined,
+          taxAddress: TaxAddressFactory(),
+        });
+        const mockPreviewInvoice = InvoicePreviewFactory();
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+        jest
+          .spyOn(invoiceManager, 'previewUpcoming')
+          .mockResolvedValue(mockPreviewInvoice);
+
+        await cartService.updateCart(
+          mockCart.id,
+          mockCart.version,
+          mockUpdateCartInput
+        );
+
+        expect(
+          promotionCodeManager.assertValidPromotionCodeNameForPrice
+        ).toHaveBeenCalledWith(
+          mockUpdateCartInput.couponCode,
+          mockPrice,
+          mockCart.currency
+        );
+        expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
+          priceId: mockPrice.id,
+          currency: mockCart.currency,
+          customer: mockCustomer,
+          taxAddress: mockUpdateCartInput.taxAddress,
+          couponCode: mockUpdateCartInput.couponCode,
+        });
+        expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
+          mockCart.id,
+          mockCart.version,
+          expectedUpdateCart
+        );
+      });
+
       it('throws if coupon is not valid', async () => {
+        const mockCart = ResultCartFactory({
+          stripeSubscriptionId: undefined,
+        });
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
         jest
           .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
           .mockRejectedValue(new CouponErrorInvalidCode());
@@ -1312,6 +1411,92 @@ describe('CartService', () => {
         );
         expect(cartManager.updateFreshCart).not.toHaveBeenCalled();
         expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
+      });
+
+      it('throws CouponErrorCannotRedeem if coupon cannot be redeemed because of prior transactions', async () => {
+        const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+        const mockCart = ResultCartFactory({
+          stripeCustomerId: mockCustomer.id,
+          stripeSubscriptionId: undefined,
+        });
+        const stripeError = new Stripe.errors.StripeInvalidRequestError({
+          type: 'invalid_request_error',
+          message:
+            'This promotion code cannot be redeemed because the associated customer has prior transactions.',
+        });
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .mockResolvedValue(undefined);
+        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+        jest
+          .spyOn(invoiceManager, 'previewUpcoming')
+          .mockRejectedValue(stripeError);
+
+        await expect(
+          cartService.updateCart(
+            mockCart.id,
+            mockCart.version,
+            mockUpdateCartInput
+          )
+        ).rejects.toBeInstanceOf(CouponErrorCannotRedeem);
+
+        expect(
+          promotionCodeManager.assertValidPromotionCodeNameForPrice
+        ).toHaveBeenCalledWith(
+          mockUpdateCartInput.couponCode,
+          mockPrice,
+          mockCart.currency
+        );
+        expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
+          priceId: mockPrice.id,
+          currency: mockCart.currency,
+          customer: mockCustomer,
+          couponCode: mockUpdateCartInput.couponCode,
+        });
+      });
+
+      it('throws error if previewUpcoming returns error', async () => {
+        const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+        const mockCart = ResultCartFactory({
+          stripeCustomerId: mockCustomer.id,
+          stripeSubscriptionId: undefined,
+        });
+        const stripeError = new Stripe.errors.StripeInvalidRequestError({
+          type: 'invalid_request_error',
+        });
+
+        jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+        jest
+          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .mockResolvedValue(undefined);
+        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+        jest
+          .spyOn(invoiceManager, 'previewUpcoming')
+          .mockRejectedValue(stripeError);
+
+        await expect(
+          cartService.updateCart(
+            mockCart.id,
+            mockCart.version,
+            mockUpdateCartInput
+          )
+        ).rejects.toThrow();
+
+        expect(
+          promotionCodeManager.assertValidPromotionCodeNameForPrice
+        ).toHaveBeenCalledWith(
+          mockUpdateCartInput.couponCode,
+          mockPrice,
+          mockCart.currency
+        );
+        expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
+          priceId: mockPrice.id,
+          currency: mockCart.currency,
+          customer: mockCustomer,
+          couponCode: mockUpdateCartInput.couponCode,
+        });
       });
     });
   });
@@ -1814,7 +1999,9 @@ describe('CartService', () => {
       );
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest.spyOn(paymentIntentManager, 'retrieve').mockResolvedValue(mockPaymentIntent);
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(mockPaymentIntent);
 
       const result = await cartService.getNeedsInput(mockCart.id);
       expect(result).toEqual({
@@ -1836,7 +2023,9 @@ describe('CartService', () => {
       });
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest.spyOn(setupIntentManager, 'retrieve').mockResolvedValue(mockSetupIntent);
+      jest
+        .spyOn(setupIntentManager, 'retrieve')
+        .mockResolvedValue(mockSetupIntent);
 
       const result = await cartService.getNeedsInput(mockCart.id);
       expect(result).toEqual({
@@ -1857,7 +2046,9 @@ describe('CartService', () => {
       );
 
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-      jest.spyOn(paymentIntentManager, 'retrieve').mockResolvedValue(mockPaymentIntent);
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(mockPaymentIntent);
       jest.spyOn(cartManager, 'setProcessingCart').mockResolvedValue();
 
       const result = await cartService.getNeedsInput(mockCart.id);
@@ -1892,9 +2083,7 @@ describe('CartService', () => {
       })
     );
     const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-    const mockSubscription = StripeResponseFactory(
-      StripeSubscriptionFactory()
-    );
+    const mockSubscription = StripeResponseFactory(StripeSubscriptionFactory());
 
     beforeEach(() => {
       jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
@@ -1911,17 +2100,22 @@ describe('CartService', () => {
       jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
       jest.spyOn(cartService, 'finalizeCartWithError').mockResolvedValue();
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
-    })
+    });
 
     it('changes the cart state and calls postPaySteps', async () => {
       await cartService.submitNeedsInput(mockCart.id);
 
-      expect(paymentIntentManager.retrieve).toHaveBeenCalledWith(mockCart.stripeIntentId);
-      expect(customerManager.update).toHaveBeenCalledWith(mockCart.stripeCustomerId, {
-        invoice_settings: {
-          default_payment_method: mockPaymentMethod.id,
-        },
-      });
+      expect(paymentIntentManager.retrieve).toHaveBeenCalledWith(
+        mockCart.stripeIntentId
+      );
+      expect(customerManager.update).toHaveBeenCalledWith(
+        mockCart.stripeCustomerId,
+        {
+          invoice_settings: {
+            default_payment_method: mockPaymentMethod.id,
+          },
+        }
+      );
       expect(checkoutService.postPaySteps).toHaveBeenCalledWith({
         cart: mockCart,
         version: mockCart.version,
@@ -1936,17 +2130,24 @@ describe('CartService', () => {
       const mockCartWithSetupIntent = {
         ...mockCart,
         stripeIntentId: mockSetupIntent.id,
-      }
-      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCartWithSetupIntent);
+      };
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockResolvedValue(mockCartWithSetupIntent);
 
       await cartService.submitNeedsInput(mockCart.id);
 
-      expect(setupIntentManager.retrieve).toHaveBeenCalledWith(mockCartWithSetupIntent.stripeIntentId);
-      expect(customerManager.update).toHaveBeenCalledWith(mockCartWithSetupIntent.stripeCustomerId, {
-        invoice_settings: {
-          default_payment_method: mockPaymentMethod.id,
-        },
-      });
+      expect(setupIntentManager.retrieve).toHaveBeenCalledWith(
+        mockCartWithSetupIntent.stripeIntentId
+      );
+      expect(customerManager.update).toHaveBeenCalledWith(
+        mockCartWithSetupIntent.stripeCustomerId,
+        {
+          invoice_settings: {
+            default_payment_method: mockPaymentMethod.id,
+          },
+        }
+      );
       expect(checkoutService.postPaySteps).toHaveBeenCalledWith({
         cart: mockCartWithSetupIntent,
         version: mockCartWithSetupIntent.version,

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export enum CouponErrorMessageType {
+  CannotRedeem = 'next-coupon-error-cannot-redeem',
   Expired = 'next-coupon-error-expired',
   Generic = 'next-coupon-error-generic',
   Invalid = 'next-coupon-error-invalid',
@@ -16,6 +17,8 @@ const BASIC_ERROR = 'next-basic-error-message';
 const getFallbackTextByFluentId = (key: string) => {
   switch (key) {
     // coupon error messages
+    case CouponErrorMessageType.CannotRedeem:
+      return 'The code you entered cannot be redeemed — your account has a previous subscription to one of our services.';
     case CouponErrorMessageType.Expired:
       return 'The code you entered has expired.';
     case CouponErrorMessageType.Generic:
