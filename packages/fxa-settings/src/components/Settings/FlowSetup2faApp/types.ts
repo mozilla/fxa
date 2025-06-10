@@ -6,8 +6,3 @@ export enum TwoStepSetupMethod {
   QrCode = 'qr_code',
   ManualCode = 'manual_code',
 }
-
-export type TotpInfo = {
-  qrCodeUrl: string;
-  secret: string;
-};

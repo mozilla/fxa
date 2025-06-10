@@ -8,7 +8,10 @@ import userEvent from '@testing-library/user-event';
 
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { formatSecret } from '../../../lib/utilities';
-import { MOCK_2FA_SECRET_KEY_RAW } from '../../../pages/mocks';
+import {
+  MOCK_2FA_SECRET_KEY_RAW,
+  PLACEHOLDER_QR_CODE,
+} from '../../../pages/mocks';
 
 import { FlowSetup2faApp } from '.';
 import { TwoStepSetupMethod } from './types';
@@ -27,7 +30,7 @@ jest.mock('../../../lib/glean', () => ({
 }));
 
 const defaultTotpInfo = {
-  qrCodeUrl: 'https://example.com/qr.png',
+  qrCodeUrl: PLACEHOLDER_QR_CODE,
   secret: MOCK_2FA_SECRET_KEY_RAW,
 };
 
@@ -40,7 +43,7 @@ const renderFlowSetup2fa = (
     verifyCode,
     ...renderWithLocalizationProvider(
       <FlowSetup2faApp
-        localizedFlowTitle="Two-step authentication"
+        localizedPageTitle="Two-step authentication"
         currentStep={1}
         numberOfSteps={3}
         totpInfo={defaultTotpInfo}
@@ -94,14 +97,20 @@ describe('FlowSetup2faApp', () => {
   });
 
   it('shows an error banner when verifyCode rejects', async () => {
-    const verifyCode = jest.fn().mockRejectedValue(new Error('invalid_totp'));
+    const verifyCode = jest.fn().mockReturnValueOnce({ error: true });
     renderFlowSetup2fa({ verifyCode });
 
+    const submitButton = screen.getByRole('button', { name: 'Continue' });
     await userEvent.type(screen.getByRole('textbox'), '000000');
-    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    await waitFor(() => {
+      expect(submitButton).toBeEnabled();
+    });
+    await userEvent.click(submitButton);
 
     await waitFor(() =>
-      expect(screen.getByRole('alert')).toHaveTextContent('Unexpected error')
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Invalid or expired code. Check your authenticator app and try again.'
+      )
     );
   });
 
@@ -164,7 +173,7 @@ describe('FlowSetup2faApp', () => {
       });
       expect(cantScanBtn).toHaveAttribute(
         'data-glean-id',
-        'two-step-auth-use-code-instead-button'
+        'two_step_auth_cant_scan_qr_click'
       );
       expect(cantScanBtn).toHaveAttribute(
         'data-glean-type',
@@ -194,7 +203,7 @@ describe('FlowSetup2faApp', () => {
       });
       expect(switchBackBtn).toHaveAttribute(
         'data-glean-id',
-        'two-step-auth-scan-qr-instead-button'
+        'two_step_auth_scan_qr_instead_click'
       );
 
       const submitBtn = screen.getByRole('button', { name: 'Continue' });

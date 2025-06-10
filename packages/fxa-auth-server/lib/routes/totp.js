@@ -17,7 +17,6 @@ const { Container } = require('typedi');
 const {
   RecoveryPhoneService,
   RecoveryNumberNotExistsError,
-  RecoveryNumberRemoveMissingBackupCodes,
 } = require('@fxa/accounts/recovery-phone');
 const { BackupCodeManager } = require('@fxa/accounts/two-factor');
 const { recordSecurityEvent } = require('./utils/security-event');
@@ -87,6 +86,7 @@ module.exports = (
         validate: {
           payload: isA.object({
             metricsContext: METRICS_CONTEXT_SCHEMA,
+            skipRecoveryCodes: isA.boolean().optional(),
           }),
         },
         response: {
@@ -102,6 +102,7 @@ module.exports = (
 
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
+        const skipRecoveryCodes = request.payload.skipRecoveryCodes;
 
         await customs.checkAuthenticated(
           request,
@@ -152,10 +153,10 @@ module.exports = (
 
         const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
 
-        const recoveryCodes = await db.replaceRecoveryCodes(
-          uid,
-          RECOVERY_CODE_COUNT
-        );
+        const recoveryCodes =
+          skipRecoveryCodes !== true
+            ? await db.replaceRecoveryCodes(uid, RECOVERY_CODE_COUNT)
+            : [];
 
         return {
           qrCodeUrl,
@@ -257,11 +258,11 @@ module.exports = (
             await glean.twoStepAuthPhoneRemove.success(request);
           } else {
             statsd.increment('totp.destroy.remove_phone_number.fail');
+            log.error('totp.destroy.remove_phone_number.error');
           }
         } catch (error) {
           if (
-            error instanceof RecoveryNumberNotExistsError ||
-            error instanceof RecoveryNumberRemoveMissingBackupCodes
+            error instanceof RecoveryNumberNotExistsError
           ) {
             statsd.increment('totp.destroy.remove_phone_number.fail');
           } else {

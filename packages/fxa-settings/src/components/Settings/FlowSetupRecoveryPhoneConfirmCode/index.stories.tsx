@@ -17,7 +17,6 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const localizedBackButtonTitle = 'Back';
 const localizedPageTitle = 'Add recovery phone';
 
 const navigateBackward = async () => {
@@ -51,7 +50,6 @@ export const Success = () => (
     <FlowSetupRecoveryPhoneConfirmCode
       {...{
         nationalFormatPhoneNumber,
-        localizedBackButtonTitle,
         localizedPageTitle,
         navigateBackward,
         navigateForward,
@@ -67,7 +65,6 @@ export const Error = () => (
     <FlowSetupRecoveryPhoneConfirmCode
       {...{
         nationalFormatPhoneNumber,
-        localizedBackButtonTitle,
         localizedPageTitle,
         navigateBackward,
         navigateForward,

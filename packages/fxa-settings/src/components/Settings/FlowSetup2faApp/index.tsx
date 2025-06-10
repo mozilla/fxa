@@ -8,9 +8,8 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
-import { GleanClickEventType2FA } from '../../../lib/types';
+import { GleanClickEventType2FA, TotpInfo } from '../../../lib/types';
 import { formatSecret } from '../../../lib/utilities';
 
 import { useFtlMsgResolver } from '../../../models';
@@ -20,12 +19,12 @@ import DataBlockInline from '../../DataBlockInline';
 import FormVerifyTotp from '../../FormVerifyTotp';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
-import { TotpInfo, TwoStepSetupMethod } from './types';
+import { TwoStepSetupMethod } from './types';
 
 export type FlowSetup2faAppProps = {
-  localizedFlowTitle: string;
+  localizedPageTitle: string;
   totpInfo: TotpInfo;
-  verifyCode: (code: string) => Promise<void>;
+  verifyCode: (code: string) => Promise<{ error?: boolean }>;
   currentStep?: number;
   hideBackButton?: boolean;
   initialSetupMethod?: TwoStepSetupMethod;
@@ -40,7 +39,7 @@ export type FlowSetup2faAppProps = {
 };
 
 export const FlowSetup2faApp = ({
-  localizedFlowTitle,
+  localizedPageTitle,
   totpInfo,
   verifyCode,
   currentStep,
@@ -51,30 +50,26 @@ export const FlowSetup2faApp = ({
   reason = GleanClickEventType2FA.setup,
   showProgressBar = true,
 }: FlowSetup2faAppProps) => {
-  const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
-    useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [setupMethod, setSetupMethod] =
     useState<TwoStepSetupMethod>(initialSetupMethod);
 
   const ftlMsgResolver = useFtlMsgResolver();
 
   const clearBanners = useCallback(() => {
-    setLocalizedErrorBannerMessage('');
-  }, []);
+    setErrorMessage('');
+  }, [setErrorMessage]);
 
   const handleCode = async (code: string) => {
     clearBanners();
-    try {
-      await verifyCode(code);
-    } catch (error) {
-      const localizedError = getLocalizedErrorMessage(ftlMsgResolver, error);
-      setLocalizedErrorBannerMessage(localizedError);
-      const codeInput = document.querySelector(
-        'input[name="code"]'
-      ) as HTMLInputElement;
-      if (codeInput) {
-        codeInput.focus();
-      }
+    const result = await verifyCode(code);
+    if (result?.error) {
+      setErrorMessage(
+        ftlMsgResolver.getMsg(
+          'flow-setup-2fa-code-error',
+          'Invalid or expired code. Check your authenticator app and try again.'
+        )
+      );
     }
   };
 
@@ -91,7 +86,7 @@ export const FlowSetup2faApp = ({
 
   return (
     <FlowContainer
-      title={localizedFlowTitle}
+      title={localizedPageTitle}
       {...{ hideBackButton, onBackButtonClick }}
     >
       {showProgressBar && currentStep != null && numberOfSteps != null && (
@@ -99,10 +94,10 @@ export const FlowSetup2faApp = ({
       )}
       <h2 className="text-xl font-bold my-2">{localizedHeading}</h2>
 
-      {localizedErrorBannerMessage && (
+      {errorMessage && (
         <Banner
           type="error"
-          content={{ localizedHeading: localizedErrorBannerMessage }}
+          content={{ localizedDescription: errorMessage }}
           bannerId="flow-setup-2fa"
         />
       )}
@@ -124,16 +119,16 @@ export const FlowSetup2faApp = ({
         id="flow-setup-2a-step-2-instruction"
         elems={{ strong: <strong></strong> }}
       >
-        <p className="text-sm mt-4 -mb-2">
+        <p className="text-sm mt-4">
           <strong>Step 2: </strong>Enter the code from your authenticator app.
         </p>
       </FtlMsg>
       <FormVerifyTotp
-        {...{ clearBanners }}
+        {...{ clearBanners, errorMessage, setErrorMessage }}
+        className="mt-4"
         codeLength={6}
         codeType="numeric"
         errorBannerId="flow-setup-2fa"
-        errorMessage={localizedErrorBannerMessage}
         gleanDataAttrs={{
           id:
             setupMethod === TwoStepSetupMethod.QrCode
@@ -149,7 +144,6 @@ export const FlowSetup2faApp = ({
           'flow-setup-2fa-button',
           'Continue'
         )}
-        setErrorMessage={setLocalizedErrorBannerMessage}
         verifyCode={handleCode}
       />
     </FlowContainer>
@@ -204,7 +198,7 @@ const QrCodeStep = ({
       </FtlMsg>
       <LearnMoreLink {...{ reason }} />
 
-      <div className="relative mx-auto mt-4 mb-2 flex justify-center items-center w-48 h-48 rounded-xl border-8 border-green-800/10">
+      <div className="relative mx-auto w-fit mt-4 mb-2 flex justify-center items-center rounded-xl border-8 border-green-800/10">
         {!imgLoaded && (
           <LoadingSpinner className="absolute inset-0 flex items-center justify-center" />
         )}
@@ -234,7 +228,7 @@ const QrCodeStep = ({
             onClick={() => {
               setSetupMethod(TwoStepSetupMethod.ManualCode);
             }}
-            data-glean-id="two-step-auth-use-code-instead-button"
+            data-glean-id="two_step_auth_cant_scan_qr_click"
             data-glean-type={reason}
           >
             Can’t scan QR code?
@@ -285,7 +279,7 @@ const ManualCodeStep = ({
             onClick={() => {
               setSetupMethod(TwoStepSetupMethod.QrCode);
             }}
-            data-glean-id="two-step-auth-scan-qr-instead-button"
+            data-glean-id="two_step_auth_scan_qr_instead_click"
             data-glean-type={reason}
           >
             Scan QR code instead?

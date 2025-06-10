@@ -29,7 +29,6 @@ export const UnitRowTwoStepAuth = () => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const navigateWithQuery = useNavigateWithQuery();
-  const session = useSession();
   const {
     backupCodes: { count },
     totp: { exists, verified },
@@ -38,95 +37,6 @@ export const UnitRowTwoStepAuth = () => {
   const [disable2FAModalRevealed, revealDisable2FAModal, hideDisable2FAModal] =
     useBooleanState();
   const ftlMsgResolver = useFtlMsgResolver();
-
-  const disableTwoStepAuth = useCallback(async () => {
-    try {
-      await account.disableTwoStepAuth();
-      hideDisable2FAModal();
-      alertBar.success(
-        ftlMsgResolver.getMsg(
-          'tfa-row-disabled-2',
-          'Two-step authentication disabled'
-        ),
-        () => GleanMetrics.accountPref.twoStepAuthDisableSuccessView()
-      );
-    } catch (e) {
-      hideDisable2FAModal();
-      alertBar.error(
-        ftlMsgResolver.getMsg(
-          'tfa-row-cannot-disable-2',
-          'Two-step authentication could not be disabled'
-        )
-      );
-    }
-  }, [account, hideDisable2FAModal, alertBar, ftlMsgResolver]);
-
-  const DisableTwoStepAuthModal = () => {
-    useEffect(() => {
-      session.verified &&
-        GleanMetrics.accountPref.twoStepAuthDisableModalView();
-    }, []);
-
-    return (
-      <VerifiedSessionGuard
-        onDismiss={hideDisable2FAModal}
-        onError={(error) => {
-          hideDisable2FAModal();
-          alertBar.error(error.message, error);
-        }}
-      >
-        <Modal
-          onDismiss={hideDisable2FAModal}
-          onConfirm={() => disableTwoStepAuth()}
-          headerId="two-step-auth-disable-header"
-          descId="two-step-auth-disable-description"
-          confirmText={ftlMsgResolver.getMsg(
-            'tfa-row-disable-modal-confirm',
-            'Disable'
-          )}
-          confirmBtnClassName="cta-caution cta-base-p"
-          confirmBtnGleanDataAttrs={{
-            id: 'two_step_auth_confirm_disable_click',
-          }}
-        >
-          <FtlMsg id="tfa-row-disable-modal-heading">
-            <h2
-              className="font-bold text-xl text-center mb-2"
-              data-testid="disable-totp-modal-header"
-            >
-              Disable two-step authentication?
-            </h2>
-          </FtlMsg>
-          {/* "replacing backup authentication codes" link below will actually drop you into
-          backup authentication codes flow in the future. */}
-          <FtlMsg
-            id="tfa-row-disable-modal-explain-1"
-            elems={{
-              linkExternal: (
-                <LinkExternal
-                  className="link-blue"
-                  href="https://support.mozilla.org/kb/changing-your-two-step-authentication-device-firefox-account"
-                >
-                  replacing your backup authentication codes
-                </LinkExternal>
-              ),
-            }}
-          >
-            <p className="text-center">
-              You won’t be able to undo this action. You also have the option of{' '}
-              <LinkExternal
-                className="link-blue"
-                href="https://support.mozilla.org/kb/changing-your-two-step-authentication-device-firefox-account"
-              >
-                replacing your backup authentication codes
-              </LinkExternal>
-              .
-            </p>
-          </FtlMsg>
-        </Modal>
-      </VerifiedSessionGuard>
-    );
-  };
 
   const conditionalUnitRowProps: Partial<UnitRowProps> =
     exists && verified
@@ -267,9 +177,123 @@ export const UnitRowTwoStepAuth = () => {
           </FtlMsg>
         )}
         {howThisProtectsYourAccountLink}
-        {disable2FAModalRevealed && <DisableTwoStepAuthModal />}
+        {disable2FAModalRevealed && (
+          <VerifiedSessionGuard
+            onDismiss={hideDisable2FAModal}
+            onError={(error) => {
+              hideDisable2FAModal();
+              alertBar.error(
+                ftlMsgResolver.getMsg(
+                  'tfa-row-disable-cannot-verify-session',
+                  'Sorry, there was a problem confirming your session'
+                ),
+                error
+              );
+            }}
+          >
+            <DisableTwoStepAuthModal {...{ hideDisable2FAModal }} />
+          </VerifiedSessionGuard>
+        )}
       </UnitRow>
     </>
+  );
+};
+
+const DisableTwoStepAuthModal = ({
+  hideDisable2FAModal,
+}: {
+  hideDisable2FAModal: () => void;
+}) => {
+  const alertBar = useAlertBar();
+  const account = useAccount();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const session = useSession();
+
+  useEffect(() => {
+    GleanMetrics.accountPref.twoStepAuthDisableModalView();
+  }, [session]);
+
+  const disableTwoStepAuth = useCallback(async () => {
+    try {
+      alertBar.hide();
+      await account.disableTwoStepAuth();
+      hideDisable2FAModal();
+      alertBar.success(
+        ftlMsgResolver.getMsg(
+          'tfa-row-disabled-2',
+          'Two-step authentication disabled'
+        ),
+        () => GleanMetrics.accountPref.twoStepAuthDisableSuccessView()
+      );
+    } catch (e) {
+      hideDisable2FAModal();
+      alertBar.error(
+        ftlMsgResolver.getMsg(
+          'tfa-row-cannot-disable-2',
+          'Two-step authentication could not be disabled'
+        )
+      );
+    }
+  }, [account, hideDisable2FAModal, alertBar, ftlMsgResolver]);
+
+  return (
+    <VerifiedSessionGuard
+      onDismiss={hideDisable2FAModal}
+      onError={(error) => {
+        hideDisable2FAModal();
+        alertBar.error(error.message, error);
+      }}
+    >
+      <Modal
+        onDismiss={hideDisable2FAModal}
+        onConfirm={() => disableTwoStepAuth()}
+        headerId="two-step-auth-disable-header"
+        descId="two-step-auth-disable-description"
+        confirmText={ftlMsgResolver.getMsg(
+          'tfa-row-disable-modal-confirm',
+          'Disable'
+        )}
+        confirmBtnClassName="cta-caution cta-base-p"
+        confirmBtnGleanDataAttrs={{
+          id: 'two_step_auth_confirm_disable_click',
+        }}
+      >
+        <FtlMsg id="tfa-row-disable-modal-heading">
+          <h2
+            className="font-bold text-xl text-center mb-2"
+            data-testid="disable-totp-modal-header"
+          >
+            Disable two-step authentication?
+          </h2>
+        </FtlMsg>
+        {/* "replacing backup authentication codes" link below will actually drop you into
+          backup authentication codes flow in the future. */}
+        <FtlMsg
+          id="tfa-row-disable-modal-explain-1"
+          elems={{
+            linkExternal: (
+              <LinkExternal
+                className="link-blue"
+                href="https://support.mozilla.org/kb/changing-your-two-step-authentication-device-firefox-account"
+              >
+                replacing your backup authentication codes
+              </LinkExternal>
+            ),
+          }}
+        >
+          <p className="text-center">
+            You won’t be able to undo this action. You also have the option of{' '}
+            <LinkExternal
+              className="link-blue"
+              href="https://support.mozilla.org/kb/changing-your-two-step-authentication-device-firefox-account"
+            >
+              replacing your backup authentication codes
+            </LinkExternal>
+            .
+          </p>
+        </FtlMsg>
+      </Modal>
+    </VerifiedSessionGuard>
   );
 };
 

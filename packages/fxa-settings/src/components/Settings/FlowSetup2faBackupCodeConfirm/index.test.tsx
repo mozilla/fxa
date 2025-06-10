@@ -23,7 +23,7 @@ const renderFlowSetup2faBackupCodeConfirm = (error?: string) => {
       <FlowSetup2faBackupCodeConfirm
         currentStep={3}
         numberOfSteps={3}
-        localizedFlowTitle="Two-step authentication"
+        localizedPageTitle="Two-step authentication"
         showProgressBar
         errorMessage={error || ''}
         {...{ onBackButtonClick, setErrorMessage, verifyCode }}

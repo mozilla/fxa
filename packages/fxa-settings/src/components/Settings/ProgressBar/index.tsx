@@ -20,11 +20,8 @@ export const ProgressBar = ({
     `Step ${currentStep} of ${numberOfSteps}.`,
     { currentStep, numberOfSteps }
   );
-  if (currentStep > numberOfSteps) {
-    throw new Error(
-      'Current step submitted to the progress bar cannot be a greater number than the total number of steps in a flow. You may have reversed your inputs'
-    );
-  }
+  // don't allow a current step value that exceeds the total number of steps
+  const safeCurrentStep = Math.min(currentStep, numberOfSteps);
 
   return (
     <progress
@@ -32,7 +29,7 @@ export const ProgressBar = ({
       aria-valuemin={1}
       aria-valuemax={numberOfSteps}
       aria-valuetext={currentStep.toString()}
-      value={currentStep}
+      value={safeCurrentStep}
       max={numberOfSteps}
       className="h-2 w-full bg-grey-100 rounded flex ltr:flex-row rtl:flex-row-reverse mb-4"
     />

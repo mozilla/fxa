@@ -23,6 +23,7 @@ import { copyRecoveryCodes } from '../../../lib/totp';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { GleanClickEventType2FA } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
+import { totpUtils } from '../../../lib/totp-utils';
 
 export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
@@ -88,7 +89,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
         throw new Error('Invalid config for recoveryCodes.');
       }
 
-      const recoveryCodes = await account.generateRecoveryCodes(
+      const recoveryCodes = await totpUtils.generateRecoveryCodes(
         config.recoveryCodes.count,
         config.recoveryCodes.length
       );
@@ -101,7 +102,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
         )
       );
     }
-  }, [config, account, alertBar, ftlMsgResolver]);
+  }, [config, alertBar, ftlMsgResolver]);
 
   const activateStep = (step: number) => {
     switch (step) {

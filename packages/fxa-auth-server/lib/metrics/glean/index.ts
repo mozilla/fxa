@@ -314,6 +314,7 @@ export function gleanMetrics(config: ConfigType) {
     },
     twoFactorAuth: {
       codeComplete: createEventFn('two_factor_auth_code_complete'),
+      setCodesComplete: createEventFn('two_factor_auth_set_codes_complete'),
       replaceCodeComplete: createEventFn(
         'two_factor_auth_replace_code_complete'
       ),

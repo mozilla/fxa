@@ -15,7 +15,13 @@ const { recordSecurityEvent } = require('./utils/security-event');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
-module.exports = (log, db, config, customs, mailer, glean) => {
+module.exports = (log, db, config, customs, mailer, glean, statsd) => {
+  const otpUtils = require('../../lib/routes/utils/otp')(
+    log,
+    config,
+    db,
+    statsd
+  );
   const codeConfig = config.recoveryCodes;
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
   const backupCodeManager = Container.get(BackupCodeManager);
@@ -78,6 +84,61 @@ module.exports = (log, db, config, customs, mailer, glean) => {
         await request.emitMetricsEvent('recoveryCode.replaced', { uid });
 
         return { recoveryCodes };
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recoveryCodes',
+      options: {
+        ...RECOVERY_CODES_DOCS.RECOVERY_CODES_POST,
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: recoveryCodesSchema,
+        },
+        response: {
+          schema: isA.object({
+            success: isA.boolean(),
+          }),
+        },
+      },
+      async handler(request) {
+        log.begin('setRecoveryCodes', request);
+
+        const { uid } = request.auth.credentials;
+
+        // this endpoint should only be used prior to verifying 2FA
+        // no previous backup codes should be in the database
+        // the session should not yet have a higher assurance level
+        const account = await db.account(uid);
+        const { hasBackupCodes } =
+          await backupCodeManager.getCountForUserId(uid);
+        const hasTotpToken = await otpUtils.hasTotpToken({ uid });
+        // for initial setup, only fail if totp is already enabled
+        // if totp is not enabled/verified, it is safe to replace the recovery codes
+        if (hasBackupCodes && hasTotpToken) {
+          throw errors.recoveryCodesAlreadyExist();
+        }
+
+        const { recoveryCodes } = request.payload;
+
+        await db.updateRecoveryCodes(uid, recoveryCodes);
+        glean.twoFactorAuth.setCodesComplete(request, { uid });
+
+        // no email notification, notice about codes will be included in postAddTwoStepAuthentication email
+
+        recordSecurityEvent('account.recovery_codes_set', {
+          db,
+          request,
+          account,
+        });
+
+        log.info('account.recoveryCode.set', { uid });
+
+        await request.emitMetricsEvent('recoveryCode.set', { uid });
+
+        return { success: true };
       },
     },
     {
