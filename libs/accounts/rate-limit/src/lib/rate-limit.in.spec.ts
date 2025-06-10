@@ -210,4 +210,21 @@ describe('rate-limit', () => {
       'action:testBlock',
     ]);
   });
+
+  it('supports long emails', async () => {
+    // Regression test for: FXA-9463
+    rateLimit = new RateLimit(
+      {
+        rules: parseConfigRules(['testBlock:email:1:1s:1hour']),
+      },
+      redis,
+      statsd
+    );
+    const email = Array(255).fill('β').join('') + '@restmail.net';
+    const check1 = await rateLimit.check('testBlock', { email });
+    const check2 = await rateLimit.check('testBlock', { email });
+
+    expect(check1).toBeNull();
+    expect(check2?.reason).toEqual('too-many-attempts');
+  });
 });
