@@ -179,6 +179,7 @@
     "@nx/js": "21.1.2",
     "@nx/node": "21.1.2",
     "@nx/react": "21.1.2",
+    "@nx/s3-cache": "^2.1.0",
     "@nx/storybook": "21.1.2",
     "@nx/workspace": "21.1.2",
     "@opentelemetry/semantic-conventions": "^1.32.0",
