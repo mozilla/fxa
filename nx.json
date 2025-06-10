@@ -113,6 +113,17 @@
       ],
       "cache": true
     },
+    "test-integration-v2": {
+      "dependsOn": ["build", "gen-keys"],
+      "inputs": ["test", "^test"],
+      "outputs": [
+        "{projectRoot}/coverage",
+        "{projectRoot}/.nyc_output",
+        "{projectRoot}/test-results.xml",
+        "{projectRoot}/test/scripts/test_output"
+      ],
+      "cache": true
+    },
     "test-unit": {
       "dependsOn": ["build", "gen-keys"],
       "inputs": ["test", "^test"],
@@ -227,5 +238,12 @@
   ],
   "tui": {
     "enabled": false
+  },
+  "s3": {
+    "bucket": "nx-caching",
+    "localMode": "no-cache",
+    "ciMode": "read-write",
+    "region": "us-east-1",
+    "endpoint": "https://storage.googleapis.com"
   }
 }
