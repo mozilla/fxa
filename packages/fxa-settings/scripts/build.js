@@ -27,7 +27,7 @@ switch (buildDirTarget) {
     break;
   default:
     // This is for local development, and will result in everything being relative.
-    process.env.PUBLIC_URL = undefined;
+    process.env.PUBLIC_URL = process.env.PUBLIC_URL || '';
     break;
 }
 console.log(
