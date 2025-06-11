@@ -164,6 +164,11 @@ module.exports = function (
           throw error.disabledClientId(service);
         }
 
+        const account = await db.accountRecord(email);
+        if (account.uid !== sessionToken.uid) {
+          throw error.unknownAccount(email);
+        }
+
         const { accountRecord } = await signinUtils.checkCustomsAndLoadAccount(
           request,
           email,
@@ -321,8 +326,9 @@ module.exports = function (
           ...newTokenState,
           ...newUAInfo,
         };
-        const newSessionToken =
-          await db.createSessionToken(sessionTokenOptions);
+        const newSessionToken = await db.createSessionToken(
+          sessionTokenOptions
+        );
 
         const response = {
           uid: newSessionToken.uid,

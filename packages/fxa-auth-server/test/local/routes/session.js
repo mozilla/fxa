@@ -285,7 +285,7 @@ describe('/session/reauth', () => {
 
       assert.equal(
         db.accountRecord.callCount,
-        1,
+        2,
         'db.accountRecord was called'
       );
       args = db.accountRecord.args[0];
@@ -478,6 +478,35 @@ describe('/session/reauth', () => {
         'response object indicated correct verification status'
       );
     });
+  });
+
+  it('erorrs when session uid and email account uid mismatch', () => {
+    db = mocks.mockDB({
+      email: 'hello@bs.gg',
+      uid: 'quux',
+    });
+    const routes = makeRoutes({
+      log,
+      config,
+      customs,
+      db,
+      mailer,
+      signinUtils,
+    });
+    const route = getRoute(routes, '/session/reauth');
+    const req = {
+      ...request,
+      payload: { ...request.payload, email: 'hello@bs.gg' },
+    };
+    return runTest(route, req).then(
+      () => {
+        assert.fail('request should have been rejected');
+      },
+      (err) => {
+        assert.equal(db.accountRecord.callCount, 1);
+        assert.equal(err.errno, error.ERRNO.ACCOUNT_UNKNOWN);
+      }
+    );
   });
 
   it('correctly updates sessionToken details', () => {
