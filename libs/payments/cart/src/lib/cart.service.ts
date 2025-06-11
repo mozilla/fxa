@@ -28,6 +28,7 @@ import {
   TaxAddress,
   PriceManager,
   getSubplatInterval,
+  SetupIntentManager,
 } from '@fxa/payments/customer';
 import {
   EligibilityService,
@@ -59,6 +60,7 @@ import {
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
   PaidInvoiceOnFailedCartError,
+  CartIntentNotFoundError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import type {
@@ -79,6 +81,7 @@ import { handleEligibilityStatusMap } from './cart.utils';
 import { CheckoutFailedError } from './checkout.error';
 import { CheckoutService } from './checkout.service';
 import { resolveErrorInstance } from './util/resolveErrorInstance';
+import { isPaymentIntentId } from './util/isPaymentIntentId';
 
 type Constructor<T> = new (...args: any[]) => T;
 interface WrapWithCartCatchOptions {
@@ -100,12 +103,13 @@ export class CartService {
     @Inject(Logger) private log: LoggerService,
     private paymentMethodManager: PaymentMethodManager,
     private paymentIntentManager: PaymentIntentManager,
+    private setupIntentManager: SetupIntentManager,
     private priceManager: PriceManager,
     private productConfigurationManager: ProductConfigurationManager,
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
     @Inject(StatsDService) private statsd: StatsD
-  ) {}
+  ) { }
 
   /**
    * Should be used to wrap any method that mutates an existing cart.
@@ -406,12 +410,12 @@ export class CartService {
 
       const accountCustomer = oldCart.uid
         ? await this.accountCustomerManager
-            .getAccountCustomerByUid(oldCart.uid)
-            .catch((error) => {
-              if (!(error instanceof AccountCustomerNotFoundError)) {
-                throw error;
-              }
-            })
+          .getAccountCustomerByUid(oldCart.uid)
+          .catch((error) => {
+            if (!(error instanceof AccountCustomerNotFoundError)) {
+              throw error;
+            }
+          })
         : undefined;
 
       if (!(oldCart.taxAddress && oldCart.currency)) {
@@ -857,30 +861,18 @@ export class CartService {
       );
     }
 
-    if (!cart.stripeSubscriptionId) {
-      throw new CartSubscriptionNotFoundError(cartId);
+    if (!cart.stripeIntentId) {
+      throw new CartIntentNotFoundError(cartId);
     }
 
-    const subscription = await this.subscriptionManager.retrieve(
-      cart.stripeSubscriptionId
-    );
-    if (!subscription) {
-      throw new CartSubscriptionNotFoundError(cartId);
-    }
+    const intent = isPaymentIntentId(cart.stripeIntentId) ?
+      await this.paymentIntentManager.retrieve(cart.stripeIntentId) :
+      await this.setupIntentManager.retrieve(cart.stripeIntentId)
 
-    const paymentIntent =
-      await this.subscriptionManager.getLatestPaymentIntent(subscription);
-    if (!paymentIntent) {
-      throw new CartError('no payment intent found for cart subscription', {
-        cartId,
-        subscription: subscription.id,
-      });
-    }
-
-    if (paymentIntent.status === 'requires_action') {
+    if (intent.status === 'requires_action') {
       return {
         inputType: NeedsInputType.StripeHandleNextAction,
-        data: { clientSecret: paymentIntent.client_secret },
+        data: { clientSecret: intent.client_secret },
       } as StripeHandleNextActionResponse;
     } else {
       await this.cartManager.setProcessingCart(cartId);
@@ -892,13 +884,6 @@ export class CartService {
   async submitNeedsInput(cartId: string) {
     return this.wrapWithCartCatch(cartId, async () => {
       const cart = await this.cartManager.fetchCartById(cartId);
-      assert(cart.stripeCustomerId, 'Cart must have a stripeCustomerId');
-      assert(
-        cart.stripeSubscriptionId,
-        'Cart must have a stripeSubscriptionId'
-      );
-      assert(cart.uid, 'Cart must have a uid');
-
       if (cart.state !== CartState.NEEDS_INPUT) {
         throw new CartInvalidStateForActionError(
           cartId,
@@ -907,21 +892,27 @@ export class CartService {
         );
       }
 
-      const subscription = await this.subscriptionManager.retrieve(
-        cart.stripeSubscriptionId
+      assert(cart.stripeCustomerId, 'Cart must have a stripeCustomerId');
+      assert(
+        cart.stripeSubscriptionId,
+        'Cart must have a stripeSubscriptionId'
       );
-      const paymentIntent =
-        await this.subscriptionManager.getLatestPaymentIntent(subscription);
+      assert(cart.uid, 'Cart must have a uid');
 
-      const customer = await this.customerManager.retrieve(
-        cart.stripeCustomerId
-      );
 
-      if (paymentIntent && paymentIntent.status === 'succeeded') {
-        if (paymentIntent.payment_method) {
-          await this.customerManager.update(customer.id, {
+      if (!cart.stripeIntentId) {
+        throw new CartIntentNotFoundError(cartId);
+      }
+
+      const intent = isPaymentIntentId(cart.stripeIntentId) ?
+        await this.paymentIntentManager.retrieve(cart.stripeIntentId) :
+        await this.setupIntentManager.retrieve(cart.stripeIntentId)
+
+      if (intent.status === 'succeeded') {
+        if (intent.payment_method) {
+          await this.customerManager.update(cart.stripeCustomerId, {
             invoice_settings: {
-              default_payment_method: paymentIntent.payment_method,
+              default_payment_method: intent.payment_method,
             },
           });
         } else {
