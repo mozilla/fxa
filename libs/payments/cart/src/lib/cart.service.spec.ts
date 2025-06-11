@@ -96,6 +96,7 @@ import {
   CartInvalidStateForActionError,
   CartStateProcessingError,
   CartSubscriptionNotFoundError,
+  CartVersionMismatchError,
 } from './cart.error';
 import { CurrencyManager } from '@fxa/payments/currency';
 import {
@@ -770,6 +771,43 @@ describe('CartService', () => {
         CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME
       );
       expect(result).toEqual(mockErrorCart);
+    });
+  });
+
+  describe('getCoupon', () => {
+    const mockCartId = faker.string.uuid();
+    const mockVersion = faker.number.int();
+
+    it('returns { couponCode } when versions match', async () => {
+      const mockCart = ResultCartFactory({
+        id: mockCartId,
+        version: mockVersion,
+        couponCode: 'COUPON',
+      });
+
+      jest.spyOn(cartManager, 'fetchAndValidateCartVersion').mockResolvedValue(mockCart);
+
+      const result = await cartService.getCoupon({ cartId: mockCartId, version: mockVersion });
+      expect(result).toEqual({
+        couponCode: 'COUPON'
+      });
+
+      expect(cartManager.fetchAndValidateCartVersion).toHaveBeenCalledWith(
+        mockCartId,
+        mockVersion
+      );
+    });
+
+    it('throws an error when version does not match', async () => {
+      const mismatchError = new CartVersionMismatchError(mockCartId);
+      jest.spyOn(cartManager, 'fetchAndValidateCartVersion').mockRejectedValue(mismatchError);
+
+      await expect(
+        cartService.getCoupon({ cartId: mockCartId, version: mockVersion })
+      ).rejects.toBeInstanceOf(CartVersionMismatchError);
+
+      expect(cartManager.fetchAndValidateCartVersion)
+        .toHaveBeenCalledWith(mockCartId, mockVersion);
     });
   });
 

@@ -37,6 +37,8 @@ import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
 import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 import { RecordEmitterEventArgs } from './validators/RecordEmitterEvent';
+import { GetCouponArgs } from './validators/GetCouponArgs';
+import { GetCouponResult } from './validators/GetCouponResult';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessingCartActionArgs';
 import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionArgs';
@@ -163,6 +165,21 @@ export class NextJSActionsService {
       args.version,
       args.cartDetails
     );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(GetCouponArgs, GetCouponResult)
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getCoupon(args: {
+    cartId: string;
+    version: number;
+  }) {
+    const couponCode = await this.cartService.getCoupon({
+      cartId: args.cartId,
+      version: args.version,
+    });
+    return couponCode;
   }
 
   @SanitizeExceptions()
