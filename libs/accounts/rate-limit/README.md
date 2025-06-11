@@ -47,6 +47,7 @@ rateLimit.check('foo', { ip:0.0.0.0})
 
 And there was no configuration for foo, but there was a configuration for 'default' and ip. Then
 we'd increment the redis count for action foo blocking on ip, but we'd use the default rule's settings.
+
 ### Policy
 
 - ban - Once a rule is violated (i.e. max attempts exceeded) a ban policy indicates that all other actions are also prohibited for the given blockOn property.
