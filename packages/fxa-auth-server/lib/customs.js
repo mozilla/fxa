@@ -114,7 +114,7 @@ class CustomsClient {
     });
 
     this.optionallyReportStatsD('request.check', action, result);
-    return this.handleCustomsResult(request, result);
+    return this.handleCustomsResult(request, result, action);
   }
 
   async checkAuthenticated(request, uid, email, action) {
@@ -218,7 +218,7 @@ class CustomsClient {
     }
   }
 
-  handleCustomsResult(request, result) {
+  handleCustomsResult(request, result, action) {
     if (!result) {
       return;
     }
@@ -243,7 +243,8 @@ class CustomsClient {
         throw this.error.tooManyRequests(
           result.retryAfter,
           retryAfterLocalized,
-          unblock
+          unblock,
+          action || ''
         );
       }
 
@@ -315,9 +316,9 @@ class CustomsClient {
     const skip = this.rateLimit.skip(opts);
     if (skip) {
       this.statsd.increment(`${serviceName}.check.v2.skip`, [
-        opts.ip ? 'ip':'',
-        opts.email ? 'email':'',
-        opts.uid ? 'uid':'',
+        opts.ip ? 'ip' : '',
+        opts.email ? 'email' : '',
+        opts.uid ? 'uid' : '',
       ]);
       return true;
     }
@@ -339,7 +340,6 @@ class CustomsClient {
       block: result != null,
       blockReason: result?.reason || '',
     });
-
 
     // If no result, we exit. Check essentially passes.
     if (result == null) {
@@ -371,9 +371,9 @@ class CustomsClient {
     throw this.error.tooManyRequests(
       result.retryAfter,
       retryAfterLocalized,
-      canUnblock
+      canUnblock,
+      action
     );
-
   }
   // #endregion
 }

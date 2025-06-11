@@ -413,7 +413,8 @@ AppError.requestBodyTooLarge = function () {
 AppError.tooManyRequests = function (
   retryAfter,
   retryAfterLocalized,
-  canUnblock
+  canUnblock,
+  action
 ) {
   if (!retryAfter) {
     retryAfter = 30;
@@ -437,11 +438,12 @@ AppError.tooManyRequests = function (
       code: 429,
       error: 'Too Many Requests',
       errno: ERRNO.THROTTLED,
-      message: 'Client has sent too many requests',
+      message: `Client has sent too many requests`,
     },
     extraData,
     {
       'retry-after': retryAfter,
+      action,
     }
   );
 

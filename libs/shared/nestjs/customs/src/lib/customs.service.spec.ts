@@ -112,6 +112,7 @@ describe('Customs Service', () => {
         errno: 114,
         error: 'Too Many Requests',
         'retry-after': 100,
+        action: 'test',
         // Since an 'acceptLanguage' of 'fr' was provided
         retryAfterLocalized: 'dans quelques secondes',
         // Since we mocked an unblock being allowed.
@@ -178,6 +179,7 @@ describe('Customs Service', () => {
         errno: 114,
         error: 'Too Many Requests',
         'retry-after': 101,
+        action: test,
         retryAfterLocalized: 'dans quelques secondes',
       });
     });
