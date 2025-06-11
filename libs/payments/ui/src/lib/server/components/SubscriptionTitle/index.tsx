@@ -22,6 +22,15 @@ export function getComponentTitle(cart: CartDTO) {
           title: 'You’ve already subscribed',
           titleFtl: 'subscription-title-sub-exists',
         };
+      } else if (
+        errorReasonId === CartErrorReasonId.CART_ELIGIBILITY_STATUS_DOWNGRADE ||
+        errorReasonId === CartErrorReasonId.CART_ELIGIBILITY_STATUS_INVALID ||
+        errorReasonId === CartErrorReasonId.IAP_BLOCKED_CONTACT_SUPPORT
+      ) {
+        return {
+          title: 'This subscription plan change is not supported',
+          titleFtl: 'subscription-title-not-supported',
+        };
       } else {
         return {
           title: 'Error confirming subscription…',
