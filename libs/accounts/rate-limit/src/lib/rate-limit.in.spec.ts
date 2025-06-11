@@ -32,16 +32,26 @@ describe('rate-limit', () => {
     await redis.flushall();
   });
 
-  for (const blockOn of ['ip', 'email', 'uid']) {
+  for (const blockOn of ['ip', 'email', 'uid', 'ip_email']) {
     it('should block on ' + blockOn, async () => {
       rateLimit = new RateLimit(
-        { rules: parseConfigRules(['testBlock:ip:1:1s:1s']) },
+        { rules: parseConfigRules([`testBlock:${blockOn}:1:1s:1s`]) },
         redis,
         statsd
       );
 
-      const check1 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
-      const check2 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
+      const check1 = await rateLimit.check('testBlock', {
+        ip_email: '127.0.0.1_foo@mozilla.com',
+        ip: '127.0.0.1',
+        email: 'foo@mozilla.com',
+        uid: '123',
+      });
+      const check2 = await rateLimit.check('testBlock', {
+        ip_email: '127.0.0.1_foo@mozilla.com',
+        ip: '127.0.0.1',
+        email: 'foo@mozilla.com',
+        uid: '123',
+      });
 
       expect(check1).toBeNull();
       expect(check2?.reason).toEqual('too-many-attempts');
@@ -49,7 +59,7 @@ describe('rate-limit', () => {
 
       expect(mockIncrement).toBeCalledTimes(1);
       expect(mockIncrement).toBeCalledWith('rate_limit.block', [
-        'on:ip',
+        `on:${blockOn}`,
         'action:testBlock',
       ]);
     });

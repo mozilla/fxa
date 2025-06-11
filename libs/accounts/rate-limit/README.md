@@ -19,6 +19,19 @@ This library is driven by a simple grammar for defining rules. The grammar is as
 Where a 'section' is separated by ':' and leading and trailing whitespace within a section is trimmed.
 Note that comments can be added by starting a line with '#'.
 
+- action - this is the user action being checked. e.g. loginAttempt.
+- blockOn - this is the property we are checking. Options are ip, email, ip_email, and uid.
+- maxAttempts - the number of tries until the rule is considered violated and block (or ban) occurs
+- windowDuration - this the time span over which actions are counted. Once the window ends, actions are allowed again.
+- blockDuration - this is how long the block (or ban) lasts. Note that while active, attempts are being not counted!
+
+### BlockOn
+
+- ip        - The user's IP. This is often useful for 'ban' policies, were we want to flag an IP that is making a large number of requests.
+- ip_email  - The user's ip with the user's email appended. This is useful for ensuring one user cannot impact another user's experience.
+- email     - The user's email. This is useful only when the account isn't known and for some reason, we don't want to use ip_email.
+- uid       - The user's account id. This can be useful from stopping a user that has logged in from doing something malicious, like trying to mine data.
+
 ### A quick example:
 
 As an example, to define an existing custom rules, let's say password reset OTP, the following config

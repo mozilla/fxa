@@ -3,7 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Redis } from 'ioredis';
-import { BlockStatus, BlockRecord, Rule, BlockReason } from './models';
+import {
+  BlockStatus,
+  BlockRecord,
+  Rule,
+  BlockOnOpts,
+  BlockReason,
+} from './models';
 import { ActionNotFound, MissingOption } from './error';
 import { calculateRetryAfter, getKey } from './util';
 
@@ -36,7 +42,7 @@ export class RateLimit {
    * @param opts Pass as many of these in as needed. Rules for these will be removed.
    * @returns Null if no block is found. Or a status containing info about the block.
    */
-  async unblock(opts: { ip?: string; email?: string; uid?: string }) {
+  async unblock(opts: BlockOnOpts) {
     for (const action in this.config.rules) {
       for (const rule of this.config.rules[action]) {
         const blockedValue = opts[rule.blockingOn];
@@ -73,23 +79,29 @@ export class RateLimit {
    * @param opts - The current properties being checked.
    * @returns
    */
-  skip(opts: { ip?: string; email?: string; uid?: string }) {
+  skip(opts: BlockOnOpts) {
     if (opts.ip != null && this.config.ignoreIPs?.some((x) => opts.ip === x)) {
       this.statsd?.increment('rate_limit.ignore.ip');
       return true;
     }
 
-    if (opts.uid != null && this.config.ignoreUIDs?.some((x) => opts.uid === x)) {
+    if (
+      opts.uid != null &&
+      this.config.ignoreUIDs?.some((x) => opts.uid === x)
+    ) {
       this.statsd?.increment('rate_limit.ignore.uid');
       return true;
     }
 
-    if (opts.email != null && this.config.ignoreEmails?.some((x) => opts.email?.match(x))) {
+    if (
+      opts.email != null &&
+      this.config.ignoreEmails?.some((x) => opts.email?.match(x))
+    ) {
       this.statsd?.increment('rate_limit.ignore.email');
       return true;
     }
 
-    return false
+    return false;
   }
 
   /**
@@ -99,14 +111,7 @@ export class RateLimit {
    *             and it is not specified a runtime error will occur!
    * @returns Null if no block is found. Or a status containing info about the block.
    */
-  async check(
-    action: string,
-    opts: {
-      ip?: string;
-      email?: string;
-      uid?: string;
-    }
-  ): Promise<BlockStatus | null> {
+  async check(action: string, opts: BlockOnOpts): Promise<BlockStatus | null> {
     // Make sure action actually exists
     const rules = this.config.rules[action];
     if (!rules) {

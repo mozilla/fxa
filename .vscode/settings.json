@@ -31,7 +31,5 @@
     "**/Thumbs.db": true,
     "**/storybook-static": true,
   },
-  "cSpell.words": [
-    "Frontends"
-  ]
+  "cSpell.words": ["Frontends", "obvisosly"]
 }

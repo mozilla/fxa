@@ -84,8 +84,11 @@ export function parseConfigRules(
         line
       );
     }
-    if (!/^ip$|^uid$|^email$/.test(rule.blockingOn)) {
-      throw new InvalidRule(`Blocking on must be ip, email, or uid.`, line);
+    if (!/^ip$|^uid$|^email$|^ip_email$/.test(rule.blockingOn)) {
+      throw new InvalidRule(
+        `Blocking on must be ip, email, uid, or ip_email.`,
+        line
+      );
     }
     if (
       rule.maxAttempts.toString() === 'NaN' ||
