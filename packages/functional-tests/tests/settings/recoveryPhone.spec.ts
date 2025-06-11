@@ -75,10 +75,6 @@ test.describe('severity-1 #smoke', () => {
       }
     });
 
-    test.beforeEach(async ({ target }) => {
-      await target.clearRateLimits();
-    });
-
     test('setup fails with invalid number', async ({
       target,
       pages: { page, settings, signin, recoveryPhone, totp },

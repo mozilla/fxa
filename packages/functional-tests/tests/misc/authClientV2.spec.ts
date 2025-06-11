@@ -34,7 +34,6 @@ test.describe('auth-client-tests', () => {
 
   test.beforeEach(async ({ target }, { project }) => {
     test.skip(project.name === 'production');
-    await target.clearRateLimits();
   });
 
   test('it creates with v1 and signs in', async ({
