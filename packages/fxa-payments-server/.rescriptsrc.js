@@ -5,12 +5,17 @@
 const {
   permitAdditionalJSImports,
   suppressRuntimeErrorOverlay,
+  configureDevServerCompression,
   setModuleNameMapper,
 } = require('fxa-react/configs/rescripts');
 const tsconfigBase = require('../../tsconfig.base.json')
 
 module.exports = {
   webpack: permitAdditionalJSImports,
-  devServer: suppressRuntimeErrorOverlay,
+  devServer: (config) => {
+    let newConfig = suppressRuntimeErrorOverlay(config);
+    newConfig = configureDevServerCompression(newConfig);
+    return newConfig;
+  },
   jest: setModuleNameMapper(tsconfigBase),
 };
