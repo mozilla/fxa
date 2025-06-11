@@ -23,7 +23,6 @@ import AlertBar from '../../components/AlertBar';
 import DialogMessage from '../../components/DialogMessage';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-import { ReactComponent as PocketIcon } from '../../images/pocket-icon.svg';
 import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
 
 import PaymentUpdateForm, {
@@ -39,7 +38,6 @@ import {
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
 import SubscriptionIapItem from './SubscriptionIapItem/SubscriptionIapItem';
-import LinkExternal from 'fxa-react/components/LinkExternal';
 
 export type SubscriptionsProps = {
   profile: SelectorReturns['profile'];
@@ -407,45 +405,6 @@ export const Subscriptions = ({
                   />
                 ))
             )}
-
-          <section className="settings-unit" aria-labelledby="pocket-external">
-            <div className="subscription pocket-external">
-              <div>
-                <PocketIcon className="pocket-icon" />
-              </div>
-              <div>
-                <p id="pocket-external" data-testid="manage-pocket-title">
-                  <Localized id="manage-pocket-title-2">
-                    <b>Looking for your Pocket Premium subscription?</b>
-                  </Localized>
-                </p>
-                <Localized
-                  id="manage-pocket-body-2"
-                  elems={{
-                    linkExternal: (
-                      <LinkExternal
-                        href="https://getpocket.com/premium/manage"
-                        data-testid="manage-pocket-link"
-                      >
-                        click here
-                      </LinkExternal>
-                    ),
-                  }}
-                >
-                  <p>
-                    To manage it,{' '}
-                    <LinkExternal
-                      href="https://getpocket.com/premium/manage"
-                      data-testid="manage-pocket-link"
-                    >
-                      click here
-                    </LinkExternal>
-                    .
-                  </p>
-                </Localized>
-              </div>
-            </div>
-          </section>
         </div>
       </div>
     </div>

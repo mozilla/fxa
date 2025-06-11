@@ -15,7 +15,6 @@ import mobileIcon from '@fxa/shared/assets/images/mobile.svg';
 import monitorIcon from '@fxa/shared/assets/images/monitor.svg';
 import relayIcon from '@fxa/shared/assets/images/relay.svg';
 import vpnIcon from '@fxa/shared/assets/images/vpn-logo.svg';
-import pocketIcon from '@fxa/shared/assets/images/pocket.svg';
 import signOutIcon from '@fxa/shared/assets/images/sign-out.svg';
 import { LinkExternal } from '@fxa/shared/react';
 import { Localized } from '@fluent/react';
@@ -138,8 +137,7 @@ export const Header = ({ auth, cart }: HeaderProps) => {
       'bento',
       'vpn',
       'permanent'
-    ),
-    pocket: OFFERING_LINKS.pocket,
+    )
   };
 
   const iconClassNames = 'inline-block w-5 -mb-1 me-1';
@@ -299,19 +297,6 @@ export const Header = ({ auth, cart }: HeaderProps) => {
                           </div>
                           <Localized id="payments-header-bento-vpn">
                             <span>Mozilla VPN</span>
-                          </Localized>
-                        </LinkExternal>
-                      </li>
-                      <li>
-                        <LinkExternal
-                          href={links.pocket}
-                          className="block p-2 ps-6 hover:bg-grey-100"
-                        >
-                          <div className={iconClassNames}>
-                            <Image src={pocketIcon} alt="" />
-                          </div>
-                          <Localized id="payments-header-bento-pocket">
-                            <span>Pocket</span>
                           </Localized>
                         </LinkExternal>
                       </li>

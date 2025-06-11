@@ -55,8 +55,3 @@ invoice-not-found = Subsequent invoice not found
 sub-item-no-such-subsequent-invoice = Subsequent invoice not found for this subscription.
 sub-invoice-preview-error-title = Invoice preview not found
 sub-invoice-preview-error-text = Invoice preview not found for this subscription
-
-## Routes - Subscriptions - Pocket Subscription
-
-manage-pocket-title-2 = Looking for your { -product-pocket } premium subscription?
-manage-pocket-body-2 = To manage it, <linkExternal>click here</linkExternal>.

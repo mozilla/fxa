@@ -201,15 +201,6 @@ describe('routes/Subscriptions', () => {
     expect(queryByTestId('no-subscriptions-available')).not.toBeInTheDocument();
   });
 
-  it('displays pocket subscription link', async () => {
-    initApiMocks({
-      mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
-    });
-    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
-    await findByTestId('manage-pocket-title');
-    await findByTestId('manage-pocket-link');
-  });
-
   it('displays upgrade CTA when available for a subscription', async () => {
     // Use mocks for subscription lists that exercise multiple plans
     initApiMocks({
