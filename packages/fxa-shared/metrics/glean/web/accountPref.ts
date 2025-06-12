@@ -367,6 +367,44 @@ export const secondaryEmailSubmit = new EventMetricType(
 );
 
 /**
+ * User chose and submitted their backup method on the backup choice page.
+ *
+ * Generated from `account_pref.two_step_auth_backup_choice_submit`.
+ */
+export const twoStepAuthBackupChoiceSubmit = new EventMetricType<{
+  choice?: string;
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_backup_choice_submit',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['choice', 'reason']
+);
+
+/**
+ * User viewed the backup choice page of the flow to choose between using a
+ * recovery phone or backup authentication codes.
+ *
+ * Generated from `account_pref.two_step_auth_backup_choice_view`.
+ */
+export const twoStepAuthBackupChoiceView = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_backup_choice_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
  * User viewed the backup codes page (step 2) of the 2FA setup funnel.
  *
  * Generated from `account_pref.two_step_auth_codes_view`.

@@ -40,6 +40,23 @@ event:
     data_sensitivity:
       - interaction
 
+  choice:
+    description: the choice made by the user in a given event
+    type: string
+    lifetime: ping
+    send_in_pings:
+      - accounts-events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10235
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+
   third_party_links:
     description: boolean, additional context-dependent (on event.name) info related to third party auth links
     type: boolean
@@ -2320,6 +2337,51 @@ account_pref:
     extra_keys:
       reason:
         description: Page is viewed to "setup" or "replace" backup authentication codes
+        type: string
+  two_step_auth_backup_choice_view:
+    type: event
+    description: |
+      User viewed the backup choice page of the flow to choose between using a recovery phone or backup authentication codes.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10235
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: Page is viewed to "setup", "inline setup" or "replace" 2FA.
+        type: string
+  two_step_auth_backup_choice_submit:
+    type: event
+    description: |
+      User chose and submitted their backup method on the backup choice page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10235
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: Page is viewed to "setup", "inline setup" or "replace" 2FA.
+        type: string
+      choice:
+        description: User's choice of backup method, either 'phone' or 'code'
         type: string
   two_step_auth_phone_verify_view:
     type: event
