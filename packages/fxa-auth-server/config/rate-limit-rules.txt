@@ -4,11 +4,7 @@
 # of account details. e.g. Trying random emails until an error code indicates one might exist.
   accountCreate                         : ip                : 100           : 15 minutes        : 15 minutes
   accountCreate                         : email             : 100           : 15 minutes        : 15 minutes
-  accountLogin                          : ip                : 100           : 15 minutes        : 15 minutes
-  accountLogin                          : email             : 100           : 15 minutes        : 15 minutes
   accountDestroy                        : uid               : 100           : 15 minutes        : 15 minutes
-  passwordChange                        : ip                : 100           : 15 minutes        : 15 minutes
-  passwordChange                        : email             : 100           : 15 minutes        : 15 minutes
   passwordForgotSendCode                : ip                : 100           : 15 minutes        : 15 minutes
   passwordForgotSendCode                : email             : 100           : 15 minutes        : 15 minutes
   accountStatusCheck                    : ip                : 100           : 15 minutes        : 15 minutes
@@ -45,11 +41,9 @@
 # Bad Login Attempts - These are specific to login failures. Again, the user hasn't authenticated yet, so we check both
 # email and ip.
   accountLogin                          : email             : 5             : 15 minutes        : 15 minutes
-  accountLogin                          : ip                : 5             : 10 minutes        : 30 minutes
-  accountDestroy                        : email             : 5             : 15 minutes        : 15 minutes
-  accountDestroy                        : ip                : 5             : 10 minutes        : 30 minutes
+  accountLogin                          : ip                : 100           : 24 hours          : 24 hours
   passwordChange                        : email             : 5             : 15 minutes        : 15 minutes
-  passwordChange                        : ip                : 5             : 10 minutes        : 30 minutes
+  passwordChange                        : ip                : 100           : 24 hours          : 24 hours
   authenticatedAccountLogin             : uid               : 5             : 15 minutes        : 15 minutes
   authenticatedPasswordChange           : uid               : 5             : 15 minutes        : 15 minutes
 
