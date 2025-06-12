@@ -1,5 +1,14 @@
 #  action                               | blockOn           | maxAttempts   | windowDuration    | banDuration
 # -------------------------------------------------------------------------------------------------------------
+# The default limit that rate limits will fallback to if no other rate limit is found. This is very generous
+# and essentially will block any IP, email, or uid that sustains more than one request per second to a
+# non-configured action within a 10 minute window. Note that actions are still isolated. e.g. ActionA and
+# ActionB will maintain separate counts. So you could make up to 600 requests to action A and up to 600 requests
+# to Action B in a ten minute window without getting blocked.
+  default                               : ip                : 600           : 10 minutes        : 15 minutes
+  default                               : email             : 600           : 10 minutes        : 15 minutes
+  default                               : uid               : 600           : 10 minutes        : 15 minutes
+
 # Account Check Limits - These are unsecured actions. Many of these are designed to slow down the mining of
 # of account details. e.g. Trying random emails until an error code indicates one might exist.
   accountCreate                         : ip                : 100           : 15 minutes        : 15 minutes
@@ -130,7 +139,6 @@
 # MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  invokeDeviceCommand
 # MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  devicesNotify|_endpointAction -- TBD, what can be in _endpointAction?
 # passwordChange
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  getRecoveryKey
 # recoveryPhoneSendResetPasswordCode
 # recoveryPhoneSendSetupCode
 # verifyRecoveryPhoneTotpCode

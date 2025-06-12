@@ -69,8 +69,8 @@ export function parseConfigRules(
       );
     }
 
+    const action = parts[0] as string;
     const rule = {
-      action: parts[0] as string,
       blockingOn: parts[1] as BlockOn,
       maxAttempts: Number.parseInt(parts[2]),
       windowDurationInSeconds: convertDurationToSeconds(parts[3]),
@@ -78,7 +78,7 @@ export function parseConfigRules(
     } satisfies Rule;
 
     // A couple sanity checks to catch bad rule configuration
-    if (!/^[a-zA-Z]*$/.test(rule.action)) {
+    if (!/^[a-zA-Z]*$/.test(action)) {
       throw new InvalidRule(
         `Actions can only contain characters a-zA-Z.`,
         line
@@ -120,13 +120,13 @@ export function parseConfigRules(
     }
 
     // Add the rule to the map.
-    if (ruleMap[rule.action]) {
-      ruleMap[rule.action].push(rule);
+    if (ruleMap[action]) {
+      ruleMap[action].push(rule);
     } else {
-      ruleMap[rule.action] = [rule];
+      ruleMap[action] = [rule];
     }
 
-    keys.push(getKey('attempts', rule, 'check'));
+    keys.push(getKey('attempts', action, rule, 'check'));
   }
 
   checkForDuplicates(keys);
