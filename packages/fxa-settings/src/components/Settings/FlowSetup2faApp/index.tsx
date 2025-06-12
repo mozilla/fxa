@@ -215,8 +215,8 @@ const QrCodeStep = ({
           data-testid="2fa-qr-code"
           src={qrCodeUrl}
           alt={ftlMsgResolver.getMsg(
-            'flow-setup-2a-qr-alt-text',
-            'QR code for setting up two-step authentication. Scan it, or choose "Can’t scan QR code?" to get a setup secret key instead.'
+            'flow-setup-2fa-qr-alt-text',
+            'QR code for setting up two-step authentication. Scan it, or choose “Can’t scan QR code?” to get a setup secret key instead.'
           )}
           loading="eager"
           decoding="async"
