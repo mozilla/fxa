@@ -112,7 +112,7 @@ export interface BaseConfig {
 }
 
 export interface ProductConfigSchemaValidation {
-  cdnUrlRegex: string;
+  cdnUrlRegex: string[];
 }
 
 export const minimalConfigSchema = joi.object({
@@ -137,9 +137,9 @@ export const baseConfigSchema = minimalConfigSchema
 
 export function extendBaseConfigSchema(
   baseConfigSchema: joi.ObjectSchema,
-  cdnUrl: string
+  cdnUrls: string[]
 ): joi.ObjectSchema {
-  const pattern: RegExp = new RegExp(`${cdnUrl}`);
+  const pattern: RegExp = new RegExp(cdnUrls.map((url) => `^${url}`).join('|'));
 
   const updatedUrls = urlsSchema.keys({
     webIcon: joi.string().uri().regex(pattern),

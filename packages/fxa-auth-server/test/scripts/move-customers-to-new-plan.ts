@@ -69,7 +69,7 @@ const mockConfig = {
     },
     productConfigsFirestore: {
       schemaValidation: {
-        cdnUrlRegex: '^http',
+        cdnUrlRegex: ['^http'],
       },
     },
   },

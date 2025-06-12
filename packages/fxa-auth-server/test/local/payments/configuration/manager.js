@@ -45,7 +45,7 @@ const mockConfig = {
     },
     productConfigsFirestore: {
       schemaValidation: {
-        cdnUrlRegex: '^https://',
+        cdnUrlRegex: ['^https://'],
       },
     },
   },
@@ -407,9 +407,8 @@ describe('#integration - PaymentConfigManager', () => {
 
   describe('getMergedPlanConfiguration', () => {
     it('returns undefined when the plan is not found', async () => {
-      const actual = await paymentConfigManager.getMergedPlanConfiguration(
-        '404'
-      );
+      const actual =
+        await paymentConfigManager.getMergedPlanConfiguration('404');
       assert.isUndefined(actual);
     });
 

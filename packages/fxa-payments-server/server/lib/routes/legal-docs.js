@@ -87,7 +87,7 @@ module.exports = {
     const docUrl = new URL(req.query.url);
 
     // Limit the redirect to just the CDN that's hosting the legal docs
-    if (docUrl.hostname !== cdnFqdn) {
+    if (!cdnFqdn.includes(docUrl.hostname)) {
       return res.sendStatus(400).end();
     }
 
