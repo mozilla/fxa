@@ -479,3 +479,16 @@ export class TaxAndCurrencyRequiredCartError extends CartError {
     this.name = 'TaxAndCurrencyRequiredCartError';
   }
 }
+
+export class CartUidMismatchError extends CartError {
+  constructor(
+    cartId: string,
+    sessionUid?: string,
+  ) {
+    super('Cart UID does not match session UID', {
+      cartId,
+      sessionUid
+    });
+    this.name = 'CartUidMismatchError';
+  }
+}

@@ -21,6 +21,7 @@ import {
 } from '@fxa/payments/ui/server';
 import { Metadata } from 'next';
 import { config } from 'apps/payments/next/config';
+import { auth } from 'apps/payments/next/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,6 +54,7 @@ export default async function Upgrade({
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
+  const session = await auth();
 
   const cartDataPromise = getCartOrRedirectAction(
     params.cartId,
@@ -143,6 +145,7 @@ export default async function Upgrade({
               },
             }}
             locale={locale}
+            sessionUid={session?.user?.id}
           />
         )}
     </section>

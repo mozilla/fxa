@@ -10,12 +10,15 @@ export const checkoutCartWithPaypal = async (
   cartId: string,
   version: number,
   customerData: { locale: string; displayName: string },
+  sessionUid?: string,
   token?: string
 ) => {
+
   await getApp().getActionsService().checkoutCartWithPaypal({
     cartId,
     version,
     customerData,
+    sessionUid,
     token,
   });
 };

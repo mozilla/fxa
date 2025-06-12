@@ -41,6 +41,7 @@ interface PaymentFormProps {
     hasActiveSubscriptions: boolean;
   };
   locale: string;
+  sessionUid?: string;
 }
 
 export function PaymentSection({
@@ -48,6 +49,7 @@ export function PaymentSection({
   paymentsInfo,
   cart,
   locale,
+  sessionUid,
 }: PaymentFormProps) {
   return (
     <StripeWrapper
@@ -60,6 +62,7 @@ export function PaymentSection({
         cmsCommonContent={cmsCommonContent}
         cart={cart}
         locale={locale}
+        sessionUid={sessionUid}
       />
     </StripeWrapper>
   );

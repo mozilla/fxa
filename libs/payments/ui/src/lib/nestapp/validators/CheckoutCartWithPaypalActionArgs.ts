@@ -27,6 +27,10 @@ export class CheckoutCartWithPaypalActionArgs {
 
   @IsString()
   @IsOptional()
+  sessionUid?: string;
+
+  @IsString()
+  @IsOptional()
   token?: string;
 
   @Type(() => CheckoutCartWithPaypalActionCustomerData)

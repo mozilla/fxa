@@ -268,12 +268,14 @@ export class NextJSActionsService {
     cartId: string;
     version: number;
     customerData: { locale: string; displayName: string };
+    sessionUid?: string;
     token?: string;
   }) {
     await this.cartService.checkoutCartWithPaypal(
       args.cartId,
       args.version,
       args.customerData,
+      args.sessionUid,
       args.token
     );
   }
@@ -287,12 +289,14 @@ export class NextJSActionsService {
     version: number;
     confirmationTokenId: string;
     customerData: { locale: string; displayName: string };
+    sessionUid?: string;
   }) {
     await this.cartService.checkoutCartWithStripe(
       args.cartId,
       args.version,
       args.confirmationTokenId,
-      args.customerData
+      args.customerData,
+      args.sessionUid
     );
   }
 

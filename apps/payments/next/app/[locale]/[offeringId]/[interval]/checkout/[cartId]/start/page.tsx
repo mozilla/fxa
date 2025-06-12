@@ -232,6 +232,7 @@ export default async function Checkout({
               },
             }}
             locale={locale}
+            sessionUid={session?.user?.id}
           />
         )}
     </section>

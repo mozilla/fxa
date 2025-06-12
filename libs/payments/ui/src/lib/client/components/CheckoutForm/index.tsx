@@ -64,12 +64,14 @@ interface CheckoutFormProps {
     };
   };
   locale: string;
+  sessionUid?: string;
 }
 
 export function CheckoutForm({
   cmsCommonContent,
   cart,
   locale,
+  sessionUid,
 }: CheckoutFormProps) {
   const { l10n } = useLocalization();
   const elements = useElements();
@@ -155,7 +157,9 @@ export function CheckoutForm({
       await checkoutCartWithPaypal(cart.id, cart.version, {
         locale,
         displayName: '',
-      });
+      },
+        sessionUid,
+      );
 
       const queryParamString = searchParams.toString()
         ? `?${searchParams.toString()}`
@@ -217,10 +221,13 @@ export function CheckoutForm({
       selectedPaymentMethod as PaymentProvidersType
     );
 
-    await checkoutCartWithStripe(cart.id, cart.version, confirmationToken.id, {
+    await checkoutCartWithStripe(cart.id, cart.version, confirmationToken.id,
+      {
       locale,
       displayName: fullName,
-    });
+      },
+      sessionUid,
+    );
 
     const queryParamString = searchParams.toString()
       ? `?${searchParams.toString()}`
@@ -358,6 +365,7 @@ export function CheckoutForm({
                       locale,
                       displayName: '',
                     },
+                    sessionUid,
                     data.orderID
                   );
                   const queryParamString = searchParams.toString()

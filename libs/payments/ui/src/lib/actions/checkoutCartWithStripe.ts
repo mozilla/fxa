@@ -13,12 +13,15 @@ export const checkoutCartWithStripe = async (
   customerData: {
     locale: string;
     displayName: string;
-  }
+  },
+  sessionUid?: string,
 ) => {
+
   getApp().getActionsService().checkoutCartWithStripe({
     cartId,
     version,
     customerData,
     confirmationTokenId,
+    sessionUid,
   });
 };
