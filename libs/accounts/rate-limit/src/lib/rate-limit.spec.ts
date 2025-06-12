@@ -53,15 +53,32 @@ describe('rate-limit', () => {
 
   it('throws error if option is missing', async () => {
     rateLimit = new RateLimit(
-      { rules: parseConfigRules(['test:ip:1:1s:1s']) },
+      {
+        rules: parseConfigRules([
+          'testIp:ip:1:1s:1s',
+          'testIpEmail:ip_email:1:1s:1s',
+          'testEmail:email:1:1s:1s',
+          'testUid:uid:1:1s:1s',
+        ]),
+      },
       redis,
       statsd
     );
 
-    expect(
-      rateLimit.check('test', { email: 'foo@mozilla.com' })
-    ).rejects.toThrow(
-      `A rule for the 'test' action requires that 'ip' is provided as an option.`
+    expect(rateLimit.check('testIp', {})).rejects.toThrow(
+      `A rule for the 'testIp' action requires that 'ip' is provided as an option.`
+    );
+
+    expect(rateLimit.check('testEmail', {})).rejects.toThrow(
+      `A rule for the 'testEmail' action requires that 'email' is provided as an option.`
+    );
+
+    expect(rateLimit.check('testUid', {})).rejects.toThrow(
+      `A rule for the 'testUid' action requires that 'uid' is provided as an option.`
+    );
+
+    expect(rateLimit.check('testIpEmail', {})).rejects.toThrow(
+      `A rule for the 'testIpEmail' action requires that 'ip_email' is provided as an option.`
     );
   });
 
@@ -157,11 +174,12 @@ describe('rate-limit', () => {
         test     : ip                 :  1           :   1 second            : 1s
         test     : email              :  99          : 30 seconds            : 1 hour
         test     : uid                :  1           : 30 seconds            : 1 day
+        test     : ip_email           :  100         : 10 seconds            : 1 Month
       `);
       const rules = ruleSet['test'];
 
       expect(rules).toBeDefined();
-      expect(rules.length).toEqual(3);
+      expect(rules.length).toEqual(4);
 
       expect(rules[0]).toBeDefined();
       expect(rules[0].action).toEqual('test');
@@ -183,6 +201,13 @@ describe('rate-limit', () => {
       expect(rules[2].blockingOn).toEqual('uid');
       expect(rules[2].windowDurationInSeconds).toEqual(30);
       expect(rules[2].blockDurationInSeconds).toEqual(24 * 60 * 60);
+
+      expect(rules[3]).toBeDefined();
+      expect(rules[3].action).toEqual('test');
+      expect(rules[3].maxAttempts).toEqual(100);
+      expect(rules[3].blockingOn).toEqual('ip_email');
+      expect(rules[3].windowDurationInSeconds).toEqual(10);
+      expect(rules[3].blockDurationInSeconds).toEqual(24 * 60 * 60 * 30);
     });
 
     it('throws on duplicate rule in rule set', () => {

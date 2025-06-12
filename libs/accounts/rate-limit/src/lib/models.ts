@@ -3,7 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /** The attributes we can count and block on. */
-export type BlockOn = 'ip' | 'email' | 'uid';
+export type BlockOn = 'ip' | 'email' | 'uid' | 'ip_email';
+
+/** Standard set of fields that can be blocked on. */
+export type BlockOnOpts = {
+  email?: string;
+  ip?: string;
+  ip_email?: string;
+  uid?: string;
+};
 
 /** Reasons we might block. Currently only too-many-attempts is supported. */
 export type BlockReason = 'too-many-attempts';
