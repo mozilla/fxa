@@ -7,6 +7,8 @@ import { Message, Pattern } from '@fluent/bundle/esm/ast';
 import { Localized, LocalizedProps, ReactLocalization } from '@fluent/react';
 import React from 'react';
 
+const DEFAULT_NAVIGATE_TIMEOUT_MS = 200;
+
 // There maybe situations where we are navigating away from the react app. For example when
 // directing back to an RP or the content-server. Let's use this function to make it clear this behavior is
 // intentional.
@@ -33,10 +35,16 @@ export function hardNavigate(
     url.searchParams.append(key, value);
   });
 
+  // We use setTimeout to ensure that the navigation happens after any pending
+  // metrics have been sent.
   if (replace) {
-    window.location.replace(url.href);
+    setTimeout(() => {
+      window.location.replace(url.href);
+    }, DEFAULT_NAVIGATE_TIMEOUT_MS);
   } else {
-    window.location.href = url.href;
+    setTimeout(() => {
+      window.location.href = url.href;
+    }, DEFAULT_NAVIGATE_TIMEOUT_MS);
   }
 }
 
