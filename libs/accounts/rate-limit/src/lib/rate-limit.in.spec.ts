@@ -237,4 +237,25 @@ describe('rate-limit', () => {
     expect(check1).toBeNull();
     expect(check2?.reason).toEqual('too-many-attempts');
   });
+
+  it('can fallback to a default rule', async () => {
+    rateLimit = new RateLimit(
+      { rules: parseConfigRules(['default:ip:1:1s:1s']) },
+      redis,
+      statsd
+    );
+
+    const check1 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
+    const check2 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
+
+    expect(check1).toBeNull();
+    expect(check2?.reason).toEqual('too-many-attempts');
+    expect(check2?.retryAfter).toEqual(1000);
+
+    expect(mockIncrement).toBeCalledTimes(1);
+    expect(mockIncrement).toBeCalledWith('rate_limit.block', [
+      'on:ip',
+      'action:testBlock',
+    ]);
+  });
 });

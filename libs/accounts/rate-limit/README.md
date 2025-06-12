@@ -32,6 +32,20 @@ Note that comments can be added by starting a line with '#'.
 - email     - The user's email. This is useful only when the account isn't known and for some reason, we don't want to use ip_email.
 - uid       - The user's account id. This can be useful from stopping a user that has logged in from doing something malicious, like trying to mine data.
 
+### The 'default' Rule
+
+To avoid lots of repetitive configuration, we have one special rule known as the 'default' rule. This rule
+is used as a fallback. In the event an action is supplied to the rate limiter, but it cannot be found in the
+set of configured rules, the default rule will be used instead. The action count is still kept distinct per
+action, but the policy from the default rule is used.
+
+For example, if we were to call
+
+rateLimit.check('foo', { ip:0.0.0.0})
+
+And there was no configuration for foo, but there was a configuration for 'default' and ip. Then
+we'd increment the redis count for action foo blocking on ip, but we'd use the default rule's settings.
+
 ### A quick example:
 
 As an example, to define an existing custom rules, let's say password reset OTP, the following config
@@ -41,12 +55,14 @@ would replicate the pre-existing behavior:
 # ----------------------------------------------------------------------------------------
 #  action                     | blockOn  | maxAttempts  | windowDuration | banDuration
 # ----------------------------------------------------------------------------------------
+   default                    : ip       : 600          : 10 minutes     : 10 minutes
    passwordForgotVerifyOtp    : ip       : 5 attempts   : 24 hours       : 10 minutes
    passwordForgotVerifyOtp    : email    : 5 attempts   : 24 hours       : 10 minutes
    passwordForgotVerifyOtp    : ip       : 10 attempts  : 24 hours       : 24 hours
    passwordForgotVerifyOtp    : email    : 10 attempts  : 24 hours       : 24 hours
 
 ```
+
 
 ### Testing & Development Considerations
 

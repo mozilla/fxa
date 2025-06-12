@@ -18,8 +18,6 @@ export type BlockReason = 'too-many-attempts';
 
 /** Represents a configuration rule that describes a block scenario. */
 export type Rule = {
-  /** The action to count. */
-  action: string;
   /** The attribute to count on. */
   blockingOn: BlockOn;
   /** The max number of actions or attempts allowed before a block is created. */
@@ -34,6 +32,8 @@ export type Rule = {
 export type BlockRecord = {
   /** The action that was blocked. */
   action: string;
+  /** Indicates if the defacto default rule was used. True means the 'default' rule was used. False means an action specific rule was used. */
+  usedDefaultRule: boolean;
   /** The attribute being checked. */
   blockingOn: BlockOn;
   /** The value of the attribute being checked. */

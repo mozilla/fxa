@@ -44,6 +44,17 @@ describe('rate-limit', () => {
     expect(rateLimit.supportsAction('foo')).toBeFalsy();
   });
 
+  it('supports all actions when default rule is configured', () => {
+    rateLimit = new RateLimit(
+      { rules: parseConfigRules(['default:ip:1:1s:1s']) },
+      redis,
+      statsd
+    );
+
+    expect(rateLimit.supportsAction('test')).toBeTruthy();
+    expect(rateLimit.supportsAction('foo')).toBeTruthy();
+  });
+
   it('throws if no action can be found', async () => {
     rateLimit = new RateLimit({ rules: {} }, redis, statsd);
     expect(rateLimit.check('foo', {})).rejects.toThrow(
@@ -86,6 +97,7 @@ describe('rate-limit', () => {
     const now = Date.now();
     const block = {
       action: 'test',
+      usedDefaultRule: false,
       blockingOn: 'ip',
       blockedValue: '',
       startTime: now - 5 * 1000,
@@ -103,14 +115,14 @@ describe('rate-limit', () => {
   });
 
   it('creates a key', () => {
+    const action = 'foo';
     const rule = {
       blockingOn: 'ip',
-      action: 'foo',
       maxAttempts: 1,
       windowDurationInSeconds: 2,
       blockDurationInSeconds: 3,
     } satisfies Rule;
-    expect(getKey('block', rule, '127.0.0.1')).toEqual(
+    expect(getKey('block', action, rule, '127.0.0.1')).toEqual(
       `rate-limit:block:ip=127.0.0.1:foo:1-2-3`
     );
   });
@@ -182,28 +194,24 @@ describe('rate-limit', () => {
       expect(rules.length).toEqual(4);
 
       expect(rules[0]).toBeDefined();
-      expect(rules[0].action).toEqual('test');
       expect(rules[0].maxAttempts).toEqual(1);
       expect(rules[0].blockingOn).toEqual('ip');
       expect(rules[0].windowDurationInSeconds).toEqual(1);
       expect(rules[0].blockDurationInSeconds).toEqual(1);
 
       expect(rules[1]).toBeDefined();
-      expect(rules[1].action).toEqual('test');
       expect(rules[1].maxAttempts).toEqual(99);
       expect(rules[1].blockingOn).toEqual('email');
       expect(rules[1].windowDurationInSeconds).toEqual(30);
       expect(rules[1].blockDurationInSeconds).toEqual(60 * 60);
 
       expect(rules[2]).toBeDefined();
-      expect(rules[2].action).toEqual('test');
       expect(rules[2].maxAttempts).toEqual(1);
       expect(rules[2].blockingOn).toEqual('uid');
       expect(rules[2].windowDurationInSeconds).toEqual(30);
       expect(rules[2].blockDurationInSeconds).toEqual(24 * 60 * 60);
 
       expect(rules[3]).toBeDefined();
-      expect(rules[3].action).toEqual('test');
       expect(rules[3].maxAttempts).toEqual(100);
       expect(rules[3].blockingOn).toEqual('ip_email');
       expect(rules[3].windowDurationInSeconds).toEqual(10);
