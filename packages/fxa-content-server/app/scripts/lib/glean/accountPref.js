@@ -480,7 +480,7 @@ export const twoStepAuthPhoneVerifyView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**

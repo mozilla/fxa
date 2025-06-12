@@ -378,7 +378,7 @@ const conf = (module.exports = convict({
   },
   glean: {
     enabled: {
-      default: false,
+      default: true,
       env: 'GLEAN_ENABLED',
       format: Boolean,
     },

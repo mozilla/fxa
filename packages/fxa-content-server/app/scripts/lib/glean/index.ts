@@ -25,6 +25,7 @@ import * as thirdPartyAuth from './thirdPartyAuth';
 import * as thirdPartyAuthSetPassword from './thirdPartyAuthSetPassword';
 import * as utm from './utm';
 import * as entrypointQuery from './entrypoint';
+import { appFramework } from './event';
 
 export type GleanMetricsConfig = {
   enabled: boolean;
@@ -102,6 +103,8 @@ const initMetrics = async () => {
     userId.set('');
     userIdSha256.set('');
   }
+
+  appFramework.set('backbone');
 
   const flowEventMetadata = gleanMetricsContext.metrics.getFlowEventMetadata();
 

@@ -49,6 +49,7 @@ import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../../lib/cache';
+import { appFramework } from 'fxa-shared/metrics/glean/web/event';
 
 type DeviceTypes = 'mobile' | 'tablet' | 'desktop';
 export type GleanMetricsContext = {
@@ -143,6 +144,8 @@ const initMetrics = async () => {
   } catch (e) {
     // noop
   }
+
+  appFramework.set('react');
 
   oauthClientId.set(metricsContext.integration.data.clientId || '');
   service.set(metricsContext.integration.data.service || '');
