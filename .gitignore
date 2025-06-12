@@ -123,6 +123,8 @@ packages/fxa-content-server/rerun.txt
 packages/fxa-content-server/.tmp
 packages/fxa-content-server/.tscompiled
 packages/fxa-content-server/public/locales
+# serving Settings static files
+packages/fxa-content-server/app/settings
 
 # fxa-customs-server
 packages/fxa-customs-server/test/mocks/temp.netset

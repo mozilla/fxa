@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { readFileSync } = require('fs');
-const { join } = require('path');
+const { join, extname } = require('path');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const config = require('./configuration');
 const FLOW_ID_KEY = config.get('flow_id_key');
@@ -11,22 +11,25 @@ const flowMetrics = require('./flow-metrics');
 
 const env = config.get('env');
 
+const settingsStaticPath = (() => {
+  const static_directory = config.get('static_directory');
+  const static_settings_directory = config.get('static_settings_directory');
+  return join(
+    __dirname,
+    '..',
+    '..',
+    static_directory,
+    'settings',
+    static_settings_directory
+  );
+})();
+
 let settingsIndexFile;
 function getSettingsIndexFile() {
   if (settingsIndexFile === undefined) {
     const proxy_settings = config.get('proxy_settings');
     if (!proxy_settings) {
-      const static_directory = config.get('static_directory');
-      const static_settings_directory = config.get('static_settings_directory');
-      const settingsIndexPath = join(
-        __dirname,
-        '..',
-        '..',
-        static_directory,
-        'settings',
-        static_settings_directory,
-        'index.html'
-      );
+      const settingsIndexPath = join(settingsStaticPath, 'index.html');
       settingsIndexFile = readFileSync(settingsIndexPath, {
         encoding: 'utf-8',
       });
@@ -146,22 +149,28 @@ function preconnect(val) {
 }
 
 function resolvePreConnectDirectives(settingsConfig) {
-   // Using '?' will breaks l10n extraction :9
+  // Using '?' will breaks l10n extraction :9
   let gqlUrl, authUrl, oauthUrl, sentryUrl;
-  try { gqlUrl = settingsConfig.servers.gql.url; } catch (e) {}
-  try { authUrl = settingsConfig.servers.auth.url; } catch (e) {}
-  try { oauthUrl = settingsConfig.servers.oauth.url; } catch (e) {}
-  try { sentryUrl = settingsConfig.sentry.dsn.replace(/\/\d*$/, ''); } catch (e) {}
+  try {
+    gqlUrl = settingsConfig.servers.gql.url;
+  } catch (e) {}
+  try {
+    authUrl = settingsConfig.servers.auth.url;
+  } catch (e) {}
+  try {
+    oauthUrl = settingsConfig.servers.oauth.url;
+  } catch (e) {}
+  try {
+    sentryUrl = settingsConfig.sentry.dsn.replace(/\/\d*$/, '');
+  } catch (e) {}
 
   return {
     __GQL_URL_PRECONNECT__: preconnect(gqlUrl),
     __AUTH_URL_PRECONNECT__: preconnect(authUrl),
     __OAUTH_URL_PRECONNECT__: preconnect(oauthUrl),
     __SENTRY_URL_PRECONNECT__: preconnect(sentryUrl),
-  }
+  };
 }
-
-
 
 // Conditionally modify the response
 function modifyProxyRes(proxyRes, req, res) {
@@ -191,7 +200,7 @@ function modifyProxyRes(proxyRes, req, res) {
         __SERVER_CONFIG__: settingsConfig,
         __FLOW_ID__: flowEventData.flowId,
         __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
-        ...resolvePreConnectDirectives(settingsConfig)
+        ...resolvePreConnectDirectives(settingsConfig),
       });
       res.send(new Buffer.from(html));
     } else {
@@ -216,6 +225,19 @@ const createSettingsProxy = createProxyMiddleware({
 
 // Modify the static settings page by replacing __SERVER_CONFIG__ with the config object
 const modifySettingsStatic = function (req, res) {
+  if (
+    process.env.NODE_ENV === 'development' &&
+    req.path.startsWith('/settings/') &&
+    ['.js', '.css', '.ftl', '.json', '.svg'].includes(extname(req.path))
+  ) {
+    const filePath = join(
+      settingsStaticPath,
+      req.path.substring('/settings/'.length)
+    );
+
+    return res.sendFile(filePath);
+  }
+
   const indexFile = getSettingsIndexFile();
   if (indexFile === undefined) {
     throw new Error('Could not locate settings index file.');
@@ -227,7 +249,7 @@ const modifySettingsStatic = function (req, res) {
       __SERVER_CONFIG__: settingsConfig,
       __FLOW_ID__: flowEventData.flowId,
       __FLOW_BEGIN_TIME__: flowEventData.flowBeginTime,
-      ...resolvePreConnectDirectives(settingsConfig)
+      ...resolvePreConnectDirectives(settingsConfig),
     })
   );
 };

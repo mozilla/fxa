@@ -16,6 +16,7 @@
     "build-react-stage": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/stage node scripts/build.js",
     "build-react-prod": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider BUILD_PATH=build/prod node scripts/build.js",
     "clean": "rimraf dist",
+    "copy-dev-build": "mkdir -p ../fxa-content-server/app/settings ; NODE_ENV=production yarn build-react-dev && cp -R build/dev ../fxa-content-server/app/settings",
     "compile": "tsc --noEmit",
     "gql-extract": "persistgraphql src ../../configs/gql/allowlist/fxa-settings.json --js --extension=ts ",
     "l10n-bundle": "yarn l10n:bundle packages/fxa-settings branding,react,settings",
