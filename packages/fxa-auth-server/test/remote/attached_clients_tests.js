@@ -5,7 +5,6 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const tokens = require('../../lib/tokens')({ trace: () => {} }, config);
@@ -13,6 +12,8 @@ const testUtils = require('../lib/util');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const buf = require('buf').hex;
 const hashRefreshToken = require('fxa-shared/auth/encrypt').hash;
+const { TestUtilities } = require('../test_utilities');
+const mailbox = require('../mailbox')();
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 
@@ -21,32 +22,23 @@ const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - attached clients listing`, function () {
-  this.timeout(60000);
-  let server, oauthServerDb;
+  let oauthServerDb;
   before(async () => {
-    config.lastAccessTimeUpdates = {
-      enabled: true,
-      sampleRate: 1,
-      earliestSaneTimestamp: config.lastAccessTimeUpdates.earliestSaneTimestamp,
-    };
-    testUtils.disableLogs();
-    server = await TestServer.start(config, false);
     oauthServerDb = require('../../lib/oauth/db');
   });
 
   after(async () => {
-    await TestServer.stop(server);
     testUtils.restoreStdoutWrite();
   });
 
   it('correctly lists a variety of attached clients', async () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     const password = 'test password';
     const client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     );
     const mySessionTokenId = (
@@ -111,13 +103,13 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
   });
 
   it('correctly deletes by device id', async () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     const password = 'test password';
     const client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     );
     const mySessionTokenId = (
@@ -148,13 +140,13 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
   });
 
   it('correctly deletes by sessionTokenId', async () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     const password = 'test password';
     const client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     );
     const mySessionTokenId = (
@@ -184,13 +176,13 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
   });
 
   it('correctly deletes by refreshTokenId', async () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     const password = 'test password';
     const client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     );
     const mySessionTokenId = (

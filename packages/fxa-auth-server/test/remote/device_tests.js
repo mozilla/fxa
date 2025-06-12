@@ -5,34 +5,21 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const crypto = require('crypto');
 const base64url = require('base64url');
 const mocks = require('../mocks');
+const { TestUtilities } = require('../test_utilities');
+const mailbox = require('../mailbox')();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote device`, function () {
-    this.timeout(60000);
-    let server;
-    before(async () => {
-      config.lastAccessTimeUpdates = {
-        enabled: true,
-        sampleRate: 1,
-        earliestSaneTimestamp:
-          config.lastAccessTimeUpdates.earliestSaneTimestamp,
-      };
+    before(() => {
 
-      server = await TestServer.start(config);
-    });
-
-    after(async () => {
-      await TestServer.stop(server);
-    });
-
+    })
     it('device registration after account creation', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (client) => {
@@ -136,7 +123,7 @@ const mocks = require('../mocks');
     });
 
     it('device registration without optional parameters', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (client) => {
@@ -226,7 +213,7 @@ const mocks = require('../mocks');
     });
 
     it('device registration with unicode characters in the name', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (client) => {
@@ -263,7 +250,7 @@ const mocks = require('../mocks');
     });
 
     it('device registration without required name parameter', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (client) => {
@@ -278,7 +265,7 @@ const mocks = require('../mocks');
     });
 
     it('device registration without required type parameter', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const deviceName = 'test device';
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
@@ -294,8 +281,8 @@ const mocks = require('../mocks');
 
     it('update device fails with bad callbackUrl', () => {
       const badPushCallback =
-        'https://updates.push.services.mozilla.com.different-push-server.technology';
-      const email = server.uniqueEmail();
+        'https://updates.push.services.mozilla.com.different-push-TestUtilities.technology';
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       const deviceInfo = {
         id: crypto.randomBytes(16).toString('hex'),
@@ -333,7 +320,7 @@ const mocks = require('../mocks');
     it('update device fails with non-normalized callbackUrl', () => {
       const badPushCallback =
         'https://updates.push.services.mozilla.com/invalid/\u010D/char';
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       const deviceInfo = {
         id: crypto.randomBytes(16).toString('hex'),
@@ -370,7 +357,7 @@ const mocks = require('../mocks');
 
     it('update device works with stage servers', () => {
       const goodPushCallback = 'https://updates-autopush.stage.mozaws.net';
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (client) => {
@@ -405,7 +392,7 @@ const mocks = require('../mocks');
 
     it('update device works with dev servers', () => {
       const goodPushCallback = 'https://updates-autopush.dev.mozaws.net';
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (client) => {
@@ -441,7 +428,7 @@ const mocks = require('../mocks');
       const goodPushCallback =
         'https://updates.push.services.mozilla.com:443/wpush/v1/gAAAAABbkq0Eafe6IANS4OV3pmoQ5Z8AhqFSGKtozz5FIvu0CfrTGmcv07CYziPaysTv_9dgisB0yr3UjEIlGEyoprRFX1WU5VA4nG-9tofPdA3FYREPf6xh3JL1qBhTa9mEFS2dSn--';
 
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (client) => {
@@ -475,7 +462,7 @@ const mocks = require('../mocks');
 
     it('update device works with callback urls that :4430 as a port', () => {
       const goodPushCallback = 'https://updates.push.services.mozilla.com:4430';
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (client) => {
@@ -510,7 +497,7 @@ const mocks = require('../mocks');
     it('update device works with callback urls that a custom port', () => {
       const goodPushCallback =
         'https://updates.push.services.mozilla.com:10332';
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (client) => {
@@ -544,7 +531,7 @@ const mocks = require('../mocks');
 
     it('update device fails with bad dev callbackUrl', () => {
       const badPushCallback = 'https://evil.mozaws.net';
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       const deviceInfo = {
         id: crypto.randomBytes(16).toString('hex'),
@@ -579,7 +566,7 @@ const mocks = require('../mocks');
     });
 
     it('device registration ignores deprecated "capabilities" field', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       return Client.create(config.publicUrl, email, password, testOptions).then(
         (client) => {
@@ -603,7 +590,7 @@ const mocks = require('../mocks');
     });
 
     it('device registration from a different session', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       const deviceInfo = [
         {
@@ -619,7 +606,7 @@ const mocks = require('../mocks');
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       ).then((client) => {
         return Client.login(config.publicUrl, email, password, testOptions)
@@ -701,7 +688,7 @@ const mocks = require('../mocks');
     });
 
     it('ensures all device push fields appear together', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       const deviceInfo = {
         name: 'test device',
@@ -752,7 +739,7 @@ const mocks = require('../mocks');
     });
 
     it('invalid public keys are cleanly rejected', () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'test password';
       const invalidPublicKey = Buffer.alloc(65);
       invalidPublicKey.fill('\0');
@@ -767,7 +754,7 @@ const mocks = require('../mocks');
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       ).then((client) => {
         return client.updateDevice(deviceInfo).then(

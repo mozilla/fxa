@@ -9,13 +9,14 @@ const base64url = require('base64url');
 const config = require('../../config').default.getProperties();
 const crypto = require('crypto');
 const sinon = require('sinon');
-const TestServer = require('../test_server');
 const UnblockCode = require('../../lib/crypto/random').base32(
   config.signinUnblock.codeLength
 );
 const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 const ioredis = require('ioredis');
+const { TestUtilities } = require('../test_utilities');
+
 
 const log = { debug() {}, trace() {}, info() {}, error() {} };
 
@@ -72,8 +73,7 @@ const zeroBuffer32 = Buffer.from(
 let account, secondEmail;
 
 describe(`#integration - remote db`, function () {
-  this.timeout(60000);
-  let dbServer, db, redis;
+  let db, redis;
 
   before(async () => {
     redis = ioredis.createClient({
@@ -83,19 +83,17 @@ describe(`#integration - remote db`, function () {
       prefix: config.redis.sessionTokens.prefix,
       enable_offline_queue: false,
     });
-    dbServer = await TestServer.start(config);
     db = await DB.connect(config);
   });
 
   after(async () => {
-    await TestServer.stop(dbServer);
     await db.close();
   });
 
   beforeEach(() => {
     account = {
       uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
-      email: dbServer.uniqueEmail(),
+      email: TestUtilities.uniqueEmail(),
       emailCode: zeroBuffer16,
       emailVerified: false,
       verifierVersion: 1,
@@ -116,7 +114,7 @@ describe(`#integration - remote db`, function () {
             'account.uid is the same as the input account.uid'
           );
 
-          secondEmail = dbServer.uniqueEmail();
+          secondEmail = TestUtilities.uniqueEmail();
           const emailData = {
             email: secondEmail,
             emailCode: crypto.randomBytes(16).toString('hex'),

@@ -4,29 +4,22 @@
 
 'use strict';
 
-const { assert } = require('chai');
+const chai = require('chai');
+const { assert } = chai;
+const chaiAsPromised = require('chai-as-promised');
+chai.use(chaiAsPromised);
+
 const url = require('url');
 const Client = require('../client')();
-const TestServer = require('../test_server');
-
+const { TestUtilities } = require('../test_utilities');
+const mailbox = require('../mailbox')();
 const config = require('../../config').default.getProperties();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account reset`, function () {
-    this.timeout(60000);
-    let server;
-    config.signinConfirmation.skipForNewAccounts.enabled = true;
-
-    before(async function () {
-      server = await TestServer.start(config);
-    });
-
-    after(async function () {
-      await TestServer.stop(server);
-    });
 
     it('account reset w/o sessionToken', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'ez';
 
@@ -34,7 +27,7 @@ const config = require('../../config').default.getProperties();
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -43,7 +36,7 @@ const config = require('../../config').default.getProperties();
       const keys1 = await client.keys();
 
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
+      const code = await mailbox.waitForCode(email);
       assert.isRejected(client.resetPassword(newPassword));
       const response = await resetPassword(client, code, newPassword, {
         sessionToken: false,
@@ -52,7 +45,7 @@ const config = require('../../config').default.getProperties();
       assert(!response.keyFetchToken, 'keyFetchToken token is not in response');
       assert(!response.verified, 'verified is not in response');
 
-      const emailData = await server.mailbox.waitForEmail(email);
+      const emailData = await mailbox.waitForEmail(email);
       const link = emailData.headers['x-link'];
       const query = url.parse(link, true).query;
       assert.ok(query.email, 'email is in the link');
@@ -90,7 +83,7 @@ const config = require('../../config').default.getProperties();
     });
 
     it('account reset with keys', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'ez';
 
@@ -98,13 +91,13 @@ const config = require('../../config').default.getProperties();
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         { ...testOptions, keys: true }
       );
       const keys1 = await client.keys();
 
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
+      const code = await mailbox.waitForCode(email);
       assert.isRejected(client.resetPassword(newPassword));
       const response = await resetPassword(client, code, newPassword, {
         keys: true,
@@ -113,7 +106,7 @@ const config = require('../../config').default.getProperties();
       assert.ok(response.keyFetchToken, 'keyFetchToken token is in response');
       assert.equal(response.verified, true, 'verified is true');
 
-      const emailData = await server.mailbox.waitForEmail(email);
+      const emailData = await mailbox.waitForEmail(email);
       const link = emailData.headers['x-link'];
       const query = url.parse(link, true).query;
       assert.ok(query.email, 'email is in the link');
@@ -153,7 +146,7 @@ const config = require('../../config').default.getProperties();
     });
 
     it('account reset w/o keys, with sessionToken', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'ez';
 
@@ -161,12 +154,12 @@ const config = require('../../config').default.getProperties();
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       );
 
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
+      const code = await mailbox.waitForCode(email);
       assert.isRejected(client.resetPassword(newPassword));
       const response = await resetPassword(client, code, newPassword);
       assert.ok(response.sessionToken, 'session token is in response');
@@ -175,7 +168,7 @@ const config = require('../../config').default.getProperties();
     });
 
     it('account reset deletes tokens', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'ez';
       const options = {
@@ -187,20 +180,20 @@ const config = require('../../config').default.getProperties();
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         options
       );
 
       await client.forgotPassword();
       // Stash original reset code then attempt to use it after another reset
-      const originalCode = await server.mailbox.waitForCode(email);
+      const originalCode = await mailbox.waitForCode(email);
 
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
+      const code = await mailbox.waitForCode(email);
       assert.isRejected(client.resetPassword(newPassword));
       await resetPassword(client, code, newPassword, undefined, options);
 
-      const emailData = await server.mailbox.waitForEmail(email);
+      const emailData = await mailbox.waitForEmail(email);
       const templateName = emailData.headers['x-template-name'];
       assert.equal(templateName, 'passwordReset');
 
@@ -221,7 +214,7 @@ const config = require('../../config').default.getProperties();
     });
 
     it('account reset updates keysChangedAt', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'ez';
 
@@ -229,16 +222,16 @@ const config = require('../../config').default.getProperties();
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         { ...testOptions, keys: true }
       );
 
       const profileBefore = await client.accountProfile();
 
       await client.forgotPassword();
-      const code = await server.mailbox.waitForCode(email);
+      const code = await mailbox.waitForCode(email);
       await resetPassword(client, code, newPassword);
-      await server.mailbox.waitForEmail(email);
+      await mailbox.waitForEmail(email);
 
       const profileAfter = await client.accountProfile();
 

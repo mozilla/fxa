@@ -5,29 +5,24 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
-
 const config = require('../../config').default.getProperties();
+const { TestUtilities } = require('../test_utilities');
 
 // Note, intentionally not indenting for code review.
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote account status`, function () {
-  this.timeout(60000);
-  let server;
   before(async () => {
-    server = await TestServer.start(config);
   });
 
   after(async () => {
-    await TestServer.stop(server);
   });
 
   it('account status with existing account', () => {
     return Client.create(
       config.publicUrl,
-      server.uniqueEmail(),
+      TestUtilities.uniqueEmail(),
       'password',
       testOptions
     )
@@ -40,7 +35,7 @@ describe(`#integration${testOptions.version} - remote account status`, function 
   });
 
   it('account status includes locale when authenticated', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
+    return Client.create(config.publicUrl, TestUtilities.uniqueEmail(), 'password', {
       ...testOptions,
       lang: 'en-US',
     })
@@ -53,7 +48,7 @@ describe(`#integration${testOptions.version} - remote account status`, function 
   });
 
   it('account status does not include locale when unauthenticated', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
+    return Client.create(config.publicUrl, TestUtilities.uniqueEmail(), 'password', {
       ...testOptions,
       lang: 'en-US',
     })
@@ -66,7 +61,7 @@ describe(`#integration${testOptions.version} - remote account status`, function 
   });
 
   it('account status unauthenticated with no uid returns an error', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
+    return Client.create(config.publicUrl, TestUtilities.uniqueEmail(), 'password', {
       ...testOptions,
       lang: 'en-US',
     })
@@ -94,7 +89,7 @@ describe(`#integration${testOptions.version} - remote account status`, function 
   });
 
   it('account status by email with existing account', () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     return Client.create(config.publicUrl, email, 'password', testOptions)
       .then((c) => {
         return c.api.accountStatusByEmail(email);
@@ -105,10 +100,10 @@ describe(`#integration${testOptions.version} - remote account status`, function 
   });
 
   it('account status by email with non-existing account', () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     return Client.create(config.publicUrl, email, 'password', testOptions)
       .then((c) => {
-        const nonExistEmail = server.uniqueEmail();
+        const nonExistEmail = TestUtilities.uniqueEmail();
         return c.api.accountStatusByEmail(nonExistEmail);
       })
       .then((response) => {
@@ -117,7 +112,7 @@ describe(`#integration${testOptions.version} - remote account status`, function 
   });
 
   it('account status by email with an invalid email', () => {
-    const email = server.uniqueEmail();
+    const email = TestUtilities.uniqueEmail();
     return Client.create(config.publicUrl, email, 'password', testOptions)
       .then((c) => {
         const invalidEmail = 'notAnEmail';
@@ -136,7 +131,7 @@ describe(`#integration${testOptions.version} - remote account status`, function 
   });
 
   it('account status by email works with unicode email address', () => {
-    const email = server.uniqueUnicodeEmail();
+    const email = TestUtilities.uniqueUnicodeEmail();
     return Client.create(config.publicUrl, email, 'password', testOptions)
       .then((c) => {
         return c.api.accountStatusByEmail(email);

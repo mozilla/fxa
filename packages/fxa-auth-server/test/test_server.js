@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -66,6 +67,7 @@ function TestServer(config, printLogs, options = {}) {
 TestServer.start = async function (config, printLogs, options) {
   const server = new TestServer(config, printLogs, options);
   await server.start();
+  console.debug('✅ TestServer started.');
   return server;
 };
 
@@ -75,11 +77,13 @@ TestServer.prototype.start = async function () {
     '../bin/key_server',
     authServerMockDependencies
   );
-
+  console.debug('⚙️ Starting AuthServer...');
   this.server = await createAuthServer(this.config);
+  console.debug('⚙️ Starting MailHelper...')
   this.mail = await createMailHelper(this.printLogs);
 
   if (this.config.profileServer.url) {
+    console.debug('⚙️ Starting ProfileHelper...');
     this.profileServer = await createProfileHelper();
   }
 };
@@ -89,6 +93,8 @@ TestServer.stop = async function (server) {
     throw new Error('Server must be provided');
   }
   await server.stop();
+  console.debug('🛑 TestServer stopped.');
+
 };
 
 TestServer.prototype.stop = async function () {

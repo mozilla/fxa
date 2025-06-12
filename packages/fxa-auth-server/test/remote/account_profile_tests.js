@@ -5,9 +5,10 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
+const { TestUtilities } = require('../test_utilities');
+const mailbox = require('../mailbox')();
 
 const CLIENT_ID = config.oauthServer.clients.find(
   (client) => client.trusted && client.canGrant && client.publicClient
@@ -17,26 +18,19 @@ const CLIENT_ID = config.oauthServer.clients.find(
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - fetch user profile data`, function () {
-  this.timeout(60000);
 
-  let server, client, email, password;
+  let client, email, password;
   before(async () => {
-    if (config.subscriptions) {
-      config.subscriptions.enabled = false;
-    }
-    config.oauth.url = 'http://localhost:9000';
-    server = await TestServer.start(config, false);
   });
 
   after(async () => {
-    await TestServer.stop(server);
   });
 
   describe('when a request is authenticated with a session token', async () => {
     beforeEach(async () => {
       client = await Client.create(
         config.publicUrl,
-        server.uniqueEmail(),
+        TestUtilities.uniqueEmail(),
         'password',
         {
           ...testOptions,
@@ -68,13 +62,13 @@ describe(`#integration${testOptions.version} - fetch user profile data`, functio
     let token;
 
     async function initialize(scope) {
-      email = server.uniqueEmail();
+      email = TestUtilities.uniqueEmail();
       password = 'test password';
       client = await Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         { ...testOptions, lang: 'en-US' }
       );
 
@@ -219,7 +213,7 @@ describe(`#integration${testOptions.version} - fetch user profile data`, functio
   describe('when the profile data is not default', async () => {
     describe('when the email address is unicode', async () => {
       it('returns the email address correctly with the profile data', async () => {
-        const email = server.uniqueUnicodeEmail();
+        const email = TestUtilities.uniqueUnicodeEmail();
 
         client = await Client.create(config.publicUrl, email, 'password', testOptions);
         const response = await client.accountProfile();
@@ -231,9 +225,9 @@ describe(`#integration${testOptions.version} - fetch user profile data`, functio
       it('returns correct TOTP status in profile data', async () => {
         client = await Client.createAndVerifyAndTOTP(
           config.publicUrl,
-          server.uniqueEmail(),
+          TestUtilities.uniqueEmail(),
           'password',
-          server.mailbox,
+          mailbox,
           { ...testOptions, lang: 'en-US' }
         );
 
@@ -262,13 +256,13 @@ describe(`#integration${testOptions.version} - fetch user profile data`, functio
 
     describe('when the locale is empty', async () => {
       it('returns the profile data successfully', async () => {
-        email = server.uniqueEmail();
+        email = TestUtilities.uniqueEmail();
         password = 'test password';
         client = await Client.createAndVerify(
           config.publicUrl,
           email,
           password,
-          server.mailbox,
+          mailbox,
           testOptions
         );
 

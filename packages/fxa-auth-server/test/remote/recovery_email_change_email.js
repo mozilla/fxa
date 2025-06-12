@@ -5,37 +5,34 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
+const { TestUtilities } = require('../test_utilities');
+const mailbox = require('../mailbox')();
+const config = require('../../config').default.getProperties();
 
-let config, server, client, email, secondEmail;
+let client, email, secondEmail;
 const password = 'allyourbasearebelongtous',
   newPassword = 'newpassword';
 
 [ {version:""}, {version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote change email`, function () {
-  this.timeout(60000);
 
   before(async () => {
-    config = require('../../config').default.getProperties();
-    config.securityHistory.ipProfiling = {};
-    server = await TestServer.start(config);
   });
 
   after(async () => {
-    await TestServer.stop(server);
   });
 
   beforeEach(() => {
-    email = server.uniqueEmail();
-    secondEmail = server.uniqueEmail('@notrestmail.com');
+    email = TestUtilities.uniqueEmail();
+    secondEmail = TestUtilities.uniqueEmail('@notrestmail.com');
 
     return Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     )
       .then((x) => {
@@ -51,7 +48,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
       })
       .then((res) => {
         assert.ok(res, 'ok response');
-        return server.mailbox.waitForEmail(secondEmail);
+        return mailbox.waitForEmail(secondEmail);
       })
       .then((emailData) => {
         const templateName = emailData['headers']['x-template-name'];
@@ -69,19 +66,19 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
         assert.equal(res[1].email, secondEmail, 'returns correct email');
         assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
         assert.equal(res[1].verified, true, 'returns correct verified');
-        return server.mailbox.waitForEmail(email);
+        return mailbox.waitForEmail(email);
       });
   });
 
   describe('should change primary email', () => {
     it('fails to change email to an that is not owned by user', () => {
-      const userEmail2 = server.uniqueEmail();
-      const anotherEmail = server.uniqueEmail();
+      const userEmail2 = TestUtilities.uniqueEmail();
+      const anotherEmail = TestUtilities.uniqueEmail();
       return Client.createAndVerify(
         config.publicUrl,
         userEmail2,
         password,
-        server.mailbox,
+        mailbox,
         testOptions
       )
         .then((client2) => {
@@ -101,7 +98,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
     });
 
     it('fails to change email to unverified email', () => {
-      const someEmail = server.uniqueEmail();
+      const someEmail = TestUtilities.uniqueEmail();
       return client
         .createEmail(someEmail)
         .then(() => {
@@ -131,7 +128,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
           assert.equal(res[1].verified, true, 'returns correct verified');
 
-          return server.mailbox.waitForEmail(secondEmail);
+          return mailbox.waitForEmail(secondEmail);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['to'], secondEmail, 'to email set');
@@ -223,7 +220,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
         .setPrimaryEmail(secondEmail)
         .then((res) => {
           assert.ok(res, 'ok response');
-          return server.mailbox.waitForEmail(secondEmail);
+          return mailbox.waitForEmail(secondEmail);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['to'], secondEmail, 'to email set');
@@ -237,7 +234,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
           return client.forgotPassword();
         })
         .then(() => {
-          return server.mailbox.waitForCode(secondEmail);
+          return mailbox.waitForCode(secondEmail);
         })
         .then((code) => {
           assert.ok(code, 'code is set');
@@ -314,16 +311,26 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
      */
     let emailData, emailCode;
     const password2 = 'asdf';
-    const client1Email = server.uniqueEmail();
-    const client1SecondEmail = server.uniqueEmail();
-    const client2Email = server.uniqueEmail();
-    const client2SecondEmail = server.uniqueEmail();
+    const client1Email = TestUtilities.uniqueEmail();
+    const client1SecondEmail = TestUtilities.uniqueEmail();
+    const client2Email = TestUtilities.uniqueEmail();
+    const client2SecondEmail = TestUtilities.uniqueEmail();
+
+    // need to revisit this - it doesn't look like the test
+    // should fail but the second email is not lining up
+    // and we're not getting 3 emails in the mailbox.
+    // console.debug('Emails for test:', {
+    //   client1Email,
+    //   client1SecondEmail,
+    //   client2Email,
+    //   client2SecondEmail,
+    // })
 
     const client1 = await Client.createAndVerify(
       config.publicUrl,
       client1Email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     );
 
@@ -332,19 +339,19 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
       config.publicUrl,
       client2Email,
       password2,
-      server.mailbox,
+      mailbox,
       testOptions
     );
 
     // Update client1's email and verify
     await client1.createEmail(client1SecondEmail);
-    emailData = await server.mailbox.waitForEmail(client1SecondEmail);
+    emailData = await mailbox.waitForEmail(client1SecondEmail);
     emailCode = emailData['headers']['x-verify-code'];
     await client1.verifySecondaryEmailWithCode(emailCode, client1SecondEmail);
 
     // Update client2
     await client2.createEmail(client2SecondEmail);
-    emailData = await server.mailbox.waitForEmail(client2SecondEmail);
+    emailData = await mailbox.waitForEmail(client2SecondEmail);
     emailCode = emailData['headers']['x-verify-code'];
     await client2.verifySecondaryEmailWithCode(emailCode, client2SecondEmail);
 
@@ -355,14 +362,14 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
     await client2.deleteEmail(client2Email);
 
     await client1.createEmail(client2Email);
-    emailData = await server.mailbox.waitForEmail(client2Email);
+    emailData = await mailbox.waitForEmail(client2Email);
     emailCode = emailData[2]['headers']['x-verify-code'];
     await client1.verifySecondaryEmailWithCode(emailCode, client2Email);
     await client1.setPrimaryEmail(client2Email);
     await client1.deleteEmail(client1SecondEmail);
 
     await client2.createEmail(client1Email);
-    emailData = await server.mailbox.waitForEmail(client1Email);
+    emailData = await mailbox.waitForEmail(client1Email);
     emailCode = emailData[2]['headers']['x-verify-code'];
     await client2.verifySecondaryEmailWithCode(emailCode, client1Email);
     await client2.setPrimaryEmail(client1Email);
@@ -382,7 +389,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
         .setPrimaryEmail(secondEmail)
         .then((res) => {
           assert.ok(res, 'ok response');
-          return server.mailbox.waitForEmail(secondEmail);
+          return mailbox.waitForEmail(secondEmail);
         })
         .then((emailData) => {
           assert.equal(emailData.headers['to'], secondEmail, 'to email set');
@@ -404,7 +411,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
           assert.equal(res[0].verified, true, 'returns correct verified');
 
           // Primary account is notified that secondary email has been removed
-          return server.mailbox.waitForEmail(secondEmail);
+          return mailbox.waitForEmail(secondEmail);
         })
         .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
@@ -477,7 +484,7 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
       return client
         .forgotPassword()
         .then(() => {
-          return server.mailbox.waitForCode(secondEmail);
+          return mailbox.waitForCode(secondEmail);
         })
         .then((code) => {
           assert.ok(code, 'code is set');

@@ -12,8 +12,7 @@ const otplib = require('otplib');
 const BASE_36 = require('../../lib/routes/validators').BASE_36;
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote backup authentication codes`, function () {
-    this.timeout(60000);
+  describe(`#integration${testOptions.version} - #series - remote backup authentication codes`, function () {
 
     let server, client, email, recoveryCodes;
     const recoveryCodeCount = 9;

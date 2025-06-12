@@ -58,7 +58,7 @@ const isTwilioConfiguredForTest =
   config.twilio.testAuthToken?.length >= 24 &&
   config.twilio.credentialMode === 'test';
 
-describe(`#integration - recovery phone`, function () {
+describe(`#integration - #series - recovery phone`, function () {
   // TODO: Something flakes... figure out where the slowdown is.
   this.timeout(10000);
 
@@ -285,7 +285,7 @@ describe(`#integration - recovery phone`, function () {
   });
 });
 
-describe('#integration - recovery phone - feature flag check', () => {
+describe('#integration - #series - recovery phone - feature flag check', () => {
   let server;
   const temp = {};
 
@@ -333,7 +333,7 @@ describe('#integration - recovery phone - feature flag check', () => {
   });
 });
 
-describe(`#integration - recovery phone - customs checks`, function () {
+describe(`#integration - #series - recovery phone - customs checks`, function () {
   let email;
   let client;
   let server;

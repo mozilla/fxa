@@ -7,6 +7,13 @@
 const request = require('request');
 const EventEmitter = require('events').EventEmitter;
 
+/**
+ * Manager for getting emails and email codes from the test mailbox.
+ * @param {*} host
+ * @param {*} port
+ * @param {*} printLogs
+ * @returns
+ */
 /* eslint-disable no-console */
 module.exports = function (host, port, printLogs) {
   host = host || 'localhost';
@@ -14,6 +21,8 @@ module.exports = function (host, port, printLogs) {
 
   const eventEmitter = new EventEmitter();
 
+  // this can be moved to an env var so we're not having to pass around
+  // a var everywhere for logging.
   function log() {
     if (printLogs) {
       console.log.apply(console, arguments);
@@ -35,6 +44,7 @@ module.exports = function (host, port, printLogs) {
 
   function loop(name, tries, cb) {
     const url = `http://${host}:${port}/mail/${encodeURIComponent(name)}`;
+
     log('checking mail', url);
     request({ url: url, method: 'GET' }, (err, res, body) => {
       if (err) {

@@ -317,12 +317,12 @@ commands:
     steps:
       - run:
           name: Pre building shared libraries
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2 --verbose
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=4 --verbose
           environment:
             NODE_ENV: test
       - run:
           name: Compiling TypeScript
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=1 -t compile
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=4 -t compile
           environment:
             NODE_ENV: test
 
@@ -889,9 +889,19 @@ workflows:
           requires:
             - Build (PR)
       - integration-test:
+          name: Integration Test - Servers - Auth Series (PR)
+          nx_run: affected --base=main --head=$CIRCLE_SHA1
+          projects: --exclude '*,!tag:scope:server:auth' --verbose
+          start_customs: true
+          test_suite: servers-auth-integration-series
+          target: -t test-integration-series
+          workflow: test_pull_request
+          requires:
+            - Build (PR)
+      - integration-test:
           name: Integration Test - Servers - Auth (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
-          projects: --exclude '*,!tag:scope:server:auth'
+          projects: --exclude '*,!tag:scope:server:auth' --verbose
           start_customs: true
           test_suite: servers-auth-integration
           workflow: test_pull_request

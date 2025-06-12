@@ -5,8 +5,8 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
+const { TestUtilities } = require('../test_utilities');
 
 const config = require('../../config').default.getProperties();
 config.redis.sessionTokens.enabled = false;
@@ -14,19 +14,17 @@ config.redis.sessionTokens.enabled = false;
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account locale`, function () {
-    this.timeout(60000);
-    let server;
 
     before(async () => {
-      server = await TestServer.start(config);
+
     });
 
     after(async () => {
-      await TestServer.stop(server);
+
     });
 
     it('a really long (invalid) locale', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ilikepancakes';
       const client = await Client.create(config.publicUrl, email, password, {
         ...testOptions,
@@ -40,7 +38,7 @@ config.redis.sessionTokens.enabled = false;
     });
 
     it('a really long (valid) locale', async () => {
-      const email = server.uniqueEmail();
+      const email = TestUtilities.uniqueEmail();
       const password = 'ilikepancakes';
       const client = await Client.create(config.publicUrl, email, password, {
         ...testOptions,

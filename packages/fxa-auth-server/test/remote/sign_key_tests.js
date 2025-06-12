@@ -9,8 +9,7 @@ const superagent = require('superagent');
 const TestServer = require('../test_server');
 const path = require('path');
 
-describe(`#integration - remote sign key`, function () {
-  this.timeout(60000);
+describe(`#integration - #series - remote sign key`, function () {
   let server;
   before(async () => {
     const config = require('../../config').default.getProperties();
