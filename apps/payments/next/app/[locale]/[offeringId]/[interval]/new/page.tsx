@@ -123,7 +123,10 @@ export default async function New({
       );
       redirectToUrl = getRedirectToUrl(cart, params, searchParams);
     } catch (error) {
-      if (error.name === 'CartInvalidPromoCodeError') {
+      if (
+        error.name === 'CartInvalidPromoCodeError' ||
+        error.name === 'CouponErrorCannotRedeem'
+      ) {
         cart = await setupCartAction(
           interval as SubplatInterval,
           offeringId,

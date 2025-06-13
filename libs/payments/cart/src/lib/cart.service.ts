@@ -264,7 +264,11 @@ export class CartService {
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
    */
   @SanitizeExceptions({
-    allowlist: [CartInvalidPromoCodeError, ProductConfigError],
+    allowlist: [
+      CartInvalidPromoCodeError,
+      CouponErrorCannotRedeem,
+      ProductConfigError,
+    ],
   })
   async setupCart(args: {
     interval: SubplatInterval;
@@ -306,38 +310,51 @@ export class CartService {
       );
     }
 
-    const [upcomingInvoice, eligibility] = await Promise.all([
-      this.invoiceManager.previewUpcoming({
-        priceId: price.id,
-        currency,
-        customer: stripeCustomer,
-        taxAddress: args.taxAddress,
-        couponCode: args.promoCode,
-      }),
-      this.eligibilityService.checkEligibility(
-        args.interval,
-        args.offeringConfigId,
-        args.uid,
-        accountCustomer?.stripeCustomerId
-      ),
-    ]);
+    const eligibility = await this.eligibilityService.checkEligibility(
+      args.interval,
+      args.offeringConfigId,
+      args.uid,
+      accountCustomer?.stripeCustomerId
+    );
 
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
-    if (args.promoCode) {
+    let couponCode: string | undefined = args.promoCode;
+    if (couponCode) {
       if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
-        delete args.promoCode;
+        couponCode = undefined;
       } else {
         try {
           await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
-            args.promoCode,
+            couponCode,
             price,
             currency
           );
         } catch (e) {
-          throw new CartInvalidPromoCodeError(args.promoCode);
+          throw new CartInvalidPromoCodeError(couponCode);
         }
+      }
+    }
+
+    let upcomingInvoice: InvoicePreview | undefined;
+    try {
+      upcomingInvoice = await this.invoiceManager.previewUpcoming({
+        priceId: price.id,
+        currency,
+        customer: stripeCustomer,
+        taxAddress: args.taxAddress,
+        couponCode,
+      });
+    } catch (e) {
+      if (
+        e.type === 'StripeInvalidRequestError' &&
+        e.message ===
+          'This promotion code cannot be redeemed because the associated customer has prior transactions.'
+      ) {
+        throw new CouponErrorCannotRedeem();
+      } else {
+        throw e;
       }
     }
 

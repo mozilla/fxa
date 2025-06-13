@@ -184,7 +184,11 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({
-    allowlist: [CartInvalidPromoCodeError, ProductConfigError],
+    allowlist: [
+      CartInvalidPromoCodeError,
+      CouponErrorCannotRedeem,
+      ProductConfigError,
+    ],
   })
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
