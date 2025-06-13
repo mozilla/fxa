@@ -13,12 +13,16 @@ import {
   getSyncEngineIds,
   syncEngineConfigs,
   webChannelDesktopV3EngineConfigs,
-} from '../../../components/ChooseWhatToSync/sync-engines';
+} from '../../sync-engines';
 import firefox from '../../channels/firefox';
 import { Constants } from '../../constants';
 
 type SyncEnginesIntegration = Pick<Integration, 'type' | 'isSync'>;
 
+/**
+ * If integration.isSync, sends firefox.fxaStatus to retrieve available sync
+ * engines from the browser.
+ */
 export function useSyncEngines(integration: SyncEnginesIntegration) {
   const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
@@ -35,8 +39,6 @@ export function useSyncEngines(integration: SyncEnginesIntegration) {
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
     // that we listen for.
-    // TODO: In content-server, we send this on app-start for all integration types.
-    // Do we want to move this somewhere else once the index page is Reactified?
     if (isSync) {
       (async () => {
         const status = await firefox.fxaStatus({
@@ -87,7 +89,7 @@ export function useSyncEngines(integration: SyncEnginesIntegration) {
   useEffect(() => {
     if (offeredSyncEngineConfigs) {
       const defaultDeclinedSyncEngines = offeredSyncEngineConfigs
-        .filter((engineConfig) => !engineConfig.defaultChecked)
+        .filter((engineConfig) => !engineConfig.defaultInclude)
         .map((engineConfig) => engineConfig.id);
       setDeclinedSyncEngines(defaultDeclinedSyncEngines);
     }
@@ -95,12 +97,15 @@ export function useSyncEngines(integration: SyncEnginesIntegration) {
 
   const offeredSyncEngines = getSyncEngineIds(offeredSyncEngineConfigs || []);
 
-  const selectedEngines = useMemo(() => {
+  const selectedEnginesForGlean = useMemo(() => {
     if (isSync) {
-      return offeredSyncEngines.reduce((acc, syncEngId) => {
-        acc[syncEngId] = !declinedSyncEngines.includes(syncEngId);
-        return acc;
-      }, {} as Record<string, boolean>);
+      return offeredSyncEngines.reduce(
+        (acc, syncEngId) => {
+          acc[syncEngId] = !declinedSyncEngines.includes(syncEngId);
+          return acc;
+        },
+        {} as Record<string, boolean>
+      );
     }
     return {};
   }, [isSync, declinedSyncEngines, offeredSyncEngines]);
@@ -109,8 +114,7 @@ export function useSyncEngines(integration: SyncEnginesIntegration) {
     offeredSyncEngines,
     offeredSyncEngineConfigs,
     declinedSyncEngines,
-    setDeclinedSyncEngines,
-    selectedEngines,
+    selectedEnginesForGlean,
   };
 }
 

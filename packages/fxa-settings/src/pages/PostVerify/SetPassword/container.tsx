@@ -7,11 +7,7 @@ import SetPassword from '.';
 import { currentAccount } from '../../../lib/cache';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import {
-  Integration,
-  useAuthClient,
-  useSensitiveDataClient,
-} from '../../../models';
+import { Integration, useAuthClient } from '../../../models';
 import { cache } from '../../../lib/cache';
 import { useCallback } from 'react';
 import { CreatePasswordHandler } from './interfaces';
@@ -20,22 +16,28 @@ import {
   AuthUiErrorNos,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
-import useSyncEngines from '../../../lib/hooks/useSyncEngines';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { NavigationOptions } from '../../Signin/interfaces';
 import { handleNavigation } from '../../Signin/utils';
 import GleanMetrics from '../../../lib/glean';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
+import useSyncEngines from '../../../lib/hooks/useSyncEngines';
 
 const SetPasswordContainer = ({
   integration,
   flowQueryParams,
+  useSyncEnginesResult: {
+    offeredSyncEngines,
+    offeredSyncEngineConfigs,
+    declinedSyncEngines,
+    selectedEnginesForGlean,
+  },
 }: {
   integration: Integration;
   flowQueryParams: QueryParams;
+  useSyncEnginesResult: ReturnType<typeof useSyncEngines>;
 } & RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
@@ -44,14 +46,6 @@ const SetPasswordContainer = ({
   const sessionToken = storedLocalAccount?.sessionToken;
   const uid = storedLocalAccount?.uid;
 
-  const {
-    offeredSyncEngines,
-    offeredSyncEngineConfigs,
-    declinedSyncEngines,
-    setDeclinedSyncEngines,
-    selectedEngines,
-  } = useSyncEngines(integration);
-  const sensitiveDataClient = useSensitiveDataClient();
   const location = useLocation();
   const metricsContext = queryParamsToMetricsContext(
     flowQueryParams as unknown as Record<string, string>
@@ -96,13 +90,6 @@ const SetPasswordContainer = ({
             },
           });
 
-          sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
-            // Store for inline recovery key flow
-            authPW,
-            emailForAuth: email,
-            unwrapBKey,
-          });
-
           const keyFetchToken = await getKeyFetchToken(
             authPW,
             email,
@@ -110,7 +97,7 @@ const SetPasswordContainer = ({
           );
 
           GleanMetrics.thirdPartyAuthSetPassword.success({
-            sync: { cwts: selectedEngines },
+            sync: { cwts: selectedEnginesForGlean },
           });
 
           const navigationOptions: NavigationOptions = {
@@ -127,7 +114,8 @@ const SetPasswordContainer = ({
             queryParams: location.search,
             handleFxaLogin: true,
             handleFxaOAuthLogin: true,
-            showInlineRecoveryKeySetup: true,
+            showSignupConfirmedSync: true,
+            origin: 'post-verify-set-password',
             syncEngines: {
               offeredEngines: offeredSyncEngines,
               declinedEngines: declinedSyncEngines,
@@ -151,8 +139,7 @@ const SetPasswordContainer = ({
       finishOAuthFlowHandler,
       getKeyFetchToken,
       offeredSyncEngines,
-      selectedEngines,
-      sensitiveDataClient,
+      selectedEnginesForGlean,
       location.search,
     ]
   );
@@ -175,7 +162,6 @@ const SetPasswordContainer = ({
         email,
         createPasswordHandler,
         offeredSyncEngineConfigs,
-        setDeclinedSyncEngines,
       }}
     />
   );

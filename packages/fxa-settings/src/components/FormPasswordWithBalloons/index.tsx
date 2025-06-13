@@ -12,7 +12,7 @@ import { SHOW_BALLOON_TIMEOUT, HIDE_BALLOON_TIMEOUT } from '../../constants';
 import PasswordStrengthBalloon from '../PasswordStrengthBalloon';
 import PasswordInfoBalloon from '../PasswordInfoBalloon';
 
-export type PasswordFormType = 'signup' | 'reset';
+export type PasswordFormType = 'signup' | 'reset' | 'post-verify-set-password';
 
 export type FormPasswordWithBalloonsProps = {
   passwordFormType: PasswordFormType;
@@ -31,37 +31,49 @@ export type FormPasswordWithBalloonsProps = {
   requirePasswordConfirmation?: boolean;
 };
 
-const getTemplateValues = (passwordFormType: PasswordFormType) => {
-  let templateValues = {
-    passwordFtlId: '',
-    passwordLabel: '',
-    confirmPasswordFtlId: '',
-    confirmPasswordLabel: '',
-    buttonFtlId: '',
-    buttonText: '',
-  };
+interface TemplateValues {
+  passwordFtlId: string;
+  passwordLabel: string;
+  confirmPasswordFtlId: string;
+  confirmPasswordLabel: string;
+  buttonFtlId: string;
+  buttonText: string;
+}
+
+const commonFields: Omit<TemplateValues, 'buttonFtlId' | 'buttonText'> = {
+  passwordFtlId: 'signup-new-password-label',
+  passwordLabel: 'Password',
+  confirmPasswordFtlId: 'signup-confirm-password-label',
+  confirmPasswordLabel: 'Repeat password',
+};
+
+const getTemplateValues = (
+  passwordFormType: PasswordFormType
+): TemplateValues => {
   switch (passwordFormType) {
     case 'signup':
-      templateValues.passwordFtlId = 'signup-new-password-label';
-      templateValues.passwordLabel = 'Password';
-      templateValues.confirmPasswordFtlId = 'signup-confirm-password-label';
-      templateValues.confirmPasswordLabel = 'Repeat password';
-      templateValues.buttonFtlId = 'signup-submit-button';
-      templateValues.buttonText = 'Create account';
-      break;
+      return {
+        ...commonFields,
+        buttonFtlId: 'signup-submit-button',
+        buttonText: 'Create account',
+      };
+    case 'post-verify-set-password':
+      return {
+        ...commonFields,
+        buttonFtlId: 'post-verify-set-password-submit-button',
+        buttonText: 'Start syncing',
+      };
     case 'reset':
-      templateValues.passwordFtlId =
-        'form-reset-password-with-balloon-new-password';
-      templateValues.passwordLabel = 'New password';
-      templateValues.confirmPasswordFtlId =
-        'form-reset-password-with-balloon-confirm-password';
-      templateValues.confirmPasswordLabel = 'Re-enter password';
-      templateValues.buttonFtlId =
-        'form-reset-password-with-balloon-submit-button';
-      templateValues.buttonText = 'Reset password';
-      break;
+      return {
+        passwordFtlId: 'form-reset-password-with-balloon-new-password',
+        passwordLabel: 'New password',
+        confirmPasswordFtlId:
+          'form-reset-password-with-balloon-confirm-password',
+        confirmPasswordLabel: 'Re-enter password',
+        buttonFtlId: 'form-reset-password-with-balloon-submit-button',
+        buttonText: 'Reset password',
+      };
   }
-  return templateValues;
 };
 
 export const FormPasswordWithBalloons = ({

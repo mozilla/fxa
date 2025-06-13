@@ -6,6 +6,8 @@ signup-confirm-password-label =
   .label = Repeat password
 signup-submit-button = Create account
 
+post-verify-set-password-submit-button = Start syncing
+
 form-reset-password-with-balloon-new-password =
   .label = New password
 form-reset-password-with-balloon-confirm-password =

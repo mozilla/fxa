@@ -122,7 +122,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: {
         page,
         signin,
-        connectAnotherDevice,
+        signupConfirmedSync,
         confirmSignupCode,
       },
       testAccountTracker,
@@ -146,7 +146,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await confirmSignupCode.fillOutCodeForm(code);
 
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(signupConfirmedSync.bannerConfirmed).toBeVisible();
     });
 
     test('add TOTP and confirm sync signin', async ({

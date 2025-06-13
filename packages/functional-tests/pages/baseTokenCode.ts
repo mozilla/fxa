@@ -23,7 +23,9 @@ export abstract class BaseTokenCodePage extends BaseLayout {
 
   get submitButton() {
     this.checkPath();
-    return this.page.getByRole('button', { name: 'Confirm' });
+    return this.page.getByRole('button', {
+      name: /^(Confirm|Start syncing)$/i,
+    });
   }
 
   get successMessage() {

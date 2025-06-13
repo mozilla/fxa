@@ -22,7 +22,7 @@ import {
   SignupIntegration,
   SignupOAuthIntegration,
 } from './interfaces';
-import { useMockSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
+import { mockUseSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
 
 export function createMockSignupWebIntegration(): SignupBaseIntegration {
   return {
@@ -131,14 +131,14 @@ export const Subject = ({
   integration?: SignupIntegration;
   beginSignupHandler?: BeginSignupHandler;
 }) => {
-  const useMockSyncEnginesResult = useMockSyncEngines();
+  const mockUseSyncEnginesResult = mockUseSyncEngines();
   return (
     <LocationProvider>
       <Signup
         {...{
           integration,
           beginSignupHandler,
-          useSyncEnginesResult: useMockSyncEnginesResult,
+          useSyncEnginesResult: mockUseSyncEnginesResult,
           email,
         }}
       />

@@ -5,7 +5,7 @@
 import { UseFormMethods } from 'react-hook-form';
 import { SetPasswordFormData } from '../../pages/PostVerify/SetPassword/interfaces';
 import { SignupFormData } from '../../pages/Signup/interfaces';
-import { syncEngineConfigs } from '../ChooseWhatToSync/sync-engines';
+import { syncEngineConfigs } from '../../lib/sync-engines';
 
 export type FormSetupAccountData = SignupFormData | SetPasswordFormData;
 
@@ -22,8 +22,8 @@ export type FormSetupAccountProps = {
   loading: boolean;
   isSync: boolean;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
-  setDeclinedSyncEngines: React.Dispatch<React.SetStateAction<string[]>>;
   isDesktopRelay: boolean;
   setSelectedNewsletterSlugs?: React.Dispatch<React.SetStateAction<string[]>>;
   submitButtonGleanId?: string;
+  passwordFormType?: 'signup' | 'post-verify-set-password';
 };

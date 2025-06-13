@@ -25,40 +25,43 @@ export type SyncEngineId = EngineConfig['id'] | WebChannelEngineConfig['id'];
  * For OAuth Sync (oauth_webchannel_v1) which includes sync mobile and
  * oauth sync desktop, we do not display options by default and instead,
  * we receive the webchannel message and overwrite the options.
+ *
+ * In June 2025 we removed the "choose what to sync" option and sync all
+ * engines the browser tells us it can sync, via `defaultInclude`.
  */
 export const defaultDesktopV3SyncEngineConfigs = [
   {
-    defaultChecked: true,
+    defaultInclude: true,
     id: 'bookmarks',
     text: 'Bookmarks',
     ftlId: 'choose-what-to-sync-option-bookmarks',
   },
   {
-    defaultChecked: true,
+    defaultInclude: true,
     id: 'history',
     text: 'History',
     ftlId: 'choose-what-to-sync-option-history',
   },
   {
-    defaultChecked: true,
+    defaultInclude: true,
     id: 'passwords',
     text: 'Passwords',
     ftlId: 'choose-what-to-sync-option-passwords',
   },
   {
-    defaultChecked: true,
+    defaultInclude: true,
     id: 'addons',
     text: 'Add-ons',
     ftlId: 'choose-what-to-sync-option-addons',
   },
   {
-    defaultChecked: true,
+    defaultInclude: true,
     id: 'tabs',
     text: 'Open Tabs',
     ftlId: 'choose-what-to-sync-option-tabs',
   },
   {
-    defaultChecked: true,
+    defaultInclude: true,
     id: 'prefs',
     text: 'Preferences',
     ftlId: 'choose-what-to-sync-option-prefs',
@@ -69,14 +72,14 @@ export const defaultDesktopV3SyncEngineConfigs = [
 // webchannel message from the browser including them via `status.capabilities.engines`.
 export const webChannelDesktopV3EngineConfigs = [
   {
-    defaultChecked: true,
+    defaultInclude: true,
     id: 'addresses',
     text: 'Addresses',
     ftlId: 'choose-what-to-sync-option-addresses',
     include: false,
   },
   {
-    defaultChecked: true,
+    defaultInclude: true,
     id: 'creditcards',
     text: 'Payment Methods',
     ftlId: 'choose-what-to-sync-option-paymentmethods',
@@ -92,3 +95,11 @@ export const syncEngineConfigs: (EngineConfig | WebChannelEngineConfig)[] = [
   ...defaultDesktopV3SyncEngineConfigs,
   ...webChannelDesktopV3EngineConfigs,
 ];
+
+/**
+ * Most users will be syncing payment methods. To avoid blocking the render on
+ * receiving the web channel message confirming it, go ahead and set it to true if
+ * `offeredSyncEngines` length is 0, and only update and rerender if it's not offered.
+ * */
+export const checkPaymentMethodsWillSync = (offeredSyncEngines: string[]) =>
+  offeredSyncEngines.length === 0 || offeredSyncEngines.includes('creditcards');

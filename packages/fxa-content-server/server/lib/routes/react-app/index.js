@@ -32,7 +32,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         // We have to temporarily remove the `/oauth` because Fx desktop uses
         // that path to initiate the pairing flow
         // 'oauth'
-        '/'
+        '/',
       ]),
       fullProdRollout: true,
     },
@@ -109,6 +109,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'primary_email_verified',
         'signup_confirmed',
         'signup_verified',
+        'signup_confirmed_sync',
         'oauth/signup',
       ]),
       fullProdRollout: true,

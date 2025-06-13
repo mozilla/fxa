@@ -35,16 +35,16 @@ export type SigninUnblockIntegration = Pick<
 
 export type SigninIntegration =
   | Pick<
-    Integration,
-    | 'type'
-    | 'isSync'
-    | 'getService'
-    | 'getClientId'
-    | 'wantsKeys'
-    | 'data'
-    | 'isDesktopSync'
-    | 'isDesktopRelay'
-  >
+      Integration,
+      | 'type'
+      | 'isSync'
+      | 'getService'
+      | 'getClientId'
+      | 'wantsKeys'
+      | 'data'
+      | 'isDesktopSync'
+      | 'isDesktopRelay'
+    >
   | SigninOAuthIntegration;
 
 export type SigninOAuthIntegration = Pick<
@@ -205,8 +205,11 @@ export interface NavigationOptions {
   redirectTo?: string;
   replace?: boolean;
   queryParams: string;
+  // include when there's a condition based on what page it originated from
+  origin?: 'post-verify-set-password';
   showInlineRecoveryKeySetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
+  showSignupConfirmedSync?: boolean;
   handleFxaLogin?: boolean;
   handleFxaOAuthLogin?: boolean;
   syncEngines?: {
@@ -227,6 +230,7 @@ export interface SigninLocationState {
   verified: boolean;
   verificationMethod?: VerificationMethods;
   verificationReason?: VerificationReasons;
+  origin?: NavigationOptions['origin'];
   showInlineRecoveryKeySetup?: boolean;
 }
 

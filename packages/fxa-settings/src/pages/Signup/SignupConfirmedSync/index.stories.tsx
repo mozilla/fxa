@@ -3,41 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import SignupConfirmedSync from '.';
-import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { createMockIntegration } from './mocks';
+import { Subject } from './mocks';
 
 export default {
   title: 'Pages/Signup/SignupConfirmedSync',
-  component: SignupConfirmedSync,
+  component: Subject,
   decorators: [withLocalization],
 } as Meta;
 
-export const Desktop = () => (
-  <LocationProvider>
-    <SignupConfirmedSync
-      integration={createMockIntegration()}
-      paymentMethodsSynced
-    />
-  </LocationProvider>
+export const Desktop = () => <Subject />;
+
+export const FromThirdPartyAuthSetPassword = () => (
+  <Subject origin="post-verify-set-password" />
 );
 
 export const DesktopWithoutPaymentMethodsSync = () => (
-  <LocationProvider>
-    <SignupConfirmedSync
-      integration={createMockIntegration()}
-      paymentMethodsSynced={false}
-    />
-  </LocationProvider>
+  <Subject offeredSyncEngines={['bookmarks']} />
 );
 
 export const MobileNotCurrentlyUsed = () => (
-  <LocationProvider>
-    <SignupConfirmedSync
-      integration={createMockIntegration({ isDesktopSync: false })}
-      paymentMethodsSynced
-    />
-  </LocationProvider>
+  <Subject integration={createMockIntegration({ isDesktopSync: false })} />
 );

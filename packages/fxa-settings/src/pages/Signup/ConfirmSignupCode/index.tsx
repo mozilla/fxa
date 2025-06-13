@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -31,13 +31,13 @@ import firefox from '../../../lib/channels/firefox';
 import GleanMetrics from '../../../lib/glean';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { storeAccountData } from '../../../lib/storage-utils';
-import { getSyncNavigate } from '../../Signin/utils';
 import {
   getErrorFtlId,
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import { isFirefoxService } from '../../../models/integrations/utils';
+import { getSyncNavigate } from '../../Signin/utils';
 
 export const viewName = 'confirm-signup-code';
 
@@ -52,12 +52,12 @@ const ConfirmSignupCode = ({
   declinedSyncEngines,
   keyFetchToken,
   unwrapBKey,
-  flowQueryParams,
 }: ConfirmSignupCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
+  const navigate = useNavigate();
   const alertBar = useAlertBar();
   const session = useSession();
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
@@ -68,7 +68,8 @@ const ConfirmSignupCode = ({
   const navigateWithQuery = useNavigateWithQuery();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const isDesktopRelay = integration.isDesktopRelay();
-  const submitFormOnPaste = !integration.isSync();
+  const isSync = integration.isSync();
+  const submitFormOnPaste = !isSync;
 
   // Make sure data is valid. If it isn't fail fast.
   integration.data.validate();
@@ -85,8 +86,10 @@ const ConfirmSignupCode = ({
     inputLabelText: 'Enter 6-digit code',
     pattern: '[0-9]{6}',
     maxLength: 6,
-    submitButtonFtlId: 'confirm-signup-code-confirm-button',
-    submitButtonText: 'Confirm',
+    submitButtonFtlId: isSync
+      ? 'confirm-signup-code-sync-button'
+      : 'confirm-signup-code-confirm-button',
+    submitButtonText: isSync ? 'Start syncing' : 'Confirm',
   };
 
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
@@ -169,9 +172,10 @@ const ConfirmSignupCode = ({
       }
 
       if (isSyncDesktopV3Integration(integration)) {
-        const { to } = getSyncNavigate(location.search);
-        // will navigate to pair route which is still in backbone
-        hardNavigate(to);
+        const { to } = getSyncNavigate(location.search, {
+          showSignupConfirmedSync: true,
+        });
+        navigate(to);
       } else if (isOAuthIntegration(integration)) {
         // Check to see if the relier wants TOTP.
         // Newly created accounts wouldn't have this so lets redirect them to signin.
@@ -212,8 +216,10 @@ const ConfirmSignupCode = ({
               state,
             });
             // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
-            const { to } = getSyncNavigate(location.search);
-            hardNavigate(to);
+            const { to } = getSyncNavigate(location.search, {
+              showSignupConfirmedSync: true,
+            });
+            navigate(to);
             return;
           } else if (isDesktopRelay) {
             firefox.fxaOAuthLogin({
@@ -247,7 +253,9 @@ const ConfirmSignupCode = ({
         }
       }
     } catch (error) {
-      GleanMetrics.signupConfirmation.error({ event: { reason: error.errno?.toString() } });
+      GleanMetrics.signupConfirmation.error({
+        event: { reason: error.errno?.toString() },
+      });
       let localizedErrorMessage: string;
       // Intercept invalid parameter error and set the error message to INVALID_EXPIRED_OTP_CODE
       // This error occurs when the submitted code does not pass validation for the code param
