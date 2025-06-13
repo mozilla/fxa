@@ -9,6 +9,7 @@ import {
   getTaxAddressAction,
   setupCartAction,
   updateCartUidAction,
+  updateTaxAddressAction
 } from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
@@ -105,6 +106,18 @@ export default async function New({
       Number(searchParams.cartVersion),
       fxaUid,
     );
+
+    const updateTaxResult = await updateTaxAddressAction(
+      cart.id,
+      cart.version,
+      offeringId,
+      taxAddress,
+      fxaUid
+    );
+    if (updateTaxResult.ok) {
+      searchParams.countryCode = updateTaxResult.taxAddress.countryCode;
+      searchParams.postalCode  = updateTaxResult.taxAddress.postalCode;
+    }
 
     redirectToUrl = getRedirectToUrl(cart, params, searchParams);
   } else {
