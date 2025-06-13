@@ -13,7 +13,7 @@ exports.mochaGlobalSetup = async function () {
   // mockStripeHelper.removeCustomer = async () => Promise.resolve();
 
   // account_create_tests.js
-    // config.securityHistory.ipProfiling = {};
+  // config.securityHistory.ipProfiling = {};
 
   // update config values as needed
   // for the account_login_tests.js
@@ -28,8 +28,8 @@ exports.mochaGlobalSetup = async function () {
 
   // recovery_code_tests.js
   // these will be moved to #series tests
-      // config.totp.recoveryCodes.count = 9;
-      // config.totp.recoveryCodes.notifyLowCount = 9 - 2;
+  // config.totp.recoveryCodes.count = 9;
+  // config.totp.recoveryCodes.notifyLowCount = 9 - 2;
 
   // config.securityHistory.ipProfiling.allowedRecency = 0;
 
@@ -47,24 +47,27 @@ exports.mochaGlobalSetup = async function () {
   // // };
   // config.lastAccessTimeUpdates.sampleRate = 1;
 
-  console.debug('⚙️ Starting TestServer instance...');
+  console.debug('⚙️ Starting TestServer instance... from mochaGlobalTeardown');
   serverInstance = await TestServer.start(config, false, {
     enableCustomsChecks: true,
     authServerMockDependencies: {
-          '../lib/payments/stripe': {
-            // StripeHelper: mockStripeHelper,
-            // createStripeHelper: () => mockStripeHelper,
-          },
-        },
+      '../lib/payments/stripe': {
+        // StripeHelper: mockStripeHelper,
+        // createStripeHelper: () => mockStripeHelper,
+      },
+    },
   });
   console.debug('✅ TestServer instance started.');
-}
+};
 
 exports.mochaGlobalTeardown = async function () {
+  console.debug('✅ mochaGlobalTeardown');
+
   if (!serverInstance) {
-    console.warn('⚠️ No TestServer instance to stop, skipping teardown.');
+    console.trace('⚠️ No TestServer instance to stop, skipping teardown.');
     return;
   }
-    await TestServer.stop(serverInstance);
-    serverInstance = null;
-}
+  await TestServer.stop(serverInstance);
+  console.debug('✅ TestServer instance started.');
+  serverInstance = null;
+};

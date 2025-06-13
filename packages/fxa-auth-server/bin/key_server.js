@@ -382,8 +382,10 @@ async function run(config) {
       log.info('shutdown');
 
       try {
-        await server.stop();
+        await server.stop(0);
+        console.debug('✅ Key server stopped');
       } catch (e) {
+        console.debug('⚠️ Server did not shut down cleanly.');
         log.warn('shutdown', {
           message: 'Server did not shut down cleanly. ' + e.message,
         });

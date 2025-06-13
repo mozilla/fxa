@@ -90,6 +90,7 @@ TestServer.prototype.start = async function () {
 
 TestServer.stop = async function (server) {
   if (!server) {
+    console.trace('⚠️ TestServer not provided.');
     throw new Error('Server must be provided');
   }
   await server.stop();
