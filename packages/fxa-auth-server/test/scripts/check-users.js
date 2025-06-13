@@ -46,8 +46,6 @@ function createRandomEmailAddr(template) {
 }
 
 describe('#integration - scripts/check-users:', function () {
-  this.timeout(60000);
-
   let server, db, validClient, invalidClient, filename;
 
   before(async () => {

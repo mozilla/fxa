@@ -6,8 +6,6 @@ cd "$DIR/.."
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 
-ENABLE_PARALLEL_TESTS=${ENABLE_PARALLEL_TESTS:-true}
-
 DEFAULT_ARGS="\
   --require esbuild-register \
   --require tsconfig-paths/register \

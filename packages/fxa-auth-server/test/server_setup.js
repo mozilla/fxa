@@ -7,15 +7,7 @@ let serverInstance = null;
 exports.mochaGlobalSetup = async function (done) {
 
   console.debug('⚙️ Starting TestServer from server_setup...');
-  serverInstance = await TestServer.start(config, false, {
-    // enableCustomsChecks: true,
-    // authServerMockDependencies: {
-    //       '../lib/payments/stripe': {
-    //         // StripeHelper: mockStripeHelper,
-    //         // createStripeHelper: () => mockStripeHelper,
-    //       },
-    //     },
-  });
+  serverInstance = await TestServer.start(config, false, { });
   console.debug('✅ TestServer instance started.');
 }
 
