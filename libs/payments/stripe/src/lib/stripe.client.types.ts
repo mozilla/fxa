@@ -353,6 +353,21 @@ export type StripePaymentMethod = NegotiateExpanded<
   'customer'
 >;
 
+/**
+ * Stripe.PaymentIntent with expanded fields removed
+ */
+export type StripeSetupIntent = NegotiateExpanded<
+  never,
+  Stripe.SetupIntent,
+  | 'application'
+  | 'customer'
+  | 'latest_attempt'
+  | 'mandate'
+  | 'on_behalf_of'
+  | 'payment_method'
+  | 'single_use_mandate'
+>;
+
 export type StripeAddress = Stripe.Address;
 export type StripeApiList<T> = Stripe.ApiList<T>;
 export type StripeApiListPromise<T> = Stripe.ApiListPromise<T>;

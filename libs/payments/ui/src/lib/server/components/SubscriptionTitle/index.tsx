@@ -37,6 +37,7 @@ export function getComponentTitle(cart: CartDTO) {
           titleFtl: 'next-subscription-error-title',
         };
       }
+    case CartState.NEEDS_INPUT:
     case CartState.PROCESSING:
       return {
         title: 'Confirming subscription…',

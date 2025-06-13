@@ -27,12 +27,15 @@ import {
   STRIPE_SUBSCRIPTION_METADATA,
   SubplatInterval,
   SubscriptionManager,
+  SetupIntentManager,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
   StripeSubscription,
   StripeCustomer,
   StripePromotionCode,
+  type StripePaymentIntent,
+  type StripeSetupIntent,
 } from '@fxa/payments/stripe';
 import { AccountManager } from '@fxa/shared/account/account';
 import { ProfileClient } from '@fxa/profile/client';
@@ -67,6 +70,7 @@ export class CheckoutService {
     private invoiceManager: InvoiceManager,
     private notifierService: NotifierService,
     private paymentIntentManager: PaymentIntentManager,
+    private setupIntentManager: SetupIntentManager,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     private paypalCustomerManager: PaypalCustomerManager,
     private priceManager: PriceManager,
@@ -75,7 +79,7 @@ export class CheckoutService {
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
     @Inject(StatsDService) private statsd: StatsD
-  ) {}
+  ) { }
 
   /**
    * Reload the customer data to reflect a change.
@@ -302,86 +306,87 @@ export class CheckoutService {
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
         ? await this.subscriptionManager.create(
-            {
-              customer: customer.id,
-              automatic_tax: {
-                enabled: enableAutomaticTax,
-              },
-              promotion_code: promotionCode?.id,
-              items: [
-                {
-                  price: price.id,
-                },
-              ],
-              payment_behavior: 'default_incomplete',
-              currency: cart.currency ?? undefined,
-              metadata: {
-                // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-                [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
-                [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
-              },
+          {
+            customer: customer.id,
+            automatic_tax: {
+              enabled: enableAutomaticTax,
             },
-            {
-              idempotencyKey: cart.id,
-            }
-          )
+            promotion_code: promotionCode?.id,
+            items: [
+              {
+                price: price.id,
+              },
+            ],
+            payment_behavior: 'default_incomplete',
+            currency: cart.currency ?? undefined,
+            metadata: {
+              // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+              [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
+              [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+            },
+          },
+          {
+            idempotencyKey: cart.id,
+          }
+        )
         : await this.upgradeSubscription(
-            customer.id,
-            price.id,
-            eligibility.fromPrice.id,
-            cart,
-            eligibility.redundantOverlaps || []
-          );
+          customer.id,
+          price.id,
+          eligibility.fromPrice.id,
+          cart,
+          eligibility.redundantOverlaps || []
+        );
+
+
+    // Get payment/setup intent for subscription
+    let stripeIntentId: string | undefined;
+    let intent: StripePaymentIntent | StripeSetupIntent | undefined;
+    try {
+      assert(
+        subscription.latest_invoice,
+        'latest_invoice does not exist on subscription'
+      );
+      const invoice = await this.invoiceManager.retrieve(
+        subscription.latest_invoice
+      );
+
+      if (invoice.payment_intent && invoice.amount_due !== 0) {
+        intent = await this.paymentIntentManager.confirm(
+          invoice.payment_intent,
+          {
+            confirmation_token: confirmationTokenId,
+            off_session: false,
+          }
+        );
+        stripeIntentId = intent.id;
+      } else {
+        intent = await this.setupIntentManager.createAndConfirm(customer.id, confirmationTokenId);
+        stripeIntentId = intent.id;
+      }
+    } catch (error) {
+      // At least update the cart with the subscription ID before throwing
+      await this.cartManager.updateFreshCart(cart.id, version, {
+        stripeSubscriptionId: subscription.id,
+      });
+      throw error;
+    }
 
     await this.cartManager.updateFreshCart(cart.id, version, {
       stripeSubscriptionId: subscription.id,
+      stripeIntentId: stripeIntentId,
     });
 
     const updatedVersion = version + 1;
 
-    assert(
-      subscription.latest_invoice,
-      'latest_invoice does not exist on subscription'
-    );
-    const invoice = await this.invoiceManager.retrieve(
-      subscription.latest_invoice
-    );
-
-    if (invoice.amount_due === 0) {
-      // invoices without charge do not generate a payent intent
-      assert(
-        invoice.status === 'paid',
-        'Zero-charge stripe invoice expected to be in a paid status'
-      );
-      const paymentMethod = await this.customerManager.getDefaultPaymentMethod(
-        customer.id
-      );
-      assert(
-        !!paymentMethod,
-        'Payment method expected on customer for stripe zero-charge payment processing'
-      );
-    } else {
-      assert(
-        invoice.payment_intent,
-        'payment_intent does not exist on subscription'
-      );
-      // Confirm intent with collected payment method
-      const paymentIntent = await this.paymentIntentManager.confirm(
-        invoice.payment_intent,
-        {
-          confirmation_token: confirmationTokenId,
-          off_session: false,
-        }
-      );
-
-      if (paymentIntent.status === 'requires_action') {
+    if (intent) {
+      if (intent.status === 'requires_action') {
         await this.cartManager.setNeedsInputCart(cart.id);
         return;
-      } else if (paymentIntent.status === 'succeeded') {
-        if (paymentIntent.payment_method) {
+      } else if (intent.status === 'succeeded') {
+        if (intent.payment_method) {
           await this.customerManager.update(customer.id, {
             invoice_settings: {
-              default_payment_method: paymentIntent.payment_method,
+              default_payment_method: intent.payment_method,
             },
           });
         } else {
@@ -392,10 +397,11 @@ export class CheckoutService {
         }
       } else {
         throw new CheckoutPaymentError(
-          `Expected payment intent status to be one of [requires_action, succeeded], instead found: ${paymentIntent.status}`
+          `Expected payment intent status to be one of [requires_action, succeeded], instead found: ${intent.status}`
         );
       }
     }
+
     await this.postPaySteps({
       cart,
       version: updatedVersion,
@@ -446,37 +452,37 @@ export class CheckoutService {
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
         ? await this.subscriptionManager.create(
-            {
-              customer: customer.id,
-              automatic_tax: {
-                enabled: enableAutomaticTax,
-              },
-              collection_method: 'send_invoice',
-              days_until_due: 1,
-              promotion_code: promotionCode?.id,
-              items: [
-                {
-                  price: price.id,
-                },
-              ],
-              currency: cart.currency ?? undefined,
-              metadata: {
-                // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-                [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
-                [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
-              },
+          {
+            customer: customer.id,
+            automatic_tax: {
+              enabled: enableAutomaticTax,
             },
-            {
-              idempotencyKey: cart.id,
-            }
-          )
+            collection_method: 'send_invoice',
+            days_until_due: 1,
+            promotion_code: promotionCode?.id,
+            items: [
+              {
+                price: price.id,
+              },
+            ],
+            currency: cart.currency ?? undefined,
+            metadata: {
+              // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+              [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
+              [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+            },
+          },
+          {
+            idempotencyKey: cart.id,
+          }
+        )
         : await this.upgradeSubscription(
-            customer.id,
-            price.id,
-            eligibility.fromPrice.id,
-            cart,
-            eligibility.redundantOverlaps || []
-          );
+          customer.id,
+          price.id,
+          eligibility.fromPrice.id,
+          cart,
+          eligibility.redundantOverlaps || []
+        );
 
     await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
     await Promise.all([

@@ -136,6 +136,7 @@ export type UpdateCart = {
   couponCode?: string | null;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+  stripeIntentId?: string;
 };
 
 export type UpdateCartInput = Pick<

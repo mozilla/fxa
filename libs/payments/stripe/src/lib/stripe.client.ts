@@ -20,6 +20,7 @@ import {
   StripeResponse,
   StripeSubscription,
   StripeUpcomingInvoice,
+  type StripeSetupIntent,
 } from './stripe.client.types';
 import { StripeConfig } from './stripe.config';
 import {
@@ -277,12 +278,6 @@ export class StripeClient {
     return result as StripeResponse<StripeInvoice>;
   }
 
-  @Cacheable({
-    cacheKey: (args: any) =>
-      cacheKeyForClient('paymentIntentRetrieve', args[0], args[1]),
-    strategy: new CacheFirstStrategy(),
-    client: new AsyncLocalStorageAdapter(),
-  })
   @CaptureTimingWithStatsD()
   async paymentIntentRetrieve(
     paymentIntentId: string,
@@ -424,5 +419,28 @@ export class StripeClient {
       expand: undefined,
     });
     return result as StripeResponse<StripePaymentIntent>;
+  }
+
+  @CaptureTimingWithStatsD()
+  async setupIntentCreate(
+    params?: Stripe.SetupIntentCreateParams,
+  ) {
+    const result = await this.stripe.setupIntents.create({
+      ...params,
+      expand: undefined,
+    })
+    return result as StripeResponse<StripeSetupIntent>;
+  }
+
+  @CaptureTimingWithStatsD()
+  async setupIntentRetrieve(
+    setupIntentId: string,
+    params?: Stripe.SetupIntentRetrieveParams
+  ) {
+    const result = await this.stripe.setupIntents.retrieve(setupIntentId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeSetupIntent>;
   }
 }

@@ -9,15 +9,18 @@ import { redirect } from 'next/navigation';
 import { CheckoutFailedError } from '@fxa/payments/cart';
 
 export const submitNeedsInputAndRedirectAction = async (cartId: string) => {
+  let redirectPath: string | undefined;
   try {
     await getApp().getActionsService().submitNeedsInput({ cartId });
-    redirect('success');
+    redirectPath = 'success';
   } catch (error) {
     console.error('Error submitting needs input', error);
     if (error instanceof CheckoutFailedError) {
-      redirect('error');
+      redirectPath = 'error';
     } else {
       throw error;
     }
   }
+
+  redirect(redirectPath);
 };

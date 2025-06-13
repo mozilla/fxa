@@ -114,6 +114,7 @@ export const ResultCartFactory = (
   couponCode: null,
   stripeCustomerId: faker.string.uuid(),
   stripeSubscriptionId: faker.string.uuid(),
+  stripeIntentId: `pi_${faker.string.alphanumeric({ length: 14 })}`,
   amount: faker.number.int(),
   version: faker.number.int(),
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),

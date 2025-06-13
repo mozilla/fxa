@@ -36,6 +36,7 @@ import {
   PromotionCodeManager,
   SubscriptionManager,
   CustomerSessionManager,
+  SetupIntentManager,
 } from '@fxa/payments/customer';
 import { PaymentsGleanManager } from '@fxa/payments/metrics';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
@@ -121,6 +122,7 @@ import {
     NotifierSnsProvider,
     PaymentMethodManager,
     PaymentIntentManager,
+    SetupIntentManager,
     PaypalBillingAgreementManager,
     PayPalClient,
     PaypalCustomerManager,
@@ -142,4 +144,4 @@ import {
     { provide: LOGGER_PROVIDER, useValue: logger },
   ],
 })
-export class AppModule {}
+export class AppModule { }

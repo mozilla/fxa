@@ -11,6 +11,7 @@ export * from './lib/paymentMethod.manager';
 export * from './lib/price.manager';
 export * from './lib/product.manager';
 export * from './lib/promotionCode.manager';
+export * from './lib/setupIntent.manager';
 export * from './lib/subscription.manager';
 export * from './lib/types';
 export * from './lib/factories/pricing-for-currency.factory';

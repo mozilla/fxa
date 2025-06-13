@@ -200,6 +200,15 @@ export class CartNoTaxAddressError extends CartError {
   }
 }
 
+export class CartIntentNotFoundError extends CartError {
+  constructor(cartId: string) {
+    super('Cart payment or setup intent not found', {
+      cartId,
+    });
+    this.name = 'CartIntentNotFoundError';
+  }
+}
+
 export class CartSubscriptionNotFoundError extends CartError {
   constructor(cartId: string) {
     super('Cart subscription not found', {
