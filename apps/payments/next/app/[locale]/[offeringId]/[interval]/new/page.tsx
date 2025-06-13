@@ -8,7 +8,7 @@ import {
   validateLocationAction,
   getTaxAddressAction,
   setupCartAction,
-  updateCartUidAction,
+  getCouponAction,
 } from '@fxa/payments/ui/actions';
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
@@ -55,7 +55,7 @@ export default async function New({
   const session = await auth();
 
   const fxaUid = session?.user?.id;
-  const coupon = searchParams.coupon || undefined;
+  const searchParamsCoupon = searchParams.coupon || undefined;
   const countryCode = searchParams.countryCode;
   const postalCode = searchParams.postalCode;
 
@@ -98,47 +98,45 @@ export default async function New({
 
   let redirectToUrl: URL;
   let cart: ResultCart;
+  let cartCoupon: string | null | undefined;
 
-  if (searchParams.cartId && fxaUid && searchParams.cartVersion) {
-    cart = await updateCartUidAction(
+  if (searchParams.cartId && searchParams.cartVersion) {
+    const {couponCode: fetchedCoupon} = await getCouponAction(
       searchParams.cartId,
       Number(searchParams.cartVersion),
-      fxaUid,
+    );
+    cartCoupon = fetchedCoupon;
+  }
+  try {
+    cart = await setupCartAction(
+      interval as SubplatInterval,
+      offeringId,
+      taxAddress,
+      undefined,
+      cartCoupon || searchParamsCoupon,
+      fxaUid
     );
 
     redirectToUrl = getRedirectToUrl(cart, params, searchParams);
-  } else {
-    try {
+  } catch (error) {
+    if (error.name === 'CartInvalidPromoCodeError') {
       cart = await setupCartAction(
         interval as SubplatInterval,
         offeringId,
         taxAddress,
         undefined,
-        coupon,
+        undefined,
         fxaUid
       );
 
       redirectToUrl = getRedirectToUrl(cart, params, searchParams);
-    } catch (error) {
-      if (error.name === 'CartInvalidPromoCodeError') {
-        cart = await setupCartAction(
-          interval as SubplatInterval,
-          offeringId,
-          taxAddress,
-          undefined,
-          undefined,
-          fxaUid
-        );
-
-        redirectToUrl = getRedirectToUrl(cart, params, searchParams);
-      } else if (
-        error.name === 'RetrieveStripePriceInvalidOfferingError' ||
-        error.name === 'RetrieveStripePriceNotFoundError'
-      ) {
-        notFound();
-      } else {
-        throw error;
-      }
+    } else if (
+      error.name === 'RetrieveStripePriceInvalidOfferingError' ||
+      error.name === 'RetrieveStripePriceNotFoundError'
+    ) {
+      notFound();
+    } else {
+      throw error;
     }
   }
 

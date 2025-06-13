@@ -6,19 +6,15 @@
 
 import { getApp } from '../nestapp/app';
 
-export const updateCartUidAction = async (
+export const getCouponAction = async (
   cartId: string,
   version: number,
-  uid: string
 ) => {
   const actionsService = getApp().getActionsService();
 
-  const result = await actionsService.updateCart({
+  const result = await actionsService.getCoupon({
     cartId,
     version,
-    cartDetails: {
-      uid,
-    },
   });
 
   return result;

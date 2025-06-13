@@ -261,6 +261,18 @@ export class CartService {
     }
   }
 
+  @SanitizeExceptions()
+  async getCoupon(args: {
+    cartId: string;
+    version: number;
+  }): Promise<{ couponCode: string | null }> {
+    const cart = await this.cartManager.fetchAndValidateCartVersion(args.cartId, args.version);
+
+    return {
+      couponCode: cart.couponCode,
+    };
+  }
+
   /**
    * Initialize a brand new cart
    * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
