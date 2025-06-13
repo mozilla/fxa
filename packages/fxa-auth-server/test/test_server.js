@@ -72,6 +72,7 @@ TestServer.start = async function (config, printLogs, options) {
 
 TestServer.prototype.start = async function () {
   try {
+    console.trace('🔨 trace server start.');
     const { authServerMockDependencies = {} } = this.options;
     const createAuthServer = proxyquire(
       '../bin/key_server',
