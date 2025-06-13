@@ -25,7 +25,7 @@ fi
 
 # If there are integration tests that need to start the test_server
 # in a unique way that can't be shared with other tests (i.e., mocking,
-#    flag overrides for payments, etc.)
+#    flag overrides for payments, etc.).
 # Then the test should be tagged with `#series` and it'll be picked up here
 if [ "$TEST_TYPE" == 'integration-series' ]; then
   GREP_TESTS="--grep /(?=.*#integration\s-)(?=.*#series\s-)/"
@@ -49,8 +49,11 @@ fi
 
 for t in "${TESTS[@]}"; do
   echo -e "\n\nTesting: $t"
+  # because args are modified based on the TESTS array, there's a risk
+  # of cross-contamination between test types, so we set LOCAL_ARGS
+  # to the default args each time through the loop
   LOCAL_ARGS="$DEFAULT_ARGS"
-  # Add test server setup for remote integration tests
+
   if [ "$t" == "remote" ] && { [ "$TEST_TYPE" == "integration" ] || [ "$TEST_TYPE" == "integration-v2" ]; }; then
     LOCAL_ARGS="$LOCAL_ARGS --require test/server_setup.js"
     echo "Active listening ports:"
