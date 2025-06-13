@@ -112,6 +112,11 @@ module.exports = function (config) {
       objectSrc: [NONE],
       reportUri: config.get('csp.reportUri'),
       scriptSrc,
+      scriptSrcAttr: [
+        "'unsafe-hashes'",
+        // FXA-11759 allow link tag rel attr update onload
+        "'sha256-uq+4nUqZONgARzmy2kR1w9EC+Qeig/Syd091LyT8vOk='",
+      ],
       styleSrc,
     },
     reportOnly: false,
