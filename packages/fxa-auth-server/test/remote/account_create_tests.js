@@ -51,6 +51,7 @@ const {
           },
         },
       });
+      console.debug('⏱️ Test server "started", beginning tests for account_create_tests.js')
       return server;
     });
 

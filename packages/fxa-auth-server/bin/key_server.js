@@ -430,6 +430,7 @@ async function run(config) {
 async function main() {
   try {
     const server = await run(config.getProperties());
+
     process.on('uncaughtException', (err) => {
       server.log.fatal('uncaughtException', err);
       process.exit(8);
