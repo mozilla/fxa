@@ -4,9 +4,9 @@ const config = require('../config').default.getProperties();
 
 let serverInstance = null;
 
-exports.mochaGlobalSetup = async function () {
+exports.mochaGlobalSetup = async function (done) {
 
-  console.debug('⚙️ Starting TestServer instance...');
+  console.debug('⚙️ Starting TestServer from server_setup...');
   serverInstance = await TestServer.start(config, false, {
     enableCustomsChecks: true,
     authServerMockDependencies: {
@@ -19,7 +19,7 @@ exports.mochaGlobalSetup = async function () {
   console.debug('✅ TestServer instance started.');
 }
 
-exports.mochaGlobalTeardown = async function () {
+exports.mochaGlobalTeardown = async function (done) {
   if (!serverInstance) {
     console.warn('⚠️ No TestServer instance to stop, skipping teardown.');
     return;

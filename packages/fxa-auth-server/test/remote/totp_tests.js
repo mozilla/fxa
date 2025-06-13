@@ -46,6 +46,7 @@ const {
     });
 
     after(async () => {
+      await TestServer.stop(server);
     });
 
     function verifyTOTP(client) {

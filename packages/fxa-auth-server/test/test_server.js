@@ -71,19 +71,25 @@ TestServer.start = async function (config, printLogs, options) {
 };
 
 TestServer.prototype.start = async function () {
-  const { authServerMockDependencies = {} } = this.options;
-  const createAuthServer = proxyquire(
-    '../bin/key_server',
-    authServerMockDependencies
-  );
-  console.debug('⚙️ Starting AuthServer...');
-  this.server = await createAuthServer(this.config);
-  console.debug('⚙️ Starting MailHelper...')
-  this.mail = await createMailHelper(this.printLogs);
+  try {
+    const { authServerMockDependencies = {} } = this.options;
+    const createAuthServer = proxyquire(
+      '../bin/key_server',
+      authServerMockDependencies
+    );
+    console.debug('⚙️ Starting AuthServer...');
+    this.server = await createAuthServer(this.config);
+    console.debug('⚙️ Starting MailHelper...')
+    this.mail = await createMailHelper(this.printLogs);
 
-  if (this.config.profileServer.url) {
-    console.debug('⚙️ Starting ProfileHelper...');
-    this.profileServer = await createProfileHelper();
+    if (this.config.profileServer.url) {
+      console.debug('⚙️ Starting ProfileHelper...');
+      this.profileServer = await createProfileHelper();
+    }
+    console.debug('⚙️ Done starting services.');
+  } catch (err) {
+    console.error('❌ Error starting TestServer:', err);
+    throw err;
   }
 };
 
