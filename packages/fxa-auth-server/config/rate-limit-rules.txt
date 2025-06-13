@@ -5,78 +5,77 @@
 # non-configured action within a 10 minute window. Note that actions are still isolated. e.g. ActionA and
 # ActionB will maintain separate counts. So you could make up to 600 requests to action A and up to 600 requests
 # to Action B in a ten minute window without getting blocked.
-  default                               : ip                : 600           : 10 minutes        : 15 minutes
-  default                               : email             : 600           : 10 minutes        : 15 minutes
-  default                               : uid               : 600           : 10 minutes        : 15 minutes
+  default                               : ip                : 600           : 10 minutes        : 15 minutes  : block
+
 
 # Account Check Limits - These are unsecured actions. Many of these are designed to slow down the mining of
 # of account details. e.g. Trying random emails until an error code indicates one might exist.
-  accountCreate                         : ip                : 100           : 15 minutes        : 15 minutes
-  accountCreate                         : email             : 100           : 15 minutes        : 15 minutes
-  accountDestroy                        : uid               : 100           : 15 minutes        : 15 minutes
-  passwordForgotSendCode                : ip                : 100           : 15 minutes        : 15 minutes
-  passwordForgotSendCode                : email             : 100           : 15 minutes        : 15 minutes
-  accountStatusCheck                    : ip                : 100           : 15 minutes        : 15 minutes
-  accountStatusCheck                    : email             : 100           : 15 minutes        : 15 minutes
-  sendUnblockCode                       : ip                : 100           : 15 minutes        : 15 minutes
-  sendUnblockCode                       : email             : 100           : 15 minutes        : 15 minutes
-  recoveryKeyExists                     : ip                : 100           : 15 minutes        : 15 minutes
-  recoveryKeyExists                     : email             : 100           : 15 minutes        : 15 minutes
-  getCredentialsStatus                  : ip                : 100           : 15 minutes        : 15 minutes
-  getCredentialsStatus                  : email             : 100           : 15 minutes        : 15 minutes
-  passwordForgotSendOtp                 : ip                : 5             : 10 minutes        : 15 minutes
-  passwordForgotSendOtp                 : email             : 5             : 10 minutes        : 15 minutes
-  passwordForgotVerifyOtp               : ip                : 5             : 10 minutes        : 10 minutes
-  passwordForgotVerifyOtp               : email             : 5             : 10 minutes        : 10 minutes
-  passwordForgotVerifyOtpPerDay         : ip                : 10            : 24 hours          : 24 hours
-  passwordForgotVerifyOtpPerDay         : email             : 10            : 24 hours          : 24 hours
+  accountCreate                         : ip                : 100           : 15 minutes        : 15 minutes  : block
+  accountCreate                         : email             : 100           : 15 minutes        : 15 minutes  : block
+  accountDestroy                        : uid               : 100           : 15 minutes        : 15 minutes  : block
+  passwordForgotSendCode                : ip                : 100           : 15 minutes        : 15 minutes  : block
+  passwordForgotSendCode                : email             : 100           : 15 minutes        : 15 minutes  : block
+  accountStatusCheck                    : ip                : 100           : 15 minutes        : 15 minutes  : block
+  accountStatusCheck                    : email             : 100           : 15 minutes        : 15 minutes  : block
+  sendUnblockCode                       : ip                : 100           : 15 minutes        : 15 minutes  : block
+  sendUnblockCode                       : email             : 100           : 15 minutes        : 15 minutes  : block
+  recoveryKeyExists                     : ip                : 100           : 15 minutes        : 15 minutes  : block
+  recoveryKeyExists                     : email             : 100           : 15 minutes        : 15 minutes  : block
+  getCredentialsStatus                  : ip                : 100           : 15 minutes        : 15 minutes  : block
+  getCredentialsStatus                  : email             : 100           : 15 minutes        : 15 minutes  : block
+  passwordForgotSendOtp                 : ip                : 5             : 10 minutes        : 15 minutes  : block
+  passwordForgotSendOtp                 : email             : 5             : 10 minutes        : 15 minutes  : block
+  passwordForgotVerifyOtp               : ip                : 5             : 10 minutes        : 10 minutes  : block
+  passwordForgotVerifyOtp               : email             : 5             : 10 minutes        : 10 minutes  : block
+  passwordForgotVerifyOtpPerDay         : ip                : 10            : 24 hours          : 24 hours    : block
+  passwordForgotVerifyOtpPerDay         : email             : 10            : 24 hours          : 24 hours    : block
 
 # Email Send - These are limits on rate at which emails can be sent out. We limit both IP and email address
 # since many of these operations do not require authentication. Some operations, however, require sessions
 # and for these we should switch over to using UID. See FXA-11777 for more details.
-  createEmail                           : uid               : 5             : 15 minutes        : 15 minutes
-  recoveryEmailResendCode               : uid               : 5             : 15 minutes        : 15 minutes
-  recoveryEmailSecondaryResendCode      : email             : 5             : 15 minutes        : 15 minutes
-  recoveryEmailSecondaryResendCode      : ip                : 5             : 10 minutes        : 30 minutes
-  passwordForgotSendCode                : email             : 5             : 15 minutes        : 15 minutes
-  passwordForgotSendCode                : ip                : 5             : 10 minutes        : 30 minutes
-  passwordForgotResendCode              : email             : 5             : 15 minutes        : 15 minutes
-  passwordForgotResendCode              : ip                : 5             : 10 minutes        : 30 minutes
-  sendVerifyCode                        : uid               : 5             : 15 minutes        : 15 minutes
-  sendUnblockCode                       : email             : 5             : 15 minutes        : 15 minutes
-  sendUnblockCode                       : ip                : 5             : 10 minutes        : 30 minutes
-  unblockEmail                          : email             : 5             : 15 minutes        : 15 minutes
+  createEmail                           : uid               : 5             : 15 minutes        : 15 minutes  : block
+  recoveryEmailResendCode               : uid               : 5             : 15 minutes        : 15 minutes  : block
+  recoveryEmailSecondaryResendCode      : email             : 5             : 15 minutes        : 15 minutes  : block
+  recoveryEmailSecondaryResendCode      : ip                : 5             : 10 minutes        : 30 minutes  : block
+  passwordForgotSendCode                : email             : 5             : 15 minutes        : 15 minutes  : block
+  passwordForgotSendCode                : ip                : 5             : 10 minutes        : 30 minutes  : block
+  passwordForgotResendCode              : email             : 5             : 15 minutes        : 15 minutes  : block
+  passwordForgotResendCode              : ip                : 5             : 10 minutes        : 30 minutes  : block
+  sendVerifyCode                        : uid               : 5             : 15 minutes        : 15 minutes  : block
+  sendUnblockCode                       : email             : 5             : 15 minutes        : 15 minutes  : block
+  sendUnblockCode                       : ip                : 5             : 10 minutes        : 30 minutes  : block
+  unblockEmail                          : email             : 5             : 15 minutes        : 15 minutes  : block
 
 # Bad Login Attempts - These are specific to login failures. Again, the user hasn't authenticated yet, so we check both
 # email and ip.
-  accountLogin                          : email             : 5             : 15 minutes        : 15 minutes
-  accountLogin                          : ip                : 100           : 24 hours          : 24 hours
-  passwordChange                        : email             : 5             : 15 minutes        : 15 minutes
-  passwordChange                        : ip                : 100           : 24 hours          : 24 hours
-  authenticatedAccountLogin             : uid               : 5             : 15 minutes        : 15 minutes
-  authenticatedPasswordChange           : uid               : 5             : 15 minutes        : 15 minutes
+  accountLogin                          : email             : 5             : 15 minutes        : 15 minutes  : block
+  accountLogin                          : ip                : 100           : 24 hours          : 24 hours    : block
+  passwordChange                        : email             : 5             : 15 minutes        : 15 minutes  : block
+  passwordChange                        : ip                : 100           : 24 hours          : 24 hours    : block
+  authenticatedAccountLogin             : uid               : 5             : 15 minutes        : 15 minutes  : block
+  authenticatedPasswordChange           : uid               : 5             : 15 minutes        : 15 minutes  : block
 
 # Verify Code Limits - Limits the number of attempts a user can make at providing a token code. Note that currently
 # these are all ip/email checks, however, they should probably uid checks. In every use, a uid is available and the
 # user has already procured a session token. See FXA-11777 for more details.
-  recoveryEmailVerifyCode               : ip                : 10            : 10 minutes        : 30 minutes
-  recoveryEmailVerifyCode               : email             : 10            : 15 minutes        : 15 minutes
-  recoveryEmailSecondaryVerifyCode      : ip                : 10            : 10 minutes        : 30 minutes
-  recoveryEmailSecondaryVerifyCode      : email             : 10            : 15 minutes        : 15 minutes
-  passwordForgotVerifyCode              : ip                : 10            : 10 minutes        : 30 minutes
-  passwordForgotVerifyCode              : email             : 10            : 15 minutes        : 15 minutes
-  verifyRecoveryCode                    : ip                : 10            : 10 minutes        : 30 minutes
-  verifyRecoveryCode                    : email             : 10            : 15 minutes        : 15 minutes
-  verifySessionCode                     : uid               : 10            : 15 minutes        : 15 minutes
+  recoveryEmailVerifyCode               : ip                : 10            : 10 minutes        : 30 minutes  : block
+  recoveryEmailVerifyCode               : email             : 10            : 15 minutes        : 15 minutes  : block
+  recoveryEmailSecondaryVerifyCode      : ip                : 10            : 10 minutes        : 30 minutes  : block
+  recoveryEmailSecondaryVerifyCode      : email             : 10            : 15 minutes        : 15 minutes  : block
+  passwordForgotVerifyCode              : ip                : 10            : 10 minutes        : 30 minutes  : block
+  passwordForgotVerifyCode              : email             : 10            : 15 minutes        : 15 minutes  : block
+  verifyRecoveryCode                    : ip                : 10            : 10 minutes        : 30 minutes  : block
+  verifyRecoveryCode                    : email             : 10            : 15 minutes        : 15 minutes  : block
+  verifySessionCode                     : uid               : 10            : 15 minutes        : 15 minutes  : block
 
 # Verify TOTP Code Limits
-  verifyTotpCode                        : uid               : 10            : 30 seconds        : 15 minutes
+  verifyTotpCode                        : uid               : 10            : 30 seconds        : 15 minutes  : block
 
 # Recovery Phone Limits
-  verifyRecoveryPhoneTotpCode           : uid               : 5             : 5 minutes         : 15 minutes
-  recoveryPhoneSendSigninCode           : uid               : 6             : 24 hours          : 24 hours
-  recoveryPhoneSendSetupCode            : uid               : 9             : 24 hours          : 24 hours
-  recoveryPhoneSendResetPasswordCode    : uid               : 9             : 24 hours          : 24 hours
+  verifyRecoveryPhoneTotpCode           : uid               : 5             : 5 minutes         : 15 minutes  : block
+  recoveryPhoneSendSigninCode           : uid               : 6             : 24 hours          : 24 hours    : block
+  recoveryPhoneSendSetupCode            : uid               : 9             : 24 hours          : 24 hours    : block
+  recoveryPhoneSendResetPasswordCode    : uid               : 9             : 24 hours          : 24 hours    : block
 
 ## Code Search Results
 ##

@@ -25,7 +25,7 @@ describe('RateLimitProvider', () => {
   let rateLimit: RateLimit;
 
   const mockConfig = {
-    rules: ['test : ip : 1 : 1 second : 1 second '],
+    rules: ['test : ip : 1 : 1 second : 1 second : block '],
   };
   const mockConfigService = {
     get: jest.fn().mockImplementation((key: string) => {
