@@ -14,7 +14,7 @@ Run `nx test rate-limit` to execute the unit tests via [Jest](https://jestjs.io)
 
 This library is driven by a simple grammar for defining rules. The grammar is as follows:
 
-` ${action} : ${blockOn} : ${maxAttempts} : ${windowDuration} : ${banDuration}`
+` ${action} : ${blockOn} : ${maxAttempts} : ${window} : ${blockDuration} : ${policy} `
 
 Where a 'section' is separated by ':' and leading and trailing whitespace within a section is trimmed.
 Note that comments can be added by starting a line with '#'.
@@ -24,6 +24,8 @@ Note that comments can be added by starting a line with '#'.
 - maxAttempts - the number of tries until the rule is considered violated and block (or ban) occurs
 - windowDuration - this the time span over which actions are counted. Once the window ends, actions are allowed again.
 - blockDuration - this is how long the block (or ban) lasts. Note that while active, attempts are being not counted!
+- policy - This is what should happen when max attempts are exceeded. Options are block or ban.
+
 
 ### BlockOn
 
@@ -45,24 +47,36 @@ rateLimit.check('foo', { ip:0.0.0.0})
 
 And there was no configuration for foo, but there was a configuration for 'default' and ip. Then
 we'd increment the redis count for action foo blocking on ip, but we'd use the default rule's settings.
+### Policy
+
+- ban - Once a rule is violated (i.e. max attempts exceeded) a ban policy indicates that all other actions are also prohibited for the given blockOn property.
+- block - Once a rule is violated (i.e. max attempts exceeded) a block policy indicates that only that action is prohibited for the given blockOn property.
+
+It's probably obvious, but bans are serious and need to be used carefully since they effectively lock a user out of the system entirely. It's much better
+to just set sensible block policies when possible. We should only use ban policies when the rule identifies obviously malicious behavior.
+policies.
 
 ### A quick example:
 
-As an example, to define an existing custom rules, let's say password reset OTP, the following config
-would replicate the pre-existing behavior:
+As an example, to define an existing custom rules, let's say a rules for login
 
 ```
-# ----------------------------------------------------------------------------------------
-#  action                     | blockOn  | maxAttempts  | windowDuration | banDuration
-# ----------------------------------------------------------------------------------------
-   default                    : ip       : 600          : 10 minutes     : 10 minutes
-   passwordForgotVerifyOtp    : ip       : 5 attempts   : 24 hours       : 10 minutes
-   passwordForgotVerifyOtp    : email    : 5 attempts   : 24 hours       : 10 minutes
-   passwordForgotVerifyOtp    : ip       : 10 attempts  : 24 hours       : 24 hours
-   passwordForgotVerifyOtp    : email    : 10 attempts  : 24 hours       : 24 hours
-
+# --------------------------------------------------------------------------------------------------------
+#  action                     | property  | maxAttempts  | window duration | ban/block duration   | policy
+# --------------------------------------------------------------------------------------------------------
+   loginAttempt               : ip_email : 5 attempts   : 5 minutes        : 15 minutes           : block
+   failedLogin                : ip       : 20 attempts  : 1 hour           : 24 hours             : ban
+   resetPassword              : ip_email : 5 attempts   : 5 minutes        : 10 minutes           : block
+   sendUnblockCode            : ip_email : 5 attempts   : 5 minutes        : 15 minutes           : block
 ```
 
+These rules would create the following rate limit policy:
+
+- A user with a given IP+EMAIL combo could try to login 5 times per 5 minute window before getting blocked from trying to login again for 15 minutes.
+- This user could still request a password reset or an unblock code, and these actions would not be blocked.
+- If we detect than an IP fails to login more than 20 times in an hour, we will ban that IP for 24 hours, which means the IP will not be allowed to
+  conduct __any__ other action until the ban expires. For example, the IP cannot send a unblock code or request a password reset, and they certainly
+  cannot try logging in again.
 
 ### Testing & Development Considerations
 
