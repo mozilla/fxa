@@ -211,11 +211,6 @@ const conf = convict({
       default: 'http://localhost:9000/v1',
     },
   },
-  customsUrl: {
-    doc: 'fraud / abuse server url',
-    default: 'none',
-    env: 'CUSTOMS_SERVER_URL',
-  },
   publicUrl: {
     format: 'url',
     env: 'PUBLIC_URL',
