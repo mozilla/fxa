@@ -382,7 +382,7 @@ async function run(config) {
       log.info('shutdown');
 
       try {
-        await server.stop(0);
+        await server.stop();
       } catch (e) {
         log.warn('shutdown', {
           message: 'Server did not shut down cleanly. ' + e.message,
@@ -398,7 +398,7 @@ async function run(config) {
       }
 
       try {
-        senders.email.stop(0);
+        senders.email.stop();
       } catch (e) {
         // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
         log.warn('shutdown', {
