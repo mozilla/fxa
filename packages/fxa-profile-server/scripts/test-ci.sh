@@ -2,9 +2,6 @@
 
 DIR=$(dirname "$0")
 
-# make sure var/public exists
-mkdir -p var/public
-
 # Copy version info
 cp "$DIR/../../version.json" "$DIR/../config"
 
