@@ -308,10 +308,9 @@ describe('confirm-signup-container', () => {
         unwrapBKey: undefined,
       });
       render();
-      screen.getByText('Bad Request');
-      screen.getByText(
-        'Something went wrong. Please close this tab and try again.'
-      );
+      expect(mockNavigate).toBeCalledWith('/signin', {
+        state: { localizedErrorMessage: 'Code expired. Please sign in again.' },
+      });
     });
   });
 });

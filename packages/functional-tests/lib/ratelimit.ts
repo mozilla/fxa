@@ -37,8 +37,7 @@ export class RateLimitClient {
       );
       cursor = nextCursor;
       if (keys.length > 0) {
-        const deletedCount = await this.redis.del(...keys);
-        console.log(`Deleted ${deletedCount} keys from redis.`);
+        await this.redis.del(...keys);
       }
     } while (cursor !== '0');
   }
