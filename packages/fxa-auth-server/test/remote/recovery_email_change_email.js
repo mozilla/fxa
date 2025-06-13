@@ -16,7 +16,7 @@ const newPassword = 'newpassword';
 [ {version:""}, {version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - #series - remote change email`, function () {
-
+  let server;
   before(async () => {
     config.securityHistory.ipProfiling = {};
     server = await TestServer.start(config);
