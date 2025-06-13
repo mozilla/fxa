@@ -67,7 +67,6 @@ function TestServer(config, printLogs, options = {}) {
 TestServer.start = async function (config, printLogs, options) {
   const server = new TestServer(config, printLogs, options);
   await server.start();
-  console.debug('✅ TestServer started.');
   return server;
 };
 

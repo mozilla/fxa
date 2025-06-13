@@ -22,7 +22,7 @@ fi
 
 if [ "$TEST_TYPE" == 'integration' ]; then
   GREP_TESTS="--grep /(?=.*#integration\s-)(?!.*#series)/"
-  DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=2 --require test/test_server_global_setup.js"
+  DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=2 --require test/server_setup.js"
 fi
 
 # If there are integration tests that need to start the test_server
