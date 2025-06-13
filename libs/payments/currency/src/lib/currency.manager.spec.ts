@@ -9,6 +9,8 @@ import {
   CurrencyCodeInvalidError,
   CountryCodeInvalidError,
   CurrencyCountryMismatchError,
+  CurrencyCodeMissingError,
+  CountryCodeMissingError,
 } from './currency.error';
 import { CURRENCIES_TO_COUNTRIES } from './currency.constants';
 import { CurrencyConfig, MockCurrencyConfigProvider } from './currency.config';
@@ -39,10 +41,27 @@ describe('CurrencyManager', () => {
       );
     });
 
-    it('throws an error when currency is invalid', () => {
+    it('throws an error when currency is empty', () => {
       expect(() =>
         currencyManager.assertCurrencyCompatibleWithCountry('', validCountry)
+      ).toThrow(CurrencyCodeMissingError);
+    });
+
+    it('throws an error when currency is invalid', () => {
+      expect(() =>
+        currencyManager.assertCurrencyCompatibleWithCountry('KPW', validCountry)
       ).toThrow(CurrencyCodeInvalidError);
+    });
+
+    it('throws an error when country is missing', () => {
+      const countryCode = '';
+
+      expect(() =>
+        currencyManager.assertCurrencyCompatibleWithCountry(
+          validCurrency,
+          countryCode
+        )
+      ).toThrow(CountryCodeMissingError);
     });
 
     it('throws an error when country is invalid', () => {

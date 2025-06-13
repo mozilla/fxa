@@ -11,7 +11,7 @@ import {
   StripePriceRecurringFactory,
   MockStripeConfigProvider,
 } from '@fxa/payments/stripe';
-import { PlanIntervalMultiplePlansError, PriceForCurrencyNotFoundError } from './error';
+import { PlanIntervalMultiplePlansError, PriceForCurrencyNotFoundError } from './customer.error';
 import { PriceManager } from './price.manager';
 import { SubplatInterval } from './types';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';

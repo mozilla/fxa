@@ -8,8 +8,8 @@ import { Kysely } from 'kysely';
 import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
 
 import {
+  AccountCustomerDeleteAccountError,
   AccountCustomerNotCreatedError,
-  AccountCustomerNotDeletedError,
   AccountCustomerNotFoundError,
   AccountCustomerNotUpdatedError,
 } from './accountCustomer.error';
@@ -145,7 +145,7 @@ describe('AccountCustomer Manager', () => {
       // Customer is already deleted, this should now throw
       await expect(
         accountCustomerManager.deleteAccountCustomer(resultAccountCustomer)
-      ).rejects.toBeInstanceOf(AccountCustomerNotDeletedError);
+      ).rejects.toBeInstanceOf(AccountCustomerDeleteAccountError);
     });
   });
 });

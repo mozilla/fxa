@@ -4,50 +4,55 @@
 
 import { BaseError } from '@fxa/shared/error';
 
+/**
+ * CurrencyError is not intended for direct use, except for type-checking errors.
+ * When throwing a new CurrencyError, create a unique extension of the class.
+ */
 export class CurrencyError extends BaseError {
-  constructor(...args: ConstructorParameters<typeof BaseError>) {
-    super(...args);
+  constructor(name: string, info: Record<string, any>, cause?: Error) {
+    super(name, { info, cause });
     this.name = 'CurrencyError';
-    Object.setPrototypeOf(this, CurrencyError.prototype);
   }
 }
 
 export class CurrencyCodeInvalidError extends CurrencyError {
-  constructor(currency: string, cause?: Error) {
+  constructor(currency: string) {
     super('Invalid currency code', {
-      info: {
-        currency,
-      },
-      cause,
+      currency,
     });
     this.name = 'CurrencyCodeInvalidError';
-    Object.setPrototypeOf(this, CurrencyCodeInvalidError.prototype);
   }
 }
 
 export class CountryCodeInvalidError extends CurrencyError {
-  constructor(country: string, cause?: Error) {
+  constructor(country: string) {
     super('Invalid country code', {
-      info: {
-        country,
-      },
-      cause,
+      country,
     });
     this.name = 'CountryCodeInvalidError';
-    Object.setPrototypeOf(this, CountryCodeInvalidError.prototype);
+  }
+}
+
+export class CountryCodeMissingError extends CurrencyError {
+  constructor() {
+    super('Country code is required', {});
+    this.name = 'CountryCodeMissingError';
+  }
+}
+
+export class CurrencyCodeMissingError extends CurrencyError {
+  constructor() {
+    super('Currency code is required', {});
+    this.name = 'CurrencyCodeMissingError';
   }
 }
 
 export class CurrencyCountryMismatchError extends CurrencyError {
-  constructor(currency: string, country: string, cause?: Error) {
+  constructor(currency: string, country: string) {
     super('Funding source country does not match plan currency', {
-      info: {
-        currency,
-        country,
-      },
-      cause,
+      currency,
+      country,
     });
     this.name = 'CurrencyCountryMismatchError';
-    Object.setPrototypeOf(this, CurrencyCountryMismatchError.prototype);
   }
 }

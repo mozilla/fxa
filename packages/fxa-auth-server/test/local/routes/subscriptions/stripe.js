@@ -19,7 +19,7 @@ const {
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const {
   PromotionCodeManager,
-  PaymentsCustomerError,
+  CustomerError,
 } = require('@fxa/payments/customer');
 const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
@@ -1051,7 +1051,7 @@ describe('DirectStripeRoutes', () => {
       }
     });
 
-    it('errors with AppError subscriptionPromotionCodeNotApplied if PaymentsCustomerError returned from StripeService', async () => {
+    it('errors with AppError subscriptionPromotionCodeNotApplied if CustomerError returned from StripeService', async () => {
       const sentryScope = { setContext: sandbox.stub() };
       sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
       sandbox.stub(sentryModule, 'reportSentryMessage');
@@ -1080,7 +1080,7 @@ describe('DirectStripeRoutes', () => {
         subscriptionId: mockSubscription.id,
       };
 
-      const stripeError = new PaymentsCustomerError('Oh no.');
+      const stripeError = new CustomerError('Oh no.');
       mockPromotionCodeManager.applyPromoCodeToSubscription = sinon.stub();
       mockPromotionCodeManager.applyPromoCodeToSubscription.rejects(
         stripeError

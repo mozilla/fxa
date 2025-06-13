@@ -7,7 +7,7 @@ import {
   StripeProductFactory,
   StripePromotionCodeFactory,
 } from '@fxa/payments/stripe';
-import { PromotionCodeCouldNotBeAttachedError } from '../error';
+import { PromotionCodePriceNotValidError } from '../customer.error';
 import { STRIPE_PRICE_METADATA, STRIPE_PRODUCT_METADATA } from '../types';
 import { assertPromotionCodeApplicableToPrice } from './assertPromotionCodeApplicableToPrice';
 
@@ -18,7 +18,7 @@ describe('assertPromotionCodeApplicableToPrice', () => {
 
     expect(() =>
       assertPromotionCodeApplicableToPrice(mockPromoCode, mockPrice, undefined)
-    ).toThrowError(PromotionCodeCouldNotBeAttachedError);
+    ).toThrowError(PromotionCodePriceNotValidError);
   });
 
   it('does not throw if promotion code is included in promotion codes for price and no product is provided', async () => {

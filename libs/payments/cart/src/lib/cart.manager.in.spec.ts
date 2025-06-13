@@ -15,9 +15,9 @@ import {
 import {
   CartInvalidStateForActionError,
   CartNotCreatedError,
-  CartNotDeletedError,
   CartNotFoundError,
   CartVersionMismatchError,
+  DeleteCartFailedError,
 } from './cart.error';
 import {
   FinishCartFactory,
@@ -28,6 +28,7 @@ import {
 import { CartManager } from './cart.manager';
 import { ResultCart } from './cart.types';
 import { type StatsD } from '@fxa/shared/metrics/statsd';
+import { LoggerService } from '@nestjs/common';
 
 // Fail action, which sometimes isn't here due to a weird issue defined here:
 // https://github.com/jestjs/jest/issues/11698#issuecomment-922351139
@@ -56,11 +57,23 @@ describe('CartManager', () => {
   let cartManager: CartManager;
   let testCart: ResultCart;
 
+  const mockLogger = {
+    error: jest.fn(),
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    setContext: jest.fn(),
+  };
+
   beforeAll(async () => {
     db = await testAccountDatabaseSetup(['accounts', 'carts']);
-    cartManager = new CartManager(db, {
-      timing: jest.fn(),
-    } as unknown as StatsD);
+    cartManager = new CartManager(
+      db,
+      {
+        timing: jest.fn(),
+      } as unknown as StatsD,
+      mockLogger as unknown as LoggerService
+    );
     await db
       .insertInto('carts')
       .values({
@@ -341,7 +354,7 @@ describe('CartManager', () => {
         await cartManager.deleteCart(testCart);
         fail('Error in deleteCart');
       } catch (error) {
-        expect(error).toBeInstanceOf(CartNotDeletedError);
+        expect(error).toBeInstanceOf(DeleteCartFailedError);
       }
     });
   });

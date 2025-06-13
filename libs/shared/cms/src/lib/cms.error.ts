@@ -2,44 +2,50 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BaseError, BaseMultiError } from '@fxa/shared/error';
+import { BaseError } from '@fxa/shared/error';
 
 /**
- * Thrown as a wrapper for multiple query errors
+ * CMSError is not intended for direct use, except for type-checking errors.
+ * When throwing a new CMSError, create a unique extension of the class.
  */
-export class CMSError extends BaseMultiError {
-  constructor(...args: ConstructorParameters<typeof BaseMultiError>) {
-    super(...args);
+export class CMSError extends BaseError {
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, { info, cause });
     this.name = 'CMSError';
-    Object.setPrototypeOf(this, CMSError.prototype);
   }
 }
 
-export class ProductConfigError extends BaseError {
-  constructor(...args: ConstructorParameters<typeof BaseError>) {
-    super(...args);
+export class StrapiQueryError extends CMSError {
+  constructor(query: any, variables: Record<string, any>, cause: Error) {
+    super('Strapi query failed', { query, variables }, cause);
+    this.name = 'StrapiQueryError';
+  }
+}
+
+export class ProductConfigError extends CMSError {
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, info, cause);
     this.name = 'ProductConfigError';
-    Object.setPrototypeOf(this, ProductConfigError.prototype);
   }
 }
 
-export class QueriesUtilError extends BaseError {
-  constructor(...args: ConstructorParameters<typeof BaseError>) {
-    super(...args);
+export class QueriesUtilError extends CMSError {
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, info, cause);
     this.name = 'QueriesUtilError';
-    Object.setPrototypeOf(this, QueriesUtilError.prototype);
   }
 }
 
 export class FetchCmsInvalidOfferingError extends ProductConfigError {
   constructor(error: Error, offeringId: string) {
-    super('Invalid offering id', {
-      name: 'FetchCmsInvalidOfferingError',
-      cause: error,
-      info: { offeringId },
-    });
+    super(
+      'Invalid offering id',
+      {
+        offeringId,
+      },
+      error
+    );
     this.name = 'FetchCmsInvalidOfferingError';
-    Object.setPrototypeOf(this, FetchCmsInvalidOfferingError.prototype);
   }
 }
 
@@ -50,7 +56,6 @@ export class RetrieveStripePriceNotFoundError extends ProductConfigError {
       info: { offeringId, interval },
     });
     this.name = 'RetrieveStripePriceNotFoundError';
-    Object.setPrototypeOf(this, RetrieveStripePriceNotFoundError.prototype);
   }
 }
 
@@ -62,25 +67,33 @@ export class RetrieveStripePriceInvalidOfferingError extends ProductConfigError 
       info: { offeringId },
     });
     this.name = 'RetrieveStripePriceInvalidOfferingError';
-    Object.setPrototypeOf(
-      this,
-      RetrieveStripePriceInvalidOfferingError.prototype
-    );
   }
 }
 
-export class OfferingNotFoundError extends QueriesUtilError {
+export class ContentOfferingNotFoundError extends QueriesUtilError {
   constructor() {
-    super('Offering not found');
-    this.name = 'OfferingNotFoundError';
-    Object.setPrototypeOf(this, OfferingNotFoundError.prototype);
+    super('Content Offering not found', {});
+    this.name = 'ContentOfferingNotFoundError';
   }
 }
 
-export class OfferingMultipleError extends QueriesUtilError {
+export class EligibilityContentOfferingNotFoundError extends QueriesUtilError {
   constructor() {
-    super('More than one offering found');
-    this.name = 'OfferingMultipleError';
-    Object.setPrototypeOf(this, OfferingMultipleError.prototype);
+    super('Eligility Content Offering not found', {});
+    this.name = 'EligibilityContentOfferingNotFoundError';
+  }
+}
+
+export class MultipleContentOfferingResultsError extends QueriesUtilError {
+  constructor(offeringIds: string[]) {
+    super('More than one content offering found', { offeringIds });
+    this.name = 'MultipleContentOfferingResultsError';
+  }
+}
+
+export class MultipleEligilityContentOfferingResultsError extends QueriesUtilError {
+  constructor(offeringIds: string[]) {
+    super('More than one eligibility content offering found', { offeringIds });
+    this.name = 'MultipleEligilityContentOfferingResultsError';
   }
 }

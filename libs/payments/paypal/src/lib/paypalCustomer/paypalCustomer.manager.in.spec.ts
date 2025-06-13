@@ -9,9 +9,9 @@ import { CreatePaypalCustomerFactory } from './paypalCustomer.factories';
 import { PaypalCustomerManager } from './paypalCustomer.manager';
 import {
   PaypalCustomerNotCreatedError,
-  PaypalCustomerNotDeletedError,
   PaypalCustomerNotFoundError,
   PaypalCustomerNotUpdatedError,
+  PaypalCustomerDeletionFailedError,
 } from './paypalCustomer.error';
 
 describe('PaypalCustomerManager', () => {
@@ -191,7 +191,7 @@ describe('PaypalCustomerManager', () => {
       expect(result).toEqual(true);
     });
 
-    it('throws a PaypalCustomerNotDeletedError when paypalCustomer does not exist', async () => {
+    it('throws a PaypalCustomerDeletionFailedError when paypalCustomer does not exist', async () => {
       const paypalCustomer = CreatePaypalCustomerFactory();
 
       const resultPaypalCustomer =
@@ -202,7 +202,7 @@ describe('PaypalCustomerManager', () => {
       // Customer is already deleted, this should now throw
       await expect(
         paypalCustomerManager.deletePaypalCustomer(resultPaypalCustomer)
-      ).rejects.toBeInstanceOf(PaypalCustomerNotDeletedError);
+      ).rejects.toBeInstanceOf(PaypalCustomerDeletionFailedError);
     });
   });
 

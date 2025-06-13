@@ -17,7 +17,7 @@ import {
   PaypalCustomerFactory,
   testAccountDatabaseSetup,
 } from '@fxa/shared/db/mysql/account';
-import { PaypalCustomerNotUpdatedError } from './paypalCustomer.error';
+import { PaypalCustomerNoRowsUpdatedError } from './paypalCustomer.error';
 
 describe('PaypalCustomer Repository', () => {
   let kyselyDb: Kysely<DB>;
@@ -151,7 +151,7 @@ describe('PaypalCustomer Repository', () => {
             status: 'XYZ',
           }
         )
-      ).rejects.toThrow(PaypalCustomerNotUpdatedError);
+      ).rejects.toThrow(PaypalCustomerNoRowsUpdatedError);
     });
   });
 

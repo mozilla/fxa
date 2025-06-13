@@ -84,7 +84,7 @@ describe('GoogleIapClient', () => {
           mockPurchaseToken
         )
       ).rejects.toThrow(
-        new GoogleIapUnknownError('Unknown Google IAP Error', { cause: error })
+        new GoogleIapUnknownError('Unknown Google IAP Error', error)
       );
     });
   });

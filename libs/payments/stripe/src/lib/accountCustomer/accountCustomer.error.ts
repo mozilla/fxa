@@ -8,63 +8,96 @@ import {
   UpdateAccountCustomer,
 } from './accountCustomer.types';
 
-export class AccountCustomerManagerError extends BaseError {
-  constructor(...args: ConstructorParameters<typeof BaseError>) {
-    super(...args);
-    this.name = 'AccountCustomerManagerError';
-    Object.setPrototypeOf(this, AccountCustomerManagerError.prototype);
+/**
+ * AccountCustomerError is not intended for direct use, except for type-checking errors.
+ * When throwing a new AccountCustomerError, create a unique extension of the class.
+ */
+export class AccountCustomerError extends BaseError {
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, { info, cause });
+    this.name = 'AccountCustomerError';
   }
 }
 
-export class AccountCustomerNotCreatedError extends AccountCustomerManagerError {
-  constructor(data?: CreateAccountCustomer, cause?: Error) {
-    super('AccountCustomer not created', {
-      info: {
-        data,
-      },
-      cause,
-    });
+export class AccountCustomerUpdateRequiredFieldsError extends AccountCustomerError {
+  constructor(uid: string) {
+    super('Must provide at least one update param', { uid });
+    this.name = 'AccountCustomerUpdateRequiredFieldsError';
+  }
+}
+
+export class AccountCustomerNotCreatedError extends AccountCustomerError {
+  constructor(data: CreateAccountCustomer, cause: Error) {
+    super(
+      'AccountCustomer not created',
+      { createAccountCustomer: data },
+      cause
+    );
     this.name = 'AccountCustomerNotCreatedError';
-    Object.setPrototypeOf(this, AccountCustomerNotCreatedError.prototype);
   }
 }
 
-export class AccountCustomerNotFoundError extends AccountCustomerManagerError {
-  constructor(uid: string, cause?: Error) {
-    super('AccountCustomer not found', {
-      info: {
+export class AccountCustomerNotFoundError extends AccountCustomerError {
+  constructor(uid: string, cause: Error) {
+    super(
+      'AccountCustomer not found',
+      {
         uid,
       },
-      cause,
-    });
+      cause
+    );
     this.name = 'AccountCustomerNotFoundError';
-    Object.setPrototypeOf(this, AccountCustomerNotFoundError.prototype);
   }
 }
 
-export class AccountCustomerNotUpdatedError extends AccountCustomerManagerError {
-  constructor(uid: string, data?: UpdateAccountCustomer, cause?: Error) {
-    super('AccountCustomer not updated', {
-      info: {
-        uid,
-        data,
-      },
-      cause,
+export class AccountCustomerUpdatedNoEffectError extends AccountCustomerError {
+  constructor(uid: string) {
+    super('AccountCustomer update applied without changes', {
+      uid,
     });
+    this.name = 'AccountCustomerUpdatedNoEffectError';
+  }
+}
+
+export class AccountCustomerNotUpdatedError extends AccountCustomerError {
+  constructor(
+    uid: string,
+    updateAccountCustomer: UpdateAccountCustomer,
+    cause: Error
+  ) {
+    super(
+      'AccountCustomer not updated',
+      {
+        uid,
+        updateAccountCustomer,
+      },
+      cause
+    );
     this.name = 'AccountCustomerNotUpdatedError';
-    Object.setPrototypeOf(this, AccountCustomerNotUpdatedError.prototype);
   }
 }
 
-export class AccountCustomerNotDeletedError extends AccountCustomerManagerError {
+export class AccountCustomerNotDeletedError extends AccountCustomerError {
+  constructor(uid: string) {
+    super(
+      'AccountCustomer not deleted',
+      {
+        uid,
+      }
+    );
+    this.name = 'AccountCustomerNotDeletedError';
+  }
+}
+
+export class AccountCustomerDeleteAccountError extends AccountCustomerError {
   constructor(uid: string, cause?: Error) {
-    super('AccountCustomer not deleted', {
-      info: {
+    super(
+      'AccountCustomer not deleted',
+      {
         uid,
       },
-      cause,
-    });
-    this.name = 'AccountCustomerNotDeletedError';
-    Object.setPrototypeOf(this, AccountCustomerNotDeletedError.prototype);
+      cause
+    );
+    this.name = 'AccountCustomerNotDeletedUnexpectedError';
   }
 }

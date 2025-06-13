@@ -10,9 +10,9 @@ import {
 import {
   CouponErrorExpired,
   CouponErrorGeneric,
-  CouponErrorInvalid,
+  CouponErrorInvalidCode,
   CouponErrorLimitReached,
-} from '../error';
+} from '../customer.error';
 import { assertPromotionCodeActive } from './assertPromotionCodeActive';
 
 describe('assertPromotionCodeActive', () => {
@@ -42,7 +42,7 @@ describe('assertPromotionCodeActive', () => {
     });
 
     expect(() => assertPromotionCodeActive(mockPromotionCode)).toThrowError(
-      CouponErrorInvalid
+      CouponErrorInvalidCode
     );
   });
 

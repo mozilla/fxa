@@ -8,7 +8,7 @@ import isA from 'joi';
 import * as Sentry from '@sentry/node';
 import { SeverityLevel } from '@sentry/core';
 import {
-  PaymentsCustomerError,
+  CustomerError,
   PromotionCodeManager,
 } from '@fxa/payments/customer';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
@@ -680,7 +680,7 @@ export class StripeHandler {
         uid,
       });
 
-      if (err instanceof PaymentsCustomerError) {
+      if (err instanceof CustomerError) {
         throw error.subscriptionPromotionCodeNotApplied(err, err.message);
       } else {
         throw err;

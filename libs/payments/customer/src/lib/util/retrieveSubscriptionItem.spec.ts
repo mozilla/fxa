@@ -6,7 +6,7 @@ import { retrieveSubscriptionItem } from './retrieveSubscriptionItem';
 import {
   SubscriptionItemMissingItemError,
   SubscriptionItemMultipleItemsError,
-} from '../error';
+} from '../customer.error';
 
 describe('retrieveSubscriptionItem', () => {
   const mockSubscription = StripeSubscriptionFactory();

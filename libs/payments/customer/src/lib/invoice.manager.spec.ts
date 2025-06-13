@@ -34,7 +34,7 @@ import {
 } from '@fxa/payments/currency';
 import { STRIPE_CUSTOMER_METADATA, STRIPE_INVOICE_METADATA } from './types';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-import { UpgradeCustomerMissingCurrencyInvoiceError } from './error';
+import { UpgradeCustomerMissingCurrencyInvoiceError } from './customer.error';
 
 jest.mock('../lib/util/stripeInvoiceToFirstInvoicePreviewDTO');
 const mockedStripeInvoiceToFirstInvoicePreviewDTO = jest.mocked(

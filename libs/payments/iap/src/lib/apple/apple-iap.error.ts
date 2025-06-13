@@ -4,61 +4,79 @@
 
 import { BaseError } from '@fxa/shared/error';
 
+/**
+ * AppleIapError is not intended for direct use, except for type-checking errors.
+ * When throwing a new AppleIapError, create a unique extension of the class.
+ */
 export class AppleIapError extends BaseError {
-  constructor(...args: ConstructorParameters<typeof BaseError>) {
-    super(...args);
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, { info, cause });
     this.name = 'AppleIapError';
-    Object.setPrototypeOf(this, AppleIapError.prototype);
   }
 }
 
 export class AppleIapInvalidOriginalTransactionIdError extends AppleIapError {
-  constructor(...args: ConstructorParameters<typeof AppleIapError>) {
-    super(...args);
+  constructor(userId: string, cause?: Error) {
+    super('Invalid original transaction id', { userId }, cause);
     this.name = 'AppleIapInvalidOriginalTransactionIdError';
-    Object.setPrototypeOf(
-      this,
-      AppleIapInvalidOriginalTransactionIdError.prototype
-    );
   }
 }
 
 export class AppleIapConflictError extends AppleIapError {
-  constructor(...args: ConstructorParameters<typeof AppleIapError>) {
-    super(...args);
+  constructor(userId: string, transactionId: string) {
+    super('Purchase has been registered to another user', {
+      userId,
+      transactionId,
+    });
     this.name = 'AppleIapConflictError';
-    Object.setPrototypeOf(this, AppleIapConflictError.prototype);
   }
 }
 
 export class AppleIapUnknownError extends AppleIapError {
-  constructor(...args: ConstructorParameters<typeof AppleIapError>) {
-    super(...args);
+  constructor(message: string, cause: Error) {
+    super(message, {}, cause);
     this.name = 'AppleIapUnknownError';
-    Object.setPrototypeOf(this, AppleIapUnknownError.prototype);
+  }
+}
+
+export class AppleIapClientBundleError extends AppleIapUnknownError {
+  constructor(cause: Error) {
+    super('Unknown Apple IAP Error', cause);
+    this.name = 'AppleIapClientBundleError';
+  }
+}
+
+export class AppleIapClientBundleUnknownError extends AppleIapUnknownError {
+  constructor(cause: Error) {
+    super('Unknown Apple IAP error of unexpected type', cause);
+    this.name = 'AppleIapCLientBundleUnknownError';
+  }
+}
+
+export class GetFromAppStoreIapUnknownError extends AppleIapUnknownError {
+  constructor(cause: Error) {
+    super('Unknown Apple IAP error occured when retrieving purchase', cause);
+    this.name = 'GetFromAppStoreIapUnknownError';
   }
 }
 
 export class AppleIapNotFoundError extends AppleIapError {
-  constructor(...args: ConstructorParameters<typeof AppleIapError>) {
-    super(...args);
+  constructor(cause: Error) {
+    super('Apple IAP Not Found (4040010)', cause);
     this.name = 'AppleIapNotFoundError';
-    Object.setPrototypeOf(this, AppleIapNotFoundError.prototype);
   }
 }
 
 export class AppleIapNoTransactionsFoundError extends AppleIapError {
-  constructor(...args: ConstructorParameters<typeof AppleIapError>) {
-    super(...args);
+  constructor(bundleId: string, originalTransactionId: string) {
+    super('No transactions found', { bundleId, originalTransactionId });
     this.name = 'AppleIapNoTransactionsFoundError';
-    Object.setPrototypeOf(this, AppleIapNoTransactionsFoundError.prototype);
   }
 }
 
 export class AppleIapMissingCredentialsError extends AppleIapError {
   constructor(bundleId: string) {
-    super(`No App Store credentials found for app with bundleId: ${bundleId}.`);
+    super('No App Store credentials found for app with bundleId', { bundleId });
     this.name = 'AppleIapMissingCredentialsError';
-    Object.setPrototypeOf(this, AppleIapMissingCredentialsError.prototype);
   }
 }

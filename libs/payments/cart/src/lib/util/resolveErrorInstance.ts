@@ -7,7 +7,7 @@ import {
   CartCurrencyNotFoundError,
   CartStateProcessingError,
 } from '../cart.error';
-import { CheckoutFailedError } from '../checkout.error';
+import { CheckoutError } from '../checkout.error';
 import { BaseError } from '@fxa/shared/error';
 
 export function resolveErrorInstance(error: Error) {
@@ -24,7 +24,7 @@ export function resolveErrorInstance(error: Error) {
       return CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR;
 
     // Checkout Errors
-    case error instanceof CheckoutFailedError:
+    case error instanceof CheckoutError:
       return CartErrorReasonId.BASIC_ERROR;
 
     // Eligibility Errors

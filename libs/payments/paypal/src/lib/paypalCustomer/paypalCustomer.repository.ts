@@ -9,7 +9,7 @@ import {
 
 import {
   PaypalCustomerManagerError,
-  PaypalCustomerNotUpdatedError,
+  PaypalCustomerNoRowsUpdatedError,
 } from './paypalCustomer.error';
 
 /**
@@ -106,15 +106,7 @@ export async function updatePaypalCustomer(
   if (update.endedAt !== undefined) _update.endedAt = update.endedAt;
   if (update.createdAt !== undefined) _update.createdAt = update.createdAt;
   if (Object.values(_update).length === 0) {
-    throw new PaypalCustomerManagerError(
-      'Must provide at least one update param',
-      {
-        info: {
-          uid,
-          billingAgreementId,
-        },
-      }
-    );
+    throw new PaypalCustomerManagerError(uid.toString(), billingAgreementId);
   }
 
   const updatedRows = await db
@@ -124,9 +116,9 @@ export async function updatePaypalCustomer(
     .where('billingAgreementId', '=', billingAgreementId)
     .executeTakeFirst();
   if (updatedRows.numUpdatedRows === BigInt(0)) {
-    throw new PaypalCustomerNotUpdatedError(
+    throw new PaypalCustomerNoRowsUpdatedError(
       uid.toString(),
-      update.billingAgreementId
+      billingAgreementId
     );
   }
   return true;

@@ -10,7 +10,7 @@ import {
   StripeCustomer,
   MOZILLA_TAX_ID,
 } from '@fxa/payments/stripe';
-import { CustomerDeletedError } from './error';
+import { CustomerDeletedError } from './customer.error';
 import { TaxAddress } from './types';
 import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
 
@@ -23,7 +23,7 @@ export class CustomerManager {
    */
   async retrieve(customerId: string) {
     const customer = await this.stripeClient.customersRetrieve(customerId);
-    if (customer.deleted) throw new CustomerDeletedError();
+    if (customer.deleted) throw new CustomerDeletedError(customerId);
     return customer;
   }
 

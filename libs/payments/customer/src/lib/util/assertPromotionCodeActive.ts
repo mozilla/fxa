@@ -6,9 +6,9 @@ import type { StripePromotionCode } from '@fxa/payments/stripe';
 import {
   CouponErrorExpired,
   CouponErrorGeneric,
-  CouponErrorInvalid,
+  CouponErrorInvalidCode,
   CouponErrorLimitReached,
-} from '../error';
+} from '../customer.error';
 
 export const assertPromotionCodeActive = (code: StripePromotionCode) => {
   const nowSecs = Date.now() / 1000;
@@ -18,7 +18,7 @@ export const assertPromotionCodeActive = (code: StripePromotionCode) => {
   if (code.max_redemptions && code.times_redeemed >= code.max_redemptions)
     throw new CouponErrorLimitReached();
 
-  if (code.coupon && !code.coupon.valid) throw new CouponErrorInvalid();
+  if (code.coupon && !code.coupon.valid) throw new CouponErrorInvalidCode();
 
   if (!code || !code.active) throw new CouponErrorGeneric();
 };

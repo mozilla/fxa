@@ -10,9 +10,9 @@ import {
   CartManager,
   CartService,
   CheckoutCustomerDataFactory,
-  CheckoutPaymentError,
-  CheckoutUpgradeError,
+  InvalidInvoiceStateCheckoutError,
   ResultCartFactory,
+  UpgradeForSubscriptionNotFoundError,
   handleEligibilityStatusMap,
 } from '@fxa/payments/cart';
 import {
@@ -41,6 +41,7 @@ import {
   ProductManager,
   PromotionCodeManager,
   SetupIntentManager,
+  PromotionCodeNotFoundError,
   STRIPE_SUBSCRIPTION_METADATA,
   SubscriptionManager,
   TaxAddressFactory,
@@ -88,7 +89,6 @@ import {
   CartEligibilityMismatchError,
   CartTotalMismatchError,
   CartAccountNotFoundError,
-  CartInvalidPromoCodeError,
   CartCurrencyNotFoundError,
   CartUidNotFoundError,
   CartNoTaxAddressError,
@@ -446,11 +446,17 @@ describe('CheckoutService', () => {
 
         jest
           .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
-          .mockRejectedValue(undefined);
+          .mockRejectedValue(
+            new PromotionCodeNotFoundError(
+              mockCart.couponCode ?? faker.string.uuid(),
+              faker.string.uuid(),
+              mockCart.currency
+            )
+          );
 
         await expect(
           checkoutService.prePaySteps(mockCart, mockCustomerData)
-        ).rejects.toBeInstanceOf(CartInvalidPromoCodeError);
+        ).rejects.toBeInstanceOf(PromotionCodeNotFoundError);
       });
 
       it('throws cart total mismatch error', async () => {
@@ -1206,7 +1212,7 @@ describe('CheckoutService', () => {
 
           await expect(
             checkoutService.payWithPaypal(mockCart, mockCustomerData, mockToken)
-          ).rejects.toBeInstanceOf(CheckoutPaymentError);
+          ).rejects.toBeInstanceOf(InvalidInvoiceStateCheckoutError);
         });
       });
     });
@@ -1299,7 +1305,7 @@ describe('CheckoutService', () => {
           cart,
           redundantOverlaps
         )
-      ).rejects.toBeInstanceOf(CheckoutUpgradeError);
+      ).rejects.toBeInstanceOf(UpgradeForSubscriptionNotFoundError);
     });
 
     it('throws unhandled error', async () => {

@@ -22,9 +22,12 @@ import {
   StripeCouponFactory,
 } from '@fxa/payments/stripe';
 import {
-  CouponErrorInvalid,
+  CouponErrorInvalidCurrency,
   PromotionCodeCouldNotBeAttachedError,
-} from './error';
+  PromotionCodeCustomerSubscriptionMismatchError,
+  PromotionCodeNotFoundError,
+  PromotionCodeSubscriptionInactiveError,
+} from './customer.error';
 import { STRIPE_PRICE_METADATA } from './types';
 import { SubscriptionManager } from './subscription.manager';
 
@@ -123,9 +126,7 @@ describe('PromotionCodeManager', () => {
       const mockPrice = StripePriceFactory();
 
       mockedAssertPromotionCodeActive.mockImplementation(() => {
-        throw new PromotionCodeCouldNotBeAttachedError(
-          'Invalid promotion code'
-        );
+        throw new PromotionCodeCouldNotBeAttachedError();
       });
 
       await expect(
@@ -143,9 +144,7 @@ describe('PromotionCodeManager', () => {
 
       mockedAssertPromotionCodeActive.mockReturnValue();
       mockedAssertPromotionCodeApplicableToPrice.mockImplementation(() => {
-        throw new PromotionCodeCouldNotBeAttachedError(
-          'Invalid promotion code'
-        );
+        throw new PromotionCodeCouldNotBeAttachedError();
       });
 
       jest
@@ -202,7 +201,7 @@ describe('PromotionCodeManager', () => {
           mockPrice,
           mockCartCurrency
         )
-      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
+      ).rejects.toBeInstanceOf(PromotionCodeNotFoundError);
     });
 
     it('throws an error if promotion code is not valid', async () => {
@@ -215,9 +214,7 @@ describe('PromotionCodeManager', () => {
         .mockResolvedValue(mockPromotionCode);
       jest
         .spyOn(promotionCodeManager, 'assertValidPromotionCodeForPrice')
-        .mockRejectedValue(
-          new PromotionCodeCouldNotBeAttachedError('Invalid promotion code')
-        );
+        .mockRejectedValue(new PromotionCodeCouldNotBeAttachedError());
 
       await expect(
         promotionCodeManager.assertValidPromotionCodeNameForPrice(
@@ -305,7 +302,7 @@ describe('PromotionCodeManager', () => {
           mockPrice,
           mockCartCurrency
         )
-      ).rejects.toBeInstanceOf(CouponErrorInvalid);
+      ).rejects.toBeInstanceOf(CouponErrorInvalidCurrency);
     });
   });
 
@@ -328,7 +325,7 @@ describe('PromotionCodeManager', () => {
           mockSubscription.id,
           mockPromoId
         )
-      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
+      ).rejects.toBeInstanceOf(PromotionCodeSubscriptionInactiveError);
     });
 
     it('throws an error if the customer of the subscription does not match customerId', async () => {
@@ -349,7 +346,7 @@ describe('PromotionCodeManager', () => {
           mockSubscription.id,
           mockPromoId
         )
-      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
+      ).rejects.toBeInstanceOf(PromotionCodeCustomerSubscriptionMismatchError);
     });
 
     it('throws an error if promotion code is invalid', async () => {
@@ -371,9 +368,7 @@ describe('PromotionCodeManager', () => {
         .mockResolvedValue(mockPromoResponse);
 
       mockedAssertPromotionCodeActive.mockImplementation(() => {
-        throw new PromotionCodeCouldNotBeAttachedError(
-          'Invalid promotion code'
-        );
+        throw new PromotionCodeCouldNotBeAttachedError();
       });
 
       await expect(
@@ -405,9 +400,7 @@ describe('PromotionCodeManager', () => {
 
       mockedAssertPromotionCodeActive.mockReturnValue();
       mockedGetPriceFromSubscription.mockImplementation(() => {
-        throw new PromotionCodeCouldNotBeAttachedError(
-          'Unknown subscription price'
-        );
+        throw new PromotionCodeCouldNotBeAttachedError();
       });
 
       await expect(
@@ -449,9 +442,7 @@ describe('PromotionCodeManager', () => {
         .mockResolvedValue(StripeResponseFactory(mockProduct));
 
       mockedAssertPromotionCodeApplicableToPrice.mockImplementation(() => {
-        throw new PromotionCodeCouldNotBeAttachedError(
-          "Promotion code restricted to a product or specific price that doesn't match the product or price on this subscription"
-        );
+        throw new PromotionCodeCouldNotBeAttachedError();
       });
 
       await expect(

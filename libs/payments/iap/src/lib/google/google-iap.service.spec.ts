@@ -20,7 +20,8 @@ import {
 import assert from 'assert';
 import {
   GoogleIapConflictError,
-  GoogleIapInvalidPurchaseTokenError,
+  GoogleIapGetPurchaseError,
+  GoogleIapNonRegisterablePurchaseError,
 } from './google-iap.error';
 
 describe('GoogleIapService', () => {
@@ -219,7 +220,7 @@ describe('GoogleIapService', () => {
         );
         assert.fail('Expected error');
       } catch (err) {
-        expect(err).toBeInstanceOf(GoogleIapInvalidPurchaseTokenError);
+        expect(err).toBeInstanceOf(GoogleIapNonRegisterablePurchaseError);
         expect(subscription.isRegisterable).toHaveBeenCalledTimes(1);
       }
     });
@@ -237,8 +238,8 @@ describe('GoogleIapService', () => {
         );
         assert.fail('Expected error');
       } catch (err) {
-        expect(err).toBeInstanceOf(GoogleIapInvalidPurchaseTokenError);
-        expect(err.message).toBe('Oops');
+        expect(err).toBeInstanceOf(GoogleIapGetPurchaseError);
+        expect(err.jse_shortmsg).toBe('Failed to get purchase from Google Play store');
       }
     });
   });
