@@ -19,7 +19,7 @@ flow-setup-2fa-scan-qr-instead-button = Scan QR code instead?
 flow-setup-2fa-more-info-link = Learn more about authenticator apps
 flow-setup-2fa-button = Continue
 
-flow-setup-2fa-step-2-instruction = <Strong>Step 2:</strong>Enter the code from your authenticator app.
+flow-setup-2fa-step-2-instruction = <strong>Step 2:</strong> Enter the code from your authenticator app.
 flow-setup-2fa-input-label = Enter 6-digit code
 
 ##
