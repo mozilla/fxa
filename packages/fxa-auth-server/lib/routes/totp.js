@@ -588,6 +588,12 @@ module.exports = (
             db,
             request,
           });
+
+          await this.customs.checkV2(
+            request,
+            emailAddress,
+            'verifyTotpCodeFailed'
+          );
         }
 
         await sendEmailNotification();

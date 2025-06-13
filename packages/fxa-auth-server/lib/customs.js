@@ -8,6 +8,9 @@ const axios = require('axios');
 const { config } = require('../config');
 const { createHttpAgent, createHttpsAgent } = require('../lib/http-agent');
 const { performance } = require('perf_hooks');
+const {
+  TrustProductsChannelEndpointAssignmentContextImpl,
+} = require('twilio/lib/rest/trusthub/v1/trustProducts/trustProductsChannelEndpointAssignment');
 
 const localizeTimestamp =
   require('../../../libs/shared/l10n/src').localizeTimestamp({
@@ -15,6 +18,24 @@ const localizeTimestamp =
     defaultLanguage: config.get('i18n').defaultLanguage,
   });
 const serviceName = 'customs';
+
+function toOpts(ip, email, uid) {
+  const opts = {};
+  if (ip) {
+    opts.ip = ip;
+  }
+  if (email) {
+    opts.email = email;
+  }
+  if (uid) {
+    opts.uid = uid;
+  }
+  if (opts.ip && opts.email) {
+    opts.ip_email = `${opts.ip}_${opts.email}`;
+  }
+
+  return opts;
+}
 
 class CustomsClient {
   constructor(url, log, error, statsd, rateLimit) {
@@ -89,10 +110,8 @@ class CustomsClient {
   }
 
   async check(request, email, action) {
-    const checked = await this.checkV2(request, 'check', action, {
-      ip: request?.app?.clientAddress,
-      email,
-    });
+    const opts = toOpts(request?.app?.clientAddress, email, undefined);
+    const checked = await this.checkV2(request, 'check', action, opts);
     if (checked) {
       return;
     }
@@ -118,6 +137,7 @@ class CustomsClient {
   }
 
   async checkAuthenticated(request, uid, email, action) {
+    const opts = toOpts(request?.app?.clientAddress, email, uid);
     const checked = await this.checkV2(request, 'checkAuthenticated', action, {
       ip: request?.app?.clientAddress,
       email,
@@ -140,6 +160,7 @@ class CustomsClient {
   }
 
   async checkIpOnly(request, action) {
+    const opts = toOpts(request?.app?.clientAddress, undefined, undefined);
     const checked = await this.checkV2(request, 'checkIpOnly', action, {
       ip: request?.app?.clientAddress,
     });
@@ -169,6 +190,8 @@ class CustomsClient {
   }
 
   async reset(request, email) {
+    await this.resetV2(request, email);
+
     await this.makeRequest('/passwordReset', {
       ...this.sanitizePayload({
         ip: request.app.clientAddress,
@@ -315,9 +338,10 @@ class CustomsClient {
     const skip = this.rateLimit.skip(opts);
     if (skip) {
       this.statsd.increment(`${serviceName}.check.v2.skip`, [
-        opts.ip ? 'ip':'',
-        opts.email ? 'email':'',
-        opts.uid ? 'uid':'',
+        opts.ip_email ? 'ip_email' : '',
+        opts.ip ? 'ip' : '',
+        opts.email ? 'email' : '',
+        opts.uid ? 'uid' : '',
       ]);
       return true;
     }
@@ -339,7 +363,6 @@ class CustomsClient {
       block: result != null,
       blockReason: result?.reason || '',
     });
-
 
     // If no result, we exit. Check essentially passes.
     if (result == null) {
@@ -373,7 +396,15 @@ class CustomsClient {
       retryAfterLocalized,
       canUnblock
     );
+  }
 
+  async resetV2(request, email) {
+    if (this.rateLimit == null) {
+      return;
+    }
+
+    const opts = toOpts(request?.app?.clientAddress, email);
+    await this.rateLimit.unblock(opts);
   }
   // #endregion
 }

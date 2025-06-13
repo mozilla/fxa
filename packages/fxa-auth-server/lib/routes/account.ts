@@ -1326,6 +1326,7 @@ export class AccountHandler {
         return { exists: true };
       } catch (err) {
         if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+          await this.customs.checkV2(request, 'statusCheckFailed');
           return { exists: false };
         }
         throw err;
@@ -1385,6 +1386,10 @@ export class AccountHandler {
         if (checkDomain) {
           result.invalidDomain = invalidDomain;
         }
+
+        await this.customs.checkV2(request, 'accountStatusCheckFailed');
+
+
         return result;
       }
       throw err;
@@ -1838,6 +1843,14 @@ export class AccountHandler {
       }
     } catch (err) {
       if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+        if (this.customs.v2Enabled()) {
+          await this.customs.check(
+            request,
+            emailAddress,
+            'accountDestroyFailed'
+          );
+        }
+
         await this.customs.flag(request.app.clientAddress, {
           email: emailAddress,
           errno: err.errno,

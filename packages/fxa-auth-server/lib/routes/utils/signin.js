@@ -58,12 +58,19 @@ module.exports = (
      * customs. Higher level code will take care of
      * returning an error to the user.
      */
-    async checkPassword(accountRecord, password, clientAddress) {
+    async checkPassword(accountRecord, password, request) {
+      const clientAddress = request.app.clientAddress;
+
       if (butil.buffersAreEqual(accountRecord.authSalt, butil.ONES)) {
         await customs.flag(clientAddress, {
           email: accountRecord.email,
           errno: error.ERRNO.ACCOUNT_RESET,
         });
+        await customs.checkV2(
+          request,
+          accountRecord.email,
+          'passwordCheckFailed'
+        );
         throw error.mustResetAccount(accountRecord.email);
       }
       const verifyHash = await password.verifyHash();
@@ -82,6 +89,11 @@ module.exports = (
         email: accountRecord.email,
         errno: error.ERRNO.INCORRECT_PASSWORD,
       });
+      await customs.checkV2(
+        request,
+        accountRecord.email,
+        'passwordCheckFailed'
+      );
       return false;
     },
 
@@ -191,6 +203,7 @@ module.exports = (
               throw e;
             }
             await request.emitMetricsEvent('account.login.invalidUnblockCode');
+            await customs.checkV2(request, 'unblockCodeFailed');
             throw e;
           }
         }
@@ -221,6 +234,16 @@ module.exports = (
             email: email,
             errno: e.errno,
           });
+          if (e.errno === error.ERRNO.INVALID_UNBLOCK_CODE) {
+            customs.checkV2(request, email, 'unblockCodeFailed');
+          }
+          if (e.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+            customs.check(
+              request,
+              email,
+              'loadAccountFailed'
+            );
+          }
         }
         // For any error other than INVALID_UNBLOCK_CODE, hide it behind the original customs error.
         // This prevents us from accidentally leaking additional info to a caller that's been

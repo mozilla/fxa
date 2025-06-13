@@ -172,6 +172,7 @@ module.exports = function (
               email: form.email,
               errno: err.errno,
             });
+            await customs.checkV2(request, email, 'passwordChangeStartFailed');
           }
           throw err;
         }
@@ -701,15 +702,12 @@ module.exports = function (
 
         const { email, code } = request.payload;
 
-        // Typical 15 minute window limit
+        // Typical 10 minute window limit
         await customs.check(request, email, 'passwordForgotVerifyOtp');
 
-        if (customs.v2Enabled()) {
-          // Daily limit, will be checked if and only if the default limit above passes.
-          // This replicates logic that was coded into the customs v1 service.
-          await customs.check(request, email, 'passwordForgotVerifyOtpPerDay');
-        }
-
+        // Daily limit, will be checked if and only if the default limit above passes.
+        // This replicates logic that was coded into the customs v1 service.
+        await customs.checkV2(request, email, 'passwordForgotVerifyOtpPerDay');
 
         request.validateMetricsContext();
 

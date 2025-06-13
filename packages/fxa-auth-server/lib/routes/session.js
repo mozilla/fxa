@@ -396,6 +396,7 @@ module.exports = function (
         );
 
         if (!isValidCode) {
+          await customs.checkV2(request, email, 'verifySessionCodeFailed');
           throw error.invalidOrExpiredOtpCode();
         }
 
@@ -627,12 +628,7 @@ module.exports = function (
         const { uid, email } = sessionToken;
         const { code, tokenVerificationId } = options;
 
-        await customs.checkAuthenticated(
-          request,
-          uid,
-          email,
-          'verifySessionCode'
-        );
+        await customs.check(request, email, 'verifySessionCode');
         request.emitMetricsEvent('session.verify_push');
 
         const device = await db.deviceFromTokenVerificationId(
@@ -660,6 +656,7 @@ module.exports = function (
         );
 
         if (!isValidCode) {
+          await customs.checkV2(request, email, 'verifySessionCodeFailed');
           throw error.invalidOrExpiredOtpCode();
         }
 
