@@ -51,10 +51,10 @@ describe('#integration - scripts/check-users:', function () {
   before(async () => {
     this.timeout(15000);
     try {
-      console.debug('check-users creating testserver with config:', config);
+      console.debug(`[${Date.now()}]: check-users creating testserver with config:`, config);
       server = await TestServer.start(config);
       db = await DB.connect(config);
-      console.debug('check-users connected to db');
+      console.debug(`[${Date.now()}]: check-users connected to db`);
       validClient = await AuthClient.create(
         config.publicUrl,
         createRandomEmailAddr('valid_pw_hash@ex.com'),

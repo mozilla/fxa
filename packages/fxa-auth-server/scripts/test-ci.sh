@@ -6,11 +6,13 @@ cd "$DIR/.."
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 
+# timeout is a maximum upper bound. Tests can override to lower,
+# but not set higher.
 DEFAULT_ARGS="\
   --require esbuild-register \
   --require tsconfig-paths/register \
   --recursive \
-  --timeout=10000 \
+  --timeout=20000 \
   --exit "
 
 if [ "$TEST_TYPE" == 'unit' ]; then

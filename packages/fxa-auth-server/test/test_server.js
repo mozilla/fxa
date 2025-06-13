@@ -96,7 +96,7 @@ TestServer.prototype.start = async function () {
     }
     traceIfStackIncludes(serviceNameToLog, 'Done creating TestServer - inspect...');
     traceIfStackIncludes('account_create_tests.js', 'Done creating TestServer - inspect...');
-    console.debug('⚙️ Done starting services.');
+    console.debug(`[${Date.now()}]: ⚙️ Done starting services.`);
   } catch (err) {
     traceIfStackIncludes(serviceNameToLog, `Error starting TestServer: ${err}`);
     console.error('❌ Error starting TestServer:', err);
@@ -148,7 +148,7 @@ function traceIfStackIncludes(fileFragment, message = 'Trace point') {
   const stack = new Error().stack;
 
   if (stack && stack.includes(fileFragment)) {
-    console.trace(`🔍 ${message}`);
+    console.trace(`[${Date.now()}]: 🔍 ${message}`);
   }
 }
 
