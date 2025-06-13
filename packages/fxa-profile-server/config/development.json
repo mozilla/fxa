@@ -8,7 +8,6 @@
   "img": {
     "driver": "local"
   },
-  "customsUrl": "none",
   "serverCache": {
     "useRedis": false
   },
