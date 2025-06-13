@@ -120,6 +120,19 @@ export class CouponErrorLimitReached extends PromotionCodeCouldNotBeAttachedErro
   }
 }
 
+export class CouponErrorCannotRedeem extends PromotionCodeCouldNotBeAttachedError {
+  constructor() {
+    super(
+      'The code you entered cannot be applied — your account has a previous subscription to one of our services.',
+      undefined,
+      undefined,
+      'CouponErrorCannotRedeem'
+    );
+    this.name = 'CouponErrorCannotRedeem';
+    Object.setPrototypeOf(this, CouponErrorCannotRedeem.prototype);
+  }
+}
+
 export class StripeNoMinimumChargeAmountAvailableError extends PaymentsCustomerError {
   constructor() {
     super('Currency does not have a minimum charge amount available.');

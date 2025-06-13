@@ -51,8 +51,10 @@ import type {
 import { GetCartActionResult } from './validators/GetCartActionResult';
 import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionResult';
 import {
+  CouponErrorCannotRedeem,
   CouponErrorExpired,
   CouponErrorGeneric,
+  CouponErrorInvalid,
   CouponErrorLimitReached,
   TaxAddress,
   type SubplatInterval,
@@ -75,7 +77,11 @@ import { ValidateLocationActionResult } from './validators/ValidateLocationActio
 import { ValidateLocationActionArgs } from './validators/ValidateLocationActionArgs';
 import { UpdateTaxAddressActionArgs } from './validators/UpdateTaxAddressActionArgs';
 import { UpdateTaxAddressActionResult } from './validators/UpdateTaxAddressActionResult';
-import { CaptureTimingWithStatsD, StatsDService, type StatsD } from '@fxa/shared/metrics/statsd';
+import {
+  CaptureTimingWithStatsD,
+  StatsDService,
+  type StatsD,
+} from '@fxa/shared/metrics/statsd';
 import { GetCartStateActionArgs } from './validators/GetCartStateActionArgs';
 import { GetCartStateActionResult } from './validators/GetCartStateActionResult';
 
@@ -98,7 +104,7 @@ export class NextJSActionsService {
     private eligibilityService: EligibilityService,
     private productConfigurationManager: ProductConfigurationManager,
     @Inject(StatsDService) public statsd: StatsD
-  ) { }
+  ) {}
 
   @SanitizeExceptions()
   @NextIOValidator(GetCartStateActionArgs, GetCartStateActionResult)
@@ -138,8 +144,10 @@ export class NextJSActionsService {
 
   @SanitizeExceptions({
     allowlist: [
+      CouponErrorCannotRedeem,
       CouponErrorExpired,
       CouponErrorGeneric,
+      CouponErrorInvalid,
       CouponErrorLimitReached,
     ],
   })
@@ -176,7 +184,11 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({
-    allowlist: [CartInvalidPromoCodeError, ProductConfigError],
+    allowlist: [
+      CartInvalidPromoCodeError,
+      CouponErrorCannotRedeem,
+      ProductConfigError,
+    ],
   })
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
@@ -241,8 +253,8 @@ export class NextJSActionsService {
     );
 
     return {
-      result
-    }
+      result,
+    };
   }
 
   @SanitizeExceptions()
@@ -404,13 +416,13 @@ export class NextJSActionsService {
     uid?: string;
   }): Promise<
     | {
-      ok: true;
-      taxAddress: TaxAddress;
-    }
+        ok: true;
+        taxAddress: TaxAddress;
+      }
     | {
-      ok: false;
-      error: string;
-    }
+        ok: false;
+        error: string;
+      }
   > {
     const { cartId, version, offeringId, taxAddress, uid } = args;
 
