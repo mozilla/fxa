@@ -35,7 +35,7 @@ fi
 
 if [ "$TEST_TYPE" == 'integration-v2' ]; then
   GREP_TESTS="--grep /(?=.*#integrationV2\s-)(?!.*#series)/"
-  DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=2"
+  DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=2 --require test/server_setup.js"
 fi
 
 if [ "$TEST_TYPE" == 'integration-v2-series' ]; then
