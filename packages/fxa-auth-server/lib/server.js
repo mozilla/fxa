@@ -81,7 +81,7 @@ function translateStripeErrors(response) {
   return response;
 }
 
-async function create(log, error, config, routes, db, statsd, glean) {
+async function create(log, error, config, routes, db, statsd, glean, customs) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config, glean);
@@ -173,8 +173,28 @@ async function create(log, error, config, routes, db, statsd, glean) {
   const server = new Hapi.Server(serverOptions);
   server.validator(require('joi'));
 
-  server.ext('onRequest', (request, h) => {
+  const SKIP_CUSTOMS_FOR = [
+    '__lbheartbeat__',
+    'config',
+    '__heartbeat__',
+    '__version__',
+    '',
+  ];
+
+  server.ext('onRequest', async (request, h) => {
     log.begin('server.onRequest', request);
+
+    // Should fallback to the default rate-limit rule, or if no
+    // default rule is configured, then no check is done.
+    if (customs && !SKIP_CUSTOMS_FOR.includes(request.path)) {
+      const action = `${request.method}_${request.path}`
+        .toLowerCase()
+        .replace(/\//g, '_');
+      await customs.checkV2(request, 'checkIpOnly', action, {
+        ip: request?.app?.clientAddress,
+      });
+    }
+
     return h.continue;
   });
 
