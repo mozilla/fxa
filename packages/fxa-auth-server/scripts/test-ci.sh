@@ -22,7 +22,7 @@ fi
 
 if [ "$TEST_TYPE" == 'integration' ]; then
   GREP_TESTS="--grep /(?=.*#integration\s-)(?!.*#series)/"
-  DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=2 --require test/server_setup.js"
+  DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=2"
 fi
 
 # If there are integration tests that need to start the test_server
@@ -35,7 +35,7 @@ fi
 
 if [ "$TEST_TYPE" == 'integration-v2' ]; then
   GREP_TESTS="--grep /(?=.*#integrationV2\s-)(?!.*#series)/"
-  DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=2 --require test/server_setup.js"
+  DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=2"
 fi
 
 if [ "$TEST_TYPE" == 'integration-v2-series' ]; then
@@ -51,11 +51,11 @@ fi
 
 for t in "${TESTS[@]}"; do
   echo -e "\n\nTesting: $t"
-  # if [ "$t" == "remote" ] && [ "$TEST_TYPE" != "integration-series" ]; then
-  #   # We only need the test server for tests in the test/remote directory
-  #   # and if we're not running integration-series tests (i.e., parallel tests).
-  #   DEFAULT_ARGS="$DEFAULT_ARGS --require test/test_server_global_setup.js"
-  # fi
+  if [ "$t" == "remote" ] && [ "$TEST_TYPE" != "integration-series" ]; then
+    # We only need the test server for tests in the test/remote directory
+    # and if we're not running integration-series tests (i.e., parallel tests).
+    DEFAULT_ARGS="$DEFAULT_ARGS --require test/server_setup.js"
+  fi
   echo "Running mocha with args: $DEFAULT_ARGS $GREP_TESTS test/$t"
   #./scripts/mocha-coverage.js $DEFAULT_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
   MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-auth-server-mocha-$TEST_TYPE-$t-results.xml mocha $DEFAULT_ARGS $GREP_TESTS test/$t
