@@ -53,6 +53,8 @@ for t in "${TESTS[@]}"; do
   # Add test server setup for remote integration tests
   if [ "$t" == "remote" ] && { [ "$TEST_TYPE" == "integration" ] || [ "$TEST_TYPE" == "integration-v2" ]; }; then
     LOCAL_ARGS="$LOCAL_ARGS --require test/server_setup.js"
+    echo "Active listening ports:"
+    lsof -i -P -n | grep LISTEN
   fi
   echo "Running mocha with args: $LOCAL_ARGS $GREP_TESTS test/$t"
   #./scripts/mocha-coverage.js $LOCAL_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
