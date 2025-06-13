@@ -6,7 +6,7 @@
 
 const { assert } = require('chai');
 const Client = require('../client')();
-
+const TestServer = require('../test_server');
 const config = require('../../config').default.getProperties();
 
 // Note, intentionally not indenting for code review.
