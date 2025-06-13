@@ -2,28 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useState } from 'react';
-import {
-  getSyncEngineIds,
-  syncEngineConfigs,
-} from '../../../components/ChooseWhatToSync/sync-engines';
+import { getSyncEngineIds, syncEngineConfigs } from '../../sync-engines';
 
-export function useMockSyncEngines() {
-  const [declinedSyncEngines, setDeclinedSyncEngines] = useState<string[]>([]);
-  const offeredSyncEngines = getSyncEngineIds(syncEngineConfigs);
+export function mockUseSyncEngines(
+  offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>
+) {
+  const offeredSyncEngineConfigs = syncEngineConfigs;
+  const offeredSyncEngines =
+    offeredSyncEnginesOverride || getSyncEngineIds(offeredSyncEngineConfigs);
 
-  const selectedEngines = offeredSyncEngines.reduce((acc, syncEngId) => {
-    acc[syncEngId] = !declinedSyncEngines.includes(syncEngId);
-    return acc;
-  }, {} as Record<string, boolean>);
+  const declinedSyncEngines = offeredSyncEngineConfigs
+    .filter((engineConfig) => !engineConfig.defaultInclude)
+    .map((engineConfig) => engineConfig.id);
+
+  const selectedEnginesForGlean = offeredSyncEngines.reduce(
+    (acc, syncEngId) => {
+      acc[syncEngId] = !declinedSyncEngines.includes(syncEngId);
+      return acc;
+    },
+    {} as Record<string, boolean>
+  );
 
   return {
     offeredSyncEngines,
-    offeredSyncEngineConfigs: syncEngineConfigs,
+    offeredSyncEngineConfigs,
     declinedSyncEngines,
-    setDeclinedSyncEngines,
-    selectedEngines,
+    selectedEnginesForGlean,
   };
 }
 
-export default useMockSyncEngines;
+export default mockUseSyncEngines;

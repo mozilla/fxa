@@ -5,11 +5,11 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
-import SignupConfirmedSync from '.';
-import { createMockIntegration } from './mocks';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+
+import { createMockIntegration, Subject } from './mocks';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { firefox } from '../../../lib/channels/firefox';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
@@ -32,12 +32,7 @@ describe('SignupConfirmedSync', () => {
   });
 
   it('renders the success banner heading and page title', () => {
-    renderWithLocalizationProvider(
-      <SignupConfirmedSync
-        integration={createMockIntegration()}
-        paymentMethodsSynced
-      />
-    );
+    renderWithLocalizationProvider(<Subject />);
 
     expect(screen.getByText('Mozilla account confirmed')).toBeInTheDocument();
     expect(
@@ -46,12 +41,7 @@ describe('SignupConfirmedSync', () => {
   });
 
   it('shows the "with payment" description and both action links on desktop', () => {
-    renderWithLocalizationProvider(
-      <SignupConfirmedSync
-        integration={createMockIntegration()}
-        paymentMethodsSynced
-      />
-    );
+    renderWithLocalizationProvider(<Subject />);
 
     expect(
       screen.getByText(
@@ -62,12 +52,9 @@ describe('SignupConfirmedSync', () => {
     expect(screen.getByText('Manage sync')).toBeInTheDocument();
   });
 
-  it('shows the "without payment" description when paymentMethodsSynced=false', () => {
+  it('shows the "without payment" description when creditcards are not included in sync engines', () => {
     renderWithLocalizationProvider(
-      <SignupConfirmedSync
-        integration={createMockIntegration()}
-        paymentMethodsSynced={false}
-      />
+      <Subject offeredSyncEngines={['bookmarks']} />
     );
 
     expect(
@@ -79,24 +66,14 @@ describe('SignupConfirmedSync', () => {
   });
 
   it('hard navigates to /pair when "Add another device" is clicked', async () => {
-    renderWithLocalizationProvider(
-      <SignupConfirmedSync
-        integration={createMockIntegration()}
-        paymentMethodsSynced
-      />
-    );
+    renderWithLocalizationProvider(<Subject />);
 
     await user.click(screen.getByText('Add another device'));
     expect(ReactUtils.hardNavigate).toHaveBeenCalledWith('/pair', {}, true);
   });
 
   it('calls fxaOpenSyncPreferences when "Manage sync" is clicked', async () => {
-    renderWithLocalizationProvider(
-      <SignupConfirmedSync
-        integration={createMockIntegration()}
-        paymentMethodsSynced
-      />
-    );
+    renderWithLocalizationProvider(<Subject />);
 
     await user.click(screen.getByText('Manage sync'));
     expect(firefox.fxaOpenSyncPreferences).toHaveBeenCalledTimes(1);
@@ -104,13 +81,21 @@ describe('SignupConfirmedSync', () => {
 
   it('on mobile, shows only "Manage sync"', () => {
     renderWithLocalizationProvider(
-      <SignupConfirmedSync
-        integration={createMockIntegration({ isDesktopSync: false })}
-        paymentMethodsSynced
-      />
+      <Subject integration={createMockIntegration({ isDesktopSync: false })} />
     );
 
     expect(screen.queryByText('Add another device')).not.toBeInTheDocument();
     expect(screen.getByText('Manage sync')).toBeInTheDocument();
+  });
+
+  it('when coming from post-verify-set-password, displays expected banner', () => {
+    renderWithLocalizationProvider(
+      <Subject origin="post-verify-set-password" />
+    );
+
+    expect(screen.getByText('Sync password created')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Sync is turned on' })
+    ).toBeInTheDocument();
   });
 });

@@ -37,6 +37,7 @@ import { SubscribePage } from './products';
 import { TermsOfService } from './termsOfService';
 import { TotpPage } from './settings/totp';
 import { InlineRecoveryKey } from './inlineRecoveryKey';
+import { SignupConfirmedSyncPage } from './signupConfirmedSync';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -71,6 +72,7 @@ export function create(page: Page, target: BaseTarget) {
     signinTotpCode: new SigninTotpCodePage(page, target),
     signinUnblock: new SigninUnblockPage(page, target),
     signup: new SignupPage(page, target),
+    signupConfirmedSync: new SignupConfirmedSyncPage(page, target),
     subscribe: new SubscribePage(page, target),
     termsOfService: new TermsOfService(page, target),
     totp: new TotpPage(page, target),

@@ -51,6 +51,7 @@ const FRONTEND_ROUTES = [
   'post_verify/third_party_auth/callback',
   'post_verify/third_party_auth/set_password',
   'primary_email_verified',
+  'signup_confirmed_sync', // React app only
   'push/completed',
   'push/confirm_login',
   'push/send_login',

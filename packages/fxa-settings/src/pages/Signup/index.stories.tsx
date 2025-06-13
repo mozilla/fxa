@@ -20,8 +20,9 @@ import {
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { AppContext } from '../../models';
-import { useMockSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
+import { mockUseSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
 import { MOCK_EMAIL } from '../mocks';
+import { getSyncEngineIds } from '../../lib/sync-engines';
 
 export default {
   title: 'Pages/Signup',
@@ -31,10 +32,12 @@ export default {
 
 const StoryWithProps = ({
   integration = createMockSignupOAuthWebIntegration(),
+  offeredSyncEnginesOverride,
 }: {
   integration?: SignupIntegration;
+  offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
 }) => {
-  const useSyncEnginesResult = useMockSyncEngines();
+  const useSyncEnginesResult = mockUseSyncEngines(offeredSyncEnginesOverride);
 
   return (
     <AppContext.Provider value={mockAppContext()}>
@@ -69,6 +72,14 @@ export const SyncDesktopV3 = () => (
 );
 export const SyncOAuth = () => (
   <StoryWithProps integration={createMockSignupOAuthNativeIntegration()} />
+);
+
+// Happens when the browser does not send FxA the 'creditcards' sync engine
+export const SyncOAuthWithoutPaymentMethods = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthNativeIntegration()}
+    offeredSyncEnginesOverride={['bookmarks']}
+  />
 );
 export const OAuthDesktopServiceRelay = () => (
   <StoryWithProps

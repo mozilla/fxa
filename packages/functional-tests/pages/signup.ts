@@ -26,7 +26,7 @@ export class SignupPage extends BaseLayout {
   }
 
   get signupFormHeading() {
-    return this.page.getByRole('heading', { name: 'Set your password' });
+    return this.page.getByRole('heading', { name: 'Create a password' });
   }
 
   get passwordTextbox() {
@@ -57,46 +57,6 @@ export class SignupPage extends BaseLayout {
 
   get changeEmailLink() {
     return this.page.getByRole('link', { name: 'Change email' });
-  }
-
-  get CWTSEngineHeader() {
-    return this.page.getByRole('heading', { name: 'Choose what to sync' });
-  }
-
-  get CWTSEngineBookmarks() {
-    return this.page.getByLabel('Bookmarks', { exact: true });
-  }
-
-  get CWTSEngineHistory() {
-    return this.page.getByLabel('History', { exact: true });
-  }
-
-  get CWTSEnginePasswords() {
-    return this.page.getByLabel('Passwords', { exact: true });
-  }
-
-  get CWTSEngineAddons() {
-    return this.page.getByLabel('Add-ons', { exact: true });
-  }
-
-  get CWTSEngineOpenTabs() {
-    return this.page.getByLabel('Open Tabs', { exact: true });
-  }
-
-  get CWTSEnginePreferences() {
-    return this.page.getByLabel('Preferences', { exact: true });
-  }
-
-  get CWTSEngineCreditCards() {
-    return this.page.getByLabel('Payment Methods', { exact: true });
-  }
-
-  get CWTSEngineAddresses() {
-    return this.page.getByLabel('Addresses', { exact: true });
-  }
-
-  get CWTSDoNotSync() {
-    return this.page.getByLabel('Do not sync', { exact: true });
   }
 
   // for backwards compatibility with Backbone

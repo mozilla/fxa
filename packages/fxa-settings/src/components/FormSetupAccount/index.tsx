@@ -5,8 +5,6 @@
 import React from 'react';
 import FormPasswordWithBalloons from '../FormPasswordWithBalloons';
 import ChooseNewsletters from '../ChooseNewsletters';
-import ChooseWhatToSync from '../ChooseWhatToSync';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FormSetupAccountProps } from './interfaces';
 import { newsletters } from '../ChooseNewsletters/newsletters';
 
@@ -16,42 +14,28 @@ export const FormSetupAccount = ({
   trigger,
   register,
   getValues,
-  onFocus,
   email,
   onFocusMetricsEvent,
   onSubmit,
   loading,
   isSync,
   offeredSyncEngineConfigs,
-  setDeclinedSyncEngines,
   isDesktopRelay,
   setSelectedNewsletterSlugs,
   submitButtonGleanId,
+  passwordFormType = 'signup',
 }: FormSetupAccountProps) => {
-  const showCWTS = () => {
-    if (isSync) {
-      if (offeredSyncEngineConfigs) {
-        return (
-          <ChooseWhatToSync
-            {...{
-              offeredSyncEngineConfigs,
-              setDeclinedSyncEngines,
-            }}
-          />
-        );
-      } else {
-        // Waiting to receive webchannel message from browser
-        return <LoadingSpinner className="flex justify-center mb-4" />;
-      }
-    } else {
-      // Display nothing if Sync flow that does not support webchannels
-      // or if CWTS is disabled
-      return <></>;
-    }
-  };
+  // We receive a web channel message back from the browser which gives FxA
+  // the available sync engines. This should never impact users since it's
+  // immediate but we don't want to allow submission until we've received
+  // the list from the browser.
+  const disableSubmit = !!(isSync
+    ? !offeredSyncEngineConfigs || loading
+    : loading);
 
   return (
     <FormPasswordWithBalloons
+      loading={disableSubmit}
       {...{
         formState,
         errors,
@@ -62,23 +46,19 @@ export const FormSetupAccount = ({
         onFocusMetricsEvent,
         disableButtonUntilValid: true,
         onSubmit,
-        loading,
         submitButtonGleanId,
+        passwordFormType,
       }}
-      passwordFormType="signup"
       requirePasswordConfirmation={isSync}
     >
-      {isSync
-        ? showCWTS()
-        : !isDesktopRelay &&
-          setSelectedNewsletterSlugs && (
-            <ChooseNewsletters
-              {...{
-                newsletters,
-                setSelectedNewsletterSlugs,
-              }}
-            />
-          )}
+      {!isSync && !isDesktopRelay && setSelectedNewsletterSlugs && (
+        <ChooseNewsletters
+          {...{
+            newsletters,
+            setSelectedNewsletterSlugs,
+          }}
+        />
+      )}
     </FormPasswordWithBalloons>
   );
 };

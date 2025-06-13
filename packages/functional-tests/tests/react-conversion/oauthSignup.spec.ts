@@ -74,7 +74,12 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup oauth webchannel with Sync desktop', async ({
       target,
-      syncOAuthBrowserPages: { confirmSignupCode, page, signup },
+      syncOAuthBrowserPages: {
+        confirmSignupCode,
+        page,
+        signup,
+        signupConfirmedSync,
+      },
       testAccountTracker,
     }) => {
       const { email, password } =
@@ -86,16 +91,15 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(signup.signupFormHeading).toBeVisible();
 
-      await expect(signup.CWTSEngineHeader).toBeVisible();
-      await expect(signup.CWTSEngineBookmarks).toBeVisible();
-      await expect(signup.CWTSEngineHistory).toBeVisible();
-
       await signup.fillOutSyncSignupForm(password);
 
       await expect(page).toHaveURL(/confirm_signup_code/);
 
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
+
+      await expect(page).toHaveURL(/signup_confirmed_sync/);
+      await signupConfirmedSync.clickPairLink();
 
       await expect(page).toHaveURL(/pair/);
       await signup.checkWebChannelMessage(FirefoxCommand.OAuthLogin);

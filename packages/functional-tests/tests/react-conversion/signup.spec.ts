@@ -43,7 +43,12 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup sync desktop v3, verify account', async ({
       target,
-      syncBrowserPages: { confirmSignupCode, page, signup },
+      syncBrowserPages: {
+        confirmSignupCode,
+        page,
+        signup,
+        signupConfirmedSync,
+      },
       testAccountTracker,
     }) => {
       const { email, password } =
@@ -61,16 +66,6 @@ test.describe('severity-1 #smoke', () => {
 
       // Sync desktop v3 includes "default" engines plus the ones provided via web channel
       // See sync-engines.ts comments
-      await expect(signup.CWTSEngineHeader).toBeVisible();
-      await expect(signup.CWTSEngineBookmarks).toBeVisible();
-      await expect(signup.CWTSEngineHistory).toBeVisible();
-      await expect(signup.CWTSEnginePasswords).toBeVisible();
-      await expect(signup.CWTSEngineAddons).toBeVisible();
-      await expect(signup.CWTSEngineOpenTabs).toBeVisible();
-      await expect(signup.CWTSEnginePreferences).toBeVisible();
-      await expect(signup.CWTSEngineCreditCards).toBeVisible();
-      await expect(signup.CWTSEngineAddresses).toBeHidden();
-
       await signup.fillOutSyncSignupForm(password);
 
       await signup.checkWebChannelMessage(FirefoxCommand.Login);
@@ -79,8 +74,8 @@ test.describe('severity-1 #smoke', () => {
       const code = await target.emailClient.getVerifyShortCode(email);
       await confirmSignupCode.fillOutCodeForm(code);
 
-      await expect(page).toHaveURL(/pair/);
-      await expect(page.getByText('Signed in successfully')).toBeVisible();
+      await expect(page).toHaveURL(/signup_confirmed_sync/);
+      await expect(signupConfirmedSync.bannerConfirmed).toBeVisible();
     });
   });
 });

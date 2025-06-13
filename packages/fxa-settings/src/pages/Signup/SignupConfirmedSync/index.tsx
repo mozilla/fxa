@@ -3,22 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { firefox } from '../../../lib/channels/firefox';
-import { SignupConfirmedSyncProps } from './interfaces';
+import { LocationState, SignupConfirmedSyncProps } from './interfaces';
 import { SyncCloudsImage } from '../../../components/images';
+import { checkPaymentMethodsWillSync } from '../../../lib/sync-engines';
 
 const SignupConfirmedSync = ({
   integration,
-  // TODO check this was received from the webchannel message
-  paymentMethodsSynced = true,
+  offeredSyncEngines,
 }: SignupConfirmedSyncProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const paymentMethodsSynced = checkPaymentMethodsWillSync(offeredSyncEngines);
+
+  const location = useLocation() as ReturnType<typeof useLocation> & {
+    state: LocationState;
+  };
+  const originPostVerifySetPassword =
+    location?.state?.origin === 'post-verify-set-password';
 
   // Currently, this page will only be shown to Sync Desktop users because once
   // mobile users are signed in, the web view automatically closes; see FXA-10865.
@@ -30,16 +37,29 @@ const SignupConfirmedSync = ({
 
   return (
     <AppLayout>
-      <Banner
-        type="success"
-        textAlignClassName="text-center"
-        content={{
-          localizedHeading: ftlMsgResolver.getMsg(
-            'signup-confirmed-sync-success-banner',
-            'Mozilla account confirmed'
-          ),
-        }}
-      />
+      {originPostVerifySetPassword ? (
+        <Banner
+          type="success"
+          textAlignClassName="text-center"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              'signup-confirmed-sync-set-password-success-banner',
+              'Sync password created'
+            ),
+          }}
+        />
+      ) : (
+        <Banner
+          type="success"
+          textAlignClassName="text-center"
+          content={{
+            localizedHeading: ftlMsgResolver.getMsg(
+              'signup-confirmed-sync-success-banner',
+              'Mozilla account confirmed'
+            ),
+          }}
+        />
+      )}
 
       <SyncCloudsImage className="mx-auto mt-4 max-h-44" />
 
@@ -47,14 +67,14 @@ const SignupConfirmedSync = ({
         <h1 className="card-header">Sync is turned on</h1>
       </FtlMsg>
       {paymentMethodsSynced ? (
-        <FtlMsg id="signup-confirmed-sync-description-with-payment">
+        <FtlMsg id="signup-confirmed-sync-description-with-payment-v2">
           <p className="mt-2 mb-7">
             Your passwords, payment methods, addresses, bookmarks, history, and
             more can sync everywhere you use Firefox.
           </p>
         </FtlMsg>
       ) : (
-        <FtlMsg id="signup-confirmed-sync-description">
+        <FtlMsg id="signup-confirmed-sync-description-v2">
           <p className="mt-2 mb-7">
             Your passwords, addresses, bookmarks, history, and more can sync
             everywhere you use Firefox.

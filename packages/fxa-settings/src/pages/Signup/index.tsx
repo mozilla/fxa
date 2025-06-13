@@ -39,6 +39,7 @@ import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { FormSetupAccount } from '../../components/FormSetupAccount';
+import { checkPaymentMethodsWillSync } from '../../lib/sync-engines';
 
 export const viewName = 'signup';
 
@@ -50,13 +51,13 @@ export const Signup = ({
     offeredSyncEngines,
     offeredSyncEngineConfigs,
     declinedSyncEngines,
-    setDeclinedSyncEngines,
-    selectedEngines,
+    selectedEnginesForGlean,
   },
   deeplink,
-  flowQueryParams
+  flowQueryParams,
 }: SignupProps) => {
   const sensitiveDataClient = useSensitiveDataClient();
+
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   useEffect(() => {
@@ -67,6 +68,8 @@ export const Signup = ({
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const isSync = integration.isSync();
   const isDesktopRelay = integration.isDesktopRelay();
+  const paymentMethodsWillSync =
+    isSync && checkPaymentMethodsWillSync(offeredSyncEngines);
 
   const onFocusMetricsEvent = () => {
     logViewEvent(settingsViewName, `${viewName}.engage`);
@@ -174,7 +177,7 @@ export const Signup = ({
             declinedEngines: declinedSyncEngines,
           };
           GleanMetrics.registration.cwts({
-            sync: { cwts: selectedEngines },
+            sync: { cwts: selectedEnginesForGlean },
           });
 
           firefox.fxaLogin({
@@ -251,7 +254,7 @@ export const Signup = ({
       email,
       isSync,
       offeredSyncEngines,
-      selectedEngines,
+      selectedEnginesForGlean,
       isSyncOAuth,
       isDesktopRelay,
       isOAuth,
@@ -262,32 +265,49 @@ export const Signup = ({
   const isDeeplinking = !!deeplink;
   if (isDeeplinking) {
     // To avoid flickering, we only render third party auth and navigate
-    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} flowQueryParams={flowQueryParams}/>
+    return (
+      <ThirdPartyAuth
+        showSeparator={false}
+        viewName="deeplink"
+        deeplink={deeplink}
+        flowQueryParams={flowQueryParams}
+      />
+    );
   }
 
   return (
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
     //       - forceMessage('Account no longer exists. Recreate it?')
     <AppLayout>
-      {isDesktopRelay ? (
-        <>
-          <CardHeader
-            headingText="Create a password"
-            headingTextFtlId="signup-heading-relay"
-          />
-          <FtlMsg id="signup-relay-info">
-            <p className="text-sm">
-              A password is needed to securely manage your masked emails and
-              access Mozilla’s security tools.
+      <CardHeader
+        headingText="Create a password"
+        headingTextFtlId="signup-heading-v2"
+      />
+
+      {isDesktopRelay && (
+        <FtlMsg id="signup-relay-info">
+          <p className="text-base">
+            A password is needed to securely manage your masked emails and
+            access Mozilla’s security tools.
+          </p>
+        </FtlMsg>
+      )}
+      {isSync &&
+        (paymentMethodsWillSync ? (
+          <FtlMsg id="signup-sync-info-with-payment">
+            <p className="text-base">
+              Sync your passwords, payment methods, bookmarks, and more
+              everywhere you use Firefox.
             </p>
           </FtlMsg>
-        </>
-      ) : (
-        <CardHeader
-          headingText="Set your password"
-          headingTextFtlId="signup-heading"
-        />
-      )}
+        ) : (
+          <FtlMsg id="signup-sync-info">
+            <p className="text-base">
+              Sync your passwords, bookmarks, and more everywhere you use
+              Firefox.
+            </p>
+          </FtlMsg>
+        ))}
 
       {bannerErrorText && (
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
@@ -354,7 +374,6 @@ export const Signup = ({
           onSubmit,
           isSync,
           offeredSyncEngineConfigs,
-          setDeclinedSyncEngines,
           isDesktopRelay,
           setSelectedNewsletterSlugs,
         }}
@@ -363,7 +382,9 @@ export const Signup = ({
       />
 
       {/* Third party auth is not currently supported for sync */}
-      {!isSync && !isDesktopRelay && <ThirdPartyAuth viewName="signup" flowQueryParams={flowQueryParams}/>}
+      {!isSync && !isDesktopRelay && (
+        <ThirdPartyAuth viewName="signup" flowQueryParams={flowQueryParams} />
+      )}
 
       <TermsPrivacyAgreement
         isPocketClient={client === MozServices.Pocket}

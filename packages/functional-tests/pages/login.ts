@@ -34,50 +34,6 @@ type FirstSignUpOptions = {
 export class LoginPage extends BaseLayout {
   readonly path = '';
 
-  get CWTSEngineHeader() {
-    return this.page.getByRole('heading', { name: 'Choose what to sync' });
-  }
-
-  get CWTSEngineBookmarks() {
-    return this.page.getByLabel('Bookmarks', { exact: true });
-  }
-
-  get CWTSEngineHistory() {
-    return this.page.getByLabel('History', { exact: true });
-  }
-
-  get CWTSEnginePasswords() {
-    return this.page.getByLabel('Passwords', { exact: true });
-  }
-
-  get CWTSEngineAddons() {
-    return this.page.getByLabel('Add-ons', { exact: true });
-  }
-
-  get CWTSEnginePreferences() {
-    return this.page.getByLabel('Preferences', { exact: true });
-  }
-
-  get CWTSEngineCreditCards() {
-    return this.page.getByLabel('Payment Methods', { exact: true });
-  }
-
-  get CWTSEngineAddresses() {
-    return this.page.getByLabel('Addresses', { exact: true });
-  }
-
-  get CWTSDoNotSync() {
-    return this.page.getByLabel('Do not sync', { exact: true });
-  }
-
-  get signUpPasswordHeader() {
-    return this.page.getByRole('heading', { name: 'Set your password' });
-  }
-
-  get signUpCodeHeader() {
-    return this.page.locator(selectors.SIGN_UP_CODE_HEADER);
-  }
-
   async fillOutFirstSignUp(
     email: string,
     password: string,
