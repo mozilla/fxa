@@ -10,7 +10,6 @@
     "build-react": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
     "clean": "rimraf dist",
     "compile": "tsc --noEmit",
-    "eject": "react-scripts eject",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "gql-extract": "persistgraphql src ../../configs/gql/allowlist/fxa-admin-panel.json  --js --extension=ts",
     "lint": "eslint .",
@@ -49,7 +48,6 @@
     "mozlog": "^3.0.2",
     "on-headers": "^1.0.2",
     "react-router-dom": "^6.26.0",
-    "react-scripts": "^5.0.1",
     "serve-static": "^1.16.0"
   },
   "devDependencies": {
