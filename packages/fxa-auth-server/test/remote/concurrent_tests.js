@@ -15,19 +15,13 @@ const config = require('../../config').default.getProperties();
 
 describe(`#integration${testOptions.version} - remote concurrent`, function () {
 
-  before(async () => {
-  });
-
-  after(async () => {
-  });
-
-  it('concurrent create requests', () => {
+  it('concurrent create requests', async () => {
     const email = TestUtilities.uniqueEmail();
     const password = 'abcdef';
     // Two shall enter, only one shall survive!
     const r1 = Client.create(config.publicUrl, email, password, testOptions);
     const r2 = Client.create(config.publicUrl, email, password, testOptions);
-    return Promise.allSettled([r1, r2])
+    await Promise.allSettled([r1, r2])
       .then((results) => {
         const rejected = results.filter((p) => p.status === 'rejected');
         assert(rejected.length === 1, 'one request should have failed');
@@ -37,7 +31,6 @@ describe(`#integration${testOptions.version} - remote concurrent`, function () {
       });
   });
 
-
-});
+  });
 
 });

@@ -921,6 +921,16 @@ workflows:
           requires:
             - Build (PR)
       - integration-test:
+          name: Integration Test - Servers - Auth V2 Series (PR)
+          nx_run: affected --base=main --head=$CIRCLE_SHA1
+          projects: --exclude '*,!tag:scope:server:auth' --verbose
+          start_customs: true
+          test_suite: servers-auth-v2-integration-series
+          target: -t test-integration-v2-series
+          workflow: test_pull_request
+          requires:
+            - Build (PR)
+      - integration-test:
           name: Integration Test - Libraries (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:shared:*'
