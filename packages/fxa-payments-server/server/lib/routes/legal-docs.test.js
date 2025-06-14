@@ -19,7 +19,7 @@ jest.mock('@sentry/node', () => ({
 }));
 
 const legalDocsRoute = require('./legal-docs');
-const validUrl = 'https://accounts-static.cdn.mozilla.net/vpn';
+const validUrl = 'https://cdn.accounts.firefox.com/vpn';
 const noop = () => {};
 const mockRes = {
   sendStatus: jest.fn().mockReturnValue({ end: noop }),

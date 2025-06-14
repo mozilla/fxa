@@ -205,7 +205,6 @@ describe('product configuration util functions', () => {
         ['de'],
         true
       );
-      console.log('hi', actual, CONFIGURATION_URLS);
       expect(actual).to.equal(CONFIGURATION_URLS);
     });
 

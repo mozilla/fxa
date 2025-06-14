@@ -276,7 +276,7 @@ describe('StripeProductsAndPlansConverter', () => {
         converter.stripeProductToProductConfig(testProduct);
       assert.deepEqual(expectedProductConfig, actualProductConfig);
       const { error } = await ProductConfig.validate(actualProductConfig, {
-        cdnUrlRegex: '^http',
+        cdnUrlRegex: ['^http'],
       });
       assert.isUndefined(error);
     });
@@ -313,7 +313,7 @@ describe('StripeProductsAndPlansConverter', () => {
       const actualPlanConfig = converter.stripePlanToPlanConfig(testPlan);
       assert.deepEqual(expectedPlanConfig, actualPlanConfig);
       const { error } = await PlanConfig.validate(actualPlanConfig, {
-        cdnUrlRegex: '^https://',
+        cdnUrlRegex: ['^https://'],
       });
       assert.isUndefined(error);
     });
@@ -377,7 +377,7 @@ describe('StripeProductsAndPlansConverter', () => {
         },
         productConfigsFirestore: {
           schemaValidation: {
-            cdnUrlRegex: '^http',
+            cdnUrlRegex: ['^http'],
           },
         },
       },
@@ -458,7 +458,7 @@ describe('StripeProductsAndPlansConverter', () => {
         },
         productConfigsFirestore: {
           schemaValidation: {
-            cdnUrlRegex: '^http',
+            cdnUrlRegex: ['^http'],
           },
         },
       },
@@ -542,7 +542,7 @@ describe('StripeProductsAndPlansConverter', () => {
         },
         productConfigsFirestore: {
           schemaValidation: {
-            cdnUrlRegex: '^http',
+            cdnUrlRegex: ['^http'],
           },
         },
       },
@@ -741,9 +741,8 @@ describe('StripeProductsAndPlansConverter', () => {
 
     it('updates existing products and plans', async () => {
       // Put some configs into Firestore
-      const productConfigDocId1 = await paymentConfigManager.storeProductConfig(
-        productConfig1
-      );
+      const productConfigDocId1 =
+        await paymentConfigManager.storeProductConfig(productConfig1);
       await paymentConfigManager.storePlanConfig(
         planConfig1,
         productConfigDocId1

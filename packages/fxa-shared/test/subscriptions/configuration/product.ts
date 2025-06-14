@@ -38,7 +38,7 @@ const localesObject = {
 };
 
 const validSchemaValidation = {
-  cdnUrlRegex: '^https://',
+  cdnUrlRegex: ['^https://'],
 };
 
 describe('ProductConfig', () => {
@@ -83,7 +83,7 @@ describe('ProductConfig', () => {
 
   it('validates with error on an invalid URL Regex in productConfig', async () => {
     const result = await ProductConfig.validate(firestoreObject, {
-      cdnUrlRegex: 'invalidpattern',
+      cdnUrlRegex: ['invalidpattern'],
     });
     assert.isDefined(result.error);
     assert.isUndefined(result.value);
@@ -93,7 +93,7 @@ describe('ProductConfig', () => {
     const obj = JSON.parse(JSON.stringify(firestoreObject));
     obj.locales = localesObject;
     const result = await ProductConfig.validate(obj, {
-      cdnUrlRegex: 'invalidpattern',
+      cdnUrlRegex: ['invalidpattern'],
     });
     assert.isDefined(result.error);
     assert.isUndefined(result.value);
