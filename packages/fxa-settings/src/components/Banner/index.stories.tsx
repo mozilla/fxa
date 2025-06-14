@@ -141,7 +141,7 @@ export const Variation4aIconStart = () => (
         localizedHeading: sampleHeading,
         localizedDescription: sampleDescription,
       }}
-      iconAlign={'start'}
+      iconAlignClassName="self-start"
       dismissButton={{ action: () => alert('Dismiss clicked') }}
     />
   </AppLayout>
@@ -155,7 +155,7 @@ export const Variation4bIconCenter = () => (
         localizedHeading: sampleHeading,
         localizedDescription: sampleDescription,
       }}
-      iconAlign={'center'}
+      iconAlignClassName="self-center"
       dismissButton={{ action: () => alert('Dismiss clicked') }}
     />
   </AppLayout>
@@ -251,6 +251,19 @@ export const TypeWarning = () => (
       }}
       link={{ url: '#', localizedText: sampleCtaText }}
       dismissButton={{ action: () => alert('Dismiss clicked') }}
+    />
+  </AppLayout>
+);
+
+export const CenteredText = () => (
+  <AppLayout>
+    <Banner
+      type="success"
+      textAlignClassName="text-center"
+      content={{
+        localizedHeading: sampleHeading,
+        localizedDescription: sampleDescription,
+      }}
     />
   </AppLayout>
 );

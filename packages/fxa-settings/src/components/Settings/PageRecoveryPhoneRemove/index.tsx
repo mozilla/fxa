@@ -94,7 +94,7 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
       <Banner
         type="info"
         isFancy
-        iconAlign={'start'}
+        iconAlignClassName="self-start"
         customContent={
           <div>
             <FtlMsg id="settings-recovery-phone-remove-recommend">

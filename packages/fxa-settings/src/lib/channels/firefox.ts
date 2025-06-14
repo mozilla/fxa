@@ -343,6 +343,10 @@ export class Firefox extends EventTarget {
     this.send(FirefoxCommand.OAuthLogin, options);
   }
 
+  fxaOpenSyncPreferences() {
+    this.send(FirefoxCommand.SyncPreferences, { ok: true });
+  }
+
   async fxaCanLinkAccount(
     options: FxACanLinkAccount
   ): Promise<FxACanLinkAccountResponse> {

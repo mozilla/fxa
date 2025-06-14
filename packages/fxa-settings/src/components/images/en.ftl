@@ -32,3 +32,5 @@ backup-recovery-phone-image-aria-label =
   .aria-label = Mobile device with SMS text message capabilities
 backup-authentication-codes-image-aria-label =
   .aria-label = Device screen with codes
+sync-clouds-image-aria-label =
+  .aria-label = Clouds with a sync icon

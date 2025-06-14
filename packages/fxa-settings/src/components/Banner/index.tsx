@@ -27,14 +27,17 @@ export const Banner = ({
   link,
   isFancy,
   bannerId,
-  iconAlign = 'center',
+  textAlignClassName = 'text-start',
+  iconAlignClassName = 'self-center',
 }: BannerProps) => {
-  const iconClassName = `shrink-0 self-${iconAlign}`;
+  const iconClassName = `shrink-0 ${iconAlignClassName}`;
   return (
     <div
       id={bannerId || ''}
       className={classNames(
-        'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-start text-sm',
+        'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-sm',
+        textAlignClassName,
+        textAlignClassName === 'text-center' && 'justify-center',
         type === 'error' && 'bg-red-100',
         type === 'info' && !isFancy && 'bg-blue-50',
         type === 'info' &&
@@ -68,7 +71,12 @@ export const Banner = ({
         <WarningIcon className={iconClassName} mode="attention" ariaHidden />
       )}
 
-      <div className="flex flex-col grow">
+      <div
+        className={classNames(
+          'flex flex-col',
+          textAlignClassName === 'text-start' && 'grow'
+        )}
+      >
         {content?.localizedHeading && (
           <p className="font-bold">{content.localizedHeading}</p>
         )}
