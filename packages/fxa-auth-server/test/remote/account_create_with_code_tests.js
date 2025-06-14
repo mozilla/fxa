@@ -11,12 +11,12 @@ const config = require('../../config').default.getProperties();
 const otplib = require('otplib');
 const mailbox = require('../mailbox')()
 const { TestUtilities } = require('../test_utilities');
+const { uniqueEmail } = require('../lib/util');
 
 // Note, intentionally not indenting for code review.
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote account create with sign-up code`, function () {
-  this.timeout(60000);
   const password = '4L6prUdlLNfxGIoj';
   let client, email, emailStatus, emailData;
 
@@ -28,7 +28,7 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
   });
 
   it('create and verify sync account', async () => {
-    email = TestUtilities.uniqueEmail();
+    email = uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
       ...testOptions,

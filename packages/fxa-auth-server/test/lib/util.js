@@ -6,6 +6,8 @@
 
 'use strict';
 
+const config = require('../../config').default.getProperties();
+const crypto = require('crypto');
 const assert = require('assert');
 const ORIGINAL_STDOUT_WRITE = process.stdout.write;
 const LOGS_REGEX = /^\[1mfxa-oauth-server/i; // eslint-disable-line no-control-regex
@@ -51,9 +53,24 @@ function assertSecurityHeaders(res, expect = {}) {
   });
 }
 
+function uniqueEmail(domain, configOverride) {
+  const cfg = configOverride || config;
+  if (!domain) {
+    domain = '@restmail.net';
+  }
+  const base = crypto.randomBytes(10).toString('hex');
+
+  // The enable_customs_ prefix will skip the 'isAllowedEmail' check in customs
+  // that is typically used to by pass customs during testing... This can
+  // be useful if a test that expects customs to activate is run.
+  const prefix = cfg.enableCustomsChecks ? 'enable_customs_' : '';
+  return `${prefix}${base}${domain}`;
+};
+
 module.exports = {
   assertSecurityHeaders,
   decodeJWT,
   disableLogs,
   restoreStdoutWrite,
+  uniqueEmail,
 };
