@@ -46,36 +46,42 @@ function createRandomEmailAddr(template) {
 }
 
 describe('#integration - scripts/check-users:', function () {
-  this.timeout(60000);
-
   let server, db, validClient, invalidClient, filename;
 
   before(async () => {
-    server = await TestServer.start(config);
-    db = await DB.connect(config);
-    validClient = await AuthClient.create(
-      config.publicUrl,
-      createRandomEmailAddr('valid_pw_hash@ex.com'),
-      PASSWORD_VALID,
-      {
-        version: '',
-      }
-    );
-    invalidClient = await AuthClient.create(
-      config.publicUrl,
-      createRandomEmailAddr('invalid_pw_hash@ex.com'),
-      PASSWORD_VALID,
-      {
-        version: '',
-      }
-    );
+    this.timeout(15000);
+    try {
+      console.debug(`[${Date.now()}]: check-users creating testserver with config:`, config);
+      server = await TestServer.start(config);
+      db = await DB.connect(config);
+      console.debug(`[${Date.now()}]: check-users connected to db`);
+      validClient = await AuthClient.create(
+        config.publicUrl,
+        createRandomEmailAddr('valid_pw_hash@ex.com'),
+        PASSWORD_VALID,
+        {
+          version: '',
+        }
+      );
+      invalidClient = await AuthClient.create(
+        config.publicUrl,
+        createRandomEmailAddr('invalid_pw_hash@ex.com'),
+        PASSWORD_VALID,
+        {
+          version: '',
+        }
+      );
 
-    // Write the test accounts to a file that will be used to verify the script
-    let csvData = `${validClient.email}:${PASSWORD_VALID}\n`;
-    csvData = csvData + `${invalidClient.email}:wrong_password\n`;
-    csvData = csvData + `invalid@email.com:wrong_password\n`;
-    filename = `./test/scripts/fixtures/${Math.random()}_two_email_passwords.txt`;
-    fs.writeFileSync(filename, csvData);
+      // Write the test accounts to a file that will be used to verify the script
+      let csvData = `${validClient.email}:${PASSWORD_VALID}\n`;
+      csvData = csvData + `${invalidClient.email}:wrong_password\n`;
+      csvData = csvData + `invalid@email.com:wrong_password\n`;
+      filename = `./test/scripts/fixtures/${Math.random()}_two_email_passwords.txt`;
+      fs.writeFileSync(filename, csvData);
+    } catch (err) {
+      console.debug('Failed to setup for check-users tests:', err);
+      throw err;
+    }
   });
 
   after(async () => {

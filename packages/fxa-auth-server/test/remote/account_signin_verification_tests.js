@@ -15,8 +15,7 @@ const mocks = require('../mocks');
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote account signin verification`, function () {
-    this.timeout(60000);
+  describe(`#integration${testOptions.version} - #series - remote account signin verification`, function () {
     let server;
 
     before(async () => {

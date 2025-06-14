@@ -5,20 +5,19 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
+const config = require('../../config').default.getProperties();
+const TestServer = require('../test_server');
 
-let config, server, client, email, secondEmail;
-const password = 'allyourbasearebelongtous',
-  newPassword = 'newpassword';
+let client, email, secondEmail;
+const password = 'allyourbasearebelongtous';
+const newPassword = 'newpassword';
 
 [ {version:""}, {version:"V2"}].forEach((testOptions) => {
 
-describe(`#integration${testOptions.version} - remote change email`, function () {
-  this.timeout(60000);
-
+describe(`#integration${testOptions.version} - #series - remote change email`, function () {
+  let server;
   before(async () => {
-    config = require('../../config').default.getProperties();
     config.securityHistory.ipProfiling = {};
     server = await TestServer.start(config);
   });
@@ -318,6 +317,16 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
     const client1SecondEmail = server.uniqueEmail();
     const client2Email = server.uniqueEmail();
     const client2SecondEmail = server.uniqueEmail();
+
+    // need to revisit this - it doesn't look like the test
+    // should fail but the second email is not lining up
+    // and we're not getting 3 emails in the server.mailbox.
+    // console.debug('Emails for test:', {
+    //   client1Email,
+    //   client1SecondEmail,
+    //   client2Email,
+    //   client2SecondEmail,
+    // })
 
     const client1 = await Client.createAndVerify(
       config.publicUrl,

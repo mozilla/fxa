@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const url = require('url');
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+chai.use(chaiAsPromised);
 const { assert } = require('chai');
 const nock = require('nock');
 const buf = require('buf').hex;

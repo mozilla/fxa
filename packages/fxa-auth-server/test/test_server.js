@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -70,17 +71,36 @@ TestServer.start = async function (config, printLogs, options) {
 };
 
 TestServer.prototype.start = async function () {
-  const { authServerMockDependencies = {} } = this.options;
-  const createAuthServer = proxyquire(
-    '../bin/key_server',
-    authServerMockDependencies
-  );
+  try {
+    const serviceNameToLog = 'check-users.js';
+    traceIfStackIncludes(serviceNameToLog, 'Starting TestServer - inspect...');
 
-  this.server = await createAuthServer(this.config);
-  this.mail = await createMailHelper(this.printLogs);
+    traceIfStackIncludes('account_create_tests.js', 'Starting TestServer - inspect...');
+    console.trace('🔨 trace server start.');
+    const { authServerMockDependencies = {} } = this.options;
+    const createAuthServer = proxyquire(
+      '../bin/key_server',
+      authServerMockDependencies
+    );
+    traceIfStackIncludes(serviceNameToLog, 'Starting AuthServer - inspect...');
+    console.debug('⚙️ Starting AuthServer...');
+    this.server = await createAuthServer(this.config);
+    traceIfStackIncludes(serviceNameToLog, 'Starting MailHelper - inspect...');
+    console.debug('⚙️ Starting MailHelper...')
+    this.mail = await createMailHelper(this.printLogs);
 
-  if (this.config.profileServer.url) {
-    this.profileServer = await createProfileHelper();
+    if (this.config.profileServer.url) {
+      traceIfStackIncludes(serviceNameToLog, 'Starting ProfileHelper - inspect...');
+      console.debug('⚙️ Starting ProfileHelper...');
+      this.profileServer = await createProfileHelper();
+    }
+    traceIfStackIncludes(serviceNameToLog, 'Done creating TestServer - inspect...');
+    traceIfStackIncludes('account_create_tests.js', 'Done creating TestServer - inspect...');
+    console.debug(`[${Date.now()}]: ⚙️ Done starting services.`);
+  } catch (err) {
+    traceIfStackIncludes(serviceNameToLog, `Error starting TestServer: ${err}`);
+    console.error('❌ Error starting TestServer:', err);
+    throw err;
   }
 };
 
@@ -89,6 +109,8 @@ TestServer.stop = async function (server) {
     throw new Error('Server must be provided');
   }
   await server.stop();
+  console.debug('🛑 TestServer stopped.');
+
 };
 
 TestServer.prototype.stop = async function () {
@@ -121,5 +143,14 @@ TestServer.prototype.uniqueUnicodeEmail = function () {
     crypto.randomBytes(10).toString('hex') + String.fromCharCode(1234)
   }@${String.fromCharCode(5678)}restmail.net`;
 };
+
+function traceIfStackIncludes(fileFragment, message = 'Trace point') {
+  const stack = new Error().stack;
+
+  if (stack && stack.includes(fileFragment)) {
+    console.trace(`[${Date.now()}]: 🔍 ${message}`);
+  }
+}
+
 
 module.exports = TestServer;

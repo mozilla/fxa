@@ -148,6 +148,12 @@ module.exports = (config) => {
    */
   ClientApi.prototype.accountCreate = function (email, authPW, options = {}) {
     const url = `${this.baseURL}/account/create${getQueryString(options)}`;
+    // console.debug('Creating account through api: ', {
+    //   url,
+    //   email,
+    //   authPW,
+    //   options,
+    // })
     return this.doRequest(
       'POST',
       url,

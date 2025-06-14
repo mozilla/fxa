@@ -5,26 +5,18 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const superagent = require('superagent');
+const config = require('../../config').default.getProperties();
 
 // Note, intentionally not indenting for code review.
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - remote base path`, function () {
-  this.timeout(60000);
-  let server, config;
   before(async () => {
-    config = require('../../config').default.getProperties();
-    config.publicUrl = 'http://localhost:9000/auth';
-
-    server = await TestServer.start(config);
+    // config.publicUrl = 'http://localhost:9000/auth';
   });
 
-  after(async () => {
-    await TestServer.stop(server);
-  });
 
   function testVersionRoute(path) {
     return () => {

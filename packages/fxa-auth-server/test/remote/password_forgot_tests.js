@@ -8,7 +8,8 @@
  const chaiAsPromised = require('chai-as-promised');
  const url = require('url');
  const Client = require('../client')();
- const TestServer = require('../test_server');
+ const { TestUtilities } = require('../test_utilities');
+ const mailbox = require('../mailbox')();
  const crypto = require('crypto');
  const base64url = require('base64url');
 
@@ -21,19 +22,15 @@
  [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
    describe(`#integration${testOptions.version} - remote password forgot`, function () {
      this.timeout(15000);
-     let server;
+
      before(async () => {
-       config.securityHistory.ipProfiling.allowedRecency = 0;
-       config.signinConfirmation.skipForNewAccounts.enabled = true;
-       server = await TestServer.start(config)
      });
 
      after(async () => {
-      await TestServer.stop(server);
     });
 
      it('forgot password', () => {
-       const email = server.uniqueEmail();
+       const email = TestUtilities.uniqueEmail();
        const password = 'allyourbasearebelongtous';
        const newPassword = 'ez';
        let wrapKb = null;
@@ -48,7 +45,7 @@
          config.publicUrl,
          email,
          password,
-         server.mailbox,
+         mailbox,
          options
        )
          .then((x) => {
@@ -61,7 +58,7 @@
            return client.forgotPassword();
          })
          .then(() => {
-           return server.mailbox.waitForEmail(email);
+           return mailbox.waitForEmail(email);
          })
          .then((emailData) => {
            assert.equal(
@@ -82,7 +79,7 @@
            return resetPassword(client, code, newPassword, undefined, options);
          })
          .then(() => {
-           return server.mailbox.waitForEmail(email);
+           return mailbox.waitForEmail(email);
          })
          .then((emailData) => {
            const link = emailData.headers['x-link'];
@@ -128,14 +125,14 @@
 
      it('forgot password limits verify attempts', () => {
        let code = null;
-       const email = server.uniqueEmail();
+       const email = TestUtilities.uniqueEmail();
        const password = 'hothamburger';
        let client = null;
        return Client.createAndVerify(
          config.publicUrl,
          email,
          password,
-         server.mailbox,
+         mailbox,
          testOptions
        )
          .then(() => {
@@ -144,7 +141,7 @@
            return client.forgotPassword();
          })
          .then(() => {
-           return server.mailbox.waitForCode(email);
+           return mailbox.waitForCode(email);
          })
          .then((c) => {
            code = c;
@@ -153,7 +150,7 @@
            return client.reforgotPassword();
          })
          .then(() => {
-           return server.mailbox.waitForCode(email);
+           return mailbox.waitForCode(email);
          })
          .then((c) => {
            assert.equal(code, c, 'same code as before');
@@ -240,7 +237,7 @@
      });
 
      it('recovery email link', () => {
-       const email = server.uniqueEmail();
+       const email = TestUtilities.uniqueEmail();
        const password = 'something';
        let client = null;
        const options = {
@@ -253,13 +250,13 @@
            client = c;
          })
          .then(() => {
-           return server.mailbox.waitForEmail(email);
+           return mailbox.waitForEmail(email);
          })
          .then(() => {
            return client.forgotPassword();
          })
          .then(() => {
-           return server.mailbox.waitForEmail(email);
+           return mailbox.waitForEmail(email);
          })
          .then((emailData) => {
            const link = emailData.headers['x-link'];
@@ -277,7 +274,7 @@
      });
 
      it('password forgot status with valid token', () => {
-       const email = server.uniqueEmail();
+       const email = TestUtilities.uniqueEmail();
        const password = 'something';
        return Client.create(config.publicUrl, email, password, testOptions).then(
          (c) => {
@@ -312,7 +309,7 @@
      });
 
      it('/password/forgot/verify_code should set an unverified account as verified', () => {
-       const email = server.uniqueEmail();
+       const email = TestUtilities.uniqueEmail();
        const password = 'something';
        let client = null;
        return Client.create(config.publicUrl, email, password, testOptions)
@@ -326,13 +323,13 @@
            assert.equal(status.verified, false, 'email unverified');
          })
          .then(() => {
-           return server.mailbox.waitForCode(email); // ignore this code
+           return mailbox.waitForCode(email); // ignore this code
          })
          .then(() => {
            return client.forgotPassword();
          })
          .then(() => {
-           return server.mailbox.waitForCode(email);
+           return mailbox.waitForCode(email);
          })
          .then((code) => {
            return client.verifyPasswordResetCode(code);
@@ -346,7 +343,7 @@
      });
 
      it('forgot password with service query parameter', () => {
-       const email = server.uniqueEmail();
+       const email = TestUtilities.uniqueEmail();
        const options = {
          ...testOptions,
          redirectTo: `https://sync.${config.smtp.redirectDomain}/`,
@@ -358,13 +355,13 @@
            client = c;
          })
          .then(() => {
-           return server.mailbox.waitForEmail(email);
+           return mailbox.waitForEmail(email);
          })
          .then(() => {
            return client.forgotPassword();
          })
          .then(() => {
-           return server.mailbox.waitForEmail(email);
+           return mailbox.waitForEmail(email);
          })
          .then((emailData) => {
            const link = emailData.headers['x-link'];
@@ -378,14 +375,14 @@
      });
 
      it('forgot password, then get device list', () => {
-       const email = server.uniqueEmail();
+       const email = TestUtilities.uniqueEmail();
        const newPassword = 'foo';
        let client;
        return Client.createAndVerify(
          config.publicUrl,
          email,
          'bar',
-         server.mailbox,
+         mailbox,
          testOptions
        )
          .then((c) => {
@@ -408,7 +405,7 @@
            return client.forgotPassword();
          })
          .then(() => {
-           return server.mailbox.waitForCode(email);
+           return mailbox.waitForCode(email);
          })
          .then((code) => {
            return resetPassword(client, code, newPassword);

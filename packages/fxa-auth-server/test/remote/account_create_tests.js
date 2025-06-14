@@ -20,8 +20,7 @@ const {
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote account create`, function () {
-    this.timeout(60000);
+  describe(`#integration${testOptions.version} - #series - remote account create`, function () {
     let server;
 
     before(async function () {
@@ -52,6 +51,7 @@ const {
           },
         },
       });
+      console.debug('⏱️ Test server "started", beginning tests for account_create_tests.js')
       return server;
     });
 

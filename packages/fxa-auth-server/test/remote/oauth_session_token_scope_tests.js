@@ -5,7 +5,6 @@
 'use strict';
 
 const { assert } = require('chai');
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const {
@@ -14,6 +13,8 @@ const {
 } = require('fxa-shared/oauth/constants');
 const error = require('../../lib/error');
 const testUtils = require('../lib/util');
+const { TestUtilities } = require('../test_utilities');
+const mailbox = require('../mailbox')();
 
 const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
@@ -23,30 +24,26 @@ const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
 describe(`#integration${testOptions.version} - /oauth/ session token scope`, function () {
-  this.timeout(60000);
   let client;
   let email;
   let password;
-  let server;
 
   before(async () => {
     testUtils.disableLogs();
-    server = await TestServer.start(config, false);
   });
 
   after(async () => {
-    await TestServer.stop(server);
     testUtils.restoreStdoutWrite();
   });
 
   beforeEach(async () => {
-    email = server.uniqueEmail();
+    email = TestUtilities.uniqueEmail();
     password = 'test password';
     client = await Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox,
+      mailbox,
       testOptions
     );
   });

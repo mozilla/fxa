@@ -12,7 +12,6 @@ const proxyquire = require('proxyquire');
 const log = { trace() {}, info() {}, error() {}, debug() {}, warn() {} };
 
 const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
 const Token = require('../../lib/tokens')(log);
 const { createDB } = require('../../lib/db');
 const mockStatsD = { increment: () => {} };
@@ -51,16 +50,13 @@ const mockLog = {
 };
 
 describe(`#integration - remote push db`, function () {
-  this.timeout(60000);
 
-  let dbServer, db;
+  let db;
   before(async () => {
-    dbServer = await TestServer.start(config);
     db = await DB.connect(config);
   });
 
   after(async () => {
-    await TestServer.stop(dbServer);
     await db.close();
   });
 

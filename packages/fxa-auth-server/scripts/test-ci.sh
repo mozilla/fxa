@@ -6,11 +6,41 @@ cd "$DIR/.."
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 
-DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 20000 --exit --parallel=1 "
-if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; fi;
-if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep /#integration\s-/"; fi;
-if [ "$TEST_TYPE" == 'integration-v2' ]; then GREP_TESTS="--grep /#integrationV2\s-/"; fi;
+# timeout is a maximum upper bound. Tests can override to lower,
+# but not set higher.
+DEFAULT_ARGS="\
+  --require esbuild-register \
+  --require tsconfig-paths/register \
+  --recursive \
+  --timeout=20000 \
+  --exit "
 
+if [ "$TEST_TYPE" == 'unit' ]; then
+  GREP_TESTS="--grep #integration --invert"
+  # DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=2"
+fi
+
+if [ "$TEST_TYPE" == 'integration' ]; then
+  GREP_TESTS="--grep /(?=.*#integration\s-)(?!.*#series)/"
+  DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=4"
+fi
+
+# If there are integration tests that need to start the test_server
+# in a unique way that can't be shared with other tests (i.e., mocking,
+#    flag overrides for payments, etc.).
+# Then the test should be tagged with `#series` and it'll be picked up here
+if [ "$TEST_TYPE" == 'integration-series' ]; then
+  GREP_TESTS="--grep /(?=.*#integration\s-)(?=.*#series\s-)/"
+fi
+
+if [ "$TEST_TYPE" == 'integration-v2' ]; then
+  GREP_TESTS="--grep /(?=.*#integrationV2\s-)(?!.*#series)/"
+  DEFAULT_ARGS="$DEFAULT_ARGS --parallel --jobs=4"
+fi
+
+if [ "$TEST_TYPE" == 'integration-v2-series' ]; then
+  GREP_TESTS="--grep /(?=.*#integrationV2\s-)(?=.*#series\s-)/"
+fi
 
 TESTS=(local oauth remote scripts)
 if [ -z "$1" ]; then
@@ -21,9 +51,17 @@ fi
 
 for t in "${TESTS[@]}"; do
   echo -e "\n\nTesting: $t"
+  # because args are modified based on the TESTS array, there's a risk
+  # of cross-contamination between test types, so we set LOCAL_ARGS
+  # to the default args each time through the loop
+  LOCAL_ARGS="$DEFAULT_ARGS"
 
-  #./scripts/mocha-coverage.js $DEFAULT_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
-  MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-auth-server-mocha-$TEST_TYPE-$t-results.xml mocha $DEFAULT_ARGS $GREP_TESTS test/$t
+  if [ "$t" == "remote" ] && { [ "$TEST_TYPE" == "integration" ] || [ "$TEST_TYPE" == "integration-v2" ]; }; then
+    LOCAL_ARGS="$LOCAL_ARGS --require test/server_setup.js"
+  fi
+  echo "Running mocha with args: $LOCAL_ARGS, grep: $GREP_TESTS, dir: test/$t"
+  #./scripts/mocha-coverage.js $LOCAL_ARGS $GREP_TESTS --reporter-options mochaFile="../../artifacts/tests/fxa-auth-server/$t/test-results.xml" "test/$t"
+  MOCHA_FILE=../../artifacts/tests/$npm_package_name/fxa-auth-server-mocha-$TEST_TYPE-$t-results.xml mocha $LOCAL_ARGS $GREP_TESTS test/$t
 done
 
 if [ "$TEST_TYPE" == 'integration' ]; then
