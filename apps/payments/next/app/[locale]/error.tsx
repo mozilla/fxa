@@ -68,9 +68,14 @@ export default function Error({
   return (
     <section
       className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
-      aria-label="Payment error"
+      aria-labelledby="page-information-heading"
     >
-      <Image src={errorIcon} alt="" className="mt-16 mb-10" />
+      <Image
+        src={errorIcon}
+        alt=""
+        className="mt-16 mb-10"
+        aria-hidden="true"
+      />
       <Localized
         id="checkout-error-boundary-basic-error-message"
         elems={{
@@ -81,12 +86,15 @@ export default function Error({
           ),
         }}
       >
-        <p className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 ">
+        <h2
+          id="page-information-heading"
+          className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 "
+        >
           Something went wrong. Please try again or
           <Link href={SUPPORT_URL} className="underline hover:text-grey-400">
             contact support.
           </Link>
-        </p>
+        </h2>
       </Localized>
 
       {hasProductData && (

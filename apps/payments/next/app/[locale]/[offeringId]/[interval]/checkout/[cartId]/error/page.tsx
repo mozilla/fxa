@@ -75,28 +75,33 @@ export default async function CheckoutError({
     <>
       <section
         className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]"
-        aria-label="Payment error"
+        aria-labelledby="page-information-heading"
       >
         {
           // Once more conditionals are added, move this to a separate component
           cart.errorReasonId ===
-            CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
+          CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
             <Image
               src={checkIcon}
-              alt="check-icon"
+              alt=""
+              aria-hidden="true"
               className="h-20 w-20 mt-16 mb-10"
             />
           ) : (
             <Image
               src={errorIcon}
-              alt="error-icon"
+              alt=""
+              aria-hidden="true"
               className="h-20 w-20 mt-16 mb-10"
             />
           )
         }
-        <p className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 ">
+        <h2
+          id="page-information-heading"
+          className="text-grey-400 max-w-sm text-sm leading-5 px-7 py-0 mb-4 "
+        >
           {l10n.getString(errorReason.messageFtl, errorReason.message)}
-        </p>
+        </h2>
 
         {errorReason.buttonUrl && (
           <Link
