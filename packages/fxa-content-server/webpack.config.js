@@ -6,6 +6,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const config = require('./server/lib/configuration').getProperties();
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const ENV = config.env;
 const webpackConfig = {
@@ -197,30 +198,15 @@ const webpackConfig = {
       },
       {
         test: /\.scss$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].css',
-              outputPath: '../../app/styles',
-            },
-          },
-          {
-            loader: 'extract-loader',
-          },
-          {
-            loader: 'css-loader',
-          },
-          {
-            loader: 'sass-loader',
-          },
-        ],
-        type: 'javascript/auto',
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
       },
     ],
   },
 
   plugins: [
+    new MiniCssExtractPlugin({
+      filename: '../../app/styles/[name].css',
+    }),
     // dynamically loaded routes cause the .md file to be read and a
     // warning to be displayed on the console. Just ignore them.
     new webpack.IgnorePlugin({ resourceRegExp: /\.md$/ }),
