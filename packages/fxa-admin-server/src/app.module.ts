@@ -8,7 +8,7 @@ import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { join } from 'path';
 import { APP_FILTER } from '@nestjs/core';
-import { SentryGlobalGraphQLFilter, SentryModule } from '@sentry/nestjs/setup';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import {
   LegacyNotifierServiceProvider,
@@ -84,7 +84,7 @@ const version = getVersionInfo(__dirname);
     LegacyStatsDProvider,
     {
       provide: APP_FILTER,
-      useClass: SentryGlobalGraphQLFilter,
+      useClass: SentryGlobalFilter,
     },
   ],
 })

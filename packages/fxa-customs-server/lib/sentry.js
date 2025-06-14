@@ -6,6 +6,7 @@
 
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
+const { httpRequestToRequestData } = require('@sentry/core');
 
 async function configureSentry(server, config, log) {
   Sentry.getCurrentScope().setTag('process', 'customs_server');
@@ -28,7 +29,7 @@ async function configureSentry(server, config, log) {
         op: 'auth-server',
         name: `${request.method.toUpperCase()} ${request.path}`,
         forceTransaction: true,
-        request: Sentry.extractRequestData(request.raw.req),
+        request: httpRequestToRequestData(request.raw.req),
       });
 
       request.app.sentry = {
@@ -54,7 +55,7 @@ async function configureSentry(server, config, log) {
       }
       Sentry.withScope((scope) => {
         scope.addEventProcessor((sentryEvent) => {
-          sentryEvent.request = Sentry.extractRequestData(request.raw.req);
+          sentryEvent.request = httpRequestToRequestData(request.raw.req);
           sentryEvent.level = 'error';
           return sentryEvent;
         });
