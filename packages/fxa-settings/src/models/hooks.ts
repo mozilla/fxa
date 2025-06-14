@@ -203,6 +203,7 @@ export function useProductInfoState() {
   return useQuery<{ productInfo: RelierSubscriptionInfo }>(GET_PRODUCT_INFO, {
     client: apolloClient,
     variables: { input: productId },
+    skip: !productId,
   });
 }
 
