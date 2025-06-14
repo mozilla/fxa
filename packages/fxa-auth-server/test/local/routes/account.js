@@ -489,6 +489,47 @@ describe('/account/reset', () => {
     });
   });
 
+  describe('reset account with TOTP recovery code', () => {
+    beforeEach(() => {
+      mockDB.totpToken = sinon.spy(() => {
+        return Promise.resolve({
+          verified: true,
+          enabled: true,
+        });
+      });
+      mockRequest.auth.credentials.verificationMethod = 3;
+      return runTest(route, mockRequest);
+    });
+
+    it('should have created a sessionToken with the copied verification method', () => {
+      assert.equal(
+        mockDB.createSessionToken.callCount,
+        1,
+        'db.createSessionToken was called once'
+      );
+      const args = mockDB.createSessionToken.args[0];
+      assert.equal(
+        args.length,
+        1,
+        'db.createSessionToken was passed one argument'
+      );
+      assert.notOk(
+        args[0].tokenVerificationId,
+        'tokenVerificationId is not set'
+      );
+      assert.equal(
+        mockDB.verifyTokensWithMethod.callCount,
+        1,
+        'db.createSessionToken was called once'
+      );
+      const updateArgs = mockDB.verifyTokensWithMethod.args[0];
+      assert.equal(
+        updateArgs[1],
+        mockRequest.auth.credentials.verificationMethod
+      );
+    });
+  });
+
   describe('reset account with unverified totp', () => {
     it('should fail with unverified session', async () => {
       mockDB.totpToken = sinon.spy(() => {
@@ -3890,7 +3931,7 @@ describe('/account/destroy', () => {
       log: mockLog,
       push: mockPush,
       pushbox: mockPushbox,
-      customs: mockCustoms
+      customs: mockCustoms,
     });
     return getRoute(accountRoutes, '/account/destroy');
   }
@@ -3975,7 +4016,11 @@ describe('/account/destroy', () => {
   it('should fail for mismatch session and account ui', async () => {
     mockDB = { ...mocks.mockDB({ email, uid }) };
     mockRequest = mocks.mockRequest({
-      credentials: { uid: 'anotherone', email: `another@one.net`, tokenVerified },
+      credentials: {
+        uid: 'anotherone',
+        email: `another@one.net`,
+        tokenVerified,
+      },
       log: mockLog,
       payload: {
         email,
@@ -3987,7 +4032,10 @@ describe('/account/destroy', () => {
       await runTest(route, mockRequest);
       sinon.assert.fail('should have errored');
     } catch (error) {
-      sinon.assert.calledOnceWithExactly(mockCustoms.flag, "63.245.221.32", { email, errno: 102 });
+      sinon.assert.calledOnceWithExactly(mockCustoms.flag, '63.245.221.32', {
+        email,
+        errno: 102,
+      });
       assert.equal(error.errno, 102, 'unknown account');
     }
   });

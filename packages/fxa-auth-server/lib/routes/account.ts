@@ -1701,6 +1701,13 @@ export class AccountHandler {
         };
 
         sessionToken = await this.db.createSessionToken(sessionTokenOptions);
+        if (accountResetToken.verificationMethod) {
+          await this.db.verifyTokensWithMethod(
+            sessionToken.id,
+            accountResetToken.verificationMethod
+          );
+        }
+
         return await request.propagateMetricsContext(
           accountResetToken,
           sessionToken
@@ -1815,13 +1822,15 @@ export class AccountHandler {
     this.log.begin('Account.destroy', request);
 
     const { authPW, email: emailAddress } = request.payload as any;
-    const sessionToken = request.auth && request.auth.credentials as unknown as {
-      uid: string;
-      email: string;
-      tokenVerified: boolean;
-      tokenVerificationId?: string;
-      authenticatorAssuranceLevel?: number;
-    }
+    const sessionToken =
+      request.auth &&
+      (request.auth.credentials as unknown as {
+        uid: string;
+        email: string;
+        tokenVerified: boolean;
+        tokenVerificationId?: string;
+        authenticatorAssuranceLevel?: number;
+      });
 
     await this.customs.checkAuthenticated(
       request,
