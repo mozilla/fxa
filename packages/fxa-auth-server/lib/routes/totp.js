@@ -501,7 +501,7 @@ module.exports = (
               .required()
               .description(DESCRIPTION.codeTotp),
             service: validators.service,
-            metricsContext: METRICS_CONTEXT_SCHEMA
+            metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
         response: {
@@ -616,14 +616,25 @@ module.exports = (
           };
 
           // Check to see if this token was just verified, if it is, then this means
-          // the user has enabled two-step authentication, otherwise send new device
+          // the user has just enabled two-step authentication, otherwise send new device
           // login email.
           if (isValidCode) {
             if (!tokenVerified) {
+              // check and retrieve recovery phone number if configured
+              const result = await recoveryPhoneService.hasConfirmed(uid);
+              const maskedPhoneNumber = result?.phoneNumber
+                ? recoveryPhoneService.maskPhoneNumber(result.phoneNumber)
+                : undefined;
               return mailer.sendPostAddTwoStepAuthenticationEmail(
                 account.emails,
                 account,
-                emailOptions
+                {
+                  ...emailOptions,
+                  // this will be used to include information in the email
+                  // about the recovery method configured during 2FA setup
+                  // if no phone number configured, defaults to recovery codes
+                  maskedPhoneNumber,
+                }
               );
             }
 

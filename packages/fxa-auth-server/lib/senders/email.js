@@ -1431,6 +1431,8 @@ module.exports = function (log, config, bounces, statsd) {
     log.trace('mailer.postAddTwoStepAuthenticationEmail', {
       email: message.email,
       uid: message.uid,
+      recoveryMethod: message.maskedPhoneNumber ? 'phone' : 'codes',
+      maskedPhoneNumber: message.maskedPhoneNumber,
     });
 
     const templateName = 'postAddTwoStepAuthentication';
@@ -1455,9 +1457,11 @@ module.exports = function (log, config, bounces, statsd) {
         email: message.email,
         iosLink: links.iosLink,
         link: links.link,
+        maskedPhoneNumber: message.maskedPhoneNumber,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
+        recoveryMethod: message.maskedPhoneNumber ? 'phone' : 'codes',
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,

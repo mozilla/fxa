@@ -12,7 +12,7 @@ export default {
 
 const createStory = storyWithProps(
   'postAddTwoStepAuthentication',
-  'Sent to notify the account is linked to another account.',
+  'Sent to notify that two step authentication was enabled.',
   {
     ...MOCK_USER_INFO,
     link: 'http://localhost:3030/settings',
@@ -20,4 +20,12 @@ const createStory = storyWithProps(
   }
 );
 
-export const PostAddTwoStepAuthentication = createStory();
+export const postAddTwoStepAuthenticationDefault =
+  createStory({}, 'Default with recovery codes');
+
+export const postAddTwoStepAuthenticationWithPhone = createStory(
+  {
+    maskedPhoneNumber: '••••••1234',
+  },
+  'With recovery phone'
+);
