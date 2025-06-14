@@ -314,4 +314,20 @@ describe('confirm-signup-container', () => {
       );
     });
   });
+
+    it('redirect to signin if missing keyFetchToken or unwrapBKey', () => {
+      integration = {
+        type: ModelsModule.IntegrationType.OAuthNative,
+        wantsKeys: () => true,
+      } as Integration;
+      mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
+        keyFetchToken: undefined,
+        unwrapBKey: undefined,
+      });
+      render();
+
+      expect(mockNavigate).toBeCalledWith('/signin', {
+        state: { localizedErrorMessage: 'Code expired. Please login again.' },
+      });
+    });
 });

@@ -13,6 +13,7 @@ import {
 import {
   Integration,
   useAuthClient,
+  useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
 import ConfirmSignupCode from '.';
@@ -54,6 +55,7 @@ const SignupConfirmCodeContainer = ({
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const sensitiveDataClient = useSensitiveDataClient();
+  const ftlMsg = useFtlMsgResolver();
   const { keyFetchToken, unwrapBKey } =
     sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
 
@@ -128,6 +130,19 @@ const SignupConfirmCodeContainer = ({
 
   if (!uid || !sessionToken || !email) {
     navigateWithQuery('/');
+    return <LoadingSpinner fullScreen />;
+  }
+
+  if (!keyFetchToken || !unwrapBKey) {
+    const localizedErrorMessage = ftlMsg.getMsg(
+      'signin-code-expired-error',
+      'Code expired. Please login again.'
+    )
+    navigateWithQuery('/signin', {
+      state: {
+        localizedErrorMessage
+      }
+    });
     return <LoadingSpinner fullScreen />;
   }
 
