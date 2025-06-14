@@ -103,7 +103,8 @@ export class CheckoutService {
 
   async prePaySteps(
     cart: ResultCart,
-    customerData: CheckoutCustomerData
+    customerData: CheckoutCustomerData,
+    sessionUid: string
   ): Promise<PrePayStepsResult> {
     const taxAddress = cart.taxAddress;
     if (!taxAddress) {
@@ -123,6 +124,10 @@ export class CheckoutService {
     const uid = cart.uid;
     if (!uid) {
       throw new CartUidNotFoundError(cart.id);
+    }
+
+    if (!sessionUid || cart.uid !== sessionUid) {
+      throw new CartAccountNotFoundError(cart.uid);   //correct error?
     }
 
     const fxaAccounts = await this.accountManager.getAccounts([uid]);
@@ -282,7 +287,8 @@ export class CheckoutService {
   async payWithStripe(
     cart: ResultCart,
     confirmationTokenId: string,
-    customerData: CheckoutCustomerData
+    customerData: CheckoutCustomerData,
+    sessionUid: string
   ) {
     const {
       uid,
@@ -292,7 +298,7 @@ export class CheckoutService {
       version,
       price,
       eligibility,
-    } = await this.prePaySteps(cart, customerData);
+    } = await this.prePaySteps(cart, customerData, sessionUid);
 
     this.statsd.increment('stripe_subscription', {
       payment_provider: 'stripe',
@@ -418,6 +424,7 @@ export class CheckoutService {
   async payWithPaypal(
     cart: ResultCart,
     customerData: CheckoutCustomerData,
+    sessionUid: string,
     token?: string
   ) {
     const {
@@ -428,7 +435,7 @@ export class CheckoutService {
       price,
       version,
       eligibility,
-    } = await this.prePaySteps(cart, customerData);
+    } = await this.prePaySteps(cart, customerData, sessionUid);
 
     const paypalSubscriptions =
       await this.subscriptionManager.getCustomerPayPalSubscriptions(
