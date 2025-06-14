@@ -135,7 +135,8 @@ packages/fxa-payments-server/public/locales
 packages/fxa-payments-server/test
 
 # fxa-profile-server
-packages/fxa-profile-server/var
+packages/fxa-profile-server/var/public/*
+!packages/fxa-profile-server/var/public/.keep
 packages/fxa-profile-server/BUCKET_NAME
 
 # fxa-react
