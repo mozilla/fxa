@@ -29,7 +29,7 @@ export default async function Location({
   searchParams,
 }: {
   params: BaseParams;
-  searchParams: Record<string, string>;
+  searchParams: Record<string, string | string[]>;
 }) {
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, params.locale);
@@ -40,8 +40,12 @@ export default async function Location({
   const taxAddress =
     providedCountryCode && providedPostalCode
       ? {
-          countryCode: providedCountryCode,
-          postalCode: providedPostalCode,
+          countryCode: Array.isArray(providedCountryCode)
+            ? providedCountryCode[0]
+            : providedCountryCode,
+          postalCode: Array.isArray(providedPostalCode)
+            ? providedPostalCode[0]
+            : providedPostalCode,
         }
       : undefined;
 

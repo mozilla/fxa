@@ -15,7 +15,7 @@ export async function buildPageMetadata(args: {
   pageType: PageType,
   acceptLanguage: string | null,
   baseUrl: string,
-  searchParams?: Record<string, string> | undefined,
+  searchParams?: Record<string, string | string[]> | undefined,
 }): Promise<Metadata> {
   const {
     params,

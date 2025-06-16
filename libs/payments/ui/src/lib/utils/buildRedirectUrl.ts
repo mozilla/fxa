@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import type { Page, PageType } from './types';
+import { URLSearchParams } from 'url';
 
 interface Optional {
   baseUrl?: string;
   locale?: string;
   cartId?: string;
-  searchParams?: Record<string, string>;
+  searchParams?: Record<string, string | string[]>;
 }
 
 export function buildRedirectUrl(

@@ -37,7 +37,7 @@ export async function generateMetadata({
   searchParams,
 }: {
   params: CheckoutParams;
-  searchParams: Record<string, string> | undefined;
+  searchParams: Record<string, string | string[]> | undefined;
 }): Promise<Metadata> {
   return buildPageMetadata({
     params,
@@ -54,7 +54,7 @@ export default async function Checkout({
   searchParams,
 }: {
   params: CheckoutParams;
-  searchParams: Record<string, string> | undefined;
+  searchParams: Record<string, string | string[]> | undefined;
 }) {
   const { locale } = params;
 
@@ -80,7 +80,7 @@ export default async function Checkout({
 
   // prevent cart and session user mismatch
   if (cart.uid !== session?.user?.id) {
-    const redirectSearchParams: Record<string, string> = searchParams || {};
+    const redirectSearchParams: Record<string, string | string[]> = searchParams || {};
     delete redirectSearchParams.cartId;
     delete redirectSearchParams.cartVersion;
     const redirectTo = buildRedirectUrl(
@@ -97,7 +97,7 @@ export default async function Checkout({
     redirect(redirectTo);
   }
 
-  const redirectSearchParams: Record<string, string> = searchParams || {};
+  const redirectSearchParams: Record<string, string | string[]> = searchParams || {};
   redirectSearchParams.cartId = cart.id;
   redirectSearchParams.cartVersion = cart.version.toString();
 
