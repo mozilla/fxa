@@ -3,15 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Redis } from 'ioredis';
-import {
-  BlockStatus,
-  BlockRecord,
-  Rule,
-  BlockOnOpts,
-  BlockReason,
-} from './models';
+import { BlockStatus, Rule, BlockOn, BlockOnOpts } from './models';
 import { ActionNotFound, MissingOption } from './error';
-import { calculateRetryAfter, getKey } from './util';
+import {
+  createBlockRecord,
+  createBlockStatus,
+  getBanKey,
+  getKey,
+  getLargestRetryAfter,
+  parseBlockRecord,
+} from './util';
 
 import { StatsD } from '@fxa/shared/metrics/statsd';
 
@@ -40,20 +41,16 @@ export class RateLimit {
   /**
    * Clears blocks for the provided ip, email, or uid.
    * @param opts Pass as many of these in as needed. Rules for these will be removed.
-   * @returns Null if no block is found. Or a status containing info about the block.
    */
   async unblock(opts: BlockOnOpts) {
+    const keys = new Set<string>();
+
     for (const action in this.config.rules) {
       for (const rule of this.config.rules[action]) {
         const blockedValue = opts[rule.blockingOn];
         if (blockedValue) {
-          const attemptsKey = getKey('attempts', action, rule, blockedValue);
-          const blockKey = getKey('block', action, rule, blockedValue);
-          await Promise.all([
-            this.redis.del(blockKey),
-            this.redis.del(attemptsKey),
-          ]);
-
+          keys.add(getKey('block', action, rule, blockedValue));
+          keys.add(getKey('attempts', action, rule, blockedValue));
           this.statsd?.increment(`rate_limit.unblock`, [
             `on:${rule.blockingOn}`,
             `action:${action}`,
@@ -61,6 +58,32 @@ export class RateLimit {
         }
       }
     }
+
+    await Promise.all(Array.from(keys).map((x: string) => this.redis.del(x)));
+  }
+
+  /**
+   * Clears bans for the provided ip, email, or uid
+   * @param opts
+   */
+  async unban(opts: BlockOnOpts) {
+    const keys = new Set<string>();
+
+    for (const action in this.config.rules) {
+      for (const rule of this.config.rules[action]) {
+        const blockedValue = opts[rule.blockingOn];
+        if (blockedValue) {
+          keys.add(getBanKey(rule.blockingOn, blockedValue));
+          keys.add(getKey('attempts', action, rule, blockedValue));
+          this.statsd?.increment(`rate_limit.unban`, [
+            `on:${rule.blockingOn}`,
+            `action:${action}`,
+          ]);
+        }
+      }
+    }
+
+    await Promise.all(Array.from(keys).map((x: string) => this.redis.del(x)));
   }
 
   /**
@@ -114,117 +137,99 @@ export class RateLimit {
    * @returns Null if no block is found. Or a status containing info about the block.
    */
   async check(action: string, opts: BlockOnOpts): Promise<BlockStatus | null> {
-    // Make sure action actually exists
-    const { rules, isDefault } = this.getRulesOrDefault(action);
-
-    const openBlocks = new Array<BlockStatus>();
-
     // Important! Set timestamp of check upfront.
     // This reduces small variance because of wait on IO operations.
     const now = Date.now();
 
-    for (const rule of rules) {
-      // Sanitize key. Space is a decent replacement character, because it's an invalid character for
-      // ip addressees, emails, and user ids.
-      const blockedValue = opts[rule.blockingOn];
+    // First, check if user is banned. If so they should be rejected right away. This
+    // also the lightest check.
+    const bans = await this.findBans(now, opts);
+    if (bans.length > 0) {
+      return getLargestRetryAfter(bans);
+    }
 
-      // Make sure the correct values were passed in as opts.
-      // If an action requires an email, ip, and/or uid, it must provided!
-      if (!blockedValue) {
-        // The default rule is a special case. Don't fail if the blocked value wasn't provided.
-        if (isDefault) {
-          continue;
-        }
+    // Second, see if there's any outstanding blocks. If so they should get blocked
+    // right away
+    const rules = this.findRules(action, opts);
+    const blocks = await this.findBlocks(now, action, rules);
+    if (blocks.length > 0) {
+      return getLargestRetryAfter(blocks);
+    }
 
-        throw new MissingOption(action, rule.blockingOn);
-      }
-
-      // Check to see if there are any blocks that currently exist in Redis.
-      // Create a new block and add set of openBlocks.
+    // Third, start counting attempts for applicable rules.
+    const newBlocks = new Array<BlockStatus>();
+    const addAttempt = async (rule: Rule, blockedValue: string) => {
+      // Check to see if there are any blocks or bans that currently exist in Redis.
+      // Create a new block/ban and add set of openBlocks.
       const attemptsKey = getKey('attempts', action, rule, blockedValue);
-      const blockKey = getKey('block', action, rule, blockedValue);
 
-      let block = JSON.parse((await this.redis.get(blockKey)) || 'null');
-      let attempts = 0;
-
-      if (block === null) {
-        attempts = await this.redis.incr(attemptsKey);
-        if (attempts === 1) {
-          await this.redis.expire(attemptsKey, rule.windowDurationInSeconds);
-        }
-
-        // If we've exceeded the max number of attempts, then create a block
-        if (attempts > rule.maxAttempts) {
-          block = {
-            action: action,
-            usedDefaultRule: isDefault,
-            startTime: now,
-            duration: rule.blockDurationInSeconds,
-            blockingOn: rule.blockingOn,
-            blockedValue: blockedValue,
-            reason: 'too-many-attempts',
-            attempts: attempts,
-          } satisfies BlockRecord;
-
-          await this.redis.set(blockKey, JSON.stringify(block));
-
-          await Promise.all([
-            this.redis.expire(blockKey, rule.blockDurationInSeconds),
-            this.redis.expire(attemptsKey, 0),
-          ]);
-
-          this.statsd?.increment(`rate_limit.block`, [
-            `on:${rule.blockingOn}`,
-            `action:${action}`,
-          ]);
-        }
+      const attempts = await this.redis.incr(attemptsKey);
+      if (attempts === 1) {
+        await this.redis.expire(attemptsKey, rule.windowDurationInSeconds);
       }
 
-      if (block !== null) {
-        openBlocks.push({
-          startTime: block.startTime,
-          duration: block.duration,
-          attempt: block.attempt,
-          retryAfter: calculateRetryAfter(now, block),
-          reason: 'too-many-attempts' as BlockReason,
+      // If we've exceeded the max number of attempts
+      if (attempts > rule.maxAttempts) {
+        const block = createBlockRecord(
+          now,
           action,
-          blockingOn: rule.blockingOn,
-        });
+          blockedValue,
+          attempts,
+          rule,
+          false
+        );
+
+        newBlocks.push(createBlockStatus(now, block));
+
+        const key = (() => {
+          switch (rule.blockPolicy) {
+            case 'ban':
+              return getBanKey(rule.blockingOn, blockedValue);
+            case 'block':
+              return getKey(rule.blockPolicy, action, rule, blockedValue);
+            default:
+              throw new Error('Unknown block policy: ' + rule.blockPolicy);
+          }
+        })();
+        const json = JSON.stringify(block);
+
+        await this.redis.set(key, json);
+        await Promise.all([
+          this.redis.expire(key, rule.blockDurationInSeconds),
+          this.redis.expire(attemptsKey, 0),
+        ]);
+        this.statsd?.increment(`rate_limit.${rule.blockPolicy}`, [
+          `on:${rule.blockingOn}`,
+          `action:${action}`,
+        ]);
       }
+    };
+
+    // Fire off an attempt for each applicable rule.
+    await Promise.all(rules.map((x) => addAttempt(x.rule, x.blockedValue)));
+
+    // If new blocks were added, return the one with the largest retryAfter value.
+    if (newBlocks.length > 0) {
+      return getLargestRetryAfter(newBlocks);
     }
 
-    // If blocks weren't found. Pick the block with the longest retry after.
-    if (openBlocks.length > 0) {
-      let block = openBlocks[0];
-      openBlocks.forEach((x) => {
-        if (x.retryAfter > block.retryAfter) {
-          block = x;
-        }
-      });
-
-      // TODO: Record metrics on this. We'd also like to improve these metrics and be able to
-      //  answer the following questions:
-      //    - What action was blocked, for what user, and on what condition (ie IP, uid, or email)
-      //    - How long the user will be blocked for
-      //    - Open question, do we also want to no blocks with shorter bans? Or just the block with largest
-      //      ban (ie the biggest retryAfter value).
-
-      return block;
-    }
-
-    // Made it through the gauntlet of rules. No blocks found!
     return null;
   }
 
   /**
-   * Attempts to locate the rules for a given action. If the action is not found, then rules for the 'default' action
-   * will be returned. If there are no rules for a 'default' action, then an ActionNotFound error is raised.
-   * @param action The action to target
-   * @throws ActionNotFound
-   * @returns A set of rules
+   * Looks up rules for the given action. Also ensures that correct options are being provided, and will
+   * error out if action or option is missing.
+   * @param action - The target action
+   * @param opts - The set of blocking options. e.g. ip, ip_email.
+   * @returns Set of rules with accompanying blockedValues.
+   * @throws ActionNotFound, MissingOption
    */
-  private getRulesOrDefault(action: string) {
+  private findRules(
+    action: string,
+    opts: BlockOnOpts
+  ): Array<{ rule: Rule; isDefault: boolean; blockedValue: string }> {
     let rules = this.config.rules[action];
+
     let isDefault = false;
     if (!rules) {
       isDefault = true;
@@ -235,6 +240,74 @@ export class RateLimit {
         throw new ActionNotFound(action);
       }
     }
-    return { rules, isDefault };
+
+    return rules.map((rule) => {
+      const blockedValue = opts[rule.blockingOn];
+
+      // Make sure the correct values were passed in as opts.
+      // If an action requires an email, ip, ip_email, and/or uid, it must provided!
+      if (!blockedValue) {
+        throw new MissingOption(action, rule.blockingOn);
+      }
+
+      return { rule, isDefault, blockedValue };
+    });
+  }
+
+  /**
+   * Finds active blocks
+   * @param now - Current time of check
+   * @param rules - Applicable rules
+   * @returns Set of BlockStatus for matching blocks
+   */
+  private async findBlocks(
+    now: number,
+    action: string,
+    rules: { rule: Rule; blockedValue: string }[]
+  ) {
+    const blocks = new Array<BlockStatus>();
+    const check = async (blockKey: string) => {
+      const json = await this.redis.get(blockKey);
+      const blockRecord = parseBlockRecord(json);
+      if (blockRecord) {
+        blocks.push(createBlockStatus(now, blockRecord));
+      }
+    };
+
+    await Promise.all(
+      rules.map(({ rule, blockedValue }) => {
+        const blockKey = getKey(rule.blockPolicy, action, rule, blockedValue);
+        return check(blockKey);
+      })
+    );
+
+    return blocks;
+  }
+
+  /**
+   * Finds active bans
+   * @param now - Current time of check
+   * @param opts - Blocking options
+   * @returns Set of BlockStatus for matching bans
+   */
+  private async findBans(now: number, opts: BlockOnOpts) {
+    const bans = new Array<BlockStatus>();
+    const check = async (blockOn: BlockOn, value?: string) => {
+      if (value) {
+        const banKey = getBanKey(blockOn, value);
+        const json = await this.redis.get(banKey);
+        const blockRecord = parseBlockRecord(json);
+        if (blockRecord) {
+          bans.push(createBlockStatus(now, blockRecord));
+        }
+      }
+    };
+    await Promise.all([
+      check('email', opts.email),
+      check('ip', opts.ip),
+      check('ip_email', opts.ip_email),
+      check('uid', opts.uid),
+    ]);
+    return bans;
   }
 }

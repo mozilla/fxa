@@ -13,6 +13,16 @@ export type BlockOnOpts = {
   uid?: string;
 };
 
+/**
+ * Controls how the block is applied.
+ *  - block - only applies to the current action being checked, and is done in isolation.
+ *  - ban - will apply to the current action and all other actions being checked for the given rules ip, email, or uid.
+ **/
+export type BlockPolicy = 'block' | 'ban';
+
+/** Constant for the common error message, too-many-attempts. */
+export const TOO_MANY_ATTEMPTS = 'too-many-attempts';
+
 /** Reasons we might block. Currently only too-many-attempts is supported. */
 export type BlockReason = 'too-many-attempts';
 
@@ -26,6 +36,11 @@ export type Rule = {
   windowDurationInSeconds: number;
   /** The amount of time a block lasts for once it has been created.  */
   blockDurationInSeconds: number;
+  /**
+   * The policy that controls how exactly the block goes into effect.
+   * Be careful with 'ban'! See the 'BlockPolicy' type for more details.
+   **/
+  blockPolicy: BlockPolicy;
 };
 
 /** Represents a block held in redis. Not these objects will be stringified json.*/
@@ -46,6 +61,8 @@ export type BlockRecord = {
   reason: BlockReason;
   /** The attempt number when the block was added. */
   attempts: number;
+  /** Blocking policy to applied */
+  policy: BlockPolicy;
 };
 
 /** Reports back on the status of a check */
@@ -64,4 +81,6 @@ export type BlockStatus = {
   duration: number;
   /** The attempt number when the block was added. */
   attempt: number;
+  /** The type of block which occurred */
+  policy: BlockPolicy;
 };

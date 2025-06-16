@@ -5,7 +5,7 @@
 import { RateLimit } from './rate-limit';
 import { parseConfigRules } from './config';
 import { Redis } from 'ioredis';
-import { BlockRecord, Rule } from './models';
+import { BlockRecord, Rule, TOO_MANY_ATTEMPTS } from './models';
 import { calculateRetryAfter, getKey } from './util';
 import { StatsD } from 'hot-shots';
 
@@ -35,7 +35,7 @@ describe('rate-limit', () => {
 
   it('can determine if action is supported', () => {
     rateLimit = new RateLimit(
-      { rules: parseConfigRules(['test:ip:1:1s:1s']) },
+      { rules: parseConfigRules(['test:ip:1:1s:1s:block']) },
       redis,
       statsd
     );
@@ -46,7 +46,7 @@ describe('rate-limit', () => {
 
   it('supports all actions when default rule is configured', () => {
     rateLimit = new RateLimit(
-      { rules: parseConfigRules(['default:ip:1:1s:1s']) },
+      { rules: parseConfigRules(['default:ip:1:1s:1s:block']) },
       redis,
       statsd
     );
@@ -66,10 +66,10 @@ describe('rate-limit', () => {
     rateLimit = new RateLimit(
       {
         rules: parseConfigRules([
-          'testIp:ip:1:1s:1s',
-          'testIpEmail:ip_email:1:1s:1s',
-          'testEmail:email:1:1s:1s',
-          'testUid:uid:1:1s:1s',
+          'testIp:ip:1:1s:1s:block',
+          'testIpEmail:ip_email:1:1s:1s:block',
+          'testEmail:email:1:1s:1s:block',
+          'testUid:uid:1:1s:1s:block',
         ]),
       },
       redis,
@@ -103,7 +103,8 @@ describe('rate-limit', () => {
       startTime: now - 5 * 1000,
       duration: 60,
       attempts: 3,
-      reason: 'too-many-attempts',
+      reason: TOO_MANY_ATTEMPTS,
+      policy: 'block',
     } satisfies BlockRecord;
 
     const retryAfter = calculateRetryAfter(now, block);
@@ -121,6 +122,7 @@ describe('rate-limit', () => {
       maxAttempts: 1,
       windowDurationInSeconds: 2,
       blockDurationInSeconds: 3,
+      blockPolicy: 'block',
     } satisfies Rule;
     expect(getKey('block', action, rule, '127.0.0.1')).toEqual(
       `rate-limit:block:ip=127.0.0.1:foo:1-2-3`
@@ -182,13 +184,14 @@ describe('rate-limit', () => {
     it('parses rule set', () => {
       const ruleSet = parseConfigRules(`
         # Rules are in the form
-        # Action | Attribute To Check | Max Attempts | Check Window Duration | Block Duration
-        test     : ip                 :  1           :   1 second            : 1s
-        test     : email              :  99          : 30 seconds            : 1 hour
-        test     : uid                :  1           : 30 seconds            : 1 day
-        test     : ip_email           :  100         : 10 seconds            : 1 Month
+        # Action    | Attribute To Check | Max Attempts | Check Window Duration | Duration       | Policy
+        test        : ip                 :  1           :   1 second            : 1s             : block
+        test        : email              :  99          : 30 seconds            : 1 hour         : block
+        test        : uid                :  1           : 30 seconds            : 1 day          : block
+        test        : ip_email           :  100         : 10 seconds            : 1 Month        : block
+        testBan     : ip                 :  100         : 10 seconds            : 1 Month        : ban
       `);
-      const rules = ruleSet['test'];
+      let rules = ruleSet['test'];
 
       expect(rules).toBeDefined();
       expect(rules.length).toEqual(4);
@@ -198,12 +201,14 @@ describe('rate-limit', () => {
       expect(rules[0].blockingOn).toEqual('ip');
       expect(rules[0].windowDurationInSeconds).toEqual(1);
       expect(rules[0].blockDurationInSeconds).toEqual(1);
+      expect(rules[0].blockPolicy).toEqual('block');
 
       expect(rules[1]).toBeDefined();
       expect(rules[1].maxAttempts).toEqual(99);
       expect(rules[1].blockingOn).toEqual('email');
       expect(rules[1].windowDurationInSeconds).toEqual(30);
       expect(rules[1].blockDurationInSeconds).toEqual(60 * 60);
+      expect(rules[1].blockPolicy).toEqual('block');
 
       expect(rules[2]).toBeDefined();
       expect(rules[2].maxAttempts).toEqual(1);
@@ -215,33 +220,50 @@ describe('rate-limit', () => {
       expect(rules[3].maxAttempts).toEqual(100);
       expect(rules[3].blockingOn).toEqual('ip_email');
       expect(rules[3].windowDurationInSeconds).toEqual(10);
-      expect(rules[3].blockDurationInSeconds).toEqual(24 * 60 * 60 * 30);
+      expect(rules[3].blockDurationInSeconds).toEqual(2592000);
+      expect(rules[2].blockPolicy).toEqual('block');
+
+      rules = ruleSet['testBan'];
+      expect(rules[0].maxAttempts).toEqual(100);
+      expect(rules[0].blockingOn).toEqual('ip');
+      expect(rules[0].windowDurationInSeconds).toEqual(10);
+      expect(rules[0].blockDurationInSeconds).toEqual(2592000);
+      expect(rules[0].blockPolicy).toEqual('ban');
     });
 
     it('throws on duplicate rule in rule set', () => {
       expect(() =>
         parseConfigRules(`
         # Rules are in the form
-        # Action | Attribute To Check | Max Attempts | Check Window Duration | Block Duration
-        test     : ip                 :  1           :   1 second            : 1s
-        test     : ip                 :  1           :   1 second            : 1s
+        # Action | Attribute To Check | Max Attempts | Check Window Duration | Block Duration | Block Policy
+        test     : ip                 :  1           :   1 second            : 1s             : block
+        test     : ip                 :  1           :   1 second            : 1s             : block
       `)
       ).toThrowError(/Invalid configuration! Duplicates detected:/);
     });
 
     it('throws on malformed rule', () => {
-      expect(() => parseConfigRules('foo!23:ip:1:1s:1s')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1:1s:1s')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:  -2:1s:1s')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1:1sdfds:1s')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1:1s:1dsfds')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1:1s:-1h')).toThrowError();
-      expect(() => parseConfigRules(':bar:1:1s:-1h')).toThrowError();
-      expect(() => parseConfigRules('foo::1:1s:-1h')).toThrowError();
-      expect(() => parseConfigRules('foo:bar::1s:-1h')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1::-1h')).toThrowError();
-      expect(() => parseConfigRules('foo:bar:1:1s:')).toThrowError();
+      expect(() => parseConfigRules('foo!23:ip:1:1s:1s:block')).toThrowError();
+      expect(() => parseConfigRules('foo:bar:1:1s:1s:block')).toThrowError();
+      expect(() => parseConfigRules('foo:bar:-2:1s:1s:block')).toThrowError();
+      expect(() =>
+        parseConfigRules('foo:bar:1:1sdfds:1s:block')
+      ).toThrowError();
+      expect(() =>
+        parseConfigRules('foo:bar:1:1s:1dsfds:block')
+      ).toThrowError();
+      expect(() =>
+        parseConfigRules('foo:bar:1:1s:-1h:block:ban')
+      ).toThrowError();
+      expect(() => parseConfigRules('foo:bar:1:1s:-1h:block')).toThrowError();
+      expect(() => parseConfigRules(':bar:1:1s:-1h:block')).toThrowError();
+      expect(() => parseConfigRules('foo::1:1s:-1h:block')).toThrowError();
+      expect(() => parseConfigRules('foo:bar::1s:-1h:block')).toThrowError();
+      expect(() => parseConfigRules('foo:bar:1::-1h:block')).toThrowError();
+      expect(() => parseConfigRules('foo:bar:1:1s::block')).toThrowError();
       expect(() => parseConfigRules('foo:bar:1')).toThrowError();
+      expect(() => parseConfigRules('foo!23:ip:1:1s:1s:')).toThrowError();
+      expect(() => parseConfigRules('foo!23:ip:1:1s:1s:foo')).toThrowError();
     });
   });
 });
