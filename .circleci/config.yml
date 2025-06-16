@@ -662,9 +662,6 @@ jobs:
           name: Build shared libs
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
       - run:
-          name: create `var/public` dir for fxa-profile-server
-          command: yarn workspace fxa-profile-server prebuild
-      - run:
           name: Run unit tests
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> --parallel=2 -t test-unit
           environment:
