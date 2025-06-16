@@ -92,6 +92,7 @@ import {
   CartCurrencyNotFoundError,
   CartUidNotFoundError,
   CartNoTaxAddressError,
+  CartUidMismatchError
 } from './cart.error';
 import { CheckoutService } from './checkout.service';
 import { PrePayStepsResultFactory } from './checkout.factories';
@@ -306,7 +307,7 @@ describe('CheckoutService', () => {
 
     describe('success - with stripeCustomerId attached to cart', () => {
       beforeEach(async () => {
-        await checkoutService.prePaySteps(mockCart, mockCustomerData);
+        await checkoutService.prePaySteps(mockCart, mockCustomerData, mockCart.uid);
       });
 
       it('fetches the customer', () => {
@@ -377,7 +378,7 @@ describe('CheckoutService', () => {
         jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
 
         await expect(
-          checkoutService.prePaySteps(mockCart, mockCustomerData)
+          checkoutService.prePaySteps(mockCart, mockCustomerData, mockCart.uid)
         ).rejects.toBeInstanceOf(CartAccountNotFoundError);
       });
 
@@ -389,8 +390,19 @@ describe('CheckoutService', () => {
         );
 
         await expect(
-          checkoutService.prePaySteps(mockCart, mockCustomerData)
+          checkoutService.prePaySteps(mockCart, mockCustomerData, mockCart.uid)
         ).rejects.toBeInstanceOf(CartUidNotFoundError);
+      });
+
+      it('throws cart uid mismatch error', async () => {
+        const mockCart = StripeResponseFactory(
+          ResultCartFactory({
+            uid: faker.string.uuid(),
+          }));
+
+        await expect(
+          checkoutService.prePaySteps(mockCart, mockCustomerData, 'randomSession')
+        ).rejects.toBeInstanceOf(CartUidMismatchError);
       });
 
       it('throws cart tax location missing error', async () => {
@@ -400,7 +412,8 @@ describe('CheckoutService', () => {
               ...mockCart,
               taxAddress: null,
             },
-            mockCustomerData
+            mockCustomerData,
+            mockCart.uid
           )
         ).rejects.toBeInstanceOf(CartNoTaxAddressError);
       });
@@ -413,7 +426,7 @@ describe('CheckoutService', () => {
         );
 
         await expect(
-          checkoutService.prePaySteps(mockCart, mockCustomerData)
+          checkoutService.prePaySteps(mockCart, mockCustomerData, mockCart.uid)
         ).rejects.toBeInstanceOf(CartCurrencyNotFoundError);
       });
 
@@ -429,7 +442,7 @@ describe('CheckoutService', () => {
         );
 
         await expect(
-          checkoutService.prePaySteps(mockCart, mockCustomerData)
+          checkoutService.prePaySteps(mockCart, mockCustomerData, mockCart.uid)
         ).rejects.toBeInstanceOf(CartEligibilityMismatchError);
       });
 
@@ -455,7 +468,7 @@ describe('CheckoutService', () => {
           );
 
         await expect(
-          checkoutService.prePaySteps(mockCart, mockCustomerData)
+          checkoutService.prePaySteps(mockCart, mockCustomerData, mockCart.uid)
         ).rejects.toBeInstanceOf(PromotionCodeNotFoundError);
       });
 
@@ -471,7 +484,7 @@ describe('CheckoutService', () => {
         );
 
         await expect(
-          checkoutService.prePaySteps(mockCart, mockCustomerData)
+          checkoutService.prePaySteps(mockCart, mockCustomerData, mockCart.uid)
         ).rejects.toBeInstanceOf(CartTotalMismatchError);
       });
     });
@@ -625,14 +638,16 @@ describe('CheckoutService', () => {
         await checkoutService.payWithStripe(
           mockCart,
           mockConfirmationToken.id,
-          mockCustomerData
+          mockCustomerData,
+          mockCart.uid
         );
       });
 
       it('calls prePaySteps', async () => {
         expect(checkoutService.prePaySteps).toHaveBeenCalledWith(
           mockCart,
-          mockCustomerData
+          mockCustomerData,
+          mockCart.uid
         );
       });
 
@@ -721,7 +736,8 @@ describe('CheckoutService', () => {
           checkoutService.payWithStripe(
             mockCart,
             mockConfirmationToken.id,
-            mockCustomerData
+            mockCustomerData,
+            mockCart.uid
           )
         ).resolves;
       });
@@ -759,7 +775,8 @@ describe('CheckoutService', () => {
           await checkoutService.payWithStripe(
             mockCart,
             mockConfirmationToken.id,
-            mockCustomerData
+            mockCustomerData,
+            mockCart.uid
           );
         });
 
@@ -799,7 +816,8 @@ describe('CheckoutService', () => {
           await checkoutService.payWithStripe(
             mockCart,
             mockConfirmationToken.id,
-            mockCustomerData
+            mockCustomerData,
+            mockCart.uid
           );
         });
 
@@ -833,7 +851,8 @@ describe('CheckoutService', () => {
           await expect(checkoutService.payWithStripe(
             mockCart,
             mockConfirmationToken.id,
-            mockCustomerData
+            mockCustomerData,
+            mockCart.uid
           )).rejects.toThrow();
 
           expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
@@ -913,7 +932,8 @@ describe('CheckoutService', () => {
         await checkoutService.payWithStripe(
           mockCart,
           mockConfirmationToken.id,
-          mockCustomerData
+          mockCustomerData,
+          mockCart.uid
         );
 
         expect(cartManager.setNeedsInputCart).toHaveBeenCalledWith(mockCart.id);
@@ -998,6 +1018,7 @@ describe('CheckoutService', () => {
         await checkoutService.payWithPaypal(
           mockCart,
           mockCustomerData,
+          mockCart.uid,
           mockToken
         );
       });
@@ -1005,7 +1026,8 @@ describe('CheckoutService', () => {
       it('calls prePaySteps', async () => {
         expect(checkoutService.prePaySteps).toHaveBeenCalledWith(
           mockCart,
-          mockCustomerData
+          mockCustomerData,
+          mockCart.uid
         );
       });
 
@@ -1126,6 +1148,7 @@ describe('CheckoutService', () => {
           await checkoutService.payWithPaypal(
             mockCart,
             mockCustomerData,
+            mockCart.uid,
             mockToken
           );
         });
@@ -1211,7 +1234,7 @@ describe('CheckoutService', () => {
           jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
 
           await expect(
-            checkoutService.payWithPaypal(mockCart, mockCustomerData, mockToken)
+            checkoutService.payWithPaypal(mockCart, mockCustomerData, mockCart.uid, mockToken)
           ).rejects.toBeInstanceOf(InvalidInvoiceStateCheckoutError);
         });
       });

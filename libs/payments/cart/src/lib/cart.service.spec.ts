@@ -902,13 +902,15 @@ describe('CartService', () => {
         mockCart.id,
         mockCart.version,
         mockPaymentMethodId,
-        mockCustomerData
+        mockCustomerData,
+        mockCart.uid
       );
 
       expect(checkoutService.payWithStripe).toHaveBeenCalledWith(
         mockCart,
         mockPaymentMethodId,
-        mockCustomerData
+        mockCustomerData,
+        mockCart.uid
       );
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });
@@ -928,7 +930,8 @@ describe('CartService', () => {
           mockCart.id,
           mockCart.version,
           mockPaymentMethodId,
-          mockCustomerData
+          mockCustomerData,
+          mockCart.uid
         )
       ).rejects.toBeInstanceOf(CartStateProcessingError);
 
@@ -955,12 +958,14 @@ describe('CartService', () => {
         mockCart.id,
         mockCart.version,
         mockCustomerData,
+        mockCart.uid,
         mockToken
       );
 
       expect(checkoutService.payWithPaypal).toHaveBeenCalledWith(
         mockCart,
         mockCustomerData,
+        mockCart.uid,
         mockToken
       );
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
@@ -981,6 +986,7 @@ describe('CartService', () => {
           mockCart.id,
           mockCart.version,
           mockCustomerData,
+          mockCart.uid,
           mockToken
         )
       ).rejects.toBeInstanceOf(CartStateProcessingError);

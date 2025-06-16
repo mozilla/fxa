@@ -471,7 +471,8 @@ export class CartService {
     cartId: string,
     version: number,
     confirmationTokenId: string,
-    customerData: CheckoutCustomerData
+    customerData: CheckoutCustomerData,
+    sessionUid?: string
   ) {
     return this.wrapWithCartCatch(cartId, async () => {
       let updatedCart: ResultCart | null = null;
@@ -495,7 +496,8 @@ export class CartService {
         await this.checkoutService.payWithStripe(
           updatedCart,
           confirmationTokenId,
-          customerData
+          customerData,
+          sessionUid
         );
       });
     });
@@ -506,6 +508,7 @@ export class CartService {
     cartId: string,
     version: number,
     customerData: CheckoutCustomerData,
+    sessionUid?: string,
     token?: string
   ) {
     return this.wrapWithCartCatch(cartId, async () => {
@@ -530,6 +533,7 @@ export class CartService {
         await this.checkoutService.payWithPaypal(
           updatedCart,
           customerData,
+          sessionUid,
           token
         );
       });

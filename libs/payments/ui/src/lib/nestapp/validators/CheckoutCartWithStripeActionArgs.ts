@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Type } from 'class-transformer';
-import { IsNumber, IsString, ValidateNested } from 'class-validator';
+import { IsNumber, IsString, ValidateNested, IsOptional } from 'class-validator';
 
 export class CheckoutCartWithStripeActionCustomerData {
   @IsString()
@@ -26,4 +26,8 @@ export class CheckoutCartWithStripeActionArgs {
   @Type(() => CheckoutCartWithStripeActionCustomerData)
   @ValidateNested()
   customerData!: CheckoutCartWithStripeActionCustomerData;
+
+  @IsString()
+  @IsOptional()
+  sessionUid?: string;
 }
