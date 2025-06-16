@@ -82,6 +82,7 @@ import {
 } from '@fxa/shared/metrics/statsd';
 import { GetCartStateActionArgs } from './validators/GetCartStateActionArgs';
 import { GetCartStateActionResult } from './validators/GetCartStateActionResult';
+import type { SubscriptionAttributionParams } from '@fxa/payments/cart';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -102,7 +103,7 @@ export class NextJSActionsService {
     private eligibilityService: EligibilityService,
     private productConfigurationManager: ProductConfigurationManager,
     @Inject(StatsDService) public statsd: StatsD
-  ) { }
+  ) {}
 
   @SanitizeExceptions()
   @NextIOValidator(GetCartStateActionArgs, GetCartStateActionResult)
@@ -169,10 +170,7 @@ export class NextJSActionsService {
   @NextIOValidator(GetCouponArgs, GetCouponResult)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async getCoupon(args: {
-    cartId: string;
-    version: number;
-  }) {
+  async getCoupon(args: { cartId: string; version: number }) {
     const couponCode = await this.cartService.getCoupon({
       cartId: args.cartId,
       version: args.version,
@@ -256,8 +254,8 @@ export class NextJSActionsService {
     );
 
     return {
-      result
-    }
+      result,
+    };
   }
 
   @SanitizeExceptions()
@@ -268,6 +266,7 @@ export class NextJSActionsService {
     cartId: string;
     version: number;
     customerData: { locale: string; displayName: string };
+    attribution: SubscriptionAttributionParams;
     sessionUid?: string;
     token?: string;
   }) {
@@ -275,6 +274,7 @@ export class NextJSActionsService {
       args.cartId,
       args.version,
       args.customerData,
+      args.attribution,
       args.sessionUid,
       args.token
     );
@@ -289,6 +289,7 @@ export class NextJSActionsService {
     version: number;
     confirmationTokenId: string;
     customerData: { locale: string; displayName: string };
+    attribution: SubscriptionAttributionParams;
     sessionUid?: string;
   }) {
     await this.cartService.checkoutCartWithStripe(
@@ -296,6 +297,7 @@ export class NextJSActionsService {
       args.version,
       args.confirmationTokenId,
       args.customerData,
+      args.attribution,
       args.sessionUid
     );
   }
@@ -423,13 +425,13 @@ export class NextJSActionsService {
     uid?: string;
   }): Promise<
     | {
-      ok: true;
-      taxAddress: TaxAddress;
-    }
+        ok: true;
+        taxAddress: TaxAddress;
+      }
     | {
-      ok: false;
-      error: string;
-    }
+        ok: false;
+        error: string;
+      }
   > {
     const { cartId, version, offeringId, taxAddress, uid } = args;
 

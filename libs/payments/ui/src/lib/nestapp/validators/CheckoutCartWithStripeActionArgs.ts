@@ -5,6 +5,47 @@
 import { Type } from 'class-transformer';
 import { IsNumber, IsString, ValidateNested, IsOptional } from 'class-validator';
 
+export class CheckoutCartWithStripeActionUtmAttributionData {
+  @IsString()
+  campaign!: string;
+
+  @IsString()
+  content!: string;
+
+  @IsString()
+  medium!: string;
+
+  @IsString()
+  source!: string;
+
+  @IsString()
+  term!: string;
+}
+
+export class CheckoutCartWithStripeActionSessionAttributionData {
+  @IsString()
+  flow_id!: string;
+
+  @IsString()
+  entrypoint!: string;
+
+  @IsString()
+  entrypoint_experiment!: string;
+
+  @IsString()
+  entrypoint_variation!: string;
+}
+export class CheckoutCartWithStripeActionAttributionData {
+  @Type(() => CheckoutCartWithStripeActionUtmAttributionData)
+  @ValidateNested()
+  utm!: CheckoutCartWithStripeActionUtmAttributionData;
+
+  @Type(() => CheckoutCartWithStripeActionSessionAttributionData)
+  @ValidateNested()
+  session!: CheckoutCartWithStripeActionSessionAttributionData;
+}
+
+
 export class CheckoutCartWithStripeActionCustomerData {
   @IsString()
   locale!: string;
@@ -30,4 +71,8 @@ export class CheckoutCartWithStripeActionArgs {
   @IsString()
   @IsOptional()
   sessionUid?: string;
+
+  @Type(() => CheckoutCartWithStripeActionAttributionData)
+  @ValidateNested()
+  attributionData!: CheckoutCartWithStripeActionAttributionData;
 }

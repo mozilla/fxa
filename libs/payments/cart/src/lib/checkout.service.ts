@@ -49,12 +49,15 @@ import {
   CartUidNotFoundError,
   CartNoTaxAddressError,
   PrepayCartCurrencyNotFoundError,
-  CartUidMismatchError
+  CartUidMismatchError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import { CheckoutCustomerData, ResultCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
-import { PrePayStepsResult } from './checkout.types';
+import type {
+  PrePayStepsResult,
+  SubscriptionAttributionParams,
+} from './checkout.types';
 import assert from 'assert';
 import {
   InvalidInvoiceStateCheckoutError,
@@ -289,6 +292,7 @@ export class CheckoutService {
     cart: ResultCart,
     confirmationTokenId: string,
     customerData: CheckoutCustomerData,
+    attribution: SubscriptionAttributionParams,
     sessionUid?: string
   ) {
     const {
@@ -332,6 +336,23 @@ export class CheckoutService {
                 // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
                 [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
                 [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+                [STRIPE_SUBSCRIPTION_METADATA.UtmCampaign]:
+                  attribution.utm_campaign,
+                [STRIPE_SUBSCRIPTION_METADATA.UtmContent]:
+                  attribution.utm_content,
+                [STRIPE_SUBSCRIPTION_METADATA.UtmMedium]:
+                  attribution.utm_medium,
+                [STRIPE_SUBSCRIPTION_METADATA.UtmSource]:
+                  attribution.utm_source,
+                [STRIPE_SUBSCRIPTION_METADATA.UtmTerm]: attribution.utm_term,
+                [STRIPE_SUBSCRIPTION_METADATA.SessionFlowId]:
+                  attribution.session_flow_id,
+                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypoint]:
+                  attribution.session_entrypoint,
+                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointExperiment]:
+                  attribution.session_entrypoint_experiment,
+                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointVariation]:
+                  attribution.session_entrypoint_variation,
               },
             },
             {
@@ -343,7 +364,8 @@ export class CheckoutService {
             price.id,
             eligibility.fromPrice.id,
             cart,
-            eligibility.redundantOverlaps || []
+            eligibility.redundantOverlaps || [],
+            attribution
           );
 
     // Get payment/setup intent for subscription
@@ -425,6 +447,7 @@ export class CheckoutService {
   async payWithPaypal(
     cart: ResultCart,
     customerData: CheckoutCustomerData,
+    attribution: SubscriptionAttributionParams,
     sessionUid?: string,
     token?: string
   ) {
@@ -482,6 +505,23 @@ export class CheckoutService {
                 // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
                 [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
                 [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+                [STRIPE_SUBSCRIPTION_METADATA.UtmCampaign]:
+                  attribution.utm_campaign,
+                [STRIPE_SUBSCRIPTION_METADATA.UtmContent]:
+                  attribution.utm_content,
+                [STRIPE_SUBSCRIPTION_METADATA.UtmMedium]:
+                  attribution.utm_medium,
+                [STRIPE_SUBSCRIPTION_METADATA.UtmSource]:
+                  attribution.utm_source,
+                [STRIPE_SUBSCRIPTION_METADATA.UtmTerm]: attribution.utm_term,
+                [STRIPE_SUBSCRIPTION_METADATA.SessionFlowId]:
+                  attribution.session_flow_id,
+                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypoint]:
+                  attribution.session_entrypoint,
+                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointExperiment]:
+                  attribution.session_entrypoint_experiment,
+                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointVariation]:
+                  attribution.session_entrypoint_variation,
               },
             },
             {
@@ -493,7 +533,8 @@ export class CheckoutService {
             price.id,
             eligibility.fromPrice.id,
             cart,
-            eligibility.redundantOverlaps || []
+            eligibility.redundantOverlaps || [],
+            attribution
           );
 
     await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
@@ -549,7 +590,8 @@ export class CheckoutService {
     toPriceId: string,
     fromPriceId: string,
     cart: ResultCart,
-    redundantOverlaps: SubscriptionEligibilityUpgradeDowngradeResult[]
+    redundantOverlaps: SubscriptionEligibilityUpgradeDowngradeResult[],
+    attribution: SubscriptionAttributionParams
   ) {
     const upgradeSubscription =
       await this.subscriptionManager.retrieveForCustomerAndPrice(
@@ -596,6 +638,19 @@ export class CheckoutService {
           [STRIPE_SUBSCRIPTION_METADATA.PlanChangeDate]: Math.floor(
             Date.now() / 1000
           ),
+          [STRIPE_SUBSCRIPTION_METADATA.UtmCampaign]: attribution.utm_campaign,
+          [STRIPE_SUBSCRIPTION_METADATA.UtmContent]: attribution.utm_content,
+          [STRIPE_SUBSCRIPTION_METADATA.UtmMedium]: attribution.utm_medium,
+          [STRIPE_SUBSCRIPTION_METADATA.UtmSource]: attribution.utm_source,
+          [STRIPE_SUBSCRIPTION_METADATA.UtmTerm]: attribution.utm_term,
+          [STRIPE_SUBSCRIPTION_METADATA.SessionFlowId]:
+            attribution.session_flow_id,
+          [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypoint]:
+            attribution.session_entrypoint,
+          [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointExperiment]:
+            attribution.session_entrypoint_experiment,
+          [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointVariation]:
+            attribution.session_entrypoint_variation,
         },
       }
     );

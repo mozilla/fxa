@@ -10,6 +10,46 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+export class CheckoutCartWithPaypalActionUtmAttributionData {
+  @IsString()
+  campaign!: string;
+
+  @IsString()
+  content!: string;
+
+  @IsString()
+  medium!: string;
+
+  @IsString()
+  source!: string;
+
+  @IsString()
+  term!: string;
+}
+
+export class CheckoutCartWithPaypalActionSessionAttributionData {
+  @IsString()
+  flow_id!: string;
+
+  @IsString()
+  entrypoint!: string;
+
+  @IsString()
+  entrypoint_experiment!: string;
+
+  @IsString()
+  entrypoint_variation!: string;
+}
+export class CheckoutCartWithPaypalActionAttributionData {
+  @Type(() => CheckoutCartWithPaypalActionUtmAttributionData)
+  @ValidateNested()
+  utm!: CheckoutCartWithPaypalActionUtmAttributionData;
+
+  @Type(() => CheckoutCartWithPaypalActionSessionAttributionData)
+  @ValidateNested()
+  session!: CheckoutCartWithPaypalActionSessionAttributionData;
+}
+
 export class CheckoutCartWithPaypalActionCustomerData {
   @IsString()
   locale!: string;
@@ -36,4 +76,8 @@ export class CheckoutCartWithPaypalActionArgs {
   @Type(() => CheckoutCartWithPaypalActionCustomerData)
   @ValidateNested()
   customerData!: CheckoutCartWithPaypalActionCustomerData;
+
+  @Type(() => CheckoutCartWithPaypalActionAttributionData)
+  @ValidateNested()
+  attributionData!: CheckoutCartWithPaypalActionAttributionData;
 }
