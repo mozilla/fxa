@@ -19,6 +19,7 @@ import { ReactComponent as BackupRecoveryPhone } from './graphic_backup_recovery
 import { ReactComponent as BackupRecoveryPhoneCode } from './graphic_phone_code.min.svg';
 import { ReactComponent as BackupRecoveryPhoneSms } from './graphic_phone_sms.min.svg';
 import { ReactComponent as BackupAuthenticationCodes } from './graphic_authentication_codes.min.svg';
+import { ReactComponent as SyncClouds } from './graphic_sync_clouds.svg';
 
 export const HeartsBrokenImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
@@ -163,6 +164,15 @@ export const BackupAuthenticationCodesImage = ({
     ariaLabel="Device screen with codes"
     ariaLabelFtlId="backup-authentication-codes-image-aria-label"
     Image={BackupAuthenticationCodes}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const SyncCloudsImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Clouds with a sync icon"
+    ariaLabelFtlId="sync-clouds-image-aria-label"
+    Image={SyncClouds}
     {...{ className, ariaHidden }}
   />
 );

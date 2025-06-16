@@ -25,7 +25,8 @@ export type BannerProps = {
   link?: BannerLinkProps;
   isFancy?: boolean;
   bannerId?: string;
-  iconAlign?: 'start' | 'center';
+  iconAlignClassName?: 'self-start' | 'self-center';
+  textAlignClassName?: 'text-start' | 'text-center';
 };
 
 export type Animation = {
