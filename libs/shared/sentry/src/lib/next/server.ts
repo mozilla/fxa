@@ -4,17 +4,10 @@
 
 import * as Sentry from '@sentry/nextjs';
 import { ErrorEvent } from '@sentry/core';
-import { SentryConfigOpts } from '../models/SentryConfigOpts';
+import { InitSentryOpts  } from '../models/SentryConfigOpts';
 import { buildSentryConfig } from '../config-builder';
 import { Logger } from '../sentry.types';
-import { tagFxaName } from '../utils/tagFxaName';
-
-type ExtraOpts = {
-  integrations?: any[];
-  eventFilters?: Array<(event: ErrorEvent, hint: any) => ErrorEvent>;
-};
-
-type InitSentryOpts = SentryConfigOpts & ExtraOpts;
+import { beforeSend } from '../utils/beforeSend.server';
 
 export function initSentryForNextjsServer(config: InitSentryOpts, log: Logger) {
   if (!config?.sentry?.dsn) {
@@ -23,19 +16,6 @@ export function initSentryForNextjsServer(config: InitSentryOpts, log: Logger) {
   }
 
   const opts = buildSentryConfig(config, log);
-  /**
-   * @@todo - Move to lib/utils/beforeSend.server.ts - FXA-10402
-   */
-  const beforeSend = function (event: ErrorEvent, hint: any) {
-    // Default
-    event = tagFxaName(event, config.sentry?.serverName || 'unknown');
-
-    // Custom filters
-    config.eventFilters?.forEach((filter) => {
-      event = filter(event, hint);
-    });
-    return event;
-  };
 
   const integrations = [
     // Default
@@ -45,6 +25,10 @@ export function initSentryForNextjsServer(config: InitSentryOpts, log: Logger) {
     ...(config.integrations || []),
   ];
 
+  const beforeEventSend = (event: ErrorEvent, hint: any) => {
+    return beforeSend(event, hint, config)
+  }
+
   try {
     Sentry.init({
       // Defaults Options
@@ -53,7 +37,7 @@ export function initSentryForNextjsServer(config: InitSentryOpts, log: Logger) {
 
       // Custom Options
       integrations,
-      beforeSend,
+      beforeSend: beforeEventSend,
       ...opts,
     });
   } catch (e) {

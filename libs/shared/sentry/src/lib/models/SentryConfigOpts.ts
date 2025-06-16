@@ -2,6 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ErrorEvent } from '@sentry/core';
+
+export type ExtraOpts = {
+    integrations?: any[];
+    eventFilters?: Array<(event: ErrorEvent, hint: any) => ErrorEvent>;
+};
+
+export type InitSentryOpts = SentryConfigOpts & ExtraOpts;
+
 export type SentryConfigOpts = {
   /** Name of release */
   release?: string;
