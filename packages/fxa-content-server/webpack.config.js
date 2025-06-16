@@ -57,7 +57,6 @@ const webpackConfig = {
       'node_modules',
     ],
     alias: {
-      'asmcrypto.js': require.resolve('asmcrypto.js/asmcrypto.min.js'),
       'chosen-js': require.resolve('chosen-js/public/chosen.jquery'),
       'cocktail-lib': require.resolve('backbone.cocktail/Cocktail'),
       cocktail: require.resolve('./app/scripts/lib/cocktail'),

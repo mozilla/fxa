@@ -10,7 +10,6 @@ import {
 } from './utils';
 import { NAMESPACE, createSaltV1, parseSalt } from './salt';
 
-
 /**
  * A credentials model.
  */
@@ -87,11 +86,16 @@ export async function getCredentials(email: string, password: string) {
   };
 }
 
-export async function getCredentialsV2({password,clientSalt}:{password: string, clientSalt: string}) {
-
+export async function getCredentialsV2({
+  password,
+  clientSalt,
+}: {
+  password: string;
+  clientSalt: string;
+}) {
   const result = parseSalt(clientSalt);
   if (result.version !== 2) {
-    throw new Error('Invalid v2 clientSalt')
+    throw new Error('Invalid v2 clientSalt');
   }
 
   const passkey = await crypto.subtle.importKey(
@@ -328,68 +332,56 @@ export async function jweDecrypt(
   return decoder.decode(decrypted);
 }
 export async function checkWebCrypto() {
-  try {
-    await crypto.subtle.importKey(
-      'raw',
-      crypto.getRandomValues(new Uint8Array(16)),
-      'PBKDF2',
-      false,
-      ['deriveKey']
-    );
-    await crypto.subtle.importKey(
-      'raw',
-      crypto.getRandomValues(new Uint8Array(32)),
-      'HKDF',
-      false,
-      ['deriveKey']
-    );
-    await crypto.subtle.importKey(
-      'raw',
-      crypto.getRandomValues(new Uint8Array(32)),
-      {
-        name: 'HMAC',
-        hash: 'SHA-256',
-        length: 256,
-      },
-      false,
-      ['sign']
-    );
-    await crypto.subtle.importKey(
-      'raw',
-      crypto.getRandomValues(new Uint8Array(32)),
-      {
-        name: 'AES-GCM',
-      },
-      false,
-      ['encrypt']
-    );
-    await crypto.subtle.digest(
-      'SHA-256',
-      crypto.getRandomValues(new Uint8Array(16))
-    );
-    return true;
-  } catch (err) {
-    try {
-      console.warn('loading webcrypto shim', err);
-      // prettier-ignore
-      // @ts-ignore
-      window.asmCrypto = await import(/* webpackChunkName: "asmcrypto.js" */ 'asmcrypto.js');
-      // prettier-ignore
-      // @ts-ignore
-      await import(/* webpackChunkName: "webcrypto-liner" */ 'webcrypto-liner/build/webcrypto-liner.shim.min');
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
+  // Test Web Crypto API, error if no support
+  await crypto.subtle.importKey(
+    'raw',
+    crypto.getRandomValues(new Uint8Array(16)),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  );
+  await crypto.subtle.importKey(
+    'raw',
+    crypto.getRandomValues(new Uint8Array(32)),
+    'HKDF',
+    false,
+    ['deriveKey']
+  );
+  await crypto.subtle.importKey(
+    'raw',
+    crypto.getRandomValues(new Uint8Array(32)),
+    {
+      name: 'HMAC',
+      hash: 'SHA-256',
+      length: 256,
+    },
+    false,
+    ['sign']
+  );
+  await crypto.subtle.importKey(
+    'raw',
+    crypto.getRandomValues(new Uint8Array(32)),
+    {
+      name: 'AES-GCM',
+    },
+    false,
+    ['encrypt']
+  );
+  await crypto.subtle.digest(
+    'SHA-256',
+    crypto.getRandomValues(new Uint8Array(16))
+  );
 }
 
-export async function getKeysV2({kB, v1, v2}:{
-  kB?:string,
-  v1: Credentials,
-  v2: Credentials,
+export async function getKeysV2({
+  kB,
+  v1,
+  v2,
+}: {
+  kB?: string;
+  v1: Credentials;
+  v2: Credentials;
 }) {
-
   if (!kB) {
     kB = uint8ToHex(crypto.getRandomValues(new Uint8Array(32)));
   }
@@ -400,6 +392,6 @@ export async function getKeysV2({kB, v1, v2}:{
   return {
     kB,
     wrapKb: uint8ToHex(wrapKb),
-    wrapKbVersion2: uint8ToHex(wrapKbVersion2)
-  }
+    wrapKbVersion2: uint8ToHex(wrapKbVersion2),
+  };
 }
