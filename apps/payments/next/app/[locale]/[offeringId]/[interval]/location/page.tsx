@@ -17,11 +17,10 @@ import {
 import { fetchCMSData, validateLocationAction } from '@fxa/payments/ui/actions';
 import { getApp, TermsAndPrivacy } from '@fxa/payments/ui/server';
 import locationIcon from '@fxa/shared/assets/images/confirm-pairing.svg';
-import { FetchCmsInvalidOfferingError, type PageContentOfferingTransformed } from '@fxa/shared/cms';
+import type { PageContentOfferingTransformed } from '@fxa/shared/cms';
 import { config } from 'apps/payments/next/config';
 import { auth } from 'apps/payments/next/auth';
 import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
-import { hasClassname } from '@fxa/payments/ui/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,7 +61,7 @@ export default async function Location({
 
     emitterService.emit('locationView', locationStatus);
   } catch (error) {
-    if (hasClassname(error, FetchCmsInvalidOfferingError)) {
+    if (error.name === 'FetchCmsInvalidOfferingError') {
       notFound();
     } else {
       throw error;
