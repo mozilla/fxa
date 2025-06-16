@@ -14,7 +14,7 @@ import { getApp } from '@fxa/payments/ui/server';
 export default function AuthErrorPage({
   searchParams,
 }: {
-  searchParams: Record<string, string>;
+  searchParams: Record<string, string | string[]>;
 }) {
   const cookieStore = cookies();
   const redirectUrl =
@@ -22,9 +22,12 @@ export default function AuthErrorPage({
     cookieStore.get('authjs.callback-url')?.value;
   const supportUrl = config.supportUrl;
   const l10n = getApp().getL10n();
+  const errorMessage = Array.isArray(searchParams?.error)
+    ? searchParams.error[0]
+    : searchParams?.error;
   getApp()
     .getEmitterService()
-    .emit('auth', { type: 'error', errorMessage: searchParams?.error });
+    .emit('auth', { type: 'error', errorMessage });
 
   return (
     <>

@@ -22,7 +22,7 @@ export async function generateMetadata({
   searchParams,
 }: {
   params: CheckoutParams;
-  searchParams: Record<string, string> | undefined;
+  searchParams: Record<string, string | string[]> | undefined;
 }): Promise<Metadata> {
   return buildPageMetadata({
     params,
@@ -39,7 +39,7 @@ export default async function ProcessingPage({
   searchParams,
 }: {
   params: CheckoutParams;
-  searchParams: Record<string, string> | undefined;
+  searchParams: Record<string, string | string[]> | undefined;
 }) {
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
