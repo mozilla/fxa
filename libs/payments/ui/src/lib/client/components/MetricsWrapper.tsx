@@ -18,6 +18,11 @@ export function MetricsWrapper({
   children: React.ReactNode;
 }) {
   const params = useParams();
+  for (const param in params) {
+    if (Array.isArray(params[param])) {
+      params[param] = params[param].join(',');
+    }
+  }
   const searchParams = useSearchParams();
   const [viewEventLogged, setViewEventLogged] = useState(false);
 
@@ -29,7 +34,7 @@ export function MetricsWrapper({
       setViewEventLogged(true);
       recordEmitterEventAction(
         'checkoutView',
-        { ...params },
+        { ...(params as Record<string, string>) },
         Object.fromEntries(searchParams)
       );
     }
