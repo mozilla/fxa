@@ -1,6 +1,6 @@
 import { duration, unitOfTime } from 'moment';
 import { IsArray, IsString } from 'class-validator';
-import { BlockOn, Rule } from './models';
+import { BlockOn, BlockPolicy, Rule } from './models';
 import { InvalidRule } from './error';
 import { getKey } from './util';
 
@@ -62,9 +62,9 @@ export function parseConfigRules(
 
     const parts = line.split(':').map((x) => x.trim());
 
-    if (parts.length !== 5) {
+    if (parts.length !== 6) {
       throw new InvalidRule(
-        `Issue detected on line ${lineNumber}. Rules must have 5 parts separated delimited by :. `,
+        `Issue detected on line ${lineNumber}. Rules must have 6 parts separated delimited by :. `,
         line
       );
     }
@@ -75,6 +75,7 @@ export function parseConfigRules(
       maxAttempts: Number.parseInt(parts[2]),
       windowDurationInSeconds: convertDurationToSeconds(parts[3]),
       blockDurationInSeconds: convertDurationToSeconds(parts[4]),
+      blockPolicy: (parts[5] || 'block') as BlockPolicy,
     } satisfies Rule;
 
     // A couple sanity checks to catch bad rule configuration
@@ -117,6 +118,9 @@ export function parseConfigRules(
         `Block duration must be a duration greater than 1 seconds.`,
         line
       );
+    }
+    if (!/^block$|^ban$/.test(rule.blockPolicy)) {
+      throw new InvalidRule(`Policy must be block or ban.`, line);
     }
 
     // Add the rule to the map.

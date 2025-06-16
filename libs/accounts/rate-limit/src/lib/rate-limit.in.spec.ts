@@ -35,7 +35,7 @@ describe('rate-limit', () => {
   for (const blockOn of ['ip', 'email', 'uid', 'ip_email']) {
     it('should block on ' + blockOn, async () => {
       rateLimit = new RateLimit(
-        { rules: parseConfigRules([`testBlock:${blockOn}:1:1s:1s`]) },
+        { rules: parseConfigRules([`testBlock:${blockOn}:1:1s:1s:block`]) },
         redis,
         statsd
       );
@@ -67,7 +67,7 @@ describe('rate-limit', () => {
 
   it(`should not block after window clears`, async () => {
     rateLimit = new RateLimit(
-      { rules: parseConfigRules(['testWindowCleared:ip:1:1s:1s']) },
+      { rules: parseConfigRules(['testWindowCleared:ip:1:1s:1s:block']) },
       redis,
       statsd
     );
@@ -88,8 +88,8 @@ describe('rate-limit', () => {
     rateLimit = new RateLimit(
       {
         rules: parseConfigRules([
-          'testMulti:ip:2:10s:2s',
-          'testMulti:email:2:10s:3s',
+          'testMulti:ip:2:10s:2s:block',
+          'testMulti:email:2:10s:3s:block',
         ]),
       },
       redis,
@@ -137,8 +137,8 @@ describe('rate-limit', () => {
     rateLimit = new RateLimit(
       {
         rules: parseConfigRules([
-          'testDouble:email:2:10s:2s',
-          'testDouble:email:3:10s:4s',
+          'testDouble:email:2:10s:2s:block',
+          'testDouble:email:3:10s:4s:block',
         ]),
       },
       redis,
@@ -171,7 +171,7 @@ describe('rate-limit', () => {
      */
     rateLimit = new RateLimit(
       {
-        rules: parseConfigRules(['test:ip:1:20s:1s']),
+        rules: parseConfigRules(['test:ip:1:20s:1s:block']),
       },
       redis,
       statsd
@@ -194,7 +194,7 @@ describe('rate-limit', () => {
   it('can unblock', async () => {
     rateLimit = new RateLimit(
       {
-        rules: parseConfigRules(['testBlock:ip:1:1s:1s']),
+        rules: parseConfigRules(['testBlock:ip:1:1s:1s:block']),
       },
       redis,
       statsd
@@ -225,11 +225,12 @@ describe('rate-limit', () => {
     // Regression test for: FXA-9463
     rateLimit = new RateLimit(
       {
-        rules: parseConfigRules(['testBlock:email:1:1s:1hour']),
+        rules: parseConfigRules(['testBlock:email:1:1s:1hour:block']),
       },
       redis,
       statsd
     );
+
     const email = Array(255).fill('β').join('') + '@restmail.net';
     const check1 = await rateLimit.check('testBlock', { email });
     const check2 = await rateLimit.check('testBlock', { email });
@@ -240,11 +241,10 @@ describe('rate-limit', () => {
 
   it('can fallback to a default rule', async () => {
     rateLimit = new RateLimit(
-      { rules: parseConfigRules(['default:ip:1:1s:1s']) },
+      { rules: parseConfigRules(['default:ip:1:1s:1s:block']) },
       redis,
       statsd
     );
-
     const check1 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
     const check2 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
 
@@ -257,5 +257,118 @@ describe('rate-limit', () => {
       'on:ip',
       'action:testBlock',
     ]);
+  });
+
+  it('can ban', async () => {
+    rateLimit = new RateLimit(
+      {
+        rules: parseConfigRules([
+          'testBlock:ip:1:1s:1s:block',
+          'testBlock:email:1:1s:1s:block',
+          'testBlockUid:uid:1:1s:1s:block',
+          'testBlockEmail:email:10:1s:1s:block',
+          'testBan:ip:1:10s:10s:ban',
+        ]),
+      },
+      redis,
+      statsd
+    );
+
+    const check1 = await rateLimit.check('testBan', { ip: '127.0.0.1' });
+    const check2 = await rateLimit.check('testBan', { ip: '127.0.0.1' });
+
+    // testBlock Should be blocked by check2 triggering a 'ban'.
+    const check3 = await rateLimit.check('testBlock', {
+      email: 'foo@mozilla.com',
+      ip: '127.0.0.1',
+    });
+
+    // testBlockEmail should not be blocked, because it's has no policy for
+    // for 'ip', which is what the ban is on.
+    const check4 = await rateLimit.check('testBlockEmail', {
+      email: 'foo@mozilla.com',
+      ip: '127.0.0.1',
+    });
+
+    // testBlockEmail should be blocked, but if we don't provide the ip
+    // there's not much the rate limiter can do.
+    const check5 = await rateLimit.check('testBlockEmail', {
+      email: 'foo@mozilla.com',
+    });
+
+    expect(check1).toBeNull();
+
+    expect(check2).not.toBeNull();
+    expect(check2?.reason).toEqual('too-many-attempts');
+    expect(check2?.retryAfter).toBeGreaterThan(10000 - 100);
+    expect(check2?.policy).toEqual('ban');
+
+    // testBan should trigger a block on all other actions
+    expect(check3).not.toBeNull();
+    expect(check3?.reason).toEqual('too-many-attempts');
+    expect(check3?.retryAfter).toBeGreaterThan(10000 - 100);
+    expect(check3?.policy).toEqual('ban');
+
+    expect(check4).not.toBeNull();
+    expect(check5).toBeNull();
+
+    expect(statsd.increment).toBeCalledTimes(1);
+    expect(statsd.increment).toBeCalledWith('rate_limit.ban', [
+      'on:ip',
+      'action:testBan',
+    ]);
+  });
+
+  it('can unban', async () => {
+    rateLimit = new RateLimit(
+      {
+        rules: parseConfigRules([
+          'testBlock:ip:1:1s:1s:block',
+          'testBlock:email:1:1s:1s:block',
+          'testBlockUid:uid:1:1s:1s:block',
+          'testBlockEmail:email:10:1s:1s:block',
+          'testBan:ip:1:1s:10s:ban',
+        ]),
+      },
+      redis,
+      statsd
+    );
+
+    const check1 = await rateLimit.check('testBan', { ip: '127.0.0.1' });
+    const check2 = await rateLimit.check('testBan', { ip: '127.0.0.1' });
+
+    // testBlock Should be blocked by check2 triggering a 'ban'.
+    const check3 = await rateLimit.check('testBlock', {
+      email: 'foo@mozilla.com',
+      ip: '127.0.0.1',
+    });
+
+    // Should not clear the ban!
+    await rateLimit.unblock({
+      ip: '127.0.0.1',
+    });
+
+    // The IP should still be banned. Unblocking doesn't not equal unbanning.
+    const check4 = await rateLimit.check('testBlockEmail', {
+      email: 'foo@mozilla.com',
+      ip: '127.0.0.1',
+    });
+
+    // Should clear the ban!
+    await rateLimit.unban({
+      ip: '127.0.0.1',
+    });
+
+    // The IP ban has been cleared. This check should now pass.
+    const check5 = await rateLimit.check('testBlockEmail', {
+      email: 'foo@mozilla.com',
+      ip: '127.0.0.1',
+    });
+
+    expect(check1).toBeNull();
+    expect(check2).not.toBeNull();
+    expect(check3).not.toBeNull();
+    expect(check4).not.toBeNull();
+    expect(check5).toBeNull();
   });
 });
