@@ -13,16 +13,9 @@ import {
 import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { BaseParams, buildRedirectUrl } from '@fxa/payments/ui';
 import { config } from 'apps/payments/next/config';
-import {
-  type SubplatInterval,
-} from '@fxa/payments/customer';
+import { type SubplatInterval } from '@fxa/payments/customer';
 import type { ResultCart } from '@fxa/payments/cart';
 import { getIpAddress } from '@fxa/payments/ui/server';
-import { hasClassname } from '@fxa/payments/ui/utils';
-import {
-  RetrieveStripePriceInvalidOfferingError,
-  RetrieveStripePriceNotFoundError,
-} from '@fxa/shared/cms';
 
 function getRedirectToUrl(
   cart: ResultCart,
@@ -108,9 +101,9 @@ export default async function New({
   let cartCoupon: string | null | undefined;
 
   if (searchParams.cartId && searchParams.cartVersion) {
-    const {couponCode: fetchedCoupon} = await getCouponAction(
+    const { couponCode: fetchedCoupon } = await getCouponAction(
       searchParams.cartId,
-      Number(searchParams.cartVersion),
+      Number(searchParams.cartVersion)
     );
     cartCoupon = fetchedCoupon;
   }
@@ -138,8 +131,8 @@ export default async function New({
 
       redirectToUrl = getRedirectToUrl(cart, params, searchParams);
     } else if (
-      hasClassname(error, RetrieveStripePriceInvalidOfferingError) ||
-      hasClassname(error, RetrieveStripePriceNotFoundError)
+      error.name === 'RetrieveStripePriceInvalidOfferingError' ||
+      error.name === 'RetrieveStripePriceNotFoundError'
     ) {
       notFound();
     } else {
