@@ -17,6 +17,17 @@ test.describe('severity-2 #smoke', () => {
       await expect(page.getByText('Valid email required')).toBeVisible();
     });
 
+    test('allows empty login_hint', async ({
+                                                        pages: { page, relier, signup }, target
+                                                      }) => {
+      await relier.goto(`login_hint=`);
+      await relier.clickEmailFirst();
+
+      // Email first page does not prefill an email
+      await expect(signup.emailFormHeading).toBeVisible();
+      await expect(signup.emailTextbox).toHaveValue('');
+    });
+
     test('login_hint specified by relier, not registered', async ({
       page,
       pages: { signup, relier },

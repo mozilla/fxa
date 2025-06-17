@@ -16,6 +16,7 @@ import {
   IsNumber,
   Min,
   Validate,
+  Allow,
 } from 'class-validator';
 import {
   bind,
@@ -75,6 +76,7 @@ export class OAuthQueryParams extends ModelDataProvider {
 
   @IsOptional()
   @IsEmail()
+  @Allow()
   @bind(T.snakeCase)
   loginHint!: string;
 
