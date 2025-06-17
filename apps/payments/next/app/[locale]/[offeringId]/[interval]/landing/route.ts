@@ -149,9 +149,9 @@ export async function GET(
   try {
     try {
       const metricsFlow = await getMetricsFlowAction();
-      redirectToUrl.searchParams.set('flowId', metricsFlow.flowId);
+      redirectToUrl.searchParams.set('flow_id', metricsFlow.flowId);
       redirectToUrl.searchParams.set(
-        'flowBeginTime',
+        'flow_begin_time',
         metricsFlow.flowBeginTime.toString()
       );
     } catch (error) {
