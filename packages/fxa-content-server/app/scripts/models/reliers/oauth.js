@@ -38,7 +38,7 @@ const SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
   ),
   keys_jwk: Vat.keysJwk().renameTo('keysJwk'),
   id_token_hint: Vat.idToken().renameTo('idTokenHint'),
-  login_hint: Vat.email().renameTo('loginHint'),
+  login_hint: Vat.email().allow('').renameTo('loginHint'),
   max_age: Vat.number().min(0).renameTo('maxAge'),
   prompt: Vat.prompt(),
   redirect_uri: Vat.url()
