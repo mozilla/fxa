@@ -53,6 +53,7 @@ import type {
 import { GetCartActionResult } from './validators/GetCartActionResult';
 import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionResult';
 import {
+  CouponErrorCannotRedeem,
   PromotionCodeSanitizedError,
   TaxAddress,
   type SubplatInterval,
@@ -189,7 +190,11 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({
-    allowlist: [InvalidPromoCodeCartError, ProductConfigError],
+    allowlist: [
+      CouponErrorCannotRedeem,
+      InvalidPromoCodeCartError,
+      ProductConfigError,
+    ],
   })
   @NextIOValidator(SetupCartActionArgs, SetupCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
