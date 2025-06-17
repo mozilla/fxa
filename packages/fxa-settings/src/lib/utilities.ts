@@ -141,29 +141,44 @@ export function resetOnce() {
  * Constructs a URL with UTM parameters appended to the query string.
  *
  * @param {string} pathname - The base URL path.
- * @param {'mozilla-websites' | 'product-partnership'} utmMedium - The medium through which the link is being shared.
+ * @param {'mozilla-websites' | 'product-partnership' | 'referral'} utmMedium - The medium through which the link is being shared.
  * @param {'moz-account'} utmSource - The source of the traffic.
- * @param {'bento' | 'sidebar'} utmTerm - The search term or keyword associated with the campaign.
- * @param {'fx-desktop' | 'fx-mobile' | 'monitor' | 'monitor-free' | 'monitor-plus' | 'relay' | 'vpn'} utmContent - The specific content or product that the link is associated with.
+ * @param {'bento' | 'sidebar' | 'settings' } utmTerm - The search term or keyword associated with the campaign.
+ * @param {'fx-desktop' | 'fx-mobile' | 'monitor' | 'monitor-free' | 'monitor-plus' | 'relay' | 'vpn' | 'get-free-scan-global' | 'get-year-round-protection-us' } utmContent - The specific content or product that the link is associated with.
  * @param {'permanent' | 'settings-promo' | 'connect-device'} utmCampaign - The name of the marketing campaign.
  * @returns {string} - The constructed URL with UTM parameters.
  */
 export const constructHrefWithUtm = (
   pathname: string,
-  utmMedium: 'mozilla-websites' | 'product-partnership',
-  utmSource: 'moz-account',
-  utmTerm: 'bento' | 'sidebar',
-  utmContent:
+  utmMedium?: 'mozilla-websites' | 'product-partnership' | 'referral',
+  utmSource?: 'moz-account',
+  utmTerm?: 'bento' | 'sidebar' | 'settings',
+  utmContent?:
     | 'fx-desktop'
     | 'fx-mobile'
     | 'monitor'
     | 'monitor-free'
     | 'monitor-plus'
     | 'relay'
-    | 'vpn',
-  utmCampaign: 'permanent' | 'settings-promo' | 'connect-device'
+    | 'vpn'
+    | 'get-free-scan-global'
+    | 'get-year-round-protection-us',
+  utmCampaign?: 'permanent' | 'settings-promo' | 'connect-device'
 ) => {
-  return `${pathname}?utm_source=${utmSource}&utm_medium=${utmMedium}&utm_term=${utmTerm}&utm_content=${utmContent}&utm_campaign=${utmCampaign}`;
+  const pairs: [string, string | undefined | null][] = [
+    ['utm_source', utmSource],
+    ['utm_medium', utmMedium],
+    ['utm_term', utmTerm],
+    ['utm_content', utmContent],
+    ['utm_campaign', utmCampaign],
+  ];
+
+  const query = pairs
+    .filter(([, value]) => value != null)
+    .map(([key, value]) => `${key}=${value}`)
+    .join('&');
+
+  return query ? `${pathname}?${query}` : pathname;
 };
 
 /**

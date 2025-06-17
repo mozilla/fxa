@@ -15,10 +15,7 @@ import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
-import ProductPromo, {
-  getProductPromoData,
-  ProductPromoType,
-} from '../ProductPromo';
+import ProductPromo, { getProductPromoData } from '../ProductPromo';
 import SideBar from '../Sidebar';
 import Head from 'fxa-react/components/Head';
 import { SettingsIntegration } from '../interfaces';
@@ -93,11 +90,11 @@ export const PageSettings = ({
   useEffect(() => {
     // We want this view event to fire whenever the account settings page view
     // event fires, if the user is shown the promo.
-    const { gleanEvent, hasAllPromoProducts } = getProductPromoData(
+    const { gleanEvent, hidePromo } = getProductPromoData(
       attachedClients,
       subscriptions
     );
-    if (!hasAllPromoProducts && !productPromoGleanEventSent) {
+    if (!hidePromo && !productPromoGleanEventSent) {
       GleanMetrics.accountPref.promoMonitorView(gleanEvent);
       // Keep track of this because `attachedClients` can change on disconnect
       setProductPromoGleanEventSent(true);
@@ -171,7 +168,7 @@ export const PageSettings = ({
             </Link>
           </Localized>
         </div>
-        <ProductPromo type={ProductPromoType.Settings} />
+        <ProductPromo type="settings" />
       </div>
     </div>
   );
