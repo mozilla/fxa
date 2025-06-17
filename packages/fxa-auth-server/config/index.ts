@@ -2188,6 +2188,24 @@ const convictConf = convict({
       env: 'RATE_LIMIT__RULES',
       format: String,
     },
+    checkAllEndpoints: {
+      default: true,
+      doc: 'Enables automatic rate limiting checks on all end points. Action will be {HTTP_METHOD}_${PATH.replaceAll("/","_")}',
+      env: 'RATE_LIMIT__CHECK_ALL_ENDPOINTS',
+      format: Boolean,
+    },
+    skipEndpoints: {
+      default: [
+        '__lbheartbeat__',
+        'config',
+        '__heartbeat__',
+        '__version__',
+        '',
+      ],
+      doc: 'When checkAllEndpoints is true, this is allows certain endpoints to be skipped from the automatic customs check.',
+      env: 'RATE_LIMIT__SKIP_ENDPOINTS',
+      format: Array
+    }
   },
   recoveryPhone: {
     enabled: {

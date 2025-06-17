@@ -360,7 +360,8 @@ async function run(config) {
     routes,
     database,
     statsd,
-    glean
+    glean,
+    customs
   );
 
   try {

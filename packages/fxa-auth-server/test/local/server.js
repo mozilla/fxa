@@ -14,7 +14,9 @@ const mocks = require('../mocks');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const { Account } = require('fxa-shared/db/models/auth/account');
+const AppError = require('../../lib/error');
 const glean = mocks.mockGlean();
+const customs = mocks.mockCustoms();
 
 const sandbox = sinon.createSandbox();
 const mockReportValidationError = sandbox.stub();
@@ -131,7 +133,7 @@ describe('lib/server', () => {
         });
 
         return server
-          .create(log, error, config, routes, db, statsd, glean)
+          .create(log, error, config, routes, db, statsd, glean, customs)
           .then((s) => {
             instance = s;
           });
@@ -689,6 +691,78 @@ describe('lib/server', () => {
             assert.equal(db.pruneSessionTokens.callCount, 0);
           });
         });
+
+        describe('general rate limiting error', () => {
+          beforeEach(() => {
+            customs.checkIpOnly.resetHistory();
+            customs.v2Enabled.resetHistory();
+          });
+
+          afterEach(() => {
+            const temp = mocks.mockCustoms();
+            customs.checkIpOnly = temp.checkIpOnly;
+            customs.v2Enabled = temp.v2Enabled;
+          });
+
+          async function query(endpoint) {
+            return instance.inject({
+              headers: {
+                authorization: `Hawk id="deadbeef"`,
+              },
+              method: 'GET',
+              url: endpoint,
+              app: {
+                clientAddress: '127.0.0.1',
+              },
+            });
+          }
+
+          it('called called customs', async () => {
+            await query('/account/status');
+
+            assert.equal(customs.checkIpOnly.callCount, 1);
+            const args = customs.checkIpOnly.args[0];
+            assert.equal(args.length, 2);
+            assert.equal(typeof args[0], 'object');
+            assert.equal(args[1], 'get__account_status');
+            assert.equal(log.error.callCount, 0);
+          });
+
+          it('handles customs block', async () => {
+            customs.checkIpOnly = sinon.spy(async () => {
+              throw new AppError.tooManyRequests(100, 'foo');
+            });
+
+            const { statusCode, result } = await query('/account/status');
+
+            assert.equal(customs.checkIpOnly.callCount, 1);
+            assert.equal(statusCode, 429);
+            assert.deepEqual(result, {
+              code: 429,
+              errno: 114,
+              error: 'Too Many Requests',
+              info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
+              message: 'Client has sent too many requests',
+              retryAfter: 100,
+              retryAfterLocalized: 'foo',
+            });
+          });
+
+          for (const endpoint of [
+            '__lbheartbeat__',
+            'config',
+            '__heartbeat__',
+            '__version__',
+          ]) {
+            it('will skip /' + endpoint, async () => {
+              customs.checkIpOnly = sinon.spy(async () => {
+                throw new AppError.tooManyRequests(100, 'foo');
+              });
+              await query(endpoint);
+              assert.equal(customs.checkIpOnly.callCount, 0);
+            });
+          }
+        });
       });
     });
 
@@ -705,7 +779,7 @@ describe('lib/server', () => {
         statsd = { increment: sinon.fake(), timing: sinon.fake() };
 
         return server
-          .create(log, error, config, routes, db, statsd, glean)
+          .create(log, error, config, routes, db, statsd, glean, customs)
           .then((s) => {
             instance = s;
             return instance.start().then(() => {
@@ -838,6 +912,10 @@ function getConfig() {
     },
     geodb: {
       locationOverride: knownIpLocation.location,
+    },
+    rateLimit: {
+      checkAllEndpoints: true,
+      skipEndpoints: [],
     },
   };
 }

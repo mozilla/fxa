@@ -34,7 +34,8 @@ const CUSTOMS_METHOD_NAMES = [
   'checkIpOnly',
   'flag',
   'reset',
-  'v2Enabled'
+  'v2Enabled',
+  'checkV2',
 ];
 
 const DB_METHOD_NAMES = [
