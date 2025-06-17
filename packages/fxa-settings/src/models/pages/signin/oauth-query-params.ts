@@ -5,7 +5,6 @@
 import {
   Matches,
   IsBoolean,
-  IsEmail,
   IsHexadecimal,
   IsIn,
   IsOptional,
@@ -16,14 +15,13 @@ import {
   IsNumber,
   Min,
   Validate,
-  Allow,
 } from 'class-validator';
 import {
   bind,
   ModelDataProvider,
   KeyTransforms as T,
 } from '../../../lib/model-data';
-import { IsFxaRedirectUri } from '../../../lib/validation';
+import { IsFxaRedirectUri, IsEmailOrEmpty } from '../../../lib/validation';
 
 /**
  *  Note: class-validator logic was ported from Vat rules in content-server.
@@ -75,10 +73,9 @@ export class OAuthQueryParams extends ModelDataProvider {
   idTokenHint!: string;
 
   @IsOptional()
-  @IsEmail()
-  @Allow()
+  @Validate(IsEmailOrEmpty, {})
   @bind(T.snakeCase)
-  loginHint!: string;
+  loginHint: string | undefined;
 
   @IsOptional()
   @IsNumber()
