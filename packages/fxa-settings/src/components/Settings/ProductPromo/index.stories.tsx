@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ProductPromo, { ProductPromoProps, ProductPromoType } from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { AppContext } from '../../../models';
+import ProductPromo, { ProductPromoProps } from '.';
+import SettingsLayout from '../SettingsLayout';
+import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
 
@@ -14,59 +15,73 @@ export default {
   title: 'Components/Settings/ProductPromo',
   component: ProductPromo,
   decorators: [withLocalization],
-} as Meta;
+} as Meta<typeof ProductPromo>;
 
-const storyWithProps = (
+/**
+ * Helper to generate a Storybook story with a mocked AppContext.
+ */
+function storyWithProps(
   props: ProductPromoProps,
-  account: any,
+  account: Account,
   storyName?: string
-) => {
-  const story = () => (
-    <AppContext.Provider
-      value={mockAppContext({
-        account,
-      })}
-    >
-      <ProductPromo {...props} />
-    </AppContext.Provider>
-  );
+) {
+  return {
+    name: storyName,
+    render: () => (
+      <AppContext.Provider
+        value={mockAppContext({
+          account,
+        })}
+      >
+        <SettingsLayout>
+          <ProductPromo {...props} />
+        </SettingsLayout>
+      </AppContext.Provider>
+    ),
+  };
+}
 
-  if (storyName) story.storyName = storyName;
-  return story;
-};
+// Convenience account presets
+const noMonitor = {
+  attachedClients: [],
+  subscriptions: [],
+} as unknown as Account;
+const monitorFree = {
+  attachedClients: [{ name: MozServices.Monitor }],
+  subscriptions: [],
+} as unknown as Account;
+const monitorPlus = {
+  attachedClients: [{ name: MozServices.Monitor }],
+  subscriptions: [{ productName: MozServices.MonitorPlus }],
+} as unknown as Account;
 
-export const SettingsWithNoMonitor = storyWithProps(
-  { type: ProductPromoType.Settings },
-  {
-    attachedClients: [],
-    subscriptions: [],
-  },
-  'Settings, user does not have Monitor (mobile only, resize window)'
+// --- Generic promo: user *without* Monitor or **with** Monitor‑free but not in market eligible for special promo ----------------------------------
+export const DefaultMobile = storyWithProps(
+  { type: 'settings' },
+  noMonitor,
+  'Default Monitor promo - Banner - mobile'
+);
+export const DefaultDesktop = storyWithProps(
+  { type: 'sidebar' },
+  noMonitor,
+  'Default Monitor promo - Sidebar - desktop'
 );
 
-export const SidebarWithNoMonitor = storyWithProps(
-  { type: ProductPromoType.Sidebar },
-  {
-    attachedClients: [],
-    subscriptions: [],
-  },
-  'Sidebar, user does not have Monitor (resize window)'
+// --- Special promo: Monitor‑free + eligible (US) ----------------------------
+export const SpecialPromoMobile = storyWithProps(
+  { type: 'settings', specialPromoEligible: true },
+  monitorFree,
+  'Special promo (US) - Banner - mobile'
+);
+export const SpecialPromoDesktop = storyWithProps(
+  { type: 'sidebar', specialPromoEligible: true },
+  monitorFree,
+  'Special promo (US) - Sidebar - desktop'
 );
 
-export const SettingsWithMonitorNoPlus = storyWithProps(
-  { type: ProductPromoType.Settings, monitorPlusEnabled: true },
-  {
-    attachedClients: [{ name: MozServices.Monitor }],
-    subscriptions: [],
-  },
-  'Settings, user has Monitor but not Plus, MonitorPlus enabled (mobile only, resize window)'
-);
-
-export const SidebarWithMonitorNoPlus = storyWithProps(
-  { type: ProductPromoType.Sidebar, monitorPlusEnabled: true },
-  {
-    attachedClients: [{ name: MozServices.Monitor }],
-    subscriptions: [],
-  },
-  'Sidebar, user has Monitor but not Plus, MonitorPlus enabled (resize window)'
+// --- Hidden state: Monitor Plus subscribers --------------------------------
+export const NoPromo = storyWithProps(
+  {},
+  monitorPlus,
+  'No Promo | existing Monitor Plus user'
 );

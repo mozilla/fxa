@@ -4,16 +4,12 @@
 
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import ProductPromo, { ProductPromoType } from '.';
+import ProductPromo from '.';
 import { Account, AppContext } from '../../../models';
 import { MozServices } from '../../../lib/types';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { mockAppContext } from '../../../models/mocks';
 import GleanMetrics from '../../../lib/glean';
-import {
-  ALL_PRODUCT_PROMO_SERVICES,
-  ALL_PRODUCT_PROMO_SUBSCRIPTIONS,
-} from '../../../pages/mocks';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -30,103 +26,102 @@ describe('ProductPromo', () => {
     jest.clearAllMocks();
   });
 
-  it('renders nothing if user has Monitor but not MonitorPlus, and MonitorPlus Promo is disabled', () => {
+  it('renders nothing for Monitor Plus subscribers', () => {
     const account = {
-      attachedClients: ALL_PRODUCT_PROMO_SERVICES,
-      subscriptions: [],
+      attachedClients: [{ name: MozServices.Monitor }],
+      subscriptions: [{ productName: MozServices.MonitorPlus }],
     } as unknown as Account;
 
-    const { container } = renderWithLocalizationProvider(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo />
+        <ProductPromo type="settings" />
       </AppContext.Provider>
     );
 
-    expect(container.firstChild).toBeNull();
+    // nothing should render
+    expect(screen.queryByAltText('Mozilla Monitor')).toBeNull();
   });
 
-  it('renders nothing if user has all products and subscriptions', async () => {
-    const account = {
-      attachedClients: ALL_PRODUCT_PROMO_SERVICES,
-      subscriptions: ALL_PRODUCT_PROMO_SUBSCRIPTIONS,
-    } as unknown as Account;
-
-    const { container } = renderWithLocalizationProvider(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo type={ProductPromoType.Settings} />
-      </AppContext.Provider>
-    );
-
-    expect(container.firstChild).toBeNull();
-  });
-  it('renders Monitor promo if user does not have Monitor', async () => {
+  it('shows generic promo when user has no Monitor', () => {
     const account = {
       attachedClients: [],
       subscriptions: [],
     } as unknown as Account;
+
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo type={ProductPromoType.Settings} />
+        <ProductPromo type="settings" />
       </AppContext.Provider>
     );
 
     screen.getByAltText('Mozilla Monitor');
     screen.getByText(
-      'Find where your private info is exposed — and take it back'
+      'Find where your private info is exposed and take control'
     );
-    expect(screen.getByRole('link', { name: /Get free scan/ })).toHaveAttribute(
+    expect(
+      screen.getByRole('link', { name: /Get free scan/i })
+    ).toHaveAttribute(
       'href',
-      'https://monitor.mozilla.org/?utm_source=moz-account&utm_medium=product-partnership&utm_term=sidebar&utm_content=monitor-free&utm_campaign=settings-promo'
+      'https://monitor.mozilla.org/?utm_source=moz-account&utm_medium=referral&utm_term=settings&utm_content=get-free-scan-global&utm_campaign=settings-promo'
     );
   });
 
-  it('renders Monitor Plus promo if user does not have Monitor Plus', async () => {
+  it('shows generic promo for Monitor‑free users when not special‑eligible', () => {
     const account = {
-      attachedClients: [
-        {
-          name: MozServices.Monitor,
-        },
-      ],
+      attachedClients: [{ name: MozServices.Monitor }],
       subscriptions: [],
     } as unknown as Account;
+
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo
-          monitorPlusEnabled={true}
-          type={ProductPromoType.Settings}
-        />
+        <ProductPromo type="settings" />
       </AppContext.Provider>
     );
 
-    screen.getByAltText('Mozilla Monitor');
     screen.getByText(
-      'Privacy Matters: Find where your private info is exposed and take it back'
-    );
-    expect(screen.getByRole('link', { name: /Get started/ })).toHaveAttribute(
-      'href',
-      'https://monitor.mozilla.org/#pricing?utm_source=moz-account&utm_medium=product-partnership&utm_term=sidebar&utm_content=monitor-plus&utm_campaign=settings-promo'
+      'Find where your private info is exposed and take control'
     );
   });
 
-  it('emits metric when user clicks call to action', async () => {
+  it('shows special promo for eligible Monitor‑free users', () => {
     const account = {
-      attachedClients: [
-        {
-          name: MozServices.Monitor,
-        },
-      ],
+      attachedClients: [{ name: MozServices.Monitor }],
       subscriptions: [],
     } as unknown as Account;
+
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo monitorPlusEnabled={true} />
+        <ProductPromo type="settings" specialPromoEligible />
       </AppContext.Provider>
     );
 
-    fireEvent.click(screen.getByRole('link', { name: /Get started/ }));
+    screen.getByText(/save on VPN, Monitor’s data-broker protection/i);
+    expect(
+      screen.getByRole('link', { name: /Get year-round protection/i })
+    ).toHaveAttribute(
+      'href',
+      'https://monitor.mozilla.org/subscription-plans?utm_source=moz-account&utm_medium=referral&utm_term=settings&utm_content=get-year-round-protection-us&utm_campaign=settings-promo'
+    );
+  });
+
+  it('emits telemetry when CTA clicked (special)', async () => {
+    const account = {
+      attachedClients: [{ name: MozServices.Monitor }],
+      subscriptions: [],
+    } as unknown as Account;
+
+    renderWithLocalizationProvider(
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <ProductPromo type="settings" specialPromoEligible />
+      </AppContext.Provider>
+    );
+
+    fireEvent.click(
+      screen.getByRole('link', { name: /Get year-round protection/i })
+    );
     await waitFor(() => {
       expect(GleanMetrics.accountPref.promoMonitorSubmit).toBeCalledWith({
-        event: { reason: 'plus' },
+        event: { reason: 'special' },
       });
     });
   });
