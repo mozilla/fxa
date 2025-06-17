@@ -94,6 +94,13 @@ interface WrapWithCartCatchOptions {
   errorAllowList: Constructor<Error>[];
 }
 
+const IGNORED_EXPECTED_ERRORS_STATSD = new Set([
+  'PromotionCodePriceNotValidError',
+  'PromotionCodeNotFoundError',
+  'CouponErrorInvalidCode',
+  'AssertionError'
+]);
+
 @Injectable()
 export class CartService {
   constructor(
@@ -153,6 +160,12 @@ export class CartService {
         options.errorAllowList.some((ErrorClass) => error instanceof ErrorClass)
       ) {
         throw error;
+      }
+
+      if (error.name && IGNORED_EXPECTED_ERRORS_STATSD.has(error.name)) {
+        this.statsd.increment('checkout_failure_ignored_error', {
+          errorName: error.name
+        });
       }
 
       const errorReasonId = resolveErrorInstance(error);
