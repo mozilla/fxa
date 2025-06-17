@@ -205,7 +205,7 @@ const webpackConfig = {
 
   plugins: [
     new MiniCssExtractPlugin({
-      filename: '../../app/styles/[name].css',
+      filename: '../../app/styles/main.css',
     }),
     // dynamically loaded routes cause the .md file to be read and a
     // warning to be displayed on the console. Just ignore them.
