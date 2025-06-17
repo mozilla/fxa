@@ -81,7 +81,7 @@ function translateStripeErrors(response) {
   return response;
 }
 
-async function create(log, error, config, routes, db, statsd, glean) {
+async function create(log, error, config, routes, db, statsd, glean, customs) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config, glean);
@@ -294,9 +294,23 @@ async function create(log, error, config, routes, db, statsd, glean) {
     return h.continue;
   });
 
-  server.ext('onPreHandler', (request, h) => {
+  server.ext('onPreHandler', async (request, h) => {
     const features = request.payload && request.payload.features;
     request.app.features = new Set(Array.isArray(features) ? features : []);
+
+    // Should fallback to the default rate-limit rule, or if no
+    // default rule is configured, then no check is done.
+    if (
+      customs.v2Enabled() &&
+      config.rateLimit.checkAllEndpoints &&
+      !config.rateLimit.skipEndpoints.includes(request.route.path)
+    ) {
+      const action = `${request.method}_${request.route.path}`
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '_');
+
+      await customs.checkIpOnly(request, action);
+    }
 
     return h.continue;
   });
