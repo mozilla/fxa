@@ -2162,6 +2162,7 @@ describe('/account/login', () => {
           'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
       },
     },
+    clientAddress: '127.0.0.1',
   });
   const keyFetchTokenId = hexString(16);
   const sessionTokenId = hexString(16);
@@ -2181,6 +2182,7 @@ describe('/account/login', () => {
   const mockMailer = mocks.mockMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = {
+    v2Enabled: () => true,
     check: () => Promise.resolve(),
     checkAuthenticated: () => Promise.resolve(),
     flag: () => Promise.resolve(),
@@ -3481,7 +3483,12 @@ describe('/account/login', () => {
       const oldCheck = mockCustoms.check;
 
       before(() => {
-        mockCustoms.check = () => Promise.reject(error.requestBlocked(true));
+        mockCustoms.check = (_request, _email, action) => {
+          if (action === 'unblockCodeFailed') {
+            return Promise.resolve(false);
+          }
+          return Promise.reject(error.requestBlocked(true));
+        };
       });
 
       beforeEach(() => {

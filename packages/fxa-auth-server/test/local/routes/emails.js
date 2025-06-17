@@ -762,7 +762,11 @@ describe('/recovery_email/verify_code', () => {
       return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyTokens.callCount, 1, 'calls verifyTokens');
         assert.equal(mockDB.verifyEmail.callCount, 1, 'calls verifyEmail');
-        assert.equal(mockCustoms.check.callCount, 1, 'calls customs.check');
+        assert.equal(
+          mockCustoms.checkAuthenticated.callCount,
+          1,
+          'calls customs.check'
+        );
 
         assert.equal(
           mockLog.notifyAttachedServices.callCount,

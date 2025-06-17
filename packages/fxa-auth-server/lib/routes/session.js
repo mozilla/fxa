@@ -184,7 +184,7 @@ module.exports = function (
         const match = await signinUtils.checkPassword(
           accountRecord,
           password,
-          request.app.clientAddress
+          request
         );
         if (!match) {
           throw error.incorrectPassword(accountRecord.email, email);
@@ -396,6 +396,9 @@ module.exports = function (
         );
 
         if (!isValidCode) {
+          if (customs.v2Enabled()) {
+            await customs.check(request, email, 'verifySessionCodeFailed');
+          }
           throw error.invalidOrExpiredOtpCode();
         }
 
@@ -660,6 +663,14 @@ module.exports = function (
         );
 
         if (!isValidCode) {
+          if (customs.v2Enabled()) {
+            await customs.checkAuthenticated(
+              request,
+              uid,
+              email,
+              'verifySessionCodeFailed'
+            );
+          }
           throw error.invalidOrExpiredOtpCode();
         }
 

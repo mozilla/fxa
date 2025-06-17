@@ -433,7 +433,12 @@ module.exports = (
         const { uid, email } = request.auth.credentials;
         const passwordForgotToken = request.auth.credentials;
 
-        await customs.check(request, email, 'verifyRecoveryCode');
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          email,
+          'verifyRecoveryCode'
+        );
 
         const account = await db.account(uid);
         const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
@@ -588,6 +593,10 @@ module.exports = (
             db,
             request,
           });
+
+          if (customs.v2Enabled()) {
+            await customs.check(request, email, 'verifyTotpCodeFailed');
+          }
         }
 
         await sendEmailNotification();

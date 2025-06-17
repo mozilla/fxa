@@ -85,7 +85,7 @@ export function parseConfigRules(
         line
       );
     }
-    if (!/^ip$|^uid$|^email$|^ip_email$/.test(rule.blockingOn)) {
+    if (!/^ip$|^uid$|^email$|^ip_email$|^ip_uid$/.test(rule.blockingOn)) {
       throw new InvalidRule(
         `Blocking on must be ip, email, uid, or ip_email.`,
         line

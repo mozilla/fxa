@@ -1,145 +1,105 @@
-#  action                               | blockOn           | maxAttempts   | windowDuration    | banDuration
-# -------------------------------------------------------------------------------------------------------------
-# The default limit that rate limits will fallback to if no other rate limit is found. This is very generous
-# and essentially will block any IP, email, or uid that sustains more than one request per second to a
-# non-configured action within a 10 minute window. Note that actions are still isolated. e.g. ActionA and
-# ActionB will maintain separate counts. So you could make up to 600 requests to action A and up to 600 requests
-# to Action B in a ten minute window without getting blocked.
-  default                               : ip                : 600           : 10 minutes        : 15 minutes  : block
+#  action                               | blockOn           | maxAttempts | windowDuration  | banDuration | Block Policy
+# ----------------------------------------------------------------------------------------------------------------------------
 
+# Failed Login Attempts
+# These are highly suspect activities and result in long term bans.
+  passwordCheckFailed                   : ip                : 50          : 24 hours        : 24 hours    : ban
+  unblockCodeFailed                     : ip                : 50          : 24 hours        : 24 hours    : ban
+  accountDestroyFailed                  : ip                : 50          : 24 hours        : 24 hours    : ban
+  verifyTotpCodeFailed                  : ip                : 50          : 24 hours        : 24 hours    : ban
+  verifySessionCodeFailed               : ip                : 50          : 24 hours        : 24 hours    : ban
+  statusCheckFailed                     : ip                : 50          : 24 hours        : 24 hours    : ban
+  accountStatusCheckFailed              : ip                : 50          : 24 hours        : 24 hours    : ban
+  passwordChangeStartFailed             : ip                : 50          : 24 hours        : 24 hours    : ban
+  loadAccountFailed                     : ip                : 50          : 24 hours        : 24 hours    : ban
 
-# Account Check Limits - These are unsecured actions. Many of these are designed to slow down the mining of
-# of account details. e.g. Trying random emails until an error code indicates one might exist.
-  accountCreate                         : ip                : 100           : 15 minutes        : 15 minutes  : block
-  accountCreate                         : email             : 100           : 15 minutes        : 15 minutes  : block
-  accountDestroy                        : uid               : 100           : 15 minutes        : 15 minutes  : block
-  passwordForgotSendCode                : ip                : 100           : 15 minutes        : 15 minutes  : block
-  passwordForgotSendCode                : email             : 100           : 15 minutes        : 15 minutes  : block
-  accountStatusCheck                    : ip                : 100           : 15 minutes        : 15 minutes  : block
-  accountStatusCheck                    : email             : 100           : 15 minutes        : 15 minutes  : block
-  sendUnblockCode                       : ip                : 100           : 15 minutes        : 15 minutes  : block
-  sendUnblockCode                       : email             : 100           : 15 minutes        : 15 minutes  : block
-  recoveryKeyExists                     : ip                : 100           : 15 minutes        : 15 minutes  : block
-  recoveryKeyExists                     : email             : 100           : 15 minutes        : 15 minutes  : block
-  getCredentialsStatus                  : ip                : 100           : 15 minutes        : 15 minutes  : block
-  getCredentialsStatus                  : email             : 100           : 15 minutes        : 15 minutes  : block
-  passwordForgotSendOtp                 : ip                : 5             : 10 minutes        : 15 minutes  : block
-  passwordForgotSendOtp                 : email             : 5             : 10 minutes        : 15 minutes  : block
-  passwordForgotVerifyOtp               : ip                : 5             : 10 minutes        : 10 minutes  : block
-  passwordForgotVerifyOtp               : email             : 5             : 10 minutes        : 10 minutes  : block
-  passwordForgotVerifyOtpPerDay         : ip                : 10            : 24 hours          : 24 hours    : block
-  passwordForgotVerifyOtpPerDay         : email             : 10            : 24 hours          : 24 hours    : block
+# Account Status Check Limits
+# These are less suspect, but still not great. Apply short term bans. These are often used for mining known good accounts.
+  accountCreate                         : ip                : 100         : 24 hours        : 24 hours    : block
+  accountStatusCheck                    : ip                : 100         : 24 hours        : 24 hours    : block
+  recoveryKeyExists                     : ip                : 100         : 24 hours        : 24 hours    : block
+  getCredentialsStatus                  : ip                : 100         : 24 hours        : 24 hours    : block
+
+# Password Reset Email Send Limits
+# Controls the number of emails that can be sent
+  passwordForgotSendOtp                 : ip_email          : 5           : 10 minutes      : 15 minutes  : block
+  passwordForgotSendOtp                 : ip                : 100         : 24 hours        : 24 hours    : ban
+
+# Password Reset OTP Verification Limits
+# Controls the number of attempts a user can make at entering an OTP code. Note there are two limits for this action. One
+# operates on the typical 10 minute time window, and one that operates on a 24 hour time window. Also note that if detect
+# a single IP hitting this action frequently they get banned for the day.
+  passwordForgotVerifyOtp               : ip_email          : 5           : 10 minutes      : 15 minutes  : block
+  passwordForgotVerifyOtp               : ip                : 100         : 24 hours        : 24 hours    : block
+  passwordForgotVerifyOtpPerDay         : ip_email          : 10          : 24 hours        : 24 hours    : block
+  passwordForgotVerifyOtpPerDay         : ip                : 100         : 24 hours        : 24 hours    : block
+
 
 # Email Send - These are limits on rate at which emails can be sent out. We limit both IP and email address
 # since many of these operations do not require authentication. Some operations, however, require sessions
 # and for these we should switch over to using UID. See FXA-11777 for more details.
-  createEmail                           : uid               : 5             : 15 minutes        : 15 minutes  : block
-  recoveryEmailResendCode               : uid               : 5             : 15 minutes        : 15 minutes  : block
-  recoveryEmailSecondaryResendCode      : email             : 5             : 15 minutes        : 15 minutes  : block
-  recoveryEmailSecondaryResendCode      : ip                : 5             : 10 minutes        : 30 minutes  : block
-  passwordForgotSendCode                : email             : 5             : 15 minutes        : 15 minutes  : block
-  passwordForgotSendCode                : ip                : 5             : 10 minutes        : 30 minutes  : block
-  passwordForgotResendCode              : email             : 5             : 15 minutes        : 15 minutes  : block
-  passwordForgotResendCode              : ip                : 5             : 10 minutes        : 30 minutes  : block
-  sendVerifyCode                        : uid               : 5             : 15 minutes        : 15 minutes  : block
-  sendUnblockCode                       : email             : 5             : 15 minutes        : 15 minutes  : block
-  sendUnblockCode                       : ip                : 5             : 10 minutes        : 30 minutes  : block
-  unblockEmail                          : email             : 5             : 15 minutes        : 15 minutes  : block
+  createEmail                           : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+  recoveryEmailResendCode               : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+  recoveryEmailSecondaryResendCode      : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+  recoveryEmailSecondaryResendCode      : ip                : 100         : 24 hours        : 24 hours    : block
+  passwordForgotSendCode                : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+  passwordForgotSendCode                : ip                : 100         : 24 hours        : 24 hours    : block
+  passwordForgotResendCode              : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+  passwordForgotResendCode              : ip                : 100         : 24 hours        : 24 hours    : block
+  sendVerifyCode                        : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+  sendVerifyCode                        : ip                : 100         : 24 hours        : 24 hours    : block
+  sendUnblockCode                       : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+  sendUnblockCode                       : ip                : 100         : 24 hours        : 24 hours    : block
+  unblockEmail                          : ip_email          : 5           : 15 minutes      : 15 minutes  : block
 
 # Bad Login Attempts - These are specific to login failures. Again, the user hasn't authenticated yet, so we check both
 # email and ip.
-  accountLogin                          : email             : 5             : 15 minutes        : 15 minutes  : block
-  accountLogin                          : ip                : 100           : 24 hours          : 24 hours    : block
-  passwordChange                        : email             : 5             : 15 minutes        : 15 minutes  : block
-  passwordChange                        : ip                : 100           : 24 hours          : 24 hours    : block
-  authenticatedAccountLogin             : uid               : 5             : 15 minutes        : 15 minutes  : block
-  authenticatedPasswordChange           : uid               : 5             : 15 minutes        : 15 minutes  : block
+  accountLogin                          : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+  accountLogin                          : ip                : 100         : 24 hours        : 24 hours    : block
+  authenticatedAccountLogin             : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+  authenticatedAccountLogin             : ip                : 100         : 24 hours        : 24 hours    : block
 
-# Verify Code Limits - Limits the number of attempts a user can make at providing a token code. Note that currently
-# these are all ip/email checks, however, they should probably uid checks. In every use, a uid is available and the
-# user has already procured a session token. See FXA-11777 for more details.
-  recoveryEmailVerifyCode               : ip                : 10            : 10 minutes        : 30 minutes  : block
-  recoveryEmailVerifyCode               : email             : 10            : 15 minutes        : 15 minutes  : block
-  recoveryEmailSecondaryVerifyCode      : ip                : 10            : 10 minutes        : 30 minutes  : block
-  recoveryEmailSecondaryVerifyCode      : email             : 10            : 15 minutes        : 15 minutes  : block
-  passwordForgotVerifyCode              : ip                : 10            : 10 minutes        : 30 minutes  : block
-  passwordForgotVerifyCode              : email             : 10            : 15 minutes        : 15 minutes  : block
-  verifyRecoveryCode                    : ip                : 10            : 10 minutes        : 30 minutes  : block
-  verifyRecoveryCode                    : email             : 10            : 15 minutes        : 15 minutes  : block
-  verifySessionCode                     : uid               : 10            : 15 minutes        : 15 minutes  : block
+# Account Destroy
+# Happens when a user decides to delete their account entirely. The rule on IP, prevents any malicous attemtps at taking down
+# lots of accounts.
+  accountDestroy                        : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+  accountDestroy                        : ip                : 100         : 24 hours        : 24 hours    : block
+
+# Password change
+# Occurs when a user attempts to change their password. This validates the password, so it should be treated in a similar
+# fashion as the login rule.
+  passwordChange                        : ip_email          : 5           : 15 minutes      : 15 minutes  : block
+  passwordChange                        : ip                : 100         : 24 hours        : 24 hours    : block
+  authenticatedPasswordChange           : ip_uid            : 5           : 15 minutes      : 15 minutes  : block
+  authenticatedPasswordChange           : ip                : 100         : 24 hours        : 24 hours    : block
+
+# Verify Code Limits
+# Limits the number of attempts a user can make at providing a token code, typically sent to their email.
+  recoveryEmailVerifyCode               : ip_uid            : 10          : 10 minutes      : 30 minutes  : block
+  recoveryEmailVerifyCode               : ip                : 100         : 24 hours        : 24 hours    : block
+  recoveryEmailSecondaryVerifyCode      : ip_uid            : 10          : 10 minutes      : 30 minutes  : block
+  recoveryEmailSecondaryVerifyCode      : ip                : 100         : 24 hours        : 24 hours    : block
+  passwordForgotVerifyCode              : ip_email          : 10          : 10 minutes      : 30 minutes  : block
+  passwordForgotVerifyCode              : ip                : 100         : 24 hours        : 24 hours    : block
+  verifyRecoveryCode                    : ip_uid            : 10          : 10 minutes      : 30 minutes  : block
+  verifyRecoveryCode                    : ip                : 100         : 24 hours        : 24 hours    : block
+  verifySessionCode                     : ip_uid            : 10          : 15 minutes      : 15 minutes  : block
+  verifySessionCode                     : ip                : 100         : 24 hours        : 24 hours    : block
+  verifyRecoveryPhoneTotpCode           : ip_uid            : 5           : 5 minutes       : 15 minutes  : block
+  verifyRecoveryPhoneTotpCode           : ip                : 100         : 24 hours        : 24 hours    : block
 
 # Verify TOTP Code Limits
-  verifyTotpCode                        : uid               : 10            : 30 seconds        : 15 minutes  : block
+# This is the number of times a code from a MFA authenticator app can be attempted.
+  verifyTotpCode                        : ip_uid            : 10          : 30 seconds      : 15 minutes  : block
+  verifyTotpCode                        : ip                : 100         : 24 hours        : 24 hours    : block
 
-# Recovery Phone Limits
-  verifyRecoveryPhoneTotpCode           : uid               : 5             : 5 minutes         : 15 minutes  : block
-  recoveryPhoneSendSigninCode           : uid               : 6             : 24 hours          : 24 hours    : block
-  recoveryPhoneSendSetupCode            : uid               : 9             : 24 hours          : 24 hours    : block
-  recoveryPhoneSendResetPasswordCode    : uid               : 9             : 24 hours          : 24 hours    : block
+# Recovery Phone Setup Code
+# This happens when a user adds a new phone number to their account. This code verifies the presence of the the phone.
+  recoveryPhoneSendSetupCode            : ip_uid            : 9           : 24 hours        : 24 hours    : block
+  recoveryPhoneSendSetupCode            : ip                : 100         : 24 hours        : 24 hours    : block
 
-## Code Search Results
-##
-## The following section outlines all actions found in auth-server. Actions
-## That are currently missing customs server configuration won't be rate
-## limited! We need to follow up to see if we still want rate limiting, and
-## if so, what the policy should be.
-##
-## Actions sent to /check
-# accountCreate
-# setPassword
-# accountStatusCheck
-# getCredentialsStatus
-# accountDestroy
-# recoveryEmailVerifyCode
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  createEmail
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  deleteEmail
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  setPrimaryEmail
-# recoveryEmailSecondaryResendCode
-# recoveryEmailSecondaryVerifyCode
-# passwordChange
-# passwordForgotSendOtp
-# passwordForgotVerifyOtp
-# passwordForgotSendCode
-# passwordForgotResendCode
-# passwordForgotVerifyCode
-# verifyRecoveryCode
-# recoveryPhoneSendSigninCode
-# verifySessionCode
-# verifySessionCode
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  totpCreate
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  totpDestroy
-# verifyRecoveryCode
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  sendUnblockCode
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  mozillaSubscriptionsCustomerBillingAndSubscriptions
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  mozillaSubscriptionsValidatePlanEligibility
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  getCheckoutToken
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  updatePaypalBillingAgreement
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  deleteSubscription
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  reactivateSubscription
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  updateSubscription
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  createCustomer
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  retryInvoice
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  previewInvoice
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  subsequentInvoicePreviews
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  retrieveCouponDetails
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  applyPromotionCodeToSubscription
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  createSubscriptionWithPMI
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  createSetupIntent
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  updateDefaultPaymentMethod
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  detachFailedPaymentMethod
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  supportRequest
-# accountLogin
-
-## Actions sent to /checkIpOnly
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  previewInvoice
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  retrieveCouponDetails
-
-## Actions sent to /checkAuthenticated
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  invokeDeviceCommand
-# MISSING >>>>>>>>>>>>>>>>>>>>>>>>>>>>>  devicesNotify|_endpointAction -- TBD, what can be in _endpointAction?
-# passwordChange
-# recoveryPhoneSendResetPasswordCode
-# recoveryPhoneSendSetupCode
-# verifyRecoveryPhoneTotpCode
-# verifyTotpCode
-# accountLogin
+# Recovery Phone Signin Code
+# This happens when a user signs in with a recovery phone as their 2FA. We limit this so that users don't abuse / totally
+# rely on the feature.
+  recoveryPhoneSendSigninCode           : ip_uid            : 6           : 24 hours        : 24 hours    : block
+  recoveryPhoneSendSigninCode           : ip                : 100         : 24 hours        : 24 hours    : block

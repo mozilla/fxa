@@ -59,6 +59,8 @@ describe('checkPassword', () => {
   beforeEach(() => {
     db = mocks.mockDB();
     customs = {
+      v2Enabled: sinon.spy(() => true),
+      check: sinon.spy(() => Promise.resolve(false)),
       flag: sinon.spy(() => Promise.resolve({})),
     };
     signinUtils = makeSigninUtils({ db, customs });
@@ -85,7 +87,9 @@ describe('checkPassword', () => {
 
     return password.verifyHash().then((hash) => {
       return signinUtils
-        .checkPassword(accountRecord, password, CLIENT_ADDRESS)
+        .checkPassword(accountRecord, password, {
+          app: { clientAddress: CLIENT_ADDRESS },
+        })
         .then((match) => {
           assert.ok(match, 'password matches, checkPassword returns true');
 
@@ -128,7 +132,9 @@ describe('checkPassword', () => {
         'bad password actually has a different hash'
       );
       return signinUtils
-        .checkPassword(accountRecord, badPassword, CLIENT_ADDRESS)
+        .checkPassword(accountRecord, badPassword, {
+          app: { clientAddress: CLIENT_ADDRESS },
+        })
         .then((match) => {
           assert.equal(
             !!match,
@@ -163,7 +169,9 @@ describe('checkPassword', () => {
     );
 
     return signinUtils
-      .checkPassword(accountRecord, incorrectPassword, CLIENT_ADDRESS)
+      .checkPassword(accountRecord, incorrectPassword, {
+        app: { clientAddress: CLIENT_ADDRESS },
+      })
       .then(
         (match) => {
           assert(false, 'password check should not have succeeded');
@@ -175,6 +183,7 @@ describe('checkPassword', () => {
             'an ACCOUNT_RESET error was thrown'
           );
 
+          assert.calledOnce(customs.check);
           assert.notCalled(db.checkPassword);
 
           assert.calledOnce(customs.flag);
@@ -257,6 +266,7 @@ describe('checkCustomsAndLoadAccount', () => {
     });
     log = mocks.mockLog();
     customs = {
+      v2Enabled: sinon.spy(() => true),
       check: sinon.spy(() => Promise.resolve()),
       flag: sinon.spy(() => Promise.resolve({})),
     };
@@ -362,7 +372,19 @@ describe('checkCustomsAndLoadAccount', () => {
           error.ERRNO.ACCOUNT_UNKNOWN,
           'the correct error was thrown'
         );
-        assert.calledOnce(customs.check);
+        assert.calledTwice(customs.check);
+        assert.calledWithMatch(
+          customs.check,
+          sinon.match.object,
+          TEST_EMAIL,
+          'accountLogin'
+        );
+        assert.calledWithMatch(
+          customs.check,
+          sinon.match.object,
+          TEST_EMAIL,
+          'loadAccountFailed'
+        );
         assert.calledOnce(db.accountRecord);
         assert.calledOnce(customs.flag);
         assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
@@ -385,7 +407,19 @@ describe('checkCustomsAndLoadAccount', () => {
           error.ERRNO.ACCOUNT_UNKNOWN,
           'the correct error was thrown'
         );
-        assert.calledOnce(customs.check);
+        assert.calledTwice(customs.check);
+        assert.calledWithMatch(
+          customs.check,
+          sinon.match.object,
+          TEST_EMAIL,
+          'accountLogin'
+        );
+        assert.calledWithMatch(
+          customs.check,
+          sinon.match.object,
+          TEST_EMAIL,
+          'loadAccountFailed'
+        );
         assert.calledOnce(db.accountRecord);
         assert.calledOnce(customs.flag);
         assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
@@ -513,9 +547,12 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('unblock codes are not checked when the account does not exist', () => {
-    customs.check = sinon.spy(() =>
-      Promise.reject(error.tooManyRequests(60, null, true))
-    );
+    customs.check = sinon.spy((_request, _email, action) => {
+      if (action === 'accountLogin') {
+        return Promise.reject(error.tooManyRequests(60, null, true));
+      }
+      return Promise.resolve(false);
+    });
     request.payload.unblockCode = 'VALID';
     db.accountRecord = sinon.spy(() => Promise.reject(error.unknownAccount()));
     db.consumeUnblockCode = sinon.spy(() =>
@@ -531,7 +568,19 @@ describe('checkCustomsAndLoadAccount', () => {
           error.ERRNO.THROTTLED,
           'the ACCOUNT_UNKNOWN error was hidden by the customs block'
         );
-        assert.calledOnce(customs.check);
+        assert.calledTwice(customs.check);
+        assert.calledWithMatch(
+          customs.check,
+          sinon.match.object,
+          TEST_EMAIL,
+          'accountLogin'
+        );
+        assert.calledWithMatch(
+          customs.check,
+          sinon.match.object,
+          TEST_EMAIL,
+          'loadAccountFailed'
+        );
         assert.calledOnce(db.accountRecord);
         assert.notCalled(db.consumeUnblockCode);
         assert.calledOnce(customs.flag);
@@ -544,7 +593,12 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('invalid unblock codes are rejected and reported to customs', () => {
-    customs.check = sinon.spy(() => Promise.reject(error.requestBlocked(true)));
+    customs.check = sinon.spy((request, email, action) => {
+      if (action === 'accountLogin') {
+        return Promise.reject(error.requestBlocked(true));
+      }
+      return Promise.resolve(false);
+    });
     request.payload.unblockCode = 'INVALID';
     db.consumeUnblockCode = sinon.spy(() =>
       Promise.reject(error.invalidUnblockCode())
@@ -559,8 +613,19 @@ describe('checkCustomsAndLoadAccount', () => {
           error.ERRNO.INVALID_UNBLOCK_CODE,
           'the correct error was thrown'
         );
-        assert.calledOnce(customs.check);
-        assert.calledOnce(db.accountRecord);
+        assert.calledTwice(customs.check);
+        assert.calledWithMatch(
+          customs.check,
+          sinon.match.object,
+          TEST_EMAIL,
+          'accountLogin'
+        );
+        assert.calledWithMatch(
+          customs.check,
+          sinon.match.object,
+          TEST_EMAIL,
+          'unblockCodeFailed'
+        );
         assert.calledOnce(db.consumeUnblockCode);
 
         assert.calledTwice(request.emitMetricsEvent);
@@ -583,7 +648,12 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('expired unblock codes are rejected as invalid', () => {
-    customs.check = sinon.spy(() => Promise.reject(error.requestBlocked(true)));
+    customs.check = sinon.spy((_request, _email, action) => {
+      if (action === 'accountLogin') {
+        return Promise.reject(error.requestBlocked(true));
+      }
+      return Promise.resolve(false);
+    });
     request.payload.unblockCode = 'EXPIRED';
     db.consumeUnblockCode = sinon.spy(() =>
       Promise.resolve({
@@ -600,7 +670,19 @@ describe('checkCustomsAndLoadAccount', () => {
           error.ERRNO.INVALID_UNBLOCK_CODE,
           'the correct error was thrown'
         );
-        assert.calledOnce(customs.check);
+        assert.calledTwice(customs.check);
+        assert.calledWithMatch(
+          customs.check.getCall(0),
+          sinon.match.object,
+          TEST_EMAIL,
+          'accountLogin'
+        );
+        assert.calledWithMatch(
+          customs.check.getCall(1),
+          sinon.match.object,
+          TEST_EMAIL,
+          'unblockCodeFailed'
+        );
         assert.calledOnce(db.accountRecord);
         assert.calledOnce(db.consumeUnblockCode);
 

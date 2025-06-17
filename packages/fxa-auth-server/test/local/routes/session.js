@@ -75,6 +75,7 @@ function makeRoutes(options = {}) {
   const Password =
     options.Password || require('../../../lib/crypto/password')(log, config);
   const customs = options.customs || {
+    v2Enabled: () => true,
     check: () => {
       return Promise.resolve(true);
     },
@@ -348,7 +349,7 @@ describe('/session/reauth', () => {
         'checkPassword was called with Password object as second argument'
       );
       assert.equal(
-        args[2],
+        args[2].app.clientAddress,
         knownIpLocation.ip,
         'checkPassword was called with mock ip address as third argument'
       );
@@ -1464,7 +1465,7 @@ describe('/session/verify/verify_push', () => {
     assert.calledOnceWithExactly(
       customs.checkAuthenticated,
       request,
-      signupCodeAccount.uid,
+      'foo',
       signupCodeAccount.email,
       'verifySessionCode'
     );
@@ -1527,12 +1528,21 @@ describe('/session/verify/verify_push', () => {
       await runTest(route, request);
       assert.fail('should have thrown');
     } catch (err) {
-      assert.calledOnceWithExactly(
+      assert.calledTwice(customs.checkAuthenticated);
+      assert.calledWith(
         customs.checkAuthenticated,
         request,
         'foo',
         'foo@example.org',
         'verifySessionCode'
+      );
+
+      assert.calledWith(
+        customs.checkAuthenticated,
+        request,
+        'foo',
+        'foo@example.org',
+        'verifySessionCodeFailed'
       );
 
       assert.deepEqual(err.errno, 183);

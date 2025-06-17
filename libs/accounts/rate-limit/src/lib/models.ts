@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /** The attributes we can count and block on. */
-export type BlockOn = 'ip' | 'email' | 'uid' | 'ip_email';
+export type BlockOn = 'ip' | 'email' | 'uid' | 'ip_email' | 'ip_uid';
 
 /** Standard set of fields that can be blocked on. */
 export type BlockOnOpts = {
@@ -11,6 +11,7 @@ export type BlockOnOpts = {
   ip?: string;
   ip_email?: string;
   uid?: string;
+  ip_uid?: string;
 };
 
 /**
