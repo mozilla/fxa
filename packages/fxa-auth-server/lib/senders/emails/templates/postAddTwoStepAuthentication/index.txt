@@ -1,8 +1,16 @@
 postAddTwoStepAuthentication-title-2 = "You turned on two-step authentication"
 
-postAddTwoStepAuthentication-code-required-2 = "Security codes from your authentication app are now required every time you sign in."
+postAddTwoStepAuthentication-code-required-v3 = "You now need to use your authenticator app every time you sign in."
 
-postAddTwoStepAuthentication-from-device = "You enabled it from:"
+<% if (locals.recoveryMethod === 'codes') { %>
+postAddTwoStepAuthentication-recovery-method-codes = "You also added backup authentication codes as your recovery method."
+<% } %>
+
+<% if (locals.recoveryMethod === 'phone' && locals.maskedPhoneNumber) { %>
+postAddTwoStepAuthentication-recovery-method-phone = "You also added <%- maskedPhoneNumber %> as your recovery phone number."
+<% } %>
+
+postAddTwoStepAuthentication-from-device-v2 = "You requested this from:"
 <%- include('/partials/userInfo/index.txt') %>
 
 <%- include('/partials/manageAccount/index.txt') %>
