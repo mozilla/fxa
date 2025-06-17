@@ -25,3 +25,4 @@ export { validateAndFormatPostalCode } from './validateAndFormatPostalCode';
 export { validateCartStateAndRedirectAction } from './validateCartStateAndRedirect';
 export { validateLocationAction } from './validateLocation';
 export { getCouponAction } from './getCoupon';
+export { serverLogAction } from './serverLog';
