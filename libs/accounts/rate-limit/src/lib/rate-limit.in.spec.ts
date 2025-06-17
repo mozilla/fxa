@@ -65,6 +65,36 @@ describe('rate-limit', () => {
         'action:testBlock',
       ]);
     });
+
+    it('should report on ' + blockOn, async () => {
+      rateLimit = new RateLimit(
+        { rules: parseConfigRules([`testReport:${blockOn}:1:1s:1s:report`]) },
+        redis,
+        statsd
+      );
+
+      const check1 = await rateLimit.check('testReport', {
+        ip_email: '127.0.0.1_foo@mozilla.com',
+        ip: '127.0.0.1',
+        email: 'foo@mozilla.com',
+        uid: '123',
+      });
+      const check2 = await rateLimit.check('testReport', {
+        ip_email: '127.0.0.1_foo@mozilla.com',
+        ip: '127.0.0.1',
+        email: 'foo@mozilla.com',
+        uid: '123',
+      });
+
+      expect(check1).toBeNull();
+      expect(check2).toBeNull();
+
+      expect(mockIncrement).toBeCalledTimes(1);
+      expect(mockIncrement).toBeCalledWith('rate_limit.report', [
+        `on:${blockOn}`,
+        'action:testReport',
+      ]);
+    });
   }
 
   it(`should not block after window clears`, async () => {
@@ -196,30 +226,64 @@ describe('rate-limit', () => {
   it('can unblock', async () => {
     rateLimit = new RateLimit(
       {
-        rules: parseConfigRules(['testBlock:ip:1:1s:1s:block']),
+        rules: parseConfigRules([
+          'testBlock:ip:1:1s:1s:block',
+          'testReport:ip:1:1s:1s:report',
+        ]),
       },
       redis,
       statsd
     );
 
+    // Check block
     const check1 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
+    const checkReportOnly1 = await rateLimit.check('testReport', {
+      ip: '127.0.0.1',
+    });
+
     const check2 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
+    const checkReportOnly2 = await rateLimit.check('testReport', {
+      ip: '127.0.0.1',
+    });
+
     await rateLimit.unblock({ ip: '127.0.0.1' });
     const check3 = await rateLimit.check('testBlock', { ip: '127.0.0.1' });
+    const checkReportOnly3 = await rateLimit.check('testReport', {
+      ip: '127.0.0.1',
+    });
 
     expect(check1).toBeNull();
+
+    expect(check2).not.toBeNull();
     expect(check2?.reason).toEqual('too-many-attempts');
     expect(check2?.retryAfter).toEqual(1000);
     expect(check3).toBeNull();
 
-    expect(statsd.increment).toBeCalledTimes(2);
+    expect(check2).not.toBeNull();
+    expect(check2?.reason).toEqual('too-many-attempts');
+    expect(check2?.retryAfter).toEqual(1000);
+    expect(check3).toBeNull();
+
+    // Report only never returns an actual block!
+    expect(checkReportOnly1).toBeNull();
+    expect(checkReportOnly2).toBeNull();
+    expect(checkReportOnly3).toBeNull();
+
+    expect(statsd.increment).toBeCalledTimes(5);
+    // For unblock calls
+    expect(statsd.increment).toBeCalledWith('rate_limit.unblock', [
+      'on:ip',
+      'action:testBlock',
+    ]);
+    // For two blocked calls
     expect(statsd.increment).toBeCalledWith('rate_limit.block', [
       'on:ip',
       'action:testBlock',
     ]);
-    expect(statsd.increment).toBeCalledWith('rate_limit.unblock', [
+    // For two report only calls
+    expect(statsd.increment).toBeCalledWith('rate_limit.report', [
       'on:ip',
-      'action:testBlock',
+      'action:testReport',
     ]);
   });
 
