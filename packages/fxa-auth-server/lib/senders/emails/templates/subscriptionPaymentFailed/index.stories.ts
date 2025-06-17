@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionPaymentFailed',
   'Sent when there is a problem with the latest payment.',
   {
-    icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
+    icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
     productName: 'Firefox Fortress',
     subscriptionSupportUrl: 'http://localhost:3030/support',
     updateBillingUrl: 'http://localhost:3030/subscriptions',

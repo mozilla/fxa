@@ -28,14 +28,14 @@
           <% if (!locals.sync) { %>
             <mj-image css-class="mozilla-logo"
               width="120px"
-              src="https://accounts-static.cdn.mozilla.net/product-icons/mozilla-logo.png"
+              src="https://cdn.accounts.firefox.com/product-icons/mozilla-logo.png"
               alt="Mozilla logo"
               title="Mozilla logo">
             </mj-image>
           <% } else { %>
             <mj-image css-class="sync-img"
               width="300px"
-              src="https://accounts-static.cdn.mozilla.net/other/sync-devices.png"
+              src="https://cdn.accounts.firefox.com/other/sync-devices.png"
               alt="Sync devices"
               title="Sync devices">
             </mj-image>

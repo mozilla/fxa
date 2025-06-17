@@ -23,7 +23,7 @@ const createStory = subplatStoryWithProps(
     invoiceDiscountAmount: null,
     discountType: null,
     discountDuration: null,
-    icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
+    icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
     invoiceLink:
       'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
     nextInvoiceDateOnly: '1/14/2022',

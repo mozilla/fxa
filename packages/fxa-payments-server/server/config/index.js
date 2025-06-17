@@ -171,7 +171,7 @@ const conf = convict({
       format: 'url',
     },
     cdnFqdn: {
-      default: 'accounts-static.cdn.mozilla.net',
+      default: 'cdn.accounts.firefox.com',
       doc: 'The domain name where the legal doc downloads are hosted.',
       env: 'PAYMENT_LEGAL_DOWNLOAD_FQDN',
       format: String,
@@ -351,7 +351,7 @@ const conf = convict({
     },
     accountsCdn: {
       url: {
-        default: 'https://accounts-static.cdn.mozilla.net',
+        default: 'https://cdn.accounts.firefox.com',
         doc: 'The URL of the Mozilla Accounts static content CDN',
         env: 'FXA_STATIC_CDN_URL',
         format: 'url',
