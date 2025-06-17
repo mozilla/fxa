@@ -20,3 +20,5 @@ signin-password-button-label = Password
 # tab. Firefox will attempt to send the user back to their original tab to use an email mask after
 # they successfully sign in or sign up for a Mozilla account to receive a free email mask.
 signin-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
+
+signin-code-expired-error = Code expired. Please sign in again.

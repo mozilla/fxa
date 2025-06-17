@@ -13,6 +13,7 @@ import {
 import {
   Integration,
   useAuthClient,
+  useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
 import ConfirmSignupCode from '.';
@@ -54,6 +55,7 @@ const SignupConfirmCodeContainer = ({
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const sensitiveDataClient = useSensitiveDataClient();
+  const ftlMsg = useFtlMsgResolver();
   const { keyFetchToken, unwrapBKey } =
     sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
 
@@ -135,6 +137,18 @@ const SignupConfirmCodeContainer = ({
     return <OAuthDataError error={oAuthDataError} gleanMetric={GleanMetrics.signupConfirmation.error} />;
   }
   if (oAuthKeysCheckError) {
+    if (!keyFetchToken || !unwrapBKey) {
+      const localizedErrorMessage = ftlMsg.getMsg(
+        'signin-code-expired-error',
+        'Code expired. Please sign in again.'
+      )
+      navigateWithQuery('/signin', {
+        state: {
+          localizedErrorMessage
+        }
+      });
+      return <LoadingSpinner fullScreen />;
+    }
     return <OAuthDataError error={oAuthKeysCheckError} gleanMetric={GleanMetrics.signupConfirmation.error}/>;
   }
 
