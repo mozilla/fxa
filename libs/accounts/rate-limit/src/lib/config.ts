@@ -119,8 +119,8 @@ export function parseConfigRules(
         line
       );
     }
-    if (!/^block$|^ban$/.test(rule.blockPolicy)) {
-      throw new InvalidRule(`Policy must be block or ban.`, line);
+    if (!/^block$|^ban$|^report$/.test(rule.blockPolicy)) {
+      throw new InvalidRule(`Policy must be block, ban, or report.`, line);
     }
 
     // Add the rule to the map.

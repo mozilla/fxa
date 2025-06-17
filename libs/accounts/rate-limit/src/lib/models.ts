@@ -18,7 +18,7 @@ export type BlockOnOpts = {
  *  - block - only applies to the current action being checked, and is done in isolation.
  *  - ban - will apply to the current action and all other actions being checked for the given rules ip, email, or uid.
  **/
-export type BlockPolicy = 'block' | 'ban';
+export type BlockPolicy = 'block' | 'ban' | 'report';
 
 /** Constant for the common error message, too-many-attempts. */
 export const TOO_MANY_ATTEMPTS = 'too-many-attempts';

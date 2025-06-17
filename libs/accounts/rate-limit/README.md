@@ -47,14 +47,19 @@ rateLimit.check('foo', { ip:0.0.0.0})
 
 And there was no configuration for foo, but there was a configuration for 'default' and ip. Then
 we'd increment the redis count for action foo blocking on ip, but we'd use the default rule's settings.
+
 ### Policy
 
 - ban - Once a rule is violated (i.e. max attempts exceeded) a ban policy indicates that all other actions are also prohibited for the given blockOn property.
 - block - Once a rule is violated (i.e. max attempts exceeded) a block policy indicates that only that action is prohibited for the given blockOn property.
+- report - Once a rule is violated (i.e. max attempts exceeded) a report policy indicates that the action is reported, but not actually blocked.
 
 It's probably obvious, but bans are serious and need to be used carefully since they effectively lock a user out of the system entirely. It's much better
 to just set sensible block policies when possible. We should only use ban policies when the rule identifies obviously malicious behavior.
-policies.
+
+The report policy can be very useful when experimenting with new rules. This will not impact the existing behavior, i.e. by adding a report policy, we don't
+change which block would have been selected. These rules only generate metrics, so we can get an idea for the rate at which blocks __would__ occur if the
+rule had a policy of ban or block.
 
 ### A quick example:
 

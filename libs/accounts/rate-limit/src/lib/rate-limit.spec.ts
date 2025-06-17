@@ -190,6 +190,7 @@ describe('rate-limit', () => {
         test        : uid                :  1           : 30 seconds            : 1 day          : block
         test        : ip_email           :  100         : 10 seconds            : 1 Month        : block
         testBan     : ip                 :  100         : 10 seconds            : 1 Month        : ban
+        testReport  : ip                 :  10          : 10 seconds            : 1 Month        : report
       `);
       let rules = ruleSet['test'];
 
@@ -229,6 +230,13 @@ describe('rate-limit', () => {
       expect(rules[0].windowDurationInSeconds).toEqual(10);
       expect(rules[0].blockDurationInSeconds).toEqual(2592000);
       expect(rules[0].blockPolicy).toEqual('ban');
+
+      rules = ruleSet['testReport'];
+      expect(rules[0].maxAttempts).toEqual(10);
+      expect(rules[0].blockingOn).toEqual('ip');
+      expect(rules[0].windowDurationInSeconds).toEqual(10);
+      expect(rules[0].blockDurationInSeconds).toEqual(2592000);
+      expect(rules[0].blockPolicy).toEqual('report');
     });
 
     it('throws on duplicate rule in rule set', () => {
