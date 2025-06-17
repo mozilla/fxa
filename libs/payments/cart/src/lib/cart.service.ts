@@ -86,6 +86,7 @@ import { SubmitNeedsInputFailedError } from './checkout.error';
 import { CheckoutService } from './checkout.service';
 import { resolveErrorInstance } from './util/resolveErrorInstance';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
+import type { SubscriptionAttributionParams } from './checkout.types';
 
 type Constructor<T> = new (...args: any[]) => T;
 interface WrapWithCartCatchOptions {
@@ -472,6 +473,7 @@ export class CartService {
     version: number,
     confirmationTokenId: string,
     customerData: CheckoutCustomerData,
+    attribution: SubscriptionAttributionParams,
     sessionUid?: string
   ) {
     return this.wrapWithCartCatch(cartId, async () => {
@@ -497,6 +499,7 @@ export class CartService {
           updatedCart,
           confirmationTokenId,
           customerData,
+          attribution,
           sessionUid
         );
       });
@@ -508,6 +511,7 @@ export class CartService {
     cartId: string,
     version: number,
     customerData: CheckoutCustomerData,
+    attribution: SubscriptionAttributionParams,
     sessionUid?: string,
     token?: string
   ) {
@@ -533,6 +537,7 @@ export class CartService {
         await this.checkoutService.payWithPaypal(
           updatedCart,
           customerData,
+          attribution,
           sessionUid,
           token
         );

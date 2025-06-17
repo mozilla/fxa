@@ -12,6 +12,7 @@ import {
   CheckoutCustomerDataFactory,
   InvalidInvoiceStateCheckoutError,
   ResultCartFactory,
+  SubscriptionAttributionFactory,
   UpgradeForSubscriptionNotFoundError,
   handleEligibilityStatusMap,
 } from '@fxa/payments/cart';
@@ -92,7 +93,7 @@ import {
   CartCurrencyNotFoundError,
   CartUidNotFoundError,
   CartNoTaxAddressError,
-  CartUidMismatchError
+  CartUidMismatchError,
 } from './cart.error';
 import { CheckoutService } from './checkout.service';
 import { PrePayStepsResultFactory } from './checkout.factories';
@@ -307,7 +308,11 @@ describe('CheckoutService', () => {
 
     describe('success - with stripeCustomerId attached to cart', () => {
       beforeEach(async () => {
-        await checkoutService.prePaySteps(mockCart, mockCustomerData, mockCart.uid);
+        await checkoutService.prePaySteps(
+          mockCart,
+          mockCustomerData,
+          mockCart.uid
+        );
       });
 
       it('fetches the customer', () => {
@@ -398,10 +403,15 @@ describe('CheckoutService', () => {
         const mockCart = StripeResponseFactory(
           ResultCartFactory({
             uid: faker.string.uuid(),
-          }));
+          })
+        );
 
         await expect(
-          checkoutService.prePaySteps(mockCart, mockCustomerData, 'randomSession')
+          checkoutService.prePaySteps(
+            mockCart,
+            mockCustomerData,
+            'randomSession'
+          )
         ).rejects.toBeInstanceOf(CartUidMismatchError);
       });
 
@@ -574,6 +584,7 @@ describe('CheckoutService', () => {
   describe('payWithStripe', () => {
     describe('succeeded', () => {
       const mockCustomerData = CheckoutCustomerDataFactory();
+      const mockAttributionData = SubscriptionAttributionFactory();
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockCart = StripeResponseFactory(
         ResultCartFactory({
@@ -639,6 +650,7 @@ describe('CheckoutService', () => {
           mockCart,
           mockConfirmationToken.id,
           mockCustomerData,
+          mockAttributionData,
           mockCart.uid
         );
       });
@@ -675,6 +687,17 @@ describe('CheckoutService', () => {
             metadata: {
               amount: mockPricingForCurrency.unitAmountForCurrency,
               currency: mockCart.currency,
+              utm_campaign: mockAttributionData.utm_campaign,
+              utm_content: mockAttributionData.utm_content,
+              utm_medium: mockAttributionData.utm_medium,
+              utm_source: mockAttributionData.utm_source,
+              utm_term: mockAttributionData.utm_term,
+              session_flow_id: mockAttributionData.session_flow_id,
+              session_entrypoint: mockAttributionData.session_entrypoint,
+              session_entrypoint_experiment:
+                mockAttributionData.session_entrypoint_experiment,
+              session_entrypoint_variation:
+                mockAttributionData.session_entrypoint_variation,
             },
           },
           { idempotencyKey: mockCart.id }
@@ -737,6 +760,7 @@ describe('CheckoutService', () => {
             mockCart,
             mockConfirmationToken.id,
             mockCustomerData,
+            mockAttributionData,
             mockCart.uid
           )
         ).resolves;
@@ -776,6 +800,7 @@ describe('CheckoutService', () => {
             mockCart,
             mockConfirmationToken.id,
             mockCustomerData,
+            mockAttributionData,
             mockCart.uid
           );
         });
@@ -786,7 +811,8 @@ describe('CheckoutService', () => {
             mockPrice.id,
             mockEligibilityResult.fromPrice.id,
             mockCart,
-            mockEligibilityResult.redundantOverlaps
+            mockEligibilityResult.redundantOverlaps,
+            mockAttributionData
           );
         });
       });
@@ -809,7 +835,7 @@ describe('CheckoutService', () => {
           jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
           jest
             .spyOn(setupIntentManager, 'createAndConfirm')
-            .mockResolvedValue(mockSetupIntent)
+            .mockResolvedValue(mockSetupIntent);
         });
 
         beforeEach(async () => {
@@ -817,6 +843,7 @@ describe('CheckoutService', () => {
             mockCart,
             mockConfirmationToken.id,
             mockCustomerData,
+            mockAttributionData,
             mockCart.uid
           );
         });
@@ -824,7 +851,7 @@ describe('CheckoutService', () => {
         it('calls createAndConfirm', async () => {
           expect(setupIntentManager.createAndConfirm).toHaveBeenCalledWith(
             mockCustomer.id,
-            mockConfirmationToken.id,
+            mockConfirmationToken.id
           );
         });
 
@@ -844,16 +871,19 @@ describe('CheckoutService', () => {
         beforeEach(async () => {
           jest
             .spyOn(paymentIntentManager, 'confirm')
-            .mockRejectedValue(new Error('Payment Intent Error'))
+            .mockRejectedValue(new Error('Payment Intent Error'));
         });
 
         it('updates the subscription', async () => {
-          await expect(checkoutService.payWithStripe(
-            mockCart,
-            mockConfirmationToken.id,
-            mockCustomerData,
-            mockCart.uid
-          )).rejects.toThrow();
+          await expect(
+            checkoutService.payWithStripe(
+              mockCart,
+              mockConfirmationToken.id,
+              mockCustomerData,
+              mockAttributionData,
+              mockCart.uid
+            )
+          ).rejects.toThrow();
 
           expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
             mockCart.id,
@@ -869,6 +899,7 @@ describe('CheckoutService', () => {
     describe('requires_action', () => {
       it('calls setNeedsInputCart', async () => {
         const mockCustomerData = CheckoutCustomerDataFactory();
+        const mockAttributionData = SubscriptionAttributionFactory();
         const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
         const mockCart = StripeResponseFactory(
           ResultCartFactory({
@@ -933,6 +964,7 @@ describe('CheckoutService', () => {
           mockCart,
           mockConfirmationToken.id,
           mockCustomerData,
+          mockAttributionData,
           mockCart.uid
         );
 
@@ -944,6 +976,7 @@ describe('CheckoutService', () => {
   describe('payWithPaypal', () => {
     describe('success', () => {
       const mockCustomerData = CheckoutCustomerDataFactory();
+      const mockAttributionData = SubscriptionAttributionFactory();
       const mockToken = faker.string.uuid();
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockCart = StripeResponseFactory(
@@ -1018,6 +1051,7 @@ describe('CheckoutService', () => {
         await checkoutService.payWithPaypal(
           mockCart,
           mockCustomerData,
+          mockAttributionData,
           mockCart.uid,
           mockToken
         );
@@ -1068,6 +1102,17 @@ describe('CheckoutService', () => {
             metadata: {
               amount: mockPricingForCurrency.unitAmountForCurrency,
               currency: mockCart.currency,
+              utm_campaign: mockAttributionData.utm_campaign,
+              utm_content: mockAttributionData.utm_content,
+              utm_medium: mockAttributionData.utm_medium,
+              utm_source: mockAttributionData.utm_source,
+              utm_term: mockAttributionData.utm_term,
+              session_flow_id: mockAttributionData.session_flow_id,
+              session_entrypoint: mockAttributionData.session_entrypoint,
+              session_entrypoint_experiment:
+                mockAttributionData.session_entrypoint_experiment,
+              session_entrypoint_variation:
+                mockAttributionData.session_entrypoint_variation,
             },
           },
           { idempotencyKey: mockCart.id }
@@ -1148,6 +1193,7 @@ describe('CheckoutService', () => {
           await checkoutService.payWithPaypal(
             mockCart,
             mockCustomerData,
+            mockAttributionData,
             mockCart.uid,
             mockToken
           );
@@ -1159,7 +1205,8 @@ describe('CheckoutService', () => {
             mockPrice.id,
             mockEligibilityResult.fromPrice.id,
             mockCart,
-            mockEligibilityResult.redundantOverlaps
+            mockEligibilityResult.redundantOverlaps,
+            mockAttributionData
           );
         });
       });
@@ -1234,7 +1281,13 @@ describe('CheckoutService', () => {
           jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
 
           await expect(
-            checkoutService.payWithPaypal(mockCart, mockCustomerData, mockCart.uid, mockToken)
+            checkoutService.payWithPaypal(
+              mockCart,
+              mockCustomerData,
+              mockAttributionData,
+              mockCart.uid,
+              mockToken
+            )
           ).rejects.toBeInstanceOf(InvalidInvoiceStateCheckoutError);
         });
       });
@@ -1254,6 +1307,7 @@ describe('CheckoutService', () => {
       StripeSubscriptionFactory()
     );
     const mockPricingForCurrency = PricingForCurrencyFactory();
+    const mockAttributionData = SubscriptionAttributionFactory();
 
     beforeEach(() => {
       jest
@@ -1279,7 +1333,8 @@ describe('CheckoutService', () => {
         toPriceId,
         fromPriceId,
         cart,
-        []
+        [],
+        mockAttributionData
       );
       expect(priceManager.retrievePricingForCurrency).toHaveBeenCalled();
       expect(subscriptionManager.update).toHaveBeenCalledTimes(1);
@@ -1296,7 +1351,8 @@ describe('CheckoutService', () => {
         toPriceId,
         fromPriceId,
         cart,
-        redundantOverlaps
+        redundantOverlaps,
+        mockAttributionData
       );
       expect(subscriptionManager.update).toHaveBeenCalledTimes(2);
       expect(subscriptionManager.update).toHaveBeenNthCalledWith(
@@ -1326,7 +1382,8 @@ describe('CheckoutService', () => {
           toPriceId,
           fromPriceId,
           cart,
-          redundantOverlaps
+          redundantOverlaps,
+          mockAttributionData
         )
       ).rejects.toBeInstanceOf(UpgradeForSubscriptionNotFoundError);
     });
@@ -1341,7 +1398,8 @@ describe('CheckoutService', () => {
           toPriceId,
           fromPriceId,
           cart,
-          redundantOverlaps
+          redundantOverlaps,
+          mockAttributionData
         )
       ).rejects.toBeInstanceOf(Error);
     });

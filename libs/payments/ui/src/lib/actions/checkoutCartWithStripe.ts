@@ -5,6 +5,7 @@
 'use server';
 
 import { getApp } from '../nestapp/app';
+import type { SubscriptionAttributionParams } from '@fxa/payments/cart';
 
 export const checkoutCartWithStripe = async (
   cartId: string,
@@ -14,14 +15,15 @@ export const checkoutCartWithStripe = async (
     locale: string;
     displayName: string;
   },
-  sessionUid?: string,
+  attribution: SubscriptionAttributionParams,
+  sessionUid?: string
 ) => {
-
   getApp().getActionsService().checkoutCartWithStripe({
     cartId,
     version,
     customerData,
     confirmationTokenId,
+    attribution,
     sessionUid,
   });
 };

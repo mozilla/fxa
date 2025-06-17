@@ -17,7 +17,12 @@ import {
   StripePaymentElementChangeEvent,
 } from '@stripe/stripe-js';
 import Image from 'next/image';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import {
+  ReadonlyURLSearchParams,
+  useParams,
+  useRouter,
+  useSearchParams,
+} from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { BaseButton, ButtonVariant, CheckoutCheckbox } from '@fxa/payments/ui';
@@ -35,6 +40,21 @@ import { CartErrorReasonId } from '@fxa/shared/db/mysql/account/kysely-types';
 import { PaymentProvidersType } from '@fxa/payments/cart';
 import PaypalIcon from '@fxa/shared/assets/images/payment-methods/paypal.svg';
 import spinnerWhiteImage from '@fxa/shared/assets/images/spinnerwhite.svg';
+
+const getAttributionParams = (searchParams: ReadonlyURLSearchParams) => {
+  const paramsRecord = Object.fromEntries(searchParams);
+  return {
+    utm_campaign: paramsRecord['utm_campaign'] ?? '',
+    utm_content: paramsRecord['utm_content'] ?? '',
+    utm_medium: paramsRecord['utm_medium'] ?? '',
+    utm_source: paramsRecord['utm_source'] ?? '',
+    utm_term: paramsRecord['utm_term'] ?? '',
+    session_flow_id: paramsRecord['flow_id'] ?? '',
+    session_entrypoint: paramsRecord['entrypoint'] ?? '',
+    session_entrypoint_experiment: paramsRecord['entrypoint_experiment'] ?? '',
+    session_entrypoint_variation: paramsRecord['entrypoint_variation'] ?? '',
+  };
+};
 
 interface CheckoutFormProps {
   cmsCommonContent: {
@@ -154,11 +174,15 @@ export function CheckoutForm({
         'external_paypal'
       );
 
-      await checkoutCartWithPaypal(cart.id, cart.version, {
-        locale,
-        displayName: '',
-      },
-        sessionUid,
+      await checkoutCartWithPaypal(
+        cart.id,
+        cart.version,
+        {
+          locale,
+          displayName: '',
+        },
+        getAttributionParams(searchParams),
+        sessionUid
       );
 
       const queryParamString = searchParams.toString()
@@ -221,12 +245,16 @@ export function CheckoutForm({
       selectedPaymentMethod as PaymentProvidersType
     );
 
-    await checkoutCartWithStripe(cart.id, cart.version, confirmationToken.id,
+    await checkoutCartWithStripe(
+      cart.id,
+      cart.version,
+      confirmationToken.id,
       {
-      locale,
-      displayName: fullName,
+        locale,
+        displayName: fullName,
       },
-      sessionUid,
+      getAttributionParams(searchParams),
+      sessionUid
     );
 
     const queryParamString = searchParams.toString()
@@ -365,6 +393,7 @@ export function CheckoutForm({
                       locale,
                       displayName: '',
                     },
+                    getAttributionParams(searchParams),
                     sessionUid,
                     data.orderID
                   );

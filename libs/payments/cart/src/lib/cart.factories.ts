@@ -21,6 +21,7 @@ import {
   UpdateCart,
   UpdateCartInput,
 } from './cart.types';
+import type { SubscriptionAttributionParams } from './checkout.types';
 
 const OFFERING_CONFIG_IDS = [
   'vpn',
@@ -39,6 +40,23 @@ export const CheckoutCustomerDataFactory = (
   displayName: faker.person.fullName(),
   ...override,
 });
+
+export const SubscriptionAttributionFactory = (
+  override?: Partial<SubscriptionAttributionParams>
+): SubscriptionAttributionParams => {
+  return {
+    utm_campaign: faker.lorem.words(3),
+    utm_content: faker.lorem.words(3),
+    utm_medium: faker.lorem.words(3),
+    utm_source: faker.lorem.words(3),
+    utm_term: faker.lorem.words(3),
+    session_flow_id: faker.string.uuid(),
+    session_entrypoint: faker.internet.url(),
+    session_entrypoint_experiment: faker.lorem.words(3),
+    session_entrypoint_variation: faker.lorem.words(3),
+    ...override,
+  };
+};
 
 export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
   offeringConfigId: faker.helpers.arrayElement(OFFERING_CONFIG_IDS),

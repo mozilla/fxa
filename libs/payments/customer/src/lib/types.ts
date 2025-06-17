@@ -26,7 +26,7 @@ export interface Interval {
 }
 
 export interface PricingForCurrency {
-  price: StripePrice,
+  price: StripePrice;
   unitAmountForCurrency: number | null;
   currencyOptionForCurrency: Stripe.Price.CurrencyOptions;
 }
@@ -60,6 +60,15 @@ export enum STRIPE_SUBSCRIPTION_METADATA {
   AutoCancelledRedundantFor = 'autoCancelledRedundantFor',
   RedundantCancellation = 'redundantCancellation',
   CancelledForCustomerAt = 'cancelled_for_customer_at',
+  UtmCampaign = 'utm_campaign',
+  UtmContent = 'utm_content',
+  UtmMedium = 'utm_medium',
+  UtmSource = 'utm_source',
+  UtmTerm = 'utm_term',
+  SessionFlowId = 'session_flow_id',
+  SessionEntrypoint = 'session_entrypoint',
+  SessionEntrypointExperiment = 'session_entrypoint_experiment',
+  SessionEntrypointVariation = 'session_entrypoint_variation',
 }
 
 export enum STRIPE_INVOICE_METADATA {

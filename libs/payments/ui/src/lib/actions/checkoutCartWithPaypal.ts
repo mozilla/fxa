@@ -5,19 +5,21 @@
 'use server';
 
 import { getApp } from '../nestapp/app';
+import type { SubscriptionAttributionParams } from '@fxa/payments/cart';
 
 export const checkoutCartWithPaypal = async (
   cartId: string,
   version: number,
   customerData: { locale: string; displayName: string },
+  attribution: SubscriptionAttributionParams,
   sessionUid?: string,
   token?: string
 ) => {
-
   await getApp().getActionsService().checkoutCartWithPaypal({
     cartId,
     version,
     customerData,
+    attribution,
     sessionUid,
     token,
   });
