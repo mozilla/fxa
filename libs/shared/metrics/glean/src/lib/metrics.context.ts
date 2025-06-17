@@ -31,12 +31,13 @@ export class MetricsContext {
 
   constructor(queryParams?: Record<string, string | undefined>) {
     queryParams = queryParams || {};
-    this.deviceId = queryParams['deviceId'];
+    this.deviceId = queryParams['deviceId'] || queryParams['device_id'];
     this.entrypoint = queryParams['entrypoint'];
-    this.flowId = queryParams['flowId'];
-    this.flowBeginTime = queryParams['flowBeginTime']
-      ? Number(queryParams['flowBeginTime'])
-      : undefined;
+    this.flowId = queryParams['flowId'] || queryParams['flow_id'];
+    this.flowBeginTime =
+      queryParams['flowBeginTime'] || queryParams['flow_begin_time']
+        ? Number(queryParams['flowBeginTime'] || queryParams['flow_begin_time'])
+        : undefined;
     this.utmCampaign =
       queryParams['utmCampaign'] || queryParams['utm_campaign'];
     this.utmContent = queryParams['utmContent'] || queryParams['utm_content'];
