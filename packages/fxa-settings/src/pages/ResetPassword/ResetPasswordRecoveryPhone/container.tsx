@@ -10,9 +10,7 @@ import { ResetPasswordRecoveryPhoneLocationState } from './interfaces';
 import { useAuthClient } from '../../../models';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
-const ResetPasswordRecoveryPhoneContainer = (
-  _: RouteComponentProps
-) => {
+const ResetPasswordRecoveryPhoneContainer = (_: RouteComponentProps) => {
   const authClient = useAuthClient();
   const navigateWithQuery = useNavigateWithQuery();
 
@@ -20,7 +18,7 @@ const ResetPasswordRecoveryPhoneContainer = (
     state: ResetPasswordRecoveryPhoneLocationState;
   };
 
-  const lastFourPhoneDigits = locationState.state.lastFourPhoneDigits || "";
+  const lastFourPhoneDigits = locationState.state.lastFourPhoneDigits || '';
 
   const handleSuccess = async () => {
     try {
@@ -35,7 +33,10 @@ const ResetPasswordRecoveryPhoneContainer = (
 
   const verifyCode = async (otpCode: string) => {
     try {
-      await authClient.recoveryPhoneResetPasswordConfirm(locationState.state.token, otpCode)
+      await authClient.recoveryPhoneResetPasswordConfirm(
+        locationState.state.token,
+        otpCode
+      );
 
       await handleSuccess();
       return;
@@ -63,6 +64,7 @@ const ResetPasswordRecoveryPhoneContainer = (
         lastFourPhoneDigits,
         verifyCode,
         resendCode,
+        location: locationState,
       }}
     />
   );

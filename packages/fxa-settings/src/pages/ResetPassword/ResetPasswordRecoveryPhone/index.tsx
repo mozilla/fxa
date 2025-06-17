@@ -22,6 +22,7 @@ const ResetPasswordRecoveryPhone = ({
   lastFourPhoneDigits,
   verifyCode,
   resendCode,
+  location,
 }: ResetPasswordRecoveryPhoneProps & RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = React.useState('');
   const [errorDescription, setErrorDescription] = React.useState('');
@@ -76,6 +77,7 @@ const ResetPasswordRecoveryPhone = ({
             'Use backup authentication codes instead?'
           ),
           gleanId: 'reset_password_backup_phone_error_use_backup_code_link',
+          ...(location?.state ? { locationState: location.state } : {}),
         });
         return;
       }
@@ -130,6 +132,7 @@ const ResetPasswordRecoveryPhone = ({
               path: errorLink.path,
               localizedText: errorLink.localizedText,
               gleanId: errorLink.gleanId,
+              locationState: errorLink.locationState,
             } as BannerLinkProps,
           })}
         />

@@ -100,6 +100,7 @@ export const Banner = ({
               className="text-sm link-blue"
               to={link.path}
               {...(link.gleanId && { 'data-glean-id': link.gleanId })}
+              {...(link.locationState && { state: link.locationState })}
             >
               {link.localizedText}
             </Link>

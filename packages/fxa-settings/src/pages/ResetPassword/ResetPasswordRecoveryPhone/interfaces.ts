@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { HandledError } from '../../../lib/error-utils';
-import { Integration } from '../../../models';
 import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 
-export type ResetPasswordRecoveryPhoneLocationState = CompleteResetPasswordLocationState & {
-  lastFourPhoneDigits: string;
-};
+export type ResetPasswordRecoveryPhoneLocationState =
+  CompleteResetPasswordLocationState & {
+    lastFourPhoneDigits: string;
+  };
 
 export type ResetPasswordRecoveryPhoneProps = {
   lastFourPhoneDigits: string;

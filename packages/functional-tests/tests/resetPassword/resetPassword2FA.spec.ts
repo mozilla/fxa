@@ -491,4 +491,100 @@ test.describe('reset password with recovery phone', () => {
     // Cleanup requires setting this value to correct password
     credentials.password = newPassword;
   });
+
+  test('can use backup code after failing sms code', async ({
+    page,
+    target,
+    pages: { signin, resetPassword, settings, totp, recoveryPhone },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    const newPassword = testAccountTracker.generatePassword();
+
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.totp.status).toHaveText('Disabled');
+
+    await settings.totp.addButton.click();
+    const { recoveryCodes } = await totp.fillOutTotpForms();
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toHaveText(
+      'Two-step authentication has been enabled'
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    await settings.totp.addRecoveryPhoneButton.click();
+    await page.waitForURL(/recovery_phone\/setup/);
+
+    await expect(recoveryPhone.addHeader()).toBeVisible();
+
+    await recoveryPhone.enterPhoneNumber(getPhoneNumber(target.name));
+    await recoveryPhone.clickSendCode();
+
+    await expect(recoveryPhone.confirmHeader).toBeVisible();
+
+    let smsCode = await target.smsClient.getCode(
+      getPhoneNumber(target.name),
+      credentials.uid
+    );
+
+    await recoveryPhone.enterCode(smsCode);
+    await recoveryPhone.clickConfirm();
+
+    await page.waitForURL(/settings/);
+    await expect(settings.alertBar).toHaveText('Recovery phone added');
+
+    await settings.signOut();
+
+    await resetPassword.goto();
+
+    await resetPassword.fillOutEmailForm(credentials.email);
+
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    await page.waitForURL(/confirm_totp_reset_password/);
+
+    await resetPassword.clickTroubleEnteringCode();
+
+    await page.waitForURL(/reset_password_totp_recovery_choice/);
+
+    await resetPassword.clickChoosePhone();
+    await resetPassword.clickContinueButton();
+
+    await page.waitForURL(/reset_password_recovery_phone/);
+
+    smsCode = await target.smsClient.getCode(
+      getPhoneNumber(target.name),
+      credentials.uid
+    );
+
+    await resetPassword.fillRecoveryPhoneCodeForm(
+      `${Number(smsCode) + 1}`.padStart(smsCode.length, '0')
+    );
+
+    await resetPassword.clickConfirmButton();
+
+    await expect(resetPassword.errorBanner).toBeVisible();
+    await resetPassword.errorBannerBackupCodeLink.click();
+    await resetPassword.fillOurRecoveryCodeForm(recoveryCodes[0]);
+
+    // Create and submit new password
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+
+    await expect(settings.alertBar).toHaveText('Your password has been reset');
+
+    await expect(settings.settingsHeading).toBeVisible();
+
+    // Remove TOTP before teardown
+    await settings.disconnectTotp();
+    // Cleanup requires setting this value to correct password
+    credentials.password = newPassword;
+  });
 });

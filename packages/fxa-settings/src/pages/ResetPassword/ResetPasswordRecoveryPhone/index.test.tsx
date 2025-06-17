@@ -37,7 +37,9 @@ describe('ResetPasswordRecoveryPhone', () => {
   });
 
   it('renders as expected', async () => {
-    renderWithLocalizationProvider(<ResetPasswordRecoveryPhone {...defaultProps} />);
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone {...defaultProps} />
+    );
 
     expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
     expect(
@@ -62,7 +64,9 @@ describe('ResetPasswordRecoveryPhone', () => {
 
   it('has expected glean click events', async () => {
     const user = userEvent.setup();
-    renderWithLocalizationProvider(<ResetPasswordRecoveryPhone {...defaultProps} />);
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone {...defaultProps} />
+    );
 
     await waitFor(() => user.type(screen.getByRole('textbox'), '123456'));
 
@@ -86,7 +90,9 @@ describe('ResetPasswordRecoveryPhone', () => {
   });
 
   it('submits with valid code', async () => {
-    renderWithLocalizationProvider(<ResetPasswordRecoveryPhone {...defaultProps} />);
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone {...defaultProps} />
+    );
 
     const input = screen.getByRole('textbox');
 
@@ -98,7 +104,9 @@ describe('ResetPasswordRecoveryPhone', () => {
   });
 
   it('handles invalid code', async () => {
-    renderWithLocalizationProvider(<ResetPasswordRecoveryPhone {...propsWithError} />);
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone {...propsWithError} />
+    );
 
     const input = screen.getByRole('textbox');
 
@@ -118,7 +126,9 @@ describe('ResetPasswordRecoveryPhone', () => {
   });
 
   it('handles resend code', async () => {
-    renderWithLocalizationProvider(<ResetPasswordRecoveryPhone {...defaultProps} />);
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone {...defaultProps} />
+    );
 
     userEvent.click(screen.getByRole('button', { name: 'Resend code' }));
 
@@ -126,7 +136,9 @@ describe('ResetPasswordRecoveryPhone', () => {
   });
 
   it('handles `Are you locked out?` link', async () => {
-    renderWithLocalizationProvider(<ResetPasswordRecoveryPhone {...defaultProps} />);
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone {...defaultProps} />
+    );
 
     const link = screen.getByRole('link', { name: /Are you locked out/i });
     expect(link).toHaveAttribute(
