@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  Allow,
   IsBoolean,
   IsEmail,
   IsHexadecimal,
@@ -58,6 +59,7 @@ export class IntegrationData extends ModelDataProvider {
 
   @IsOptional()
   @IsString()
+  @Allow()
   @bind(T.snakeCase)
   loginHint: string | undefined;
 
