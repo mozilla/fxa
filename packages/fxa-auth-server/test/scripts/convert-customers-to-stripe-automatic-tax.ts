@@ -76,7 +76,7 @@ const mockConfig = {
     },
     productConfigsFirestore: {
       schemaValidation: {
-        cdnUrlRegex: '^http',
+        cdnUrlRegex: ['^http'],
       },
     },
   },
@@ -214,9 +214,8 @@ describe('StripeAutomaticTaxConverter', () => {
         ],
       });
 
-      result = await stripeAutomaticTaxConverter.fetchSubsBatch(
-        mockSubscriptionId
-      );
+      result =
+        await stripeAutomaticTaxConverter.fetchSubsBatch(mockSubscriptionId);
     });
 
     it('returns a list of subscriptions from Firestore', () => {
@@ -424,9 +423,8 @@ describe('StripeAutomaticTaxConverter', () => {
         updateStub = sinon.stub().resolves(mockCustomer);
         stripeStub.customers.update = updateStub;
 
-        result = await stripeAutomaticTaxConverter.enableTaxForCustomer(
-          mockCustomer
-        );
+        result =
+          await stripeAutomaticTaxConverter.enableTaxForCustomer(mockCustomer);
       });
 
       it('does not update customer', () => {

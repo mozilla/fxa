@@ -31,7 +31,7 @@ const localesObject = {
 };
 
 const validSchemaValidation = {
-  cdnUrlRegex: '^https://',
+  cdnUrlRegex: ['^https://'],
 };
 
 describe('PlanConfig', () => {
@@ -92,7 +92,7 @@ describe('PlanConfig', () => {
     const obj = JSON.parse(JSON.stringify(firestoreObject));
     obj.urls.webIcon = 'https://web-icon.com';
     const result = await PlanConfig.validate(obj, {
-      cdnUrlRegex: 'invalidpattern',
+      cdnUrlRegex: ['invalidpattern'],
     });
     assert.isDefined(result.error);
     assert.isUndefined(result.value);
@@ -102,7 +102,7 @@ describe('PlanConfig', () => {
     const obj = JSON.parse(JSON.stringify(firestoreObject));
     obj.locales = localesObject;
     const result = await PlanConfig.validate(obj, {
-      cdnUrlRegex: 'invalidpattern',
+      cdnUrlRegex: ['invalidpattern'],
     });
     assert.isDefined(result.error);
     assert.isUndefined(result.value);
