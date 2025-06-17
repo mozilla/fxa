@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, type LoggerService, Logger } from '@nestjs/common';
 
 import { GoogleManager } from '@fxa/google';
 import {
@@ -84,6 +84,7 @@ import {
 import { GetCartStateActionArgs } from './validators/GetCartStateActionArgs';
 import { GetCartStateActionResult } from './validators/GetCartStateActionResult';
 import type { SubscriptionAttributionParams } from '@fxa/payments/cart';
+import { ServerLogActionArgs } from './validators/ServerLogActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -103,8 +104,9 @@ export class NextJSActionsService {
     private currencyManager: CurrencyManager,
     private eligibilityService: EligibilityService,
     private productConfigurationManager: ProductConfigurationManager,
-    @Inject(StatsDService) public statsd: StatsD
-  ) {}
+    @Inject(StatsDService) public statsd: StatsD,
+    @Inject(Logger) private log: LoggerService,
+  ) { }
 
   @SanitizeExceptions()
   @NextIOValidator(GetCartStateActionArgs, GetCartStateActionResult)
@@ -430,13 +432,13 @@ export class NextJSActionsService {
     uid?: string;
   }): Promise<
     | {
-        ok: true;
-        taxAddress: TaxAddress;
-      }
+      ok: true;
+      taxAddress: TaxAddress;
+    }
     | {
-        ok: false;
-        error: string;
-      }
+      ok: false;
+      error: string;
+    }
   > {
     const { cartId, version, offeringId, taxAddress, uid } = args;
 
@@ -510,5 +512,16 @@ export class NextJSActionsService {
         status: locationStatus,
       };
     }
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(ServerLogActionArgs, undefined)
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async serverLog(args: {
+    message: string;
+    data?: any;
+  }) {
+    this.log.log(args.message, args.data)
   }
 }
