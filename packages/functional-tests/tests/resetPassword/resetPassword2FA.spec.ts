@@ -143,6 +143,15 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(settings.alertBar).toHaveText('Your password has been reset');
 
+    await settings.totp.getNewBackupCodesButton.click();
+
+    const newCodes = await totp.getRecoveryCodes();
+    expect(newCodes.some((c) => recoveryCodes.includes(c))).toBe(false);
+
+    await totp.step2ContinueButton.click();
+    await totp.step3RecoveryCodeTextbox.fill(newCodes[0]);
+    await totp.step3FinishButton.click();
+
     await expect(settings.settingsHeading).toBeVisible();
 
     // Remove TOTP before teardown
@@ -377,9 +386,7 @@ test.describe('reset password with recovery phone', () => {
       usingRealTestPhoneNumber(target.name) &&
       !target.smsClient.isTwilioEnabled()
     ) {
-      throw new Error(
-        'Twilio must be enabled when using a real test number.'
-      );
+      throw new Error('Twilio must be enabled when using a real test number.');
     }
     if (
       !usingRealTestPhoneNumber(target.name) &&
@@ -396,11 +403,11 @@ test.describe('reset password with recovery phone', () => {
   });
 
   test('can reset password with 2FA enabled using recovery phone', async ({
-                                                                            page,
-                                                                            target,
-                                                                            pages: { signin, resetPassword, settings, totp, recoveryPhone },
-                                                                            testAccountTracker,
-                                                                          }) => {
+    page,
+    target,
+    pages: { signin, resetPassword, settings, totp, recoveryPhone },
+    testAccountTracker,
+  }) => {
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
 
@@ -484,4 +491,4 @@ test.describe('reset password with recovery phone', () => {
     // Cleanup requires setting this value to correct password
     credentials.password = newPassword;
   });
-})
+});
