@@ -156,6 +156,12 @@ export class ResetPasswordPage extends BaseLayout {
     return this.page.getByRole('button', { name: 'Continue' });
   }
 
+  get errorBannerBackupCodeLink() {
+    return this.page.getByRole('link', {
+      name: 'Use backup authentication codes instead?',
+    });
+  }
+
   goto(route = '/reset_password', query?: string) {
     const url = query
       ? `${this.target.contentServerUrl}${route}?${query}`
@@ -233,10 +239,10 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   async clickChoosePhone() {
-    return this.page.locator('.input-radio-wrapper').first().click();
+    await this.page.locator('.input-radio-wrapper').first().click();
   }
 
   async clickContinueButton() {
-    return this.page.getByRole('button', { name: 'Continue' });
+    await this.page.getByRole('button', { name: 'Continue' }).click();
   }
 }

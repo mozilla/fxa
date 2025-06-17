@@ -23,6 +23,7 @@ export const Subject = ({
           lastFourPhoneDigits,
           verifyCode,
           resendCode,
+          locationState: {} as any,
         }}
       />
     </LocationProvider>

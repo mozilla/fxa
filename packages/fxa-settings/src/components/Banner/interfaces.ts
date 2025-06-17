@@ -62,6 +62,7 @@ export type ExternalLinkProps = {
   localizedText: string;
   gleanId?: string;
   path?: never;
+  locationState?: never;
 };
 
 export type InternalLinkProps = {
@@ -69,6 +70,7 @@ export type InternalLinkProps = {
   localizedText: string;
   gleanId?: string;
   url?: never;
+  locationState?: Record<string, any>;
 };
 
 export type DismissButtonProps = {
