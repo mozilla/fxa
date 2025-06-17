@@ -39,6 +39,18 @@ describe('OAuthQueryParams checks', function () {
     ).toBeTruthy();
   });
 
+  it('checks login_hint', () => {
+    expect(
+      validate('client_id=123abc&scope=profile&login_hint=example@mozilla.com').isValid
+    ).toBeTruthy();
+    expect(
+      validate('client_id=123abc&scope=profile&login_hint=').isValid
+    ).toBeTruthy();
+    expect(
+      validate('client_id=123abc&scope=profile&login_hint=123').isValid
+    ).toBeFalsy();
+  });
+
   it('checks prompt', () => {
     expect(
       validate('client_id=123abc&scope=profile&prompt=foo').isValid
