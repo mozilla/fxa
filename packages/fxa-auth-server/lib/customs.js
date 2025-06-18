@@ -326,8 +326,7 @@ class CustomsClient {
     }
 
     if (!opts) {
-      console.log('!!! missing options');
-      throw new Error('Opts required!');
+      throw this.error.unexpectedError('Missing parameter opts');
     }
 
     // Fallback to the legacy customs service approach, if v2 action isn't configured
