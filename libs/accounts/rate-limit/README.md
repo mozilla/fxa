@@ -33,6 +33,7 @@ Note that comments can be added by starting a line with '#'.
 - ip_email  - The user's ip with the user's email appended. This is useful for ensuring one user cannot impact another user's experience.
 - email     - The user's email. This is useful only when the account isn't known and for some reason, we don't want to use ip_email.
 - uid       - The user's account id. This can be useful from stopping a user that has logged in from doing something malicious, like trying to mine data.
+- ip_uid    - The user's IP with the user's uid appended. This is useful for ensuring that one user can be impacted by another user's experience.
 
 ### The 'default' Rule
 
@@ -47,6 +48,7 @@ rateLimit.check('foo', { ip:0.0.0.0})
 
 And there was no configuration for foo, but there was a configuration for 'default' and ip. Then
 we'd increment the redis count for action foo blocking on ip, but we'd use the default rule's settings.
+
 ### Policy
 
 - ban - Once a rule is violated (i.e. max attempts exceeded) a ban policy indicates that all other actions are also prohibited for the given blockOn property.

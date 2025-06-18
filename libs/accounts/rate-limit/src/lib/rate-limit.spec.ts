@@ -70,6 +70,7 @@ describe('rate-limit', () => {
           'testIpEmail:ip_email:1:1s:1s:block',
           'testEmail:email:1:1s:1s:block',
           'testUid:uid:1:1s:1s:block',
+          'testIpUid:ip_uid:1:1s:1s:block',
         ]),
       },
       redis,
@@ -90,6 +91,10 @@ describe('rate-limit', () => {
 
     expect(rateLimit.check('testIpEmail', {})).rejects.toThrow(
       `A rule for the 'testIpEmail' action requires that 'ip_email' is provided as an option.`
+    );
+
+    expect(rateLimit.check('testIpUid', {})).rejects.toThrow(
+      `A rule for the 'testIpUid' action requires that 'ip_uid' is provided as an option.`
     );
   });
 
@@ -189,12 +194,13 @@ describe('rate-limit', () => {
         test        : email              :  99          : 30 seconds            : 1 hour         : block
         test        : uid                :  1           : 30 seconds            : 1 day          : block
         test        : ip_email           :  100         : 10 seconds            : 1 Month        : block
+        test        : ip_uid             :  100         : 10 seconds            : 1 Month        : block
         testBan     : ip                 :  100         : 10 seconds            : 1 Month        : ban
       `);
       let rules = ruleSet['test'];
 
       expect(rules).toBeDefined();
-      expect(rules.length).toEqual(4);
+      expect(rules.length).toEqual(5);
 
       expect(rules[0]).toBeDefined();
       expect(rules[0].maxAttempts).toEqual(1);
@@ -221,7 +227,14 @@ describe('rate-limit', () => {
       expect(rules[3].blockingOn).toEqual('ip_email');
       expect(rules[3].windowDurationInSeconds).toEqual(10);
       expect(rules[3].blockDurationInSeconds).toEqual(2592000);
-      expect(rules[2].blockPolicy).toEqual('block');
+      expect(rules[3].blockPolicy).toEqual('block');
+
+      expect(rules[4]).toBeDefined();
+      expect(rules[4].maxAttempts).toEqual(100);
+      expect(rules[4].blockingOn).toEqual('ip_uid');
+      expect(rules[4].windowDurationInSeconds).toEqual(10);
+      expect(rules[4].blockDurationInSeconds).toEqual(2592000);
+      expect(rules[4].blockPolicy).toEqual('block');
 
       rules = ruleSet['testBan'];
       expect(rules[0].maxAttempts).toEqual(100);

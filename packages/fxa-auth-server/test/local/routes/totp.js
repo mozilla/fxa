@@ -650,8 +650,9 @@ describe('totp', () => {
       assert.equal(response.remaining, 2);
       assert.calledOnceWithExactly(db.consumeRecoveryCode, 'uid', '1234567890');
       assert.calledOnceWithExactly(
-        customs.check,
+        customs.checkAuthenticated,
         request,
+        'uid',
         TEST_EMAIL,
         'verifyRecoveryCode'
       );

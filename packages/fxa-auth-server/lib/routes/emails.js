@@ -426,7 +426,12 @@ module.exports = (
 
         // This endpoint is not authenticated, so we need to look up
         // the target email address before we can check it with customs.
-        await customs.check(request, account.email, 'recoveryEmailVerifyCode');
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          account.email,
+          'recoveryEmailVerifyCode'
+        );
 
         const isAccountVerification = butil.buffersAreEqual(
           code,

@@ -949,7 +949,7 @@ export class AccountHandler {
       const match = await this.signinUtils.checkPassword(
         accountRecord,
         password,
-        request.app.clientAddress
+        request
       );
       if (!match) {
         recordSecurityEvent('account.login.failure', {
@@ -1320,12 +1320,15 @@ export class AccountHandler {
     if (sessionToken) {
       return { exists: true, locale: sessionToken.locale };
     } else if (request.query.uid) {
+      const uid = request.query.uid;
       try {
-        const uid = request.query.uid;
         await this.db.account(uid);
         return { exists: true };
       } catch (err) {
         if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+          if (this.customs.v2Enabled()) {
+            await this.customs.checkIpOnly(request, 'statusCheckFailed');
+          }
           return { exists: false };
         }
         throw err;
@@ -1384,6 +1387,9 @@ export class AccountHandler {
         result.exists = false;
         if (checkDomain) {
           result.invalidDomain = invalidDomain;
+        }
+        if (this.customs.v2Enabled()) {
+          await this.customs.checkIpOnly(request, 'accountStatusCheckFailed');
         }
         return result;
       }
@@ -1847,6 +1853,14 @@ export class AccountHandler {
       }
     } catch (err) {
       if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+        if (this.customs.v2Enabled()) {
+          await this.customs.check(
+            request,
+            emailAddress,
+            'accountDestroyFailed'
+          );
+        }
+
         await this.customs.flag(request.app.clientAddress, {
           email: emailAddress,
           errno: err.errno,
@@ -1912,7 +1926,7 @@ export class AccountHandler {
       const isMatchingPassword = await this.signinUtils.checkPassword(
         accountRecord,
         password,
-        request.app.clientAddress
+        request
       );
       if (!isMatchingPassword) {
         throw error.incorrectPassword(accountRecord.email, emailAddress);

@@ -787,7 +787,11 @@ describe('Customs', () => {
       // occur, the actual customs check shouldn't ever happen.
       await customs.check(request, email, 'accountStatusCheck');
 
-      assert.calledWith(mockRateLimit.skip, { ip, email });
+      assert.calledWith(mockRateLimit.skip, {
+        ip,
+        email,
+        ip_email: ip + '_' + email,
+      });
       assert.callCount(mockRateLimit.check, 0);
     });
   });

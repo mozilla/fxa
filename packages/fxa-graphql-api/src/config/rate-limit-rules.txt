@@ -1,8 +1,6 @@
 #  action                               | blockOn       | maxAttempts   | windowDuration    | banDuration | Block Policy
 # ------------------------------------------------------------------------------------------------------------------------
   default                               : ip            : 600           : 10 minutes        : 15 minutes  : block
-  default                               : email         : 600           : 10 minutes        : 15 minutes  : block
-  default                               : uid           : 600           : 10 minutes        : 15 minutes  : block
   unblockEmail                          : email         : 10            : 24 hours          : 24 hours    : block
   updateDisplayName                     : ip            : 60            : 15 minutes        : 15 minutes  : block
 

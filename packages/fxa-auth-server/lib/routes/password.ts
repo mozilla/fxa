@@ -134,7 +134,7 @@ module.exports = function (
           const match = await signinUtils.checkPassword(
             emailRecord,
             password,
-            request.app.clientAddress
+            request
           );
 
           if (!match) {
@@ -172,6 +172,10 @@ module.exports = function (
               email: form.email,
               errno: err.errno,
             });
+
+            if (customs.v2Enabled()) {
+              await customs.check(request, email, 'passwordChangeStartFailed');
+            }
           }
           throw err;
         }
@@ -334,7 +338,7 @@ module.exports = function (
             isPasswordUpgrade = await signinUtils.checkPassword(
               account,
               v1Password,
-              request.app.clientAddress
+              request
             );
           }
 
@@ -701,15 +705,14 @@ module.exports = function (
 
         const { email, code } = request.payload;
 
-        // Typical 15 minute window limit
+        // Typical 10 minute window limit
         await customs.check(request, email, 'passwordForgotVerifyOtp');
 
+        // Daily limit, will be checked if and only if the default limit above passes.
+        // This replicates logic that was coded into the customs v1 service.
         if (customs.v2Enabled()) {
-          // Daily limit, will be checked if and only if the default limit above passes.
-          // This replicates logic that was coded into the customs v1 service.
           await customs.check(request, email, 'passwordForgotVerifyOtpPerDay');
         }
-
 
         request.validateMetricsContext();
 
