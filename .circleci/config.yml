@@ -740,8 +740,8 @@ jobs:
   smoke-tests:
     parameters:
       parallelism:
-          type: integer
-          default: 8  # this should correspond with the resource-class defined in the executor
+        type: integer
+        default: 8 # this should correspond with the resource-class defined in the executor
       project:
         type: string
         default: production
@@ -766,7 +766,7 @@ jobs:
     parameters:
       parallelism:
         type: integer
-        default: 8  # this should correspond with the resource-class defined in the executor
+        default: 8 # this should correspond with the resource-class defined in the executor
       workflow:
         type: string
     executor: functional-test-executor
@@ -1080,7 +1080,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: --skipNxCache
+          nx_run: run-many --skipNxCache
           requires:
             - Build
       - integration-test:
@@ -1094,7 +1094,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: --skipNxCache
+          nx_run: run-many --skipNxCache
           requires:
             - Build
       - integration-test:
@@ -1107,7 +1107,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: --skipNxCache
+          nx_run: run-many --skipNxCache
           requires:
             - Build
       - integration-test:
@@ -1121,7 +1121,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: --skipNxCache
+          nx_run: run-many --skipNxCache
           requires:
             - Build
       - integration-test:
@@ -1136,7 +1136,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: --skipNxCache
+          nx_run: run-many --skipNxCache
           requires:
             - Build
       - integration-test:
@@ -1149,7 +1149,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: --skipNxCache
+          nx_run: run-many --skipNxCache
           requires:
             - Build
       - playwright-functional-tests:
@@ -1209,6 +1209,7 @@ workflows:
       - unit-test:
           name: Unit Test (nightly)
           workflow: nightly
+          nx_run: run-many --skipNxCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1217,6 +1218,7 @@ workflows:
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
           workflow: nightly
+          nx_run: run-many --skipNxCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1224,6 +1226,7 @@ workflows:
           projects: --exclude '*,!tag:scope:server'
           test_suite: servers-integration
           workflow: nightly
+          nx_run: run-many --skipNxCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1232,6 +1235,7 @@ workflows:
           start_customs: true
           test_suite: servers-auth-integration
           workflow: nightly
+          nx_run: run-many --skipNxCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1241,6 +1245,7 @@ workflows:
           target: -t test-integration-v2
           test_suite: servers-auth-v2-integration
           workflow: nightly
+          nx_run: run-many --skipNxCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1248,6 +1253,7 @@ workflows:
           projects: --exclude '*,!tag:scope:shared:*'
           test_suite: libraries-integration
           workflow: nightly
+          nx_run: run-many --skipNxCache
           requires:
             - Build (nightly)
       - playwright-functional-tests:
