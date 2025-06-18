@@ -98,12 +98,22 @@ describe('Customs Service', () => {
           action: 'test',
           ip: '127.0.0.1',
           email: 'foo@mozilla.com',
+          uid: '123',
           // Important! Trigger and check localized error message state!
           acceptLanguage: 'fr',
         });
       } catch (err) {
         error = err;
       }
+
+      expect(mockRateLimit.check).toHaveBeenCalled();
+      expect(mockRateLimit.check).toHaveBeenCalledWith('test', {
+        ip: '127.0.0.1',
+        email: 'foo@mozilla.com',
+        uid: '123',
+        ip_email: '127.0.0.1_foo@mozilla.com',
+        ip_uid: '127.0.0.1_123',
+      });
 
       expect(error).toBeDefined();
       expect(error?.message).toEqual('Client has sent too many requests');

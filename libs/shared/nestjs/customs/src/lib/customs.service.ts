@@ -4,7 +4,11 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import superagent from 'superagent';
-import { RateLimit, RateLimitClient } from '@fxa/accounts/rate-limit';
+import {
+  BlockOnOpts,
+  RateLimit,
+  RateLimitClient,
+} from '@fxa/accounts/rate-limit';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { localizeTimestamp } from '@fxa/shared/l10n';
@@ -13,10 +17,7 @@ import { GraphQLError } from 'graphql';
 
 type AnyObject = Record<string, any>;
 
-type CheckOptions = {
-  email?: string;
-  uid?: string;
-  ip?: string;
+export type CheckOptions = BlockOnOpts & {
   action: string;
   headers?: AnyObject;
   query?: AnyObject;
@@ -72,6 +73,13 @@ export class CustomsService {
     // Otherwise call the legacy customs service.
     const supported = this.rateLimit.supportsAction(options.action);
     if (supported) {
+      if (options.ip && options.email) {
+        options.ip_email = `${options.ip}_${options.email}`;
+      }
+      if (options.ip && options.uid) {
+        options.ip_uid = `${options.ip}_${options.uid}`;
+      }
+
       response = await this.checkRateLimit(options);
     } else {
       // TODO: Remove legacy calls to customs. FXA-11635
@@ -128,7 +136,7 @@ export class CustomsService {
   }
 
   private async checkRateLimit(options: CheckOptions): Promise<CheckResponse> {
-    const { action, ip, email, uid } = options;
+    const { action, ip, email, uid, ip_email, ip_uid } = options;
 
     // Check if we can ignore the user
     const skip = this.rateLimit.skip({
@@ -148,7 +156,13 @@ export class CustomsService {
 
     // Run the rate limit check. If the response is null, we do not block.
     this.statsd.increment(`customs.check.v2`, [`action:${action}`]);
-    const result = await this.rateLimit.check(action, { ip, email, uid });
+    const result = await this.rateLimit.check(action, {
+      ip,
+      email,
+      uid,
+      ip_email,
+      ip_uid,
+    });
     this.log.debug('customs', {
       msg: `Rate Limiting checked`,
       ip,
