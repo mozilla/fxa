@@ -13,6 +13,7 @@ import {
 import {
   getApp,
   CheckoutParams,
+  SignedIn,
   SupportedPages,
   buildPageMetadata,
 } from '@fxa/payments/ui/server';
@@ -65,98 +66,104 @@ export default async function Upgrade({
   assert(cart.paymentInfo, 'paymentInfo is missing in cart');
 
   return (
-    <section
-      aria-labelledby="upgrade-subscription-heading"
-      data-testid="subscription-upgrade"
-    >
-      <h2
-        id="upgrade-subscription-heading"
-        className="font-semibold mb-5 text-grey-600 text-lg text-start"
+    <>
+      {session?.user?.email && (
+        <section
+          aria-labelledby="signedin-heading"
+          className="hidden tablet:block"
+        >
+          <SignedIn email={session.user.email} />
+        </section>
+      )}
+      <section
+        aria-labelledby="upgrade-subscription-heading"
+        data-testid="subscription-upgrade"
       >
-        {l10n.getString(
-          'upgrade-page-payment-information',
-          'Payment information'
-        )}
-      </h2>
+        <h2
+          id="upgrade-subscription-heading"
+          className="font-semibold my-5 text-grey-600 text-lg text-start"
+        >
+          {l10n.getString(
+            'upgrade-page-payment-information',
+            'Payment information'
+          )}
+        </h2>
 
-      <div className="flex items-center justify-between mt-4 text-sm">
-        {cart.paymentInfo.type === 'external_paypal' ? (
-          <Image src={getCardIcon('paypal')} alt="paypal" />
-        ) : (
-          <span className="flex items-center gap-2">
-            {cart.paymentInfo.brand && (
-              <Image
-                src={getCardIcon(cart.paymentInfo.brand)}
-                alt={cart.paymentInfo.brand}
-              />
-            )}
-            {l10n.getString(
-              'next-payment-confirmation-cc-card-ending-in',
-              {
-                last4: cart.paymentInfo.last4 ?? '',
-              },
-              `Card ending in ${cart.paymentInfo.last4}`
-            )}
-          </span>
-        )}
-      </div>
+        <div className="flex items-center justify-between mt-4 text-sm">
+          {cart.paymentInfo.type === 'external_paypal' ? (
+            <Image src={getCardIcon('paypal')} alt="paypal" />
+          ) : (
+            <span className="flex items-center gap-2">
+              {cart.paymentInfo.brand && (
+                <Image
+                  src={getCardIcon(cart.paymentInfo.brand)}
+                  alt={cart.paymentInfo.brand}
+                />
+              )}
+              {l10n.getString(
+                'next-payment-confirmation-cc-card-ending-in',
+                {
+                  last4: cart.paymentInfo.last4 ?? '',
+                },
+                `Card ending in ${cart.paymentInfo.last4}`
+              )}
+            </span>
+          )}
+        </div>
 
-      <div
-        className="border-b border-grey-200 my-6"
-        role="separator"
-        aria-hidden="true"
-      ></div>
+        <div
+          className="border-b border-grey-200 my-6"
+          role="separator"
+          aria-hidden="true"
+        ></div>
 
-      <p className="leading-5 text-sm" data-testid="sub-update-acknowledgment">
-        {l10n.getString(
-          'upgrade-page-acknowledgment',
-          {
-            nextInvoiceDate: l10n.getLocalizedDate(
-              cart.upcomingInvoicePreview.nextInvoiceDate
-            ),
-          },
-          `Your plan will change immediately, and you’ll be charged a prorated
+        <p
+          className="leading-5 text-sm"
+          data-testid="sub-update-acknowledgment"
+        >
+          {l10n.getString(
+            'upgrade-page-acknowledgment',
+            {
+              nextInvoiceDate: l10n.getLocalizedDate(
+                cart.upcomingInvoicePreview.nextInvoiceDate
+              ),
+            },
+            `Your plan will change immediately, and you’ll be charged a prorated
           amount today for the rest of this billing cycle. Starting
           ${l10n.getLocalizedDateString(
             cart.upcomingInvoicePreview.nextInvoiceDate
           )}
           you’ll be charged the full amount.`
-        )}
-      </p>
+          )}
+        </p>
 
-      <div
-        className="border-b border-grey-200 my-6"
-        role="separator"
-        aria-hidden="true"
-      ></div>
+        <div
+          className="border-b border-grey-200 my-6"
+          role="separator"
+          aria-hidden="true"
+        ></div>
 
-      {/*
+        {/*
         If currency could not be determiend, it is most likely due to an invalid
         or undetermined tax address. Future work will add the Tax Location picker
         which should allow a customer to set their tax location, which would then
         provide a valid currency.
       */}
-      {cart.currency &&
-        cart.taxAddress?.countryCode &&
-        cart.taxAddress?.postalCode && (
-          <PaymentSection
-            cmsCommonContent={cms.commonContent}
-            paymentsInfo={{
-              amount: cart.amount,
-              currency: cart.currency.toLowerCase(),
-            }}
-            cart={{
-              ...cart,
-              currency: cart.currency,
-              taxAddress: {
-                countryCode: cart.taxAddress.countryCode,
-                postalCode: cart.taxAddress.postalCode,
-              },
-            }}
-            locale={locale}
-            sessionUid={session?.user?.id}
-          />
-        )}
-    </section>
+        {cart.currency &&
+          cart.taxAddress?.countryCode &&
+          cart.taxAddress?.postalCode && (
+            <PaymentSection
+              cmsCommonContent={cms.commonContent}
+              paymentsInfo={{
+                amount: cart.amount,
+                currency: cart.currency.toLowerCase(),
+              }}
+              cart={cart}
+              locale={locale}
+              sessionUid={session?.user?.id}
+            />
+          )}
+      </section>
+    </>
   );
 }
