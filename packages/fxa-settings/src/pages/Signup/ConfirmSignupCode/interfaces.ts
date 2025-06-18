@@ -30,6 +30,7 @@ export type ConfirmSignupCodeProps = {
   offeredSyncEngines?: string[];
   declinedSyncEngines?: string[];
   flowQueryParams: QueryParams;
+  origin?: string;
 } & SensitiveData.AuthData &
   RouteComponentProps;
 

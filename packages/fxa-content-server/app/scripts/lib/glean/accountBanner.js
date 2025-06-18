@@ -7,6 +7,22 @@
 import EventMetricType from '@mozilla/glean/private/metrics/event';
 
 /**
+ * User sees the promotion to setup a recovery phone in settings page.
+ *
+ * Generated from `account_banner.add_recovery_phone_view`.
+ */
+export const addRecoveryPhoneView = new EventMetricType(
+  {
+    category: 'account_banner',
+    name: 'add_recovery_phone_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * User sees the promotion to setup a recovery key in settings page.
  *
  * Generated from `account_banner.create_recovery_key_view`.

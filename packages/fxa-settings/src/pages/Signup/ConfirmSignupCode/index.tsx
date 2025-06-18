@@ -52,6 +52,8 @@ const ConfirmSignupCode = ({
   declinedSyncEngines,
   keyFetchToken,
   unwrapBKey,
+  flowQueryParams,
+  origin
 }: ConfirmSignupCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -74,9 +76,11 @@ const ConfirmSignupCode = ({
   // Make sure data is valid. If it isn't fail fast.
   integration.data.validate();
 
+  const reason = origin === 'signup' ? 'signup' : 'signin';
+
   useEffect(() => {
     GleanMetrics.signupConfirmation.view();
-  }, []);
+  }, [reason]);
 
   const [localizedErrorBannerHeading, setLocalizedErrorBannerHeading] =
     useState('');
@@ -129,7 +133,7 @@ const ConfirmSignupCode = ({
   async function verifySession(code: string) {
     clearErrorMessages();
     logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
-    GleanMetrics.signupConfirmation.submit();
+    GleanMetrics.signupConfirmation.submit({ event: { reason } });
     try {
       const hasSelectedNewsletters = newsletters && newsletters.length > 0;
       const service = integration.getService();
@@ -154,7 +158,7 @@ const ConfirmSignupCode = ({
         REACT_ENTRYPOINT
       );
 
-      GleanMetrics.registration.complete();
+      GleanMetrics.registration.complete({ event: { reason } });
       // since many of the branches below lead to a redirect, we'll wait for
       // the Glean requests
       await GleanMetrics.isDone();
