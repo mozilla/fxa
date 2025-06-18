@@ -5,6 +5,7 @@
 const { resolve } = require('path');
 const { pathsToModuleNameMapper } = require('ts-jest');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const compression = require('compression');
 
 const permitAdditionalJSImports = (config) => {
   // We're just gonna call all of fxa fair game ;)
@@ -88,6 +89,21 @@ const suppressRuntimeErrorOverlay = (devServerConfig) => {
   };
 };
 
+const configureDevServerCompression = (devServerConfig) => {
+  // Since compression (transitive dependency) v1.8.0, we encounter "content encoding error" with small files.
+  // This workaround disables webpack-dev-server built-in compression (which only accepts boolean),
+  // and re-injects with threshold to ensure small files < 4kb are not compressed.
+  return {
+    ...devServerConfig,
+    compress: false,
+
+    setupMiddlewares: (middlewares, devServer) => {
+      middlewares.unshift(compression({ threshold: '4kb' }));
+      return devServerConfig.setupMiddlewares?.(middlewares, devServer) || middlewares;
+    },
+  };
+};
+
 const setModuleNameMapper = (tsconfigBase) => (config) => {
   config.transform = {
     ...config.transform,
@@ -110,5 +126,6 @@ const setModuleNameMapper = (tsconfigBase) => (config) => {
 module.exports = {
   permitAdditionalJSImports,
   suppressRuntimeErrorOverlay,
+  configureDevServerCompression,
   setModuleNameMapper,
 };
