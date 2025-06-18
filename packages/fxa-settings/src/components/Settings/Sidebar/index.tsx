@@ -4,7 +4,7 @@
 
 import React from 'react';
 import Nav, { NavRefProps } from '../Nav';
-import ProductPromo, { ProductPromoType } from '../ProductPromo';
+import ProductPromo from '../ProductPromo';
 
 export const SideBar = ({
   profileRef,
@@ -25,7 +25,7 @@ export const SideBar = ({
           dataCollectionRef,
         }}
       />
-      <ProductPromo type={ProductPromoType.Sidebar} />
+      <ProductPromo type="sidebar" />
     </div>
   );
 };

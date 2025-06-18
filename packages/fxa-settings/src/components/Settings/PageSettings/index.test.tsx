@@ -126,7 +126,7 @@ describe('PageSettings', () => {
         );
         expect(GleanMetrics.accountPref.promoMonitorView).toBeCalledTimes(1);
         expect(GleanMetrics.accountPref.promoMonitorView).toBeCalledWith({
-          event: { reason: 'free' },
+          event: { reason: 'default' },
         });
       });
       it('user has all products and subscriptions', async () => {

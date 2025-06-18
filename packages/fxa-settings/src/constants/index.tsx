@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 export const SETTINGS_PATH = '/settings';
 
 export const SHOW_BALLOON_TIMEOUT = 500;
@@ -32,9 +31,9 @@ export const LINK = {
   MDN: 'https://developer.mozilla.org/',
   MONITOR: 'https://monitor.mozilla.org/',
   MONITOR_STAGE: 'https://stage.firefoxmonitor.nonprod.cloudops.mozgcp.net/',
-  MONITOR_PLUS: 'https://monitor.mozilla.org/#pricing',
+  MONITOR_PLUS: 'https://monitor.mozilla.org/subscription-plans',
   MONITOR_PLUS_STAGE:
-    'https://stage.firefoxmonitor.nonprod.cloudops.mozgcp.net/#pricing',
+    'https://stage.firefoxmonitor.nonprod.cloudops.mozgcp.net/subscription-plans',
   POCKET: 'https://getpocket.com/',
   RELAY: 'https://relay.firefox.com/',
   VPN: 'https://vpn.mozilla.org/',
