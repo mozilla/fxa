@@ -1203,6 +1203,7 @@ workflows:
       - unit-test:
           name: Unit Test (nightly)
           workflow: nightly
+          nx_run: --skipNxCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1211,6 +1212,7 @@ workflows:
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
           workflow: nightly
+          nx_run: --skipNxCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1218,6 +1220,7 @@ workflows:
           projects: --exclude '*,!tag:scope:server'
           test_suite: servers-integration
           workflow: nightly
+          nx_run: --skipNxCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1226,6 +1229,7 @@ workflows:
           start_customs: true
           test_suite: servers-auth-integration
           workflow: nightly
+          nx_run: --skipNxCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1235,6 +1239,7 @@ workflows:
           target: -t test-integration-v2
           test_suite: servers-auth-v2-integration
           workflow: nightly
+          nx_run: --skipNxCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1242,6 +1247,7 @@ workflows:
           projects: --exclude '*,!tag:scope:shared:*'
           test_suite: libraries-integration
           workflow: nightly
+          nx_run: --skipNxCache
           requires:
             - Build (nightly)
       - playwright-functional-tests:
