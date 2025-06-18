@@ -97,8 +97,7 @@ interface WrapWithCartCatchOptions {
 const IGNORED_EXPECTED_ERRORS_STATSD = new Set([
   'PromotionCodePriceNotValidError',
   'PromotionCodeNotFoundError',
-  'CouponErrorInvalidCode',
-  'AssertionError'
+  'CouponErrorInvalidCode'
 ]);
 
 @Injectable()
@@ -122,7 +121,7 @@ export class CartService {
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
     @Inject(StatsDService) private statsd: StatsD
-  ) {}
+  ) { }
 
   /**
    * Should be used to wrap any method that mutates an existing cart.
@@ -387,7 +386,7 @@ export class CartService {
       if (
         e.type === 'StripeInvalidRequestError' &&
         e.message ===
-          'This promotion code cannot be redeemed because the associated customer has prior transactions.'
+        'This promotion code cannot be redeemed because the associated customer has prior transactions.'
       ) {
         throw new CouponErrorCannotRedeem();
       } else {
@@ -471,12 +470,12 @@ export class CartService {
 
       const accountCustomer = oldCart.uid
         ? await this.accountCustomerManager
-            .getAccountCustomerByUid(oldCart.uid)
-            .catch((error) => {
-              if (!(error instanceof AccountCustomerNotFoundError)) {
-                throw error;
-              }
-            })
+          .getAccountCustomerByUid(oldCart.uid)
+          .catch((error) => {
+            if (!(error instanceof AccountCustomerNotFoundError)) {
+              throw error;
+            }
+          })
         : undefined;
 
       if (!(oldCart.taxAddress && oldCart.currency)) {
@@ -724,7 +723,7 @@ export class CartService {
               if (
                 error.type === 'StripeInvalidRequestError' &&
                 error.message ===
-                  'This promotion code cannot be redeemed because the associated customer has prior transactions.'
+                'This promotion code cannot be redeemed because the associated customer has prior transactions.'
               ) {
                 throw new CouponErrorCannotRedeem();
               } else {
