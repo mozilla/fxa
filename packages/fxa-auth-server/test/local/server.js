@@ -749,12 +749,12 @@ describe('lib/server', () => {
           });
 
           for (const endpoint of [
-            '__lbheartbeat__',
-            'config',
-            '__heartbeat__',
-            '__version__',
+            '/__lbheartbeat__',
+            '/config',
+            '/__heartbeat__',
+            '/__version__',
           ]) {
-            it('will skip /' + endpoint, async () => {
+            it('will skip ' + endpoint, async () => {
               customs.checkIpOnly = sinon.spy(async () => {
                 throw new AppError.tooManyRequests(100, 'foo');
               });
@@ -816,6 +816,34 @@ describe('lib/server', () => {
 
     function getRoutes() {
       return [
+        {
+          path: '/config',
+          method: 'GET',
+          handler() {
+            return response;
+          },
+        },
+        {
+          path: '/__lbheartbeat__',
+          method: 'GET',
+          handler() {
+            return response;
+          },
+        },
+        {
+          path: '/__version__',
+          method: 'GET',
+          handler() {
+            return response;
+          },
+        },
+        {
+          path: '/__heartbeat__',
+          method: 'GET',
+          handler() {
+            return response;
+          },
+        },
         {
           path: '/account/create',
           method: 'POST',
@@ -915,7 +943,12 @@ function getConfig() {
     },
     rateLimit: {
       checkAllEndpoints: true,
-      skipEndpoints: [],
+      skipEndpoints: [
+        '/__lbheartbeat__',
+        '/config',
+        '/__heartbeat__',
+        '/__version__',
+      ],
     },
   };
 }
