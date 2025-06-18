@@ -7,7 +7,7 @@ import SetPassword from '.';
 import { LocationProvider } from '@reach/router';
 import { CreatePasswordHandler } from './interfaces';
 import { MOCK_EMAIL } from '../../mocks';
-import { useMockSyncEngines } from '../../../lib/hooks/useSyncEngines/mocks';
+import { mockUseSyncEngines } from '../../../lib/hooks/useSyncEngines/mocks';
 
 export const Subject = ({
   email = MOCK_EMAIL,
@@ -16,8 +16,7 @@ export const Subject = ({
   email?: string;
   createPasswordHandler?: CreatePasswordHandler;
 }) => {
-  const { offeredSyncEngineConfigs, setDeclinedSyncEngines } =
-    useMockSyncEngines();
+  const { offeredSyncEngineConfigs } = mockUseSyncEngines();
   return (
     <LocationProvider>
       <SetPassword
@@ -25,7 +24,6 @@ export const Subject = ({
           email,
           createPasswordHandler,
           offeredSyncEngineConfigs,
-          setDeclinedSyncEngines,
         }}
       />
     </LocationProvider>

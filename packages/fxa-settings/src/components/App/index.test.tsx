@@ -17,6 +17,7 @@ import {
   useProductInfoState,
   useSession,
   Account,
+  IntegrationType,
 } from '../../models';
 import {
   MOCK_ACCOUNT,
@@ -30,6 +31,14 @@ import GleanMetrics from '../../lib/glean';
 import config from '../../lib/config';
 import * as utils from 'fxa-react/lib/utils';
 import { currentAccount } from '../../lib/cache';
+import { MozServices } from '../../lib/types';
+import mockUseSyncEngines from '../../lib/hooks/useSyncEngines/mocks';
+import useSyncEngines from '../../lib/hooks/useSyncEngines';
+
+jest.mock('../../lib/hooks/useSyncEngines', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
 
 jest.mock('../../models/contexts/SettingsContext', () => ({
   ...jest.requireActual('../../models/contexts/SettingsContext'),
@@ -149,10 +158,12 @@ describe('metrics', () => {
     };
 
     flowInit = jest.spyOn(Metrics, 'init');
+    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
   });
 
   afterEach(() => {
     flowInit.mockReset();
+    (useSyncEngines as jest.Mock).mockRestore();
   });
 
   it('Initializes metrics flow data when present', async () => {
@@ -170,6 +181,7 @@ describe('metrics', () => {
       getClientId: jest.fn(),
       data: {},
     });
+
     const flowInit = jest.spyOn(Metrics, 'init');
     const userPreferencesInit = jest.spyOn(Metrics, 'initUserPreferences');
 
@@ -196,6 +208,13 @@ describe('metrics', () => {
 });
 
 describe('glean', () => {
+  beforeEach(() => {
+    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+  });
+
+  afterEach(() => {
+    (useSyncEngines as jest.Mock).mockRestore();
+  });
   it('Initializes glean', async () => {
     (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
       data: mockMetricsQueryAccountResult,
@@ -300,6 +319,48 @@ describe('loading spinner states', () => {
     });
 
     expect(screen.getByLabelText('Loading…')).toBeInTheDocument();
+  });
+});
+
+describe('AuthAndAccountSetupRoutes', () => {
+  beforeEach(() => {
+    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+  });
+
+  afterEach(() => {
+    (useSyncEngines as jest.Mock).mockRestore();
+  });
+  it('calls useSyncEngines with integration', async () => {
+    const mockIntegration = {
+      getServiceName: () => MozServices.FirefoxSync,
+      isSync: () => true,
+      type: IntegrationType.OAuthNative,
+      data: {},
+      isDesktopRelay: () => false,
+      getClientId: () => {},
+    };
+
+    (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: false,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: true },
+    });
+
+    await act(() => {
+      renderWithRouter(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>,
+        { route: '/' }
+      );
+    });
+
+    expect(useSyncEngines).toHaveBeenCalledTimes(1);
+    expect(useSyncEngines).toHaveBeenCalledWith(mockIntegration);
   });
 });
 

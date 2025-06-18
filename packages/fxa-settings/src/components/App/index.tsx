@@ -41,6 +41,8 @@ import sentryMetrics from 'fxa-shared/sentry/browser';
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
+import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
+import useSyncEngines from '../../lib/hooks/useSyncEngines';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
@@ -153,8 +155,7 @@ const ResetPasswordRecoveryChoiceContainer = lazy(
     import('../../pages/ResetPassword/ResetPasswordRecoveryChoice/container')
 );
 const ResetPasswordRecoveryPhoneContainer = lazy(
-  () =>
-    import('../../pages/ResetPassword/ResetPasswordRecoveryPhone/container')
+  () => import('../../pages/ResetPassword/ResetPasswordRecoveryPhone/container')
 );
 
 const Settings = lazy(() => import('../Settings'));
@@ -411,6 +412,8 @@ const AuthAndAccountSetupRoutes = ({
     gleanEnabled && GleanMetrics.pageLoad(location.pathname);
   }, [location.pathname, gleanEnabled]);
 
+  const useSyncEnginesResult = useSyncEngines(integration);
+
   return (
     <Suspense fallback={<LoadingSpinner fullScreen />}>
       <Router>
@@ -443,43 +446,44 @@ const AuthAndAccountSetupRoutes = ({
         />
         <SetPasswordContainer
           path="/post_verify/third_party_auth/set_password/*"
-          {...{ flowQueryParams, integration }}
+          {...{ flowQueryParams, integration, useSyncEnginesResult }}
         />
 
-      {/* Reset password */}
-      <ResetPasswordContainer
-        path="/reset_password/*"
-        {...{ flowQueryParams, serviceName }}
-      />
-      <ConfirmResetPasswordContainer path="/confirm_reset_password/*" />
-      <ResetPasswordRecoveryChoiceContainer path="/reset_password_totp_recovery_choice/*" />
-      <ResetPasswordRecoveryPhoneContainer path="/reset_password_recovery_phone/*"
-                                           {...{ integration }}
-      />
-      <ConfirmTotpResetPasswordContainer path="/confirm_totp_reset_password/*" />
-      <ConfirmBackupCodeResetPasswordContainer path="/confirm_backup_code_reset_password/*" />
-      <CompleteResetPasswordContainer
-        path="/complete_reset_password/*"
-        {...{ integration }}
-      />
-      <CompleteResetPasswordContainer
-        path="/account_recovery_reset_password/*"
-        {...{ integration }}
-      />
-      <AccountRecoveryConfirmKeyContainer
-        path="/account_recovery_confirm_key/*"
-        {...{
-          serviceName,
-        }}
-      />
-      <ResetPasswordWithRecoveryKeyVerifiedContainer
-        path="/reset_password_with_recovery_key_verified/*"
-        {...{ integration }}
-      />
-      <ResetPasswordConfirmedContainer
-        path="/reset_password_verified/*"
-        {...{ integration, serviceName }}
-      />
+        {/* Reset password */}
+        <ResetPasswordContainer
+          path="/reset_password/*"
+          {...{ flowQueryParams, serviceName }}
+        />
+        <ConfirmResetPasswordContainer path="/confirm_reset_password/*" />
+        <ResetPasswordRecoveryChoiceContainer path="/reset_password_totp_recovery_choice/*" />
+        <ResetPasswordRecoveryPhoneContainer
+          path="/reset_password_recovery_phone/*"
+          {...{ integration }}
+        />
+        <ConfirmTotpResetPasswordContainer path="/confirm_totp_reset_password/*" />
+        <ConfirmBackupCodeResetPasswordContainer path="/confirm_backup_code_reset_password/*" />
+        <CompleteResetPasswordContainer
+          path="/complete_reset_password/*"
+          {...{ integration }}
+        />
+        <CompleteResetPasswordContainer
+          path="/account_recovery_reset_password/*"
+          {...{ integration }}
+        />
+        <AccountRecoveryConfirmKeyContainer
+          path="/account_recovery_confirm_key/*"
+          {...{
+            serviceName,
+          }}
+        />
+        <ResetPasswordWithRecoveryKeyVerifiedContainer
+          path="/reset_password_with_recovery_key_verified/*"
+          {...{ integration }}
+        />
+        <ResetPasswordConfirmedContainer
+          path="/reset_password_verified/*"
+          {...{ integration, serviceName }}
+        />
 
         {/* Signin */}
         <AuthorizationContainer path="/authorization/*" {...{ integration }} />
@@ -550,7 +554,12 @@ const AuthAndAccountSetupRoutes = ({
         />
         <SignupContainer
           path="/oauth/signup/*"
-          {...{ integration, serviceName, flowQueryParams }}
+          {...{
+            integration,
+            serviceName,
+            flowQueryParams,
+            useSyncEnginesResult,
+          }}
         />
         <PrimaryEmailVerified
           path="/primary_email_verified/*"
@@ -558,11 +567,20 @@ const AuthAndAccountSetupRoutes = ({
         />
         <SignupContainer
           path="/signup/*"
-          {...{ integration, serviceName, flowQueryParams }}
+          {...{
+            integration,
+            flowQueryParams,
+            useSyncEnginesResult,
+          }}
         />
         <SignupConfirmed
           path="/signup_confirmed/*"
           {...{ isSignedIn, serviceName }}
+        />
+        <SignupConfirmedSync
+          path="/signup_confirmed_sync/*"
+          offeredSyncEngines={useSyncEnginesResult.offeredSyncEngines}
+          {...{ integration }}
         />
         <SignupConfirmed
           path="/signup_verified/*"

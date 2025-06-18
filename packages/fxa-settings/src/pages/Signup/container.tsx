@@ -62,9 +62,11 @@ type LocationState = {
 const SignupContainer = ({
   integration,
   flowQueryParams,
+  useSyncEnginesResult,
 }: {
   integration: SignupIntegration;
   flowQueryParams: QueryParams;
+  useSyncEnginesResult: ReturnType<typeof useSyncEngines>;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
@@ -87,12 +89,6 @@ const SignupContainer = ({
   const email = queryParamModel.email || location.state?.email;
 
   const wantsKeys = integration.wantsKeys();
-
-  // TODO: in PostVerify/SetPassword we call this and handle web channel messaging
-  // in the container component, but here we handle web channel messaging in the
-  // presentation component and we should be consistent. Calling this here allows for
-  // some easier mocking, especially until we can upgrade to Storybook 8.
-  const useSyncEnginesResult = useSyncEngines(integration);
 
   useEffect(() => {
     (async () => {
@@ -222,7 +218,7 @@ const SignupContainer = ({
         beginSignupHandler,
         useSyncEnginesResult,
         deeplink,
-        flowQueryParams
+        flowQueryParams,
       }}
     />
   );

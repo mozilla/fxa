@@ -17,7 +17,6 @@ export const SetPassword = ({
   email,
   createPasswordHandler,
   offeredSyncEngineConfigs,
-  setDeclinedSyncEngines,
 }: SetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [createPasswordLoading, setCreatePasswordLoading] =
@@ -58,8 +57,8 @@ export const SetPassword = ({
 
   return (
     <AppLayout>
-      <FtlMsg id="set-password-heading">
-        <h1 className="card-header">Create password</h1>
+      <FtlMsg id="set-password-heading-v2">
+        <h1 className="card-header">Create password to sync</h1>
       </FtlMsg>
       <p className="break-all mt-2">{email}</p>
 
@@ -67,10 +66,10 @@ export const SetPassword = ({
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
 
-      <FtlMsg id="set-password-info">
+      <FtlMsg id="set-password-info-v2">
         <p className="text-sm mt-6 mb-5">
-          Your sync data is encrypted with your password to protect your
-          privacy.
+          This encrypts your data. It needs to be different from your Google or
+          Apple account password.
         </p>
       </FtlMsg>
 
@@ -84,14 +83,14 @@ export const SetPassword = ({
           email,
           handleSubmit,
           offeredSyncEngineConfigs,
-          setDeclinedSyncEngines,
         }}
         loading={createPasswordLoading}
         onSubmit={handleSubmit(onSubmit)}
         // This page is only shown during the Sync flow
         isSync={true}
         isDesktopRelay={false}
-        submitButtonGleanId='third-party-auth-set-password-submit'
+        submitButtonGleanId="third-party-auth-set-password-submit"
+        passwordFormType="post-verify-set-password"
       />
     </AppLayout>
   );

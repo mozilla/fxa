@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { syncEngineConfigs } from '../../../components/ChooseWhatToSync/sync-engines';
+import { syncEngineConfigs } from '../../../lib/sync-engines';
 import { HandledError } from '../../../lib/error-utils';
 
 export interface SetPasswordFormData {
@@ -23,5 +23,4 @@ export interface SetPasswordProps {
   email: string;
   createPasswordHandler: CreatePasswordHandler;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
-  setDeclinedSyncEngines: React.Dispatch<React.SetStateAction<string[]>>;
 }

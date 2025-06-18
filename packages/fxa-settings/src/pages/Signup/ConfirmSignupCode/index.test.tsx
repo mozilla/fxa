@@ -17,7 +17,9 @@ import {
   Subject,
   createMockOAuthNativeIntegration,
   createMockOAuthWebIntegration,
-  createMockWebIntegration, MOCK_AUTH_ERROR_INVALID_CODE, MOCK_AUTH_ERROR_RATE_LIMIT,
+  createMockWebIntegration,
+  MOCK_AUTH_ERROR_INVALID_CODE,
+  MOCK_AUTH_ERROR_RATE_LIMIT,
 } from './mocks';
 import {
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
@@ -124,13 +126,13 @@ describe('ConfirmSignupCode page', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
-  const submit = (code = MOCK_SIGNUP_CODE) => {
+  const submit = (code = MOCK_SIGNUP_CODE, name = 'Confirm') => {
     const codeInput = screen.getByLabelText('Enter 6-digit code');
     fireEvent.input(codeInput, {
       target: { value: code },
     });
 
-    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    const submitButton = screen.getByRole('button', { name });
     fireEvent.click(submitButton);
   };
 
@@ -307,7 +309,7 @@ describe('ConfirmSignupCode page', () => {
         declinedSyncEngines,
         offeredSyncEngines,
       });
-      submit();
+      submit(MOCK_SIGNUP_CODE, 'Start syncing');
 
       await waitFor(() => {
         expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
@@ -443,7 +445,7 @@ describe('ConfirmSignupCode page with error states', () => {
       );
       expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalled();
       expect(GleanMetrics.signupConfirmation.error).toHaveBeenCalledWith({
-        event: { reason: MOCK_AUTH_ERROR_INVALID_CODE.errno.toString() }
+        event: { reason: MOCK_AUTH_ERROR_INVALID_CODE.errno.toString() },
       });
     });
   });
@@ -465,7 +467,7 @@ describe('ConfirmSignupCode page with error states', () => {
     await waitFor(() => {
       expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalled();
       expect(GleanMetrics.signupConfirmation.error).toHaveBeenCalledWith({
-        event: { reason: MOCK_AUTH_ERROR_RATE_LIMIT.errno.toString() }
+        event: { reason: MOCK_AUTH_ERROR_RATE_LIMIT.errno.toString() },
       });
     });
   });

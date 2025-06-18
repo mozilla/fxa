@@ -27,10 +27,7 @@ import firefox from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import * as utils from 'fxa-react/lib/utils';
 import { POCKET_CLIENTIDS } from '../../models/integrations/client-matching';
-import {
-  getSyncEngineIds,
-  syncEngineConfigs,
-} from '../../components/ChooseWhatToSync/sync-engines';
+import { getSyncEngineIds, syncEngineConfigs } from '../../lib/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
@@ -134,7 +131,7 @@ describe('Signup page', () => {
     renderWithLocalizationProvider(<Subject />);
 
     await waitFor(() =>
-      screen.getByRole('heading', { name: 'Set your password' })
+      screen.getByRole('heading', { name: 'Create a password' })
     );
     screen.getByRole('link', { name: 'Change email' });
     screen.getByLabelText('Password');
@@ -208,8 +205,6 @@ describe('Signup page', () => {
       <Subject integration={createMockSignupSyncDesktopV3Integration()} />
     );
 
-    // Choose what to sync options should be displayed if integration is sync
-    await waitFor(() => screen.getByText('Choose what to sync'));
     // Password confirmation is required for sync
     expect(screen.getByLabelText('Repeat password')).toBeVisible();
 
@@ -231,10 +226,7 @@ describe('Signup page', () => {
 
     expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
 
-    // CWTS, newsletters, and third party auth should not be displayed
-    await waitFor(() =>
-      expect(screen.queryByText('Choose what to sync')).not.toBeInTheDocument()
-    );
+    // newsletters and third party auth should not be displayed
     expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
     expect(
       screen.queryByRole('button', { name: /Continue with Google/ })
@@ -404,7 +396,7 @@ describe('Signup page', () => {
           );
         });
 
-        it('all CWTS options selected (default)', async () => {
+        it('all sync options selected and sent', async () => {
           await fillOutForm(true);
           submit();
 
@@ -445,7 +437,7 @@ describe('Signup page', () => {
       });
 
       describe('on success with OAuthNative integration with Sync', () => {
-        it('all CWTS options selected (default)', async () => {
+        it('all sync options selected and sent', async () => {
           renderWithLocalizationProvider(
             <Subject
               integration={createMockSignupOAuthNativeIntegration()}
@@ -463,7 +455,7 @@ describe('Signup page', () => {
             );
           });
 
-          expect(fxaLoginSpy).toBeCalledWith({
+          expect(fxaLoginSpy).toHaveBeenCalledWith({
             ...oauthCommonFxaLoginOptions,
             services: {
               sync: {
@@ -473,111 +465,6 @@ describe('Signup page', () => {
             },
           });
           expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
-        });
-
-        it('some CWTS options selected', async () => {
-          renderWithLocalizationProvider(
-            <Subject
-              integration={createMockSignupOAuthNativeIntegration()}
-              beginSignupHandler={mockBeginSignupHandler}
-            />
-          );
-
-          await fillOutForm(true);
-
-          // deselect
-          fireEvent.click(screen.getByText('Open Tabs'));
-          fireEvent.click(screen.getByText('Preferences'));
-          fireEvent.click(screen.getByText('Bookmarks'));
-          // reselect
-          fireEvent.click(screen.getByText('Open Tabs'));
-
-          submit();
-
-          await waitFor(() => {
-            expect(mockBeginSignupHandler).toHaveBeenCalledWith(
-              MOCK_EMAIL,
-              MOCK_PASSWORD
-            );
-          });
-
-          expect(fxaLoginSpy).toBeCalledWith({
-            ...oauthCommonFxaLoginOptions,
-            services: {
-              sync: {
-                declinedEngines: ['prefs', 'bookmarks'],
-                offeredEngines,
-              },
-            },
-          });
-
-          await waitFor(() => {
-            expect(GleanMetrics.registration.marketing).toBeCalledTimes(0);
-            expect(GleanMetrics.registration.cwts).toHaveBeenCalledWith({
-              sync: {
-                cwts: {
-                  ...offeredEngines.reduce(
-                    (acc, engine) => {
-                      acc[engine] = true;
-                      return acc;
-                    },
-                    {} as Record<string, boolean>
-                  ),
-                  prefs: false,
-                  bookmarks: false,
-                },
-              },
-            });
-          });
-        });
-
-        it('zero CWTS options selected', async () => {
-          renderWithLocalizationProvider(
-            <Subject
-              integration={createMockSignupOAuthNativeIntegration()}
-              beginSignupHandler={mockBeginSignupHandler}
-            />
-          );
-          await fillOutForm(true);
-
-          act(() => {
-            syncEngineConfigs.forEach((engineConfig) => {
-              fireEvent.click(screen.getByText(engineConfig.text));
-            });
-          });
-          submit();
-
-          await waitFor(() => {
-            expect(mockBeginSignupHandler).toHaveBeenCalledWith(
-              MOCK_EMAIL,
-              MOCK_PASSWORD
-            );
-          });
-
-          expect(fxaLoginSpy).toBeCalledWith({
-            ...oauthCommonFxaLoginOptions,
-            services: {
-              sync: {
-                declinedEngines: offeredEngines,
-                offeredEngines,
-              },
-            },
-          });
-
-          await waitFor(() => {
-            expect(GleanMetrics.registration.marketing).toBeCalledTimes(0);
-            expect(GleanMetrics.registration.cwts).toHaveBeenCalledWith({
-              sync: {
-                cwts: offeredEngines.reduce(
-                  (acc, engine) => {
-                    acc[engine] = false;
-                    return acc;
-                  },
-                  {} as Record<string, boolean>
-                ),
-              },
-            });
-          });
         });
       });
 
@@ -661,7 +548,7 @@ describe('Signup page', () => {
       });
       expect(GleanMetrics.registration.cwts).toHaveBeenCalledTimes(0);
       expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
-      expect(GleanMetrics.registration.marketing).toBeCalledWith({
+      expect(GleanMetrics.registration.marketing).toHaveBeenCalledWith({
         standard: {
           marketing: {
             news: false,
@@ -688,7 +575,7 @@ describe('Signup page', () => {
 
       await waitFor(() => {
         // Does not send services: { sync: {...} }
-        expect(fxaLoginSpy).toBeCalledWith({
+        expect(fxaLoginSpy).toHaveBeenCalledWith({
           ...oauthCommonFxaLoginOptions,
           services: { relay: {} },
         });
@@ -701,7 +588,7 @@ describe('Signup page', () => {
         );
         expect(GleanMetrics.registration.cwts).toHaveBeenCalledTimes(0);
         expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
-        expect(GleanMetrics.registration.marketing).not.toBeCalled();
+        expect(GleanMetrics.registration.marketing).not.toHaveBeenCalled();
       });
     });
 

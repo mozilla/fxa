@@ -24,17 +24,14 @@ import SetPasswordContainer from './container';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import { act } from '@testing-library/react';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
-import {
-  getSyncEngineIds,
-  syncEngineConfigs,
-} from '../../../components/ChooseWhatToSync/sync-engines';
+import { getSyncEngineIds, syncEngineConfigs } from '../../../lib/sync-engines';
 import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
 import firefox from '../../../lib/channels/firefox';
 import GleanMetrics from '../../../lib/glean';
+import { mockUseSyncEngines } from '../../../lib/hooks/useSyncEngines/mocks';
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
@@ -59,14 +56,6 @@ jest.mock('../../../lib/oauth/hooks.tsx', () => {
     __esModule: true,
     useFinishOAuthFlowHandler: jest.fn(),
     useOAuthKeysCheck: jest.fn(),
-  };
-});
-jest.mock('../../../lib/hooks/useSyncEngines', () => {
-  const useMockSyncEngines =
-    require('../../../lib/hooks/useSyncEngines/mocks').default;
-  return {
-    __esModule: true,
-    default: useMockSyncEngines,
   };
 });
 
@@ -134,12 +123,14 @@ function applyDefaultMocks() {
 }
 
 function render(integration = mockSyncDesktopV3Integration()) {
+  const useSyncEnginesResult = mockUseSyncEngines();
   renderWithLocalizationProvider(
     <LocationProvider>
       <SetPasswordContainer
         {...{
           flowQueryParams: {},
           integration,
+          useSyncEnginesResult,
         }}
       />
     </LocationProvider>
@@ -191,8 +182,8 @@ describe('SetPassword container', () => {
 
   it('renders the component when local storage values are present', async () => {
     render();
-    expect(mockNavigate).not.toBeCalled();
-    expect(SetPasswordModule.default).toBeCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(SetPasswordModule.default).toHaveBeenCalled();
     expect(currentSetPasswordProps).toBeDefined();
   });
 
@@ -211,32 +202,17 @@ describe('SetPassword container', () => {
       await act(async () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
       });
-      expect(mockSensitiveDataClient.setDataType).toBeCalledWith(
-        SensitiveData.Key.Auth,
-        {
-          authPW: MOCK_AUTH_PW,
-          emailForAuth: MOCK_EMAIL,
-          unwrapBKey: MOCK_UNWRAP_BKEY,
-        }
-      );
-      expect(mockAuthClient.sessionReauthWithAuthPW).toBeCalledWith(
-        MOCK_SESSION_TOKEN,
-        MOCK_EMAIL,
-        MOCK_AUTH_PW,
-        {
-          keys: true,
-          reason: 'signin',
-          metricsContext: {},
-        }
-      );
-      expect(GleanMetrics.thirdPartyAuthSetPassword.success).toBeCalledWith({
+
+      expect(
+        GleanMetrics.thirdPartyAuthSetPassword.success
+      ).toHaveBeenCalledWith({
         sync: {
           cwts: Object.fromEntries(
             offeredEngines.map((engine) => [engine, true])
           ),
         },
       });
-      expect(fxaLoginSpy).toBeCalledWith({
+      expect(fxaLoginSpy).toHaveBeenCalledWith({
         email: MOCK_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,
         uid: MOCK_UID,
@@ -250,7 +226,7 @@ describe('SetPassword container', () => {
           },
         },
       });
-      expect(fxaOAuthLoginSpy).not.toBeCalled();
+      expect(fxaOAuthLoginSpy).not.toHaveBeenCalled();
     });
 
     it('does the expected things with oauth native', async () => {
@@ -260,7 +236,7 @@ describe('SetPassword container', () => {
       await act(async () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
       });
-      expect(fxaLoginSpy).toBeCalledWith({
+      expect(fxaLoginSpy).toHaveBeenCalledWith({
         email: MOCK_EMAIL,
         sessionToken: MOCK_SESSION_TOKEN,
         uid: MOCK_UID,
@@ -272,7 +248,7 @@ describe('SetPassword container', () => {
           },
         },
       });
-      expect(firefox.fxaOAuthLogin).toBeCalledWith({
+      expect(firefox.fxaOAuthLogin).toHaveBeenCalledWith({
         action: 'signin',
         ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
       });

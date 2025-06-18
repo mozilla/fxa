@@ -17,7 +17,7 @@ test.describe('recovery key promo', () => {
 
     test('not shown after signup', async ({
       target,
-      syncBrowserPages: { page, signup, login, connectAnotherDevice },
+      syncBrowserPages: { page, signup, login, signupConfirmedSync },
       testAccountTracker,
     }) => {
       const credentials = testAccountTracker.generateSignupAccountDetails();
@@ -36,9 +36,8 @@ test.describe('recovery key promo', () => {
       await login.setCode(code);
       await login.clickSubmit();
 
-      await page.waitForURL(/pair/);
-
-      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
+      await expect(page).toHaveURL(/signup_confirmed_sync/);
+      await expect(signupConfirmedSync.bannerConfirmed).toBeVisible();
     });
 
     test('not shown if user already has a recovery key', async ({

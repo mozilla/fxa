@@ -42,10 +42,19 @@ interface NavigationTargetError {
   error: AuthError;
 }
 
+interface SyncNavigateOptions {
+  showInlineRecoveryKeySetup?: boolean;
+  isSignInWithThirdPartyAuth?: boolean;
+  showSignupConfirmedSync?: boolean;
+}
+
 export function getSyncNavigate(
   queryParams: string,
-  showInlineRecoveryKeySetup?: boolean,
-  isSignInWithThirdPartyAuth?: boolean
+  {
+    showInlineRecoveryKeySetup,
+    isSignInWithThirdPartyAuth,
+    showSignupConfirmedSync,
+  }: SyncNavigateOptions = {}
 ) {
   const searchParams = new URLSearchParams(queryParams);
 
@@ -59,6 +68,13 @@ export function getSyncNavigate(
   if (showInlineRecoveryKeySetup) {
     return {
       to: `/inline_recovery_key_setup?${searchParams}`,
+      shouldHardNavigate: false,
+    };
+  }
+
+  if (showSignupConfirmedSync) {
+    return {
+      to: `/signup_confirmed_sync?${searchParams}`,
       shouldHardNavigate: false,
     };
   }
@@ -79,9 +95,12 @@ export const cachedSignIn = async (
 ) => {
   try {
     const {
-      authenticationMethods, authenticatorAssuranceLevel
-    }: { authenticationMethods: AuthenticationMethods[], authenticatorAssuranceLevel: number } =
-      await authClient.accountProfile(sessionToken);
+      authenticationMethods,
+      authenticatorAssuranceLevel,
+    }: {
+      authenticationMethods: AuthenticationMethods[];
+      authenticatorAssuranceLevel: number;
+    } = await authClient.accountProfile(sessionToken);
 
     const totpIsActive = authenticationMethods.includes(
       AuthenticationMethods.OTP
@@ -104,15 +123,14 @@ export const cachedSignIn = async (
       verified,
       sessionVerified,
       emailVerified,
-    }: RecoveryEmailStatusResponse = await authClient.recoveryEmailStatus(
-      sessionToken
-    );
+    }: RecoveryEmailStatusResponse =
+      await authClient.recoveryEmailStatus(sessionToken);
 
     let verificationMethod;
     let verificationReason;
 
     if (totpIsActive) {
-      if (authenticatorAssuranceLevel >=2 ) {
+      if (authenticatorAssuranceLevel >= 2) {
         // user is a valid and verified 2FA session, don't set any verification method
       } else {
         // user has 2FA enabled but is in a non-2FA session; it shouldn't happen
@@ -250,6 +268,7 @@ const createSigninLocationState = (
       verificationReason,
     },
     showInlineRecoveryKeySetup,
+    origin,
   } = navigationOptions;
   return {
     email,
@@ -259,6 +278,7 @@ const createSigninLocationState = (
     verificationMethod,
     verificationReason,
     showInlineRecoveryKeySetup,
+    origin,
   };
 };
 
@@ -316,7 +336,10 @@ function performNavigation({
   shouldHardNavigate = false,
   locationState,
   replace = false,
-}: Pick<NavigationTarget, 'to' | 'locationState' | 'shouldHardNavigate' | 'replace'>) {
+}: Pick<
+  NavigationTarget,
+  'to' | 'locationState' | 'shouldHardNavigate' | 'replace'
+>) {
   if (shouldHardNavigate) {
     // Hard navigate to RP, or (temp until CAD/pair is Reactified)
     hardNavigate(to, undefined, undefined, replace);
@@ -336,14 +359,15 @@ const getNonOAuthNavigationTarget = async (
     showInlineRecoveryKeySetup,
     redirectTo,
     isSignInWithThirdPartyAuth,
+    showSignupConfirmedSync,
   } = navigationOptions;
   if (integration.isSync()) {
     return {
-      ...getSyncNavigate(
-        queryParams,
+      ...getSyncNavigate(queryParams, {
         showInlineRecoveryKeySetup,
-        isSignInWithThirdPartyAuth
-      ),
+        isSignInWithThirdPartyAuth,
+        showSignupConfirmedSync,
+      }),
     };
   }
   // We don't want a hard navigate to `/settings` as it
@@ -364,11 +388,12 @@ const getOAuthNavigationTarget = async (
     navigationOptions.isSignInWithThirdPartyAuth
   ) {
     return {
-      ...getSyncNavigate(
-        navigationOptions.queryParams,
-        locationState.showInlineRecoveryKeySetup,
-        navigationOptions.isSignInWithThirdPartyAuth
-      ),
+      ...getSyncNavigate(navigationOptions.queryParams, {
+        showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
+        isSignInWithThirdPartyAuth:
+          navigationOptions.isSignInWithThirdPartyAuth,
+        showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
+      }),
       locationState,
     };
   }
@@ -396,11 +421,12 @@ const getOAuthNavigationTarget = async (
 
   if (navigationOptions.integration.isSync()) {
     return {
-      ...getSyncNavigate(
-        navigationOptions.queryParams,
-        locationState.showInlineRecoveryKeySetup,
-        navigationOptions.isSignInWithThirdPartyAuth
-      ),
+      ...getSyncNavigate(navigationOptions.queryParams, {
+        showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
+        isSignInWithThirdPartyAuth:
+          navigationOptions.isSignInWithThirdPartyAuth,
+        showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
+      }),
       oauthData: {
         code,
         redirect,

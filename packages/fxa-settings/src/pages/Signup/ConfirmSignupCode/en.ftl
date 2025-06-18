@@ -14,6 +14,7 @@ confirm-signup-code-instruction-v2 = Enter the code that was sent to <email>{ $e
 confirm-signup-code-input-label = Enter 6-digit code
 # Form button to confirm if the confirmation code entered by the user is valid
 confirm-signup-code-confirm-button = Confirm
+confirm-signup-code-sync-button = Start syncing
 confirm-signup-code-code-expired = Code expired?
 # Link to resend a new code to the user's email.
 confirm-signup-code-resend-code-link = Email new code.

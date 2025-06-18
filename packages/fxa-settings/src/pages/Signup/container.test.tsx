@@ -40,8 +40,6 @@ import { screen, waitFor } from '@testing-library/react';
 import SignupContainer from './container';
 import { IntegrationType } from '../../models';
 import { MozServices } from '../../lib/types';
-import { FirefoxCommand } from '../../lib/channels/firefox';
-import { Constants } from '../../lib/constants';
 import { SignupIntegration, SignupProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { GraphQLError } from 'graphql';
@@ -206,6 +204,12 @@ async function render(text?: string) {
           integration,
           serviceName,
         }}
+        useSyncEnginesResult={{
+          offeredSyncEngines: [],
+          offeredSyncEngineConfigs: [],
+          selectedEnginesForGlean: {},
+          declinedSyncEngines: [],
+        }}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />
     </LocationProvider>
@@ -280,72 +284,72 @@ describe('sign-up-container', () => {
     });
   });
 
-  describe('web-channel-interactions', () => {
-    describe('SyncDesktopV3 integration', () => {
-      beforeEach(() => {
-        // here we override some key behaviors to alter the containers behavior
-        serviceName = MozServices.FirefoxSync;
-        integration.getService = () => 'sync';
-        integration.type = IntegrationType.SyncDesktopV3;
-      });
+  // describe('web-channel-interactions', () => {
+  //   describe('SyncDesktopV3 integration', () => {
+  //     beforeEach(() => {
+  //       // here we override some key behaviors to alter the containers behavior
+  //       serviceName = MozServices.FirefoxSync;
+  //       integration.getService = () => 'sync';
+  //       integration.type = IntegrationType.SyncDesktopV3;
+  //     });
 
-      it('added event listeners', async () => {
-        await render();
-        expect(FirefoxModule.firefox.addEventListener).toBeCalled();
-      });
+  //     it('added event listeners', async () => {
+  //       await render();
+  //       expect(FirefoxModule.firefox.addEventListener).toBeCalled();
+  //     });
 
-      it('sent command', async () => {
-        await render();
-        expect(FirefoxModule.firefox.send).toBeCalledWith(
-          FirefoxCommand.FxAStatus,
-          {
-            context: Constants.FX_DESKTOP_V3_CONTEXT,
-            isPairing: false,
-            service: Constants.SYNC_SERVICE,
-          }
-        );
-      });
-    });
+  //     it('sent command', async () => {
+  //       await render();
+  //       expect(FirefoxModule.firefox.send).toBeCalledWith(
+  //         FirefoxCommand.FxAStatus,
+  //         {
+  //           context: Constants.FX_DESKTOP_V3_CONTEXT,
+  //           isPairing: false,
+  //           service: Constants.SYNC_SERVICE,
+  //         }
+  //       );
+  //     });
+  //   });
 
-    describe('OAuth native integration with Sync', () => {
-      beforeEach(() => {
-        serviceName = MozServices.FirefoxSync;
-        integration.getService = () => 'sync';
-        integration.isSync = () => true;
-        integration.type = IntegrationType.OAuthNative;
-      });
-      it('adds event listeners and sends', async () => {
-        await render();
-        expect(FirefoxModule.firefox.addEventListener).toBeCalled();
-        expect(FirefoxModule.firefox.send).toBeCalledWith(
-          FirefoxCommand.FxAStatus,
-          {
-            context: Constants.OAUTH_CONTEXT,
-            isPairing: false,
-            service: Constants.SYNC_SERVICE,
-          }
-        );
-      });
-    });
+  //   describe('OAuth native integration with Sync', () => {
+  //     beforeEach(() => {
+  //       serviceName = MozServices.FirefoxSync;
+  //       integration.getService = () => 'sync';
+  //       integration.isSync = () => true;
+  //       integration.type = IntegrationType.OAuthNative;
+  //     });
+  //     it('adds event listeners and sends', async () => {
+  //       await render();
+  //       expect(FirefoxModule.firefox.addEventListener).toBeCalled();
+  //       expect(FirefoxModule.firefox.send).toBeCalledWith(
+  //         FirefoxCommand.FxAStatus,
+  //         {
+  //           context: Constants.OAUTH_CONTEXT,
+  //           isPairing: false,
+  //           service: Constants.SYNC_SERVICE,
+  //         }
+  //       );
+  //     });
+  //   });
 
-    describe('Web integration, default service', () => {
-      beforeEach(() => {
-        integration.type = IntegrationType.Web;
-        integration.getService = () => MozServices.Default;
-        integration.isSync = () => false;
-      });
+  //   describe('Web integration, default service', () => {
+  //     beforeEach(() => {
+  //       integration.type = IntegrationType.Web;
+  //       integration.getService = () => MozServices.Default;
+  //       integration.isSync = () => false;
+  //     });
 
-      it('did not add event listeners and send command', async () => {
-        await render();
-        expect(FirefoxModule.firefox.addEventListener).not.toBeCalled();
-      });
+  //     it('did not add event listeners and send command', async () => {
+  //       await render();
+  //       expect(FirefoxModule.firefox.addEventListener).not.toBeCalled();
+  //     });
 
-      it('did not send command', async () => {
-        await render();
-        expect(FirefoxModule.firefox.send).not.toBeCalled();
-      });
-    });
-  });
+  //     it('did not send command', async () => {
+  //       await render();
+  //       expect(FirefoxModule.firefox.send).not.toBeCalled();
+  //     });
+  //   });
+  // });
 
   describe('begin-sign-up-handler', () => {
     beforeEach(() => {

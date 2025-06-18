@@ -4,20 +4,22 @@
 
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { MOCK_EMAIL } from '../../mocks';
 
 describe('SetPassword page', () => {
   it('renders as expected', async () => {
     renderWithLocalizationProvider(<Subject />);
 
-    screen.getByRole('heading', { name: 'Create password' });
-    screen.getByText(MOCK_EMAIL);
-    screen.getByText(
-      'Your sync data is encrypted with your password to protect your privacy.'
-    );
-    await waitFor(() => {
-      screen.getByText('Choose what to sync');
-    });
+    expect(
+      screen.getByRole('heading', { name: 'Create password to sync' })
+    ).toBeInTheDocument();
+    expect(screen.getByText(MOCK_EMAIL)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'This encrypts your data. It needs to be different from your Google or Apple account password.'
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText('Start syncing')).toBeInTheDocument();
   });
 });

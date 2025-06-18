@@ -32,6 +32,11 @@ export const WithSuccess = () => (
     <Subject />
   </AppContext.Provider>
 );
+export const WithSuccessSync = () => (
+  <AppContext.Provider value={mockAppContext({ account: accountWithSuccess })}>
+    <Subject integration={createMockOAuthNativeIntegration()} />
+  </AppContext.Provider>
+);
 
 export const WithErrors = () => (
   <AppContext.Provider value={mockAppContext({ account: accountWithErrors })}>
@@ -44,5 +49,3 @@ export const OAuthDesktopServiceRelay = () => (
     <Subject integration={createMockOAuthNativeIntegration(false)} />
   </AppContext.Provider>
 );
-
-// no story is needed for integrations (e.g., Sync, OAuth) as these do not change the UI of this page
