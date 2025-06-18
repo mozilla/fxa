@@ -2196,16 +2196,16 @@ const convictConf = convict({
     },
     skipEndpoints: {
       default: [
-        '__lbheartbeat__',
-        'config',
-        '__heartbeat__',
-        '__version__',
-        '',
+        '/__lbheartbeat__',
+        '/config',
+        '/__heartbeat__',
+        '/__version__',
+        '/',
       ],
       doc: 'When checkAllEndpoints is true, this is allows certain endpoints to be skipped from the automatic customs check.',
       env: 'RATE_LIMIT__SKIP_ENDPOINTS',
-      format: Array
-    }
+      format: Array,
+    },
   },
   recoveryPhone: {
     enabled: {
