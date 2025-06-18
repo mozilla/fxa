@@ -11346,7 +11346,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@peculiar/asn1-schema@npm:^2.1.6, @peculiar/asn1-schema@npm:^2.3.13, @peculiar/asn1-schema@npm:^2.3.8":
+"@peculiar/asn1-schema@npm:^2.3.13, @peculiar/asn1-schema@npm:^2.3.8":
   version: 2.3.15
   resolution: "@peculiar/asn1-schema@npm:2.3.15"
   dependencies:
@@ -14742,47 +14742,6 @@ __metadata:
     "@smithy/types": ^4.3.1
     tslib: ^2.6.2
   checksum: 6fa635c78093d4512aa569338af4d36bfb7c2982ac53a0bfb83f3c90cc483df05bc05450cabab57e0e1a1348efd2a469ce711b0e90d9f7a9c8b19f51dfa3d880
-  languageName: node
-  linkType: hard
-
-"@stablelib/binary@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@stablelib/binary@npm:1.0.1"
-  dependencies:
-    "@stablelib/int": ^1.0.1
-  checksum: dca9b98eb1f56a4002b5b9e7351fbc49f3d8616af87007c01e833bd763ac89214eb5f3b7e18673c91ce59d4a0e4856a2eb661ace33d39f17fb1ad267271fccd8
-  languageName: node
-  linkType: hard
-
-"@stablelib/hash@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@stablelib/hash@npm:1.0.1"
-  checksum: 3ff1f12d1a4082aaf4b6cdf40c2010aabe5c4209d3b40b97b5bbb0d9abc0ee94abdc545e57de0614afaea807ca0212ac870e247ec8f66cdce91ec39ce82948cf
-  languageName: node
-  linkType: hard
-
-"@stablelib/int@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@stablelib/int@npm:1.0.1"
-  checksum: 65bfbf50a382eea70c68e05366bf379cfceff8fbc076f1c267ef2f2411d7aed64fd140c415cb6c29f19a3910d3b8b7805d4b32ad5721a5007a8e744a808c7ae3
-  languageName: node
-  linkType: hard
-
-"@stablelib/sha3@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@stablelib/sha3@npm:1.0.1"
-  dependencies:
-    "@stablelib/binary": ^1.0.1
-    "@stablelib/hash": ^1.0.1
-    "@stablelib/wipe": ^1.0.1
-  checksum: 301a33a91d515ca135ce923bb3b775f4707241444bebad39614a5a0e5bf2bb3277979a625cf0c91417f75c97793ab4493a7e65cd092333959ff08463433fa2e3
-  languageName: node
-  linkType: hard
-
-"@stablelib/wipe@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@stablelib/wipe@npm:1.0.1"
-  checksum: 287802eb146810a46ba72af70b82022caf83a8aeebde23605f5ee0decf64fe2b97a60c856e43b6617b5801287c30cfa863cfb0469e7fcde6f02d143cf0c6cbf4
   languageName: node
   linkType: hard
 
@@ -23516,20 +23475,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asmcrypto.js@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "asmcrypto.js@npm:0.22.0"
-  checksum: 1fa4fba514443d25a787ee75935ff9a523628956f698987e16fe81519a71d42d3c484a660bb7d3271904f6c211c097cb551408de7d13294a334e9b6c3f00b78a
-  languageName: node
-  linkType: hard
-
-"asmcrypto.js@npm:^2.3.2":
-  version: 2.3.2
-  resolution: "asmcrypto.js@npm:2.3.2"
-  checksum: d61722be99d51c9a09093166412354845fb6ba278374b0cccfb33b18ad9edd26019ced171ae286b1d55c57edd8702fe87d2eec096f20fb2080ee52f8ba4b995e
-  languageName: node
-  linkType: hard
-
 "asn1.js@npm:>=5.4.1":
   version: 5.4.1
   resolution: "asn1.js@npm:5.4.1"
@@ -23551,7 +23496,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asn1js@npm:^3.0.2, asn1js@npm:^3.0.5":
+"asn1js@npm:^3.0.5":
   version: 3.0.6
   resolution: "asn1js@npm:3.0.6"
   dependencies:
@@ -27163,7 +27108,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.0.0, core-js@npm:^3.19.2, core-js@npm:^3.22.5, core-js@npm:^3.35.1, core-js@npm:^3.41.0":
+"core-js@npm:^3.0.0, core-js@npm:^3.19.2, core-js@npm:^3.41.0":
   version: 3.42.0
   resolution: "core-js@npm:3.42.0"
   checksum: 270b5532511e2e6cc8e6b10c1434306208dca377aba3850875941316ce605b008ddbdeca0b6dd6eb2a4b188899dab259c0aecd7dc265bc5e7df19563e4e284b7
@@ -28617,7 +28562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"des.js@npm:^1.0.0, des.js@npm:^1.0.1, des.js@npm:^1.1.0":
+"des.js@npm:^1.0.0":
   version: 1.1.0
   resolution: "des.js@npm:1.1.0"
   dependencies:
@@ -29271,7 +29216,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"elliptic@npm:>=6.5.4":
+"elliptic@npm:^6.5.3, elliptic@npm:^6.5.5":
   version: 6.6.1
   resolution: "elliptic@npm:6.6.1"
   dependencies:
@@ -32958,7 +32903,6 @@ __metadata:
     "@types/node": ^22.13.5
     "@types/node-fetch": ^2.5.7
     "@types/prettier": ^2
-    asmcrypto.js: ^0.22.0
     esbuild: ^0.17.15
     esbuild-register: ^3.5.0
     eslint: ^8.38.0
@@ -32968,7 +32912,6 @@ __metadata:
     node-fetch: ^2.6.7
     prettier: ^3.5.3
     typescript: 5.5.3
-    webcrypto-liner: ^1.4.0
   languageName: unknown
   linkType: soft
 
@@ -33129,7 +33072,6 @@ __metadata:
     "@types/postcss-import": ^14
     "@types/sinon-chai": 3.2.5
     "@types/sinon-express-mock": 1.3.9
-    asmcrypto.js: ^0.22.0
     audit-filter: ^0.5.0
     babel-eslint: ^10.1.0
     babel-loader: ^9.1.3
@@ -33249,7 +33191,6 @@ __metadata:
     upng-js: 2.1.0
     url-loader: 4.1.1
     verror: 1.10.1
-    webcrypto-liner: 1.4.0
     webpack: ^5.97.0
     webpack-cli: ^6.0.1
     webpack-dev-middleware: ^7.4.0
@@ -48429,7 +48370,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pvtsutils@npm:^1.3.2, pvtsutils@npm:^1.3.5, pvtsutils@npm:^1.3.6":
+"pvtsutils@npm:^1.3.5, pvtsutils@npm:^1.3.6":
   version: 1.3.6
   resolution: "pvtsutils@npm:1.3.6"
   dependencies:
@@ -56656,7 +56597,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webcrypto-core@npm:^1.7.5, webcrypto-core@npm:^1.7.8, webcrypto-core@npm:^1.8.0":
+"webcrypto-core@npm:^1.8.0":
   version: 1.8.1
   resolution: "webcrypto-core@npm:1.8.1"
   dependencies:
@@ -56666,44 +56607,6 @@ __metadata:
     pvtsutils: ^1.3.5
     tslib: ^2.7.0
   checksum: 5f8d862991bf9b36bfec53a317ceec7de95010c6d16092d2ba62b988acdfca9adfd254ef388036e610c66d0aad506d3f344574f62e06501a8c72ef961c8996b2
-  languageName: node
-  linkType: hard
-
-"webcrypto-liner@npm:1.4.0":
-  version: 1.4.0
-  resolution: "webcrypto-liner@npm:1.4.0"
-  dependencies:
-    "@peculiar/asn1-schema": ^2.1.6
-    "@peculiar/json-schema": ^1.1.12
-    "@stablelib/sha3": ^1.0.1
-    asmcrypto.js: ^2.3.2
-    asn1js: ^3.0.2
-    core-js: ^3.22.5
-    des.js: ^1.0.1
-    elliptic: "git+https://github.com/mahrud/elliptic.git"
-    pvtsutils: ^1.3.2
-    tslib: ^2.4.0
-    webcrypto-core: ^1.7.5
-  checksum: ebb395e07abf63e58a6fe52a567f16b7d162b8cba078d3b13b29cae9b3c9e16c94557f4affbbb9fb6b60ac1954f10b0584b232a5d4fefd335dd1baf37a5fdb0d
-  languageName: node
-  linkType: hard
-
-"webcrypto-liner@npm:^1.4.0":
-  version: 1.4.3
-  resolution: "webcrypto-liner@npm:1.4.3"
-  dependencies:
-    "@peculiar/asn1-schema": ^2.3.8
-    "@peculiar/json-schema": ^1.1.12
-    "@stablelib/sha3": ^1.0.1
-    asmcrypto.js: ^2.3.2
-    asn1js: ^3.0.5
-    core-js: ^3.35.1
-    des.js: ^1.1.0
-    elliptic: "git+https://github.com/mahrud/elliptic.git"
-    pvtsutils: ^1.3.5
-    tslib: ^2.6.2
-    webcrypto-core: ^1.7.8
-  checksum: 6038a87f1c22f2952844249550fa835304ae1c849208f858d3bbb8f0012090a65ae480a89ac715ead3561a0d03c1b243568692f62d697a7eece4bb101046d60c
   languageName: node
   linkType: hard
 
