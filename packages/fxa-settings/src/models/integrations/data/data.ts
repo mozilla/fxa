@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  Allow,
   IsBoolean,
   IsEmail,
   IsHexadecimal,
@@ -23,7 +22,7 @@ import {
   KeyTransforms as T,
   ModelDataProvider,
 } from '../../../lib/model-data';
-import { IsFxaRedirectToUrl, IsFxaRedirectUri } from '../../../lib/validation';
+import { IsEmailOrEmpty, IsFxaRedirectToUrl, IsFxaRedirectUri } from '../../../lib/validation';
 
 /**
  * Base integration class. Fields in this class represents data commonly accessed across many pages and is useful for various flows.
@@ -58,8 +57,7 @@ export class IntegrationData extends ModelDataProvider {
   email: string | undefined;
 
   @IsOptional()
-  @IsString()
-  @Allow()
+  @Validate(IsEmailOrEmpty, {})
   @bind(T.snakeCase)
   loginHint: string | undefined;
 

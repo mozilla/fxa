@@ -1,4 +1,5 @@
 import {
+  isEmail,
   isURL,
   ValidationArguments,
   ValidatorConstraint,
@@ -44,5 +45,19 @@ export class IsFxaRedirectUri implements ValidatorConstraintInterface {
 
   defaultMessage(args: ValidationArguments) {
     return '($value) is not a valid FxA redirect uri';
+  }
+}
+
+@ValidatorConstraint({ name: 'isEmailOrEmpty', async: false })
+export class IsEmailOrEmpty implements ValidatorConstraintInterface {
+  validate(value: any, args: ValidationArguments) {
+    if (value === '' || value === undefined) {
+      return true;
+    }
+    return isEmail(value, { require_tld: false });
+  }
+
+  defaultMessage(args: ValidationArguments) {
+    return 'loginHint must be a valid email, empty string, or undefined';
   }
 }
