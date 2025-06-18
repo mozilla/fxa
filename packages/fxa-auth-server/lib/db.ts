@@ -1262,6 +1262,35 @@ export const createDB = (
       }
     }
 
+    async replaceTotpToken({
+      uid,
+      sharedSecret,
+      verified = true,
+      enabled = true,
+      epoch,
+    }: {
+      uid: string;
+      sharedSecret: string;
+      verified?: boolean;
+      enabled?: boolean;
+      epoch: number;
+    }) {
+      log.trace('DB.replaceTotpToken', { uid });
+      try {
+        await TotpToken.replace({
+          uid,
+          sharedSecret,
+          verified,
+          enabled,
+          epoch,
+        });
+        this.metrics?.increment('db.totpToken.replace', { result: 'success' });
+      } catch (err) {
+        this.metrics?.increment('db.totpToken.replace', { result: 'error' });
+        throw err;
+      }
+    }
+
     async replaceRecoveryCodes(uid: string, count: number) {
       log.trace('DB.replaceRecoveryCodes', { uid });
       const codes = await this.createRecoveryCodes(uid, count);

@@ -4,6 +4,7 @@
 import { BaseAuthModel, Proc } from './base-auth';
 import { intBoolTransformer, uuidTransformer } from '../../transformers';
 import { convertError, notFound } from '../../mysql';
+import { Account } from './account';
 
 export class TotpToken extends BaseAuthModel {
   public static tableName = 'totp';
@@ -49,6 +50,31 @@ export class TotpToken extends BaseAuthModel {
       if (status.affectedRows < 1) {
         throw notFound();
       }
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
+  static async replace({
+    uid,
+    sharedSecret,
+    verified,
+    enabled,
+    epoch,
+  }: Pick<
+    TotpToken,
+    'uid' | 'sharedSecret' | 'verified' | 'enabled' | 'epoch'
+  >) {
+    try {
+      await TotpToken.callProcedure(
+        Proc.ReplaceTotpToken,
+        uuidTransformer.to(uid),
+        sharedSecret,
+        intBoolTransformer.to(verified),
+        intBoolTransformer.to(enabled),
+        epoch,
+        Date.now()
+      );
     } catch (e) {
       throw convertError(e);
     }

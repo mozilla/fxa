@@ -24,6 +24,15 @@ const { recordSecurityEvent } = require('./utils/security-event');
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
+const TOTP_SECRET_REDIS_TTL = 3600; // 1 hour in seconds
+
+/**
+ * Generates a Redis key for storing TOTP secrets from a uid.
+ */
+function toRedisTotpSecretKey(uid) {
+  return `totp:new:secret:${uid}`;
+}
+
 module.exports = (
   log,
   db,
@@ -33,6 +42,7 @@ module.exports = (
   glean,
   profileClient,
   environment,
+  authServerCacheRedis,
   statsd
 ) => {
   const otpUtils = require('../../lib/routes/utils/otp')(
@@ -104,6 +114,11 @@ module.exports = (
           throw errors.unverifiedSession();
         }
 
+        const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
+        if (hasEnabledToken) {
+          throw errors.totpTokenAlreadyExists();
+        }
+
         // Default options for TOTP
         const otpOptions = {
           encoding: 'hex',
@@ -119,18 +134,12 @@ module.exports = (
         );
 
         const secret = authenticator.generateSecret();
-        try {
-          await db.createTotpToken(uid, secret, 0);
-        } catch (e) {
-          if (e.errno === errors.ERRNO.TOTP_TOKEN_EXISTS) {
-            const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
-            if (hasEnabledToken) {
-              throw e;
-            }
-            await db.deleteTotpToken(uid);
-            await db.createTotpToken(uid, secret, 0);
-          }
-        }
+        await authServerCacheRedis.set(
+          toRedisTotpSecretKey(uid),
+          secret,
+          'EX',
+          TOTP_SECRET_REDIS_TTL
+        );
 
         log.info('totpToken.created', { uid });
         await request.emitMetricsEvent('totpToken.created', { uid });
@@ -524,9 +533,22 @@ module.exports = (
 
         await customs.checkAuthenticated(request, uid, email, 'verifyTotpCode');
 
-        const token = await db.totpToken(sessionToken.uid);
-        const sharedSecret = token.sharedSecret;
-        const tokenVerified = token.verified;
+        let sharedSecret, tokenVerified;
+        try {
+          ({ sharedSecret, verified: tokenVerified } = await db.totpToken(uid));
+        } catch (err) {
+          if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
+            sharedSecret = await authServerCacheRedis.get(
+              toRedisTotpSecretKey(uid)
+            );
+            tokenVerified = false;
+            if (sharedSecret == null) {
+              throw errors.totpTokenNotFound();
+            }
+          } else {
+            throw err;
+          }
+        }
 
         // Default options for TOTP
         const otpOptions = {
@@ -545,10 +567,14 @@ module.exports = (
         // Once a valid TOTP code has been detected, the token becomes verified
         // and enabled for the user.
         if (isValidCode && !tokenVerified) {
-          await db.updateTotpToken(sessionToken.uid, {
+          await db.replaceTotpToken({
+            uid,
+            sharedSecret,
             verified: true,
             enabled: true,
+            epoch: 0,
           });
+          await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
 
           recordSecurityEvent('account.two_factor_added', {
             db,

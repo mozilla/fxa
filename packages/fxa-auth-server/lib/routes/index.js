@@ -175,6 +175,7 @@ module.exports = function (
     glean,
     profile,
     config.sentry.env,
+    authServerCacheRedis,
     statsd
   );
   const recoveryCodes = require('./recovery-codes')(
