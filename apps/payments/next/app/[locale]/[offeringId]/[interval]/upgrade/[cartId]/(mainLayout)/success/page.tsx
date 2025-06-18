@@ -22,22 +22,20 @@ import { config } from 'apps/payments/next/config';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata(
-  {
-    params,
-    searchParams,
-  }: {
-    params: CheckoutParams;
-    searchParams: Record<string, string> | undefined;
-  },
-): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: CheckoutParams;
+  searchParams: Record<string, string> | undefined;
+}): Promise<Metadata> {
   return buildPageMetadata({
     params,
     page: 'success',
     pageType: 'upgrade',
     acceptLanguage: headers().get('accept-language'),
     baseUrl: config.paymentsNextHostedUrl,
-    searchParams
+    searchParams,
   });
 }
 
@@ -81,15 +79,21 @@ export default async function UpgradeSuccess({
 
   return (
     <>
-      <section className="h-[640px]" aria-label="Payment confirmation">
+      <section
+        className="h-[640px]"
+        aria-labelledby="subscription-confirmation-heading"
+      >
         <div className="flex flex-col items-center text-center pb-16 border-b border-grey-200">
           <div className="bg-[#D5F9FF] rounded-md py-5 px-8 mt-5">
-            <h4 className="text-xl font-medium mx-0 mb-2">
+            <h2
+              id="subscription-confirmation-heading"
+              className="text-xl font-medium mx-0 mb-2"
+            >
               {l10n.getString(
                 'next-payment-confirmation-thanks-heading-account-exists',
                 'Thanks, now check your email!'
               )}
-            </h4>
+            </h2>
 
             <p className="text-black max-w-sm text-sm leading-5 font-normal">
               {l10n.getString(
@@ -170,6 +174,7 @@ export default async function UpgradeSuccess({
         <a
           className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
           href={successActionButtonUrl}
+          role="button"
         >
           {successActionButtonLabel ||
             l10n.getString(

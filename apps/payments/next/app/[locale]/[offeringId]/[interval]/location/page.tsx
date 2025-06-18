@@ -85,9 +85,12 @@ export default async function Location({
   return (
     <section
       className="w-full max-w-[576px] bg-white rounded-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 tablet:clip-shadow desktop:px-12 desktop:pb-12"
-      aria-label="Determine currency and tax location"
+      aria-labelledby="location-page-heading"
     >
-      <h1 className="font-bold text-grey-600 text-xl mt-10">
+      <h1
+        id="location-page-heading"
+        className="font-bold text-grey-600 text-xl mt-10"
+      >
         {l10n.getFragmentWithSource(
           'location-header',
           {
@@ -133,7 +136,13 @@ export default async function Location({
         </Banner>
       )}
       <div className="flex flex-col items-center">
-        <Image src={locationIcon} alt="" className="py-6" />
+        <Image
+          src={locationIcon}
+          alt=""
+          className="py-6"
+          role="presentation"
+          aria-hidden="true"
+        />
         <IsolatedSelectTaxLocation
           cmsCountries={cms.countries}
           locale={params.locale.substring(0, 2)}
@@ -181,7 +190,7 @@ export default async function Location({
             redirect(redirectUrl.href);
           }}
         />
-        <p className="pt-5 text-center">
+        <p id="form-information" className="pt-5 text-center">
           {l10n.getString(
             'location-required-disclaimer',
             `We only use this information to calculate taxes and currency.`
