@@ -78,10 +78,13 @@ export default async function CheckoutSuccess({
     cms.commonContent.localizations.at(0) || cms.commonContent;
 
   return (
-    <section aria-labelledby="subscription-confirmation-heading">
+    <section
+      className="h-[640px]"
+      aria-labelledby="subscription-confirmation-heading"
+    >
       <div className="flex flex-col items-center text-center pb-16 border-b border-grey-200">
         <div className="bg-[#D5F9FF] rounded-md py-5 px-8 mt-5">
-          <h4
+          <h2
             id="subscription-confirmation-heading"
             className="text-xl font-medium mx-0 mb-2"
           >
@@ -89,7 +92,7 @@ export default async function CheckoutSuccess({
               'next-payment-confirmation-thanks-heading-account-exists',
               'Thanks, now check your email!'
             )}
-          </h4>
+          </h2>
 
           <p className="text-black max-w-sm text-sm leading-5 font-normal">
             {l10n.getString(
@@ -170,6 +173,7 @@ export default async function CheckoutSuccess({
       <a
         className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
         href={successActionButtonUrl}
+        role="button"
       >
         {successActionButtonLabel ||
           l10n.getString(
