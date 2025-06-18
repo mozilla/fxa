@@ -24,7 +24,8 @@ let log,
   requestOptions,
   mailer,
   profile,
-  accountEventsManager;
+  accountEventsManager,
+  authServerCacheRedis;
 
 const glean = mocks.mockGlean();
 const mockRecoveryPhoneService = {
@@ -76,16 +77,16 @@ describe('totp', () => {
     it('should create TOTP token', () => {
       return setup(
         { db: { email: TEST_EMAIL } },
-        {},
+        { totpToken: true },
         '/totp/create',
         requestOptions
       ).then((response) => {
         assert.ok(response.qrCodeUrl);
         assert.ok(response.secret);
         assert.equal(
-          db.createTotpToken.callCount,
+          authServerCacheRedis.set.callCount,
           1,
-          'called create TOTP token'
+          'stored TOTP token in Redis'
         );
 
         // emits correct metrics
@@ -262,17 +263,30 @@ describe('totp', () => {
       return setup(
         {
           db: { email: TEST_EMAIL },
+          redis: { secret },
           totpTokenVerified: false,
           totpTokenEnabled: false,
         },
-        {},
+        { totpToken: true },
         '/session/verify/totp',
         requestOptions
       ).then((response) => {
         assert.equal(response.success, true, 'should be valid code');
-        assert.equal(db.totpToken.callCount, 1, 'called get TOTP token');
-        assert.equal(db.updateTotpToken.callCount, 1, 'update TOTP token');
-
+        assert.equal(
+          authServerCacheRedis.get.callCount,
+          1,
+          'got TOTP token from Redis'
+        );
+        assert.equal(
+          authServerCacheRedis.del.callCount,
+          1,
+          'deleted TOTP token from Redis'
+        );
+        assert.equal(
+          db.replaceTotpToken.callCount,
+          1,
+          'called replace TOTP token'
+        );
         assert.equal(
           profile.deleteCache.callCount,
           1,
@@ -332,7 +346,11 @@ describe('totp', () => {
         assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 1);
 
-        assert.equal(mockRecoveryPhoneService.hasConfirmed.callCount, 1, 'check for recovery phone');
+        assert.equal(
+          mockRecoveryPhoneService.hasConfirmed.callCount,
+          1,
+          'check for recovery phone'
+        );
 
         assert.calledWithExactly(accountEventsManager.recordSecurityEvent, db, {
           name: 'account.two_factor_added',
@@ -703,6 +721,14 @@ function setup(results, errors, routePath, requestOptions) {
   customs = mocks.mockCustoms(errors.customs);
   mailer = mocks.mockMailer();
   db = mocks.mockDB(results.db, errors.db);
+  authServerCacheRedis = {
+    set: sinon.stub(),
+    get: sinon.spy(() => {
+      return Promise.resolve(results.redis ? results.redis.secret : null);
+    }),
+    del: sinon.stub(),
+  };
+
   profile = mocks.mockProfile();
   db.consumeRecoveryCode = sinon.spy(() => {
     if (errors.consumeRecoveryCode) {
@@ -722,6 +748,9 @@ function setup(results, errors, routePath, requestOptions) {
     return Promise.resolve();
   });
   db.totpToken = sinon.spy(() => {
+    if (errors.totpToken) {
+      return Promise.reject(authErrors.totpTokenNotFound());
+    }
     return Promise.resolve({
       verified:
         typeof results.totpTokenVerified === 'undefined'
@@ -735,7 +764,16 @@ function setup(results, errors, routePath, requestOptions) {
     });
   });
   const statsd = mocks.mockStatsd();
-  routes = makeRoutes({ log, db, customs, mailer, glean, profile, statsd });
+  routes = makeRoutes({
+    log,
+    db,
+    customs,
+    mailer,
+    glean,
+    profile,
+    authServerCacheRedis,
+    statsd,
+  });
   route = getRoute(routes, routePath);
   request = mocks.mockRequest(requestOptions);
   request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
@@ -752,7 +790,16 @@ function makeRoutes(options = {}) {
     },
   };
   Container.set(AccountEventsManager, accountEventsManager);
-  const { log, db, customs, mailer, glean, profile, statsd } = options;
+  const {
+    log,
+    db,
+    customs,
+    mailer,
+    glean,
+    profile,
+    authServerCacheRedis,
+    statsd,
+  } = options;
   return require('../../../lib/routes/totp')(
     log,
     db,
@@ -762,6 +809,7 @@ function makeRoutes(options = {}) {
     glean,
     profile,
     undefined,
+    authServerCacheRedis,
     statsd
   );
 }

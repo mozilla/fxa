@@ -86,6 +86,7 @@ const DB_METHOD_NAMES = [
   'pruneSessionTokens',
   'recoveryKeyExists',
   'replaceRecoveryCodes',
+  'replaceTotpToken',
   'resetAccount',
   'resetAccountTokens',
   'securityEvent',
