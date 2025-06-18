@@ -19,7 +19,7 @@ export function getBanKey(blockingOn: BlockOn, blockedValue: string) {
  * Generates a redis key
  */
 export function getKey(
-  type: 'attempts' | 'block' | 'ban',
+  type: 'attempts' | 'block' | 'ban' | 'report',
   action: string,
   rule: Rule,
   blockedValue: string

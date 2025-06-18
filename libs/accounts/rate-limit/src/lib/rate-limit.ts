@@ -152,11 +152,14 @@ export class RateLimit {
     // right away
     const rules = this.findRules(action, opts);
     const blocks = await this.findBlocks(now, action, rules);
-    if (blocks.length > 0) {
-      return getLargestRetryAfter(blocks);
+
+    // If an active block is located, short circuit and return the block
+    const block = this.determineBlockStatus(action, blocks);
+    if (block) {
+      return block;
     }
 
-    // Third, start counting attempts for applicable rules.
+    // Otherwise, start counting attempts for applicable rules.
     const newBlocks = new Array<BlockStatus>();
     const addAttempt = async (rule: Rule, blockedValue: string) => {
       // Check to see if there are any blocks or bans that currently exist in Redis.
@@ -187,6 +190,8 @@ export class RateLimit {
               return getBanKey(rule.blockingOn, blockedValue);
             case 'block':
               return getKey(rule.blockPolicy, action, rule, blockedValue);
+            case 'report':
+              return getKey(rule.blockPolicy, action, rule, blockedValue);
             default:
               throw new Error('Unknown block policy: ' + rule.blockPolicy);
           }
@@ -198,10 +203,6 @@ export class RateLimit {
           this.redis.expire(key, rule.blockDurationInSeconds),
           this.redis.expire(attemptsKey, 0),
         ]);
-        this.statsd?.increment(`rate_limit.${rule.blockPolicy}`, [
-          `on:${rule.blockingOn}`,
-          `action:${action}`,
-        ]);
       }
     };
 
@@ -209,11 +210,43 @@ export class RateLimit {
     await Promise.all(rules.map((x) => addAttempt(x.rule, x.blockedValue)));
 
     // If new blocks were added, return the one with the largest retryAfter value.
-    if (newBlocks.length > 0) {
-      return getLargestRetryAfter(newBlocks);
+    return this.determineBlockStatus(action, newBlocks);
+  }
+
+  /**
+   * Determines which block should be used. The block with longest duration should
+   * be reported to the end user. Note that blocks with a policy of 'report' will
+   * still emit metrics, but these block will never be returned, and therefore cannot
+   * result in a 'block'.
+   * @param action target action
+   * @param blocks set of applicable rules
+   * @returns Block with policy of type 'block' and the largest retryAfter value.
+   */
+  private determineBlockStatus(
+    action: string,
+    blocks: BlockStatus[]
+  ) {
+    // Blocks with a 'report' policy, are only reported. Don't return this block, but still emit
+    // metrics indicating it may have resulted in block.
+    const reportOnlyBlock = getLargestRetryAfter(blocks.filter((x) => x.policy === 'report'));
+    if (reportOnlyBlock) {
+      this.statsd?.increment(`rate_limit.${reportOnlyBlock.policy}`, [
+        `on:${reportOnlyBlock.blockingOn}`,
+        `action:${action}`,
+      ]);
     }
 
-    return null;
+    // Next the block with the longest retry after. This is what we actually return in order
+    // to initiate a block.
+    const block = getLargestRetryAfter(blocks.filter(x => x.policy !== 'report'));
+    if (block) {
+      this.statsd?.increment(`rate_limit.${block.policy}`, [
+        `on:${block.blockingOn}`,
+        `action:${action}`,
+      ]);
+    }
+
+    return block;
   }
 
   /**
