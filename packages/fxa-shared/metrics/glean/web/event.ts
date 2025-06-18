@@ -8,6 +8,19 @@ import BooleanMetricType from '@mozilla/glean/private/metrics/boolean';
 import StringMetricType from '@mozilla/glean/private/metrics/string';
 
 /**
+ * The name of the framework used by the app (ie React or Backbone).
+ *
+ * Generated from `event.app_framework`.
+ */
+export const appFramework = new StringMetricType({
+  category: 'event',
+  name: 'app_framework',
+  sendInPings: ['accounts-events'],
+  lifetime: 'ping',
+  disabled: false,
+});
+
+/**
  * the choice made by the user in a given event
  *
  * Generated from `event.choice`.

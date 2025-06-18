@@ -110,6 +110,23 @@ export const signupCodeSubmit = new EventMetricType(
 );
 
 /**
+ * Emit any frontend errors that occur when a user attempts to submit the code on
+ * registration confirmation page.
+ *
+ * Generated from `reg.signup_code_submit_frontend_error`.
+ */
+export const signupCodeSubmitFrontendError = new EventMetricType(
+  {
+    category: 'reg',
+    name: 'signup_code_submit_frontend_error',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
  * Registration Confirm Email Page View
  * A page view of the email confirmation step, indicating the user successfully
  * submitted their email/password information'

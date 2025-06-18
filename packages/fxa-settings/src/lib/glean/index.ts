@@ -33,6 +33,7 @@ import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
+import { appFramework } from 'fxa-shared/metrics/glean/web/event';
 import {
   oauthClientId,
   service,
@@ -163,6 +164,8 @@ const initMetrics = async () => {
   entrypointQuery.experiment.set(
     metricsContext.integration.data.entrypointExperiment || ''
   );
+
+  appFramework.set('react');
 };
 
 const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
@@ -249,10 +252,14 @@ const recordEventMetric = (
       reg.submitSuccess.record();
       break;
     case 'reg_signup_code_view':
-      reg.signupCodeView.record();
+      reg.signupCodeView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'reg_signup_code_submit':
-      reg.signupCodeSubmit.record();
+      reg.signupCodeSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'reg_signup_code_submit_frontend_error':
       reg.signupCodeSubmitFrontendError.record({
