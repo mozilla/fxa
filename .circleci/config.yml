@@ -1080,6 +1080,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
+          nx_run: --skipNxCache
           requires:
             - Build
       - integration-test:
@@ -1093,6 +1094,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
+          nx_run: --skipNxCache
           requires:
             - Build
       - integration-test:
@@ -1105,6 +1107,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
+          nx_run: --skipNxCache
           requires:
             - Build
       - integration-test:
@@ -1118,6 +1121,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
+          nx_run: --skipNxCache
           requires:
             - Build
       - integration-test:
@@ -1132,6 +1136,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
+          nx_run: --skipNxCache
           requires:
             - Build
       - integration-test:
@@ -1144,6 +1149,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
+          nx_run: --skipNxCache
           requires:
             - Build
       - playwright-functional-tests:
