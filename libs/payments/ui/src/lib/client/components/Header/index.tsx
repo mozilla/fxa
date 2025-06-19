@@ -38,8 +38,12 @@ function buildSignOutRedirectPath(
   postalCode: string
 ) {
   const { locale, offeringId, interval } = params;
-  const remainingQueryParams = searchParams.toString();
   const basePath = `/${locale}/${offeringId}/${interval}/new?countryCode=${countryCode}&postalCode=${postalCode}`;
+
+  const allRemainingQueryParams = new URLSearchParams(searchParams.toString());
+  allRemainingQueryParams.delete('countryCode');
+  allRemainingQueryParams.delete('postalCode');
+  const remainingQueryParams = allRemainingQueryParams.toString();
 
   if (remainingQueryParams) {
     return `${basePath}&${remainingQueryParams}`;
