@@ -565,9 +565,11 @@ module.exports = (
           'session.verify'
         );
 
+        const isSetup = !tokenVerified;
+
         // Once a valid TOTP code has been detected, the token becomes verified
         // and enabled for the user.
-        if (isValidCode && !tokenVerified) {
+        if (isValidCode && isSetup) {
           await db.replaceTotpToken({
             uid,
             sharedSecret,
@@ -597,10 +599,18 @@ module.exports = (
 
         if (isValidCode) {
           log.info('totp.verified', { uid });
+
+          // This route is called to setup and login with TOTP. We only want
+          // to emit the login success event if this is login flow.
+          if (!isSetup) {
+            // Emit a login success event
+            glean.login.totpSuccess(request, { uid });
+
+            // this signals the end of the login flow
+            await request.emitMetricsEvent('account.confirmed', { uid });
+          }
+
           await request.emitMetricsEvent('totpToken.verified', { uid });
-          // this signals the end of the login flow
-          await request.emitMetricsEvent('account.confirmed', { uid });
-          glean.login.totpSuccess(request, { uid });
 
           recordSecurityEvent('account.two_factor_challenge_success', {
             db,
@@ -608,7 +618,10 @@ module.exports = (
           });
         } else {
           log.info('totp.unverified', { uid });
-          glean.login.totpFailure(request, { uid });
+
+          if (!isSetup) {
+            glean.login.totpFailure(request, { uid });
+          }
 
           await customs.flag(request.app.clientAddress, {
             email,

@@ -332,15 +332,12 @@ describe('totp', () => {
         assert.equal('totp-2fa', args[1], 'called with correct method');
 
         // emits correct metrics
-        sinon.assert.calledTwice(request.emitMetricsEvent);
+        sinon.assert.calledOnce(request.emitMetricsEvent);
         sinon.assert.calledWith(
           request.emitMetricsEvent,
           'totpToken.verified',
           { uid: 'uid' }
         );
-        sinon.assert.calledWith(request.emitMetricsEvent, 'account.confirmed', {
-          uid: 'uid',
-        });
 
         // correct emails sent
         assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
