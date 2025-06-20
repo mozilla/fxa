@@ -1,3 +1,4 @@
+import { uuidTransformer } from 'fxa-shared/db/transformers';
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -12,6 +13,7 @@ import { setupAuthDatabase } from 'fxa-shared/db';
 import {
   Account,
   BaseToken,
+  DeletedAccount,
   Device,
   Email,
   EmailBounce,
@@ -378,6 +380,16 @@ export const createDB = (
       }
       this.metrics?.increment('db.account.retrieve', { result: 'success' });
       return account;
+    }
+
+    async deletedAccount(uid: string): Promise<DeletedAccount> {
+      const deletedAccount = await DeletedAccount.query().findById(
+        uuidTransformer.to(uid)
+      );
+      if (!deletedAccount) {
+        throw error.unknownAccount();
+      }
+      return deletedAccount;
     }
 
     async listAllUnverifiedAccounts() {
