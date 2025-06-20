@@ -45,6 +45,8 @@ export type FormVerifyCodeProps = {
   isLoading?: boolean;
   gleanDataAttrs?: GleanClickEventDataAttrs;
   submitFormOnPaste?: boolean;
+  cmsButtonText?: string;
+  cmsButtonColor?: string;
 };
 
 type FormData = {
@@ -61,6 +63,8 @@ const FormVerifyCode = ({
   setClearMessages,
   gleanDataAttrs,
   submitFormOnPaste,
+  cmsButtonText,
+  cmsButtonColor,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -154,18 +158,39 @@ const FormVerifyCode = ({
         })}
       />
 
-      <FtlMsg id={formAttributes.submitButtonFtlId}>
+      {cmsButtonText && cmsButtonColor ? (
         <button
           type="submit"
-          className="cta-primary cta-xl"
+          className="cta-primary-cms cta-xl"
           disabled={isSubmitting}
           data-glean-id={gleanDataAttrs?.id}
           data-glean-label={gleanDataAttrs?.label}
           data-glean-type={gleanDataAttrs?.type}
+          style={
+            {
+              '--cta-bg': cmsButtonColor,
+              '--cta-border': cmsButtonColor,
+              '--cta-active': cmsButtonColor,
+              '--cta-disabled': `${cmsButtonColor}60`,
+            } as React.CSSProperties
+          }
         >
-          {formAttributes.submitButtonText}
+          {cmsButtonText}
         </button>
-      </FtlMsg>
+      ) : (
+        <FtlMsg id={formAttributes.submitButtonFtlId}>
+          <button
+            type="submit"
+            className="cta-primary cta-xl"
+            disabled={isSubmitting}
+            data-glean-id={gleanDataAttrs?.id}
+            data-glean-label={gleanDataAttrs?.label}
+            data-glean-type={gleanDataAttrs?.type}
+          >
+            {formAttributes.submitButtonText}
+          </button>
+        </FtlMsg>
+        )}
     </form>
   );
 };

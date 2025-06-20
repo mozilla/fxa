@@ -245,6 +245,14 @@ const conf = (module.exports = convict({
       env: 'FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW',
     },
   },
+  cms: {
+    enabled: {
+      default: false,
+      doc: 'Enables the CMS (Strapi) for frontend. Users are also required to be in a english locale to see the CMS content.',
+      env: 'CMS_ENABLED',
+      format: Boolean,
+    }
+  },
   showReactApp: {
     emailFirstRoutes: {
       default: false,

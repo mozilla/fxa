@@ -63,6 +63,7 @@ function mockIntegration() {
     isSync: () => true,
     wantsKeys: () => true,
     isDesktopRelay: () => false,
+    getCmsInfo: () => undefined,
   };
 }
 let serviceName: MozServices;

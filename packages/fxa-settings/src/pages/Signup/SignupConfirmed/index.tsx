@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
-import Ready from '../../../components/Ready';
+import Ready, { ReadyBaseIntegration } from '../../../components/Ready';
 import AppLayout from '../../../components/AppLayout';
 import { MozServices } from '../../../lib/types';
 
@@ -12,6 +12,7 @@ type SignupConfirmedProps = {
   continueHandler?: Function;
   isSignedIn: boolean;
   serviceName?: MozServices;
+  integration?: ReadyBaseIntegration;
 };
 
 export const viewName = 'signup-confirmed';
@@ -20,9 +21,10 @@ const SignupConfirmed = ({
   continueHandler,
   isSignedIn,
   serviceName,
+  integration,
 }: SignupConfirmedProps & RouteComponentProps) => (
   <AppLayout>
-    <Ready {...{ continueHandler, isSignedIn, viewName, serviceName }} />
+    <Ready {...{ continueHandler, isSignedIn, viewName, serviceName, integration }} />
   </AppLayout>
 );
 

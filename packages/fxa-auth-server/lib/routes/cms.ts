@@ -39,7 +39,19 @@ export class CMSHandler {
     const entrypoint = request.query.entrypoint;
 
     try {
-      return await this.cmsManager.fetchCMSData(clientId, entrypoint);
+      const result = await this.cmsManager.fetchCMSData(clientId, entrypoint);
+
+      const { relyingParties } = result;
+      if (!relyingParties || relyingParties.length === 0) {
+        this.statsd.increment(`cms.getConfig.empty.${clientId}.${entrypoint}`);
+        return {};
+      }
+
+      if (relyingParties.length > 1) {
+        this.statsd.increment(`cms.getConfig.multiple.${clientId}.${entrypoint}`);
+      }
+
+      return relyingParties[0];
     } catch (error) {
       // We don't want failures to fetch a config to bubble up to the user.
       this.statsd.increment(`cms.getConfig.error.${clientId}.${entrypoint}`);

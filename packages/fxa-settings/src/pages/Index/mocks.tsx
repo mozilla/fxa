@@ -10,6 +10,7 @@ import {
   IntegrationType,
   OAuthIntegrationData,
   OAuthWebIntegration,
+  RelierCmsInfo,
 } from '../../models';
 import { IndexIntegration } from './interfaces';
 import Index from '.';
@@ -51,15 +52,18 @@ export function createMockIndexOAuthIntegration({
 export function createMockIndexOAuthNativeIntegration({
   isSync = true,
   isDesktopRelay = false,
+  cmsInfo,
 }: {
   isSync?: boolean;
   isDesktopRelay?: boolean;
+  cmsInfo? : RelierCmsInfo;
 } = {}): IndexIntegration {
   return {
     type: IntegrationType.OAuthNative,
     isSync: () => isSync,
     getClientId: () => MOCK_CLIENT_ID,
     isDesktopRelay: () => isDesktopRelay,
+    getCmsInfo: () => cmsInfo,
     data: new OAuthIntegrationData(
       new GenericData({
         context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
@@ -74,6 +78,7 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isSync: () => false,
     getClientId: () => undefined,
     isDesktopRelay: () => false,
+    getCmsInfo: () => undefined,
     data: new IntegrationData(
       new GenericData({
         context: '',

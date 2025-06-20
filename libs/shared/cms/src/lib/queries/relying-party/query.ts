@@ -18,10 +18,31 @@ export const relyingPartyQuery = graphql(`
     ) {
       clientId
       entrypoint
+      name
       EmailFirstPage {
         headline
         description
-        submitButtonColorHex
+        primaryButtonText
+      }
+      SignupSetPasswordPage {
+        headline
+        description
+        primaryButtonText
+      }
+      SignupConfirmCodePage {
+        headline
+        description
+        primaryButtonText
+      }
+      SignupConfirmedSyncPage {
+        headline
+        description
+        primaryButtonText
+      }
+      shared {
+        buttonColor
+        logoUrl
+        logoAltText
       }
     }
   }

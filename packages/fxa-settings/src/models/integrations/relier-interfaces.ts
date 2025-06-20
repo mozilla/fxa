@@ -26,3 +26,26 @@ export interface RelierAccount {
   ): Promise<{ sub: string }>;
   isDefault(): boolean;
 }
+
+export interface PageRelierCmsInfo {
+  headline: string | undefined;
+  description: string | undefined;
+  primaryButtonText: string | undefined;
+}
+
+export interface SharedRelierCmsInfo {
+  buttonColor: string | undefined;
+  logoUrl: string | undefined;
+  logoAltText: string | undefined;
+}
+
+export interface RelierCmsInfo {
+  name: string;
+  clientId: string;
+  entrypoint: string;
+  shared?: SharedRelierCmsInfo;
+  EmailFirstPage?: PageRelierCmsInfo
+  SignupSetPasswordPage?: PageRelierCmsInfo
+  SignupConfirmCodePage?: PageRelierCmsInfo
+  SignupConfirmedSyncPage?: PageRelierCmsInfo
+}
