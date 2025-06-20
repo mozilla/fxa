@@ -32,6 +32,7 @@ import {
 import firefox from '../../../lib/channels/firefox';
 import GleanMetrics from '../../../lib/glean';
 import { mockUseSyncEngines } from '../../../lib/hooks/useSyncEngines/mocks';
+import * as SigninUtils from '../../Signin/utils';
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
@@ -146,9 +147,14 @@ function mockSyncDesktopV3Integration() {
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isDesktopRelay: () => false,
+    isFirefoxMobileClient: () => false,
   } as ModelsModule.Integration;
 }
-function mockOAuthNativeIntegration() {
+function mockOAuthNativeIntegration(
+  { isFirefoxMobileClient } = {
+    isFirefoxMobileClient: false,
+  }
+) {
   return {
     type: ModelsModule.IntegrationType.OAuthNative,
     getService: () => 'sync',
@@ -158,10 +164,11 @@ function mockOAuthNativeIntegration() {
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isDesktopRelay: () => false,
+    isFirefoxMobileClient: () => isFirefoxMobileClient,
   } as ModelsModule.Integration;
 }
 
-describe('SetPassword container', () => {
+describe('SetPassword-container', () => {
   const offeredEngines = getSyncEngineIds(syncEngineConfigs);
 
   beforeEach(() => {
@@ -177,7 +184,7 @@ describe('SetPassword container', () => {
 
     render();
     expect(mockNavigate).toHaveBeenCalledWith('/signin', { replace: true });
-    expect(SetPasswordModule.default).not.toBeCalled();
+    expect(SetPasswordModule.default).not.toHaveBeenCalled();
   });
 
   it('renders the component when local storage values are present', async () => {
@@ -190,9 +197,16 @@ describe('SetPassword container', () => {
   describe('calling createPassword', () => {
     let fxaLoginSpy: jest.SpyInstance;
     let fxaOAuthLoginSpy: jest.SpyInstance;
+    let handleNavigationSpy: jest.SpyInstance;
+
     beforeEach(() => {
       fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
       fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+      handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
+    });
+
+    afterEach(() => {
+      handleNavigationSpy.mockRestore();
     });
 
     it('does the expected things with desktop v3', async () => {
@@ -252,6 +266,25 @@ describe('SetPassword container', () => {
         action: 'signin',
         ...MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
       });
+    });
+
+    // TODO FXA-9871, move the navigation spy part of this to its own test file
+    it('handleNavigation does not navigate when integration isFirefoxMobileClient', async () => {
+      render(mockOAuthNativeIntegration({ isFirefoxMobileClient: true }));
+
+      expect(currentSetPasswordProps?.createPasswordHandler).toBeDefined();
+
+      await act(async () => {
+        await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
+      });
+
+      expect(handleNavigationSpy).toHaveBeenCalled();
+      // Ensure handleNavigation was passed the correct arguments
+      const optionsArg = handleNavigationSpy.mock.calls[0][0];
+      expect(optionsArg.performNavigation).toBe(false);
+
+      // But navigation doesn't occur
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 });

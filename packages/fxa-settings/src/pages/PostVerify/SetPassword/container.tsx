@@ -120,6 +120,10 @@ const SetPasswordContainer = ({
               offeredEngines: offeredSyncEngines,
               declinedEngines: declinedSyncEngines,
             },
+            // Don't navigate mobile users. The client controls the web view and
+            // users will see a "flash" of whatever page we navigate them to
+            // before the client closes the view. See FXA-11944
+            performNavigation: !integration.isFirefoxMobileClient(),
           };
 
           const { error } = await handleNavigation(navigationOptions);
