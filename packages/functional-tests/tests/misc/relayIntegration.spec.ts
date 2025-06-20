@@ -103,10 +103,6 @@ test.describe('relay integration', () => {
     testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
-    test.skip(
-      config.featureFlags.updated2faSetupFlow,
-      'TODO in FXA-11935 - add test for new flow'
-    );
     const { email, password } = await testAccountTracker.signUp();
 
     // Sign-in without Sync, otw you will get prompted to create a recovery key
@@ -117,7 +113,10 @@ test.describe('relay integration', () => {
 
     await expect(settings.settingsHeading).toBeVisible();
     await settings.totp.addButton.click();
-    const { secret } = await totp.fillOutTotpForms();
+    // TODO in FXA-11941 - remove condition
+    const { secret } = config.featureFlags.updated2faSetupFlow
+      ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+      : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
     await expect(settings.totp.status).toHaveText('Enabled');
     await settings.signOut();
 

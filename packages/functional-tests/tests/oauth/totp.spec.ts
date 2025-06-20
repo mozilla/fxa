@@ -25,10 +25,6 @@ test.describe('severity-1 #smoke', () => {
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11935 - add test for new flow'
-      );
       const credentials = await signInAccount(
         target,
         page,
@@ -39,7 +35,10 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await settings.totp.addButton.click();
-      const { secret } = await totp.fillOutTotpForms();
+      // TODO in FXA-11941 - remove condition
+      const { secret } = config.featureFlags.updated2faSetupFlow
+        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication has been enabled'
@@ -67,14 +66,13 @@ test.describe('severity-1 #smoke', () => {
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11935 - add test for new flow'
-      );
       await signInAccount(target, page, settings, signin, testAccountTracker);
       await settings.goto();
       await settings.totp.addButton.click();
-      await totp.fillOutTotpForms();
+      // TODO in FXA-11941 - remove condition
+      config.featureFlags.updated2faSetupFlow
+        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
       await expect(settings.totp.status).toHaveText('Enabled');
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication has been enabled'
