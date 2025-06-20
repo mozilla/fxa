@@ -27,7 +27,6 @@ const mockSendCode = jest.fn();
 const mockVerifyRecoveryCode = jest.fn();
 
 const defaultProps = {
-  localizedBackButtonTitle: 'Back',
   localizedPageTitle: 'Add phone number',
   navigateBackward: mockNavigateBackward,
   navigateForward: mockNavigateForward,

@@ -2403,10 +2403,31 @@ account_pref:
       choice:
         description: User's choice of backup method, either 'phone' or 'code'
         type: string
+  two_step_auth_phone_submit_view:
+    type: event
+    description: |
+      User viewed the phone number submission page (step 1) of the flow to add a recovery phone.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11628
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: Page is viewed to 'setup' (from settings), 'inline setup' or 'change' a recovery phone
+        type: string
   two_step_auth_phone_verify_view:
     type: event
     description: |
-      User viewed the phone verification page (step 2) of the flow to add a recovery phone from settings.
+      User viewed the phone verification page (step 2) of the flow to add a recovery phone.
     send_in_pings:
       - events
     notification_emails:

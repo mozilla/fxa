@@ -14,7 +14,6 @@ import {
   RecoveryNumberNotExistsError,
   RecoveryNumberNotSupportedError,
   RecoveryPhoneNotEnabled,
-  RecoveryNumberRemoveMissingBackupCodes,
   RecoveryPhoneRegistrationLimitReached,
 } from './recovery-phone.errors';
 import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
@@ -68,8 +67,7 @@ export class RecoveryPhoneService {
       return false;
     }
 
-    // User can set up a recovery phone if they have backup codes
-    return await this.recoveryPhoneManager.hasRecoveryCodes(uid);
+    return true;
   }
 
   /**
@@ -315,26 +313,12 @@ export class RecoveryPhoneService {
 
   /**
    * Remove phone number from an account. Each user can only have one associated
-   * phone number. A user must have backup codes before removing a phone number.
+   * phone number.
    *
-   * @throws {RecoveryNumberRemoveMissingBackupCodes} If the user does not have backup codes
    * @param uid An account id
    * @returns True if successful
    */
   public async removePhoneNumber(uid: string) {
-    const hasRecoveryCodes =
-      await this.recoveryPhoneManager.hasRecoveryCodes(uid);
-
-    // TBD: Random, obs. why do we do this? It seems like a potential edge case, what if the user
-    // consumes all the recovery codes? This could then return false...
-    //
-    // Just curious, about the rationale surrounding why this would block a user from removing their
-    // phone.
-    //
-    if (!hasRecoveryCodes) {
-      throw new RecoveryNumberRemoveMissingBackupCodes(uid);
-    }
-
     return await this.recoveryPhoneManager.removePhoneNumber(uid);
   }
 

@@ -12,7 +12,6 @@ import {
   RecoveryNumberNotExistsError,
   RecoveryNumberNotSupportedError,
   RecoveryPhoneNotEnabled,
-  RecoveryNumberRemoveMissingBackupCodes,
   RecoveryPhoneRegistrationLimitReached,
 } from './recovery-phone.errors';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
@@ -501,13 +500,6 @@ describe('RecoveryPhoneService', () => {
       mockRecoveryPhoneManager.removePhoneNumber.mockRejectedValueOnce(error);
       expect(service.removePhoneNumber(uid)).rejects.toThrow(error);
     });
-
-    it('should throw if missing backup authentication codes', () => {
-      mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValue(false);
-      const error = new RecoveryNumberRemoveMissingBackupCodes(uid);
-      mockRecoveryPhoneManager.removePhoneNumber.mockRejectedValueOnce(error);
-      expect(service.removePhoneNumber(uid)).rejects.toThrow(error);
-    });
   });
 
   describe('sendCode', () => {
@@ -662,20 +654,6 @@ describe('RecoveryPhoneService', () => {
 
     it('should return false if user has confirmed phone number', async () => {
       jest.spyOn(service, 'hasConfirmed').mockResolvedValue({ exists: true });
-      const result = await service.available(uid, region);
-      expect(result).toBe(false);
-    });
-
-    it('should return true if user has recovery codes', async () => {
-      jest.spyOn(service, 'hasConfirmed').mockResolvedValue({ exists: false });
-      mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValueOnce(true);
-      const result = await service.available(uid, region);
-      expect(result).toBe(true);
-    });
-
-    it('should return false if user does not have recovery codes', async () => {
-      jest.spyOn(service, 'hasConfirmed').mockResolvedValue({ exists: false });
-      mockRecoveryPhoneManager.hasRecoveryCodes.mockResolvedValueOnce(false);
       const result = await service.available(uid, region);
       expect(result).toBe(false);
     });

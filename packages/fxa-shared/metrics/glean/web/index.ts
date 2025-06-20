@@ -203,6 +203,7 @@ export const eventsMap = {
       'account_pref_two_step_auth_backup_choice_view',
     twoStepAuthBackupChoiceSubmit:
       'account_pref_two_step_auth_backup_choice_submit',
+    twoStepAuthPhoneSubmitView: 'account_pref_two_step_auth_phone_submit_view',
     twoStepAuthPhoneVerifyView: 'account_pref_two_step_auth_phone_verify_view',
     twoStepAuthPhoneRemoveSuccessView:
       'account_pref_two_step_auth_phone_remove_success_view',
