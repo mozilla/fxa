@@ -38,14 +38,22 @@ export function Banner({
       bannerAriaLive = 'assertive';
       bannerIcon = errorIcon;
       bannerRole = 'alert';
-      bannerStyle = 'bg-red-100';
+      bannerStyle = 'bg-red-100 my-4 rounded-md';
       closeStyle = 'hover:bg-red-200 focus:bg-red-300';
+      break;
+    case BannerVariant.SignedIn:
+      bannerAriaLive = 'polite';
+      bannerIcon = checkmarkIcon;
+      bannerRole = 'status';
+      bannerStyle =
+        'bg-green-200 fixed w-full z-30 tablet:relative tablet:rounded-md tablet:z-0';
+      closeStyle = 'hover:bg-green-300 focus:bg-green-500';
       break;
     case BannerVariant.Success:
       bannerAriaLive = 'polite';
       bannerIcon = checkmarkIcon;
       bannerRole = 'status';
-      bannerStyle = 'bg-green-200';
+      bannerStyle = 'bg-green-200 my-4 rounded-md ';
       closeStyle = 'hover:bg-green-300 focus:bg-green-500';
       break;
     case BannerVariant.Info:
@@ -53,7 +61,7 @@ export function Banner({
       bannerAriaLive = 'polite';
       bannerIcon = infoIcon;
       bannerRole = 'status';
-      bannerStyle = 'bg-blue-50';
+      bannerStyle = 'bg-blue-50 my-4 rounded-md ';
       closeStyle = 'hover:bg-blue-100 focus:bg-blue-200';
       break;
   }
@@ -70,7 +78,7 @@ export function Banner({
     <div
       {...props}
       className={classNames(
-        'my-4 flex flex-row no-wrap items-center px-4 py-3 gap-3.5 rounded-md border border-transparent text-start text-sm',
+        'flex flex-row no-wrap items-center px-4 py-3 gap-3.5 border border-transparent text-start text-sm',
         bannerStyle,
         props.className
       )}

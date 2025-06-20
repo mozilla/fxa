@@ -7,6 +7,7 @@
 export enum BannerVariant {
   Error = 'error',
   Info = 'info',
+  SignedIn = 'signed_in',
   Success = 'success',
 }
 
@@ -15,5 +16,5 @@ export const OFFERING_LINKS = {
   mobile: 'https://www.mozilla.org/firefox/mobile/',
   monitor: 'https://monitor.mozilla.org/',
   relay: 'https://relay.firefox.com/',
-  vpn: 'https://vpn.mozilla.org/'
+  vpn: 'https://vpn.mozilla.org/',
 };
