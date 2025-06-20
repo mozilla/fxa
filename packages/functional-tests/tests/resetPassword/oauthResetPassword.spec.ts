@@ -104,10 +104,6 @@ test.describe('severity-1 #smoke', () => {
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11935 - add test for new flow'
-      );
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
 
@@ -117,7 +113,10 @@ test.describe('severity-1 #smoke', () => {
       // Goes to settings and enables totp on user's account.
       await expect(settings.settingsHeading).toBeVisible();
       await settings.totp.addButton.click();
-      const { secret } = await totp.fillOutTotpForms();
+      // TODO in FXA-11941 - remove condition
+      const { secret } = config.featureFlags.updated2faSetupFlow
+        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.signOut();
 

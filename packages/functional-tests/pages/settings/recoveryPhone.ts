@@ -31,6 +31,10 @@ export class RecoveryPhoneSetupPage extends SettingsLayout {
     return this.page.locator('button', { hasText: 'Back to settings' });
   }
 
+  get status() {
+    return this.page.getByTestId('backup-recovery-phone-status');
+  }
+
   async enterPhoneNumber(phoneNumber: string) {
     await this.phoneNumberInput.fill(phoneNumber);
   }
