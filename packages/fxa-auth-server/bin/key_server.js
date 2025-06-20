@@ -52,6 +52,7 @@ const {
   TwilioFactory,
 } = require('@fxa/accounts/recovery-phone');
 const { parseConfigRules, RateLimit } = require('@fxa/accounts/rate-limit');
+const { CMSManager } = require('@fxa/accounts/cms');
 const { AccountManager } = require('@fxa/shared/account/account');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { EmailCloudTaskManager } = require('../lib/email-cloud-tasks');
@@ -238,6 +239,14 @@ async function run(config) {
     statsd
   );
   Container.set(RateLimit, rateLimit);
+
+  // Setup the auth server cms manager
+  const cmsRedis = new Redis({
+    ...config.redis,
+    ...config.redis.cmsAccounts,
+  });
+  const cmsAccounts = new CMSManager(config.cmsAccounts, cmsRedis, statsd, config.redis.cmsAccounts.prefix);
+  Container.set(CMSManager, cmsAccounts);
 
   // Create Recovery Phone Service
   const twilio = TwilioFactory.useFactory(config.twilio);

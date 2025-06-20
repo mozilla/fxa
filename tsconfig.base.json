@@ -29,6 +29,7 @@
         "libs/accounts/recovery-phone/src/index.ts"
       ],
       "@fxa/accounts/two-factor": ["libs/accounts/two-factor/src/index.ts"],
+      "@fxa/accounts/cms": ["libs/accounts/cms/src/index.ts"],
       "@fxa/google": ["libs/google/src/index.ts"],
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],

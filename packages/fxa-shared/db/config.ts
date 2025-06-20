@@ -340,6 +340,38 @@ export function makeRedisConfig() {
       },
     },
 
+    cmsAccounts: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for Strapi caching',
+        format: Boolean,
+        env: 'CMS_ACCOUNTS_REDIS_ENABLED',
+      },
+      host: {
+        default: 'localhost',
+        env: 'CMS_ACCOUNTS_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'CMS_ACCOUNTS_REDIS_PORT',
+        format: 'port',
+      },
+      password: {
+        default: '',
+        env: 'CMS_ACCOUNTS_REDISS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to redis`,
+      },
+      prefix: {
+        default: 'cmsaccounts:',
+        env: 'CMS_ACCOUNTS_REDISS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for strapi server records in Redis',
+      },
+    },
+
     metrics: {
       enabled: {
         default: true,

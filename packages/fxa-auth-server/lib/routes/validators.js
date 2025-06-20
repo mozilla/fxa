@@ -892,3 +892,7 @@ module.exports.thirdPartyProvider = isA
 
 module.exports.thirdPartyIdToken = module.exports.jwt.optional();
 module.exports.thirdPartyOAuthCode = isA.string().optional();
+
+module.exports.entrypoint = isA.string()
+  .regex(/^[a-zA-Z0-9_-]+$/) // Only allow letters, digits, underscores, and dashes
+  .required();
