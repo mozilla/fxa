@@ -7,9 +7,9 @@
 const { assert } = require('chai');
 const crypto = require('crypto');
 const config = require('../../config').default.getProperties();
-const TestServer = require('../test_server');
 const Client = require('../client')();
 const otplib = require('otplib');
+const TestServer = require('../test_server');
 const { default: Container } = require('typedi');
 const {
   PlaySubscriptions,
@@ -19,8 +19,7 @@ const {
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote totp`, function () {
-    this.timeout(60000);
+  describe(`#integration${testOptions.version} - #serial - remote totp`, function () {
 
     let server, client, email, totpToken, authenticator;
     const password = 'pssssst';

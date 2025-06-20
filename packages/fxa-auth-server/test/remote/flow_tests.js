@@ -6,34 +6,26 @@
 
 const { assert } = require('chai');
 const Client = require('../client')();
-const TestServer = require('../test_server');
+const mailbox = require('../mailbox')();
+const { uniqueEmail } = require('../lib/util');
 
 const config = require('../../config').default.getProperties();
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote flow`, function () {
-    this.timeout(60000);
-    let server;
-    let email1;
-    config.signinConfirmation.skipForNewAccounts.enabled = true;
+    let email;
     before(async () => {
-      server = await TestServer.start(config);
-      email1 = server.uniqueEmail();
-    });
-
-    after(async () => {
-      await TestServer.stop(server);
+      email = uniqueEmail();
     });
 
     it('Create account flow', () => {
-      const email = email1;
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.createAndVerify(
         config.publicUrl,
         email,
         password,
-        server.mailbox,
+        mailbox,
         {
           ...testOptions,
           keys: true,
@@ -56,7 +48,6 @@ const config = require('../../config').default.getProperties();
     });
 
     it('Login flow', () => {
-      const email = email1;
       const password = 'allyourbasearebelongtous';
       let client = null;
       return Client.login(config.publicUrl, email, password, {

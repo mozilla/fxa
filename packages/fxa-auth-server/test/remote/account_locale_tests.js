@@ -7,17 +7,15 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-
 const config = require('../../config').default.getProperties();
-config.redis.sessionTokens.enabled = false;
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote account locale`, function () {
-    this.timeout(60000);
+  describe(`#integration${testOptions.version} - #serial - remote account locale`, function () {
     let server;
 
     before(async () => {
+      config.redis.sessionTokens.enabled = false;
       server = await TestServer.start(config);
     });
 
