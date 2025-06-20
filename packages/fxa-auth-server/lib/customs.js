@@ -356,7 +356,13 @@ class CustomsClient {
 
     let result = null;
     try {
-      result = await this.rateLimit.check(action, opts);
+      result = await this.rateLimit.check(action, {
+        ip: opts.ip,
+        email: opts.email,
+        uid: opts.uid,
+        ip_email: opts.ip_email,
+        ip_uid: opts.ip_uid,
+      });
     } catch (err) {
       Sentry.captureException(err, {
         tags: {
@@ -393,10 +399,19 @@ class CustomsClient {
     // actually domain of the service using customs and not customs itself, so
     // this is the revised approach.
     let canUnblock = false;
-    const { email } = opts;
-    if (email) {
+    const { email, ip, uid, ip_email, ip_uid } = opts;
+    if (
+      email &&
+      ip &&
+      ip_email &&
+      this.rateLimit.supportsAction('unblockEmail')
+    ) {
       const unblockResult = await this.rateLimit.check('unblockEmail', {
+        ip,
         email,
+        uid,
+        ip_email,
+        ip_uid,
       });
       canUnblock = unblockResult == null;
     }

@@ -192,9 +192,18 @@ export class CustomsService {
     // actually domain of the service using customs and not customs itself, so
     // this is the revised approach.
     let canUnblock = false;
-    if (email && this.rateLimit.supportsAction('unblockEmail')) {
+    if (
+      ip_email &&
+      ip &&
+      email &&
+      this.rateLimit.supportsAction('unblockEmail')
+    ) {
       const unblockResult = await this.rateLimit.check('unblockEmail', {
+        ip,
         email,
+        uid,
+        ip_email,
+        ip_uid,
       });
       canUnblock = unblockResult == null;
     }
