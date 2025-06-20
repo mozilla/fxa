@@ -93,7 +93,7 @@ export default async function New({
         {
           locale: params.locale,
           baseUrl: config.paymentsNextHostedUrl,
-          searchParams: searchParams,
+          searchParams,
         }
       )
     );
@@ -148,6 +148,8 @@ export default async function New({
 
   redirectToUrl.searchParams.delete('cartId');
   redirectToUrl.searchParams.delete('cartVersion');
+  redirectToUrl.searchParams.delete('countryCode');
+  redirectToUrl.searchParams.delete('postalCode');
 
   redirect(redirectToUrl.href);
 }
