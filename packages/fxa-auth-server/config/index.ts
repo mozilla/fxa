@@ -2163,6 +2163,34 @@ const convictConf = convict({
       },
     },
   },
+  cmsAccounts: {
+    enabled: {
+      default: false,
+      doc: 'Whether to use CMS',
+      env: 'CMS_ENABLED',
+      format: Boolean,
+    },
+    cacheTTL: {
+      default: 60 * 15, // 15 minutes
+      doc: 'CMS config cache TTL in seconds.',
+      env: 'CMS_CACHE_TTL',
+      format: Number,
+    },
+    strapiClient: {
+      apiUrl: {
+        default: 'http://localhost:1337',
+        doc: 'Base URL for Strapi API',
+        env: 'CMS_STRAPI_API_URL',
+        format: String,
+      },
+      apiKey: {
+        default: '',
+        doc: 'API key for Strapi to fetch RP-provided content',
+        env: 'CMS_STRAPI_API_KEY',
+        format: String,
+      }
+    }
+  },
   rateLimit: {
     ignoreIPs: {
       default: undefined,
