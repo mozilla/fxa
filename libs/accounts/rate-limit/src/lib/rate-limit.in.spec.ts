@@ -75,12 +75,14 @@ describe('rate-limit', () => {
 
       const check1 = await rateLimit.check('testReport', {
         ip_email: '127.0.0.1_foo@mozilla.com',
+        ip_uid: '127.0.0.1_123',
         ip: '127.0.0.1',
         email: 'foo@mozilla.com',
         uid: '123',
       });
       const check2 = await rateLimit.check('testReport', {
         ip_email: '127.0.0.1_foo@mozilla.com',
+        ip_uid: '127.0.0.1_123',
         ip: '127.0.0.1',
         email: 'foo@mozilla.com',
         uid: '123',
