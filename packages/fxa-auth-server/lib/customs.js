@@ -5,6 +5,7 @@
 'use strict';
 
 const axios = require('axios');
+const Sentry = require('@sentry/node');
 const { config } = require('../config');
 const { createHttpAgent, createHttpsAgent } = require('../lib/http-agent');
 const { performance } = require('perf_hooks');
@@ -357,6 +358,18 @@ class CustomsClient {
     try {
       result = await this.rateLimit.check(action, opts);
     } catch (err) {
+      Sentry.captureException(err, {
+        tags: {
+          source: 'customs',
+          action,
+          type,
+          ip_email: !!opts.ip_email,
+          ip_uid: !!opts.ip_uid,
+          ip: !!opts.ip,
+          email: !!opts.email,
+          uid: !!opts.uid,
+        },
+      });
       this.log?.error('customs-client', err);
       throw err;
     }

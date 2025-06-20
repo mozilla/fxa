@@ -11,8 +11,9 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Request } from 'express';
-import { CustomsService } from '@fxa/shared/nestjs/customs';
+import { CheckOptions, CustomsService } from '@fxa/shared/nestjs/customs';
 import { SessionTokenResult } from './session-token.strategy';
+import * as Sentry from '@sentry/nestjs';
 
 export function GqlCustomsGuard(action: string): Type<CanActivate> {
   // This is a way to get injection and pass a parameter to the guard.
@@ -30,14 +31,36 @@ export function GqlCustomsGuard(action: string): Type<CanActivate> {
       const { ip, headers, query } = req;
       const { email, uid } = (req.user as SessionTokenResult).session;
 
-      await this.customs.check({
+      const opts: CheckOptions = {
         action,
         email,
         uid,
         ip,
         headers,
         query,
-      });
+      };
+      if (ip && email) {
+        opts.ip_email = `${ip}_${email}`;
+      }
+      if (ip && uid) {
+        opts.ip_uid = `${ip}_${uid}`;
+      }
+
+      try {
+        await this.customs.check(opts);
+      } catch (err) {
+        Sentry.captureException(err, {
+          tags: {
+            source: 'customs',
+            action,
+            ip_email: !!opts.ip_email,
+            ip_uid: !!opts.ip_uid,
+            ip: !!opts.ip,
+            email: !!opts.email,
+            uid: !!opts.uid,
+          },
+        });
+      }
       return true;
     }
   }
