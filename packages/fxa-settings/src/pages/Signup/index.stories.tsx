@@ -21,7 +21,7 @@ import {
 } from '../../models/integrations/client-matching';
 import { AppContext } from '../../models';
 import { mockUseSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
-import { MOCK_EMAIL } from '../mocks';
+import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
 import { getSyncEngineIds } from '../../lib/sync-engines';
 
 export default {
@@ -86,3 +86,10 @@ export const OAuthDesktopServiceRelay = () => (
     integration={createMockSignupOAuthNativeIntegration('relay', false)}
   />
 );
+
+export const WithCms = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthWebIntegration(MONITOR_CLIENTIDS[0], undefined, MOCK_CMS_INFO)}
+  />
+);
+

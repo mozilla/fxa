@@ -24,6 +24,7 @@ import {
   MOCK_SESSION_TOKEN,
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
+  MOCK_CMS_INFO,
   mockFinishOAuthFlowHandler,
 } from '../../mocks';
 import {
@@ -130,6 +131,8 @@ export function createMockOAuthWebIntegration(
   integration.clientInfo = {
     redirectUri: MOCK_REDIRECT_URI,
   } as RelierClientInfo;
+
+  integration.cmsInfo = MOCK_CMS_INFO;
 
   if (typeof expect !== 'undefined') {
     expect(integration.type).toEqual(IntegrationType.OAuthWeb);

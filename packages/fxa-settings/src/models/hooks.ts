@@ -29,8 +29,16 @@ import {
   MetricsDataResult,
   SignedInAccountStatus,
 } from '../components/App/interfaces';
-import { RelierClientInfo, RelierSubscriptionInfo } from './integrations';
+import { RelierClientInfo, RelierSubscriptionInfo, RelierCmsInfo } from './integrations';
 import { NimbusResult } from '../lib/nimbus';
+import * as Sentry from '@sentry/browser';
+
+// Define the hook's return type, mimicking useQuery's structure
+interface FetchState {
+  loading: boolean;
+  error?: Error;
+  data?: { cmsInfo: RelierCmsInfo | undefined };
+}
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -78,10 +86,11 @@ export function useSensitiveDataClient() {
 export function useIntegration() {
   const clientInfoState = useClientInfoState();
   const productInfoState = useProductInfoState();
+  const cmsInfoState = useCmsInfoState();
 
   return useMemo(() => {
     // If we are still loading data, just return an null integration
-    if (clientInfoState.loading || productInfoState.loading) {
+    if (clientInfoState.loading || productInfoState.loading || cmsInfoState.loading) {
       return null;
     }
 
@@ -95,6 +104,7 @@ export function useIntegration() {
       flags,
       window: windowWrapper,
       clientInfo: clientInfoState.data?.clientInfo,
+      cmsInfo: cmsInfoState.data?.cmsInfo,
       productInfo: productInfoState.data?.productInfo,
       data: urlQueryData,
       channelData: urlHashData,
@@ -102,7 +112,7 @@ export function useIntegration() {
     });
 
     return integrationFactory.getIntegration();
-  }, [clientInfoState, productInfoState]);
+  }, [clientInfoState, productInfoState, cmsInfoState]);
 }
 
 /**
@@ -189,6 +199,108 @@ export function useClientInfoState() {
     // an oauth client id is a 16 digit hex
     skip: !isHexadecimal(clientId) || !length(clientId, 16),
   });
+}
+
+export function useCmsInfoState() {
+  const { config } = useContext(AppContext);
+  if (!config) {
+    throw new Error('Are you forgetting an AppContext.Provider?');
+  }
+
+  const authUrl = config?.servers.auth.url;
+
+  const urlQueryData = new UrlQueryData(new ReachRouterWindow());
+  const clientId = urlQueryData.get('client_id');
+  const entrypoint = urlQueryData.get('entrypoint');
+
+  const [state, setState] = useState<FetchState>({
+    loading: false,
+    error: undefined,
+    data: undefined,
+  });
+
+  useEffect(() => {
+    // We disable the CMS if:
+    // 1. CMS is not enabled in the config
+    // 2. The user's locale is not English
+    // 3. The clientId is not provided or is not a valid 16 digit hex
+    // 4. The entrypoint is not provided
+
+    function isEnglishLocale() {
+      // Check primary language
+      const primaryLanguage = navigator.language;
+      if (primaryLanguage.startsWith('en')) {
+        return true;
+      }
+
+      // Check preferred languages
+      return navigator.languages.some(lang => lang.startsWith('en'));
+    }
+
+    if (
+      !config.cms.enabled ||
+      !isEnglishLocale() ||
+      !clientId ||
+      !isHexadecimal(clientId) ||
+      !length(clientId, 16) ||
+      !entrypoint
+    ) {
+      setState({ loading: false, error: undefined, data: undefined });
+      return;
+    }
+
+    let mounted = true;
+    setState((prev) => ({ ...prev, loading: true }));
+
+    const fetchConfig = async () => {
+      try {
+        const url = new URL(`${authUrl}/v1/cms/config`);
+        url.searchParams.append('clientId', clientId);
+        url.searchParams.append('entrypoint', entrypoint);
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        let config: RelierCmsInfo | undefined;
+
+        if (response.ok) {
+          config = await response.json();
+        } else {
+          Sentry.captureMessage(`Failure to parse CMS config for clientId ${clientId} and entrypoint ${entrypoint}`);
+        }
+
+        if (mounted) {
+          setState({
+            loading: false,
+            error: undefined,
+            data: { cmsInfo: config },
+          });
+        }
+      } catch (error) {
+        Sentry.captureMessage(`Failure to fetch CMS config for clientId ${clientId} and entrypoint ${entrypoint}`);
+
+        if (mounted) {
+          setState({
+            loading: false,
+            error: error instanceof Error ? error : new Error('Unknown error'),
+            data: undefined,
+          });
+        }
+      }
+    };
+
+    fetchConfig();
+
+    return () => {
+      mounted = false;
+    };
+  }, [authUrl, clientId, entrypoint, config.cms.enabled]);
+
+  return state;
 }
 
 export function useProductInfoState() {

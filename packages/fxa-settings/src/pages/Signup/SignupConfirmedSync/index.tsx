@@ -35,6 +35,10 @@ const SignupConfirmedSync = ({
   // will want to look at the UX again, but for now we just won't show the pair flow link.
   const showPairLink = integration.isDesktopSync();
 
+  const cmsInfo = integration.getCmsInfo();
+  const cmsButtonColor = cmsInfo?.shared?.buttonColor;
+  const cmsButtonText = cmsInfo?.SignupConfirmedSyncPage?.primaryButtonText;
+
   return (
     <AppLayout>
       {originPostVerifySetPassword ? (
@@ -63,9 +67,14 @@ const SignupConfirmedSync = ({
 
       <SyncCloudsImage className="mx-auto mt-4 max-h-44" />
 
-      <FtlMsg id="signup-confirmed-sync-header">
-        <h1 className="card-header">Sync is turned on</h1>
-      </FtlMsg>
+      {cmsInfo ? (
+        <h1 className="card-header">{cmsInfo.SignupConfirmedSyncPage?.headline}</h1>
+      ) : (
+        <FtlMsg id="signup-confirmed-sync-header">
+          <h1 className="card-header">Sync is turned on</h1>
+        </FtlMsg>
+      )}
+
       {paymentMethodsSynced ? (
         <FtlMsg id="signup-confirmed-sync-description-with-payment-v2">
           <p className="mt-2 mb-7">
@@ -84,20 +93,40 @@ const SignupConfirmedSync = ({
 
       {showPairLink && (
         <div className="flex mb-5">
-          <FtlMsg id="signup-confirmed-sync-add-device-link">
-            {/* TODO: once Pair is converted to React, use `<Link>` instead */}
-            <a
-              href="/"
-              className="cta-primary cta-xl"
+          { cmsInfo && cmsButtonColor && cmsButtonText ? (
+            <button
+              className="cta-primary-cms cta-xl"
               data-glean-id="signup_confirmed_sync_pair_link"
               onClick={(e) => {
                 e.preventDefault();
                 hardNavigate('/pair', {}, true);
               }}
+              style={
+                {
+                  '--cta-bg': cmsButtonColor,
+                  '--cta-border': cmsButtonColor,
+                  '--cta-active': cmsButtonColor,
+                  '--cta-disabled': `${cmsButtonColor}60`,
+                } as React.CSSProperties
+              }
             >
-              Add another device
-            </a>
-          </FtlMsg>
+              {cmsButtonText}
+            </button>
+          ) : (
+            <FtlMsg id="signup-confirmed-sync-add-device-link">
+              {/* TODO: once Pair is converted to React, use `<Link>` instead */}
+              <button
+                className="cta-primary cta-xl"
+                data-glean-id="signup_confirmed_sync_pair_link"
+                onClick={(e) => {
+                  e.preventDefault();
+                  hardNavigate('/pair', {}, true);
+                }}
+              >
+                Add another device
+              </button>
+            </FtlMsg>
+          )}
         </div>
       )}
 

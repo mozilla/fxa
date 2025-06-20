@@ -12,6 +12,7 @@ import CardHeader from '../CardHeader';
 import { MozServices } from '../../lib/types';
 import GleanMetrics from '../../lib/glean';
 import Banner from '../Banner';
+import { Integration } from '../../models';
 
 export type ReadyProps = {
   continueHandler?: Function;
@@ -19,7 +20,13 @@ export type ReadyProps = {
   serviceName?: string;
   viewName: ViewNameType;
   errorMessage?: string;
+  integration?: ReadyBaseIntegration;
 };
+
+export type ReadyBaseIntegration = Pick<
+  Integration,
+  'type' | 'data' | 'getService' | 'getClientId' | 'isDesktopRelay' | 'isSync' | 'getCmsInfo'
+>;
 
 export type ViewNameType =
   | 'signin-confirmed'
@@ -68,6 +75,7 @@ const Ready = ({
   isSignedIn,
   serviceName = MozServices.Default,
   viewName,
+  integration,
 }: ReadyProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -94,11 +102,16 @@ const Ready = ({
     navigate(FXA_PRODUCT_PAGE_URL, { replace: true });
   };
 
+
+
   useEffect(() => {
     if (viewName === 'reset-password-confirmed') {
       GleanMetrics.passwordReset.createNewSuccess();
     }
   }, [viewName]);
+
+  const cmsInfo = integration?.getCmsInfo();
+  const cmsButtonColor = cmsInfo?.shared?.buttonColor
 
   return (
     <>
@@ -120,11 +133,30 @@ const Ready = ({
               </p>
             </FtlMsg>
             <div className="flex justify-center mx-auto mt-6">
-              <FtlMsg id="manage-your-account-button">
-                <button className="cta-primary cta-xl" onClick={startBrowsing}>
-                  Manage your account
+              {cmsInfo ? (
+                <button
+                  className="cta-primary-cms cta-xl"
+                  onClick={startBrowsing}
+                  style={
+                    {
+                      '--cta-bg': cmsButtonColor,
+                      '--cta-border': cmsButtonColor,
+                      '--cta-active': cmsButtonColor,
+                      '--cta-disabled': `${cmsButtonColor}60`,
+                    } as React.CSSProperties
+                  }
+                >
+                  <FtlMsg id="manage-your-account-button">
+                    Manage your account
+                  </FtlMsg>
                 </button>
-              </FtlMsg>
+                ) : (
+                <button className="cta-primary cta-xl" onClick={startBrowsing}>
+                  <FtlMsg id="manage-your-account-button">
+                    Manage your account
+                  </FtlMsg>
+                </button>
+              )}
             </div>
           </>
         )}
@@ -148,6 +180,27 @@ const Ready = ({
       </span>
       {continueHandler && (
         <div className="flex justify-center mx-auto mt-6">
+          {cmsInfo ? (
+            <button
+              type="button"
+              className="cta-primary-cms cta-xl font-bold mx-2 flex-1"
+              onClick={(e) => {
+                const eventName = `flow.${viewName}.continue`;
+                logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
+                continueHandler && continueHandler(e);
+              }}
+              style={
+                {
+                  '--cta-bg': cmsButtonColor,
+                  '--cta-border': cmsButtonColor,
+                  '--cta-active': cmsButtonColor,
+                  '--cta-disabled': `${cmsButtonColor}60`,
+                } as React.CSSProperties
+              }
+            >
+              <FtlMsg id="ready-continue">Continue</FtlMsg>
+            </button>
+          ) : (
           <button
             type="submit"
             className="cta-primary cta-xl font-bold mx-2 flex-1"
@@ -159,6 +212,7 @@ const Ready = ({
           >
             <FtlMsg id="ready-continue">Continue</FtlMsg>
           </button>
+          )}
         </div>
       )}
     </>

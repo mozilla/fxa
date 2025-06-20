@@ -10,6 +10,7 @@ import { logViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { useFtlMsgResolver } from '../../models';
 import { GleanClickEventDataAttrs } from '../../lib/types';
+import { CmsButton } from '../FormSetupAccount/interfaces';
 
 export enum InputModeEnum {
   text = 'text',
@@ -45,6 +46,7 @@ export type FormVerifyCodeProps = {
   isLoading?: boolean;
   gleanDataAttrs?: GleanClickEventDataAttrs;
   submitFormOnPaste?: boolean;
+  cmsButton?: CmsButton;
 };
 
 type FormData = {
@@ -61,6 +63,7 @@ const FormVerifyCode = ({
   setClearMessages,
   gleanDataAttrs,
   submitFormOnPaste,
+                          cmsButton
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -154,18 +157,39 @@ const FormVerifyCode = ({
         })}
       />
 
-      <FtlMsg id={formAttributes.submitButtonFtlId}>
+      {cmsButton?.text && cmsButton?.color ? (
         <button
           type="submit"
-          className="cta-primary cta-xl"
+          className="cta-primary-cms cta-xl"
           disabled={isSubmitting}
           data-glean-id={gleanDataAttrs?.id}
           data-glean-label={gleanDataAttrs?.label}
           data-glean-type={gleanDataAttrs?.type}
+          style={
+            {
+              '--cta-bg': cmsButton?.color,
+              '--cta-border': cmsButton?.color,
+              '--cta-active': cmsButton?.color,
+              '--cta-disabled': `${cmsButton?.color}60`,
+            } as React.CSSProperties
+          }
         >
-          {formAttributes.submitButtonText}
+          {cmsButton.text}
         </button>
-      </FtlMsg>
+      ) : (
+        <FtlMsg id={formAttributes.submitButtonFtlId}>
+          <button
+            type="submit"
+            className="cta-primary cta-xl"
+            disabled={isSubmitting}
+            data-glean-id={gleanDataAttrs?.id}
+            data-glean-label={gleanDataAttrs?.label}
+            data-glean-type={gleanDataAttrs?.type}
+          >
+            {formAttributes.submitButtonText}
+          </button>
+        </FtlMsg>
+        )}
     </form>
   );
 };

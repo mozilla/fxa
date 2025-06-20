@@ -96,9 +96,24 @@ export const Index = ({
     );
   }
 
+  const cmsInfo = integration.getCmsInfo();
+
   return (
     <AppLayout>
-      {isSync ? (
+      {cmsInfo ? (
+        <>
+          {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
+            <img
+              src={cmsInfo.shared.logoUrl}
+              alt={cmsInfo.shared.logoAltText}
+              className="justify-start mb-4 max-h-[40px]"
+            />)}
+          <h1 className="card-header">{cmsInfo?.EmailFirstPage?.headline}</h1>
+          <p className="mt-1 mb-9 text-sm">
+            {cmsInfo?.EmailFirstPage?.description}
+          </p>
+        </>
+      ) : isSync ? (
         <>
           <h1 className="card-header">
             <FtlMsg id="index-sync-header">
@@ -161,14 +176,33 @@ export const Index = ({
           />
         </FtlMsg>
         <div className="flex mt-5">
-          <button
-            className="cta-primary cta-xl"
-            type="submit"
-            data-glean-id="email_first_submit"
-            disabled={isSubmitting}
-          >
-            <FtlMsg id="index-cta">Sign up or sign in</FtlMsg>
-          </button>
+          {cmsInfo ? (
+            <button
+              className="cta-primary-cms cta-xl"
+              type="submit"
+              data-glean-id="email_first_submit"
+              style={
+                {
+                  '--cta-bg': cmsInfo?.shared?.buttonColor,
+                  '--cta-border': cmsInfo?.shared?.buttonColor,
+                  '--cta-active': cmsInfo?.shared?.buttonColor,
+                  '--cta-disabled': `${cmsInfo?.shared?.buttonColor}60`,
+                } as React.CSSProperties
+              }
+              disabled={isSubmitting}
+            >
+              {cmsInfo?.EmailFirstPage?.primaryButtonText}
+            </button>
+          ) : (
+            <button
+              className="cta-primary cta-xl"
+              type="submit"
+              data-glean-id="email_first_submit"
+              disabled={isSubmitting}
+            >
+              <FtlMsg id="index-cta">Sign up or sign in</FtlMsg>
+            </button>
+          )}
         </div>
       </form>
 

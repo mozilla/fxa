@@ -290,6 +290,8 @@ const ConfirmSignupCode = ({
     }
   }
 
+  const cmsInfo = integration.getCmsInfo();
+
   return (
     <AppLayout
       title={ftlMsgResolver.getMsg(
@@ -297,10 +299,27 @@ const ConfirmSignupCode = ({
         'Enter confirmation code'
       )}
     >
-      <CardHeader
-        headingText="Enter confirmation code"
-        headingAndSubheadingFtlId="confirm-signup-code-heading-2"
-      />
+
+      {cmsInfo ? (
+          <>
+            {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
+              <img
+                data-testid="cms-logo"
+                src={cmsInfo?.shared.logoUrl}
+                alt={cmsInfo?.shared.logoAltText}
+                className="justify-start mb-4 max-h-[40px]"
+              />)}
+            <h1 className="card-header">{cmsInfo?.SignupConfirmCodePage?.headline}</h1>
+            <p className="mt-1 text-sm">
+              {cmsInfo?.SignupConfirmCodePage?.description}
+            </p>
+          </>
+        ) : (
+        <CardHeader
+          headingText="Enter confirmation code"
+          headingAndSubheadingFtlId="confirm-signup-code-heading-2"
+        />
+      )}
 
       {localizedErrorBannerHeading && (
         <Banner
@@ -342,6 +361,10 @@ const ConfirmSignupCode = ({
           codeErrorMessage,
           setCodeErrorMessage,
           submitFormOnPaste,
+          cmsButton: {
+            text: cmsInfo?.SignupConfirmCodePage?.primaryButtonText,
+            color: cmsInfo?.shared?.buttonColor,
+          }
         }}
       />
 

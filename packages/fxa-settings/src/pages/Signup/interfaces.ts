@@ -58,6 +58,7 @@ export type SignupOAuthIntegration = Pick<
   | 'isDesktopRelay'
   | 'wantsKeys'
   | 'getClientId'
+  | 'getCmsInfo'
 >;
 
 export type SignupBaseIntegration = Pick<
@@ -68,6 +69,7 @@ export type SignupBaseIntegration = Pick<
   | 'isDesktopRelay'
   | 'wantsKeys'
   | 'getClientId'
+  | 'getCmsInfo'
 >;
 
 export interface SignupFormData {
