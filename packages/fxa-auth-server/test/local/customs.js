@@ -4,7 +4,6 @@
 
 'use strict';
 
-
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../mocks');
@@ -39,6 +38,9 @@ describe('Customs', () => {
   let request;
   let ip;
   let email;
+  let uid;
+  let ip_uid;
+  let ip_email;
   let action;
 
   beforeEach(() => {
@@ -48,6 +50,9 @@ describe('Customs', () => {
     request = newRequest();
     ip = request.app.clientAddress;
     email = newEmail();
+    uid = '12345';
+    ip_uid = `${ip}_${uid}`;
+    ip_email = `${ip}_${email}`;
     action = newAction();
   });
 
@@ -70,7 +75,7 @@ describe('Customs', () => {
         );
       })
       .then(() => {
-        return customsNoUrl.flag(ip, { email: email, uid: '12345' });
+        return customsNoUrl.flag(ip, { email, uid });
       })
       .then((result) => {
         assert.equal(
@@ -153,7 +158,7 @@ describe('Customs', () => {
             return true;
           })
           .reply(200, {});
-        return customsWithUrl.flag(ip, { email: email, uid: '12345' });
+        return customsWithUrl.flag(ip, { email, uid });
       })
       .then((result) => {
         assert.equal(
@@ -374,15 +379,13 @@ describe('Customs', () => {
           );
         }),
 
-      customsInvalidUrl
-        .flag(ip, { email: email, uid: '12345' })
-        .then(assert.fail, (err) => {
-          assert.equal(
-            err.errno,
-            error.ERRNO.BACKEND_SERVICE_FAILURE,
-            'an error is returned from /flag'
-          );
-        }),
+      customsInvalidUrl.flag(ip, { email, uid }).then(assert.fail, (err) => {
+        assert.equal(
+          err.errno,
+          error.ERRNO.BACKEND_SERVICE_FAILURE,
+          'an error is returned from /flag'
+        );
+      }),
 
       customsInvalidUrl.reset(request, email).then(assert.fail, (err) => {
         assert.equal(
@@ -746,15 +749,33 @@ describe('Customs', () => {
         return await Promise.resolve(null);
       });
       // Should no throw
-      await customs.check(request, email, 'accountStatusCheck');
+      await customs.checkAuthenticated(
+        request,
+        uid,
+        email,
+        'accountStatusCheck'
+      );
+
+      assert.callCount(mockRateLimit.supportsAction, 1);
+      assert.callCount(mockRateLimit.check, 1);
+      assert.calledWith(mockRateLimit.check, 'accountStatusCheck', {
+        ip,
+        email,
+        uid,
+        ip_email,
+        ip_uid,
+      });
     });
 
     it('can block checkAccountStatus with rate-limit lib', async () => {
-      mockRateLimit.check = sandbox.spy(async () => {
-        return await Promise.resolve({
-          retryAfter: 1000,
-          reason: 'too-many-attempts',
-        });
+      mockRateLimit.check = sandbox.spy(async (action) => {
+        if (action === 'accountStatusCheck') {
+          return await Promise.resolve({
+            retryAfter: 1000,
+            reason: 'too-many-attempts',
+          });
+        }
+        return null;
       });
 
       let customsError = undefined;
@@ -770,6 +791,30 @@ describe('Customs', () => {
       assert.equal(
         customsError.output.payload.message,
         'Client has sent too many requests'
+      );
+
+      assert.callCount(mockRateLimit.supportsAction, 2);
+      assert.calledWith(mockRateLimit.supportsAction, 'accountStatusCheck');
+      assert.calledWith(mockRateLimit.supportsAction, 'unblockEmail');
+
+      assert.callCount(mockRateLimit.check, 2);
+      assert.calledWith(
+        mockRateLimit.check,
+        'accountStatusCheck',
+        sinon.match({
+          ip,
+          email,
+          ip_email,
+        })
+      );
+      assert.calledWith(
+        mockRateLimit.check,
+        'unblockEmail',
+        sinon.match({
+          ip,
+          email,
+          ip_email,
+        })
       );
     });
 
@@ -790,7 +835,7 @@ describe('Customs', () => {
       assert.calledWith(mockRateLimit.skip, {
         ip,
         email,
-        ip_email: ip + '_' + email,
+        ip_email,
       });
       assert.callCount(mockRateLimit.check, 0);
     });

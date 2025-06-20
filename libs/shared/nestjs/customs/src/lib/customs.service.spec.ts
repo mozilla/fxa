@@ -114,6 +114,13 @@ describe('Customs Service', () => {
         ip_email: '127.0.0.1_foo@mozilla.com',
         ip_uid: '127.0.0.1_123',
       });
+      expect(mockRateLimit.check).toHaveBeenCalledWith('unblockEmail', {
+        ip: '127.0.0.1',
+        email: 'foo@mozilla.com',
+        ip_email: '127.0.0.1_foo@mozilla.com',
+        uid: '123',
+        ip_uid: '127.0.0.1_123',
+      });
 
       expect(error).toBeDefined();
       expect(error?.message).toEqual('Client has sent too many requests');
