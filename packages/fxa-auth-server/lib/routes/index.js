@@ -220,6 +220,13 @@ module.exports = function (
     glean
   );
 
+  const { cmsRoutes } = require('./cms');
+  const cms = cmsRoutes(
+    log,
+    config,
+    statsd
+  );
+
   const { cloudTaskRoutes } = require('./cloud-tasks');
   const cloudTasks = cloudTaskRoutes(log, config, statsd);
 
@@ -250,7 +257,8 @@ module.exports = function (
     newsletters,
     linkedAccounts,
     cloudTasks,
-    cloudScheduler
+    cloudScheduler,
+    cms
   );
 
   function optionallyIgnoreTrace(fn) {

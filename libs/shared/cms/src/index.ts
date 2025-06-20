@@ -5,6 +5,7 @@
 export * from './lib/cms.error';
 export * from './lib/constants';
 export * from './lib/product-configuration.manager';
+export * from './lib/relying-party-configuration.manager';
 export * from './lib/queries/capability-service-by-plan-ids';
 export * from './lib/queries/eligibility-content-by-offering';
 export * from './lib/queries/eligibility-content-by-plan-ids';
@@ -13,6 +14,7 @@ export * from './lib/queries/offering';
 export * from './lib/queries/page-content-for-offering';
 export * from './lib/queries/purchase-with-details-offering-content';
 export * from './lib/queries/services-with-capabilities';
+export * from './lib/queries/relying-party';
 export * from './lib/strapi.client';
 export * from './lib/strapi.client.config';
 export * from './lib/types';
