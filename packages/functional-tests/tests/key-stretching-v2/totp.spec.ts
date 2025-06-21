@@ -30,9 +30,11 @@ test.describe('severity-2 #smoke', () => {
         signinTotpCode,
         totp,
         confirmSignupCode,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
       const { email, password } = testAccountTracker.generateAccountDetails();
 
       await page.goto(
@@ -49,7 +51,10 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
 
       await settings.totp.addButton.click();
-      const totpCredentials = await totp.fillOutTotpForms();
+      // TODO in FXA-11941 - remove condition
+      const totpCredentials = config.featureFlags.updated2faSetupFlow
+        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Enabled');

@@ -5,6 +5,7 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { ConfigPage } from '../../pages/config';
 import { SettingsPage } from '../../pages/settings';
 import { TotpCredentials, TotpPage } from '../../pages/settings/totp';
 import { SigninPage } from '../../pages/signin';
@@ -22,6 +23,7 @@ test.describe('severity-1 #smoke', () => {
         signinRecoveryCode,
         signinTotpCode,
         totp,
+        configPage,
       },
       testAccountTracker,
     }) => {
@@ -34,7 +36,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(configPage, settings, totp);
       await settings.signOut();
       await signinWithRecoveryCode(
         credentials,
@@ -58,6 +60,7 @@ test.describe('severity-1 #smoke', () => {
         signinRecoveryCode,
         signinTotpCode,
         totp,
+        configPage,
       },
       testAccountTracker,
     }) => {
@@ -69,7 +72,7 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker
       );
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(configPage, settings, totp);
       await settings.signOut();
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -96,6 +99,7 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryCode,
         totp,
+        configPage,
       },
       testAccountTracker,
     }) => {
@@ -108,15 +112,15 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(configPage, settings, totp);
       await settings.totp.getNewBackupCodesButton.click();
 
       const newCodes = await totp.getRecoveryCodes();
       expect(newCodes.some((c) => recoveryCodes.includes(c))).toBe(false);
 
-      await totp.step2ContinueButton.click();
-      await totp.step3RecoveryCodeTextbox.fill(newCodes[0]);
-      await totp.step3FinishButton.click();
+      await totp.backupCodesDownloadContinueButton.click();
+      await totp.confirmBackupCodeTextbox.fill(newCodes[0]);
+      await totp.confirmBackupCodeSubmitButton.click();
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
@@ -147,6 +151,7 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryCode,
         totp,
+        configPage,
       },
       testAccountTracker,
     }) => {
@@ -159,7 +164,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(configPage, settings, totp);
       await settings.signOut();
 
       for (let i = 0; i < recoveryCodes.length - 3; i++) {
@@ -220,6 +225,7 @@ async function signInAccount(
 }
 
 async function addTotp(
+  configPage: ConfigPage,
   settings: SettingsPage,
   totp: TotpPage
 ): Promise<TotpCredentials> {
@@ -227,7 +233,11 @@ async function addTotp(
   await expect(settings.totp.status).toHaveText('Disabled');
 
   await settings.totp.addButton.click();
-  const totpCredentials = await totp.fillOutTotpForms();
+  // TODO in FXA-11941 - remove condition
+  const config = await configPage.getConfig();
+  const totpCredentials = config.featureFlags.updated2faSetupFlow
+    ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+    : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.alertBar).toHaveText(

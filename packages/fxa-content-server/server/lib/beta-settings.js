@@ -107,6 +107,7 @@ const settingsConfig = {
     recoveryPhonePasswordReset2fa: config.get(
       'featureFlags.recoveryPhonePasswordReset2fa'
     ),
+    updated2faSetupFlow: config.get('featureFlags.updated2faSetupFlow'),
   },
   nimbusPreview: config.get('nimbusPreview'),
 };

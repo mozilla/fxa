@@ -125,7 +125,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('fails if account is not verified', async ({
       target,
-      pages: { page, confirmSignupCode, relier, signin },
+      pages: { page, relier, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp({
@@ -252,9 +252,10 @@ test.describe('severity-1 #smoke', () => {
     test('redirect to RP with prompt=none and 2FA setup', async ({
       page,
       target,
-      pages: { relier, settings, signin, totp, deleteAccount },
+      pages: { relier, settings, signin, totp, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
       const { email } = await signInAccount(
         target,
         page,
@@ -265,7 +266,10 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.totp.addButton.click();
 
-      await totp.fillOutTotpForms();
+      // TODO in FXA-11941 - remove condition
+      config.featureFlags.updated2faSetupFlow
+        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication has been enabled'
       );

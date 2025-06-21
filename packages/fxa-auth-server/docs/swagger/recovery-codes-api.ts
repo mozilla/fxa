@@ -21,10 +21,28 @@ const RECOVERYCODES_GET = {
   ],
 };
 
+const RECOVERY_CODES_POST = {
+  ...TAGS_RECOVERY_CODE,
+  description: '/recoveryCodes',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token
+
+      Set backup authentication codes (intended for initial set up)
+    `,
+  ],
+};
+
 const RECOVERY_CODES_PUT = {
   ...TAGS_RECOVERY_CODE,
   description: '/recoveryCodes',
-  notes: ['🔒 Authenticated with session token'],
+  notes: [
+    dedent`
+      🔒 Authenticated with session token
+
+      Return new backup authentication codes while removing old ones.
+    `,
+  ],
 };
 
 const SESSION_VERIFY_RECOVERYCODE_POST = {
@@ -40,6 +58,7 @@ const SESSION_VERIFY_RECOVERYCODE_POST = {
 
 const API_DOCS = {
   RECOVERYCODES_GET,
+  RECOVERY_CODES_POST,
   RECOVERY_CODES_PUT,
   SESSION_VERIFY_RECOVERYCODE_POST,
 };

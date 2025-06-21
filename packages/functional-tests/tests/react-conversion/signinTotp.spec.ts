@@ -8,9 +8,18 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
     test('add totp', async ({
-      pages: { settings, totp, page, signin, signup, signinTotpCode },
+      pages: {
+        settings,
+        totp,
+        page,
+        signin,
+        signup,
+        signinTotpCode,
+        configPage,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto();
@@ -21,7 +30,10 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Disabled');
 
       await settings.totp.addButton.click();
-      const { secret } = await totp.fillOutTotpForms();
+      // TODO in FXA-11941 - remove condition
+      const { secret } = config.featureFlags.updated2faSetupFlow
+        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
@@ -53,9 +65,11 @@ test.describe('severity-1 #smoke', () => {
         signin,
         signup,
         signinTotpCode,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto();
@@ -66,7 +80,10 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Disabled');
 
       await settings.totp.addButton.click();
-      const { secret } = await totp.fillOutTotpForms();
+      // TODO in FXA-11941 - remove condition
+      const { secret } = config.featureFlags.updated2faSetupFlow
+        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
@@ -97,9 +114,18 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('error message when totp code is invalid', async ({
-      pages: { page, settings, totp, signin, signup, signinTotpCode },
+      pages: {
+        page,
+        settings,
+        totp,
+        signin,
+        signup,
+        signinTotpCode,
+        configPage,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto();
@@ -110,7 +136,10 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Disabled');
 
       await settings.totp.addButton.click();
-      const { secret } = await totp.fillOutTotpForms();
+      // TODO in FXA-11941 - remove condition
+      const { secret } = config.featureFlags.updated2faSetupFlow
+        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(

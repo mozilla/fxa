@@ -7,8 +7,7 @@ import userEvent, { UserEvent } from '@testing-library/user-event';
 import InlineRecoverySetup from '.';
 import { MozServices } from '../../lib/types';
 import { renderWithRouter } from '../../models/mocks';
-import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
-import { MOCK_EMAIL } from '../mocks';
+import { MOCK_BACKUP_CODES, MOCK_EMAIL } from '../mocks';
 import GleanMetrics from '../../lib/glean';
 import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 
@@ -30,7 +29,7 @@ const verifyTotpHandler = jest.fn();
 const successSetupHandler = jest.fn();
 const props = {
   oAuthError: undefined,
-  recoveryCodes: MOCK_RECOVERY_CODES,
+  recoveryCodes: MOCK_BACKUP_CODES,
   cancelSetupHandler: cancelSetupHandler,
   verifyTotpHandler: verifyTotpHandler,
   successfulSetupHandler: successSetupHandler,
@@ -70,13 +69,13 @@ describe('InlineRecoverySetup', () => {
   it('renders as expected with a custom service name', () => {
     renderWithRouter(
       <InlineRecoverySetup
-        serviceName={MOCK_SERVICE_NAME}
+        serviceName={MozServices.MozillaVPN}
         email={MOCK_EMAIL}
         {...props}
       />
     );
     screen.getByRole('heading', {
-      name: `Save backup authentication codes to continue to ${MOCK_SERVICE_NAME}`,
+      name: `Save backup authentication codes to continue to ${MozServices.MozillaVPN}`,
     });
   });
 
@@ -103,7 +102,7 @@ describe('InlineRecoverySetup', () => {
     renderWithRouter(
       <InlineRecoverySetup
         email={MOCK_EMAIL}
-        serviceName={MOCK_SERVICE_NAME}
+        serviceName={MozServices.MozillaVPN}
         {...props}
       />
     );
@@ -112,7 +111,7 @@ describe('InlineRecoverySetup', () => {
         await user.click(screen.getByRole('button', { name: 'Continue' }))
     );
     screen.getByRole('heading', {
-      name: `Confirm backup authentication code to continue to ${MOCK_SERVICE_NAME}`,
+      name: `Confirm backup authentication code to continue to ${MozServices.MozillaVPN}`,
     });
   });
 
@@ -120,7 +119,7 @@ describe('InlineRecoverySetup', () => {
     renderWithRouter(
       <InlineRecoverySetup
         email={MOCK_EMAIL}
-        serviceName={MOCK_SERVICE_NAME}
+        serviceName={MozServices.MozillaVPN}
         {...props}
       />
     );
@@ -164,7 +163,7 @@ describe('InlineRecoverySetup', () => {
     const successfulSetupHandler = jest.fn();
     renderWithRouter(
       <InlineRecoverySetup
-        serviceName={MOCK_SERVICE_NAME}
+        serviceName={MozServices.MozillaVPN}
         email={MOCK_EMAIL}
         {...props}
         {...{ verifyTotpHandler, successfulSetupHandler }}
@@ -178,7 +177,7 @@ describe('InlineRecoverySetup', () => {
       async () =>
         await user.type(
           screen.getByLabelText('Backup authentication code'),
-          MOCK_RECOVERY_CODES[0]
+          MOCK_BACKUP_CODES[0]
         )
     );
     await act(
@@ -198,7 +197,7 @@ describe('InlineRecoverySetup', () => {
     renderWithRouter(
       <InlineRecoverySetup
         email={MOCK_EMAIL}
-        serviceName={MOCK_SERVICE_NAME}
+        serviceName={MozServices.MozillaVPN}
         {...props}
         {...{ verifyTotpHandler, successfulSetupHandler }}
       />
@@ -211,7 +210,7 @@ describe('InlineRecoverySetup', () => {
       async () =>
         await user.type(
           screen.getByLabelText('Backup authentication code'),
-          MOCK_RECOVERY_CODES[0]
+          MOCK_BACKUP_CODES[0]
         )
     );
     await act(

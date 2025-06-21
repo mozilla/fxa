@@ -7,8 +7,10 @@ import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { MOCK_2FA_SECRET_KEY_RAW } from '../../../pages/mocks';
+import {
+  MOCK_2FA_SECRET_KEY_RAW,
+  PLACEHOLDER_QR_CODE,
+} from '../../../pages/mocks';
 import SettingsLayout from '../SettingsLayout';
 import { FlowSetup2faApp } from '.';
 import { TwoStepSetupMethod } from './types';
@@ -21,10 +23,11 @@ export default {
 
 const verifyCodeSuccess = async (code: string) => {
   action('verifyCode')(code);
+  return {};
 };
 
 const verifyCodeFailure = async (code: string) => {
-  return Promise.reject(AuthUiErrors.UNEXPECTED_ERROR);
+  return { error: true };
 };
 
 const navigateBackward = async () => {
@@ -32,13 +35,13 @@ const navigateBackward = async () => {
 };
 
 const dummyTotpInfo = {
-  // figure out a mock here
-  qrCodeUrl: 'https://placehold.co/192x192/white/black?text=QR+Code&font=poppins',
+  // placeholder fake image for storybook
+  qrCodeUrl: PLACEHOLDER_QR_CODE,
   secret: MOCK_2FA_SECRET_KEY_RAW,
 };
 
 const defaultProps = {
-  localizedFlowTitle: 'Two-step authentication',
+  localizedPageTitle: 'Two-step authentication',
   totpInfo: dummyTotpInfo,
   onBackButtonClick: navigateBackward,
   currentStep: 1,

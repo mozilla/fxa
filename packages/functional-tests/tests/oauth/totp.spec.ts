@@ -13,9 +13,18 @@ test.describe('severity-1 #smoke', () => {
   test.describe('OAuth totp', () => {
     test('can add TOTP to account and confirm oauth signin', async ({
       target,
-      pages: { page, signin, relier, settings, totp, signinTotpCode },
+      pages: {
+        page,
+        signin,
+        relier,
+        settings,
+        totp,
+        signinTotpCode,
+        configPage,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
       const credentials = await signInAccount(
         target,
         page,
@@ -26,7 +35,10 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await settings.totp.addButton.click();
-      const { secret } = await totp.fillOutTotpForms();
+      // TODO in FXA-11941 - remove condition
+      const { secret } = config.featureFlags.updated2faSetupFlow
+        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication has been enabled'
@@ -50,22 +62,29 @@ test.describe('severity-1 #smoke', () => {
 
     test('can remove TOTP from account and skip confirmation', async ({
       target,
-      pages: { page, relier, settings, signin, totp },
+      pages: { page, relier, settings, signin, totp, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
       await signInAccount(target, page, settings, signin, testAccountTracker);
       await settings.goto();
       await settings.totp.addButton.click();
-      await totp.fillOutTotpForms();
+      // TODO in FXA-11941 - remove condition
+      config.featureFlags.updated2faSetupFlow
+        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
       await expect(settings.totp.status).toHaveText('Enabled');
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication has been enabled'
+      );
       await settings.totp.disableButton.click();
       await settings.clickModalConfirm();
 
-      // wait for alert bar message
-      await expect(
-        page.getByText('Two-step authentication disabled')
-      ).toBeVisible();
+      await expect(settings.modalConfirmButton).toBeHidden();
       await expect(settings.totp.status).toHaveText('Disabled');
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication disabled'
+      );
 
       await relier.goto();
       await relier.clickEmailFirst();

@@ -22,7 +22,7 @@ const renderFlowSetup2faBackupChoice = () => {
       <FlowSetup2faBackupChoice
         currentStep={2}
         numberOfSteps={3}
-        localizedFlowTitle="Two-step authentication"
+        localizedPageTitle="Two-step authentication"
         onBackButtonClick={onBackButtonClick}
         showProgressBar
         onSubmitCb={onSubmitCb}

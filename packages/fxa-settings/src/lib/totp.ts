@@ -4,6 +4,8 @@
 
 import base32Decode from 'base32-decode';
 
+import random from './random';
+
 function trimOrPad(num: number, digits: number): string {
   const str = num.toString().substr(-digits);
   if (str.length === digits) {
@@ -63,4 +65,16 @@ export function copyRecoveryCodes(event: React.ClipboardEvent<HTMLElement>) {
     );
     event.preventDefault();
   }
+}
+
+export async function generateRecoveryCodes(count: number, length: number) {
+  const recoveryCodes: string[] = [];
+  const gen = random.base32(length);
+  while (recoveryCodes.length < count) {
+    const rc = (await gen()).toLowerCase();
+    if (recoveryCodes.indexOf(rc) === -1) {
+      recoveryCodes.push(rc);
+    }
+  }
+  return recoveryCodes;
 }

@@ -29,7 +29,7 @@ export const Default = () => (
     <FlowSetup2faBackupCodeConfirm
       currentStep={3}
       numberOfSteps={3}
-      localizedFlowTitle="Two-step authentication"
+      localizedPageTitle="Two-step authentication"
       onBackButtonClick={navigateBackward}
       showProgressBar
       errorMessage=""
@@ -51,7 +51,7 @@ export const WithError = () => {
       <FlowSetup2faBackupCodeConfirm
         currentStep={3}
         numberOfSteps={3}
-        localizedFlowTitle="Two-step authentication"
+        localizedPageTitle="Two-step authentication"
         onBackButtonClick={navigateBackward}
         showProgressBar
         {...{ errorMessage, setErrorMessage }}

@@ -21,5 +21,5 @@ flow-setup-2fa-button = Continue
 
 flow-setup-2fa-step-2-instruction = <strong>Step 2:</strong> Enter the code from your authenticator app.
 flow-setup-2fa-input-label = Enter 6-digit code
-
+flow-setup-2fa-code-error = Authentication Failed: We were unable to verify the code. Please try again.
 ##

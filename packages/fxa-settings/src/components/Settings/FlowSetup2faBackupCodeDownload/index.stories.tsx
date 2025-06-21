@@ -8,6 +8,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 import { action } from '@storybook/addon-actions';
 import { FlowSetup2faBackupCodeDownload } from '.';
+import { MOCK_BACKUP_CODES, MOCK_EMAIL } from '../../../pages/mocks';
 
 export default {
   title: 'Components/Settings/FlowSetup2faBackupCodeDownload',
@@ -23,27 +24,16 @@ const onContinue = () => {
   action('onContinue')();
 };
 
-const dummyRecoveryCodes = [
-  'code111111',
-  'code222222',
-  'code333333',
-  'code444444',
-  'code555555',
-  'code666666',
-  'code777777',
-  'code888888',
-];
-
 export const Default = () => (
   <SettingsLayout>
     <FlowSetup2faBackupCodeDownload
       currentStep={2}
       numberOfSteps={3}
-      localizedFlowTitle="Two-step authentication"
+      localizedPageTitle="Two-step authentication"
       onBackButtonClick={navigateBackward}
       showProgressBar
-      email="mock@example.com"
-      recoveryCodes={dummyRecoveryCodes}
+      email={MOCK_EMAIL}
+      backupCodes={MOCK_BACKUP_CODES}
       onContinue={onContinue}
     />
   </SettingsLayout>

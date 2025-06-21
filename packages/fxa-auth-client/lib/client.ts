@@ -1667,7 +1667,8 @@ export default class AuthClient {
     sessionToken: hexstring,
     options: {
       metricsContext?: MetricsContext;
-    } = {},
+      skipRecoveryCodes?: boolean;
+    },
     headers?: Headers
   ): Promise<{
     qrCodeUrl: string;
@@ -1781,6 +1782,21 @@ export default class AuthClient {
     );
   }
 
+  // create recovery codes for initial 2FA setup
+  async setRecoveryCodes(
+    sessionToken: hexstring,
+    recoveryCodes: string[],
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.sessionPost(
+      '/recoveryCodes',
+      sessionToken,
+      { recoveryCodes },
+      headers
+    );
+  }
+
+  // create and update recovery codes without code confirmation
   async replaceRecoveryCodes(
     sessionToken: hexstring,
     headers?: Headers
@@ -1788,6 +1804,7 @@ export default class AuthClient {
     return this.sessionGet('/recoveryCodes', sessionToken, headers);
   }
 
+  // update recovery codes with codes created and confirmed client-side
   async updateRecoveryCodes(
     sessionToken: hexstring,
     recoveryCodes: string[],
@@ -2188,11 +2205,13 @@ export default class AuthClient {
    *
    * @param sessionToken The user's current session token
    * @param code The otp code sent to the user's phone
+   * @param isInitial2faSetup Whether recovery phone is added during initial 2FA setup or separately
    * @param headers
    */
   async recoveryPhoneConfirmSetup(
     sessionToken: string,
     code: string,
+    isInitial2faSetup: boolean,
     headers?: Headers
   ): Promise<{ nationalFormat?: string }> {
     return this.sessionPost(
@@ -2200,6 +2219,7 @@ export default class AuthClient {
       sessionToken,
       {
         code,
+        isInitial2faSetup,
       },
       headers
     );
@@ -2212,20 +2232,20 @@ export default class AuthClient {
    * @param code The otp code sent to the user's phone
    * @param headers
    */
-    async recoveryPhoneChange(
-      sessionToken: string,
-      code: string,
-      headers?: Headers
-    ): Promise<{ nationalFormat?: string }> {
-      return this.sessionPost(
-        '/recovery_phone/change',
-        sessionToken,
-        {
-          code,
-        },
-        headers
-      );
-    }
+  async recoveryPhoneChange(
+    sessionToken: string,
+    code: string,
+    headers?: Headers
+  ): Promise<{ nationalFormat?: string }> {
+    return this.sessionPost(
+      '/recovery_phone/change',
+      sessionToken,
+      {
+        code,
+      },
+      headers
+    );
+  }
 
   /**
    * Sends a code to the users phone during a signin flow.
