@@ -22,6 +22,7 @@ type UpgradePurchaseDetailsProps = {
   interval: string;
   invoice: InvoicePreview;
   l10n: LocalizerRsc;
+  offeringPrice: number;
   purchaseDetails: {
     subtitle: string | null;
     productName: string;
@@ -37,6 +38,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
     interval,
     invoice,
     l10n,
+    offeringPrice,
     purchaseDetails,
     locale,
   } = props;
@@ -115,7 +117,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
           <p className="text-grey-400 mt-1 mb-0">
             <PriceInterval
               l10n={l10n}
-              amount={listAmount}
+              amount={offeringPrice}
               currency={currency}
               interval={interval}
               locale={locale}

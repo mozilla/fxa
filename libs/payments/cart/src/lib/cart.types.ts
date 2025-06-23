@@ -69,6 +69,7 @@ export type FromPrice = {
 
 export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   metricsOptedOut: boolean;
+  offeringPrice: number;
   upcomingInvoicePreview: Invoice;
   latestInvoicePreview?: Invoice;
   paymentInfo?: PaymentInfo;

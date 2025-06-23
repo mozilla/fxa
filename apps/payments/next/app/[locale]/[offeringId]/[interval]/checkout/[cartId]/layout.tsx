@@ -86,7 +86,7 @@ export default async function CheckoutLayout({
             priceInterval={
               <PriceInterval
                 l10n={l10n}
-                amount={cart.upcomingInvoicePreview.listAmount}
+                amount={cart.offeringPrice}
                 currency={cart.upcomingInvoicePreview.currency}
                 interval={cart.interval}
                 locale={locale}

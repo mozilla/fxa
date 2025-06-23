@@ -1538,6 +1538,7 @@ describe('CartService', () => {
     const mockPaymentMethod = StripeResponseFactory(
       StripePaymentMethodFactory({})
     );
+    const mockPricingForCurrency = PricingForCurrencyFactory();
 
     beforeEach(() => {
       jest
@@ -1549,6 +1550,9 @@ describe('CartService', () => {
       jest
         .spyOn(paymentMethodManager, 'retrieve')
         .mockResolvedValue(mockPaymentMethod);
+      jest
+        .spyOn(priceManager, 'retrievePricingForCurrency')
+        .mockResolvedValue(mockPricingForCurrency);
     });
 
     it('returns cart and upcomingInvoicePreview', async () => {
@@ -1576,6 +1580,7 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
         ...mockCart,
+        offeringPrice: mockPricingForCurrency.unitAmountForCurrency,
         upcomingInvoicePreview: mockInvoicePreview,
         paymentInfo: {
           type: mockPaymentMethod.type,
@@ -1636,6 +1641,7 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
         ...mockCart,
+        offeringPrice: mockPricingForCurrency.unitAmountForCurrency,
         upcomingInvoicePreview: mockUpcomingInvoicePreview,
         latestInvoicePreview: mockLatestInvoicePreview,
         metricsOptedOut: false,
@@ -1703,6 +1709,7 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
         ...mockCart,
+        offeringPrice: mockPricingForCurrency.unitAmountForCurrency,
         upcomingInvoicePreview: mockUpcomingInvoicePreview,
         latestInvoicePreview: mockLatestInvoicePreview,
         metricsOptedOut: false,
@@ -1759,6 +1766,7 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
         ...mockCart,
+        offeringPrice: mockPricingForCurrency.unitAmountForCurrency,
         upcomingInvoicePreview: mockInvoicePreview,
         metricsOptedOut: false,
         hasActiveSubscriptions: false,
@@ -1818,6 +1826,7 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
         ...mockCart,
+        offeringPrice: mockPricingForCurrency.unitAmountForCurrency,
         upcomingInvoicePreview: mockInvoicePreview,
         paymentInfo: {
           type: mockPaymentMethod.type,
