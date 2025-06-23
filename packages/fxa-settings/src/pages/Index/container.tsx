@@ -4,7 +4,7 @@
 
 import * as Sentry from '@sentry/browser';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { isEmail } from 'class-validator';
 
@@ -47,8 +47,9 @@ const IndexContainer = ({
   const [errorBannerMessage, setErrorBannerMessage] = useState('');
   const [successBannerMessage, setSuccessBannerMessage] = useState('');
   const [tooltipErrorMessage, setTooltipErrorMessage] = useState('');
-  const [hasFailedAutoEmailProcessing, setHasFailedAutoEmailProcessing] =
-    useState(false);
+
+  // This must be a 'ref' because we don't want to trigger a re-render when the state changes
+  const attemptedEmailAutoSubmit = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const { queryParamModel, validationError } = useValidatedQueryParams(
@@ -192,7 +193,6 @@ const IndexContainer = ({
         // if email verification fails, clear from params to avoid re-use
         if (!isManualSubmission) {
           clearEmailParams();
-          setHasFailedAutoEmailProcessing(true);
         }
         handleEmailSubmissionError(email, error);
       }
@@ -218,19 +218,26 @@ const IndexContainer = ({
   useEffect(() => {
     if (isUnsupportedContext(integration.data.context)) {
       hardNavigate('/update_firefox', {}, true);
-    } else if (shouldTrySuggestedEmail && !hasFailedAutoEmailProcessing) {
-      processEmailSubmission(suggestedEmail, false);
+    } else if (shouldTrySuggestedEmail && !attemptedEmailAutoSubmit.current) {
+      // Without this, can_link_account can fire multiple times due to calling it in a `useEffect`,
+      // causing multiple sync warnings to be displayed. This ensures it is called once.
+      attemptedEmailAutoSubmit.current = true;
+      // Must be in an async function or else `setIsLoading(false)` can be called prematurely with
+      // the next render, before async actions in `processEmailSubmission` have finished
+      (async () => {
+        await processEmailSubmission(suggestedEmail, false);
+      })();
     } else {
       setIsLoading(false);
     }
   }, [
     ftlMsgResolver,
-    hasFailedAutoEmailProcessing,
+    attemptedEmailAutoSubmit,
     processEmailSubmission,
     suggestedEmail,
     shouldTrySuggestedEmail,
     integration.data.context,
-    integration
+    integration,
   ]);
 
   useEffect(() => {
