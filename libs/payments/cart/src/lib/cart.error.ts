@@ -56,6 +56,29 @@ export class CartNotUpdatedError extends CartError {
   }
 }
 
+export class CartCouldNotRetrievePriceForCurrencyWhenAttemptingToGetCartCartError extends CartError {
+  constructor(
+    cartId: string,
+    cartInterval: string,
+    offeringId: string,
+    cartCurrency: string,
+    priceId: string
+  ) {
+    super(
+      'Cart could not retrieve price for currency when attempting to getCart',
+      {
+        cartId,
+        cartInterval,
+        offeringId,
+        cartCurrency,
+        priceId,
+      }
+    );
+    this.name =
+      'CartCouldNotRetrievePriceForCurrencyWhenAttemptingToGetCartCartError';
+  }
+}
+
 export class UpdateFreshCartFailedError extends CartError {
   constructor(cartId: string, items: UpdateCart, cause?: Error) {
     super(
@@ -481,13 +504,10 @@ export class TaxAndCurrencyRequiredCartError extends CartError {
 }
 
 export class CartUidMismatchError extends CartError {
-  constructor(
-    cartId: string,
-    sessionUid?: string,
-  ) {
+  constructor(cartId: string, sessionUid?: string) {
     super('Cart UID does not match session UID', {
       cartId,
-      sessionUid
+      sessionUid,
     });
     this.name = 'CartUidMismatchError';
   }

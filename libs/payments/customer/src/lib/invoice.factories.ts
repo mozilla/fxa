@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { InvoicePreview, type InvoicePreviewForUpgrade } from './types';
+import { InvoicePreview } from './types';
 
 export const InvoicePreviewFactory = (
   override?: Partial<InvoicePreview>
 ): InvoicePreview => ({
   currency: faker.finance.currencyCode().toLowerCase(),
-  listAmount: faker.number.int({ min: 1, max: 1000 }),
   totalAmount: faker.number.int({ min: 1, max: 1000 }),
   taxAmounts: [],
   discountAmount: null,
@@ -21,14 +20,8 @@ export const InvoicePreviewFactory = (
     '-' +
     faker.string.numeric({ length: 4, allowLeadingZeros: true }),
   nextInvoiceDate: faker.date.future().getDate(),
-  ...override,
-});
-
-export const InvoicePreviewForUpgradeFactory = (
-  override?: Partial<InvoicePreviewForUpgrade>
-): InvoicePreviewForUpgrade => ({
-  ...InvoicePreviewFactory(override),
-  oneTimeCharge: faker.number.int({ min: 1, max: 1000 }),
-  oneTimeChargeSubtotal: faker.number.int({ min: 1, max: 1000 }),
+  amountDue: faker.number.int({ min: 1, max: 1000 }),
+  creditApplied: faker.number.int({ min: 0 }),
+  startingBalance: faker.number.int({ max: 1000 }),
   ...override,
 });

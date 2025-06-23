@@ -13,6 +13,7 @@ const createStory = subplatStoryWithProps(
   'subscriptionUpgrade',
   'Sent when a user upgrades their subscription.',
   {
+    invoiceAmountDue: '$10.00',
     paymentAmountNew: '$69.89',
     paymentAmountOld: '$9.89',
     productIconURLNew:

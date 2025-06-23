@@ -779,7 +779,7 @@ export class CheckoutService {
           customer,
           fromSubscriptionItem,
         });
-      return upcomingInvoice.oneTimeChargeSubtotal;
+      return upcomingInvoice.subtotal;
     } else {
       const upcomingInvoice = await this.invoiceManager.previewUpcoming({
         priceId,

@@ -81,12 +81,13 @@ export default async function CheckoutLayout({
 
         <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
           <PurchaseDetails
-            invoice={cart.upcomingInvoicePreview}
+            invoice={cart.latestInvoicePreview ?? cart.upcomingInvoicePreview}
+            offeringPrice={cart.offeringPrice}
             purchaseDetails={purchaseDetails}
             priceInterval={
               <PriceInterval
                 l10n={l10n}
-                amount={cart.upcomingInvoicePreview.listAmount}
+                amount={cart.offeringPrice}
                 currency={cart.upcomingInvoicePreview.currency}
                 interval={cart.interval}
                 locale={locale}
@@ -95,13 +96,19 @@ export default async function CheckoutLayout({
             totalPrice={
               <PriceInterval
                 l10n={l10n}
-                amount={cart.upcomingInvoicePreview.totalAmount}
+                amount={
+                  cart.latestInvoicePreview?.amountDue ??
+                  cart.upcomingInvoicePreview.amountDue
+                }
                 currency={cart.upcomingInvoicePreview.currency}
                 interval={cart.interval}
                 locale={locale}
               />
             }
             locale={locale}
+            showPrices={
+              cart.state === CartState.START || cart.state === CartState.SUCCESS
+            }
           />
           {cart.state === CartState.START && (
             <section
@@ -153,12 +160,14 @@ export default async function CheckoutLayout({
               />
             </section>
           )}
-          <CouponForm
-            cartId={cart.id}
-            cartVersion={cart.version}
-            promoCode={cart.couponCode}
-            readOnly={cart.state === CartState.START ? false : true}
-          />
+          {cart.state !== CartState.FAIL && (
+            <CouponForm
+              cartId={cart.id}
+              cartVersion={cart.version}
+              promoCode={cart.couponCode}
+              readOnly={cart.state === CartState.START ? false : true}
+            />
+          )}
         </div>
 
         <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">

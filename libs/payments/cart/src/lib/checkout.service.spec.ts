@@ -46,7 +46,6 @@ import {
   STRIPE_SUBSCRIPTION_METADATA,
   SubscriptionManager,
   TaxAddressFactory,
-  InvoicePreviewForUpgradeFactory,
 } from '@fxa/payments/customer';
 import {
   StripeClient,
@@ -1422,7 +1421,7 @@ describe('CheckoutService', () => {
     const mockTaxAddress = TaxAddressFactory();
     const mockCurrency = mockPrice.currency;
     const mockInvoicePreview = InvoicePreviewFactory();
-    const mockInvoicePreviewForUpgrade = InvoicePreviewForUpgradeFactory();
+    const mockInvoicePreviewForUpgrade = InvoicePreviewFactory();
     const mockSubscription = StripeSubscriptionFactory();
 
     beforeEach(() => {
@@ -1460,9 +1459,7 @@ describe('CheckoutService', () => {
       });
       expect(invoiceManager.previewUpcoming).not.toHaveBeenCalled();
       expect(invoiceManager.previewUpcomingForUpgrade).toHaveBeenCalled();
-      expect(result).toEqual(
-        mockInvoicePreviewForUpgrade.oneTimeChargeSubtotal
-      );
+      expect(result).toEqual(mockInvoicePreviewForUpgrade.subtotal);
     });
 
     it('rejects with customer assertion failure', async () => {
