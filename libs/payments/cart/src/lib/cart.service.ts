@@ -26,7 +26,7 @@ import {
   PriceManager,
   getSubplatInterval,
   SetupIntentManager,
-  PromotionCodeSanitizedError,
+  PromotionCodeError,
 } from '@fxa/payments/customer';
 import {
   EligibilityService,
@@ -636,7 +636,7 @@ export class CartService {
    * Update a cart in the database by ID or with an existing cart reference
    */
   @SanitizeExceptions({
-    allowlist: [PromotionCodeSanitizedError],
+    allowlist: [PromotionCodeError],
   })
   async updateCart(
     cartId: string,
@@ -645,7 +645,7 @@ export class CartService {
   ): Promise<ResultCart> {
     return this.wrapWithCartCatch(
       cartId,
-      { errorAllowList: [PromotionCodeSanitizedError] },
+      { errorAllowList: [PromotionCodeError] },
       async () => {
         const oldCart = await this.cartManager.fetchCartById(cartId);
         const cartDetails: UpdateCart = {
