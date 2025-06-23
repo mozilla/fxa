@@ -41,6 +41,16 @@ export const {
       clientSecret: config.auth.clientSecret,
       token: config.auth.tokenUrl,
       profile: (profile) => {
+        // A successful profile fetch should always return a uid
+        // This is a temporary fix and a permanent solution should be
+        // implemented as part of FXA-11964
+        if (!profile.uid) {
+          console.log('AuthProfileFetchError', { profile });
+          throw new AuthError(
+            'Error while fetching user profile',
+            { info: profile }
+          );
+        }
         return {
           id: profile.uid,
           name: profile.displayName,
