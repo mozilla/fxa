@@ -103,6 +103,20 @@ export const FtlMsg = (props: FtlMsgProps) => (
   <Localized {...props}>{props.children}</Localized>
 );
 
+export const CmsFtlMsg = (props: any) => {
+    if (props.cmsMessage) {
+      return (
+        props.cmsMessage
+      )
+    } else {
+      return (
+        <FtlMsg id={props.ftlId} attrs={props.attrs}>
+          {props.children}
+        </FtlMsg>
+      );
+    }
+}
+
 export class FtlMsgResolver {
   /**
    * @param l10n - The current l10n instance. This can be resolved via a call to useLocalization().

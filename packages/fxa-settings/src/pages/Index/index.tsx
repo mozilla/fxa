@@ -8,7 +8,7 @@ import { IndexFormData, IndexProps } from './interfaces';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
 import InputText from '../../components/InputText';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { CmsFtlMsg, FtlMsg } from 'fxa-react/lib/utils';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import {
@@ -82,20 +82,22 @@ export const Index = ({
     return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} flowQueryParams={flowQueryParams}/>
   }
 
+  const cmsInfo = integration.getCmsInfo();
+
   return (
     <AppLayout>
       {isSync ? (
         <>
           <h1 className="card-header">
-            <FtlMsg id="index-sync-header">
+            <CmsFtlMsg ftlId="index-sync-header" cmsMessage={cmsInfo?.EmailFirstPage[0]?.headline}>
               Continue to your Mozilla account
-            </FtlMsg>
+            </CmsFtlMsg>
           </h1>
           <p className="mt-1 mb-9 text-sm">
-            <FtlMsg id="index-sync-subheader">
+            <CmsFtlMsg id="index-sync-subheader" cmsMessage={cmsInfo?.EmailFirstPage[0]?.description}>
               Sync your passwords, tabs, and bookmarks everywhere you use
               Firefox.
-            </FtlMsg>
+            </CmsFtlMsg>
           </p>
         </>
       ) : isDesktopRelay ? (

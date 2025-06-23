@@ -5,7 +5,7 @@
 import { MozServices } from '../../lib/types';
 import { IntegrationData } from './data/data';
 import { IntegrationFeatures } from './features';
-import { RelierClientInfo, RelierSubscriptionInfo } from './relier-interfaces';
+import { RelierClientInfo, RelierCmsInfo, RelierSubscriptionInfo } from './relier-interfaces';
 
 /**
  * Default alias type, so we don't have continually redeclare default generic types.
@@ -43,18 +43,21 @@ export class GenericIntegration<
 
   clientInfo: RelierClientInfo | undefined;
   subscriptionInfo: RelierSubscriptionInfo | undefined;
+  cmsInfo: RelierCmsInfo | undefined;
 
   constructor(
     type: IntegrationType,
     data: TData,
     features: TFeatures,
     clientInfo?: RelierClientInfo,
-    subscriptionInfo?: RelierSubscriptionInfo | undefined
+    subscriptionInfo?: RelierSubscriptionInfo | undefined,
+    cmsInfo?: RelierCmsInfo | undefined
   ) {
     this.type = type;
     this.data = data;
     this.clientInfo = clientInfo;
     this.subscriptionInfo = subscriptionInfo;
+    this.cmsInfo = cmsInfo;
     this.features = features;
   }
 
@@ -155,5 +158,9 @@ export class GenericIntegration<
 
   thirdPartyAuthParams() {
     return {};
+  }
+
+  getCmsInfo() {
+    return this.cmsInfo;
   }
 }

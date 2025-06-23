@@ -8,7 +8,7 @@ import { QueryParams } from '../../index'
 
 export type IndexIntegration = Pick<
   Integration,
-  'type' | 'isSync' | 'getClientId' | 'isDesktopRelay' | 'data'
+  'type' | 'isSync' | 'getClientId' | 'isDesktopRelay' | 'data' | 'getCmsInfo'
 >;
 
 export interface IndexContainerProps {

@@ -26,3 +26,10 @@ export interface RelierAccount {
   ): Promise<{ sub: string }>;
   isDefault(): boolean;
 }
+
+export interface RelierCmsInfo {
+  id: number;
+  clientId: string;
+  entrypoint: string;
+  EmailFirstPage?: any
+}

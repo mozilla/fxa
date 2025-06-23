@@ -60,6 +60,7 @@ export function createMockIndexOAuthNativeIntegration({
     isSync: () => isSync,
     getClientId: () => MOCK_CLIENT_ID,
     isDesktopRelay: () => isDesktopRelay,
+    getCmsInfo: () => undefined,
     data: new OAuthIntegrationData(
       new GenericData({
         context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
@@ -74,6 +75,7 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     isSync: () => false,
     getClientId: () => undefined,
     isDesktopRelay: () => false,
+    getCmsInfo: () => undefined,
     data: new IntegrationData(
       new GenericData({
         context: '',
