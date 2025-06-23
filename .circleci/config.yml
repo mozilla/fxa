@@ -1080,7 +1080,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --no-cloud
           requires:
             - Build
       - integration-test:
@@ -1094,7 +1094,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --no-cloud
           requires:
             - Build
       - integration-test:
@@ -1107,7 +1107,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --no-cloud
           requires:
             - Build
       - integration-test:
@@ -1121,7 +1121,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --no-cloud
           requires:
             - Build
       - integration-test:
@@ -1136,7 +1136,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --no-cloud
           requires:
             - Build
       - integration-test:
@@ -1149,7 +1149,7 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --no-cloud
           requires:
             - Build
       - playwright-functional-tests:
