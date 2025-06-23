@@ -795,11 +795,17 @@ export class CartService {
     ]);
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
+    const { unitAmountForCurrency: offeringPrice } =
+      await this.priceManager.retrievePricingForCurrency(
+        price.id,
+        cart.currency
+      );
+    assertNotNull(offeringPrice);
 
     let upcomingInvoicePreview: InvoicePreview | undefined;
     if (
       cartEligibilityStatus === CartEligibilityStatus.UPGRADE &&
-      cart.state === CartState.START
+      cart.state !== CartState.FAIL
     ) {
       assert(
         'fromPrice' in eligibility,
@@ -878,6 +884,7 @@ export class CartService {
       return {
         ...cart,
         state: CartState.SUCCESS,
+        offeringPrice,
         upcomingInvoicePreview,
         metricsOptedOut,
         latestInvoicePreview,
@@ -918,6 +925,7 @@ export class CartService {
       latestInvoicePreview,
       metricsOptedOut,
       paymentInfo,
+      offeringPrice,
       fromOfferingConfigId:
         'fromOfferingConfigId' in eligibility
           ? eligibility.fromOfferingConfigId

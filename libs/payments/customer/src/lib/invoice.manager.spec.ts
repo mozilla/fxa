@@ -279,11 +279,7 @@ describe('InvoiceManager', () => {
         fromSubscriptionItem: mockSubscriptionItem,
       });
 
-      expect(result).toEqual({
-        ...mockPreviewSubsequentInvoice,
-        oneTimeCharge: mockPreviewUpcomingUpgradeInvoice.totalAmount,
-        oneTimeChargeSubtotal: mockPreviewUpcomingUpgradeInvoice.subtotal,
-      });
+      expect(result).toEqual(mockPreviewUpcomingUpgradeInvoice);
     });
 
     it('throws an error if customer is missing currency', async () => {

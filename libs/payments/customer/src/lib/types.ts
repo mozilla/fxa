@@ -7,7 +7,6 @@ import { Stripe } from 'stripe';
 
 export type InvoicePreview = {
   currency: string;
-  listAmount: number;
   totalAmount: number;
   taxAmounts: TaxAmount[];
   discountAmount: number | null;
@@ -17,12 +16,10 @@ export type InvoicePreview = {
   number: string | null; // customer-facing invoice identifier
   paypalTransactionId?: string;
   nextInvoiceDate: number;
-  oneTimeCharge?: number;
-};
-
-export type InvoicePreviewForUpgrade = InvoicePreview & {
-  oneTimeCharge: number;
-  oneTimeChargeSubtotal: number;
+  amountDue: number;
+  creditApplied: number | null;
+  startingBalance: number;
+  unusedAmountTotal?: number;
 };
 
 export interface Interval {

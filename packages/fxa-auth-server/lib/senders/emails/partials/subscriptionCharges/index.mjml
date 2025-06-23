@@ -55,11 +55,13 @@
 <% } %>
 
 <mj-text css-class="text-body-no-bottom-margin">
-  <% if (locals.invoiceTotalInCents >= 0 ) { %>
-    <span data-l10n-id="subscriptionFirstInvoice-content-charge" data-l10n-args="<%= JSON.stringify({invoiceDateOnly, invoiceTotal}) %>">
-      Charged <%- invoiceTotal %> on <%- invoiceDateOnly %>
-    </span>
-  <% } else { %>
+  <span data-l10n-id="subscriptionFirstInvoice-content-total-due" data-l10n-args="<%= JSON.stringify({invoiceAmountDue, invoiceDateOnly}) %>">
+    Charged <%- invoiceAmountDue %> on <%- invoiceDateOnly %>
+  </span>
+</mj-text>
+
+<mj-text css-class="text-body-no-bottom-margin">
+  <% if (locals.invoiceTotalInCents < 0) { %>
     <span data-l10n-id="subscriptionFirstInvoice-content-credit" data-l10n-args="<%= JSON.stringify({invoiceTotal}) %>">
       You have received an account credit of <%- invoiceTotal %>, which will be applied to your future invoices.
     </span>

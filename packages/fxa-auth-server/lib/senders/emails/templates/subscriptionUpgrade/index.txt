@@ -7,7 +7,7 @@ subscriptionUpgrade-upgrade-info-2 = "You have successfully upgraded to <%- prod
 <% if (locals.paymentProratedInCents < 0) { %>
 subscriptionUpgrade-content-charge-credit = "You have received an account credit in the amount of <%- paymentProrated %>."
 <% } else if (locals.paymentProratedInCents > 0) { %>
-subscriptionUpgrade-content-charge-prorated = "You have been charged a one-time fee of <%- paymentProrated %> to reflect your subscription’s higher price for the remainder of this billing period (<%- productPaymentCycleOld %>)."
+subscriptionUpgrade-content-charge-prorated-1 = "You have been charged a one-time fee of <%- invoiceAmountDue %> to reflect your subscription’s higher price for the remainder of this billing period (<%- productPaymentCycleOld %>)."
 <% } %>
 
 subscriptionUpgrade-content-starting = "Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>."

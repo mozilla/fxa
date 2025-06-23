@@ -25,8 +25,9 @@ subscriptionFirstInvoiceDiscount-content-discount-repeating = { $discountDuratio
 subscriptionCharges-content-tax = Taxes & fees: { $invoiceTaxAmount }
 ## Variables:
 ##  $invoiceDateOnly (String) - The date of the next invoice, e.g. 01/20/2016
+##  $invoiceAmountDue (String) - The total that the customer owes after all credits, discounts, and taxes have been applied
 ##  $invoiceTotal (String) - The amount, after discount, of the subscription invoice, including currency, e.g. $8.00
-subscriptionFirstInvoice-content-charge = Charged { $invoiceTotal } on { $invoiceDateOnly }
+subscriptionFirstInvoice-content-total-due = Charged { $invoiceAmountDue } on { $invoiceDateOnly }
 subscriptionFirstInvoice-content-credit = You have received an account credit of { $invoiceTotal }, which will be applied to your future invoices.
 
 ##

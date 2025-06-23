@@ -82,11 +82,12 @@ export default async function CheckoutLayout({
         <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
           <PurchaseDetails
             invoice={cart.upcomingInvoicePreview}
+            offeringPrice={cart.offeringPrice}
             purchaseDetails={purchaseDetails}
             priceInterval={
               <PriceInterval
                 l10n={l10n}
-                amount={cart.upcomingInvoicePreview.listAmount}
+                amount={cart.offeringPrice}
                 currency={cart.upcomingInvoicePreview.currency}
                 interval={cart.interval}
                 locale={locale}
@@ -95,13 +96,16 @@ export default async function CheckoutLayout({
             totalPrice={
               <PriceInterval
                 l10n={l10n}
-                amount={cart.upcomingInvoicePreview.totalAmount}
+                amount={cart.upcomingInvoicePreview.amountDue}
                 currency={cart.upcomingInvoicePreview.currency}
                 interval={cart.interval}
                 locale={locale}
               />
             }
             locale={locale}
+            showPrices={
+              cart.state === CartState.START || cart.state === CartState.SUCCESS
+            }
           />
           {cart.state === CartState.START && (
             <section

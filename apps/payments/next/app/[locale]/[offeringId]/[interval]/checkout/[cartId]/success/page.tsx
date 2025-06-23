@@ -135,7 +135,7 @@ export default async function CheckoutSuccess({
         </div>
       </div>
 
-      <div className="border-b border-grey-200 pb-6 text-sm">
+      <div className="text-sm">
         <div className="font-semibold py-4">
           {l10n.getString(
             'next-payment-confirmation-details-heading-2',
@@ -144,7 +144,7 @@ export default async function CheckoutSuccess({
         </div>
         <div className="flex items-center justify-between text-grey-400">
           {l10n.getLocalizedCurrencyString(
-            cart.latestInvoicePreview?.totalAmount,
+            cart.latestInvoicePreview?.amountDue,
             cart.latestInvoicePreview?.currency,
             locale
           )}

@@ -14,6 +14,7 @@ const createStory = subplatStoryWithProps(
   'Sent when the latest subscription payment is received.',
   {
     productName: 'Firefox Fortress',
+    invoiceAmountDue: '$10.00',
     invoiceDateOnly: '12/14/2021',
     invoiceNumber: '8675309',
     invoiceTotalInCents: 2000,
