@@ -380,10 +380,14 @@ commands:
           when: always
 
   build:
+    parameters:
+      nx_run:
+        type: string
+        default: run-many
     steps:
       - run:
           name: Build
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --parallel=2 --all --verbose
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> -t build --parallel=2 --all --verbose
           environment:
             NODE_ENV: test
 
@@ -609,6 +613,10 @@ jobs:
       - save-init-workspace
 
   build:
+    parameters:
+      nx_run:
+        type: string
+        default: run-many
     executor: default-executor
     resource_class: xlarge
     steps:
@@ -1196,20 +1204,23 @@ workflows:
               only: main
             tags:
               ignore: /.*/
+          nx_run: run-many --skipRemoteCache
           requires:
             - Init (nightly)
       - lint:
           name: Lint (nightly)
+          nx_run: run-many --skipRemoteCache
           requires:
             - Init (nightly)
       - compile:
           name: Compile (nightly)
+          nx_run: run-many --skipRemoteCache
           requires:
             - Init (nightly)
       - unit-test:
           name: Unit Test (nightly)
           workflow: nightly
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --skipRemoteCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1218,7 +1229,7 @@ workflows:
           projects: --exclude '*,!tag:scope:frontend'
           test_suite: frontends-integration
           workflow: nightly
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --skipRemoteCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1226,7 +1237,7 @@ workflows:
           projects: --exclude '*,!tag:scope:server'
           test_suite: servers-integration
           workflow: nightly
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --skipRemoteCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1235,7 +1246,7 @@ workflows:
           start_customs: true
           test_suite: servers-auth-integration
           workflow: nightly
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --skipRemoteCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1245,7 +1256,7 @@ workflows:
           target: -t test-integration-v2
           test_suite: servers-auth-v2-integration
           workflow: nightly
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --skipRemoteCache
           requires:
             - Build (nightly)
       - integration-test:
@@ -1253,7 +1264,7 @@ workflows:
           projects: --exclude '*,!tag:scope:shared:*'
           test_suite: libraries-integration
           workflow: nightly
-          nx_run: run-many --skipNxCache
+          nx_run: run-many --skipRemoteCache
           requires:
             - Build (nightly)
       - playwright-functional-tests:
