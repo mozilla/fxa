@@ -939,25 +939,27 @@ export class CartService {
 
   @SanitizeExceptions()
   async getNeedsInput(cartId: string): Promise<GetNeedsInputResponse> {
-    const cart = await this.cartManager.fetchCartById(cartId);
+    return this.wrapWithCartCatch(cartId, async () => {
+      const cart = await this.cartManager.fetchCartById(cartId);
 
-    if (!cart.stripeIntentId) {
-      throw new CartIntentNotFoundError(cartId);
-    }
+      if (!cart.stripeIntentId) {
+        throw new CartIntentNotFoundError(cartId);
+      }
 
-    const intent = isPaymentIntentId(cart.stripeIntentId)
-      ? await this.paymentIntentManager.retrieve(cart.stripeIntentId)
-      : await this.setupIntentManager.retrieve(cart.stripeIntentId);
+      const intent = isPaymentIntentId(cart.stripeIntentId)
+        ? await this.paymentIntentManager.retrieve(cart.stripeIntentId)
+        : await this.setupIntentManager.retrieve(cart.stripeIntentId);
 
-    if (intent.status === 'requires_action') {
-      return {
-        inputType: NeedsInputType.StripeHandleNextAction,
-        data: { clientSecret: intent.client_secret },
-      } as StripeHandleNextActionResponse;
-    } else {
-      await this.cartManager.setProcessingCart(cartId);
-      return { inputType: NeedsInputType.NotRequired } as NoInputNeededResponse;
-    }
+      if (intent.status === 'requires_action') {
+        return {
+          inputType: NeedsInputType.StripeHandleNextAction,
+          data: { clientSecret: intent.client_secret },
+        } as StripeHandleNextActionResponse;
+      } else {
+        await this.cartManager.setProcessingCart(cartId);
+        return { inputType: NeedsInputType.NotRequired } as NoInputNeededResponse;
+      }
+    });
   }
 
   @SanitizeExceptions({ allowlist: [SubmitNeedsInputFailedError] })

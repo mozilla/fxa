@@ -26,20 +26,22 @@ export function PaymentInputHandler({ cartId }: { cartId: string }) {
     }
     const handleNextAction = async () => {
       const inputRequest = await getNeedsInputAction(cartId);
-      switch (inputRequest.inputType) {
-        case 'stripeHandleNextAction':
-          await stripe.handleNextAction({
-            clientSecret: inputRequest.data.clientSecret,
-          });
-          await submitNeedsInputAndRedirectAction(cartId);
-          break;
-        case 'notRequired':
-          await validateCartStateAndRedirectAction(
-            cartId,
-            SupportedPages.NEEDS_INPUT,
-            searchParamsRecord
-          );
-          break;
+      if (inputRequest) {
+        switch (inputRequest.inputType) {
+          case 'stripeHandleNextAction':
+            await stripe.handleNextAction({
+              clientSecret: inputRequest.data.clientSecret,
+            });
+            await submitNeedsInputAndRedirectAction(cartId);
+            break;
+          case 'notRequired':
+            await validateCartStateAndRedirectAction(
+              cartId,
+              SupportedPages.NEEDS_INPUT,
+              searchParamsRecord
+            );
+            break;
+        }
       }
     };
     handleNextAction();
