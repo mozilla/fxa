@@ -87,6 +87,7 @@
       "inputs": ["production", "^production"],
       "dependsOn": ["test-unit", "test-integration", "test-e2e"],
       "outputs": [
+        "{workspaceRoot}/artifacts/tests",
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml"
@@ -97,6 +98,7 @@
       "dependsOn": ["build"],
       "inputs": ["production", "^production"],
       "outputs": [
+        "{workspaceRoot}/artifacts/tests",
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml"
@@ -106,6 +108,7 @@
       "dependsOn": ["build", "gen-keys"],
       "inputs": ["test", "^test"],
       "outputs": [
+        "{workspaceRoot}/artifacts/tests",
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml",
@@ -117,6 +120,7 @@
       "dependsOn": ["build", "gen-keys"],
       "inputs": ["test", "^test"],
       "outputs": [
+        "{workspaceRoot}/artifacts/tests",
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml",
@@ -128,6 +132,7 @@
       "dependsOn": ["build", "gen-keys"],
       "inputs": ["test", "^test"],
       "outputs": [
+        "{workspaceRoot}/artifacts/tests",
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml"
@@ -145,7 +150,8 @@
           "ci": true,
           "codeCoverage": true
         }
-      }
+      },
+      "outputs": ["{workspaceRoot}/artifacts/tests"]
     },
     "@nx/js:tsc": {
       "cache": true,
