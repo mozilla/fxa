@@ -202,7 +202,10 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     ) {
       sendFxaLogin(navigationOptions);
     }
-    performNavigation({ to, locationState });
+
+    if (navigationOptions.performNavigation !== false) {
+      performNavigation({ to, locationState });
+    }
     return { error: undefined };
   }
 
@@ -222,9 +225,11 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   }
 
   if (!isOAuth) {
-    const { to, locationState, shouldHardNavigate } =
-      await getNonOAuthNavigationTarget(navigationOptions);
-    performNavigation({ to, locationState, shouldHardNavigate });
+    if (navigationOptions.performNavigation !== false) {
+      const { to, locationState, shouldHardNavigate } =
+        await getNonOAuthNavigationTarget(navigationOptions);
+      performNavigation({ to, locationState, shouldHardNavigate });
+    }
     return { error: undefined };
   }
 
@@ -249,7 +254,14 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
         state: oauthData.state,
       });
     }
-    performNavigation({ to, locationState, shouldHardNavigate, replace: true });
+    if (navigationOptions.performNavigation !== false) {
+      performNavigation({
+        to,
+        locationState,
+        shouldHardNavigate,
+        replace: true,
+      });
+    }
   }
 
   return { error: undefined };

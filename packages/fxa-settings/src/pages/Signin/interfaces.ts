@@ -216,6 +216,8 @@ export interface NavigationOptions {
     offeredEngines: string[];
     declinedEngines: string[];
   };
+  // If false, skip actually navigating. Still sends web channel messages etc.
+  performNavigation?: boolean;
 }
 
 export interface OAuthSigninResult {
