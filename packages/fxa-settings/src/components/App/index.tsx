@@ -10,6 +10,7 @@ import {
   useState,
   useLayoutEffect,
   useMemo,
+  startTransition,
 } from 'react';
 
 import { QueryParams } from '../..';
@@ -191,7 +192,9 @@ export const App = ({
 
       // If the local apollo cache says we are signed in, then we can skip the rest.
       if (isSignedInData?.isSignedIn === true) {
-        setIsSignedIn(true);
+        startTransition(() => {
+          setIsSignedIn(true);
+        });
         return;
       }
 
@@ -201,7 +204,9 @@ export const App = ({
         localUser?.sessionToken &&
         (await session.isValid(localUser.sessionToken))
       ) {
-        setIsSignedIn(true);
+        startTransition(() => {
+          setIsSignedIn(true);
+        });
         return;
       }
 
@@ -241,7 +246,9 @@ export const App = ({
         }
       }
 
-      setIsSignedIn(isValidSession);
+      startTransition(() => {
+        setIsSignedIn(isValidSession);
+      });
     };
     initializeSession();
   }, [integration, isSignedInData?.isSignedIn, session]);
