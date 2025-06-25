@@ -2397,13 +2397,12 @@ describe('StripeWebhookHandler', () => {
           subscription
         );
 
-        assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper
-            .extractInvoiceDetailsForEmail,
-          { id: subscription.latest_invoice }
-        );
-
         if (shouldSendSubscriptionFailedPaymentsCancellationEmail()) {
+          assert.calledWith(
+            StripeWebhookHandlerInstance.stripeHelper
+              .extractInvoiceDetailsForEmail,
+            { id: subscription.latest_invoice }
+          );
           assert.calledWith(
             StripeWebhookHandlerInstance.mailer
               .sendSubscriptionFailedPaymentsCancellationEmail,

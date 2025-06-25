@@ -1059,12 +1059,13 @@ export class StripeWebhookHandler extends StripeHandler {
       subscription.latest_invoice,
       INVOICES_RESOURCE
     );
-    const invoiceDetails =
-      await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
+
     if (subscription.metadata?.cancelled_for_customer_at) {
       // Subscription already cancelled, should have triggered an email earlier
-      return invoiceDetails;
+      return;
     }
+    const invoiceDetails =
+      await this.stripeHelper.extractInvoiceDetailsForEmail(invoice);
     const { uid, email, invoiceStatus } = invoiceDetails;
 
     let account;
@@ -1117,8 +1118,6 @@ export class StripeWebhookHandler extends StripeHandler {
         );
       }
     }
-
-    return invoiceDetails;
   }
 
   async getSubscriptionEndedEventDetails(
