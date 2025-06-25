@@ -1457,28 +1457,28 @@ describe(`#integration - remote db`, function () {
   //   assert.deepEqual(result.length, 0);
   // });
 
-  it('account deletion', () => {
-    return db
-      .emailRecord(account.email)
-      .then((emailRecord) => {
-        assert.deepEqual(
-          emailRecord.uid,
-          account.uid,
-          'retrieving uid should be the same'
-        );
-        return db.deleteAccount(emailRecord);
-      })
-      .then(() => {
-        return redis.get(account.uid);
-      })
-      .then((result) => {
-        assert.equal(result, null, 'redis was cleared');
-        // account should no longer exist for this email address
-        return db.accountExists(account.email);
-      })
-      .then((exists) => {
-        assert.equal(exists, false, 'account should no longer exist');
-      });
+  it('account deletion', async () => {
+    const emailRecord = await db.emailRecord(account.email);
+    assert.deepEqual(
+      emailRecord.uid,
+      account.uid,
+      'retrieving uid should be the same'
+    );
+
+    await db.deleteAccount(emailRecord);
+
+    const redisResult = await redis.get(account.uid);
+    assert.equal(redisResult, null, 'redis was cleared');
+
+    const exists = await db.accountExists(account.email);
+    assert.equal(exists, false, 'account should no longer exist');
+
+    const deletedAccount = await db.deletedAccount(account.uid);
+    assert.equal(
+      deletedAccount.uid,
+      account.uid,
+      'deleted account uid matches'
+    );
   });
 
   it('should create and delete linked account', async () => {

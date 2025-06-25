@@ -12,6 +12,7 @@ import { setupAuthDatabase } from 'fxa-shared/db';
 import {
   Account,
   BaseToken,
+  DeletedAccount,
   Device,
   Email,
   EmailBounce,
@@ -34,6 +35,7 @@ import {
   verificationMethodToString,
   VerificationMethod,
 } from 'fxa-shared/db/models/auth/session-token';
+import { uuidTransformer } from 'fxa-shared/db/transformers';
 
 function resolveMetrics(): StatsD | undefined {
   return Container.has(StatsD) ? Container.get(StatsD) : undefined;
@@ -378,6 +380,16 @@ export const createDB = (
       }
       this.metrics?.increment('db.account.retrieve', { result: 'success' });
       return account;
+    }
+
+    async deletedAccount(uid: string): Promise<DeletedAccount> {
+      const deletedAccount = await DeletedAccount.query().findById(
+        uuidTransformer.to(uid)
+      );
+      if (!deletedAccount) {
+        throw error.unknownAccount();
+      }
+      return deletedAccount;
     }
 
     async listAllUnverifiedAccounts() {
