@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { IndexFormData, IndexProps } from './interfaces';
 import AppLayout from '../../components/AppLayout';
@@ -32,7 +32,7 @@ export const Index = ({
   setSuccessBannerMessage,
   setTooltipErrorMessage,
   deeplink,
-  flowQueryParams
+  flowQueryParams,
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
@@ -41,6 +41,7 @@ export const Index = ({
   const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
   const isRelayClient = isOAuth && isClientRelay(clientId);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const emailEngageEventEmitted = useRef(false);
 
@@ -51,7 +52,13 @@ export const Index = ({
   }, []);
 
   const onSubmit = async ({ email }: IndexFormData) => {
-    processEmailSubmission(email.trim());
+    setIsSubmitting(true);
+    try {
+      await processEmailSubmission(email.trim());
+      // Error handling is in container component
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = () => {
@@ -79,7 +86,14 @@ export const Index = ({
 
   if (isDeeplinking) {
     // To avoid flickering, we just render third party auth when deeplinking
-    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} flowQueryParams={flowQueryParams}/>
+    return (
+      <ThirdPartyAuth
+        showSeparator={false}
+        viewName="deeplink"
+        deeplink={deeplink}
+        flowQueryParams={flowQueryParams}
+      />
+    );
   }
 
   return (
@@ -151,6 +165,7 @@ export const Index = ({
             className="cta-primary cta-xl"
             type="submit"
             data-glean-id="email_first_submit"
+            disabled={isSubmitting}
           >
             <FtlMsg id="index-cta">Sign up or sign in</FtlMsg>
           </button>
@@ -165,7 +180,13 @@ export const Index = ({
           </FtlMsg>
         </p>
       ) : (
-        !isDesktopRelay && <ThirdPartyAuth showSeparator viewName="index" flowQueryParams={flowQueryParams}/>
+        !isDesktopRelay && (
+          <ThirdPartyAuth
+            showSeparator
+            viewName="index"
+            flowQueryParams={flowQueryParams}
+          />
+        )
       )}
       <TermsPrivacyAgreement
         {...{ isPocketClient, isMonitorClient, isDesktopRelay, isRelayClient }}
