@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import ProductPromo from '.';
 import { Account, AppContext } from '../../../models';
 import { MozServices } from '../../../lib/types';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { mockAppContext } from '../../../models/mocks';
 import GleanMetrics from '../../../lib/glean';
+import userEvent from '@testing-library/user-event';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -26,37 +27,31 @@ describe('ProductPromo', () => {
     jest.clearAllMocks();
   });
 
-  it('renders nothing for Monitor Plus subscribers', () => {
-    const account = {
-      attachedClients: [{ name: MozServices.Monitor }],
-      subscriptions: [{ productName: MozServices.MonitorPlus }],
-    } as unknown as Account;
-
+  it('can hide the promo', async () => {
     renderWithLocalizationProvider(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo type="settings" />
-      </AppContext.Provider>
+      <ProductPromo type="settings" monitorPromo={{ hidePromo: true }} />
     );
 
     // nothing should render
-    expect(screen.queryByAltText('Mozilla Monitor')).toBeNull();
+    await waitFor(() =>
+      expect(screen.queryByAltText('Mozilla Monitor')).toBeNull()
+    );
   });
 
-  it('shows generic promo when user has no Monitor', () => {
-    const account = {
-      attachedClients: [],
-      subscriptions: [],
-    } as unknown as Account;
-
+  it('can show generic promo', async () => {
     renderWithLocalizationProvider(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo type="settings" />
-      </AppContext.Provider>
+      <ProductPromo
+        type="settings"
+        monitorPromo={{ hidePromo: false, showMonitorPlusPromo: false }}
+      />
     );
 
-    screen.getByAltText('Mozilla Monitor');
-    screen.getByText(
-      'Find where your private info is exposed and take control'
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          'Find where your private info is exposed and take control'
+        )
+      ).toBeVisible()
     );
     expect(
       screen.getByRole('link', { name: /Get free scan/i })
@@ -66,36 +61,19 @@ describe('ProductPromo', () => {
     );
   });
 
-  it('shows generic promo for Monitor‑free users when not special‑eligible', () => {
-    const account = {
-      attachedClients: [{ name: MozServices.Monitor }],
-      subscriptions: [],
-    } as unknown as Account;
-
+  it('can show special promo', async () => {
     renderWithLocalizationProvider(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo type="settings" />
-      </AppContext.Provider>
+      <ProductPromo
+        type="settings"
+        monitorPromo={{ hidePromo: false, showMonitorPlusPromo: true }}
+      />
     );
 
-    screen.getByText(
-      'Find where your private info is exposed and take control'
+    await waitFor(() =>
+      expect(
+        screen.getByText(/save on VPN, Monitor’s data-broker protection/i)
+      ).toBeVisible()
     );
-  });
-
-  it('shows special promo for eligible Monitor‑free users', () => {
-    const account = {
-      attachedClients: [{ name: MozServices.Monitor }],
-      subscriptions: [],
-    } as unknown as Account;
-
-    renderWithLocalizationProvider(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo type="settings" specialPromoEligible />
-      </AppContext.Provider>
-    );
-
-    screen.getByText(/save on VPN, Monitor’s data-broker protection/i);
     expect(
       screen.getByRole('link', { name: /Get year-round protection/i })
     ).toHaveAttribute(
@@ -104,23 +82,71 @@ describe('ProductPromo', () => {
     );
   });
 
+  it('emits telemetry when CTA clicked (default)', async () => {
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(
+      <ProductPromo
+        type="settings"
+        monitorPromo={{
+          hidePromo: false,
+          showMonitorPlusPromo: false,
+          gleanEvent: { event: { reason: 'default' } },
+        }}
+      />
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          'Find where your private info is exposed and take control'
+        )
+      ).toBeVisible()
+    );
+    await user.click(
+      screen.getByRole('link', {
+        name: /Get free scan/i,
+      })
+    );
+    await waitFor(() => {
+      expect(GleanMetrics.accountPref.promoMonitorSubmit).toHaveBeenCalledWith({
+        event: { reason: 'default' },
+      });
+    });
+  });
+
   it('emits telemetry when CTA clicked (special)', async () => {
+    const user = userEvent.setup();
     const account = {
       attachedClients: [{ name: MozServices.Monitor }],
       subscriptions: [],
+      getMonitorPlusPromoEligibility: () => Promise.resolve({ eligible: true }),
     } as unknown as Account;
 
     renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo type="settings" specialPromoEligible />
+        <ProductPromo
+          type="settings"
+          monitorPromo={{
+            hidePromo: false,
+            showMonitorPlusPromo: true,
+            gleanEvent: { event: { reason: 'special' } },
+          }}
+        />
       </AppContext.Provider>
     );
 
-    fireEvent.click(
-      screen.getByRole('link', { name: /Get year-round protection/i })
+    await waitFor(() =>
+      expect(
+        screen.getByText(/save on VPN, Monitor’s data-broker protection/i)
+      ).toBeVisible()
+    );
+    await user.click(
+      screen.getByRole('link', {
+        name: /Get year-round protection/i,
+      })
     );
     await waitFor(() => {
-      expect(GleanMetrics.accountPref.promoMonitorSubmit).toBeCalledWith({
+      expect(GleanMetrics.accountPref.promoMonitorSubmit).toHaveBeenCalledWith({
         event: { reason: 'special' },
       });
     });

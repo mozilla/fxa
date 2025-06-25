@@ -4,7 +4,7 @@
 
 import React from 'react';
 import Nav, { NavRefProps } from '../Nav';
-import ProductPromo from '../ProductPromo';
+import ProductPromo, { MonitorPromoData } from '../ProductPromo';
 
 export const SideBar = ({
   profileRef,
@@ -12,7 +12,8 @@ export const SideBar = ({
   connectedServicesRef,
   linkedAccountsRef,
   dataCollectionRef,
-}: NavRefProps) => {
+  monitorPromo,
+}: NavRefProps & { monitorPromo?: MonitorPromoData | null }) => {
   // top-[7.69rem] allows the sticky nav header to align exactly with first section heading
   return (
     <div className="fixed desktop:sticky desktop:top-[7.69rem] inset-0 bg-white desktop:bg-transparent w-full mt-19 desktop:mt-0">
@@ -25,7 +26,9 @@ export const SideBar = ({
           dataCollectionRef,
         }}
       />
-      <ProductPromo type="sidebar" />
+      {monitorPromo && !monitorPromo.hidePromo && (
+        <ProductPromo type="sidebar" {...{ monitorPromo }} />
+      )}
     </div>
   );
 };

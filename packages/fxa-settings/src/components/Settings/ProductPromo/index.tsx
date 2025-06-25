@@ -8,7 +8,7 @@ import monitorTextLogo from './monitor-text-logo.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
 import { MozServices } from '../../../lib/types';
-import { AccountData, useAccount, useConfig } from '../../../models';
+import { AccountData, useConfig } from '../../../models';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 import { LINK } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
@@ -18,31 +18,27 @@ type ProductPromoType = 'sidebar' | 'settings';
 
 export interface ProductPromoProps {
   type?: ProductPromoType;
-  /**
-   * Temporary prop for Storybook / tests.
-   * Will be removed once we have real user‑location data to decide whether a
-   * user belongs to the *special promo* treatment group (initially - USA users).
-   */
-  specialPromoEligible?: boolean;
+  monitorPromo: MonitorPromoData;
 }
+
+export type MonitorPromoData = {
+  hidePromo?: boolean;
+  showMonitorPlusPromo?: boolean;
+  gleanEvent?: { event: { reason: string } };
+};
 
 /**
  * Determine which (if any) promo variant to show.
  *
- * **Stage 1** (current):
- *   • Hide promos entirely for **Monitor Plus** (paid) subscribers.
- *   • Everyone else sees the *generic* free‑scan promo.
- *
- * **Stage 2** (in progress):
- *   • US‑based *Monitor‑free* users will see a *special* bundled
+ *   • Paid subscribers see nothing.
+ *   • US‑based *Monitor‑free* users see a *special* bundled
  *     promo for Monitor Plus + VPN + Relay.
- *   • All other non‑paid users continue to see the generic promo.
- *   • Paid subscribers still see nothing.
+ *   • All others see the generic promo.
  */
 export function getProductPromoData(
   attachedClients: AccountData['attachedClients'],
   subscriptions: AccountData['subscriptions'],
-  specialPromoEligible = false // Placeholder until location is retrieved in FXA-11920
+  monitorPlusPromoEligible = false
 ) {
   const hasMonitor = attachedClients.some(
     ({ name }) => name === MozServices.Monitor
@@ -58,32 +54,24 @@ export function getProductPromoData(
   }
 
   // Stage‑2: decide whether to surface the special US‑only promo.
-  const showSpecialPromo = hasMonitor && specialPromoEligible;
+  // TODO re-add the hasMonitor condition
+  const showMonitorPlusPromo = hasMonitor && monitorPlusPromoEligible;
 
-  const gleanEvent = showSpecialPromo
+  const gleanEvent = showMonitorPlusPromo
     ? { event: { reason: 'special' } }
     : { event: { reason: 'default' } };
 
-  return { hidePromo: false, showSpecialPromo, gleanEvent };
+  return { hidePromo: false, showMonitorPlusPromo, gleanEvent };
 }
 
 export const ProductPromo = ({
   type = 'sidebar',
-  // default: generic global promo, prop for storybook and testing only
-  // TODO(FXA-11920): replace specialPromoEligible prop with real geo location check
-  specialPromoEligible = false,
+  monitorPromo,
 }: ProductPromoProps) => {
-  const { attachedClients, subscriptions } = useAccount();
   const { sentry } = useConfig();
 
-  const { hidePromo, showSpecialPromo, gleanEvent } = getProductPromoData(
-    attachedClients,
-    subscriptions,
-    specialPromoEligible
-  );
-
   // Paid Monitor Plus subscribers never see a promo.
-  if (hidePromo) {
+  if (monitorPromo.hidePromo) {
     return null;
   }
 
@@ -116,7 +104,7 @@ export const ProductPromo = ({
     }
   ).format(price);
 
-  const promoContent = showSpecialPromo ? (
+  const promoContent = monitorPromo.showMonitorPlusPromo ? (
     <>
       <FtlMsg
         id="product-promo-monitor-special-promo-description"
@@ -141,7 +129,9 @@ export const ProductPromo = ({
           id: 'account_pref_promo_monitor_submit',
           type: 'special',
         }}
-        onClick={() => GleanMetrics.accountPref.promoMonitorSubmit(gleanEvent)}
+        onClick={() =>
+          GleanMetrics.accountPref.promoMonitorSubmit(monitorPromo.gleanEvent)
+        }
       >
         <FtlMsg id="product-promo-monitor-special-promo-cta">
           Get year-round protection
@@ -162,7 +152,9 @@ export const ProductPromo = ({
           id: 'account_pref_promo_monitor_submit',
           type: 'default',
         }}
-        onClick={() => GleanMetrics.accountPref.promoMonitorSubmit(gleanEvent)}
+        onClick={() =>
+          GleanMetrics.accountPref.promoMonitorSubmit(monitorPromo.gleanEvent)
+        }
       >
         <FtlMsg id="product-promo-monitor-cta">Get free scan</FtlMsg>
       </LinkExternal>

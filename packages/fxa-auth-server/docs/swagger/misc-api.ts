@@ -79,10 +79,23 @@ const OAUTH_ID_TOKEN_VERIFY_POST = {
   ],
 };
 
+const GEO_ELIGIBILITY_GET = {
+  ...TAGS_MISC,
+  description: 'geo/eligibility/{feature}',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token
+
+      Returns eligibility for a given feature based on user's country.
+    `,
+  ],
+};
+
 const API_DOCS = {
   ACCOUNT_GET,
   ACCOUNT_LOCK_POST,
   ACCOUNT_SESSIONS_LOCATIONS_GET,
+  GEO_ELIGIBILITY_GET,
   NEWSLETTERS_POST,
   OAUTH_ID_TOKEN_VERIFY_POST,
   SUPPORT_TICKET_POST,

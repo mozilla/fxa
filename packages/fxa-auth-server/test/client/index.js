@@ -880,6 +880,10 @@ module.exports = (config) => {
     return this.api.verifyTotpCode(this.sessionToken, code, options);
   };
 
+  Client.prototype.geoEligibilityCheck = async function (feature) {
+    return this.api.geoEligibilityCheck(this.sessionToken, feature);
+  };
+
   Client.prototype.replaceRecoveryCodes = function (options = {}) {
     return this.api.replaceRecoveryCodes(this.sessionToken, options);
   };

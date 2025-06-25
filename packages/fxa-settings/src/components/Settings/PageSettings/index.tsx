@@ -15,7 +15,10 @@ import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
 import DataCollection from '../DataCollection';
 import GleanMetrics from '../../../lib/glean';
-import ProductPromo, { getProductPromoData } from '../ProductPromo';
+import ProductPromo, {
+  getProductPromoData,
+  MonitorPromoData,
+} from '../ProductPromo';
 import SideBar from '../Sidebar';
 import Head from 'fxa-react/components/Head';
 import { SettingsIntegration } from '../interfaces';
@@ -27,10 +30,14 @@ import {
   isRecoveryKeyPromoDismissed,
   isRecoveryPhonePromoDismissed,
 } from '../../../lib/promo-dismissal';
+import { useGeoEligibilityCheck } from '../../../lib/hooks/useGeoEligibilityCheck';
 
 export const PageSettings = ({
   integration,
-}: RouteComponentProps & { integration?: SettingsIntegration }) => {
+}: RouteComponentProps & {
+  integration?: SettingsIntegration;
+}) => {
+  const account = useAccount();
   const {
     uid,
     recoveryKey,
@@ -38,7 +45,13 @@ export const PageSettings = ({
     subscriptions,
     totp,
     recoveryPhone,
-  } = useAccount();
+  } = account;
+
+  const {
+    eligible: monitorPlusPromoEligible,
+    loading: monitorPlusEligibilityLoading,
+  } = useGeoEligibilityCheck('monitorpluspromo');
+
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
 
@@ -52,6 +65,9 @@ export const PageSettings = ({
     GleanMetrics.accountPref.view();
   }, []);
 
+  const [monitorPromo, setMonitorPromo] = useState<MonitorPromoData | null>(
+    null
+  );
   const [productPromoGleanEventSent, setProductPromoGleanEventSent] =
     useState(false);
 
@@ -86,20 +102,43 @@ export const PageSettings = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // -- Relying parting promotion checks --
   useEffect(() => {
+    (async () => {
+      if (monitorPromo !== null || monitorPlusEligibilityLoading) {
+        return;
+      }
+
+      const promoData = getProductPromoData(
+        account.attachedClients,
+        account.subscriptions,
+        monitorPlusPromoEligible
+      );
+
+      setMonitorPromo(promoData);
+    })();
+  }, [
+    account,
+    monitorPlusPromoEligible,
+    monitorPlusEligibilityLoading,
+    monitorPromo,
+  ]);
+
+  // -- Relying party promotion checks --
+  useEffect(() => {
+    if (!monitorPromo) return;
     // We want this view event to fire whenever the account settings page view
     // event fires, if the user is shown the promo.
-    const { gleanEvent, hidePromo } = getProductPromoData(
-      attachedClients,
-      subscriptions
-    );
-    if (!hidePromo && !productPromoGleanEventSent) {
-      GleanMetrics.accountPref.promoMonitorView(gleanEvent);
+    if (!monitorPromo.hidePromo && !productPromoGleanEventSent) {
+      GleanMetrics.accountPref.promoMonitorView(monitorPromo.gleanEvent);
       // Keep track of this because `attachedClients` can change on disconnect
       setProductPromoGleanEventSent(true);
     }
-  }, [attachedClients, subscriptions, productPromoGleanEventSent]);
+  }, [
+    attachedClients,
+    monitorPromo,
+    subscriptions,
+    productPromoGleanEventSent,
+  ]);
 
   // -- Account feature promotion checks --
 
@@ -145,6 +184,7 @@ export const PageSettings = ({
             connectedServicesRef,
             linkedAccountsRef,
             dataCollectionRef,
+            monitorPromo,
           }}
         />
       </div>
@@ -168,7 +208,9 @@ export const PageSettings = ({
             </Link>
           </Localized>
         </div>
-        <ProductPromo type="settings" />
+        {monitorPromo && !monitorPromo.hidePromo && (
+          <ProductPromo type="settings" {...{ monitorPromo }} />
+        )}
       </div>
     </div>
   );

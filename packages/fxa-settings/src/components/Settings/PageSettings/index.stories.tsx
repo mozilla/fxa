@@ -9,83 +9,24 @@ import { PageSettings } from '.';
 import { Config } from '../../../lib/config';
 
 import { LocationProvider } from '@reach/router';
-import { isMobileDevice } from '../../../lib/utilities';
-import { mockAppContext, mockEmail, MOCK_ACCOUNT } from '../../../models/mocks';
-import { MOCK_SERVICES } from '../ConnectedServices/mocks';
+import { mockAppContext } from '../../../models/mocks';
 import { AppContext } from 'fxa-settings/src/models';
-import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
-
-const SERVICES_NON_MOBILE = MOCK_SERVICES.filter((d) => !isMobileDevice(d));
+import {
+  accountEligibleForRecoveryKey,
+  accountEligibleForRecoveryPhoneOnly,
+  coldStartAccount,
+  completelyFilledOutAccount,
+  partiallyFilledOutAccount,
+} from './mocks';
 
 export default {
   title: 'Pages/Settings',
   component: PageSettings,
   decorators: [withLocalization],
 } as Meta;
-
-const coldStartAccount = {
-  ...MOCK_ACCOUNT,
-  displayName: null,
-  avatar: { id: null, url: null },
-  recoveryKey: { exists: false },
-  totp: { exists: false, verified: false },
-  attachedClients: [SERVICES_NON_MOBILE[0]],
-} as unknown as Account;
-
-const partiallyFilledOutAccount = {
-  ...MOCK_ACCOUNT,
-  displayName: null,
-  totp: { exists: true, verified: false },
-  attachedClients: SERVICES_NON_MOBILE,
-  linkedAccounts: MOCK_LINKED_ACCOUNTS,
-} as unknown as Account;
-
-const accountWithoutRecoveryKey = {
-  ...MOCK_ACCOUNT,
-  displayName: null,
-  recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 },
-  totp: { exists: false, verified: false },
-  attachedClients: MOCK_SERVICES,
-  linkedAccounts: MOCK_LINKED_ACCOUNTS,
-} as unknown as Account;
-
-const completelyFilledOutAccount = {
-  ...MOCK_ACCOUNT,
-  subscriptions: [{ created: 1, productName: 'x' }],
-  emails: [mockEmail(), mockEmail('johndope2@gmail.com', false)],
-  attachedClients: SERVICES_NON_MOBILE,
-  linkedAccounts: MOCK_LINKED_ACCOUNTS,
-  totp: { exists: true, verified: true },
-  backupCodes: {
-    hasBackupCodes: true,
-    count: 3,
-  },
-  recoveryPhone: {
-    exists: true,
-    phoneNumber: '1234',
-    available: true,
-    nationalFormat: '',
-  },
-};
-
-const accountEligibleForRecoveryPhone = {
-  ...MOCK_ACCOUNT,
-  recoveryKey: { exists: false, estimatedSyncDeviceCount: 2 },
-  totp: { exists: true, verified: true },
-  backupCodes: {
-    hasBackupCodes: true,
-    count: 3,
-  },
-  recoveryPhone: {
-    exists: false,
-    phoneNumber: null,
-    available: true,
-    nationalFormat: null,
-  },
-};
 
 const storyWithContext = (
   account: Partial<Account>,
@@ -122,11 +63,11 @@ export const CompletelyFilledOut = storyWithContext(
 );
 
 export const PartiallyFilledOutWithKeyPromo = storyWithContext(
-  accountWithoutRecoveryKey,
+  accountEligibleForRecoveryKey,
   'with recovery key promo'
 );
 
 export const PartiallyFilledOutWithPhonePromo = storyWithContext(
-  accountEligibleForRecoveryPhone,
+  accountEligibleForRecoveryPhoneOnly,
   'with recovery phone promo'
 );

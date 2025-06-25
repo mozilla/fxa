@@ -43,11 +43,17 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const mockUseGeoEligibilityCheck = jest.fn().mockReturnValue({ eligible: false });
+jest.mock('../../lib/hooks/useGeoEligibilityCheck', () => ({
+  useGeoEligibilityCheck: () => mockUseGeoEligibilityCheck(),
+}));
+
 describe('Settings App', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
     (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
+    mockNavigate.mockReset();
   });
 
   it('renders `LoadingSpinner` component when loading initial state is true', () => {
@@ -290,6 +296,7 @@ describe('Settings App', () => {
       const account = {
         ...MOCK_ACCOUNT,
         hasPassword: false,
+        getMonitorPlusPromoEligibility: () => Promise.resolve(false),
       } as unknown as Account;
 
       const config = {
