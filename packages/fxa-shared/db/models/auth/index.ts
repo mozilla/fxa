@@ -7,6 +7,7 @@ import { AccountCustomers } from './account-customers';
 import { AccountResetToken } from './account-reset-token';
 import { BaseAuthModel } from './base-auth';
 import { BaseToken } from './base-token';
+import { DeletedAccount } from './deleted-account';
 import { Device } from './device';
 import { Email } from './email';
 import { EmailBounce } from './email-bounce';
@@ -243,6 +244,7 @@ export {
   AccountResetToken,
   BaseAuthModel,
   BaseToken,
+  DeletedAccount,
   Device,
   Email,
   EmailBounce,
