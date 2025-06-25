@@ -32,7 +32,9 @@ describe('FormPasswordWithInlineCriteria component', () => {
   });
 
   it('renders as expected for the signup form type', async () => {
-    renderWithLocalizationProvider(<Subject passwordFormType="signup" />);
+    renderWithLocalizationProvider(
+      <Subject passwordFormType="signup" requirePasswordConfirmation={true} />
+    );
 
     await waitFor(() => {
       screen.getByLabelText('Password');

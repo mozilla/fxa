@@ -16,15 +16,17 @@ export type FormPasswordWithInlineCriteriaProps = {
   passwordFormType: PasswordFormType;
   formState: UseFormMethods['formState'];
   errors: UseFormMethods['errors'];
-  onSubmit: () => void;
+  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
   trigger: UseFormMethods['trigger'];
   register: UseFormMethods['register'];
   getValues: UseFormMethods['getValues'];
   email: string;
-  onFocusMetricsEvent?: () => void;
   loading: boolean;
   children?: React.ReactNode;
   disableButtonUntilValid?: boolean;
+  onFocusMetricsEvent?: () => void;
+  requirePasswordConfirmation?: boolean;
+  submitButtonGleanId?: string;
 };
 
 const getTemplateValues = (passwordFormType: PasswordFormType) => {
@@ -76,6 +78,8 @@ export const FormPasswordWithInlineCriteria = ({
   loading,
   children,
   disableButtonUntilValid = true,
+  requirePasswordConfirmation = false,
+  submitButtonGleanId,
 }: FormPasswordWithInlineCriteriaProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
@@ -93,6 +97,9 @@ export const FormPasswordWithInlineCriteria = ({
   );
 
   const templateValues = getTemplateValues(passwordFormType);
+  const showConfirmPasswordInput =
+    passwordFormType === 'reset' ||
+    (passwordFormType === 'signup' && !!requirePasswordConfirmation);
 
   const onNewPwdFocus = () => {
     setSROnlyPwdFeedbackMessage('');
@@ -214,27 +221,30 @@ export const FormPasswordWithInlineCriteria = ({
           autoComplete="username"
           readOnly
         />
-        <div>
-          <PasswordStrengthInline
-            {...{
-              isPasswordEmpty: (getValues('newPassword')?.length || 0) === 0,
-              isConfirmedPasswordEmpty:
-                (getValues('confirmPassword')?.length || 0) === 0,
-              isTooShort: errors.newPassword?.types?.length,
-              isSameAsEmail: errors.newPassword?.types?.notEmail,
-              isCommon: errors.newPassword?.types?.uncommon,
-              isUnconfirmed:
-                getValues('confirmPassword') !== getValues('newPassword'),
-            }}
-          />
-          <span
-            id="password-requirements"
-            aria-live="polite"
-            className="text-xs"
-          >
-            <span className="sr-only">{srOnlyPwdFeedbackMessage}</span>
-          </span>
-        </div>
+        {passwordFormType === 'reset' && (
+          <div>
+            <PasswordStrengthInline
+              {...{
+                isPasswordEmpty: (getValues('newPassword')?.length || 0) === 0,
+                isConfirmedPasswordEmpty:
+                  (getValues('confirmPassword')?.length || 0) === 0,
+                isTooShort: errors.newPassword?.types?.length,
+                isSameAsEmail: errors.newPassword?.types?.notEmail,
+                isCommon: errors.newPassword?.types?.uncommon,
+                isUnconfirmed:
+                  getValues('confirmPassword') !== getValues('newPassword'),
+                passwordFormType,
+              }}
+            />
+            <span
+              id="password-requirements"
+              aria-live="polite"
+              className="text-xs"
+            >
+              <span className="sr-only">{srOnlyPwdFeedbackMessage}</span>
+            </span>
+          </div>
+        )}
 
         <div className="relative mb-4" aria-atomic="true">
           <FtlMsg id={templateValues.passwordFtlId} attrs={{ label: true }}>
@@ -273,38 +283,68 @@ export const FormPasswordWithInlineCriteria = ({
           </FtlMsg>
         </div>
 
-        <div className=" relative mb-4">
-          <FtlMsg
-            id={templateValues.confirmPasswordFtlId}
-            attrs={{ label: true }}
-          >
-            <InputPassword
-              name="confirmPassword"
-              label={templateValues.confirmPasswordLabel}
-              className="text-start"
-              onFocusCb={onFocusConfirmPassword}
-              onBlurCb={onBlurConfirmPassword}
-              onChange={() => onChangePassword('confirmPassword')}
-              hasErrors={errors.confirmPassword && passwordMatchErrorText}
-              inputRef={register({
-                required: true,
-                validate: (value: string) => value === getValues().newPassword,
-              })}
-              anchorPosition="end"
-              tooltipPosition="bottom"
-              prefixDataTestId="verify-password"
-              aria-describedby="repeat-password-information"
-            />
-          </FtlMsg>
+        {showConfirmPasswordInput && (
+          <div className=" relative mb-4">
+            <FtlMsg
+              id={templateValues.confirmPasswordFtlId}
+              attrs={{ label: true }}
+            >
+              <InputPassword
+                name="confirmPassword"
+                label={templateValues.confirmPasswordLabel}
+                className="text-start"
+                onFocusCb={onFocusConfirmPassword}
+                onBlurCb={onBlurConfirmPassword}
+                onChange={() => onChangePassword('confirmPassword')}
+                hasErrors={errors.confirmPassword && passwordMatchErrorText}
+                inputRef={register({
+                  required: true,
+                  validate: (value: string) =>
+                    value === getValues().newPassword,
+                })}
+                anchorPosition="end"
+                tooltipPosition="bottom"
+                prefixDataTestId="verify-password"
+                aria-describedby="repeat-password-information"
+              />
+            </FtlMsg>
 
-          <span
-            id="repeat-password-information"
-            aria-live="polite"
-            className="text-xs"
-          >
-            <span className="sr-only">{srOnlyConfirmPwdFeedbackMessage}</span>
-          </span>
-        </div>
+            <span
+              id="repeat-password-information"
+              aria-live="polite"
+              className="text-xs"
+            >
+              <span className="sr-only">{srOnlyConfirmPwdFeedbackMessage}</span>
+            </span>
+          </div>
+        )}
+
+        {passwordFormType === 'signup' && (
+          <div className="mb-1">
+            <PasswordStrengthInline
+              {...{
+                isPasswordEmpty: (getValues('newPassword')?.length || 0) === 0,
+                isConfirmedPasswordEmpty:
+                  (getValues('confirmPassword')?.length || 0) === 0,
+                isTooShort: errors.newPassword?.types?.length,
+                isSameAsEmail: errors.newPassword?.types?.notEmail,
+                isCommon: errors.newPassword?.types?.uncommon,
+                isUnconfirmed: requirePasswordConfirmation
+                  ? getValues('confirmPassword') !== getValues('newPassword')
+                  : undefined,
+                passwordFormType,
+                requirePasswordConfirmation,
+              }}
+            />
+            <span
+              id="password-requirements"
+              aria-live="polite"
+              className="text-xs"
+            >
+              <span className="sr-only">{srOnlyPwdFeedbackMessage}</span>
+            </span>
+          </div>
+        )}
 
         {children}
         <FtlMsg id={templateValues.buttonFtlId}>
@@ -314,6 +354,7 @@ export const FormPasswordWithInlineCriteria = ({
             disabled={
               loading || (disableButtonUntilValid && !formState.isValid)
             }
+            data-glean-id={submitButtonGleanId && submitButtonGleanId}
           >
             {templateValues.buttonText}
           </button>
