@@ -27,7 +27,7 @@ export const Default = () => (
     <FlowSetup2faBackupChoice
       currentStep={2}
       numberOfSteps={3}
-      localizedFlowTitle="Two-step authentication"
+      localizedPageTitle="Two-step authentication"
       onBackButtonClick={navigateBackward}
       showProgressBar
       onSubmitCb={onSubmitCb}

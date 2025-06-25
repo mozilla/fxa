@@ -77,9 +77,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('setup fails with invalid number', async ({
       target,
-      pages: { page, settings, signin, recoveryPhone, totp },
+      pages: { page, settings, signin, recoveryPhone, totp, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       await signInAccount(target, page, settings, signin, testAccountTracker);
 
       await settings.goto();
@@ -101,9 +106,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('can setup, confirm and remove recovery phone', async ({
       target,
-      pages: { page, settings, signin, recoveryPhone, totp },
+      pages: { page, settings, signin, recoveryPhone, totp, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -163,9 +173,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('can change recovery phone', async ({
       target,
-      pages: { page, settings, signin, recoveryPhone, totp },
+      pages: { page, settings, signin, recoveryPhone, totp, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -221,9 +236,15 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryChoice,
         signinRecoveryPhone,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -273,9 +294,15 @@ test.describe('severity-1 #smoke', () => {
         signinRecoveryChoice,
         signinRecoveryPhone,
         connectAnotherDevice,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -334,9 +361,15 @@ test.describe('severity-1 #smoke', () => {
         signinRecoveryChoice,
         signinRecoveryPhone,
         connectAnotherDevice,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -393,9 +426,15 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryChoice,
         signinRecoveryPhone,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -477,9 +516,15 @@ test.describe('severity-1 #smoke', () => {
         signinRecoveryChoice,
         signinRecoveryPhone,
         relier,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -530,9 +575,15 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryChoice,
         signinRecoveryCode,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,
@@ -588,10 +639,15 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryChoice,
         signinRecoveryPhone,
-        signinRecoveryCode,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await signInAccount(
         target,
         page,

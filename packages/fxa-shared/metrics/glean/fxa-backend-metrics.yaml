@@ -137,7 +137,6 @@ account:
           The reason for the deletion.
         type: string
 
-
 relying_party:
   service:
     type: string
@@ -1024,10 +1023,27 @@ two_factor_auth:
     expires: never
     data_sensitivity:
       - interaction
+  set_codes_complete:
+    type: event
+    description: |
+      Event that indicates the user successfully set up backup authentication codes during initial 2FA setup
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11628
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
   replace_code_complete:
     type: event
     description: |
-      Event that indicates the user successfully replaced their two-step authentication codes
+      Event that indicates the user successfully replaced their backup authentication codes
     lifetime: ping
     send_in_pings:
       - events

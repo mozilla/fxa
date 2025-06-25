@@ -17,7 +17,7 @@ type FlowSetup2faBackupCodeConfirmProps = {
   currentStep?: number;
   numberOfSteps?: number;
   hideBackButton?: boolean;
-  localizedFlowTitle: string;
+  localizedPageTitle: string;
   onBackButtonClick?: () => void;
   showProgressBar?: boolean;
   verifyCode: (code: string) => Promise<void>;
@@ -30,7 +30,7 @@ export const FlowSetup2faBackupCodeConfirm = ({
   currentStep,
   numberOfSteps,
   hideBackButton = false,
-  localizedFlowTitle,
+  localizedPageTitle,
   onBackButtonClick,
   showProgressBar = true,
   verifyCode,
@@ -48,7 +48,7 @@ export const FlowSetup2faBackupCodeConfirm = ({
 
   return (
     <FlowContainer
-      title={localizedFlowTitle}
+      title={localizedPageTitle}
       {...{ hideBackButton, onBackButtonClick }}
     >
       {showProgressBar && currentStep != null && numberOfSteps != null && (
@@ -96,3 +96,5 @@ export const FlowSetup2faBackupCodeConfirm = ({
     </FlowContainer>
   );
 };
+
+export default FlowSetup2faBackupCodeConfirm;

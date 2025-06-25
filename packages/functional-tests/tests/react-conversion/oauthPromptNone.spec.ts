@@ -252,9 +252,14 @@ test.describe('severity-1 #smoke', () => {
     test('redirect to RP with prompt=none and 2FA setup', async ({
       page,
       target,
-      pages: { relier, settings, signin, totp, deleteAccount },
+      pages: { relier, settings, signin, totp, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const { email } = await signInAccount(
         target,
         page,

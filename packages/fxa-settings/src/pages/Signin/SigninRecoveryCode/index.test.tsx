@@ -13,7 +13,7 @@ import {
   mockSigninLocationState,
 } from '../mocks';
 import { LocationProvider } from '@reach/router';
-import { MOCK_RECOVERY_CODE } from '../../mocks';
+import { MOCK_BACKUP_CODE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { tryAgainError } from '../../../lib/oauth/hooks';
@@ -95,7 +95,7 @@ describe('PageSigninRecoveryCode', () => {
 
     const user = userEvent.setup();
     await waitFor(() =>
-      user.type(screen.getByRole('textbox'), MOCK_RECOVERY_CODE)
+      user.type(screen.getByRole('textbox'), MOCK_BACKUP_CODE)
     );
 
     expect(screen.getByRole('button', { name: /Confirm/i })).toHaveAttribute(
@@ -170,9 +170,9 @@ describe('PageSigninRecoveryCode', () => {
 
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.change(input, { target: { value: MOCK_RECOVERY_CODE } });
+      fireEvent.change(input, { target: { value: MOCK_BACKUP_CODE } });
       await waitFor(() => {
-        expect(input).toHaveValue(MOCK_RECOVERY_CODE);
+        expect(input).toHaveValue(MOCK_BACKUP_CODE);
       });
       button.click();
 
@@ -224,9 +224,9 @@ describe('PageSigninRecoveryCode', () => {
       );
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.change(input, { target: { value: MOCK_RECOVERY_CODE } });
+      fireEvent.change(input, { target: { value: MOCK_BACKUP_CODE } });
       await waitFor(() => {
-        expect(input).toHaveValue(MOCK_RECOVERY_CODE);
+        expect(input).toHaveValue(MOCK_BACKUP_CODE);
       });
       button.click();
       await waitFor(() => {
@@ -254,9 +254,9 @@ describe('PageSigninRecoveryCode', () => {
 
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.change(input, { target: { value: MOCK_RECOVERY_CODE } });
+      fireEvent.change(input, { target: { value: MOCK_BACKUP_CODE } });
       // await waitFor(() => {
-      expect(input).toHaveValue(MOCK_RECOVERY_CODE);
+      expect(input).toHaveValue(MOCK_BACKUP_CODE);
       // });
       button.click();
 
@@ -282,9 +282,9 @@ describe('PageSigninRecoveryCode', () => {
       );
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.change(input, { target: { value: MOCK_RECOVERY_CODE } });
+      fireEvent.change(input, { target: { value: MOCK_BACKUP_CODE } });
       await waitFor(() => {
-        expect(input).toHaveValue(MOCK_RECOVERY_CODE);
+        expect(input).toHaveValue(MOCK_BACKUP_CODE);
       });
       button.click();
       await waitFor(() => {

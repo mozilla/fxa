@@ -24,7 +24,7 @@ export const MOCK_PASSWORD = 'notYourAveragePassW0Rd';
 export const MOCK_AUTHPW =
   'b5a61d1f7a6b1b762539bd85f783b65f635def1025c3f66fc51a438a68a77d6d';
 export const MOCK_UNBLOCK_CODE = 'A1B2C3D4';
-export const MOCK_RECOVERY_CODE = 'a1b2c3d4e5';
+export const MOCK_BACKUP_CODE = 'a1b2c3d4e5';
 export const PLACEHOLDER_IMAGE_URL = 'https://loremflickr.com/512/512';
 export const MOCK_AVATAR_NON_DEFAULT = {
   id: 'abc123',
@@ -78,4 +78,16 @@ export const MOCK_FULL_PHONE_NUMBER = '+15555551234';
 export const MOCK_NATIONAL_FORMAT_PHONE_NUMBER = '(555) 555-1234';
 export const MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER = '(•••) •••-1234';
 export const MOCK_MASKED_PHONE_NUMBER_WITH_COPY = 'Number ending in 1234';
-export const MOCK_2FA_SECRET_KEY_RAW = 'I5WXG2LSKJVVOQKPO5DFKZKGNU3UEVSH'
+export const MOCK_2FA_SECRET_KEY_RAW = 'JBSWY3DPEHPK3PXP';
+export const MOCK_BACKUP_CODES = [
+  'a9k3m2z8q1',
+  'b7x2v5n4l6',
+  'p0s8d3f1g7',
+  'w4e6r2t9y5',
+  'u3i7o1l8k2',
+  'z6x9c5v3b8',
+  'n2m4j7h1g9',
+  'q5w8e2r6t3',
+];
+export const PLACEHOLDER_QR_CODE =
+  'https://placehold.co/192x192/white/black?text=QR+Code&font=poppins';

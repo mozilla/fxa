@@ -92,9 +92,21 @@ test.describe('relay integration', () => {
 
   test('signin with Relay desktop - with 2FA', async ({
     target,
-    syncOAuthBrowserPages: { signinTotpCode, totp, page, signin, settings },
+    syncOAuthBrowserPages: {
+      signinTotpCode,
+      totp,
+      page,
+      signin,
+      settings,
+      configPage,
+    },
     testAccountTracker,
   }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.featureFlags.updated2faSetupFlow,
+      'TODO in FXA-11935 - add test for new flow'
+    );
     const { email, password } = await testAccountTracker.signUp();
 
     // Sign-in without Sync, otw you will get prompted to create a recovery key

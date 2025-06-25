@@ -16,7 +16,7 @@ import { Integration, useSensitiveDataClient } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import {
   MOCK_STORED_ACCOUNT,
-  MOCK_RECOVERY_CODE,
+  MOCK_BACKUP_CODE,
   mockLoadingSpinnerModule,
   MOCK_UNWRAP_BKEY,
   MOCK_KEY_FETCH_TOKEN,
@@ -174,7 +174,7 @@ describe('SigninRecoveryCode container', () => {
       await waitFor(async () => {
         const response =
           await currentSigninRecoveryCodeProps?.submitRecoveryCode(
-            MOCK_RECOVERY_CODE
+            MOCK_BACKUP_CODE
           );
         expect(response?.data?.consumeRecoveryCode).toEqual({
           remaining: 3,
@@ -193,7 +193,7 @@ describe('SigninRecoveryCode container', () => {
       await waitFor(async () => {
         const response =
           await currentSigninRecoveryCodeProps?.submitRecoveryCode(
-            MOCK_RECOVERY_CODE
+            MOCK_BACKUP_CODE
           );
 
         expect(response?.data?.consumeRecoveryCode).toBeUndefined();

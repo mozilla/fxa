@@ -6,10 +6,10 @@ import React from 'react';
 import InlineRecoverySetup from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { InlineRecoverySetupProps } from './interfaces';
-import { MOCK_EMAIL } from '../mocks';
+import { MOCK_BACKUP_CODES, MOCK_EMAIL } from '../mocks';
+import { MozServices } from '../../lib/types';
 
 export default {
   title: 'Pages/InlineRecoverySetup',
@@ -21,8 +21,8 @@ const cancelSetupHandler = () => {};
 const verifyTotpHandler = async () => true;
 const successfulSetupHandler = () => {};
 const props = {
-  recoveryCodes: MOCK_RECOVERY_CODES,
-  serviceName: MOCK_SERVICE_NAME,
+  recoveryCodes: MOCK_BACKUP_CODES,
+  serviceName: MozServices.Default,
   cancelSetupHandler,
   verifyTotpHandler,
   successfulSetupHandler,
@@ -36,7 +36,7 @@ const ComponentWithRouter = (props: InlineRecoverySetupProps) => (
 
 export const Default = () => (
   <ComponentWithRouter
-    recoveryCodes={MOCK_RECOVERY_CODES}
+    recoveryCodes={MOCK_BACKUP_CODES}
     cancelSetupHandler={cancelSetupHandler}
     verifyTotpHandler={verifyTotpHandler}
     successfulSetupHandler={successfulSetupHandler}

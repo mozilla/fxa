@@ -44,16 +44,6 @@ export class RecoveryNumberNotSupportedError extends RecoveryPhoneError {
   }
 }
 
-export class RecoveryNumberRemoveMissingBackupCodes extends RecoveryPhoneError {
-  constructor(uid: string, cause?: Error) {
-    super(
-      'Unable to remove recovery phone, missing backup authentication codes.',
-      { uid },
-      cause
-    );
-  }
-}
-
 export class RecoveryNumberReplaceNotExistsError extends RecoveryPhoneError {
   constructor(uid: string, cause?: Error) {
     super(

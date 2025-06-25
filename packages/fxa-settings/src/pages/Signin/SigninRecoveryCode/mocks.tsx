@@ -8,7 +8,7 @@ import {
   OAuthNativeIntegration,
   WebIntegration,
 } from '../../../models';
-import { MOCK_RECOVERY_CODE } from '../../mocks';
+import { MOCK_BACKUP_CODE } from '../../mocks';
 import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
 import { ConsumeRecoveryCodeResponse } from './interfaces';
 
@@ -17,7 +17,7 @@ export function mockConsumeRecoveryCodeUseMutation() {
   return {
     request: {
       query: CONSUME_RECOVERY_CODE_MUTATION,
-      variables: { input: { code: MOCK_RECOVERY_CODE } },
+      variables: { input: { code: MOCK_BACKUP_CODE } },
     },
     result,
   };

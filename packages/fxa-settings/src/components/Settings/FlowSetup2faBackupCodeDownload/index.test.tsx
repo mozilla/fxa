@@ -10,8 +10,9 @@ import { FlowSetup2faBackupCodeDownload } from '.';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';
 import { GleanClickEventType2FA } from '../../../lib/types';
+import { MOCK_EMAIL } from '../../../pages/mocks';
 
-const recoveryCodes = ['3594s0tbsq', '0zrg82sdzm', 'wx88yxenfc'];
+const backupCodes = ['3594s0tbsq', '0zrg82sdzm', 'wx88yxenfc'];
 
 const renderFlowSetup2faBackupCodeDownload = () => {
   const onBackButtonClick = jest.fn();
@@ -23,10 +24,10 @@ const renderFlowSetup2faBackupCodeDownload = () => {
       <FlowSetup2faBackupCodeDownload
         currentStep={1}
         numberOfSteps={3}
-        localizedFlowTitle="Two-step authentication"
-        email="ibicking@mozilla.com"
+        localizedPageTitle="Two-step authentication"
+        email={MOCK_EMAIL}
         showProgressBar
-        {...{ recoveryCodes, onBackButtonClick, onContinue }}
+        {...{ backupCodes, onBackButtonClick, onContinue }}
       />
     ),
   };
@@ -49,10 +50,10 @@ describe('FlowSetup2faBackupCodeDownload', () => {
     screen
       .getByTestId('datablock')
       .querySelectorAll('li')
-      .forEach((li, i) => expect(li).toHaveTextContent(recoveryCodes[i]));
+      .forEach((li, i) => expect(li).toHaveTextContent(backupCodes[i]));
     expect(screen.getByRole('link', { name: 'Download' })).toHaveAttribute(
       'download',
-      'ibicking@mozilla.com Backup authentication codes.txt'
+      `${MOCK_EMAIL} Backup authentication codes.txt`
     );
   });
 

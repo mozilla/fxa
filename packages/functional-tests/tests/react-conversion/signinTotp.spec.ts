@@ -8,9 +8,22 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
     test('add totp', async ({
-      pages: { settings, totp, page, signin, signup, signinTotpCode },
+      pages: {
+        settings,
+        totp,
+        page,
+        signin,
+        signup,
+        signinTotpCode,
+        configPage,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto();
@@ -53,9 +66,15 @@ test.describe('severity-1 #smoke', () => {
         signin,
         signup,
         signinTotpCode,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto();
@@ -97,9 +116,22 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('error message when totp code is invalid', async ({
-      pages: { page, settings, totp, signin, signup, signinTotpCode },
+      pages: {
+        page,
+        settings,
+        totp,
+        signin,
+        signup,
+        signinTotpCode,
+        configPage,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await testAccountTracker.signUp();
 
       await signin.goto();

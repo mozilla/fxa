@@ -156,9 +156,15 @@ test.describe('recovery key promo', () => {
         connectAnotherDevice,
         totp,
         signinTotpCode,
+        configPage,
       },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11935 - add test for new flow'
+      );
       const credentials = await testAccountTracker.signUp();
 
       // Sign-in without Sync, otw you will get prompted to create a recovery key

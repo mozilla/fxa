@@ -13,7 +13,6 @@ import {
   RecoveryNumberAlreadyExistsError,
   RecoveryNumberNotExistsError,
   SmsSendRateLimitExceededError,
-  RecoveryNumberRemoveMissingBackupCodes,
   RecoveryPhoneRegistrationLimitReached,
   TwilioMessageStatus,
 } from '@fxa/accounts/recovery-phone';
@@ -371,7 +370,7 @@ class RecoveryPhoneHandler {
     }
   }
 
-  async confirmSigninCode(request: AuthRequest, isSetup: boolean) {
+  async confirmSigninCode(request: AuthRequest) {
     const {
       id: sessionTokenId,
       uid,
@@ -395,26 +394,104 @@ class RecoveryPhoneHandler {
 
     let success = false;
     try {
-      if (isSetup) {
-        // This is the initial setup case, where a user is validating an sms
-        // code on their phone for the first time. It does NOT impact the totp
-        // token's database state.
-        success = await this.recoveryPhoneService.confirmSetupCode(uid, code);
-      } else {
-        // This is a sign in attempt. This will check the code, and if valid, mark the
-        // session token verified. This session will have a security level that allows
-        // the user to remove totp devices.
-        success = await this.recoveryPhoneService.confirmCode(uid, code);
+      // This is a sign in attempt. This will check the code, and if valid, mark the
+      // session token verified. This session will have a security level that allows
+      // the user to remove totp devices.
+      success = await this.recoveryPhoneService.confirmCode(uid, code);
 
-        // Mark session as verified
-        if (success) {
-          await this.accountManager.verifySession(
-            uid,
-            sessionTokenId,
-            VerificationMethods.sms2fa
-          );
-        }
+      // Mark session as verified
+      if (success) {
+        await this.accountManager.verifySession(
+          uid,
+          sessionTokenId,
+          VerificationMethods.sms2fa
+        );
       }
+    } catch (error) {
+      if (error instanceof RecoveryPhoneNotEnabled) {
+        throw AppError.featureNotEnabled();
+      }
+
+      throw AppError.backendServiceFailure(
+        'RecoveryPhoneService',
+        'confirmCode',
+        { uid },
+        error
+      );
+    }
+
+    if (success) {
+      await this.glean.twoStepAuthPhoneCode.complete(request);
+
+      const account = await this.db.account(uid);
+      const { acceptLanguage, geo, ua } = request.app;
+
+      this.statsd.increment('account.recoveryPhone.phoneSignin.success');
+      // this signals the end of the login flow
+      await request.emitMetricsEvent('account.confirmed', { uid });
+
+      recordSecurityEvent('account.recovery_phone_signin_complete', {
+        db: this.db,
+        request,
+      });
+
+      try {
+        await this.mailer.sendPostSigninRecoveryPhoneEmail(
+          account.emails,
+          account,
+          {
+            acceptLanguage,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          }
+        );
+      } catch (error) {
+        // log email send error but don't throw
+        // user should be allowed to proceed
+        this.log.trace('account.recoveryPhone.phoneSigninNotification.error', {
+          error,
+        });
+      }
+
+      return { status: RecoveryPhoneStatus.SUCCESS };
+    }
+
+    recordSecurityEvent('account.recovery_phone_signin_failed', {
+      db: this.db,
+      request,
+    });
+
+    throw AppError.invalidOrExpiredOtpCode();
+  }
+
+  async confirmSetupCode(request: AuthRequest) {
+    const { uid, email } = request.auth
+      .credentials as SessionTokenAuthCredential;
+
+    const { code, isInitial2faSetup } = request.payload as {
+      code: string;
+      isInitial2faSetup?: boolean;
+    };
+
+    if (!email) {
+      throw AppError.invalidToken();
+    }
+
+    await this.customs.checkAuthenticated(
+      request,
+      uid,
+      email,
+      'verifyRecoveryPhoneTotpCode'
+    );
+
+    let success = false;
+    try {
+      success = await this.recoveryPhoneService.confirmSetupCode(uid, code);
     } catch (error) {
       if (error instanceof RecoveryPhoneNotEnabled) {
         throw AppError.featureNotEnabled();
@@ -442,14 +519,17 @@ class RecoveryPhoneHandler {
       const account = await this.db.account(uid);
       const { acceptLanguage, geo, ua } = request.app;
 
-      if (isSetup) {
-        this.statsd.increment('account.recoveryPhone.phoneAdded.success');
+      this.statsd.increment('account.recoveryPhone.phoneAdded.success');
 
+      const { phoneNumber, nationalFormat } =
+        // User has successfully set up a recovery phone. Give back the
+        // full nationalFormat (don't strip it).
+        await this.recoveryPhoneService.hasConfirmed(uid);
+
+      // If recovery phone is added during initial 2FA setup
+      // do not send this notification - the user will instead receive a 2FA setup success email
+      if (!isInitial2faSetup) {
         try {
-          const { phoneNumber, nationalFormat } =
-            // User has successfully set up a recovery phone. Give back the
-            // full nationalFormat (don't strip it).
-            await this.recoveryPhoneService.hasConfirmed(uid);
           await this.mailer.sendPostAddRecoveryPhoneEmail(
             account.emails,
             account,
@@ -468,17 +548,6 @@ class RecoveryPhoneHandler {
               uid,
             }
           );
-
-          recordSecurityEvent('account.recovery_phone_setup_complete', {
-            db: this.db,
-            request,
-          });
-
-          return {
-            phoneNumber,
-            nationalFormat,
-            status: RecoveryPhoneStatus.SUCCESS,
-          };
         } catch (error) {
           // log email send error but don't throw
           // user should be allowed to proceed
@@ -487,47 +556,21 @@ class RecoveryPhoneHandler {
             error,
           });
         }
-      } else {
-        this.statsd.increment('account.recoveryPhone.phoneSignin.success');
-        // this signals the end of the login flow
-        await request.emitMetricsEvent('account.confirmed', { uid });
-
-        recordSecurityEvent('account.recovery_phone_signin_complete', {
-          db: this.db,
-          request,
-        });
-
-        try {
-          await this.mailer.sendPostSigninRecoveryPhoneEmail(
-            account.emails,
-            account,
-            {
-              acceptLanguage,
-              timeZone: geo.timeZone,
-              uaBrowser: ua.browser,
-              uaBrowserVersion: ua.browserVersion,
-              uaOS: ua.os,
-              uaOSVersion: ua.osVersion,
-              uaDeviceType: ua.deviceType,
-              uid,
-            }
-          );
-        } catch (error) {
-          // log email send error but don't throw
-          // user should be allowed to proceed
-          this.log.trace(
-            'account.recoveryPhone.phoneSigninNotification.error',
-            {
-              error,
-            }
-          );
-        }
       }
 
-      return { status: RecoveryPhoneStatus.SUCCESS };
+      recordSecurityEvent('account.recovery_phone_setup_complete', {
+        db: this.db,
+        request,
+      });
+
+      return {
+        phoneNumber,
+        nationalFormat,
+        status: RecoveryPhoneStatus.SUCCESS,
+      };
     }
 
-    recordSecurityEvent('account.recovery_phone_signin_failed', {
+    recordSecurityEvent('account.recovery_phone_setup_failed', {
       db: this.db,
       request,
     });
@@ -611,16 +654,20 @@ class RecoveryPhoneHandler {
     const account = await this.db.account(uid);
 
     try {
-      await this.mailer.sendPostChangeRecoveryPhoneEmail(account.emails, account, {
-        acceptLanguage,
-        timeZone: geo.timeZone,
-        uaBrowser: ua.browser,
-        uaBrowserVersion: ua.browserVersion,
-        uaOS: ua.os,
-        uaOSVersion: ua.osVersion,
-        uaDeviceType: ua.deviceType,
-        uid,
-      });
+      await this.mailer.sendPostChangeRecoveryPhoneEmail(
+        account.emails,
+        account,
+        {
+          acceptLanguage,
+          timeZone: geo.timeZone,
+          uaBrowser: ua.browser,
+          uaBrowserVersion: ua.browserVersion,
+          uaOS: ua.os,
+          uaOSVersion: ua.osVersion,
+          uaDeviceType: ua.deviceType,
+          uid,
+        }
+      );
     } catch (error) {
       // log error, but don't throw
       // user should be allowed to proceed if email or security event fails
@@ -734,10 +781,6 @@ class RecoveryPhoneHandler {
     } catch (error) {
       if (error instanceof RecoveryNumberNotExistsError) {
         throw AppError.recoveryPhoneNumberDoesNotExist();
-      }
-
-      if (error instanceof RecoveryNumberRemoveMissingBackupCodes) {
-        throw AppError.recoveryPhoneRemoveMissingRecoveryCodes();
       }
 
       throw AppError.backendServiceFailure(
@@ -1014,12 +1057,13 @@ export const recoveryPhoneRoutes = (
         validate: {
           payload: isA.object({
             code: isA.string().min(6).max(8),
+            isInitial2faSetup: isA.boolean().optional(),
           }),
         },
       },
       handler: function (request: AuthRequest) {
         log.begin('recoveryPhoneConfirmSetup', request);
-        return recoveryPhoneHandler.confirmSigninCode(request, true);
+        return recoveryPhoneHandler.confirmSetupCode(request);
       },
     },
     {
@@ -1063,10 +1107,15 @@ export const recoveryPhoneRoutes = (
         auth: {
           strategy: 'sessionToken',
         },
+        validate: {
+          payload: isA.object({
+            code: isA.string().min(6).max(8),
+          }),
+        },
       },
       handler: function (request: AuthRequest) {
         log.begin('recoveryPhoneSigninConfirmCode', request);
-        return recoveryPhoneHandler.confirmSigninCode(request, false);
+        return recoveryPhoneHandler.confirmSigninCode(request);
       },
     },
     {

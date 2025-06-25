@@ -12,6 +12,7 @@ import { Tooltip } from '../Tooltip';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
 import { ReactComponent as CodeIcon } from './code.min.svg';
+import { useFtlMsgResolver } from '../../models';
 const actionTypeToNotification = {
   download: 'Downloaded',
   copy: 'Copied',
@@ -34,6 +35,7 @@ export type DataBlockProps = {
     download?: GetDataTrioGleanData;
     print?: GetDataTrioGleanData;
   };
+  setSuccessBannerMessage?: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const DataBlock = ({
@@ -45,27 +47,62 @@ export const DataBlock = ({
   isMobile = false,
   email,
   gleanDataAttrs,
+  setSuccessBannerMessage,
 }: DataBlockProps) => {
+  const ftlMsgResolver = useFtlMsgResolver();
+
   const valueIsArray = Array.isArray(value);
   const [performedAction, setPerformedAction] = useState<actions>();
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const dataTestId = prefixDataTestId
     ? `${prefixDataTestId}-datablock`
     : 'datablock';
+
+  const bannerFtlId: Record<actions, string> = {
+    copy: 'datablock-copy-success',
+    download: 'datablock-download-success',
+    print: 'datablock-print-success',
+  };
+
+  const bannerFallback: Record<actions, string> = {
+    copy: valueIsArray ? 'Codes copied' : 'Code copied',
+    download: valueIsArray ? 'Codes downloaded' : 'Code downloaded',
+    print: valueIsArray ? 'Codes printed' : 'Code printed',
+  };
+
   const actionCb: actionFn = (action) => {
     onAction(action);
 
     if (actionTypeToNotification[action]) {
       setPerformedAction(action);
     }
+
+    if (!setSuccessBannerMessage) {
+      return;
+    }
+
+    const count = valueIsArray ? value.length : 1;
+
+    // We provide the count to allow languages with more or less than two pluralization variants to adjust
+    // the localization with the correct number of variants.
+    // Languages with just two forms (English, French, Spanish) use [one] vs *[other].
+    // Languages with three or more forms (Russian – few, many; Arabic – zero, two, etc.) can add those extra keys in their locale file without touching the code.
+    // Languages with one form (Japanese, Chinese) ignore [one] and fall back to *[other].
+    setSuccessBannerMessage(
+      ftlMsgResolver.getMsg(bannerFtlId[action], bannerFallback[action], {
+        count,
+      })
+    );
   };
 
   return (
-    <div className="w-full flex flex-col items-center bg-white rounded-xl border-2 border-grey-100 p-5">
+    <div className="w-full flex flex-col items-center bg-white rounded-xl border-2 border-grey-100 p-4">
       <ul
         className={classNames(
-          'relative gap-2 mobileLandscape:gap-4 w-full mb-5 text-black text-sm font-mono font-bold',
-          valueIsArray ? 'grid grid-cols-2 max-w-sm' : 'flex flex-col max-w-lg'
+          'relative gap-2 mobileLandscape:gap-3 w-full mb-4 text-black text-sm font-mono font-bold',
+          valueIsArray
+            ? 'grid grid-cols-2 max-w-sm justify-between'
+            : 'flex flex-col max-w-lg'
         )}
         {...{ onCopy }}
         data-testid={dataTestId}
@@ -73,7 +110,7 @@ export const DataBlock = ({
         {(valueIsArray ? value : [value]).map((item) => (
           <li
             key={item}
-            className="px-3 py-[10px] flex items-center gap-3 rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10 text-center justify-center mobileLandscape:justify-start"
+            className="px-3 py-[8px] flex items-center gap-3 rounded-lg bg-gradient-to-tr from-blue-600/10 to-purple-500/10 text-center justify-center mobileLandscape:justify-start mobileLandscape:tracking-wide"
           >
             <CodeIcon
               className="w-6 h-auto hidden mobileLandscape:block"
@@ -82,7 +119,7 @@ export const DataBlock = ({
             {item}
           </li>
         ))}
-        {performedAction && tooltipVisible && (
+        {!setSuccessBannerMessage && performedAction && tooltipVisible && (
           <FtlMsg id={`datablock-${performedAction}`} attrs={{ message: true }}>
             <Tooltip
               prefixDataTestId={`datablock-${performedAction}`}
