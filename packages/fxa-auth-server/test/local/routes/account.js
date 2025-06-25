@@ -4020,7 +4020,7 @@ describe('/account/destroy', () => {
     });
   });
 
-  it('should fail for mismatch session and account ui', async () => {
+  it('should fail for mismatch session and account uid', async () => {
     mockDB = { ...mocks.mockDB({ email, uid }) };
     mockRequest = mocks.mockRequest({
       credentials: {
