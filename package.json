@@ -276,7 +276,6 @@
     "koa": "^2.16.1",
     "minimist": "^1.2.6",
     "nest-typed-config/class-validator": "0.14.1",
-    "parse-asn1": ">=5.1.7",
     "plist": "^3.0.6",
     "protobufjs:>6.0.0 <7": ">=6.11.4",
     "typescript": "5.5.3",
