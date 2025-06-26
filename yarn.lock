@@ -25938,6 +25938,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"class-validator@npm:^0.14.0":
+  version: 0.14.2
+  resolution: "class-validator@npm:0.14.2"
+  dependencies:
+    "@types/validator": ^13.11.8
+    libphonenumber-js: ^1.11.1
+    validator: ^13.9.0
+  checksum: e8bc573f178112203781230de4d0aa1785231e457d3a993d80e13ba8163fe32c96cc2651c5d164cc48ade39a9c46cc38b4ded4ded74f3e5662670b2af35f65d1
+  languageName: node
+  linkType: hard
+
 "classnames@npm:*, classnames@npm:^2.5.1":
   version: 2.5.1
   resolution: "classnames@npm:2.5.1"
@@ -40447,6 +40458,13 @@ __metadata:
   version: 1.12.7
   resolution: "libphonenumber-js@npm:1.12.7"
   checksum: efa04912927d9d896c34648b3a32354ded97e3fea2e8577a052a90af25607b754ff9b628e0d3c8229f54357eece107c8a625d01586c2c34ad2d0eb0bec1cea31
+  languageName: node
+  linkType: hard
+
+"libphonenumber-js@npm:^1.11.1":
+  version: 1.12.9
+  resolution: "libphonenumber-js@npm:1.12.9"
+  checksum: 9d01151ffa1d0f634ebbc4e7d5cde6baa7c53765e162745cb2dd85815e04b42847ff2e4c54fe172121c335c86cd6f5ce9192af62237099213e799de653d5a6dd
   languageName: node
   linkType: hard
 
