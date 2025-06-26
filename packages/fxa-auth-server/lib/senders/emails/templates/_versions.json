@@ -20,7 +20,7 @@
   "lowRecoveryCodes": 7,
   "newDeviceLogin": 7,
   "passwordChanged": 5,
-  "passwordChangeRequired": 3,
+  "passwordChangeRequired": 4,
   "passwordForgotOtp": 1,
   "passwordReset": 6,
   "passwordResetRecoveryPhone": 1,
