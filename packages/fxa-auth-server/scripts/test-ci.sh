@@ -6,6 +6,12 @@ cd "$DIR/.."
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 
+# To disable parallel tests, set ENABLE_PARALLEL=false environment variable
+: "${ENABLE_PARALLEL:=true}"
+
+echo "Running supported tests in parallel: $ENABLE_PARALLEL"
+
+
 DEFAULT_ARGS="\
   --require esbuild-register \
   --require tsconfig-paths/register \
