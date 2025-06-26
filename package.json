@@ -268,7 +268,6 @@
   "resolutions": {
     "@react-pdf/layout": "3.9.1",
     "@react-pdf/textkit": "4.3.0",
-    "@types/react": "18.2.14",
     "asn1.js": ">=5.4.1",
     "bn.js": "^5.2.1",
     "css-minimizer-webpack-plugin": ">=4 <5",
