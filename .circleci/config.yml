@@ -785,6 +785,9 @@ jobs:
             sudo cat /etc/hosts
       - wait-for-infrastructure
       - run:
+          name: Ensure directories
+          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
+      - run:
           name: Start services for playwright tests
           # command: ./packages/functional-tests/scripts/start-services.sh
           # testing out having this command here instead of in the script
