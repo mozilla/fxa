@@ -806,6 +806,7 @@ jobs:
                 fxa-content-server \
                 fxa-payments-server \
                 fxa-settings \
+            && npx pm2 ls
           environment:
             NODE_ENV: test
           no_output_timeout: 20m
