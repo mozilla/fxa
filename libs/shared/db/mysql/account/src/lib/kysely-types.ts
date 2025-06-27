@@ -39,6 +39,7 @@ export enum CartErrorReasonId {
   CART_ELIGIBILITY_STATUS_DOWNGRADE = 'cart_eligibility_status_downgrade',
   CART_ELIGIBILITY_STATUS_INVALID = 'cart_eligibility_status_invalid',
   CART_CURRENCY_NOT_DETERMINED = 'cart_currency_not_determined',
+  CART_3DS_FINISH_FAILED = 'cart_3ds_finish_failed',
   CART_PROCESSING_GENERAL_ERROR = 'cart_processing_general_error',
   UNKNOWN = 'unknown',
 }

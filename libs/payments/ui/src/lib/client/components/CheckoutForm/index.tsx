@@ -403,7 +403,7 @@ export function CheckoutForm({
                   router.push('./processing' + queryParamString);
                 }}
                 onError={async () => {
-                  await finalizeCartWithError(
+                  await finalizeCartWithError(  //
                     cart.id,
                     CartErrorReasonId.BASIC_ERROR
                   );

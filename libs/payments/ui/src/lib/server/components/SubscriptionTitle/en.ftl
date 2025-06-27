@@ -7,5 +7,6 @@ next-subscription-error-title = Error confirming subscription…
 subscription-title-sub-exists = You’ve already subscribed
 subscription-title-plan-change-heading = Review your change
 subscription-title-not-supported = This subscription plan change is not supported
+next-subscription-error-3ds-finish-failed = Could not finalize the subscription
 
 next-sub-guarantee = 30-day money-back guarantee

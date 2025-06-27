@@ -9,7 +9,8 @@ import { ErrorEvent } from '@sentry/core';
 const EXPECTED_ERRORS = new Set([
   'PromotionCodePriceNotValidError',
   'PromotionCodeNotFoundError',
-  'CouponErrorInvalidCode'
+  'CouponErrorInvalidCode',
+  'FinishErrorCartFailedError' // ?
 ]);
 
 export const beforeSend = function (event: ErrorEvent, hint: any, config: InitSentryOpts) {

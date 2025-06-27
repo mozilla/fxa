@@ -66,6 +66,7 @@ import {
   FinalizeWithoutSubscriptionIdCartError,
   FinalizeWithoutSubscriptionCartError,
   InvalidPromoCodeCartError,
+  FinishErrorCartFailedError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import type {
@@ -97,7 +98,8 @@ interface WrapWithCartCatchOptions {
 const IGNORED_EXPECTED_ERRORS_STATSD = new Set([
   'PromotionCodePriceNotValidError',
   'PromotionCodeNotFoundError',
-  'CouponErrorInvalidCode'
+  'CouponErrorInvalidCode',
+  //'FinishErrorCartFailedError'
 ]);
 
 @Injectable()
@@ -175,7 +177,7 @@ export class CartService {
 
       try {
         await this.cartManager.finishErrorCart(cartId, {
-          errorReasonId,
+          errorReasonId,  //
         });
 
         const cart = await this.cartManager.fetchCartById(cartId);
@@ -265,12 +267,16 @@ export class CartService {
           }
         }
       } catch (e) {
-        // All errors thrown during the cleanup process should go to Sentry
-        Sentry.captureException(e, {
-          extra: {
-            cartId,
-          },
-        });
+        if (e instanceof FinishErrorCartFailedError) {
+          this.statsd.increment('finish_error_cart_failed');
+        } else {
+          // All errors thrown during the cleanup process should go to Sentry
+          Sentry.captureException(e, {
+            extra: {
+              cartId,
+            },
+          });
+        }
       }
 
       throw error;
@@ -981,6 +987,7 @@ export class CartService {
         ? await this.paymentIntentManager.retrieve(cart.stripeIntentId)
         : await this.setupIntentManager.retrieve(cart.stripeIntentId);
 
+      console.log('this is the intent status in submitNeedsInput: ', intent.status);
       if (intent.status === 'succeeded') {
         if (intent.payment_method) {
           await this.customerManager.update(cart.stripeCustomerId, {
@@ -1009,7 +1016,7 @@ export class CartService {
         const promises: Promise<any>[] = [
           this.finalizeCartWithError(
             cartId,
-            CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR
+            CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR //
           ),
         ];
         if (cart.stripeSubscriptionId) {
@@ -1018,7 +1025,8 @@ export class CartService {
           );
         }
         await Promise.all([promises]);
-        throw new SubmitNeedsInputFailedError(cartId);
+        console.log('cart is: ', cart );
+        throw new SubmitNeedsInputFailedError(cartId);  //doesnt automatically redirect to error
       }
     });
   }
