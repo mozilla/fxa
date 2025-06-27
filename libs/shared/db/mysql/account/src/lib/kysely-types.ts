@@ -40,6 +40,7 @@ export enum CartErrorReasonId {
   CART_ELIGIBILITY_STATUS_INVALID = 'cart_eligibility_status_invalid',
   CART_CURRENCY_NOT_DETERMINED = 'cart_currency_not_determined',
   CART_PROCESSING_GENERAL_ERROR = 'cart_processing_general_error',
+  CART_TOTAL_MISMATCH = 'cart_total_mismatch',
   UNKNOWN = 'unknown',
 }
 

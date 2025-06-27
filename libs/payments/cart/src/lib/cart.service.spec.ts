@@ -26,6 +26,7 @@ import {
   CustomerSessionManager,
   InvoiceManager,
   InvoicePreviewFactory,
+  InvoicePreviewForUpgradeFactory,
   PaymentIntentManager,
   PaymentMethodManager,
   PriceManager,
@@ -602,27 +603,32 @@ describe('CartService', () => {
       const mockFromPrice = StripePriceFactory({
         recurring: StripePriceRecurringFactory({ interval: 'month' }),
       });
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockInvoicePreviewForUpgrade = InvoicePreviewForUpgradeFactory();
 
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
         fromOfferingConfigId: mockFromOfferingId,
         fromPrice: mockFromPrice,
       });
       jest
-        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
-        .mockResolvedValue(undefined);
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValue(mockSubscription)
       jest
-        .spyOn(currencyManager, 'getCurrencyForCountry')
-        .mockReturnValue(mockResolvedCurrency);
-      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
-      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
+        .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
+        .mockResolvedValue(mockInvoicePreviewForUpgrade);
 
       const result = await cartService.setupCart(args);
 
       expect(cartManager.createCart).toHaveBeenCalledWith({
         interval: args.interval,
         offeringConfigId: args.offeringConfigId,
-        amount: mockInvoicePreview.subtotal,
+        amount: mockInvoicePreviewForUpgrade.oneTimeChargeSubtotal,
         uid: args.uid,
         stripeCustomerId: mockAccountCustomer.stripeCustomerId,
         experiment: args.experiment,

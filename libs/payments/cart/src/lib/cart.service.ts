@@ -88,6 +88,7 @@ import { CheckoutService } from './checkout.service';
 import { resolveErrorInstance } from './util/resolveErrorInstance';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
 import type { SubscriptionAttributionParams } from './checkout.types';
+import { handleException } from 'libs/shared/error/src/lib/sanitizeExceptionsDecorator';
 
 type Constructor<T> = new (...args: any[]) => T;
 interface WrapWithCartCatchOptions {
@@ -311,6 +312,16 @@ export class CartService {
     promoCode?: string;
     uid?: string;
   }): Promise<ResultCart> {
+    const currency = this.currencyManager.getCurrencyForCountry(
+      args.taxAddress.countryCode
+    );
+    if (!currency) {
+      throw new SetupCartCurrencyNotFoundError(
+        currency,
+        args.taxAddress.countryCode
+      );
+    }
+
     let accountCustomer;
     if (args.uid) {
       accountCustomer = await this.accountCustomerManager
@@ -322,41 +333,54 @@ export class CartService {
         });
     }
 
-    const stripeCustomerId = accountCustomer?.stripeCustomerId;
-    const stripeCustomer = stripeCustomerId
-      ? await this.customerManager.retrieve(stripeCustomerId)
+    const customerPromise = accountCustomer?.stripeCustomerId
+      ? await this.customerManager.retrieve(accountCustomer?.stripeCustomerId)
       : undefined;
 
-    const price = await this.productConfigurationManager.retrieveStripePrice(
-      args.offeringConfigId,
-      args.interval
-    );
-
-    const currency = this.currencyManager.getCurrencyForCountry(
-      args.taxAddress.countryCode
-    );
-    if (!currency) {
-      throw new SetupCartCurrencyNotFoundError(
-        currency,
-        args.taxAddress.countryCode
-      );
-    }
-
-    const eligibility = await this.eligibilityService.checkEligibility(
-      args.interval,
-      args.offeringConfigId,
-      args.uid,
-      accountCustomer?.stripeCustomerId
-    );
+    const [customer, price, eligibility] = await Promise.all([
+      customerPromise,
+      this.productConfigurationManager.retrieveStripePrice(
+        args.offeringConfigId,
+        args.interval
+      ),
+      this.eligibilityService.checkEligibility(
+        args.interval,
+        args.offeringConfigId,
+        args.uid,
+        accountCustomer?.stripeCustomerId
+      )
+    ]);
 
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
-    let couponCode: string | undefined = args.promoCode;
-    if (couponCode) {
-      if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
-        couponCode = undefined;
-      } else {
+    let couponCode = args.promoCode;
+    let amount: number;
+    if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
+      // Coupons are currently not supported by upgrades
+      couponCode = undefined;
+
+      assert(
+        'fromPrice' in eligibility,
+        'fromPrice not present for upgrade cart'
+      );
+      assert(customer, 'Customer is required for upgrade');
+      const fromSubscription =
+        await this.subscriptionManager.retrieveForCustomerAndPrice(
+          customer.id,
+          eligibility.fromPrice.id
+        );
+      assert(fromSubscription, 'Subscription required');
+      const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
+      const upcomingInvoice =
+        await this.invoiceManager.previewUpcomingForUpgrade({
+          priceId: price.id,
+          customer,
+          fromSubscriptionItem,
+        });
+      amount = upcomingInvoice.oneTimeChargeSubtotal;
+    } else {
+      if (couponCode) {
         try {
           await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
             couponCode,
@@ -371,33 +395,32 @@ export class CartService {
           );
         }
       }
-    }
-
-    let upcomingInvoice: InvoicePreview | undefined;
-    try {
-      upcomingInvoice = await this.invoiceManager.previewUpcoming({
-        priceId: price.id,
-        currency,
-        customer: stripeCustomer,
-        taxAddress: args.taxAddress,
-        couponCode,
-      });
-    } catch (e) {
-      if (
-        e.type === 'StripeInvalidRequestError' &&
-        e.message ===
-        'This promotion code cannot be redeemed because the associated customer has prior transactions.'
-      ) {
-        throw new CouponErrorCannotRedeem();
-      } else {
-        throw e;
+      try {
+        const upcomingInvoice = await this.invoiceManager.previewUpcoming({
+          priceId: price.id,
+          currency,
+          customer,
+          taxAddress: args.taxAddress,
+          couponCode,
+        });
+        amount = upcomingInvoice.subtotal;
+      } catch (e) {
+        if (
+          e.type === 'StripeInvalidRequestError' &&
+          e.message ===
+          'This promotion code cannot be redeemed because the associated customer has prior transactions.'
+        ) {
+          throw new CouponErrorCannotRedeem();
+        } else {
+          throw e;
+        }
       }
     }
 
     const createCartParams: SetupCart = {
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
-      amount: upcomingInvoice.subtotal,
+      amount,
       uid: args.uid,
       stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
@@ -536,6 +559,15 @@ export class CartService {
           attribution,
           sessionUid
         );
+      }).catch((error) => {
+        handleException({
+          error,
+          className: 'CartService',
+          methodName: 'checkoutCartWithStripe',
+          allowlist: [],
+          logger: this.log as Logger,
+          statsd: this.statsd
+        })
       });
     });
   }
@@ -575,7 +607,16 @@ export class CartService {
           sessionUid,
           token
         );
-      });
+      }).catch((error) => {
+        handleException({
+          error,
+          className: 'CartService',
+          methodName: 'checkoutCartWithPaypal',
+          allowlist: [],
+          logger: this.log as Logger,
+          statsd: this.statsd
+        })
+      });;
     });
   }
 
@@ -818,6 +859,7 @@ export class CartService {
           customer,
           fromSubscriptionItem,
         });
+
     } else {
       upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
         priceId: price.id,

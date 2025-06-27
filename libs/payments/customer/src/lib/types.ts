@@ -16,9 +16,14 @@ export type InvoicePreview = {
   discountType?: string;
   number: string | null; // customer-facing invoice identifier
   paypalTransactionId?: string;
-  oneTimeCharge?: number;
   nextInvoiceDate: number;
+  oneTimeCharge?: number;
 };
+
+export type InvoicePreviewForUpgrade = InvoicePreview & {
+  oneTimeCharge: number;
+  oneTimeChargeSubtotal: number;
+}
 
 export interface Interval {
   interval: NonNullable<StripePrice['recurring']>['interval'];

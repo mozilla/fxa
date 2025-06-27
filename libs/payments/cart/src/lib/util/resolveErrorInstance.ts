@@ -6,6 +6,7 @@ import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import {
   CartCurrencyNotFoundError,
   CartStateProcessingError,
+  CartTotalMismatchError,
 } from '../cart.error';
 import { CheckoutError } from '../checkout.error';
 import { BaseError } from '@fxa/shared/error';
@@ -22,6 +23,8 @@ export function resolveErrorInstance(error: Error) {
       return CartErrorReasonId.CART_CURRENCY_NOT_DETERMINED;
     case error instanceof CartStateProcessingError:
       return CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR;
+    case error instanceof CartTotalMismatchError:
+      return CartErrorReasonId.CART_TOTAL_MISMATCH;
 
     // Checkout Errors
     case error instanceof CheckoutError:
