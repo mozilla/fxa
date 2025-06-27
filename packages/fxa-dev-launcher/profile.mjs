@@ -47,7 +47,8 @@ const CONFIGS = {
 };
 
 const env = process.env.FXA_ENV || 'local';
-const FXA_DESKTOP_CONTEXT = process.env.FXA_DESKTOP_CONTEXT || 'oauth_webchannel_v1';
+const FXA_DESKTOP_CONTEXT =
+  process.env.FXA_DESKTOP_CONTEXT || 'oauth_webchannel_v1';
 const e10sDisabled = process.env.DISABLE_E10S === 'true';
 let fxaEnv = CONFIGS[env];
 
@@ -120,10 +121,8 @@ const fxaProfile = {
   'identity.fxaccounts.autoconfig.uri': fxaEnv.content,
   // disable password auto-fill; we typically don't need to test this daily.
   'signon.rememberSignons': false,
-  ...(process.env.FXA_DESKTOP_CONTEXT === 'oauth_webchannel_v1' && {
-    'identity.fxaccounts.oauth.enabled': true,
-    'identity.fxaccounts.contextParam': 'oauth_webchannel_v1',
-  }),
+  'identity.fxaccounts.oauth.enabled':
+    FXA_DESKTOP_CONTEXT === 'oauth_webchannel_v1',
 };
 
 // Configuration for local sync development
