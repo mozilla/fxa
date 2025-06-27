@@ -92,6 +92,7 @@ export const eventsMap = {
     backupChoiceView: 'login_backup_choice_view',
     backupChoiceSubmit: 'login_backup_choice_submit',
     recoveryPhoneSuccessView: 'login_recovery_phone_success_view',
+    lockedAccountBannerView: 'login_locked_account_banner_view',
   },
 
   cachedLogin: {

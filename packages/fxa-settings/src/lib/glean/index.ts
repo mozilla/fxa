@@ -322,6 +322,9 @@ const recordEventMetric = (
     case 'login_engage':
       login.engage.record();
       break;
+    case 'login_locked_account_banner_view':
+      login.lockedAccountBannerView.record();
+      break;
     case 'cached_login_forgot_pwd_submit':
       cachedLogin.forgotPwdSubmit.record();
       break;

@@ -22,3 +22,10 @@ signin-password-button-label = Password
 signin-desktop-relay = { -brand-firefox } will try sending you back to use an email mask after you sign in.
 
 signin-code-expired-error = Code expired. Please sign in again.
+
+signin-account-locked-banner-heading = Reset your password
+signin-account-locked-banner-description = We locked your account to keep it safe from suspicious activity.
+# This link points to https://accounts.firefox.com/reset_password
+signin-account-locked-banner-link = Reset your password to sign in
+
+##
