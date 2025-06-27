@@ -24,6 +24,7 @@ import {
   STRIPE_CUSTOMER_METADATA,
   STRIPE_INVOICE_METADATA,
   TaxAddress,
+  type InvoicePreviewForUpgrade,
 } from './types';
 import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
 import { stripeInvoiceToInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
@@ -42,7 +43,7 @@ export class InvoiceManager {
     private stripeClient: StripeClient,
     private paypalClient: PayPalClient,
     private currencyManager: CurrencyManager
-  ) {}
+  ) { }
 
   // Finalize an invoice, rejecting re-finalization of an invoice
   async finalizeWithoutAutoAdvance(invoiceId: string) {
@@ -96,12 +97,12 @@ export class InvoiceManager {
 
     const shipping = taxAddress
       ? {
-          name: '',
-          address: {
-            country: taxAddress.countryCode,
-            postal_code: taxAddress.postalCode,
-          },
-        }
+        name: '',
+        address: {
+          country: taxAddress.countryCode,
+          postal_code: taxAddress.postalCode,
+        },
+      }
       : undefined;
 
     const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
@@ -164,7 +165,7 @@ export class InvoiceManager {
     priceId: string;
     customer: StripeCustomer;
     fromSubscriptionItem: StripeSubscriptionItem;
-  }): Promise<InvoicePreview> {
+  }): Promise<InvoicePreviewForUpgrade> {
     if (!customer.currency) {
       throw new UpgradeCustomerMissingCurrencyInvoiceError(customer.id);
     }
@@ -186,6 +187,7 @@ export class InvoiceManager {
     return {
       ...previewSubsequentInvoice,
       oneTimeCharge: previewUpcomingInvoiceOfUpgrade.totalAmount,
+      oneTimeChargeSubtotal: previewUpcomingInvoiceOfUpgrade.subtotal,
     };
   }
 

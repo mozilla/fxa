@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { InvoicePreview } from './types';
+import { InvoicePreview, type InvoicePreviewForUpgrade } from './types';
 
 export const InvoicePreviewFactory = (
   override?: Partial<InvoicePreview>
@@ -20,6 +20,15 @@ export const InvoicePreviewFactory = (
     faker.string.alphanumeric({ length: 8 }).toLocaleUpperCase() +
     '-' +
     faker.string.numeric({ length: 4, allowLeadingZeros: true }),
-  ...override,
   nextInvoiceDate: faker.date.future().getDate(),
+  ...override,
+});
+
+export const InvoicePreviewForUpgradeFactory = (
+  override?: Partial<InvoicePreviewForUpgrade>
+): InvoicePreviewForUpgrade => ({
+  ...InvoicePreviewFactory(override),
+  oneTimeCharge: faker.number.int({ max: 1000 }),
+  oneTimeChargeSubtotal: faker.number.int({ max: 1000 }),
+  ...override,
 });

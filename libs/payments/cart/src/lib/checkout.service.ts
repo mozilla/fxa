@@ -10,6 +10,7 @@ import { StatsD } from 'hot-shots';
 import {
   EligibilityService,
   EligibilityStatus,
+  type SubscriptionEligibilityResult,
   type SubscriptionEligibilityUpgradeDowngradeResult,
 } from '@fxa/payments/eligibility';
 import {
@@ -28,6 +29,7 @@ import {
   SubplatInterval,
   SubscriptionManager,
   SetupIntentManager,
+  type TaxAddress,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
@@ -88,7 +90,7 @@ export class CheckoutService {
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
     @Inject(StatsDService) private statsd: StatsD
-  ) {}
+  ) { }
 
   /**
    * Reload the customer data to reflect a change.
@@ -208,18 +210,18 @@ export class CheckoutService {
       cart.interval as SubplatInterval
     );
 
-    const upcomingInvoice = await this.invoiceManager.previewUpcoming({
+    const checkoutAmount = await this.determineCheckoutAmount({
+      eligibility,
+      customer,
       priceId: price.id,
       currency: cart.currency,
-      customer: customer,
-      taxAddress: taxAddress,
+      taxAddress,
     });
-
-    if (upcomingInvoice.subtotal !== cart.amount) {
+    if (checkoutAmount !== cart.amount) {
       throw new CartTotalMismatchError(
         cart.id,
         cart.amount,
-        upcomingInvoice.subtotal
+        checkoutAmount
       );
     }
 
@@ -319,54 +321,54 @@ export class CheckoutService {
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
         ? await this.subscriptionManager.create(
-            {
-              customer: customer.id,
-              automatic_tax: {
-                enabled: enableAutomaticTax,
-              },
-              promotion_code: promotionCode?.id,
-              items: [
-                {
-                  price: price.id,
-                },
-              ],
-              payment_behavior: 'default_incomplete',
-              currency: cart.currency ?? undefined,
-              metadata: {
-                // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-                [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
-                [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
-                [STRIPE_SUBSCRIPTION_METADATA.UtmCampaign]:
-                  attribution.utm_campaign,
-                [STRIPE_SUBSCRIPTION_METADATA.UtmContent]:
-                  attribution.utm_content,
-                [STRIPE_SUBSCRIPTION_METADATA.UtmMedium]:
-                  attribution.utm_medium,
-                [STRIPE_SUBSCRIPTION_METADATA.UtmSource]:
-                  attribution.utm_source,
-                [STRIPE_SUBSCRIPTION_METADATA.UtmTerm]: attribution.utm_term,
-                [STRIPE_SUBSCRIPTION_METADATA.SessionFlowId]:
-                  attribution.session_flow_id,
-                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypoint]:
-                  attribution.session_entrypoint,
-                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointExperiment]:
-                  attribution.session_entrypoint_experiment,
-                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointVariation]:
-                  attribution.session_entrypoint_variation,
-              },
+          {
+            customer: customer.id,
+            automatic_tax: {
+              enabled: enableAutomaticTax,
             },
-            {
-              idempotencyKey: cart.id,
-            }
-          )
+            promotion_code: promotionCode?.id,
+            items: [
+              {
+                price: price.id,
+              },
+            ],
+            payment_behavior: 'default_incomplete',
+            currency: cart.currency ?? undefined,
+            metadata: {
+              // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+              [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
+              [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+              [STRIPE_SUBSCRIPTION_METADATA.UtmCampaign]:
+                attribution.utm_campaign,
+              [STRIPE_SUBSCRIPTION_METADATA.UtmContent]:
+                attribution.utm_content,
+              [STRIPE_SUBSCRIPTION_METADATA.UtmMedium]:
+                attribution.utm_medium,
+              [STRIPE_SUBSCRIPTION_METADATA.UtmSource]:
+                attribution.utm_source,
+              [STRIPE_SUBSCRIPTION_METADATA.UtmTerm]: attribution.utm_term,
+              [STRIPE_SUBSCRIPTION_METADATA.SessionFlowId]:
+                attribution.session_flow_id,
+              [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypoint]:
+                attribution.session_entrypoint,
+              [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointExperiment]:
+                attribution.session_entrypoint_experiment,
+              [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointVariation]:
+                attribution.session_entrypoint_variation,
+            },
+          },
+          {
+            idempotencyKey: cart.id,
+          }
+        )
         : await this.upgradeSubscription(
-            customer.id,
-            price.id,
-            eligibility.fromPrice.id,
-            cart,
-            eligibility.redundantOverlaps || [],
-            attribution
-          );
+          customer.id,
+          price.id,
+          eligibility.fromPrice.id,
+          cart,
+          eligibility.redundantOverlaps || [],
+          attribution
+        );
 
     // Get payment/setup intent for subscription
     let stripeIntentId: string | undefined;
@@ -487,55 +489,55 @@ export class CheckoutService {
     const subscription =
       eligibility.subscriptionEligibilityResult !== EligibilityStatus.UPGRADE
         ? await this.subscriptionManager.create(
-            {
-              customer: customer.id,
-              automatic_tax: {
-                enabled: enableAutomaticTax,
-              },
-              collection_method: 'send_invoice',
-              days_until_due: 1,
-              promotion_code: promotionCode?.id,
-              items: [
-                {
-                  price: price.id,
-                },
-              ],
-              currency: cart.currency ?? undefined,
-              metadata: {
-                // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
-                [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
-                [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
-                [STRIPE_SUBSCRIPTION_METADATA.UtmCampaign]:
-                  attribution.utm_campaign,
-                [STRIPE_SUBSCRIPTION_METADATA.UtmContent]:
-                  attribution.utm_content,
-                [STRIPE_SUBSCRIPTION_METADATA.UtmMedium]:
-                  attribution.utm_medium,
-                [STRIPE_SUBSCRIPTION_METADATA.UtmSource]:
-                  attribution.utm_source,
-                [STRIPE_SUBSCRIPTION_METADATA.UtmTerm]: attribution.utm_term,
-                [STRIPE_SUBSCRIPTION_METADATA.SessionFlowId]:
-                  attribution.session_flow_id,
-                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypoint]:
-                  attribution.session_entrypoint,
-                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointExperiment]:
-                  attribution.session_entrypoint_experiment,
-                [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointVariation]:
-                  attribution.session_entrypoint_variation,
-              },
+          {
+            customer: customer.id,
+            automatic_tax: {
+              enabled: enableAutomaticTax,
             },
-            {
-              idempotencyKey: cart.id,
-            }
-          )
+            collection_method: 'send_invoice',
+            days_until_due: 1,
+            promotion_code: promotionCode?.id,
+            items: [
+              {
+                price: price.id,
+              },
+            ],
+            currency: cart.currency ?? undefined,
+            metadata: {
+              // Note: These fields are due to missing Fivetran support on Stripe multi-currency plans
+              [STRIPE_SUBSCRIPTION_METADATA.Amount]: unitAmountForCurrency,
+              [STRIPE_SUBSCRIPTION_METADATA.Currency]: cart.currency,
+              [STRIPE_SUBSCRIPTION_METADATA.UtmCampaign]:
+                attribution.utm_campaign,
+              [STRIPE_SUBSCRIPTION_METADATA.UtmContent]:
+                attribution.utm_content,
+              [STRIPE_SUBSCRIPTION_METADATA.UtmMedium]:
+                attribution.utm_medium,
+              [STRIPE_SUBSCRIPTION_METADATA.UtmSource]:
+                attribution.utm_source,
+              [STRIPE_SUBSCRIPTION_METADATA.UtmTerm]: attribution.utm_term,
+              [STRIPE_SUBSCRIPTION_METADATA.SessionFlowId]:
+                attribution.session_flow_id,
+              [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypoint]:
+                attribution.session_entrypoint,
+              [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointExperiment]:
+                attribution.session_entrypoint_experiment,
+              [STRIPE_SUBSCRIPTION_METADATA.SessionEntrypointVariation]:
+                attribution.session_entrypoint_variation,
+            },
+          },
+          {
+            idempotencyKey: cart.id,
+          }
+        )
         : await this.upgradeSubscription(
-            customer.id,
-            price.id,
-            eligibility.fromPrice.id,
-            cart,
-            eligibility.redundantOverlaps || [],
-            attribution
-          );
+          customer.id,
+          price.id,
+          eligibility.fromPrice.id,
+          cart,
+          eligibility.redundantOverlaps || [],
+          attribution
+        );
 
     await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
     await Promise.all([
@@ -700,5 +702,50 @@ export class CheckoutService {
     }
 
     return upgradedSubscription;
+  }
+
+  async determineCheckoutAmount({
+    eligibility,
+    customer,
+    priceId,
+    currency,
+    taxAddress,
+  }: {
+    eligibility: SubscriptionEligibilityResult;
+    priceId: string;
+    currency: string;
+    taxAddress: TaxAddress;
+    customer?: StripeCustomer;
+  }) {
+    eligibility.subscriptionEligibilityResult
+    if (eligibility.subscriptionEligibilityResult === EligibilityStatus.UPGRADE) {
+      assert(
+        'fromPrice' in eligibility,
+        'fromPrice not present for upgrade cart'
+      );
+      assert(customer, 'Customer is required for upgrade')
+      const fromSubscription =
+        await this.subscriptionManager.retrieveForCustomerAndPrice(
+          customer.id,
+          eligibility.fromPrice.id
+        );
+      assert(fromSubscription, 'Subscription required');
+      const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
+      const upcomingInvoice =
+        await this.invoiceManager.previewUpcomingForUpgrade({
+          priceId,
+          customer,
+          fromSubscriptionItem,
+        });
+      return upcomingInvoice.oneTimeChargeSubtotal;
+    } else {
+      const upcomingInvoice = await this.invoiceManager.previewUpcoming({
+        priceId,
+        currency,
+        customer,
+        taxAddress,
+      });
+      return upcomingInvoice.subtotal;
+    }
   }
 }

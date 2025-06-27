@@ -36,40 +36,40 @@ export function SanitizeExceptions(
 
     descriptor.value = isAsync
       ? async function (this: any, ...args: any[]) {
-          try {
-            const result = await originalMethod.apply(this, args);
-            return result;
-          } catch (error) {
-            throw handleException({
-              error,
-              className: this.constructor.name,
-              methodName: propertyKey,
-              allowlist,
-              logger: this.logger,
-              statsd: this.statsd,
-            });
-          }
+        try {
+          const result = await originalMethod.apply(this, args);
+          return result;
+        } catch (error) {
+          throw handleException({
+            error,
+            className: this.constructor.name,
+            methodName: propertyKey,
+            allowlist,
+            logger: this.logger,
+            statsd: this.statsd,
+          });
         }
+      }
       : function (this: any, ...args: any[]) {
-          try {
-            return originalMethod.apply(this, args);
-          } catch (error) {
-            throw handleException({
-              error,
-              className: this.constructor.name,
-              methodName: propertyKey,
-              allowlist,
-              logger: this.logger,
-              statsd: this.statsd,
-            });
-          }
-        };
+        try {
+          return originalMethod.apply(this, args);
+        } catch (error) {
+          throw handleException({
+            error,
+            className: this.constructor.name,
+            methodName: propertyKey,
+            allowlist,
+            logger: this.logger,
+            statsd: this.statsd,
+          });
+        }
+      };
 
     return descriptor;
   };
 }
 
-function handleException(args: {
+export function handleException(args: {
   error: unknown;
   className: string;
   methodName: string;

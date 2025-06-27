@@ -66,6 +66,14 @@ export function getErrorFtlInfo(
           'An unexpected error has occurred while processing your payment, please try again.',
         messageFtl: 'checkout-processing-general-error',
       };
+    case CartErrorReasonId.CART_TOTAL_MISMATCH:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message: 'The invoice amount has changed. Please try again.',
+        messageFtl: 'cart-total-mismatch-error',
+      };
 
     case CartErrorReasonId.BASIC_ERROR:
     default:

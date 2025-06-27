@@ -13,6 +13,7 @@ checkout-error-already-subscribed = You’re already subscribed to this product.
 checkout-error-contact-support = Please contact support so we can help you.
 cart-error-currency-not-determined = We were unable to determine the currency for this purchase, please try again.
 checkout-processing-general-error = An unexpected error has occurred while processing your payment, please try again.
+cart-total-mismatch-error = The invoice amount has changed. Please try again.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
