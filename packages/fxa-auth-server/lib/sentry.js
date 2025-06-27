@@ -6,6 +6,7 @@
 
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
+const { httpRequestToRequestData } = require('@sentry/core');
 const verror = require('verror');
 const { ignoreErrors } = require('./error');
 
@@ -47,7 +48,7 @@ function reportSentryError(err, request) {
   Sentry.withScope((scope) => {
     if (request) {
       scope.addEventProcessor((sentryEvent) => {
-        sentryEvent.request = Sentry.extractRequestData(request.raw.req);
+        sentryEvent.request = httpRequestToRequestData(request.raw.req);
         sentryEvent.level = 'error';
         return sentryEvent;
       });
