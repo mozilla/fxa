@@ -5,102 +5,38 @@
 import { getCode } from 'fxa-settings/src/lib/totp';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
 import { TotpCredentials, TotpPage } from '../../pages/settings/totp';
 import { SigninPage } from '../../pages/signin';
 import { SigninTotpCodePage } from '../../pages/signinTotpCode';
 
 test.describe('severity-1 #smoke', () => {
-  test.describe('two step auth', () => {
-    test('add and remove totp', async ({
-      target,
-      pages: { page, settings, totp, signin, configPage },
-      testAccountTracker,
-    }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - delete test'
-      );
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
-
-      await settings.goto();
-      await addTotpWithQrCodeNoRecoveryChoice(settings, totp);
-      await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
-        'Two-step authentication has been enabled'
-      );
-      await expect(settings.totp.status).toHaveText('Enabled');
-      await settings.disconnectTotp();
-      // No 2FA prompt on signin
-      await settings.signOut();
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
-      await expect(settings.settingsHeading).toBeVisible();
-    });
-
-    test('totp use QR code', async ({
-      target,
-      pages: { page, settings, signin, totp, configPage },
-      testAccountTracker,
-    }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - delete test'
-      );
-      await signInAccount(target, page, settings, signin, testAccountTracker);
-
-      await settings.goto();
-
-      await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.totp.status).toHaveText('Disabled');
-
-      await settings.totp.addButton.click();
-      await totp.setUp2faAppWithQrCode();
-      const recoveryCodes = await totp.backupCodesDownloadStep();
-      await totp.confirmBackupCodeStep(recoveryCodes[0]);
-
-      await page.waitForURL(/settings/);
-
-      await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
-        'Two-step authentication has been enabled'
-      );
-      await expect(settings.totp.status).toHaveText('Enabled');
-
-      await settings.disconnectTotp(); // Required before teardown
-    });
-
-    test('add TOTP and sign in', async ({
+  test.describe('set up 2fa with backup codes', () => {
+    test('enable with QR code and sign in', async ({
       target,
       pages: { page, settings, signin, signinTotpCode, totp, configPage },
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - delete test'
+        !config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11941 - remove skip condition'
       );
-      const credentials = await signInAccount(
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(
         target,
         page,
         settings,
         signin,
-        testAccountTracker
+        credentials
       );
 
-      const { secret } = await addTotpWithQrCodeNoRecoveryChoice(
+      const { secret } = await addTotpWithQrCodeAndBackupCodeChoice(
         settings,
         totp
       );
+
+      await page.waitForURL(/settings/);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
@@ -124,34 +60,93 @@ test.describe('severity-1 #smoke', () => {
       await settings.disconnectTotp(); // Required before teardown
     });
 
-    test('delete account with totp enabled', async ({
+    test('enable then disable and sign in', async ({
       target,
-      pages: {
-        page,
-        deleteAccount,
-        settings,
-        signin,
-        signinTotpCode,
-        totp,
-        configPage,
-      },
+      pages: { page, settings, signin, totp, configPage },
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - delete test'
+        !config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11941 - remove skip condition'
       );
-      const credentials = await signInAccount(
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(
         target,
         page,
         settings,
         signin,
-        testAccountTracker
+        credentials
       );
 
       await settings.goto();
-      await addTotpWithQrCodeNoRecoveryChoice(settings, totp);
+      await addTotpWithQrCodeAndBackupCodeChoice(settings, totp);
+
+      await page.waitForURL(/settings/);
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication has been enabled'
+      );
+      await expect(settings.totp.status).toHaveText('Enabled');
+
+      await settings.disconnectTotp(); // Required before teardown
+
+      // No 2FA prompt on signin
+      await settings.signOut();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await expect(settings.settingsHeading).toBeVisible();
+    });
+
+    test('with manual key', async ({
+      target,
+      pages: { page, settings, totp, signin, configPage },
+      testAccountTracker,
+    }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        !config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11941 - remove skip condition'
+      );
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
+
+      await settings.goto();
+      await addTotpWithManualCodeAndBackupCodeChoice(settings, totp);
+
+      await page.waitForURL(/settings/);
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication has been enabled'
+      );
+      await expect(settings.totp.status).toHaveText('Enabled');
+
+      await settings.disconnectTotp(); // Required before teardown
+    });
+
+    test('delete account with 2FA enabled', async ({
+      target,
+      pages: { page, deleteAccount, settings, signin, totp, configPage },
+      testAccountTracker,
+    }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        !config.featureFlags.updated2faSetupFlow,
+        'TODO in FXA-11941 - remove skip condition'
+      );
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(
+        target,
+        page,
+        settings,
+        signin,
+        credentials
+      );
+
+      await settings.goto();
+      await addTotpWithQrCodeAndBackupCodeChoice(settings, totp);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
@@ -174,21 +169,17 @@ async function signInAccount(
   page: Page,
   settings: SettingsPage,
   signin: SigninPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
+  credentials: Credentials
+): Promise<void> {
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
   await page.waitForURL(/settings/);
   //Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
-
-  return credentials;
 }
 
-// TODO in FXA-11941 - delete this function
-async function addTotpWithQrCodeNoRecoveryChoice(
+async function addTotpWithManualCodeAndBackupCodeChoice(
   settings: SettingsPage,
   totp: TotpPage
 ): Promise<TotpCredentials> {
@@ -197,7 +188,21 @@ async function addTotpWithQrCodeNoRecoveryChoice(
 
   await settings.totp.addButton.click();
   const totpCredentials =
-    await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
+    await totp.setUpTwoStepAuthWithManualCodeAndBackupCodesChoice();
+
+  return totpCredentials;
+}
+
+async function addTotpWithQrCodeAndBackupCodeChoice(
+  settings: SettingsPage,
+  totp: TotpPage
+): Promise<TotpCredentials> {
+  await expect(settings.settingsHeading).toBeVisible();
+  await expect(settings.totp.status).toHaveText('Disabled');
+
+  await settings.totp.addButton.click();
+  const totpCredentials =
+    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
   return totpCredentials;
 }
