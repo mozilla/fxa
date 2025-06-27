@@ -39,7 +39,7 @@ BEGIN
   DELETE FROM sentEmails WHERE uid = uidArg;
   DELETE FROM linkedAccounts WHERE uid = uidArg;
 
-  INSERT INTO deletedAccounts (uid, deletedAt) VALUES (uidArg, (UNIX_TIMESTAMP(NOW(3)) * 1000));
+  INSERT IGNORE INTO deletedAccounts (uid, deletedAt) VALUES (uidArg, (UNIX_TIMESTAMP(NOW(3)) * 1000));
 
   COMMIT;
 END;
