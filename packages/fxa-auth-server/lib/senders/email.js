@@ -70,7 +70,7 @@ module.exports = function (log, config, bounces, statsd) {
     inactiveAccountFinalWarning: 'account-inactive-reminder-third',
     lowRecoveryCodes: 'low-recovery-codes',
     newDeviceLogin: 'new-device-signin',
-    passwordChangeRequired: 'password-change-required',
+    passwordChangeRequired: 'account-locked',
     passwordChanged: 'password-changed-success',
     passwordForgotOtp: 'password-forgot-otp',
     passwordReset: 'password-reset-success',
@@ -133,7 +133,7 @@ module.exports = function (log, config, bounces, statsd) {
     lowRecoveryCodes: 'recovery-codes',
     newDeviceLogin: 'manage-account',
     passwordChanged: 'password-change',
-    passwordChangeRequired: 'password-change',
+    passwordChangeRequired: 'account-locked',
     passwordForgotOtp: 'password-reset',
     passwordReset: 'password-reset',
     passwordResetAccountRecovery: 'manage-account',
@@ -1126,14 +1126,14 @@ module.exports = function (log, config, bounces, statsd) {
   Mailer.prototype.passwordChangeRequiredEmail = function (message) {
     const templateName = 'passwordChangeRequired';
     const links = this._generateLinks(
-      this.initiatePasswordChangeUrl,
+      this.initiatePasswordResetUrl,
       message,
-      {},
+      { email: message.email, email_to_hash_with: message.emailToHashWith },
       templateName
     );
 
     const headers = {
-      'X-Link': links.passwordChangeLink,
+      'X-Link': links.link,
     };
 
     return this.send({
@@ -1144,6 +1144,7 @@ module.exports = function (log, config, bounces, statsd) {
         passwordManagerInfoUrl: links.passwordManagerInfoUrl,
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
+        link: links.link,
         supportUrl: links.supportUrl,
       },
     });

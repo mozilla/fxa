@@ -1,1 +1,1 @@
-support-message-2 = "For more info, visit Mozilla Support: <%- supportUrl %>"
+support-message-plaintext = "For more info, visit Mozilla Support: <%- supportUrl %>"

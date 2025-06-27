@@ -1,9 +1,12 @@
-passwordChangeRequired-title = "Password Change Required"
+passwordChangeRequired-title-2 = "Reset your password"
 
-passwordChangeRequired-suspicious-activity-2 = "We detected suspicious behavior on your Mozilla account. To prevent unauthorized access to your Mozilla account, we’ve disconnected all devices on your account and are requiring you to change your password as a precaution."
+passwordChangeRequired-suspicious-activity-3 = "We locked your account to keep it safe from suspicious activity. You’ve been signed out of all your devices and any synced data has been deleted as a precaution."
 
-passwordChangeRequired-sign-in-2 = "Sign back into any device or service where you use your Mozilla account and follow the steps that will be presented to you."
+passwordChangeRequired-sign-in-3 = "To sign back in to your account, all you need to do is reset your password."
 
-passwordChangeRequired-different-password-plaintext = "Important: Pick a different password than what you were previously using and make sure that it is different from your email account."
+passwordChangeRequired-different-password-plaintext-2 = "Important: Pick a strong password that’s different from one you’ve used in the past."
+
+passwordChangeRequired-action-plaintext = "Reset password:"
+<%- link %>
 
 <%- include('/partials/support/index.txt') %>
