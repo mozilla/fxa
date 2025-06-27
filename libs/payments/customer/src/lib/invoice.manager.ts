@@ -185,7 +185,13 @@ export class InvoiceManager {
 
     return {
       ...previewSubsequentInvoice,
+      amountDue: previewUpcomingInvoiceOfUpgrade.amountDue,
+      endingBalance: previewUpcomingInvoiceOfUpgrade.endingBalance,
       oneTimeCharge: previewUpcomingInvoiceOfUpgrade.totalAmount,
+      startingBalance: previewUpcomingInvoiceOfUpgrade.startingBalance,
+      subtotal: previewUpcomingInvoiceOfUpgrade.subtotal,
+      taxAmounts: previewUpcomingInvoiceOfUpgrade.taxAmounts,
+      unusedAmountTotal: previewUpcomingInvoiceOfUpgrade.unusedAmountTotal,
     };
   }
 

@@ -9,7 +9,6 @@ export const InvoicePreviewFactory = (
   override?: Partial<InvoicePreview>
 ): InvoicePreview => ({
   currency: faker.finance.currencyCode(),
-  listAmount: faker.number.int({ max: 1000 }),
   totalAmount: faker.number.int({ max: 1000 }),
   taxAmounts: [],
   discountAmount: null,
@@ -22,4 +21,7 @@ export const InvoicePreviewFactory = (
     faker.string.numeric({ length: 4, allowLeadingZeros: true }),
   ...override,
   nextInvoiceDate: faker.date.future().getDate(),
+  amountDue: faker.number.int({ max: 1000 }),
+  endingBalance: null,
+  startingBalance: faker.number.int({ max: 1000 }),
 });
