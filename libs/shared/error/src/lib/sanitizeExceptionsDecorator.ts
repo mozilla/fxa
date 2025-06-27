@@ -69,7 +69,7 @@ export function SanitizeExceptions(
   };
 }
 
-function handleException(args: {
+export function handleException(args: {
   error: unknown;
   className: string;
   methodName: string;

@@ -282,6 +282,7 @@ describe('InvoiceManager', () => {
       expect(result).toEqual({
         ...mockPreviewSubsequentInvoice,
         oneTimeCharge: mockPreviewUpcomingUpgradeInvoice.totalAmount,
+        oneTimeChargeSubtotal: mockPreviewUpcomingUpgradeInvoice.subtotal,
       });
     });
 
