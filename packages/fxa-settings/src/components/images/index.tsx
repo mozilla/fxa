@@ -19,7 +19,7 @@ import { ReactComponent as BackupRecoveryPhone } from './graphic_backup_recovery
 import { ReactComponent as BackupRecoveryPhoneCode } from './graphic_phone_code.min.svg';
 import { ReactComponent as BackupRecoveryPhoneSms } from './graphic_phone_sms.min.svg';
 import { ReactComponent as BackupAuthenticationCodes } from './graphic_authentication_codes.min.svg';
-import { ReactComponent as SyncClouds } from './graphic_sync_clouds.svg';
+import { ReactComponent as SyncClouds } from './graphic_sync_clouds.min.svg';
 
 export const HeartsBrokenImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
