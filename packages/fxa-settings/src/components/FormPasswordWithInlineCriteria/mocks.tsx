@@ -9,9 +9,13 @@ import { MOCK_ACCOUNT } from '../../models/mocks';
 
 type SubjectProps = {
   passwordFormType: PasswordFormType;
+  requirePasswordConfirmation?: boolean;
 };
 
-export const Subject = ({ passwordFormType }: SubjectProps) => {
+export const Subject = ({
+  passwordFormType,
+  requirePasswordConfirmation,
+}: SubjectProps) => {
   type FormData = {
     oldPassword?: string;
     newPassword: string;
@@ -41,6 +45,7 @@ export const Subject = ({ passwordFormType }: SubjectProps) => {
         register,
         getValues,
         passwordFormType,
+        requirePasswordConfirmation,
       }}
       onSubmit={handleSubmit(onFormSubmit)}
       email={MOCK_ACCOUNT.primaryEmail.email}

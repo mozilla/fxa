@@ -25,6 +25,7 @@ describe('PasswordStrengthInline component', () => {
         isSameAsEmail={false}
         isCommon={false}
         isUnconfirmed={false}
+        passwordFormType="reset"
       />
     );
     // testAllL10n(screen, bundle);
@@ -44,6 +45,7 @@ describe('PasswordStrengthInline component', () => {
         isSameAsEmail={false}
         isCommon={false}
         isUnconfirmed={false}
+        passwordFormType="reset"
       />
     );
 
@@ -63,6 +65,7 @@ describe('PasswordStrengthInline component', () => {
         isSameAsEmail={false}
         isCommon={false}
         isUnconfirmed={false}
+        passwordFormType="reset"
       />
     );
 
@@ -81,6 +84,7 @@ describe('PasswordStrengthInline component', () => {
         isSameAsEmail={true}
         isCommon={false}
         isUnconfirmed={false}
+        passwordFormType="reset"
       />
     );
 
@@ -99,6 +103,7 @@ describe('PasswordStrengthInline component', () => {
         isSameAsEmail={false}
         isCommon={true}
         isUnconfirmed={false}
+        passwordFormType="reset"
       />
     );
 
@@ -117,6 +122,7 @@ describe('PasswordStrengthInline component', () => {
         isSameAsEmail={false}
         isCommon={false}
         isUnconfirmed={true}
+        passwordFormType="reset"
       />
     );
 
@@ -135,6 +141,7 @@ describe('PasswordStrengthInline component', () => {
         isSameAsEmail={false}
         isCommon={false}
         isUnconfirmed={true}
+        passwordFormType="reset"
       />
     );
 
@@ -143,5 +150,4 @@ describe('PasswordStrengthInline component', () => {
       'icon-x.svg'
     );
   });
-
 });

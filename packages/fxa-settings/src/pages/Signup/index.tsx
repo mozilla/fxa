@@ -38,8 +38,8 @@ import {
 import { SignupFormData, SignupProps } from './interfaces';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
-import { FormSetupAccount } from '../../components/FormSetupAccount';
 import { checkPaymentMethodsWillSync } from '../../lib/sync-engines';
+import FormPasswordWithInlineCriteria from '../../components/FormPasswordWithInlineCriteria';
 
 export const viewName = 'signup';
 
@@ -360,8 +360,9 @@ export const Signup = ({
         </FtlMsg>
       </div>
 
-      <FormSetupAccount
+      <FormPasswordWithInlineCriteria
         {...{
+          passwordFormType: 'signup',
           formState,
           errors,
           trigger,
@@ -372,9 +373,8 @@ export const Signup = ({
           onFocusMetricsEvent,
           handleSubmit,
           onSubmit,
-          isSync,
           offeredSyncEngineConfigs,
-          isDesktopRelay,
+          requirePasswordConfirmation: isSync,
           setSelectedNewsletterSlugs,
         }}
         loading={beginSignupLoading}

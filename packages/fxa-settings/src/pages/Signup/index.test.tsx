@@ -468,26 +468,6 @@ describe('Signup page', () => {
         });
       });
 
-      it('shows error for non matching passwords', async () => {
-        renderWithLocalizationProvider(
-          <Subject
-            integration={createMockSignupOAuthNativeIntegration()}
-            beginSignupHandler={mockBeginSignupHandler}
-          />
-        );
-
-        fireEvent.change(screen.getByTestId('new-password-input-field'), {
-          target: { value: 'bar12345' },
-        });
-        fireEvent.change(screen.getByTestId('verify-password-input-field'), {
-          target: { value: 'bar12346' },
-        });
-        fireEvent.blur(screen.getByTestId('verify-password-input-field'));
-        await waitFor(() => {
-          screen.getByText('Passwords do not match');
-        });
-      });
-
       it('allows user to correct password', async () => {
         renderWithLocalizationProvider(
           <Subject
