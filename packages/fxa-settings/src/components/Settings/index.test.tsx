@@ -4,12 +4,18 @@
 
 import React, { ReactNode } from 'react';
 import { History } from '@reach/router';
-import { Account, AppContext, useInitialSettingsState } from '../../models';
+import {
+  Account,
+  AppContext,
+  Session,
+  useInitialSettingsState,
+} from '../../models';
 import {
   mockAppContext,
   MOCK_ACCOUNT,
   renderWithRouter,
   mockSession,
+  MOCK_SESSION,
 } from '../../models/mocks';
 import { Config } from '../../lib/config';
 import { SETTINGS_PATH } from '../../constants';
@@ -34,10 +40,16 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
 describe('App component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
     (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
   });
 
@@ -283,6 +295,50 @@ describe('App component', () => {
     it('redirects ChangePassword', async () => {
       await history.navigate(SETTINGS_PATH + '/change_password');
       expect(history.location.pathname).toBe('/settings/create_password');
+    });
+  });
+
+  describe('prevents access if session is not verified', () => {
+    let history: History;
+
+    beforeEach(() => {
+      const account = {
+        ...MOCK_ACCOUNT,
+        hasPassword: false,
+      } as unknown as Account;
+
+      const session = {
+        ...MOCK_SESSION,
+        verified: false,
+      } as unknown as Session;
+
+      const config = {
+        l10n: { strict: true },
+        metrics: { navTiming: { enabled: true, endpoint: '/foobar' } },
+      } as Config;
+
+      ({ history } = renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({ account, session, config })}
+        >
+          <AppLocalizationProvider
+            messages={{ en: ['testo: lol'] }}
+            reportError={() => {}}
+          >
+            <Subject />
+          </AppLocalizationProvider>
+        </AppContext.Provider>,
+        { route: SETTINGS_PATH }
+      ));
+    });
+
+    it('redirects to root', async () => {
+      await history.navigate(SETTINGS_PATH);
+      expect(mockNavigateWithQuery).toHaveBeenCalledTimes(2); // Why does it called twice \o/
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      expect(console.warn).toHaveBeenCalledWith(
+        'Session.verified false on /settings access!'
+      );
     });
   });
 });
