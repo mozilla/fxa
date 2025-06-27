@@ -20,7 +20,7 @@ import { getIpAddress } from '@fxa/payments/ui/server';
 function getRedirectToUrl(
   cart: ResultCart,
   params: BaseParams,
-  searchParams: Record<string, string>
+  searchParams: Record<string, string | string[]>
 ) {
   const { id, state, eligibilityStatus } = cart;
   const { offeringId, interval, locale } = params;
@@ -52,16 +52,22 @@ export default async function New({
   searchParams,
 }: {
   params: BaseParams;
-  searchParams: Record<string, string>;
+  searchParams: Record<string, string | string[]>;
 }) {
   const { offeringId, interval } = params;
   const ipAddress = getIpAddress();
   const session = await auth();
 
   const fxaUid = session?.user?.id;
-  const searchParamsCoupon = searchParams.coupon || undefined;
-  const countryCode = searchParams.countryCode;
-  const postalCode = searchParams.postalCode;
+  const searchParamsCoupon = Array.isArray(searchParams.coupon)
+    ? searchParams.coupon[0]
+    : searchParams.coupon || undefined;
+  const countryCode = Array.isArray(searchParams.countryCode)
+    ? searchParams.countryCode[0]
+    : searchParams.countryCode || undefined;
+  const postalCode = Array.isArray(searchParams.postalCode)
+    ? searchParams.postalCode[0]
+    : searchParams.postalCode || undefined;
 
   const taxAddress =
     countryCode && postalCode
@@ -106,7 +112,9 @@ export default async function New({
 
   if (searchParams.cartId && searchParams.cartVersion) {
     const { couponCode: fetchedCoupon } = await getCouponAction(
-      searchParams.cartId,
+      Array.isArray(searchParams.cartId)
+        ? searchParams.cartId[0]
+        : searchParams.cartId,
       Number(searchParams.cartVersion)
     );
     cartCoupon = fetchedCoupon;
