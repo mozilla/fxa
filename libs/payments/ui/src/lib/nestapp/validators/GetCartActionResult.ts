@@ -32,9 +32,6 @@ class Invoice {
   currency!: string;
 
   @IsNumber()
-  listAmount!: number;
-
-  @IsNumber()
   totalAmount!: number;
 
   @ValidateNested({ each: true })
@@ -59,6 +56,14 @@ class Invoice {
   @IsOptional()
   @IsString()
   number?: string | null;
+
+  @IsOptional()
+  @IsNumber()
+  unusedAmountTotal?: number;
+
+  @IsOptional()
+  @IsNumber()
+  unitAmount?: string | null;
 }
 
 class PaymentInfo {

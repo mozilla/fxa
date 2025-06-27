@@ -12,6 +12,7 @@ import {
   SubscriptionTitle,
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
+import { CartState } from '@fxa/shared/db/mysql/account';
 import { config } from 'apps/payments/next/config';
 import { auth, signOut } from 'apps/payments/next/auth';
 
@@ -52,7 +53,7 @@ export default async function UpgradeSuccessLayout({
         <SubscriptionTitle cart={cart} l10n={l10n} />
         <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
           <PurchaseDetails
-            invoice={cart.upcomingInvoicePreview}
+            invoice={cart.latestInvoicePreview ?? cart.upcomingInvoicePreview}
             purchaseDetails={purchaseDetails}
             priceInterval={
               <PriceInterval
@@ -66,13 +67,18 @@ export default async function UpgradeSuccessLayout({
             totalPrice={
               <PriceInterval
                 l10n={l10n}
-                amount={cart.upcomingInvoicePreview.totalAmount}
+                amount={
+                  cart.latestInvoicePreview?.amountDue ??
+                  cart.upcomingInvoicePreview.amountDue
+                }
                 currency={cart.upcomingInvoicePreview.currency}
-                interval={cart.interval}
                 locale={locale}
               />
             }
             locale={locale}
+            showPrices={
+              cart.state === CartState.START || cart.state === CartState.SUCCESS
+            }
           />
         </div>
         <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
