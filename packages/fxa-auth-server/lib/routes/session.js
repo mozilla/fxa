@@ -326,9 +326,8 @@ module.exports = function (
           ...newTokenState,
           ...newUAInfo,
         };
-        const newSessionToken = await db.createSessionToken(
-          sessionTokenOptions
-        );
+        const newSessionToken =
+          await db.createSessionToken(sessionTokenOptions);
 
         const response = {
           uid: newSessionToken.uid,
@@ -419,7 +418,7 @@ module.exports = function (
         if (!account.primaryEmail.isVerified) {
           await signupUtils.verifyAccount(request, account, options);
         } else {
-          request.emitMetricsEvent('account.confirmed', { uid });
+          await request.emitMetricsEvent('account.confirmed', { uid });
           glean.login.verifyCodeConfirmed(request, { uid });
           await signinUtils.cleanupReminders({ verified: true }, account);
           await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
