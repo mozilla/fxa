@@ -27,35 +27,6 @@ test.describe('severity-2 #smoke', () => {
     expect(status?.upgradeNeeded).toBeFalsy();
   }
 
-  test(`signs up as v1 and signs in as v1 for backbone`, async ({
-    page,
-    target,
-    pages: { signup, settings, signin, confirmSignupCode },
-    testAccountTracker,
-  }) => {
-    const { email, password } = testAccountTracker.generateAccountDetails();
-    await page.goto(target.contentServerUrl);
-    await signup.fillOutEmailForm(email);
-    await signup.fillOutSignupForm(password);
-    await expect(page).toHaveURL(/confirm_signup_code/);
-    const code = await target.emailClient.getVerifyShortCode(email);
-    await confirmSignupCode.fillOutCodeForm(code);
-
-    await expect(page).toHaveURL(/settings/);
-
-    await settings.signOut();
-
-    await _checkCredentialsVersion1(target, email);
-
-    await page.goto(`${target.contentServerUrl}`);
-    await signin.fillOutEmailFirstForm(email);
-    await signin.fillOutPasswordForm(password);
-
-    await expect(settings.settingsHeading).toBeVisible();
-
-    await _checkCredentialsVersion1(target, email);
-  });
-
   test(`signs up as v1 and signs in as v1 for react`, async ({
     page,
     target,
@@ -64,7 +35,7 @@ test.describe('severity-2 #smoke', () => {
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
     await page.goto(
-      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=1`
     );
     await signup.fillOutEmailForm(email);
     await signup.fillOutSignupForm(password);
@@ -79,7 +50,7 @@ test.describe('severity-2 #smoke', () => {
     await _checkCredentialsVersion1(target, email);
 
     await page.goto(
-      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&stretch=1`
     );
     await signin.fillOutEmailFirstForm(email);
     await signin.fillOutPasswordForm(password);
@@ -87,35 +58,6 @@ test.describe('severity-2 #smoke', () => {
     await expect(page).toHaveURL(/settings/);
 
     await _checkCredentialsVersion1(target, email);
-  });
-
-  test(`signs up as v1 and signs in as v2 for backbone`, async ({
-    page,
-    target,
-    pages: { signup, settings, signin, confirmSignupCode },
-    testAccountTracker,
-  }) => {
-    const { email, password } = testAccountTracker.generateAccountDetails();
-    await page.goto(target.contentServerUrl);
-    await signup.fillOutEmailForm(email);
-    await signup.fillOutSignupForm(password);
-    await expect(page).toHaveURL(/confirm_signup_code/);
-    const code = await target.emailClient.getVerifyShortCode(email);
-    await confirmSignupCode.fillOutCodeForm(code);
-
-    await expect(page).toHaveURL(/settings/);
-
-    await settings.signOut();
-
-    await _checkCredentialsVersion1(target, email);
-
-    await page.goto(`${target.contentServerUrl}?stretch=2`);
-    await signin.fillOutEmailFirstForm(email);
-    await signin.fillOutPasswordForm(password);
-
-    await expect(settings.settingsHeading).toBeVisible();
-
-    await _checkCredentialsVersion2(target, email);
   });
 
   test(`signs up as v1 and signs in as v2 for react`, async ({
@@ -126,7 +68,7 @@ test.describe('severity-2 #smoke', () => {
   }) => {
     const { email, password } = testAccountTracker.generateAccountDetails();
     await page.goto(
-      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react&&stretch=1`
     );
     await signup.fillOutEmailForm(email);
     await signup.fillOutSignupForm(password);
