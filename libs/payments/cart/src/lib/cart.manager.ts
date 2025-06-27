@@ -258,6 +258,7 @@ export class CartManager {
 
     this.checkActionForValidCartState(cart, 'finishErrorCart');
     try {
+      //throw new FinishErrorCartFailedError(cartId, items, undefined);
       await updateCart(this.db, Buffer.from(cartId, 'hex'), cart.version, {
         ...items,
         uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,

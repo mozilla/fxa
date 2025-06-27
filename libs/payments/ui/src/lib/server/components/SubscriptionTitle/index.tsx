@@ -31,6 +31,14 @@ export function getComponentTitle(cart: CartDTO) {
           title: 'This subscription plan change is not supported',
           titleFtl: 'subscription-title-not-supported',
         };
+      }
+      else if (
+        errorReasonId === CartErrorReasonId.CART_3DS_FINISH_FAILED
+      ) {
+        return {
+          title: 'Could not finalize the subscription',
+          titleFtl: 'next-subscription-error-3ds-finish-failed',
+        };
       } else {
         return {
           title: 'Error confirming subscription…',
