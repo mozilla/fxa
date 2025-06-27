@@ -28,6 +28,7 @@ import {
 } from '@fxa/payments/ui/actions';
 import { config } from 'apps/payments/next/config';
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,6 +77,25 @@ export default async function Checkout({
     cartPromise,
     cmsDataPromise,
   ]);
+
+  // prevent cart and session user mismatch
+  if (cart.uid !== session?.user?.id) {
+    const redirectSearchParams: Record<string, string> = searchParams || {};
+    delete redirectSearchParams.cartId;
+    delete redirectSearchParams.cartVersion;
+    const redirectTo = buildRedirectUrl(
+      params.offeringId,
+      params.interval,
+      'new',
+      'checkout',
+      {
+        baseUrl: config.paymentsNextHostedUrl,
+        locale,
+        searchParams: redirectSearchParams,
+      }
+    );
+    redirect(redirectTo);
+  }
 
   const redirectSearchParams: Record<string, string> = searchParams || {};
   redirectSearchParams.cartId = cart.id;
