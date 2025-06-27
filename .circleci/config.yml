@@ -793,8 +793,28 @@ jobs:
             sudo cat /etc/hosts
       - wait-for-infrastructure
       - run:
+          name: Ensure directories
+          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
+      - run:
           name: Start services for playwright tests
-          command: ./packages/functional-tests/scripts/start-services.sh
+          # command: ./packages/functional-tests/scripts/start-services.sh
+          # testing out having this command here instead of in the script
+          # it appears that having it in a script is preventing NX cache
+          # from working properly
+          command: |
+            NODE_OPTIONS="--max-old-space-size=7168" \
+            CI=false \
+            NODE_ENV=test \
+              npx nx run-many -t start \
+              --parallel=4 \
+              --verbose
+              --projects \
+                123done \
+                fxa-auth-server \
+                fxa-content-server \
+                fxa-payments-server \
+                fxa-settings \
+            && npx pm2 ls
           environment:
             NODE_ENV: test
           no_output_timeout: 20m
