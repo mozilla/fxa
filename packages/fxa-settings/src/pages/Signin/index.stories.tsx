@@ -14,6 +14,8 @@ import {
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { SigninProps } from './interfaces';
 import { MOCK_SERVICE, MOCK_SESSION_TOKEN } from '../mocks';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { BeginSigninError } from '../../lib/error-utils';
 
 export default {
   title: 'Pages/Signin',
@@ -29,6 +31,14 @@ const storyWithProps = ({
 };
 
 export const SignInToSettingsWithPassword = storyWithProps();
+export const SignInToSettingsWithPasswordAccountLockedError = storyWithProps({
+  beginSigninHandler: () => {
+    return Promise.resolve({
+      error: AuthUiErrors.ACCOUNT_RESET as BeginSigninError,
+    });
+  },
+});
+
 export const SignInToRelyingPartyWithPassword = storyWithProps({
   serviceName: MOCK_SERVICE,
 });
