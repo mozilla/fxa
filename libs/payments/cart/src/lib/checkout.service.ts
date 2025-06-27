@@ -10,6 +10,7 @@ import { StatsD } from 'hot-shots';
 import {
   EligibilityService,
   EligibilityStatus,
+  type SubscriptionEligibilityResult,
   type SubscriptionEligibilityUpgradeDowngradeResult,
 } from '@fxa/payments/eligibility';
 import {
@@ -28,6 +29,7 @@ import {
   SubplatInterval,
   SubscriptionManager,
   SetupIntentManager,
+  type TaxAddress,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
@@ -67,7 +69,6 @@ import {
   UpgradeForSubscriptionNotFoundError,
 } from './checkout.error';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
-import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 
 @Injectable()
 export class CheckoutService {
@@ -209,41 +210,18 @@ export class CheckoutService {
       cart.interval as SubplatInterval
     );
 
-    let amount: number;
-    if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
-      assert(
-        'fromPrice' in eligibility,
-        'fromPrice not present for upgrade cart'
-      );
-      const fromSubscription =
-        await this.subscriptionManager.retrieveForCustomerAndPrice(
-          customer.id,
-          eligibility.fromPrice.id
-        );
-      assert(fromSubscription, 'Subscription required');
-      const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
-      const upcomingInvoice =
-        await this.invoiceManager.previewUpcomingForUpgrade({
-          priceId: price.id,
-          customer,
-          fromSubscriptionItem,
-        });
-      amount = upcomingInvoice.oneTimeChargeSubtotal;
-    } else {
-      const upcomingInvoice = await this.invoiceManager.previewUpcoming({
-        priceId: price.id,
-        currency: cart.currency,
-        customer: customer,
-        taxAddress: taxAddress,
-      });
-      amount = upcomingInvoice.subtotal;
-    }
-
-    if (amount !== cart.amount) {
+    const checkoutAmount = await this.determineCheckoutAmount({
+      eligibility,
+      customer,
+      priceId: price.id,
+      currency: cart.currency,
+      taxAddress,
+    });
+    if (checkoutAmount !== cart.amount) {
       throw new CartTotalMismatchError(
         cart.id,
         cart.amount,
-        amount
+        checkoutAmount
       );
     }
 
@@ -724,5 +702,50 @@ export class CheckoutService {
     }
 
     return upgradedSubscription;
+  }
+
+  async determineCheckoutAmount({
+    eligibility,
+    customer,
+    priceId,
+    currency,
+    taxAddress,
+  }: {
+    eligibility: SubscriptionEligibilityResult;
+    priceId: string;
+    currency: string;
+    taxAddress: TaxAddress;
+    customer?: StripeCustomer;
+  }) {
+    eligibility.subscriptionEligibilityResult
+    if (eligibility.subscriptionEligibilityResult === EligibilityStatus.UPGRADE) {
+      assert(
+        'fromPrice' in eligibility,
+        'fromPrice not present for upgrade cart'
+      );
+      assert(customer, 'Customer is required for upgrade')
+      const fromSubscription =
+        await this.subscriptionManager.retrieveForCustomerAndPrice(
+          customer.id,
+          eligibility.fromPrice.id
+        );
+      assert(fromSubscription, 'Subscription required');
+      const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
+      const upcomingInvoice =
+        await this.invoiceManager.previewUpcomingForUpgrade({
+          priceId,
+          customer,
+          fromSubscriptionItem,
+        });
+      return upcomingInvoice.oneTimeChargeSubtotal;
+    } else {
+      const upcomingInvoice = await this.invoiceManager.previewUpcoming({
+        priceId,
+        currency,
+        customer,
+        taxAddress,
+      });
+      return upcomingInvoice.subtotal;
+    }
   }
 }

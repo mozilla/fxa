@@ -355,37 +355,25 @@ export class CartService {
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
     let couponCode = args.promoCode;
-    let amount: number;
+    const checkoutAmount = await this.checkoutService.determineCheckoutAmount({
+      eligibility,
+      priceId: price.id,
+      currency,
+      taxAddress: args.taxAddress,
+      customer,
+    });
     if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
       // Coupons are currently not supported by upgrades
       couponCode = undefined;
-
-      assert(
-        'fromPrice' in eligibility,
-        'fromPrice not present for upgrade cart'
-      );
-      assert(customer, 'Customer is required for upgrade');
-      const fromSubscription =
-        await this.subscriptionManager.retrieveForCustomerAndPrice(
-          customer.id,
-          eligibility.fromPrice.id
-        );
-      assert(fromSubscription, 'Subscription required');
-      const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
-      const upcomingInvoice =
-        await this.invoiceManager.previewUpcomingForUpgrade({
-          priceId: price.id,
-          customer,
-          fromSubscriptionItem,
-        });
-      amount = upcomingInvoice.oneTimeChargeSubtotal;
     } else {
       if (couponCode) {
         try {
-          await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          await this.promotionCodeManager.assertValidForPriceAndCustomer(
             couponCode,
             price,
-            currency
+            currency,
+            customer,
+            args.taxAddress,
           );
         } catch (error) {
           throw new CartSetupInvalidPromoCodeError(
@@ -395,32 +383,12 @@ export class CartService {
           );
         }
       }
-      try {
-        const upcomingInvoice = await this.invoiceManager.previewUpcoming({
-          priceId: price.id,
-          currency,
-          customer,
-          taxAddress: args.taxAddress,
-          couponCode,
-        });
-        amount = upcomingInvoice.subtotal;
-      } catch (e) {
-        if (
-          e.type === 'StripeInvalidRequestError' &&
-          e.message ===
-          'This promotion code cannot be redeemed because the associated customer has prior transactions.'
-        ) {
-          throw new CouponErrorCannotRedeem();
-        } else {
-          throw e;
-        }
-      }
     }
 
     const createCartParams: SetupCart = {
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
-      amount,
+      amount: checkoutAmount,
       uid: args.uid,
       stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
@@ -724,11 +692,16 @@ export class CartService {
             // If the code is invalid, then update the cart with an empty coupon code.
             if (!!oldCart.couponCode && !cartDetailsInput.couponCode) {
               try {
-                await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+                const customer = oldCart?.stripeCustomerId ? await this.customerManager.retrieve(
+                  oldCart.stripeCustomerId
+                ) : undefined;
+
+                await this.promotionCodeManager.assertValidForPriceAndCustomer(
                   oldCart.couponCode,
                   price,
-                  cartDetails.currency
-                );
+                  cartDetails.currency,
+                  customer,
+                )
               } catch (error) {
                 cartDetails.couponCode = null;
               }
@@ -743,35 +716,16 @@ export class CartService {
               oldCart.interval as SubplatInterval
             );
 
-          await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
-            cartDetailsInput?.couponCode,
-            price,
-            cartDetails.currency || oldCart.currency
-          );
+          const customer = oldCart?.stripeCustomerId ? await this.customerManager.retrieve(
+            oldCart.stripeCustomerId
+          ) : undefined;
 
-          if (oldCart.stripeCustomerId) {
-            try {
-              const customer = await this.customerManager.retrieve(
-                oldCart.stripeCustomerId
-              );
-              await this.invoiceManager.previewUpcoming({
-                priceId: price.id,
-                currency: oldCart.currency,
-                customer,
-                couponCode: cartDetailsInput.couponCode,
-              });
-            } catch (error) {
-              if (
-                error.type === 'StripeInvalidRequestError' &&
-                error.message ===
-                'This promotion code cannot be redeemed because the associated customer has prior transactions.'
-              ) {
-                throw new CouponErrorCannotRedeem();
-              } else {
-                throw error;
-              }
-            }
-          }
+          await this.promotionCodeManager.assertValidForPriceAndCustomer(
+            cartDetailsInput.couponCode,
+            price,
+            cartDetails.currency || oldCart.currency,
+            customer,
+          )
         }
 
         await this.cartManager.updateFreshCart(cartId, version, cartDetails);
