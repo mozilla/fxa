@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Sink = require('./sink');
-const P = require('./promise');
 
 const config = require('./config').getProperties();
 const db = require('./db');
@@ -27,7 +26,7 @@ module.exports = function (server) {
 
   function deleteUser(message) {
     var userId = getUserId(message);
-    return P.all([
+    return Promise.all([
       db.getSelectedAvatar(userId).then(function (avatar) {
         if (avatar) {
           // if there is an avatar set then also delete it
@@ -44,7 +43,7 @@ module.exports = function (server) {
 
   function primaryEmailChanged(message) {
     var userId = getUserId(message);
-    return P.resolve()
+    return Promise.resolve()
       .then(() => {
         server.methods.profileCache.drop(userId).then(() => {
           logger.info('primaryEmailChanged:cacheCleared', { uid: userId });
@@ -57,7 +56,7 @@ module.exports = function (server) {
 
   function profileDataChange(message) {
     var userId = getUserId(message);
-    return P.resolve()
+    return Promise.resolve()
       .then(function () {
         server.methods.profileCache.drop(userId).then(() => {
           logger.info('profileDataChange:cacheCleared', { uid: userId });
@@ -71,7 +70,7 @@ module.exports = function (server) {
   function onData(message) {
     logger.verbose('data', message);
     var messageEvent = message.event;
-    return P.resolve()
+    return Promise.resolve()
       .then(function () {
         switch (messageEvent) {
           case 'delete':

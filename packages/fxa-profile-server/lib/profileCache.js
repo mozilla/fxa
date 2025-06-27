@@ -4,7 +4,6 @@
 
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
-const P = require('./promise');
 const batch = require('./batch');
 
 // The returned profile info can vary depending on the scopes
@@ -95,16 +94,18 @@ module.exports = function profileCache(server, options) {
     // To work transparently with hapi's caching and `getProfileCacheKey` above,
     // we make a bunch of synthetic request objects on which to drop the
     // cache, one for each possible set of scopes in the cache.
-    return P.each(CACHEABLE_SCOPES, (scope) => {
-      const req = {
-        auth: {
-          credentials: {
-            user: uid,
-            scope: scope,
-          },
-        },
-      };
-      return server.methods.profileCache.get.cache.drop(req);
+    return batch(req, {
+      '/v1/_core_profile': true,
+      '/v1/uid': true,
+      '/v1/avatar': ['avatar', 'avatarDefault'],
+      '/v1/display_name': true,
+    }).then((result) => {
+      // Only cache the result if we can produce a suitable cache key.
+      const key = getProfileCacheKey(req);
+      // Since Hapi 17+ "When a server method is cached, the result no longer changes to an envelope with the result and ttl value."
+      // This feature seems poorly documented. Best source for info is the following https://github.com/outmoded/discuss/issues/751
+      req.flags.ttl = key ? undefined : 0;
+      return result;
     });
   });
 };

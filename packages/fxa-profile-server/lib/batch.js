@@ -5,7 +5,6 @@
 const AppError = require('./error');
 const Boom = require('@hapi/boom');
 const logger = require('./logging')('batch');
-const P = require('./promise');
 
 // Make multiple internal requests to routes, and merge their responses
 // into a single object.
@@ -40,7 +39,7 @@ function batch(request, routeFieldsMap) {
   let numForbidden = 0;
   const routeFieldsKeys = Object.keys(routeFieldsMap);
 
-  return P.each(routeFieldsKeys, (url) => {
+  return Promise.each(routeFieldsKeys, (url) => {
     return request.server
       .inject({
         allowInternals: true,

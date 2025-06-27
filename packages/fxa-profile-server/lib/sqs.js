@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const AWS = require('aws-sdk');
-const P = require('./promise');
 
 module.exports = function (logger) {
   function SQSSender(region, queueURL) {
@@ -22,7 +21,7 @@ module.exports = function (logger) {
     if (!this.sqs) {
       return;
     }
-    return new P(
+    return new Promise(
       function (resolve, reject) {
         var params = {
           MessageBody: JSON.stringify({ Message: JSON.stringify(body) }),

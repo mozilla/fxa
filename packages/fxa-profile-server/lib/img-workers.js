@@ -4,7 +4,6 @@
 
 const buf = require('buf');
 const hex = buf.to.hex;
-const P = require('./promise');
 
 const AppError = require('./error');
 const config = require('./config');
@@ -15,7 +14,7 @@ const WORKER_URL = config.get('worker.url');
 const ACCEPT_ENCODING_HEADER = 'identity';
 
 exports.upload = function upload(id, payload, headers) {
-  return new P(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     var url = WORKER_URL + '/a/' + hex(id);
 
     // filter incoming headers
@@ -67,7 +66,7 @@ exports.upload = function upload(id, payload, headers) {
 };
 
 exports.delete = function deleteAvatar(id) {
-  return new P(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     var url = WORKER_URL + '/a/' + hex(id);
     var opts = { method: 'delete', json: true };
     logger.verbose('delete', url);
