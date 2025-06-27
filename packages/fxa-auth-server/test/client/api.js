@@ -1497,6 +1497,17 @@ module.exports = (config) => {
     );
   };
 
+  ClientApi.prototype.geoEligibilityCheck = async function (
+    sessionToken,
+    feature
+  ) {
+    return this.doRequest(
+      'GET',
+      `${this.baseURL}/eligibility/${feature}`,
+      sessionToken
+    );
+  };
+
   ClientApi.heartbeat = function (origin) {
     return new ClientApi(origin).doRequest('GET', `${origin}/__heartbeat__`);
   };

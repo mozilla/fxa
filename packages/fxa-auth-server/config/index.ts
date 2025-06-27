@@ -159,6 +159,14 @@ const convictConf = convict({
       env: 'GEODB_LOCATION_OVERRIDE',
     },
   },
+  geoEligibility: {
+    rules: {
+      doc: 'Mapping of features to country codes that are allowed to see the feature',
+      format: Object,
+      default: {}, // ex. { "MONITORPLUSPROMO": ["US"] }
+      env: 'GEO_ELIGIBILITY_RULES',
+    },
+  },
   appleAuthConfig: {
     clientId: {
       default: 'com.mozilla.firefox.accounts.auth',

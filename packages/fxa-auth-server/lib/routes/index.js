@@ -221,17 +221,16 @@ module.exports = function (
   );
 
   const { cmsRoutes } = require('./cms');
-  const cms = cmsRoutes(
-    log,
-    config,
-    statsd
-  );
+  const cms = cmsRoutes(log, config, statsd);
 
   const { cloudTaskRoutes } = require('./cloud-tasks');
   const cloudTasks = cloudTaskRoutes(log, config, statsd);
 
   const { cloudSchedulerRoutes } = require('./cloud-scheduler');
   const cloudScheduler = cloudSchedulerRoutes(log, config, statsd);
+
+  const { geoRoutes } = require('./geo-location');
+  const geo = geoRoutes(config, log);
 
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {
@@ -258,7 +257,8 @@ module.exports = function (
     linkedAccounts,
     cloudTasks,
     cloudScheduler,
-    cms
+    cms,
+    geo
   );
 
   function optionallyIgnoreTrace(fn) {

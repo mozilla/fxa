@@ -2340,7 +2340,7 @@ export default class AuthClient {
   }
 
   /**
-   * Gets status of the recovery phone on the users account.\
+   * Gets status of the recovery phone on the users account.
    * @param sessionToken The user's current session token
    * @param headers
    * @returns { exists:boolean, phoneNumber: string }
@@ -2365,6 +2365,21 @@ export default class AuthClient {
       null,
       headers
     );
+  }
+
+  /**
+   * Checks if a feature is available based on user location.
+   * @param sessionToken The user's current session token
+   * @param feature The feature that we are checking
+   * @param headers
+   * @returns { eligible:boolean }
+   */
+  async geoEligibilityCheck(
+    sessionToken: string,
+    feature: string,
+    headers?: Headers
+  ): Promise<{ eligible: boolean }> {
+    return this.sessionGet(`/geo/eligibility/${feature}`, sessionToken, headers);
   }
 
   protected async getPayloadV2({
