@@ -5,7 +5,6 @@
 import { getCode } from 'fxa-settings/src/lib/totp';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
 import { TotpCredentials, TotpPage } from '../../pages/settings/totp';
 import { SigninPage } from '../../pages/signin';
@@ -23,13 +22,8 @@ test.describe('severity-1 #smoke', () => {
         config.featureFlags.updated2faSetupFlow,
         'TODO in FXA-11935 - add test for new flow'
       );
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
       await addTotp(settings, totp);
@@ -51,7 +45,8 @@ test.describe('severity-1 #smoke', () => {
         config.featureFlags.updated2faSetupFlow,
         'TODO in FXA-11935 - add test for new flow'
       );
-      await signInAccount(target, page, settings, signin, testAccountTracker);
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
 
@@ -84,13 +79,8 @@ test.describe('severity-1 #smoke', () => {
         config.featureFlags.updated2faSetupFlow,
         'TODO in FXA-11935 - add test for new flow'
       );
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
 
       const { secret } = await addTotp(settings, totp);
       await settings.signOut();
@@ -127,13 +117,8 @@ test.describe('severity-1 #smoke', () => {
         config.featureFlags.updated2faSetupFlow,
         'TODO in FXA-11935 - add test for new flow'
       );
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
       const { secret } = await addTotp(settings, totp);
@@ -162,17 +147,14 @@ async function signInAccount(
   page: Page,
   settings: SettingsPage,
   signin: SigninPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
+  credentials: Credentials
+): Promise<void> {
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
   await page.waitForURL(/settings/);
   //Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
-
-  return credentials;
 }
 
 async function addTotp(

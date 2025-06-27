@@ -18,12 +18,13 @@ test.describe('severity-2 #smoke', () => {
       pages: { deleteAccount, settings, signin, signinUnblock },
       testAccountTracker,
     }) => {
-      const credentials = await signInBlockedAccount(
+      const credentials = await testAccountTracker.signUpBlocked();
+      await signInBlockedAccount(
         target,
         page,
         signin,
         signinUnblock,
-        testAccountTracker
+        credentials
       );
 
       //Unblock the email
@@ -49,12 +50,13 @@ test.describe('severity-2 #smoke', () => {
         true,
         'TODO in FXA-9882, fix fxa-settings or test, should not be prompted enter password and unblock code again after entering a valid unblock code'
       );
-      const credentials = await signInBlockedAccount(
+      const credentials = await testAccountTracker.signUpBlocked();
+      await signInBlockedAccount(
         target,
         page,
         signin,
         signinUnblock,
-        testAccountTracker
+        credentials
       );
 
       await signinUnblock.fillOutCodeForm('invalidd');
@@ -85,12 +87,13 @@ test.describe('severity-2 #smoke', () => {
       pages: { signin, settings, signinUnblock, deleteAccount },
       testAccountTracker,
     }) => {
-      const credentials = await signInBlockedAccount(
+      const credentials = await testAccountTracker.signUpBlocked();
+      await signInBlockedAccount(
         target,
         page,
         signin,
         signinUnblock,
-        testAccountTracker
+        credentials
       );
 
       //Click resend code button
@@ -162,13 +165,8 @@ test.describe('severity-2 #smoke', () => {
       testAccountTracker,
     }) => {
       const blockedEmail = testAccountTracker.generateBlockedEmail();
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
       await settings.secondaryEmail.addButton.click();
@@ -206,17 +204,14 @@ async function signInAccount(
   page: Page,
   settings: SettingsPage,
   signin: SigninPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
+  credentials: Credentials
+): Promise<void> {
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
   await page.waitForURL(/settings/);
   //Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
-
-  return credentials;
 }
 
 async function signInBlockedAccount(
@@ -224,9 +219,8 @@ async function signInBlockedAccount(
   page: Page,
   signin: SigninPage,
   signinUnblock: SigninUnblockPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUpBlocked();
+  credentials: Credentials
+): Promise<void> {
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
@@ -237,8 +231,6 @@ async function signInBlockedAccount(
   await expect(page).toHaveURL(/signin_unblock/);
   await expect(signinUnblock.heading).toBeVisible();
   await expect(page.getByText(credentials.email)).toBeVisible();
-
-  return credentials;
 }
 
 async function removeAccount(
