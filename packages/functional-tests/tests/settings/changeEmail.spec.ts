@@ -4,7 +4,6 @@
 
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
 import { ChangePasswordPage } from '../../pages/settings/changePassword';
 import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
@@ -17,13 +16,8 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, secondaryEmail, settings, signin },
       testAccountTracker,
     }) => {
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
       const initialEmail = credentials.email;
       const newEmail = testAccountTracker.generateEmail();
 
@@ -57,13 +51,8 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, changePassword, secondaryEmail, settings, signin },
       testAccountTracker,
     }) => {
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
       const initialPassword = credentials.password;
       const newEmail = testAccountTracker.generateEmail();
       const newPassword = testAccountTracker.generatePassword();
@@ -103,13 +92,8 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, changePassword, secondaryEmail, settings, signin },
       testAccountTracker,
     }) => {
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
       const initialEmail = credentials.email;
       const initialPassword = credentials.password;
       const secondEmail = testAccountTracker.generateEmail();
@@ -159,13 +143,8 @@ test.describe('severity-1 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
       const newEmail = testAccountTracker.generateEmail();
       const newPassword = testAccountTracker.generatePassword();
 
@@ -200,7 +179,8 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, secondaryEmail, settings, signin },
       testAccountTracker,
     }) => {
-      await signInAccount(target, page, settings, signin, testAccountTracker);
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(target, page, settings, signin, credentials);
       const newEmail = testAccountTracker.generateEmail();
 
       await settings.goto();
@@ -240,17 +220,14 @@ async function signInAccount(
   page: Page,
   settings: SettingsPage,
   signin: SigninPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
+  credentials: Credentials
+): Promise<void> {
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
   await page.waitForURL(/settings/);
   //Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
-
-  return credentials;
 }
 
 async function changePrimaryEmail(

@@ -4,7 +4,6 @@
 
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
 
@@ -14,7 +13,8 @@ test.describe('severity-1 #smoke', () => {
     pages: { page, signin, settings, deleteAccount },
     testAccountTracker,
   }) => {
-    await signInAccount(target, page, settings, signin, testAccountTracker);
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
 
     await settings.goto();
 
@@ -33,7 +33,8 @@ test.describe('severity-1 #smoke', () => {
     pages: { page, deleteAccount, settings, signin },
     testAccountTracker,
   }) => {
-    await signInAccount(target, page, settings, signin, testAccountTracker);
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
 
     await settings.goto();
 
@@ -57,18 +58,19 @@ test.describe('severity-1 #smoke', () => {
     pages: { page, deleteAccount, settings, signin },
     testAccountTracker,
   }) => {
-    const { password } = await signInAccount(
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(
       target,
       page,
       settings,
       signin,
-      testAccountTracker
+      credentials
     );
 
     await settings.goto();
 
     await settings.deleteAccountButton.click();
-    await deleteAccount.deleteAccount(password);
+    await deleteAccount.deleteAccount(credentials.password);
 
     await expect(page.getByText('Account deleted successfully')).toBeVisible();
   });
@@ -78,7 +80,8 @@ test.describe('severity-1 #smoke', () => {
     pages: { page, deleteAccount, settings, signin },
     testAccountTracker,
   }) => {
-    await signInAccount(target, page, settings, signin, testAccountTracker);
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
 
     await settings.goto();
 
@@ -104,15 +107,12 @@ async function signInAccount(
   page: Page,
   settings: SettingsPage,
   signin: SigninPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
+  credentials: Credentials
+): Promise<void> {
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
   await page.waitForURL(/settings/);
   //Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
-
-  return credentials;
 }

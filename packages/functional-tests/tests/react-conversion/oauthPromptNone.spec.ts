@@ -4,7 +4,6 @@
 
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
 
@@ -158,16 +157,17 @@ test.describe('severity-1 #smoke', () => {
         pages: { relier, settings, signin },
         testAccountTracker,
       }) => {
-        const { email } = await signInAccount(
+        const credentials = await testAccountTracker.signUp();
+        await signInAccount(
           target,
           page,
           settings,
           signin,
-          testAccountTracker
+          credentials
         );
 
         const query = new URLSearchParams({
-          login_hint: email,
+          login_hint: credentials.email,
           return_on_error: 'false',
         });
         await page.goto(`${target.relierUrl}/?${query.toString()}`);
@@ -183,7 +183,8 @@ test.describe('severity-1 #smoke', () => {
         pages: { relier, settings, signin },
         testAccountTracker,
       }) => {
-        await signInAccount(target, page, settings, signin, testAccountTracker);
+        const credentials = await testAccountTracker.signUp();
+        await signInAccount(target, page, settings, signin, credentials);
 
         const query = new URLSearchParams({
           return_on_error: 'false',
@@ -202,7 +203,15 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker,
       }) => {
         const loginHintAccount = testAccountTracker.generateAccountDetails();
-        await signInAccount(target, page, settings, signin, testAccountTracker);
+
+        const credentials = await testAccountTracker.signUp();
+        await signInAccount(
+          target,
+          page,
+          settings,
+          signin,
+          credentials
+        );
 
         const query = new URLSearchParams({
           login_hint: loginHintAccount.email,
@@ -225,18 +234,19 @@ test.describe('severity-1 #smoke', () => {
       testAccountTracker,
     }) => {
       {
-        const { email } = await signInAccount(
+        const credentials = await testAccountTracker.signUp();
+        await signInAccount(
           target,
           page,
           settings,
           signin,
-          testAccountTracker
+          credentials
         );
 
         await settings.signOut();
 
         const query = new URLSearchParams({
-          login_hint: email,
+          login_hint: credentials.email,
           return_on_error: 'true',
         });
         await page.goto(`${target.relierUrl}/?${query.toString()}`);
@@ -260,12 +270,13 @@ test.describe('severity-1 #smoke', () => {
         config.featureFlags.updated2faSetupFlow,
         'TODO in FXA-11935 - add test for new flow'
       );
-      const { email } = await signInAccount(
+      const credentials = await testAccountTracker.signUp();
+      await signInAccount(
         target,
         page,
         settings,
         signin,
-        testAccountTracker
+        credentials
       );
 
       await settings.totp.addButton.click();
@@ -277,7 +288,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Keep user signed in with a verified TOTP session
       const query = new URLSearchParams({
-        login_hint: email,
+        login_hint: credentials.email,
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
       await relier.signInPromptNone();
@@ -296,9 +307,8 @@ async function signInAccount(
   page: Page,
   settings: SettingsPage,
   signin: SigninPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
+  credentials: Credentials
+): Promise<void> {
   await page.goto(
     `${target.contentServerUrl}/?forceExperiment=generalizedReactApp&forceExperimentGroup=react`
   );
@@ -307,6 +317,4 @@ async function signInAccount(
   await page.waitForURL(/settings/);
   //Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
-
-  return credentials;
 }

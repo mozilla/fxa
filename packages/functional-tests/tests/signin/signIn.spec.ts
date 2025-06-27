@@ -2,11 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Page, expect, test } from '../../lib/fixtures/standard';
-import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { SettingsPage } from '../../pages/settings';
-import { SigninPage } from '../../pages/signin';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin', () => {
@@ -81,13 +77,13 @@ test.describe('severity-2 #smoke', () => {
       pages: { settings, signin },
       testAccountTracker,
     }) => {
-      const credentials = await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await page.goto(target.contentServerUrl);
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+      await page.waitForURL(/settings/);
+      //Verify logged in on Settings page
+      await expect(settings.settingsHeading).toBeVisible();
 
       // Sign out
       await settings.signOut();
@@ -168,21 +164,3 @@ test.describe('severity-2 #smoke', () => {
     });
   });
 });
-
-async function signInAccount(
-  target: BaseTarget,
-  page: Page,
-  settings: SettingsPage,
-  signin: SigninPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
-  await page.goto(target.contentServerUrl);
-  await signin.fillOutEmailFirstForm(credentials.email);
-  await signin.fillOutPasswordForm(credentials.password);
-  await page.waitForURL(/settings/);
-  //Verify logged in on Settings page
-  await expect(settings.settingsHeading).toBeVisible();
-
-  return credentials;
-}
