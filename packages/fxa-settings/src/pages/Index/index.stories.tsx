@@ -17,7 +17,7 @@ import {
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { MozServices } from '../../lib/types';
-import { MOCK_EMAIL } from '../mocks';
+import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
 
 export default {
   title: 'Pages/Index',
@@ -66,6 +66,14 @@ export const Pocket = storyWithProps({
     clientId: POCKET_CLIENTIDS[0],
   }),
   serviceName: MozServices.Pocket,
+});
+
+export const WithCms = storyWithProps({
+  integration: createMockIndexOAuthNativeIntegration({
+    isDesktopRelay: true,
+    isSync: false,
+    cmsInfo: MOCK_CMS_INFO
+  }),
 });
 
 export const WithSuccessBanner = storyWithProps({

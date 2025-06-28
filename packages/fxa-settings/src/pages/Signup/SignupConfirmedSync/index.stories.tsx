@@ -7,6 +7,7 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { createMockIntegration } from './mocks';
 import { Subject } from './mocks';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 export default {
   title: 'Pages/Signup/SignupConfirmedSync',
@@ -15,6 +16,9 @@ export default {
 } as Meta;
 
 export const Desktop = () => <Subject />;
+
+export const DesktopWithCms = () => <Subject
+  integration={createMockIntegration({ cmsInfo: MOCK_CMS_INFO })}/>;
 
 export const FromThirdPartyAuthSetPassword = () => (
   <Subject origin="post-verify-set-password" />

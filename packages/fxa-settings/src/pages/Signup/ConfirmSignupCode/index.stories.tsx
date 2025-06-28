@@ -6,7 +6,7 @@ import React from 'react';
 import ConfirmSignupCode from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { createMockOAuthNativeIntegration, Subject } from './mocks';
+import { createMockOAuthNativeIntegration, createMockOAuthWebIntegration, Subject } from './mocks';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -47,5 +47,11 @@ export const WithErrors = () => (
 export const OAuthDesktopServiceRelay = () => (
   <AppContext.Provider value={mockAppContext({ account: accountWithSuccess })}>
     <Subject integration={createMockOAuthNativeIntegration(false)} />
+  </AppContext.Provider>
+);
+
+export const WithSuccessCms = () => (
+  <AppContext.Provider value={mockAppContext({ account: accountWithSuccess })}>
+    <Subject integration={createMockOAuthWebIntegration()} />
   </AppContext.Provider>
 );

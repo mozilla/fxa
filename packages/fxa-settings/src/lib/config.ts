@@ -96,6 +96,9 @@ export interface Config {
     updated2faSetupFlow?: boolean;
   };
   nimbusPreview: boolean;
+  cms: {
+    enabled: boolean;
+  };
 }
 
 export function getDefault() {
@@ -175,6 +178,10 @@ export function getDefault() {
       recoveryPhonePasswordReset2fa: false,
       updated2faSetupFlow: false,
     },
+    cms: {
+      // Note: Even if this flag is true, the user must be an `en` language
+      enabled: false,
+    },
     nimbusPreview: false,
   } as Config;
 }
@@ -189,6 +196,8 @@ export function readConfigMeta(
   }
 
   const metaConfig = decode(metaEl.getAttribute('content'));
+
+  console.log("fxa-settings config:", metaConfig);
 
   return update(metaConfig);
 }

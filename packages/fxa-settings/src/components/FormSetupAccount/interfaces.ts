@@ -26,4 +26,6 @@ export type FormSetupAccountProps = {
   setSelectedNewsletterSlugs?: React.Dispatch<React.SetStateAction<string[]>>;
   submitButtonGleanId?: string;
   passwordFormType?: 'signup' | 'post-verify-set-password';
+  cmsButtonText?: string | undefined;
+  cmsButtonColor?: string | undefined;
 };

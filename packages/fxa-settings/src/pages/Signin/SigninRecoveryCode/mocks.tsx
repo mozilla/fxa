@@ -5,7 +5,7 @@
 import { MozServices } from '../../../lib/types';
 import {
   IntegrationType,
-  OAuthNativeIntegration,
+  OAuthNativeIntegration, RelierCmsInfo,
   WebIntegration,
 } from '../../../models';
 import { MOCK_BACKUP_CODE } from '../../mocks';
@@ -41,6 +41,7 @@ export const mockWebIntegration = {
   isSync: () => false,
   wantsKeys: () => false,
   isDesktopRelay: () => false,
+  getCmsInfo: () => undefined,
   data: {
     validate: () => {},
   },

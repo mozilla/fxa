@@ -2095,7 +2095,7 @@ const convictConf = convict({
     },
     strapiClient: {
       graphqlApiUri: {
-        default: '',
+        default: 'http://localhost:1337/graphql',
         doc: 'Base URL for GraphQL API',
         env: 'STRAPI_CLIENT_GRAPHQL_API_URI',
         format: String,

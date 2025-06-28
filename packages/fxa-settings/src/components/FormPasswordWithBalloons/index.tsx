@@ -29,6 +29,8 @@ export type FormPasswordWithBalloonsProps = {
   disableButtonUntilValid?: boolean;
   submitButtonGleanId?: string;
   requirePasswordConfirmation?: boolean;
+  cmsButtonText?: string;
+  cmsButtonColor?: string;
 };
 
 interface TemplateValues {
@@ -91,6 +93,8 @@ export const FormPasswordWithBalloons = ({
   disableButtonUntilValid = false,
   submitButtonGleanId,
   requirePasswordConfirmation = true,
+  cmsButtonText,
+  cmsButtonColor
 }: FormPasswordWithBalloonsProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
@@ -428,18 +432,40 @@ export const FormPasswordWithBalloons = ({
         )}
 
         {children}
-        <FtlMsg id={templateValues.buttonFtlId}>
-          <button
-            type="submit"
-            className="cta-primary cta-xl"
-            disabled={
-              loading || (!formState.isValid && disableButtonUntilValid)
-            }
-            data-glean-id={submitButtonGleanId && submitButtonGleanId}
-          >
-            {templateValues.buttonText}
-          </button>
-        </FtlMsg>
+
+        {cmsButtonText && cmsButtonColor ? (
+            <button
+              type="submit"
+              className="cta-primary-cms cta-xl"
+              disabled={
+                loading || (!formState.isValid && disableButtonUntilValid)
+              }
+              data-glean-id={submitButtonGleanId && submitButtonGleanId}
+              style={
+                {
+                  '--cta-bg': cmsButtonColor,
+                  '--cta-border': cmsButtonColor,
+                  '--cta-active': cmsButtonColor,
+                  '--cta-disabled': `${cmsButtonColor}60`,
+                } as React.CSSProperties
+              }
+            >
+              {cmsButtonText}
+            </button>
+        ) : (
+          <FtlMsg id={templateValues.buttonFtlId}>
+            <button
+              type="submit"
+              className="cta-primary cta-xl"
+              disabled={
+                loading || (!formState.isValid && disableButtonUntilValid)
+              }
+              data-glean-id={submitButtonGleanId && submitButtonGleanId}
+            >
+              {templateValues.buttonText}
+            </button>
+          </FtlMsg>
+        )}
       </form>
     </>
   );

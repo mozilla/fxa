@@ -19,10 +19,31 @@ export const RelyingPartyResultFactory = (
 ) => ({
   clientId: faker.string.hexadecimal(),
   entrypoint: faker.string.hexadecimal(),
+  name: faker.string.sample(),
   EmailFirstPage: {
     headline: faker.string.sample(),
     description: faker.string.sample(),
-    submitButtonColorHex: faker.string.hexadecimal({ length: 6 }),
+    primaryButtonText: faker.string.sample()
+  },
+  SignupSetPasswordPage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+  },
+  SignupConfirmCodePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample()
+  },
+  SignupConfirmedSyncPage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+  },
+  shared: {
+    buttonColor: faker.color.rgb(),
+    logoUrl: faker.internet.url(),
+    logoAltText: faker.string.sample(),
   },
   ...override,
 });

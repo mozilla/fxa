@@ -231,6 +231,24 @@ describe('ConfirmSignupCode page', () => {
     });
   });
 
+  it('renders as expected with cms', () => {
+    renderWithSession({ session, integration: createMockOAuthWebIntegration() });
+    // testAllL10n(screen, bundle);
+
+    const headingEl = screen.getByRole('heading', { level: 1 });
+    expect(headingEl).toHaveTextContent(
+      'Enter confirmation code'
+    );
+    screen.getByText(
+      'For your Mozilla account'
+    );
+    screen.getByLabelText('Enter 6-digit code');
+
+    screen.getByRole('button', { name: 'Confirm' });
+    screen.getByRole('button', { name: 'Email new code.' });
+    screen.getByTestId('cms-logo');
+  });
+
   describe('OAuth web integration', () => {
     let fxaOAuthLoginSpy: jest.SpyInstance;
     beforeEach(() => {
