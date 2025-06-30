@@ -96,6 +96,9 @@ export interface Config {
     updated2faSetupFlow?: boolean;
   };
   nimbusPreview: boolean;
+  cms: {
+    enabled: boolean;
+  };
 }
 
 export function getDefault() {
@@ -174,6 +177,10 @@ export function getDefault() {
       recoveryCodeSetupOnSyncSignIn: false,
       recoveryPhonePasswordReset2fa: false,
       updated2faSetupFlow: false,
+    },
+    cms: {
+      // Note: Even if this flag is true, the user must be an `en` language
+      enabled: false,
     },
     nimbusPreview: false,
   } as Config;

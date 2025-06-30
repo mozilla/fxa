@@ -26,6 +26,7 @@ export class CMSHandler {
       : null;
     this.config = config;
     this.statsd = statsD;
+    this.log = log;
   }
 
   async getConfig(request: AuthRequest) {
@@ -39,10 +40,34 @@ export class CMSHandler {
     const entrypoint = request.query.entrypoint;
 
     try {
-      return await this.cmsManager.fetchCMSData(clientId, entrypoint);
+      const result = await this.cmsManager.fetchCMSData(clientId, entrypoint);
+
+      const { relyingParties } = result;
+      if (!relyingParties || relyingParties.length === 0) {
+        this.statsd.increment('cms.getConfig.empty');
+        this.log.info(
+          'cms.getConfig: No relying parties found',
+          { clientId, entrypoint },
+        );
+        return {};
+      }
+
+      if (relyingParties.length > 1) {
+        this.statsd.increment('cms.getConfig.multiple');
+        this.log.info(
+          'cms.getConfig: Multiple relying parties found',
+          { clientId, entrypoint },
+        );
+      }
+
+      return relyingParties[0];
     } catch (error) {
       // We don't want failures to fetch a config to bubble up to the user.
-      this.statsd.increment(`cms.getConfig.error.${clientId}.${entrypoint}`);
+      this.statsd.increment('cms.getConfig.error');
+      this.log.error(
+        'cms.getConfig: Error getting relying party',
+        { clientId, entrypoint, error },
+      );
       return {};
     }
   }

@@ -275,39 +275,59 @@ export const Signup = ({
     );
   }
 
+  const cmsInfo = integration.getCmsInfo();
+
   return (
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
     //       - forceMessage('Account no longer exists. Recreate it?')
     <AppLayout>
-      <CardHeader
-        headingText="Create a password"
-        headingTextFtlId="signup-heading-v2"
-      />
-
-      {isDesktopRelay && (
-        <FtlMsg id="signup-relay-info">
-          <p className="text-base">
-            A password is needed to securely manage your masked emails and
-            access Mozilla’s security tools.
+      {cmsInfo ? (
+        <>
+          {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
+          <img
+            src={cmsInfo?.shared.logoUrl}
+            alt={cmsInfo?.shared.logoAltText}
+            className="justify-start mb-4 max-h-[40px]"
+          />)}
+          <h1 className="card-header">{cmsInfo?.SignupSetPasswordPage?.headline}</h1>
+          <p className="mt-1 text-sm">
+            {cmsInfo?.SignupSetPasswordPage?.description}
           </p>
-        </FtlMsg>
-      )}
-      {isSync &&
-        (paymentMethodsWillSync ? (
-          <FtlMsg id="signup-sync-info-with-payment">
-            <p className="text-base">
-              Sync your passwords, payment methods, bookmarks, and more
-              everywhere you use Firefox.
-            </p>
-          </FtlMsg>
-        ) : (
-          <FtlMsg id="signup-sync-info">
-            <p className="text-base">
-              Sync your passwords, bookmarks, and more everywhere you use
-              Firefox.
-            </p>
-          </FtlMsg>
-        ))}
+        </>
+      ) : (
+          <>
+            <CardHeader
+              headingText="Create a password"
+              headingTextFtlId="signup-heading-v2"
+            />
+
+            {isDesktopRelay && (
+              <FtlMsg id="signup-relay-info">
+                <p className="text-base">
+                  A password is needed to securely manage your masked emails and
+                  access Mozilla’s security tools.
+                </p>
+              </FtlMsg>
+            )}
+
+            {isSync &&
+              (paymentMethodsWillSync ? (
+                <FtlMsg id="signup-sync-info-with-payment">
+                  <p className="text-base">
+                    Sync your passwords, payment methods, bookmarks, and more
+                    everywhere you use Firefox.
+                  </p>
+                </FtlMsg>
+              ) : (
+                <FtlMsg id="signup-sync-info">
+                  <p className="text-base">
+                    Sync your passwords, bookmarks, and more everywhere you use
+                    Firefox.
+                  </p>
+                </FtlMsg>
+              ))}
+          </>
+        )}
 
       {bannerErrorText && (
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
@@ -376,6 +396,10 @@ export const Signup = ({
           offeredSyncEngineConfigs,
           requirePasswordConfirmation: isSync,
           setSelectedNewsletterSlugs,
+          cmsButton: {
+            text: cmsInfo?.SignupSetPasswordPage?.primaryButtonText,
+            color: cmsInfo?.shared?.buttonColor
+          },
         }}
         loading={beginSignupLoading}
         onSubmit={handleSubmit(onSubmit)}

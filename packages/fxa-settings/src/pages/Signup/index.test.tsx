@@ -22,11 +22,11 @@ import {
   createMockSignupOAuthNativeIntegration,
   createMockSignupSyncDesktopV3Integration,
 } from './mocks';
-import { MOCK_EMAIL, MOCK_PASSWORD } from '../mocks';
+import { MOCK_CMS_INFO, MOCK_EMAIL, MOCK_PASSWORD } from '../mocks';
 import firefox from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import * as utils from 'fxa-react/lib/utils';
-import { POCKET_CLIENTIDS } from '../../models/integrations/client-matching';
+import { MONITOR_CLIENTIDS, POCKET_CLIENTIDS } from '../../models/integrations/client-matching';
 import { getSyncEngineIds, syncEngineConfigs } from '../../lib/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../lib/sensitive-data-client';
@@ -238,6 +238,29 @@ describe('Signup page', () => {
     screen.getByRole('heading', { name: 'Create a password' });
     screen.getByText(
       'A password is needed to securely manage your masked emails and access Mozilla’s security tools.'
+    );
+  });
+
+  it('renders as expected when cms enabled', async () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockSignupOAuthWebIntegration(MONITOR_CLIENTIDS[0], undefined, MOCK_CMS_INFO)}
+      />
+    );
+
+    expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
+
+    expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
+    expect(
+      screen.queryByRole('button', { name: /Continue with Google/ })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Continue with Apple/ })
+    ).toBeInTheDocument();
+
+    screen.getByRole('heading', { name: 'Create a password' });
+    screen.getByText(
+      'to continue'
     );
   });
 

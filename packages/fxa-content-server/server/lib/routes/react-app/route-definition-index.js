@@ -69,6 +69,7 @@ function getIndexRouteDefinition(config) {
   const GLEAN_SERVER_ENDPOINT = config.get('glean.serverEndpoint');
   const GLEAN_LOG_PINGS = config.get('glean.logPings');
   const GLEAN_DEBUG_VIEW_TAG = config.get('glean.debugViewTag');
+  const CMS_ENABLED = config.get('cms.enabled');
 
   // Rather than relay all rollout rates, hand pick the ones that are applicable
   const ROLLOUT_RATES = config.get('rolloutRates');
@@ -125,6 +126,9 @@ function getIndexRouteDefinition(config) {
       recoveryPhonePasswordReset2fa:
         FEATURE_FLAGS_RECOVERY_PHONE_PASSWORD_RESET_2FA,
       updated2faSetupFlow: FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW,
+    },
+    cms: {
+      enabled: CMS_ENABLED
     },
     nimbusPreview: NIMBUS_PREVIEW,
     glean: {

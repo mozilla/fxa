@@ -13,6 +13,7 @@ import {
   WebIntegration,
   RelierClientInfo,
   RelierSubscriptionInfo,
+  RelierCmsInfo,
   OAuthIntegration,
   ThirdPartyAuthCallbackIntegration,
 } from '../../models/integrations';
@@ -66,6 +67,7 @@ export class IntegrationFactory {
   protected readonly channelData: ModelDataStore;
   protected readonly storageData: ModelDataStore;
   protected readonly clientInfo?: RelierClientInfo;
+  protected readonly cmsInfo?: RelierCmsInfo;
   protected readonly productInfo?: RelierSubscriptionInfo;
   protected readonly loading?: boolean;
   public readonly flags: IntegrationFlags;
@@ -74,6 +76,7 @@ export class IntegrationFactory {
     window: ReachRouterWindow;
     productInfo?: RelierSubscriptionInfo;
     clientInfo?: RelierClientInfo;
+    cmsInfo?: RelierCmsInfo;
     data?: ModelDataStore;
     channelData?: ModelDataStore;
     storageData?: ModelDataStore;
@@ -91,6 +94,7 @@ export class IntegrationFactory {
       );
     this.clientInfo = opts.clientInfo;
     this.productInfo = opts.productInfo;
+    this.cmsInfo = opts.cmsInfo;
   }
 
   /**
@@ -156,6 +160,7 @@ export class IntegrationFactory {
     );
     this.initIntegration(integration);
     this.initClientInfo(integration);
+    this.initCmsInfo(integration);
     return integration;
   }
 
@@ -172,6 +177,7 @@ export class IntegrationFactory {
     this.initIntegration(integration);
     this.initOAuthIntegration(integration, this.flags);
     this.initClientInfo(integration);
+    this.initCmsInfo(integration);
     return integration;
   }
 
@@ -187,6 +193,7 @@ export class IntegrationFactory {
     this.initIntegration(integration);
     this.initOAuthIntegration(integration, this.flags);
     this.initClientInfo(integration);
+    this.initCmsInfo(integration);
     return integration;
   }
 
@@ -260,6 +267,10 @@ export class IntegrationFactory {
       // params listed in:
       // https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview
     }
+  }
+
+  initCmsInfo(integration: Integration) {
+    integration.cmsInfo = this.cmsInfo;
   }
 
   initClientInfo(integration: OAuthIntegration) {

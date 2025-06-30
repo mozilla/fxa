@@ -6,7 +6,7 @@ import useSyncEngines from '../../../lib/hooks/useSyncEngines';
 import { Integration } from '../../../models';
 import { NavigationOptions } from '../../Signin/interfaces';
 
-export type SignupConfirmedSyncIntegration = Pick<Integration, 'isDesktopSync'>;
+export type SignupConfirmedSyncIntegration = Pick<Integration, 'isDesktopSync' | 'getCmsInfo'>;
 
 export interface SignupConfirmedSyncProps {
   integration: SignupConfirmedSyncIntegration;

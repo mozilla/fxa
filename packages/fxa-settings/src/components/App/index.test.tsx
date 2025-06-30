@@ -184,6 +184,7 @@ describe('metrics', () => {
       isDesktopRelay: jest.fn(),
       getServiceName: jest.fn(),
       getClientId: jest.fn(),
+      getCmsInfo: jest.fn(),
       data: {},
     });
 
@@ -230,6 +231,7 @@ describe('glean', () => {
       getServiceName: jest.fn(),
       getClientId: jest.fn(),
       data: {},
+      getCmsInfo: jest.fn(),
     };
     (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
     (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
@@ -343,6 +345,7 @@ describe('AuthAndAccountSetupRoutes', () => {
       data: {},
       isDesktopRelay: () => false,
       getClientId: () => {},
+      getCmsInfo: () => undefined,
     };
 
     (useIntegration as jest.Mock).mockReturnValue(mockIntegration);

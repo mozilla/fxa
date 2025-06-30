@@ -24,6 +24,7 @@ export const FormSetupAccount = ({
   setSelectedNewsletterSlugs,
   submitButtonGleanId,
   passwordFormType = 'signup',
+  cmsButton,
 }: FormSetupAccountProps) => {
   // We receive a web channel message back from the browser which gives FxA
   // the available sync engines. This should never impact users since it's
@@ -48,6 +49,7 @@ export const FormSetupAccount = ({
         onSubmit,
         submitButtonGleanId,
         passwordFormType,
+        cmsButton
       }}
       requirePasswordConfirmation={isSync}
     >

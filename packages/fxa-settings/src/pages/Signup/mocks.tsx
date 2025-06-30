@@ -5,7 +5,7 @@
 import { LocationProvider } from '@reach/router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
-import { IntegrationType } from '../../models/integrations';
+import { IntegrationType, RelierCmsInfo } from '../../models/integrations';
 import {
   MOCK_REDIRECT_URI,
   MOCK_UID,
@@ -32,6 +32,7 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
     isSync: () => false,
     isDesktopRelay: () => false,
     wantsKeys: () => false,
+    getCmsInfo: () => undefined,
   };
 }
 
@@ -43,12 +44,14 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
     isSync: () => true,
     isDesktopRelay: () => false,
     wantsKeys: () => false,
+    getCmsInfo: () => undefined,
   };
 }
 
 export function createMockSignupOAuthWebIntegration(
   clientId?: string,
-  service?: MozServices
+  service?: MozServices,
+  cmsInfo?: RelierCmsInfo
 ): SignupOAuthIntegration {
   return {
     type: IntegrationType.OAuthWeb,
@@ -59,12 +62,14 @@ export function createMockSignupOAuthWebIntegration(
     isSync: () => false,
     isDesktopRelay: () => false,
     wantsKeys: () => false,
+    getCmsInfo: () => cmsInfo,
   };
 }
 
 export function createMockSignupOAuthNativeIntegration(
   service?: string,
-  isSync = true
+  isSync = true,
+  cmsInfo?: RelierCmsInfo
 ): SignupOAuthIntegration {
   return {
     type: IntegrationType.OAuthNative,
@@ -75,6 +80,7 @@ export function createMockSignupOAuthNativeIntegration(
     isSync: () => isSync,
     isDesktopRelay: () => !isSync,
     wantsKeys: () => true,
+    getCmsInfo: () => cmsInfo,
   };
 }
 

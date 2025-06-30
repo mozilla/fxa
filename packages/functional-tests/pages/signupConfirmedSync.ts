@@ -15,7 +15,7 @@ export class SignupConfirmedSyncPage extends BaseLayout {
   }
 
   get pairLink() {
-    return this.page.getByRole('link', { name: 'Add another device' });
+    return this.page.getByRole('button', { name: 'Add another device' });
   }
 
   async clickPairLink() {

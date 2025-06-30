@@ -110,6 +110,9 @@ const settingsConfig = {
     updated2faSetupFlow: config.get('featureFlags.updated2faSetupFlow'),
   },
   nimbusPreview: config.get('nimbusPreview'),
+  cms: {
+    enabled: config.get('cms.enabled'),
+  }
 };
 
 // Inject Settings content into the index HTML

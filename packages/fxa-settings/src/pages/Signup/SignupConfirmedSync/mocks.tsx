@@ -13,12 +13,18 @@ import {
   LocationProvider,
 } from '@reach/router';
 import SignupConfirmedSync from '.';
+import { RelierCmsInfo } from '../../../models';
 
 export function createMockIntegration({
   isDesktopSync = true,
+  cmsInfo,
+}: {
+  isDesktopSync?: boolean;
+  cmsInfo?: RelierCmsInfo;
 } = {}): SignupConfirmedSyncIntegration {
   return {
     isDesktopSync: () => isDesktopSync,
+    getCmsInfo: () => cmsInfo,
   };
 }
 

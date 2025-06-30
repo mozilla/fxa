@@ -7,11 +7,13 @@ import { RouteComponentProps } from '@reach/router';
 import Ready from '../../../components/Ready';
 import { MozServices } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
+import { Integration } from '../../../models';
 
 type SigninConfirmedProps = {
   continueHandler?: Function;
   isSignedIn: boolean;
   serviceName?: MozServices;
+  integration?: Integration;
 };
 
 export const viewName = 'signin-confirmed';
@@ -20,9 +22,10 @@ const SigninConfirmed = ({
   continueHandler,
   isSignedIn,
   serviceName,
+  integration
 }: SigninConfirmedProps & RouteComponentProps) => (
   <AppLayout>
-    <Ready {...{ continueHandler, isSignedIn, viewName, serviceName }} />
+    <Ready {...{ continueHandler, isSignedIn, viewName, serviceName, integration }} />
   </AppLayout>
 );
 

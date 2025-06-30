@@ -14,6 +14,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { POCKET_CLIENTIDS } from '../../models/integrations/client-matching';
 import { MozServices } from '../../lib/types';
 import GleanMetrics from '../../lib/glean';
+import { MOCK_CMS_INFO } from '../mocks';
 
 const syncText =
   'Sync your passwords, tabs, and bookmarks everywhere you use Firefox.';
@@ -104,6 +105,33 @@ describe('Index page', () => {
     expect(screen.queryByText(syncTextSecondary)).not.toBeInTheDocument();
 
     thirdPartyAuthNotRendered();
+
+    expect(
+      screen.getAllByRole('link', {
+        name: /Terms of Service/,
+      })[0]
+    ).toHaveAttribute(
+      'href',
+      'https://www.mozilla.org/about/legal/terms/subscription-services/'
+    );
+  });
+
+  it('renders as expected with cms info', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockIndexOAuthNativeIntegration({
+          isSync: false,
+          isDesktopRelay: true,
+          cmsInfo: MOCK_CMS_INFO
+        })}
+      />
+    );
+
+    screen.getByRole('heading', { name: 'Sign up or sign in to your Mozilla account' });
+    screen.getByText(
+      'Stay protected with continuous data monitoring and automatic data removal.'
+    );
+    screen.getByRole('button', { name: 'Continue' });
 
     expect(
       screen.getAllByRole('link', {

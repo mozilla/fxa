@@ -11,6 +11,7 @@ import { useFtlMsgResolver } from '../../models';
 import { SHOW_BALLOON_TIMEOUT, HIDE_BALLOON_TIMEOUT } from '../../constants';
 import PasswordStrengthBalloon from '../PasswordStrengthBalloon';
 import PasswordInfoBalloon from '../PasswordInfoBalloon';
+import { CmsButton } from '../FormSetupAccount/interfaces';
 
 export type PasswordFormType = 'signup' | 'reset' | 'post-verify-set-password';
 
@@ -29,6 +30,7 @@ export type FormPasswordWithBalloonsProps = {
   disableButtonUntilValid?: boolean;
   submitButtonGleanId?: string;
   requirePasswordConfirmation?: boolean;
+  cmsButton?: CmsButton;
 };
 
 interface TemplateValues {
@@ -91,6 +93,7 @@ export const FormPasswordWithBalloons = ({
   disableButtonUntilValid = false,
   submitButtonGleanId,
   requirePasswordConfirmation = true,
+  cmsButton
 }: FormPasswordWithBalloonsProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
@@ -428,18 +431,40 @@ export const FormPasswordWithBalloons = ({
         )}
 
         {children}
-        <FtlMsg id={templateValues.buttonFtlId}>
-          <button
-            type="submit"
-            className="cta-primary cta-xl"
-            disabled={
-              loading || (!formState.isValid && disableButtonUntilValid)
-            }
-            data-glean-id={submitButtonGleanId && submitButtonGleanId}
-          >
-            {templateValues.buttonText}
-          </button>
-        </FtlMsg>
+
+        {cmsButton?.text && cmsButton?.color ? (
+            <button
+              type="submit"
+              className="cta-primary-cms cta-xl"
+              disabled={
+                loading || (!formState.isValid && disableButtonUntilValid)
+              }
+              data-glean-id={submitButtonGleanId && submitButtonGleanId}
+              style={
+                {
+                  '--cta-bg': cmsButton.color,
+                  '--cta-border': cmsButton.color,
+                  '--cta-active': cmsButton.color,
+                  '--cta-disabled': `${cmsButton.color}60`,
+                } as React.CSSProperties
+              }
+            >
+              {cmsButton.text}
+            </button>
+        ) : (
+          <FtlMsg id={templateValues.buttonFtlId}>
+            <button
+              type="submit"
+              className="cta-primary cta-xl"
+              disabled={
+                loading || (!formState.isValid && disableButtonUntilValid)
+              }
+              data-glean-id={submitButtonGleanId && submitButtonGleanId}
+            >
+              {templateValues.buttonText}
+            </button>
+          </FtlMsg>
+        )}
       </form>
     </>
   );
