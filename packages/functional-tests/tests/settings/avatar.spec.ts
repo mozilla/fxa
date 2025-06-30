@@ -5,7 +5,6 @@
 import path from 'path';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
 
@@ -20,12 +19,13 @@ test.describe('severity-1 #smoke', () => {
     pages: { page, settings, signin },
     testAccountTracker,
   }) => {
+    const credentials = await testAccountTracker.signUp();
     const { email } = await signInAccount(
       target,
       page,
       settings,
       signin,
-      testAccountTracker
+      credentials
     );
 
     await expect(settings.avatarDropDownMenu).toBeHidden();
@@ -45,7 +45,8 @@ test.describe('severity-1 #smoke', () => {
     pages: { avatar, page, settings, signin },
     testAccountTracker,
   }) => {
-    await signInAccount(target, page, settings, signin, testAccountTracker);
+    const credentials = await testAccountTracker.signUp();
+    await signInAccount(target, page, settings, signin, credentials);
 
     await settings.goto();
 
@@ -93,9 +94,8 @@ async function signInAccount(
   page: Page,
   settings: SettingsPage,
   signin: SigninPage,
-  testAccountTracker: TestAccountTracker
+  credentials: Credentials
 ): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUp();
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
