@@ -9,6 +9,7 @@ import { fetchCMSData, getCartAction } from '@fxa/payments/ui/actions';
 import {
   getApp,
   CheckoutParams,
+  SignedIn,
   SubscriptionTitle,
   TermsAndPrivacy,
   UpgradePurchaseDetails,
@@ -59,6 +60,14 @@ export default async function UpgradeLayout({
         }}
         cart={cart}
       />
+      {session?.user?.email && (
+        <section
+          aria-labelledby="signedin-heading"
+          className="mb-12 tablet:hidden"
+        >
+          <SignedIn email={session.user.email} />
+        </section>
+      )}
       <div className="mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
         <SubscriptionTitle cart={cart} l10n={l10n} />
 

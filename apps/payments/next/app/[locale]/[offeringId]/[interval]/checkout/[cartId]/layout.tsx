@@ -71,7 +71,7 @@ export default async function CheckoutLayout({
       {session?.user?.email && (
         <section
           aria-labelledby="signedin-heading"
-          className="mb-8 tablet:hidden"
+          className="mb-12 tablet:hidden"
         >
           <SignedIn email={session.user.email} />
         </section>
