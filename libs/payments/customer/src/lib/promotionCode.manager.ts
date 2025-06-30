@@ -8,8 +8,10 @@ import {
   StripeClient,
   StripePrice,
   StripePromotionCode,
+  type StripeCustomer,
 } from '@fxa/payments/stripe';
 import {
+  CouponErrorCannotRedeem,
   CouponErrorInvalidCurrency,
   PromotionCodeCouldNotBeAttachedError,
   PromotionCodeCustomerSubscriptionMismatchError,
@@ -19,10 +21,15 @@ import {
 import { assertPromotionCodeApplicableToPrice } from './util/assertPromotionCodeApplicableToPrice';
 import { assertPromotionCodeActive } from './util/assertPromotionCodeActive';
 import { getPriceFromSubscription } from './util/getPriceFromSubscription';
+import { InvoiceManager } from './invoice.manager';
+import type { TaxAddress } from './types';
 
 @Injectable()
 export class PromotionCodeManager {
-  constructor(private stripeClient: StripeClient) {}
+  constructor(
+    private stripeClient: StripeClient,
+    private invoiceManager: InvoiceManager
+  ) { }
 
   async retrieve(id: string) {
     return this.stripeClient.promotionCodesRetrieve(id);
@@ -122,6 +129,38 @@ export class PromotionCodeManager {
         );
       } else {
         throw err;
+      }
+    }
+  }
+
+  async assertValidForPriceAndCustomer(
+    promoCodeName: string,
+    price: StripePrice,
+    currency: string,
+    customer?: StripeCustomer,
+    taxAddress?: TaxAddress,
+  ) {
+    await this.assertValidPromotionCodeNameForPrice(promoCodeName, price, currency);
+
+    if (customer) {
+      try {
+        await this.invoiceManager.previewUpcoming({
+          priceId: price.id,
+          currency,
+          customer,
+          taxAddress,
+          couponCode: promoCodeName,
+        });
+      } catch (e) {
+        if (
+          e.type === 'StripeInvalidRequestError' &&
+          e.message ===
+          'This promotion code cannot be redeemed because the associated customer has prior transactions.'
+        ) {
+          throw new CouponErrorCannotRedeem();
+        } else {
+          throw e;
+        }
       }
     }
   }

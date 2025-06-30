@@ -24,6 +24,7 @@ import {
   STRIPE_CUSTOMER_METADATA,
   STRIPE_INVOICE_METADATA,
   TaxAddress,
+  type InvoicePreviewForUpgrade,
 } from './types';
 import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
 import { stripeInvoiceToInvoicePreviewDTO } from './util/stripeInvoiceToFirstInvoicePreviewDTO';
@@ -164,7 +165,7 @@ export class InvoiceManager {
     priceId: string;
     customer: StripeCustomer;
     fromSubscriptionItem: StripeSubscriptionItem;
-  }): Promise<InvoicePreview> {
+  }): Promise<InvoicePreviewForUpgrade> {
     if (!customer.currency) {
       throw new UpgradeCustomerMissingCurrencyInvoiceError(customer.id);
     }
@@ -186,6 +187,7 @@ export class InvoiceManager {
     return {
       ...previewSubsequentInvoice,
       oneTimeCharge: previewUpcomingInvoiceOfUpgrade.totalAmount,
+      oneTimeChargeSubtotal: previewUpcomingInvoiceOfUpgrade.subtotal,
     };
   }
 

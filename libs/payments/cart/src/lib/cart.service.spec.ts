@@ -26,6 +26,7 @@ import {
   CustomerSessionManager,
   InvoiceManager,
   InvoicePreviewFactory,
+  InvoicePreviewForUpgradeFactory,
   PaymentIntentManager,
   PaymentMethodManager,
   PriceManager,
@@ -545,7 +546,7 @@ describe('CartService', () => {
       const mockResolvedCurrency = faker.finance.currencyCode();
 
       jest
-        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
         .mockResolvedValue(undefined);
       jest
         .spyOn(currencyManager, 'getCurrencyForCountry')
@@ -575,7 +576,7 @@ describe('CartService', () => {
       const mockResolvedCurrency = faker.finance.currencyCode();
 
       jest
-        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
         .mockRejectedValue(undefined);
       jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
       jest
@@ -585,13 +586,13 @@ describe('CartService', () => {
         .spyOn(currencyManager, 'getCurrencyForCountry')
         .mockReturnValue(mockResolvedCurrency);
 
-      await expect(() => cartService.setupCart(args)).rejects.toThrowError(
+      await expect(cartService.setupCart(args)).rejects.toThrow(
         CartSetupInvalidPromoCodeError
       );
 
       expect(
-        promotionCodeManager.assertValidPromotionCodeNameForPrice
-      ).toHaveBeenCalledWith(args.promoCode, mockPrice, mockResolvedCurrency);
+        promotionCodeManager.assertValidForPriceAndCustomer
+      ).toHaveBeenCalledWith(args.promoCode, mockPrice, mockResolvedCurrency, mockCustomer, args.taxAddress);
       expect(cartManager.createCart).not.toHaveBeenCalled();
     });
 
@@ -602,27 +603,32 @@ describe('CartService', () => {
       const mockFromPrice = StripePriceFactory({
         recurring: StripePriceRecurringFactory({ interval: 'month' }),
       });
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockInvoicePreviewForUpgrade = InvoicePreviewForUpgradeFactory();
 
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockResolvedCurrency);
+      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
+      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
         fromOfferingConfigId: mockFromOfferingId,
         fromPrice: mockFromPrice,
       });
       jest
-        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
-        .mockResolvedValue(undefined);
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValue(mockSubscription)
       jest
-        .spyOn(currencyManager, 'getCurrencyForCountry')
-        .mockReturnValue(mockResolvedCurrency);
-      jest.spyOn(cartManager, 'createCart').mockResolvedValue(mockResultCart);
-      jest.spyOn(accountManager, 'getAccounts').mockResolvedValue([]);
+        .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
+        .mockResolvedValue(mockInvoicePreviewForUpgrade);
 
       const result = await cartService.setupCart(args);
 
       expect(cartManager.createCart).toHaveBeenCalledWith({
         interval: args.interval,
         offeringConfigId: args.offeringConfigId,
-        amount: mockInvoicePreview.subtotal,
+        amount: mockInvoicePreviewForUpgrade.oneTimeChargeSubtotal,
         uid: args.uid,
         stripeCustomerId: mockAccountCustomer.stripeCustomerId,
         experiment: args.experiment,
@@ -638,7 +644,7 @@ describe('CartService', () => {
       const mockAccount = AccountFactory();
 
       jest
-        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
         .mockResolvedValue(undefined);
       jest
         .spyOn(currencyManager, 'getCurrencyForCountry')
@@ -662,7 +668,7 @@ describe('CartService', () => {
       const mockResolvedCurrency = faker.finance.currencyCode();
 
       jest
-        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
         .mockResolvedValue(undefined);
       jest
         .spyOn(currencyManager, 'getCurrencyForCountry')
@@ -704,7 +710,7 @@ describe('CartService', () => {
       const mockResolvedCurrency = faker.finance.currencyCode();
 
       jest
-        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
         .mockResolvedValue(undefined);
       jest
         .spyOn(currencyManager, 'getCurrencyForCountry')
@@ -746,7 +752,7 @@ describe('CartService', () => {
       const mockResolvedCurrency = faker.finance.currencyCode();
 
       jest
-        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
         .mockResolvedValue(undefined);
       jest
         .spyOn(currencyManager, 'getCurrencyForCountry')
@@ -786,7 +792,7 @@ describe('CartService', () => {
       const mockResolvedCurrency = faker.finance.currencyCode();
 
       jest
-        .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+        .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
         .mockResolvedValue(undefined);
       jest
         .spyOn(currencyManager, 'getCurrencyForCountry')
@@ -1205,6 +1211,7 @@ describe('CartService', () => {
         ...mockUpdateCartInput,
         currency: mockCurrency,
       };
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
 
       beforeEach(() => {
         jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
@@ -1216,8 +1223,9 @@ describe('CartService', () => {
         jest
           .spyOn(productConfigurationManager, 'retrieveStripePrice')
           .mockResolvedValue(mockPrice);
+        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer)
         jest
-          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
           .mockResolvedValue(undefined);
         jest
           .spyOn(invoiceManager, 'previewUpcoming')
@@ -1246,6 +1254,7 @@ describe('CartService', () => {
           currency: 'RANDOM_CURRENCY', // purposfully invalid so that in doesn't conflict
         });
         jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
         await cartService.updateCart(
           mockCart.id,
           mockCart.version,
@@ -1253,8 +1262,8 @@ describe('CartService', () => {
         );
 
         expect(
-          promotionCodeManager.assertValidPromotionCodeNameForPrice
-        ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice, mockCurrency);
+          promotionCodeManager.assertValidForPriceAndCustomer
+        ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice, mockCurrency, mockCustomer);
         expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
           mockCart.id,
           mockCart.version,
@@ -1273,7 +1282,7 @@ describe('CartService', () => {
         });
         jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
         jest
-          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
           .mockRejectedValue(new Error('any error'));
         await cartService.updateCart(
           mockCart.id,
@@ -1282,8 +1291,8 @@ describe('CartService', () => {
         );
 
         expect(
-          promotionCodeManager.assertValidPromotionCodeNameForPrice
-        ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice, mockCurrency);
+          promotionCodeManager.assertValidForPriceAndCustomer
+        ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice, mockCurrency, mockCustomer);
         expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
           mockCart.id,
           mockCart.version,
@@ -1325,7 +1334,7 @@ describe('CartService', () => {
           .spyOn(productConfigurationManager, 'retrieveStripePrice')
           .mockResolvedValue(mockPrice);
         jest
-          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
           .mockResolvedValue(undefined);
         jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
       });
@@ -1372,19 +1381,13 @@ describe('CartService', () => {
         );
 
         expect(
-          promotionCodeManager.assertValidPromotionCodeNameForPrice
+          promotionCodeManager.assertValidForPriceAndCustomer
         ).toHaveBeenCalledWith(
           mockUpdateCartInput.couponCode,
           mockPrice,
-          mockCart.currency
+          mockCart.currency,
+          mockCustomer,
         );
-        expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
-          priceId: mockPrice.id,
-          currency: mockCart.currency,
-          customer: mockCustomer,
-          taxAddress: mockUpdateCartInput.taxAddress,
-          couponCode: mockUpdateCartInput.couponCode,
-        });
         expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
           mockCart.id,
           mockCart.version,
@@ -1393,15 +1396,17 @@ describe('CartService', () => {
       });
 
       it('throws if coupon is not valid', async () => {
+        const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
         const mockCart = ResultCartFactory({
           stripeSubscriptionId: undefined,
         });
 
         jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
         jest
-          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
+          .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
           .mockRejectedValue(new CouponErrorInvalidCode());
         jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
 
         await expect(
           cartService.updateCart(
@@ -1412,11 +1417,12 @@ describe('CartService', () => {
         ).rejects.toBeInstanceOf(CouponErrorInvalidCode);
 
         expect(
-          promotionCodeManager.assertValidPromotionCodeNameForPrice
+          promotionCodeManager.assertValidForPriceAndCustomer
         ).toHaveBeenCalledWith(
           mockUpdateCartInput.couponCode,
           mockPrice,
-          mockCart.currency
+          mockCart.currency,
+          mockCustomer
         );
         expect(cartManager.updateFreshCart).not.toHaveBeenCalled();
         expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
@@ -1428,20 +1434,12 @@ describe('CartService', () => {
           stripeCustomerId: mockCustomer.id,
           stripeSubscriptionId: undefined,
         });
-        const stripeError = new Stripe.errors.StripeInvalidRequestError({
-          type: 'invalid_request_error',
-          message:
-            'This promotion code cannot be redeemed because the associated customer has prior transactions.',
-        });
 
         jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-        jest
-          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
-          .mockResolvedValue(undefined);
         jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
         jest
-          .spyOn(invoiceManager, 'previewUpcoming')
-          .mockRejectedValue(stripeError);
+          .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
+          .mockRejectedValue(new CouponErrorCannotRedeem());
 
         await expect(
           cartService.updateCart(
@@ -1452,18 +1450,13 @@ describe('CartService', () => {
         ).rejects.toBeInstanceOf(CouponErrorCannotRedeem);
 
         expect(
-          promotionCodeManager.assertValidPromotionCodeNameForPrice
+          promotionCodeManager.assertValidForPriceAndCustomer
         ).toHaveBeenCalledWith(
           mockUpdateCartInput.couponCode,
           mockPrice,
-          mockCart.currency
+          mockCart.currency,
+          mockCustomer,
         );
-        expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
-          priceId: mockPrice.id,
-          currency: mockCart.currency,
-          customer: mockCustomer,
-          couponCode: mockUpdateCartInput.couponCode,
-        });
       });
 
       it('throws error if previewUpcoming returns error', async () => {
@@ -1477,12 +1470,9 @@ describe('CartService', () => {
         });
 
         jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
-        jest
-          .spyOn(promotionCodeManager, 'assertValidPromotionCodeNameForPrice')
-          .mockResolvedValue(undefined);
         jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
         jest
-          .spyOn(invoiceManager, 'previewUpcoming')
+          .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
           .mockRejectedValue(stripeError);
 
         await expect(
@@ -1494,18 +1484,13 @@ describe('CartService', () => {
         ).rejects.toThrow();
 
         expect(
-          promotionCodeManager.assertValidPromotionCodeNameForPrice
+          promotionCodeManager.assertValidForPriceAndCustomer
         ).toHaveBeenCalledWith(
           mockUpdateCartInput.couponCode,
           mockPrice,
-          mockCart.currency
+          mockCart.currency,
+          mockCustomer,
         );
-        expect(invoiceManager.previewUpcoming).toHaveBeenCalledWith({
-          priceId: mockPrice.id,
-          currency: mockCart.currency,
-          customer: mockCustomer,
-          couponCode: mockUpdateCartInput.couponCode,
-        });
       });
     });
   });
@@ -1785,7 +1770,7 @@ describe('CartService', () => {
       });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory({ currency: mockCart.currency });
-      const mockInvoicePreview = InvoicePreviewFactory();
+      const mockInvoicePreviewForUpgrade = InvoicePreviewForUpgradeFactory();
       const mockFromOfferingId = faker.string.uuid();
       const mockFromPrice = StripePriceFactory({
         recurring: StripePriceRecurringFactory({ interval: 'month' }),
@@ -1802,7 +1787,7 @@ describe('CartService', () => {
       jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
       jest
         .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
-        .mockResolvedValue(mockInvoicePreview);
+        .mockResolvedValue(mockInvoicePreviewForUpgrade);
       jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
         subscriptionEligibilityResult: EligibilityStatus.UPGRADE,
         fromOfferingConfigId: mockFromOfferingId,
@@ -1818,7 +1803,7 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
         ...mockCart,
-        upcomingInvoicePreview: mockInvoicePreview,
+        upcomingInvoicePreview: mockInvoicePreviewForUpgrade,
         paymentInfo: {
           type: mockPaymentMethod.type,
           last4: mockPaymentMethod.card?.last4,

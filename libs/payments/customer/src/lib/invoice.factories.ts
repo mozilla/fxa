@@ -3,23 +3,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { InvoicePreview } from './types';
+import { InvoicePreview, type InvoicePreviewForUpgrade } from './types';
 
 export const InvoicePreviewFactory = (
   override?: Partial<InvoicePreview>
 ): InvoicePreview => ({
   currency: faker.finance.currencyCode(),
-  listAmount: faker.number.int({ max: 1000 }),
-  totalAmount: faker.number.int({ max: 1000 }),
+  listAmount: faker.number.int({ min: 1, max: 1000 }),
+  totalAmount: faker.number.int({ min: 1, max: 1000 }),
   taxAmounts: [],
   discountAmount: null,
-  subtotal: faker.number.int({ max: 1000 }),
+  subtotal: faker.number.int({ min: 1, max: 1000 }),
   discountEnd: null,
   discountType: faker.helpers.arrayElement(['forever', 'once', 'repeating']),
   number:
     faker.string.alphanumeric({ length: 8 }).toLocaleUpperCase() +
     '-' +
     faker.string.numeric({ length: 4, allowLeadingZeros: true }),
-  ...override,
   nextInvoiceDate: faker.date.future().getDate(),
+  ...override,
+});
+
+export const InvoicePreviewForUpgradeFactory = (
+  override?: Partial<InvoicePreviewForUpgrade>
+): InvoicePreviewForUpgrade => ({
+  ...InvoicePreviewFactory(override),
+  oneTimeCharge: faker.number.int({ min: 1, max: 1000 }),
+  oneTimeChargeSubtotal: faker.number.int({ min: 1, max: 1000 }),
+  ...override,
 });

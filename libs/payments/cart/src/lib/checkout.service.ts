@@ -10,6 +10,7 @@ import { StatsD } from 'hot-shots';
 import {
   EligibilityService,
   EligibilityStatus,
+  type SubscriptionEligibilityResult,
   type SubscriptionEligibilityUpgradeDowngradeResult,
 } from '@fxa/payments/eligibility';
 import {
@@ -28,6 +29,7 @@ import {
   SubplatInterval,
   SubscriptionManager,
   SetupIntentManager,
+  type TaxAddress,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
@@ -65,6 +67,9 @@ import {
   LatestInvoiceNotFoundOnSubscriptionError,
   PaymentMethodUpdateFailedError,
   UpgradeForSubscriptionNotFoundError,
+  DetermineCheckoutAmountCustomerRequiredError,
+  DetermineCheckoutAmountFromPriceRequiredError,
+  DetermineCheckoutAmountSubscriptionRequiredError,
 } from './checkout.error';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
 
@@ -208,19 +213,15 @@ export class CheckoutService {
       cart.interval as SubplatInterval
     );
 
-    const upcomingInvoice = await this.invoiceManager.previewUpcoming({
+    const checkoutAmount = await this.determineCheckoutAmount({
+      eligibility,
+      customer,
       priceId: price.id,
       currency: cart.currency,
-      customer: customer,
-      taxAddress: taxAddress,
+      taxAddress,
     });
-
-    if (upcomingInvoice.subtotal !== cart.amount) {
-      throw new CartTotalMismatchError(
-        cart.id,
-        cart.amount,
-        upcomingInvoice.subtotal
-      );
+    if (checkoutAmount !== cart.amount) {
+      throw new CartTotalMismatchError(cart.id, cart.amount, checkoutAmount);
     }
 
     // check if customer already has subscription to price and cancel if they do
@@ -700,5 +701,68 @@ export class CheckoutService {
     }
 
     return upgradedSubscription;
+  }
+
+  async determineCheckoutAmount({
+    eligibility,
+    customer,
+    priceId,
+    currency,
+    taxAddress,
+  }: {
+    eligibility: SubscriptionEligibilityResult;
+    priceId: string;
+    currency: string;
+    taxAddress: TaxAddress;
+    customer?: StripeCustomer;
+  }) {
+    if (
+      eligibility.subscriptionEligibilityResult === EligibilityStatus.UPGRADE
+    ) {
+      assert(
+        'fromPrice' in eligibility,
+        new DetermineCheckoutAmountFromPriceRequiredError(
+          priceId,
+          currency,
+          taxAddress
+        )
+      );
+      assert(
+        customer,
+        new DetermineCheckoutAmountCustomerRequiredError(
+          priceId,
+          currency,
+          taxAddress
+        )
+      );
+      const fromSubscription =
+        await this.subscriptionManager.retrieveForCustomerAndPrice(
+          customer.id,
+          eligibility.fromPrice.id
+        );
+      assert(
+        fromSubscription,
+        new DetermineCheckoutAmountSubscriptionRequiredError(
+          customer.id,
+          eligibility.fromPrice.id
+        )
+      );
+      const fromSubscriptionItem = retrieveSubscriptionItem(fromSubscription);
+      const upcomingInvoice =
+        await this.invoiceManager.previewUpcomingForUpgrade({
+          priceId,
+          customer,
+          fromSubscriptionItem,
+        });
+      return upcomingInvoice.oneTimeChargeSubtotal;
+    } else {
+      const upcomingInvoice = await this.invoiceManager.previewUpcoming({
+        priceId,
+        currency,
+        customer,
+        taxAddress,
+      });
+      return upcomingInvoice.subtotal;
+    }
   }
 }

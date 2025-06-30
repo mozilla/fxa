@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import type { TaxAddress } from '@fxa/payments/customer';
 import { BaseError } from '@fxa/shared/error';
 
 /**
@@ -39,7 +40,7 @@ export class InvalidIntentStateError extends CheckoutError {
         cartId,
         paymentIntentId,
         paymentIntentState,
-        intentType
+        intentType,
       }
     );
     this.name = 'InvalidPaymentIntentStateError';
@@ -87,5 +88,37 @@ export class PaymentMethodUpdateFailedError extends CheckoutError {
       customerId,
     });
     this.name = 'PaymentMethodUpdateFailedError';
+  }
+}
+
+export class DetermineCheckoutAmountFromPriceRequiredError extends CheckoutError {
+  constructor(priceId: string, currency: string, taxAddress: TaxAddress) {
+    super('fromPrice not present for upgrade cart', {
+      priceId,
+      currency,
+      taxAddress,
+    });
+    this.name = 'DetermineCheckoutAmountCustomerRequiredError';
+  }
+}
+
+export class DetermineCheckoutAmountCustomerRequiredError extends CheckoutError {
+  constructor(priceId: string, currency: string, taxAddress: TaxAddress) {
+    super('Customer is required for upgrade', {
+      priceId,
+      currency,
+      taxAddress,
+    });
+    this.name = 'DetermineCheckoutAmountCustomerRequiredError';
+  }
+}
+
+export class DetermineCheckoutAmountSubscriptionRequiredError extends CheckoutError {
+  constructor(customerId: string, fromPriceId: string) {
+    super('Subscription required', {
+      customerId,
+      fromPriceId,
+    });
+    this.name = 'DetermineCheckoutAmountCustomerRequiredError';
   }
 }

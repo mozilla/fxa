@@ -88,6 +88,7 @@ import { CheckoutService } from './checkout.service';
 import { resolveErrorInstance } from './util/resolveErrorInstance';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
 import type { SubscriptionAttributionParams } from './checkout.types';
+import { handleException } from 'libs/shared/error/src/lib/sanitizeExceptionsDecorator';
 
 type Constructor<T> = new (...args: any[]) => T;
 interface WrapWithCartCatchOptions {
@@ -311,6 +312,16 @@ export class CartService {
     promoCode?: string;
     uid?: string;
   }): Promise<ResultCart> {
+    const currency = this.currencyManager.getCurrencyForCountry(
+      args.taxAddress.countryCode
+    );
+    if (!currency) {
+      throw new SetupCartCurrencyNotFoundError(
+        currency,
+        args.taxAddress.countryCode
+      );
+    }
+
     let accountCustomer;
     if (args.uid) {
       accountCustomer = await this.accountCustomerManager
@@ -322,46 +333,47 @@ export class CartService {
         });
     }
 
-    const stripeCustomerId = accountCustomer?.stripeCustomerId;
-    const stripeCustomer = stripeCustomerId
-      ? await this.customerManager.retrieve(stripeCustomerId)
+    const customerPromise = accountCustomer?.stripeCustomerId
+      ? await this.customerManager.retrieve(accountCustomer?.stripeCustomerId)
       : undefined;
 
-    const price = await this.productConfigurationManager.retrieveStripePrice(
-      args.offeringConfigId,
-      args.interval
-    );
-
-    const currency = this.currencyManager.getCurrencyForCountry(
-      args.taxAddress.countryCode
-    );
-    if (!currency) {
-      throw new SetupCartCurrencyNotFoundError(
-        currency,
-        args.taxAddress.countryCode
-      );
-    }
-
-    const eligibility = await this.eligibilityService.checkEligibility(
-      args.interval,
-      args.offeringConfigId,
-      args.uid,
-      accountCustomer?.stripeCustomerId
-    );
+    const [customer, price, eligibility] = await Promise.all([
+      customerPromise,
+      this.productConfigurationManager.retrieveStripePrice(
+        args.offeringConfigId,
+        args.interval
+      ),
+      this.eligibilityService.checkEligibility(
+        args.interval,
+        args.offeringConfigId,
+        args.uid,
+        accountCustomer?.stripeCustomerId
+      )
+    ]);
 
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
 
-    let couponCode: string | undefined = args.promoCode;
-    if (couponCode) {
-      if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
-        couponCode = undefined;
-      } else {
+    let couponCode = args.promoCode;
+    const checkoutAmount = await this.checkoutService.determineCheckoutAmount({
+      eligibility,
+      priceId: price.id,
+      currency,
+      taxAddress: args.taxAddress,
+      customer,
+    });
+    if (cartEligibilityStatus === CartEligibilityStatus.UPGRADE) {
+      // Coupons are currently not supported by upgrades
+      couponCode = undefined;
+    } else {
+      if (couponCode) {
         try {
-          await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+          await this.promotionCodeManager.assertValidForPriceAndCustomer(
             couponCode,
             price,
-            currency
+            currency,
+            customer,
+            args.taxAddress,
           );
         } catch (error) {
           throw new CartSetupInvalidPromoCodeError(
@@ -373,31 +385,10 @@ export class CartService {
       }
     }
 
-    let upcomingInvoice: InvoicePreview | undefined;
-    try {
-      upcomingInvoice = await this.invoiceManager.previewUpcoming({
-        priceId: price.id,
-        currency,
-        customer: stripeCustomer,
-        taxAddress: args.taxAddress,
-        couponCode,
-      });
-    } catch (e) {
-      if (
-        e.type === 'StripeInvalidRequestError' &&
-        e.message ===
-        'This promotion code cannot be redeemed because the associated customer has prior transactions.'
-      ) {
-        throw new CouponErrorCannotRedeem();
-      } else {
-        throw e;
-      }
-    }
-
     const createCartParams: SetupCart = {
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
-      amount: upcomingInvoice.subtotal,
+      amount: checkoutAmount,
       uid: args.uid,
       stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
@@ -536,6 +527,15 @@ export class CartService {
           attribution,
           sessionUid
         );
+      }).catch((error) => {
+        handleException({
+          error,
+          className: 'CartService',
+          methodName: 'checkoutCartWithStripe',
+          allowlist: [],
+          logger: this.log as Logger,
+          statsd: this.statsd
+        })
       });
     });
   }
@@ -575,7 +575,16 @@ export class CartService {
           sessionUid,
           token
         );
-      });
+      }).catch((error) => {
+        handleException({
+          error,
+          className: 'CartService',
+          methodName: 'checkoutCartWithPaypal',
+          allowlist: [],
+          logger: this.log as Logger,
+          statsd: this.statsd
+        })
+      });;
     });
   }
 
@@ -683,11 +692,16 @@ export class CartService {
             // If the code is invalid, then update the cart with an empty coupon code.
             if (!!oldCart.couponCode && !cartDetailsInput.couponCode) {
               try {
-                await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
+                const customer = oldCart?.stripeCustomerId ? await this.customerManager.retrieve(
+                  oldCart.stripeCustomerId
+                ) : undefined;
+
+                await this.promotionCodeManager.assertValidForPriceAndCustomer(
                   oldCart.couponCode,
                   price,
-                  cartDetails.currency
-                );
+                  cartDetails.currency,
+                  customer,
+                )
               } catch (error) {
                 cartDetails.couponCode = null;
               }
@@ -702,35 +716,16 @@ export class CartService {
               oldCart.interval as SubplatInterval
             );
 
-          await this.promotionCodeManager.assertValidPromotionCodeNameForPrice(
-            cartDetailsInput?.couponCode,
-            price,
-            cartDetails.currency || oldCart.currency
-          );
+          const customer = oldCart?.stripeCustomerId ? await this.customerManager.retrieve(
+            oldCart.stripeCustomerId
+          ) : undefined;
 
-          if (oldCart.stripeCustomerId) {
-            try {
-              const customer = await this.customerManager.retrieve(
-                oldCart.stripeCustomerId
-              );
-              await this.invoiceManager.previewUpcoming({
-                priceId: price.id,
-                currency: oldCart.currency,
-                customer,
-                couponCode: cartDetailsInput.couponCode,
-              });
-            } catch (error) {
-              if (
-                error.type === 'StripeInvalidRequestError' &&
-                error.message ===
-                'This promotion code cannot be redeemed because the associated customer has prior transactions.'
-              ) {
-                throw new CouponErrorCannotRedeem();
-              } else {
-                throw error;
-              }
-            }
-          }
+          await this.promotionCodeManager.assertValidForPriceAndCustomer(
+            cartDetailsInput.couponCode,
+            price,
+            cartDetails.currency || oldCart.currency,
+            customer,
+          )
         }
 
         await this.cartManager.updateFreshCart(cartId, version, cartDetails);
@@ -818,6 +813,7 @@ export class CartService {
           customer,
           fromSubscriptionItem,
         });
+
     } else {
       upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
         priceId: price.id,
