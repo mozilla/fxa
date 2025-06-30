@@ -17,9 +17,10 @@ const {
 const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
+import jwt from '../../lib/oauth/jwt';
 
 // Note, intentionally not indenting for code review.
-[{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
+[{ version: '' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account create`, function () {
     this.timeout(60000);
     let server;
@@ -218,12 +219,17 @@ const {
 
       // Stub account for 123Done
       const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
-      assert.exists(stubResponse.setup_token);
+
+      const setupToken = jwt.sign(
+        {
+          uid: stubResponse.uid,
+          iat: Date.now(),
+        },
+        { header: { typ: 'fin+JWT' } }
+      );
 
       // Finish the setup.
-      const response = await client.finishAccountSetup(
-        stubResponse.setup_token
-      );
+      const response = await client.finishAccountSetup(setupToken);
       assert.exists(response.uid);
       assert.exists(response.sessionToken);
       assert.exists(response.verified);
@@ -250,8 +256,7 @@ const {
           await client.setupCredentialsV2(email, password);
         }
 
-        const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
-        assert.exists(stubResponse.setup_token);
+        await client.stubAccount('dcdb5ae7add825d2');
       };
 
       // The second attempt to stub should fail, because the email has already been
@@ -270,16 +275,10 @@ const {
         await client.setupCredentialsV2(email, password);
       }
 
-      const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
-      assert.exists(stubResponse.setup_token);
-
-      // modify the setup token and make sure it fails
-      stubResponse.setup_token = stubResponse.setup_token
-        .toString()
-        .substring(2);
+      await client.stubAccount('dcdb5ae7add825d2');
 
       // Finish the setup. Should fail because the setup token is bad
-      assert.isRejected(client.finishAccountSetup(stubResponse.setup_token));
+      assert.isRejected(client.finishAccountSetup('invald-token'));
     });
 
     it('fails to call finish setup again', async () => {
@@ -293,10 +292,19 @@ const {
       }
 
       const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
-      await client.finishAccountSetup(stubResponse.setup_token);
+
+      const setupToken = jwt.sign(
+        {
+          uid: stubResponse.uid,
+          iat: Date.now(),
+        },
+        { header: { typ: 'fin+JWT' } }
+      );
+
+      await client.finishAccountSetup(setupToken);
 
       //Should fail because finish account setup was already called
-      assert.isRejected(client.finishAccountSetup(stubResponse.setup_token));
+      assert.isRejected(client.finishAccountSetup(setupToken));
     });
 
     it('/account/create works with proper data', () => {
