@@ -36,3 +36,10 @@ export class ProfileClientServiceFailureError extends ProfileError {
     this.name = 'ProfileClientServiceFailureError';
   }
 }
+
+export class MalformedUserinfoError extends ProfileError {
+  constructor(userinfo: Record<string, any>) {
+    super('userinfo is missing required fields', userinfo);
+    this.name = 'MalformedUserinfoError';
+  }
+}

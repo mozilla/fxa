@@ -47,7 +47,7 @@ export async function setupProcessingTaskObjects(processName: string) {
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth, log, statsd);
 
-  const profile = new ProfileClient(log, {
+  const profile = new ProfileClient(log, statsd, {
     ...config.profileServer,
     serviceName: 'subhub',
   });

@@ -8,9 +8,16 @@ import Agent from 'agentkeepalive';
 import axios, { AxiosInstance } from 'axios';
 import { ProfileClientConfig } from './profile.config';
 import {
+  MalformedUserinfoError,
   ProfileClientError,
   ProfileClientServiceFailureError,
 } from './profile.error';
+import {
+  CaptureTimingWithStatsD,
+  StatsDService,
+  type StatsD,
+} from '@fxa/shared/metrics/statsd';
+import type { Profile } from 'next-auth';
 
 const PATH_PREFIX = '/v1';
 
@@ -19,13 +26,14 @@ const MAX_FREE_SOCKETS = 10;
 const TIMEOUT_MS = 30000;
 const FREE_SOCKET_TIMEOUT_MS = 15000;
 
-type SupportedMethods = 'post' | 'delete';
+type SupportedMethods = 'post' | 'delete' | 'get';
 
 @Injectable()
 export class ProfileClient {
   private axiosInstance: AxiosInstance;
   constructor(
     @Inject(Logger) private log: LoggerService,
+    @Inject(StatsDService) public statsd: StatsD,
     private config: ProfileClientConfig
   ) {
     this.axiosInstance = axios.create({
@@ -59,8 +67,7 @@ export class ProfileClient {
     }
 
     try {
-      await this.axiosInstance[method](endpoint, requestData);
-      return {};
+      return (await this.axiosInstance[method](endpoint, requestData)).data;
     } catch (err) {
       const response = err.response || {};
       if (err.errno > -1 || (response.status && response.status < 500)) {
@@ -76,6 +83,7 @@ export class ProfileClient {
     }
   }
 
+  @CaptureTimingWithStatsD()
   async deleteCache(uid: string) {
     try {
       return await this.makeRequest(
@@ -84,11 +92,13 @@ export class ProfileClient {
         'delete'
       );
     } catch (error) {
+      this.statsd.increment('profile_client', { type: 'delete_cache_error' });
       this.log.error(error);
       throw error;
     }
   }
 
+  @CaptureTimingWithStatsD()
   async updateDisplayName(uid: string, name: string) {
     try {
       return await this.makeRequest(
@@ -97,6 +107,36 @@ export class ProfileClient {
         'post'
       );
     } catch (error) {
+      this.statsd.increment('profile_client', {
+        type: 'update_display_name_error',
+      });
+      this.log.error(error);
+      throw error;
+    }
+  }
+
+  @CaptureTimingWithStatsD()
+  async getUserinfo(
+    userinfoUrl: string,
+    accessToken: string
+  ): Promise<Profile> {
+    try {
+      const userinfo = await this.makeRequest(
+        userinfoUrl,
+        {
+          headers: {
+            ...this.axiosInstance.defaults.headers,
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+        'get'
+      );
+      if (!userinfo.uid) {
+        throw new MalformedUserinfoError(userinfo);
+      }
+      return userinfo;
+    } catch (error) {
+      this.statsd.increment('profile_client', { type: 'get_userinfo_error' });
       this.log.error(error);
       throw error;
     }
