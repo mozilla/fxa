@@ -76,10 +76,10 @@ interface StripeWrapperProps {
   cart: {
     paymentInfo?: {
       type:
-        | Stripe.PaymentMethod.Type
-        | 'google_iap'
-        | 'apple_iap'
-        | 'external_paypal';
+      | Stripe.PaymentMethod.Type
+      | 'google_iap'
+      | 'apple_iap'
+      | 'external_paypal';
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
@@ -103,7 +103,7 @@ export function StripeWrapper({
   const options: StripeElementsOptions = {
     mode: 'subscription',
     locale: isStripeElementLocale(locale) ? locale : 'auto',
-    amount,
+    amount: amount >= 0 ? amount : 0,
     currency,
     paymentMethodCreation: 'manual',
     externalPaymentMethodTypes: ['external_paypal'],
