@@ -20,7 +20,7 @@ const {
 import jwt from '../../lib/oauth/jwt';
 
 // Note, intentionally not indenting for code review.
-[{ version: '' }].forEach((testOptions) => {
+[{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote account create`, function () {
     this.timeout(60000);
     let server;
