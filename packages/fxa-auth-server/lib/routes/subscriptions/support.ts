@@ -98,7 +98,9 @@ export const supportRoutes = (
 
         const { uid, email } = await getAccountInfo(request);
         const { location } = request.app.geo;
-        await customs.checkAuthenticated(request, uid, email, 'supportRequest');
+
+        // Note, uid maybe null! Don't use checkAuthenticated here.
+        await customs.check(request, email, 'supportRequest');
 
         const {
           productName,
