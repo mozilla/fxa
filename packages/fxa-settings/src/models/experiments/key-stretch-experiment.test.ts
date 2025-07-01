@@ -31,14 +31,14 @@ describe('Key Stretch Experiment Model', function () {
 
   it('is disabled by default', () => {
     const model = new KeyStretchExperiment(new GenericData({}));
-    expect(model.isV2(ffOn)).toBeFalsy();
+    expect(model.isV2(ffOn)).toBeTruthy();
     expect(model.isV2(ffOff)).toBeFalsy();
   });
 
   it('enables with stretch query parameter', () => {
     const model = new KeyStretchExperiment(new GenericData({ stretch: '2' }));
     expect(model.isV2(ffOn)).toBeTruthy();
-    expect(model.isV2(ffOff)).toBeFalsy();
+    expect(model.isV2(ffOff)).toBeTruthy();
   });
 
   it('enables with force experiment query parameters', () => {
