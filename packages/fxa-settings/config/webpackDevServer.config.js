@@ -44,7 +44,7 @@ module.exports = function (proxy, allowedHost) {
       'Access-Control-Allow-Headers': '*',
     },
     // Enable gzip compression of generated files.
-    compress: true,
+    compress: false,
     static: {
       // By default WebpackDevServer serves physical files from current directory
       // in addition to all the virtual build products that it serves from memory.
