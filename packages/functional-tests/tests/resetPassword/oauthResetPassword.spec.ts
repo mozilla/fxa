@@ -54,7 +54,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       test.fixme(
         true,
-        'FXA-10518 - 123Done PKCE button is not working, and this test does not validate the PKCE flow for sign-in after reset password'
+        'FXA-10518, FXA-11952 - 123Done PKCE button is not working, and this test does not validate the PKCE flow for sign-in after reset password'
       );
       const credentials = await testAccountTracker.signUp();
       const newPassword = testAccountTracker.generatePassword();
