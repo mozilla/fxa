@@ -427,6 +427,7 @@ class RecoveryPhoneHandler {
       const { acceptLanguage, geo, ua } = request.app;
 
       this.statsd.increment('account.recoveryPhone.phoneSignin.success');
+
       // this signals the end of the login flow
       await request.emitMetricsEvent('account.confirmed', { uid });
 
