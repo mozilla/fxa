@@ -37,16 +37,6 @@ import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
 import DialogMessage from '../../components/DialogMessage';
 
-// Check if the customer is subscribed to a product.
-const customerIsSubscribedToProduct = (
-  customerSubscriptions: ProductProps['customerSubscriptions'],
-  productId: string
-): boolean | null =>
-  customerSubscriptions &&
-  customerSubscriptions.some(
-    (customerSubscription) => customerSubscription.product_id === productId
-  );
-
 // If the customer has any subscription plan that matches a plan for the
 // selected product, then they are already subscribed.
 const customerIsSubscribedToPlan = (
@@ -312,29 +302,13 @@ export const Product = ({
       );
     }
 
-    // Not an upgrade or a downgrade.
     if (
       subscriptionChangeEligibility.result.eligibility ===
       SubscriptionUpdateEligibility.INVALID
     ) {
-      if (customerIsSubscribedToProduct(webSubscriptions, productId)) {
-        return (
-          <SubscriptionChangeRoadblock
-            {...{ profile: profile.result, isMobile, selectedPlan }}
-          />
-        );
-      }
       return (
-        <SubscriptionCreate
-          {...{
-            isMobile,
-            profile: profile.result,
-            customer: customer.result,
-            selectedPlan,
-            refreshSubscriptions: delayedFetchCustomerAndSubscriptions,
-            coupon: coupon,
-            setCoupon: setCoupon,
-          }}
+        <SubscriptionChangeRoadblock
+          {...{ profile: profile.result, isMobile, selectedPlan }}
         />
       );
     }
