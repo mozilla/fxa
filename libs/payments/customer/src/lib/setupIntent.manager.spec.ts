@@ -12,6 +12,7 @@ import {
   StripeSetupIntentFactory,
 } from '@fxa/payments/stripe';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { SetupIntentCancelInvalidStatusError } from './customer.error';
 
 describe('SetupIntentManager', () => {
   let setupIntentManager: SetupIntentManager;
@@ -35,9 +36,7 @@ describe('SetupIntentManager', () => {
     it('should create and confirm intent', async () => {
       const mockConfirmationToken = 'confirmToken';
       const mockCustomerId = 'cus_12345';
-      const mockResponse = StripeResponseFactory(
-        StripeSetupIntentFactory()
-      );
+      const mockResponse = StripeResponseFactory(StripeSetupIntentFactory());
 
       jest
         .spyOn(stripeClient, 'setupIntentCreate')
@@ -45,29 +44,25 @@ describe('SetupIntentManager', () => {
 
       const result = await setupIntentManager.createAndConfirm(
         mockCustomerId,
-        mockConfirmationToken,
+        mockConfirmationToken
       );
 
-      expect(stripeClient.setupIntentCreate).toHaveBeenCalledWith(
-        {
-          customer: mockCustomerId,
-          confirm: true,
-          confirmation_token: mockConfirmationToken,
-          automatic_payment_methods: {
-            enabled: true,
-            allow_redirects: 'never',
-          }
-        }
-      );
+      expect(stripeClient.setupIntentCreate).toHaveBeenCalledWith({
+        customer: mockCustomerId,
+        confirm: true,
+        confirmation_token: mockConfirmationToken,
+        automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: 'never',
+        },
+      });
       expect(result).toEqual(mockResponse);
     });
   });
 
   describe('retrieve', () => {
     it('should retrieve a payment intent', async () => {
-      const mockResponse = StripeResponseFactory(
-        StripeSetupIntentFactory()
-      );
+      const mockResponse = StripeResponseFactory(StripeSetupIntentFactory());
 
       jest
         .spyOn(stripeClient, 'setupIntentRetrieve')
@@ -81,5 +76,37 @@ describe('SetupIntentManager', () => {
       expect(result).toEqual(mockResponse);
     });
   });
-});
 
+  describe('cancel', () => {
+    it('should cancel a setup intent with valid status', async () => {
+      const mockSetupIntent = StripeResponseFactory(
+        StripeSetupIntentFactory({
+          status: 'requires_payment_method',
+        })
+      );
+
+      jest
+        .spyOn(stripeClient, 'setupIntentCancel')
+        .mockResolvedValue(mockSetupIntent);
+
+      const result = await setupIntentManager.cancel(
+        mockSetupIntent.id,
+        mockSetupIntent.status
+      );
+
+      expect(stripeClient.setupIntentCancel).toHaveBeenCalledWith(
+        mockSetupIntent.id
+      );
+      expect(result).toEqual(mockSetupIntent);
+    });
+
+    it('should throw error for invalid status', async () => {
+      const mockSetupIntentId = 'si_12345';
+      const invalidStatus = 'succeeded';
+
+      await expect(
+        setupIntentManager.cancel(mockSetupIntentId, invalidStatus)
+      ).rejects.toThrow(SetupIntentCancelInvalidStatusError);
+    });
+  });
+});

@@ -5,17 +5,9 @@
 import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
-import {
-  StripeClient,
-  StripePaymentIntent,
-  StripeSubscription,
-} from '@fxa/payments/stripe';
+import { StripeClient, StripeSubscription } from '@fxa/payments/stripe';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from '@fxa/payments/stripe';
 import { STRIPE_SUBSCRIPTION_METADATA } from './types';
-import {
-  InvalidPaymentIntentError,
-  PaymentIntentNotFoundError,
-} from './customer.error';
 
 @Injectable()
 export class SubscriptionManager {
@@ -103,49 +95,5 @@ export class SubscriptionManager {
         ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
         this.getPaymentProvider(sub) === 'paypal'
     );
-  }
-
-  async getLatestPaymentIntent(subscription: StripeSubscription) {
-    if (!subscription.latest_invoice) {
-      return;
-    }
-    const latestInvoice = await this.stripeClient.invoicesRetrieve(
-      subscription.latest_invoice
-    );
-
-    if (!latestInvoice.payment_intent) {
-      return;
-    }
-
-    const paymentIntent = await this.stripeClient.paymentIntentRetrieve(
-      latestInvoice.payment_intent
-    );
-
-    return paymentIntent;
-  }
-
-  async processStripeSubscription(
-    subscription: StripeSubscription
-  ): Promise<StripePaymentIntent> {
-    const paymentIntent = await this.getLatestPaymentIntent(subscription);
-
-    if (!paymentIntent) {
-      throw new PaymentIntentNotFoundError(subscription.id);
-    }
-
-    if (paymentIntent.last_payment_error) {
-      await this.cancel(subscription.id);
-      throw new InvalidPaymentIntentError(
-        subscription.id,
-        paymentIntent.id,
-        paymentIntent.last_payment_error.message
-      );
-    }
-
-    if (paymentIntent.status === 'requires_confirmation') {
-      await this.stripeClient.paymentIntentConfirm(paymentIntent.id);
-    }
-
-    return paymentIntent;
   }
 }

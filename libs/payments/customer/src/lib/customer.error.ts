@@ -190,28 +190,6 @@ export class StripeNoMinimumChargeAmountAvailableError extends CustomerError {
   }
 }
 
-export class PaymentIntentNotFoundError extends CustomerError {
-  constructor(subscriptionId: string) {
-    super('Payment intent not found', { subscriptionId });
-    this.name = 'PaymentIntentNotFoundError';
-  }
-}
-
-export class InvalidPaymentIntentError extends CustomerError {
-  constructor(
-    subscriptionId: string,
-    paymentIntentId: string,
-    paymentIntentErrorMessage?: string
-  ) {
-    super('Invalid payment intent', {
-      subscriptionId,
-      paymentIntentId,
-      paymentIntentErrorMessage,
-    });
-    this.name = 'InvalidPaymentIntentError';
-  }
-}
-
 export class TransactionMissingOnPaidInvoiceError extends CustomerError {
   constructor(invoiceId: string, customerId: string) {
     super('Paid invoice missing transaction id', { invoiceId, customerId });
@@ -254,6 +232,16 @@ export class PayPalPaymentFailedError extends CustomerError {
       status: status ?? 'undefined',
     });
     this.name = 'PayPalPaymentFailedError';
+  }
+}
+
+export class SetupIntentCancelInvalidStatusError extends CustomerError {
+  constructor(setupIntentId: string, setupIntentStatus: string) {
+    super('Setup Intent can not be canceled due to invalid status.', {
+      setupIntentId,
+      setupIntentStatus,
+    });
+    this.name = 'SetupIntentCancelInvalidStatusError';
   }
 }
 

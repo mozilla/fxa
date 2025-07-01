@@ -4,10 +4,11 @@
 
 import { Injectable } from '@nestjs/common';
 import { StripeClient } from '@fxa/payments/stripe';
+import { SetupIntentCancelInvalidStatusError } from './customer.error';
 
 @Injectable()
 export class SetupIntentManager {
-  constructor(private stripeClient: StripeClient) { }
+  constructor(private stripeClient: StripeClient) {}
 
   async createAndConfirm(customerId: string, confirmationToken: string) {
     return this.stripeClient.setupIntentCreate({
@@ -16,13 +17,30 @@ export class SetupIntentManager {
       confirmation_token: confirmationToken,
       automatic_payment_methods: {
         enabled: true,
-        allow_redirects: 'never'
-      }
+        allow_redirects: 'never',
+      },
     });
   }
 
   async retrieve(setupIntentId: string) {
     return this.stripeClient.setupIntentRetrieve(setupIntentId);
   }
-}
 
+  async cancel(setupIntentId: string, setupIntentStatus?: string) {
+    if (
+      setupIntentStatus &&
+      ![
+        'requires_payment_method',
+        'requires_confirmation',
+        'requires_action',
+      ].includes(setupIntentStatus)
+    ) {
+      throw new SetupIntentCancelInvalidStatusError(
+        setupIntentId,
+        setupIntentStatus
+      );
+    }
+
+    return this.stripeClient.setupIntentCancel(setupIntentId);
+  }
+}

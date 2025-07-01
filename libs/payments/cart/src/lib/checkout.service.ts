@@ -68,10 +68,11 @@ import {
   PaymentMethodUpdateFailedError,
   UpgradeForSubscriptionNotFoundError,
   DetermineCheckoutAmountCustomerRequiredError,
-  DetermineCheckoutAmountFromPriceRequiredError,
   DetermineCheckoutAmountSubscriptionRequiredError,
 } from './checkout.error';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
+import { isPaymentIntent } from './util/isPaymentIntent';
+import { throwIntentFailedError } from './util/throwIntentFailedError';
 
 @Injectable()
 export class CheckoutService {
@@ -370,7 +371,6 @@ export class CheckoutService {
           );
 
     // Get payment/setup intent for subscription
-    let stripeIntentId: string | undefined;
     let intent: StripePaymentIntent | StripeSetupIntent | undefined;
     try {
       assert(
@@ -389,25 +389,31 @@ export class CheckoutService {
             off_session: false,
           }
         );
-        stripeIntentId = intent.id;
       } else {
         intent = await this.setupIntentManager.createAndConfirm(
           customer.id,
           confirmationTokenId
         );
-        stripeIntentId = intent.id;
       }
     } catch (error) {
-      // At least update the cart with the subscription ID before throwing
-      await this.cartManager.updateFreshCart(cart.id, version, {
-        stripeSubscriptionId: subscription.id,
-      });
-      throw error;
+      if (error?.payment_intent) {
+        intent = error.payment_intent;
+      } else if (error?.setup_intent) {
+        intent = error.setup_intent;
+      }
+
+      if (!intent) {
+        // At least update the cart with the subscription ID before throwing
+        await this.cartManager.updateFreshCart(cart.id, version, {
+          stripeSubscriptionId: subscription.id,
+        });
+        throw error;
+      }
     }
 
     await this.cartManager.updateFreshCart(cart.id, version, {
       stripeSubscriptionId: subscription.id,
-      stripeIntentId: stripeIntentId,
+      stripeIntentId: intent.id,
     });
 
     const updatedVersion = version + 1;
@@ -426,6 +432,21 @@ export class CheckoutService {
         } else {
           throw new PaymentMethodUpdateFailedError(cart.id, customer.id);
         }
+      } else if (intent.status === 'requires_payment_method') {
+        const errorCode = isPaymentIntent(intent)
+          ? intent.last_payment_error?.code
+          : intent.last_setup_error?.code;
+        const declineCode = isPaymentIntent(intent)
+          ? intent.last_payment_error?.decline_code
+          : intent.last_setup_error?.decline_code;
+
+        throwIntentFailedError(
+          errorCode,
+          declineCode,
+          cart.id,
+          intent.id,
+          isPaymentIntentId(intent.id) ? 'PaymentIntent' : 'SetupIntent'
+        );
       } else {
         throw new InvalidIntentStateError(
           cart.id,
@@ -719,14 +740,6 @@ export class CheckoutService {
     if (
       eligibility.subscriptionEligibilityResult === EligibilityStatus.UPGRADE
     ) {
-      assert(
-        'fromPrice' in eligibility,
-        new DetermineCheckoutAmountFromPriceRequiredError(
-          priceId,
-          currency,
-          taxAddress
-        )
-      );
       assert(
         customer,
         new DetermineCheckoutAmountCustomerRequiredError(

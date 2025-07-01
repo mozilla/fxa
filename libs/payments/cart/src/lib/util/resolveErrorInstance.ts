@@ -8,7 +8,14 @@ import {
   CartStateProcessingError,
   CartTotalMismatchError,
 } from '../cart.error';
-import { CheckoutError } from '../checkout.error';
+import {
+  CheckoutError,
+  IntentCardDeclinedError,
+  IntentCardExpiredError,
+  IntentFailedGenericError,
+  IntentGetInTouchError,
+  IntentTryAgainError,
+} from '../checkout.error';
 import { BaseError } from '@fxa/shared/error';
 
 export function resolveErrorInstance(error: Error) {
@@ -25,6 +32,18 @@ export function resolveErrorInstance(error: Error) {
       return CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR;
     case error instanceof CartTotalMismatchError:
       return CartErrorReasonId.CART_TOTAL_MISMATCH;
+
+    // Payment failed errors
+    case error instanceof IntentCardDeclinedError:
+      return CartErrorReasonId.INTENT_FAILED_CARD_DECLINED;
+    case error instanceof IntentCardExpiredError:
+      return CartErrorReasonId.INTENT_FAILED_CARD_EXPIRED;
+    case error instanceof IntentTryAgainError:
+      return CartErrorReasonId.INTENT_FAILED_TRY_AGAIN;
+    case error instanceof IntentGetInTouchError:
+      return CartErrorReasonId.INTENT_FAILED_GET_IN_TOUCH;
+    case error instanceof IntentFailedGenericError:
+      return CartErrorReasonId.INTENT_FAILED_GENERIC;
 
     // Checkout Errors
     case error instanceof CheckoutError:

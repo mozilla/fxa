@@ -91,17 +91,6 @@ export class PaymentMethodUpdateFailedError extends CheckoutError {
   }
 }
 
-export class DetermineCheckoutAmountFromPriceRequiredError extends CheckoutError {
-  constructor(priceId: string, currency: string, taxAddress: TaxAddress) {
-    super('fromPrice not present for upgrade cart', {
-      priceId,
-      currency,
-      taxAddress,
-    });
-    this.name = 'DetermineCheckoutAmountCustomerRequiredError';
-  }
-}
-
 export class DetermineCheckoutAmountCustomerRequiredError extends CheckoutError {
   constructor(priceId: string, currency: string, taxAddress: TaxAddress) {
     super('Customer is required for upgrade', {
@@ -120,5 +109,92 @@ export class DetermineCheckoutAmountSubscriptionRequiredError extends CheckoutEr
       fromPriceId,
     });
     this.name = 'DetermineCheckoutAmountCustomerRequiredError';
+  }
+}
+
+export class IntentFailedGenericError extends CheckoutError {
+  constructor(
+    cartId: string,
+    paymentIntentId: string,
+    paymentIntentState: string,
+    intentType: 'SetupIntent' | 'PaymentIntent'
+  ) {
+    super('Intent payment method failed with general error', {
+      cartId,
+      paymentIntentId,
+      paymentIntentState,
+      intentType,
+    });
+    this.name = 'IntentPaymentFailedGenericError';
+  }
+}
+
+export class IntentFailedHandledError extends CheckoutError {
+  constructor(message: string, info: Record<string, any>) {
+    super(message, info);
+    this.name = 'IntentFailedHandledError';
+  }
+}
+
+export class IntentCardDeclinedError extends IntentFailedHandledError {
+  constructor(
+    cartId: string,
+    paymentIntentId: string,
+    intentType: 'SetupIntent' | 'PaymentIntent'
+  ) {
+    super('Intent payment method card declined', {
+      cartId,
+      paymentIntentId,
+      intentType,
+    });
+    this.name = 'IntentCardDeclinedError';
+  }
+}
+
+export class IntentCardExpiredError extends IntentFailedHandledError {
+  constructor(
+    cartId: string,
+    paymentIntentId: string,
+    intentType: 'SetupIntent' | 'PaymentIntent'
+  ) {
+    super('Intent payment method card expired', {
+      cartId,
+      paymentIntentId,
+      intentType,
+    });
+    this.name = 'IntentCardExpiredError';
+  }
+}
+
+export class IntentTryAgainError extends IntentFailedHandledError {
+  constructor(
+    cartId: string,
+    paymentIntentId: string,
+    intentType: 'SetupIntent' | 'PaymentIntent'
+  ) {
+    super('Intent failed with an error where customers can try again.', {
+      cartId,
+      paymentIntentId,
+      intentType,
+    });
+    this.name = 'IntentTryAgainError';
+  }
+}
+
+export class IntentGetInTouchError extends IntentFailedHandledError {
+  constructor(
+    cartId: string,
+    paymentIntentId: string,
+    intentType: 'SetupIntent' | 'PaymentIntent'
+  ) {
+    super(
+      'Intent failed with an error requiring customers to get in touch with the payment issuer.',
+      {
+        cartId,
+        paymentIntentId,
+        intentType,
+      }
+    );
+    this.name = 'IntentGetInTouchError';
   }
 }

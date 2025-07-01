@@ -74,6 +74,51 @@ export function getErrorFtlInfo(
         message: 'The invoice amount has changed. Please try again.',
         messageFtl: 'cart-total-mismatch-error',
       };
+    case CartErrorReasonId.INTENT_FAILED_CARD_DECLINED:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message:
+          'Your transaction could not be processed. Please verify your credit card information and try again.',
+        messageFtl: 'intent-card-error',
+      };
+    case CartErrorReasonId.INTENT_FAILED_CARD_EXPIRED:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message:
+          'It looks like your credit card has expired. Try another card.',
+        messageFtl: 'intent-expired-card-error',
+      };
+    case CartErrorReasonId.INTENT_FAILED_TRY_AGAIN:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message:
+          'Hmm. There was a problem authorizing your payment. Try again or get in touch with your card issuer.',
+        messageFtl: 'intent-payment-error-try-again',
+      };
+    case CartErrorReasonId.INTENT_FAILED_GET_IN_TOUCH:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message:
+          'Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.',
+        messageFtl: 'intent-payment-error-get-in-touch',
+      };
+    case CartErrorReasonId.INTENT_FAILED_GENERIC:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message:
+          'An unexpected error has occurred while processing your payment, please try again.',
+        messageFtl: 'intent-payment-error-generic',
+      };
 
     case CartErrorReasonId.BASIC_ERROR:
     default:

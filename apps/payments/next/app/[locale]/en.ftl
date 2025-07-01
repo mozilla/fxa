@@ -15,6 +15,13 @@ cart-error-currency-not-determined = We were unable to determine the currency fo
 checkout-processing-general-error = An unexpected error has occurred while processing your payment, please try again.
 cart-total-mismatch-error = The invoice amount has changed. Please try again.
 
+## Error pages - Payment method failure messages
+intent-card-error = Your transaction could not be processed. Please verify your credit card information and try again.
+intent-expired-card-error = It looks like your credit card has expired. Try another card.
+intent-payment-error-try-again = Hmm. There was a problem authorizing your payment. Try again or get in touch with your card issuer.
+intent-payment-error-get-in-touch = Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.
+intent-payment-error-generic = An unexpected error has occurred while processing your payment, please try again.
+
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
 next-payment-processing-message = Please wait while we process your payment…
