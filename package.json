@@ -280,7 +280,7 @@
     "protobufjs:>6.0.0 <7": ">=6.11.4",
     "underscore": ">=1.13.2"
   },
-  "packageManager": "yarn@3.3.0",
+  "packageManager": "yarn@4.9.2",
   "_moduleAliases": {
     "@fxa/vendored/jwtool": "./dist/libs/vendored/jwtool/main.cjs",
     "@fxa/vendored/crypto-relier": "./dist/libs/vendored/crypto-relier/main.cjs",
