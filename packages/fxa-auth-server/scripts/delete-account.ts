@@ -58,7 +58,7 @@ Container.set(AppConfig, config);
 Container.set(AuthLogger, log);
 const authFirestore = setupFirestore(config);
 Container.set(AuthFirestore, authFirestore);
-const profile = new ProfileClient(log, {
+const profile = new ProfileClient(log, statsd, {
   ...config.profileServer,
   serviceName: 'subhub',
 });

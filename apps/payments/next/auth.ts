@@ -9,12 +9,10 @@ import { BaseError } from '@fxa/shared/error';
 
 import { getApp } from '@fxa/payments/ui/server';
 
-
 export class AuthError extends BaseError {
   constructor(...args: ConstructorParameters<typeof BaseError>) {
     super(...args);
     this.name = 'AuthError';
-    Object.setPrototypeOf(this, AuthError.prototype);
   }
 }
 
@@ -41,16 +39,6 @@ export const {
       clientSecret: config.auth.clientSecret,
       token: config.auth.tokenUrl,
       profile: (profile) => {
-        // A successful profile fetch should always return a uid
-        // This is a temporary fix and a permanent solution should be
-        // implemented as part of FXA-11964
-        if (!profile.uid) {
-          console.log('AuthProfileFetchError', { profile });
-          throw new AuthError(
-            'Error while fetching user profile',
-            { info: profile }
-          );
-        }
         return {
           id: profile.uid,
           name: profile.displayName,
@@ -58,7 +46,16 @@ export const {
           image: profile.avatar,
         };
       },
-      userinfo: config.auth.userinfoUrl,
+      userinfo: {
+        url: config.auth.userinfoUrl,
+        request: (context: { tokens: { access_token?: string } }) =>
+          getApp()
+            .getActionsService()
+            .getUserinfo({
+              userinfoUrl: config.auth.userinfoUrl,
+              accessToken: context.tokens.access_token ?? '',
+            }),
+      },
     },
   ],
   callbacks: {
@@ -87,11 +84,11 @@ export const {
     },
     async signOut() {
       getApp().getEmitterService().emit('auth', { type: 'signout' });
-    }
+    },
   },
   logger: {
     error(error: Error) {
-      console.error(new AuthError(error.message, { cause: error }))
-    }
-  }
+      console.error(new AuthError(error.message, { cause: error }));
+    },
+  },
 });

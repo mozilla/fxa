@@ -6,6 +6,7 @@ import { Test } from '@nestjs/testing';
 import { ProfileClient } from './profile.client';
 import { MockProfileClientConfigProvider } from './profile.config';
 import { Logger } from '@nestjs/common';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('ProfileClient', () => {
   let profileClient: ProfileClient;
@@ -24,6 +25,7 @@ describe('ProfileClient', () => {
           useValue: mockLogger,
         },
         ProfileClient,
+        MockStatsDProvider,
       ],
     }).compile();
 

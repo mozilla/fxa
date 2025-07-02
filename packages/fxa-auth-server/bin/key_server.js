@@ -274,7 +274,7 @@ async function run(config) {
   );
   Container.set(RecoveryPhoneService, recoveryPhoneService);
 
-  const profile = new ProfileClient(log, {
+  const profile = new ProfileClient(log, statsd, {
     ...config.profileServer,
     serviceName: 'subhub',
   });
