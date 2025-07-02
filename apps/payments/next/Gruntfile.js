@@ -48,6 +48,7 @@ module.exports = function(grunt) {
           '../../../libs/payments/**/*.ts',
           '../../../libs/shared/**/*.ts',
           '../../../libs/google/**/*.ts',
+          '../../../libs/profile/**/*.ts',
         ],
         tasks: ['http:nestapp'],
         options: {
