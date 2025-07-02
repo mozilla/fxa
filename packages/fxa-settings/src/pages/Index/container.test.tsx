@@ -61,7 +61,7 @@ jest.mock('../../lib/email-domain-validator', () => ({
   checkEmailDomain: jest.fn(),
 }));
 
-jest.mock('fxa-react/components/LoadingSpinner', () => () => (
+jest.mock('../../components/LoadingSpinnerSprite', () => () => (
   <div>LoadingSpinner</div>
 ));
 
