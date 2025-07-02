@@ -10,7 +10,10 @@ const EXPECTED_ERRORS = new Set([
   'PromotionCodePriceNotValidError',
   'PromotionCodeNotFoundError',
   'CouponErrorInvalidCode',
-  'IntentFailedHandledError',
+  'IntentCardDeclinedError',
+  'IntentCardExpiredError',
+  'IntentTryAgainError',
+  'IntentGetInTouchError',
 ]);
 
 export const beforeSend = function (
