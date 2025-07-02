@@ -4,7 +4,7 @@
 signup-heading-v2 = Create a password
 signup-relay-info = A password is needed to securely manage your masked emails and access { -brand-mozilla }’s security tools.
 signup-sync-info = Sync your passwords, bookmarks, and more everywhere you use { -brand-firefox }.
-signup-sync-info-with-payments = Sync your passwords, payment methods, bookmarks, and more everywhere you use { -brand-firefox }.
+signup-sync-info-with-payment = Sync your passwords, payment methods, bookmarks, and more everywhere you use { -brand-firefox }.
 # This text is displayed in a dismissible info banner and is only displayed to Pocket clients
 signup-pocket-info-banner = Why do I need to create this account?
 # Link included in a dismissible info banner that is only displayed to Pocket clients
