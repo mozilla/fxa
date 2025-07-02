@@ -330,6 +330,9 @@ commands:
     parameters:
       project:
         type: string
+      fail_fast:
+        type: boolean
+        default: true
     steps:
       - run:
           name: Running Playwright tests
@@ -359,6 +362,7 @@ commands:
             ACCOUNTS_API_DOMAIN: << pipeline.parameters.accounts-api-domain >>
             RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
             UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
+            PLAYWRIGHT_FAIL_FAST: << parameters.fail_fast >>
 
   store-artifacts:
     steps:
@@ -758,6 +762,9 @@ jobs:
         default: production
       workflow:
         type: string
+      fail_fast:
+        type: boolean
+        default: true
     executor: smoke-test-executor
     parallelism: << parameters.parallelism >>
     steps:
@@ -766,6 +773,7 @@ jobs:
       - provision
       - run-playwright-tests:
           project: << parameters.project >>
+          fail_fast: << parameters.fail_fast >>
       - store-artifacts
       - upload_to_gcs:
           workflow: << parameters.workflow >>
@@ -780,6 +788,9 @@ jobs:
         default: 8 # this should correspond with the resource-class defined in the executor
       workflow:
         type: string
+      fail_fast:
+        type: boolean
+        default: true
     executor: functional-test-executor
     parallelism: << parameters.parallelism >>
     steps:
@@ -800,6 +811,7 @@ jobs:
           no_output_timeout: 20m
       - run-playwright-tests:
           project: local
+          fail_fast: << parameters.fail_fast >>
       - store-artifacts
       - upload_to_gcs:
           workflow: << parameters.workflow >>
@@ -979,6 +991,7 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
+          fail_fast: false
 
   deploy_fxa_image:
     # This workflow can be triggered after a PR lands on main. It requires approval.
@@ -1277,6 +1290,7 @@ workflows:
           workflow: nightly
           requires:
             - Build (nightly)
+          fail_fast: false
       - on-complete:
           name: Tests Complete (nightly)
           stage: Tests (nightly)
