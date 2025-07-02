@@ -710,6 +710,24 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+  locked_account_banner_view:
+    type: event
+    description: |
+      The user is shown a banner on the login page indicating that their account
+      is locked with a link to the password reset page.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11388
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
   email_confirmation_success_view:
     type: event
     description: |
