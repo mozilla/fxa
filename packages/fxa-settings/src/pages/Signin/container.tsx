@@ -24,7 +24,12 @@ import {
 } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { cache, currentAccount, lastStoredAccount } from '../../lib/cache';
+import {
+  cache,
+  currentAccount,
+  lastStoredAccount,
+  accounts,
+} from '../../lib/cache';
 import { MutationFunction, useMutation, useQuery } from '@apollo/client';
 import {
   AVATAR_QUERY,
@@ -70,7 +75,7 @@ import {
   isUnsupportedContext,
 } from '../../models/integrations/utils';
 import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
-import { setCurrentAccount } from '../../lib/storage-utils';
+import { setCurrentAccount, StoredAccountData } from '../../lib/storage-utils';
 import { cachedSignIn } from './utils';
 import OAuthDataError from '../../components/OAuthDataError';
 
@@ -91,45 +96,57 @@ import OAuthDataError from '../../components/OAuthDataError';
  */
 
 function getAccountInfo(email?: string) {
+  let targetAccount = null;
 
-  const storedLocalAccount = (() => {
-    let account = currentAccount();
-    if (account) {
-      return account;
-    }
-
-    // Important, a lot of the code following this assumes that if a session
-    // token is provided, it belongs to the current account. If this assumption
-    // is violated, weird things happen! Maybe this is the 'fix'?
-    account = lastStoredAccount();
-    if (account) {
-      setCurrentAccount(account.uid);
-    }
-
-    return account;
-  })();
-
+  // If an email is directly provided, use it! Try to find the matching
+  // account in local storage and proceed with the account.
   if (email) {
-    // Try to use local storage values if email matches the email in local storage
-    if (storedLocalAccount?.email === email) {
-      return {
-        email: storedLocalAccount.email,
-        sessionToken: storedLocalAccount.sessionToken,
-        uid: storedLocalAccount.uid,
-      };
-    }
+    targetAccount = Object.values(accounts()).find(
+      (x: StoredAccountData) => x.email === email
+    );
 
-    return { email };
+    if (targetAccount) {
+      setCurrentAccount(targetAccount.uid);
+      return {
+        email: targetAccount.email,
+        sessionToken: targetAccount.sessionToken,
+        uid: targetAccount.uid,
+      };
+    } else {
+      setCurrentAccount('');
+      return { email };
+    }
   }
 
-  if (storedLocalAccount) {
+  // If an email was not provided, then make a best effort to resolve
+  // an account from local storage. Default to the currentAccount if available.
+  // If not current account, then fallback to the last stored account.
+  targetAccount = currentAccount();
+  if (targetAccount) {
+    // This might seem odd... but the currentAccount function is a bit
+    // twisty. This is just being a bit paranoid about how that resolves
+    // and makes sure going forward a currenAccount actually is set.
+    setCurrentAccount(targetAccount.uid);
     return {
-      email: storedLocalAccount.email,
-      sessionToken: storedLocalAccount.sessionToken,
-      uid: storedLocalAccount.uid,
+      email: targetAccount.email,
+      sessionToken: targetAccount.sessionToken,
+      uid: targetAccount.uid,
     };
   }
 
+  // We still haven't found an account, so see if one was recently used. If so
+  // pick that.
+  targetAccount = lastStoredAccount();
+  if (targetAccount) {
+    setCurrentAccount(targetAccount.uid);
+    return {
+      email: targetAccount.email,
+      sessionToken: targetAccount.sessionToken,
+      uid: targetAccount.uid,
+    };
+  }
+
+  // Nothing found! Return empty account.
   return {};
 }
 
@@ -511,7 +528,7 @@ const SigninContainer = ({
         localizedSuccessBannerHeading,
         localizedSuccessBannerDescription,
         deeplink,
-        flowQueryParams
+        flowQueryParams,
       }}
     />
   );
