@@ -70,6 +70,11 @@ module.exports = function (config) {
   ];
   const scriptSrc = addCdnRuleIfRequired([SELF]);
   const styleSrc = addCdnRuleIfRequired([SELF]);
+
+  // TODO, FXA-12027.
+  // Only allow inline styles matching this hash. This is temporary while we
+  // check if #19127 leads to any performance improvement.
+  styleSrc.push("'sha256-e8nIS94GUs+9w77KIQr5AYAgVEpvMJydNUsOUqKr1hw='");
   if (config.get('env') === 'development') {
     connectSrc.push(config.get('public_url').replace(/^http/, 'ws'));
     connectSrc.push(WEBPACK_DEV_SERVER);
