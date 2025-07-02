@@ -277,7 +277,6 @@
     "minimist": "^1.2.6",
     "nest-typed-config/class-validator": "0.14.1",
     "plist": "^3.0.6",
-    "protobufjs:>6.0.0 <7": ">=6.11.4",
     "underscore": ">=1.13.2"
   },
   "packageManager": "yarn@3.3.0",
