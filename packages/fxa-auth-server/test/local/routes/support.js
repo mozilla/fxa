@@ -233,6 +233,9 @@ describe('support', () => {
           customFieldsOnTicket
         );
         assert.deepEqual(res, { success: true, ticket: 91 });
+
+        assert.callCount(customs.check, 1);
+
         nock.isDone();
         spy.restore();
       });
@@ -319,6 +322,7 @@ describe('support', () => {
           zendeskReq.custom_fields.map((field) => field.value),
           customFieldsOnTicket
         );
+        assert.callCount(customs.check, 1);
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
         spy.restore();
