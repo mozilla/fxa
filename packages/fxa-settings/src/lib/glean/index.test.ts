@@ -561,6 +561,16 @@ describe('lib/glean', () => {
           'login_recovery_phone_success_view'
         );
       });
+
+      it('submits a ping with the login_locked_account_banner_view event name', async () => {
+        GleanMetrics.login.lockedAccountBannerView();
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_locked_account_banner_view'
+        );
+      });
     });
 
     describe('loginTotpBackup', () => {

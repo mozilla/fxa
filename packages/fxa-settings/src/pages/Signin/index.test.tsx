@@ -65,6 +65,7 @@ jest.mock('../../lib/glean', () => ({
       error: jest.fn(),
       diffAccountLinkClick: jest.fn(),
       engage: jest.fn(),
+      lockedAccountBannerView: jest.fn(),
     },
     cachedLogin: {
       forgotPassword: jest.fn(),
@@ -280,6 +281,45 @@ describe('Signin component', () => {
           });
         });
 
+        describe('account locked', () => {
+          it('shows the error banner', async () => {
+            const beginSigninHandler = jest.fn().mockReturnValueOnce(
+              createBeginSigninResponseError({
+                errno: AuthUiErrors.ACCOUNT_RESET.errno,
+              })
+            );
+            render({ beginSigninHandler });
+
+            enterPasswordAndSubmit();
+
+            expect(
+              await screen.findByText('Reset your password')
+            ).toBeVisible();
+            expect(
+              await screen.findByText(
+                'We locked your account to keep it safe from suspicious activity.'
+              )
+            ).toBeVisible();
+            const resetPasswordLink = await screen.findByRole('link', {
+              name: 'Reset your password to sign in',
+            });
+            expect(resetPasswordLink).toHaveAttribute(
+              'href',
+              `/reset_password?email=${MOCK_EMAIL}&email_to_hash_with=`
+            );
+            expect(resetPasswordLink).toHaveAttribute(
+              'data-glean-id',
+              'login_locked_account_banner_link'
+            );
+            expect(GleanMetrics.login.error).toHaveBeenCalledWith({
+              event: { reason: AuthUiErrors.ACCOUNT_RESET.message },
+            });
+            expect(
+              GleanMetrics.login.lockedAccountBannerView
+            ).toHaveBeenCalledTimes(1);
+          });
+        });
+
         describe('successful submission', () => {
           it('submits and emits metrics', async () => {
             const beginSigninHandler = jest
@@ -411,7 +451,9 @@ describe('Signin component', () => {
 
             enterPasswordAndSubmit();
             await waitFor(() => {
-              expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
+              expect(navigate).toHaveBeenCalledWith('/settings', {
+                replace: false,
+              });
             });
           });
 
@@ -423,7 +465,7 @@ describe('Signin component', () => {
               fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
-                .mockImplementation(() => { });
+                .mockImplementation(() => {});
             });
             it('is sent if Sync integration and navigates to CAD', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
@@ -450,7 +492,10 @@ describe('Signin component', () => {
                 });
               });
               expect(hardNavigateSpy).toHaveBeenCalledWith(
-                '/pair?showSuccessMessage=true', undefined, undefined, false
+                '/pair?showSuccessMessage=true',
+                undefined,
+                undefined,
+                false
               );
             });
             it('is not sent if user has 2FA enabled', async () => {
@@ -483,7 +528,7 @@ describe('Signin component', () => {
               fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
               hardNavigateSpy = jest
                 .spyOn(utils, 'hardNavigate')
-                .mockImplementation(() => { });
+                .mockImplementation(() => {});
               finishOAuthFlowHandler = jest
                 .fn()
                 .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
@@ -608,7 +653,10 @@ describe('Signin component', () => {
                 expect(fxaLoginCallOrder).toBeLessThan(fxaOAuthLoginCallOrder);
 
                 expect(hardNavigateSpy).toHaveBeenCalledWith(
-                  '/pair?showSuccessMessage=true', undefined, undefined, true
+                  '/pair?showSuccessMessage=true',
+                  undefined,
+                  undefined,
+                  true
                 );
               });
             });
@@ -651,7 +699,9 @@ describe('Signin component', () => {
                 // Ensure fxaLogin is called first
                 expect(fxaLoginCallOrder).toBeLessThan(fxaOAuthLoginCallOrder);
 
-                expect(navigate).toHaveBeenCalledWith('/settings', { replace: true });
+                expect(navigate).toHaveBeenCalledWith('/settings', {
+                  replace: true,
+                });
               });
             });
           });
@@ -811,10 +861,7 @@ describe('Signin component', () => {
 
     it('does not render when deeplinking third party auth', () => {
       renderWithLocalizationProvider(
-        <Subject
-          sessionToken={MOCK_SESSION_TOKEN}
-          deeplink="appleLogin"
-        />
+        <Subject sessionToken={MOCK_SESSION_TOKEN} deeplink="appleLogin" />
       );
 
       expect(
@@ -861,7 +908,7 @@ describe('Signin component', () => {
         beforeEach(() => {
           hardNavigateSpy = jest
             .spyOn(utils, 'hardNavigate')
-            .mockImplementation(() => { });
+            .mockImplementation(() => {});
         });
 
         afterEach(() => {
@@ -893,7 +940,12 @@ describe('Signin component', () => {
 
           enterPasswordAndSubmit();
           await waitFor(() => {
-            expect(hardNavigateSpy).toHaveBeenCalledWith('someUri', undefined, undefined, true);
+            expect(hardNavigateSpy).toHaveBeenCalledWith(
+              'someUri',
+              undefined,
+              undefined,
+              true
+            );
           });
         });
         it('handles error due to TOTP required or insufficent ARC value', async () => {
@@ -1025,7 +1077,7 @@ describe('Signin component', () => {
     beforeEach(() => {
       hardNavigateSpy = jest
         .spyOn(utils, 'hardNavigate')
-        .mockImplementation(() => { });
+        .mockImplementation(() => {});
     });
     afterEach(() => {
       hardNavigateSpy.mockRestore();

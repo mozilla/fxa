@@ -37,6 +37,7 @@ import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
+import { BannerLinkProps } from '../../components/Banner/interfaces';
 
 export const viewName = 'signin';
 
@@ -62,7 +63,7 @@ const Signin = ({
   localizedSuccessBannerHeading,
   localizedSuccessBannerDescription,
   deeplink,
-  flowQueryParams
+  flowQueryParams,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -74,6 +75,11 @@ const Signin = ({
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
   );
+  const [localizedBannerErrorDescription, setLocalizedBannerErrorDescription] =
+    useState<string>('');
+  const [localizedBannerErrorLink, setLocalizedBannerErrorLink] = useState<
+    BannerLinkProps | undefined
+  >(undefined);
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] =
     useState<string>('');
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
@@ -240,6 +246,8 @@ const Signin = ({
           errno === AuthUiErrors.INCORRECT_PASSWORD.errno
         ) {
           setLocalizedBannerError('');
+          setLocalizedBannerErrorDescription('');
+          setLocalizedBannerErrorLink(undefined);
           setPasswordTooltipErrorText(
             getLocalizedErrorMessage(ftlMsgResolver, error)
           );
@@ -276,6 +284,29 @@ const Signin = ({
             case AuthUiErrors.EMAIL_HARD_BOUNCE.errno:
             case AuthUiErrors.EMAIL_SENT_COMPLAINT.errno:
               navigateWithQuery('/signin_bounced');
+              break;
+            case AuthUiErrors.ACCOUNT_RESET.errno:
+              setLocalizedBannerError(
+                ftlMsgResolver.getMsg(
+                  'signin-account-locked-banner-heading',
+                  'Reset your password'
+                )
+              );
+              setLocalizedBannerErrorDescription(
+                ftlMsgResolver.getMsg(
+                  'signin-account-locked-banner-description',
+                  'We locked your account to keep it safe from suspicious activity.'
+                )
+              );
+              setLocalizedBannerErrorLink({
+                path: `/reset_password?email=${email}&email_to_hash_with=`,
+                localizedText: ftlMsgResolver.getMsg(
+                  'signin-account-locked-banner-link',
+                  'Reset your password to sign in'
+                ),
+                gleanId: 'login_locked_account_banner_link',
+              });
+              GleanMetrics.login.lockedAccountBannerView();
               break;
             default:
               setLocalizedBannerError(
@@ -326,7 +357,14 @@ const Signin = ({
 
   if (isDeeplinking) {
     // To avoid flickering, we only render third party auth and navigate
-    return <ThirdPartyAuth showSeparator={false} viewName="deeplink" deeplink={deeplink} flowQueryParams={flowQueryParams}/>
+    return (
+      <ThirdPartyAuth
+        showSeparator={false}
+        viewName="deeplink"
+        deeplink={deeplink}
+        flowQueryParams={flowQueryParams}
+      />
+    );
   }
 
   return (
@@ -358,7 +396,11 @@ const Signin = ({
       {localizedBannerError && (
         <Banner
           type="error"
-          content={{ localizedHeading: localizedBannerError }}
+          content={{
+            localizedHeading: localizedBannerError,
+            localizedDescription: localizedBannerErrorDescription,
+          }}
+          link={localizedBannerErrorLink}
         />
       )}
       <div className="mt-9">
