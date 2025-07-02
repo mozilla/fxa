@@ -10,8 +10,6 @@ import {
   StripeApiListFactory,
   StripeResponseFactory,
   StripeCustomerFactory,
-  StripeInvoiceFactory,
-  StripePaymentIntentFactory,
   StripeSubscriptionFactory,
   MockStripeConfigProvider,
 } from '@fxa/payments/stripe';
@@ -311,63 +309,6 @@ describe('SubscriptionManager', () => {
 
       const result = subscriptionManager.getPaymentProvider(mockSubscription);
       expect(result).toEqual('paypal');
-    });
-  });
-
-  describe('getLatestPaymentIntent', () => {
-    it('fetches the latest payment intent for the subscription', async () => {
-      const mockSubscription = StripeResponseFactory(
-        StripeSubscriptionFactory()
-      );
-      const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
-      const mockPaymentIntent = StripeResponseFactory(
-        StripePaymentIntentFactory()
-      );
-
-      jest
-        .spyOn(stripeClient, 'invoicesRetrieve')
-        .mockResolvedValue(mockInvoice);
-
-      jest
-        .spyOn(stripeClient, 'paymentIntentRetrieve')
-        .mockResolvedValue(mockPaymentIntent);
-
-      const result = await subscriptionManager.getLatestPaymentIntent(
-        mockSubscription
-      );
-
-      expect(result).toEqual(mockPaymentIntent);
-    });
-
-    it('returns undefined if no invoice on subscription', async () => {
-      const mockSubscription = StripeSubscriptionFactory({
-        latest_invoice: null,
-      });
-
-      const result = await subscriptionManager.getLatestPaymentIntent(
-        mockSubscription
-      );
-
-      expect(result).toEqual(undefined);
-    });
-
-    it('returns undefined if the invoice has no payment intent', async () => {
-      const mockSubscription = StripeSubscriptionFactory();
-      const mockInvoice = StripeResponseFactory(
-        StripeInvoiceFactory({
-          payment_intent: null,
-        })
-      );
-
-      jest
-        .spyOn(stripeClient, 'invoicesRetrieve')
-        .mockResolvedValue(mockInvoice);
-
-      const result = await subscriptionManager.getLatestPaymentIntent(
-        mockSubscription
-      );
-
-      expect(result).toEqual(undefined);
     });
   });
 });

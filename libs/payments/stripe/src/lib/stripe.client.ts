@@ -422,13 +422,23 @@ export class StripeClient {
   }
 
   @CaptureTimingWithStatsD()
-  async setupIntentCreate(
-    params?: Stripe.SetupIntentCreateParams,
+  async setupIntentCancel(
+    setupIntentId: string,
+    params?: Stripe.SetupIntentCancelParams
   ) {
+    const result = await this.stripe.setupIntents.cancel(setupIntentId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeSetupIntent>;
+  }
+
+  @CaptureTimingWithStatsD()
+  async setupIntentCreate(params?: Stripe.SetupIntentCreateParams) {
     const result = await this.stripe.setupIntents.create({
       ...params,
       expand: undefined,
-    })
+    });
     return result as StripeResponse<StripeSetupIntent>;
   }
 

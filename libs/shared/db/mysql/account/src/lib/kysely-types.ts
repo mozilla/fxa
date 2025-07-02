@@ -8,8 +8,8 @@ import type { ColumnType, JSONColumnType } from 'kysely';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
-  ? ColumnType<S, I | undefined, U>
-  : ColumnType<T, T | undefined, T>;
+    ? ColumnType<S, I | undefined, U>
+    : ColumnType<T, T | undefined, T>;
 
 export type Json = ColumnType<JsonValue, string, string>;
 
@@ -41,6 +41,11 @@ export enum CartErrorReasonId {
   CART_CURRENCY_NOT_DETERMINED = 'cart_currency_not_determined',
   CART_PROCESSING_GENERAL_ERROR = 'cart_processing_general_error',
   CART_TOTAL_MISMATCH = 'cart_total_mismatch',
+  INTENT_FAILED_GENERIC = 'intent_failed_generic',
+  INTENT_FAILED_CARD_DECLINED = 'intent_failed_card_declined',
+  INTENT_FAILED_CARD_EXPIRED = 'intent_failed_card_expired',
+  INTENT_FAILED_TRY_AGAIN = 'intent_failed_try_again',
+  INTENT_FAILED_GET_IN_TOUCH = 'intent_failed_get_in_touch',
   UNKNOWN = 'unknown',
 }
 

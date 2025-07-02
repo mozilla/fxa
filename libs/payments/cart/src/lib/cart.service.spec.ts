@@ -242,6 +242,10 @@ describe('CartService', () => {
   });
 
   describe('wrapCartWithCatch', () => {
+    const mockPaymentIntent = StripeResponseFactory(
+      StripePaymentIntentFactory()
+    );
+    const mockSetupIntent = StripeResponseFactory(StripeSetupIntentFactory());
     it('calls cartManager.finishErrorCart', async () => {
       const mockCart = ResultCartFactory({
         state: CartState.PROCESSING,
@@ -286,11 +290,11 @@ describe('CartService', () => {
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubscription);
       jest
-        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
-        .mockResolvedValue(undefined);
-      jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(mockPaymentIntent);
 
       await expect(
         cartService.finalizeProcessingCart(mockCart.id)
@@ -351,9 +355,6 @@ describe('CartService', () => {
         .mockResolvedValue(mockFinalizedInvoice);
       jest.spyOn(invoiceManager, 'void').mockResolvedValue(mockVoidedInvoice);
       jest
-        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
-        .mockResolvedValue(undefined);
-      jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
 
@@ -396,9 +397,6 @@ describe('CartService', () => {
       jest.spyOn(invoiceManager, 'retrieve').mockResolvedValue(mockInvoice);
       jest.spyOn(invoiceManager, 'void').mockResolvedValue(mockInvoice);
       jest
-        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
-        .mockResolvedValue(undefined);
-      jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
 
@@ -409,11 +407,8 @@ describe('CartService', () => {
       expect(invoiceManager.void).toHaveBeenCalledWith(mockInvoice.id);
     });
 
-    it('cancels a created payment intent', async () => {
+    it('cancels a created setup intent', async () => {
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-      const mockPaymentIntent = StripeResponseFactory(
-        StripePaymentIntentFactory({ status: 'processing' })
-      );
       const mockSubscription = StripeResponseFactory(
         StripeSubscriptionFactory({
           customer: mockCustomer.id,
@@ -424,6 +419,7 @@ describe('CartService', () => {
         state: CartState.PROCESSING,
         stripeSubscriptionId: mockSubscription.id,
         stripeCustomerId: mockCustomer.id,
+        stripeIntentId: 'seti_setup_intent_id',
       });
 
       jest
@@ -436,11 +432,11 @@ describe('CartService', () => {
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubscription);
       jest
-        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
-        .mockResolvedValue(mockPaymentIntent);
+        .spyOn(setupIntentManager, 'retrieve')
+        .mockResolvedValue(mockSetupIntent);
       jest
-        .spyOn(paymentIntentManager, 'cancel')
-        .mockResolvedValue(mockPaymentIntent);
+        .spyOn(setupIntentManager, 'cancel')
+        .mockResolvedValue(mockSetupIntent);
       jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
@@ -449,8 +445,9 @@ describe('CartService', () => {
         cartService.finalizeProcessingCart(mockCart.id)
       ).rejects.toThrow(Error);
 
-      expect(paymentIntentManager.cancel).toHaveBeenCalledWith(
-        mockPaymentIntent.id
+      expect(setupIntentManager.cancel).toHaveBeenCalledWith(
+        mockSetupIntent.id,
+        mockSetupIntent.status
       );
     });
 
@@ -480,9 +477,6 @@ describe('CartService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubscription);
-      jest
-        .spyOn(subscriptionManager, 'getLatestPaymentIntent')
-        .mockResolvedValue(undefined);
       jest
         .spyOn(subscriptionManager, 'cancel')
         .mockResolvedValue(mockSubscription);
@@ -592,7 +586,13 @@ describe('CartService', () => {
 
       expect(
         promotionCodeManager.assertValidForPriceAndCustomer
-      ).toHaveBeenCalledWith(args.promoCode, mockPrice, mockResolvedCurrency, mockCustomer, args.taxAddress);
+      ).toHaveBeenCalledWith(
+        args.promoCode,
+        mockPrice,
+        mockResolvedCurrency,
+        mockCustomer,
+        args.taxAddress
+      );
       expect(cartManager.createCart).not.toHaveBeenCalled();
     });
 
@@ -618,7 +618,7 @@ describe('CartService', () => {
       });
       jest
         .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
-        .mockResolvedValue(mockSubscription)
+        .mockResolvedValue(mockSubscription);
       jest
         .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
         .mockResolvedValue(mockInvoicePreviewForUpgrade);
@@ -1223,7 +1223,7 @@ describe('CartService', () => {
         jest
           .spyOn(productConfigurationManager, 'retrieveStripePrice')
           .mockResolvedValue(mockPrice);
-        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer)
+        jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
         jest
           .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
           .mockResolvedValue(undefined);
@@ -1263,7 +1263,12 @@ describe('CartService', () => {
 
         expect(
           promotionCodeManager.assertValidForPriceAndCustomer
-        ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice, mockCurrency, mockCustomer);
+        ).toHaveBeenCalledWith(
+          mockCart.couponCode,
+          mockPrice,
+          mockCurrency,
+          mockCustomer
+        );
         expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
           mockCart.id,
           mockCart.version,
@@ -1292,7 +1297,12 @@ describe('CartService', () => {
 
         expect(
           promotionCodeManager.assertValidForPriceAndCustomer
-        ).toHaveBeenCalledWith(mockCart.couponCode, mockPrice, mockCurrency, mockCustomer);
+        ).toHaveBeenCalledWith(
+          mockCart.couponCode,
+          mockPrice,
+          mockCurrency,
+          mockCustomer
+        );
         expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
           mockCart.id,
           mockCart.version,
@@ -1386,7 +1396,7 @@ describe('CartService', () => {
           mockUpdateCartInput.couponCode,
           mockPrice,
           mockCart.currency,
-          mockCustomer,
+          mockCustomer
         );
         expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
           mockCart.id,
@@ -1455,7 +1465,7 @@ describe('CartService', () => {
           mockUpdateCartInput.couponCode,
           mockPrice,
           mockCart.currency,
-          mockCustomer,
+          mockCustomer
         );
       });
 
@@ -1489,7 +1499,7 @@ describe('CartService', () => {
           mockUpdateCartInput.couponCode,
           mockPrice,
           mockCart.currency,
-          mockCustomer,
+          mockCustomer
         );
       });
     });

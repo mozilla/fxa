@@ -98,7 +98,7 @@ interface WrapWithCartCatchOptions {
 const IGNORED_EXPECTED_ERRORS_STATSD = new Set([
   'PromotionCodePriceNotValidError',
   'PromotionCodeNotFoundError',
-  'CouponErrorInvalidCode'
+  'CouponErrorInvalidCode',
 ]);
 
 @Injectable()
@@ -122,7 +122,7 @@ export class CartService {
     private promotionCodeManager: PromotionCodeManager,
     private subscriptionManager: SubscriptionManager,
     @Inject(StatsDService) private statsd: StatsD
-  ) { }
+  ) {}
 
   /**
    * Should be used to wrap any method that mutates an existing cart.
@@ -164,7 +164,7 @@ export class CartService {
 
       if (error.name && IGNORED_EXPECTED_ERRORS_STATSD.has(error.name)) {
         this.statsd.increment('checkout_failure_ignored_error', {
-          errorName: error.name
+          errorName: error.name,
         });
       }
 
@@ -221,27 +221,31 @@ export class CartService {
             }
           }
 
-          const paymentIntent =
-            await this.subscriptionManager.getLatestPaymentIntent(subscription);
-          if (paymentIntent?.status === 'succeeded') {
-            throw new PaidPaymentIntendOnFailedCartError(
-              cartId,
-              paymentIntent.id,
-              cart.stripeCustomerId ?? undefined
-            );
-          }
-          try {
-            if (paymentIntent) {
-              await this.paymentIntentManager.cancel(paymentIntent.id);
-            }
-          } catch (e) {
-            // swallow the error to allow cancellation of the subscription
-            this.log.error(e);
-            Sentry.captureException(e, {
-              extra: {
+          if (cart.stripeIntentId) {
+            const intent = isPaymentIntentId(cart.stripeIntentId)
+              ? await this.paymentIntentManager.retrieve(cart.stripeIntentId)
+              : await this.setupIntentManager.retrieve(cart.stripeIntentId);
+            if (intent?.status === 'succeeded') {
+              throw new PaidPaymentIntendOnFailedCartError(
                 cartId,
-              },
-            });
+                intent.id,
+                cart.stripeCustomerId ?? undefined
+              );
+            }
+
+            if (!isPaymentIntentId(cart.stripeIntentId)) {
+              try {
+                await this.setupIntentManager.cancel(intent.id, intent.status);
+              } catch (e) {
+                // swallow the error to allow cancellation of the subscription
+                this.log.error(e);
+                Sentry.captureException(e, {
+                  extra: {
+                    cartId,
+                  },
+                });
+              }
+            }
           }
 
           if (cart.eligibilityStatus === CartEligibilityStatus.CREATE) {
@@ -348,7 +352,7 @@ export class CartService {
         args.offeringConfigId,
         args.uid,
         accountCustomer?.stripeCustomerId
-      )
+      ),
     ]);
 
     const cartEligibilityStatus =
@@ -373,7 +377,7 @@ export class CartService {
             price,
             currency,
             customer,
-            args.taxAddress,
+            args.taxAddress
           );
         } catch (error) {
           throw new CartSetupInvalidPromoCodeError(
@@ -461,12 +465,12 @@ export class CartService {
 
       const accountCustomer = oldCart.uid
         ? await this.accountCustomerManager
-          .getAccountCustomerByUid(oldCart.uid)
-          .catch((error) => {
-            if (!(error instanceof AccountCustomerNotFoundError)) {
-              throw error;
-            }
-          })
+            .getAccountCustomerByUid(oldCart.uid)
+            .catch((error) => {
+              if (!(error instanceof AccountCustomerNotFoundError)) {
+                throw error;
+              }
+            })
         : undefined;
 
       if (!(oldCart.taxAddress && oldCart.currency)) {
@@ -534,8 +538,8 @@ export class CartService {
           methodName: 'checkoutCartWithStripe',
           allowlist: [],
           logger: this.log as Logger,
-          statsd: this.statsd
-        })
+          statsd: this.statsd,
+        });
       });
     });
   }
@@ -582,9 +586,9 @@ export class CartService {
           methodName: 'checkoutCartWithPaypal',
           allowlist: [],
           logger: this.log as Logger,
-          statsd: this.statsd
-        })
-      });;
+          statsd: this.statsd,
+        });
+      });
     });
   }
 
@@ -692,16 +696,18 @@ export class CartService {
             // If the code is invalid, then update the cart with an empty coupon code.
             if (!!oldCart.couponCode && !cartDetailsInput.couponCode) {
               try {
-                const customer = oldCart?.stripeCustomerId ? await this.customerManager.retrieve(
-                  oldCart.stripeCustomerId
-                ) : undefined;
+                const customer = oldCart?.stripeCustomerId
+                  ? await this.customerManager.retrieve(
+                      oldCart.stripeCustomerId
+                    )
+                  : undefined;
 
                 await this.promotionCodeManager.assertValidForPriceAndCustomer(
                   oldCart.couponCode,
                   price,
                   cartDetails.currency,
-                  customer,
-                )
+                  customer
+                );
               } catch (error) {
                 cartDetails.couponCode = null;
               }
@@ -716,16 +722,16 @@ export class CartService {
               oldCart.interval as SubplatInterval
             );
 
-          const customer = oldCart?.stripeCustomerId ? await this.customerManager.retrieve(
-            oldCart.stripeCustomerId
-          ) : undefined;
+          const customer = oldCart?.stripeCustomerId
+            ? await this.customerManager.retrieve(oldCart.stripeCustomerId)
+            : undefined;
 
           await this.promotionCodeManager.assertValidForPriceAndCustomer(
             cartDetailsInput.couponCode,
             price,
             cartDetails.currency || oldCart.currency,
-            customer,
-          )
+            customer
+          );
         }
 
         await this.cartManager.updateFreshCart(cartId, version, cartDetails);
@@ -813,7 +819,6 @@ export class CartService {
           customer,
           fromSubscriptionItem,
         });
-
     } else {
       upcomingInvoicePreview = await this.invoiceManager.previewUpcoming({
         priceId: price.id,
@@ -953,7 +958,9 @@ export class CartService {
         } as StripeHandleNextActionResponse;
       } else {
         await this.cartManager.setProcessingCart(cartId);
-        return { inputType: NeedsInputType.NotRequired } as NoInputNeededResponse;
+        return {
+          inputType: NeedsInputType.NotRequired,
+        } as NoInputNeededResponse;
       }
     });
   }

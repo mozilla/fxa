@@ -46,6 +46,7 @@ import {
   STRIPE_SUBSCRIPTION_METADATA,
   SubscriptionManager,
   TaxAddressFactory,
+  InvoicePreviewForUpgradeFactory,
 } from '@fxa/payments/customer';
 import {
   StripeClient,
@@ -1402,6 +1403,92 @@ describe('CheckoutService', () => {
           mockAttributionData
         )
       ).rejects.toBeInstanceOf(Error);
+    });
+  });
+
+  describe('determineCheckoutAmount', () => {
+    const mockEligibility = SubscriptionEligibilityResultFactory();
+    const mockEligibilityUpgrade =
+      SubscriptionEligibilityUpgradeDowngradeResultFactory();
+    const mockCustomer = StripeCustomerFactory();
+    const mockPrice = StripePriceFactory();
+    const mockTaxAddress = TaxAddressFactory();
+    const mockCurrency = mockPrice.currency;
+    const mockInvoicePreview = InvoicePreviewFactory();
+    const mockInvoicePreviewForUpgrade = InvoicePreviewForUpgradeFactory();
+    const mockSubscription = StripeSubscriptionFactory();
+
+    beforeEach(() => {
+      jest
+        .spyOn(invoiceManager, 'previewUpcoming')
+        .mockResolvedValue(mockInvoicePreview);
+      jest
+        .spyOn(invoiceManager, 'previewUpcomingForUpgrade')
+        .mockResolvedValue(mockInvoicePreviewForUpgrade);
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValue(mockSubscription);
+    });
+
+    it('successfully returns subtotal for checkout', async () => {
+      const result = await checkoutService.determineCheckoutAmount({
+        eligibility: mockEligibility,
+        customer: mockCustomer,
+        priceId: mockPrice.id,
+        currency: mockCurrency,
+        taxAddress: mockTaxAddress,
+      });
+      expect(invoiceManager.previewUpcoming).toHaveBeenCalled();
+      expect(invoiceManager.previewUpcomingForUpgrade).not.toHaveBeenCalled();
+      expect(result).toEqual(mockInvoicePreview.subtotal);
+    });
+
+    it('successfully returns subtotal for an upgrade', async () => {
+      const result = await checkoutService.determineCheckoutAmount({
+        eligibility: mockEligibilityUpgrade,
+        customer: mockCustomer,
+        priceId: mockPrice.id,
+        currency: mockCurrency,
+        taxAddress: mockTaxAddress,
+      });
+      expect(invoiceManager.previewUpcoming).not.toHaveBeenCalled();
+      expect(invoiceManager.previewUpcomingForUpgrade).toHaveBeenCalled();
+      expect(result).toEqual(
+        mockInvoicePreviewForUpgrade.oneTimeChargeSubtotal
+      );
+    });
+
+    it('rejects with customer assertion failure', async () => {
+      // An issue with node assert.ok() and jest prevents testing that the
+      // correct error is thrown.
+      // https://github.com/nodejs/node/issues/50780
+      await expect(
+        checkoutService.determineCheckoutAmount({
+          eligibility: mockEligibilityUpgrade,
+          customer: undefined,
+          priceId: mockPrice.id,
+          currency: mockCurrency,
+          taxAddress: mockTaxAddress,
+        })
+      ).rejects.toThrow();
+    });
+
+    it('rejects with fromSubscription assertion failure', async () => {
+      jest
+        .spyOn(subscriptionManager, 'retrieveForCustomerAndPrice')
+        .mockResolvedValue(undefined);
+      // An issue with node assert.ok() and jest prevents testing that the
+      // correct error is thrown.
+      // https://github.com/nodejs/node/issues/50780
+      await expect(
+        checkoutService.determineCheckoutAmount({
+          eligibility: mockEligibilityUpgrade,
+          customer: mockCustomer,
+          priceId: mockPrice.id,
+          currency: mockCurrency,
+          taxAddress: mockTaxAddress,
+        })
+      ).rejects.toThrow();
     });
   });
 });
