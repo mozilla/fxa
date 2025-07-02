@@ -500,8 +500,25 @@ export const twoStepAuthPhoneRemoveSuccessView = new EventMetricType(
 );
 
 /**
+ * User viewed the phone number submission page (step 1) of the flow to add a
+ * recovery phone.
+ *
+ * Generated from `account_pref.two_step_auth_phone_submit_view`.
+ */
+export const twoStepAuthPhoneSubmitView = new EventMetricType(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_phone_submit_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
  * User viewed the phone verification page (step 2) of the flow to add a recovery
- * phone from settings.
+ * phone.
  *
  * Generated from `account_pref.two_step_auth_phone_verify_view`.
  */

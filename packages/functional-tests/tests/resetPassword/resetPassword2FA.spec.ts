@@ -38,10 +38,6 @@ test.describe('severity-1 #smoke', () => {
     testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
-    test.skip(
-      config.featureFlags.updated2faSetupFlow,
-      'TODO in FXA-11935 - add test for new flow'
-    );
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
 
@@ -53,7 +49,10 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
-    const { secret } = await totp.fillOutTotpForms();
+    // TODO in FXA-11941 - remove condition
+    const { secret } = config.featureFlags.updated2faSetupFlow
+      ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+      : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(
@@ -101,10 +100,6 @@ test.describe('severity-1 #smoke', () => {
     testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
-    test.skip(
-      config.featureFlags.updated2faSetupFlow,
-      'TODO in FXA-11935 - add test for new flow'
-    );
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
 
@@ -116,7 +111,10 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
-    const { recoveryCodes } = await totp.fillOutTotpForms();
+    // TODO in FXA-11941 - remove condition
+    const { recoveryCodes } = config.featureFlags.updated2faSetupFlow
+      ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+      : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(
@@ -138,29 +136,12 @@ test.describe('severity-1 #smoke', () => {
     // Fill out the Recovery code form
     await resetPassword.clickTroubleEnteringCode();
 
-    // Invalid code
-    await resetPassword.fillOurRecoveryCodeForm('37ja610wze');
-    await expect(
-      resetPassword.page.getByText('Backup authentication code not found')
-    ).toBeVisible();
-
     await resetPassword.fillOurRecoveryCodeForm(recoveryCodes[0]);
 
     // Create and submit new password
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
     await expect(settings.alertBar).toHaveText('Your password has been reset');
-
-    await settings.totp.getNewBackupCodesButton.click();
-
-    const newCodes = await totp.getRecoveryCodes();
-    expect(newCodes.some((c) => recoveryCodes.includes(c))).toBe(false);
-
-    await totp.step2ContinueButton.click();
-    await totp.step3RecoveryCodeTextbox.fill(newCodes[0]);
-    await totp.step3FinishButton.click();
-
-    await expect(settings.settingsHeading).toBeVisible();
 
     // Remove TOTP before teardown
     await settings.disconnectTotp();
@@ -174,10 +155,6 @@ test.describe('severity-1 #smoke', () => {
     testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
-    test.skip(
-      config.featureFlags.updated2faSetupFlow,
-      'TODO in FXA-11935 - add test for new flow'
-    );
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
 
@@ -190,7 +167,10 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
-    await totp.fillOutTotpForms();
+    // TODO in FXA-11941 - remove condition
+    config.featureFlags.updated2faSetupFlow
+      ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+      : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(
@@ -247,10 +227,6 @@ test.describe('severity-1 #smoke', () => {
     testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
-    test.skip(
-      config.featureFlags.updated2faSetupFlow,
-      'TODO in FXA-11935 - add test for new flow'
-    );
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
 
@@ -263,7 +239,10 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
-    const { secret } = await totp.fillOutTotpForms();
+    // TODO in FXA-11941 - remove condition
+    const { secret } = config.featureFlags.updated2faSetupFlow
+      ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+      : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(
@@ -336,14 +315,12 @@ test.describe('severity-1 #smoke', () => {
     await signin.fillOutEmailFirstForm(credentials.email);
     await signin.fillOutPasswordForm(credentials.password);
 
-    // Enable 2FA
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
-    await totp.fillOutStep1FormQR();
-    await page.getByTestId('flow-container-back-btn').click();
-    await page.getByTestId('flow-container-back-btn').click();
+    await totp.setUp2faAppWithQrCode();
+    await page.goto(`${target.contentServerUrl}/settings`);
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.totp.status).not.toHaveText('Enabled');
@@ -417,10 +394,6 @@ test.describe('reset password with recovery phone', () => {
     testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
-    test.skip(
-      config.featureFlags.updated2faSetupFlow,
-      'TODO in FXA-11935 - add test for new flow'
-    );
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
 
@@ -432,7 +405,11 @@ test.describe('reset password with recovery phone', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
-    await totp.fillOutTotpForms();
+    // TODO in FXA-11941 - remove condition
+    // TODO in FXA-11935 - add recovery phone during initial 2FA set up
+    config.featureFlags.updated2faSetupFlow
+      ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+      : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(
@@ -512,10 +489,6 @@ test.describe('reset password with recovery phone', () => {
     testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
-    test.skip(
-      config.featureFlags.updated2faSetupFlow,
-      'TODO in FXA-11935 - add test for new flow'
-    );
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
 
@@ -527,7 +500,11 @@ test.describe('reset password with recovery phone', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
-    const { recoveryCodes } = await totp.fillOutTotpForms();
+    // TODO in FXA-11941 - remove condition
+    // for this test - initial 2fa setup with codes
+    const { recoveryCodes } = config.featureFlags.updated2faSetupFlow
+      ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
+      : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText(

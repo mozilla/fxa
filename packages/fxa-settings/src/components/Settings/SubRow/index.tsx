@@ -107,7 +107,10 @@ const SubRow = ({
             <p className="font-semibold">{localizedRowTitle}</p>
           </div>
           <div>
-            <div className="flex items-center gap-1">
+            <div
+              className="flex items-center gap-1"
+              data-testid={`${idPrefix}-status`}
+            >
               <StatusIcon />
               {message}
             </div>
