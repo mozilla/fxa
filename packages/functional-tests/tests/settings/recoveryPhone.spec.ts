@@ -755,7 +755,9 @@ test.describe('severity-1 #smoke', () => {
         totp
       );
       await expect(settings.totp.status).toHaveText('Enabled');
-      await expect(recoveryPhone.status).toHaveText('(•••) •••-9960');
+      await expect(recoveryPhone.status).toHaveText(
+        `(•••) •••-${getPhoneNumber(target.name).slice(-4)}`
+      );
 
       await settings.disconnectTotp();
     });
