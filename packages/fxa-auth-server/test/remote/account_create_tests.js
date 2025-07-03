@@ -21,8 +21,7 @@ import jwt from '../../lib/oauth/jwt';
 
 // Note, intentionally not indenting for code review.
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
-  describe(`#integration${testOptions.version} - remote account create`, function () {
-    this.timeout(60000);
+  describe(`#integration${testOptions.version} - #serial - remote account create`, function () {
     let server;
 
     before(async function () {

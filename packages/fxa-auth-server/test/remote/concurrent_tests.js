@@ -12,7 +12,7 @@ const config = require('../../config').default.getProperties();
 
 [{version:""},{version:"V2"}].forEach((testOptions) => {
 
-describe(`#integration${testOptions.version} - remote concurrent`, function () {
+describe(`#integration${testOptions.version} - #serial - remote concurrent`, function () {
   this.timeout(60000);
   let server;
 
