@@ -22,13 +22,15 @@ const JUNIT_OUTPUT_NAME = process.env.CIRCLE_NODE_INDEX
 const DEBUG = !!process.env.DEBUG;
 const SLOWMO = parseInt(process.env.PLAYWRIGHT_SLOWMO || '0');
 const NUM_WORKERS = parseInt(process.env.PLAYWRIGHT_WORKERS || '4');
+const FAIL_FAST = !!process.env.PLAYWRIGHT_FAIL_FAST || true;
 
-let workers = NUM_WORKERS || 2,
-  maxFailures = 0;
+let workers = NUM_WORKERS || 2;
+let maxFailures = 0;
+
 if (CI) {
   // Overall maxFailures is dependent on the number of workers
   workers = 2;
-  maxFailures = workers * 2;
+  maxFailures = FAIL_FAST ? workers * 2 : 0;
 }
 
 export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
