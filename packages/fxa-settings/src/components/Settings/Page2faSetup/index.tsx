@@ -115,18 +115,22 @@ const Page2faSetup = (_: RouteComponentProps) => {
     }
   }, [backupMethod, currentStep, flowHasPhoneChoice, createRecoveryCodes]);
 
-  /* ───── early return states ───── */
-  if (totpInfoLoading) return <LoadingSpinner fullScreen />;
   // if there is an issue retrieving totp info, 2FA cannot be set up
   // --> return to main settings page with alert bar message
+  useEffect(() => {
+    console.log('totpInfoLoading', totpInfoLoading);
+    if (!totpInfoLoading && (totpInfoError || !totpInfo)) {
+      console.log('totpInfoError', totpInfoError);
+      console.log('totpInfo', totpInfo);
+      showGenericError();
+      goHome();
+    }
+  }, [totpInfoLoading, totpInfoError, totpInfo, showGenericError, goHome]);
+
+  /* ───── early return states ───── */
+  if (totpInfoLoading) return <LoadingSpinner fullScreen />;
+
   if (totpInfoError || !totpInfo) {
-    alertBar.error(
-      ftlMsgResolver.getMsg(
-        'flow-setup-2fa-totpinfo-error',
-        'There was an error setting up two-step authentication. Try again later.'
-      )
-    );
-    goHome();
     return <></>;
   }
 
