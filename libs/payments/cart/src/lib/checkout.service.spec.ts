@@ -118,6 +118,9 @@ import {
   MockGoogleIapClientConfigProvider,
 } from '@fxa/payments/iap';
 import { Logger } from '@nestjs/common';
+import { delay } from './util/delay';
+
+jest.mock('./util/delay.ts');
 
 describe('CheckoutService', () => {
   let accountCustomerManager: AccountCustomerManager;
@@ -509,6 +512,10 @@ describe('CheckoutService', () => {
       jest.spyOn(profileClient, 'deleteCache').mockResolvedValue('test');
       jest.spyOn(cartManager, 'finishCart').mockResolvedValue();
       jest.spyOn(statsd, 'increment');
+      (delay as jest.Mock).mockReturnValue(undefined);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValue(mockSubscription);
     });
 
     it('success', async () => {

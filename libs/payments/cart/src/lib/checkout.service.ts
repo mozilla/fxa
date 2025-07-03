@@ -67,6 +67,7 @@ import {
   UpgradeForSubscriptionNotFoundError,
 } from './checkout.error';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
+import { delay } from './util/delay';
 
 @Injectable()
 export class CheckoutService {
@@ -285,6 +286,17 @@ export class CheckoutService {
       payment_provider: paymentProvider,
       offering_id: cart.offeringConfigId,
       interval: cart.interval,
+    });
+
+    await delay(30000);
+
+    await this.subscriptionManager.update(subscription.id, {
+      metadata: {
+        ...subscription.metadata,
+        [STRIPE_SUBSCRIPTION_METADATA.LastUpdated]: Math.floor(
+          Date.now() / 1000
+        ),
+      },
     });
   }
 

@@ -69,6 +69,7 @@ export enum STRIPE_SUBSCRIPTION_METADATA {
   SessionEntrypoint = 'session_entrypoint',
   SessionEntrypointExperiment = 'session_entrypoint_experiment',
   SessionEntrypointVariation = 'session_entrypoint_variation',
+  LastUpdated = 'last_updated',
 }
 
 export enum STRIPE_INVOICE_METADATA {
