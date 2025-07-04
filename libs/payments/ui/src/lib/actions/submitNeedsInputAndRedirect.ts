@@ -6,7 +6,6 @@
 
 import { getApp } from '../nestapp/app';
 import { redirect } from 'next/navigation';
-import { SubmitNeedsInputFailedError } from '@fxa/payments/cart';
 
 export const submitNeedsInputAndRedirectAction = async (cartId: string) => {
   let redirectPath: string | undefined;
@@ -15,11 +14,7 @@ export const submitNeedsInputAndRedirectAction = async (cartId: string) => {
     redirectPath = 'success';
   } catch (error) {
     console.error('Error submitting needs input', error);
-    if (error instanceof SubmitNeedsInputFailedError) {
-      redirectPath = 'error';
-    } else {
-      throw error;
-    }
+   redirectPath = 'error';
   }
 
   redirect(redirectPath);

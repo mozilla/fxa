@@ -9,6 +9,7 @@ import {
   IntentFailedGenericError,
   IntentGetInTouchError,
   IntentTryAgainError,
+  IntentInsufficientFundsError,
 } from '../checkout.error';
 
 export function throwIntentFailedError(
@@ -28,6 +29,8 @@ export function throwIntentFailedError(
         case 'issuer_not_available':
         case 'reenter_transaction':
           throw new IntentTryAgainError(cartId, paymentIntentId, intentType);
+        case 'insufficient_funds':
+          throw new IntentInsufficientFundsError(cartId, paymentIntentId, intentType);
         case 'call_issuer':
         case 'card_not_supported':
         case 'card_velocity_exceeded':

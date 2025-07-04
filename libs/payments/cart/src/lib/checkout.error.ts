@@ -198,3 +198,21 @@ export class IntentGetInTouchError extends IntentFailedHandledError {
     this.name = 'IntentGetInTouchError';
   }
 }
+
+export class IntentInsufficientFundsError extends IntentFailedHandledError {
+  constructor(
+    cartId: string,
+    paymentIntentId: string,
+    intentType: 'SetupIntent' | 'PaymentIntent'
+  ) {
+    super(
+      'Intent payment method card has insufficient funds',
+      {
+        cartId,
+        paymentIntentId,
+        intentType,
+      }
+    );
+    this.name = 'IntentInsufficientFundsError';
+  }
+}
