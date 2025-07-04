@@ -232,6 +232,7 @@ export function gleanMetrics(config: ConfigType) {
       totpSuccess: createEventFn('login_totp_code_success'),
       totpFailure: createEventFn('login_totp_code_failure'),
       recoveryCodeSuccess: createEventFn('login_backup_code_success'),
+      recoveryPhoneSuccess: createEventFn('login_recovery_phone_success'),
       verifyCodeEmailSent: createEventFn('login_email_confirmation_sent'),
       verifyCodeConfirmed: createEventFn('login_email_confirmation_success'),
       complete: createEventFn('login_complete'),
