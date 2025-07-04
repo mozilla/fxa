@@ -505,9 +505,14 @@ const Signin = ({
               e.preventDefault();
               GleanMetrics.login.diffAccountLinkClick();
 
-              navigateWithQuery('/', {
+              // Some RPs may specify an email address in the query params which
+              // we prioritize. Users attempting to change their email address is a signal
+              // that the email in query params is not correct.
+              const searchParams = new URLSearchParams(window.location.search);
+              searchParams.delete('email');
+              navigateWithQuery(`/?${searchParams.toString()}`, {
                 state: {
-                  prefillEmail: email,
+                  prefillEmail: email
                 },
               });
             }}

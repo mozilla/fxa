@@ -368,9 +368,12 @@ export const Signup = ({
             onClick={async (e) => {
               e.preventDefault();
               GleanMetrics.registration.changeEmail();
-              navigateWithQuery('/', {
+
+              const searchParams = new URLSearchParams(window.location.search);
+              searchParams.delete('email');
+              navigateWithQuery(`/?${searchParams.toString()}`, {
                 state: {
-                  prefillEmail: email,
+                  prefillEmail: email
                 },
               });
             }}

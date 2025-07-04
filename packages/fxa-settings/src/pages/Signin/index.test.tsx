@@ -1098,7 +1098,7 @@ describe('Signin component', () => {
           1
         );
       });
-      expect(mockNavigate).toHaveBeenCalledWith('/', {
+      expect(mockNavigate).toHaveBeenCalledWith('/?', {
         state: { prefillEmail: MOCK_EMAIL },
       });
     });
