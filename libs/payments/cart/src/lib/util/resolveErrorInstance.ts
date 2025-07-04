@@ -7,6 +7,7 @@ import {
   CartCurrencyNotFoundError,
   CartStateProcessingError,
   CartTotalMismatchError,
+  FinishErrorCartFailedError,
 } from '../cart.error';
 import {
   CheckoutError,
@@ -44,6 +45,8 @@ export function resolveErrorInstance(error: Error) {
       return CartErrorReasonId.INTENT_FAILED_GET_IN_TOUCH;
     case error instanceof IntentFailedGenericError:
       return CartErrorReasonId.INTENT_FAILED_GENERIC;
+    case error instanceof FinishErrorCartFailedError:
+      return CartErrorReasonId.CART_3DS_FINISH_FAILED;
 
     // Checkout Errors
     case error instanceof CheckoutError:

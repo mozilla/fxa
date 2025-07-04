@@ -119,7 +119,14 @@ export function getErrorFtlInfo(
           'An unexpected error has occurred while processing your payment, please try again.',
         messageFtl: 'intent-payment-error-generic',
       };
-
+    case CartErrorReasonId.CART_3DS_FINISH_FAILED:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message: 'Could not finalize the subscription.',
+        messageFtl: 'checkout-error-3ds-finish-failed',
+      };
     case CartErrorReasonId.BASIC_ERROR:
     default:
       return {

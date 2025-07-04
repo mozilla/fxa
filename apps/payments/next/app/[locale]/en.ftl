@@ -21,6 +21,7 @@ intent-expired-card-error = It looks like your credit card has expired. Try anot
 intent-payment-error-try-again = Hmm. There was a problem authorizing your payment. Try again or get in touch with your card issuer.
 intent-payment-error-get-in-touch = Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.
 intent-payment-error-generic = An unexpected error has occurred while processing your payment, please try again.
+checkout-error-3ds-finish-failed = Could not finalize the subscription.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages

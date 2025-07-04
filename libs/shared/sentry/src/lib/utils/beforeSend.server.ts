@@ -10,6 +10,7 @@ const EXPECTED_ERRORS = new Set([
   'PromotionCodePriceNotValidError',
   'PromotionCodeNotFoundError',
   'CouponErrorInvalidCode',
+  'FinishErrorCartFailedError',
   'IntentCardDeclinedError',
   'IntentCardExpiredError',
   'IntentTryAgainError',

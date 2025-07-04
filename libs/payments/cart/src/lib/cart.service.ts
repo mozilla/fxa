@@ -66,6 +66,7 @@ import {
   FinalizeWithoutSubscriptionIdCartError,
   FinalizeWithoutSubscriptionCartError,
   InvalidPromoCodeCartError,
+  FinishErrorCartFailedError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import type {
@@ -167,7 +168,6 @@ export class CartService {
           errorName: error.name,
         });
       }
-
       const errorReasonId = resolveErrorInstance(error);
 
       this.statsd.increment('checkout_failure_unexpected', {
@@ -270,12 +270,16 @@ export class CartService {
           }
         }
       } catch (e) {
-        // All errors thrown during the cleanup process should go to Sentry
-        Sentry.captureException(e, {
-          extra: {
-            cartId,
-          },
-        });
+        if (e instanceof FinishErrorCartFailedError) {
+          this.statsd.increment('finish_error_cart_failed');
+        } else {
+          // All errors thrown during the cleanup process should go to Sentry
+          Sentry.captureException(e, {
+            extra: {
+              cartId,
+            },
+          });
+        }
       }
 
       throw error;
@@ -1009,18 +1013,7 @@ export class CartService {
             this.subscriptionManager.getPaymentProvider(subscription),
         });
       } else {
-        const promises: Promise<any>[] = [
-          this.finalizeCartWithError(
-            cartId,
-            CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR
-          ),
-        ];
-        if (cart.stripeSubscriptionId) {
-          promises.push(
-            this.subscriptionManager.cancel(cart.stripeSubscriptionId)
-          );
-        }
-        await Promise.all([promises]);
+        //throw new FinishErrorCartFailedError(cartId, { errorReasonId: 'cart_3ds_finish_failed' }, undefined);
         throw new SubmitNeedsInputFailedError(cartId);
       }
     });
