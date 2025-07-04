@@ -26,7 +26,6 @@ import {
   CustomerSessionManager,
   InvoiceManager,
   InvoicePreviewFactory,
-  InvoicePreviewForUpgradeFactory,
   PaymentIntentManager,
   PaymentMethodManager,
   PriceManager,
@@ -604,7 +603,7 @@ describe('CartService', () => {
         recurring: StripePriceRecurringFactory({ interval: 'month' }),
       });
       const mockSubscription = StripeSubscriptionFactory();
-      const mockInvoicePreviewForUpgrade = InvoicePreviewForUpgradeFactory();
+      const mockInvoicePreviewForUpgrade = InvoicePreviewFactory();
 
       jest
         .spyOn(currencyManager, 'getCurrencyForCountry')
@@ -628,7 +627,7 @@ describe('CartService', () => {
       expect(cartManager.createCart).toHaveBeenCalledWith({
         interval: args.interval,
         offeringConfigId: args.offeringConfigId,
-        amount: mockInvoicePreviewForUpgrade.oneTimeChargeSubtotal,
+        amount: mockInvoicePreviewForUpgrade.subtotal,
         uid: args.uid,
         stripeCustomerId: mockAccountCustomer.stripeCustomerId,
         experiment: args.experiment,
@@ -1533,6 +1532,7 @@ describe('CartService', () => {
     const mockPaymentMethod = StripeResponseFactory(
       StripePaymentMethodFactory({})
     );
+    const mockPricingForCurrency = PricingForCurrencyFactory();
 
     beforeEach(() => {
       jest
@@ -1544,6 +1544,9 @@ describe('CartService', () => {
       jest
         .spyOn(paymentMethodManager, 'retrieve')
         .mockResolvedValue(mockPaymentMethod);
+      jest
+        .spyOn(priceManager, 'retrievePricingForCurrency')
+        .mockResolvedValue(mockPricingForCurrency);
     });
 
     it('returns cart and upcomingInvoicePreview', async () => {
@@ -1571,6 +1574,7 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
         ...mockCart,
+        offeringPrice: mockPricingForCurrency.unitAmountForCurrency,
         upcomingInvoicePreview: mockInvoicePreview,
         paymentInfo: {
           type: mockPaymentMethod.type,
@@ -1631,6 +1635,7 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
         ...mockCart,
+        offeringPrice: mockPricingForCurrency.unitAmountForCurrency,
         upcomingInvoicePreview: mockUpcomingInvoicePreview,
         latestInvoicePreview: mockLatestInvoicePreview,
         metricsOptedOut: false,
@@ -1698,6 +1703,7 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
         ...mockCart,
+        offeringPrice: mockPricingForCurrency.unitAmountForCurrency,
         upcomingInvoicePreview: mockUpcomingInvoicePreview,
         latestInvoicePreview: mockLatestInvoicePreview,
         metricsOptedOut: false,
@@ -1754,6 +1760,7 @@ describe('CartService', () => {
       const result = await cartService.getCart(mockCart.id);
       expect(result).toEqual({
         ...mockCart,
+        offeringPrice: mockPricingForCurrency.unitAmountForCurrency,
         upcomingInvoicePreview: mockInvoicePreview,
         metricsOptedOut: false,
         hasActiveSubscriptions: false,
@@ -1780,7 +1787,7 @@ describe('CartService', () => {
       });
       const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockPrice = StripePriceFactory({ currency: mockCart.currency });
-      const mockInvoicePreviewForUpgrade = InvoicePreviewForUpgradeFactory();
+      const mockInvoicePreviewForUpgrade = InvoicePreviewFactory();
       const mockFromOfferingId = faker.string.uuid();
       const mockFromPrice = StripePriceFactory({
         recurring: StripePriceRecurringFactory({ interval: 'month' }),
@@ -1814,6 +1821,7 @@ describe('CartService', () => {
       expect(result).toEqual({
         ...mockCart,
         upcomingInvoicePreview: mockInvoicePreviewForUpgrade,
+        offeringPrice: mockPricingForCurrency.unitAmountForCurrency,
         paymentInfo: {
           type: mockPaymentMethod.type,
           last4: mockPaymentMethod.card?.last4,

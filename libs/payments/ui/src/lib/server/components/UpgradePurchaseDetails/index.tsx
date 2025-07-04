@@ -22,6 +22,7 @@ type UpgradePurchaseDetailsProps = {
   interval: string;
   invoice: InvoicePreview;
   l10n: LocalizerRsc;
+  offeringPrice: number;
   purchaseDetails: {
     subtitle: string | null;
     productName: string;
@@ -37,17 +38,21 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
     interval,
     invoice,
     l10n,
+    offeringPrice,
     purchaseDetails,
     locale,
   } = props;
   const { productName, subtitle, webIcon } = purchaseDetails;
   const {
+    amountDue,
+    creditApplied,
     currency,
     discountAmount,
-    listAmount,
-    oneTimeCharge,
+    startingBalance,
+    subtotal,
     taxAmounts,
     totalAmount,
+    unusedAmountTotal,
   } = invoice;
   const exclusiveTaxRates = taxAmounts.filter(
     (taxAmount) => !taxAmount.inclusive
@@ -115,7 +120,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
           <p className="text-grey-400 mt-1 mb-0">
             <PriceInterval
               l10n={l10n}
-              amount={listAmount}
+              amount={offeringPrice}
               currency={currency}
               interval={interval}
               locale={locale}
@@ -136,27 +141,55 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
         aria-hidden="true"
       ></div>
 
-      <ul className="pt-6">
-        {!!listAmount && listAmount > 0 && (
-          <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
-            <p>
-              {l10n.getString(
-                `upgrade-purchase-details-new-plan-${interval}`,
-                {
-                  productName,
-                },
+      <ul className="py-6 text-sm">
+        <li className="flex items-center justify-between gap-2 leading-5 text-grey-600">
+          <p>
+            {l10n.getString(
+              `upgrade-purchase-details-new-plan-${interval}`,
+              {
+                productName,
+              },
 
-                `${productName} (${formatPlanInterval(interval)})`
-              )}
-            </p>
-            <p>
-              {l10n.getLocalizedCurrencyString(listAmount, currency, locale)}
-            </p>
-          </li>
+              `${productName} (${formatPlanInterval(interval)})`
+            )}
+          </p>
+          <p>
+            {l10n.getLocalizedCurrencyString(offeringPrice, currency, locale)}
+          </p>
+        </li>
+
+        {!!unusedAmountTotal && (
+          <>
+            <li className="flex items-center justify-between gap-2 leading-5 text-grey-600">
+              <p>
+                {l10n.getString(
+                  'purchase-details-unused-time-label',
+
+                  'Credit from unused time'
+                )}
+              </p>
+              <p>
+                {l10n.getLocalizedCurrencyString(
+                  unusedAmountTotal,
+                  currency,
+                  locale
+                )}
+              </p>
+            </li>
+
+            <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 pb-4 font-semibold">
+              <h3>
+                {l10n.getString('purchase-details-subtotal-label', 'Subtotal')}
+              </h3>
+              <p>
+                {l10n.getLocalizedCurrencyString(subtotal, currency, locale)}
+              </p>
+            </li>
+          </>
         )}
 
         {!!discountAmount && discountAmount > 0 && (
-          <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
+          <li className="flex items-center justify-between gap-2 leading-5 text-grey-600">
             <p>
               {l10n.getString(
                 'upgrade-purchase-details-promo-code',
@@ -173,96 +206,101 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
           </li>
         )}
 
-        {exclusiveTaxRates.length === 1 && exclusiveTaxRates[0].amount > 0 && (
-          <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
-            <p>
-              {l10n.getString(
-                'upgrade-purchase-details-tax-label',
-                'Taxes and Fees'
-              )}
-            </p>
-            <p>
-              {l10n.getLocalizedCurrencyString(
-                exclusiveTaxRates[0].amount,
-                currency,
-                locale
-              )}
-            </p>
-          </li>
-        )}
-
-        {exclusiveTaxRates.length > 1 &&
-          exclusiveTaxRates.map(
-            (taxRate) =>
-              taxRate.amount > 0 && (
-                <li
-                  key={taxRate.title}
-                  className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm"
-                >
-                  <p>{l10n.getString('tax', taxRate.title)}</p>
-                  <p>
-                    {l10n.getLocalizedCurrencyString(
-                      taxRate.amount,
-                      currency,
-                      locale
-                    )}
-                  </p>
-                </li>
-              )
+        {exclusiveTaxRates.length === 1 &&
+          exclusiveTaxRates[0].amount !== 0 && (
+            <li className="flex items-center justify-between gap-2 leading-5 text-grey-600">
+              <p>
+                {l10n.getString(
+                  'upgrade-purchase-details-tax-label',
+                  'Taxes and Fees'
+                )}
+              </p>
+              <p>
+                {l10n.getLocalizedCurrencyString(
+                  exclusiveTaxRates[0].amount,
+                  currency,
+                  locale
+                )}
+              </p>
+            </li>
           )}
 
-        <li className="flex items-center justify-between gap-2 leading-5 text-base text-grey-600 pt-4 pb-6 font-semibold">
-          <h3>
-            {l10n.getString(
-              'upgrade-purchase-details-new-total-label',
-              'New total'
-            )}
-          </h3>
+        <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 font-semibold">
+          <h3>{l10n.getString('next-plan-details-total-label', 'Total')}</h3>
           <p
             className="overflow-hidden text-ellipsis whitespace-nowrap"
             data-testid="total-price"
           >
-            <PriceInterval
-              l10n={l10n}
-              amount={totalAmount}
-              currency={currency}
-              interval={interval}
-              locale={locale}
-            />
+            {l10n.getLocalizedCurrencyString(totalAmount, currency, locale)}
           </p>
         </li>
+
+        {!!creditApplied && startingBalance < 0 && (
+          <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 pt-4">
+            <p>
+              {l10n.getString(
+                'purchase-details-credit-applied-label',
+                'Credit applied'
+              )}
+            </p>
+            <p>
+              {l10n.getLocalizedCurrencyString(creditApplied, currency, locale)}
+            </p>
+          </li>
+        )}
       </ul>
 
-      {!!oneTimeCharge && (
+      <div
+        className="border-b border-grey-200"
+        role="separator"
+        aria-hidden="true"
+      ></div>
+
+      <div className="flex items-center justify-between gap-2 leading-5 text-base text-grey-600 py-4 font-semibold">
+        <h3>
+          {l10n.getString('purchase-details-total-due-label', 'Total due')}
+        </h3>
+        <p
+          className="flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
+          data-testid="amount-due"
+        >
+          {l10n.getLocalizedCurrencyString(amountDue, currency, locale)}
+        </p>
+      </div>
+
+      {totalAmount < 0 && (
         <>
           <div
             className="border-b border-grey-200"
             role="separator"
             aria-hidden="true"
           ></div>
-          <div className="flex items-center justify-between gap-2 leading-5 text-base text-grey-600 mt-6 pb-6 font-semibold">
-            <h3>
+
+          <div className="flex items-center justify-between gap-2 leading-5 py-4 text-grey-600">
+            <p>
               {l10n.getString(
-                'upgrade-purchase-details-prorated-upgrade',
-                'Prorated Upgrade'
+                'upgrade-purchase-details-credit-to-account',
+                'Credit issued to account'
               )}
-            </h3>
+            </p>
             <p
               className="flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
-              data-testid="prorated-price"
+              data-testid="upgrade-added-credit"
             >
-              {l10n.getLocalizedCurrencyString(oneTimeCharge, currency, locale)}
+              {l10n.getLocalizedCurrencyString(
+                -1 * totalAmount,
+                currency,
+                locale
+              )}
             </p>
           </div>
 
-          {oneTimeCharge < 0 && (
-            <p className="pb-4">
-              {l10n.getString(
-                'upgrade-purchase-details-prorated-credits',
-                'Negative balance shown will be applied as credits to your account and used towards future invoices.'
-              )}
-            </p>
-          )}
+          <p className="pb-4">
+            {l10n.getString(
+              'upgrade-purchase-details-credit-will-be-applied',
+              'Credit will be applied to your account and used towards future invoices.'
+            )}
+          </p>
         </>
       )}
     </section>

@@ -31,7 +31,6 @@ export type FinishErrorCart = {
 
 export interface Invoice {
   currency: string;
-  listAmount: number;
   totalAmount: number;
   taxAmounts: TaxAmount[];
   discountAmount: number | null;
@@ -40,6 +39,10 @@ export interface Invoice {
   discountType?: string;
   number: string | null; // customer-facing invoice identifier;
   nextInvoiceDate: number;
+  amountDue: number;
+  creditApplied: number | null;
+  startingBalance: number;
+  unusedAmountTotal?: number;
 }
 
 export type PaymentProvidersType =
@@ -69,6 +72,7 @@ export type FromPrice = {
 
 export type BaseCartDTO = Omit<ResultCart, 'state'> & {
   metricsOptedOut: boolean;
+  offeringPrice: number;
   upcomingInvoicePreview: Invoice;
   latestInvoicePreview?: Invoice;
   paymentInfo?: PaymentInfo;

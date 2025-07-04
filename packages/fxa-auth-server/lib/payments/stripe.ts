@@ -2719,6 +2719,7 @@ export class StripeHelper extends StripeHelperBase {
       hosted_invoice_url: invoiceLink,
       tax: invoiceTaxAmountInCents,
       status: invoiceStatus,
+      amount_due: invoiceAmountDueInCents,
     } = invoice;
 
     const nextInvoiceDate = lineItem.period.end;
@@ -2768,6 +2769,7 @@ export class StripeHelper extends StripeHelperBase {
       cardType,
       lastFour,
       payment_provider,
+      invoiceAmountDueInCents,
       invoiceLink,
       invoiceNumber,
       invoiceStatus,
@@ -3004,7 +3006,7 @@ export class StripeHelper extends StripeHelperBase {
 
     if (previousLatestInvoice) {
       const invoiceOld = await this.getInvoice(previousLatestInvoice);
-      invoiceTotalOldInCents = invoiceOld.total;
+      invoiceTotalOldInCents = invoiceOld.amount_due;
     }
 
     const planIdNew = planNew.id;
@@ -3306,6 +3308,7 @@ export class StripeHelper extends StripeHelperBase {
     const {
       id: invoiceId,
       number: invoiceNumber,
+      amount_due: invoiceAmountDueInCents,
       currency: paymentProratedCurrency,
       total: invoiceTotal,
     } = invoice;
@@ -3346,6 +3349,7 @@ export class StripeHelper extends StripeHelperBase {
       paymentAmountOldCurrency: planOld.currency,
       paymentAmountNewInCents: nextInvoiceTotal,
       paymentAmountNewCurrency: nextInvoiceCurrency,
+      invoiceAmountDueInCents,
       invoiceNumber,
       invoiceId,
       paymentProratedInCents: invoiceTotal,

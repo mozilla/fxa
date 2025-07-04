@@ -4,12 +4,7 @@
 
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { Localized } from '@fluent/react';
-import {
-  getLocalizedDate,
-  getLocalizedDateString,
-  formatPriceAmount,
-  getLocalizedCurrency,
-} from '../../../lib/formats';
+import { getLocalizedDate, getLocalizedDateString } from '../../../lib/formats';
 import { useCheckboxState } from '../../../lib/hooks';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { Plan } from '../../../store/types';
@@ -53,39 +48,14 @@ const getIntervalPriceDetailsData = (
   };
 };
 
-const getNextBillData = (
-  subsequentInvoice: SubsequentInvoicePreview,
-  currency: string
-) => {
+const getNextBillData = (subsequentInvoice: SubsequentInvoicePreview) => {
   const { period_start: subsequentInvoiceDate } = subsequentInvoice;
-
-  const { showInvoiceTax, invoiceDisplayTotal, taxAmount } =
-    getIntervalPriceDetailsData(subsequentInvoice);
-
-  const nextBillL10nId = showInvoiceTax
-    ? 'sub-next-bill-tax-1'
-    : 'sub-next-bill-no-tax-1';
-  const nextBillAmount = formatPriceAmount(
-    invoiceDisplayTotal,
-    currency,
-    showInvoiceTax,
-    taxAmount || null
-  );
   const nextBillDate = getLocalizedDateString(subsequentInvoiceDate, true);
-  const nextBillL10nVarsDefault = {
-    priceAmount: getLocalizedCurrency(invoiceDisplayTotal, currency),
+  const nextBillL10nVars = {
     date: getLocalizedDate(subsequentInvoiceDate, true),
   };
-  const nextBillL10nVars = showInvoiceTax
-    ? {
-        ...nextBillL10nVarsDefault,
-        taxAmount: getLocalizedCurrency(taxAmount, currency),
-      }
-    : nextBillL10nVarsDefault;
 
   return {
-    nextBillL10nId,
-    nextBillAmount,
     nextBillDate,
     nextBillL10nVars,
   };
@@ -189,8 +159,7 @@ const CancelSubscriptionPanel = ({
 
   const invoiceCurrency = subsequentInvoice.currency;
   const intervalPriceDetailsData = getIntervalPriceDetailsData(invoice);
-  const { nextBillL10nId, nextBillAmount, nextBillDate, nextBillL10nVars } =
-    getNextBillData(subsequentInvoice, invoiceCurrency);
+  const { nextBillDate, nextBillL10nVars } = getNextBillData(subsequentInvoice);
 
   const { upgradeCTA } = uiContentFromProductConfig(
     plan,
@@ -288,10 +257,13 @@ const CancelSubscriptionPanel = ({
                       </Localized>
                     )}
                   </div>
-                  <Localized id={nextBillL10nId} vars={nextBillL10nVars}>
-                    <div data-testid="sub-next-bill">
-                      Next bill of {nextBillAmount} is due {nextBillDate}
-                    </div>
+                  <Localized
+                    id="sub-next-bill-due-date"
+                    vars={nextBillL10nVars}
+                  >
+                    <p data-testid="sub-next-bill">
+                      Next bill is due {nextBillDate}
+                    </p>
                   </Localized>
                 </span>
               </div>

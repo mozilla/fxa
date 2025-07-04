@@ -24,9 +24,12 @@ export function stripeInvoiceToInvoicePreviewDTO(
       )
     : null;
 
+  const unusedAmountTotal = invoice.lines.data
+    .filter((line) => line.proration === true && line.amount < 0)
+    .reduce((sum, line) => sum + line.amount, 0);
+
   return {
     currency: invoice.currency,
-    listAmount: invoice.subtotal,
     totalAmount: invoice.total,
     taxAmounts,
     discountAmount,
@@ -37,5 +40,11 @@ export function stripeInvoiceToInvoicePreviewDTO(
     paypalTransactionId:
       invoice.metadata?.[STRIPE_INVOICE_METADATA.PaypalTransactionId],
     nextInvoiceDate: invoice.lines.data[0].period.end,
+    amountDue: invoice.amount_due,
+    creditApplied: invoice.ending_balance
+      ? invoice.starting_balance - invoice.ending_balance
+      : invoice.starting_balance,
+    startingBalance: invoice.starting_balance,
+    unusedAmountTotal,
   };
 }

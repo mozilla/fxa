@@ -25,7 +25,6 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result).toEqual({
       currency: mockUpcomingInvoice.currency,
-      listAmount: mockUpcomingInvoice.subtotal,
       totalAmount: mockUpcomingInvoice.total,
       taxAmounts: [
         {
@@ -36,6 +35,13 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       ],
       discountAmount: mockDiscountAmount.amount,
       subtotal: mockUpcomingInvoice.subtotal,
+      amountDue: mockUpcomingInvoice.amount_due,
+      creditApplied: mockUpcomingInvoice.ending_balance
+        ? mockUpcomingInvoice.starting_balance -
+          mockUpcomingInvoice.ending_balance
+        : mockUpcomingInvoice.starting_balance,
+      startingBalance: mockUpcomingInvoice.starting_balance,
+      unusedAmountTotal: 0,
       discountEnd: undefined,
       discountType: undefined,
       number: null,
@@ -58,7 +64,6 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result).toEqual({
       currency: mockUpcomingInvoice.currency,
-      listAmount: mockUpcomingInvoice.subtotal,
       totalAmount: mockUpcomingInvoice.total,
       taxAmounts: [
         {
@@ -69,6 +74,13 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       ],
       discountAmount: mockDiscountAmount.amount,
       subtotal: mockUpcomingInvoice.subtotal,
+      amountDue: mockUpcomingInvoice.amount_due,
+      creditApplied: mockUpcomingInvoice.ending_balance
+        ? mockUpcomingInvoice.starting_balance -
+          mockUpcomingInvoice.ending_balance
+        : mockUpcomingInvoice.starting_balance,
+      startingBalance: mockUpcomingInvoice.starting_balance,
+      unusedAmountTotal: 0,
       discountEnd: null,
       discountType: 'forever',
       number: null,
@@ -91,7 +103,6 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     const result = stripeInvoiceToInvoicePreviewDTO(mockUpcomingInvoice);
     expect(result).toEqual({
       currency: mockUpcomingInvoice.currency,
-      listAmount: mockUpcomingInvoice.subtotal,
       totalAmount: mockUpcomingInvoice.total,
       taxAmounts: [
         {
@@ -107,6 +118,13 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       ],
       discountAmount: mockDiscountAmount1.amount + mockDiscountAmount2.amount,
       subtotal: mockUpcomingInvoice.subtotal,
+      amountDue: mockUpcomingInvoice.amount_due,
+      creditApplied: mockUpcomingInvoice.ending_balance
+        ? mockUpcomingInvoice.starting_balance -
+          mockUpcomingInvoice.ending_balance
+        : mockUpcomingInvoice.starting_balance,
+      startingBalance: mockUpcomingInvoice.starting_balance,
+      unusedAmountTotal: 0,
       discountEnd: undefined,
       discountType: undefined,
       number: null,

@@ -32,9 +32,6 @@ class Invoice {
   currency!: string;
 
   @IsNumber()
-  listAmount!: number;
-
-  @IsNumber()
   totalAmount!: number;
 
   @ValidateNested({ each: true })
