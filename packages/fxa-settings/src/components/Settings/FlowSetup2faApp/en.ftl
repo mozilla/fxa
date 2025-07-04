@@ -1,7 +1,7 @@
 ## FlowSetup2faApp
 
 flow-setup-2fa-qr-heading = Connect to your authenticator app
-flow-setup-2a-qr-instruction = <strong>Step 1:</strong> Scan this QR code using any authenticator app, like Duo or Google Authenticator.
+flow-setup-2fa-qr-instruction = <strong>Step 1:</strong> Scan this QR code using any authenticator app, like Duo or Google Authenticator.
 
 # Alt text for the QR-code image shown during two-step authentication setup.
 # “setup secret key” refers to the long code you can copy instead of scanning.
