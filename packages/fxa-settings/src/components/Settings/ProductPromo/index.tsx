@@ -41,7 +41,7 @@ export function getProductPromoData(
   monitorPlusPromoEligible = false
 ) {
   const hasMonitor = attachedClients.some(
-    ({ name }) => name === MozServices.Monitor
+    ({ name }) => name === MozServices.Monitor || name === MozServices.MonitorStage
   );
 
   const hasMonitorPlus = subscriptions.some(
@@ -53,8 +53,7 @@ export function getProductPromoData(
     return { hidePromo: true } as const;
   }
 
-  // Stage‑2: decide whether to surface the special US‑only promo.
-  // TODO re-add the hasMonitor condition
+  // Decide whether to surface the special US‑only promo.
   const showMonitorPlusPromo = hasMonitor && monitorPlusPromoEligible;
 
   const gleanEvent = showMonitorPlusPromo
