@@ -7,7 +7,7 @@ import { LocationProvider } from '@reach/router';
 import {
   IntegrationType,
   OAuthIntegrationData,
-  OAuthNativeIntegration,
+  OAuthNativeIntegration, RelierCmsInfo,
   WebIntegration,
   WebIntegrationData,
 } from '../../../models';
@@ -35,11 +35,13 @@ export function createMockWebIntegration(): WebIntegration {
     isDesktopSync: () => false,
     isDesktopRelay: () => false,
     data: new WebIntegrationData(new GenericData({})),
+    getCmsInfo: () => undefined,
   } as WebIntegration;
 }
 
 export function createOAuthNativeIntegration(
-  isSync = true
+  isSync = true,
+  cmsInfo?: RelierCmsInfo
 ): OAuthNativeIntegration {
   return {
     type: IntegrationType.OAuthNative,
@@ -52,6 +54,7 @@ export function createOAuthNativeIntegration(
     data: new OAuthIntegrationData(new GenericData({})),
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
+    getCmsInfo: () => cmsInfo,
   } as OAuthNativeIntegration;
 }
 

@@ -7,7 +7,7 @@ import { Meta } from '@storybook/react';
 import FormChoice from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import AppLayout from '../AppLayout';
-import { commonFormChoiceProps } from './mocks';
+import { commonFormChoiceProps, commonFormChoicePropsWithCms } from './mocks';
 import {
   BackupAuthenticationCodesImage,
   BackupRecoveryPhoneSmsImage,
@@ -22,6 +22,12 @@ export default {
 export const DefaultLeftAlignedImages = () => (
   <AppLayout>
     <FormChoice {...commonFormChoiceProps} />
+  </AppLayout>
+);
+
+export const DefaultWithCms = () => (
+  <AppLayout>
+    <FormChoice {...commonFormChoicePropsWithCms} />
   </AppLayout>
 );
 

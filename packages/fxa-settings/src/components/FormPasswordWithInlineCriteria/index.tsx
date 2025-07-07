@@ -9,6 +9,7 @@ import PasswordValidator from '../../lib/password-validator';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
 import PasswordStrengthInline from '../PasswordStrengthInline';
+import CmsButtonWithFallback from '../CmsButtonWithFallback';
 
 export type PasswordFormType = 'signup' | 'reset';
 
@@ -27,6 +28,10 @@ export type FormPasswordWithInlineCriteriaProps = {
   onFocusMetricsEvent?: () => void;
   requirePasswordConfirmation?: boolean;
   submitButtonGleanId?: string;
+  cmsButton: {
+    color?: string;
+    text?: string;
+  }
 };
 
 const getTemplateValues = (passwordFormType: PasswordFormType) => {
@@ -80,6 +85,7 @@ export const FormPasswordWithInlineCriteria = ({
   disableButtonUntilValid = true,
   requirePasswordConfirmation = false,
   submitButtonGleanId,
+                                                 cmsButton
 }: FormPasswordWithInlineCriteriaProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
@@ -333,7 +339,7 @@ export const FormPasswordWithInlineCriteria = ({
                   ? getValues('confirmPassword') !== getValues('newPassword')
                   : undefined,
                 passwordFormType,
-                requirePasswordConfirmation,
+                requirePasswordConfirmation
               }}
             />
             <span
@@ -348,16 +354,18 @@ export const FormPasswordWithInlineCriteria = ({
 
         {children}
         <FtlMsg id={templateValues.buttonFtlId}>
-          <button
+          <CmsButtonWithFallback
             type="submit"
             className="cta-primary cta-xl"
             disabled={
               loading || (disableButtonUntilValid && !formState.isValid)
             }
             data-glean-id={submitButtonGleanId && submitButtonGleanId}
+            buttonColor={cmsButton?.color}
+            buttonText={cmsButton?.text}
           >
             {templateValues.buttonText}
-          </button>
+          </CmsButtonWithFallback>
         </FtlMsg>
       </form>
     </>

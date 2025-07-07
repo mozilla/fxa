@@ -117,11 +117,25 @@ export const SigninTotpCode = ({
     }
   };
 
+  const cmsInfo = integration.getCmsInfo();
   return (
     <AppLayout>
-      <FtlMsg id="signin-totp-code-header">
-        <HeadingPrimary>Sign in</HeadingPrimary>
-      </FtlMsg>
+      {cmsInfo ? (
+        <>
+          {cmsInfo.shared?.logoUrl && cmsInfo.shared?.logoAltText && (
+            <img
+              src={cmsInfo.shared.logoUrl}
+              alt={cmsInfo.shared.logoAltText}
+              className="justify-start mb-4 max-h-[40px]"
+            />
+          )}
+        </>
+      ) : (
+        <FtlMsg id="signin-totp-code-header">
+          <HeadingPrimary>Sign in</HeadingPrimary>
+        </FtlMsg>
+      )}
+
       <FtlMsg id="signin-totp-code-subheader-v2">
         <h2 className="card-header">Enter two-step authentication code</h2>
       </FtlMsg>
@@ -164,6 +178,9 @@ export const SigninTotpCode = ({
         setErrorMessage={setBannerError}
         verifyCode={onSubmit}
         className="my-6"
+        cmsButton={{
+          color: cmsInfo?.shared?.buttonColor,
+        }}
       />
       <div className="mt-8 link-blue text-sm flex justify-between">
         <FtlMsg id="signin-totp-code-other-account-link">

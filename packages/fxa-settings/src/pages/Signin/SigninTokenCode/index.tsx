@@ -204,11 +204,20 @@ const SigninTokenCode = ({
     ]
   );
 
+  const cmsInfo = integration?.getCmsInfo();
+
   return (
     <AppLayout>
+
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading-2"
+        {...{
+          cmsLogoUrl: cmsInfo?.shared?.logoUrl,
+          cmsLogoAltText: cmsInfo?.shared?.logoAltText,
+          cmsHeadline: cmsInfo?.SigninTokenCodePage?.headline,
+          cmsDescription: cmsInfo?.SigninTokenCodePage?.description,
+        }}
       />
       {showResendSuccessBanner && !localizedErrorBannerMessage && (
         <ResendCodeSuccessBanner
@@ -256,6 +265,9 @@ const SigninTokenCode = ({
           localizedCustomCodeRequiredMessage,
           codeErrorMessage,
           setCodeErrorMessage,
+          cmsButton: {
+            color: cmsInfo?.shared?.buttonColor,
+          },
         }}
       />
 

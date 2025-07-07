@@ -44,8 +44,23 @@ export interface RelierCmsInfo {
   clientId: string;
   entrypoint: string;
   shared?: SharedRelierCmsInfo;
+
   EmailFirstPage?: PageRelierCmsInfo
+
   SignupSetPasswordPage?: PageRelierCmsInfo
   SignupConfirmCodePage?: PageRelierCmsInfo
   SignupConfirmedSyncPage?: PageRelierCmsInfo
+
+  SigninPage?: PageRelierCmsInfo
+  SigninTotpCodePage?: PageRelierCmsInfo
+  SigninTokenCodePage?: PageRelierCmsInfo
+  SigninUnblockCodePage?: PageRelierCmsInfo
+
+  // SigninRecoveryPhone?: PageRelierCmsInfo
+  // SigninRecoveryCode?: PageRelierCmsInfo
+  // SigninRecoveryChoice?: PageRelierCmsInfo
+  // SigninPushCodeConfirm?: PageRelierCmsInfo
+  // SigninPushCode?: PageRelierCmsInfo
+  // SigninConfirmed?: PageRelierCmsInfo
+  // CompleteSignin?: PageRelierCmsInfo
 }

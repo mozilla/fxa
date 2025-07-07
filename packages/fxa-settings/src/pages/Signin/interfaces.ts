@@ -31,6 +31,7 @@ export type SigninUnblockIntegration = Pick<
   | 'isDesktopSync'
   | 'isDesktopRelay'
   | 'wantsLogin'
+  | 'getCmsInfo'
 >;
 
 export type SigninIntegration =
@@ -44,6 +45,7 @@ export type SigninIntegration =
       | 'data'
       | 'isDesktopSync'
       | 'isDesktopRelay'
+      | 'getCmsInfo'
     >
   | SigninOAuthIntegration;
 
@@ -59,6 +61,7 @@ export type SigninOAuthIntegration = Pick<
   | 'data'
   | 'isDesktopSync'
   | 'isDesktopRelay'
+  | 'getCmsInfo'
 >;
 
 export interface LocationState {
