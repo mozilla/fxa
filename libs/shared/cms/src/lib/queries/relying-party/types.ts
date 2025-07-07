@@ -8,10 +8,19 @@ export interface Page {
   primaryButtonText: string | null;
 }
 
+export interface Email {
+  subject: string;
+  headline: string;
+  description: string;
+}
+
 export interface Shared {
   buttonColor: string | null;
   logoUrl: string | null;
   logoAltText: string | null;
+  emailFromName: string | null;
+  emailLogoUrl: string | null;
+  emailLogoAltText: string | null;
 }
 
 export interface RelyingPartyResult {
@@ -23,4 +32,5 @@ export interface RelyingPartyResult {
   SignupConfirmCodePage?: Page;
   SignupConfirmedSyncPage?: Page;
   Shared?: Shared;
+  VerifyShortCodeEmail?: Email;
 }

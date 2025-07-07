@@ -253,8 +253,19 @@ module.exports = function (log, config, bounces, statsd) {
     }
   }
 
-  function sesMessageTagsHeaderValue(templateName, serviceName) {
-    return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}, ses:feedback-id-a=fxa-${templateName}`;
+  function sesMessageTagsHeaderValue(templateName, serviceName, cmsRp = null) {
+    const sesHeaders = [
+      `messageType=fxa-${templateName}`,
+      'app=fxa',
+      `service=${serviceName}`,
+      `ses:feedback-id-a=fxa-${templateName}`,
+    ];
+    // if the we are populating the email with values from a CMS we append another header
+    if (cmsRp) {
+      sesHeaders.push(`cmsRp=${cmsRp}`);
+    }
+
+    return sesHeaders.join(', ');
   }
 
   // These are brand names, so they probably don't need l10n.
@@ -325,6 +336,13 @@ module.exports = function (log, config, bounces, statsd) {
     this.reportSignInUrl = mailerConfig.reportSignInUrl;
     this.revokeAccountRecoveryUrl = mailerConfig.revokeAccountRecoveryUrl;
     this.sender = mailerConfig.sender;
+    this.configuredSenderEmail =
+      this.sender.indexOf('<') >= 0
+        ? this.sender.substring(
+            this.sender.indexOf('<') + 1,
+            this.sender.indexOf('>')
+          )
+        : this.sender;
     this.sesConfigurationSet = mailerConfig.sesConfigurationSet;
     this.subscriptionSettingsUrl = mailerConfig.subscriptionSettingsUrl;
     this.subscriptionSupportUrl = mailerConfig.subscriptionSupportUrl;
@@ -493,7 +511,10 @@ module.exports = function (log, config, bounces, statsd) {
       headers[X_SES_CONFIGURATION_SET] = this.sesConfigurationSet;
       headers[X_SES_MESSAGE_TAGS] = sesMessageTagsHeaderValue(
         message.metricsTemplate || template,
-        'fxa-auth-server'
+        'fxa-auth-server',
+        message.cmsRpClientId && message.entrypoint
+          ? `${message.cmsRpClientId}-${message.entrypoint}`
+          : null
       );
     }
 
@@ -503,9 +524,18 @@ module.exports = function (log, config, bounces, statsd) {
       headers: Object.keys(headers).join(','),
     });
 
+    const sender = (() => {
+      if (message.target === 'strapi' && message.cmsRpFromName) {
+        // only the name can be configured through cms
+        return `${message.cmsRpFromName} <${this.configuredSenderEmail}>`;
+      }
+
+      return this.sender;
+    })();
+
     const emailConfig = {
-      sender: this.sender,
-      from: this.sender,
+      sender,
+      from: sender,
       to,
       subject: localized.subject,
       preview: localized.preview,

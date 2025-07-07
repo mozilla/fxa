@@ -828,6 +828,9 @@ function mockMetricsContext(methods) {
                       this.payload.metricsContext.entrypointExperiment,
                     entrypoint_variation:
                       this.payload.metricsContext.entrypointVariation,
+                    ...(this.payload.metricsContext.service
+                      ? { service: this.payload.metricsContext.service }
+                      : {}),
                     utm_campaign: this.payload.metricsContext.utmCampaign,
                     utm_content: this.payload.metricsContext.utmContent,
                     utm_medium: this.payload.metricsContext.utmMedium,
