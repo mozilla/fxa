@@ -6,10 +6,6 @@
 
 import { ConfigContextValues, ConfigProvider } from './ConfigProvider';
 import { FluentLocalizationProvider } from './FluentLocalizationProvider';
-import {
-  PayPalScriptProvider,
-  ReactPayPalScriptOptions,
-} from '@paypal/react-paypal-js';
 import { initSentryForNextjsClient } from '@fxa/shared/sentry/client';
 import { getClient as sentryGetClient } from '@sentry/nextjs';
 import { GENERIC_ERROR_MESSAGE } from '@fxa/shared/error/error';
@@ -17,22 +13,12 @@ import { GENERIC_ERROR_MESSAGE } from '@fxa/shared/error/error';
 interface ProvidersProps {
   config: ConfigContextValues;
   fetchedMessages: Record<string, string>;
-  nonce?: string;
   children: React.ReactNode;
 }
-
-const paypalInitialOptions: ReactPayPalScriptOptions = {
-  clientId: '',
-  vault: true,
-  commit: false,
-  intent: 'capture',
-  disableFunding: ['credit', 'card'],
-};
 
 export function Providers({
   config,
   fetchedMessages,
-  nonce,
   children,
 }: ProvidersProps) {
   //Only initialize Sentry if it hasn't been initialized yet
@@ -50,15 +36,7 @@ export function Providers({
   return (
     <ConfigProvider config={config}>
       <FluentLocalizationProvider fetchedMessages={fetchedMessages}>
-        <PayPalScriptProvider
-          options={{
-            ...paypalInitialOptions,
-            clientId: config.paypalClientId,
-            dataCspNonce: nonce,
-          }}
-        >
-          {children}
-        </PayPalScriptProvider>
+        {children}
       </FluentLocalizationProvider>
     </ConfigProvider>
   );

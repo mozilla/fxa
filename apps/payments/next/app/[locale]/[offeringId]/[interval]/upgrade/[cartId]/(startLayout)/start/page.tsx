@@ -49,6 +49,7 @@ export default async function Upgrade({
 }) {
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
+  const nonce = headers().get('x-nonce') || undefined;
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const session = await auth();
 
@@ -160,6 +161,8 @@ export default async function Upgrade({
               }}
               cart={cart}
               locale={locale}
+              nonce={nonce}
+              paypalClientId={config.paypal.clientId}
               sessionUid={session?.user?.id}
             />
           )}
