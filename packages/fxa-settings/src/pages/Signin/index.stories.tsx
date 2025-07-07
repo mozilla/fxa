@@ -9,7 +9,7 @@ import { Meta } from '@storybook/react';
 import {
   Subject,
   createMockSigninOAuthIntegration,
-  createMockSigninOAuthNativeSyncIntegration,
+  createMockSigninOAuthNativeSyncIntegration, MOCK_CMS_INFO,
 } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { SigninProps } from './interfaces';
@@ -85,4 +85,18 @@ export const SignInToSync = storyWithProps({
 
 export const SignInToOAuthDesktopRelay = storyWithProps({
   integration: createMockSigninOAuthNativeSyncIntegration({ isSync: false }),
+});
+
+export const SignInWithCms = storyWithProps({
+  integration: createMockSigninOAuthIntegration({
+    cmsInfo: MOCK_CMS_INFO
+  }),
+});
+
+export const SignInWithCmsCachedCredentials = storyWithProps({
+  sessionToken: MOCK_SESSION_TOKEN,
+  integration: createMockSigninOAuthIntegration({
+    wantsKeys: false,
+    cmsInfo: MOCK_CMS_INFO
+  }),
 });

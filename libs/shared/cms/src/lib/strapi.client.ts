@@ -21,9 +21,9 @@ import {
 import { determineLocale } from '@fxa/shared/l10n';
 import { DEFAULT_LOCALE } from './constants';
 import { StrapiQueryError } from './cms.error';
-import { CMS_QUERY_CACHE_KEY, cacheKeyForQuery } from './util';
+import { cacheKeyForQuery, CMS_QUERY_CACHE_KEY } from './util';
 import { StrapiClientConfig } from './strapi.client.config';
-import { LocalesResult, localesQuery } from './queries/locales';
+import { localesQuery, LocalesResult } from './queries/locales';
 
 cacheManager.setOptions({
   // Must be disabled globally per https://github.com/joshuaslate/type-cacheable?tab=readme-ov-file#change-global-options
@@ -153,12 +153,10 @@ export class StrapiClient {
     const requestStartTime = Date.now();
 
     try {
-      const response = await this.client.request<Result, any>({
+      return await this.client.request<Result, any>({
         document: query,
         variables,
       });
-
-      return response;
     } catch (e) {
       const requestEndTime = Date.now();
       this.emitter.emit('response', {

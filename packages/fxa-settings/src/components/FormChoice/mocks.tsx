@@ -34,3 +34,11 @@ export const commonFormChoiceProps = {
     },
   ],
 };
+
+export const commonFormChoicePropsWithCms = {
+  ...commonFormChoiceProps,
+  cmsButton: {
+    color: '#592ACB',
+    text: 'Continue with CMS',
+  },
+};

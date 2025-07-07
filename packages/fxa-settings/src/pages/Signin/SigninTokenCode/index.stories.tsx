@@ -7,6 +7,7 @@ import SigninTokenCode from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { createOAuthNativeIntegration, Subject } from './mocks';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 export default {
   title: 'Pages/Signin/SigninTokenCode',
@@ -15,6 +16,10 @@ export default {
 } as Meta;
 
 export const Default = () => <Subject />;
+
+export const DefaultWithCms = () => (
+  <Subject integration={createOAuthNativeIntegration(true, MOCK_CMS_INFO)} />
+);
 
 export const OAuthDesktopServiceRelay = () => (
   <Subject integration={createOAuthNativeIntegration(false)} />

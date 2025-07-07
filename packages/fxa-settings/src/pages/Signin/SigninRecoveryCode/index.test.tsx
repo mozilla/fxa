@@ -32,7 +32,10 @@ jest.mock('../../../lib/glean', () => ({
 }));
 
 const mockFinishOAuthFlowHandler = jest.fn();
-const mockIntegration = createMockSigninWebIntegration();
+const mockIntegration = {
+  ...createMockSigninWebIntegration(),
+  getCmsInfo: () => undefined,
+};
 
 const serviceRelayText =
   'Firefox will try sending you back to use an email mask after you sign in.';

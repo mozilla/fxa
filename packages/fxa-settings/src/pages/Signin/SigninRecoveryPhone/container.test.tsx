@@ -146,6 +146,7 @@ describe('SigninRecoveryPhoneContainer', () => {
         lastFourPhoneDigits: '1234',
         resendCode: expect.any(Function),
         verifyCode: expect.any(Function),
+        integration: expect.any(Object),
       });
     });
 

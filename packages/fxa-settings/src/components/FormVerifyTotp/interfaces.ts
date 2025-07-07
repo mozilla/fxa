@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { GleanClickEventDataAttrs } from '../../lib/types';
+import { CmsButtonType } from '../CmsButtonWithFallback';
 
 export type FormVerifyTotpProps = {
   clearBanners?: () => void;
@@ -16,6 +17,7 @@ export type FormVerifyTotpProps = {
   verifyCode: (code: string) => void;
   gleanDataAttrs?: GleanClickEventDataAttrs;
   className?: string;
+  cmsButton?: CmsButtonType
 };
 
 export type VerifyTotpFormData = {

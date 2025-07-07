@@ -9,7 +9,11 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { MOCK_SIGNIN_LOCATION_STATE } from './mocks';
 import { LocationProvider } from '@reach/router';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { MOCK_MASKED_PHONE_NUMBER_WITH_COPY } from '../mocks';
+import {
+  createMockSigninOAuthIntegration,
+  MOCK_CMS_INFO,
+  MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
+} from '../mocks';
 
 export default {
   title: 'Pages/Signin/SigninRecoveryChoice',
@@ -25,6 +29,19 @@ export const Default = () => (
       lastFourPhoneDigits="1234"
       numBackupCodes={4}
       signinState={MOCK_SIGNIN_LOCATION_STATE}
+    />
+  </LocationProvider>
+);
+
+export const DefaultWithCms = () => (
+  <LocationProvider>
+    <SigninRecoveryChoice
+      handlePhoneChoice={() => Promise.resolve()}
+      maskedPhoneNumber={MOCK_MASKED_PHONE_NUMBER_WITH_COPY}
+      lastFourPhoneDigits="1234"
+      numBackupCodes={4}
+      signinState={MOCK_SIGNIN_LOCATION_STATE}
+      integration={createMockSigninOAuthIntegration({ cmsInfo: MOCK_CMS_INFO})}
     />
   </LocationProvider>
 );

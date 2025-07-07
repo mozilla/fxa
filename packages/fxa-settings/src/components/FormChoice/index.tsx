@@ -5,6 +5,7 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
+import CmsButtonWithFallback, { CmsButtonType } from '../CmsButtonWithFallback';
 
 export type FormChoiceOption = {
   id: string;
@@ -22,6 +23,7 @@ export type FormChoiceProps = {
   formChoices: FormChoiceOption[];
   onSubmit: (data: FormChoiceData) => void;
   isSubmitting: boolean;
+  cmsButton?: CmsButtonType;
 };
 
 export const CHOICES = {
@@ -42,6 +44,7 @@ const FormChoice = ({
   formChoices,
   onSubmit,
   isSubmitting,
+                      cmsButton
 }: FormChoiceProps) => {
   const { register, handleSubmit, watch } = useForm<FormChoiceData>();
   const selectedOption = watch('choice');
@@ -90,13 +93,15 @@ const FormChoice = ({
       </fieldset>
 
       <div className="flex mt-6">
-        <button
+        <CmsButtonWithFallback
           className="cta-primary cta-xl"
           type="submit"
           disabled={!selectedOption || isSubmitting}
+          buttonColor={cmsButton?.color}
+          buttonText={cmsButton?.text}
         >
           Continue
-        </button>
+        </CmsButtonWithFallback>
       </div>
     </form>
   );

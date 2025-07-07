@@ -13,6 +13,7 @@ import { firefox } from '../../../lib/channels/firefox';
 import { LocationState, SignupConfirmedSyncProps } from './interfaces';
 import { SyncCloudsImage } from '../../../components/images';
 import { checkPaymentMethodsWillSync } from '../../../lib/sync-engines';
+import CmsButtonWithFallback from '../../../components/CmsButtonWithFallback';
 
 const SignupConfirmedSync = ({
   integration,
@@ -93,40 +94,21 @@ const SignupConfirmedSync = ({
 
       {showPairLink && (
         <div className="flex mb-5">
-          { cmsInfo && cmsButtonColor && cmsButtonText ? (
-            <button
-              className="cta-primary-cms cta-xl"
-              data-glean-id="signup_confirmed_sync_pair_link"
-              onClick={(e) => {
-                e.preventDefault();
-                hardNavigate('/pair', {}, true);
-              }}
-              style={
-                {
-                  '--cta-bg': cmsButtonColor,
-                  '--cta-border': cmsButtonColor,
-                  '--cta-active': cmsButtonColor,
-                  '--cta-disabled': `${cmsButtonColor}60`,
-                } as React.CSSProperties
-              }
-            >
-              {cmsButtonText}
-            </button>
-          ) : (
             <FtlMsg id="signup-confirmed-sync-add-device-link">
               {/* TODO: once Pair is converted to React, use `<Link>` instead */}
-              <button
+              <CmsButtonWithFallback
                 className="cta-primary cta-xl"
                 data-glean-id="signup_confirmed_sync_pair_link"
                 onClick={(e) => {
                   e.preventDefault();
                   hardNavigate('/pair', {}, true);
                 }}
+                buttonColor={cmsButtonColor}
+                buttonText={cmsButtonText}
               >
                 Add another device
-              </button>
+              </CmsButtonWithFallback>
             </FtlMsg>
-          )}
         </div>
       )}
 

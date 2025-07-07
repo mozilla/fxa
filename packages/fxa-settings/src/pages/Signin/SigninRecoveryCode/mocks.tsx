@@ -5,7 +5,8 @@
 import { MozServices } from '../../../lib/types';
 import {
   IntegrationType,
-  OAuthNativeIntegration, RelierCmsInfo,
+  OAuthNativeIntegration,
+  RelierCmsInfo,
   WebIntegration,
 } from '../../../models';
 import { MOCK_BACKUP_CODE } from '../../mocks';
@@ -47,13 +48,14 @@ export const mockWebIntegration = {
   },
 } as WebIntegration;
 
-export const createMockOAuthNativeIntegration = (isSync = true) =>
+export const createMockOAuthNativeIntegration = (isSync = true, cmsInfo?: RelierCmsInfo  ) =>
   ({
     type: IntegrationType.OAuthNative,
     getService: () => MozServices.FirefoxSync,
     isSync: () => isSync,
     wantsKeys: () => false,
     isDesktopRelay: () => !isSync,
+    getCmsInfo: () => cmsInfo,
     data: {
       validate: () => {},
     },

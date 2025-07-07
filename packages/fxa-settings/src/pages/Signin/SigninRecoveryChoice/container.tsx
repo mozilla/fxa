@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SigninRecoveryChoice from '.';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
@@ -17,7 +17,11 @@ import {
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
 
-export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
+export const SigninRecoveryChoiceContainer = ({
+  integration,
+}: {
+  integration: Integration;
+} & RouteComponentProps) => {
   const authClient = useAuthClient();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninLocationState;
@@ -144,6 +148,7 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
         handlePhoneChoice,
         numBackupCodes,
         signinState,
+        integration,
       }}
     />
   );

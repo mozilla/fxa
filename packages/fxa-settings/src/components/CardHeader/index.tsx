@@ -49,13 +49,21 @@ interface CardHeaderBasicWithDefaultSubheadingProps
   headingAndSubheadingFtlId: string;
 }
 
+interface CardHeaderCmsProps extends CardHeaderRequiredProps {
+  cmsLogoUrl?: string;
+  cmsLogoAltText?: string;
+  cmsHeadline?: string;
+  cmsDescription?: string;
+}
+
 type CardHeaderProps =
   | CardHeaderDefaultServiceProps
   | CardHeaderCustomServiceProps
   | CardHeaderBasicWithDefaultSubheadingProps
   | CardHeaderSeparateSubheadingProps
   | CardHeaderWithCustomSubheadingProps
-  | CardHeaderBasicProps;
+  | CardHeaderBasicProps
+  | CardHeaderCmsProps;
 
 function isBasicWithDefaultSubheading(
   props: CardHeaderProps
@@ -101,6 +109,17 @@ function isDefaultService(
   );
 }
 
+function isCmsHeader(
+  props: CardHeaderProps
+): props is CardHeaderCmsProps {
+  return (
+    (props as CardHeaderCmsProps).cmsLogoUrl !== undefined ||
+    (props as CardHeaderCmsProps).cmsLogoAltText !== undefined ||
+    (props as CardHeaderCmsProps).cmsHeadline !== undefined ||
+    (props as CardHeaderCmsProps).cmsDescription !== undefined
+  );
+}
+
 function isBasicWithCustomSubheading(
   props: CardHeaderProps
 ): props is CardHeaderWithCustomSubheadingProps {
@@ -141,6 +160,25 @@ const serviceLogos: {
 
 const CardHeader = (props: CardHeaderProps) => {
   const { headingText } = props;
+
+  if (isCmsHeader(props)) {
+    const { cmsLogoUrl, cmsLogoAltText, cmsHeadline, cmsDescription } = props;
+    return (
+      <>
+        {cmsLogoUrl && cmsLogoAltText && (
+          <img
+            src={cmsLogoUrl}
+            alt={cmsLogoUrl}
+            className="justify-start mb-4 max-h-[40px]"
+          />
+        )}
+        <h1 className="card-header">{cmsHeadline}</h1>
+        <p className="card-subheader">
+          {cmsDescription}
+        </p>
+      </>
+    );
+  }
 
   if (isDefaultService(props)) {
     const spanElement: ReactElement = (

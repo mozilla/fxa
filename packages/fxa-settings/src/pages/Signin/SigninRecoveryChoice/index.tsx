@@ -19,7 +19,7 @@ import {
 import ButtonBack from '../../../components/ButtonBack';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import Banner from '../../../components/Banner';
-import { SigninLocationState } from '../interfaces';
+import { SigninIntegration, SigninLocationState } from '../interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import {
   AuthUiError,
@@ -33,6 +33,7 @@ export type SigninRecoveryChoiceProps = {
   lastFourPhoneDigits: string;
   numBackupCodes: number;
   signinState: SigninLocationState;
+  integration?: SigninIntegration;
 };
 
 const SigninRecoveryChoice = ({
@@ -41,6 +42,7 @@ const SigninRecoveryChoice = ({
   lastFourPhoneDigits,
   numBackupCodes,
   signinState,
+  integration,
 }: SigninRecoveryChoiceProps) => {
   const [errorBannerMessage, setErrorBannerMessage] = React.useState('');
   const [errorBannerDescription, setErrorBannerDescription] =
@@ -131,14 +133,28 @@ const SigninRecoveryChoice = ({
     },
   ];
 
+  const cmsInfo = integration?.getCmsInfo();
+  const cmsButton = {
+    color: cmsInfo?.shared?.buttonColor,
+  }
+
   return (
     <AppLayout>
       <div className="relative flex items-center mb-5">
         <ButtonBack />
-        <FtlMsg id="signin-recovery-method-header">
-          <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
-        </FtlMsg>
+        {cmsInfo?.shared?.logoUrl && cmsInfo.shared?.logoAltText ? (
+          <img
+            src={cmsInfo.shared.logoUrl}
+            alt={cmsInfo.shared.logoAltText}
+            className="justify-start mb-4 max-h-[40px]"
+          />
+        ) : (
+          <FtlMsg id="signin-recovery-method-header">
+            <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
+          </FtlMsg>
+        )}
       </div>
+
       {errorBannerMessage && (
         <Banner
           type="error"
@@ -149,7 +165,9 @@ const SigninRecoveryChoice = ({
         />
       )}
 
-      <FormChoice {...{ legendEl, onSubmit, formChoices, isSubmitting }} />
+      <FormChoice
+        {...{ legendEl, onSubmit, formChoices, isSubmitting, cmsButton }}
+      />
     </AppLayout>
   );
 };

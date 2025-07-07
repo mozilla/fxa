@@ -34,7 +34,7 @@ export const IsSync = () => (
   </LocationProvider>
 );
 
-export const IsCms = () => (
+export const IsSyncWithCms = () => (
   <LocationProvider>
     <SignupConfirmed isSignedIn={false}
                      serviceName={MozServices.FirefoxSync}

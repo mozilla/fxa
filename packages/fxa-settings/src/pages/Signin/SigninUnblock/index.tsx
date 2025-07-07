@@ -202,11 +202,19 @@ export const SigninUnblock = ({
     }
   };
 
+  const cmsInfo = integration.getCmsInfo();
+
   return (
     <AppLayout>
       <CardHeader
         headingText="Authorize this sign-in"
         headingTextFtlId="signin-unblock-header"
+        {...{
+          cmsLogoUrl: cmsInfo?.shared?.logoUrl,
+          cmsLogoAltText: cmsInfo?.shared?.logoAltText,
+          cmsHeadline: cmsInfo?.SigninUnblockCodePage?.headline,
+          cmsDescription: cmsInfo?.SigninUnblockCodePage?.description,
+        }}
       />
       {bannerErrorMessage && (
         <Banner
@@ -240,6 +248,10 @@ export const SigninUnblock = ({
           codeErrorMessage,
           setCodeErrorMessage,
           isLoading,
+          cmsButton: {
+            color: cmsInfo?.shared?.buttonColor,
+            text: cmsInfo?.SigninUnblockCodePage?.primaryButtonText,
+          },
         }}
       />
       <div className="flex flex-col items-center gap-3 mt-8">

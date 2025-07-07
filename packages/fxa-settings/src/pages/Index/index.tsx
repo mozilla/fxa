@@ -19,6 +19,7 @@ import {
 import { isOAuthIntegration } from '../../models';
 import GleanMetrics from '../../lib/glean';
 import Banner from '../../components/Banner';
+import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 
 export const Index = ({
   integration,
@@ -176,33 +177,18 @@ export const Index = ({
           />
         </FtlMsg>
         <div className="flex mt-5">
-          {cmsInfo ? (
-            <button
-              className="cta-primary-cms cta-xl"
-              type="submit"
-              data-glean-id="email_first_submit"
-              style={
-                {
-                  '--cta-bg': cmsInfo?.shared?.buttonColor,
-                  '--cta-border': cmsInfo?.shared?.buttonColor,
-                  '--cta-active': cmsInfo?.shared?.buttonColor,
-                  '--cta-disabled': `${cmsInfo?.shared?.buttonColor}60`,
-                } as React.CSSProperties
-              }
-              disabled={isSubmitting}
-            >
-              {cmsInfo?.EmailFirstPage?.primaryButtonText}
-            </button>
-          ) : (
-            <button
+          <FtlMsg id="index-cta">
+            <CmsButtonWithFallback
               className="cta-primary cta-xl"
               type="submit"
               data-glean-id="email_first_submit"
               disabled={isSubmitting}
+              buttonColor={cmsInfo?.shared?.buttonColor}
+              buttonText={cmsInfo?.EmailFirstPage?.primaryButtonText}
             >
-              <FtlMsg id="index-cta">Sign up or sign in</FtlMsg>
-            </button>
-          )}
+              Sign up or sign in
+            </CmsButtonWithFallback>
+          </FtlMsg>
         </div>
       </form>
 

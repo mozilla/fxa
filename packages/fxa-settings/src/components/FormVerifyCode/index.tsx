@@ -10,7 +10,7 @@ import { logViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { useFtlMsgResolver } from '../../models';
 import { GleanClickEventDataAttrs } from '../../lib/types';
-import { CmsButton } from '../FormSetupAccount/interfaces';
+import CmsButtonWithFallback, { CmsButtonType } from '../CmsButtonWithFallback';
 
 export enum InputModeEnum {
   text = 'text',
@@ -46,7 +46,7 @@ export type FormVerifyCodeProps = {
   isLoading?: boolean;
   gleanDataAttrs?: GleanClickEventDataAttrs;
   submitFormOnPaste?: boolean;
-  cmsButton?: CmsButton;
+  cmsButton?: CmsButtonType;
 };
 
 type FormData = {
@@ -63,7 +63,7 @@ const FormVerifyCode = ({
   setClearMessages,
   gleanDataAttrs,
   submitFormOnPaste,
-                          cmsButton
+  cmsButton,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -157,39 +157,20 @@ const FormVerifyCode = ({
         })}
       />
 
-      {cmsButton?.text && cmsButton?.color ? (
-        <button
+      <FtlMsg id={formAttributes.submitButtonFtlId}>
+        <CmsButtonWithFallback
           type="submit"
-          className="cta-primary-cms cta-xl"
+          className="cta-primary cta-xl"
           disabled={isSubmitting}
           data-glean-id={gleanDataAttrs?.id}
           data-glean-label={gleanDataAttrs?.label}
           data-glean-type={gleanDataAttrs?.type}
-          style={
-            {
-              '--cta-bg': cmsButton?.color,
-              '--cta-border': cmsButton?.color,
-              '--cta-active': cmsButton?.color,
-              '--cta-disabled': `${cmsButton?.color}60`,
-            } as React.CSSProperties
-          }
+          buttonColor={cmsButton?.color}
+          buttonText={cmsButton?.text}
         >
-          {cmsButton.text}
-        </button>
-      ) : (
-        <FtlMsg id={formAttributes.submitButtonFtlId}>
-          <button
-            type="submit"
-            className="cta-primary cta-xl"
-            disabled={isSubmitting}
-            data-glean-id={gleanDataAttrs?.id}
-            data-glean-label={gleanDataAttrs?.label}
-            data-glean-type={gleanDataAttrs?.type}
-          >
-            {formAttributes.submitButtonText}
-          </button>
-        </FtlMsg>
-        )}
+          {formAttributes.submitButtonText}
+        </CmsButtonWithFallback>
+      </FtlMsg>
     </form>
   );
 };

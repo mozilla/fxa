@@ -7,7 +7,7 @@ import Signin from '.';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { MozServices } from '../../lib/types';
-import { AppContext, IntegrationData, IntegrationType } from '../../models';
+import { AppContext, IntegrationData, IntegrationType, RelierCmsInfo } from '../../models';
 import {
   MOCK_AUTH_AT,
   MOCK_EMAIL,
@@ -109,6 +109,7 @@ export function createMockSigninWebIntegration(): SigninIntegration {
     isDesktopRelay: () => false,
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
+    getCmsInfo: () => undefined,
   };
 }
 
@@ -127,6 +128,7 @@ export function createMockSigninOAuthNativeSyncIntegration({
     isDesktopRelay: () => !isSync,
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
+    getCmsInfo: () => undefined,
   };
 }
 
@@ -135,11 +137,13 @@ export function createMockSigninOAuthIntegration({
   service,
   wantsKeys = true,
   isSync = false,
+  cmsInfo = undefined,
 }: {
   clientId?: string;
   service?: MozServices;
   wantsKeys?: boolean;
   isSync?: boolean;
+  cmsInfo?: RelierCmsInfo
 } = {}): SigninOAuthIntegration {
   return {
     type: IntegrationType.OAuthWeb,
@@ -152,6 +156,7 @@ export function createMockSigninOAuthIntegration({
     isDesktopSync: () => isSync,
     data: new IntegrationData(new GenericData({})),
     isDesktopRelay: () => false,
+    getCmsInfo: () => cmsInfo,
   };
 }
 
@@ -173,6 +178,7 @@ export function createMockSigninOAuthNativeIntegration({
     data: new IntegrationData(new GenericData({})),
     isDesktopRelay: () => !isSync,
     getClientId: () => MOCK_CLIENT_ID,
+    getCmsInfo: () => undefined,
   };
 }
 
