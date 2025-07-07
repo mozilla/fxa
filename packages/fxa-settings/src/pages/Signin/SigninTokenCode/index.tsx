@@ -151,6 +151,7 @@ const SigninTokenCode = ({
             sessionToken,
             verificationReason,
             verified: true,
+            sessionVerified: true,
             keyFetchToken,
           },
           unwrapBKey,

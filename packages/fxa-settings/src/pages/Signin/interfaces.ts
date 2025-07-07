@@ -197,6 +197,7 @@ export interface NavigationOptions {
     // keyFetchToken is included if options.keys=true
     // This (and unwrapBKey) will never exist for the cached signin (prompt=none)
     keyFetchToken?: hexstring;
+    sessionVerified?: boolean;
   };
   // unwrapBKey is included if integration.wantsKeys()
   unwrapBKey?: hexstring;
