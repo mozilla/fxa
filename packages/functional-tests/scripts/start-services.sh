@@ -12,7 +12,7 @@ mkdir -p artifacts/tests
 chmod +x node_modules/@nestjs/cli/bin/nest.js
 
 # Make sure we have built the latest
-NODE_OPTIONS="--max-old-space-size=7168" CI=false NODE_ENV=test npx nx run-many \
+NODE_OPTIONS="--max-old-space-size=7168" NODE_ENV=test npx nx run-many \
     -t start \
     --parallel=2 \
     --verbose \
@@ -24,6 +24,6 @@ NODE_OPTIONS="--max-old-space-size=7168" CI=false NODE_ENV=test npx nx run-many 
     fxa-payments-server \
     fxa-profile-server \
     fxa-settings \
-    > ~/.pm2/logs/startup.log
+    | tee ~/.pm2/logs/startup.log
 
 npx pm2 ls
