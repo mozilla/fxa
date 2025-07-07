@@ -135,13 +135,6 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" />;
   }
 
-  // If the session hasn't been verified, kick back to root
-  if (session.verified === false) {
-    console.warn('Session.verified false on /settings access!');
-    navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
-  }
-
   return (
     <SettingsLayout>
       <Head />
