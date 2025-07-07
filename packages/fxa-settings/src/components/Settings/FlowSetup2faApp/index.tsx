@@ -76,11 +76,11 @@ export const FlowSetup2faApp = ({
   const localizedHeading =
     setupMethod === TwoStepSetupMethod.QrCode
       ? ftlMsgResolver.getMsg(
-          'flow-setup-2a-qr-heading',
+          'flow-setup-2fa-qr-heading',
           'Connect to your authenticator app'
         )
       : ftlMsgResolver.getMsg(
-          'flow-setup-2a-manual-key-heading',
+          'flow-setup-2fa-manual-key-heading',
           'Enter code manually'
         );
 
@@ -116,7 +116,7 @@ export const FlowSetup2faApp = ({
       )}
 
       <FtlMsg
-        id="flow-setup-2a-step-2-instruction"
+        id="flow-setup-2fa-step-2-instruction"
         elems={{ strong: <strong></strong> }}
       >
         <p className="text-sm mt-4">
@@ -257,7 +257,7 @@ const ManualCodeStep = ({
   return (
     <div>
       <FtlMsg
-        id="flow-setup-2a-manual-key-instruction"
+        id="flow-setup-2fa-manual-key-instruction"
         elems={{ strong: <strong></strong> }}
       >
         <p className="text-sm">
