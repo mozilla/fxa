@@ -41,6 +41,7 @@
       "@fxa/payments/events": ["libs/payments/events/src/index.ts"],
       "@fxa/payments/iap": ["libs/payments/iap/src/index.ts"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
+      "@fxa/payments/management": ["libs/payments/management/src/index.ts"],
       "@fxa/payments/metrics": ["libs/payments/metrics/src/index.ts"],
       "@fxa/payments/metrics/provider": [
         "libs/payments/metrics/src/provider.ts"
