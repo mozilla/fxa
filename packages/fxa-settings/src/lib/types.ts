@@ -41,6 +41,7 @@ export enum MozServices {
   Relay = 'Mozilla Relay',
   TestService = '123Done',
   MonitorPlus = 'Mozilla Monitor Plus',
+  MonitorStage = 'Mozilla Monitor Stage',
 }
 
 // Information about a device
