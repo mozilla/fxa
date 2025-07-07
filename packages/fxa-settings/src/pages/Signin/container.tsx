@@ -50,6 +50,7 @@ import {
   GetAccountKeysResponse,
   PasswordChangeFinishResponse,
   CredentialStatusResponse,
+  RecoveryEmailStatusResponse,
 } from './interfaces';
 import { getCredentials } from 'fxa-auth-client/lib/crypto';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
@@ -377,6 +378,15 @@ const SigninContainer = ({
         }
       );
 
+      // Check session verified status after successful sign in call
+      let sessionVerified = false;
+      if ('data' in result && result.data) {
+        const status: RecoveryEmailStatusResponse =
+          await authClient.recoveryEmailStatus(
+            result.data?.signIn.sessionToken
+          );
+        sessionVerified = status.sessionVerified;
+      }
       // Check recovery key status if signin was successful, user is on sync Desktop
       // and they didn't click "Do it later"; this affects navigation.
       if (
@@ -419,7 +429,11 @@ const SigninContainer = ({
         credentials.credentialStatus?.upgradeNeeded === true &&
         credentials.v2Credentials
       ) {
-        if ('data' in result && result.data?.signIn.verified === true) {
+        if (
+          'data' in result &&
+          result.data?.signIn.verified === true &&
+          sessionVerified === true
+        ) {
           const sessionToken = result.data?.signIn.sessionToken;
           await upgradeClient.upgrade(
             email,
@@ -436,9 +450,29 @@ const SigninContainer = ({
         }
       }
 
+      // Send totp token email if session is not verified at this point since users will
+      // be redirected to /signin_token_code
+      if (!sessionVerified && 'data' in result) {
+        await session.sendVerificationCode(result.data?.signIn.sessionToken);
+      }
+
+      // If the result is a successful sign-in then include sessionVerified
+      if ('data' in result && result.data) {
+        return {
+          ...result,
+          data: {
+            ...result.data,
+            signIn: {
+              ...result.data.signIn,
+              sessionVerified,
+            },
+          },
+        };
+      }
       return result;
     },
     [
+      session,
       beginSignin,
       config,
       credentialStatus,

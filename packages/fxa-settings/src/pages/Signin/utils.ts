@@ -157,7 +157,7 @@ export const cachedSignIn = async (
         verified,
         // Because the cached signin was a success, we know 'uid' exists
         uid: storedLocalAccount!.uid,
-        sessionVerified, // might not need
+        sessionVerified,
         emailVerified, // might not need
       },
     };
@@ -189,7 +189,10 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   const isWebChannelIntegration =
     integration.isSync() || integration.isDesktopRelay();
 
-  if (!navigationOptions.signinData.verified) {
+  if (
+    !navigationOptions.signinData.verified ||
+    navigationOptions.sessionVerified === false
+  ) {
     const { to, locationState } =
       getUnverifiedNavigationTarget(navigationOptions);
     if (
