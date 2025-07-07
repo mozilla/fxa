@@ -129,6 +129,7 @@ export const SigninRecoveryChoiceContainer = (_: RouteComponentProps) => {
       state: {
         signinState,
         lastFourPhoneDigits: phoneData.lastFourPhoneDigits,
+        numBackupCodes,
       },
       // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
       replace: true,

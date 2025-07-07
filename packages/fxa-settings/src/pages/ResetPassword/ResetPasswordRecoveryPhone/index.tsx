@@ -23,6 +23,7 @@ const ResetPasswordRecoveryPhone = ({
   verifyCode,
   resendCode,
   location,
+  numBackupCodes,
 }: ResetPasswordRecoveryPhoneProps & RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = React.useState('');
   const [errorDescription, setErrorDescription] = React.useState('');
@@ -70,15 +71,17 @@ const ResetPasswordRecoveryPhone = ({
             'The code is invalid or expired.'
           )
         );
-        setErrorLink({
-          path: '/confirm_backup_code_reset_password',
-          localizedText: ftlMsgResolver.getMsg(
-            'reset-password-recovery-phone-invalid-code-error-link',
-            'Use backup authentication codes instead?'
-          ),
-          gleanId: 'reset_password_backup_phone_error_use_backup_code_link',
-          ...(location?.state ? { locationState: location.state } : {}),
-        });
+        if (numBackupCodes && numBackupCodes > 0) {
+          setErrorLink({
+            path: '/confirm_backup_code_reset_password',
+            localizedText: ftlMsgResolver.getMsg(
+              'reset-password-recovery-phone-invalid-code-error-link',
+              'Use backup authentication codes instead?'
+            ),
+            gleanId: 'reset_password_backup_phone_error_use_backup_code_link',
+            ...(location?.state ? { locationState: location.state } : {}),
+          });
+        }
         return;
       }
       setErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));

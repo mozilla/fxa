@@ -8,10 +8,12 @@ import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/int
 export type ResetPasswordRecoveryPhoneLocationState =
   CompleteResetPasswordLocationState & {
     lastFourPhoneDigits: string;
+    numBackupCodes?: number;
   };
 
 export type ResetPasswordRecoveryPhoneProps = {
   lastFourPhoneDigits: string;
   verifyCode: (code: string) => Promise<HandledError | void>;
   resendCode: () => Promise<HandledError | void>;
+  numBackupCodes?: number;
 };

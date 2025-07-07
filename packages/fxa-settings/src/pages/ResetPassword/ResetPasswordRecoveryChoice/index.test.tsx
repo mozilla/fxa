@@ -126,6 +126,7 @@ describe('ResetPasswordRecoveryChoice', () => {
         state: {
           ...fakeState,
           lastFourPhoneDigits: '1234',
+          numBackupCodes: 4,
         },
       });
     });

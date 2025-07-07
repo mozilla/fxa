@@ -138,6 +138,7 @@ export const ResetPasswordRecoveryChoiceContainer = (
       state: {
         ...locationState.state,
         lastFourPhoneDigits: phoneData.lastFourPhoneDigits,
+        numBackupCodes,
       },
       // ensure back button on signin_recovery_code page skips choice page and
       // returns to confirm_totp_reset_password

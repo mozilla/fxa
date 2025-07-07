@@ -22,6 +22,7 @@ const SigninRecoveryPhone = ({
   lastFourPhoneDigits,
   verifyCode,
   resendCode,
+  numBackupCodes,
 }: SigninRecoveryPhoneProps & RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = React.useState('');
   const [errorDescription, setErrorDescription] = React.useState('');
@@ -69,14 +70,16 @@ const SigninRecoveryPhone = ({
             'The code is invalid or expired.'
           )
         );
-        setErrorLink({
-          path: '/signin_recovery_code',
-          localizedText: ftlMsgResolver.getMsg(
-            'signin-recovery-phone-invalid-code-error-link',
-            'Use backup authentication codes instead?'
-          ),
-          gleanId: 'login_backup_phone_error_use_backup_code_link',
-        });
+        if (numBackupCodes && numBackupCodes > 0) {
+          setErrorLink({
+            path: '/signin_recovery_code',
+            localizedText: ftlMsgResolver.getMsg(
+              'signin-recovery-phone-invalid-code-error-link',
+              'Use backup authentication codes instead?'
+            ),
+            gleanId: 'login_backup_phone_error_use_backup_code_link',
+          });
+        }
         return;
       }
       setErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));

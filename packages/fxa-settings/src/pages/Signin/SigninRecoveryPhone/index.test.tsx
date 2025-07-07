@@ -24,12 +24,21 @@ describe('SigninRecoveryPhone', () => {
     lastFourPhoneDigits: '1234',
     verifyCode: mockVerifyCode,
     resendCode: mockResendCode,
+    numBackupCodes: 4,
   };
 
   const propsWithError = {
     lastFourPhoneDigits: '1234',
     verifyCode: mockVerifyCodeError,
     resendCode: mockResendCodeError,
+    numBackupCodes: 4,
+  };
+
+  const propsWithErrorNoBackupCodes = {
+    lastFourPhoneDigits: '1234',
+    verifyCode: mockVerifyCodeError,
+    resendCode: mockResendCodeError,
+    numBackupCodes: 0,
   };
 
   beforeEach(() => {
@@ -97,7 +106,7 @@ describe('SigninRecoveryPhone', () => {
     });
   });
 
-  it('handles invalid code', async () => {
+  it('handles invalid code with backup codes available', async () => {
     renderWithLocalizationProvider(<SigninRecoveryPhone {...propsWithError} />);
 
     const input = screen.getByRole('textbox');
@@ -115,6 +124,29 @@ describe('SigninRecoveryPhone', () => {
         name: 'Use backup authentication codes instead?',
       })
     ).toHaveAttribute('href', '/signin_recovery_code');
+  });
+
+  it('handles invalid code without backup codes available', async () => {
+    renderWithLocalizationProvider(
+      <SigninRecoveryPhone {...propsWithErrorNoBackupCodes} />
+    );
+
+    const input = screen.getByRole('textbox');
+
+    await waitFor(() => userEvent.type(input, '123456'));
+    userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => {
+      expect(mockVerifyCodeError).toHaveBeenCalledWith('123456');
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      /The code is invalid or expired./
+    );
+    // Should not show backup codes link when user has no backup codes
+    expect(
+      screen.queryByRole('link', {
+        name: 'Use backup authentication codes instead?',
+      })
+    ).not.toBeInTheDocument();
   });
 
   it('handles resend code', async () => {

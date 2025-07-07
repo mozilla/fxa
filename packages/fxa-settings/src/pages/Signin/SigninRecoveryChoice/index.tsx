@@ -92,7 +92,7 @@ const SigninRecoveryChoice = ({
           return;
         }
         navigateWithQuery('/signin_recovery_phone', {
-          state: { signinState, lastFourPhoneDigits },
+          state: { signinState, lastFourPhoneDigits, numBackupCodes },
         });
         break;
       case CHOICES.code:
