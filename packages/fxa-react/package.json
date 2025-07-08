@@ -81,7 +81,7 @@
     "jest": "27.5.1",
     "jest-environment-jsdom": "^27.5.1",
     "nx": "21.1.2",
-    "pm2": "^5.4.2",
+    "pm2": "^6.0.7",
     "postcss-import": "^16.1.0",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
