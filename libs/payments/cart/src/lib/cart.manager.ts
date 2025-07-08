@@ -117,7 +117,7 @@ export class CartManager {
         taxAddress: input.taxAddress
           ? JSON.stringify(input.taxAddress)
           : undefined,
-        currency: input.currency,
+        currency: input.currency.toLowerCase(),
         id: uuidv4({}, Buffer.alloc(16)),
         uid: input.uid ? Buffer.from(input.uid, 'hex') : undefined,
         state: CartState.START,
@@ -152,7 +152,7 @@ export class CartManager {
         taxAddress: input.taxAddress
           ? JSON.stringify(input.taxAddress)
           : undefined,
-        currency: input.currency,
+        currency: input.currency.toLowerCase(),
         id: uuidv4({}, Buffer.alloc(16)),
         uid: input.uid ? Buffer.from(input.uid, 'hex') : undefined,
         state: CartState.FAIL,
@@ -187,7 +187,7 @@ export class CartManager {
         ...cart,
         id: cart.id.toString('hex'),
         uid: cart.uid ? cart.uid.toString('hex') : undefined,
-        currency: cart.currency,
+        currency: cart.currency.toLowerCase(),
       };
     } catch (error) {
       const cause = error instanceof NotFoundError ? undefined : error;
@@ -205,7 +205,7 @@ export class CartManager {
         ...cart,
         id: cart.id.toString('hex'),
         uid: cart.uid ? cart.uid.toString('hex') : undefined,
-        currency: cart.currency,
+        currency: cart.currency.toLowerCase(),
       };
     });
   }
@@ -226,7 +226,7 @@ export class CartManager {
         taxAddress: items.taxAddress
           ? JSON.stringify(items.taxAddress)
           : undefined,
-        currency: items.currency,
+        currency: items.currency?.toLowerCase(),
         uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
       });
     } catch (error) {

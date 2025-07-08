@@ -12,7 +12,7 @@ export const StripeInvoiceLineItemFactory = (
   object: 'line_item',
   amount: faker.number.int({ max: 1000 }),
   amount_excluding_tax: faker.number.int({ max: 1000 }),
-  currency: faker.finance.currencyCode(),
+  currency: faker.finance.currencyCode().toLowerCase(),
   description: null,
   discount_amounts: null,
   discountable: true,

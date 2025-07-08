@@ -37,12 +37,14 @@ export class CurrencyManager {
     if (!currency) throw new CurrencyCodeMissingError();
     if (!country) throw new CountryCodeMissingError();
 
+    const currencyUpper = currency.toUpperCase();
+
     if (
-      !VALID_CURRENCY_CODES.includes(currency) ||
-      !SUPPORTED_PAYPAL_CURRENCIES.includes(currency) ||
-      !CURRENCIES_TO_COUNTRIES.hasOwnProperty(currency)
+      !VALID_CURRENCY_CODES.includes(currencyUpper) ||
+      !SUPPORTED_PAYPAL_CURRENCIES.includes(currencyUpper) ||
+      !CURRENCIES_TO_COUNTRIES.hasOwnProperty(currencyUpper)
     ) {
-      throw new CurrencyCodeInvalidError(currency);
+      throw new CurrencyCodeInvalidError(currencyUpper);
     }
 
     if (!VALID_COUNTRY_CODES.includes(country)) {
@@ -50,12 +52,12 @@ export class CurrencyManager {
     }
 
     if (
-      currency in CURRENCIES_TO_COUNTRIES &&
+      currencyUpper in CURRENCIES_TO_COUNTRIES &&
       !CURRENCIES_TO_COUNTRIES[
-        currency as keyof typeof CURRENCIES_TO_COUNTRIES
+        currencyUpper as keyof typeof CURRENCIES_TO_COUNTRIES
       ].includes(country)
     ) {
-      throw new CurrencyCountryMismatchError(currency, country);
+      throw new CurrencyCountryMismatchError(currencyUpper, country);
     }
   }
 
@@ -68,7 +70,7 @@ export class CurrencyManager {
       this.config.currenciesToCountries
     )) {
       if (countries.includes(country)) {
-        return currency;
+        return currency.toLowerCase();
       }
     }
 
@@ -76,10 +78,12 @@ export class CurrencyManager {
   }
 
   getDefaultCountryForCurrency(currency: string) {
+    const currencyUpper = currency.toUpperCase();
     if (
-      currency in Object.getOwnPropertyNames(this.config.currenciesToCountries)
+      currencyUpper in
+      Object.getOwnPropertyNames(this.config.currenciesToCountries)
     ) {
-      return this.config.currenciesToCountries[currency][0];
+      return this.config.currenciesToCountries[currencyUpper][0];
     } else {
       return undefined;
     }

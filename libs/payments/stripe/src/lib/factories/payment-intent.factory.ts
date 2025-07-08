@@ -27,7 +27,7 @@ export const StripePaymentIntentFactory = (
   client_secret: faker.string.uuid(),
   confirmation_method: 'automatic',
   created: faker.date.past().getTime() / 1000,
-  currency: faker.finance.currencyCode(),
+  currency: faker.finance.currencyCode().toLowerCase(),
   customer: null,
   description: null,
   invoice: null,

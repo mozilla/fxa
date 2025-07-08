@@ -506,7 +506,7 @@ describe('CartService', () => {
         casing: 'lower',
       }),
       taxAddress,
-      currency: faker.finance.currencyCode(),
+      currency: faker.finance.currencyCode().toLowerCase(),
       ip: faker.internet.ipv4(),
     };
 
@@ -537,7 +537,7 @@ describe('CartService', () => {
 
     it('calls createCart with expected parameters', async () => {
       const mockResultCart = ResultCartFactory();
-      const mockResolvedCurrency = faker.finance.currencyCode();
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
 
       jest
         .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
@@ -567,7 +567,7 @@ describe('CartService', () => {
 
     it('throws an error when couponCode is invalid', async () => {
       const mockAccount = AccountFactory();
-      const mockResolvedCurrency = faker.finance.currencyCode();
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
 
       jest
         .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
@@ -598,7 +598,7 @@ describe('CartService', () => {
 
     it('removes couponCode if cart eligibility status is upgrade', async () => {
       const mockResultCart = ResultCartFactory();
-      const mockResolvedCurrency = faker.finance.currencyCode();
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
       const mockFromOfferingId = faker.string.uuid();
       const mockFromPrice = StripePriceFactory({
         recurring: StripePriceRecurringFactory({ interval: 'month' }),
@@ -665,7 +665,7 @@ describe('CartService', () => {
       const mockErrorCart = ResultCartFactory({
         state: CartState.FAIL,
       });
-      const mockResolvedCurrency = faker.finance.currencyCode();
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
 
       jest
         .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
@@ -707,7 +707,7 @@ describe('CartService', () => {
       const mockErrorCart = ResultCartFactory({
         state: CartState.FAIL,
       });
-      const mockResolvedCurrency = faker.finance.currencyCode();
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
 
       jest
         .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
@@ -749,7 +749,7 @@ describe('CartService', () => {
       const mockErrorCart = ResultCartFactory({
         state: CartState.FAIL,
       });
-      const mockResolvedCurrency = faker.finance.currencyCode();
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
 
       jest
         .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
@@ -789,7 +789,7 @@ describe('CartService', () => {
       const mockErrorCart = ResultCartFactory({
         state: CartState.FAIL,
       });
-      const mockResolvedCurrency = faker.finance.currencyCode();
+      const mockResolvedCurrency = faker.finance.currencyCode().toLowerCase();
 
       jest
         .spyOn(promotionCodeManager, 'assertValidForPriceAndCustomer')
@@ -1194,7 +1194,7 @@ describe('CartService', () => {
 
   describe('updateCart', () => {
     describe('updates cart with tax address and currency', () => {
-      const mockCurrency = faker.finance.currencyCode();
+      const mockCurrency = faker.finance.currencyCode().toLowerCase();
       const mockCart = ResultCartFactory({
         stripeSubscriptionId: undefined,
         currency: mockCurrency,

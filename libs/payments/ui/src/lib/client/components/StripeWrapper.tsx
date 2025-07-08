@@ -104,7 +104,7 @@ export function StripeWrapper({
     mode: 'subscription',
     locale: isStripeElementLocale(locale) ? locale : 'auto',
     amount: amount >= 0 ? amount : 0,
-    currency,
+    currency: currency.toLowerCase(),
     paymentMethodCreation: 'manual',
     externalPaymentMethodTypes: ['external_paypal'],
     customerSessionClientSecret: cart.paymentInfo?.customerSessionClientSecret,

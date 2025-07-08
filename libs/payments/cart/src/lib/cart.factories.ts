@@ -67,7 +67,7 @@ export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
     countryCode: faker.location.countryCode(),
     postalCode: faker.location.zipCode(),
   },
-  currency: faker.finance.currencyCode(),
+  currency: faker.finance.currencyCode().toLowerCase(),
   ...override,
 });
 
@@ -126,7 +126,7 @@ export const ResultCartFactory = (
   interval: faker.string.numeric(),
   experiment: null,
   taxAddress: TaxAddressFactory(),
-  currency: faker.finance.currencyCode(),
+  currency: faker.finance.currencyCode().toLowerCase(),
   createdAt: faker.date.past().getTime(),
   updatedAt: faker.date.past().getTime(),
   couponCode: null,

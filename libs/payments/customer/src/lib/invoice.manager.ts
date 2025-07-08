@@ -238,9 +238,7 @@ export class InvoiceManager {
 
     const countryCode =
       invoice.customer_shipping?.address?.country ??
-      this.currencyManager.getDefaultCountryForCurrency(
-        invoice.currency.toUpperCase()
-      );
+      this.currencyManager.getDefaultCountryForCurrency(invoice.currency);
     if (!countryCode) {
       throw new Error(
         'No valid country code could be found for invoice or currency'

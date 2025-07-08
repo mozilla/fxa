@@ -25,13 +25,13 @@ type SaveActionSignature = (
   postalCode: string
 ) => Promise<
   | {
-      ok: false;
-      error: string | { message: string; data: any };
-    }
+    ok: false;
+    error: string | { message: string; data: any };
+  }
   | {
-      ok: true;
-      data: any;
-    }
+    ok: true;
+    data: any;
+  }
   | void
 >;
 
@@ -131,7 +131,7 @@ const Expanded = ({
 
   const currentCurrencyDisplayName =
     currentCurrency &&
-    new Intl.DisplayNames([locale], { type: 'currency' }).of(currentCurrency);
+    new Intl.DisplayNames([locale], { type: 'currency' }).of(currentCurrency.toUpperCase());
 
   useEffect(() => {
     if (countryCode) {
