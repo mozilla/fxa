@@ -77,7 +77,7 @@ const MESSAGE = {
   metricsEnabled: true,
   unblockCode: 'AS6334PK',
   cardType: 'Mastercard',
-  icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
+  icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
   invoiceDate: new Date(1584747098816),
   invoiceLink:
     'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
@@ -104,9 +104,9 @@ const MESSAGE = {
   planIntervalCount: 2,
   playStoreLink: 'https://example.com/play-store',
   productIconURLNew:
-    'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
+    'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
   productIconURLOld:
-    'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
+    'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
   productId: 'wibble',
   productMetadata,
   productName: 'Firefox Fortress',

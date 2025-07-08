@@ -33,4 +33,4 @@ spec:
   owner: fxa-devs
   system: mozilla-accounts
   definition:
-    $text: https://accounts-static.cdn.mozilla.net/fxa-graphql-api/schema.gql
+    $text: https://cdn.accounts.firefox.com/fxa-graphql-api/schema.gql

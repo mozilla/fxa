@@ -45,7 +45,7 @@
           "livemode": true,
           "metadata": {
             "successActionButtonURL": "https://vpn.mozilla.org/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
-            "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-web.svg"
+            "webIconURL": "https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-web.svg"
           },
           "nickname": "VPN Wave 1 Monthly",
           "product": "prod_KvrtYEIwqzn2YU",
@@ -65,7 +65,7 @@
           "lookup_key": null,
           "metadata": {
             "successActionButtonURL": "https://vpn.mozilla.org/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
-            "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-web.svg"
+            "webIconURL": "https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-web.svg"
           },
           "nickname": "VPN Wave 1 Monthly",
           "product": "prod_KvrtYEIwqzn2YU",
@@ -168,7 +168,7 @@
             "livemode": true,
             "metadata": {
               "successActionButtonURL": "https://vpn.mozilla.org/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
-              "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-web.svg"
+              "webIconURL": "https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-web.svg"
             },
             "nickname": "VPN Wave 1 Monthly",
             "product": "prod_KvrtYEIwqzn2YU",
@@ -188,7 +188,7 @@
             "lookup_key": null,
             "metadata": {
               "successActionButtonURL": "https://vpn.mozilla.org/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
-              "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-web.svg"
+              "webIconURL": "https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-web.svg"
             },
             "nickname": "VPN Wave 1 Monthly",
             "product": "prod_KvrtYEIwqzn2YU",
@@ -479,7 +479,7 @@
     "livemode": true,
     "metadata": {
       "successActionButtonURL": "https://vpn.mozilla.org/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
-      "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-web.svg"
+      "webIconURL": "https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-web.svg"
     },
     "nickname": "VPN Wave 1 Monthly",
     "product": "prod_KvrtYEIwqzn2YU",

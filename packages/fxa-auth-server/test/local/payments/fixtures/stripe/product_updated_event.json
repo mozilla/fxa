@@ -22,10 +22,10 @@
         "productOrder": "0",
         "support:app:abc": "Desktop",
         "support:app:xyz": "Mobile",
-        "product:termsOfServiceDownloadURL": "https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos",
-        "product:termsOfServiceURL": "https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos",
-        "product:privacyNoticeDownloadURL": "https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos",
-        "product:privacyNoticeURL": "https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos"
+        "product:termsOfServiceDownloadURL": "https://cdn.accounts.firefox.com/legal/mozilla_vpn_tos",
+        "product:termsOfServiceURL": "https://cdn.accounts.firefox.com/legal/mozilla_vpn_tos",
+        "product:privacyNoticeDownloadURL": "https://cdn.accounts.firefox.com/legal/mozilla_vpn_tos",
+        "product:privacyNoticeURL": "https://cdn.accounts.firefox.com/legal/mozilla_vpn_tos"
       },
       "name": "123Done Pro",
       "package_dimensions": null,
