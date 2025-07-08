@@ -136,7 +136,7 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
         <h2 className="font-bold text-xl">Enter verification code</h2>
       </FtlMsg>
       <FtlMsg
-        id="flow-setup-phone-confirm-code-instruction"
+        id="flow-setup-phone-confirm-code-instruction-v2"
         elems={{ span: <span dir="ltr" className="font-bold"></span> }}
         vars={{ phoneNumber: nationalFormatPhoneNumber }}
       >
