@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { HandledError } from '../../../lib/error-utils';
+import { AuthUiError } from '../../../lib/auth-errors/auth-errors';
 import { Integration } from '../../../models';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
 
@@ -13,6 +14,7 @@ export interface SigninRecoveryPhoneContainerProps {
 export interface SigninRecoveryPhoneLocationState extends SigninLocationState {
   signinState: SigninLocationState;
   lastFourPhoneDigits: string;
+  sendError?: AuthUiError;
   numBackupCodes?: number;
 }
 
@@ -21,5 +23,6 @@ export type SigninRecoveryPhoneProps = {
   verifyCode: (code: string) => Promise<HandledError | void>;
   resendCode: () => Promise<HandledError | void>;
   integration?: SigninIntegration;
+  sendError?: AuthUiError;
   numBackupCodes?: number;
 };

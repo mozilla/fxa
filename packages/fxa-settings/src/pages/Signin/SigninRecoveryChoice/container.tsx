@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SigninRecoveryChoice from '.';
 import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
@@ -10,10 +10,7 @@ import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import {
-  AuthUiErrorNos,
-  AuthUiErrors,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
 
@@ -39,6 +36,8 @@ export const SigninRecoveryChoiceContainer = ({
   });
   const [loading, setLoading] = useState(true);
   const [dataFetchError, setDataFetchError] = useState<HandledError>();
+  const [autoSendAttempted, setAutoSendAttempted] = useState(false);
+  const autoSendInProgress = useRef(false);
 
   useEffect(() => {
     if (!signinState || !signinState.sessionToken) {
@@ -46,12 +45,29 @@ export const SigninRecoveryChoiceContainer = ({
     }
 
     const fetchData = async () => {
+      let backupCodesSuccess = false;
+      let phoneSuccess = false;
+
+      // Fetch backup codes
       try {
         const { count } = await authClient.getRecoveryCodesExist(
           signinState.sessionToken
         );
         count && setNumBackupCodes(count);
+        backupCodesSuccess = true;
+      } catch (err) {
+        const handledError = getHandledError(err);
+        // Critical errors should stop everything
+        if (handledError.error.errno === AuthUiErrors.INVALID_TOKEN.errno) {
+          setDataFetchError(handledError.error);
+          setLoading(false);
+          return;
+        }
+        // Non-critical errors - continue trying phone
+      }
 
+      // Fetch phone data
+      try {
         const { phoneNumber, nationalFormat } =
           await authClient.recoveryPhoneGet(signinState.sessionToken);
 
@@ -66,14 +82,27 @@ export const SigninRecoveryChoiceContainer = ({
           maskedPhoneNumber,
           lastFourPhoneDigits,
         });
-        return;
+        phoneSuccess = true;
       } catch (err) {
         const handledError = getHandledError(err);
-        setDataFetchError(handledError.error);
-        return;
-      } finally {
-        setLoading(false);
+        // Critical errors should stop everything
+        if (handledError.error.errno === AuthUiErrors.INVALID_TOKEN.errno) {
+          setDataFetchError(handledError.error);
+          setLoading(false);
+          return;
+        }
+        // Non-critical errors - continue
       }
+
+      // Only set error if BOTH APIs failed
+      if (!backupCodesSuccess && !phoneSuccess) {
+        setDataFetchError({
+          errno: 999,
+          message: 'Failed to fetch recovery methods',
+        });
+      }
+
+      setLoading(false);
     };
     fetchData();
     // excluding ftlMsgResolver as it is causing re-renders
@@ -81,15 +110,16 @@ export const SigninRecoveryChoiceContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authClient, signinState]);
 
-  const handlePhoneChoice = async () => {
-    if (!signinState) {
-      return;
+  // handlePhoneChoice should return an AuthUiError if sending fails, undefined if succeeds
+  const handlePhoneChoice = useCallback(async () => {
+    if (!signinState || !signinState.sessionToken) {
+      return AuthUiErrors.UNEXPECTED_ERROR;
     }
     try {
       await authClient.recoveryPhoneSigninSendCode(signinState.sessionToken);
-      return;
+      return undefined;
     } catch (err) {
-      if (err.errno && AuthUiErrorNos[err.errno]) {
+      if (err && typeof err === 'object' && 'errno' in err) {
         if (err.errno === AuthUiErrors.INVALID_TOKEN.errno) {
           navigateWithQuery('/signin');
           return;
@@ -98,46 +128,107 @@ export const SigninRecoveryChoiceContainer = ({
       }
       return AuthUiErrors.UNEXPECTED_ERROR;
     }
-  };
+  }, [authClient, signinState, navigateWithQuery]);
+
+  const redirectToSignin = useCallback(() => {
+    navigateWithQuery('/signin');
+  }, [navigateWithQuery]);
+
+  const redirectToRecoveryCode = useCallback(() => {
+    navigateWithQuery('/signin_recovery_code', {
+      state: { signinState },
+      replace: true,
+    });
+  }, [navigateWithQuery, signinState]);
+
+  const handleDataFetchError = useCallback(() => {
+    if (dataFetchError?.errno === AuthUiErrors.INVALID_TOKEN.errno) {
+      redirectToSignin();
+    } else {
+      redirectToRecoveryCode();
+    }
+  }, [dataFetchError, redirectToSignin, redirectToRecoveryCode]);
+
+  const autoSendPhoneCode = useCallback(async () => {
+    setAutoSendAttempted(true);
+    autoSendInProgress.current = true;
+
+    const error = await handlePhoneChoice();
+    // Always navigate, but pass error flag if send failed
+    navigateWithQuery('/signin_recovery_phone', {
+      state: {
+        signinState,
+        lastFourPhoneDigits: phoneData.lastFourPhoneDigits,
+        sendError: error,
+        numBackupCodes,
+      },
+      replace: true,
+    });
+    autoSendInProgress.current = false;
+  }, [
+    handlePhoneChoice,
+    navigateWithQuery,
+    signinState,
+    phoneData.lastFourPhoneDigits,
+    numBackupCodes,
+  ]);
+
+  // Handle all navigation logic in a single effect with clear priority order
+  useEffect(() => {
+    // Priority 1: Missing signinState or sessionToken
+    if (!signinState || !signinState.sessionToken) {
+      redirectToSignin();
+      return;
+    }
+
+    // Priority 2: Data fetch error
+    if (dataFetchError) {
+      handleDataFetchError();
+      return;
+    }
+
+    // Priority 3: Still loading - don't make any navigation decisions yet
+    if (loading) {
+      return;
+    }
+
+    // Priority 4: No phone available
+    if (!phoneData.phoneNumber) {
+      redirectToRecoveryCode();
+      return;
+    }
+
+    // Priority 5: Auto-send SMS if only phone is available (no backup codes)
+    if (!autoSendAttempted && numBackupCodes === 0) {
+      autoSendPhoneCode();
+      return;
+    }
+  }, [
+    signinState,
+    dataFetchError,
+    loading,
+    phoneData.phoneNumber,
+    autoSendAttempted,
+    numBackupCodes,
+    redirectToSignin,
+    handleDataFetchError,
+    redirectToRecoveryCode,
+    autoSendPhoneCode,
+  ]);
 
   if (!signinState || !signinState.sessionToken) {
-    navigateWithQuery('/signin');
-    return;
+    return <LoadingSpinner fullScreen />;
   }
 
   if (loading) {
     return <LoadingSpinner fullScreen />;
   }
 
-  if (dataFetchError) {
-    if (dataFetchError.errno === AuthUiErrors.INVALID_TOKEN.errno) {
-      navigateWithQuery('/signin');
-      return;
-    }
-    // if there was another error fetching available recovery methods, go to backup authentication codes page
-    navigateWithQuery('/signin_recovery_code', {
-      state: { signinState },
-      // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
-      replace: true,
-    });
-  }
   if (!phoneData.phoneNumber) {
-    navigateWithQuery('/signin_recovery_code', {
-      state: { signinState },
-      // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
-      replace: true,
-    });
-    return;
+    return <LoadingSpinner fullScreen />;
   } else if (!numBackupCodes || numBackupCodes === 0) {
-    navigateWithQuery('/signin_recovery_phone', {
-      state: {
-        signinState,
-        lastFourPhoneDigits: phoneData.lastFourPhoneDigits,
-        numBackupCodes,
-      },
-      // ensure back button on signin_recovery_code page skips choice page and returns to signin_totp_code
-      replace: true,
-    });
+    // Don't do anything here; auto-send is handled in useEffect above
+    return <LoadingSpinner fullScreen />;
   }
 
   return (

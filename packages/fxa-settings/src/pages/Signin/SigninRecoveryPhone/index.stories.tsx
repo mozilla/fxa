@@ -25,6 +25,7 @@ export const Basic = () => (
       action('verifyCode')(code);
       return Promise.resolve();
     }}
+    resendCode={() => Promise.resolve()}
   />
 );
 
@@ -40,9 +41,12 @@ export const BasicWithCms = () => (
 
 export const WithCodeErrorOnSubmit = () => (
   <Subject
-    verifyCode={(code: string) =>
-      Promise.resolve(AuthUiErrors.INVALID_EXPIRED_OTP_CODE as HandledError)
-    }
+    verifyCode={(code: string) => {
+      action('verifyCode')(code);
+      return Promise.resolve(
+        AuthUiErrors.INVALID_EXPIRED_OTP_CODE as HandledError
+      );
+    }}
     resendCode={() => Promise.resolve()}
   />
 );
@@ -59,9 +63,12 @@ export const WithCodeErrorOnSubmitNoBackupCodes = () => (
 
 export const WithGeneralErrorMessages = () => (
   <Subject
-    verifyCode={(code: string) =>
-      Promise.resolve(AuthUiErrors.BACKEND_SERVICE_FAILURE as HandledError)
-    }
+    verifyCode={(code: string) => {
+      action('verifyCode')(code);
+      return Promise.resolve(
+        AuthUiErrors.BACKEND_SERVICE_FAILURE as HandledError
+      );
+    }}
     resendCode={() =>
       Promise.resolve(AuthUiErrors.BACKEND_SERVICE_FAILURE as HandledError)
     }
@@ -70,9 +77,21 @@ export const WithGeneralErrorMessages = () => (
 
 export const WithThrottlingErrorMessages = () => (
   <Subject
-    verifyCode={(code: string) =>
-      Promise.resolve(AuthUiErrors.THROTTLED as HandledError)
-    }
+    verifyCode={(code: string) => {
+      action('verifyCode')(code);
+      return Promise.resolve(AuthUiErrors.THROTTLED as HandledError);
+    }}
     resendCode={() => Promise.resolve(AuthUiErrors.THROTTLED as HandledError)}
+  />
+);
+
+export const WithInitialSendError = () => (
+  <Subject
+    sendError={AuthUiErrors.BACKEND_SERVICE_FAILURE}
+    verifyCode={(code: string) => {
+      action('verifyCode')(code);
+      return Promise.resolve();
+    }}
+    resendCode={() => Promise.resolve()}
   />
 );

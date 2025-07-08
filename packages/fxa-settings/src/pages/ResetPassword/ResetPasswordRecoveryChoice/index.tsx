@@ -96,9 +96,12 @@ const ResetPasswordRecoveryChoice = ({
           return;
         }
 
-        // /reset_password_recovery_phone to be implemented in FXA-11510
         navigateWithQuery('/reset_password_recovery_phone', {
-          state: { ...completeResetPasswordLocationState, lastFourPhoneDigits, numBackupCodes },
+          state: {
+            ...completeResetPasswordLocationState,
+            lastFourPhoneDigits,
+            numBackupCodes,
+          },
         });
         break;
       case CHOICES.code:

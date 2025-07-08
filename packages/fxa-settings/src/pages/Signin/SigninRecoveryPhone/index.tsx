@@ -2,49 +2,103 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { RouteComponentProps } from '@reach/router';
 import { useFtlMsgResolver } from '../../../models';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, FtlMsgResolver } from 'fxa-react/lib/utils';
 import { BackupRecoveryPhoneCodeImage } from '../../../components/images';
 import Banner from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import ButtonBack from '../../../components/ButtonBack';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import {
+  getLocalizedErrorMessage,
+  HandledError,
+} from '../../../lib/error-utils';
+import {
+  AuthUiError,
+  AuthUiErrors,
+} from '../../../lib/auth-errors/auth-errors';
 import { SigninRecoveryPhoneProps } from './interfaces';
 import { BannerLinkProps } from '../../../components/Banner/interfaces';
+
+// Reusable function for error banner heading/description
+function getSendCodeErrorBanner(
+  error: HandledError | AuthUiError,
+  ftlMsgResolver: FtlMsgResolver,
+  localizedGeneralErrorDescription: string
+) {
+  if (!error) return { heading: '', description: '' };
+  const heading = ftlMsgResolver.getMsg(
+    'signin-recovery-phone-send-code-error-heading',
+    'There was a problem sending a code'
+  );
+  if (
+    error.errno === AuthUiErrors.BACKEND_SERVICE_FAILURE.errno ||
+    error.errno === AuthUiErrors.FEATURE_NOT_ENABLED?.errno ||
+    error.errno === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED?.errno ||
+    error.errno === AuthUiErrors.UNEXPECTED_ERROR.errno
+  ) {
+    return {
+      heading,
+      description: localizedGeneralErrorDescription,
+    };
+  }
+  return {
+    heading,
+    description: getLocalizedErrorMessage(ftlMsgResolver, error),
+  };
+}
 
 const SigninRecoveryPhone = ({
   lastFourPhoneDigits,
   verifyCode,
   resendCode,
+  sendError,
   numBackupCodes,
   integration
 }: SigninRecoveryPhoneProps & RouteComponentProps) => {
-  const [errorMessage, setErrorMessage] = React.useState('');
-  const [errorDescription, setErrorDescription] = React.useState('');
-  const [errorLink, setErrorLink] = React.useState<BannerLinkProps>();
-  const [showResendSuccessBanner, setShowResendSuccessBanner] =
-    React.useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorDescription, setErrorDescription] = useState('');
+  const [errorLink, setErrorLink] = useState<BannerLinkProps>();
+  const [showResendSuccessBanner, setShowResendSuccessBanner] = useState(false);
+  const [initialSendErrorDismissed, setInitialSendErrorDismissed] =
+    useState(false);
   const ftlMsgResolver = useFtlMsgResolver();
 
+  const localizedGeneralErrorDescription = ftlMsgResolver.getMsg(
+    'signin-recovery-phone-general-error-description',
+    'Please try again later.'
+  );
+
   const spanElement = <span className="font-bold">{lastFourPhoneDigits}</span>;
+
+  useEffect(() => {
+    if (sendError && !initialSendErrorDismissed) {
+      const { heading, description } = getSendCodeErrorBanner(
+        sendError,
+        ftlMsgResolver,
+        localizedGeneralErrorDescription
+      );
+      setErrorMessage(heading);
+      setErrorDescription(description);
+    }
+  }, [
+    sendError,
+    initialSendErrorDismissed,
+    ftlMsgResolver,
+    localizedGeneralErrorDescription,
+  ]);
 
   const clearBanners = () => {
     setErrorMessage('');
     setErrorDescription('');
     setErrorLink(undefined);
     setShowResendSuccessBanner(false);
+    setInitialSendErrorDismissed(true);
   };
-
-  const localizedGeneralErrorDescription = ftlMsgResolver.getMsg(
-    'signin-recovery-phone-general-error-description',
-    'Please try again later.'
-  );
 
   const handleVerifyCode = async (code: string) => {
     clearBanners();
@@ -92,22 +146,13 @@ const SigninRecoveryPhone = ({
     clearBanners();
     const error = await resendCode();
     if (error) {
-      if (
-        error.errno === AuthUiErrors.BACKEND_SERVICE_FAILURE.errno ||
-        error.errno === AuthUiErrors.FEATURE_NOT_ENABLED.errno ||
-        error.errno === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED.errno ||
-        error.errno === AuthUiErrors.UNEXPECTED_ERROR.errno
-      ) {
-        setErrorMessage(
-          ftlMsgResolver.getMsg(
-            'signin-recovery-phone-send-code-error-heading',
-            'There was a problem sending a code'
-          )
-        );
-        setErrorDescription(localizedGeneralErrorDescription);
-        return;
-      }
-      setErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
+      const { heading, description } = getSendCodeErrorBanner(
+        error,
+        ftlMsgResolver,
+        localizedGeneralErrorDescription
+      );
+      setErrorMessage(heading);
+      setErrorDescription(description);
       return;
     }
     setShowResendSuccessBanner(true);
@@ -191,6 +236,7 @@ const SigninRecoveryPhone = ({
           clearBanners,
           errorMessage,
           setErrorMessage,
+          setErrorDescription,
         }}
         gleanDataAttrs={{ id: 'login_backup_phone_submit' }}
         className="my-6"

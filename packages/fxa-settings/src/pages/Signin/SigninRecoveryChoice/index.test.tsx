@@ -140,6 +140,9 @@ describe('SigninRecoveryChoice', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(
         'There was a problem sending a code to your recovery phone'
       );
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Please try again later or use your backup authentication codes.'
+      );
       expect(mockNavigate).not.toHaveBeenCalled();
     });
   });

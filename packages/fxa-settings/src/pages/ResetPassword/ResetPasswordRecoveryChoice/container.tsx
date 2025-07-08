@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import ResetPasswordRecoveryChoice from '.';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
@@ -35,6 +35,8 @@ export const ResetPasswordRecoveryChoiceContainer = (
   });
   const [loading, setLoading] = useState(true);
   const [dataFetchError, setDataFetchError] = useState<HandledError>();
+  const [autoSendAttempted, setAutoSendAttempted] = useState(false);
+  const autoSendInProgress = useRef(false);
 
   useEffect(() => {
     if (!locationState || !locationState.state.token) {
@@ -42,13 +44,30 @@ export const ResetPasswordRecoveryChoiceContainer = (
     }
 
     const fetchData = async () => {
+      let backupCodesSuccess = false;
+      let phoneSuccess = false;
+
+      // Fetch backup codes
       try {
         const { count } =
           await authClient.getRecoveryCodesExistWithPasswordForgotToken(
             locationState.state.token
           );
         count && setNumBackupCodes(count);
+        backupCodesSuccess = true;
+      } catch (err) {
+        const handledError = getHandledError(err);
+        // Critical errors should stop everything
+        if (handledError.error.errno === AuthUiErrors.INVALID_TOKEN.errno) {
+          setDataFetchError(handledError.error);
+          setLoading(false);
+          return;
+        }
+        // Non-critical errors - continue trying phone
+      }
 
+      // Fetch phone data
+      try {
         const { phoneNumber, nationalFormat } =
           await authClient.recoveryPhoneGetWithPasswordForgotToken(
             locationState.state.token
@@ -67,12 +86,27 @@ export const ResetPasswordRecoveryChoiceContainer = (
             lastFourPhoneDigits,
           });
         }
+        phoneSuccess = true;
       } catch (err) {
         const handledError = getHandledError(err);
-        setDataFetchError(handledError.error);
-      } finally {
-        setLoading(false);
+        // Critical errors should stop everything
+        if (handledError.error.errno === AuthUiErrors.INVALID_TOKEN.errno) {
+          setDataFetchError(handledError.error);
+          setLoading(false);
+          return;
+        }
+        // Non-critical errors - continue
       }
+
+      // Only set error if BOTH APIs failed
+      if (!backupCodesSuccess && !phoneSuccess) {
+        setDataFetchError({
+          errno: 999,
+          message: 'Failed to fetch recovery methods',
+        });
+      }
+
+      setLoading(false);
     };
     fetchData();
     // excluding ftlMsgResolver as it is causing re-renders
@@ -80,15 +114,16 @@ export const ResetPasswordRecoveryChoiceContainer = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authClient, locationState]);
 
-  const handlePhoneChoice = async () => {
-    if (!locationState) {
-      return;
+  // handlePhoneChoice should return an AuthUiError if sending fails, undefined if succeeds
+  const handlePhoneChoice = useCallback(async () => {
+    if (!locationState || !locationState.state.token) {
+      return AuthUiErrors.UNEXPECTED_ERROR;
     }
     try {
       await authClient.recoveryPhonePasswordResetSendCode(
         locationState.state.token
       );
-      return;
+      return undefined;
     } catch (err) {
       if (err.errno && AuthUiErrorNos[err.errno]) {
         if (err.errno === AuthUiErrors.INVALID_TOKEN.errno) {
@@ -99,52 +134,107 @@ export const ResetPasswordRecoveryChoiceContainer = (
       }
       return AuthUiErrors.UNEXPECTED_ERROR;
     }
-  };
+  }, [authClient, locationState, navigateWithQuery]);
+
+  const redirectToResetPassword = useCallback(() => {
+    navigateWithQuery('/reset_password');
+  }, [navigateWithQuery]);
+
+  const redirectToBackupCodes = useCallback(() => {
+    navigateWithQuery('/confirm_backup_code_reset_password', {
+      state: locationState.state,
+      replace: true,
+    });
+  }, [navigateWithQuery, locationState]);
+
+  const handleDataFetchError = useCallback(() => {
+    if (dataFetchError?.errno === AuthUiErrors.INVALID_TOKEN.errno) {
+      redirectToResetPassword();
+    } else {
+      // If there was another error fetching available recovery methods, go to backup authentication codes page
+      redirectToBackupCodes();
+    }
+  }, [dataFetchError, redirectToResetPassword, redirectToBackupCodes]);
+
+  const autoSendPhoneCode = useCallback(async () => {
+    setAutoSendAttempted(true);
+    autoSendInProgress.current = true;
+
+    const error = await handlePhoneChoice();
+    navigateWithQuery('/reset_password_recovery_phone', {
+      state: {
+        ...locationState.state,
+        lastFourPhoneDigits: phoneData.lastFourPhoneDigits,
+        sendError: error,
+        numBackupCodes,
+      },
+      replace: true,
+    });
+    autoSendInProgress.current = false;
+  }, [
+    handlePhoneChoice,
+    navigateWithQuery,
+    locationState,
+    phoneData.lastFourPhoneDigits,
+    numBackupCodes,
+  ]);
+
+  // Handle all navigation logic in a single effect with clear priority order
+  useEffect(() => {
+    // Priority 1: Missing locationState or token
+    if (!locationState || !locationState.state.token) {
+      redirectToResetPassword();
+      return;
+    }
+
+    // Priority 2: Data fetch error
+    if (dataFetchError) {
+      handleDataFetchError();
+      return;
+    }
+
+    // Priority 3: Still loading - don't make any navigation decisions yet
+    if (loading) {
+      return;
+    }
+
+    // Priority 4: No phone available
+    if (!phoneData.phoneNumber) {
+      redirectToBackupCodes();
+      return;
+    }
+
+    // Priority 5: Auto-send SMS if only phone is available (no backup codes)
+    if (!autoSendAttempted && numBackupCodes === 0) {
+      autoSendPhoneCode();
+      return;
+    }
+  }, [
+    locationState,
+    dataFetchError,
+    loading,
+    phoneData.phoneNumber,
+    autoSendAttempted,
+    numBackupCodes,
+    redirectToResetPassword,
+    handleDataFetchError,
+    redirectToBackupCodes,
+    autoSendPhoneCode,
+  ]);
 
   if (!locationState || !locationState.state.token) {
-    navigateWithQuery('/reset_password');
-    return;
+    return <LoadingSpinner fullScreen />;
   }
 
   if (loading) {
     return <LoadingSpinner fullScreen />;
   }
 
-  if (dataFetchError) {
-    if (dataFetchError.errno === AuthUiErrors.INVALID_TOKEN.errno) {
-      navigateWithQuery('/reset_password');
-      return;
-    }
-    // if there was another error fetching available recovery methods, go to backup authentication codes page
-    navigateWithQuery('/confirm_backup_code_reset_password', {
-      state: locationState.state,
-      // ensure back button on reset_password_recovery_code page skips choice
-      // page and returns to confirm_totp_reset_password
-      replace: true,
-    });
-    return;
-  }
   if (!phoneData.phoneNumber) {
-    navigateWithQuery('/confirm_backup_code_reset_password', {
-      state: locationState.state,
-      // ensure back button on reset_password_recovery_code page skips choice
-      // page and returns to confirm_totp_reset_password
-      replace: true,
-    });
-    return;
-  }
-  if (!numBackupCodes || numBackupCodes === 0) {
-    navigateWithQuery('/reset_password_recovery_phone', {
-      state: {
-        ...locationState.state,
-        lastFourPhoneDigits: phoneData.lastFourPhoneDigits,
-        numBackupCodes,
-      },
-      // ensure back button on signin_recovery_code page skips choice page and
-      // returns to confirm_totp_reset_password
-      replace: true,
-    });
-    return;
+    return <LoadingSpinner fullScreen />;
+  } else if (!numBackupCodes || numBackupCodes === 0) {
+    // Don't do anything here; auto-send is handled in useEffect above
+    return <LoadingSpinner fullScreen />;
   }
 
   return (
