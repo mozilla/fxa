@@ -26,7 +26,7 @@
             width="120px"
             align="left"
             href="https://www.mozilla.org"
-            src="https://accounts-static.cdn.mozilla.net/product-icons/mozilla-logo.png"
+            src="https://cdn.accounts.firefox.com/product-icons/mozilla-logo.png"
             alt="Mozilla logo"
             title="Mozilla logo">
           </mj-image>
@@ -97,7 +97,7 @@
           <mj-image css-class="mozilla-logo-footer"
             width="120px"
             href="https://www.mozilla.org"
-            src="https://accounts-static.cdn.mozilla.net/product-icons/mozilla-logo-w.png"
+            src="https://cdn.accounts.firefox.com/product-icons/mozilla-logo-w.png"
             alt="Mozilla logo"
             title="Mozilla">
           </mj-image>

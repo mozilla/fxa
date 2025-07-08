@@ -13,7 +13,7 @@ const createStory = subplatStoryWithProps(
   'downloadSubscription',
   'Sent when a user successfully adds a subscription.',
   {
-    icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
+    icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
     link: 'http://getfirefox.com/',
     productName: 'Firefox Fortress',
     subscriptionSupportUrl: 'http://localhost:3030/support',
