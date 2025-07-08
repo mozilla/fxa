@@ -7,6 +7,18 @@
 import Stripe from 'stripe';
 import { CheckoutForm } from '../CheckoutForm';
 import { StripeWrapper } from '../StripeWrapper';
+import {
+  PayPalScriptProvider,
+  ReactPayPalScriptOptions,
+} from '@paypal/react-paypal-js';
+
+const paypalInitialOptions: ReactPayPalScriptOptions = {
+  clientId: '',
+  vault: true,
+  commit: false,
+  intent: 'capture',
+  disableFunding: ['credit', 'card'],
+};
 
 interface PaymentFormProps {
   cmsCommonContent: {
@@ -41,6 +53,8 @@ interface PaymentFormProps {
     hasActiveSubscriptions: boolean;
   };
   locale: string;
+  nonce?: string;
+  paypalClientId: string;
   sessionUid?: string;
 }
 
@@ -49,21 +63,31 @@ export function PaymentSection({
   paymentsInfo,
   cart,
   locale,
+  nonce,
+  paypalClientId,
   sessionUid,
 }: PaymentFormProps) {
   return (
-    <StripeWrapper
-      amount={paymentsInfo.amount}
-      currency={paymentsInfo.currency}
-      cart={cart}
-      locale={locale}
+    <PayPalScriptProvider
+      options={{
+        ...paypalInitialOptions,
+        clientId: paypalClientId,
+        dataCspNonce: nonce,
+      }}
     >
-      <CheckoutForm
-        cmsCommonContent={cmsCommonContent}
+      <StripeWrapper
+        amount={paymentsInfo.amount}
+        currency={paymentsInfo.currency}
         cart={cart}
         locale={locale}
-        sessionUid={sessionUid}
-      />
-    </StripeWrapper>
+      >
+        <CheckoutForm
+          cmsCommonContent={cmsCommonContent}
+          cart={cart}
+          locale={locale}
+          sessionUid={sessionUid}
+        />
+      </StripeWrapper>
+    </PayPalScriptProvider>
   );
 }

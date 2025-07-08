@@ -16,7 +16,6 @@ export default async function RootProviderLayout({
   children: React.ReactNode;
 }) {
   const acceptLanguage = headers().get('accept-language');
-  const nonce = headers().get('x-nonce') || undefined;
   const fetchedMessages = getApp().getFetchedMessages(
     acceptLanguage,
     params.locale
@@ -32,7 +31,6 @@ export default async function RootProviderLayout({
         },
       }}
       fetchedMessages={fetchedMessages}
-      nonce={nonce}
     >
       {children}
     </Providers>

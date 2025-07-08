@@ -59,6 +59,7 @@ export default async function Checkout({
   const { locale } = params;
 
   const acceptLanguage = headers().get('accept-language');
+  const nonce = headers().get('x-nonce') || undefined;
   const sessionPromise = auth();
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const cmsDataPromise = fetchCMSData(
@@ -80,7 +81,8 @@ export default async function Checkout({
 
   // prevent cart and session user mismatch
   if (cart.uid !== session?.user?.id) {
-    const redirectSearchParams: Record<string, string | string[]> = searchParams || {};
+    const redirectSearchParams: Record<string, string | string[]> =
+      searchParams || {};
     delete redirectSearchParams.cartId;
     delete redirectSearchParams.cartVersion;
     const redirectTo = buildRedirectUrl(
@@ -97,7 +99,8 @@ export default async function Checkout({
     redirect(redirectTo);
   }
 
-  const redirectSearchParams: Record<string, string | string[]> = searchParams || {};
+  const redirectSearchParams: Record<string, string | string[]> =
+    searchParams || {};
   redirectSearchParams.cartId = cart.id;
   redirectSearchParams.cartVersion = cart.version.toString();
 
@@ -279,6 +282,8 @@ export default async function Checkout({
                 },
               }}
               locale={locale}
+              nonce={nonce}
+              paypalClientId={config.paypal.clientId}
               sessionUid={session?.user?.id}
             />
           )}
