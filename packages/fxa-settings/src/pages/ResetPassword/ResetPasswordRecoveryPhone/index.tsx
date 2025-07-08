@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AppLayout from '../../../components/AppLayout';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { RouteComponentProps } from '@reach/router';
@@ -18,33 +18,95 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { ResetPasswordRecoveryPhoneProps } from './interfaces';
 import { BannerLinkProps } from '../../../components/Banner/interfaces';
 
+// Helper to map sendCode errors to banner content
+function getSendCodeErrorBanner(
+  error: any,
+  ftlMsgResolver: any,
+  localizedGeneralErrorDescription: string
+) {
+  if (!error) return { heading: '', description: '' };
+  const heading = ftlMsgResolver.getMsg(
+    'reset-password-recovery-phone-send-code-error-heading',
+    'There was a problem sending a code'
+  );
+  if (
+    error.errno === AuthUiErrors.BACKEND_SERVICE_FAILURE.errno ||
+    error.errno === AuthUiErrors.FEATURE_NOT_ENABLED?.errno ||
+    error.errno === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED?.errno ||
+    error.errno === AuthUiErrors.UNEXPECTED_ERROR.errno
+  ) {
+    return {
+      heading,
+      description: localizedGeneralErrorDescription,
+    };
+  }
+  return {
+    heading,
+    description: getLocalizedErrorMessage(ftlMsgResolver, error),
+  };
+}
+
 const ResetPasswordRecoveryPhone = ({
   lastFourPhoneDigits,
   verifyCode,
   resendCode,
-  location,
+  sendError,
   numBackupCodes,
+  location,
 }: ResetPasswordRecoveryPhoneProps & RouteComponentProps) => {
-  const [errorMessage, setErrorMessage] = React.useState('');
-  const [errorDescription, setErrorDescription] = React.useState('');
-  const [errorLink, setErrorLink] = React.useState<BannerLinkProps>();
-  const [showResendSuccessBanner, setShowResendSuccessBanner] =
-    React.useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorDescription, setErrorDescription] = useState('');
+  const [errorLink, setErrorLink] = useState<BannerLinkProps>();
+  const [showResendSuccessBanner, setShowResendSuccessBanner] = useState(false);
+  const [initialSendErrorDismissed, setInitialSendErrorDismissed] =
+    useState(false);
   const ftlMsgResolver = useFtlMsgResolver();
 
   const spanElement = <span className="font-bold">{lastFourPhoneDigits}</span>;
+
+  const localizedGeneralErrorDescription = ftlMsgResolver.getMsg(
+    'reset-password-recovery-phone-general-error-description',
+    'Please try again later.'
+  );
+
+  useEffect(() => {
+    if (sendError && !initialSendErrorDismissed) {
+      const { heading, description } = getSendCodeErrorBanner(
+        sendError,
+        ftlMsgResolver,
+        localizedGeneralErrorDescription
+      );
+      setErrorMessage(heading);
+      setErrorDescription(description);
+    }
+  }, [
+    sendError,
+    initialSendErrorDismissed,
+    ftlMsgResolver,
+    localizedGeneralErrorDescription,
+  ]);
+
+  // Mark initial sendError as dismissed when user clears the banner by typing
+  useEffect(() => {
+    if (
+      sendError &&
+      initialSendErrorDismissed === false &&
+      !errorMessage &&
+      !errorDescription
+    ) {
+      setInitialSendErrorDismissed(true);
+    }
+  }, [sendError, initialSendErrorDismissed, errorMessage, errorDescription]);
 
   const clearBanners = () => {
     setErrorMessage('');
     setErrorDescription('');
     setErrorLink(undefined);
     setShowResendSuccessBanner(false);
+    setInitialSendErrorDismissed(true);
   };
 
-  const localizedGeneralErrorDescription = ftlMsgResolver.getMsg(
-    'reset-password-recovery-phone-general-error-description',
-    'Please try again later.'
-  );
+  // localizedGeneralErrorDescription moved above for proper initialization
 
   const handleVerifyCode = async (code: string) => {
     clearBanners();
@@ -93,22 +155,13 @@ const ResetPasswordRecoveryPhone = ({
     clearBanners();
     const error = await resendCode();
     if (error) {
-      if (
-        error.errno === AuthUiErrors.BACKEND_SERVICE_FAILURE.errno ||
-        error.errno === AuthUiErrors.FEATURE_NOT_ENABLED.errno ||
-        error.errno === AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED.errno ||
-        error.errno === AuthUiErrors.UNEXPECTED_ERROR.errno
-      ) {
-        setErrorMessage(
-          ftlMsgResolver.getMsg(
-            'reset-password-recovery-phone-send-code-error-heading',
-            'There was a problem sending a code'
-          )
-        );
-        setErrorDescription(localizedGeneralErrorDescription);
-        return;
-      }
-      setErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
+      const { heading, description } = getSendCodeErrorBanner(
+        error,
+        ftlMsgResolver,
+        localizedGeneralErrorDescription
+      );
+      setErrorMessage(heading);
+      setErrorDescription(description);
       return;
     }
     setShowResendSuccessBanner(true);
@@ -182,6 +235,7 @@ const ResetPasswordRecoveryPhone = ({
           clearBanners,
           errorMessage,
           setErrorMessage,
+          setErrorDescription,
         }}
         gleanDataAttrs={{ id: 'reset_password_backup_phone_submit' }}
         className="my-6"

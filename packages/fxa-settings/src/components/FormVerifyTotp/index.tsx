@@ -21,6 +21,7 @@ const FormVerifyTotp = ({
   codeType,
   errorBannerId,
   errorMessage,
+  setErrorDescription,
   localizedInputLabel,
   localizedSubmitButtonText,
   setErrorMessage,
@@ -43,6 +44,9 @@ const FormVerifyTotp = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (errorMessage) {
       setErrorMessage('');
+    }
+    if (setErrorDescription) {
+      setErrorDescription('');
     }
     // only accept characters that match the code type (numeric or alphanumeric)
     // strip out any other characters
