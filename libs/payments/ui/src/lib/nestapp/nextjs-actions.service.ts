@@ -8,7 +8,6 @@ import { GoogleManager } from '@fxa/google';
 import {
   CartInvalidStateForActionError,
   CartService,
-  SubmitNeedsInputFailedError,
   SuccessCartDTO,
   TaxChangeAllowedStatus,
   TaxService,
@@ -373,9 +372,7 @@ export class NextJSActionsService {
     return await this.cartService.getNeedsInput(args.cartId);
   }
 
-  @SanitizeExceptions({
-    allowlist: [SubmitNeedsInputFailedError],
-  })
+  @SanitizeExceptions()
   @NextIOValidator(SubmitNeedsInputActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()

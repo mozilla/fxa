@@ -87,6 +87,8 @@ import { SubmitNeedsInputFailedError } from './checkout.error';
 import { CheckoutService } from './checkout.service';
 import { resolveErrorInstance } from './util/resolveErrorInstance';
 import { isPaymentIntentId } from './util/isPaymentIntentId';
+import { isPaymentIntent } from './util/isPaymentIntent';
+import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { SubscriptionAttributionParams } from './checkout.types';
 import { handleException } from 'libs/shared/error/src/lib/sanitizeExceptionsDecorator';
 
@@ -167,7 +169,6 @@ export class CartService {
           errorName: error.name,
         });
       }
-
       const errorReasonId = resolveErrorInstance(error);
 
       this.statsd.increment('checkout_failure_unexpected', {
@@ -965,7 +966,7 @@ export class CartService {
     });
   }
 
-  @SanitizeExceptions({ allowlist: [SubmitNeedsInputFailedError] })
+  @SanitizeExceptions()
   async submitNeedsInput(cartId: string) {
     return this.wrapWithCartCatch(cartId, async () => {
       const cart = await this.cartManager.fetchCartById(cartId);
@@ -1008,19 +1009,23 @@ export class CartService {
           paymentProvider:
             this.subscriptionManager.getPaymentProvider(subscription),
         });
+      } else if (intent.status === 'requires_payment_method') {
+        const errorCode = isPaymentIntent(intent)
+          ? intent.last_payment_error?.code
+          : intent.last_setup_error?.code;
+        const declineCode = isPaymentIntent(intent)
+          ? intent.last_payment_error?.decline_code
+          : intent.last_setup_error?.decline_code;
+
+        throwIntentFailedError(
+          errorCode,
+          declineCode,
+          cart.id,
+          intent.id,
+          isPaymentIntentId(intent.id) ? 'PaymentIntent' : 'SetupIntent'
+        );
+
       } else {
-        const promises: Promise<any>[] = [
-          this.finalizeCartWithError(
-            cartId,
-            CartErrorReasonId.CART_PROCESSING_GENERAL_ERROR
-          ),
-        ];
-        if (cart.stripeSubscriptionId) {
-          promises.push(
-            this.subscriptionManager.cancel(cart.stripeSubscriptionId)
-          );
-        }
-        await Promise.all([promises]);
         throw new SubmitNeedsInputFailedError(cartId);
       }
     });

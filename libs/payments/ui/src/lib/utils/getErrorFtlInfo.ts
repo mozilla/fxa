@@ -119,7 +119,15 @@ export function getErrorFtlInfo(
           'An unexpected error has occurred while processing your payment, please try again.',
         messageFtl: 'intent-payment-error-generic',
       };
-
+    case CartErrorReasonId.INTENT_FAILED_INSUFFICIENT_FUNDS:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        message:
+          'It looks like your card has insufficient funds. Try another card.',
+        messageFtl: 'intent-payment-error-insufficient-funds',
+      };
     case CartErrorReasonId.BASIC_ERROR:
     default:
       return {

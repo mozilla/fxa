@@ -15,6 +15,7 @@ import {
   IntentFailedGenericError,
   IntentGetInTouchError,
   IntentTryAgainError,
+  IntentInsufficientFundsError,
 } from '../checkout.error';
 import { BaseError } from '@fxa/shared/error';
 
@@ -44,6 +45,8 @@ export function resolveErrorInstance(error: Error) {
       return CartErrorReasonId.INTENT_FAILED_GET_IN_TOUCH;
     case error instanceof IntentFailedGenericError:
       return CartErrorReasonId.INTENT_FAILED_GENERIC;
+    case error instanceof IntentInsufficientFundsError:
+      return CartErrorReasonId.INTENT_FAILED_INSUFFICIENT_FUNDS;
 
     // Checkout Errors
     case error instanceof CheckoutError:

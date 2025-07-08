@@ -46,6 +46,7 @@ export enum CartErrorReasonId {
   INTENT_FAILED_CARD_EXPIRED = 'intent_failed_card_expired',
   INTENT_FAILED_TRY_AGAIN = 'intent_failed_try_again',
   INTENT_FAILED_GET_IN_TOUCH = 'intent_failed_get_in_touch',
+  INTENT_FAILED_INSUFFICIENT_FUNDS = 'intent-payment-error-insufficient-funds',
   UNKNOWN = 'unknown',
 }
 
