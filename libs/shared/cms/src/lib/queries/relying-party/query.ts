@@ -7,14 +7,7 @@ import { graphql } from '../../../__generated__/gql';
 export const relyingPartyQuery = graphql(`
   query RelyingParties($clientId: String!, $entrypoint: String!) {
     relyingParties(
-      filters:  {
-        clientId:  {
-          eq: $clientId
-        }
-        entrypoint:  {
-          eq: $entrypoint
-        }
-      }
+      filters: { clientId: { eq: $clientId }, entrypoint: { eq: $entrypoint } }
     ) {
       clientId
       entrypoint
@@ -43,6 +36,14 @@ export const relyingPartyQuery = graphql(`
         buttonColor
         logoUrl
         logoAltText
+        emailFromName
+        emailLogoUrl
+        emailLogoAltText
+      }
+      VerifyShortCodeEmail {
+        subject
+        headline
+        description
       }
     }
   }

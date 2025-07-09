@@ -11,7 +11,7 @@ export const RelyingPartyQueryFactory = (
   override?: Partial<RelyingPartiesQuery>
 ): RelyingPartiesQuery => ({
   relyingParties: [RelyingPartyResultFactory()],
-  ...override
+  ...override,
 });
 
 export const RelyingPartyResultFactory = (
@@ -23,7 +23,7 @@ export const RelyingPartyResultFactory = (
   EmailFirstPage: {
     headline: faker.string.sample(),
     description: faker.string.sample(),
-    primaryButtonText: faker.string.sample()
+    primaryButtonText: faker.string.sample(),
   },
   SignupSetPasswordPage: {
     headline: faker.string.sample(),
@@ -33,7 +33,7 @@ export const RelyingPartyResultFactory = (
   SignupConfirmCodePage: {
     headline: faker.string.sample(),
     description: faker.string.sample(),
-    primaryButtonText: faker.string.sample()
+    primaryButtonText: faker.string.sample(),
   },
   SignupConfirmedSyncPage: {
     headline: faker.string.sample(),
@@ -44,6 +44,14 @@ export const RelyingPartyResultFactory = (
     buttonColor: faker.color.rgb(),
     logoUrl: faker.internet.url(),
     logoAltText: faker.string.sample(),
+    emailFromName: faker.string.sample(),
+    emailLogoUrl: faker.internet.url(),
+    emailLogoAltText: faker.string.sample(),
+  },
+  VerifyShortCodeEmail: {
+    subject: faker.string.sample(),
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
   },
   ...override,
 });

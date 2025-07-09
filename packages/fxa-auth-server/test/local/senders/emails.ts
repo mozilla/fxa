@@ -187,9 +187,11 @@ interface Test {
 }
 
 // prettier-ignore
+const senderTests = (sender) => new Map<string, Test | any>([
+  ['from', { test: 'equal', expected: sender }],
+  ['sender', { test: 'equal', expected: sender }],
+]);
 const COMMON_TESTS = new Map<string, Test | any>([
-  ['from', { test: 'equal', expected: config.smtp.sender }],
-  ['sender', { test: 'equal', expected: config.smtp.sender }],
   [
     'headers',
     new Map([
@@ -588,6 +590,52 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+
+  ['verifyShortCodeEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Use Code to Verify Account for Product' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: 'messageType=fxa-verify, app=fxa, service=fxa-auth-server, ses:feedback-id-a=fxa-verify, cmsRp=00f00f-wibble'}],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyShortCode' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyShortCode }],
+      ['X-Verify-Short-Code', { test: 'equal', expected: MESSAGE.code }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Please verify your email addr'},
+      { test: 'include', expected: 'Use the code to verify then gogogo' },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'include', expected: 'Use this confirmation code:' },
+      { test: 'include', expected: MESSAGE.code },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Please verify your email addr' },
+      { test: 'include', expected: 'Use the code to verify then gogogo' },
+      { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'welcome', 'privacy')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'welcome', 'support')}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'include', expected: `Use this confirmation code:\n${MESSAGE.code}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ]),
+  {
+    updateTemplateValues: x => (
+      {
+        ...x,
+        target: 'strapi',
+        cmsRpClientId: '00f00f',
+        cmsRpFromName: 'Testo Inc.',
+        entrypoint: 'wibble',
+        subject: 'Use Code to Verify Account for Product',
+        headline: 'Please verify your email addr',
+        description: 'Use the code to verify then gogogo'
+      }
+    ),}
+  ],
 
   ['verifySecondaryCodeEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Confirm secondary email' }],
@@ -3069,7 +3117,26 @@ describe('lib/senders/emails:', () => {
 
   for (const [type, test, opts = {}] of TESTS) {
     it(`declarative test for ${type}`, async () => {
+      const { updateTemplateValues }: any = opts;
+      const tmplVals = updateTemplateValues
+        ? updateTemplateValues(MESSAGE)
+        : MESSAGE;
+
       mailer.mailer.sendMail = stubSendMail((message: Record<any, any>) => {
+        if (tmplVals.target === 'strapi' && tmplVals.cmsRpFromName) {
+          const sender = `${tmplVals.cmsRpFromName} <${config.smtp.sender.substring(
+            config.smtp.sender.indexOf('<') + 1,
+            config.smtp.sender.indexOf('>')
+          )}>`;
+          senderTests(sender).forEach((assertions, property) => {
+            applyAssertions(type, message, property, assertions);
+          });
+        } else {
+          senderTests(config.smtp.sender).forEach((assertions, property) => {
+            applyAssertions(type, message, property, assertions);
+          });
+        }
+
         COMMON_TESTS.forEach((assertions, property) => {
           applyAssertions(type, message, property, assertions);
         });
@@ -3077,10 +3144,6 @@ describe('lib/senders/emails:', () => {
           applyAssertions(type, message, property, assertions);
         });
       });
-      const { updateTemplateValues }: any = opts;
-      const tmplVals = updateTemplateValues
-        ? updateTemplateValues(MESSAGE)
-        : MESSAGE;
       await mailer[type](tmplVals);
     });
   }

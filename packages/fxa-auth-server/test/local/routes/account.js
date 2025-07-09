@@ -38,8 +38,30 @@ const {
 const { AppConfig, AuthLogger } = require('../../../lib/types');
 const defaultConfig = require('../../../config').default.getProperties();
 const { ProfileClient } = require('@fxa/profile/client');
+const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const glean = mocks.mockGlean();
 const profile = mocks.mockProfile();
+const rpConfigManager = {
+  fetchCMSData: sinon
+    .stub()
+    .withArgs('00f00f', 'testo')
+    .resolves({
+      relyingParties: [
+        {
+          clientId: '00f00f',
+          shared: {
+            emailFromName: 'Testo Inc.',
+            emailLogoUrl: 'http://img.exmpl.gg/logo.svg',
+          },
+          VerifyShortCodeEmail: {
+            subject: 'Verify Your Account',
+            headline: 'Enter code to verify',
+            description: 'Use code below and gogogo',
+          },
+        },
+      ],
+    }),
+};
 
 const TEST_EMAIL = 'foo@gmail.com';
 
@@ -73,6 +95,7 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
 
   Container.set(AppConfig, config);
   Container.set(AccountEventsManager, new AccountEventsManager());
+  Container.set(RelyingPartyConfigurationManager, rpConfigManager);
 
   const mailer = options.mailer || {};
   const cadReminders = options.cadReminders || mocks.mockCadReminders();
@@ -794,7 +817,7 @@ describe('/account/create', () => {
     glean.registration.confirmationEmailSent.reset();
   });
 
-  function setup(extraConfig) {
+  function setup(extraConfig, mockRequestOptsCb) {
     const config = {
       securityHistory: {
         enabled: true,
@@ -812,7 +835,7 @@ describe('/account/create', () => {
     mockLog.notifier.send = sinon.spy();
 
     const mockMetricsContext = mocks.mockMetricsContext();
-    const mockRequest = mocks.mockRequest({
+    const defaultMockRequestOpts = {
       locale: 'en-GB',
       log: mockLog,
       metricsContext: mockMetricsContext,
@@ -844,7 +867,11 @@ describe('/account/create', () => {
       uaOSVersion: '11',
       uaDeviceType: 'tablet',
       uaFormFactor: 'iPad',
-    });
+    };
+    const mockRequestOpts = mockRequestOptsCb
+      ? mockRequestOptsCb(defaultMockRequestOpts)
+      : defaultMockRequestOpts;
+    const mockRequest = mocks.mockRequest(mockRequestOpts);
     const clientAddress = mockRequest.app.clientAddress;
     const emailCode = hexString(16);
     const keyFetchTokenId = hexString(16);
@@ -902,7 +929,7 @@ describe('/account/create', () => {
       mockDB,
       mockLog,
       mockMailer,
-      mockMetricsContext,
+      mockMetricsContext: mockRequestOpts.metricsContext,
       mockRequest,
       route,
       sessionTokenId,
@@ -1381,6 +1408,40 @@ describe('/account/create', () => {
       assert.equal(err.output.statusCode, 503);
       assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
     }
+  });
+
+  it('should use RP CMS email content for verify email', () => {
+    rpConfigManager.fetchCMSData.resetHistory();
+    const mockRequestOpts = (defaults) => ({
+      ...defaults,
+      payload: {
+        ...defaults.payload,
+        metricsContext: {
+          ...defaults.payload.metricsContext,
+          service: '00f00f',
+          entrypoint: 'testo',
+        },
+        verificationMethod: 'email-otp',
+      },
+    });
+    const { mockMailer, mockRequest, route } = setup({}, mockRequestOpts);
+
+    const now = Date.now();
+    sinon.stub(Date, 'now').callsFake(() => now);
+
+    return runTest(route, mockRequest, () => {
+      assert.calledOnce(mockMailer.sendVerifyShortCodeEmail);
+      const args = mockMailer.sendVerifyShortCodeEmail.args[0];
+      const emailMessage = args[2];
+      assert.equal(emailMessage.target, 'strapi');
+      assert.equal(emailMessage.cmsRpClientId, '00f00f');
+      assert.equal(emailMessage.cmsRpFromName, 'Testo Inc.');
+      assert.equal(emailMessage.entrypoint, 'testo');
+      assert.equal(emailMessage.logoUrl, 'http://img.exmpl.gg/logo.svg');
+      assert.equal(emailMessage.subject, 'Verify Your Account');
+      assert.equal(emailMessage.headline, 'Enter code to verify');
+      assert.equal(emailMessage.description, 'Use code below and gogogo');
+    }).finally(() => Date.now.restore());
   });
 });
 

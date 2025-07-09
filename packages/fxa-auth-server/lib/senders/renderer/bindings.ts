@@ -45,11 +45,15 @@ export type TemplateValues = {
   [key: string]: TemplateContextValue;
 };
 
+export type ComponentTarget = 'index' | 'strapi';
+
 // TODO: better typing for 'template' with enums? from _versions.json
 export interface TemplateContext {
   acceptLanguage?: string;
   template: string;
   layout?: string;
+  target?: ComponentTarget;
+  subject?: string;
   templateValues?: TemplateValues;
 }
 
@@ -92,19 +96,20 @@ export abstract class RendererBindings implements ILocalizerBindings {
   async renderTemplate(
     template: string,
     context: TemplateContext,
-    layout?: string
+    layout?: string,
+    target: ComponentTarget = 'index'
   ): Promise<TemplateResult> {
     context = { ...context, template };
 
     let component = this.renderEjsComponent(
-      await this.getComponent('templates', template),
+      await this.getComponent('templates', template, target),
       context
     );
 
     // Wrap component with layout
     if (layout) {
       component = this.renderEjsComponent(
-        await this.getComponent('layouts', layout),
+        await this.getComponent('layouts', layout, target),
         context,
         component
       );
@@ -116,11 +121,15 @@ export abstract class RendererBindings implements ILocalizerBindings {
     return { html, text, rootElement };
   }
 
-  protected async getComponent(type: ComponentType, name: string) {
+  protected async getComponent(
+    type: ComponentType,
+    name: string,
+    target: ComponentTarget
+  ) {
     const path = `${this.opts.templates.basePath}/${type}/${name}`;
     const [mjml, text] = await Promise.all([
-      this.fetchResource(`${path}/index.mjml`),
-      this.fetchResource(`${path}/index.txt`),
+      this.fetchResource(`${path}/${target}.mjml`),
+      this.fetchResource(`${path}/${target}.txt`),
     ]);
     return { mjml, text };
   }

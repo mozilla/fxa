@@ -1,0 +1,59 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mjml>
+  <mj-head>
+    <mj-raw>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    </mj-raw>
+
+    <mj-title><%- locals.subject %></mj-title>
+
+    <%- include('/partials/images.mjml') %>
+    <%- include('/partials/metadata.mjml') %>
+  </mj-head>
+  <mj-body>
+    <mj-include path="<%- locals.cssPath %>/global.css" type="css" css-inline="inline" />
+    <mj-include path="<%- locals.cssPath %>/fxa/index.css" type="css" css-inline="inline" />
+    <mj-include path="<%- locals.cssPath %>/locale-dir.css" type="css" />
+
+    <mj-wrapper css-class="body">
+      <mj-section>
+        <mj-column>
+          <% if (locals.logoUrl) { %>
+            <mj-image css-class="mozilla-logo"
+              width="120px"
+              src="<%- locals.logoUrl %>"
+              alt="<%- locals.logoAltText %>"
+              title="<%- locals.logoAltText %>">
+            </mj-image>
+          <% } else { %>
+            <mj-image css-class="mozilla-logo"
+              width="120px"
+              src="https://accounts-static.cdn.mozilla.net/product-icons/mozilla-logo.png"
+              alt="Mozilla logo"
+              title="Mozilla logo">
+            </mj-image>
+          <% } %>
+        </mj-column>
+      </mj-section>
+
+      <%- body %>
+
+
+      <mj-section>
+        <mj-column>
+          <mj-text css-class="text-footer">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</mj-text>
+          <mj-text css-class="text-footer">
+            <a class="link-blue" data-l10n-id="moz-accounts-privacy-url-2" href="<%- privacyUrl %>">Mozilla Accounts Privacy Notice</a>
+          </mj-text>
+          <mj-text css-class="text-footer">
+            <a class="link-blue" data-l10n-id="moz-accounts-terms-url" href="https://www.mozilla.org/about/legal/terms/services/">Mozilla Accounts Terms of Service</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+    </mj-wrapper>
+  </mj-body>
+</mjml>

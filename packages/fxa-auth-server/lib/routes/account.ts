@@ -48,6 +48,7 @@ import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
 import { StatsD } from 'hot-shots';
 import { recordSecurityEvent } from './utils/security-event';
+import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -69,6 +70,7 @@ export class AccountHandler {
   private accountDeleteManager: AccountDeleteManager;
   private accountTasks: DeleteAccountTasks;
   private profileClient: ProfileClient;
+  private readonly cmsManager: RelyingPartyConfigurationManager | null;
 
   constructor(
     private log: AuthLogger,
@@ -102,6 +104,9 @@ export class AccountHandler {
     this.accountDeleteManager = Container.get(AccountDeleteManager);
     this.accountTasks = Container.get(DeleteAccountTasks);
     this.profileClient = Container.get(ProfileClient);
+    this.cmsManager = Container.has(RelyingPartyConfigurationManager)
+      ? Container.get(RelyingPartyConfigurationManager)
+      : null;
   }
 
   private async generateRandomValues() {
@@ -329,7 +334,7 @@ export class AccountHandler {
         case 'email-otp': {
           const secret = account.emailCode;
           const code = this.otpUtils.generateOtpCode(secret, this.otpOptions);
-          await this.mailer.sendVerifyShortCodeEmail([], account, {
+          const emailContext = {
             acceptLanguage: locale,
             code,
             deviceId,
@@ -346,7 +351,58 @@ export class AccountHandler {
             uaOSVersion: sessionToken.uaOSVersion,
             uaDeviceType: sessionToken.uaDeviceType,
             uid: sessionToken.uid,
-          });
+          };
+
+          const { relyingParties } = await (async () => {
+            try {
+              const metricsContext = await request.app.metricsContext;
+              const rpCmsConfig =
+                metricsContext.service &&
+                metricsContext.entrypoint &&
+                this.cmsManager
+                  ? await this.cmsManager.fetchCMSData(
+                      // this `service` here is the OAuth client id
+                      metricsContext.service,
+                      metricsContext.entrypoint
+                    )
+                  : { relyingParties: [] };
+              return rpCmsConfig;
+            } catch (error) {
+              this.log.error('cms.getConfig.error', { error });
+              return { relyingParties: [] };
+            }
+          })();
+
+          if (
+            !relyingParties ||
+            relyingParties.length === 0 ||
+            !relyingParties[0]?.VerifyShortCodeEmail
+          ) {
+            await this.mailer.sendVerifyShortCodeEmail(
+              [],
+              account,
+              emailContext
+            );
+          } else {
+            const metricsContext = await request.app.metricsContext;
+            const rpCmsVals = relyingParties[0];
+            const rpEmailContext = {
+              ...emailContext,
+              target: 'strapi',
+              cmsRpClientId: rpCmsVals.clientId,
+              cmsRpFromName: rpCmsVals.shared?.emailFromName,
+              entrypoint: metricsContext.entrypoint,
+              logoUrl: rpCmsVals?.shared?.emailLogoUrl,
+              logoAltText: rpCmsVals?.shared?.logoAltText,
+              ...rpCmsVals.VerifyShortCodeEmail,
+            };
+
+            await this.mailer.sendVerifyShortCodeEmail(
+              [],
+              account,
+              rpEmailContext
+            );
+          }
           break;
         }
         default: {

@@ -60,7 +60,12 @@ class Renderer extends Localizer {
    * @returns subject Localized subject, for mailer use
    */
   async renderEmail(templateContext: TemplateContext) {
-    const { acceptLanguage, template, layout } = templateContext;
+    const {
+      acceptLanguage,
+      template,
+      layout,
+      target = 'index',
+    } = templateContext;
     const { l10n, selectedLocale } = await super.setupDomLocalizer(
       acceptLanguage || ''
     );
@@ -82,13 +87,17 @@ class Renderer extends Localizer {
        */
       const { subject, action, preview } =
         await this.getGlobalTemplateValues(context);
+      const useCms = context.target === 'strapi';
+
       const localizeAndRenderSubject = this.localizeAndRender(
         l10n,
         subject,
         context
       );
 
-      context.subject = await localizeAndRenderSubject;
+      context.subject = useCms
+        ? (templateContext.subject as unknown as string)
+        : await localizeAndRenderSubject;
 
       if (action) {
         const localizedAction = await this.localizeAndRender(
@@ -99,7 +108,7 @@ class Renderer extends Localizer {
         context.action = localizedAction;
       }
 
-      if (preview) {
+      if (!useCms && preview) {
         const localizedPreview = await this.localizeAndRender(
           l10n,
           preview,
@@ -112,7 +121,8 @@ class Renderer extends Localizer {
     const { text, rootElement } = await this.bindings.renderTemplate(
       template || '',
       context,
-      layout
+      layout,
+      target
     );
 
     l10n.connectRoot(rootElement);

@@ -9,11 +9,13 @@
 import { Story } from '@storybook/html';
 import Renderer from '../renderer';
 import { BrowserRendererBindings } from '../renderer/bindings-browser';
+import { ComponentTarget } from '../renderer/bindings';
 
 interface StorybookEmailArgs {
   partial?: string;
   template: string;
   layout: string;
+  target?: ComponentTarget;
   acceptLanguage: string;
   doc?: string;
   variables: Record<string, any>;
@@ -50,6 +52,7 @@ const storybookEmail = ({
   partial,
   template,
   layout = 'fxa',
+  target = 'index',
   doc,
   variables,
   direction,
@@ -57,15 +60,19 @@ const storybookEmail = ({
   const container = document.createElement('article') as HTMLDivElement;
   container.classList.add('email-template');
   container.innerHTML = '<p class="message">Loading email...</p>';
-  renderUsingMJML({ template, layout, variables })
+  renderUsingMJML({ template, layout, target, variables })
     .then(({ html, text, subject }) => {
       container.innerHTML = `
         <header>
           <h1 class="template-name"><span>${
             partial ? partial : layout
           } / </span>${
-        template === '_storybook' ? (partial ? 'partial' : 'layout') : template
-      }</h1>
+            template === '_storybook'
+              ? partial
+                ? 'partial'
+                : 'layout'
+              : template
+          }</h1>
           ${doc ? `<p class="template-description">${doc}</p>` : ''}
           <p class="email-subject">Subject: ${subject}</p>
         </header>
@@ -92,10 +99,12 @@ const storybookEmail = ({
 async function renderUsingMJML({
   template,
   layout,
+  target,
   variables,
 }: {
   template: string;
   layout: string;
+  target?: ComponentTarget;
   variables: Record<string, any>;
 }): Promise<Record<any, string>> {
   const renderer = new Renderer(new BrowserRendererBindings());
@@ -104,6 +113,7 @@ async function renderUsingMJML({
   return renderer.renderEmail({
     template,
     layout,
+    target,
     acceptLanguage,
     ...variables,
   });
@@ -120,13 +130,15 @@ export const storyWithProps = (
   templateName: string,
   templateDoc = '',
   defaultArgs: Record<string, any> = {},
-  layout = 'fxa'
+  layout = 'fxa',
+  target: ComponentTarget = 'index'
 ) => {
   return (overrides: Record<string, any> = {}, storyName = 'Default') => {
     const template = Template.bind({});
     template.args = {
       template: templateName,
       layout,
+      target,
       partial: defaultArgs.partial,
       doc: templateDoc,
       variables: {
