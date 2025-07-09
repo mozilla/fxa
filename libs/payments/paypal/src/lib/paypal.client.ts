@@ -357,10 +357,10 @@ export class PayPalClient {
     const doReferenceTransactionOptions: DoReferenceTransactionOptions = {
       amount: getPayPalAmountStringFromAmountInCents(
         options.amountInCents,
-        options.currencyCode
+        options.currencyCode.toUpperCase()
       ),
       billingAgreementId: options.billingAgreementId,
-      currencyCode: options.currencyCode,
+      currencyCode: options.currencyCode.toUpperCase(),
       countryCode: options.countryCode,
       idempotencyKey: options.idempotencyKey,
       invoiceNumber: options.invoiceNumber,
@@ -368,7 +368,7 @@ export class PayPalClient {
       ...(options.taxAmountInCents && {
         taxAmount: getPayPalAmountStringFromAmountInCents(
           options.taxAmountInCents,
-          options.currencyCode
+          options.currencyCode.toUpperCase()
         ),
       }),
     };

@@ -13,7 +13,7 @@ export const StripePlanFactory = (
   active: true,
   billing_scheme: 'per_unit',
   created: faker.number.int(),
-  currency: faker.finance.currencyCode(),
+  currency: faker.finance.currencyCode().toLowerCase(),
   livemode: false,
   metadata: {},
   meter: null,

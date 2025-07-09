@@ -8,7 +8,7 @@ import { InvoicePreview, type InvoicePreviewForUpgrade } from './types';
 export const InvoicePreviewFactory = (
   override?: Partial<InvoicePreview>
 ): InvoicePreview => ({
-  currency: faker.finance.currencyCode(),
+  currency: faker.finance.currencyCode().toLowerCase(),
   listAmount: faker.number.int({ min: 1, max: 1000 }),
   totalAmount: faker.number.int({ min: 1, max: 1000 }),
   taxAmounts: [],

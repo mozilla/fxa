@@ -23,8 +23,8 @@ export class TaxService {
     private customerManager: CustomerManager,
     private geodbManager: GeoDBManager,
     private subscriptionManager: SubscriptionManager,
-    private currencyManager: CurrencyManager,
-  ) { }
+    private currencyManager: CurrencyManager
+  ) {}
 
   async getTaxAddress(ipAddress: string, uid?: string) {
     if (uid) {
@@ -108,7 +108,7 @@ export class TaxService {
         this.customerManager.retrieve(accountCustomer.stripeCustomerId),
       ]);
 
-      const currentCurrency = String(customer.currency).toUpperCase();
+      const currentCurrency = customer.currency || undefined;
 
       const isTaxChangeAllowed = !(
         subscriptions.length && currentCurrency !== locationCurrency

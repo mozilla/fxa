@@ -14,14 +14,17 @@ export const StripePriceCurrencyOptionFactory = (
   unit_amount: faker.number.int({ max: 1000 }),
   unit_amount_decimal: faker.commerce.price({ min: 1000 }),
   ...override,
-})
+});
 
 export const StripePriceFactory = (
   override?: Partial<StripePrice>
 ): StripePrice => {
-  const currency = override?.currency || faker.finance.currencyCode().toLowerCase();
+  const currency =
+    override?.currency?.toLowerCase() ||
+    faker.finance.currencyCode().toLowerCase();
   const unit_amount = override?.unit_amount || faker.number.int({ max: 1000 });
-  const unit_amount_decimal = override?.unit_amount_decimal || faker.commerce.price({ min: 1000 });
+  const unit_amount_decimal =
+    override?.unit_amount_decimal || faker.commerce.price({ min: 1000 });
   return {
     id: `price_${faker.string.alphanumeric({ length: 24 })}`,
     object: 'price',
@@ -49,8 +52,8 @@ export const StripePriceFactory = (
     unit_amount,
     unit_amount_decimal,
     ...override,
-  }
-}
+  };
+};
 
 export const StripePriceRecurringFactory = (
   override?: Partial<StripePrice['recurring']>

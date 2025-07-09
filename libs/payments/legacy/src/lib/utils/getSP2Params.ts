@@ -28,7 +28,7 @@ export function getSP2Params(
   }
 
   const calcInterval = isValidInterval(interval) ? interval : 'monthly';
-  const calcCurrency = currency ? currency : 'USD';
+  const calcCurrency = currency ? currency.toUpperCase() : 'USD';
 
   const offering = sp2map.offerings[offeringId];
   if (!offering) {

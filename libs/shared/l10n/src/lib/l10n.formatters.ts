@@ -22,7 +22,7 @@ export function getLocalizedCurrency(
   currency: string
 ): FluentNumber {
   const decimal = (amountInCents || 0) / 100;
-  const options = { ...baseCurrencyOptions, currency };
+  const options = { ...baseCurrencyOptions, currency: currency.toUpperCase() };
 
   return new FluentNumber(decimal, options);
 }
@@ -40,7 +40,7 @@ export function getLocalizedCurrencyString(
   locale = 'en'
 ): string {
   const decimal = (amountInCents || 0) / 100;
-  const options = { ...baseCurrencyOptions, currency };
+  const options = { ...baseCurrencyOptions, currency: currency.toUpperCase() };
 
   return new Intl.NumberFormat(locale, options).format(decimal);
 }

@@ -18,7 +18,7 @@ export const StripeTaxRateFactory = (
   effective_percentage: null,
   flat_amount: {
     amount: faker.number.int({ max: 100 }),
-    currency: faker.finance.currencyCode(),
+    currency: faker.finance.currencyCode().toLowerCase(),
   },
   inclusive: false,
   jurisdiction: faker.location.state({ abbreviated: true }),

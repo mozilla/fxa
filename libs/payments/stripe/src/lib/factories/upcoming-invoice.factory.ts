@@ -31,7 +31,7 @@ export const StripeUpcomingInvoiceFactory = (
   charge: faker.string.alphanumeric(10),
   collection_method: 'charge_automatically',
   created: faker.number.int(),
-  currency: faker.finance.currencyCode(),
+  currency: faker.finance.currencyCode().toLowerCase(),
   custom_fields: null,
   customer: `cus_${faker.string.alphanumeric({ length: 14 })}`,
   customer_address: null,

@@ -10,9 +10,10 @@ import { StripeNoMinimumChargeAmountAvailableError } from '../customer.error';
  * Throws error for invalid currency
  */
 export function getMinimumChargeAmountForCurrency(currency: string): number {
-  if (STRIPE_MINIMUM_CHARGE_AMOUNTS[currency]) {
-    return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
+  const normalizedCurrency = currency.toLowerCase();
+  if (STRIPE_MINIMUM_CHARGE_AMOUNTS[normalizedCurrency]) {
+    return STRIPE_MINIMUM_CHARGE_AMOUNTS[normalizedCurrency];
   }
 
-  throw new StripeNoMinimumChargeAmountAvailableError(currency);
+  throw new StripeNoMinimumChargeAmountAvailableError(normalizedCurrency);
 }

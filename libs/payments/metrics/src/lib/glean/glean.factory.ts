@@ -50,7 +50,7 @@ export const CartMetricsFactory = (
     uid: resultCart.uid,
     errorReasonId: resultCart.errorReasonId,
     couponCode: resultCart.couponCode,
-    currency: faker.finance.currencyCode(),
+    currency: faker.finance.currencyCode().toLowerCase(),
     ...override,
   };
 };

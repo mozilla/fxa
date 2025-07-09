@@ -20,7 +20,7 @@ export const StripeCardFactory = (
   address_zip_check: null,
   brand: faker.finance.creditCardIssuer(),
   country: faker.location.countryCode(),
-  currency: faker.finance.currencyCode(),
+  currency: faker.finance.currencyCode().toLowerCase(),
   cvc_check: null,
   dynamic_last4: null,
   exp_month: faker.number.int({ min: 1, max: 12 }),
