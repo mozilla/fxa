@@ -17,6 +17,8 @@ const createStory = storyWithProps(
     ...MOCK_USER_INFO,
     link: 'http://localhost:3030/settings',
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
+    twoFactorSupportLink:
+      'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
   }
 );
 

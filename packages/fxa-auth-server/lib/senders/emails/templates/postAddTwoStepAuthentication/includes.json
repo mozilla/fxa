@@ -3,6 +3,10 @@
     "id": "postAddTwoStepAuthentication-subject-v3",
     "message": "Two-step authentication is on"
   },
+  "preview": {
+    "id": "postAddTwoStepAuthentication-preview",
+    "message": "Your account is protected"
+  },
   "action": {
     "id": "postAddTwoStepAuthentication-action",
     "message": "Manage account"

@@ -1496,6 +1496,8 @@ module.exports = function (log, config, bounces, statsd) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
+        twoFactorSupportLink:
+          'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
       },
     });
   };

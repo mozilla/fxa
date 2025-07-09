@@ -1220,7 +1220,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: 'You turned on two-step authentication' },
-      { test: 'include', expected: 'You now need to use your authenticator app every time you sign in.' },
+      { test: 'include', expected: 'Security codes from your authenticator app are now required every time you sign in.' },
+      { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')) },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-enabled', 'privacy')) },
@@ -1232,7 +1233,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
     ['text', [
       { test: 'include', expected: 'You turned on two-step authentication' },
-      { test: 'include', expected: 'You now need to use your authenticator app every time you sign in.' },
+      { test: 'include', expected: 'Security codes from your authenticator app are now required every time you sign in.' },
+      { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-enabled', 'manage-account', 'email', 'uid')}` },
       { test: 'include', expected: `change your password right away:\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-enabled', 'change-password', 'email')}` },
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'account-two-step-enabled', 'privacy')}` },
