@@ -19,7 +19,7 @@
       "livemode": false,
       "metadata": {
         "capabilities:clientIdGoesHere": "pro, monthly, fox",
-        "product:termsOfServiceDownloadURL": "https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos"
+        "product:termsOfServiceDownloadURL": "https://cdn.accounts.firefox.com/legal/mozilla_vpn_tos"
       },
       "nickname": "123Done Pro Monthly",
       "product": "prod_GqM9ToKK62qjkK",
