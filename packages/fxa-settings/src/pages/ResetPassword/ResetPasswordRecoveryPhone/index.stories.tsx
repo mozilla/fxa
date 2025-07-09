@@ -35,6 +35,16 @@ export const WithCodeErrorOnSubmit = () => (
   />
 );
 
+export const WithCodeErrorOnSubmitNoBackupCodes = () => (
+  <Subject
+    verifyCode={(code: string) =>
+      Promise.resolve(AuthUiErrors.INVALID_EXPIRED_OTP_CODE as HandledError)
+    }
+    resendCode={() => Promise.resolve()}
+    numBackupCodes={0}
+  />
+);
+
 export const WithGeneralErrorMessages = () => (
   <Subject
     verifyCode={(code: string) =>

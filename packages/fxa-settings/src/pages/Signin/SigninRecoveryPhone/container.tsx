@@ -47,6 +47,7 @@ const SigninRecoveryPhoneContainer = ({
     location.state?.signinState as SigninLocationState
   );
   const lastFourPhoneDigits = location.state?.lastFourPhoneDigits;
+  const numBackupCodes = location.state?.numBackupCodes;
   const navigateWithQuery = useNavigateWithQuery();
 
   useEffect(() => {
@@ -190,6 +191,7 @@ const SigninRecoveryPhoneContainer = ({
         lastFourPhoneDigits,
         verifyCode,
         resendCode,
+        numBackupCodes,
       }}
     />
   );

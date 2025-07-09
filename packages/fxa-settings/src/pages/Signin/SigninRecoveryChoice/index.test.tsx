@@ -118,6 +118,7 @@ describe('SigninRecoveryChoice', () => {
         state: {
           signinState: MOCK_SIGNIN_LOCATION_STATE,
           lastFourPhoneDigits: '1234',
+          numBackupCodes: 4,
         },
       });
     });

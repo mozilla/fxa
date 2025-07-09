@@ -13,10 +13,12 @@ export interface SigninRecoveryPhoneContainerProps {
 export interface SigninRecoveryPhoneLocationState extends SigninLocationState {
   signinState: SigninLocationState;
   lastFourPhoneDigits: string;
+  numBackupCodes?: number;
 }
 
 export type SigninRecoveryPhoneProps = {
   lastFourPhoneDigits: string;
   verifyCode: (code: string) => Promise<HandledError | void>;
   resendCode: () => Promise<HandledError | void>;
+  numBackupCodes?: number;
 };
