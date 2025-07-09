@@ -207,7 +207,7 @@ export const GetDataTrio = ({
        *   for triggering the print screen.
        **/}
       <FtlMsg
-        id="get-data-trio-download-2"
+        id="get-data-trio-print-2"
         attrs={{ title: true, 'aria-label': true }}
       >
         <button
