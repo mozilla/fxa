@@ -14,7 +14,7 @@ export const StripeInvoiceFactory = (
   account_country: null,
   account_name: null,
   account_tax_ids: null,
-  amount_due: faker.number.int({ max: 1000 }),
+  amount_due: faker.number.int({ min: 0, max: 1000 }),
   amount_paid: 0,
   amount_remaining: faker.number.int({ max: 1000 }),
   amount_shipping: 0,

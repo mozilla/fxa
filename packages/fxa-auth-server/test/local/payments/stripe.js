@@ -5498,6 +5498,7 @@ describe('#integration - StripeHelper', () => {
         email,
         cardType: 'visa',
         lastFour: '5309',
+        invoiceAmountDueInCents: 500,
         invoiceLink:
           'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
         invoiceNumber: 'AAF2CECC-0001',
@@ -5532,6 +5533,7 @@ describe('#integration - StripeHelper', () => {
 
       const expectedDiscount_foreverCoupon = {
         ...expected,
+        invoiceAmountDueInCents: 450,
         invoiceNumber: '3432720C-0001',
         invoiceTotalInCents: 450,
         invoiceSubtotalInCents: 500,
@@ -5863,7 +5865,6 @@ describe('#integration - StripeHelper', () => {
         const expectedWithPlanConfig = {
           ...expected,
           planConfig,
-
           planEmailIconURL: planConfig.urls.emailIcon,
           planSuccessActionButtonURL: planConfig.urls.successActionButton,
         };
@@ -5978,7 +5979,8 @@ describe('#integration - StripeHelper', () => {
       productPaymentCycleNew:
         eventCustomerSubscriptionUpdated.data.object.plan.interval,
       closeDate: 1326853478,
-      invoiceTotalOldInCents: mockOldInvoice.total,
+      invoiceOldCurrency: mockOldInvoice.currency,
+      invoiceTotalOldInCents: mockOldInvoice.amount_due,
       productMetadata: {
         emailIconURL:
           eventCustomerSubscriptionUpdated.data.object.plan.metadata
@@ -6360,6 +6362,7 @@ describe('#integration - StripeHelper', () => {
             ...baseDetails,
             productIdNew,
             updateType: SUBSCRIPTION_UPDATE_TYPES.UPGRADE,
+            invoiceAmountDueInCents: upcomingInvoice.amount_due,
             productIdOld,
             productNameOld,
             productIconURLOld,

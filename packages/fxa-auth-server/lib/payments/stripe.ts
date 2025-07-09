@@ -2719,6 +2719,7 @@ export class StripeHelper extends StripeHelperBase {
       hosted_invoice_url: invoiceLink,
       tax: invoiceTaxAmountInCents,
       status: invoiceStatus,
+      amount_due: invoiceAmountDueInCents,
     } = invoice;
 
     const nextInvoiceDate = lineItem.period.end;
@@ -2768,6 +2769,7 @@ export class StripeHelper extends StripeHelperBase {
       cardType,
       lastFour,
       payment_provider,
+      invoiceAmountDueInCents,
       invoiceLink,
       invoiceNumber,
       invoiceStatus,
@@ -2997,6 +2999,7 @@ export class StripeHelper extends StripeHelperBase {
         }
       : null;
 
+    let invoiceOldCurrency: string | undefined;
     let invoiceTotalOldInCents: number | undefined;
     const previousLatestInvoice = previousAttributes.latest_invoice as
       | string
@@ -3004,7 +3007,8 @@ export class StripeHelper extends StripeHelperBase {
 
     if (previousLatestInvoice) {
       const invoiceOld = await this.getInvoice(previousLatestInvoice);
-      invoiceTotalOldInCents = invoiceOld.total;
+      invoiceOldCurrency = invoiceOld.currency;
+      invoiceTotalOldInCents = invoiceOld.amount_due;
     }
 
     const planIdNew = planNew.id;
@@ -3072,6 +3076,7 @@ export class StripeHelper extends StripeHelperBase {
       paymentAmountNewCurrency,
       productPaymentCycleNew,
       closeDate: event.created,
+      invoiceOldCurrency,
       invoiceTotalOldInCents,
       productMetadata: productNewMetadata,
       planConfig,
@@ -3306,6 +3311,7 @@ export class StripeHelper extends StripeHelperBase {
     const {
       id: invoiceId,
       number: invoiceNumber,
+      amount_due: invoiceAmountDueInCents,
       currency: paymentProratedCurrency,
       total: invoiceTotal,
     } = invoice;
@@ -3343,9 +3349,10 @@ export class StripeHelper extends StripeHelperBase {
       productIconURLOld,
       productPaymentCycleOld,
       paymentAmountOldInCents: baseDetails.invoiceTotalOldInCents,
-      paymentAmountOldCurrency: planOld.currency,
+      paymentAmountOldCurrency: baseDetails.invoiceOldCurrency,
       paymentAmountNewInCents: nextInvoiceTotal,
       paymentAmountNewCurrency: nextInvoiceCurrency,
+      invoiceAmountDueInCents,
       invoiceNumber,
       invoiceId,
       paymentProratedInCents: invoiceTotal,

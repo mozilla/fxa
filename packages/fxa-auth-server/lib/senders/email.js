@@ -2178,6 +2178,7 @@ module.exports = function (log, config, bounces, statsd) {
     const {
       email,
       uid,
+      invoiceAmountDueInCents,
       productId,
       planId,
       productIconURLNew,
@@ -2213,6 +2214,11 @@ module.exports = function (log, config, bounces, statsd) {
         ...links,
         uid,
         email,
+        invoiceAmountDue: this._getLocalizedCurrencyString(
+          invoiceAmountDueInCents,
+          paymentAmountNewCurrency,
+          message.acceptLanguage
+        ),
         productIconURLNew,
         productName: productNameNew,
         productNameOld,
@@ -2728,6 +2734,7 @@ module.exports = function (log, config, bounces, statsd) {
       planEmailIconURL,
       productName,
       invoiceLink,
+      invoiceAmountDueInCents,
       invoiceNumber,
       invoiceDate,
       invoiceTotalInCents,
@@ -2783,6 +2790,12 @@ module.exports = function (log, config, bounces, statsd) {
         ...links,
         uid,
         email,
+        invoiceAmountDue: this._getLocalizedCurrencyString(
+          invoiceAmountDueInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        invoiceAmountDueInCents,
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
@@ -2848,6 +2861,7 @@ module.exports = function (log, config, bounces, statsd) {
       planId,
       planEmailIconURL,
       productName,
+      invoiceAmountDueInCents,
       invoiceNumber,
       invoiceDate,
       invoiceLink,
@@ -2890,6 +2904,11 @@ module.exports = function (log, config, bounces, statsd) {
         ...links,
         uid,
         email,
+        invoiceAmountDue: this._getLocalizedCurrencyString(
+          invoiceAmountDueInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,

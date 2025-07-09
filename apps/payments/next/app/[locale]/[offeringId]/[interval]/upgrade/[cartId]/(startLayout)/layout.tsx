@@ -78,6 +78,7 @@ export default async function UpgradeLayout({
             invoice={cart.upcomingInvoicePreview}
             fromPrice={cart.fromPrice}
             fromPurchaseDetails={currentPurchaseDetails}
+            offeringPrice={cart.offeringPrice}
             purchaseDetails={purchaseDetails}
             locale={locale}
           />

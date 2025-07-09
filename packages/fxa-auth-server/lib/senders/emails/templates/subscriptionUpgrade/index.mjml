@@ -18,7 +18,7 @@
       <% if (locals.paymentProratedInCents < 0) { %>
         <span data-l10n-id="subscriptionUpgrade-content-charge-credit" data-l10n-args="<%= JSON.stringify({paymentProrated}) %>">You have received an account credit in the amount of <%- paymentProrated %>.</span>
       <% } else if (locals.paymentProratedInCents > 0) { %>
-        <span data-l10n-id="subscriptionUpgrade-content-charge-prorated" data-l10n-args="<%= JSON.stringify({paymentProrated, productPaymentCycleOld}) %>">You have been charged a one-time fee of <%- paymentProrated %> to reflect your subscription’s higher price for the remainder of this billing period (<%- productPaymentCycleOld %>).</span>
+        <span data-l10n-id="subscriptionUpgrade-content-charge-prorated-1" data-l10n-args="<%= JSON.stringify({invoiceAmountDue, productPaymentCycleOld}) %>">You have been charged a one-time fee of <%- invoiceAmountDue %> to reflect your subscription’s higher price for the remainder of this billing period (<%- productPaymentCycleOld %>).</span>
       <% } %>
       <span data-l10n-id="subscriptionUpgrade-content-starting" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, productPaymentCycleNew, productPaymentCycleOld}) %>">Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>.</span>
     </mj-text>

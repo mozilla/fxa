@@ -2,46 +2,75 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { StripePriceFactory } from "@fxa/payments/stripe"
-import { StripePriceCurrencyOptionFactory } from "libs/payments/stripe/src/lib/factories/price.factory"
-import { determinePriceUnitAmount } from "./determinePriceUnitAmount"
+import { StripePriceFactory } from '@fxa/payments/stripe';
+import { StripePriceCurrencyOptionFactory } from 'libs/payments/stripe/src/lib/factories/price.factory';
+import { determinePriceUnitAmount } from './determinePriceUnitAmount';
 
 describe('determinePriceUnitAmount', () => {
   describe('When passed a StripePrice', () => {
     const mockPriceWithUnitAmount = StripePriceFactory({
       unit_amount: 1000,
-      unit_amount_decimal: '1000.00'
-    })
+      unit_amount_decimal: '1000.00',
+    });
+
     const mockPriceWithUnitAmountDecimal = StripePriceFactory({
       unit_amount_decimal: '1000.31',
-      unit_amount: null
-    })
+      unit_amount: null,
+    });
+
+    const mockPriceWithRounding = StripePriceFactory({
+      unit_amount: null,
+      unit_amount_decimal: '641.6',
+    });
 
     it('returns unit_amount when unit_amount is present', () => {
       expect(determinePriceUnitAmount(mockPriceWithUnitAmount)).toEqual(1000);
-    })
+    });
 
     it('returns unit_amount_decimal when unit_amount is not present', () => {
-      expect(determinePriceUnitAmount(mockPriceWithUnitAmountDecimal)).toEqual(1000);
-    })
-  })
+      expect(determinePriceUnitAmount(mockPriceWithUnitAmountDecimal)).toEqual(
+        1000
+      );
+    });
+
+    it('rounds unit_amount_decimal', () => {
+      expect(determinePriceUnitAmount(mockPriceWithRounding)).toEqual(642);
+    });
+  });
 
   describe('When passed a Stripe.Price.CurrencyOption', () => {
     const mockCurrencyOptionWithUnitAmount = StripePriceCurrencyOptionFactory({
       unit_amount: 1000,
-      unit_amount_decimal: '1000.00'
-    })
-    const mockCurrencyOptionWithUnitAmountDecimal = StripePriceCurrencyOptionFactory({
+      unit_amount_decimal: '1000.00',
+    });
+
+    const mockCurrencyOptionWithUnitAmountDecimal =
+      StripePriceCurrencyOptionFactory({
+        unit_amount: null,
+        unit_amount_decimal: '1000.31',
+      });
+
+    const mockCurrencyOptionWithRounding = StripePriceCurrencyOptionFactory({
       unit_amount: null,
-      unit_amount_decimal: '1000.31'
-    })
+      unit_amount_decimal: '641.6',
+    });
 
     it('returns unit_amount when unit_amount is present', () => {
-      expect(determinePriceUnitAmount(mockCurrencyOptionWithUnitAmount)).toEqual(1000);
-    })
+      expect(
+        determinePriceUnitAmount(mockCurrencyOptionWithUnitAmount)
+      ).toEqual(1000);
+    });
 
     it('returns unit_amount_decimal when unit_amount is not present', () => {
-      expect(determinePriceUnitAmount(mockCurrencyOptionWithUnitAmountDecimal)).toEqual(1000);
-    })
-  })
-})
+      expect(
+        determinePriceUnitAmount(mockCurrencyOptionWithUnitAmountDecimal)
+      ).toEqual(1000);
+    });
+
+    it('rounds unit_amount_decimal (6.416 → 642)', () => {
+      expect(determinePriceUnitAmount(mockCurrencyOptionWithRounding)).toEqual(
+        642
+      );
+    });
+  });
+});

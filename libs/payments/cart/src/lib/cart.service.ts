@@ -61,6 +61,7 @@ import {
   UpdatePayPalProcessingCartError,
   CartSetupInvalidPromoCodeError,
   CartRestartInvalidPromoCodeError,
+  CartCouldNotRetrievePriceForCurrencyWhenAttemptingToGetCartCartError,
   SetupCartCurrencyNotFoundError,
   UpdateCartCurrencyNotFoundError,
   FinalizeWithoutSubscriptionIdCartError,
@@ -796,11 +797,25 @@ export class CartService {
     ]);
     const cartEligibilityStatus =
       handleEligibilityStatusMap[eligibility.subscriptionEligibilityResult];
+    const { unitAmountForCurrency: offeringPrice } =
+      await this.priceManager.retrievePricingForCurrency(
+        price.id,
+        cart.currency
+      );
+    if (!offeringPrice) {
+      throw new CartCouldNotRetrievePriceForCurrencyWhenAttemptingToGetCartCartError(
+        cart.id,
+        cart.interval,
+        cart.offeringConfigId,
+        cart.currency,
+        price.id
+      );
+    }
 
     let upcomingInvoicePreview: InvoicePreview | undefined;
     if (
       cartEligibilityStatus === CartEligibilityStatus.UPGRADE &&
-      cart.state === CartState.START
+      cart.state !== CartState.FAIL
     ) {
       assert(
         'fromPrice' in eligibility,
@@ -879,6 +894,7 @@ export class CartService {
       return {
         ...cart,
         state: CartState.SUCCESS,
+        offeringPrice,
         upcomingInvoicePreview,
         metricsOptedOut,
         latestInvoicePreview,
@@ -919,6 +935,7 @@ export class CartService {
       latestInvoicePreview,
       metricsOptedOut,
       paymentInfo,
+      offeringPrice,
       fromOfferingConfigId:
         'fromOfferingConfigId' in eligibility
           ? eligibility.fromOfferingConfigId
@@ -1024,7 +1041,6 @@ export class CartService {
           intent.id,
           isPaymentIntentId(intent.id) ? 'PaymentIntent' : 'SetupIntent'
         );
-
       } else {
         throw new SubmitNeedsInputFailedError(cartId);
       }
