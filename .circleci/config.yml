@@ -230,7 +230,7 @@ commands:
             fi
 
             git reset --hard
-            git checkout << pipeline.git.revision >>
+            git checkout -f << pipeline.git.revision >>
 
             commitsBehind=$(git rev-list --left-only --count main...HEAD);
             if [[ $((commitsBehind)) > 0 ]]; then
