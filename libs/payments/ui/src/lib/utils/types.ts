@@ -21,14 +21,18 @@ export interface CheckoutParams extends BaseParams {
 }
 
 export type Page =
-    | 'landing'
-    | 'new'
-    | 'start'
-    | 'success'
-    | 'error'
-    | 'location'
-    | 'page-not-found'
-    | 'processing'
-    | 'needs_input';
+  | 'landing'
+  | 'new'
+  | 'start'
+  | 'success'
+  | 'error'
+  | 'location'
+  | 'page-not-found'
+  | 'processing'
+  | 'needs_input';
 
 export type PageType = 'checkout' | 'upgrade';
+
+export interface ManageParams {
+  locale: string;
+}
