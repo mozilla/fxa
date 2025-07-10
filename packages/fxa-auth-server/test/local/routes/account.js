@@ -2247,6 +2247,7 @@ describe('/account/login', () => {
     check: () => Promise.resolve(),
     checkAuthenticated: () => Promise.resolve(),
     flag: () => Promise.resolve(),
+    resetV2: () => Promise.resolve(),
   };
   const mockCadReminders = mocks.mockCadReminders();
   const accountRoutes = makeRoutes({
