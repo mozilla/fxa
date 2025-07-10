@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
+import { TestInfo } from '@playwright/test';
 import { Credentials } from './targets';
 import { BaseTarget } from './targets/base';
 
@@ -20,13 +21,38 @@ type AccountDetails = {
   password: string;
 };
 
+/**
+ * TestAccountTracker manages test account lifecycle with automatic cleanup.
+ *
+ * Features:
+ * - Tracks all created accounts for automatic cleanup
+ * - Automatically disables TOTP before account destruction
+ * - Handles edge cases like blocked accounts and email changes
+ *
+ * Best Practices:
+ * - While tests should still call `settings.disconnectTotp()` for explicit cleanup,
+ *   the automatic cleanup will handle cases where tests fail before reaching cleanup
+ * - Update account credentials if email or password changes during the test
+ * - Blocked accounts may still need manual cleanup in some cases
+ */
 export class TestAccountTracker {
   accounts: (AccountDetails | Credentials)[];
   private target: BaseTarget;
+  private testInfo: TestInfo;
 
-  constructor(target: BaseTarget) {
+  constructor(target: BaseTarget, testInfo: TestInfo) {
     this.target = target;
+    this.testInfo = testInfo;
     this.accounts = [];
+  }
+
+  /**
+   * Gets a short test context string for logging
+   */
+  private getTestContext(): string {
+    const titlePath = this.testInfo.titlePath;
+    // Return the last two elements (test suite and test name) for brevity
+    return titlePath.slice(-2).join(' > ');
   }
 
   /**
@@ -169,61 +195,132 @@ export class TestAccountTracker {
   }
 
   /**
-   * Destroys all accounts tracked by this TestAccountTracker
+   * Destroys all accounts tracked by this TestAccountTracker.
+   * Fails fast if any account cleanup fails.
    */
   async destroyAllAccounts() {
     while (this.accounts.length > 0) {
       const account = this.accounts.pop();
-      if (!account) {
-        continue;
-      }
+      if (!account) continue;
 
+      // Check if account exists
       const accountStatus = await this.target.authClient.accountStatusByEmail(
         account.email
       );
+      if (!accountStatus.exists) continue;
 
-      if (!accountStatus.exists) {
-        continue;
+      try {
+        // Get session token (existing or new)
+        let sessionToken: string;
+        if ('sessionToken' in account && account.sessionToken) {
+          sessionToken = account.sessionToken;
+        } else {
+          const credentials = await this.target.authClient.signIn(
+            account.email,
+            account.password
+          );
+          sessionToken = credentials.sessionToken;
+        }
+
+        // Helper function to verify session if needed
+        const verifySessionIfNeeded = async () => {
+          try {
+            await this.target.authClient.sessionResendVerifyCode(sessionToken);
+            const code = await this.target.emailClient.getVerifyLoginCode(
+              account.email
+            );
+            await this.target.authClient.sessionVerifyCode(sessionToken, code);
+          } catch {
+            // Ignore verification errors - session might already be verified
+          }
+        };
+
+        // Helper function to get fresh session if current one is invalid
+        const getFreshSessionIfNeeded = async (error: any) => {
+          if (
+            error.message.includes('Invalid authentication token') ||
+            error.message.includes('Missing authentication')
+          ) {
+            const credentials = await this.target.authClient.signIn(
+              account.email,
+              account.password
+            );
+            sessionToken = credentials.sessionToken;
+            await verifySessionIfNeeded();
+            return true;
+          }
+          return false;
+        };
+
+        // Check if account has 2FA enabled before attempting to delete TOTP
+        try {
+          const profile =
+            await this.target.authClient.accountProfile(sessionToken);
+          const has2FA = profile.authenticationMethods?.includes('otp');
+
+          if (has2FA) {
+            try {
+              await this.target.authClient.deleteTotpToken(sessionToken);
+            } catch (totpError) {
+              if (totpError.message.includes('Unconfirmed session')) {
+                await verifySessionIfNeeded();
+                await this.target.authClient.deleteTotpToken(sessionToken);
+              } else if (await getFreshSessionIfNeeded(totpError)) {
+                await this.target.authClient.deleteTotpToken(sessionToken);
+              } else {
+                throw totpError;
+              }
+            }
+          }
+        } catch (profileError) {
+          // If we can't get profile info, fall back to trying TOTP deletion
+          // This handles edge cases where profile endpoint might fail
+          try {
+            await this.target.authClient.deleteTotpToken(sessionToken);
+          } catch (totpError) {
+            if (totpError.message.includes('Unconfirmed session')) {
+              await verifySessionIfNeeded();
+              await this.target.authClient.deleteTotpToken(sessionToken);
+            } else if (await getFreshSessionIfNeeded(totpError)) {
+              await this.target.authClient.deleteTotpToken(sessionToken);
+            }
+            // Ignore TOTP errors in fallback case - account might not have TOTP
+          }
+        }
+
+        // Try to destroy the account
+        try {
+          await this.target.authClient.accountDestroy(
+            account.email,
+            account.password,
+            {},
+            sessionToken
+          );
+        } catch (destroyError) {
+          if (destroyError.message.includes('Unconfirmed session')) {
+            await verifySessionIfNeeded();
+            await this.target.authClient.accountDestroy(
+              account.email,
+              account.password,
+              {},
+              sessionToken
+            );
+          } else if (await getFreshSessionIfNeeded(destroyError)) {
+            await this.target.authClient.accountDestroy(
+              account.email,
+              account.password,
+              {},
+              sessionToken
+            );
+          } else {
+            throw destroyError;
+          }
+        }
+      } catch (error) {
+        throw new Error(
+          `Failed to cleanup account ${account.email}: ${error.message}`
+        );
       }
-
-      /**
-       * Troubleshooting if accounts fail to destroy:
-       *
-       * Error Message: 'Sign in with this email type is not currently supported'
-       * The primary email was most likely changed, the test case must
-       * update the account with the new email
-       *
-       * Error Message: 'The request was blocked for security reasons'
-       * Some accounts are always prompted to unblock, ie emails starting
-       * with `blocked.`. These accounts need to be destroyed in the test
-       * case
-       *
-       * Error Message: 'Unconfirmed session'
-       * The account is most likely using TOTP. Disable TOTP or remove the
-       * account in the test
-       */
-      const credentials = await this.target.authClient.signIn(
-        account.email,
-        account.password
-      );
-
-      await this.target.authClient.sessionResendVerifyCode(
-        credentials.sessionToken
-      );
-      const code = await this.target.emailClient.getVerifyLoginCode(
-        account.email
-      );
-      await this.target.authClient.sessionVerifyCode(
-        credentials.sessionToken,
-        code
-      );
-
-      await this.target.authClient.accountDestroy(
-        account.email,
-        account.password,
-        {},
-        credentials.sessionToken
-      );
     }
   }
 }

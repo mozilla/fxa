@@ -30,7 +30,7 @@ test.describe('severity-1 #smoke', () => {
       const config = await configPage.getConfig();
       test.skip(
         config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11935 - add test for new flow'
+        'TODO in FXA-11941 - update test for new flow'
       );
       const credentials = await signInAccount(
         target,
@@ -72,7 +72,7 @@ test.describe('severity-1 #smoke', () => {
       const config = await configPage.getConfig();
       test.skip(
         config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11935 - add test for new flow'
+        'TODO in FXA-11941 - update test for new flow'
       );
       const credentials = await signInAccount(
         target,
@@ -116,7 +116,7 @@ test.describe('severity-1 #smoke', () => {
       const config = await configPage.getConfig();
       test.skip(
         config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11935 - add test for new flow'
+        'TODO in FXA-11941 - update test for new flow'
       );
       const credentials = await signInAccount(
         target,
@@ -173,7 +173,7 @@ test.describe('severity-1 #smoke', () => {
       const config = await configPage.getConfig();
       test.skip(
         config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11935 - add test for new flow'
+        'TODO in FXA-11941 - update test for new flow'
       );
       const credentials = await signInAccount(
         target,

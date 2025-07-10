@@ -53,7 +53,7 @@ Its job is to make the following functionalities available:
 
 - target: connect to the target environment
 - pages & syncBrowserPages: create the POMs
-- testAccountTracker: create and destroy accounts
+- testAccountTracker: create and destroy accounts with automatic TOTP cleanup
 
 Make these fixtures available in test files by declaring the following:
 
@@ -62,6 +62,53 @@ import { test } from '../lib/fixtures/standard';
 ```
 
 Other fixtures may be added as needed.
+
+## Account Cleanup and TOTP
+
+The `testAccountTracker` fixture automatically handles account cleanup after tests complete, including accounts with Two-Factor Authentication (TOTP) enabled.
+
+### Automatic TOTP Cleanup & Fail-Fast Error Handling
+
+If a test fails before reaching its cleanup code (e.g., `await settings.disconnectTotp()`), the `TestAccountTracker` will automatically:
+
+1. **Use existing session token** if available (fastest)
+2. **Create new session** if no session token exists
+3. **Attempt to disable TOTP** (automatically handles accounts with/without TOTP)
+4. **Destroy the account**
+
+The cleanup automatically handles session verification and token refresh if needed.
+
+**Tests FAIL immediately** if any account cleanup fails.
+
+### Best Practices
+
+- **Still call `disconnectTotp()` explicitly** in tests for good test hygiene and faster cleanup
+- **Handle blocked accounts manually** in tests that create them (accounts with `blocked` email prefix)
+
+**Note**: the cleanup will detect invalid session tokens (e.g., due to password change) and will get fresh ones as needed.
+
+Example:
+
+```ts
+test('totp test with proper cleanup', async ({
+  pages: { settings, totp },
+  testAccountTracker,
+}) => {
+  const credentials = await testAccountTracker.signUp();
+
+  // Set up TOTP
+  await settings.totp.addButton.click();
+  await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
+
+  // Test TOTP functionality...
+
+  // Explicit cleanup (recommended)
+  await settings.disconnectTotp();
+
+  // Even if the test fails before this line,
+  // automatic cleanup will handle the TOTP cleanup
+});
+```
 
 ## Page Object Models (POMs)
 

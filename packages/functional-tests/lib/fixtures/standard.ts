@@ -72,8 +72,8 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     await syncBrowserPages.browser?.close();
   },
 
-  testAccountTracker: async ({ target }, use) => {
-    const testAccountTracker = new TestAccountTracker(target);
+  testAccountTracker: async ({ target }, use, testInfo) => {
+    const testAccountTracker = new TestAccountTracker(target, testInfo);
 
     await use(testAccountTracker);
 

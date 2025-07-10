@@ -24,10 +24,7 @@ test.describe('severity-1 #smoke', () => {
       testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11935 - add test for new flow'
-      );
+
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
