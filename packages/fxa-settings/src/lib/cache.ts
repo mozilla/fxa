@@ -46,6 +46,13 @@ function accounts(accounts?: LocalAccounts) {
   return storage.get('accounts') as LocalAccounts;
 }
 
+export function findAccountByEmail(
+  email: string
+): StoredAccountData | undefined {
+  const all = accounts() || {};
+  return Object.values(all).find((x) => x.email && x.email === email);
+}
+
 export function currentAccount(
   account?: StoredAccountData
 ): StoredAccountData | undefined {

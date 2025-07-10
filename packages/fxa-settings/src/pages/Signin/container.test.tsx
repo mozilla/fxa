@@ -213,6 +213,11 @@ function mockModelsModule() {
 // Call this when testing local storage
 function mockCurrentAccount(storedAccount: any) {
   jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
+  jest
+    .spyOn(CacheModule, 'findAccountByEmail')
+    .mockImplementation((email: string) => {
+      return email === storedAccount.email ? storedAccount : undefined;
+    });
   jest.spyOn(CacheModule, 'discardSessionToken');
 }
 
@@ -1048,7 +1053,7 @@ describe('signin container', () => {
     it('runs handler, calls accountProfile and recoveryEmailStatus', async () => {
       mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
         authenticationMethods: ['pwd', 'email'],
-        authenticatorAssuranceLevel: 1 // email verified session
+        authenticatorAssuranceLevel: 1, // email verified session
       });
       mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
         verified: false,
@@ -1088,7 +1093,7 @@ describe('signin container', () => {
     it('does not return a verification reason with verified 2FA session', async () => {
       mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
         authenticationMethods: ['pwd', 'email', 'otp'],
-        authenticatorAssuranceLevel: 2 // 2FA verified session
+        authenticatorAssuranceLevel: 2, // 2FA verified session
       });
       mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
         verified: true,
@@ -1103,8 +1108,8 @@ describe('signin container', () => {
         const handlerResult =
           await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
 
-        expect(handlerResult?.data?.verificationMethod).toBeUndefined()
-        expect(handlerResult?.data?.verificationReason).toBeUndefined()
+        expect(handlerResult?.data?.verificationMethod).toBeUndefined();
+        expect(handlerResult?.data?.verificationReason).toBeUndefined();
         expect(handlerResult?.data?.emailVerified).toEqual(true);
       });
     });
@@ -1112,7 +1117,7 @@ describe('signin container', () => {
     it('throws if mismatch 2FA and assurance level', async () => {
       mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
         authenticationMethods: ['pwd', 'email', 'otp'],
-        authenticatorAssuranceLevel: 1 // Session verified by email
+        authenticatorAssuranceLevel: 1, // Session verified by email
       });
       mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
         verified: true,
