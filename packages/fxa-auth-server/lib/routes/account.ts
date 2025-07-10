@@ -35,7 +35,7 @@ import {
 } from '../payments/iap/iap-formatter';
 import { StripeHelper } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
-import { deleteAccountIfUnverified } from './utils/account';
+import { deleteAccountIfUnverified, fetchRpCmsData } from './utils/account';
 import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
@@ -353,31 +353,13 @@ export class AccountHandler {
             uid: sessionToken.uid,
           };
 
-          const { relyingParties } = await (async () => {
-            try {
-              const metricsContext = await request.app.metricsContext;
-              const rpCmsConfig =
-                metricsContext.service &&
-                metricsContext.entrypoint &&
-                this.cmsManager
-                  ? await this.cmsManager.fetchCMSData(
-                      // this `service` here is the OAuth client id
-                      metricsContext.service,
-                      metricsContext.entrypoint
-                    )
-                  : { relyingParties: [] };
-              return rpCmsConfig;
-            } catch (error) {
-              this.log.error('cms.getConfig.error', { error });
-              return { relyingParties: [] };
-            }
-          })();
+          const rpCmsConfig = await fetchRpCmsData(
+            request,
+            this.cmsManager,
+            this.log
+          );
 
-          if (
-            !relyingParties ||
-            relyingParties.length === 0 ||
-            !relyingParties[0]?.VerifyShortCodeEmail
-          ) {
+          if (!rpCmsConfig || !rpCmsConfig.VerifyShortCodeEmail) {
             await this.mailer.sendVerifyShortCodeEmail(
               [],
               account,
@@ -385,16 +367,15 @@ export class AccountHandler {
             );
           } else {
             const metricsContext = await request.app.metricsContext;
-            const rpCmsVals = relyingParties[0];
             const rpEmailContext = {
               ...emailContext,
               target: 'strapi',
-              cmsRpClientId: rpCmsVals.clientId,
-              cmsRpFromName: rpCmsVals.shared?.emailFromName,
+              cmsRpClientId: rpCmsConfig.clientId,
+              cmsRpFromName: rpCmsConfig.shared?.emailFromName,
               entrypoint: metricsContext.entrypoint,
-              logoUrl: rpCmsVals?.shared?.emailLogoUrl,
-              logoAltText: rpCmsVals?.shared?.logoAltText,
-              ...rpCmsVals.VerifyShortCodeEmail,
+              logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
+              logoAltText: rpCmsConfig?.shared?.logoAltText,
+              ...rpCmsConfig.VerifyShortCodeEmail,
             };
 
             await this.mailer.sendVerifyShortCodeEmail(
@@ -1249,30 +1230,55 @@ export class AccountHandler {
           const service =
             (request.payload as any).service || request.query.service;
           const ip = request.app.clientAddress;
-          const { deviceId, flowId, flowBeginTime } =
+          const { deviceId, flowId, flowBeginTime, entrypoint } =
             await request.app.metricsContext;
 
+          const rpCmsConfig = await fetchRpCmsData(
+            request,
+            this.cmsManager,
+            this.log
+          );
+
           try {
-            await this.mailer.sendNewDeviceLoginEmail(
-              accountRecord.emails,
-              accountRecord,
-              {
-                acceptLanguage: request.app.acceptLanguage,
-                deviceId,
-                flowId,
-                flowBeginTime,
-                ip,
-                location: geoData.location,
-                service,
-                timeZone: geoData.timeZone,
-                uaBrowser: request.app.ua.browser,
-                uaBrowserVersion: request.app.ua.browserVersion,
-                uaOS: request.app.ua.os,
-                uaOSVersion: request.app.ua.osVersion,
-                uaDeviceType: request.app.ua.deviceType,
-                uid: sessionToken.uid,
-              }
-            );
+            const emailContext = {
+              acceptLanguage: request.app.acceptLanguage,
+              deviceId,
+              flowId,
+              flowBeginTime,
+              ip,
+              location: geoData.location,
+              service,
+              timeZone: geoData.timeZone,
+              uaBrowser: request.app.ua.browser,
+              uaBrowserVersion: request.app.ua.browserVersion,
+              uaOS: request.app.ua.os,
+              uaOSVersion: request.app.ua.osVersion,
+              uaDeviceType: request.app.ua.deviceType,
+              uid: sessionToken.uid,
+            };
+            if (!rpCmsConfig || !rpCmsConfig.NewDeviceLoginEmail) {
+              await this.mailer.sendNewDeviceLoginEmail(
+                accountRecord.emails,
+                accountRecord,
+                emailContext
+              );
+            } else {
+              const rpEmailContext = {
+                ...emailContext,
+                target: 'strapi',
+                cmsRpClientId: rpCmsConfig.clientId,
+                cmsRpFromName: rpCmsConfig.shared?.emailFromName,
+                entrypoint,
+                logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
+                logoAltText: rpCmsConfig?.shared?.logoAltText,
+                ...rpCmsConfig.NewDeviceLoginEmail,
+              };
+              await this.mailer.sendNewDeviceLoginEmail(
+                accountRecord.emails,
+                accountRecord,
+                rpEmailContext
+              );
+            }
           } catch (err) {
             // If we couldn't email them, no big deal. Log
             // and pretend everything worked.

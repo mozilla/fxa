@@ -41,25 +41,29 @@ const { ProfileClient } = require('@fxa/profile/client');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const glean = mocks.mockGlean();
 const profile = mocks.mockProfile();
+const rpCmsConfig = {
+  clientId: '00f00f',
+  shared: {
+    emailFromName: 'Testo Inc.',
+    emailLogoUrl: 'http://img.exmpl.gg/logo.svg',
+  },
+  NewDeviceLoginEmail: {
+    subject: 'You Logged In',
+    headline: 'You Logged Into Product',
+    description: 'It appears you logged in.',
+  },
+  VerifyShortCodeEmail: {
+    subject: 'Verify Your Account',
+    headline: 'Enter code to verify',
+    description: 'Use code below and gogogo',
+  },
+};
 const rpConfigManager = {
   fetchCMSData: sinon
     .stub()
     .withArgs('00f00f', 'testo')
     .resolves({
-      relyingParties: [
-        {
-          clientId: '00f00f',
-          shared: {
-            emailFromName: 'Testo Inc.',
-            emailLogoUrl: 'http://img.exmpl.gg/logo.svg',
-          },
-          VerifyShortCodeEmail: {
-            subject: 'Verify Your Account',
-            headline: 'Enter code to verify',
-            description: 'Use code below and gogogo',
-          },
-        },
-      ],
+      relyingParties: [rpCmsConfig],
     }),
 };
 
@@ -2225,6 +2229,25 @@ describe('/account/login', () => {
     },
     clientAddress: '127.0.0.1',
   });
+  const mockRequestWithRpCmsConfig = mocks.mockRequest({
+    log: mockLog,
+    metricsContext: mockMetricsContext,
+    payload: {
+      authPW: hexString(32),
+      email: 'test@mozilla.com',
+      service: 'dcdb5ae7add825d2',
+      reason: 'signin',
+      metricsContext: {
+        deviceId: 'blee',
+        flowBeginTime: Date.now(),
+        flowId:
+          'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        service: '00f00f',
+        entrypoint: 'testo',
+      },
+    },
+    query: {},
+  });
   const keyFetchTokenId = hexString(16);
   const sessionTokenId = hexString(16);
   const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -3852,6 +3875,53 @@ describe('/account/login', () => {
       assert.equal(err.output.statusCode, 503);
       assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
     }
+  });
+
+  it('should use RP CMS email content for new login email', () => {
+    rpConfigManager.fetchCMSData.resetHistory();
+    const email = 'test@mozilla.com';
+    mockDB.accountRecord = function () {
+      return Promise.resolve({
+        authSalt: hexString(32),
+        data: hexString(32),
+        email: 'test@mozilla.com',
+        emailVerified: true,
+        primaryEmail: {
+          normalizedEmail: normalizeEmail(email),
+          email: email,
+          isVerified: true,
+          isPrimary: true,
+        },
+        kA: hexString(32),
+        lastAuthAt: function () {
+          return Date.now();
+        },
+        uid: uid,
+        wrapWrapKb: hexString(32),
+      });
+    };
+    return runTest(route, mockRequestWithRpCmsConfig, () => {
+      assert.calledOnce(mockMailer.sendNewDeviceLoginEmail);
+      const args = mockMailer.sendNewDeviceLoginEmail.args[0];
+      const emailMessage = args[2];
+      assert.equal(emailMessage.target, 'strapi');
+      assert.equal(emailMessage.cmsRpClientId, '00f00f');
+      assert.equal(emailMessage.cmsRpFromName, 'Testo Inc.');
+      assert.equal(emailMessage.entrypoint, 'testo');
+      assert.equal(emailMessage.logoUrl, 'http://img.exmpl.gg/logo.svg');
+      assert.equal(
+        emailMessage.subject,
+        rpCmsConfig.NewDeviceLoginEmail.subject
+      );
+      assert.equal(
+        emailMessage.headline,
+        rpCmsConfig.NewDeviceLoginEmail.headline
+      );
+      assert.equal(
+        emailMessage.description,
+        rpCmsConfig.NewDeviceLoginEmail.description
+      );
+    });
   });
 });
 
