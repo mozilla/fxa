@@ -31,6 +31,7 @@ export interface RelyingPartyResult {
   SignupSetPasswordPage?: Page;
   SignupConfirmCodePage?: Page;
   SignupConfirmedSyncPage?: Page;
-  Shared?: Shared;
+  shared?: Shared;
+  NewDeviceLoginEmail?: Email;
   VerifyShortCodeEmail?: Email;
 }

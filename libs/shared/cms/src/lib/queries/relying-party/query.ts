@@ -40,6 +40,11 @@ export const relyingPartyQuery = graphql(`
         emailLogoUrl
         emailLogoAltText
       }
+      NewDeviceLoginEmail {
+        subject
+        headline
+        description
+      }
       VerifyShortCodeEmail {
         subject
         headline

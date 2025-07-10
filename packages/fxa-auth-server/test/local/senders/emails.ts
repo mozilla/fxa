@@ -771,6 +771,54 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
   ])],
 
+  ['newDeviceLoginEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'You Logged In' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: 'messageType=fxa-newDeviceLogin, app=fxa, service=fxa-auth-server, ses:feedback-id-a=fxa-newDeviceLogin, cmsRp=00f00f-wibble' }],
+      ['X-Template-Name', { test: 'equal', expected: 'newDeviceLogin' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.newDeviceLogin }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'You Logged Into Product' },
+      { test: 'include', expected: 'It appears you logged in.' },
+      { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'new-device-signin', 'manage-account', 'email', 'uid')) },
+      { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-device-signin', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'new-device-signin', 'support')) },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'You Logged Into Product' },
+      { test: 'include', expected: 'It appears you logged in.' },
+      { test: 'include', expected: `Not you? Change your password:\n${configUrl('initiatePasswordChangeUrl', 'new-device-signin', 'change-password', 'email')}` },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'new-device-signin', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'new-device-signin', 'privacy')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'new-device-signin', 'support')}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ]),
+  {
+    updateTemplateValues: x => (
+      {
+        ...x,
+        target: 'strapi',
+        cmsRpClientId: '00f00f',
+        cmsRpFromName: 'Testo Inc.',
+        entrypoint: 'wibble',
+        subject: 'You Logged In',
+        headline: 'You Logged Into Product',
+        description: 'It appears you logged in.',
+      }
+    ),}
+  ],
+
   ['passwordChangedEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Password updated' }],
     ['headers', new Map([
