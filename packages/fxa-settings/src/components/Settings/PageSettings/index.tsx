@@ -140,6 +140,23 @@ export const PageSettings = ({
     productPromoGleanEventSent,
   ]);
 
+  useEffect(() => {
+    const targetEmail = (() => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('email');
+      } catch {}
+      return null;
+    })();
+
+    // RPs might want to link to settings and specify a target account. If the
+    // current account email doesn't match the requested email, sign in the user
+    // in with this email.
+    if (targetEmail && targetEmail !== account.email) {
+      window.location.replace(`/signin${window.location.search}`);
+    }
+  }, [account]);
+
   // -- Account feature promotion checks --
 
   // The estimated Sync devices is optionally returned by the auth-server,
