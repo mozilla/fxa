@@ -128,7 +128,7 @@ tr > td:first-child {
 
 .link-blue {
   @extend .text-blue-500;
-  text-decoration: none;
+  text-decoration: underline;
   font-family: $font-sans;
 }
 

@@ -40,7 +40,7 @@
   "verifyLoginCode": 8,
   "verifyShortCode": 5,
   "verifySecondaryCode": 3,
-  "postAddTwoStepAuthentication": 10,
+  "postAddTwoStepAuthentication": 11,
   "postRemoveTwoStepAuthentication": 9,
   "postConsumeRecoveryCode": 8,
   "postNewRecoveryCodes": 7,
