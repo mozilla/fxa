@@ -319,6 +319,9 @@ export function gleanMetrics(config: ConfigType) {
       replaceCodeComplete: createEventFn(
         'two_factor_auth_replace_code_complete'
       ),
+      setupInvalidCodeError: createEventFn(
+        'two_factor_auth_setup_invalid_code_error'
+      ),
     },
     twoStepAuthPhoneCode: {
       sent: createEventFn('two_step_auth_phone_code_sent'),

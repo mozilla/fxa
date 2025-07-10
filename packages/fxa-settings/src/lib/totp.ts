@@ -2,58 +2,65 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import base32Decode from 'base32-decode';
-
 import random from './random';
 
-function trimOrPad(num: number, digits: number): string {
-  const str = num.toString().substr(-digits);
-  if (str.length === digits) {
-    return str;
+let authenticatorInstance: any = null;
+
+// Polyfill for Playwright tests because they run in a Node context where some
+// browser globals are undefined, which `@otplib/preset-browser` uses.
+function setupTestPolyfills() {
+  if (typeof window === 'undefined') {
+    (global as any).window = {
+      crypto: (global as any).crypto || {
+        getRandomValues: (arr: any) => {
+          const crypto = require('crypto');
+          const bytes = crypto.randomBytes(arr.length);
+          arr.set(bytes);
+          return arr;
+        },
+      },
+    };
+    if (typeof (global as any).buffer === 'undefined') {
+      (global as any).buffer = require('buffer');
+    }
+    if (typeof (global as any).Buffer === 'undefined') {
+      (global as any).Buffer = require('buffer').Buffer;
+    }
   }
-  return new Array(digits - str.length + 1).join('0') + str;
 }
 
-export async function getCode(
-  secret: string,
-  digits: number = 6,
-  timestamp: number = Date.now()
-): Promise<string> {
-  const secretKey = base32Decode(secret, 'RFC4648');
-  const counter = new ArrayBuffer(8);
-  const cv = new DataView(counter);
-  cv.setUint32(4, Math.floor(timestamp / 30000), false);
+// Lazy import and configure authenticator only when needed. This is required
+// because when importing this lib top-level, Playwright will error.
+async function getAuthenticator() {
+  if (authenticatorInstance) {
+    return authenticatorInstance;
+  }
+  setupTestPolyfills();
 
-  const key = await crypto.subtle.importKey(
-    'raw',
-    secretKey,
-    {
-      name: 'HMAC',
-      hash: { name: 'SHA-1' },
-    },
-    false,
-    ['sign']
-  );
-  const signature = await crypto.subtle.sign('HMAC', key, counter);
-  const hmac = new DataView(signature);
-  const offset = hmac.getUint8(hmac.byteLength - 1) & 0x0f;
-  return trimOrPad(hmac.getInt32(offset, false) & 0x7fffffff, digits);
+  const { authenticator } = await import('@otplib/preset-browser');
+
+  // Configure otplib to match auth-server settings
+  authenticator.options = {
+    ...authenticator.options,
+    step: 30,
+    window: 1,
+  };
+
+  authenticatorInstance = authenticator;
+  return authenticator;
+}
+
+export async function getCode(secret: string): Promise<string> {
+  const authenticator = await getAuthenticator();
+  return authenticator.generate(secret);
 }
 
 export async function checkCode(
   secret: string,
-  code: string,
-  timestamp: number = Date.now(),
-  tries = 2
+  code: string
 ): Promise<boolean> {
-  for (; tries > 0; tries--, timestamp -= 30000) {
-    const x = await getCode(secret, 6, timestamp);
-    if (x === code) {
-      return true;
-    }
-  }
-
-  return false;
+  const authenticator = await getAuthenticator();
+  return authenticator.verify({ token: code, secret });
 }
 
 export function copyRecoveryCodes(event: React.ClipboardEvent<HTMLElement>) {

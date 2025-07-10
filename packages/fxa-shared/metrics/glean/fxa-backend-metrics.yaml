@@ -1075,6 +1075,23 @@ two_factor_auth:
     expires: never
     data_sensitivity:
       - interaction
+  setup_invalid_code_error:
+    type: event
+    description: |
+      Edge case error that indicates the user verified their OTP code client-side during setup, but the server rejected it
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11087
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
 
 two_step_auth_phone_code:
   sent:
