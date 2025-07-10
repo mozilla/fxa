@@ -46,6 +46,7 @@ const recordPasswordResetEmailConfirmationSuccessStub = sinon.stub();
 const recordTwoFactorAuthCodeCompleteStub = sinon.stub();
 const recordTwoFactorAuthReplaceCodeCompleteStub = sinon.stub();
 const recordTwoFactorAuthSetCodesCompleteStub = sinon.stub();
+const recordTwoFactorAuthSetupInvalidCodeErrorStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeSentStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeSendErrorStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeCompleteStub = sinon.stub();
@@ -126,6 +127,8 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
         recordTwoFactorAuthReplaceCodeCompleteStub,
       recordTwoFactorAuthSetCodesComplete:
         recordTwoFactorAuthSetCodesCompleteStub,
+      recordTwoFactorAuthSetupInvalidCodeError:
+        recordTwoFactorAuthSetupInvalidCodeErrorStub,
       recordTwoStepAuthPhoneCodeSent: recordTwoStepAuthPhoneCodeSentStub,
       recordTwoStepAuthPhoneCodeSendError:
         recordTwoStepAuthPhoneCodeSendErrorStub,
@@ -536,6 +539,17 @@ describe('Glean server side events', () => {
         'two_factor_auth_replace_code_complete'
       );
       sinon.assert.calledOnce(recordTwoFactorAuthReplaceCodeCompleteStub);
+    });
+
+    it('logs a "two_factor_auth_setup_invalid_code_error" event', async () => {
+      await glean.twoFactorAuth.setupInvalidCodeError(request);
+      sinon.assert.calledOnce(recordStub);
+      const metrics = recordStub.args[0][0];
+      assert.equal(
+        metrics['event_name'],
+        'two_factor_auth_setup_invalid_code_error'
+      );
+      sinon.assert.calledOnce(recordTwoFactorAuthSetupInvalidCodeErrorStub);
     });
   });
 

@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
+import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import DataBlock from '../../components/DataBlock';
 import { BackupCodesImage } from '../../components/images';
 import CardHeader from '../../components/CardHeader';
@@ -15,8 +16,15 @@ import FormVerifyCode, {
   commonBackupCodeFormAttributes,
 } from '../../components/FormVerifyCode';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { InlineRecoverySetupProps } from './interfaces';
-import { getErrorFtlId, getLocalizedErrorMessage } from '../../lib/error-utils';
+import {
+  InlineRecoverySetupProps,
+  SigninRecoveryLocationState,
+} from './interfaces';
+import {
+  getErrorFtlId,
+  getHandledError,
+  getLocalizedErrorMessage,
+} from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
 import { GleanClickEventType2FA } from '../../lib/types';
 import Banner from '../../components/Banner';
@@ -31,6 +39,12 @@ const InlineRecoverySetup = ({
   email,
 }: InlineRecoverySetupProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const navigateWithQuery = useNavigateWithQuery();
+  const location = useLocation() as ReturnType<typeof useLocation> & {
+    state?: SigninRecoveryLocationState;
+  };
+  const signinRecoveryLocationState = location.state;
+  const { totp, ...signinLocationState } = signinRecoveryLocationState || {};
   const localizedIncorrectBackupCodeError = ftlMsgResolver.getMsg(
     'tfa-incorrect-recovery-code-1',
     'Incorrect backup authentication code'
@@ -44,6 +58,8 @@ const InlineRecoverySetup = ({
   const [successfulTotpSetup, setSuccessfulTotpSetup] =
     useState<boolean>(false);
   const [recoveryCodeError, setRecoveryCodeError] = useState<string>('');
+  const [bannerErrorLocalized, setBannerErrorLocalized] =
+    useState<React.ReactNode>(null);
 
   const showBannerSuccess = useCallback(
     () =>
@@ -61,7 +77,7 @@ const InlineRecoverySetup = ({
     [ftlMsgResolver, successfulTotpSetup]
   );
 
-  const showBannerError = useCallback(
+  const showBannerOAuthError = useCallback(
     () =>
       oAuthError && (
         <Banner
@@ -87,6 +103,8 @@ const InlineRecoverySetup = ({
 
   const completeSetup = useCallback(
     async (code: string) => {
+      setBannerErrorLocalized(null);
+
       if (!recoveryCodes.includes(code.trim())) {
         setRecoveryCodeError(localizedIncorrectBackupCodeError);
         return;
@@ -100,17 +118,46 @@ const InlineRecoverySetup = ({
           setSuccessfulTotpSetup(true);
           setTimeout(successfulSetupHandler, 500);
         } else {
-          // Some server side error occurred.  Generic error message in catch
+          // Some server side error occurred. Generic error message in catch
           // block.
           throw new Error('cannot enable TOTP');
         }
-      } catch (error) {
+      } catch (err) {
+        const { error } = getHandledError(err);
         if (error.errno === AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno) {
           setRecoveryCodeError(
             ftlMsgResolver.getMsg(
               getErrorFtlId(error),
               AuthUiErrors.TOTP_TOKEN_NOT_FOUND.message
             )
+          );
+        } else if (error.errno === AuthUiErrors.INVALID_OTP_CODE.errno) {
+          const startOverLink = (
+            <Link
+              className="link-blue"
+              to="/inline_totp_setup"
+              state={signinLocationState}
+              onClick={() => {
+                navigateWithQuery('/inline_totp_setup', {
+                  state: signinLocationState,
+                });
+              }}
+            >
+              start over
+            </Link>
+          );
+
+          setBannerErrorLocalized(
+            <FtlMsg
+              id="two-factor-auth-setup-token-verification-error"
+              elems={{ a: startOverLink }}
+            >
+              <>
+                There was a problem enabling two-step authentication. Check that
+                your device’s clock is set to update automatically and{' '}
+                {startOverLink}.
+              </>
+            </FtlMsg>
           );
         } else {
           setRecoveryCodeError(
@@ -128,6 +175,8 @@ const InlineRecoverySetup = ({
       recoveryCodes,
       successfulSetupHandler,
       verifyTotpHandler,
+      navigateWithQuery,
+      signinLocationState,
     ]
   );
 
@@ -156,7 +205,19 @@ const InlineRecoverySetup = ({
             {...{ serviceName }}
           />
           {showBannerSuccess()}
-          {showBannerError()}
+          {!bannerErrorLocalized && showBannerOAuthError()}
+          {/* Only show one banner-style error at a time. At the time of writing the
+           * only non-oauth error banner tells the user to start the flow again,
+           * so allow it to take precedence.
+           */}
+          {bannerErrorLocalized && (
+            <Banner
+              type="error"
+              customContent={
+                <p className="font-bold">{bannerErrorLocalized}</p>
+              }
+            />
+          )}
           <section>
             <div>
               <BackupCodesImage />
