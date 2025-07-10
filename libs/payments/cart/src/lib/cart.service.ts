@@ -66,6 +66,8 @@ import {
   FinalizeWithoutSubscriptionIdCartError,
   FinalizeWithoutSubscriptionCartError,
   InvalidPromoCodeCartError,
+  CartVersionMismatchError,
+  CartInvalidStateForActionError,
 } from './cart.error';
 import { CartManager } from './cart.manager';
 import type {
@@ -650,7 +652,11 @@ export class CartService {
    * Update a cart in the database by ID or with an existing cart reference
    */
   @SanitizeExceptions({
-    allowlist: [PromotionCodeError],
+    allowlist: [
+      PromotionCodeError,
+      CartVersionMismatchError,
+      CartInvalidStateForActionError,
+    ],
   })
   async updateCart(
     cartId: string,
@@ -659,7 +665,13 @@ export class CartService {
   ): Promise<ResultCart> {
     return this.wrapWithCartCatch(
       cartId,
-      { errorAllowList: [PromotionCodeError] },
+      {
+        errorAllowList: [
+          PromotionCodeError,
+          CartVersionMismatchError,
+          CartInvalidStateForActionError,
+        ],
+      },
       async () => {
         const oldCart = await this.cartManager.fetchCartById(cartId);
         const cartDetails: UpdateCart = {
@@ -1024,7 +1036,6 @@ export class CartService {
           intent.id,
           isPaymentIntentId(intent.id) ? 'PaymentIntent' : 'SetupIntent'
         );
-
       } else {
         throw new SubmitNeedsInputFailedError(cartId);
       }

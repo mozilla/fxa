@@ -10,7 +10,7 @@ import classNames from 'classnames';
 import countries from 'i18n-iso-countries';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { BaseButton, ButtonVariant, SubmitButton } from '@fxa/payments/ui';
 import { validateAndFormatPostalCode } from '@fxa/payments/ui/actions';
@@ -25,13 +25,13 @@ type SaveActionSignature = (
   postalCode: string
 ) => Promise<
   | {
-      ok: false;
-      error: string | { message: string; data: any };
-    }
+    ok: false;
+    error: string | { message: string; data: any };
+  }
   | {
-      ok: true;
-      data: any;
-    }
+    ok: true;
+    data: any;
+  }
   | void
 >;
 
@@ -84,8 +84,8 @@ interface ExpandedProps {
   locale: string;
   productName: string;
   unsupportedLocations: string;
-  countryCode: string | undefined;
-  postalCode: string | undefined;
+  initialCountryCode: string | undefined;
+  initialPostalCode: string | undefined;
   currentCurrency?: string;
   saveAction: SaveActionSignature;
   cancelAction?: () => void;
@@ -101,8 +101,8 @@ const Expanded = ({
   locale,
   productName,
   unsupportedLocations,
-  countryCode,
-  postalCode,
+  initialCountryCode,
+  initialPostalCode,
   currentCurrency,
   saveAction,
   cancelAction,
@@ -110,12 +110,6 @@ const Expanded = ({
   showNewTaxRateInfoMessage = false,
 }: ExpandedProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedCountryCode, setSelectedCountryCode] = useState<
-    string | undefined
-  >();
-  const [selectedPostalCode, setSelectedPostalCode] = useState<
-    string | undefined
-  >();
   const [countryCodes, setCountryCodes] = useState<
     { name: string; code: string }[]
   >([]);
@@ -128,20 +122,23 @@ const Expanded = ({
     invalidPostalCode: false,
     locationNotUpdated: false,
   });
+  const countrySelectRef = useRef<HTMLSelectElement>(null);
+
+  // Ensure that the defaultValue matches the initial countryCode
+  // Necessary because the select countryCodes opttions are
+  // set dynamically
+  useEffect(() => {
+    if (countryCodes && countrySelectRef.current) {
+      // Only set after countryCodes exist in DOM
+      countrySelectRef.current.value = initialCountryCode || '';
+    }
+  }, [countryCodes]);
 
   const currentCurrencyDisplayName =
     currentCurrency &&
     new Intl.DisplayNames([locale], { type: 'currency' }).of(currentCurrency);
 
   useEffect(() => {
-    if (countryCode) {
-      setSelectedCountryCode(countryCode);
-    }
-
-    if (postalCode) {
-      setSelectedPostalCode(postalCode);
-    }
-
     countries.registerLocale(
       require(`i18n-iso-countries/langs/${locale}.json`)
     );
@@ -153,7 +150,7 @@ const Expanded = ({
       };
     });
     setCountryCodes(countryArr.sort((a, b) => a.name.localeCompare(b.name)));
-  }, [countryCode, postalCode, locale]);
+  }, [initialCountryCode, initialPostalCode, locale]);
 
   const handleCountryCodeChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -170,8 +167,6 @@ const Expanded = ({
     if (!event.target.value) {
       return setServerErrors((prev) => ({ ...prev, missingCountryCode: true }));
     }
-
-    setSelectedCountryCode(event.target.value);
 
     // If the selected location is not supported per TOS, it is not necessary to
     // also inform the customer that the product is not available in their location.
@@ -192,19 +187,24 @@ const Expanded = ({
     e.preventDefault();
     setIsLoading(true);
 
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+    const formCountryCode = typeof data.countryCode === 'string' ? data.countryCode : '';
+    const formPostalCode = typeof data.postalCode === 'string' ? data.postalCode : '';
+
     if (
-      selectedCountryCode &&
-      unsupportedLocations.includes(selectedCountryCode)
+      formCountryCode &&
+      unsupportedLocations.includes(formCountryCode)
     ) {
       setServerErrors((prev) => ({ ...prev, unsupportedCountry: true }));
     }
 
     try {
-      if (selectedCountryCode && selectedPostalCode) {
+      if (formCountryCode && formPostalCode) {
         const { isValid, formattedPostalCode } =
           await validateAndFormatPostalCode(
-            selectedPostalCode,
-            selectedCountryCode
+            formPostalCode,
+            formCountryCode,
           );
 
         if (!isValid) {
@@ -212,8 +212,8 @@ const Expanded = ({
           setIsLoading(false);
         } else {
           const result = await saveAction(
-            selectedCountryCode,
-            formattedPostalCode || selectedPostalCode
+            formCountryCode,
+            formattedPostalCode || formPostalCode
           );
           if (result && !result.ok) {
             if (result.error === SaveActionErrors.CURRENCY_CHANGE_NOT_ALLOWED) {
@@ -267,10 +267,10 @@ const Expanded = ({
           <select
             id="countryCode"
             name="countryCode"
-            value={selectedCountryCode ?? ''}
+            ref={countrySelectRef}
             onChange={handleCountryCodeChange}
-            onInvalid={() => {
-              if (!selectedCountryCode) {
+            onInvalid={(e: React.FormEvent<HTMLSelectElement>) => {
+              if (!e.currentTarget.value) {
                 setServerErrors((prev) => ({
                   ...prev,
                   missingCountryCode: true,
@@ -416,14 +416,13 @@ const Expanded = ({
               type="text"
               data-testid="postal-code"
               placeholder="Enter your postal code"
-              onChange={(e) => {
+              onChange={() => {
                 setServerErrors((prev) => ({
                   ...prev,
                   invalidPostalCode: false,
                 }));
-                setSelectedPostalCode(e.target.value);
               }}
-              defaultValue={selectedPostalCode}
+              defaultValue={initialPostalCode}
               required
               aria-required
               aria-invalid={serverErrors.invalidPostalCode || undefined}
@@ -579,8 +578,8 @@ export function SelectTaxLocation({
       locale={locale}
       productName={productName}
       unsupportedLocations={unsupportedLocations}
-      countryCode={countryCode}
-      postalCode={postalCode}
+      initialCountryCode={countryCode}
+      initialPostalCode={postalCode}
       currentCurrency={currentCurrency}
       saveAction={async (countryCode: string, postalCode: string) => {
         const result = await saveAction(countryCode, postalCode);
@@ -646,8 +645,8 @@ export function IsolatedSelectTaxLocation({
       locale={locale}
       productName={productName}
       unsupportedLocations={unsupportedLocations}
-      countryCode={updatedCountryCode}
-      postalCode={updatedPostalCode}
+      initialCountryCode={updatedCountryCode}
+      initialPostalCode={updatedPostalCode}
       currentCurrency={currentCurrency}
       buttonContent={{
         ftlId: 'select-tax-location-continue-to-checkout-button',
