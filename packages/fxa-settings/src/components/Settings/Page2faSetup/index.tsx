@@ -28,6 +28,7 @@ import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 const Page2faSetup = (_: RouteComponentProps) => {
   const account = useAccount();
@@ -186,14 +187,24 @@ const Page2faSetup = (_: RouteComponentProps) => {
       await account.setRecoveryCodes(backupCodes);
       await enable2fa();
     } catch (error) {
+      // If this throws, the initial client-side code check succeeded but the
+      // back-end rejected it. The user needs to begin the flow again.
+      if (error.errno === AuthUiErrors.INVALID_OTP_CODE.errno) {
+        alertBar.error(
+          ftlMsgResolver.getMsg(
+            '2fa-setup-token-verification-error',
+            'There was a problem enabling two-step authentication. Check your device’s clock to make sure it’s synced, and try again.'
+          )
+        );
+      } else {
+        showGenericError();
+      }
       // for any error other than an incorrect backup code
       // return to main settings page with generic error message
       // there is no action the user can take at this step
-      showGenericError();
       goHome();
       return;
     }
-
     showSuccess();
     goHome();
     return;

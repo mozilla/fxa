@@ -387,6 +387,31 @@ describe('totp', () => {
       });
     });
 
+    it('should throw errors.invalidTokenVerficationCode for invalid code during setup', async () => {
+      // Simulate setup (isSetup = true) by making totpTokenVerified false
+      requestOptions.credentials.tokenVerified = false;
+      requestOptions.payload = {
+        code: 'INVALID_CODE',
+      };
+      try {
+        await setup(
+          {
+            db: { email: TEST_EMAIL },
+            redis: { secret },
+            totpTokenVerified: false,
+            totpTokenEnabled: false,
+          },
+          {},
+          '/session/verify/totp',
+          requestOptions
+        );
+        assert.fail('Expected error was not thrown');
+      } catch (err) {
+        assert.equal(err.errno, authErrors.ERRNO.INVALID_EXPIRED_OTP_CODE);
+        assert.equal(err.message, authErrors.invalidTokenVerficationCode().message);
+      }
+    });
+
     it('should verify session with TOTP token - sync', () => {
       const authenticator = new otplib.authenticator.Authenticator();
       authenticator.options = Object.assign({}, otplib.authenticator.options, {

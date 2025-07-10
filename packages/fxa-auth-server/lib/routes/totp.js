@@ -261,9 +261,7 @@ module.exports = (
             log.error('totp.destroy.remove_phone_number.error');
           }
         } catch (error) {
-          if (
-            error instanceof RecoveryNumberNotExistsError
-          ) {
+          if (error instanceof RecoveryNumberNotExistsError) {
             statsd.increment('totp.destroy.remove_phone_number.fail');
           } else {
             statsd.increment('totp.destroy.remove_phone_number.error');
@@ -567,29 +565,36 @@ module.exports = (
 
         const isSetup = !tokenVerified;
 
-        // Once a valid TOTP code has been detected, the token becomes verified
-        // and enabled for the user.
-        if (isValidCode && isSetup) {
-          await db.replaceTotpToken({
-            uid,
-            sharedSecret,
-            verified: true,
-            enabled: true,
-            epoch: 0,
-          });
-          await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
+        if (isSetup) {
+          // We currently check for code validity client-side, and then check again
+          // server-side at the end of the flow with this request. This guards against
+          // an edgecase where the client may accept a code that the server rejects.
+          if (!isValidCode) {
+            throw errors.invalidTokenVerficationCode();
+          } else {
+            // Once a valid TOTP code has been detected, the token becomes verified
+            // and enabled for the user.
+            await db.replaceTotpToken({
+              uid,
+              sharedSecret,
+              verified: true,
+              enabled: true,
+              epoch: 0,
+            });
+            await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
 
-          recordSecurityEvent('account.two_factor_added', {
-            db,
-            request,
-          });
+            recordSecurityEvent('account.two_factor_added', {
+              db,
+              request,
+            });
 
-          glean.twoFactorAuth.codeComplete(request, { uid });
+            glean.twoFactorAuth.codeComplete(request, { uid });
 
-          await profileClient.deleteCache(uid);
-          await log.notifyAttachedServices('profileDataChange', request, {
-            uid,
-          });
+            await profileClient.deleteCache(uid);
+            await log.notifyAttachedServices('profileDataChange', request, {
+              uid,
+            });
+          }
         }
 
         // If a valid code was sent, this verifies the session using the `totp-2fa` method.

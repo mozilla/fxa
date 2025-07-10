@@ -10,6 +10,7 @@ import { renderWithRouter } from '../../models/mocks';
 import { MOCK_BACKUP_CODES, MOCK_EMAIL } from '../mocks';
 import GleanMetrics from '../../lib/glean';
 import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -223,6 +224,40 @@ describe('InlineRecoverySetup', () => {
     expect(successfulSetupHandler).not.toHaveBeenCalled();
     await screen.findByText(
       'There was a problem confirming your backup authentication code'
+    );
+  });
+
+  it('shows a banner error when AuthUiErrors.INVALID_OTP_CODE.errno is thrown', async () => {
+    const verifyTotpHandler = jest.fn().mockImplementation(() => {
+      const error: any = new Error();
+      error.errno = AuthUiErrors.INVALID_OTP_CODE.errno;
+      throw error;
+    });
+    renderWithRouter(
+      <InlineRecoverySetup
+        email={MOCK_EMAIL}
+        serviceName={MozServices.MozillaVPN}
+        {...props}
+        {...{ verifyTotpHandler }}
+      />
+    );
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+    );
+    await act(
+      async () =>
+        await user.type(
+          screen.getByLabelText('Backup authentication code'),
+          MOCK_BACKUP_CODES[0]
+        )
+    );
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Confirm' }))
+    );
+    await screen.findByText(
+      'There was a problem enabling two-step authentication. Check your device’s clock to make sure it’s synced, and try again.'
     );
   });
 });

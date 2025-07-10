@@ -1244,22 +1244,28 @@ export class Account implements AccountData {
   }
 
   async verifyTotp(code: string) {
-    await this.withLoadingStatus(
-      this.authClient.verifyTotpCode(sessionToken()!, code)
-    );
-    // We must requery for this because this endpoint checks
-    // for if recovery codes exist
-    await this.refresh('recoveryPhone');
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        totp(currentTotp) {
-          return { ...currentTotp, verified: true };
+    try {
+      await this.withLoadingStatus(
+        this.authClient.verifyTotpCode(sessionToken()!, code)
+      );
+      // We must requery for this because this endpoint checks
+      // for if recovery codes exist
+      await this.refresh('recoveryPhone');
+      const cache = this.apolloClient.cache;
+      cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
+        fields: {
+          totp(currentTotp) {
+            return { ...currentTotp, verified: true };
+          },
         },
-      },
-    });
-    await this.refresh('backupCodes');
+      });
+      await this.refresh('backupCodes');
+    } catch (e) {
+      // Re-throw and allow the presentation layer to display the error.
+      // We don't want to set `totp.verified` to `true` if there's an error.
+      throw e;
+    }
   }
 
   async uploadAvatar(file: Blob) {

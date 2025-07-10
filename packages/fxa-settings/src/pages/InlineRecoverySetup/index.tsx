@@ -16,7 +16,11 @@ import FormVerifyCode, {
 } from '../../components/FormVerifyCode';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { InlineRecoverySetupProps } from './interfaces';
-import { getErrorFtlId, getLocalizedErrorMessage } from '../../lib/error-utils';
+import {
+  getErrorFtlId,
+  getHandledError,
+  getLocalizedErrorMessage,
+} from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
 import { GleanClickEventType2FA } from '../../lib/types';
 import Banner from '../../components/Banner';
@@ -44,6 +48,7 @@ const InlineRecoverySetup = ({
   const [successfulTotpSetup, setSuccessfulTotpSetup] =
     useState<boolean>(false);
   const [recoveryCodeError, setRecoveryCodeError] = useState<string>('');
+  const [bannerErrorLocalized, setBannerErrorLocalized] = useState<string>('');
 
   const showBannerSuccess = useCallback(
     () =>
@@ -61,7 +66,7 @@ const InlineRecoverySetup = ({
     [ftlMsgResolver, successfulTotpSetup]
   );
 
-  const showBannerError = useCallback(
+  const showBannerOAuthError = useCallback(
     () =>
       oAuthError && (
         <Banner
@@ -87,6 +92,8 @@ const InlineRecoverySetup = ({
 
   const completeSetup = useCallback(
     async (code: string) => {
+      setBannerErrorLocalized('');
+
       if (!recoveryCodes.includes(code.trim())) {
         setRecoveryCodeError(localizedIncorrectBackupCodeError);
         return;
@@ -100,16 +107,24 @@ const InlineRecoverySetup = ({
           setSuccessfulTotpSetup(true);
           setTimeout(successfulSetupHandler, 500);
         } else {
-          // Some server side error occurred.  Generic error message in catch
+          // Some server side error occurred. Generic error message in catch
           // block.
           throw new Error('cannot enable TOTP');
         }
-      } catch (error) {
+      } catch (err) {
+        const { error } = getHandledError(err);
         if (error.errno === AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno) {
           setRecoveryCodeError(
             ftlMsgResolver.getMsg(
               getErrorFtlId(error),
               AuthUiErrors.TOTP_TOKEN_NOT_FOUND.message
+            )
+          );
+        } else if (error.errno === AuthUiErrors.INVALID_OTP_CODE.errno) {
+          setBannerErrorLocalized(
+            ftlMsgResolver.getMsg(
+              '2fa-setup-token-verification-error',
+              'There was a problem enabling two-step authentication. Check your device’s clock to make sure it’s synced, and try again.'
             )
           );
         } else {
@@ -156,7 +171,17 @@ const InlineRecoverySetup = ({
             {...{ serviceName }}
           />
           {showBannerSuccess()}
-          {showBannerError()}
+          {!bannerErrorLocalized && showBannerOAuthError()}
+          {/* Only show one banner-style error at a time. At the time of writing the
+           * only non-oauth error banner tells the user to start the flow again,
+           * so allow it to take precedence.
+           */}
+          {bannerErrorLocalized && (
+            <Banner
+              type="error"
+              content={{ localizedHeading: bannerErrorLocalized }}
+            />
+          )}
           <section>
             <div>
               <BackupCodesImage />
