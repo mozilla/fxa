@@ -32,7 +32,7 @@ export function PaymentInputHandler({ cartId }: { cartId: string }) {
             await stripe.handleNextAction({
               clientSecret: inputRequest.data.clientSecret,
             });
-            await submitNeedsInputAndRedirectAction(cartId);
+            await submitNeedsInputAndRedirectAction(cartId, searchParamsRecord);
             break;
           case 'notRequired':
             await validateCartStateAndRedirectAction(

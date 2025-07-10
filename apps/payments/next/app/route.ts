@@ -3,10 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { redirect, notFound } from 'next/navigation';
 import { config } from 'apps/payments/next/config';
+import { NextRequest } from 'next/server';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   if (!config.contentServerClientConfig.url) {
     notFound();
   }
-  redirect(`${config.contentServerClientConfig.url}/subscriptions`);
+
+  const requestUrl = new URL(request.url);
+  const params = requestUrl.searchParams.toString();
+
+  const redirectTo = `${config.contentServerClientConfig.url}/subscriptions` + (params ? `?${params}` : '');
+  redirect(redirectTo);
 }
