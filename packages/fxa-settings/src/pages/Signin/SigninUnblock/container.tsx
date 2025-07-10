@@ -191,8 +191,6 @@ export const SigninUnblockContainer = ({
       }
 
       return result;
-    } finally {
-      sensitiveDataClient.setDataType(SensitiveData.Key.Auth, undefined);
     }
   };
 
