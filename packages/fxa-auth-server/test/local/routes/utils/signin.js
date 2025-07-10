@@ -269,6 +269,7 @@ describe('checkCustomsAndLoadAccount', () => {
       v2Enabled: sinon.spy(() => true),
       check: sinon.spy(() => Promise.resolve()),
       flag: sinon.spy(() => Promise.resolve({})),
+      resetV2: sinon.spy(() => Promise.resolve()),
     };
     config = {
       signinUnblock: {
