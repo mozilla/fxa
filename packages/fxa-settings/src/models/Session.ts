@@ -112,9 +112,11 @@ export class Session implements SessionData {
     });
   }
 
-  async sendVerificationCode() {
+  async sendVerificationCode(sessionTokenArg?: hexstring) {
     await this.withLoadingStatus(
-      this.authClient.sessionResendVerifyCode(sessionToken()!)
+      this.authClient.sessionResendVerifyCode(
+        sessionTokenArg || sessionToken()!
+      )
     );
   }
 
