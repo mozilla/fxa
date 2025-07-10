@@ -23,6 +23,7 @@ const recordLoginSubmitBackendErrorStub = sinon.stub();
 const recordLoginTotpCodeSuccessStub = sinon.stub();
 const recordLoginTotpCodeFailureStub = sinon.stub();
 const recordLoginBackupCodeSuccessStub = sinon.stub();
+const recordLoginRecoveryPhoneSuccessStub = sinon.stub();
 const recordLoginEmailConfirmationSentStub = sinon.stub();
 const recordLoginEmailConfirmationSuccessStub = sinon.stub();
 const recordLoginCompleteStub = sinon.stub();
@@ -89,6 +90,7 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
       recordLoginTotpCodeSuccess: recordLoginTotpCodeSuccessStub,
       recordLoginTotpCodeFailure: recordLoginTotpCodeFailureStub,
       recordLoginBackupCodeSuccess: recordLoginBackupCodeSuccessStub,
+      recordLoginRecoveryPhoneSuccess: recordLoginRecoveryPhoneSuccessStub,
       recordLoginEmailConfirmationSent: recordLoginEmailConfirmationSentStub,
       recordLoginEmailConfirmationSuccess:
         recordLoginEmailConfirmationSuccessStub,
