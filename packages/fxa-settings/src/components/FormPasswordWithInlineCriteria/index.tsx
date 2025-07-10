@@ -28,7 +28,7 @@ export type FormPasswordWithInlineCriteriaProps = {
   onFocusMetricsEvent?: () => void;
   requirePasswordConfirmation?: boolean;
   submitButtonGleanId?: string;
-  cmsButton: {
+  cmsButton?: {
     color?: string;
     text?: string;
   }

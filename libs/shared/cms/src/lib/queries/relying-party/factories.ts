@@ -53,5 +53,20 @@ export const RelyingPartyResultFactory = (
     headline: faker.string.sample(),
     description: faker.string.sample(),
   },
+  SigninPage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+  },
+  SigninTokenCodePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+  },
+  SigninUnblockCodePage: {
+    headline: faker.string.sample(),
+    description: faker.string.sample(),
+    primaryButtonText: faker.string.sample(),
+  },
   ...override,
 });
