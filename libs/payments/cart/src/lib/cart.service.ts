@@ -1024,7 +1024,6 @@ export class CartService {
           intent.id,
           isPaymentIntentId(intent.id) ? 'PaymentIntent' : 'SetupIntent'
         );
-
       } else {
         throw new SubmitNeedsInputFailedError(cartId);
       }

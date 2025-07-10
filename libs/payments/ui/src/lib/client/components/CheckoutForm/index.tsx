@@ -99,6 +99,10 @@ export function CheckoutForm({
   const stripe = useStripe();
   const params = useParams();
   const searchParams = useSearchParams();
+  const searchParamsRecord: Record<string, string> = {};
+  for (const [key, value] of searchParams.entries()) {
+    searchParamsRecord[key] = value;
+  }
 
   const [formEnabled, setFormEnabled] = useState(false);
   const [showConsentError, setShowConsentError] = useState(false);
@@ -233,7 +237,7 @@ export function CheckoutForm({
       if (confirmationTokenError.type === 'validation_error') {
         return;
       } else {
-        await handleStripeErrorAction(cart.id, confirmationTokenError);
+        await handleStripeErrorAction(cart.id, confirmationTokenError, searchParamsRecord);
         return;
       }
     }
