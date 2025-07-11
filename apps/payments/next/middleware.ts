@@ -25,13 +25,28 @@ export function middleware(request: NextRequest) {
   const PROFILE_CLIENT_URL = process.env.PROFILE_CLIENT_CONFIG__URL;
   const PROFILE_DEFAULT_IMAGES_URL = process.env.PROFILE_DEFAULT_IMAGES_URL;
   const PROFILE_UPLOADED_IMAGES_URL = process.env.PROFILE_UPLOADED_IMAGES_URL;
+  const FEATURE_FLAG_SUB_MANAGE = process.env.FEATURE_FLAG_SUB_MANAGE;
+  const CONTENT_SERVER_URL = process.env.CONTENT_SERVER_CLIENT_CONFIG__URL;
+
+  if (!FEATURE_FLAG_SUB_MANAGE) {
+    const pathSections = request.nextUrl.pathname.split('/').filter(Boolean);
+    if (
+      pathSections[0] === 'subscriptions' ||
+      pathSections[1] === 'subscriptions'
+    ) {
+      return NextResponse.redirect(
+        new URL(`${CONTENT_SERVER_URL}/subscriptions${request.nextUrl.search}`)
+      );
+    }
+  }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const cspHeader = `
     default-src 'self';
     connect-src 'self' https://api.stripe.com ${PAYPAL_API_URL};
     frame-src https://*.js.stripe.com https://js.stripe.com https://hooks.stripe.com ${PAYPAL_API_URL} ${PAYPAL_SCRIPT_URL};
-    script-src 'self' 'nonce-${nonce}' ${process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
+    script-src 'self' 'nonce-${nonce}' ${
+      process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
     } https://*.js.stripe.com https://js.stripe.com ${PAYPAL_SCRIPT_URL};
     style-src 'self' 'unsafe-hashes' 'sha256-0hAheEzaMe6uXIKV4EehS9pu1am1lj/KnnzrOYqckXk=' 'sha256-GsQC5AaXpdCaKTyWbxBzn7nitfp0Otwn7I/zu0rUKOs=' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=';
     img-src 'self' blob: data: ${accountsStaticCdn} ${PAYPAL_OBJECTS} ${PROFILE_CLIENT_URL} ${PROFILE_DEFAULT_IMAGES_URL} ${PROFILE_UPLOADED_IMAGES_URL};
