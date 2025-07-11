@@ -6,7 +6,7 @@ import React from 'react';
 import { LocationProvider } from '@reach/router';
 import {
   IntegrationData,
-  IntegrationType,
+  IntegrationType, RelierCmsInfo,
 } from '../../../models';
 import { SigninTotpCode, SigninTotpCodeProps } from '.';
 import {
@@ -20,15 +20,16 @@ import VerificationMethods from '../../../constants/verification-methods';
 import { SigninIntegration } from '../interfaces';
 import { GenericData } from '../../../lib/model-data';
 
-const mockWebSigninIntegration = {
+export const mockWebSigninIntegration = {
   type: IntegrationType.Web,
   getService: () => MozServices.Default,
   isSync: () => false,
   wantsKeys: () => false,
   isDesktopRelay: () => false,
+  getCmsInfo: () => undefined,
 } as SigninIntegration;
 
-export const mockOAuthNativeSigninIntegration = (isSync = true) =>
+export const mockOAuthNativeSigninIntegration = (isSync = true, cmsInfo?: RelierCmsInfo) =>
   ({
     type: IntegrationType.OAuthNative,
     getService: () => (isSync ? MozServices.FirefoxSync : MozServices.Relay),
@@ -40,6 +41,7 @@ export const mockOAuthNativeSigninIntegration = (isSync = true) =>
         redirectTo: 'http://localhost/',
       })
     ),
+    getCmsInfo: () => cmsInfo,
   }) as SigninIntegration;
 
 export const MOCK_TOTP_LOCATION_STATE = {

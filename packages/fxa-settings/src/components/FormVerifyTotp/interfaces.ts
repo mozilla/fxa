@@ -16,6 +16,10 @@ export type FormVerifyTotpProps = {
   verifyCode: (code: string) => void;
   gleanDataAttrs?: GleanClickEventDataAttrs;
   className?: string;
+  cmsButton?: {
+    text?: string;
+    color?: string;
+  }
 };
 
 export type VerifyTotpFormData = {

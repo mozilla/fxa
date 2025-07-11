@@ -9,9 +9,10 @@ import { LocationProvider } from '@reach/router';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { mockOAuthNativeSigninIntegration, Subject } from './mocks';
+import { mockOAuthNativeSigninIntegration, mockWebSigninIntegration, Subject } from './mocks';
 import { BeginSigninError } from '../../../lib/error-utils';
 import { SigninIntegration } from '../interfaces';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 export default {
   title: 'Pages/Signin/SigninTotpCode',
@@ -35,6 +36,7 @@ const storyWithProps = (props: {
 export const Default = storyWithProps({
   submitTotpCode: async () => ({}),
   serviceName: MozServices.Default,
+  integration: mockWebSigninIntegration,
 });
 
 export const WithOAuthDesktopServiceRelay = storyWithProps({
@@ -48,6 +50,7 @@ export const WithIncorrectCode = storyWithProps({
     error: AuthUiErrors.INVALID_TOTP_CODE as BeginSigninError,
   }),
   serviceName: MozServices.MozillaVPN,
+  integration: mockWebSigninIntegration,
 });
 
 export const WithUnexpectedError = storyWithProps({
@@ -55,4 +58,11 @@ export const WithUnexpectedError = storyWithProps({
     error: AuthUiErrors.UNEXPECTED_ERROR as BeginSigninError,
   }),
   serviceName: MozServices.MozillaVPN,
+  integration: mockWebSigninIntegration,
+});
+
+export const DefaultWithCms = storyWithProps({
+  submitTotpCode: async () => ({}),
+  serviceName: MozServices.Default,
+  integration: mockOAuthNativeSigninIntegration(true, MOCK_CMS_INFO),
 });

@@ -38,6 +38,7 @@ import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
+import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 
 export const viewName = 'signin';
 
@@ -367,6 +368,8 @@ const Signin = ({
     );
   }
 
+  const cmsInfo = integration.getCmsInfo();
+
   return (
     <AppLayout>
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
@@ -382,6 +385,12 @@ const Signin = ({
         <CardHeader
           headingText="Enter your password"
           headingAndSubheadingFtlId="signin-password-needed-header-2"
+          {...{
+            cmsLogoUrl: cmsInfo?.shared?.logoUrl,
+            cmsLogoAltText: cmsInfo?.shared?.logoAltText,
+            cmsHeadline: cmsInfo?.SigninPage?.headline,
+            cmsDescription: cmsInfo?.SigninPage?.description,
+          }}
         />
       ) : (
         <CardHeader
@@ -390,7 +399,12 @@ const Signin = ({
           subheadingWithDefaultServiceFtlId="signin-subheader-without-logo-default"
           subheadingWithCustomServiceFtlId="signin-subheader-without-logo-with-servicename"
           subheadingWithLogoFtlId="signin-subheader-with-logo"
-          {...{ clientId, serviceName }}
+          {...{
+            clientId,
+            serviceName,
+            cmsLogoUrl: cmsInfo?.shared?.logoUrl,
+            cmsLogoAltText: cmsInfo?.shared?.logoAltText
+          }}
         />
       )}
       {localizedBannerError && (
@@ -473,13 +487,14 @@ const Signin = ({
 
           <div className="flex">
             <FtlMsg id="signin-button">
-              <button
+              <CmsButtonWithFallback
                 className="cta-primary cta-xl"
                 type="submit"
                 disabled={signinLoading}
+                buttonColor={cmsInfo?.shared?.buttonColor}
               >
                 Sign in
-              </button>
+              </CmsButtonWithFallback>
             </FtlMsg>
           </div>
         </form>

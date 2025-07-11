@@ -18,6 +18,13 @@ import {
 import { mockSigninLocationState } from '../mocks';
 import SigninRecoveryChoiceContainer from './container';
 import AuthClient from 'fxa-auth-client/lib/client';
+import { Integration } from '../../../models';
+import { createMockWebIntegration } from '../../../lib/integrations/mocks';
+
+let integration: Integration;
+function mockWebIntegration() {
+  integration = createMockWebIntegration() as Integration;
+}
 
 jest.mock('../../../models', () => {
   return {
@@ -89,12 +96,13 @@ function applyDefaultMocks() {
   mockLoadingSpinnerModule();
   mockCache();
   mockReachRouter('signin_recovery_choice', mockSigninLocationState);
+  mockWebIntegration();
 }
 
 function render() {
   renderWithLocalizationProvider(
     <LocationProvider>
-      <SigninRecoveryChoiceContainer />
+      <SigninRecoveryChoiceContainer {...{integration}}/>
     </LocationProvider>
   );
 }

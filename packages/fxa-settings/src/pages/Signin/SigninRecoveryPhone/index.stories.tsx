@@ -10,6 +10,8 @@ import { Subject } from './mocks';
 import SigninRecoveryPhone from '.';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { HandledError } from '../../../lib/error-utils';
+import { createMockOAuthNativeIntegration } from '../SigninRecoveryCode/mocks';
+import { MOCK_CMS_INFO } from '../../mocks';
 
 export default {
   title: 'Pages/Signin/SigninRecoveryPhone',
@@ -23,6 +25,16 @@ export const Basic = () => (
       action('verifyCode')(code);
       return Promise.resolve();
     }}
+  />
+);
+
+export const BasicWithCms = () => (
+  <Subject
+    verifyCode={(code: string) => {
+      action('verifyCode')(code);
+      return Promise.resolve();
+    }}
+    integration={createMockOAuthNativeIntegration(true, MOCK_CMS_INFO)}
   />
 );
 

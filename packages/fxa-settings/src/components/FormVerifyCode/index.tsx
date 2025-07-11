@@ -11,6 +11,7 @@ import { REACT_ENTRYPOINT } from '../../constants';
 import { useFtlMsgResolver } from '../../models';
 import { GleanClickEventDataAttrs } from '../../lib/types';
 import { CmsButton } from '../FormSetupAccount/interfaces';
+import CmsButtonWithFallback from '../CmsButtonWithFallback';
 
 export enum InputModeEnum {
   text = 'text',
@@ -157,39 +158,20 @@ const FormVerifyCode = ({
         })}
       />
 
-      {cmsButton?.text && cmsButton?.color ? (
-        <button
-          type="submit"
-          className="cta-primary-cms cta-xl"
-          disabled={isSubmitting}
-          data-glean-id={gleanDataAttrs?.id}
-          data-glean-label={gleanDataAttrs?.label}
-          data-glean-type={gleanDataAttrs?.type}
-          style={
-            {
-              '--cta-bg': cmsButton?.color,
-              '--cta-border': cmsButton?.color,
-              '--cta-active': cmsButton?.color,
-              '--cta-disabled': `${cmsButton?.color}60`,
-            } as React.CSSProperties
-          }
-        >
-          {cmsButton.text}
-        </button>
-      ) : (
         <FtlMsg id={formAttributes.submitButtonFtlId}>
-          <button
+          <CmsButtonWithFallback
             type="submit"
             className="cta-primary cta-xl"
             disabled={isSubmitting}
             data-glean-id={gleanDataAttrs?.id}
             data-glean-label={gleanDataAttrs?.label}
             data-glean-type={gleanDataAttrs?.type}
+            buttonColor={cmsButton?.color}
+            buttonText={cmsButton?.text}
           >
             {formAttributes.submitButtonText}
-          </button>
+          </CmsButtonWithFallback>
         </FtlMsg>
-        )}
     </form>
   );
 };

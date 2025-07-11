@@ -93,33 +93,51 @@ export const PLACEHOLDER_QR_CODE =
   'https://placehold.co/192x192/white/black?text=QR+Code&font=poppins';
 
 export const MOCK_CMS_INFO = {
-    clientId: 'dcdb5ae7add825d2',
-    entrypoint: 'app',
-    name: '123Done - app',
-    EmailFirstPage: {
-      headline: 'Sign up or sign in to your Mozilla account',
-      description:
-        'Stay protected with continuous data monitoring and automatic data removal.',
-      primaryButtonText: 'Continue',
-    },
-    SignupSetPasswordPage: {
-      headline: 'Create a password',
-      description: 'to continue',
-      primaryButtonText: 'Continue',
-    },
-    SignupConfirmCodePage: {
-      headline: 'Enter confirmation code',
-      description: 'For your Mozilla account',
-      primaryButtonText: 'Confirm',
-    },
-    SignupConfirmedSyncPage: {
-      headline: 'Sync is turned on',
-      description: 'Your passwords, addresses, bookmarks, history, and more can sync everywhere you use Firefox.',
-      primaryButtonText: 'Add another device',
-    },
-    shared: {
-      buttonColor: '#592ACB',
-      logoUrl: 'https://loremflickr.com/300/40',
-      logoAltText: 'Monitor logo',
-    },
-  };
+  clientId: 'dcdb5ae7add825d2',
+  entrypoint: 'app',
+  name: '123Done - app',
+  shared: {
+    buttonColor: '#D41C1C',
+    logoUrl:
+      'https://gist.githubusercontent.com/vbudhram/c53b07efd1656acfff7d2c7e9d6825fe/raw/030df98ee27f609333606d36c7bf3af45af53f39/123Done_red.svg',
+    logoAltText: 'logo',
+  },
+  EmailFirstPage: {
+    headline: 'Sign up or sign in to your Mozilla account',
+    description:
+      'Stay protected with continuous data monitoring and automatic data removal.',
+    primaryButtonText: 'Continue',
+  },
+  SignupSetPasswordPage: {
+    headline: 'Create a password',
+    description: 'to continue',
+    primaryButtonText: 'Continue',
+  },
+  SignupConfirmCodePage: {
+    headline: 'Enter confirmation code',
+    description: 'For your Mozilla account',
+    primaryButtonText: 'Confirm',
+  },
+  SignupConfirmedSyncPage: {
+    headline: 'Sync is turned on',
+    description:
+      'Your passwords, addresses, bookmarks, history, and more can sync everywhere you use Firefox.',
+    primaryButtonText: 'Add another device',
+  },
+
+  SigninPage: {
+    headline: 'Enter your password',
+    description: 'for your Mozilla account',
+    primaryButtonText: 'Sign in',
+  },
+  SigninTokenCodePage: {
+    headline: 'Enter confirmation code',
+    description: 'for your Mozilla account',
+    primaryButtonText: 'Continue',
+  },
+  SigninUnblockCodePage: {
+    headline: 'Authorize this sign-in',
+    description: 'for your Mozilla account',
+    primaryButtonText: 'Continue',
+  },
+};

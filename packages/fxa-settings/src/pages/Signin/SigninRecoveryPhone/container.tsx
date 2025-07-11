@@ -192,6 +192,7 @@ const SigninRecoveryPhoneContainer = ({
         verifyCode,
         resendCode,
         numBackupCodes,
+        integration
       }}
     />
   );

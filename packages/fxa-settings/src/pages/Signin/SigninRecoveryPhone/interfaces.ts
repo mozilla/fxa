@@ -4,7 +4,7 @@
 
 import { HandledError } from '../../../lib/error-utils';
 import { Integration } from '../../../models';
-import { SigninLocationState } from '../interfaces';
+import { SigninIntegration, SigninLocationState } from '../interfaces';
 
 export interface SigninRecoveryPhoneContainerProps {
   integration: Integration;
@@ -20,5 +20,6 @@ export type SigninRecoveryPhoneProps = {
   lastFourPhoneDigits: string;
   verifyCode: (code: string) => Promise<HandledError | void>;
   resendCode: () => Promise<HandledError | void>;
+  integration?: SigninIntegration;
   numBackupCodes?: number;
 };

@@ -170,6 +170,7 @@ export class GenericIntegration<
         !cmsInfo?.EmailFirstPage ||
         !cmsInfo?.SignupConfirmCodePage ||
         !cmsInfo?.SignupSetPasswordPage ||
+        !cmsInfo?.SigninPage ||
         !cmsInfo.shared
       ) {
         return false;
@@ -184,6 +185,9 @@ export class GenericIntegration<
 
         cmsInfo.SignupSetPasswordPage.headline,
         cmsInfo.SignupSetPasswordPage.primaryButtonText,
+
+        cmsInfo.SigninPage.headline,
+        cmsInfo.SigninPage.description,
       ];
 
       return requiredFields.every((field) => !!field);

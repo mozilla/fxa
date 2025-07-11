@@ -23,6 +23,7 @@ const SigninRecoveryPhone = ({
   verifyCode,
   resendCode,
   numBackupCodes,
+  integration
 }: SigninRecoveryPhoneProps & RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = React.useState('');
   const [errorDescription, setErrorDescription] = React.useState('');
@@ -112,13 +113,24 @@ const SigninRecoveryPhone = ({
     setShowResendSuccessBanner(true);
   };
 
+  const cmsInfo = integration?.getCmsInfo();
+
   return (
     <AppLayout>
+
       <div className="relative flex items-center">
         <ButtonBack />
-        <FtlMsg id="signin-recovery-phone-flow-heading">
-          <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
-        </FtlMsg>
+        {cmsInfo?.shared?.logoUrl && cmsInfo.shared?.logoAltText ? (
+          <img
+            src={cmsInfo.shared.logoUrl}
+            alt={cmsInfo.shared.logoAltText}
+            className="justify-start mb-4 max-h-[40px]"
+          />
+        ) : (
+          <FtlMsg id="signin-recovery-phone-flow-heading">
+            <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
+          </FtlMsg>
+        )}
       </div>
 
       {(errorMessage || errorDescription) && (
@@ -182,6 +194,9 @@ const SigninRecoveryPhone = ({
         }}
         gleanDataAttrs={{ id: 'login_backup_phone_submit' }}
         className="my-6"
+        cmsButton={{
+          color: cmsInfo?.shared?.buttonColor
+        }}
       />
       <div className="flex justify-between mt-5 text-sm">
         <FtlMsg id="signin-recovery-phone-resend-code-button">
