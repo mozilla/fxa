@@ -13,7 +13,8 @@ const mockResendCodeSuccess = () => Promise.resolve();
 export const Subject = ({
   verifyCode = mockVerifyCodeSuccess,
   resendCode = mockResendCodeSuccess,
-  numBackupCodes = 4,
+  sendError,
+  numBackupCodes = 0,
 }: Partial<ResetPasswordRecoveryPhoneProps>) => {
   const lastFourPhoneDigits = '1234';
 
@@ -24,8 +25,9 @@ export const Subject = ({
           lastFourPhoneDigits,
           verifyCode,
           resendCode,
-          locationState: {} as any,
+          sendError,
           numBackupCodes,
+          locationState: {} as any,
         }}
       />
     </LocationProvider>

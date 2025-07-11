@@ -76,6 +76,7 @@ const SigninRecoveryChoice = ({
       return;
     }
     setErrorBannerMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
+    setErrorBannerDescription(generalSendCodeErrorDescription);
   };
 
   const onSubmit = async ({ choice }: FormChoiceData) => {

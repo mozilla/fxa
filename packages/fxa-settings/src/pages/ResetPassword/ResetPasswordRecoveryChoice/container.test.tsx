@@ -15,6 +15,7 @@ import {
 } from '../../mocks';
 import ResetPasswordRecoveryChoiceContainer from './container';
 import AuthClient from 'fxa-auth-client/lib/client';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 jest.mock('../../../models', () => {
   return {
@@ -130,6 +131,56 @@ describe('ResetPasswordRecoveryChoice container', () => {
       });
     });
 
+    it('auto-sends code and navigates when only phone available (0 backup codes)', async () => {
+      mockModelsModule({
+        mockGetRecoveryCodesExist: jest.fn().mockResolvedValue({
+          hasBackupCodes: false,
+          count: 0,
+        }),
+      });
+      render();
+      await waitFor(() => {
+        expect(
+          mockAuthClient.recoveryPhonePasswordResetSendCode
+        ).toHaveBeenCalledWith('tok');
+        expect(mockNavigate).toBeCalledWith('/reset_password_recovery_phone', {
+          state: expect.objectContaining({
+            token: 'tok',
+            lastFourPhoneDigits: '1234',
+            numBackupCodes: 0,
+          }),
+          replace: true,
+        });
+      });
+    });
+
+    it('auto-sends code and navigates with error when send fails', async () => {
+      mockModelsModule({
+        mockGetRecoveryCodesExist: jest.fn().mockResolvedValue({
+          hasBackupCodes: false,
+          count: 0,
+        }),
+        mockRecoveryPhonePasswordResetSendCode: jest
+          .fn()
+          .mockRejectedValue(AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED),
+      });
+      render();
+      await waitFor(() => {
+        expect(
+          mockAuthClient.recoveryPhonePasswordResetSendCode
+        ).toHaveBeenCalledWith('tok');
+        expect(mockNavigate).toBeCalledWith('/reset_password_recovery_phone', {
+          state: expect.objectContaining({
+            token: 'tok',
+            lastFourPhoneDigits: '1234',
+            numBackupCodes: 0,
+            sendError: AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED,
+          }),
+          replace: true,
+        });
+      });
+    });
+
     it('handles absence of recovery phone gracefully', async () => {
       mockModelsModule({
         mockRecoveryPhoneGet: jest.fn().mockResolvedValue({ exists: false }),
@@ -143,6 +194,68 @@ describe('ResetPasswordRecoveryChoice container', () => {
           mockAuthClient.recoveryPhoneGetWithPasswordForgotToken
         ).toHaveBeenCalled();
         expect(ResetPasswordRecoveryChoiceModule.default).not.toBeCalled();
+        expect(mockNavigate).toBeCalledWith(
+          '/confirm_backup_code_reset_password',
+          {
+            replace: true,
+            state: { token: 'tok' },
+          }
+        );
+      });
+    });
+
+    it('auto-sends to phone when backup codes fetch fails but phone succeeds', async () => {
+      mockModelsModule({
+        mockGetRecoveryCodesExist: jest
+          .fn()
+          .mockRejectedValue(new Error('Network error')),
+      });
+      render();
+      await waitFor(() => {
+        expect(
+          mockAuthClient.recoveryPhonePasswordResetSendCode
+        ).toHaveBeenCalledWith('tok');
+        expect(mockNavigate).toBeCalledWith('/reset_password_recovery_phone', {
+          state: expect.objectContaining({
+            token: 'tok',
+            lastFourPhoneDigits: '1234',
+            numBackupCodes: 0,
+            sendError: undefined,
+          }),
+          replace: true,
+        });
+      });
+    });
+
+    it('redirects to backup codes page when phone fetch fails but backup codes succeed', async () => {
+      mockModelsModule({
+        mockRecoveryPhoneGet: jest
+          .fn()
+          .mockRejectedValue(new Error('Network error')),
+      });
+      render();
+      await waitFor(() => {
+        expect(mockNavigate).toBeCalledWith(
+          '/confirm_backup_code_reset_password',
+          {
+            replace: true,
+            state: { token: 'tok' },
+          }
+        );
+      });
+    });
+
+    it('redirects to backup codes page when both backup codes and phone fetch fail', async () => {
+      mockModelsModule({
+        mockGetRecoveryCodesExist: jest
+          .fn()
+          .mockRejectedValue(new Error('Backup codes network error')),
+        mockRecoveryPhoneGet: jest
+          .fn()
+          .mockRejectedValue(new Error('Phone network error')),
+      });
+      render();
+      await waitFor(() => {
         expect(mockNavigate).toBeCalledWith(
           '/confirm_backup_code_reset_password',
           {

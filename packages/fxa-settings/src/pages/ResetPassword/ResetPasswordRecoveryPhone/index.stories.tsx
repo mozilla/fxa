@@ -23,6 +23,7 @@ export const Basic = () => (
       action('verifyCode')(code);
       return Promise.resolve();
     }}
+    resendCode={() => Promise.resolve()}
   />
 );
 
@@ -62,5 +63,16 @@ export const WithThrottlingErrorMessages = () => (
       Promise.resolve(AuthUiErrors.THROTTLED as HandledError)
     }
     resendCode={() => Promise.resolve(AuthUiErrors.THROTTLED as HandledError)}
+  />
+);
+
+export const WithInitialSendError = () => (
+  <Subject
+    sendError={AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED}
+    numBackupCodes={0}
+    verifyCode={(code: string) => {
+      action('verifyCode')(code);
+      return Promise.resolve();
+    }}
   />
 );

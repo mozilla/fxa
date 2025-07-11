@@ -72,23 +72,17 @@ const mockLocation = (pathname: string, mockLocationState: Object) => {
   };
 };
 
-const mockNavigate = jest.fn();
-function mockReachRouter(pathname = '', mockLocationState = {}) {
+
+function mockReachRouter(
+  pathname = '',
+  mockLocationState = {},
+  mockNavigate = jest.fn()
+) {
   mockNavigate.mockReset();
   jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
   jest
     .spyOn(ReachRouterModule, 'useLocation')
     .mockImplementation(() => mockLocation(pathname, mockLocationState));
-}
-
-function applyDefaultMocks() {
-  jest.resetAllMocks();
-  jest.restoreAllMocks();
-  mockModelsModule({});
-  mockSigninRecoveryChoiceModule();
-  mockLoadingSpinnerModule();
-  mockCache();
-  mockReachRouter('signin_recovery_choice', mockSigninLocationState);
 }
 
 function render() {
@@ -100,25 +94,41 @@ function render() {
 }
 
 describe('SigninRecoveryChoice container', () => {
+  let mockNavigate: jest.Mock;
   beforeEach(() => {
-    applyDefaultMocks();
+    jest.resetAllMocks();
+    jest.restoreAllMocks();
+    mockNavigate = jest.fn();
+    mockModelsModule({});
+    mockSigninRecoveryChoiceModule();
+    mockLoadingSpinnerModule();
+    mockCache();
+    mockReachRouter(
+      'signin_recovery_choice',
+      mockSigninLocationState,
+      mockNavigate
+    );
   });
 
   describe('initial state', () => {
     it('redirects if page is reached without location state or cached account', async () => {
-      mockReachRouter('signin_recovery_choice');
+      mockReachRouter('signin_recovery_choice', {}, mockNavigate);
       mockCache({}, true);
-      await render();
-      expect(SigninRecoveryChoiceModule.default).not.toBeCalled();
-      expect(mockNavigate).toBeCalledWith('/signin');
+      await waitFor(() => render());
+      await waitFor(() => {
+        expect(SigninRecoveryChoiceModule.default).not.toBeCalled();
+        expect(mockNavigate).toBeCalledWith('/signin');
+      });
     });
 
     it('redirects if there is no sessionToken', async () => {
-      mockReachRouter('signin_recovery_choice');
+      mockReachRouter('signin_recovery_choice', {}, mockNavigate);
       mockCache({ sessionToken: '' });
-      await render();
-      expect(SigninRecoveryChoiceModule.default).not.toBeCalled();
-      expect(mockNavigate).toBeCalledWith('/signin');
+      await waitFor(() => render());
+      await waitFor(() => {
+        expect(SigninRecoveryChoiceModule.default).not.toBeCalled();
+        expect(mockNavigate).toBeCalledWith('/signin');
+      });
     });
 
     it('retrieves the session token from local storage if no location state', async () => {
@@ -158,7 +168,12 @@ describe('SigninRecoveryChoice container', () => {
       mockModelsModule({
         mockRecoveryPhoneGet: jest.fn().mockResolvedValue({ exists: false }),
       });
-      render();
+      mockReachRouter(
+        'signin_recovery_choice',
+        mockSigninLocationState,
+        mockNavigate
+      );
+      await waitFor(() => render());
       await waitFor(() => {
         expect(mockAuthClient.getRecoveryCodesExist).toHaveBeenCalled();
         expect(mockAuthClient.recoveryPhoneGet).toHaveBeenCalled();
@@ -168,6 +183,105 @@ describe('SigninRecoveryChoice container', () => {
           state: { signinState: mockSigninLocationState },
         });
       });
+    });
+  });
+});
+
+describe('auto-send code when only phone is available', () => {
+  let mockNavigate: jest.Mock;
+  beforeEach(() => {
+    jest.resetAllMocks();
+    jest.restoreAllMocks();
+    mockNavigate = jest.fn();
+  });
+  it('sends code before navigating to /signin_recovery_phone', async () => {
+    const mockSendCode = jest.fn().mockResolvedValue(undefined);
+    mockModelsModule({
+      mockGetRecoveryCodesExist: jest
+        .fn()
+        .mockResolvedValue({ hasBackupCodes: false, count: 0 }),
+      mockRecoveryPhoneGet: jest.fn().mockResolvedValue({
+        exists: true,
+        phoneNumber: MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
+      }),
+      mockRecoveryPhoneSigninSendCode: mockSendCode,
+    });
+    mockReachRouter(
+      'signin_recovery_choice',
+      mockSigninLocationState,
+      mockNavigate
+    );
+    render();
+    await waitFor(() => {
+      expect(mockSendCode).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/signin_recovery_phone',
+        expect.objectContaining({ state: expect.any(Object), replace: true })
+      );
+    });
+  });
+
+  it('shows error on recovery phone page and navigates if code send fails', async () => {
+    const mockSendCode = jest.fn().mockRejectedValue(new Error('Send failed'));
+    mockModelsModule({
+      mockGetRecoveryCodesExist: jest
+        .fn()
+        .mockResolvedValue({ hasBackupCodes: false, count: 0 }),
+      mockRecoveryPhoneGet: jest.fn().mockResolvedValue({
+        exists: true,
+        phoneNumber: MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
+      }),
+      mockRecoveryPhoneSigninSendCode: mockSendCode,
+    });
+    mockReachRouter(
+      'signin_recovery_choice',
+      mockSigninLocationState,
+      mockNavigate
+    );
+    await waitFor(() => render());
+    await waitFor(() => {
+      expect(mockSendCode).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/signin_recovery_phone',
+        expect.objectContaining({
+          state: expect.objectContaining({ sendError: expect.any(Object) }),
+          replace: true,
+        })
+      );
+    });
+  });
+
+  it('navigates to recovery phone page with sendError undefined if code send succeeds', async () => {
+    const mockSendCode = jest.fn().mockResolvedValue(undefined);
+    mockModelsModule({
+      mockGetRecoveryCodesExist: jest
+        .fn()
+        .mockResolvedValue({ hasBackupCodes: false, count: 0 }),
+      mockRecoveryPhoneGet: jest.fn().mockResolvedValue({
+        exists: true,
+        phoneNumber: MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
+      }),
+      mockRecoveryPhoneSigninSendCode: mockSendCode,
+    });
+    mockReachRouter(
+      'signin_recovery_choice',
+      mockSigninLocationState,
+      mockNavigate
+    );
+    renderWithLocalizationProvider(
+      <LocationProvider>
+        <SigninRecoveryChoiceContainer />
+      </LocationProvider>
+    );
+    await waitFor(() => {
+      expect(mockSendCode).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/signin_recovery_phone',
+        expect.objectContaining({
+          state: expect.not.objectContaining({ sendError: expect.any(Object) }),
+          replace: true,
+        })
+      );
     });
   });
 });
