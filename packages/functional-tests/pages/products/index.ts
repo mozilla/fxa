@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { expect } from '@playwright/test';
 import { BaseLayout } from '../layout';
 import { PaymentInformationPage } from './components/paymentInformation';
 
@@ -116,7 +117,9 @@ export class SubscribePage extends BaseLayout {
   }
 
   async addCouponCode(coupon: Coupon) {
-    await this.couponTextbox.fill(coupon);
+    await expect(this.couponTextbox).toBeVisible();
+    await this.couponTextbox.type(coupon);
+    await expect(this.couponTextbox).toHaveValue(coupon);
     await this.addCouponButton.click();
   }
 }
