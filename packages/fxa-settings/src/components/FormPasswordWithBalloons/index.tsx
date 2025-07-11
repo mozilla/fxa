@@ -93,7 +93,7 @@ export const FormPasswordWithBalloons = ({
   disableButtonUntilValid = false,
   submitButtonGleanId,
   requirePasswordConfirmation = true,
-  cmsButton
+  cmsButton,
 }: FormPasswordWithBalloonsProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
@@ -228,6 +228,7 @@ export const FormPasswordWithBalloons = ({
       }
     }
     if (
+      requirePasswordConfirmation &&
       hasBlurredConfirmPwd &&
       !errors.newPassword &&
       getValues('confirmPassword') !== '' &&
@@ -236,7 +237,7 @@ export const FormPasswordWithBalloons = ({
       setPasswordMatchErrorText(localizedPasswordMatchError);
     }
 
-    if (!formState.isValid) {
+    if (!formState.isValid && requirePasswordConfirmation) {
       trigger('confirmPassword');
     }
   };
@@ -286,7 +287,9 @@ export const FormPasswordWithBalloons = ({
 
   const onChangePassword = (inputName: string) => {
     const newPassword = getValues('newPassword');
-    const confirmPassword = getValues('confirmPassword');
+    const confirmPassword = requirePasswordConfirmation
+      ? getValues('confirmPassword')
+      : '';
     if (inputName === 'newPassword') {
       !hasUserTakenAction && setHasUserTakenAction(true);
       trigger('newPassword');
@@ -296,7 +299,7 @@ export const FormPasswordWithBalloons = ({
       setSROnlyPwdFeedbackMessage('');
     }
 
-    if (!hasBlurredConfirmPwd) {
+    if (!hasBlurredConfirmPwd || !requirePasswordConfirmation) {
       return;
     }
 
