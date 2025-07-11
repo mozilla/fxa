@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Localized, useLocalization } from '@fluent/react';
 import React, { useState } from 'react';
 import LogoLockup from 'fxa-react/components/LogoLockup';
 import Header from 'fxa-react/components/Header';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useFtlMsgResolver } from '../../../models';
 import BentoMenu from '../BentoMenu';
 import DropDownAvatarMenu from '../DropDownAvatarMenu';
 import { ReactComponent as Help } from './help.svg';
@@ -14,14 +15,22 @@ import { ReactComponent as Menu } from './menu.svg';
 import { ReactComponent as Close } from './close.svg';
 import Sidebar from '../Sidebar';
 import GleanMetrics from '../../../lib/glean';
+import { Link, useLocation } from '@reach/router';
 
 export const HeaderLockup = () => {
   const [sidebarRevealedState, setNavState] = useState(false);
-  const { l10n } = useLocalization();
-  const localizedHelpText = l10n.getString('header-help', null, 'Help');
+  const ftlMsgResolver = useFtlMsgResolver();
+  const location = useLocation();
+  const localizedHelpText = ftlMsgResolver.getMsg('header-help', 'Help');
   const localizedMenuText = sidebarRevealedState
-    ? l10n.getString('header-menu-open', null, 'Close menu')
-    : l10n.getString('header-menu-closed', null, 'Site navigation menu');
+    ? ftlMsgResolver.getMsg('header-menu-open', 'Close menu')
+    : ftlMsgResolver.getMsg('header-menu-closed', 'Site navigation menu');
+
+  const isAtSettings =
+    location?.pathname === '/settings' || location?.pathname === '/settings/';
+  const logoTitleId = isAtSettings
+    ? 'header-back-to-top-link'
+    : 'header-back-to-settings-link';
 
   const handleHelpLinkClick = () => {
     GleanMetrics.accountPref.help();
@@ -45,25 +54,26 @@ export const HeaderLockup = () => {
         )}
         {sidebarRevealedState && <Sidebar />}
       </button>
-      <Localized id="header-back-to-top-link" attrs={{ title: true }}>
-        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-        <a
-          href="#"
-          title="Back to top"
+      <FtlMsg id={logoTitleId} attrs={{ title: true }}>
+        <Link
+          to="/settings"
+          title={
+            isAtSettings ? 'Back to top' : 'Back to Mozilla account settings'
+          }
           // use gap instead of margin to make the focus outline look right
           // when the header title is invisible
           className="flex gap-4 rounded-sm focus-visible:outline focus-visible:outline-blue-500 focus:outline-2 outline-offset-4"
-          data-testid="back-to-top"
+          data-testid="back-to-settings"
         >
           <LogoLockup>
             <>
-              <Localized id="header-title-2">
+              <FtlMsg id="header-title-2">
                 <span className="font-bold">Mozilla account</span>
-              </Localized>
+              </FtlMsg>
             </>
           </LogoLockup>
-        </a>
-      </Localized>
+        </Link>
+      </FtlMsg>
     </>
   );
   const right = (

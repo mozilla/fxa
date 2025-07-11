@@ -8,6 +8,11 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { HeaderLockup } from '.';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
+import {
+  LocationProvider,
+  createHistory,
+  createMemorySource,
+} from '@reach/router';
 
 export default {
   title: 'Components/Settings/HeaderLockup',
@@ -25,17 +30,30 @@ const accountWithoutAvatar = {
   },
 } as unknown as Account;
 
-const storyWithContext = (account: Partial<Account>) => {
+const storyWithContext = (
+  account: Partial<Account>,
+  route: string = '/settings/emails'
+) => {
   const context = { account: account as Account };
+  const source = createMemorySource(route);
+  const history = createHistory(source);
 
   const story = () => (
-    <AppContext.Provider value={mockAppContext(context)}>
-      <HeaderLockup />
-    </AppContext.Provider>
+    <LocationProvider {...{ history }}>
+      <AppContext.Provider value={mockAppContext(context)}>
+        <HeaderLockup />
+      </AppContext.Provider>
+    </LocationProvider>
   );
   return story;
 };
 
-export const WithDefaultAvatar = storyWithContext(accountWithoutAvatar);
-
-export const WithCustomAvatar = () => <HeaderLockup />;
+export const OnSettingsPage = storyWithContext(
+  accountWithoutAvatar,
+  '/settings'
+);
+export const OnOtherPage = storyWithContext(
+  accountWithoutAvatar,
+  '/settings/emails'
+);
+export const WithCustomAvatar = storyWithContext(MOCK_ACCOUNT, '/settings');
