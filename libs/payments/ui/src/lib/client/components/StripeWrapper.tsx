@@ -12,6 +12,7 @@ import {
 } from '@stripe/stripe-js';
 import { useContext, useState } from 'react';
 import { ConfigContext } from '../providers/ConfigProvider';
+import { STRIPE_MINIMUM_CHARGE_AMOUNTS } from '../../../../../stripe/src/lib/stripe.constants';
 
 const stripeElementLocales = [
   'auto',
@@ -100,10 +101,13 @@ export function StripeWrapper({
   const config = useContext(ConfigContext);
   const [stripePromise] = useState(() => loadStripe(config.stripePublicApiKey));
 
+  const normalizedCurrency = currency.toLowerCase();
+  const minCharge = STRIPE_MINIMUM_CHARGE_AMOUNTS[normalizedCurrency];
+  const isBelowMin = amount < minCharge;
+
   const options: StripeElementsOptions = {
-    mode: 'subscription',
+    mode: isBelowMin ? 'setup' : 'subscription',
     locale: isStripeElementLocale(locale) ? locale : 'auto',
-    amount: amount >= 0 ? amount : 0,
     currency: currency.toLowerCase(),
     paymentMethodCreation: 'manual',
     externalPaymentMethodTypes: ['external_paypal'],
@@ -136,6 +140,10 @@ export function StripeWrapper({
       },
     },
   };
+
+  if (!isBelowMin) {
+    options.amount = amount >= 0 ? amount : 0;
+  }
 
   // Remove external_paypal if the customer has an active subscription
   // paid with non-external_paypal payment method
