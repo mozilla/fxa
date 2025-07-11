@@ -535,6 +535,24 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+  recovery_phone_success:
+    type: event
+    description: |
+      Login Recovery Phone Success
+      Event that indicates the user successfully authenticated via recovery phone code.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11968
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
   submit_backend_error:
     type: event
     description: |

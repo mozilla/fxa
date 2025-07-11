@@ -44,6 +44,9 @@ describe('/recovery_phone', () => {
     histogram: sandbox.fake(),
   };
   const mockGlean = {
+    login: {
+      recoveryPhoneSuccess: sandbox.fake(),
+    },
     twoStepAuthPhoneCode: {
       sent: sandbox.fake(),
       sendError: sandbox.fake(),
@@ -720,7 +723,7 @@ describe('/recovery_phone', () => {
         code
       );
       assert.equal(mockAccountManager.verifySession.callCount, 1);
-      assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 1);
+      assert.equal(mockGlean.login.recoveryPhoneSuccess.callCount, 1);
       assert.calledOnce(mockMailer.sendPostSigninRecoveryPhoneEmail);
       assert.calledOnceWithExactly(
         mockAccountEventsManager.recordSecurityEvent,
