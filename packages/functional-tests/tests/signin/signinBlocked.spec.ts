@@ -208,6 +208,10 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }) => {
+      // Retries and waiting for unblock codes takes time. Without this
+      // test routinely times out in circleci.
+      test.setTimeout(30000);
+
       const config = await configPage.getConfig();
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
@@ -252,10 +256,21 @@ test.describe('severity-2 #smoke', () => {
       // Create blocked sign in
       await page.goto(target.contentServerUrl);
       await signin.fillOutEmailFirstForm(credentials.email);
-      do {
-        await signin.fillOutPasswordForm(credentials.password + Date.now());
-        await page.waitForTimeout(300);
-      } while (page.url().indexOf('signin_unblock') === -1);
+
+      await signin.passwordTextbox.fill(credentials.password + 1);
+      await signin.signInButton.click();
+
+      await signin.passwordTextbox.fill(credentials.password + 2);
+      await signin.signInButton.click();
+
+      await signin.passwordTextbox.fill(credentials.password + 3);
+      await signin.signInButton.click();
+
+      await signin.passwordTextbox.fill(credentials.password + 4);
+      await signin.signInButton.click();
+
+      await signin.passwordTextbox.fill(credentials.password + 5);
+      await signin.signInButton.click();
 
       //Verify sign in block header
       await expect(page).toHaveURL(/signin_unblock/);
@@ -264,7 +279,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await signinUnblock.fillOutCodeForm(unblockCode);
 
-      // Enter the unblock code.
+      // Enter the correct password
       await expect(page).toHaveURL(/signin/);
       await signin.fillOutPasswordForm(credentials.password);
 
