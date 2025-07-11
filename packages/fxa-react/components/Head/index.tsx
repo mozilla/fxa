@@ -5,12 +5,6 @@
 import React, { useEffect } from 'react';
 import { useLocalization } from '@fluent/react';
 import { Helmet } from 'react-helmet';
-import { determineLocale, determineDirection } from '@fxa/shared/l10n';
-
-const supportedUserLocale = determineLocale(
-  window.navigator.languages.join(', ')
-);
-const localeDirection = determineDirection(supportedUserLocale);
 
 const Head = ({ title }: { title?: string }) => {
   const { l10n } = useLocalization();
@@ -29,9 +23,7 @@ const Head = ({ title }: { title?: string }) => {
   });
 
   return (
-    <Helmet
-      htmlAttributes={{ lang: supportedUserLocale, dir: localeDirection }}
-    >
+    <Helmet>
       <title>{customTitle}</title>
     </Helmet>
   );

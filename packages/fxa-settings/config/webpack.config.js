@@ -54,6 +54,20 @@ const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
 const emitErrorsAsWarnings = process.env.ESLINT_NO_DEV_ERRORS === 'true';
 const disableESLintPlugin = process.env.DISABLE_ESLINT_PLUGIN === 'true';
 
+const supportedLanguages = fs.readFileSync(
+  path.resolve(
+    __dirname,
+    '../../../libs/shared/l10n/src/lib/supported-languages.json'
+  ),
+  'utf8'
+);
+const rtlLocales = fs.readFileSync(
+  path.resolve(__dirname, '../../../libs/shared/l10n/src/lib/rtl-locales.json'),
+  'utf8'
+);
+process.env.REACT_APP_SUPPORTED_LANGUAGES = supportedLanguages.trim();
+process.env.REACT_APP_RTL_LOCALES = rtlLocales.trim();
+
 const imageInlineSizeLimit = parseInt(
   process.env.IMAGE_INLINE_SIZE_LIMIT || '10000'
 );
@@ -305,30 +319,32 @@ module.exports = function (webpackEnv) {
         // This is only used in production mode
         new CssMinimizerPlugin(),
       ],
-     splitChunks: isEnvProduction ? {
-        cacheGroups: {
-          presentation: {
-            test: /[\\/]node_modules[\\/]react|react-dom|@reach|@fluent[\\/]/,
-            name: 'presentation-chunk',
-            chunks: 'all',
-          },
-          utils: {
-            test: /[\\/]node_modules[\\/]moment|lodash|ua-parser-js[\\/]/,
-            name: 'utils-chunk',
-            chunks: 'all',
-          },
-          observability: {
-            test: /([\\/]node_modules[\\/]@sentry.*[\\/])|([\\/]glean[\\/])/,
-            name: 'observability-chunk',
-            chunks: 'all',
-          },
-          networking: {
-            test: /([\\/]node_modules[\\/]graphql|graphql-tag|@apollo.*[\\/])|([\\/]fxa-auth-client[\\/])/,
-            name: 'networking-chunk',
-            chunks: 'all',
-          },
-        },
-      } : {}
+      splitChunks: isEnvProduction
+        ? {
+            cacheGroups: {
+              presentation: {
+                test: /[\\/]node_modules[\\/]react|react-dom|@reach|@fluent[\\/]/,
+                name: 'presentation-chunk',
+                chunks: 'all',
+              },
+              utils: {
+                test: /[\\/]node_modules[\\/]moment|lodash|ua-parser-js[\\/]/,
+                name: 'utils-chunk',
+                chunks: 'all',
+              },
+              observability: {
+                test: /([\\/]node_modules[\\/]@sentry.*[\\/])|([\\/]glean[\\/])/,
+                name: 'observability-chunk',
+                chunks: 'all',
+              },
+              networking: {
+                test: /([\\/]node_modules[\\/]graphql|graphql-tag|@apollo.*[\\/])|([\\/]fxa-auth-client[\\/])/,
+                name: 'networking-chunk',
+                chunks: 'all',
+              },
+            },
+          }
+        : {},
     },
     resolve: {
       // This allows you to set a fallback for where webpack should look for modules.
