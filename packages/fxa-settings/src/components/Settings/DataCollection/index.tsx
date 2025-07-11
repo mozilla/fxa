@@ -110,7 +110,7 @@ export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
               Security.
             </FtlMsg>{' '}
             <LinkExternal
-              href="https://support.mozilla.org/kb/telemetry-clientid"
+              href="https://support.mozilla.org/kb/manage-firefox-data-collection-privacy-settings"
               className="link-blue"
               data-testid="link-external-firefox-telemetry"
             >
