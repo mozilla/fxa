@@ -68,6 +68,7 @@ import {
   GoogleIapClient,
   GoogleIapPurchaseManager,
 } from '@fxa/payments/iap';
+import { SubscriptionManagementService } from '@fxa/payments/management';
 
 @Module({
   imports: [
@@ -141,7 +142,8 @@ import {
     StripeEventManager,
     SubscriptionEventsService,
     StripeWebhookService,
+    SubscriptionManagementService,
     { provide: LOGGER_PROVIDER, useValue: logger },
   ],
 })
-export class AppModule { }
+export class AppModule {}

@@ -60,40 +60,42 @@ export default async function UpgradeLayout({
         }}
         cart={cart}
       />
-      {session?.user?.email && (
-        <section
-          aria-labelledby="signedin-heading"
-          className="mb-12 tablet:hidden"
-        >
-          <SignedIn email={session.user.email} />
-        </section>
-      )}
-      <div className="mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
-        <SubscriptionTitle cart={cart} l10n={l10n} />
+      <div className="flex justify-center">
+        {session?.user?.email && (
+          <section
+            aria-labelledby="signedin-heading"
+            className="mb-12 tablet:hidden"
+          >
+            <SignedIn email={session.user.email} />
+          </section>
+        )}
+        <div className="mx-7 tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mb-auto desktop:grid-cols-[600px_1fr]">
+          <SubscriptionTitle cart={cart} l10n={l10n} />
 
-        <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
-          <UpgradePurchaseDetails
-            l10n={l10n}
-            interval={cart.interval}
-            invoice={cart.upcomingInvoicePreview}
-            fromPrice={cart.fromPrice}
-            fromPurchaseDetails={currentPurchaseDetails}
-            offeringPrice={cart.offeringPrice}
-            purchaseDetails={purchaseDetails}
-            locale={locale}
-          />
-        </div>
+          <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
+            <UpgradePurchaseDetails
+              l10n={l10n}
+              interval={cart.interval}
+              invoice={cart.upcomingInvoicePreview}
+              fromPrice={cart.fromPrice}
+              fromPurchaseDetails={currentPurchaseDetails}
+              offeringPrice={cart.offeringPrice}
+              purchaseDetails={purchaseDetails}
+              locale={locale}
+            />
+          </div>
 
-        <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
-          {children}
-          <TermsAndPrivacy
-            l10n={l10n}
-            {...cart}
-            {...purchaseDetails}
-            {...(cms.commonContent.localizations.at(0) || cms.commonContent)}
-            contentServerUrl={config.contentServerUrl}
-            showFXALinks={true}
-          />
+          <div className="bg-white rounded-b-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:clip-shadow tablet:rounded-t-none desktop:px-12 desktop:pb-12">
+            {children}
+            <TermsAndPrivacy
+              l10n={l10n}
+              {...cart}
+              {...purchaseDetails}
+              {...(cms.commonContent.localizations.at(0) || cms.commonContent)}
+              contentServerUrl={config.contentServerUrl}
+              showFXALinks={true}
+            />
+          </div>
         </div>
       </div>
     </MetricsWrapper>
