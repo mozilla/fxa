@@ -112,5 +112,5 @@ it('displays a general error in the alert bar', async () => {
   );
 
   await submitDisplayName('John Nope');
-  expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
+  expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledTimes(1);
 });

@@ -32,7 +32,7 @@ describe('Recent Account Activity', () => {
     expect(screen.getByTestId('flow-container')).toBeInTheDocument();
     expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
 
-    expect(account.getSecurityEvents).toBeCalled();
+    expect(account.getSecurityEvents).toHaveBeenCalled();
 
     expect(
       screen.getByRole('heading', {

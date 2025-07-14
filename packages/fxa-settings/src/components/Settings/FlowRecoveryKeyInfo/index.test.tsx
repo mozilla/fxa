@@ -52,8 +52,11 @@ describe('FlowRecoveryKeyInfo for key creation', () => {
 
   it('emits the expected metrics on render', () => {
     renderFlowPage(RecoveryKeyAction.Create);
-    expect(logViewEvent).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'create-key.info');
+    expect(logViewEvent).toHaveBeenCalledTimes(1);
+    expect(logViewEvent).toHaveBeenCalledWith(
+      `flow.${viewName}`,
+      'create-key.info'
+    );
   });
 
   it('emits the expected metrics when user navigates forward', () => {
@@ -63,16 +66,22 @@ describe('FlowRecoveryKeyInfo for key creation', () => {
         name: 'Get started',
       })
     );
-    expect(navigateForward).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'create-key.info');
-    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'create-key.start');
+    expect(navigateForward).toHaveBeenCalledTimes(1);
+    expect(logViewEvent).toHaveBeenCalledWith(
+      `flow.${viewName}`,
+      'create-key.info'
+    );
+    expect(logViewEvent).toHaveBeenCalledWith(
+      `flow.${viewName}`,
+      'create-key.start'
+    );
   });
 
   it('emits the expected metrics when user navigates back', () => {
     renderFlowPage(RecoveryKeyAction.Create);
     fireEvent.click(screen.getByTestId('flow-container-back-btn'));
-    expect(navigateBackward).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(
+    expect(navigateBackward).toHaveBeenCalledTimes(1);
+    expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
       'create-key.cancel'
     );
@@ -95,8 +104,11 @@ describe('FlowRecoveryKeyInfo for key replacement', () => {
 
   it('emits the expected metrics on render', () => {
     renderFlowPage(RecoveryKeyAction.Change);
-    expect(logViewEvent).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'change-key.info');
+    expect(logViewEvent).toHaveBeenCalledTimes(1);
+    expect(logViewEvent).toHaveBeenCalledWith(
+      `flow.${viewName}`,
+      'change-key.info'
+    );
   });
 
   it('emits the expected metrics when user navigates forward', () => {
@@ -106,16 +118,22 @@ describe('FlowRecoveryKeyInfo for key replacement', () => {
         name: 'Get started',
       })
     );
-    expect(navigateForward).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'change-key.info');
-    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'change-key.start');
+    expect(navigateForward).toHaveBeenCalledTimes(1);
+    expect(logViewEvent).toHaveBeenCalledWith(
+      `flow.${viewName}`,
+      'change-key.info'
+    );
+    expect(logViewEvent).toHaveBeenCalledWith(
+      `flow.${viewName}`,
+      'change-key.start'
+    );
   });
 
   it('emits the expected metrics when user navigates back', () => {
     renderFlowPage(RecoveryKeyAction.Change);
     fireEvent.click(screen.getByTestId('flow-container-back-btn'));
-    expect(navigateBackward).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(
+    expect(navigateBackward).toHaveBeenCalledTimes(1);
+    expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
       'change-key.cancel'
     );
@@ -124,7 +142,7 @@ describe('FlowRecoveryKeyInfo for key replacement', () => {
   it('emits the expected metrics when key change is cancelled', () => {
     renderFlowPage(RecoveryKeyAction.Change);
     fireEvent.click(screen.getByRole('link', { name: 'Cancel' }));
-    expect(logViewEvent).toBeCalledWith(
+    expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
       'change-key.cancel'
     );

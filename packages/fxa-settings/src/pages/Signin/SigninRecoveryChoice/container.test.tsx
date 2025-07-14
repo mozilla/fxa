@@ -102,7 +102,7 @@ function applyDefaultMocks() {
 function render() {
   renderWithLocalizationProvider(
     <LocationProvider>
-      <SigninRecoveryChoiceContainer {...{integration}}/>
+      <SigninRecoveryChoiceContainer {...{ integration }} />
     </LocationProvider>
   );
 }
@@ -117,24 +117,24 @@ describe('SigninRecoveryChoice container', () => {
       mockReachRouter('signin_recovery_choice');
       mockCache({}, true);
       await render();
-      expect(SigninRecoveryChoiceModule.default).not.toBeCalled();
-      expect(mockNavigate).toBeCalledWith('/signin');
+      expect(SigninRecoveryChoiceModule.default).not.toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith('/signin');
     });
 
     it('redirects if there is no sessionToken', async () => {
       mockReachRouter('signin_recovery_choice');
       mockCache({ sessionToken: '' });
       await render();
-      expect(SigninRecoveryChoiceModule.default).not.toBeCalled();
-      expect(mockNavigate).toBeCalledWith('/signin');
+      expect(SigninRecoveryChoiceModule.default).not.toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith('/signin');
     });
 
     it('retrieves the session token from local storage if no location state', async () => {
       mockReachRouter('signin_recovery_choice', {});
       mockCache(MOCK_STORED_ACCOUNT);
       await waitFor(() => render());
-      expect(mockNavigate).not.toBeCalled();
-      expect(SigninRecoveryChoiceModule.default).toBeCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(SigninRecoveryChoiceModule.default).toHaveBeenCalled();
     });
   });
 
@@ -144,14 +144,14 @@ describe('SigninRecoveryChoice container', () => {
       await waitFor(() => {
         expect(mockAuthClient.getRecoveryCodesExist).toHaveBeenCalled();
         expect(mockAuthClient.recoveryPhoneGet).toHaveBeenCalled();
-        expect(SigninRecoveryChoiceModule.default).toBeCalled();
+        expect(SigninRecoveryChoiceModule.default).toHaveBeenCalled();
       });
     });
 
     it('passes the correct props to the child component', async () => {
       render();
       await waitFor(() => {
-        expect(SigninRecoveryChoiceModule.default).toBeCalledWith(
+        expect(SigninRecoveryChoiceModule.default).toHaveBeenCalledWith(
           expect.objectContaining({
             lastFourPhoneDigits: '1234',
             numBackupCodes: 3,
@@ -170,8 +170,8 @@ describe('SigninRecoveryChoice container', () => {
       await waitFor(() => {
         expect(mockAuthClient.getRecoveryCodesExist).toHaveBeenCalled();
         expect(mockAuthClient.recoveryPhoneGet).toHaveBeenCalled();
-        expect(SigninRecoveryChoiceModule.default).not.toBeCalled();
-        expect(mockNavigate).toBeCalledWith('/signin_recovery_code', {
+        expect(SigninRecoveryChoiceModule.default).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith('/signin_recovery_code', {
           replace: true,
           state: { signinState: mockSigninLocationState },
         });

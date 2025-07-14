@@ -94,7 +94,7 @@ it('PageAddAvatar | renders ConfirmBtns and calls onsave correctly', async () =>
   await act(async () => {
     fireEvent.click(saveBtn);
   });
-  expect(onSave).toBeCalled();
+  expect(onSave).toHaveBeenCalled();
 });
 
 it('PageAddAvatar | renders ConfirmBtns with save button disabled when "enabled" option is false', async () => {
@@ -126,7 +126,7 @@ it('PageAddAvatar | renders TakePhotoBtn and calls onclick correctly', async () 
   await act(async () => {
     fireEvent.click(takePhotoBtn);
   });
-  expect(onClick).toBeCalled();
+  expect(onClick).toHaveBeenCalled();
 });
 
 it('PageAddAvatar | renders TakePhotoBtn and renders correctly when passed "capturing" option', async () => {
@@ -161,13 +161,13 @@ it('PageAddAvatar | renders ZoomBtns and calls onclick correctly', async () => {
   await act(async () => {
     fireEvent.click(zoomOutBtn);
   });
-  expect(zoomOut).toBeCalled();
+  expect(zoomOut).toHaveBeenCalled();
 
   const zoomInBtn = screen.getByTestId('zoom-in-btn');
   await act(async () => {
     fireEvent.click(zoomInBtn);
   });
-  expect(zoomIn).toBeCalled();
+  expect(zoomIn).toHaveBeenCalled();
 });
 
 it('PageAddAvatar | renders rotateBtn and calls onclick correctly', async () => {
@@ -184,5 +184,5 @@ it('PageAddAvatar | renders rotateBtn and calls onclick correctly', async () => 
   await act(async () => {
     fireEvent.click(rotateBtn);
   });
-  expect(onClick).toBeCalled();
+  expect(onClick).toHaveBeenCalled();
 });

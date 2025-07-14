@@ -112,7 +112,7 @@ describe('PageRecoveryPhoneRemove', () => {
       );
     });
 
-    expect(account.removeRecoveryPhone).toBeCalled();
+    expect(account.removeRecoveryPhone).toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalledWith('/settings#security', {
       replace: true,
     });

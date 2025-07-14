@@ -98,7 +98,7 @@ function mockSigninPushCodeModule() {
 }
 
 function mockReactUtilsModule() {
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => { });
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
 // Set this when testing local storage
@@ -140,40 +140,40 @@ describe('SigninPushCode container', () => {
         mockLocationState = createMockSigninLocationState();
         render();
         await waitFor(() => {
-          expect(CacheModule.currentAccount).not.toBeCalled();
+          expect(CacheModule.currentAccount).not.toHaveBeenCalled();
         });
         expect(currentSigninPushCodeProps?.signinState.email).toBe(MOCK_EMAIL);
-        expect(SigninPushCodeModule.default).toBeCalled();
+        expect(SigninPushCodeModule.default).toHaveBeenCalled();
       });
       it('router state takes precedence over local storage', async () => {
         mockLocationState = createMockSigninLocationState();
         render();
-        expect(CacheModule.currentAccount).not.toBeCalled();
+        expect(CacheModule.currentAccount).not.toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninPushCodeProps?.signinState.email).toBe(
             MOCK_EMAIL
           );
         });
-        expect(SigninPushCodeModule.default).toBeCalled();
+        expect(SigninPushCodeModule.default).toHaveBeenCalled();
       });
       it('is read from localStorage if email is not provided via router state', async () => {
         mockLocationState = {};
         mockCurrentAccount(MOCK_STORED_ACCOUNT);
         render();
-        expect(CacheModule.currentAccount).toBeCalled();
+        expect(CacheModule.currentAccount).toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninPushCodeProps?.signinState.email).toBe(
             MOCK_STORED_ACCOUNT.email
           );
         });
-        expect(SigninPushCodeModule.default).toBeCalled();
+        expect(SigninPushCodeModule.default).toHaveBeenCalled();
       });
       it('is handled if not provided in location state or local storage', async () => {
         mockLocationState = {};
         render();
-        expect(CacheModule.currentAccount).toBeCalled();
-        expect(mockNavigate).toBeCalledWith('/');
-        expect(SigninPushCodeModule.default).not.toBeCalled();
+        expect(CacheModule.currentAccount).toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+        expect(SigninPushCodeModule.default).not.toHaveBeenCalled();
       });
     });
 
@@ -187,7 +187,7 @@ describe('SigninPushCode container', () => {
         render();
 
         await waitFor(() => {
-          expect(mockNavigate).toBeCalledWith('/signin_totp_code', {
+          expect(mockNavigate).toHaveBeenCalledWith('/signin_totp_code', {
             state: mockLocationState,
           });
         });
@@ -198,7 +198,7 @@ describe('SigninPushCode container', () => {
         render();
 
         await waitFor(() => {
-          expect(mockNavigate).not.toBeCalled();
+          expect(mockNavigate).not.toHaveBeenCalled();
         });
       });
     });
@@ -214,7 +214,7 @@ describe('SigninPushCode container', () => {
       mockLocationState = createMockSigninLocationState();
       render();
 
-      await waitFor(() => expect(mockSendLoginPushRequest).toBeCalled());
+      await waitFor(() => expect(mockSendLoginPushRequest).toHaveBeenCalled());
     });
 
     it('navigates when session verified', async () => {
@@ -223,7 +223,7 @@ describe('SigninPushCode container', () => {
       render();
 
       await waitFor(() =>
-        expect(ReactUtils.hardNavigate).toBeCalledWith(
+        expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
           '/pair?showSuccessMessage=true',
           undefined,
           undefined,

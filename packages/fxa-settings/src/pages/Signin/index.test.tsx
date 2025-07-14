@@ -235,7 +235,7 @@ describe('Signin component', () => {
         render();
         fireEvent.click(screen.getByText('Forgot password?'));
         await waitFor(() => {
-          expect(GleanMetrics.login.forgotPassword).toBeCalledTimes(1);
+          expect(GleanMetrics.login.forgotPassword).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -256,7 +256,7 @@ describe('Signin component', () => {
 
         await waitFor(() => {
           // Make sure event didn't double fire.
-          expect(GleanMetrics.login.engage).toBeCalledTimes(1);
+          expect(GleanMetrics.login.engage).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -514,7 +514,7 @@ describe('Signin component', () => {
               render();
               enterPasswordAndSubmit();
               expect(fxaLoginSpy).not.toHaveBeenCalled();
-              expect(hardNavigateSpy).not.toBeCalled();
+              expect(hardNavigateSpy).not.toHaveBeenCalled();
             });
           });
 
@@ -879,7 +879,9 @@ describe('Signin component', () => {
 
       fireEvent.click(screen.getByText('Forgot password?'));
       await waitFor(() => {
-        expect(GleanMetrics.cachedLogin.forgotPassword).toBeCalledTimes(1);
+        expect(GleanMetrics.cachedLogin.forgotPassword).toHaveBeenCalledTimes(
+          1
+        );
       });
     });
 

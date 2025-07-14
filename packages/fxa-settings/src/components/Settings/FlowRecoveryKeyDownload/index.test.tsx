@@ -75,7 +75,7 @@ describe('FlowRecoveryKeyDownload', () => {
     const copyButton = screen.getByRole('button', { name: 'Copy' });
     fireEvent.click(copyButton);
     await waitFor(() =>
-      expect(logViewEvent).toBeCalledWith(
+      expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'recovery-key.copy-option'
       )
@@ -87,7 +87,7 @@ describe('FlowRecoveryKeyDownload', () => {
     const downloadButton = screen.getByText('Download and continue');
     fireEvent.click(downloadButton);
     await waitFor(() => {
-      expect(logViewEvent).toBeCalledWith(
+      expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'recovery-key.download-option'
       );
@@ -100,19 +100,19 @@ describe('FlowRecoveryKeyDownload', () => {
       name: 'Continue without downloading',
     });
     fireEvent.click(nextPageLink);
-    expect(logViewEvent).toBeCalledWith(
+    expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
       'recovery-key.skip-download'
     );
-    expect(navigateForward).toBeCalledTimes(1);
+    expect(navigateForward).toHaveBeenCalledTimes(1);
   });
 
   it('emits the expected metrics when user clicks the back arrow', () => {
     renderFlowPage();
     const backLink = screen.getByRole('button', { name: 'Back to settings' });
     fireEvent.click(backLink);
-    expect(navigateBackward).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(
+    expect(navigateBackward).toHaveBeenCalledTimes(1);
+    expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
       'recovery-key.skip-download'
     );

@@ -39,5 +39,5 @@ it('will call onChange argument', () => {
   const onChange = jest.fn();
   renderWithLocalizationProvider(<InputCheckboxBlue {...{ onChange }} />);
   fireEvent.click(screen.getByRole('checkbox'));
-  expect(onChange).toBeCalled();
+  expect(onChange).toHaveBeenCalled();
 });

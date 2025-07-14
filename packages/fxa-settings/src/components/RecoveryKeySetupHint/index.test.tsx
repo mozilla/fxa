@@ -66,8 +66,11 @@ describe('RecoveryKeySetupHint', () => {
 
   it('emits the expected metrics when the user lands on this step of the flow', () => {
     renderWithContext(accountWithSuccess);
-    expect(logViewEvent).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'create-hint.view');
+    expect(logViewEvent).toHaveBeenCalledTimes(1);
+    expect(logViewEvent).toHaveBeenCalledWith(
+      `flow.${viewName}`,
+      'create-hint.view'
+    );
   });
 
   it('saves the hint on submit if the user has entered a valid hint in the text input', async () => {
@@ -85,14 +88,14 @@ describe('RecoveryKeySetupHint', () => {
     });
     fireEvent.click(submitButton);
     await waitFor(() => {
-      expect(logViewEvent).toBeCalledWith(
+      expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'create-hint.submit'
       );
-      expect(accountWithSuccess.updateRecoveryKeyHint).toBeCalledWith(
+      expect(accountWithSuccess.updateRecoveryKeyHint).toHaveBeenCalledWith(
         hintValue
       );
-      expect(logViewEvent).toBeCalledWith(
+      expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'create-hint.success'
       );
@@ -126,13 +129,15 @@ describe('RecoveryKeySetupHint', () => {
     });
     fireEvent.click(submitButton);
     await waitFor(() => {
-      expect(logViewEvent).toBeCalledWith(
+      expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'create-hint.submit'
       );
-      expect(accountWithError.updateRecoveryKeyHint).toBeCalledWith(hintValue);
+      expect(accountWithError.updateRecoveryKeyHint).toHaveBeenCalledWith(
+        hintValue
+      );
       // logs the error
-      expect(logViewEvent).toBeCalledWith(
+      expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'create-hint.fail',
         gqlUnexpectedError
@@ -148,7 +153,7 @@ describe('RecoveryKeySetupHint', () => {
     const submitButton = screen.getByText('Finish');
     fireEvent.click(submitButton);
     await waitFor(() => {
-      expect(accountWithSuccess.updateRecoveryKeyHint).not.toBeCalled();
+      expect(accountWithSuccess.updateRecoveryKeyHint).not.toHaveBeenCalled();
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'create-hint.skip'

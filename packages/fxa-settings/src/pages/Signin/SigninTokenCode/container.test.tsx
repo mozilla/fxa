@@ -134,41 +134,41 @@ describe('SigninTokenCode container', () => {
           expect(screen.getByText('signin token code mock')).toBeInTheDocument()
         );
         await waitFor(() => {
-          expect(CacheModule.currentAccount).not.toBeCalled();
+          expect(CacheModule.currentAccount).not.toHaveBeenCalled();
         });
         expect(currentSigninTokenCodeProps?.signinState.email).toBe(MOCK_EMAIL);
         expect(currentSigninTokenCodeProps?.integration).toBe(integration);
-        expect(SigninTokenCodeModule.default).toBeCalled();
+        expect(SigninTokenCodeModule.default).toHaveBeenCalled();
       });
       it('router state takes precedence over local storage', async () => {
         mockLocationState = createMockSigninLocationState();
         render([]);
-        expect(CacheModule.currentAccount).not.toBeCalled();
+        expect(CacheModule.currentAccount).not.toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninTokenCodeProps?.signinState.email).toBe(
             MOCK_EMAIL
           );
         });
-        expect(SigninTokenCodeModule.default).toBeCalled();
+        expect(SigninTokenCodeModule.default).toHaveBeenCalled();
       });
       it('is read from localStorage if email is not provided via router state', async () => {
         mockLocationState = {};
         mockCurrentAccount(MOCK_STORED_ACCOUNT);
         render([]);
-        expect(CacheModule.currentAccount).toBeCalled();
+        expect(CacheModule.currentAccount).toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninTokenCodeProps?.signinState.email).toBe(
             MOCK_STORED_ACCOUNT.email
           );
         });
-        expect(SigninTokenCodeModule.default).toBeCalled();
+        expect(SigninTokenCodeModule.default).toHaveBeenCalled();
       });
       it('is handled if not provided in location state or local storage', async () => {
         mockLocationState = {};
         render([]);
-        expect(CacheModule.currentAccount).toBeCalled();
-        expect(mockNavigate).toBeCalledWith('/');
-        expect(SigninTokenCodeModule.default).not.toBeCalled();
+        expect(CacheModule.currentAccount).toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+        expect(SigninTokenCodeModule.default).not.toHaveBeenCalled();
       });
     });
 
@@ -182,7 +182,7 @@ describe('SigninTokenCode container', () => {
         render([]);
 
         await waitFor(() => {
-          expect(mockNavigate).toBeCalledWith('/signin_totp_code', {
+          expect(mockNavigate).toHaveBeenCalledWith('/signin_totp_code', {
             state: mockLocationState,
           });
         });
@@ -193,7 +193,7 @@ describe('SigninTokenCode container', () => {
         render([]);
 
         await waitFor(() => {
-          expect(mockNavigate).not.toBeCalled();
+          expect(mockNavigate).not.toHaveBeenCalled();
         });
       });
     });

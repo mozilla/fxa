@@ -117,7 +117,7 @@ describe('InlineRecoveryKeySetupContainer', () => {
     expect(hardNavigateSpy).toHaveBeenCalledWith(
       '/pair?showSuccessMessage=true'
     );
-    expect(InlineRecoveryKeySetupModule.default).not.toBeCalled();
+    expect(InlineRecoveryKeySetupModule.default).not.toHaveBeenCalled();
   });
 
   it('gets data from sensitive data client, renders component', async () => {
@@ -129,7 +129,7 @@ describe('InlineRecoveryKeySetupContainer', () => {
     expect(mockSensitiveDataClient.getDataType).toHaveBeenCalledWith(
       SensitiveData.Key.Auth
     );
-    expect(InlineRecoveryKeySetupModule.default).toBeCalled();
+    expect(InlineRecoveryKeySetupModule.default).toHaveBeenCalled();
   });
 
   it('createRecoveryKey calls expected authClient methods', async () => {

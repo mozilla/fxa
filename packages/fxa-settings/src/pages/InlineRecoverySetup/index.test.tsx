@@ -63,7 +63,7 @@ describe('InlineRecoverySetup', () => {
       screen.getByRole('button', { name: 'Continue' })
     ).toBeInTheDocument();
 
-    expect(GleanMetrics.accountPref.twoStepAuthCodesView).toBeCalled();
+    expect(GleanMetrics.accountPref.twoStepAuthCodesView).toHaveBeenCalled();
   });
 
   it('renders as expected with a custom service name', () => {
@@ -95,7 +95,9 @@ describe('InlineRecoverySetup', () => {
     screen.getByRole('button', { name: 'Confirm' });
     screen.getByRole('button', { name: 'Back' });
     screen.getByRole('button', { name: 'Cancel setup' });
-    expect(GleanMetrics.accountPref.twoStepAuthEnterCodeView).toBeCalled();
+    expect(
+      GleanMetrics.accountPref.twoStepAuthEnterCodeView
+    ).toHaveBeenCalled();
   });
 
   it('renders "showConfirmation" content as expected with a custom service name', async () => {

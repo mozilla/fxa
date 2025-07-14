@@ -362,7 +362,7 @@ describe('signin container', () => {
         await waitFor(() => {
           expect(currentSigninProps?.email).toBe(MOCK_QUERY_PARAM_EMAIL);
         });
-        expect(SigninModule.default).toBeCalled();
+        expect(SigninModule.default).toHaveBeenCalled();
       });
       it('router state takes precedence over query param state', async () => {
         mockUseValidateModule();
@@ -371,7 +371,7 @@ describe('signin container', () => {
         await waitFor(() => {
           expect(currentSigninProps?.email).toBe(MOCK_ROUTER_STATE_EMAIL);
         });
-        expect(SigninModule.default).toBeCalled();
+        expect(SigninModule.default).toHaveBeenCalled();
       });
       it('can be set from router state', async () => {
         mockLocationState = MOCK_LOCATION_STATE_COMPLETE;
@@ -379,7 +379,7 @@ describe('signin container', () => {
         await waitFor(() => {
           expect(currentSigninProps?.email).toBe(MOCK_ROUTER_STATE_EMAIL);
         });
-        expect(SigninModule.default).toBeCalled();
+        expect(SigninModule.default).toHaveBeenCalled();
       });
       it('if it matches email in local storage, session token in local storage is used', async () => {
         const storedAccount = {
@@ -398,22 +398,22 @@ describe('signin container', () => {
             storedAccount.sessionToken
           );
         });
-        expect(SigninModule.default).toBeCalled();
+        expect(SigninModule.default).toHaveBeenCalled();
       });
       it('is handled if not provided in query params or location state', async () => {
         render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).toBeCalled();
-        expect(mockNavigate).toBeCalledWith('/');
-        expect(SigninModule.default).not.toBeCalled();
+        expect(CacheModule.currentAccount).toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+        expect(SigninModule.default).not.toHaveBeenCalled();
       });
       it('uses local storage value if email is not provided via query param or router state', async () => {
         mockCurrentAccount(MOCK_STORED_ACCOUNT);
         render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).toBeCalled();
+        expect(CacheModule.currentAccount).toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninProps?.email).toBe(MOCK_STORED_ACCOUNT.email);
         });
-        expect(SigninModule.default).toBeCalled();
+        expect(SigninModule.default).toHaveBeenCalled();
       });
       it('falls back to last logged in account in local storage if current local storage account does not exist', async () => {
         const LAST_STORED_ACCOUNT = {
@@ -425,12 +425,12 @@ describe('signin container', () => {
           .mockReturnValue(LAST_STORED_ACCOUNT);
         mockCurrentAccount(undefined);
         render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).toBeCalled();
-        expect(CacheModule.lastStoredAccount).toBeCalled();
+        expect(CacheModule.currentAccount).toHaveBeenCalled();
+        expect(CacheModule.lastStoredAccount).toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninProps?.email).toBe(LAST_STORED_ACCOUNT.email);
         });
-        expect(SigninModule.default).toBeCalled();
+        expect(SigninModule.default).toHaveBeenCalled();
       });
     });
     describe('loading spinner', () => {
@@ -446,7 +446,7 @@ describe('signin container', () => {
         render([mockGqlAvatarUseQuery()]);
         await waitFor(() => {
           screen.getByLabelText('Loading…');
-          expect(SigninModule.default).not.toBeCalled();
+          expect(SigninModule.default).not.toHaveBeenCalled();
         });
       });
       it('renders if hasPassword is undefined', async () => {
@@ -458,7 +458,7 @@ describe('signin container', () => {
         render([mockGqlAvatarUseQuery()]);
         await waitFor(() => {
           screen.getByLabelText('Loading…');
-          expect(SigninModule.default).not.toBeCalled();
+          expect(SigninModule.default).not.toHaveBeenCalled();
         });
       });
     });
@@ -475,7 +475,7 @@ describe('signin container', () => {
       });
       render([mockGqlAvatarUseQuery()]);
       await waitFor(() => {
-        expect(mockAuthClient.accountStatusByEmail).toBeCalledWith(
+        expect(mockAuthClient.accountStatusByEmail).toHaveBeenCalledWith(
           MOCK_QUERY_PARAM_EMAIL,
           { thirdPartyAuthStatus: true }
         );
@@ -488,7 +488,7 @@ describe('signin container', () => {
       };
       render([mockGqlAvatarUseQuery()]);
       await waitFor(() => {
-        expect(mockAuthClient.accountStatusByEmail).toBeCalledWith(
+        expect(mockAuthClient.accountStatusByEmail).toHaveBeenCalledWith(
           MOCK_ROUTER_STATE_EMAIL,
           { thirdPartyAuthStatus: true }
         );
@@ -590,7 +590,7 @@ describe('signin container', () => {
           );
         });
 
-        expect(mockSensitiveDataClient.setDataType).toBeCalledWith(
+        expect(mockSensitiveDataClient.setDataType).toHaveBeenCalledWith(
           SensitiveData.Key.Auth,
           {
             authPW: MOCK_AUTH_PW,
@@ -599,7 +599,7 @@ describe('signin container', () => {
             keyFetchToken: MOCK_KEY_FETCH_TOKEN,
           }
         );
-        expect(mockAuthClient.recoveryKeyExists).toBeCalledWith(
+        expect(mockAuthClient.recoveryKeyExists).toHaveBeenCalledWith(
           handlerResult?.data?.signIn.sessionToken,
           MOCK_EMAIL
         );
@@ -620,7 +620,7 @@ describe('signin container', () => {
           );
         });
 
-        expect(mockAuthClient.recoveryKeyExists).not.toBeCalled();
+        expect(mockAuthClient.recoveryKeyExists).not.toHaveBeenCalled();
         expect(handlerResult?.data?.showInlineRecoveryKeySetup).toEqual(
           undefined
         );
@@ -637,7 +637,7 @@ describe('signin container', () => {
             MOCK_PASSWORD
           );
         });
-        expect(mockAuthClient.recoveryKeyExists).toBeCalledWith(
+        expect(mockAuthClient.recoveryKeyExists).toHaveBeenCalledWith(
           handlerResult?.data?.signIn.sessionToken,
           MOCK_EMAIL
         );
@@ -878,12 +878,15 @@ describe('signin container', () => {
           expect(handlerResult?.data?.signIn?.sessionToken).toEqual(
             MOCK_SESSION_TOKEN
           );
-          expect(mockGetCredentials).toBeCalledWith(MOCK_EMAIL, MOCK_PASSWORD);
-          expect(mockGetCredentialsV2).toBeCalledWith({
+          expect(mockGetCredentials).toHaveBeenCalledWith(
+            MOCK_EMAIL,
+            MOCK_PASSWORD
+          );
+          expect(mockGetCredentialsV2).toHaveBeenCalledWith({
             password: MOCK_PASSWORD,
             clientSalt: MOCK_CLIENT_SALT,
           });
-          expect(mockGetKeysV2).toBeCalledWith({
+          expect(mockGetKeysV2).toHaveBeenCalledWith({
             kB: await CryptoModule.unwrapKB(MOCK_WRAP_KB, MOCK_UNWRAP_BKEY),
             v1: {
               authPW: MOCK_AUTH_PW,
@@ -895,7 +898,10 @@ describe('signin container', () => {
               clientSalt: MOCK_CLIENT_SALT,
             },
           });
-          expect(mockUnwrapKB).toBeCalledWith(MOCK_WRAP_KB, MOCK_UNWRAP_BKEY);
+          expect(mockUnwrapKB).toHaveBeenCalledWith(
+            MOCK_WRAP_KB,
+            MOCK_UNWRAP_BKEY
+          );
         });
       });
 
@@ -917,7 +923,7 @@ describe('signin container', () => {
 
           expect(handlerResult?.error).toBeUndefined();
           expect(handlerResult?.data?.signIn).toBeDefined();
-          expect(mockSentryCaptureMessage).toBeCalledWith(
+          expect(mockSentryCaptureMessage).toHaveBeenCalledWith(
             'Failure to finish v2 key-stretching upgrade. Could not get credential status during signin',
             { tags: { errno: 999 } }
           );
@@ -946,7 +952,7 @@ describe('signin container', () => {
           );
           expect(handlerResult?.error).toBeUndefined();
           expect(handlerResult?.data?.signIn).toBeDefined();
-          expect(mockSentryCaptureMessage).toBeCalledWith(
+          expect(mockSentryCaptureMessage).toHaveBeenCalledWith(
             'Failure to finish v2 key-stretching upgrade. Could not start password change during signin',
             { tags: { errno: 999 } }
           );
@@ -976,8 +982,8 @@ describe('signin container', () => {
           );
           expect(handlerResult?.error?.message).toBeUndefined();
           expect(handlerResult?.data?.signIn).toBeDefined();
-          expect(mockSentryCaptureMessage).toBeCalledTimes(1);
-          expect(mockSentryCaptureMessage).toBeCalledWith(
+          expect(mockSentryCaptureMessage).toHaveBeenCalledTimes(1);
+          expect(mockSentryCaptureMessage).toHaveBeenCalledWith(
             'Failure to finish v2 key-stretching upgrade. Could not get wrapped keys during signin',
             { tags: { errno: 999 } }
           );
@@ -1008,8 +1014,8 @@ describe('signin container', () => {
           );
           expect(handlerResult?.error?.message).toBeUndefined();
           expect(handlerResult?.data?.signIn).toBeDefined();
-          expect(mockSentryCaptureMessage).toBeCalledTimes(1);
-          expect(mockSentryCaptureMessage).toBeCalledWith(
+          expect(mockSentryCaptureMessage).toHaveBeenCalledTimes(1);
+          expect(mockSentryCaptureMessage).toHaveBeenCalledWith(
             'Failure to finish v2 key-stretching upgrade. Could not finish password change during signin',
             { tags: { errno: 999 } }
           );
@@ -1036,7 +1042,7 @@ describe('signin container', () => {
             MOCK_PASSWORD
           );
           expect(handlerResult?.error).toBeUndefined();
-          expect(mockSentryCaptureMessage).toBeCalledTimes(0);
+          expect(mockSentryCaptureMessage).toHaveBeenCalledTimes(0);
           expect(handlerResult?.data?.signIn?.sessionToken).toEqual(
             MOCK_SESSION_TOKEN
           );
@@ -1072,10 +1078,10 @@ describe('signin container', () => {
         const handlerResult =
           await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
 
-        expect(mockAuthClient.accountProfile).toBeCalledWith(
+        expect(mockAuthClient.accountProfile).toHaveBeenCalledWith(
           MOCK_SESSION_TOKEN
         );
-        expect(mockAuthClient.recoveryEmailStatus).toBeCalledWith(
+        expect(mockAuthClient.recoveryEmailStatus).toHaveBeenCalledWith(
           MOCK_SESSION_TOKEN
         );
         expect(handlerResult?.data?.verificationMethod).toEqual(
@@ -1194,16 +1200,16 @@ describe('signin container', () => {
       mockWebIntegration();
       const container = render([mockGqlAvatarUseQuery()]);
       expect(container).toBeDefined();
-      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         SigninQueryParams,
         true
       );
-      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         OAuthQueryParams,
         true,
         true
       );
-      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         OAuthNativeSyncQueryParameters,
         true,
         true
@@ -1214,16 +1220,16 @@ describe('signin container', () => {
       mockOAuthWebIntegration();
       const container = render([mockGqlAvatarUseQuery()]);
       expect(container).toBeDefined();
-      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         SigninQueryParams,
         true
       );
-      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         OAuthQueryParams,
         true,
         false
       );
-      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         OAuthNativeSyncQueryParameters,
         true,
         true
@@ -1234,16 +1240,16 @@ describe('signin container', () => {
       mockOAuthNativeIntegration();
       const container = render([mockGqlAvatarUseQuery()]);
       expect(container).toBeDefined();
-      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         SigninQueryParams,
         true
       );
-      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         OAuthQueryParams,
         true,
         false
       );
-      expect(useValidatedQueryParamsSpy).toBeCalledWith(
+      expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         OAuthNativeSyncQueryParameters,
         true,
         false

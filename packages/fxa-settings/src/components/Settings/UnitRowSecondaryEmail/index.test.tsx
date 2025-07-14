@@ -121,7 +121,7 @@ describe('UnitRowSecondaryEmail', () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-refresh'));
       });
-      expect(account.refresh).toBeCalledWith('account');
+      expect(account.refresh).toHaveBeenCalledWith('account');
     });
   });
 
@@ -248,7 +248,7 @@ describe('UnitRowSecondaryEmail', () => {
           screen.getByTestId('secondary-email-resend-code-button')
         );
       });
-      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -275,8 +275,8 @@ describe('UnitRowSecondaryEmail', () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-make-primary'));
       });
-      expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1);
-      expect(settingsContext.alertBarInfo?.success).toBeCalledWith(
+      expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledWith(
         'johndope2@example.com is now your primary email'
       );
     });
@@ -303,7 +303,7 @@ describe('UnitRowSecondaryEmail', () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-make-primary'));
       });
-      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -332,8 +332,8 @@ describe('UnitRowSecondaryEmail', () => {
         fireEvent.click(screen.getByTestId('secondary-email-delete'));
       });
 
-      expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1);
-      expect(settingsContext.alertBarInfo?.success).toBeCalledWith(
+      expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledWith(
         'johndope2@example.com successfully deleted'
       );
     });
@@ -360,7 +360,7 @@ describe('UnitRowSecondaryEmail', () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-delete'));
       });
-      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledTimes(1);
     });
   });
 });

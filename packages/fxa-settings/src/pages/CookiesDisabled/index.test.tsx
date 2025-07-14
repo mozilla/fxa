@@ -131,13 +131,13 @@ describe('CookiesDisabled', () => {
 
         renderWithLocalizationProvider(<CookiesDisabled />);
         fireEvent.click(getTryAgainButton());
-        expect(mockHistoryGo).toBeCalledWith(-2);
+        expect(mockHistoryGo).toHaveBeenCalledWith(-2);
       });
 
       it('when hit directly', () => {
         renderWithLocalizationProvider(<CookiesDisabled />);
         fireEvent.click(getTryAgainButton());
-        expect(mockHistoryBack).toBeCalled();
+        expect(mockHistoryBack).toHaveBeenCalled();
       });
     });
 

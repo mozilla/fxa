@@ -122,13 +122,16 @@ describe('ResetPasswordRecoveryChoice', () => {
     });
 
     await waitFor(() => {
-      expect(mockNavigate).toBeCalledWith('/reset_password_recovery_phone', {
-        state: {
-          ...fakeState,
-          lastFourPhoneDigits: '1234',
-          numBackupCodes: 4,
-        },
-      });
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/reset_password_recovery_phone',
+        {
+          state: {
+            ...fakeState,
+            lastFourPhoneDigits: '1234',
+            numBackupCodes: 4,
+          },
+        }
+      );
     });
   });
 
@@ -150,7 +153,7 @@ describe('ResetPasswordRecoveryChoice', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(
         'There was a problem sending a code to your recovery phone'
       );
-      expect(mockNavigate).not.toBeCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -164,7 +167,7 @@ describe('ResetPasswordRecoveryChoice', () => {
     user.click(screen.getByRole('button', { name: 'Continue' }));
 
     await waitFor(() => {
-      expect(mockNavigate).toBeCalledWith(
+      expect(mockNavigate).toHaveBeenCalledWith(
         '/confirm_backup_code_reset_password',
         {
           state: fakeState,
@@ -184,7 +187,9 @@ describe('ResetPasswordRecoveryChoice', () => {
           level: 2,
         })
       ).toBeInTheDocument();
-      expect(GleanMetrics.passwordReset.backupChoiceView).toBeCalledTimes(1);
+      expect(GleanMetrics.passwordReset.backupChoiceView).toHaveBeenCalledTimes(
+        1
+      );
     });
 
     it('sends the correct metric when Recovery phone option is selected', async () => {
@@ -197,7 +202,9 @@ describe('ResetPasswordRecoveryChoice', () => {
       user.click(screen.getByRole('button', { name: 'Continue' }));
 
       await waitFor(() =>
-        expect(GleanMetrics.passwordReset.backupChoiceSubmit).toBeCalledWith({
+        expect(
+          GleanMetrics.passwordReset.backupChoiceSubmit
+        ).toHaveBeenCalledWith({
           event: { reason: 'phone' },
         })
       );
@@ -213,7 +220,9 @@ describe('ResetPasswordRecoveryChoice', () => {
       user.click(screen.getByRole('button', { name: 'Continue' }));
 
       await waitFor(() =>
-        expect(GleanMetrics.passwordReset.backupChoiceSubmit).toBeCalledWith({
+        expect(
+          GleanMetrics.passwordReset.backupChoiceSubmit
+        ).toHaveBeenCalledWith({
           event: { reason: 'code' },
         })
       );

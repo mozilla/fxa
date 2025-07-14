@@ -152,7 +152,7 @@ describe('PageSigninRecoveryCode', () => {
           />
         </LocationProvider>
       );
-      expect(GleanMetrics.loginBackupCode.view).toBeCalledTimes(1);
+      expect(GleanMetrics.loginBackupCode.view).toHaveBeenCalledTimes(1);
     });
 
     it('emits metrics events on submit and success', async () => {
@@ -181,8 +181,8 @@ describe('PageSigninRecoveryCode', () => {
 
       await waitFor(() => {
         expect(mockSubmitRecoveryCode).toHaveBeenCalled();
-        expect(GleanMetrics.loginBackupCode.submit).toBeCalledTimes(1);
-        expect(GleanMetrics.loginBackupCode.success).toBeCalledTimes(1);
+        expect(GleanMetrics.loginBackupCode.submit).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.loginBackupCode.success).toHaveBeenCalledTimes(1);
       });
     });
   });
