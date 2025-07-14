@@ -50,7 +50,7 @@ describe('DataCollection', () => {
       screen.getByTestId('link-external-firefox-telemetry')
     ).toHaveAttribute(
       'href',
-      'https://support.mozilla.org/kb/telemetry-clientid'
+      'https://support.mozilla.org/kb/manage-firefox-data-collection-privacy-settings'
     );
   });
 
