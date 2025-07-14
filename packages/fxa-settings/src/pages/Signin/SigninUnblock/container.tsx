@@ -155,6 +155,15 @@ export const SigninUnblockContainer = ({
       });
       if (response.data != null) {
         response.data.unwrapBKey = credentials.unwrapBKey;
+
+        sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
+          // Store for inline recovery key flow
+          authPW: credentials.authPW,
+          // Store this in case the email was corrected
+          emailForAuth: email,
+          unwrapBKey: credentials.unwrapBKey,
+          keyFetchToken: response.data.signIn.keyFetchToken,
+        });
       }
 
       // Attempt to finish key stretching upgrade now that session has been verified.
