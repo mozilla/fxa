@@ -209,7 +209,6 @@ test.describe('severity-2 #smoke', () => {
       testAccountTracker,
     }) => {
       test.skip(true, 'TODO: FXA-12084');
-
       const config = await configPage.getConfig();
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
