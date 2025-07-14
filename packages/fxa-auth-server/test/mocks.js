@@ -358,7 +358,6 @@ function mockCustoms(errors) {
     checkAuthenticated: optionallyThrow(errors, 'checkAuthenticated'),
     checkIpOnly: optionallyThrow(errors, 'checkIpOnly'),
     v2Enabled: sinon.spy(() => true),
-    resetV2: sinon.spy(() => Promise.resolve()),
   });
 }
 

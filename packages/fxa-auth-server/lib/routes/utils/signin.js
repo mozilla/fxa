@@ -175,27 +175,19 @@ module.exports = (
           }
           await request.emitMetricsEvent('account.login.blocked');
 
-          // When a rate limiting errors allows unblocking, the error's payload will contain
-          // a verificationMethod field. See AppError.requestBlocked for implementation.
-          //
-          // The following is just a round about way of checking the error state to determine
-          // if an unblock is supported. When this field is missing, it indicates that we've
-          // decided to prevent unblocking, probably because the user has tried unblocking too
-          // many times.
-          if (e.output.payload.verificationMethod == null) {
+          // If this customs error cannot be bypassed with email confirmation,
+          // throw it straight back to the caller.
+          const verificationMethod = e.output.payload.verificationMethod;
+          if (
+            verificationMethod !== 'email-captcha' ||
+            !request.payload.unblockCode
+          ) {
             throw e;
           }
 
           // Check for a valid unblockCode, to allow the request to proceed.
-          // If no unblock code exists, simply relay the rate-limiting error.
-          // In this state, the user isn't attempting to unblock, so there is
-          // no reason to proceed.
-          const unblockCode = request.payload.unblockCode?.toUpperCase();
-          if (!unblockCode) {
-            throw e;
-          }
-
           // This requires that we load the accountRecord to learn the uid.
+          const unblockCode = request.payload.unblockCode.toUpperCase();
           accountRecord = await db.accountRecord(email);
           try {
             const code = await db.consumeUnblockCode(
@@ -209,12 +201,6 @@ module.exports = (
               throw error.invalidUnblockCode();
             }
             didSigninUnblock = true;
-
-            // The user has provided a valid unblock code. Reset their active blocks.
-            if (customs.v2Enabled()) {
-              await customs.resetV2(request, email);
-            }
-
             await request.emitMetricsEvent(
               'account.login.confirmedUnblockCode'
             );

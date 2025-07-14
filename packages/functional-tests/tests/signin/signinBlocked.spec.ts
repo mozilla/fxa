@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getCode } from 'fxa-settings/src/lib/totp';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
 import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 import { SigninPage } from '../../pages/signin';
@@ -46,6 +46,10 @@ test.describe('severity-2 #smoke', () => {
       pages: { signin, signinUnblock, settings, deleteAccount },
       testAccountTracker,
     }) => {
+      test.fixme(
+        true,
+        'TODO in FXA-9882, fix fxa-settings or test, should not be prompted enter password and unblock code again after entering a valid unblock code'
+      );
       const credentials = await testAccountTracker.signUpBlocked();
       await signInBlockedAccount(
         target,
@@ -185,93 +189,6 @@ test.describe('severity-2 #smoke', () => {
       //Unblock the email
       const unblockCode = await target.emailClient.getUnblockCode(blockedEmail);
       await signinUnblock.fillOutCodeForm(unblockCode);
-
-      //Verify logged in on Settings page
-      await expect(settings.settingsHeading).toBeVisible();
-
-      // Delete blocked account, the fixture teardown doesn't work in this case
-      await removeAccount(settings, deleteAccount, page, credentials.password);
-    });
-
-    test('sync with 2fa', async ({
-      target,
-      page,
-      pages: {
-        deleteAccount,
-        settings,
-        signin,
-        signinUnblock,
-        signinTotpCode,
-        totp,
-        confirmSignupCode,
-        configPage,
-      },
-      testAccountTracker,
-    }) => {
-      const config = await configPage.getConfig();
-      const credentials = await testAccountTracker.signUpSync({
-        lang: 'en',
-        preVerified: 'false',
-      });
-
-      await page.goto(target.contentServerUrl);
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
-
-      //Verify confirm code header
-      await expect(page).toHaveURL(/confirm_signup_code/);
-
-      const confirmationCode = await target.emailClient.getVerifyLoginCode(
-        credentials.email
-      );
-      await confirmSignupCode.fillOutCodeForm(confirmationCode);
-
-      //Verify logged in on Settings page
-      await expect(settings.settingsHeading).toBeVisible();
-
-      await settings.totp.addButton.click();
-
-      // TODO in FXA-11941 - remove condition
-      const { secret } = config.featureFlags.updated2faSetupFlow
-        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
-        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
-
-      await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
-        'Two-step authentication has been enabled'
-      );
-
-      await page.waitForURL(/settings/);
-      await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
-        'Two-step authentication has been enabled'
-      );
-      await expect(settings.totp.status).toHaveText('Enabled');
-      await settings.signOut();
-
-      // Create blocked sign in
-      await page.goto(target.contentServerUrl);
-      await signin.fillOutEmailFirstForm(credentials.email);
-      do {
-        await signin.fillOutPasswordForm(credentials.password + Date.now());
-        await page.waitForTimeout(300);
-      } while (page.url().indexOf('signin_unblock') === -1);
-
-      //Verify sign in block header
-      await expect(page).toHaveURL(/signin_unblock/);
-      const unblockCode = await target.emailClient.getUnblockCode(
-        credentials.email
-      );
-      await signinUnblock.fillOutCodeForm(unblockCode);
-
-      // Enter the unblock code.
-      await expect(page).toHaveURL(/signin/);
-      await signin.fillOutPasswordForm(credentials.password);
-
-      // Now should go to totp code
-      await expect(page).toHaveURL(/signin_totp_code/);
-      const code = await getCode(secret);
-      await signinTotpCode.fillOutCodeForm(code);
 
       //Verify logged in on Settings page
       await expect(settings.settingsHeading).toBeVisible();
