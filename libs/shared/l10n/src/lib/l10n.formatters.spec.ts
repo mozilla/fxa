@@ -6,6 +6,7 @@ import {
   getLocalizedCurrencyString,
   getLocalizedDate,
   getLocalizedDateString,
+  getLocalizedMonthYearString,
 } from './l10n.formatters';
 
 describe('format.ts', () => {
@@ -89,6 +90,35 @@ describe('format.ts', () => {
           const actual = getLocalizedDateString(unixSeconds, true);
           expect(actual).toMatch(pattern);
         });
+      });
+    });
+
+    describe('getLocalizedMonthYearString', () => {
+      it('returns formatted month year date - en', () => {
+        const month = 4;
+        const year = 2024;
+        const locale = 'en';
+        const pattern = /April 2024/;
+        const actual = getLocalizedMonthYearString(month, year, locale);
+        expect(actual).toMatch(pattern);
+      });
+
+      it('returns formatted month year date - fr', () => {
+        const month = 4;
+        const year = 2024;
+        const locale = 'fr';
+        const pattern = /avril 2024/;
+        const actual = getLocalizedMonthYearString(month, year, locale);
+        expect(actual).toMatch(pattern);
+      });
+
+      it('returns formatted month year date - jp', () => {
+        const month = 4;
+        const year = 2024;
+        const locale = 'ja';
+        const pattern = /2024年4月/;
+        const actual = getLocalizedMonthYearString(month, year, locale);
+        expect(actual).toMatch(pattern);
       });
     });
   });
