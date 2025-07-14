@@ -18,9 +18,10 @@ import { createOAuthNativeIntegration, Subject } from './mocks';
 import { MOCK_SIGNUP_CODE } from '../../Signup/ConfirmSignupCode/mocks';
 import { MOCK_EMAIL, MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { createMockSigninOAuthIntegration } from '../mocks';
+import { createMockSigninOAuthIntegration, createMockSigninWebIntegration } from '../mocks';
 import VerificationReasons from '../../../constants/verification-reasons';
 import { navigate } from '@reach/router';
+import { SigninOAuthIntegration } from '../interfaces';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -61,6 +62,9 @@ function render(
     verificationReason?: VerificationReasons;
   } = {}
 ) {
+  if (!props.integration) {
+    props.integration = createMockSigninWebIntegration() as SigninOAuthIntegration;
+  }
   renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ session })}>
       <Subject {...props} />

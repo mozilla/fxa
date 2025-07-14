@@ -11,6 +11,10 @@ import {
   MOCK_CUSTOM_HEADING_FTL_ID,
   MOCK_HEADING,
   MOCK_SERVICE_NAME,
+  MOCK_CMS_LOGO_URL,
+  MOCK_CMS_LOGO_ALT_TEXT,
+  MOCK_CMS_HEADLINE,
+  MOCK_CMS_DESCRIPTION,
 } from './mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -55,5 +59,51 @@ describe('CardHeader', () => {
         name: `${MOCK_HEADING} to continue to ${MOCK_SERVICE_NAME}`,
       })
     ).toBeInTheDocument();
+  });
+
+  it('renders CMS header with all CMS props', () => {
+    renderWithLocalizationProvider(
+      <CardHeader
+        headingText={MOCK_HEADING}
+        cmsLogoUrl={MOCK_CMS_LOGO_URL}
+        cmsLogoAltText={MOCK_CMS_LOGO_ALT_TEXT}
+        cmsHeadline={MOCK_CMS_HEADLINE}
+        cmsDescription={MOCK_CMS_DESCRIPTION}
+      />
+    );
+    expect(screen.getByAltText(MOCK_CMS_LOGO_URL)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })).toBeInTheDocument();
+    expect(screen.getByText(MOCK_CMS_DESCRIPTION)).toBeInTheDocument();
+  });
+
+  it('renders CMS header with only headline', () => {
+    renderWithLocalizationProvider(
+      <CardHeader
+        headingText={MOCK_HEADING}
+        cmsHeadline={MOCK_CMS_HEADLINE}
+      />
+    );
+    expect(screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })).toBeInTheDocument();
+  });
+
+  it('renders CMS header with only description', () => {
+    renderWithLocalizationProvider(
+      <CardHeader
+        headingText={MOCK_HEADING}
+        cmsDescription={MOCK_CMS_DESCRIPTION}
+      />
+    );
+    expect(screen.getByText(MOCK_CMS_DESCRIPTION)).toBeInTheDocument();
+  });
+
+  it('renders CMS header with only logo', () => {
+    renderWithLocalizationProvider(
+      <CardHeader
+        headingText={MOCK_HEADING}
+        cmsLogoUrl={MOCK_CMS_LOGO_URL}
+        cmsLogoAltText={MOCK_CMS_LOGO_ALT_TEXT}
+      />
+    );
+    expect(screen.getByAltText(MOCK_CMS_LOGO_URL)).toBeInTheDocument();
   });
 });

@@ -13,6 +13,7 @@ import { MozServices } from '../../lib/types';
 import GleanMetrics from '../../lib/glean';
 import Banner from '../Banner';
 import { Integration } from '../../models';
+import CmsButtonWithFallback from '../CmsButtonWithFallback';
 
 export type ReadyProps = {
   continueHandler?: Function;
@@ -111,7 +112,9 @@ const Ready = ({
   }, [viewName]);
 
   const cmsInfo = integration?.getCmsInfo();
-  const cmsButtonColor = cmsInfo?.shared?.buttonColor
+  const cmsButton = {
+    color: cmsInfo?.shared?.buttonColor,
+  };
 
   return (
     <>
@@ -133,30 +136,11 @@ const Ready = ({
               </p>
             </FtlMsg>
             <div className="flex justify-center mx-auto mt-6">
-              {cmsInfo ? (
-                <button
-                  className="cta-primary-cms cta-xl"
-                  onClick={startBrowsing}
-                  style={
-                    {
-                      '--cta-bg': cmsButtonColor,
-                      '--cta-border': cmsButtonColor,
-                      '--cta-active': cmsButtonColor,
-                      '--cta-disabled': `${cmsButtonColor}60`,
-                    } as React.CSSProperties
-                  }
-                >
-                  <FtlMsg id="manage-your-account-button">
-                    Manage your account
-                  </FtlMsg>
-                </button>
-                ) : (
-                <button className="cta-primary cta-xl" onClick={startBrowsing}>
-                  <FtlMsg id="manage-your-account-button">
-                    Manage your account
-                  </FtlMsg>
-                </button>
-              )}
+              <FtlMsg id="manage-your-account-button">
+                <CmsButtonWithFallback className="cta-primary cta-xl" onClick={startBrowsing} buttonColor={cmsButton?.color}>
+                  Manage your account
+                </CmsButtonWithFallback>
+              </FtlMsg>
             </div>
           </>
         )}
@@ -180,28 +164,7 @@ const Ready = ({
       </span>
       {continueHandler && (
         <div className="flex justify-center mx-auto mt-6">
-          {cmsInfo ? (
-            <button
-              type="button"
-              className="cta-primary-cms cta-xl font-bold mx-2 flex-1"
-              onClick={(e) => {
-                const eventName = `flow.${viewName}.continue`;
-                logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
-                continueHandler && continueHandler(e);
-              }}
-              style={
-                {
-                  '--cta-bg': cmsButtonColor,
-                  '--cta-border': cmsButtonColor,
-                  '--cta-active': cmsButtonColor,
-                  '--cta-disabled': `${cmsButtonColor}60`,
-                } as React.CSSProperties
-              }
-            >
-              <FtlMsg id="ready-continue">Continue</FtlMsg>
-            </button>
-          ) : (
-          <button
+          <CmsButtonWithFallback
             type="submit"
             className="cta-primary cta-xl font-bold mx-2 flex-1"
             onClick={(e) => {
@@ -209,10 +172,10 @@ const Ready = ({
               logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
               continueHandler && continueHandler(e);
             }}
+            buttonColor={cmsButton?.color}
           >
             <FtlMsg id="ready-continue">Continue</FtlMsg>
-          </button>
-          )}
+          </CmsButtonWithFallback>
         </div>
       )}
     </>

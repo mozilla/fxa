@@ -8,6 +8,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { MozServices } from '../../../lib/types';
+import { createMockSigninOAuthIntegration, MOCK_CMS_INFO } from '../mocks';
 
 export default {
   title: 'Pages/Signin/SigninConfirmed',
@@ -30,5 +31,15 @@ export const DefaultSignedOut = () => (
 export const IsSync = () => (
   <LocationProvider>
     <SigninConfirmed isSignedIn={false} serviceName={MozServices.FirefoxSync} />
+  </LocationProvider>
+);
+
+export const IsSyncWithCms = () => (
+  <LocationProvider>
+    <SigninConfirmed isSignedIn={false} serviceName={MozServices.FirefoxSync}
+                     integration={createMockSigninOAuthIntegration({
+                       cmsInfo: MOCK_CMS_INFO
+                     }) as any}
+    />
   </LocationProvider>
 );

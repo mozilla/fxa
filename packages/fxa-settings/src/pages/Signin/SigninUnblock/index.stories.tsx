@@ -8,7 +8,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
-  MOCK_AUTH_AT,
+  MOCK_AUTH_AT, MOCK_CMS_INFO,
   MOCK_EMAIL,
   MOCK_SESSION_TOKEN,
   MOCK_UID,
@@ -17,6 +17,7 @@ import {
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
 import {
+  createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeSyncIntegration,
   createMockSigninWebIntegration,
 } from '../mocks';
@@ -61,6 +62,23 @@ export const Default = () => (
     />
   </LocationProvider>
 );
+
+export const DefaultWithCms = () => (
+  <LocationProvider>
+    <SigninUnblock
+      email={MOCK_EMAIL}
+      hasLinkedAccount={false}
+      hasPassword={true}
+      finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+      integration={createMockSigninOAuthIntegration({
+        cmsInfo: MOCK_CMS_INFO
+      })}
+      signinWithUnblockCode={mockSuccessResponse}
+      resendUnblockCodeHandler={mockResendSuccessResponse}
+    />
+  </LocationProvider>
+);
+
 export const WithOAuthDesktopServiceRelay = () => (
   <LocationProvider>
     <SigninUnblock

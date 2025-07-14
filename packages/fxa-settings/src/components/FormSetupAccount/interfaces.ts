@@ -6,6 +6,7 @@ import { UseFormMethods } from 'react-hook-form';
 import { SetPasswordFormData } from '../../pages/PostVerify/SetPassword/interfaces';
 import { SignupFormData } from '../../pages/Signup/interfaces';
 import { syncEngineConfigs } from '../../lib/sync-engines';
+import { CmsButtonType } from '../CmsButtonWithFallback';
 
 export type FormSetupAccountData = SignupFormData | SetPasswordFormData;
 
@@ -26,10 +27,5 @@ export type FormSetupAccountProps = {
   setSelectedNewsletterSlugs?: React.Dispatch<React.SetStateAction<string[]>>;
   submitButtonGleanId?: string;
   passwordFormType?: 'signup' | 'post-verify-set-password';
-  cmsButton?: CmsButton
-};
-
-export type CmsButton = {
-  text?: string;
-  color?: string;
+  cmsButton?: CmsButtonType;
 };

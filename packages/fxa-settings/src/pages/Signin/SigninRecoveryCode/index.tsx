@@ -206,13 +206,23 @@ const SigninRecoveryCode = ({
     );
   };
 
+  const cmsInfo = integration.getCmsInfo();
+
   return (
     <AppLayout>
       <div className="relative flex items-center mb-5">
         <ButtonBack />
-        <FtlMsg id="signin-recovery-code-heading">
+        {cmsInfo?.shared?.logoUrl && cmsInfo.shared?.logoAltText ? (
+          <img
+            src={cmsInfo.shared.logoUrl}
+            alt={cmsInfo.shared.logoAltText}
+            className="justify-start mb-4 max-h-[40px]"
+          />
+        ) : (
+          <FtlMsg id="signin-recovery-code-heading">
           <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
-        </FtlMsg>
+          </FtlMsg>
+        )}
       </div>
 
       {bannerErrorMessage && (
@@ -254,6 +264,9 @@ const SigninRecoveryCode = ({
           localizedCustomCodeRequiredMessage,
           codeErrorMessage,
           setCodeErrorMessage,
+          cmsButton: {
+            color: cmsInfo?.shared?.buttonColor
+          },
         }}
         gleanDataAttrs={{ id: 'login_backup_codes_submit' }}
       />

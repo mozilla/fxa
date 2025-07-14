@@ -76,5 +76,6 @@ export function createMockSigninWebSyncIntegration() {
     isDesktopSync: () => true,
     isDesktopRelay: () => false,
     wantsLogin: () => false,
+    getCmsInfo: () => undefined,
   };
 }

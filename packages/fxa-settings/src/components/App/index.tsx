@@ -517,7 +517,9 @@ const AuthAndAccountSetupRoutes = ({
           path="/signin_confirmed/*"
           {...{ isSignedIn, serviceName, integration }}
         />
-        <SigninRecoveryChoiceContainer path="/signin_recovery_choice/*" />
+        <SigninRecoveryChoiceContainer path="/signin_recovery_choice/*"
+                                       {...{ integration }}
+        />
         <SigninRecoveryPhoneContainer
           path="/signin_recovery_phone/*"
           {...{ integration }}
@@ -545,7 +547,7 @@ const AuthAndAccountSetupRoutes = ({
         />
         <SigninConfirmed
           path="/signin_verified/*"
-          {...{ isSignedIn, serviceName }}
+          {...{ isSignedIn, serviceName, integration }}
         />
         <SigninUnblockContainer
           path="/signin_unblock/*"

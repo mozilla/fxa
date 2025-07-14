@@ -11,7 +11,7 @@ import { useFtlMsgResolver } from '../../models';
 import { SHOW_BALLOON_TIMEOUT, HIDE_BALLOON_TIMEOUT } from '../../constants';
 import PasswordStrengthBalloon from '../PasswordStrengthBalloon';
 import PasswordInfoBalloon from '../PasswordInfoBalloon';
-import { CmsButton } from '../FormSetupAccount/interfaces';
+import CmsButtonWithFallback, { CmsButtonType } from '../CmsButtonWithFallback';
 
 export type PasswordFormType = 'signup' | 'reset' | 'post-verify-set-password';
 
@@ -30,7 +30,7 @@ export type FormPasswordWithBalloonsProps = {
   disableButtonUntilValid?: boolean;
   submitButtonGleanId?: string;
   requirePasswordConfirmation?: boolean;
-  cmsButton?: CmsButton;
+  cmsButton?: CmsButtonType;
 };
 
 interface TemplateValues {
@@ -432,39 +432,20 @@ export const FormPasswordWithBalloons = ({
 
         {children}
 
-        {cmsButton?.text && cmsButton?.color ? (
-            <button
-              type="submit"
-              className="cta-primary-cms cta-xl"
-              disabled={
-                loading || (!formState.isValid && disableButtonUntilValid)
-              }
-              data-glean-id={submitButtonGleanId && submitButtonGleanId}
-              style={
-                {
-                  '--cta-bg': cmsButton.color,
-                  '--cta-border': cmsButton.color,
-                  '--cta-active': cmsButton.color,
-                  '--cta-disabled': `${cmsButton.color}60`,
-                } as React.CSSProperties
-              }
-            >
-              {cmsButton.text}
-            </button>
-        ) : (
-          <FtlMsg id={templateValues.buttonFtlId}>
-            <button
-              type="submit"
-              className="cta-primary cta-xl"
-              disabled={
-                loading || (!formState.isValid && disableButtonUntilValid)
-              }
-              data-glean-id={submitButtonGleanId && submitButtonGleanId}
-            >
-              {templateValues.buttonText}
-            </button>
-          </FtlMsg>
-        )}
+        <FtlMsg id={templateValues.buttonFtlId}>
+          <CmsButtonWithFallback
+            type="submit"
+            className="cta-primary cta-xl"
+            disabled={
+              loading || (!formState.isValid && disableButtonUntilValid)
+            }
+            data-glean-id={submitButtonGleanId && submitButtonGleanId}
+            buttonColor={cmsButton?.color}
+            buttonText={cmsButton?.text}
+          >
+            {templateValues.buttonText}
+          </CmsButtonWithFallback>
+        </FtlMsg>
       </form>
     </>
   );

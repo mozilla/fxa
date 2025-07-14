@@ -12,6 +12,14 @@ export const relyingPartyQuery = graphql(`
       clientId
       entrypoint
       name
+      shared {
+        buttonColor
+        logoUrl
+        logoAltText
+        emailFromName
+        emailLogoUrl
+        emailLogoAltText
+      }
       EmailFirstPage {
         headline
         description
@@ -32,18 +40,25 @@ export const relyingPartyQuery = graphql(`
         description
         primaryButtonText
       }
-      shared {
-        buttonColor
-        logoUrl
-        logoAltText
-        emailFromName
-        emailLogoUrl
-        emailLogoAltText
-      }
       VerifyShortCodeEmail {
         subject
         headline
         description
+      }
+      SigninPage {
+        headline
+        description
+        primaryButtonText
+      }
+      SigninTokenCodePage {
+        headline
+        description
+        primaryButtonText
+      }
+      SigninUnblockCodePage {
+        headline
+        description
+        primaryButtonText
       }
     }
   }

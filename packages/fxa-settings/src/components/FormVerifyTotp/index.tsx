@@ -10,6 +10,7 @@ import { useFtlMsgResolver } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { FormVerifyTotpProps, VerifyTotpFormData } from './interfaces';
 import classNames from 'classnames';
+import CmsButtonWithFallback from '../CmsButtonWithFallback';
 
 // Split inputs are not recommended for accesibility
 // Code inputs should be a single input field
@@ -27,6 +28,7 @@ const FormVerifyTotp = ({
   verifyCode,
   gleanDataAttrs,
   className = '',
+  cmsButton,
 }: FormVerifyTotpProps) => {
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
@@ -109,19 +111,21 @@ const FormVerifyTotp = ({
         hasErrors={!!errorMessage}
         ariaDescribedBy={errorBannerId}
       />
-      <button
-        type="submit"
-        className="cta-primary cta-xl"
-        disabled={isSubmitDisabled}
-        title={isSubmitDisabled ? getDisabledButtonTitle() : ''}
-        {...(gleanDataAttrs && {
-          'data-glean-id': gleanDataAttrs.id,
-          'data-glean-label': gleanDataAttrs.label,
-          'data-glean-type': gleanDataAttrs.type,
-        })}
-      >
-        {localizedSubmitButtonText}
-      </button>
+
+        <CmsButtonWithFallback
+          type="submit"
+          className="cta-primary cta-xl"
+          disabled={isSubmitDisabled}
+          title={isSubmitDisabled ? getDisabledButtonTitle() : ''}
+          {...(gleanDataAttrs && {
+            'data-glean-id': gleanDataAttrs.id,
+            'data-glean-label': gleanDataAttrs.label,
+            'data-glean-type': gleanDataAttrs.type,
+          })}
+          buttonColor={cmsButton?.color}
+        >
+          {localizedSubmitButtonText}
+        </CmsButtonWithFallback>
     </form>
   );
 };

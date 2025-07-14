@@ -9,7 +9,7 @@ import { action } from '@storybook/addon-actions';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { LocationProvider } from '@reach/router';
-import { mockSigninLocationState } from '../mocks';
+import { MOCK_CMS_INFO, mockSigninLocationState } from '../mocks';
 import { mockFinishOAuthFlowHandler } from '../../mocks';
 import { createMockOAuthNativeIntegration, mockWebIntegration } from './mocks';
 import { BeginSigninError, HandledError } from '../../../lib/error-utils';
@@ -44,6 +44,19 @@ export const Default = () => (
   <SigninRecoveryCode
     finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
     integration={mockWebIntegration}
+    navigateToRecoveryPhone={() => {
+      action('handleNavigation')();
+      return Promise.resolve();
+    }}
+    signinState={mockSigninLocationState}
+    submitRecoveryCode={mockSubmitSuccess}
+  />
+);
+
+export const DefaultWithCms = () => (
+  <SigninRecoveryCode
+    finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+    integration={createMockOAuthNativeIntegration(true, MOCK_CMS_INFO)}
     navigateToRecoveryPhone={() => {
       action('handleNavigation')();
       return Promise.resolve();
