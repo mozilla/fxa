@@ -257,6 +257,17 @@ class EditLocaleMock {
       result: this.result(success),
     };
   }
+  /**
+   * Used to simulate a failed request to edit a user's locale.
+   * @param uid - The user's uid.
+   * @param locale - The locale to edit to.
+   */
+  static errorMock(uid: string, locale: string) {
+    return {
+      request: this.request(uid, locale),
+      error: new Error('Forced network error'),
+    };
+  }
 }
 
 class RecordAdminSecurityEvent {
@@ -285,26 +296,29 @@ class RecordAdminSecurityEvent {
 }
 
 class GetEmailsLike {
-  static request(email: string) {
+  static request(searchTerm: string) {
     return {
       query: GET_EMAILS_LIKE,
       variables: {
-        search: email.substring(0, 6),
+        search: searchTerm,
       },
     };
   }
-  static result(email: string) {
+  static result(search: string) {
     calledGetEmailsLike = true;
+    // Return the original testEmail if the search matches its first 6 characters
+    // Otherwise return a mock email that matches the search pattern
+    const mockEmail = search === testEmail.substring(0, 6) ? testEmail : (search.includes('@') ? search : `${search}@example.com`);
     return {
       data: {
-        getEmailsLike: [{ email }],
+        getEmailsLike: [{ email: mockEmail }],
       },
     };
   }
-  static mock(email: string) {
+  static mock(search: string) {
     return {
-      request: this.request(email),
-      result: this.result(email),
+      request: this.request(search),
+      result: this.result(search),
     };
   }
 }
@@ -337,8 +351,10 @@ it('renders without imploding', () => {
 });
 
 it('calls account search', async () => {
-  renderView([GetAccountsByEmail.mock(testEmail, false, true)]);
-
+  renderView([
+    GetAccountsByEmail.mock(testEmail, false, true),
+    GetEmailsLike.mock(testEmail),
+  ]);
   fireEvent.change(screen.getByTestId('email-input'), {
     target: { value: testEmail },
   });
@@ -349,13 +365,14 @@ it('calls account search', async () => {
 });
 
 it('auto completes', async () => {
+  const searchTerm = testEmail.substring(0, 6);
   renderView([
-    GetEmailsLike.mock(testEmail),
+    GetEmailsLike.mock(searchTerm),
     GetAccountsByEmail.mock(testEmail, true, true),
   ]);
 
   fireEvent.change(screen.getByTestId('email-input'), {
-    target: { value: testEmail.substring(0, 6) },
+    target: { value: searchTerm },
   });
 
   await waitFor(() => screen.getByTestId('email-suggestions'));
@@ -373,6 +390,7 @@ it('auto completes', async () => {
 
 it('displays the account email bounces, and can clear them', async () => {
   renderView([
+    GetEmailsLike.mock(testEmail),
     GetAccountsByEmail.mock(testEmail, false, false),
     RecordAdminSecurityEvent.mock(),
     ClearBouncesByEmail.mock(testEmail),
@@ -398,6 +416,7 @@ it('displays the account email bounces, and can clear them', async () => {
 
 it('displays the error state if there is an error', async () => {
   renderView([
+    GetEmailsLike.mock(testEmail),
     GetAccountsByEmail.mock(testEmail, false, true, new Error('zoiks')),
   ]);
 
@@ -417,9 +436,13 @@ describe('Editing user locale', () => {
   // A setup method instead of beforeEach so params can be used.
   async function setup(newLocale: string | null, success: boolean = true) {
     const mocks = [
+      GetEmailsLike.mock(testEmail),
       GetAccountsByEmail.mock(testEmail, false, true),
       EditLocaleMock.mock('123', 'en-CA', success),
       GetAccountsByEmail.mock(testEmail, false, true),
+      // this is for `reports error during edit`, it doesn't use the default
+      // and instead is checking that a failed request is handled correctly.
+      EditLocaleMock.errorMock('123', 'NA'),
     ];
 
     renderView(mocks);
@@ -519,6 +542,7 @@ describe('unsubscribe from mailing lists', () => {
 
   async function renderAndClickUnSubscribe(success: boolean) {
     renderView([
+      GetEmailsLike.mock(testEmail),
       GetAccountsByEmail.mock(testEmail, false, true),
       Unsubscribe.mock('123', success),
     ]);
@@ -539,7 +563,7 @@ describe('unsubscribe from mailing lists', () => {
 
   it('handles unsubscribe', async () => {
     await renderAndClickUnSubscribe(true);
-    expect(alertSpy).toBeCalledWith(
+    expect(alertSpy).toHaveBeenCalledWith(
       "The user's email has been unsubscribed from mozilla mailing lists."
     );
   });
