@@ -1,5 +1,15 @@
 checkout-error-boundary-retry-button = Try again
 checkout-error-boundary-basic-error-message = Something went wrong. Please try again or <contactSupportLink>contact support.</contactSupportLink>
+amex-logo-alt-text = { -brand-amex } logo
+diners-logo-alt-text = { -brand-diner } logo
+discover-logo-alt-text = { -brand-discover } logo
+jcb-logo-alt-text = { -brand-jcb } logo
+mastercard-logo-alt-text = { -brand-mastercard } logo
+paypal-logo-alt-text = { -brand-paypal } logo
+unionpay-logo-alt-text = { -brand-unionpay } logo
+visa-logo-alt-text = { -brand-visa } logo
+# Alt text for generic payment card logo
+unbranded-logo-alt-text = Unbranded logo
 
 ## Error pages - /checkout and /upgrade
 ## Common strings used in multiple pages

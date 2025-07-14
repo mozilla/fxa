@@ -150,13 +150,20 @@ export default async function UpgradeSuccess({
               locale
             )}
             {cart.paymentInfo.type === 'external_paypal' ? (
-              <Image src={getCardIcon('paypal')} alt="paypal" />
+              <Image
+                src={getCardIcon('paypal', l10n).img}
+                alt={l10n.getString('paypal-logo-alt-text', 'PayPal logo')}
+                width={91}
+                height={24}
+              />
             ) : (
               <span className="flex items-center gap-2">
                 {cart.paymentInfo.brand && (
                   <Image
-                    src={getCardIcon(cart.paymentInfo.brand)}
-                    alt={cart.paymentInfo.brand}
+                    src={getCardIcon(cart.paymentInfo.brand, l10n).img}
+                    alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
+                    width={40}
+                    height={24}
                   />
                 )}
                 {l10n.getString(

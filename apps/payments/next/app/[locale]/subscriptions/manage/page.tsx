@@ -2,11 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ManageParams } from '@fxa/payments/ui';
+import { headers } from 'next/headers';
+import Image from 'next/image';
+import { redirect } from 'next/navigation';
+import React from 'react';
+import { URLSearchParams } from 'url';
+
+import {
+  getCardIcon,
+  ButtonVariant,
+  ManageParams,
+  SubmitButton,
+} from '@fxa/payments/ui';
+import { getSubManPageContentAction } from '@fxa/payments/ui/actions';
+import { getApp } from '@fxa/payments/ui/server';
+import { LinkExternal } from '@fxa/shared/react';
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
-import { redirect } from 'next/navigation';
-import { URLSearchParams } from 'url';
 
 export default async function Manage({
   params,
@@ -16,8 +28,10 @@ export default async function Manage({
   searchParams: Record<string, string | string[]> | undefined;
 }) {
   const { locale } = params;
+  const acceptLanguage = headers().get('accept-language');
+  const l10n = getApp().getL10n(acceptLanguage, locale);
   const session = await auth();
-  if (!session) {
+  if (!session?.user?.id) {
     const redirectToUrl = new URL(
       `${config.paymentsNextHostedUrl}/${locale}/subscriptions/landing`
     );
@@ -25,5 +39,382 @@ export default async function Manage({
     redirect(redirectToUrl.href);
   }
 
-  return <div>Subscription management</div>;
+  const { defaultPaymentMethod } = await getSubManPageContentAction(
+    session.user?.id
+  );
+  const { billingAgreementId, brand, expMonth, expYear, last4, type } =
+    defaultPaymentMethod || {};
+  const expirationDate =
+    expMonth && expYear
+      ? l10n.getLocalizedMonthYearString(expMonth, expYear, locale)
+      : undefined;
+
+  //temporary until subs are returned from action
+  const subscriptions: any = [];
+  const appleIapSubscriptions: any = [];
+  const googleIapSubscriptions: any = [];
+  return (
+    <>
+      <section
+        className="px-4 tablet:px-8"
+        aria-labelledby="payment-information-heading"
+      >
+        <div className="flex items-center justify-between">
+          <h2
+            id="payment-information-heading"
+            className={`font-semibold ${defaultPaymentMethod ? 'mb-4' : 'mb-0'}`}
+          >
+            {l10n.getString(
+              'subscription-management-payment-information-heading',
+              'Payment Information'
+            )}
+          </h2>
+          {!defaultPaymentMethod && (
+            <SubmitButton
+              className="h-10"
+              variant={ButtonVariant.Primary}
+              aria-label={l10n.getString(
+                'subscription-management-button-add-payment-method-aria',
+                'Add payment method'
+              )}
+            >
+              <span>
+                {l10n.getString(
+                  'subscription-management-button-add-payment-method',
+                  'Add'
+                )}
+              </span>
+            </SubmitButton>
+          )}
+        </div>
+
+        {type === 'card' && brand && (
+          <div className="flex items-center justify-between">
+            <div className="leading-5 text-sm">
+              <Image
+                className="py-2"
+                src={getCardIcon(brand, l10n).img}
+                alt={getCardIcon(brand, l10n).altText}
+                width={40}
+                height={24}
+              />
+              {last4 && (
+                <div className="pt-2">
+                  {l10n.getString(
+                    'subscription-management-card-ending-in',
+                    { last4 },
+                    `Card ending in ${last4}`
+                  )}
+                </div>
+              )}
+              {expirationDate && (
+                <div>
+                  {l10n.getString(
+                    'subscription-management-card-expires-date',
+                    { expirationDate },
+                    `Expires ${expirationDate}`
+                  )}
+                </div>
+              )}
+            </div>
+            <SubmitButton
+              className="h-10"
+              variant={ButtonVariant.Secondary}
+              aria-label={l10n.getString(
+                'subscription-management-button-change-payment-method-aria',
+                'Change payment method'
+              )}
+            >
+              <span>
+                {l10n.getString(
+                  'subscription-management-button-change-payment-method',
+                  'Change'
+                )}
+              </span>
+            </SubmitButton>
+          </div>
+        )}
+
+        {type === 'external_paypal' && brand && (
+          <div className="flex items-center justify-between">
+            <div className="leading-5 text-sm">
+              <Image
+                className="py-2"
+                src={getCardIcon('paypal', l10n).img}
+                alt={l10n.getString('paypal-logo-alt-text', 'PayPal logo')}
+                width={91}
+                height={24}
+              />
+            </div>
+
+            <LinkExternal
+              href={`${config.csp.paypalApi}/myaccount/autopay/connect/${billingAgreementId}`}
+              className="flex items-center justify-center h-12 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-grey-100 font-semibold hover:bg-grey-200 text-black"
+              aria-label={l10n.getString(
+                'subscription-management-button-change-payment-method-aria',
+                'Change payment method'
+              )}
+            >
+              <span>
+                {l10n.getString(
+                  'subscription-management-button-change-payment-method',
+                  'Change'
+                )}
+              </span>
+            </LinkExternal>
+          </div>
+        )}
+      </section>
+
+      <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+
+      <section
+        className="px-4 tablet:px-8"
+        aria-labelledby="subscriptions-list-heading"
+      >
+        <h2 id="subscriptions-list-heading" className="font-semibold mb-4">
+          {l10n.getString(
+            'subscription-management-subscriptions-heading',
+            'Subscriptions'
+          )}
+        </h2>
+
+        {subscriptions.length === 0 &&
+          googleIapSubscriptions.length === 0 &&
+          appleIapSubscriptions.length === 0 && (
+            <div
+              className="bg-grey-10 font-semibold rounded-lg py-6 text-center text-sm"
+              role="status"
+              aria-live="polite"
+            >
+              {l10n.getString(
+                'subscription-management-no-subscriptions',
+                'You don’t have any subscriptions yet'
+              )}
+            </div>
+          )}
+
+        {subscriptions.length > 0 && (
+          <>
+            <ul
+              aria-label={l10n.getString(
+                'subscription-management-your-subscriptions-aria',
+                'Your subscriptions'
+              )}
+            >
+              {subscriptions.map((sub: any, index: number) => {
+                return (
+                  <li key={sub.id} aria-labelledby={`${sub.id} heading`}>
+                    <div className="flex items-center justify-between my-4">
+                      <div className="leading-5 text-sm">
+                        <h3
+                          id={`${sub.id} heading`}
+                          className="font-semibold pb-2"
+                        >
+                          Product Name
+                        </h3>
+                      </div>
+                      <div>
+                        <div>
+                          <SubmitButton
+                            className="h-10"
+                            variant={ButtonVariant.Secondary}
+                            aria-label={l10n.getString(
+                              'subscription-management-button-cancel-subscription-aria',
+                              'Cancel subscription'
+                            )}
+                          >
+                            <span>
+                              {l10n.getString(
+                                'subscription-management-button-cancel-subscription',
+                                'Cancel'
+                              )}
+                            </span>
+                          </SubmitButton>
+                        </div>
+                      </div>
+                    </div>
+                    {index !== subscriptions.length - 1 && (
+                      <hr
+                        className="border-b border-grey-50 my-6"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            {(appleIapSubscriptions.length > 0 ||
+              googleIapSubscriptions.length > 0) && (
+              <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+            )}
+          </>
+        )}
+
+        {appleIapSubscriptions.length > 0 && (
+          <>
+            <ul
+              aria-label={l10n.getString(
+                'subscription-management-your-apple-iap-subscriptions-aria',
+                'Your Apple In-App Subscriptions'
+              )}
+            >
+              {appleIapSubscriptions.map((purchase: any, index: number) => {
+                return (
+                  <li
+                    key={purchase.price_id}
+                    aria-labelledby={`${purchase.product_name}-heading`}
+                  >
+                    <div className="flex items-center justify-between my-4">
+                      <div className="leading-5 text-sm">
+                        <h3
+                          id={`${purchase.product_name}-heading`}
+                          className="font-semibold pb-2"
+                        >
+                          {purchase.product_name}
+                        </h3>
+                        <div>
+                          {l10n.getString(
+                            'subscription-management-apple-in-app-purchase',
+                            'Apple: In-App purchase'
+                          )}
+                        </div>
+                        {/* <div>
+                        {l10n.getString(
+                          'subscription-management-iap-sub-expires-on',
+                          {
+                            date: nextBillDateL10n,
+                          },
+                          `Expires on ${nextBillDate}`
+                        )}
+                      </div> */}
+                      </div>
+                      <div>
+                        <LinkExternal
+                          href={`https://apps.apple.com/account/subscriptions`}
+                          className="flex items-center justify-center h-12 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-grey-100 font-semibold hover:bg-grey-200 text-black"
+                          aria-label={l10n.getString(
+                            'subscription-management-button-manage-subscription-aria',
+                            {
+                              productName: purchase.product_name,
+                            },
+                            `Manage subscription for ${purchase.packageName}`
+                          )}
+                        >
+                          <span>
+                            {l10n.getString(
+                              'subscription-management-button-manage-subscription',
+                              'Manage'
+                            )}
+                          </span>
+                        </LinkExternal>
+                      </div>
+                    </div>
+                    {index !== appleIapSubscriptions.length - 1 && (
+                      <hr
+                        className="border-b border-grey-50 my-6"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            {googleIapSubscriptions.length > 0 && (
+              <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+            )}
+          </>
+        )}
+
+        {googleIapSubscriptions.length > 0 && (
+          <ul
+            aria-label={l10n.getString(
+              'subscription-management-your-google-iap-subscriptions-aria',
+              'Your Google In-App Subscriptions'
+            )}
+          >
+            {googleIapSubscriptions.map((purchase: any, index: number) => {
+              const nextBillDate = l10n.getLocalizedDateString(
+                purchase.expiryTimeMillis / 1000,
+                true
+              );
+              const nextBillDateL10n = l10n.getLocalizedDate(
+                purchase.expiryTimeMillis / 1000,
+                true
+              );
+              return (
+                <li
+                  key={purchase.price_id}
+                  aria-labelledby={`${purchase.product_name}-heading`}
+                >
+                  <div className="flex items-center justify-between my-4">
+                    <div className="leading-5 text-sm">
+                      <h3
+                        id={`${purchase.product_name}-heading`}
+                        className="font-semibold pb-2"
+                      >
+                        {purchase.product_name}
+                      </h3>
+                      <div>
+                        {l10n.getString(
+                          'subscription-management-google-in-app-purchase',
+                          'Google: In-App purchase'
+                        )}
+                      </div>
+                      <div>
+                        {!!purchase.expiryTimeMillis &&
+                          (purchase.autoRenewing
+                            ? l10n.getString(
+                                'subscription-management-iap-sub-next-bill',
+                                {
+                                  date: nextBillDateL10n,
+                                },
+                                `Next billed on ${nextBillDate}`
+                              )
+                            : l10n.getString(
+                                'subscription-management-iap-sub-expires-on',
+                                {
+                                  date: nextBillDateL10n,
+                                },
+                                `Expires on ${nextBillDate}`
+                              ))}
+                      </div>
+                    </div>
+                    <div>
+                      <LinkExternal
+                        href={`https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(
+                          purchase.sku
+                        )}&package=${encodeURIComponent(purchase.packageName)}`}
+                        className="flex items-center justify-center h-12 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-grey-100 font-semibold hover:bg-grey-200 text-black"
+                        aria-label={l10n.getString(
+                          'subscription-management-button-manage-subscription-aria',
+                          {
+                            productName: purchase.product_name,
+                          },
+                          `Manage subscription for ${purchase.packageName}`
+                        )}
+                      >
+                        <span>
+                          {l10n.getString(
+                            'subscription-management-button-manage-subscription',
+                            'Manage'
+                          )}
+                        </span>
+                      </LinkExternal>
+                    </div>
+                  </div>
+                  {index !== googleIapSubscriptions.length - 1 && (
+                    <hr
+                      className="border-b border-grey-50 my-6"
+                      aria-hidden="true"
+                    />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+    </>
+  );
 }

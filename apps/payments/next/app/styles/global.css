@@ -4,9 +4,8 @@
 
 @import '../../../../../libs/shared/assets/src/styles/index.css';
 
-/* layout */
 body {
-  @apply grid min-h-[100vh] tablet:justify-center text-base font-body bg-grey-10 text-grey-900 leading-[1.15];
+  @apply bg-grey-10 leading-[1.15];
 }
 
 @layer utilities {
