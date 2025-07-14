@@ -150,6 +150,7 @@ export const FormPasswordWithInlineCriteria = ({
       }
     }
     if (
+      showConfirmPasswordInput &&
       !errors.newPassword &&
       getValues('confirmPassword') !== '' &&
       getValues('confirmPassword') !== getValues('newPassword')
@@ -157,7 +158,7 @@ export const FormPasswordWithInlineCriteria = ({
       setPasswordMatchErrorText(localizedPasswordMatchError);
     }
 
-    if (!formState.isValid) {
+    if (!formState.isValid && showConfirmPasswordInput) {
       trigger('confirmPassword');
     }
   };
@@ -193,13 +194,19 @@ export const FormPasswordWithInlineCriteria = ({
 
   const onChangePassword = (inputName: string) => {
     const newPassword = getValues('newPassword');
-    const confirmPassword = getValues('confirmPassword');
+    const confirmPassword = showConfirmPasswordInput
+      ? getValues('confirmPassword')
+      : '';
     if (inputName === 'newPassword') {
       trigger('newPassword');
     }
 
     if (!errors.newPassword) {
       setSROnlyPwdFeedbackMessage('');
+    }
+
+    if (!showConfirmPasswordInput) {
+      return;
     }
 
     if (confirmPassword !== newPassword && confirmPassword !== '') {
