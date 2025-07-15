@@ -2382,6 +2382,21 @@ export default class AuthClient {
     return this.sessionGet(`/geo/eligibility/${feature}`, sessionToken, headers);
   }
 
+  /**
+   * Fetches the CMS configuration for a specific client and entrypoint.
+   *
+   * @param clientId
+   * @param entrypoint
+   */
+  async getCmsConfig(clientId:string, entrypoint:string) {
+    return this.request(
+      'GET',
+      `/cms/config?clientId=${clientId}&entrypoint=${entrypoint}`,
+      null,
+      undefined
+    );
+  }
+
   protected async getPayloadV2({
     kB,
     v1,
