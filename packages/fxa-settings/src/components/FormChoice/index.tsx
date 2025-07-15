@@ -69,7 +69,7 @@ const FormChoice = ({
             />
             <label
               className={classNames(
-                'input-radio-label w-full',
+                'input-radio-label w-full cursor-pointer',
                 contentAlignVertical === 'center' && 'items-center'
               )}
               htmlFor={choice.id}

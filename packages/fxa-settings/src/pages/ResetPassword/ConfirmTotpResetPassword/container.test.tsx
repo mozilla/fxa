@@ -113,7 +113,7 @@ describe('ConfirmTotpResetPasswordContainer', () => {
     expect(capturedProps.codeErrorMessage).toBe('Valid code required');
   });
 
-  it.only('forwards location.state when onTroubleWithCode is invoked', async () => {
+  it('forwards location.state when onTroubleWithCode is invoked', async () => {
     mockCheckTotp.mockResolvedValueOnce({ success: true });
     mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({ exists: true });
 

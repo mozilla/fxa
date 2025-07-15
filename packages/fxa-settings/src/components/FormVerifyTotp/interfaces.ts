@@ -11,6 +11,7 @@ export type FormVerifyTotpProps = {
   codeType: 'numeric' | 'alphanumeric';
   errorBannerId?: string;
   errorMessage: string;
+  setErrorDescription?: React.Dispatch<React.SetStateAction<string>>;
   localizedInputLabel: string;
   localizedSubmitButtonText: string;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
