@@ -106,6 +106,35 @@ export class StripeFirestore {
     }
   }
 
+  async fetchAndInsertSubscription(
+    subscriptionId: string,
+    uid: string,
+  ) {
+    return this.firestore.runTransaction(async (tx) => {
+      // We read the subscription we plan to write to lock them via a Firestore transaction.
+      // If any other transaction runs that reads the subscription overlapping with our read+write operation,
+      // the transaction will fail and be retried. This ensures serialization of our updates, and no race condition
+      // based on the speed at which the Stripe API responds.
+      await tx.get(
+        this.customerCollectionDbRef.doc(uid)
+          .collection(this.subscriptionCollection)
+          .doc(subscriptionId),
+      );
+
+      const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
+
+      tx.set(
+        this.customerCollectionDbRef
+          .doc(uid)
+          .collection(this.subscriptionCollection)
+          .doc(subscription.id),
+        subscription
+      );
+
+      return subscription;
+    });
+  }
+
   /**
    * Get a Stripe customer by id, and insert it into Firestore keyed to the fxa uid.
    *
@@ -116,51 +145,93 @@ export class StripeFirestore {
     customerId: string,
     ignoreErrors: boolean = false
   ) {
-    const [customer, subscriptions] = await Promise.all([
-      this.stripe.customers.retrieve(customerId),
-      this.stripe.subscriptions
-        .list({
-          customer: customerId,
-        })
-        .autoPagingToArray({ limit: 100 }),
-    ]);
-    if (customer.deleted) {
-      if (ignoreErrors) {
-        return customer;
-      }
-      throw new FirestoreStripeErrorBuilder(
-        `Customer ${customerId} was deleted`,
-        FirestoreStripeError.STRIPE_CUSTOMER_DELETED,
-        customerId
-      );
-    }
-
-    const uid = customer.metadata.userid;
-    if (!uid) {
-      if (ignoreErrors) {
-        return customer;
-      }
-      throw new FirestoreStripeErrorBuilder(
-        `Customer ${customerId} has no uid`,
-        FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID,
-        customerId
-      );
-    }
-
-    const inserts = [this.insertCustomerRecord(uid, customer)];
-    if (subscriptions) {
-      for (const subscription of subscriptions) {
-        inserts.push(
-          this.customerCollectionDbRef
-            .doc(uid)
-            .collection(this.subscriptionCollection)
-            .doc(subscription.id)
-            .set(subscription)
+    return this.firestore.runTransaction(async (tx) => {
+      const customerWithSubscriptions = await this.stripe.customers.retrieve(customerId, {
+        expand: ["subscriptions"]
+      });
+      if (customerWithSubscriptions.deleted) {
+        if (ignoreErrors) {
+          return customerWithSubscriptions;
+        }
+        throw new FirestoreStripeErrorBuilder(
+          `Customer ${customerId} was deleted`,
+          FirestoreStripeError.STRIPE_CUSTOMER_DELETED,
+          customerId
         );
       }
-    }
-    await Promise.all(inserts);
-    return customer;
+
+      const customerWithSubscriptionsUid = customerWithSubscriptions.metadata.userid;
+      if (!customerWithSubscriptionsUid) {
+        if (ignoreErrors) {
+          delete customerWithSubscriptions.subscriptions;
+          return customerWithSubscriptions;
+        }
+        throw new FirestoreStripeErrorBuilder(
+          `Customer ${customerId} has no uid`,
+          FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID,
+          customerId
+        );
+      }
+
+      // We read all of the documents that we plan to write to lock them via a Firestore transaction.
+      // If any other transaction runs that reads these documents overlapping with our read+write operation,
+      // the transaction will fail and be retried. This ensures serialization of our updates, and no race condition
+      // based on the speed at which the Stripe API responds.
+      await tx.get(this.customerCollectionDbRef.doc(customerWithSubscriptionsUid));
+      for (const subscription of customerWithSubscriptions.subscriptions?.data || []) {
+        await tx.get(
+          this.customerCollectionDbRef.doc(customerWithSubscriptionsUid)
+            .collection(this.subscriptionCollection)
+            .doc(subscription.id),
+        );
+      }
+
+      const [customer, subscriptions] = await Promise.all([
+        this.stripe.customers.retrieve(customerId),
+        this.stripe.subscriptions
+          .list({
+            customer: customerId,
+          })
+          .autoPagingToArray({ limit: 100 }),
+      ]);
+      if (customer.deleted) {
+        if (ignoreErrors) {
+          return customer;
+        }
+        throw new FirestoreStripeErrorBuilder(
+          `Customer ${customerId} was deleted`,
+          FirestoreStripeError.STRIPE_CUSTOMER_DELETED,
+          customerId
+        );
+      }
+
+      const uid = customer.metadata.userid;
+      if (!uid) {
+        if (ignoreErrors) {
+          return customer;
+        }
+        throw new FirestoreStripeErrorBuilder(
+          `Customer ${customerId} has no uid`,
+          FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID,
+          customerId
+        );
+      }
+
+      tx.set(this.customerCollectionDbRef.doc(uid), customer);
+      if (subscriptions) {
+        for (const subscription of subscriptions) {
+          tx.set(
+            this.customerCollectionDbRef
+              .doc(uid)
+              .collection(this.subscriptionCollection)
+              .doc(subscription.id),
+            subscription
+          );
+        }
+      }
+
+      return customer;
+    });
   }
 
   /**

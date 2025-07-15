@@ -6965,24 +6965,16 @@ describe('#integration - StripeHelper', () => {
         const event = deepCopy(eventCustomerUpdated);
         event.type = type;
         event.request = null;
-        stripeFirestore.insertCustomerRecordWithBackfill = sandbox
+        stripeFirestore.fetchAndInsertCustomer = sandbox
           .stub()
           .resolves({});
-        stripeHelper.stripe.customers.retrieve = sandbox
-          .stub()
-          .resolves(newCustomer);
         dbStub.getUidAndEmailByStripeCustomerId.resolves({
           uid: newCustomer.metadata.userid,
         });
         await stripeHelper.processWebhookEventToFirestore(event);
         sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.insertCustomerRecordWithBackfill,
-          newCustomer.metadata.userid,
-          newCustomer
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripe.customers.retrieve,
-          event.data.object.id
+          stripeHelper.stripeFirestore.fetchAndInsertCustomer,
+          eventCustomerUpdated.data.object.id,
         );
       });
     }
@@ -7005,26 +6997,28 @@ describe('#integration - StripeHelper', () => {
           }
           stripeHelper.expandResource = sandbox.stub().resolves(customer);
           stripeFirestore.retrieveSubscription = sandbox.stub().resolves({});
-          stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
+          stripeFirestore.retrieveCustomer = sandbox
             .stub()
-            .resolves({});
+            .resolves(customer);
           stripeFirestore.fetchAndInsertCustomer = sandbox.stub().resolves({});
+          stripeFirestore.fetchAndInsertSubscription = sandbox.stub().resolves({});
           await stripeHelper.processWebhookEventToFirestore(event);
           if (!hasCurrency) {
             sinon.assert.calledOnceWithExactly(
+              stripeHelper.stripe.subscriptions.retrieve,
+              event.data.object.id
+            );
+            sinon.assert.calledOnceWithExactly(
               stripeHelper.stripeFirestore.fetchAndInsertCustomer,
-              subscription1.customer
+              event.data.object.customer
             );
           } else {
             sinon.assert.calledOnceWithExactly(
-              stripeHelper.stripeFirestore.insertSubscriptionRecordWithBackfill,
-              subscription1
+              stripeHelper.stripeFirestore.fetchAndInsertSubscription,
+              event.data.object.id,
+              customer.metadata.userid
             );
           }
-          sinon.assert.calledOnceWithExactly(
-            stripeHelper.stripe.subscriptions.retrieve,
-            event.data.object.id
-          );
         });
       }
     }
