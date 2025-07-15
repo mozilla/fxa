@@ -217,41 +217,101 @@ describe('StripeFirestore', () => {
     });
   });
 
+  describe('fetchAndInsertSubscription', () => {
+    let tx;
+
+    beforeEach(() => {
+      tx = {
+        get: sinon.stub().resolves({}),
+        set: sinon.stub(),
+      };
+
+      firestore.runTransaction = sinon.stub().callsFake((fn) => fn(tx));
+
+      stripeFirestore.customerCollectionDbRef = {
+        doc: sinon.stub().callsFake((uid) => ({
+          collection: sinon.stub().callsFake(() => ({
+            doc: sinon.stub().callsFake((id) => ({
+              id,
+            })),
+          })),
+        })),
+      };
+    });
+
+    it('fetches and inserts the subscription', async () => {
+      stripe.subscriptions = {
+        retrieve: sinon.stub().resolves(subscription1),
+      };
+
+      const result = await stripeFirestore.fetchAndInsertSubscription(
+        subscription1.id,
+        customer.metadata.userid
+      );
+
+      assert.deepEqual(result, subscription1);
+      assert.calledOnceWithExactly(stripe.subscriptions.retrieve, subscription1.id);
+      assert.callCount(tx.get, 1);
+      assert.callCount(tx.set, 1);
+    });
+  });
+
   describe('fetchAndInsertCustomer', () => {
+    let tx;
+
     beforeEach(() => {
       stripe.subscriptions = {
-        list: sinon.fake.returns({
-          autoPagingToArray: sinon.fake.resolves([subscription1]),
+        list: sinon.stub().returns({
+          autoPagingToArray: sinon.stub().resolves([subscription1]),
         }),
+      };
+
+      tx = {
+        get: sinon.stub().resolves({}),
+        set: sinon.stub(),
+      };
+
+      firestore.runTransaction = sinon.stub().callsFake((fn) => fn(tx));
+
+      stripeFirestore.customerCollectionDbRef = {
+        doc: sinon.stub().callsFake((uid) => ({
+          collection: sinon.stub().callsFake(() => ({
+            doc: sinon.stub().callsFake((id) => ({
+              id,
+            })),
+          })),
+        })),
       };
     });
 
     it('fetches and returns a customer', async () => {
       stripe.customers = {
-        retrieve: sinon.fake.resolves(customer),
+        retrieve: sinon.stub()
+        .onFirstCall()
+        .resolves({ ...customer, subscriptions: { data: [subscription1] } })
+        .onSecondCall()
+        .resolves(customer),
       };
-      stripeFirestore.insertCustomerRecord = sinon.fake.resolves({});
-      customerCollectionDbRef.doc = sinon.fake.returns({
-        collection: sinon.fake.returns({
-          doc: sinon.fake.returns({
-            set: sinon.fake.resolves({}),
-          }),
-        }),
-      });
+
       const result = await stripeFirestore.fetchAndInsertCustomer(customer.id);
+
       assert.deepEqual(result, customer);
-      assert.calledOnce(stripe.customers.retrieve);
+      assert.calledTwice(stripe.customers.retrieve);
       assert.calledOnceWithExactly(stripe.subscriptions.list, {
         customer: customer.id,
       });
-      assert.calledOnce(stripeFirestore.insertCustomerRecord);
-      assert.calledOnce(customerCollectionDbRef.doc);
+      assert.callCount(tx.set, 2); // customer + subscription
+      assert.callCount(tx.get, 2); // customer + subscription
     });
 
     it('errors on customer deleted', async () => {
       const deletedCustomer = { ...customer, deleted: true };
       stripe.customers = {
-        retrieve: sinon.fake.resolves(deletedCustomer),
+        retrieve: sinon.stub()
+        .onFirstCall()
+        .resolves({ ...deletedCustomer, subscriptions: { data: [] } })
+        .onSecondCall()
+        .resolves(deletedCustomer),
       };
 
       try {
@@ -265,39 +325,47 @@ describe('StripeFirestore', () => {
     it('allows customer deleted when ignoreErrors is true', async () => {
       const deletedCustomer = { ...customer, deleted: true };
       stripe.customers = {
-        retrieve: sinon.fake.resolves(deletedCustomer),
+        retrieve: sinon.stub()
+        .resolves(deletedCustomer),
       };
+
       const result = await stripeFirestore.fetchAndInsertCustomer(
         customer.id,
         true
       );
+
       assert.deepEqual(result, deletedCustomer);
-      assert.calledOnce(stripe.customers.retrieve);
-      assert.calledOnceWithExactly(stripe.subscriptions.list, {
-        customer: customer.id,
+      assert.calledOnceWithExactly(stripe.customers.retrieve, customer.id, {
+        expand: ["subscriptions"],
       });
     });
 
     it('allows customer with no uid when ignoreErrors is true', async () => {
       const noMetadataCustomer = { ...customer, metadata: {} };
       stripe.customers = {
-        retrieve: sinon.fake.resolves(noMetadataCustomer),
+        retrieve: sinon.stub()
+        .resolves(noMetadataCustomer),
       };
+
       const result = await stripeFirestore.fetchAndInsertCustomer(
         customer.id,
         true
       );
+
       assert.deepEqual(result, noMetadataCustomer);
-      assert.calledOnce(stripe.customers.retrieve);
-      assert.calledOnceWithExactly(stripe.subscriptions.list, {
-        customer: customer.id,
+      assert.calledOnceWithExactly(stripe.customers.retrieve, customer.id, {
+        expand: ["subscriptions"],
       });
     });
 
     it('errors on missing uid', async () => {
       const missingUidCustomer = { ...customer, metadata: {} };
       stripe.customers = {
-        retrieve: sinon.fake.resolves(missingUidCustomer),
+        retrieve: sinon.stub()
+        .onFirstCall()
+        .resolves({ ...missingUidCustomer, subscriptions: { data: [] } })
+        .onSecondCall()
+        .resolves(missingUidCustomer),
       };
 
       try {
