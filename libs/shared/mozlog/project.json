@@ -15,6 +15,11 @@
         "outputFileName": "main.js",
         "tsConfig": "libs/shared/mozlog/tsconfig.lib.json",
         "declaration": true,
+        "external": [
+          "@nestjs/websockets/socket-module",
+          "@nestjs/microservices/microservices-module",
+          "@nestjs/microservices"
+        ],
         "assets": [
           {
             "glob": "libs/shared/mozlog/README.md",
