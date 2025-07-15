@@ -37,6 +37,12 @@ import {
   AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
 import {
+  UnexpectedPayPalErrorCode,
+  PayPalPaymentMethodError,
+  PayPalServiceUnavailableError,
+  UnexpectedPayPalError,
+} from '@fxa/payments/paypal';
+import {
   ProductConfigError,
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
@@ -159,6 +165,15 @@ export class CartService {
       return await method();
     } catch (error) {
       // If the error is in the allowlist, rethrow it
+      if (
+         error instanceof UnexpectedPayPalErrorCode ||
+         error instanceof PayPalPaymentMethodError ||
+         error instanceof PayPalServiceUnavailableError ||
+         error instanceof UnexpectedPayPalError ||
+         error instanceof UpdatePayPalProcessingCartError //remove after
+        ) {
+          throw error;
+        }
       if (
         error instanceof Error &&
         options?.errorAllowList &&
@@ -548,7 +563,14 @@ export class CartService {
     });
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [
+      UnexpectedPayPalErrorCode,
+      PayPalPaymentMethodError,
+      PayPalServiceUnavailableError,
+      UnexpectedPayPalError
+    ],
+  })
   async checkoutCartWithPaypal(
     cartId: string,
     version: number,
@@ -557,7 +579,16 @@ export class CartService {
     sessionUid?: string,
     token?: string
   ) {
-    return this.wrapWithCartCatch(cartId, async () => {
+    return this.wrapWithCartCatch(
+      cartId,
+      { errorAllowList: [
+        UnexpectedPayPalErrorCode,
+        PayPalPaymentMethodError,
+        PayPalServiceUnavailableError,
+        UnexpectedPayPalError,
+        ]
+      },
+      async () => {
       let updatedCart: ResultCart | null = null;
       try {
         //Ensure that the cart version matches the value passed in from FE
@@ -575,7 +606,16 @@ export class CartService {
       }
 
       // Intentionally non-blocking
-      this.wrapWithCartCatch(cartId, async () => {
+      await this.wrapWithCartCatch(
+        cartId,
+        { errorAllowList: [
+          UnexpectedPayPalErrorCode,
+          PayPalPaymentMethodError,
+          PayPalServiceUnavailableError,
+          UnexpectedPayPalError,
+          ]
+        },
+      async () => {
         await this.checkoutService.payWithPaypal(
           updatedCart,
           customerData,
@@ -584,11 +624,24 @@ export class CartService {
           token
         );
       }).catch((error) => {
+        if (
+         error instanceof UnexpectedPayPalErrorCode ||
+         error instanceof PayPalPaymentMethodError ||
+         error instanceof PayPalServiceUnavailableError ||
+         error instanceof UnexpectedPayPalError
+        ) {
+          throw error;
+        }
         handleException({
           error,
           className: 'CartService',
           methodName: 'checkoutCartWithPaypal',
-          allowlist: [],
+          allowlist: [
+            UnexpectedPayPalErrorCode,
+            PayPalPaymentMethodError,
+            PayPalServiceUnavailableError,
+            UnexpectedPayPalError,
+          ],
           logger: this.log as Logger,
           statsd: this.statsd,
         });

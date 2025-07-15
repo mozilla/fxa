@@ -17,6 +17,7 @@ import {
   ChargeResponse,
   PayPalClient,
   PayPalClientError,
+  PayPalPaymentMethodError,
 } from '@fxa/payments/paypal';
 import { CurrencyManager } from '@fxa/payments/currency';
 import {
@@ -253,10 +254,15 @@ export class InvoiceManager {
     try {
       // Charge the PayPal customer after the invoice is finalized to prevent charges with a failed invoice
       this.safeFinalizeWithoutAutoAdvance(invoice.id);
+      throw new PayPalPaymentMethodError(
+        10069,
+        new Error('Testing PayPal failure')
+      );
+
       paypalCharge = await this.paypalClient.chargeCustomer(chargeOptions);
     } catch (error) {
       if (PayPalClientError.hasPayPalNVPError(error)) {
-        PayPalClientError.throwPaypalCodeError(error);
+        PayPalClientError.throwPaypalCodeError(error);//
       }
       throw error;
     }

@@ -14,7 +14,13 @@ import {
 } from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
-import { CheckoutTokenManager } from '@fxa/payments/paypal';
+import {
+  CheckoutTokenManager,
+  UnexpectedPayPalErrorCode,
+  PayPalPaymentMethodError,
+  PayPalServiceUnavailableError,
+  UnexpectedPayPalError,
+} from '@fxa/payments/paypal';
 import {
   ProductConfigError,
   ProductConfigurationManager,
@@ -271,7 +277,14 @@ export class NextJSActionsService {
     };
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+      allowlist: [
+        UnexpectedPayPalErrorCode,
+        PayPalPaymentMethodError,
+        PayPalServiceUnavailableError,
+        UnexpectedPayPalError
+      ],
+    })
   @NextIOValidator(CheckoutCartWithPaypalActionArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
@@ -290,7 +303,7 @@ export class NextJSActionsService {
       args.attribution,
       args.sessionUid,
       args.token
-    );
+  );
   }
 
   @SanitizeExceptions()
