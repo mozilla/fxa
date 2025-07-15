@@ -7,6 +7,7 @@ import { useFtlMsgResolver } from '../../../models';
 import { RouteComponentProps } from '@reach/router';
 import Head from 'fxa-react/components/Head';
 import ButtonBack from '../../ButtonBack';
+import classNames from 'classnames';
 
 type FlowContainerProps = {
   title?: string;
@@ -50,14 +51,22 @@ export const FlowContainer = ({
             localizedAriaLabel={backButtonTitle}
           />
         )}
-        <h1 className="font-header text-md text-grey-400">{title}</h1>
+        {title && (
+          <h1 className="font-header text-md text-grey-400">{title}</h1>
+        )}
       </div>
       {subtitle && (
         <h2 className="text-xs text-grey-400 font-semibold uppercase mt-1">
           {subtitle}
         </h2>
       )}
-      <div className="w-full flex flex-col mt-2">{children}</div>
+      <div
+        className={classNames('w-full flex flex-col', {
+          'mt-2': title || subtitle,
+        })}
+      >
+        {children}
+      </div>
     </div>
   );
 };
