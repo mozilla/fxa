@@ -12,9 +12,26 @@ const pckg = require('../package.json');
 const anonymizeableFields = new Set(['taxAddress'] as const);
 
 const parseDeleteBefore = (deleteBefore: string | number) => {
+  if (!deleteBefore) {
+    return null;
+  }
   const date = new Date(deleteBefore);
   if (!date.getTime()) {
     throw new Error('deleteBefore is invalid');
+  }
+  return date;
+};
+
+const parseDeleteBeforeDays = (deleteBeforeDays: string | number) => {
+  if (!deleteBeforeDays) {
+    return null;
+  }
+  const date = new Date();
+  const days = typeof deleteBeforeDays === "string" ? parseInt(deleteBeforeDays) : deleteBeforeDays;
+
+  date.setDate(date.getDate() - days);
+  if (!date.getTime()) {
+    throw new Error('deleteBeforeDays is invalid');
   }
   return date;
 };
@@ -26,6 +43,20 @@ const parseAnonymizeBefore = (anonymizeBefore: string | number) => {
   const date = new Date(anonymizeBefore);
   if (!date.getTime()) {
     throw new Error('anonymizeBefore is invalid');
+  }
+  return date;
+};
+
+const parseAnonymizeBeforeDays = (anonymizeBeforeDays: string | number) => {
+  if (!anonymizeBeforeDays) {
+    return null;
+  }
+  const date = new Date();
+  const days = typeof anonymizeBeforeDays === "string" ? parseInt(anonymizeBeforeDays) : anonymizeBeforeDays;
+
+  date.setDate(date.getDate() - days);
+  if (!date.getTime()) {
+    throw new Error('anonymizeBeforeDays is invalid');
   }
   return date;
 };
@@ -53,8 +84,16 @@ async function init() {
       'An ISO 8601 date string.  All carts last updated before this date will be deleted.'
     )
     .option(
+      '-D, --delete-before-days [number]',
+      'Number of days. All carts updated more than this many days ago will be deleted.'
+    )
+    .option(
       '-a, --anonymize-before [string]',
       'An ISO 8601 date string.  All carts last updated before this date will be anonymized.'
+    )
+    .option(
+      '-A, --anonymize-before-days [number]',
+      'Number of days. All carts last updated before this date will be anonymized.'
     )
     .option(
       '-f, --anonymize-fields [string]',
@@ -68,9 +107,15 @@ async function init() {
 
   const database = await setupAccountDatabase(config.database.mysql.auth);
 
-  const deleteBefore = parseDeleteBefore(program.deleteBefore);
-  const anonymizeBefore = parseAnonymizeBefore(program.anonymizeBefore);
+  const deleteBefore = parseDeleteBefore(program.deleteBefore) || parseDeleteBeforeDays(program.deleteBeforeDays);
+  const anonymizeBefore = parseAnonymizeBefore(program.anonymizeBefore) || parseAnonymizeBeforeDays(program.anonymizeBeforeDays);
   const anonymizeFields = parseAnonymizeFields(program.anonymizeFields);
+
+  if (!deleteBefore) {
+    throw new Error(
+      '--delete-before or --delete-before-days is required'
+    );
+  }
 
   if (anonymizeBefore && !anonymizeFields) {
     throw new Error(
