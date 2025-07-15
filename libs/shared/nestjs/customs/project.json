@@ -12,6 +12,11 @@
         "outputPath": "dist/libs/shared/nestjs/customs",
         "main": "libs/shared/nestjs/customs/src/index.ts",
         "tsConfig": "libs/shared/nestjs/customs/tsconfig.lib.json",
+        "external": [
+          "@nestjs/websockets/socket-module",
+          "@nestjs/microservices/microservices-module",
+          "@nestjs/microservices"
+        ],
         "assets": ["libs/shared/nestjs/customs/*.md"],
         "format": ["cjs"],
         "generatePackageJson": true

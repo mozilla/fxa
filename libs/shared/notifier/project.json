@@ -15,6 +15,11 @@
         "outputFileName": "main.js",
         "tsConfig": "libs/shared/notifier/tsconfig.lib.json",
         "declaration": true,
+        "external": [
+          "@nestjs/websockets/socket-module",
+          "@nestjs/microservices/microservices-module",
+          "@nestjs/microservices"
+        ],
         "assets": [
           {
             "glob": "libs/shared/notifier/README.md",
