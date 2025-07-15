@@ -13,7 +13,7 @@ import { ReactComponent as Mail } from './graphic_mail.svg';
 import { ReactComponent as Key } from './graphic_recovery_key.min.svg';
 import { ReactComponent as Password } from './graphic_password.min.svg';
 import { ReactComponent as Lightbulb } from './graphic_recovery_key_hint.min.svg';
-import { ReactComponent as EmailCode } from './graphic_email_code.svg';
+import { ReactComponent as EmailCode } from './graphic_email_code.min.svg';
 import { ReactComponent as PasswordSuccess } from './graphic_password_success.min.svg';
 import { ReactComponent as BackupRecoveryPhone } from './graphic_backup_recovery_phone.min.svg';
 import { ReactComponent as BackupRecoveryPhoneCode } from './graphic_phone_code.min.svg';
