@@ -61,7 +61,7 @@ describe('ResetPassword', () => {
 
       await waitFor(() => user.click(screen.getByRole('button')));
 
-      expect(mockRequestResetPasswordCode).toBeCalledWith(MOCK_EMAIL);
+      expect(mockRequestResetPasswordCode).toHaveBeenCalledWith(MOCK_EMAIL);
 
       expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.passwordReset.submit).toHaveBeenCalledTimes(1);
@@ -81,7 +81,7 @@ describe('ResetPassword', () => {
 
       await waitFor(() => user.click(screen.getByRole('button')));
 
-      expect(mockRequestResetPasswordCode).toBeCalledWith(MOCK_EMAIL);
+      expect(mockRequestResetPasswordCode).toHaveBeenCalledWith(MOCK_EMAIL);
       expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.passwordReset.submit).toHaveBeenCalledTimes(1);
     });
@@ -97,7 +97,7 @@ describe('ResetPassword', () => {
         await waitFor(() => user.click(screen.getByRole('button')));
 
         expect(screen.getByText('Valid email required')).toBeVisible();
-        expect(mockRequestResetPasswordCode).not.toBeCalled();
+        expect(mockRequestResetPasswordCode).not.toHaveBeenCalled();
         expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
         expect(GleanMetrics.passwordReset.submit).not.toHaveBeenCalled();
       });
@@ -114,7 +114,7 @@ describe('ResetPassword', () => {
         await waitFor(() => user.click(screen.getByRole('button')));
 
         expect(screen.getByText('Valid email required')).toBeVisible();
-        expect(mockRequestResetPasswordCode).not.toBeCalled();
+        expect(mockRequestResetPasswordCode).not.toHaveBeenCalled();
         expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
         expect(GleanMetrics.passwordReset.submit).not.toHaveBeenCalled();
       });

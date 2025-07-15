@@ -45,6 +45,6 @@ describe('CannotCreateAccount', () => {
       'href',
       'https://www.ftc.gov/business-guidance/privacy-security/childrens-privacy'
     );
-    expect(GleanMetrics.registration.ageInvalid).toBeCalledTimes(1);
+    expect(GleanMetrics.registration.ageInvalid).toHaveBeenCalledTimes(1);
   });
 });

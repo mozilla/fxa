@@ -102,7 +102,7 @@ describe('ReportSigninContainer', () => {
   describe('default state', () => {
     it('renders component', async () => {
       await render();
-      expect(ReportSigninModule.ReportSignin).toBeCalled();
+      expect(ReportSigninModule.ReportSignin).toHaveBeenCalled();
     });
   });
 

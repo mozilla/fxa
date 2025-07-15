@@ -191,7 +191,10 @@ describe('IndexContainer', () => {
       </LocationProvider>
     );
     expect(container).toBeDefined();
-    expect(mockUseValidatedQueryParams).toBeCalledWith(IndexQueryParams, false);
+    expect(mockUseValidatedQueryParams).toHaveBeenCalledWith(
+      IndexQueryParams,
+      false
+    );
   });
 
   it('should render the Index component when no redirection is required', async () => {
@@ -203,7 +206,7 @@ describe('IndexContainer', () => {
       </LocationProvider>
     );
     expect(container).toBeDefined();
-    expect(IndexModule.default).toBeCalled();
+    expect(IndexModule.default).toHaveBeenCalled();
     await waitFor(() => {
       expect(currentIndexProps?.prefillEmail).toBe(undefined);
     });
@@ -219,7 +222,7 @@ describe('IndexContainer', () => {
       </LocationProvider>
     );
     expect(container).toBeDefined();
-    expect(IndexModule.default).toBeCalled();
+    expect(IndexModule.default).toHaveBeenCalled();
     await waitFor(() => {
       expect(currentIndexProps?.prefillEmail).toBe(MOCK_EMAIL);
     });
@@ -234,13 +237,16 @@ describe('IndexContainer', () => {
     });
 
     // simulate rejecting from auth client after a delay
-    const rejectingMock = jest.fn(() => new Promise((_, reject) => {
-      setTimeout(() => reject('mock delayed error'), 50);
-    }));
+    const rejectingMock = jest.fn(
+      () =>
+        new Promise((_, reject) => {
+          setTimeout(() => reject('mock delayed error'), 50);
+        })
+    );
 
     mockUseAuthClient.mockReturnValue({
       accountStatusByEmail: rejectingMock,
-    })
+    });
 
     const { getByText, queryByText } = renderWithLocalizationProvider(
       <LocationProvider>
@@ -279,7 +285,7 @@ describe('IndexContainer', () => {
         </LocationProvider>
       );
       expect(container).toBeDefined();
-      expect(IndexModule.default).toBeCalled();
+      expect(IndexModule.default).toHaveBeenCalled();
       await waitFor(() => {
         expect(currentIndexProps?.prefillEmail).not.toBe('test@example.com');
         expect(currentIndexProps?.prefillEmail).toBe(MOCK_EMAIL);

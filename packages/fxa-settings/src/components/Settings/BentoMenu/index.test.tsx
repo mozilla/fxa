@@ -130,7 +130,7 @@ describe('BentoMenu', () => {
         expect(
           screen.getByRole('link', { name: /Firefox Browser for Desktop/ })
         ).toBeVisible();
-        expect(GleanMetrics.accountPref.bentoView).toBeCalledTimes(1);
+        expect(GleanMetrics.accountPref.bentoView).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -147,7 +147,9 @@ describe('BentoMenu', () => {
         screen.getByRole('link', { name: /Firefox Browser for Desktop/ })
       );
       await waitFor(() => {
-        expect(GleanMetrics.accountPref.bentoFirefoxDesktop).toBeCalledTimes(1);
+        expect(
+          GleanMetrics.accountPref.bentoFirefoxDesktop
+        ).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -164,7 +166,9 @@ describe('BentoMenu', () => {
         screen.getByRole('link', { name: /Firefox Browser for Mobile/ })
       );
       await waitFor(() => {
-        expect(GleanMetrics.accountPref.bentoFirefoxMobile).toBeCalledTimes(1);
+        expect(
+          GleanMetrics.accountPref.bentoFirefoxMobile
+        ).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -179,7 +183,7 @@ describe('BentoMenu', () => {
       });
       userEvent.click(screen.getByRole('link', { name: /Mozilla Monitor/ }));
       await waitFor(() => {
-        expect(GleanMetrics.accountPref.bentoMonitor).toBeCalledTimes(1);
+        expect(GleanMetrics.accountPref.bentoMonitor).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -192,7 +196,7 @@ describe('BentoMenu', () => {
       });
       userEvent.click(screen.getByRole('link', { name: /Pocket/ }));
       await waitFor(() => {
-        expect(GleanMetrics.accountPref.bentoPocket).toBeCalledTimes(1);
+        expect(GleanMetrics.accountPref.bentoPocket).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -207,7 +211,7 @@ describe('BentoMenu', () => {
       });
       userEvent.click(screen.getByRole('link', { name: /Firefox Relay/ }));
       await waitFor(() => {
-        expect(GleanMetrics.accountPref.bentoRelay).toBeCalledTimes(1);
+        expect(GleanMetrics.accountPref.bentoRelay).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -220,7 +224,7 @@ describe('BentoMenu', () => {
       });
       userEvent.click(screen.getByRole('link', { name: /Mozilla VPN/ }));
       await waitFor(() => {
-        expect(GleanMetrics.accountPref.bentoVpn).toBeCalledTimes(1);
+        expect(GleanMetrics.accountPref.bentoVpn).toHaveBeenCalledTimes(1);
       });
     });
   });

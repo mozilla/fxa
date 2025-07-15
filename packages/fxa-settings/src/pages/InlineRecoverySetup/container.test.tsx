@@ -320,7 +320,7 @@ describe('InlineRecoverySetupContainer', () => {
           const successfulSetupHandler = args.successfulSetupHandler;
           await successfulSetupHandler();
 
-          expect(hardNavigateSpy).toBeCalledWith(
+          expect(hardNavigateSpy).toHaveBeenCalledWith(
             MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect
           );
         });

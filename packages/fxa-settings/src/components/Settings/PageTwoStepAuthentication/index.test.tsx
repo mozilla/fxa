@@ -192,7 +192,7 @@ describe('step 2', () => {
       'download',
       expect.stringContaining('Backup authentication codes')
     );
-    expect(GleanMetrics.accountPref.twoStepAuthCodesView).toBeCalled();
+    expect(GleanMetrics.accountPref.twoStepAuthCodesView).toHaveBeenCalled();
   });
 
   it('shows an error when an invalid auth code is entered', async () => {
@@ -230,7 +230,9 @@ describe('step 3', () => {
   it('renders the backup authentication code form', async () => {
     await getRecoveryCodes();
     expect(screen.getByTestId('recovery-code-input-field')).toBeInTheDocument();
-    expect(GleanMetrics.accountPref.twoStepAuthEnterCodeView).toBeCalled();
+    expect(
+      GleanMetrics.accountPref.twoStepAuthEnterCodeView
+    ).toHaveBeenCalled();
   });
 
   it('shows an error when an incorrect backup authentication code is entered', async () => {
@@ -330,7 +332,7 @@ describe('step 3', () => {
     await act(async () => {
       await fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
-    expect(getCode).toBeCalledTimes(1);
+    expect(getCode).toHaveBeenCalledTimes(1);
     expect(
       GleanMetrics.accountPref.twoStepAuthQrCodeSuccess
     ).toHaveBeenCalled();
@@ -400,19 +402,19 @@ describe('metrics', () => {
       await fireEvent.click(screen.getByTestId('submit-recovery-code'));
     });
 
-    expect(mockLogPageViewEvent).toBeCalledTimes(2);
+    expect(mockLogPageViewEvent).toHaveBeenCalledTimes(2);
     expect(mockLogPageViewEvent).toHaveBeenCalledWith(metricsPreInPostFix);
     expect(mockLogPageViewEvent).toHaveBeenCalledWith(
       `${metricsPreInPostFix}.recovery-codes`
     );
 
-    expect(mockLogViewEvent).toBeCalledTimes(1);
+    expect(mockLogViewEvent).toHaveBeenCalledTimes(1);
     expect(mockLogViewEvent).toHaveBeenCalledWith(
       metricsPreInPostFix,
       'submit'
     );
 
-    expect(logViewEventSpy).toBeCalledTimes(3);
+    expect(logViewEventSpy).toHaveBeenCalledTimes(3);
     expect(logViewEventSpy).toHaveBeenCalledWith(
       `flow.${metricsPreInPostFix}.recovery-codes`,
       `print-option`

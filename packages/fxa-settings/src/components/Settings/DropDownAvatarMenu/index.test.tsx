@@ -162,7 +162,7 @@ describe('DropDownAvatarMenu', () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
       });
-      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -186,7 +186,7 @@ describe('DropDownAvatarMenu', () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
       });
-      expect(fxaLogoutSpy).toBeCalledWith({ uid: account.uid });
+      expect(fxaLogoutSpy).toHaveBeenCalledWith({ uid: account.uid });
     });
   });
 });

@@ -114,7 +114,7 @@ describe('SigninRecoveryChoice', () => {
     });
 
     await waitFor(() => {
-      expect(mockNavigate).toBeCalledWith('/signin_recovery_phone', {
+      expect(mockNavigate).toHaveBeenCalledWith('/signin_recovery_phone', {
         state: {
           signinState: MOCK_SIGNIN_LOCATION_STATE,
           lastFourPhoneDigits: '1234',
@@ -140,7 +140,7 @@ describe('SigninRecoveryChoice', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(
         'There was a problem sending a code to your recovery phone'
       );
-      expect(mockNavigate).not.toBeCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 
@@ -154,7 +154,7 @@ describe('SigninRecoveryChoice', () => {
     user.click(screen.getByRole('button', { name: 'Continue' }));
 
     await waitFor(() => {
-      expect(mockNavigate).toBeCalledWith('/signin_recovery_code', {
+      expect(mockNavigate).toHaveBeenCalledWith('/signin_recovery_code', {
         state: {
           signinState: MOCK_SIGNIN_LOCATION_STATE,
           lastFourPhoneDigits: '1234',
@@ -174,7 +174,7 @@ describe('SigninRecoveryChoice', () => {
           level: 2,
         })
       ).toBeInTheDocument();
-      expect(GleanMetrics.login.backupChoiceView).toBeCalledTimes(1);
+      expect(GleanMetrics.login.backupChoiceView).toHaveBeenCalledTimes(1);
     });
 
     it('sends the correct metric when Recovery phone option is selected', async () => {
@@ -187,7 +187,7 @@ describe('SigninRecoveryChoice', () => {
       user.click(screen.getByRole('button', { name: 'Continue' }));
 
       await waitFor(() =>
-        expect(GleanMetrics.login.backupChoiceSubmit).toBeCalledWith({
+        expect(GleanMetrics.login.backupChoiceSubmit).toHaveBeenCalledWith({
           event: { reason: 'phone' },
         })
       );
@@ -203,7 +203,7 @@ describe('SigninRecoveryChoice', () => {
       user.click(screen.getByRole('button', { name: 'Continue' }));
 
       await waitFor(() =>
-        expect(GleanMetrics.login.backupChoiceSubmit).toBeCalledWith({
+        expect(GleanMetrics.login.backupChoiceSubmit).toHaveBeenCalledWith({
           event: { reason: 'code' },
         })
       );

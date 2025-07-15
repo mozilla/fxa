@@ -154,7 +154,7 @@ describe('signin unblock container', () => {
     );
 
     await screen.findByText('signin unblock mock');
-    expect(SigninUnblockModule.default).toBeCalled();
+    expect(SigninUnblockModule.default).toHaveBeenCalled();
   }
 
   it('handles signin with correct code', async () => {
@@ -225,7 +225,7 @@ describe('signin unblock container', () => {
     expect(result?.data?.signIn?.verified).toBeDefined();
     expect(result?.data?.signIn?.metricsEnabled).toBeDefined();
 
-    expect(tryFinalizeUpgrade).toBeCalledTimes(1);
+    expect(tryFinalizeUpgrade).toHaveBeenCalledTimes(1);
   });
 
   it('handles signin with correct code and failure when looking up credential status', async () => {
@@ -255,7 +255,9 @@ describe('signin unblock container', () => {
     expect(result?.data?.signIn?.verified).toBeDefined();
     expect(result?.data?.signIn?.metricsEnabled).toBeDefined();
     // console warning during test execution is also expected here
-    expect(console.warn).toBeCalledWith('Could not get credential status!');
+    expect(console.warn).toHaveBeenCalledWith(
+      'Could not get credential status!'
+    );
   });
 
   it('handles incorrect unblock code', async () => {

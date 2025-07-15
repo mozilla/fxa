@@ -431,7 +431,7 @@ describe('Connected Services', () => {
       'submit.no-reason'
     );
 
-    expect(account.disconnectClient).toBeCalledTimes(1);
+    expect(account.disconnectClient).toHaveBeenCalledTimes(1);
   });
 
   it('on disconnect, with more than one empty client name', async () => {
@@ -518,7 +518,7 @@ describe('Connected Services', () => {
       'submit.no-reason'
     );
 
-    expect(account.disconnectClient).toBeCalledTimes(3);
+    expect(account.disconnectClient).toHaveBeenCalledTimes(3);
   });
 
   describe('redirects to /signin when active session is signed out', () => {

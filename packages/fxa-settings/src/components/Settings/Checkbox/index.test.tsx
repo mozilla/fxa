@@ -39,5 +39,5 @@ it('will call onChange argument', () => {
   const onChange = jest.fn();
   renderWithLocalizationProvider(<Checkbox {...{ onChange }} />);
   fireEvent.click(screen.getByTestId('checkbox-input'));
-  expect(onChange).toBeCalled();
+  expect(onChange).toHaveBeenCalled();
 });

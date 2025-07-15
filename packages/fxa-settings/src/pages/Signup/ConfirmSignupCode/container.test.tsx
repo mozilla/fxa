@@ -54,7 +54,7 @@ jest.mock('../../../lib/glean', () => ({
       view: jest.fn(),
       submit: jest.fn(),
       error: jest.fn(),
-    }
+    },
   },
 }));
 
@@ -234,8 +234,8 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
       );
-      expect(mockEmailBounceStatusQuery).toBeCalled();
-      expect(mockNavigate).toBeCalledWith('/', {
+      expect(mockEmailBounceStatusQuery).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith('/', {
         state: { hasBounced: true, prefillEmail: MOCK_EMAIL },
       });
     });
@@ -247,8 +247,8 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
       );
-      expect(mockEmailBounceStatusQuery).toBeCalled();
-      expect(mockNavigate).toBeCalledWith('/signin_bounced');
+      expect(mockEmailBounceStatusQuery).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith('/signin_bounced');
     });
   });
 
@@ -263,7 +263,7 @@ describe('confirm-signup-container', () => {
       await waitFor(() =>
         expect(screen.getByText('loading spinner mock')).toBeInTheDocument()
       );
-      expect(mockNavigate).toBeCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 
@@ -284,7 +284,12 @@ describe('confirm-signup-container', () => {
                   };
                 }
               ),
-            oAuthDataError: { message: 'Something went wrong. Please close this tab and try again.', errno: 1, version: 1 },
+            oAuthDataError: {
+              message:
+                'Something went wrong. Please close this tab and try again.',
+              errno: 1,
+              version: 1,
+            },
           };
         });
       render();
@@ -293,8 +298,8 @@ describe('confirm-signup-container', () => {
       );
       expect(screen.getByText('Unexpected error')).toBeInTheDocument();
       expect(GleanMetrics.signupConfirmation.error).toHaveBeenCalledWith({
-        event: { reason: "1" }
-      })
+        event: { reason: '1' },
+      });
     });
   });
   describe('useOAuthKeysCheck', () => {
@@ -308,7 +313,7 @@ describe('confirm-signup-container', () => {
         unwrapBKey: undefined,
       });
       render();
-      expect(mockNavigate).toBeCalledWith('/signin', {
+      expect(mockNavigate).toHaveBeenCalledWith('/signin', {
         state: { localizedErrorMessage: 'Code expired. Please sign in again.' },
       });
     });

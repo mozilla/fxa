@@ -19,5 +19,5 @@ it('calls the given on back button click handler', async () => {
   await act(async () => {
     fireEvent.click(screen.getByTestId('flow-container-back-btn'));
   });
-  expect(cb).toBeCalledTimes(1);
+  expect(cb).toHaveBeenCalledTimes(1);
 });

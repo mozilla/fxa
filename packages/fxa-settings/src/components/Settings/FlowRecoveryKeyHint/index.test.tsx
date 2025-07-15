@@ -68,7 +68,7 @@ describe('FlowRecoveryKeyHint', () => {
   it('emits the expected metrics when user navigates back', () => {
     renderWithContext(accountWithSuccess);
     fireEvent.click(screen.getByTitle('Back to settings'));
-    expect(navigateBackward).toBeCalledTimes(1);
+    expect(navigateBackward).toHaveBeenCalledTimes(1);
     expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
       'create-hint.skip'

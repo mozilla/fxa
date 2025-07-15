@@ -146,15 +146,15 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
       );
       fireEvent.click(createRecoveryKeyButton);
       await waitFor(() => {
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.submit'
         );
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.success'
         );
-        expect(navigateForward).toBeCalledTimes(1);
+        expect(navigateForward).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -175,15 +175,15 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
       fireEvent.click(createRecoveryKeyButton);
       await waitFor(() => {
         screen.getByText(/You’ve tried too many times/);
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.submit'
         );
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.fail'
         );
-        expect(navigateForward).not.toBeCalled();
+        expect(navigateForward).not.toHaveBeenCalled();
       });
     });
 
@@ -206,15 +206,15 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
       fireEvent.click(createRecoveryKeyButton);
       await waitFor(() => {
         screen.getByText('Incorrect password');
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.submit'
         );
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.fail'
         );
-        expect(navigateForward).not.toBeCalled();
+        expect(navigateForward).not.toHaveBeenCalled();
       });
     });
 
@@ -237,23 +237,23 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
       fireEvent.click(createRecoveryKeyButton);
       await waitFor(() => {
         screen.getByText('Unexpected error');
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.submit'
         );
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.fail'
         );
-        expect(navigateForward).not.toBeCalled();
+        expect(navigateForward).not.toHaveBeenCalled();
       });
     });
 
     it('emits the expected metrics when user navigates back', () => {
       renderFlowPage(accountWithKeyCreationSuccess);
       fireEvent.click(screen.getByTestId('flow-container-back-btn'));
-      expect(navigateBackward).toBeCalledTimes(1);
-      expect(logViewEvent).toBeCalledWith(
+      expect(navigateBackward).toHaveBeenCalledTimes(1);
+      expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'create-key.cancel'
       );
@@ -310,15 +310,15 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
       );
       fireEvent.click(createRecoveryKeyButton);
       await waitFor(() => {
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.submit'
         );
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.success'
         );
-        expect(navigateForward).toBeCalledTimes(1);
+        expect(navigateForward).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -339,15 +339,15 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
       fireEvent.click(createRecoveryKeyButton);
       await waitFor(() => {
         screen.getByText(/You’ve tried too many times/);
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.submit'
         );
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.fail'
         );
-        expect(navigateForward).not.toBeCalled();
+        expect(navigateForward).not.toHaveBeenCalled();
       });
     });
 
@@ -370,15 +370,15 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
       fireEvent.click(createRecoveryKeyButton);
       await waitFor(() => {
         screen.getByText('Incorrect password');
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.submit'
         );
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.fail'
         );
-        expect(navigateForward).not.toBeCalled();
+        expect(navigateForward).not.toHaveBeenCalled();
       });
     });
 
@@ -401,23 +401,23 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
       fireEvent.click(createRecoveryKeyButton);
       await waitFor(() => {
         screen.getByText('Unexpected error');
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.submit'
         );
-        expect(logViewEvent).toBeCalledWith(
+        expect(logViewEvent).toHaveBeenCalledWith(
           `flow.${viewName}`,
           'confirm-password.fail'
         );
-        expect(navigateForward).not.toBeCalled();
+        expect(navigateForward).not.toHaveBeenCalled();
       });
     });
 
     it('emits the expected metrics when user navigates back', () => {
       renderFlowPage(accountWithKeyChangeSuccess);
       fireEvent.click(screen.getByTestId('flow-container-back-btn'));
-      expect(navigateBackward).toBeCalledTimes(1);
-      expect(logViewEvent).toBeCalledWith(
+      expect(navigateBackward).toHaveBeenCalledTimes(1);
+      expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
         'change-key.cancel'
       );

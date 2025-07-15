@@ -97,8 +97,8 @@ describe('ResetPasswordRecoveryChoice container', () => {
     it('redirects if page is reached without location state', async () => {
       mockReachRouter('reset_password_totp_recovery_choice');
       render();
-      expect(ResetPasswordRecoveryChoiceModule.default).not.toBeCalled();
-      expect(mockNavigate).toBeCalledWith('/reset_password');
+      expect(ResetPasswordRecoveryChoiceModule.default).not.toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith('/reset_password');
     });
   });
 
@@ -112,14 +112,14 @@ describe('ResetPasswordRecoveryChoice container', () => {
         expect(
           mockAuthClient.recoveryPhoneGetWithPasswordForgotToken
         ).toHaveBeenCalled();
-        expect(ResetPasswordRecoveryChoiceModule.default).toBeCalled();
+        expect(ResetPasswordRecoveryChoiceModule.default).toHaveBeenCalled();
       });
     });
 
     it('passes the correct props to the child component', async () => {
       render();
       await waitFor(() => {
-        expect(ResetPasswordRecoveryChoiceModule.default).toBeCalledWith(
+        expect(ResetPasswordRecoveryChoiceModule.default).toHaveBeenCalledWith(
           expect.objectContaining({
             lastFourPhoneDigits: '1234',
             numBackupCodes: 3,
@@ -142,8 +142,10 @@ describe('ResetPasswordRecoveryChoice container', () => {
         expect(
           mockAuthClient.recoveryPhoneGetWithPasswordForgotToken
         ).toHaveBeenCalled();
-        expect(ResetPasswordRecoveryChoiceModule.default).not.toBeCalled();
-        expect(mockNavigate).toBeCalledWith(
+        expect(
+          ResetPasswordRecoveryChoiceModule.default
+        ).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith(
           '/confirm_backup_code_reset_password',
           {
             replace: true,

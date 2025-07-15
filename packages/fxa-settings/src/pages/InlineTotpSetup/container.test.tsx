@@ -226,10 +226,10 @@ describe('InlineTotpSetupContainer', () => {
 
       render();
       await waitFor(() => {
-        expect(mockTotpStatusQuery).toBeCalled();
+        expect(mockTotpStatusQuery).toHaveBeenCalled();
       });
       screen.getByLabelText('Loading…');
-      expect(InlineTotpSetupModule.default).not.toBeCalled();
+      expect(InlineTotpSetupModule.default).not.toHaveBeenCalled();
     });
 
     it('invokes InlineTotpSetup with the correct props', async () => {

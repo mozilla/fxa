@@ -185,7 +185,7 @@ describe('signin totp code container', () => {
 
   it('returns true when code valid', async () => {
     await render();
-    expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
+    expect(SigninTotpCodeModule.SigninTotpCode).toHaveBeenCalled();
     const result = await currentPageProps?.submitTotpCode('123456');
 
     expect(result?.error).toBeUndefined();
@@ -205,18 +205,18 @@ describe('signin totp code container', () => {
       },
     };
     await render();
-    expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
+    expect(SigninTotpCodeModule.SigninTotpCode).toHaveBeenCalled();
     const result = await currentPageProps?.submitTotpCode('123456');
 
     expect(result?.error).toBeUndefined();
-    expect(tryFinalizeUpgrade).toBeCalled();
+    expect(tryFinalizeUpgrade).toHaveBeenCalled();
   });
 
   it('returns false when code not valid', async () => {
     mockVerifyTotp(false);
 
     await render();
-    expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
+    expect(SigninTotpCodeModule.SigninTotpCode).toHaveBeenCalled();
 
     const result = await currentPageProps?.submitTotpCode('123456');
     expect(result?.error).toEqual(AuthUiErrors.INVALID_TOTP_CODE);
@@ -226,7 +226,7 @@ describe('signin totp code container', () => {
     mockVerifyTotp(true, true);
     await render();
 
-    expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
+    expect(SigninTotpCodeModule.SigninTotpCode).toHaveBeenCalled();
 
     const result = await currentPageProps?.submitTotpCode('123456');
     expect(result?.error).toEqual(AuthUiErrors.UNEXPECTED_ERROR);
@@ -236,19 +236,19 @@ describe('signin totp code container', () => {
     mockReachRouter();
     mockCache({}, true);
     await render(false);
-    expect(mockNavigate).toBeCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
   it('redirects if there is no sessionToken', async () => {
     mockReachRouter();
     mockCache({ sessionToken: '' });
     await render(false);
-    expect(mockNavigate).toBeCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 
   it('redirects if verification method is not totp', async () => {
     mockReachRouter(MOCK_NON_TOTP_LOCATION_STATE);
     await render(false);
-    expect(mockNavigate).toBeCalledWith('/');
+    expect(mockNavigate).toHaveBeenCalledWith('/');
   });
 });
