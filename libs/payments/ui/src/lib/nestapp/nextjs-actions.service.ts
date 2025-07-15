@@ -69,7 +69,10 @@ import { SetupCartActionResult } from './validators/SetupCartActionResult';
 import { RestartCartActionResult } from './validators/RestartCartActionResult';
 import { GetTaxAddressArgs } from './validators/GetTaxAddressArgs';
 import { GetTaxAddressResult } from './validators/GetTaxAddressResult';
-import { InvalidPromoCodeCartError } from 'libs/payments/cart/src/lib/cart.error';
+import {
+  CartVersionMismatchError,
+  InvalidPromoCodeCartError,
+} from 'libs/payments/cart/src/lib/cart.error';
 import { UpdateCartActionResult } from './validators/UpdateCartActionResult';
 import { ValidateLocationActionResult } from './validators/ValidateLocationActionResult';
 import { ValidateLocationActionArgs } from './validators/ValidateLocationActionArgs';
@@ -148,7 +151,7 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions({
-    allowlist: [PromotionCodeSanitizedError],
+    allowlist: [PromotionCodeSanitizedError, CartVersionMismatchError],
   })
   @NextIOValidator(UpdateCartActionArgs, UpdateCartActionResult)
   @WithTypeCachableAsyncLocalStorage()
@@ -456,19 +459,33 @@ export class NextJSActionsService {
       };
     }
 
-    const { taxAddress: cartTaxAddress } = await this.updateCart({
-      cartId,
-      version,
-      cartDetails: {
-        taxAddress,
-      },
-    });
+    try {
+      const { taxAddress: cartTaxAddress } = await this.cartService.updateCart(
+        cartId,
+        version,
+        {
+          taxAddress,
+        }
+      );
 
-    if (!cartTaxAddress) {
-      return {
-        ok: false,
-        error: 'cart_tax_address_not_updated',
-      };
+      if (!cartTaxAddress) {
+        return {
+          ok: false,
+          error: 'cart_tax_address_not_updated',
+        };
+      }
+    } catch (error) {
+      if (
+        error instanceof CartVersionMismatchError ||
+        error instanceof CartInvalidStateForActionError
+      ) {
+        return {
+          ok: false,
+          error: 'cart_tax_address_not_updated',
+        };
+      } else {
+        throw error;
+      }
     }
 
     return {
