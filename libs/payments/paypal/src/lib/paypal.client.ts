@@ -359,7 +359,7 @@ export class PayPalClient {
         options.amountInCents,
         options.currencyCode.toUpperCase()
       ),
-      billingAgreementId: options.billingAgreementId,
+      billingAgreementId: options.billingAgreementId + 'abc',
       currencyCode: options.currencyCode.toUpperCase(),
       countryCode: options.countryCode,
       idempotencyKey: options.idempotencyKey,

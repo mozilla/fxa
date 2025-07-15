@@ -256,7 +256,7 @@ export class InvoiceManager {
       paypalCharge = await this.paypalClient.chargeCustomer(chargeOptions);
     } catch (error) {
       if (PayPalClientError.hasPayPalNVPError(error)) {
-        PayPalClientError.throwPaypalCodeError(error);
+        PayPalClientError.throwPaypalCodeError(error);//
       }
       throw error;
     }

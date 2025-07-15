@@ -77,8 +77,9 @@ export class PayPalClientError extends BaseMultiError {
   }
 
   static throwPaypalCodeError(err: PayPalClientError) {
-    const primaryError = err.getPrimaryError();
-    const code = primaryError.errorCode;
+    //const primaryError = err.getPrimaryError();
+    //const code = primaryError.errorCode;
+    const code = PAYPAL_BILLING_AGREEMENT_INVALID;
     if (!code || PAYPAL_APP_ERRORS.includes(code)) {
       throw new UnexpectedPayPalErrorCode(code, err);
     }

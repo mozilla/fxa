@@ -601,7 +601,8 @@ export class CheckoutService {
       subscription.latest_invoice
     );
     const processedInvoice =
-      await this.invoiceManager.processPayPalInvoice(latestInvoice);
+      await this.invoiceManager.processPayPalInvoice(latestInvoice);  //
+
     if (['paid', 'open'].includes(processedInvoice.status ?? '')) {
       await this.postPaySteps({
         cart,

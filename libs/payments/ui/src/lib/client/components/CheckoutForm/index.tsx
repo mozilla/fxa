@@ -174,7 +174,7 @@ export function CheckoutForm({
         'external_paypal'
       );
 
-      await checkoutCartWithPaypal(
+      await checkoutCartWithPaypal( //
         cart.id,
         cart.version,
         {
@@ -386,7 +386,7 @@ export function CheckoutForm({
                 className="mt-6 flex justify-center w-full"
                 createOrder={async () => getPayPalCheckoutToken(cart.currency)}
                 onApprove={async (data: { orderID: string }) => {
-                  await checkoutCartWithPaypal(
+                  await checkoutCartWithPaypal( //
                     cart.id,
                     cart.version,
                     {
