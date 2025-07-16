@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { firstGoogleOauthStart } from './email';
-import { backupChoiceSubmit } from './login';
-
 export type GleanMetricsConfig = {
   enabled: boolean;
   applicationId: string;
@@ -207,6 +204,7 @@ export const eventsMap = {
       'account_pref_two_step_auth_disable_modal_view',
     twoStepAuthDisableSuccessView:
       'account_pref_two_step_auth_disable_success_view',
+    twoStepAuthCompleteView: 'account_pref_two_step_auth_complete_view',
     changePasswordSubmit: 'account_pref_change_password_submit',
     deviceSignout: 'account_pref_device_signout',
     appleSubmit: 'account_pref_apple_submit',

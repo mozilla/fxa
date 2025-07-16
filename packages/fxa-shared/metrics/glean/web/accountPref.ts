@@ -423,6 +423,25 @@ export const twoStepAuthCodesView = new EventMetricType<{
 );
 
 /**
+ * User viewed the setup complete page after successfully setting up two-step
+ * authentication inline.
+ *
+ * Generated from `account_pref.two_step_auth_complete_view`.
+ */
+export const twoStepAuthCompleteView = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'two_step_auth_complete_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
  * User viewed the modal to disable two-step authentication on their account.
  *
  * Generated from `account_pref.two_step_auth_disable_modal_view`.

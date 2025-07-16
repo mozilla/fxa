@@ -2514,6 +2514,27 @@ account_pref:
     expires: never
     data_sensitivity:
       - interaction
+  two_step_auth_complete_view:
+    type: event
+    description: |
+      User viewed the setup complete page after successfully setting up two-step authentication inline.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-10244
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+    extra_keys:
+      reason:
+        description: Page is viewed to 'setup' (from settings) or 'inline setup' 2FA.
+        type: string
   change_password_submit:
     type: event
     description: |
