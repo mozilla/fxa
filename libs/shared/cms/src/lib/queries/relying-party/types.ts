@@ -34,6 +34,8 @@ export interface RelyingPartyResult {
   SigninPage?: Page;
   SigninTokenCodePage?: Page;
   SigninUnblockCodePage?: Page;
-  Shared?: Shared;
+  shared?: Shared;
+  NewDeviceLoginEmail?: Email;
+  VerifyLoginCodeEmail?: Email;
   VerifyShortCodeEmail?: Email;
 }

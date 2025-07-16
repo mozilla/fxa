@@ -20,6 +20,7 @@ const otpUtils = require('../../../../lib/routes/utils/otp')(
 );
 const { AppConfig } = require('../../../../lib/types');
 const { AccountEventsManager } = require('../../../../lib/account-events');
+const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const glean = mocks.mockGlean();
 
 const CLIENT_ADDRESS = '10.0.0.1';
@@ -741,46 +742,47 @@ describe('sendSigninNotifications', () => {
     accountRecord,
     sessionToken,
     sendSigninNotifications;
+  const defaultMockRequestData = (log, metricsContext) => ({
+    log,
+    metricsContext,
+    clientAddress: CLIENT_ADDRESS,
+    headers: {
+      'user-agent': 'test user-agent',
+    },
+    query: {
+      keys: false,
+    },
+    payload: {
+      service: 'testservice',
+      metricsContext: {
+        deviceId: 'wibble',
+        flowBeginTime: Date.now(),
+        flowId:
+          'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        utmCampaign: 'utm campaign',
+        utmContent: 'utm content',
+        utmMedium: 'utm medium',
+        utmSource: 'utm source',
+        utmTerm: 'utm term',
+      },
+      reason: 'signin',
+      redirectTo: 'redirectMeTo',
+      resume: 'myResumeToken',
+    },
+    uaBrowser: 'Firefox Mobile',
+    uaBrowserVersion: '9',
+    uaOS: 'iOS',
+    uaOSVersion: '11',
+    uaDeviceType: 'tablet',
+    uaFormFactor: 'iPad',
+  });
 
   beforeEach(() => {
     db = mocks.mockDB();
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
     metricsContext = mocks.mockMetricsContext();
-    request = mocks.mockRequest({
-      log,
-      metricsContext,
-      clientAddress: CLIENT_ADDRESS,
-      headers: {
-        'user-agent': 'test user-agent',
-      },
-      query: {
-        keys: false,
-      },
-      payload: {
-        service: 'testservice',
-        metricsContext: {
-          deviceId: 'wibble',
-          flowBeginTime: Date.now(),
-          flowId:
-            'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
-          utmCampaign: 'utm campaign',
-          utmContent: 'utm content',
-          utmMedium: 'utm medium',
-          utmSource: 'utm source',
-          utmTerm: 'utm term',
-        },
-        reason: 'signin',
-        redirectTo: 'redirectMeTo',
-        resume: 'myResumeToken',
-      },
-      uaBrowser: 'Firefox Mobile',
-      uaBrowserVersion: '9',
-      uaOS: 'iOS',
-      uaOSVersion: '11',
-      uaDeviceType: 'tablet',
-      uaFormFactor: 'iPad',
-    });
+    request = mocks.mockRequest(defaultMockRequestData(log, metricsContext));
     accountRecord = {
       uid: TEST_UID,
       primaryEmail: {
@@ -1226,6 +1228,85 @@ describe('sendSigninNotifications', () => {
         countryCode: 'US',
       });
       assert.calledOnce(db.securityEvent);
+    });
+  });
+
+  describe('when using CMS for emails', () => {
+    it('uses CMS content for verifyLoginCode emai', () => {
+      sessionToken.tokenVerified = false;
+      sessionToken.tokenVerificationId = 'tokenVerifyCode';
+      sessionToken.mustVerify = true;
+      const rpCmsConfig = {
+        clientId: '00f00f',
+        shared: {
+          emailFromName: 'Testo Inc.',
+          emailLogoUrl: 'http://img.exmpl.gg/logo.svg',
+        },
+        VerifyLoginCodeEmail: {
+          subject: 'Verify Login',
+          headline: 'Is it You?',
+          description: 'Use the code:',
+        },
+      };
+      Container.set(RelyingPartyConfigurationManager, {
+        fetchCMSData: sinon.stub().resolves({
+          relyingParties: [rpCmsConfig],
+        }),
+      });
+      const defaultReqData = defaultMockRequestData(log, metricsContext);
+      const req = mocks.mockRequest({
+        ...defaultReqData,
+        payload: {
+          ...defaultReqData.payload,
+          metricsContext: {
+            ...defaultReqData.payload.metricsContext,
+            service: '00f00f',
+            entrypoint: 'testo',
+          },
+        },
+      });
+      const signinUtils = makeSigninUtils({ log, db, mailer, config });
+      return signinUtils
+        .sendSigninNotifications(req, accountRecord, sessionToken, 'email-2fa')
+        .then(() => {
+          assert.notCalled(mailer.sendVerifyEmail);
+          assert.notCalled(mailer.sendVerifyLoginEmail);
+          assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
+
+          const expectedCode = otpUtils.generateOtpCode(
+            accountRecord.primaryEmail.emailCode,
+            otpOptions
+          );
+          assert.calledWithExactly(
+            mailer.sendVerifyLoginCodeEmail,
+            accountRecord.emails,
+            accountRecord,
+            {
+              acceptLanguage: 'en-US',
+              code: expectedCode,
+              deviceId: req.payload.metricsContext.deviceId,
+              flowBeginTime: req.payload.metricsContext.flowBeginTime,
+              flowId: req.payload.metricsContext.flowId,
+              redirectTo: req.payload.redirectTo,
+              resume: req.payload.resume,
+              service: 'testservice',
+              timeZone: 'America/Los_Angeles',
+              uaBrowser: 'Firefox Mobile',
+              uaBrowserVersion: '9',
+              uaOS: 'iOS',
+              uaOSVersion: '11',
+              uaDeviceType: 'tablet',
+              uid: TEST_UID,
+              target: 'strapi',
+              cmsRpClientId: rpCmsConfig.clientId,
+              cmsRpFromName: rpCmsConfig.shared?.emailFromName,
+              entrypoint: 'testo',
+              logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
+              logoAltText: rpCmsConfig?.shared?.logoAltText,
+              ...rpCmsConfig.VerifyLoginCodeEmail,
+            }
+          );
+        });
     });
   });
 
