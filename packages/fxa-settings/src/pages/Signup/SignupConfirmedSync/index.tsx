@@ -69,46 +69,54 @@ const SignupConfirmedSync = ({
       <SyncCloudsImage className="mx-auto mt-4 max-h-44" />
 
       {cmsInfo ? (
-        <h1 className="card-header">{cmsInfo.SignupConfirmedSyncPage?.headline}</h1>
-      ) : (
-        <FtlMsg id="signup-confirmed-sync-header">
-          <h1 className="card-header">Sync is turned on</h1>
-        </FtlMsg>
-      )}
-
-      {paymentMethodsSynced ? (
-        <FtlMsg id="signup-confirmed-sync-description-with-payment-v2">
+        <>
+          <h1 className="card-header">
+            {cmsInfo.SignupConfirmedSyncPage?.headline}
+          </h1>
           <p className="mt-2 mb-7">
-            Your passwords, payment methods, addresses, bookmarks, history, and
-            more can sync everywhere you use Firefox.
+            {cmsInfo.SignupConfirmedSyncPage?.description}
           </p>
-        </FtlMsg>
+        </>
       ) : (
-        <FtlMsg id="signup-confirmed-sync-description-v2">
-          <p className="mt-2 mb-7">
-            Your passwords, addresses, bookmarks, history, and more can sync
-            everywhere you use Firefox.
-          </p>
-        </FtlMsg>
+        <>
+          <FtlMsg id="signup-confirmed-sync-header">
+            <h1 className="card-header">Sync is turned on</h1>
+          </FtlMsg>
+          {paymentMethodsSynced ? (
+            <FtlMsg id="signup-confirmed-sync-description-with-payment-v2">
+              <p className="mt-2 mb-7">
+                Your passwords, payment methods, addresses, bookmarks, history,
+                and more can sync everywhere you use Firefox.
+              </p>
+            </FtlMsg>
+          ) : (
+            <FtlMsg id="signup-confirmed-sync-description-v2">
+              <p className="mt-2 mb-7">
+                Your passwords, addresses, bookmarks, history, and more can sync
+                everywhere you use Firefox.
+              </p>
+            </FtlMsg>
+          )}
+        </>
       )}
 
       {showPairLink && (
         <div className="flex mb-5">
-            <FtlMsg id="signup-confirmed-sync-add-device-link">
-              {/* TODO: once Pair is converted to React, use `<Link>` instead */}
-              <CmsButtonWithFallback
-                className="cta-primary cta-xl"
-                data-glean-id="signup_confirmed_sync_pair_link"
-                onClick={(e) => {
-                  e.preventDefault();
-                  hardNavigate('/pair', {}, true);
-                }}
-                buttonColor={cmsButtonColor}
-                buttonText={cmsButtonText}
-              >
-                Add another device
-              </CmsButtonWithFallback>
-            </FtlMsg>
+          <FtlMsg id="signup-confirmed-sync-add-device-link">
+            {/* TODO: once Pair is converted to React, use `<Link>` instead */}
+            <CmsButtonWithFallback
+              className="cta-primary cta-xl"
+              data-glean-id="signup_confirmed_sync_pair_link"
+              onClick={(e) => {
+                e.preventDefault();
+                hardNavigate('/pair', {}, true);
+              }}
+              buttonColor={cmsButtonColor}
+              buttonText={cmsButtonText}
+            >
+              Add another device
+            </CmsButtonWithFallback>
+          </FtlMsg>
         </div>
       )}
 

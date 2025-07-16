@@ -71,7 +71,7 @@ describe('CardHeader', () => {
         cmsDescription={MOCK_CMS_DESCRIPTION}
       />
     );
-    expect(screen.getByAltText(MOCK_CMS_LOGO_URL)).toBeInTheDocument();
+    expect(screen.getByAltText(MOCK_CMS_LOGO_ALT_TEXT)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })).toBeInTheDocument();
     expect(screen.getByText(MOCK_CMS_DESCRIPTION)).toBeInTheDocument();
   });
@@ -104,6 +104,6 @@ describe('CardHeader', () => {
         cmsLogoAltText={MOCK_CMS_LOGO_ALT_TEXT}
       />
     );
-    expect(screen.getByAltText(MOCK_CMS_LOGO_URL)).toBeInTheDocument();
+    expect(screen.getByAltText(MOCK_CMS_LOGO_ALT_TEXT)).toBeInTheDocument();
   });
 });
