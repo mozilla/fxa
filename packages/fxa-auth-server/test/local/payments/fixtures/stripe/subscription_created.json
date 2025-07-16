@@ -48,7 +48,7 @@
               "livemode": false,
               "metadata": {
                 "successActionButtonURL": "https://fpn.firefox.com/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
-                "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/fpn.svg"
+                "webIconURL": "https://cdn.accounts.firefox.com/product-icons/fpn.svg"
               },
               "nickname": "daily",
               "product": "prod_FUUNYnlDso7FeB",
@@ -73,7 +73,7 @@
               "livemode": false,
               "metadata": {
                 "successActionButtonURL": "https://fpn.firefox.com/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
-                "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/fpn.svg"
+                "webIconURL": "https://cdn.accounts.firefox.com/product-icons/fpn.svg"
               },
               "nickname": "daily",
               "product": "prod_FUUNYnlDso7FeB",
@@ -114,7 +114,7 @@
         "livemode": false,
         "metadata": {
           "successActionButtonURL": "https://fpn.firefox.com/vpn/download?utm_medium=email&utm_source=email&utm_campaign=subscription-download",
-          "webIconURL": "https://accounts-static.cdn.mozilla.net/product-icons/fpn.svg"
+          "webIconURL": "https://cdn.accounts.firefox.com/product-icons/fpn.svg"
         },
         "nickname": "daily",
         "product": "prod_FUUNYnlDso7FeB",

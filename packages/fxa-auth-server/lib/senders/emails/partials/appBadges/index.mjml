@@ -16,7 +16,7 @@
           width="152px"
           css-class="app-badge app-badge-ios"
           href="<%- iosUrl %>"
-          src="https://accounts-static.cdn.mozilla.net/product-icons/apple-app-store.png"
+          src="https://cdn.accounts.firefox.com/product-icons/apple-app-store.png"
           alt="Download <%- locals.productName %> on the App Store"
         >
         </mj-image>
@@ -28,7 +28,7 @@
           width="152px"
           css-class="app-badge app-badge-android"
           href="<%- androidUrl %>"
-          src="https://accounts-static.cdn.mozilla.net/product-icons/google-play.png"
+          src="https://cdn.accounts.firefox.com/product-icons/google-play.png"
           alt="Download <%- locals.productName %> on Google Play"
         >
         </mj-image>
