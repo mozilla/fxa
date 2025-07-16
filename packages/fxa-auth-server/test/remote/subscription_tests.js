@@ -127,13 +127,25 @@ const PRODUCT_NAME = 'All Done Pro';
       });
 
       beforeEach(async () => {
-        client = await clientFactory.createAndVerify(
-          config.publicUrl,
-          server.uniqueEmail(),
-          'wibble',
-          server.mailbox,
-          testOptions
-        );
+        const email = server.uniqueEmail();
+        try {
+          client = await clientFactory.createAndVerify(
+            config.publicUrl,
+            email,
+            'wibble',
+            server.mailbox,
+            testOptions
+          );
+        } catch (err) {
+          console.log('!!! createAndVerify', {
+            publicUrl: config.publicUrl,
+            email,
+            mailbox: server.mailbox,
+            testOptions,
+          });
+          console.log('!!! error createAndVerify', err);
+          throw err;
+        }
 
         const tokenResponse1 = await client.grantOAuthTokensFromSessionToken({
           grant_type: 'fxa-credentials',
@@ -340,13 +352,25 @@ const PRODUCT_NAME = 'All Done Pro';
       });
 
       beforeEach(async () => {
-        client = await clientFactory.createAndVerify(
-          config.publicUrl,
-          server.uniqueEmail(),
-          'wibble',
-          server.mailbox,
-          testOptions
-        );
+        const email = server.uniqueEmail();
+        try {
+          client = await clientFactory.createAndVerify(
+            config.publicUrl,
+            email,
+            'wibble',
+            server.mailbox,
+            testOptions
+          );
+        } catch (err) {
+          console.log('!!! createAndVerify2', {
+            publicUrl: config.publicUrl,
+            email,
+            mailbox: server.mailbox,
+            testOptions,
+          });
+          console.log('!!! error createAndVerify2', err);
+          throw err;
+        }
 
         const tokenResponse = await client.grantOAuthTokensFromSessionToken({
           grant_type: 'fxa-credentials',
