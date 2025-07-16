@@ -5,10 +5,10 @@
   "scripts": {
     "clean": "rimraf dist",
     "compile": "tsc --noEmit",
-    "test": "NODE_OPTIONS='--require ./lib/polyfills.js --dns-result-order=ipv4first' playwright test --project=local",
-    "test-local": "NODE_OPTIONS='--require ./lib/polyfills.js --dns-result-order=ipv4first' playwright test --project=local",
-    "test-stage": "NODE_OPTIONS='--require ./lib/polyfills.js --dns-result-order=ipv4first' playwright test --project=stage",
-    "test-production": "NODE_OPTIONS='--require ./lib/polyfills.js --dns-result-order=ipv4first' playwright test --project=production",
+    "test": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=local",
+    "test-local": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=local",
+    "test-stage": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=stage",
+    "test-production": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=production",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "lint": "eslint ."
   },
