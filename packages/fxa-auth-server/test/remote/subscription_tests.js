@@ -127,37 +127,45 @@ const PRODUCT_NAME = 'All Done Pro';
       });
 
       beforeEach(async () => {
-        client = await clientFactory.createAndVerify(
-          config.publicUrl,
-          server.uniqueEmail(),
-          'wibble',
-          server.mailbox,
-          testOptions
-        );
+        try {
+          client = await clientFactory.createAndVerify(
+            config.publicUrl,
+            server.uniqueEmail(),
+            'wibble',
+            server.mailbox,
+            testOptions
+          );
+        } catch(e) {
+          throw new Error("Error was caused via clientFactory createAndVerify");
+        }
 
-        const tokenResponse1 = await client.grantOAuthTokensFromSessionToken({
-          grant_type: 'fxa-credentials',
-          client_id: CLIENT_ID_FOR_DEFAULT,
-          scope: 'profile:subscriptions',
-        });
+        try {
+          const tokenResponse1 = await client.grantOAuthTokensFromSessionToken({
+            grant_type: 'fxa-credentials',
+            client_id: CLIENT_ID_FOR_DEFAULT,
+            scope: 'profile:subscriptions',
+          });
 
-        const tokenResponse2 = await client.grantOAuthTokensFromSessionToken({
-          grant_type: 'fxa-credentials',
-          client_id: CLIENT_ID,
-          scope: 'profile:subscriptions',
-        });
+          const tokenResponse2 = await client.grantOAuthTokensFromSessionToken({
+            grant_type: 'fxa-credentials',
+            client_id: CLIENT_ID,
+            scope: 'profile:subscriptions',
+          });
 
-        const tokenResponse3 = await client.grantOAuthTokensFromSessionToken({
-          grant_type: 'fxa-credentials',
-          client_id: CLIENT_ID,
-          scope: `profile ${OAUTH_SCOPE_SUBSCRIPTIONS}`,
-        });
+          const tokenResponse3 = await client.grantOAuthTokensFromSessionToken({
+            grant_type: 'fxa-credentials',
+            client_id: CLIENT_ID,
+            scope: `profile ${OAUTH_SCOPE_SUBSCRIPTIONS}`,
+          });
 
-        tokens = [
-          tokenResponse1.access_token,
-          tokenResponse2.access_token,
-          tokenResponse3.access_token,
-        ];
+          tokens = [
+            tokenResponse1.access_token,
+            tokenResponse2.access_token,
+            tokenResponse3.access_token,
+          ];
+        } catch(e) {
+          throw new Error("Error was caused via oauth token grants process");
+        }
 
         mockStripeHelper.subscriptionsToResponse = async (subscriptions) => [];
         mockPlaySubscriptions.getActiveGooglePlaySubscriptions = async (
