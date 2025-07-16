@@ -4,6 +4,7 @@
 
 const { resolve } = require('path');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const webpack = require('webpack');
 
 const allFxa = resolve(__dirname, '../../');
 const allLibs = resolve(__dirname, '../../libs/');
@@ -19,6 +20,16 @@ const additionalJSImports = {
 
 const customizeWebpackConfig = ({ config }) => ({
   ...config,
+  plugins: [
+    ...config.plugins,
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+    new webpack.ProvidePlugin({
+      buffer: ['buffer', 'Buffer'],
+      Buffer: ['buffer', 'Buffer'],
+    }),
+  ],
   resolve: {
     ...config.resolve,
     plugins: [
@@ -42,6 +53,10 @@ const customizeWebpackConfig = ({ config }) => ({
       ...config.fallback,
       fs: false,
       path: false,
+      buffer: require.resolve('buffer/'),
+      crypto: require.resolve('crypto-browserify'),
+      stream: require.resolve('stream-browserify'),
+      'process/browser': require.resolve('process/browser'),
     },
   },
   module: {

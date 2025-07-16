@@ -407,7 +407,7 @@ describe('totp', () => {
         );
         assert.fail('Expected error was not thrown');
       } catch (err) {
-        assert.equal(err.errno, authErrors.ERRNO.INVALID_EXPIRED_OTP_CODE);
+        assert.equal(err.errno, authErrors.ERRNO.INVALID_TOKEN_VERIFICATION_CODE);
         assert.equal(err.message, authErrors.invalidTokenVerficationCode().message);
       }
     });
