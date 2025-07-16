@@ -56,7 +56,7 @@ export class PaymentInformationPage {
 
   async clickPayNow() {
     // Start waiting for response before clicking
-    const responsePromise = this.page.waitForResponse(
+    await this.page.waitForResponse(
       // After clicking 'Pay Now' we should either see an API call to
       // billing-and-subscriptions or an error message
       (response) =>
@@ -66,6 +66,5 @@ export class PaymentInformationPage {
         )
     );
     await this.page.getByTestId('submit').click();
-    await responsePromise;
   }
 }
