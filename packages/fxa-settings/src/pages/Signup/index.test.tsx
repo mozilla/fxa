@@ -26,7 +26,10 @@ import { MOCK_CMS_INFO, MOCK_EMAIL, MOCK_PASSWORD } from '../mocks';
 import firefox from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import * as utils from 'fxa-react/lib/utils';
-import { MONITOR_CLIENTIDS, POCKET_CLIENTIDS } from '../../models/integrations/client-matching';
+import {
+  MONITOR_CLIENTIDS,
+  POCKET_CLIENTIDS,
+} from '../../models/integrations/client-matching';
 import { getSyncEngineIds, syncEngineConfigs } from '../../lib/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../lib/sensitive-data-client';
@@ -244,7 +247,11 @@ describe('Signup page', () => {
   it('renders as expected when cms enabled', async () => {
     renderWithLocalizationProvider(
       <Subject
-        integration={createMockSignupOAuthWebIntegration(MONITOR_CLIENTIDS[0], undefined, MOCK_CMS_INFO)}
+        integration={createMockSignupOAuthWebIntegration(
+          MONITOR_CLIENTIDS[0],
+          undefined,
+          MOCK_CMS_INFO
+        )}
       />
     );
 
@@ -259,9 +266,7 @@ describe('Signup page', () => {
     ).toBeInTheDocument();
 
     screen.getByRole('heading', { name: 'Create a password' });
-    screen.getByText(
-      'to continue'
-    );
+    screen.getByText('to continue');
   });
 
   describe('email change', () => {
@@ -287,7 +292,7 @@ describe('Signup page', () => {
         );
       });
       await waitFor(() => {
-        expect(GleanMetrics.registration.changeEmail).toBeCalledTimes(1);
+        expect(GleanMetrics.registration.changeEmail).toHaveBeenCalledTimes(1);
         expect(mockNavigate).toHaveBeenCalledWith('/?', {
           state: { prefillEmail: MOCK_EMAIL },
         });
@@ -300,7 +305,7 @@ describe('Signup page', () => {
 
     await waitFor(() => {
       expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
-      expect(GleanMetrics.registration.view).toBeCalledTimes(1);
+      expect(GleanMetrics.registration.view).toHaveBeenCalledTimes(1);
     });
 
     await act(async () => {
@@ -308,8 +313,8 @@ describe('Signup page', () => {
     });
 
     await waitFor(() => {
-      expect(GleanMetrics.registration.engage).toBeCalledTimes(1);
-      expect(GleanMetrics.registration.engage).toBeCalledWith({
+      expect(GleanMetrics.registration.engage).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.registration.engage).toHaveBeenCalledWith({
         event: { reason: 'password' },
       });
     });
@@ -358,7 +363,7 @@ describe('Signup page', () => {
     submit();
 
     await waitFor(() => {
-      expect(GleanMetrics.registration.submit).toBeCalledTimes(1);
+      expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -387,7 +392,7 @@ describe('Signup page', () => {
         );
       });
 
-      expect(fxaLoginSpy).not.toBeCalled();
+      expect(fxaLoginSpy).not.toHaveBeenCalled();
       expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
 
       expect(mockNavigate).toHaveBeenCalledWith(`/confirm_signup_code`, {
@@ -430,7 +435,7 @@ describe('Signup page', () => {
             );
           });
 
-          expect(fxaLoginSpy).toBeCalledWith({
+          expect(fxaLoginSpy).toHaveBeenCalledWith({
             ...commonFxaLoginOptions,
             services: {
               sync: {
@@ -541,7 +546,7 @@ describe('Signup page', () => {
       await fillOutForm(false);
       submit();
 
-      expect(fxaLoginSpy).not.toBeCalled();
+      expect(fxaLoginSpy).not.toHaveBeenCalled();
 
       await waitFor(() => {
         expect(mockBeginSignupHandler).toHaveBeenCalledWith(

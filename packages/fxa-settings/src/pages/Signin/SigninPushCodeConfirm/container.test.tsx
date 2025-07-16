@@ -74,7 +74,7 @@ describe('SigninPushCodeConfirm container', () => {
     render();
     fireEvent.click(screen.getByText('Confirm login'));
     await waitFor(() => {
-      expect(mockVerifyLoginPushRequest).toBeCalledWith(
+      expect(mockVerifyLoginPushRequest).toHaveBeenCalledWith(
         null,
         MOCK_HEXSTRING_32,
         '123456'

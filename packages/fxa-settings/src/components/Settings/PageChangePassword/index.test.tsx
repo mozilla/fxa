@@ -135,7 +135,7 @@ describe('PageChangePassword', () => {
     await render(mockAccount);
     await changePassword();
     await waitFor(() =>
-      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1)
+      expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledTimes(1)
     );
     expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledWith(
       'Unexpected error'
@@ -146,7 +146,7 @@ describe('PageChangePassword', () => {
     await render();
     await changePassword();
     await waitFor(() =>
-      expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1)
+      expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledTimes(1)
     );
     expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_PATH + '#password', {
       replace: true,

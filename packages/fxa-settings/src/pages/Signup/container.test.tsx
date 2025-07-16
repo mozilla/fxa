@@ -239,7 +239,7 @@ describe('sign-up-container', () => {
     it('renders', async () => {
       await render();
       expect(screen.queryByText('loading spinner mock')).toBeNull();
-      expect(SignupModule.Signup).toBeCalled();
+      expect(SignupModule.Signup).toHaveBeenCalled();
     });
   });
 
@@ -261,7 +261,7 @@ describe('sign-up-container', () => {
       await render('loading spinner mock');
 
       // TODO: Determine if email is valid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
-      expect(mockNavigate).toBeCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('handles empty email', async () => {
@@ -281,7 +281,7 @@ describe('sign-up-container', () => {
       await render('loading spinner mock');
 
       // TODO: Show that email is invalid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
-      expect(mockNavigate).toBeCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 
@@ -300,7 +300,7 @@ describe('sign-up-container', () => {
         'test123'
       );
 
-      expect(mockBeginSignupMutation).toBeCalledWith({
+      expect(mockBeginSignupMutation).toHaveBeenCalledWith({
         variables: {
           input: {
             email: 'foo@mozilla.com',

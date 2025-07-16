@@ -18,8 +18,11 @@ const ResetPasswordRecoveryPhoneContainer = (_: RouteComponentProps) => {
     state: ResetPasswordRecoveryPhoneLocationState;
   };
 
-  const lastFourPhoneDigits = locationState.state.lastFourPhoneDigits || '';
-  const numBackupCodes = locationState.state.numBackupCodes;
+  const {
+    lastFourPhoneDigits = '',
+    sendError,
+    numBackupCodes,
+  } = locationState.state;
 
   const handleSuccess = async () => {
     try {
@@ -65,8 +68,9 @@ const ResetPasswordRecoveryPhoneContainer = (_: RouteComponentProps) => {
         lastFourPhoneDigits,
         verifyCode,
         resendCode,
-        location: locationState,
+        sendError,
         numBackupCodes,
+        location: locationState,
       }}
     />
   );

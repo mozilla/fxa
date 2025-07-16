@@ -59,7 +59,7 @@ describe('FlowSetup2faBackupCodeDownload', () => {
       'twoStepAuthEnterCodeView'
     );
     renderFlowSetup2faBackupCodeConfirm();
-    expect(gleanSpy).toBeCalled();
+    expect(gleanSpy).toHaveBeenCalled();
 
     const finishButton = screen.getByRole('button', { name: 'Finish' });
 

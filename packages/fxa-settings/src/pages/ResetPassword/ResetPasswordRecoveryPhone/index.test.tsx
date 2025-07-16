@@ -178,4 +178,176 @@ describe('ResetPasswordRecoveryPhone', () => {
       'https://support.mozilla.org/kb/what-if-im-locked-out-two-step-authentication'
     );
   });
+
+  it('displays initial sendError banner when auto-send failed', async () => {
+    const mockResendCodeWithError = jest.fn(() =>
+      Promise.resolve(AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED as HandledError)
+    );
+
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone
+        {...defaultProps}
+        resendCode={mockResendCodeWithError}
+        sendError={AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED}
+        numBackupCodes={0}
+      />
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'There was a problem sending a code'
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Please try again later.'
+    );
+  });
+
+  it('clears initial sendError banner when user interacts', async () => {
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone
+        {...defaultProps}
+        sendError={AuthUiErrors.SMS_SEND_RATE_LIMIT_EXCEEDED}
+        numBackupCodes={0}
+      />
+    );
+
+    // Banner should be visible initially
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'There was a problem sending a code'
+    );
+
+    // Type in the code field to clear banner
+    const input = screen.getByRole('textbox');
+    await user.type(input, '1');
+
+    // Banner should be removed from DOM after typing
+    await waitFor(() => {
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    // Type more to ensure banner doesn't reappear
+    await user.type(input, '2');
+    await waitFor(() => {
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+  });
+
+  it('handles resend code with backend service failure', async () => {
+    const mockResendCodeWithError = jest.fn(() =>
+      Promise.resolve(AuthUiErrors.BACKEND_SERVICE_FAILURE as HandledError)
+    );
+
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone
+        {...defaultProps}
+        resendCode={mockResendCodeWithError}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Resend code' }));
+
+    await waitFor(() => {
+      expect(mockResendCodeWithError).toHaveBeenCalled();
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'There was a problem sending a code'
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Please try again later.'
+    );
+  });
+
+  it('handles resend code with feature not enabled error', async () => {
+    const mockResendCodeWithError = jest.fn(() =>
+      Promise.resolve(AuthUiErrors.FEATURE_NOT_ENABLED as HandledError)
+    );
+
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone
+        {...defaultProps}
+        resendCode={mockResendCodeWithError}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Resend code' }));
+
+    await waitFor(() => {
+      expect(mockResendCodeWithError).toHaveBeenCalled();
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'There was a problem sending a code'
+    );
+  });
+
+  it('handles resend code with unexpected error', async () => {
+    const mockResendCodeWithError = jest.fn(() =>
+      Promise.resolve(AuthUiErrors.UNEXPECTED_ERROR as HandledError)
+    );
+
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone
+        {...defaultProps}
+        resendCode={mockResendCodeWithError}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Resend code' }));
+
+    await waitFor(() => {
+      expect(mockResendCodeWithError).toHaveBeenCalled();
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'There was a problem sending a code'
+    );
+  });
+
+  it('handles backend service failure on verifyCode', async () => {
+    const mockVerifyCodeWithError = jest.fn(() =>
+      Promise.resolve(AuthUiErrors.BACKEND_SERVICE_FAILURE as HandledError)
+    );
+
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone
+        {...defaultProps}
+        verifyCode={mockVerifyCodeWithError}
+      />
+    );
+
+    const input = screen.getByRole('textbox');
+    await user.type(input, '123456');
+    await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    await waitFor(() => {
+      expect(mockVerifyCodeWithError).toHaveBeenCalledWith('123456');
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'There was a problem verifying your code'
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Please try again later.'
+    );
+  });
+
+  it('shows success banner after successful resend', async () => {
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(
+      <ResetPasswordRecoveryPhone {...defaultProps} />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Resend code' }));
+
+    await waitFor(() => {
+      expect(mockResendCode).toHaveBeenCalled();
+    });
+
+    expect(screen.getByRole('status')).toHaveTextContent('Code sent');
+  });
 });

@@ -43,19 +43,15 @@ import {
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { queryParamsToMetricsContext } from '../../../lib/metrics';
-import { searchParams } from '../../../lib/utilities';
-import { QueryParams } from '../../../index';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
   serviceName: MozServices;
-  flowQueryParams?: QueryParams;
 };
 
 export const SigninTotpCodeContainer = ({
   integration,
-  serviceName, flowQueryParams
+  serviceName,
 }: SigninTotpCodeContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
@@ -109,9 +105,6 @@ export const SigninTotpCodeContainer = ({
           input: {
             code,
             service,
-            metricsContext: queryParamsToMetricsContext(
-              flowQueryParams as ReturnType<typeof searchParams>
-            )
           },
         },
         update: (cache, { data }) => {

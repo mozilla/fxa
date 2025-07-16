@@ -15,6 +15,8 @@ export const applyCouponAction = async (
 ) => {
   const actionsService = getApp().getActionsService();
 
+  let response = undefined;
+  let revalidate = true;
   try {
     await actionsService.updateCart({
       cartId,
@@ -24,25 +26,36 @@ export const applyCouponAction = async (
       },
     });
   } catch (err) {
+    revalidate = false;
     switch (err.name) {
+      case 'CartVersionMismatchError':
+        response = CouponErrorMessageType.Generic;
+        revalidate = true;
+        break;
       case 'CouponErrorCannotRedeem':
-        return CouponErrorMessageType.CannotRedeem;
+        response = CouponErrorMessageType.CannotRedeem;
+        break;
       case 'CouponErrorExpired':
-        return CouponErrorMessageType.Expired;
+        response = CouponErrorMessageType.Expired;
+        break;
       case 'CouponErrorGeneric':
-        return CouponErrorMessageType.Generic;
+        response = CouponErrorMessageType.Generic;
+        break;
       case 'CouponErrorLimitReached':
-        return CouponErrorMessageType.LimitReached;
+        response = CouponErrorMessageType.LimitReached;
+        break;
       case 'CouponErrorInvalid':
       default:
-        return CouponErrorMessageType.Invalid;
+        response = CouponErrorMessageType.Invalid;
     }
   }
 
-  revalidatePath(
-    `/[locale]/[offeringId]/[interval]/checkout/[cartId]/start`,
-    'page'
-  );
+  if (revalidate) {
+    revalidatePath(
+      `/[locale]/[offeringId]/[interval]/checkout/[cartId]/start`,
+      'page'
+    );
+  }
 
-  return;
+  return response;
 };

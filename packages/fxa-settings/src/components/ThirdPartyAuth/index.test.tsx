@@ -76,13 +76,13 @@ describe('ThirdPartyAuthComponent', () => {
     renderWith({
       enabled: true,
       flowQueryParams: {
-        flowId: '123'
-      }
+        flowId: '123',
+      },
     });
 
     await screen.findByText('Continue with Google');
     await screen.findByText('Continue with Apple');
-    expect(mockFormSubmit).not.toBeCalled();
+    expect(mockFormSubmit).not.toHaveBeenCalled();
 
     expect(
       (await screen.findByTestId('google-signin-form-state')).getAttribute(
@@ -114,8 +114,8 @@ describe('ThirdPartyAuthComponent', () => {
         'value'
       )
     ).not.toEqual('');
-    expect(onContinueWithApple).toBeCalled();
-    expect(onContinueWithGoogle).not.toBeCalled();
+    expect(onContinueWithApple).toHaveBeenCalled();
+    expect(onContinueWithGoogle).not.toHaveBeenCalled();
   });
 
   it('submits google form', async () => {
@@ -135,8 +135,8 @@ describe('ThirdPartyAuthComponent', () => {
         'value'
       )
     ).not.toEqual('');
-    expect(onContinueWithGoogle).toBeCalled();
-    expect(onContinueWithApple).not.toBeCalled();
+    expect(onContinueWithGoogle).toHaveBeenCalled();
+    expect(onContinueWithApple).not.toHaveBeenCalled();
   });
 
   it('should deeplink directly to google auth, if deeplink=`googleLogin`', async () => {
@@ -144,7 +144,7 @@ describe('ThirdPartyAuthComponent', () => {
       enabled: true,
       showSeparator: false,
       deeplink: 'googleLogin',
-      view: 'index'
+      view: 'index',
     });
 
     expect(
@@ -152,14 +152,14 @@ describe('ThirdPartyAuthComponent', () => {
         'value'
       )
     ).not.toEqual('');
-  })
+  });
 
   it('should deeplink directly to apple auth, if deeplink=`appleLogin`', async () => {
     renderWith({
       enabled: true,
       showSeparator: false,
       deeplink: 'appleLogin',
-      view: 'index'
+      view: 'index',
     });
 
     expect(
@@ -167,7 +167,7 @@ describe('ThirdPartyAuthComponent', () => {
         'value'
       )
     ).not.toEqual('');
-  })
+  });
 
   it('hides separator', async () => {
     renderWith({
@@ -178,7 +178,7 @@ describe('ThirdPartyAuthComponent', () => {
     });
 
     expect(screen.queryByText('Or')).toBeNull();
-    expect(mockViewWithNoPasswordSet).toBeCalled();
+    expect(mockViewWithNoPasswordSet).toHaveBeenCalled();
   });
 
   it('shows separator', async () => {
@@ -190,7 +190,7 @@ describe('ThirdPartyAuthComponent', () => {
     });
 
     expect(screen.queryByText('Or')).toBeDefined();
-    expect(mockViewWithNoPasswordSet).not.toBeCalled();
+    expect(mockViewWithNoPasswordSet).not.toHaveBeenCalled();
   });
 
   describe('emits metrics', () => {
@@ -201,7 +201,7 @@ describe('ThirdPartyAuthComponent', () => {
         onContinueWithApple,
         onContinueWithGoogle,
       });
-      expect(mockViewWithNoPasswordSet).toBeCalled();
+      expect(mockViewWithNoPasswordSet).toHaveBeenCalled();
     });
 
     it('emits glean metrics startGoogleAuthFromIndex', async () => {
@@ -214,8 +214,8 @@ describe('ThirdPartyAuthComponent', () => {
       });
       const button = await screen.findByText('Continue with Google');
       button.click();
-      expect(mockStartGoogleAuthFromIndex).toBeCalled();
-      expect(mockGleanIsDone).toBeCalled();
+      expect(mockStartGoogleAuthFromIndex).toHaveBeenCalled();
+      expect(mockGleanIsDone).toHaveBeenCalled();
     });
 
     it('emits glean metrics startAppleAuthFromIndex', async () => {
@@ -228,7 +228,7 @@ describe('ThirdPartyAuthComponent', () => {
       });
       const button = await screen.findByText('Continue with Apple');
       button.click();
-      expect(mockStartAppleAuthFromIndex).toBeCalled();
+      expect(mockStartAppleAuthFromIndex).toHaveBeenCalled();
     });
 
     it('emits glean metrics startGoogleAuthFromLogin', async () => {
@@ -241,8 +241,8 @@ describe('ThirdPartyAuthComponent', () => {
       });
       const button = await screen.findByText('Continue with Google');
       button.click();
-      expect(mockStartGoogleAuthFromLogin).toBeCalled();
-      expect(mockGleanIsDone).toBeCalled();
+      expect(mockStartGoogleAuthFromLogin).toHaveBeenCalled();
+      expect(mockGleanIsDone).toHaveBeenCalled();
     });
 
     it('emits glean metrics startAppleAuthFromLogin', async () => {
@@ -255,7 +255,7 @@ describe('ThirdPartyAuthComponent', () => {
       });
       const button = await screen.findByText('Continue with Apple');
       button.click();
-      expect(mockStartAppleAuthFromLogin).toBeCalled();
+      expect(mockStartAppleAuthFromLogin).toHaveBeenCalled();
     });
 
     it('emits glean metrics startGoogleAuthFromReg', async () => {
@@ -268,8 +268,8 @@ describe('ThirdPartyAuthComponent', () => {
       });
       const button = await screen.findByText('Continue with Google');
       button.click();
-      expect(mockStartGoogleAuthFromReg).toBeCalled();
-      expect(mockGleanIsDone).toBeCalled();
+      expect(mockStartGoogleAuthFromReg).toHaveBeenCalled();
+      expect(mockGleanIsDone).toHaveBeenCalled();
     });
 
     it('emits glean metrics startAppleAuthFromReg', async () => {
@@ -282,8 +282,8 @@ describe('ThirdPartyAuthComponent', () => {
       });
       const button = await screen.findByText('Continue with Apple');
       button.click();
-      expect(mockStartAppleAuthFromReg).toBeCalled();
-      expect(mockGleanIsDone).toBeCalled();
+      expect(mockStartAppleAuthFromReg).toHaveBeenCalled();
+      expect(mockGleanIsDone).toHaveBeenCalled();
     });
   });
 });

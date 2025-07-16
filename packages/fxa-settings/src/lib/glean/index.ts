@@ -590,6 +590,11 @@ const recordEventMetric = (
     case 'account_pref_two_step_auth_disable_success_view':
       accountPref.twoStepAuthDisableSuccessView.record();
       break;
+    case 'account_pref_two_step_auth_complete_view':
+      accountPref.twoStepAuthCompleteView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'delete_account_settings_submit':
       deleteAccount.settingsSubmit.record();
       break;

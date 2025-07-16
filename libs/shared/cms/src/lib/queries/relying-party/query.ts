@@ -40,11 +40,6 @@ export const relyingPartyQuery = graphql(`
         description
         primaryButtonText
       }
-      VerifyShortCodeEmail {
-        subject
-        headline
-        description
-      }
       SigninPage {
         headline
         description
@@ -59,6 +54,29 @@ export const relyingPartyQuery = graphql(`
         headline
         description
         primaryButtonText
+      }
+      shared {
+        buttonColor
+        logoUrl
+        logoAltText
+        emailFromName
+        emailLogoUrl
+        emailLogoAltText
+      }
+      NewDeviceLoginEmail {
+        subject
+        headline
+        description
+      }
+      VerifyLoginCodeEmail {
+        subject
+        headline
+        description
+      }
+      VerifyShortCodeEmail {
+        subject
+        headline
+        description
       }
     }
   }

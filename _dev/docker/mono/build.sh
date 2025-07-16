@@ -29,6 +29,10 @@ for d in ./packages/*/ ; do
   (cd "$d" && mkdir -p config && cp ../version.json . && cp ../version.json config && patchVersion)
 done
 
+for d in ./apps/payments/*/ ; do
+  (cd "$d" && mkdir -p config && cp ../../version.json . && cp ../../version.json config && patchVersion)
+done
+
 # `npx yarn` because `npm i -g yarn` needs sudo
 npx yarn install
 npx yarn gql:allowlist

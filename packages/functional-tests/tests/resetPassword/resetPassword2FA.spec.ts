@@ -303,11 +303,6 @@ test.describe('severity-1 #smoke', () => {
     pages: { signin, resetPassword, settings, totp, recoveryKey, configPage },
     testAccountTracker,
   }) => {
-    const config = await configPage.getConfig();
-    test.skip(
-      config.featureFlags.updated2faSetupFlow,
-      'TODO in FXA-11935 - add test for new flow'
-    );
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
 
@@ -406,7 +401,6 @@ test.describe('reset password with recovery phone', () => {
 
     await settings.totp.addButton.click();
     // TODO in FXA-11941 - remove condition
-    // TODO in FXA-11935 - add recovery phone during initial 2FA set up
     config.featureFlags.updated2faSetupFlow
       ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
       : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
@@ -501,7 +495,6 @@ test.describe('reset password with recovery phone', () => {
 
     await settings.totp.addButton.click();
     // TODO in FXA-11941 - remove condition
-    // for this test - initial 2fa setup with codes
     const { recoveryCodes } = config.featureFlags.updated2faSetupFlow
       ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
       : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();

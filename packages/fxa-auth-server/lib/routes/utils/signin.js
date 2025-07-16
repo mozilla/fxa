@@ -13,6 +13,8 @@ const { Container } = require('typedi');
 const { AccountEventsManager } = require('../../account-events');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 const otp = require('../utils/otp');
+const { fetchRpCmsData } = require('../utils/account');
+const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 
 const BASE_36 = validators.BASE_36;
 
@@ -42,6 +44,9 @@ module.exports = (
     : {
         recordSecurityEvent: () => {},
       };
+  const cmsManager = Container.has(RelyingPartyConfigurationManager)
+    ? Container.get(RelyingPartyConfigurationManager)
+    : null;
 
   return {
     validators: {
@@ -496,29 +501,49 @@ module.exports = (
         const secret = accountRecord.primaryEmail.emailCode;
         const code = otpUtils.generateOtpCode(secret, otpOptions);
         const { timeZone } = request.app.geo;
+        const emailContext = {
+          acceptLanguage: request.app.acceptLanguage,
+          code,
+          deviceId,
+          flowId,
+          flowBeginTime,
+          redirectTo,
+          resume,
+          service,
+          timeZone,
+          uaBrowser: request.app.ua.browser,
+          uaBrowserVersion: request.app.ua.browserVersion,
+          uaOS: request.app.ua.os,
+          uaOSVersion: request.app.ua.osVersion,
+          uaDeviceType: request.app.ua.deviceType,
+          uid: sessionToken.uid,
+        };
+        const rpCmsConfig = await fetchRpCmsData(request, cmsManager, log);
 
         try {
-          await mailer.sendVerifyLoginCodeEmail(
-            accountRecord.emails,
-            accountRecord,
-            {
-              acceptLanguage: request.app.acceptLanguage,
-              code,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              redirectTo,
-              resume,
-              service,
-              timeZone,
-              uaBrowser: request.app.ua.browser,
-              uaBrowserVersion: request.app.ua.browserVersion,
-              uaOS: request.app.ua.os,
-              uaOSVersion: request.app.ua.osVersion,
-              uaDeviceType: request.app.ua.deviceType,
-              uid: sessionToken.uid,
-            }
-          );
+          if (!rpCmsConfig || !rpCmsConfig.VerifyLoginCodeEmail) {
+            await mailer.sendVerifyLoginCodeEmail(
+              accountRecord.emails,
+              accountRecord,
+              emailContext
+            );
+          } else {
+            const metricsContext = await request.app.metricsContext;
+            await mailer.sendVerifyLoginCodeEmail(
+              accountRecord.emails,
+              accountRecord,
+              {
+                ...emailContext,
+                target: 'strapi',
+                cmsRpClientId: rpCmsConfig.clientId,
+                cmsRpFromName: rpCmsConfig.shared?.emailFromName,
+                entrypoint: metricsContext.entrypoint,
+                logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
+                logoAltText: rpCmsConfig?.shared?.logoAltText,
+                ...rpCmsConfig.VerifyLoginCodeEmail,
+              }
+            );
+          }
 
           await request.emitMetricsEvent('email.tokencode.sent');
           await glean.login.verifyCodeEmailSent(request, {

@@ -2,6 +2,8 @@ import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import error from '../../error';
 import { reportSentryError } from '../../../lib/sentry';
+import { RelyingPartiesQuery } from '../../../../../libs/shared/cms/src/__generated__/graphql';
+import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 
 export const deleteAccountIfUnverified = async (
   db: any,
@@ -53,4 +55,26 @@ export const deleteAccountIfUnverified = async (
       throw err;
     }
   }
+};
+
+export const fetchRpCmsData = async (
+  request: AuthRequest,
+  cmsManager: RelyingPartyConfigurationManager | null,
+  logger: AuthLogger
+): Promise<RelyingPartiesQuery['relyingParties'][0] | null> => {
+  const metricsContext = await request.app.metricsContext;
+  if (metricsContext.service && metricsContext.entrypoint && cmsManager) {
+    try {
+      const res = await cmsManager.fetchCMSData(
+        // this `service` here is the OAuth client id
+        metricsContext.service,
+        metricsContext.entrypoint
+      );
+      return res.relyingParties.length > 0 ? res.relyingParties[0] : null;
+    } catch (error) {
+      logger.error('cms.getConfig.error', { error });
+    }
+  }
+
+  return null;
 };

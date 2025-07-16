@@ -63,7 +63,7 @@ describe('FlowSetup2faBackupCodeDownload', () => {
       'twoStepAuthCodesView'
     );
     renderFlowSetup2faBackupCodeDownload();
-    expect(gleanSpy).toBeCalled();
+    expect(gleanSpy).toHaveBeenCalled();
 
     const downloadButton = screen.getByRole('link', { name: 'Download' });
     const copyButton = screen.getByRole('button', { name: 'Copy' });

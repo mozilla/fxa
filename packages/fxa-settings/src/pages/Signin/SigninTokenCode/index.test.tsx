@@ -18,7 +18,10 @@ import { createOAuthNativeIntegration, Subject } from './mocks';
 import { MOCK_SIGNUP_CODE } from '../../Signup/ConfirmSignupCode/mocks';
 import { MOCK_EMAIL, MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { createMockSigninOAuthIntegration, createMockSigninWebIntegration } from '../mocks';
+import {
+  createMockSigninOAuthIntegration,
+  createMockSigninWebIntegration,
+} from '../mocks';
 import VerificationReasons from '../../../constants/verification-reasons';
 import { navigate } from '@reach/router';
 import { SigninOAuthIntegration } from '../interfaces';
@@ -52,7 +55,7 @@ jest.mock('@reach/router', () => {
     __esModule: true,
     ...jest.requireActual('@reach/router'),
     navigate: jest.fn(),
-    useLocation: () => () => { },
+    useLocation: () => () => {},
   };
 });
 
@@ -63,7 +66,8 @@ function render(
   } = {}
 ) {
   if (!props.integration) {
-    props.integration = createMockSigninWebIntegration() as SigninOAuthIntegration;
+    props.integration =
+      createMockSigninWebIntegration() as SigninOAuthIntegration;
   }
   renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ session })}>
@@ -73,7 +77,7 @@ function render(
 }
 
 function mockReactUtilsModule() {
-  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => { });
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
 const serviceRelayText =
@@ -111,7 +115,7 @@ describe('SigninTokenCode page', () => {
       (_, element) =>
         element?.tagName === 'P' &&
         element?.textContent ===
-        `Enter the code that was sent to ${MOCK_EMAIL} within 5 minutes.`
+          `Enter the code that was sent to ${MOCK_EMAIL} within 5 minutes.`
     );
     screen.getByLabelText('Enter 6-digit code');
     screen.getByRole('button', { name: 'Confirm' });
@@ -130,7 +134,7 @@ describe('SigninTokenCode page', () => {
   it('emits a metrics event on render', () => {
     render();
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
-    expect(GleanMetrics.loginConfirmation.view).toBeCalledTimes(1);
+    expect(GleanMetrics.loginConfirmation.view).toHaveBeenCalledTimes(1);
   });
 
   describe('handleResendCode submission', () => {
@@ -187,7 +191,7 @@ describe('SigninTokenCode page', () => {
           expect(screen.getByTestId('tooltip')).toHaveTextContent(
             'Confirmation code required'
           );
-          expect(GleanMetrics.loginConfirmation.submit).not.toBeCalled();
+          expect(GleanMetrics.loginConfirmation.submit).not.toHaveBeenCalled();
         });
       }
       it('if no input', async () => {
@@ -218,8 +222,8 @@ describe('SigninTokenCode page', () => {
       await screen.findByText(
         'You’ve tried too many times. Please try again later.'
       );
-      expect(GleanMetrics.loginConfirmation.submit).toBeCalledTimes(1);
-      expect(GleanMetrics.loginConfirmation.success).not.toBeCalled();
+      expect(GleanMetrics.loginConfirmation.submit).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.loginConfirmation.success).not.toHaveBeenCalled();
     });
     it('on other error, renders expected default error message in tooltip', async () => {
       session = {
@@ -232,8 +236,8 @@ describe('SigninTokenCode page', () => {
       expect(await screen.findByTestId('tooltip')).toHaveTextContent(
         'Invalid or expired confirmation code'
       );
-      expect(GleanMetrics.loginConfirmation.submit).toBeCalledTimes(1);
-      expect(GleanMetrics.loginConfirmation.success).not.toBeCalled();
+      expect(GleanMetrics.loginConfirmation.submit).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.loginConfirmation.success).not.toHaveBeenCalled();
     });
 
     describe('on success', () => {
@@ -241,7 +245,7 @@ describe('SigninTokenCode page', () => {
       beforeEach(() => {
         hardNavigateSpy = jest
           .spyOn(ReactUtils, 'hardNavigate')
-          .mockImplementation(() => { });
+          .mockImplementation(() => {});
       });
       afterEach(() => {
         hardNavigateSpy.mockRestore();
@@ -249,10 +253,12 @@ describe('SigninTokenCode page', () => {
 
       async function expectSuccessGleanEvents() {
         await waitFor(() => {
-          expect(GleanMetrics.loginConfirmation.submit).toBeCalledTimes(1);
+          expect(GleanMetrics.loginConfirmation.submit).toHaveBeenCalledTimes(
+            1
+          );
         });
-        expect(GleanMetrics.loginConfirmation.success).toBeCalledTimes(1);
-        expect(GleanMetrics.isDone).toBeCalledTimes(1);
+        expect(GleanMetrics.loginConfirmation.success).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.isDone).toHaveBeenCalledTimes(1);
       }
       it('default behavior', async () => {
         const mockOnSessionVerified = jest.fn().mockResolvedValue(true);
@@ -290,13 +296,18 @@ describe('SigninTokenCode page', () => {
         const integration = createMockSigninOAuthIntegration();
         const hardNavigate = jest
           .spyOn(ReactUtils, 'hardNavigate')
-          .mockImplementation(() => { });
+          .mockImplementation(() => {});
 
         render({ finishOAuthFlowHandler, integration });
         submitCode();
         await expectSuccessGleanEvents();
         await waitFor(() => {
-          expect(hardNavigate).toHaveBeenCalledWith('someUri', undefined, undefined, true);
+          expect(hardNavigate).toHaveBeenCalledWith(
+            'someUri',
+            undefined,
+            undefined,
+            true
+          );
         });
       });
     });

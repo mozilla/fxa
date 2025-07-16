@@ -168,7 +168,7 @@ const CardHeader = (props: CardHeaderProps) => {
         {cmsLogoUrl && cmsLogoAltText && (
           <img
             src={cmsLogoUrl}
-            alt={cmsLogoUrl}
+            alt={cmsLogoAltText}
             className="justify-start mb-4 max-h-[40px]"
           />
         )}

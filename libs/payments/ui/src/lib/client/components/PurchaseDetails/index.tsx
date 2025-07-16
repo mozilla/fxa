@@ -112,76 +112,59 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
             </li>
           ))}
         </ul>
-      </div>
 
-      {showPrices && (
-        <>
-          <div
-            className="border-b border-grey-200"
-            role="separator"
-            aria-hidden="true"
-          ></div>
+        {showPrices && (
+          <>
+            <div
+              className="border-b border-grey-200"
+              role="separator"
+              aria-hidden="true"
+            ></div>
 
-          <ul className="border-b border-grey-200 py-6">
-            <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
-              <Localized id="next-plan-details-list-price">
-                <p>List Price</p>
-              </Localized>
-              <p>
-                {getLocalizedCurrencyString(offeringPrice, currency, locale)}
-              </p>
-            </li>
-
-            {!!unusedAmountTotal && (
-              <>
-                <li className="flex items-center justify-between gap-2 leading-5 text-grey-600">
-                  <Localized id="purchase-details-unused-time-label">
-                    <p>Credit from unused time</p>
-                  </Localized>
-                  <p>
-                    {getLocalizedCurrencyString(
-                      unusedAmountTotal,
-                      currency,
-                      locale
-                    )}
-                  </p>
-                </li>
-
-                <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 pb-4 font-semibold">
-                  <Localized id="purchase-details-subtotal-label">
-                    <h3>Subtotal</h3>
-                  </Localized>
-                  <p>
-                    {getLocalizedCurrencyString(subtotal, currency, locale)}
-                  </p>
-                </li>
-              </>
-            )}
-
-            {!!discountAmount && discountAmount > 0 && (
+            <ul className="border-b border-grey-200 py-6">
               <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
-                <Localized id="next-coupon-promo-code">
-                  <p>Promo Code</p>
+                <Localized id="next-plan-details-list-price">
+                  <p>List Price</p>
                 </Localized>
                 <p>
-                  {getLocalizedCurrencyString(
-                    -1 * discountAmount,
-                    currency,
-                    locale
-                  )}
+                  {getLocalizedCurrencyString(offeringPrice, currency, locale)}
                 </p>
               </li>
-            )}
 
-            {exclusiveTaxRates.length === 1 &&
-              exclusiveTaxRates[0].amount !== 0 && (
+              {!!unusedAmountTotal && (
+                <>
+                  <li className="flex items-center justify-between gap-2 leading-5 text-grey-600">
+                    <Localized id="purchase-details-unused-time-label">
+                      <p>Credit from unused time</p>
+                    </Localized>
+                    <p>
+                      {getLocalizedCurrencyString(
+                        unusedAmountTotal,
+                        currency,
+                        locale
+                      )}
+                    </p>
+                  </li>
+
+                  <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 pb-4 font-semibold">
+                    <Localized id="purchase-details-subtotal-label">
+                      <h3>Subtotal</h3>
+                    </Localized>
+                    <p>
+                      {getLocalizedCurrencyString(subtotal, currency, locale)}
+                    </p>
+                  </li>
+                </>
+              )}
+
+              {!!discountAmount && discountAmount > 0 && (
                 <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
-                  <Localized id="next-plan-details-tax">
-                    <p>Taxes and Fees</p>
+                  <Localized id="next-coupon-promo-code">
+                    <p>Promo Code</p>
                   </Localized>
                   <p>
                     {getLocalizedCurrencyString(
-                      exclusiveTaxRates[0].amount,
+                      -1 * discountAmount,
                       currency,
                       locale
                     )}
@@ -189,97 +172,123 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
                 </li>
               )}
 
-            {exclusiveTaxRates.length > 1 &&
-              exclusiveTaxRates.map(
-                (taxRate) =>
-                  taxRate.amount > 0 && (
-                    <li
-                      key={taxRate.title}
-                      className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm"
-                    >
-                      <Localized id="tax">
-                        <p>{taxRate.title}</p>
-                      </Localized>
-                      <p>
-                        {getLocalizedCurrencyString(
-                          taxRate.amount,
-                          currency,
-                          locale
-                        )}
-                      </p>
-                    </li>
-                  )
-              )}
+              {exclusiveTaxRates.length === 1 &&
+                exclusiveTaxRates[0].amount !== 0 && (
+                  <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
+                    <Localized id="next-plan-details-tax">
+                      <p>Taxes and Fees</p>
+                    </Localized>
+                    <p>
+                      {getLocalizedCurrencyString(
+                        exclusiveTaxRates[0].amount,
+                        currency,
+                        locale
+                      )}
+                    </p>
+                  </li>
+                )}
 
-            <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 font-semibold">
-              <Localized id="next-plan-details-total-label">
-                <h3>Total</h3>
+              {exclusiveTaxRates.length > 1 &&
+                exclusiveTaxRates.map(
+                  (taxRate) =>
+                    taxRate.amount > 0 && (
+                      <li
+                        key={taxRate.title}
+                        className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm"
+                      >
+                        <Localized id="tax">
+                          <p>{taxRate.title}</p>
+                        </Localized>
+                        <p>
+                          {getLocalizedCurrencyString(
+                            taxRate.amount,
+                            currency,
+                            locale
+                          )}
+                        </p>
+                      </li>
+                    )
+                )}
+
+              <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 font-semibold">
+                <Localized id="next-plan-details-total-label">
+                  <h3>Total</h3>
+                </Localized>
+                <p
+                  className="overflow-hidden text-ellipsis whitespace-nowrap"
+                  data-testid="total-price"
+                >
+                  {getLocalizedCurrencyString(totalAmount, currency, locale)}
+                </p>
+              </li>
+
+              {!!creditApplied && startingBalance < 0 && (
+                <div className="flex items-center justify-between gap-2 leading-5 text-grey-600 pt-4">
+                  <Localized id="purchase-details-credit-applied-label">
+                    <p>Credit applied</p>
+                  </Localized>
+                  <p className="flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                    {getLocalizedCurrencyString(
+                      creditApplied,
+                      currency,
+                      locale
+                    )}
+                  </p>
+                </div>
+              )}
+            </ul>
+
+            <div className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm my-6 font-semibold">
+              <Localized id="purchase-details-total-due-label">
+                <h3 className="text-base">Total due</h3>
               </Localized>
               <p
-                className="overflow-hidden text-ellipsis whitespace-nowrap"
+                className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
                 data-testid="total-price"
               >
-                {getLocalizedCurrencyString(totalAmount, currency, locale)}
+                {!!unusedAmountTotal
+                  ? getLocalizedCurrencyString(amountDue, currency, locale)
+                  : totalPrice}
               </p>
-            </li>
+            </div>
 
-            {!!creditApplied && startingBalance < 0 && (
-              <div className="flex items-center justify-between gap-2 leading-5 text-grey-600 pt-4">
-                <Localized id="purchase-details-credit-applied-label">
-                  <p>Credit applied</p>
+            {!discountType ||
+            discountType === 'forever' ? null : discountEnd ? (
+              <div
+                className="flex items-center justify-center gap-2 text-green-900 pt-2 pb-6 font-medium"
+                data-testid="coupon-success-with-date"
+              >
+                <Image src={infoLogo} alt="" />
+                <Localized
+                  id="next-coupon-success-repeating"
+                  vars={{
+                    couponDurationDate: getLocalizedDateString(
+                      discountEnd,
+                      true
+                    ),
+                  }}
+                >
+                  <p>
+                    Your plan will automatically renew after
+                    {getLocalizedDateString(discountEnd, true)} at the list
+                    price.
+                  </p>
                 </Localized>
-                <p className="flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                  {getLocalizedCurrencyString(creditApplied, currency, locale)}
-                </p>
+              </div>
+            ) : (
+              <div
+                className="flex items-center justify-center gap-2 text-green-900 pt-2 pb-6 font-medium"
+                data-testid="coupon-success"
+              >
+                <Image src={infoLogo} alt="" />
+                <Localized id="next-coupon-success">
+                  <p>Your plan will automatically renew at the list price.</p>
+                </Localized>
               </div>
             )}
-          </ul>
-
-          <div className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm my-6 font-semibold">
-            <Localized id="purchase-details-total-due-label">
-              <h3 className="text-base">Total due</h3>
-            </Localized>
-            <p
-              className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
-              data-testid="total-price"
-            >
-              {!!unusedAmountTotal
-                ? getLocalizedCurrencyString(amountDue, currency, locale)
-                : totalPrice}
-            </p>
-          </div>
-
-          {!discountType || discountType === 'forever' ? null : discountEnd ? (
-            <div
-              className="flex items-center justify-center gap-2 text-green-900 pt-2 pb-6 font-medium"
-              data-testid="coupon-success-with-date"
-            >
-              <Image src={infoLogo} alt="" />
-              <Localized
-                id="next-coupon-success-repeating"
-                vars={{
-                  couponDurationDate: getLocalizedDateString(discountEnd, true),
-                }}
-              >
-                <p>
-                  Your plan will automatically renew after
-                  {getLocalizedDateString(discountEnd, true)} at the list price.
-                </p>
-              </Localized>
-            </div>
-          ) : (
-            <div
-              className="flex items-center justify-center gap-2 text-green-900 pt-2 pb-6 font-medium"
-              data-testid="coupon-success"
-            >
-              <Image src={infoLogo} alt="" />
-              <Localized id="next-coupon-success">
-                <p>Your plan will automatically renew at the list price.</p>
-              </Localized>
-            </div>
-          )}
-        </>
-      )}
+          </>
+        )}
+      </div>
 
       <div
         className="flex items-center justify-center tablet:hidden"

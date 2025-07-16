@@ -49,6 +49,7 @@ const SigninRecoveryPhoneContainer = ({
   const lastFourPhoneDigits = location.state?.lastFourPhoneDigits;
   const numBackupCodes = location.state?.numBackupCodes;
   const navigateWithQuery = useNavigateWithQuery();
+  const sendError = location.state?.sendError;
 
   useEffect(() => {
     if (!signinState || !signinState.sessionToken || !lastFourPhoneDigits) {
@@ -191,6 +192,7 @@ const SigninRecoveryPhoneContainer = ({
         lastFourPhoneDigits,
         verifyCode,
         resendCode,
+        sendError,
         numBackupCodes,
         integration
       }}

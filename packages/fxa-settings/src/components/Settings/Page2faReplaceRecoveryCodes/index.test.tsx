@@ -89,7 +89,7 @@ describe('Page2faReplaceRecoveryCodes', () => {
       'download',
       expect.stringContaining('Backup authentication codes')
     );
-    expect(settingsContext.alertBarInfo?.error).not.toBeCalled();
+    expect(settingsContext.alertBarInfo?.error).not.toHaveBeenCalled();
   });
 
   it('displays an error when fails to fetch new backup authentication codes', async () => {

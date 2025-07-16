@@ -143,7 +143,7 @@ describe('Stripe Service', () => {
   });
 
   it('validates plan', () => {
-    const baseUrl = 'https://accounts-static.cdn.mozilla.net';
+    const baseUrl = 'https://cdn.accounts.firefox.com';
 
     const result = validateStripePlan({
       metadata: {

@@ -68,13 +68,13 @@ describe('DataCollection', () => {
     await act(async () => {
       button.click();
     });
-    await waitFor(() => expect(account.metricsOpt).toBeCalledWith('out'));
+    await waitFor(() => expect(account.metricsOpt).toHaveBeenCalledWith('out'));
     //@ts-ignore mock doesn't care that the prop is readonly
     account.metricsEnabled = false;
     await act(async () => {
       button.click();
     });
-    await waitFor(() => expect(account.metricsOpt).toBeCalledWith('in'));
+    await waitFor(() => expect(account.metricsOpt).toHaveBeenCalledWith('in'));
   });
 
   describe('AlertBar', () => {
@@ -96,7 +96,7 @@ describe('DataCollection', () => {
         fireEvent.click(screen.getByTestId('metrics-opt-out'));
       });
 
-      expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledTimes(1);
       expect(
         (settingsContext.alertBarInfo?.success as jest.Mock).mock.calls[0][0]
       ).toContain('Opt out successful.');
@@ -122,7 +122,7 @@ describe('DataCollection', () => {
         fireEvent.click(screen.getByTestId('metrics-opt-out'));
       });
 
-      expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledTimes(1);
       expect(
         (settingsContext.alertBarInfo?.success as jest.Mock).mock.calls[0][0]
       ).toContain('Thanks! Sharing this data helps us improve');
@@ -148,7 +148,7 @@ describe('DataCollection', () => {
         fireEvent.click(screen.getByTestId('metrics-opt-out'));
       });
 
-      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledTimes(1);
       expect(
         (settingsContext.alertBarInfo?.error as jest.Mock).mock.calls[0][0]
       ).toContain('Sorry, there was a problem');

@@ -103,6 +103,6 @@ describe('ModalVerifySession', () => {
       fireEvent.click(screen.getByTestId('modal-verify-session-submit'));
     });
 
-    expect(onError).toBeCalledWith(error);
+    expect(onError).toHaveBeenCalledWith(error);
   });
 });

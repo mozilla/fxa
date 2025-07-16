@@ -14,8 +14,8 @@ const createStory = subplatStoryWithProps(
   'Sent to inform a user that their first payment is currently being processed.',
   {
     productName: 'Firefox Fortress',
-    icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
     invoiceAmountDue: '$10.00',
+    icon: 'https://cdn.accounts.firefox.com/product-icons/mozilla-vpn-email.png',
     invoiceDateOnly: '10/13/2021',
     invoiceLink:
       'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',

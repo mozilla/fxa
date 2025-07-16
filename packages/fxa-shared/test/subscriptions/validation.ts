@@ -31,7 +31,7 @@ describe('subscriptions/validation', () => {
       successActionButtonURL: 'https://example.com/successbutton',
       productSet: 'product-one',
       'product:termsOfServiceDownloadURL':
-        'https://accounts-static.cdn.mozilla.net/legal/termsdownload',
+        'https://cdn.accounts.firefox.com/legal/termsdownload',
       'product:termsOfServiceURL': 'https://example.com/terms',
       'product:privacyNoticeURL': 'https://example.com/privacy',
     };

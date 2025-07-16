@@ -142,21 +142,21 @@ describe('SigninRecoveryCode container', () => {
       mockReachRouter('signin_recovery_code');
       mockCache({}, true);
       await render([]);
-      expect(mockNavigate).toBeCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('redirects if there is no sessionToken', async () => {
       mockReachRouter('signin_recovery_code');
       mockCache({ sessionToken: '' });
       await render([]);
-      expect(mockNavigate).toBeCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
     it('retrieves the session token from local storage if no location state', async () => {
       mockReachRouter('signin_recovery_code', {});
       mockCache(MOCK_STORED_ACCOUNT);
       await render([]);
-      expect(mockNavigate).not.toBeCalledWith('/');
+      expect(mockNavigate).not.toHaveBeenCalledWith('/');
     });
 
     it('reads data from sensitive data client', () => {

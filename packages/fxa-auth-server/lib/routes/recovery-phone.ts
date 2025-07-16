@@ -421,7 +421,7 @@ class RecoveryPhoneHandler {
     }
 
     if (success) {
-      await this.glean.twoStepAuthPhoneCode.complete(request);
+      await this.glean.login.recoveryPhoneSuccess(request);
 
       const account = await this.db.account(uid);
       const { acceptLanguage, geo, ua } = request.app;

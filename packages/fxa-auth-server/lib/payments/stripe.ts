@@ -3364,44 +3364,48 @@ export class StripeHelper extends StripeHelperBase {
    * Process a customer event that needs to be saved to Firestore.
    */
   async processCustomerEventToFirestore(event: Stripe.Event) {
-    const customer = await this.stripe.customers.retrieve(
-      (event.data.object as Stripe.Customer).id
-    );
-    const { uid } = await getUidAndEmailByStripeCustomerId(customer.id);
+    const customerId = (event.data.object as Stripe.Customer).id;
+    const { uid } = await getUidAndEmailByStripeCustomerId(customerId);
     if (!uid) {
       return;
     }
 
-    // Ensure the customer and its subscriptions exist in Firestore.
-    // Note that we still insert the object here in case we've already
-    // fetched the customer previously.
-    return this.stripeFirestore.insertCustomerRecordWithBackfill(uid, customer);
+    return this.stripeFirestore.fetchAndInsertCustomer(customerId);
   }
 
   /**
    * Process a subscription event that needs to be saved to Firestore.
    */
   async processSubscriptionEventToFirestore(event: Stripe.Event) {
-    const subscription = await this.stripe.subscriptions.retrieve(
-      (event.data.object as Stripe.Subscription).id
-    );
+    const eventObject = event.data.object as Stripe.Subscription;
+    const subscriptionId = eventObject.id;
+    const customerId = typeof eventObject.customer === "string" ? eventObject.customer : eventObject.customer.id;
+
     // Update the customer if our copy of the customer is missing the currency.
     // This could occur in some edge cases where the subscription is created
     // before a user paying with paypal has the paypal agreement ID set on the
     // user.
-    const customer = await this.expandResource(
-      subscription.customer,
+    const customer = await this.expandResource<Stripe.Customer>(
+      customerId,
       CUSTOMER_RESOURCE
     );
     if (!customer.deleted && !customer.currency) {
       await this.stripeFirestore.fetchAndInsertCustomer(
-        subscription.customer as string
+        customerId
+      );
+      const subscription = await this.stripe.subscriptions.retrieve(
+        subscriptionId
       );
       return subscription;
     }
 
-    return this.stripeFirestore.insertSubscriptionRecordWithBackfill(
-      subscription
+    const customerSnap = await this.stripeFirestore.retrieveCustomer({
+      customerId: customer.id,
+    });
+
+    return this.stripeFirestore.fetchAndInsertSubscription(
+      subscriptionId,
+      customerSnap.metadata.userid
     );
   }
 

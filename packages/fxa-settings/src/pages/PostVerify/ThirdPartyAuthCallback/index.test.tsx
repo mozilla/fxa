@@ -175,7 +175,7 @@ describe('ThirdPartyAuthCallback component', () => {
       );
     });
 
-    expect(hardNavigateSpy).toBeCalledWith(
+    expect(hardNavigateSpy).toHaveBeenCalledWith(
       '/post_verify/third_party_auth/callback?flowId=aaaa&flowBeginTime=1734112296000&utm_campaign=testo'
     );
   });
@@ -195,7 +195,7 @@ describe('ThirdPartyAuthCallback component', () => {
 
     renderWith({ integration });
 
-    expect(hardNavigateSpy).toBeCalledWith(
+    expect(hardNavigateSpy).toHaveBeenCalledWith(
       '/?flowId=aaaa&flowBeginTime=1734112296000&utm_campaign=testo'
     );
   });
@@ -212,7 +212,7 @@ describe('ThirdPartyAuthCallback component', () => {
     renderWith({ integration });
 
     await waitFor(() => {
-      expect(handleNavigation).toBeCalledWith({
+      expect(handleNavigation).toHaveBeenCalledWith({
         email: 'johndope@example.com',
         finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
         handleFxaLogin: false,

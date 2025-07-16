@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { Account } from '../../../models/Account';
+import AuthClient from 'fxa-auth-client/browser';
 
 import { PageSettings } from '.';
 import { Config } from '../../../lib/config';
@@ -28,24 +29,34 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
+const mockAuthClient = {
+  geoEligibilityCheck: async () => ({ eligible: true }),
+} as Partial<AuthClient> as AuthClient;
+
 const storyWithContext = (
   account: Partial<Account>,
   storyName?: string,
   config?: Config
 ) => {
   const context = config
-    ? { account: account as Account, config: config }
-    : { account: account as Account };
+    ? {
+        account: account as Account,
+        config: config,
+        authClient: mockAuthClient,
+      }
+    : { account: account as Account, authClient: mockAuthClient };
 
-  const story = () => (
-    <LocationProvider>
-      <AppContext.Provider value={mockAppContext(context)}>
-        <SettingsLayout>
-          <PageSettings />
-        </SettingsLayout>
-      </AppContext.Provider>
-    </LocationProvider>
-  );
+  const story = () => {
+    return (
+      <LocationProvider>
+        <AppContext.Provider value={mockAppContext(context)}>
+          <SettingsLayout>
+            <PageSettings />
+          </SettingsLayout>
+        </AppContext.Provider>
+      </LocationProvider>
+    );
+  };
   if (storyName) story.storyName = storyName;
   return story;
 };

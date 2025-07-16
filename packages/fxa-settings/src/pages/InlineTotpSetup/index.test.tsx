@@ -152,6 +152,6 @@ describe('InlineTotpSetup', () => {
         await user.click(screen.getByRole('button', { name: 'Ready' }))
     );
     await screen.findByText('Invalid two-step authentication code');
-    expect(verifyCodeHandler).toBeCalledWith('000000');
+    expect(verifyCodeHandler).toHaveBeenCalledWith('000000');
   });
 });
