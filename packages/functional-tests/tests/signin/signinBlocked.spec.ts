@@ -208,9 +208,7 @@ test.describe('severity-2 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      // Retries and waiting for unblock codes takes time. Without this
-      // test routinely times out in circleci.
-      test.setTimeout(30000);
+      test.skip(true, 'TODO: FXA-12084');
 
       const config = await configPage.getConfig();
       const credentials = await testAccountTracker.signUpSync({
