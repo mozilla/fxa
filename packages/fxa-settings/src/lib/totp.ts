@@ -2,8 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { authenticator } from '@otplib/preset-browser';
 import random from './random';
+
+let authenticator: any;
+
+// Use the appropriate otplib version based on environment
+if (typeof window !== 'undefined') {
+  // Browser environment - use the browser-optimized version
+  const { authenticator: auth } = require('@otplib/preset-browser');
+  authenticator = auth;
+} else {
+  // Node.js environment (tests) - use the regular version
+  const { authenticator: auth } = require('otplib');
+  authenticator = auth;
+}
 
 // Configure otplib to match auth-server settings
 authenticator.options = {

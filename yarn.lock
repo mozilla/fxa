@@ -33305,6 +33305,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.9.0"
     mutationobserver-shim: "npm:^0.3.7"
     nx: "npm:21.1.2"
+    otplib: "npm:^11.0.1"
     persistgraphql: "npm:^0.3.11"
     pm2: "npm:^5.4.2"
     postcss: "npm:^8.5.0"
