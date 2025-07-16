@@ -25,6 +25,7 @@ import { handleNavigation } from '../utils';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+import { NavigationOptions } from '../interfaces';
 
 export const viewName = 'signin-token-code';
 
@@ -144,7 +145,7 @@ const SigninTokenCode = ({
         // in another. You reach the "Sorry. We've locked your account" screen
         GleanMetrics.loginConfirmation.success();
 
-        const navigationOptions = {
+        const navigationOptions: NavigationOptions = {
           email,
           signinData: {
             uid,
@@ -153,6 +154,7 @@ const SigninTokenCode = ({
             verified: true,
             keyFetchToken,
           },
+          sessionVerified: true,
           unwrapBKey,
           integration,
           finishOAuthFlowHandler,

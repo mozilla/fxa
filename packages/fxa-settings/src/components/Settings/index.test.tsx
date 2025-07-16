@@ -4,17 +4,24 @@
 
 import React, { ReactNode } from 'react';
 import { History } from '@reach/router';
-import { Account, AppContext, useInitialSettingsState } from '../../models';
+import {
+  Account,
+  AppContext,
+  Session,
+  useInitialSettingsState,
+} from '../../models';
 import {
   mockAppContext,
   MOCK_ACCOUNT,
   renderWithRouter,
   mockSession,
+  MOCK_SESSION,
 } from '../../models/mocks';
 import { Config } from '../../lib/config';
 import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject } from './mocks';
+import { useGeoEligibilityCheck } from '../../lib/hooks/useGeoEligibilityCheck';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
@@ -43,15 +50,23 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const mockUseGeoEligibilityCheck = jest.fn().mockReturnValue({ eligible: false });
+const mockUseGeoEligibilityCheck = jest
+  .fn()
+  .mockReturnValue({ eligible: false });
 jest.mock('../../lib/hooks/useGeoEligibilityCheck', () => ({
   useGeoEligibilityCheck: () => mockUseGeoEligibilityCheck(),
+}));
+
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
 }));
 
 describe('Settings App', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
     (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
     mockNavigate.mockReset();
   });
@@ -337,6 +352,50 @@ describe('Settings App', () => {
     it('redirects ChangePassword', async () => {
       await history.navigate(SETTINGS_PATH + '/change_password');
       expect(history.location.pathname).toBe('/settings/create_password');
+    });
+  });
+
+  describe('prevents access if session is not verified', () => {
+    let history: History;
+
+    beforeEach(() => {
+      const account = {
+        ...MOCK_ACCOUNT,
+        hasPassword: false,
+      } as unknown as Account;
+
+      const session = {
+        ...MOCK_SESSION,
+        verified: false,
+      } as unknown as Session;
+
+      const config = {
+        l10n: { strict: true },
+        metrics: { navTiming: { enabled: true, endpoint: '/foobar' } },
+      } as Config;
+
+      ({ history } = renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({ account, session, config })}
+        >
+          <AppLocalizationProvider
+            messages={{ en: ['testo: lol'] }}
+            reportError={() => {}}
+          >
+            <Subject />
+          </AppLocalizationProvider>
+        </AppContext.Provider>,
+        { route: SETTINGS_PATH }
+      ));
+    });
+
+    it('redirects to root', async () => {
+      await history.navigate(SETTINGS_PATH);
+      expect(mockNavigateWithQuery).toHaveBeenCalledTimes(2); // Why does it called twice \o/
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      expect(console.warn).toHaveBeenCalledWith(
+        'Session.verified false on /settings access!'
+      );
     });
   });
 });

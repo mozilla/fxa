@@ -119,6 +119,7 @@ export interface BeginSigninResponse {
   unwrapBKey?: hexstring;
   authPW?: hexstring;
   showInlineRecoveryKeySetup?: boolean;
+  sessionVerified?: boolean;
 }
 
 export type CachedSigninHandler = (
@@ -201,6 +202,8 @@ export interface NavigationOptions {
     // This (and unwrapBKey) will never exist for the cached signin (prompt=none)
     keyFetchToken?: hexstring;
   };
+  // TODO, make required?
+  sessionVerified?: boolean;
   // unwrapBKey is included if integration.wantsKeys()
   unwrapBKey?: hexstring;
   integration: SigninIntegration;

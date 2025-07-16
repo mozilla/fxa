@@ -108,6 +108,7 @@ const SetPasswordContainer = ({
               verified: true,
               keyFetchToken,
             },
+            sessionVerified: true,
             unwrapBKey,
             integration,
             finishOAuthFlowHandler,
