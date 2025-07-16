@@ -96,21 +96,25 @@ module.exports = (config) => {
   };
 
   Client.create = async function (origin, email, password, options = {}) {
-    const c = new Client(origin, options);
+    try {
+      const c = new Client(origin, options);
 
-    if (options.version === 'V2') {
-      await c.setupCredentials(email, password);
-      await c.setupCredentialsV2(email, password);
+      if (options.version === 'V2') {
+        await c.setupCredentials(email, password);
+        await c.setupCredentialsV2(email, password);
 
-      c.generateNewWrapKb();
-      c.deriveWrapKbVersion2FromKb();
+        c.generateNewWrapKb();
+        c.deriveWrapKbVersion2FromKb();
 
-      const result = await c.createV2();
-      return result;
-    } else {
-      await c.setupCredentials(email, password);
-      const result = await c.create(options);
-      return result;
+        const result = await c.createV2();
+        return result;
+      } else {
+        await c.setupCredentials(email, password);
+        const result = await c.create(options);
+        return result;
+      }
+    } catch(e) {
+      throw new Error("here");
     }
   };
 
