@@ -45,6 +45,7 @@ const PRODUCT_NAME = 'All Done Pro';
         sharedSecret: 'wibble',
         paymentsServer: config.subscriptions.paymentsServer,
       };
+      config.cms.enabled = false;
       Container.set(AppConfig, config);
     });
 
