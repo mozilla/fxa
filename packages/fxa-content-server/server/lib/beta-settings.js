@@ -5,6 +5,10 @@
 const { readFileSync } = require('fs');
 const { join, extname } = require('path');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const {
+  supportedLanguages,
+  rtlLocales,
+} = require('../../../../dist/libs/shared/l10n/main.js');
 const config = require('./configuration');
 const FLOW_ID_KEY = config.get('flow_id_key');
 const flowMetrics = require('./flow-metrics');
@@ -45,6 +49,8 @@ const settingsConfig = {
   l10n: {
     strict: false,
     baseUrl: config.get('l10n.baseUrl'),
+    supportedLanguages,
+    rtlLocales,
   },
   sentry: {
     dsn: config.get('sentry.dsn'),
@@ -112,7 +118,7 @@ const settingsConfig = {
   nimbusPreview: config.get('nimbusPreview'),
   cms: {
     enabled: config.get('cms.enabled'),
-  }
+  },
 };
 
 // Inject Settings content into the index HTML
