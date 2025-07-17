@@ -40,7 +40,13 @@ export interface ConfirmSignupCodeFormData {
 
 export type ConfirmSignupCodeBaseIntegration = Pick<
   Integration,
-  'type' | 'data' | 'getService' | 'getClientId' | 'isDesktopRelay' | 'isSync' | 'getCmsInfo'
+  | 'type'
+  | 'data'
+  | 'getService'
+  | 'getClientId'
+  | 'isDesktopRelay'
+  | 'isSync'
+  | 'getCmsInfo'
 >;
 
 export type ConfirmSignupCodeOAuthIntegration = Pick<
@@ -55,6 +61,7 @@ export type ConfirmSignupCodeOAuthIntegration = Pick<
   | 'getPermissions'
   | 'isDesktopRelay'
   | 'getCmsInfo'
+  | 'isFirefoxMobileClient'
 >;
 
 export type ConfirmSignupCodeIntegration =
