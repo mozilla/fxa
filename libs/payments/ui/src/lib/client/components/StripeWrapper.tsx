@@ -76,10 +76,10 @@ interface StripeWrapperProps {
   cart: {
     paymentInfo?: {
       type:
-      | Stripe.PaymentMethod.Type
-      | 'google_iap'
-      | 'apple_iap'
-      | 'external_paypal';
+        | Stripe.PaymentMethod.Type
+        | 'google_iap'
+        | 'apple_iap'
+        | 'external_paypal';
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
@@ -146,6 +146,65 @@ export function StripeWrapper({
   ) {
     delete options.externalPaymentMethodTypes;
   }
+
+  return (
+    <Elements stripe={stripePromise} options={options}>
+      {children}
+    </Elements>
+  );
+}
+
+interface StripeManagementWrapperProps {
+  locale: string;
+  currency: string;
+  sessionSecret: string;
+  children: React.ReactNode;
+}
+
+export function StripeManagementWrapper({
+  locale,
+  currency,
+  sessionSecret,
+  children,
+}: StripeManagementWrapperProps) {
+  const config = useContext(ConfigContext);
+  const [stripePromise] = useState(() => loadStripe(config.stripePublicApiKey));
+
+  const options: StripeElementsOptions = {
+    mode: 'setup',
+    locale: isStripeElementLocale(locale) ? locale : 'auto',
+    paymentMethodCreation: 'manual',
+    currency,
+    customerSessionClientSecret: sessionSecret,
+    setupFutureUsage: 'off_session',
+    appearance: {
+      variables: {
+        fontFamily:
+          'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+        fontSizeBase: '16px',
+        fontSizeSm: '16px',
+        fontWeightNormal: '500',
+        colorDanger: '#D70022',
+      },
+      rules: {
+        '.Tab': {
+          borderColor: 'rgba(0,0,0,0.3)',
+        },
+        '.Input': {
+          borderColor: 'rgba(0,0,0,0.3)',
+        },
+        '.Input::placeholder': {
+          color: '#5E5E72', // Matches grey-500 of tailwind.config.js
+          fontWeight: '400',
+        },
+        '.Label': {
+          color: '#6D6D6E', // Matches grey-400 of tailwind.config.js
+          fontWeight: '500',
+          lineHeight: '1.15',
+        },
+      },
+    },
+  };
 
   return (
     <Elements stripe={stripePromise} options={options}>

@@ -87,6 +87,11 @@ import { ServerLogActionArgs } from './validators/ServerLogActionArgs';
 import { ProfileClient } from '@fxa/profile/client';
 import { GetUserinfoResult } from './validators/GetUserinfoResult';
 import { GetUserinfoArgs } from './validators/GetUserinfoArgs';
+import { SubscriptionManagementService } from '@fxa/payments/management';
+import { GetStripeClientSessionArgs } from './validators/GetStripeClientSessionActionArgs';
+import { GetStripeClientSessionResult } from './validators/GetStripeClientSessionActionResult';
+import { UpdateStripePaymentMethodArgs } from './validators/UpdateStripePaymentMethodActionArgs';
+import { UpdateStripePaymentMethodResult } from './validators/UpdateStripePaymentMethodActionResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -107,6 +112,7 @@ export class NextJSActionsService {
     private eligibilityService: EligibilityService,
     private productConfigurationManager: ProductConfigurationManager,
     private profileClient: ProfileClient,
+    private subscriptionManagementService: SubscriptionManagementService,
     @Inject(StatsDService) public statsd: StatsD,
     @Inject(Logger) private log: LoggerService
   ) {}
@@ -531,6 +537,32 @@ export class NextJSActionsService {
     return await this.profileClient.getUserinfo(
       args.userinfoUrl,
       args.accessToken
+    );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(GetStripeClientSessionArgs, GetStripeClientSessionResult)
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getStripeClientSession(args: { uid: string }) {
+    return await this.subscriptionManagementService.getStripeClientSession(
+      args.uid
+    );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    UpdateStripePaymentMethodArgs,
+    UpdateStripePaymentMethodResult
+  )
+  @CaptureTimingWithStatsD()
+  async updateStripePaymentMethods(args: {
+    uid: string;
+    confirmationTokenId: string;
+  }) {
+    return await this.subscriptionManagementService.updateStripePaymentMethods(
+      args.uid,
+      args.confirmationTokenId
     );
   }
 }

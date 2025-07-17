@@ -56,7 +56,7 @@ import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
 import { logger, LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
 import { NotifierService, NotifierSnsProvider } from '@fxa/shared/notifier';
-
+import { SubscriptionManagementService } from '@fxa/payments/management';
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
@@ -141,6 +141,7 @@ import {
     StripeEventManager,
     SubscriptionEventsService,
     StripeWebhookService,
+    SubscriptionManagementService,
     { provide: LOGGER_PROVIDER, useValue: logger },
   ],
 })

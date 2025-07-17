@@ -38,6 +38,9 @@ export interface Config {
     profile: {
       url: string;
     };
+    paymentsNext: {
+      url: string;
+    };
   };
   paypal: {
     apiUrl: string;
@@ -89,6 +92,9 @@ export function defaultConfig(): Config {
         clientId: '',
       },
       profile: {
+        url: '',
+      },
+      paymentsNext: {
         url: '',
       },
     },

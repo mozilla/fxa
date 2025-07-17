@@ -57,7 +57,7 @@ type HeaderProps = {
     user: User | undefined;
     signOut: () => Promise<void>;
   };
-  cart: {
+  cart?: {
     taxAddress: {
       countryCode: string;
       postalCode: string;
@@ -70,12 +70,17 @@ export const Header = ({ auth, cart }: HeaderProps) => {
   const params = useParams();
   const searchParams = useSearchParams();
 
-  const signOutRedirectPath = buildSignOutRedirectPath(
-    params,
-    searchParams,
-    cart.taxAddress.countryCode,
-    cart.taxAddress.postalCode
-  );
+  let signOutRedirectPath: string;
+  if (cart) {
+    signOutRedirectPath = buildSignOutRedirectPath(
+      params,
+      searchParams,
+      cart.taxAddress.countryCode,
+      cart.taxAddress.postalCode
+    );
+  } else {
+    signOutRedirectPath = `/`;
+  }
 
   const signedIn = auth && auth.user;
 
@@ -141,7 +146,7 @@ export const Header = ({ auth, cart }: HeaderProps) => {
       'bento',
       'vpn',
       'permanent'
-    )
+    ),
   };
 
   const iconClassNames = 'inline-block w-5 -mb-1 me-1';

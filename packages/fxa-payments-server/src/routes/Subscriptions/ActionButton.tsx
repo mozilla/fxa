@@ -7,6 +7,7 @@ import { Localized } from '@fluent/react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { Customer } from '../../store/types';
 import AppContext from '../../lib/AppContext';
+import { determineLocale } from '@fxa/shared/l10n';
 
 import * as PaymentProvider from '../../lib/PaymentProvider';
 import {
@@ -32,18 +33,22 @@ export const ActionButton = ({
 
   const { apiUrl } = config.paypal;
 
+  const currentLanguage = determineLocale(
+    window.navigator.languages.join(', ')
+  );
+
   const stripeActionButton = () => (
-    <button
+    <LinkExternal
       data-testid="reveal-payment-update-button"
       className="button settings-button"
-      onClick={onRevealUpdateClick}
+      href={`${config.servers.paymentsNext.url}/${currentLanguage}/subscriptions/payments/stripe`}
     >
       <Localized id="pay-update-change-btn">
         <span className="change-button" data-testid="change-button">
           Change
         </span>
       </Localized>
-    </button>
+    </LinkExternal>
   );
 
   const paypalActionButton = () => (

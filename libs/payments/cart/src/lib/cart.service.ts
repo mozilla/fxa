@@ -791,7 +791,7 @@ export class CartService {
         ? this.subscriptionManager.listForCustomer(cart.stripeCustomerId)
         : undefined,
       cart.stripeCustomerId
-        ? this.customerSessionManager.create(cart.stripeCustomerId)
+        ? this.customerSessionManager.createCheckoutSession(cart.stripeCustomerId)
         : undefined,
     ]);
     const cartEligibilityStatus =

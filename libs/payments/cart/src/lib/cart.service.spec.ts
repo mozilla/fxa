@@ -1536,7 +1536,7 @@ describe('CartService', () => {
 
     beforeEach(() => {
       jest
-        .spyOn(customerSessionManager, 'create')
+        .spyOn(customerSessionManager, 'createCheckoutSession')
         .mockResolvedValue(mockCustomerSession);
       jest
         .spyOn(subscriptionManager, 'listForCustomer')

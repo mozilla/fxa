@@ -41,7 +41,8 @@ describe('CustomerSessionManager', () => {
         .spyOn(stripeClient, 'customersSessionsCreate')
         .mockResolvedValue(mockResponse);
 
-      const result = await customerSessionManager.create(customerId);
+      const result =
+        await customerSessionManager.createCheckoutSession(customerId);
 
       expect(stripeClient.customersSessionsCreate).toHaveBeenCalledWith(
         expect.objectContaining({ customer: customerId })

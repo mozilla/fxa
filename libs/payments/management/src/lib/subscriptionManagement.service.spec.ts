@@ -4,7 +4,19 @@
 
 import { Test } from '@nestjs/testing';
 import { SubscriptionManagementService } from '@fxa/payments/management';
+import {
+  AccountCustomerManager,
+  StripeClient,
+  MockStripeConfigProvider,
+} from '@fxa/payments/stripe';
+import {
+  CustomerManager,
+  CustomerSessionManager,
+  SetupIntentManager,
+} from '@fxa/payments/customer';
 import { Logger } from '@nestjs/common';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 
 jest.mock('@fxa/shared/error', () => ({
   ...jest.requireActual('@fxa/shared/error'),
@@ -24,7 +36,18 @@ describe('SubscriptionManagementService', () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [Logger, SubscriptionManagementService],
+      providers: [
+        MockAccountDatabaseNestFactory,
+        MockStripeConfigProvider,
+        StripeClient,
+        AccountCustomerManager,
+        CustomerSessionManager,
+        SetupIntentManager,
+        CustomerManager,
+        SubscriptionManagementService,
+        Logger,
+        MockStatsDProvider,
+      ],
     }).compile();
 
     subscriptionManagementService = moduleRef.get(

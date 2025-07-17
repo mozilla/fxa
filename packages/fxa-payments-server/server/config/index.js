@@ -357,6 +357,14 @@ const conf = convict({
         format: 'url',
       },
     },
+    paymentsNext: {
+      url: {
+        default: 'http://localhost:3035',
+        doc: 'the url of the subscription platform server',
+        env: 'PAYMENTS_NEXT_SERVER_URL',
+        format: 'url',
+      },
+    },
   },
   staticResources: {
     directory: {

@@ -91,6 +91,9 @@ module.exports = () => {
       profile: {
         url: config.get('servers.profile.url'),
       },
+      paymentsNext: {
+        url: config.get('servers.paymentsNext.url'),
+      }
     },
     paypal: {
       apiUrl: config.get('paypal.apiUrl'),
