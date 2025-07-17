@@ -16,6 +16,11 @@ describe('errorHandler', () => {
     console.error = jest.fn();
   });
 
+  const originalLocation = window.location;
+  afterEach(() => {
+    Object.defineProperty(window, 'location', originalLocation);
+  });
+
   it('updates local signed in status if called with a GQL authentication error', () => {
     const writeQueryMock = jest.fn();
     jest.spyOn(cache, 'writeQuery').mockImplementation(writeQueryMock);
@@ -90,5 +95,38 @@ describe('errorHandler', () => {
         operation: 'foo',
       },
     });
+  });
+
+  it('handles invalid token on settings page', () => {
+    Object.defineProperty(window, 'location', {
+      writable: true,
+      value: {
+        ...window.location,
+        pathname: '/settings',
+        search: `?email=foo@mozilla.com`,
+        replace: jest.fn(),
+      },
+    });
+
+    const gqlError = new GraphQLError(
+      'Must verify',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    );
+    const errorResponse: ErrorResponse = {
+      graphQLErrors: [gqlError],
+      operation: {
+        operationName: 'Foo',
+      } as Operation,
+      forward: jest.fn(),
+    };
+    errorHandler(errorResponse);
+    expect(window.location.replace).toHaveBeenCalledWith(
+      '/signin?email=foo@mozilla.com'
+    );
   });
 });
