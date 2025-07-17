@@ -93,7 +93,11 @@ export const errorHandler: ErrorHandler = ({
         if (window.location && window.location.pathname.includes('settings')) {
           // Redirect to /signin since that page will send the user
           // to correct location
-          return window.location.replace(`/signin?action=email&service=sync`);
+
+          // Note, we relay the search query, so that RP can control the signin flow.
+          // For example an RP could link to https://accounts.firefox.com/settings?email=foo@mozilla.com
+          // in order to force a user to signin as foo@mozilla.com.
+          return window.location.replace(`/signin${window.location.search}`);
         } else {
           // If the user isn't in Settings and they see this message they may hit it due to
           // the initial metrics query - e.g. if they attempt to sign in and see the TOTP page,

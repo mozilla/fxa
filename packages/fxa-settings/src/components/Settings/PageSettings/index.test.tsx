@@ -388,5 +388,56 @@ describe('PageSettings', () => {
         screen.queryByTestId('submit_add_recovery_phone')
       ).not.toBeInTheDocument();
     });
+
+    describe('it handles email query param', () => {
+      const originalLocation = window.location;
+
+      afterEach(() => {
+        Object.defineProperty(window, 'location', originalLocation);
+      });
+
+      it('does not redirect on email match', async () => {
+        Object.defineProperty(window, 'location', {
+          writable: true,
+          value: {
+            ...window.location,
+            search: `?email=${coldStartAccount.email}`,
+            replace: jest.fn(),
+          },
+        });
+        renderWithRouter(
+          <AppContext.Provider
+            value={mockAppContext({ account: coldStartAccount })}
+          >
+            <PageSettings integration={mockWebIntegration} />
+          </AppContext.Provider>
+        );
+        expect(window.location.replace).not.toHaveBeenCalledWith(
+          '/signin?email=foo@mozilla.com'
+        );
+      });
+
+      it('redirects to signin on email mismatch', async () => {
+        Object.defineProperty(window, 'location', {
+          writable: true,
+          value: {
+            ...window.location,
+            search: '?email=foo@mozilla.com',
+            replace: jest.fn(),
+          },
+        });
+        renderWithRouter(
+          <AppContext.Provider
+            value={mockAppContext({ account: coldStartAccount })}
+          >
+            <PageSettings integration={mockWebIntegration} />
+          </AppContext.Provider>
+        );
+
+        expect(window.location.replace).toHaveBeenCalledWith(
+          '/signin?email=foo@mozilla.com'
+        );
+      });
+    });
   });
 });
