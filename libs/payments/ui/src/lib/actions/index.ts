@@ -27,3 +27,5 @@ export { validateCartStateAndRedirectAction } from './validateCartStateAndRedire
 export { validateLocationAction } from './validateLocation';
 export { getCouponAction } from './getCoupon';
 export { serverLogAction } from './serverLog';
+export { getStripeClientSession } from './getStripeClientSession';
+export { updateStripePaymentDetails } from './updateStripePaymentDetails';
