@@ -19,6 +19,7 @@ import { getApp } from '@fxa/payments/ui/server';
 import { LinkExternal } from '@fxa/shared/react';
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
+import Link from 'next/link';
 
 export default async function Manage({
   params,
@@ -56,7 +57,7 @@ export default async function Manage({
   return (
     <>
       <section
-        className="px-4 tablet:px-8"
+        className="px-4 py-8 tablet:px-8"
         aria-labelledby="payment-information-heading"
       >
         <div className="flex items-center justify-between">
@@ -117,21 +118,19 @@ export default async function Manage({
                 </div>
               )}
             </div>
-            <SubmitButton
-              className="h-10"
-              variant={ButtonVariant.Secondary}
+            <Link
+              href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
+              className="flex items-center justify-center h-12 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-grey-100 font-semibold hover:bg-grey-200 text-black"
               aria-label={l10n.getString(
                 'subscription-management-button-change-payment-method-aria',
                 'Change payment method'
               )}
             >
-              <span>
-                {l10n.getString(
-                  'subscription-management-button-change-payment-method',
-                  'Change'
-                )}
-              </span>
-            </SubmitButton>
+              {l10n.getString(
+                'subscription-management-button-change-payment-method',
+                'Change'
+              )}
+            </Link>
           </div>
         )}
 

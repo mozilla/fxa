@@ -6,6 +6,7 @@
 
 export * from './lib/client/components/Banner';
 export * from './lib/client/components/BaseButton';
+export * from './lib/client/components/Breadcrumbs';
 export * from './lib/client/components/CheckoutForm';
 export * from './lib/client/components/CheckoutCheckbox';
 export * from './lib/client/components/CouponForm';
@@ -15,6 +16,7 @@ export * from './lib/client/components/PageNotFound';
 export * from './lib/client/components/PaymentStateObserver';
 export * from './lib/client/components/PaymentInputHandler';
 export * from './lib/client/components/PaymentSection';
+export * from './lib/client/components/PaymentMethodManagement';
 export * from './lib/client/components/PurchaseDetails';
 export * from './lib/client/components/SelectTaxLocation';
 export * from './lib/client/components/SignInForm';
