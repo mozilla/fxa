@@ -646,7 +646,7 @@ describe('signin container', () => {
     });
 
     it('handles gql mutation error', async () => {
-      await render([
+      render([
         mockGqlAvatarUseQuery(),
         {
           ...mockGqlBeginSigninMutation({ keys: false }),
@@ -670,22 +670,24 @@ describe('signin container', () => {
     it('handles incorrect email case error', async () => {
       const email = `orginal-${MOCK_EMAIL}`;
       const correctedEmail = `new-${MOCK_EMAIL}`;
-      await render([
-        mockGqlAvatarUseQuery(),
-        // The first call should fail, and the incorrect email case error
-        // with the corrected email in the error response should be returned.
-        {
-          ...mockGqlBeginSigninMutation({ keys: false }, { email: email }),
-          error: mockGqlError(AuthUiErrors.INCORRECT_EMAIL_CASE, {
-            email: correctedEmail,
-          }),
-        },
-        // Note, that originalEmail should also be sent up. This is a requirement for v1 passwords!
-        mockGqlBeginSigninMutation(
-          { keys: false, originalLoginEmail: email },
-          { email: correctedEmail }
-        ),
-      ]);
+      await act(() =>
+        render([
+          mockGqlAvatarUseQuery(),
+          // The first call should fail, and the incorrect email case error
+          // with the corrected email in the error response should be returned.
+          {
+            ...mockGqlBeginSigninMutation({ keys: false }, { email: email }),
+            error: mockGqlError(AuthUiErrors.INCORRECT_EMAIL_CASE, {
+              email: correctedEmail,
+            }),
+          },
+          // Note, that originalEmail should also be sent up. This is a requirement for v1 passwords!
+          mockGqlBeginSigninMutation(
+            { keys: false, originalLoginEmail: email },
+            { email: correctedEmail }
+          ),
+        ])
+      );
 
       await waitFor(async () => {
         // Emulates providing the original email even after they swapped in a primary email.
@@ -1183,8 +1185,28 @@ describe('signin container', () => {
     });
   });
 
+  /**
+   * These tests trigger the `setAccountStatus` useEffect, and because of the IIFE
+   * inside that, and because there are no `waitFor` calls, they need to explicitly await
+   * the `render` with `act(...)`
+   */
   describe('query parameter check', () => {
     let useValidatedQueryParamsSpy: jest.SpyInstance;
+
+    /**
+     * This is a bit odd, but because of the async IIFE we have to
+     * double wrap the `render` call in `act(...)` to ensure
+     * the initial render is complete, then the async IIFE completes.
+     */
+    async function setupContainer(
+      mocks: Array<MockedResponse> = [mockGqlAvatarUseQuery()]
+    ) {
+      let container;
+      await act(async () => {
+        await act(() => (container = render(mocks)));
+      });
+      return container;
+    }
 
     beforeEach(() => {
       useValidatedQueryParamsSpy = mockUseValidateModule({
@@ -1196,10 +1218,13 @@ describe('signin container', () => {
       });
     });
 
-    it('should check query parameters', () => {
+    it('should check query parameters', async () => {
       mockWebIntegration();
-      const container = render([mockGqlAvatarUseQuery()]);
+
+      const container = await setupContainer();
+
       expect(container).toBeDefined();
+
       expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         SigninQueryParams,
         true
@@ -1216,9 +1241,11 @@ describe('signin container', () => {
       );
     });
 
-    it('should validate oauth query parameters', () => {
+    it('should validate oauth query parameters', async () => {
       mockOAuthWebIntegration();
-      const container = render([mockGqlAvatarUseQuery()]);
+
+      const container = await setupContainer();
+
       expect(container).toBeDefined();
       expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         SigninQueryParams,
@@ -1236,9 +1263,11 @@ describe('signin container', () => {
       );
     });
 
-    it('should validate oauth native sync query parameters', () => {
+    it('should validate oauth native sync query parameters', async () => {
       mockOAuthNativeIntegration();
-      const container = render([mockGqlAvatarUseQuery()]);
+
+      const container = await setupContainer();
+
       expect(container).toBeDefined();
       expect(useValidatedQueryParamsSpy).toHaveBeenCalledWith(
         SigninQueryParams,
