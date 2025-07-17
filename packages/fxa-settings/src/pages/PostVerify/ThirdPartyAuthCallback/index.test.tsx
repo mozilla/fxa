@@ -212,23 +212,28 @@ describe('ThirdPartyAuthCallback component', () => {
     renderWith({ integration });
 
     await waitFor(() => {
-      expect(handleNavigation).toHaveBeenCalledWith({
-        email: 'johndope@example.com',
-        finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
-        handleFxaLogin: false,
-        handleFxaOAuthLogin: false,
-        integration: integration,
-        isSignInWithThirdPartyAuth: true,
-        queryParams: '?',
-        redirectTo: redirectTo,
-        signinData: {
+      expect(handleNavigation).toHaveBeenCalledWith(
+        {
+          email: 'johndope@example.com',
+          finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+          handleFxaLogin: false,
+          handleFxaOAuthLogin: false,
+          integration: integration,
+          isFreshSignin: false,
+          isSignInWithThirdPartyAuth: true,
+          queryParams: '?',
+          redirectTo: redirectTo,
           sessionToken: MOCK_SESSION_TOKEN,
-          uid: '123',
-          verificationMethod: 'totp-2fa',
-          verificationReason: 'login',
-          verified: false,
+          signinData: {
+            sessionToken: MOCK_SESSION_TOKEN,
+            uid: '123',
+            verificationMethod: 'totp-2fa',
+            verificationReason: 'login',
+            verified: false,
+          },
         },
-      });
+        expect.any(Object) as ModelsModule.Session
+      );
     });
   });
 });

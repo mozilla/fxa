@@ -113,9 +113,14 @@ const AuthorizationContainer = ({
           redirectTo: integration.data.redirectTo,
           finishOAuthFlowHandler,
           queryParams: location.search,
+          sessionToken: account?.sessionToken!,
+          isFreshSignin: false, // This uses cachedSignIn, not a fresh signin
         };
 
-        const { error: navError } = await handleNavigation(navigationOptions);
+        const { error: navError } = await handleNavigation(
+          navigationOptions,
+          session
+        );
 
         if (navError) {
           throw navError;

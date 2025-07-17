@@ -9,6 +9,7 @@ import {
   AppContext,
   isWebIntegration,
   useFtlMsgResolver,
+  useSession,
 } from '../../../models';
 import { BackupCodesImage } from '../../../components/images';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -52,12 +53,13 @@ const SigninRecoveryCode = ({
   const [bannerErrorDescription, setBannerErrorDescription] =
     useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
+  const session = useSession();
+  const { apolloClient } = useContext(AppContext);
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
     'signin-recovery-code-required-error',
     'Backup authentication code required'
   );
   const location = useLocation();
-  const { apolloClient } = useContext(AppContext);
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
@@ -91,8 +93,8 @@ const SigninRecoveryCode = ({
       signinData: {
         uid,
         sessionToken,
-        verificationReason,
         verificationMethod,
+        verificationReason,
         verified: true,
         keyFetchToken,
       },
@@ -103,9 +105,11 @@ const SigninRecoveryCode = ({
       queryParams: location.search,
       handleFxaLogin: true,
       handleFxaOAuthLogin: true,
+      sessionToken,
+      isFreshSignin: false, // This is after recovery code verification, not a fresh signin
     };
 
-    const { error } = await handleNavigation(navigationOptions);
+    const { error } = await handleNavigation(navigationOptions, session);
     if (error) {
       setBannerErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
     }
@@ -122,6 +126,7 @@ const SigninRecoveryCode = ({
     uid,
     unwrapBKey,
     ftlMsgResolver,
+    session,
   ]);
 
   const localizedInvalidCodeError = getLocalizedErrorMessage(
@@ -220,7 +225,7 @@ const SigninRecoveryCode = ({
           />
         ) : (
           <FtlMsg id="signin-recovery-code-heading">
-          <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
+            <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
           </FtlMsg>
         )}
       </div>
@@ -265,7 +270,7 @@ const SigninRecoveryCode = ({
           codeErrorMessage,
           setCodeErrorMessage,
           cmsButton: {
-            color: cmsInfo?.shared?.buttonColor
+            color: cmsInfo?.shared?.buttonColor,
           },
         }}
         gleanDataAttrs={{ id: 'login_backup_codes_submit' }}

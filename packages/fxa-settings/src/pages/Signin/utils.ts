@@ -143,9 +143,14 @@ export const cachedSignIn = async (
         ? VerificationReasons.SIGN_IN
         : VerificationReasons.SIGN_UP;
 
-      if (!verified && session.sendVerificationCode) {
-        await session.sendVerificationCode();
-      }
+      // Don't send verification code here - let handleNavigation handle it
+      // This prevents double email sending when cachedSignIn is followed by handleNavigation
+      //
+      // Flow:
+      // 1. cachedSignIn checks verification status and returns data
+      // 2. handleNavigation receives the data and determines if verification is needed
+      // 3. handleNavigation sends verification code only when navigating to verification pages
+      // 4. This ensures verification codes are sent exactly once, at the right time
     }
 
     const storedLocalAccount = currentAccount();
@@ -183,7 +188,10 @@ export const cachedSignIn = async (
 // React signin until CAD/pair is converted to React because we'd need to pass this
 // data back to Backbone. This means temporarily we need to send the sync data up
 // _before_ we hard navigate to CAD/pair in these flows.
-export async function handleNavigation(navigationOptions: NavigationOptions) {
+export async function handleNavigation(
+  navigationOptions: NavigationOptions,
+  session: ReturnType<typeof useSession>
+) {
   const { integration } = navigationOptions;
   const isOAuth = isOAuthIntegration(integration);
   const isWebChannelIntegration =
@@ -193,8 +201,29 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     !navigationOptions.signinData.verified ||
     navigationOptions.sessionVerified === false
   ) {
-    const { to, locationState } =
+    const { to, locationState, shouldSendVerificationCode } =
       getUnverifiedNavigationTarget(navigationOptions);
+
+    // Only send code if needed and we have a session token
+    // This ensures users get the correct verification code (signin vs signup)
+    // only when navigating to a code entry page
+    if (shouldSendVerificationCode && navigationOptions.sessionToken) {
+      // Check if the server has already sent a verification email during signin
+      // The server automatically sends verification emails for:
+      // 1. Unverified accounts (isUnverifiedAccount)
+      // 2. Sessions that require verification (mustVerifySession)
+      //
+      // For fresh signins (isFreshSignin = true), the server has already sent an email
+      // For cached signins (isFreshSignin = false/undefined), the client should send an email
+      const serverShouldHaveSentEmail =
+        navigationOptions.isFreshSignin === true;
+
+      // Only send client-side email if server didn't send one
+      if (!serverShouldHaveSentEmail) {
+        await session.sendVerificationCode(navigationOptions.sessionToken);
+      }
+    }
+
     if (
       isWebChannelIntegration &&
       navigationOptions.handleFxaLogin === true &&
@@ -317,6 +346,13 @@ function sendFxaLogin(navigationOptions: NavigationOptions) {
   });
 }
 
+/**
+ * Determines the navigation target for unverified sessions.
+ * Returns navigation information including whether a verification code should be sent.
+ *
+ * @param navigationOptions - The navigation options containing signin data and integration info
+ * @returns Object with navigation target and flags for verification code sending
+ */
 const getUnverifiedNavigationTarget = (
   navigationOptions: NavigationOptions
 ) => {
@@ -325,24 +361,26 @@ const getUnverifiedNavigationTarget = (
   const { integration, queryParams } = navigationOptions;
   const isOAuth = isOAuthIntegration(integration);
 
-  const getUnverifiedNavTo = () => {
-    // TODO in FXA-9177 Consider storing state in Apollo cache instead of location state
-    if (
-      ((verificationReason === VerificationReasons.SIGN_IN ||
-        verificationReason === VerificationReasons.CHANGE_PASSWORD) &&
-        verificationMethod === VerificationMethods.TOTP_2FA) ||
-      (isOAuth && integration.wantsTwoStepAuthentication())
-    ) {
-      return `/signin_totp_code${queryParams || ''}`;
-    } else if (verificationReason === VerificationReasons.SIGN_UP) {
-      return `/confirm_signup_code${queryParams || ''}`;
-    }
-    return `/signin_token_code${queryParams || ''}`;
-  };
+  let navTo;
+  if (
+    ((verificationReason === VerificationReasons.SIGN_IN ||
+      verificationReason === VerificationReasons.CHANGE_PASSWORD) &&
+      verificationMethod === VerificationMethods.TOTP_2FA) ||
+    (isOAuth && integration.wantsTwoStepAuthentication())
+  ) {
+    navTo = `/signin_totp_code${queryParams || ''}`;
+  } else if (verificationReason === VerificationReasons.SIGN_UP) {
+    navTo = `/confirm_signup_code${queryParams || ''}`;
+  } else {
+    navTo = `/signin_token_code${queryParams || ''}`;
+  }
 
   return {
-    to: getUnverifiedNavTo(),
+    to: navTo,
     locationState: createSigninLocationState(navigationOptions),
+    // Optionally, add a flag:
+    shouldSendVerificationCode:
+      navTo === '/signin_token_code' || navTo === '/confirm_signup_code',
   };
 };
 

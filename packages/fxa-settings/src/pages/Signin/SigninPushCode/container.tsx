@@ -12,6 +12,7 @@ import {
   isWebIntegration,
   useAuthClient,
   useSensitiveDataClient,
+  useSession,
 } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -31,6 +32,7 @@ export const SigninPushCodeContainer = ({
   serviceName,
 }: SigninPushCodeContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
+  const session = useSession();
   const navigateWithQuery = useNavigateWithQuery();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -94,8 +96,10 @@ export const SigninPushCodeContainer = ({
       finishOAuthFlowHandler,
       queryParams: location.search,
       redirectTo,
+      sessionToken: signinState.sessionToken,
+      isFreshSignin: false, // This is after push verification, not a fresh signin
     };
-    await handleNavigation(navigationOptions);
+    await handleNavigation(navigationOptions, session);
   };
 
   const sendLoginPushNotification = async () => {

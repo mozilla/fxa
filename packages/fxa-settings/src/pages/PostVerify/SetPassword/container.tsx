@@ -7,7 +7,7 @@ import SetPassword from '.';
 import { currentAccount } from '../../../lib/cache';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { Integration, useAuthClient } from '../../../models';
+import { Integration, useAuthClient, useSession } from '../../../models';
 import { cache } from '../../../lib/cache';
 import { useCallback } from 'react';
 import { CreatePasswordHandler } from './interfaces';
@@ -41,6 +41,7 @@ const SetPasswordContainer = ({
 } & RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
+  const session = useSession();
   const storedLocalAccount = currentAccount();
   const email = storedLocalAccount?.email;
   const sessionToken = storedLocalAccount?.sessionToken;
@@ -125,9 +126,11 @@ const SetPasswordContainer = ({
             // users will see a "flash" of whatever page we navigate them to
             // before the client closes the view. See FXA-11944
             performNavigation: !integration.isFirefoxMobileClient(),
+            sessionToken,
+            isFreshSignin: false, // This is post-verify, not a fresh signin
           };
 
-          const { error } = await handleNavigation(navigationOptions);
+          const { error } = await handleNavigation(navigationOptions, session);
           return { error };
         } catch (error) {
           const { errno } = error as HandledError;
@@ -146,6 +149,7 @@ const SetPasswordContainer = ({
       offeredSyncEngines,
       selectedEnginesForGlean,
       location.search,
+      session
     ]
   );
 

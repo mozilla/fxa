@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models';
+import { useFtlMsgResolver, useSession } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
 import { MozServices } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
@@ -51,6 +51,7 @@ export const SigninTotpCode = ({
   unwrapBKey,
 }: SigninTotpCodeProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
+  const session = useSession();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
 
@@ -108,9 +109,14 @@ export const SigninTotpCode = ({
         showInlineRecoveryKeySetup,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
+        sessionToken,
+        isFreshSignin: false, // This is after TOTP verification, not a fresh signin
       };
 
-      const { error: navError } = await handleNavigation(navigationOptions);
+      const { error: navError } = await handleNavigation(
+        navigationOptions,
+        session
+      );
       if (navError) {
         setBannerError(getLocalizedErrorMessage(ftlMsgResolver, navError));
       }

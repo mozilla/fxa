@@ -18,6 +18,7 @@ import {
   isWebIntegration,
   useAlertBar,
   useFtlMsgResolver,
+  useSession,
 } from '../../../models';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { SigninUnblockProps } from './interfaces';
@@ -54,8 +55,9 @@ export const SigninUnblock = ({
     ResendStatus.none
   );
 
-  const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
+  const session = useSession();
+  const alertBar = useAlertBar();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
 
@@ -144,6 +146,8 @@ export const SigninUnblock = ({
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         redirectTo,
+        sessionToken: data.signIn.sessionToken,
+        isFreshSignin: false, // This is after unblock code verification, not a fresh signin
       };
 
       // If the web redirect is invalid, this shows an "Invalid redirect" message in alertBar
@@ -156,7 +160,10 @@ export const SigninUnblock = ({
         alertBar.error(webRedirectCheck.localizedInvalidRedirectError);
       }
 
-      const { error: navError } = await handleNavigation(navigationOptions);
+      const { error: navError } = await handleNavigation(
+        navigationOptions,
+        session
+      );
       if (navError) {
         setBannerErrorMessage(
           getLocalizedErrorMessage(ftlMsgResolver, navError)

@@ -25,6 +25,7 @@ import {
   useFtlMsgResolver,
   isWebIntegration,
   isOAuthIntegration,
+  useSession,
 } from '../../models';
 import {
   isClientMonitor,
@@ -72,6 +73,7 @@ const Signin = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const sensitiveDataClient = useSensitiveDataClient();
+  const session = useSession();
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -163,9 +165,14 @@ const Signin = ({
               : '',
           finishOAuthFlowHandler,
           queryParams: location.search,
+          sessionToken,
+          isFreshSignin: false, // Server has NOT sent verification email, client should send one
         };
 
-        const { error: navError } = await handleNavigation(navigationOptions);
+        const { error: navError } = await handleNavigation(
+          navigationOptions,
+          session
+        );
         if (navError) {
           setLocalizedBannerError(
             getLocalizedErrorMessage(ftlMsgResolver, navError)
@@ -191,6 +198,7 @@ const Signin = ({
       finishOAuthFlowHandler,
       location.search,
       webRedirectCheck,
+      session,
     ]
   );
 
@@ -227,12 +235,17 @@ const Signin = ({
               ? integration.data.redirectTo
               : '',
           queryParams: location.search,
+          sessionToken: data.signIn.sessionToken,
           showInlineRecoveryKeySetup: data.showInlineRecoveryKeySetup,
           handleFxaLogin: true,
           handleFxaOAuthLogin: true,
+          isFreshSignin: true, // Server has already sent verification email
         };
 
-        const { error: navError } = await handleNavigation(navigationOptions);
+        const { error: navError } = await handleNavigation(
+          navigationOptions,
+          session
+        );
         if (navError) {
           setLocalizedBannerError(
             getLocalizedErrorMessage(ftlMsgResolver, navError)
@@ -334,6 +347,7 @@ const Signin = ({
       location.search,
       webRedirectCheck,
       sensitiveDataClient,
+      session,
     ]
   );
 
@@ -404,7 +418,7 @@ const Signin = ({
             clientId,
             serviceName,
             cmsLogoUrl: cmsInfo?.shared?.logoUrl,
-            cmsLogoAltText: cmsInfo?.shared?.logoAltText
+            cmsLogoAltText: cmsInfo?.shared?.logoAltText,
           }}
         />
       )}
@@ -528,7 +542,7 @@ const Signin = ({
               searchParams.delete('email');
               navigateWithQuery(`/?${searchParams.toString()}`, {
                 state: {
-                  prefillEmail: email
+                  prefillEmail: email,
                 },
               });
             }}

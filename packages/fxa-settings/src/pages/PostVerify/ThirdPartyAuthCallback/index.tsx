@@ -7,9 +7,10 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import {
+  Integration,
   useAccount,
   useAuthClient,
-  Integration,
+  useSession,
   isWebIntegration,
 } from '../../../models';
 import { handleNavigation } from '../../Signin/utils';
@@ -45,6 +46,7 @@ const ThirdPartyAuthCallback = ({
 } & RouteComponentProps) => {
   const account = useAccount();
   const authClient = useAuthClient();
+  const session = useSession();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
@@ -101,9 +103,14 @@ const ThirdPartyAuthCallback = ({
         isSignInWithThirdPartyAuth: true,
         handleFxaLogin: false,
         handleFxaOAuthLogin: false,
+        sessionToken: linkedAccount.sessionToken,
+        isFreshSignin: false, // This is after third-party auth verification, not a fresh signin
       };
 
-      const { error: navError } = await handleNavigation(navigationOptions);
+      const { error: navError } = await handleNavigation(
+        navigationOptions,
+        session
+      );
 
       if (navError) {
         // TODO validate what should happen here
@@ -116,6 +123,7 @@ const ThirdPartyAuthCallback = ({
       location.search,
       navigateWithQuery,
       webRedirectCheck,
+      session,
     ]
   );
 

@@ -163,11 +163,16 @@ const SigninTokenCode = ({
           showInlineRecoveryKeySetup,
           handleFxaLogin: false,
           handleFxaOAuthLogin: true,
+          sessionToken,
+          isFreshSignin: false, // This is after token code verification, not a fresh signin
         };
 
         await GleanMetrics.isDone();
 
-        const { error: navError } = await handleNavigation(navigationOptions);
+        const { error: navError } = await handleNavigation(
+          navigationOptions,
+          session
+        );
         if (navError) {
           setLocalizedErrorBannerMessage(
             getLocalizedErrorMessage(ftlMsgResolver, navError)
@@ -210,7 +215,6 @@ const SigninTokenCode = ({
 
   return (
     <AppLayout>
-
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading-2"

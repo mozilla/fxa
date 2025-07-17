@@ -14,6 +14,7 @@ import {
   useAuthClient,
   useFtlMsgResolver,
   useSensitiveDataClient,
+  useSession,
 } from '../../../models';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getHandledError } from '../../../lib/error-utils';
@@ -38,6 +39,7 @@ const SigninRecoveryPhoneContainer = ({
 }: SigninRecoveryPhoneContainerProps & RouteComponentProps) => {
   const alertBar = useAlertBar();
   const authClient = useAuthClient();
+  const session = useSession();
   const { apolloClient } = useContext(AppContext);
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation() as ReturnType<typeof useLocation> & {
@@ -121,6 +123,8 @@ const SigninRecoveryPhoneContainer = ({
         queryParams: location.search,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
+        sessionToken: signinState.sessionToken,
+        isFreshSignin: false, // This is after recovery phone verification, not a fresh signin
       };
 
       const recoveryPhoneSigninSuccessGleanMetric =
@@ -131,10 +135,10 @@ const SigninRecoveryPhoneContainer = ({
           'signin-recovery-phone-success-message',
           'Signed in successfully. Limits may apply if you use your recovery phone again.'
         ),
-        recoveryPhoneSigninSuccessGleanMetric
+        () => recoveryPhoneSigninSuccessGleanMetric()
       );
 
-      await handleNavigation(navigationOptions);
+      await handleNavigation(navigationOptions, session);
     } catch (error) {
       throw error;
     }
@@ -194,7 +198,7 @@ const SigninRecoveryPhoneContainer = ({
         resendCode,
         sendError,
         numBackupCodes,
-        integration
+        integration,
       }}
     />
   );

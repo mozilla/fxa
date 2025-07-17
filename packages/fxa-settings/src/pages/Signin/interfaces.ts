@@ -198,7 +198,6 @@ export interface NavigationOptions {
     verified: boolean;
     verificationMethod?: VerificationMethods;
     verificationReason?: VerificationReasons;
-    // keyFetchToken is included if options.keys=true
     // This (and unwrapBKey) will never exist for the cached signin (prompt=none)
     keyFetchToken?: hexstring;
   };
@@ -224,6 +223,10 @@ export interface NavigationOptions {
   };
   // If false, skip actually navigating. Still sends web channel messages etc.
   performNavigation?: boolean;
+  // Add sessionToken at the top level for easier access in navigation logic
+  sessionToken?: hexstring;
+  // Flag to indicate if this is a fresh signin (server sent email) vs cached signin (client should send email)
+  isFreshSignin?: boolean;
 }
 
 export interface OAuthSigninResult {

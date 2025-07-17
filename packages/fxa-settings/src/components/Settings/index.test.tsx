@@ -21,7 +21,6 @@ import { Config } from '../../lib/config';
 import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject } from './mocks';
-import { useGeoEligibilityCheck } from '../../lib/hooks/useGeoEligibilityCheck';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
