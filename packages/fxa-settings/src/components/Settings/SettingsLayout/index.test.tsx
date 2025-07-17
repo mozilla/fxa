@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../../../models/mocks';
 import { SETTINGS_PATH } from '../../../constants';
 import SettingsLayout from '.';
@@ -16,7 +16,11 @@ it('renders the app with children', async () => {
       <p data-testid="test-child">Hello, world!</p>
     </SettingsLayout>
   );
-  await navigate(SETTINGS_PATH);
+
+  await waitFor(() => {
+    navigate(SETTINGS_PATH);
+  });
+
   expect(screen.getByTestId('app')).toBeInTheDocument();
   expect(screen.getByTestId('content-skip')).toBeInTheDocument();
   expect(screen.getByTestId('header')).toBeInTheDocument();

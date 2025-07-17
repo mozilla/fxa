@@ -122,12 +122,14 @@ describe('Index page', () => {
         integration={createMockIndexOAuthNativeIntegration({
           isSync: false,
           isDesktopRelay: true,
-          cmsInfo: MOCK_CMS_INFO
+          cmsInfo: MOCK_CMS_INFO,
         })}
       />
     );
 
-    screen.getByRole('heading', { name: 'Sign up or sign in to your Mozilla account' });
+    screen.getByRole('heading', {
+      name: 'Sign up or sign in to your Mozilla account',
+    });
     screen.getByText(
       'Stay protected with continuous data monitoring and automatic data removal.'
     );
@@ -143,17 +145,27 @@ describe('Index page', () => {
     );
   });
 
-  it('does not render when deeplinking third party auth', () => {
-    renderWithLocalizationProvider(
-      <Subject
-        integration={createMockIndexOAuthIntegration({
-          clientId: POCKET_CLIENTIDS[0],
-        })}
-        deeplink="appleLogin"
-      />
-    );
+  // This is wrapped so that the HTMLFormElement.submit can be mocked
+  // without affecting other tests.
+  describe('deep linking', () => {
+    beforeEach(() => {
+      HTMLFormElement.prototype.submit = jest.fn();
+    });
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+    it('does not render when deeplinking third party auth', () => {
+      renderWithLocalizationProvider(
+        <Subject
+          integration={createMockIndexOAuthIntegration({
+            clientId: POCKET_CLIENTIDS[0],
+          })}
+          deeplink="appleLogin"
+        />
+      );
 
-    thirdPartyAuthNotRendered();
+      thirdPartyAuthNotRendered();
+    });
   });
 
   it('renders as expected when client is Pocket', () => {

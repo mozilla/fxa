@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../lib/glean';
 import {
@@ -40,6 +40,7 @@ import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
 import { IntegrationType } from '../../models';
 import { SensitiveData } from '../../lib/sensitive-data-client';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -117,14 +118,18 @@ const serviceRelayText =
 // TODO: Once https://mozilla-hub.atlassian.net/browse/FXA-6461 is resolved, we can
 // add the l10n tests back in. Right now, they can't handle embedded tags.
 
-function submit() {
-  fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+/**
+ * Uses `userEvent.click` to simulate a user clicking the `Sign In` button.
+ */
+async function submit() {
+  await user.click(screen.getByRole('button', { name: 'Sign in' }));
 }
-function enterPasswordAndSubmit() {
-  fireEvent.input(screen.getByLabelText('Password'), {
-    target: { value: MOCK_PASSWORD },
-  });
-  submit();
+/**
+ * Uses `userEvent.type` to simulate a user typing the password and then clicking the `Sign In` button.
+ */
+async function enterPasswordAndSubmit() {
+  await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD);
+  await submit();
 }
 const render = (props: Partial<SigninProps> = {}) => {
   renderWithLocalizationProvider(<Subject {...props} />);
@@ -183,14 +188,20 @@ function differentAccountLinkRendered() {
   screen.getByRole('link', { name: 'Use a different account' });
 }
 
+let user: UserEvent;
 describe('Signin component', () => {
   // let bundle: FluentBundle;
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
 
+  beforeEach(() => {
+    user = userEvent.setup();
+  });
+
   afterEach(() => {
     jest.resetAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('without sessionToken', () => {
@@ -215,10 +226,19 @@ describe('Signin component', () => {
         expect(screen.queryByText(serviceRelayText)).not.toBeInTheDocument();
       });
 
-      it('does not render third party auth for sync, emits expected Glean event', () => {
+      it('does not render third party auth for sync, emits expected Glean event', async () => {
+        const hardNavigateSpy = jest
+          .spyOn(utils, 'hardNavigate')
+          .mockImplementation(() => {});
+
         const integration = createMockSigninOAuthNativeSyncIntegration();
         render({ integration });
-        enterPasswordAndSubmit();
+        await enterPasswordAndSubmit();
+
+        // There is a hardNavigate that happens in this flow, if we don't
+        // mock/spy on it then it logs an error the next time a test tries
+        // to `enterPasswordAndSubmit()` because it's wrapped in a `setTimeout`
+        expect(hardNavigateSpy).toHaveBeenCalled();
 
         expect(
           screen.queryByRole('button', { name: /Continue with Google/ })
@@ -264,7 +284,7 @@ describe('Signin component', () => {
         it('renders tooltip on empty field submission, clears onchange', async () => {
           const beginSigninHandler = jest.fn();
           render({ beginSigninHandler });
-          submit();
+          await submit();
           await waitFor(() => {
             screen.getByText('Valid password required');
           });
@@ -290,7 +310,7 @@ describe('Signin component', () => {
             );
             render({ beginSigninHandler });
 
-            enterPasswordAndSubmit();
+            await enterPasswordAndSubmit();
 
             expect(
               await screen.findByText('Reset your password')
@@ -326,7 +346,8 @@ describe('Signin component', () => {
               .fn()
               .mockReturnValueOnce(createBeginSigninResponse());
             render({ beginSigninHandler });
-            enterPasswordAndSubmit();
+            await enterPasswordAndSubmit();
+
             await waitFor(() => {
               expect(beginSigninHandler).toHaveBeenCalledWith(
                 MOCK_EMAIL,
@@ -347,7 +368,7 @@ describe('Signin component', () => {
             );
             render({ beginSigninHandler });
 
-            enterPasswordAndSubmit();
+            await enterPasswordAndSubmit();
             await waitFor(() => {
               expect(navigate).toHaveBeenCalledWith('/signin_totp_code', {
                 replace: false,
@@ -372,7 +393,7 @@ describe('Signin component', () => {
             );
             render({ beginSigninHandler });
 
-            enterPasswordAndSubmit();
+            await enterPasswordAndSubmit();
             await waitFor(() => {
               expect(navigate).toHaveBeenCalledWith('/confirm_signup_code', {
                 replace: false,
@@ -396,7 +417,7 @@ describe('Signin component', () => {
             );
             render({ beginSigninHandler });
 
-            enterPasswordAndSubmit();
+            await enterPasswordAndSubmit();
             await waitFor(() => {
               expect(navigate).toHaveBeenCalledWith('/signin_token_code', {
                 replace: false,
@@ -423,7 +444,7 @@ describe('Signin component', () => {
             );
             render({ beginSigninHandler, integration });
 
-            enterPasswordAndSubmit();
+            await enterPasswordAndSubmit();
             await waitFor(() => {
               expect(navigate).toHaveBeenCalledWith(
                 '/inline_recovery_key_setup?',
@@ -449,7 +470,7 @@ describe('Signin component', () => {
               .mockReturnValueOnce(createBeginSigninResponse());
             render({ beginSigninHandler });
 
-            enterPasswordAndSubmit();
+            await enterPasswordAndSubmit();
             await waitFor(() => {
               expect(navigate).toHaveBeenCalledWith('/settings', {
                 replace: false,
@@ -478,7 +499,7 @@ describe('Signin component', () => {
                 type: IntegrationType.SyncDesktopV3,
               });
               render({ beginSigninHandler, integration });
-              enterPasswordAndSubmit();
+              await enterPasswordAndSubmit();
               await waitFor(() => {
                 // Since it's not OAuth, this should be called with keyFetchToken and unwrapBKey
                 expect(fxaLoginSpy).toHaveBeenCalledWith({
@@ -506,13 +527,15 @@ describe('Signin component', () => {
                 })
               );
               const integration = createMockSigninOAuthNativeSyncIntegration();
-              render({ beginSigninHandler, integration });
-              enterPasswordAndSubmit();
+              await act(() => {
+                render({ beginSigninHandler, integration });
+              });
+              await await enterPasswordAndSubmit();
               expect(fxaLoginSpy).not.toHaveBeenCalled();
             });
             it('is not sent otherwise', async () => {
               render();
-              enterPasswordAndSubmit();
+              await enterPasswordAndSubmit();
               expect(fxaLoginSpy).not.toHaveBeenCalled();
               expect(hardNavigateSpy).not.toHaveBeenCalled();
             });
@@ -549,7 +572,7 @@ describe('Signin component', () => {
                 finishOAuthFlowHandler,
               });
 
-              enterPasswordAndSubmit();
+              await enterPasswordAndSubmit();
               await waitFor(() => {
                 expect(navigate).toHaveBeenCalledWith('/confirm_signup_code', {
                   replace: false,
@@ -578,7 +601,7 @@ describe('Signin component', () => {
                 finishOAuthFlowHandler,
               });
 
-              enterPasswordAndSubmit();
+              await enterPasswordAndSubmit();
               await waitFor(() => {
                 expect(navigate).toHaveBeenCalledWith('/confirm_signup_code', {
                   replace: false,
@@ -606,7 +629,7 @@ describe('Signin component', () => {
                 integration,
                 finishOAuthFlowHandler,
               });
-              enterPasswordAndSubmit();
+              await enterPasswordAndSubmit();
               await waitFor(() => {
                 expect(fxaOAuthLoginSpy).not.toHaveBeenCalled();
                 expect(hardNavigateSpy).toHaveBeenCalledWith(
@@ -630,7 +653,7 @@ describe('Signin component', () => {
                 integration,
                 finishOAuthFlowHandler,
               });
-              enterPasswordAndSubmit();
+              await enterPasswordAndSubmit();
               await waitFor(() => {
                 // Ensure it's not called with keyFetchToken, unwrapBKey, or { relay: {} }
                 expect(fxaLoginSpy).toHaveBeenCalledWith({
@@ -677,7 +700,7 @@ describe('Signin component', () => {
                 finishOAuthFlowHandler,
               });
               screen.getByText(serviceRelayText);
-              enterPasswordAndSubmit();
+              await enterPasswordAndSubmit();
               await waitFor(() => {
                 // Ensure it's not called with keyFetchToken or unwrapBKey, or services: { sync: {} }
                 expect(fxaLoginSpy).toHaveBeenCalledWith({
@@ -714,7 +737,7 @@ describe('Signin component', () => {
           const beginSigninHandler = jest.fn().mockReturnValueOnce(response);
           render({ beginSigninHandler });
 
-          enterPasswordAndSubmit();
+          await enterPasswordAndSubmit();
           await waitFor(() => {
             screen.getByText('Incorrect password');
           });
@@ -735,7 +758,7 @@ describe('Signin component', () => {
         const sendUnblockEmailHandler = jest.fn().mockReturnValueOnce({});
         render({ beginSigninHandler, sendUnblockEmailHandler });
 
-        enterPasswordAndSubmit();
+        await enterPasswordAndSubmit();
         await waitFor(() => {
           expect(sendUnblockEmailHandler).toHaveBeenCalled();
           expect(mockSetData).toHaveBeenCalledWith(SensitiveData.Key.Password, {
@@ -762,7 +785,7 @@ describe('Signin component', () => {
           .mockReturnValueOnce({ localizedErrorMessage: 'Some error' });
         render({ beginSigninHandler, sendUnblockEmailHandler });
 
-        enterPasswordAndSubmit();
+        await enterPasswordAndSubmit();
         await waitFor(() => {
           expect(sendUnblockEmailHandler).toHaveBeenCalled();
           expect(mockNavigate).not.toHaveBeenCalled();
@@ -779,7 +802,7 @@ describe('Signin component', () => {
         );
         render({ beginSigninHandler });
 
-        enterPasswordAndSubmit();
+        await enterPasswordAndSubmit();
         await waitFor(() => {
           expect(mockNavigate).toHaveBeenCalledWith('/signin_bounced');
         });
@@ -859,17 +882,27 @@ describe('Signin component', () => {
       passwordInputNotRendered();
     });
 
-    it('does not render when deeplinking third party auth', () => {
-      renderWithLocalizationProvider(
-        <Subject sessionToken={MOCK_SESSION_TOKEN} deeplink="appleLogin" />
-      );
+    // This is wrapped so that the HTMLFormElement.submit can be mocked
+    // without affecting other tests.
+    describe('deeplinking', () => {
+      beforeEach(() => {
+        HTMLFormElement.prototype.submit = jest.fn();
+      });
+      afterEach(() => {
+        jest.resetAllMocks();
+      });
+      it('does not render when deeplinking third party auth', () => {
+        renderWithLocalizationProvider(
+          <Subject sessionToken={MOCK_SESSION_TOKEN} deeplink="appleLogin" />
+        );
 
-      expect(
-        screen.queryByRole('button', { name: /Continue with Google/ })
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByRole('button', { name: /Continue with Apple/ })
-      ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: /Continue with Google/ })
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: /Continue with Apple/ })
+        ).not.toBeInTheDocument();
+      });
     });
 
     it('emits an event on forgot password link click', async () => {
@@ -897,7 +930,7 @@ describe('Signin component', () => {
           />
         );
 
-        submit();
+        await submit();
         await waitFor(() => {
           expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
         });
@@ -940,7 +973,7 @@ describe('Signin component', () => {
             sessionToken: MOCK_SESSION_TOKEN,
           });
 
-          enterPasswordAndSubmit();
+          await enterPasswordAndSubmit();
           await waitFor(() => {
             expect(hardNavigateSpy).toHaveBeenCalledWith(
               'someUri',
@@ -963,7 +996,7 @@ describe('Signin component', () => {
           const integration = createMockSigninOAuthIntegration();
           render({ finishOAuthFlowHandler, integration, beginSigninHandler });
 
-          enterPasswordAndSubmit();
+          await enterPasswordAndSubmit();
           await waitFor(() => {
             expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
           });
@@ -1001,7 +1034,7 @@ describe('Signin component', () => {
           />
         );
 
-        submit();
+        await submit();
         await waitFor(() => {
           expect(cachedSigninHandler).toHaveBeenCalledWith(MOCK_SESSION_TOKEN);
           screen.getByText('Session expired. Sign in to continue.');
@@ -1023,7 +1056,7 @@ describe('Signin component', () => {
           />
         );
 
-        submit();
+        await submit();
         await waitFor(() => {
           screen.getByText(unexpectedError.message);
           passwordInputNotRendered();

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import FlowSetupRecoveryPhoneSubmitNumber from '.';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
@@ -35,10 +35,21 @@ describe('FlowSetupRecoveryPhoneSubmitNumber', () => {
     jest.clearAllMocks();
   });
 
+  /**
+   * Renders the {@link FlowSetupRecoveryPhoneSubmitNumber} component with the provided props.
+   * Uses defaultProps if none are provided.
+   * @param props
+   */
+  async function renderWith(props = defaultProps) {
+    await act(() => {
+      renderWithLocalizationProvider(
+        <FlowSetupRecoveryPhoneSubmitNumber {...props} />
+      );
+    });
+  }
+
   test('renders component as expected', async () => {
-    renderWithLocalizationProvider(
-      <FlowSetupRecoveryPhoneSubmitNumber {...defaultProps} />
-    );
+    await renderWith();
 
     await waitFor(() =>
       expect(
@@ -66,9 +77,7 @@ describe('FlowSetupRecoveryPhoneSubmitNumber', () => {
 
   test('handles successful number verification', async () => {
     const user = userEvent.setup();
-    renderWithLocalizationProvider(
-      <FlowSetupRecoveryPhoneSubmitNumber {...defaultProps} />
-    );
+    await renderWith();
 
     await waitFor(() =>
       user.type(
@@ -81,13 +90,10 @@ describe('FlowSetupRecoveryPhoneSubmitNumber', () => {
     await waitFor(() => expect(mockVerifyPhoneNumber).toHaveBeenCalledTimes(1));
     expect(mockNavigateForward).toHaveBeenCalledTimes(1);
   });
-
-  test('handles error during number verification', async () => {
+   test('handles error during number verification', async () => {
     mockVerifyPhoneNumber.mockRejectedValueOnce(new Error('error'));
     const user = userEvent.setup();
-    renderWithLocalizationProvider(
-      <FlowSetupRecoveryPhoneSubmitNumber {...defaultProps} />
-    );
+    await renderWith();
 
     await waitFor(() =>
       user.type(
@@ -106,9 +112,7 @@ describe('FlowSetupRecoveryPhoneSubmitNumber', () => {
 
   test('navigates backward when back button is clicked', async () => {
     const user = userEvent.setup();
-    renderWithLocalizationProvider(
-      <FlowSetupRecoveryPhoneSubmitNumber {...defaultProps} />
-    );
+    await renderWith();
 
     user.click(screen.getByRole('button', { name: /Back/i }));
 

@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { UserEvent, userEvent } from '@testing-library/user-event';
 import { logViewEvent } from '../../../lib/metrics';
 import FlowRecoveryKeyDownload from './';
 import { renderWithRouter } from '../../../models/mocks';
@@ -30,10 +31,11 @@ jest.mock('@react-pdf/renderer', () => {
   };
 });
 
-const renderFlowPage = () => {
+const renderFlowPage = async () => {
   window.URL.createObjectURL = jest.fn();
-  renderWithRouter(
-    <FlowRecoveryKeyDownload
+  await act(() => {
+    renderWithRouter(
+      <FlowRecoveryKeyDownload
       {...{
         localizedBackButtonTitle,
         localizedPageTitle,
@@ -43,17 +45,19 @@ const renderFlowPage = () => {
       }}
       email={MOCK_EMAIL}
       recoveryKeyValue={MOCK_RECOVERY_KEY_VALUE}
-    />
-  );
+      />
+    );
+  });
 };
 
 describe('FlowRecoveryKeyDownload', () => {
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders as expected', async () => {
-    renderFlowPage();
+    await renderFlowPage();
 
     screen.getByRole('heading', {
       level: 2,
@@ -71,7 +75,7 @@ describe('FlowRecoveryKeyDownload', () => {
   });
 
   it('emits the expected metrics when user copies the recovery key', async () => {
-    renderFlowPage();
+    await renderFlowPage();
     const copyButton = screen.getByRole('button', { name: 'Copy' });
     fireEvent.click(copyButton);
     await waitFor(() =>
@@ -83,7 +87,7 @@ describe('FlowRecoveryKeyDownload', () => {
   });
 
   it('emits the expected metrics when user downloads the recovery key', async () => {
-    renderFlowPage();
+    await renderFlowPage();
     const downloadButton = screen.getByText('Download and continue');
     fireEvent.click(downloadButton);
     await waitFor(() => {
@@ -94,8 +98,8 @@ describe('FlowRecoveryKeyDownload', () => {
     });
   });
 
-  it('emits the expected metrics when user navigates forward', () => {
-    renderFlowPage();
+  it('emits the expected metrics when user navigates forward', async () => {
+    await renderFlowPage();
     const nextPageLink = screen.getByRole('button', {
       name: 'Continue without downloading',
     });
@@ -107,8 +111,8 @@ describe('FlowRecoveryKeyDownload', () => {
     expect(navigateForward).toHaveBeenCalledTimes(1);
   });
 
-  it('emits the expected metrics when user clicks the back arrow', () => {
-    renderFlowPage();
+  it('emits the expected metrics when user clicks the back arrow', async () => {
+    await renderFlowPage();
     const backLink = screen.getByRole('button', { name: 'Back to settings' });
     fireEvent.click(backLink);
     expect(navigateBackward).toHaveBeenCalledTimes(1);
