@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+const { assert } = require('chai');
 const Client = require('../client')();
 const TestServer = require('../test_server');
 const config = require('../../config').default.getProperties();
@@ -12,8 +11,6 @@ const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { RECOVERY_PHONE_REDIS_PREFIX } = require('@fxa/accounts/recovery-phone');
 const otplib = require('otplib');
 const crypto = require('crypto');
-const { assert } = chai;
-chai.use(chaiAsPromised);
 
 const redis = new Redis({
   ...config.redis,

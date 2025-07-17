@@ -4,8 +4,7 @@
 
  'use strict';
 
- const chai = require('chai');
- const chaiAsPromised = require('chai-as-promised');
+ const { assert } = require('chai');
  const url = require('url');
  const Client = require('../client')();
  const TestServer = require('../test_server');
@@ -14,9 +13,6 @@
 
  const config = require('../../config').default.getProperties();
  const mocks = require('../mocks');
-
- chai.use(chaiAsPromised);
- const { assert } = chai;
 
  [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
    describe(`#integration${testOptions.version} - remote password forgot`, function () {

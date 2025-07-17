@@ -2,15 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import chai, { assert } from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { assert } from 'chai';
 import Renderer, {
   flattenNestedObjects,
   splitPlainTextLine,
 } from '../../../lib/senders/renderer';
 import { NodeRendererBindings } from '../../../lib/senders/renderer/bindings-node';
-
-chai.use(chaiAsPromised);
 
 describe('Renderer', () => {
   it('fails with a bad localizer ftl basePath', () => {

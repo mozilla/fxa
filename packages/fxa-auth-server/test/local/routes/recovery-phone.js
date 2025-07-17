@@ -6,7 +6,6 @@ const { AccountEventsManager } = require('../../../lib/account-events');
 const AppError = require('../../../lib/error');
 
 const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
 const { AccountManager } = require('@fxa/shared/account/account');
 
 const sinon = require('sinon');
@@ -23,7 +22,6 @@ const {
 const { getRoute } = require('../../routes_helpers');
 const { mockRequest } = require('../../mocks');
 const { Container } = require('typedi');
-chai.use(chaiAsPromised);
 
 describe('/recovery_phone', () => {
   const sandbox = sinon.createSandbox();
