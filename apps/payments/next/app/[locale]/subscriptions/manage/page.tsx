@@ -94,11 +94,7 @@ export default async function Manage({
               <Image
                 className="py-2"
                 src={getCardIcon(brand)}
-                alt={l10n.getString(
-                  'subscription-management-payment-brand-logo-alt-text',
-                  { brand },
-                  `${brand} logo`
-                )}
+                alt={l10n.getString(`${brand}-logo-alt-text`, `${brand} logo`)}
                 role="img"
                 aria-hidden={false}
               />
@@ -144,12 +140,8 @@ export default async function Manage({
             <div className="leading-5 text-sm">
               <Image
                 className="py-2"
-                src={getCardIcon(brand)}
-                alt={l10n.getString(
-                  'subscription-management-payment-brand-logo-alt-text',
-                  { brand },
-                  `${brand} logo`
-                )}
+                src={getCardIcon('paypal')}
+                alt={l10n.getString('paypal-logo-alt-text', 'PayPal logo')}
                 role="img"
                 aria-hidden={false}
               />

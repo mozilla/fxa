@@ -61,7 +61,6 @@
 -brand-mastercard = Mastercard
 -brand-unionpay = UnionPay
 -brand-visa = Visa
--brand-unbranded = Unbranded
 
 -app-store = App Store
 -google-play = Google Play

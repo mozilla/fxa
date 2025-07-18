@@ -5,20 +5,6 @@ subscription-management-button-add-payment-method-aria = Add payment method
 subscription-management-button-add-payment-method = Add
 subscription-management-button-change-payment-method-aria = Change payment method
 subscription-management-button-change-payment-method = Change
-# $brand (String) - Payment card's brand (e.g., PayPal, Amex, Mastercard, Visa, etc)
-subscription-management-payment-brand-logo-alt-text =
-  { $brand ->
-    [amex] {-brand-amex}
-    [diners] {-brand-diners}
-    [discover] {-brand-discover}
-    [jcb] {-brand-jcb}
-    [mastercard] {-brand-mastercard}
-    [paypal] {-brand-paypal}
-    [unionpay] {-brand-unionpay}
-    [visa] {-brand-visa}
-    [unbranded] {-brand-unbranded}
-   *[other] { $brand }
-  } logo
 # $last4 (String) - Last four numbers of credit card
 subscription-management-card-ending-in = Card ending in { $last4 }
 # $expirationDate (Date) - Payment card's expiration date
