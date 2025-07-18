@@ -24,9 +24,26 @@ export function stripeInvoiceToInvoicePreviewDTO(
       )
     : null;
 
-  const unusedAmountTotal = invoice.lines.data
-    .filter((line) => line.proration === true && line.amount < 0)
-    .reduce((sum, line) => sum + line.amount, 0);
+  const { remainingAmountTotal, unusedAmountTotal } = invoice.lines.data.reduce(
+    (totals, line) => {
+      if (line.proration === true) {
+        const amount = line.amount || 0;
+        const description = line.description || '';
+
+        if (amount < 0 && /^Unused/i.test(description)) {
+          totals.unusedAmountTotal += amount;
+        } else if (amount > 0 && /^Remaining/i.test(description)) {
+          totals.remainingAmountTotal =
+            (totals.remainingAmountTotal ?? 0) + amount;
+        }
+      }
+      return totals;
+    },
+    {
+      remainingAmountTotal: undefined as number | undefined,
+      unusedAmountTotal: 0,
+    }
+  );
 
   return {
     currency: invoice.currency,
@@ -44,6 +61,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
     creditApplied: invoice.ending_balance
       ? invoice.starting_balance - invoice.ending_balance
       : invoice.starting_balance,
+    remainingAmountTotal,
     startingBalance: invoice.starting_balance,
     unusedAmountTotal,
   };

@@ -48,6 +48,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
     discountAmount,
     discountEnd,
     discountType,
+    remainingAmountTotal,
     startingBalance,
     subtotal,
     taxAmounts,
@@ -123,11 +124,25 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
 
             <ul className="border-b border-grey-200 py-6">
               <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
-                <Localized id="next-plan-details-list-price">
-                  <p>List Price</p>
-                </Localized>
+                {remainingAmountTotal &&
+                offeringPrice !== remainingAmountTotal ? (
+                  <Localized
+                    id="plan-details-product-prorated-price"
+                    vars={{ productName }}
+                  >
+                    <p>Prorated price for {productName}</p>
+                  </Localized>
+                ) : (
+                  <Localized id="next-plan-details-list-price">
+                    <p>List Price</p>
+                  </Localized>
+                )}
                 <p>
-                  {getLocalizedCurrencyString(offeringPrice, currency, locale)}
+                  {getLocalizedCurrencyString(
+                    remainingAmountTotal ?? offeringPrice,
+                    currency,
+                    locale
+                  )}
                 </p>
               </li>
 
@@ -216,7 +231,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
                 </Localized>
                 <p
                   className="overflow-hidden text-ellipsis whitespace-nowrap"
-                  data-testid="total-price"
+                  data-testid="total-before-credits-price"
                 >
                   {getLocalizedCurrencyString(totalAmount, currency, locale)}
                 </p>
