@@ -7,6 +7,7 @@ import { TypedConfigModule } from 'nest-typed-config';
 
 import { GoogleClient, GoogleManager } from '@fxa/google';
 import {
+  AsyncLocalStorageCartProvider,
   CartManager,
   CartService,
   CheckoutService,
@@ -94,6 +95,7 @@ import {
     AccountCustomerManager,
     AccountDatabaseNestFactory,
     AccountManager,
+    AsyncLocalStorageCartProvider,
     CartManager,
     CartService,
     TaxService,
@@ -144,4 +146,4 @@ import {
     { provide: LOGGER_PROVIDER, useValue: logger },
   ],
 })
-export class AppModule { }
+export class AppModule {}
