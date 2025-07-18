@@ -1,9 +1,10 @@
 import { makeVar } from '@apollo/client';
+import { ReactNode } from 'react';
 import { consumeAlertTextExternal } from '../lib/cache';
 
 export type NotificationType = 'success' | 'info' | 'error' | 'warning';
 
-export const alertContent = makeVar(consumeAlertTextExternal() || '');
+export const alertContent = makeVar<string | ReactNode>(consumeAlertTextExternal() || '');
 export const alertType = makeVar<NotificationType>('success');
 export const alertVisible = makeVar(!!alertContent());
 
@@ -24,24 +25,24 @@ export class AlertBarInfo {
     alertType(type);
   }
 
-  setContent(text: string) {
+  setContent(text: string | ReactNode) {
     alertContent(text);
   }
 
-  success(message: string, gleanEvent?: () => void) {
+  success(message: string | ReactNode, gleanEvent?: () => void) {
     this.setType('success');
     this.setContent(message);
     gleanEvent && gleanEvent();
     this.show();
   }
 
-  error(message: string, error?: Error) {
+  error(message: string | ReactNode, error?: Error) {
     this.setType('error');
     this.setContent(message);
     this.show();
   }
 
-  info(message: string) {
+  info(message: string | ReactNode) {
     this.setType('success');
     this.setContent(message);
     this.show();
