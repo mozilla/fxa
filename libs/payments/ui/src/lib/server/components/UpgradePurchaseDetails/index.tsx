@@ -48,6 +48,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
     creditApplied,
     currency,
     discountAmount,
+    remainingAmountTotal,
     startingBalance,
     subtotal,
     taxAmounts,
@@ -143,18 +144,35 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
 
       <ul className="py-6 text-sm">
         <li className="flex items-center justify-between gap-2 leading-5 text-grey-600">
-          <p>
-            {l10n.getString(
-              `upgrade-purchase-details-new-plan-${interval}`,
-              {
-                productName,
-              },
+          {remainingAmountTotal && offeringPrice !== remainingAmountTotal ? (
+            <p>
+              {l10n.getString(
+                'plan-details-product-prorated-price',
+                {
+                  productName,
+                },
 
-              `${productName} (${formatPlanInterval(interval)})`
-            )}
-          </p>
+                `Prorated price for ${productName}`
+              )}
+            </p>
+          ) : (
+            <p>
+              {l10n.getString(
+                `upgrade-purchase-details-new-plan-${interval}`,
+                {
+                  productName,
+                },
+
+                `${productName} (${formatPlanInterval(interval)})`
+              )}
+            </p>
+          )}
           <p>
-            {l10n.getLocalizedCurrencyString(offeringPrice, currency, locale)}
+            {l10n.getLocalizedCurrencyString(
+              remainingAmountTotal ?? offeringPrice,
+              currency,
+              locale
+            )}
           </p>
         </li>
 
