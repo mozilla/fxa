@@ -217,7 +217,11 @@ module.exports = (
 
             // The user has provided a valid unblock code. Reset their active blocks.
             if (customs.v2Enabled()) {
-              await customs.resetV2(request, email);
+              await customs.resetV2(request, accountRecord.email);
+              if (!emailsMatch(email, accountRecord.email)) {
+                // email that was used to calculate hash is different from email used to login (e.g. due to primary/secondary email swap)
+                await customs.resetV2(request, email);
+              }
             }
 
             await request.emitMetricsEvent(
