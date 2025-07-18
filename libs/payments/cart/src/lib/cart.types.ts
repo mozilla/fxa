@@ -41,6 +41,7 @@ export interface Invoice {
   nextInvoiceDate: number;
   amountDue: number;
   creditApplied: number | null;
+  remainingAmountTotal?: number;
   startingBalance: number;
   unusedAmountTotal?: number;
 }

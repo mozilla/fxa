@@ -40,6 +40,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
         ? mockUpcomingInvoice.starting_balance -
           mockUpcomingInvoice.ending_balance
         : mockUpcomingInvoice.starting_balance,
+      remainingAmountTotal: undefined,
       startingBalance: mockUpcomingInvoice.starting_balance,
       unusedAmountTotal: 0,
       discountEnd: undefined,
@@ -79,6 +80,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
         ? mockUpcomingInvoice.starting_balance -
           mockUpcomingInvoice.ending_balance
         : mockUpcomingInvoice.starting_balance,
+      remainingAmountTotal: undefined,
       startingBalance: mockUpcomingInvoice.starting_balance,
       unusedAmountTotal: 0,
       discountEnd: null,
@@ -123,6 +125,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
         ? mockUpcomingInvoice.starting_balance -
           mockUpcomingInvoice.ending_balance
         : mockUpcomingInvoice.starting_balance,
+      remainingAmountTotal: undefined,
       startingBalance: mockUpcomingInvoice.starting_balance,
       unusedAmountTotal: 0,
       discountEnd: undefined,
