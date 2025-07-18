@@ -94,6 +94,9 @@ import { isPaymentIntent } from './util/isPaymentIntent';
 import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { SubscriptionAttributionParams } from './checkout.types';
 import { handleException } from 'libs/shared/error/src/lib/sanitizeExceptionsDecorator';
+import type { AsyncLocalStorage } from 'async_hooks';
+import { AsyncLocalStorageCart } from './cart-als.provider';
+import type { CartStore } from './cart-als.types';
 
 type Constructor<T> = new (...args: any[]) => T;
 interface WrapWithCartCatchOptions {
@@ -111,6 +114,8 @@ export class CartService {
   constructor(
     private accountCustomerManager: AccountCustomerManager,
     private accountManager: AccountManager,
+    @Inject(AsyncLocalStorageCart)
+    private asyncLocalStorage: AsyncLocalStorage<CartStore>,
     private cartManager: CartManager,
     private checkoutService: CheckoutService,
     private currencyManager: CurrencyManager,
@@ -184,10 +189,13 @@ export class CartService {
         });
 
         const cart = await this.cartManager.fetchCartById(cartId);
-        if (cart.stripeSubscriptionId) {
-          const subscription = await this.subscriptionManager.retrieve(
-            cart.stripeSubscriptionId
-          );
+        const store = this.asyncLocalStorage.getStore();
+        const subscriptionId =
+          cart.stripeSubscriptionId || store?.checkout.subscriptionId;
+
+        if (subscriptionId) {
+          const subscription =
+            await this.subscriptionManager.retrieve(subscriptionId);
           const invoice = subscription.latest_invoice
             ? await this.invoiceManager.retrieve(subscription.latest_invoice)
             : undefined;
@@ -253,7 +261,7 @@ export class CartService {
           }
 
           if (cart.eligibilityStatus === CartEligibilityStatus.CREATE) {
-            await this.subscriptionManager.cancel(cart.stripeSubscriptionId, {
+            await this.subscriptionManager.cancel(subscriptionId, {
               cancellation_details: {
                 comment: 'Automatic Cancellation: Cart checkout failed.',
               },
@@ -526,25 +534,30 @@ export class CartService {
         throw new UpdateStripeProcessingCartError(cartId, error);
       }
 
-      // Intentionally non-blocking
-      this.wrapWithCartCatch(cartId, async () => {
-        await this.checkoutService.payWithStripe(
-          updatedCart,
-          confirmationTokenId,
-          customerData,
-          attribution,
-          sessionUid
-        );
-      }).catch((error) => {
-        handleException({
-          error,
-          className: 'CartService',
-          methodName: 'checkoutCartWithStripe',
-          allowlist: [],
-          logger: this.log as Logger,
-          statsd: this.statsd,
-        });
-      });
+      this.asyncLocalStorage.run(
+        { checkout: { subscriptionId: undefined } },
+        () => {
+          // Intentionally non-blocking
+          this.wrapWithCartCatch(cartId, async () => {
+            await this.checkoutService.payWithStripe(
+              updatedCart,
+              confirmationTokenId,
+              customerData,
+              attribution,
+              sessionUid
+            );
+          }).catch((error) => {
+            handleException({
+              error,
+              className: 'CartService',
+              methodName: 'checkoutCartWithStripe',
+              allowlist: [],
+              logger: this.log as Logger,
+              statsd: this.statsd,
+            });
+          });
+        }
+      );
     });
   }
 
@@ -574,25 +587,30 @@ export class CartService {
         throw new UpdatePayPalProcessingCartError(cartId, error);
       }
 
-      // Intentionally non-blocking
-      this.wrapWithCartCatch(cartId, async () => {
-        await this.checkoutService.payWithPaypal(
-          updatedCart,
-          customerData,
-          attribution,
-          sessionUid,
-          token
-        );
-      }).catch((error) => {
-        handleException({
-          error,
-          className: 'CartService',
-          methodName: 'checkoutCartWithPaypal',
-          allowlist: [],
-          logger: this.log as Logger,
-          statsd: this.statsd,
-        });
-      });
+      this.asyncLocalStorage.run(
+        { checkout: { subscriptionId: undefined } },
+        () => {
+          // Intentionally non-blocking
+          this.wrapWithCartCatch(cartId, async () => {
+            await this.checkoutService.payWithPaypal(
+              updatedCart,
+              customerData,
+              attribution,
+              sessionUid,
+              token
+            );
+          }).catch((error) => {
+            handleException({
+              error,
+              className: 'CartService',
+              methodName: 'checkoutCartWithPaypal',
+              allowlist: [],
+              logger: this.log as Logger,
+              statsd: this.statsd,
+            });
+          });
+        }
+      );
     });
   }
 
