@@ -209,7 +209,7 @@ const SigninTokenCode = ({
   const cmsInfo = integration?.getCmsInfo();
 
   return (
-    <AppLayout>
+    <AppLayout integration={integration}>
 
       <CardHeader
         headingText="Enter confirmation code"

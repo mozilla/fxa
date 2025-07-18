@@ -41,7 +41,7 @@ const SignupConfirmedSync = ({
   const cmsButtonText = cmsInfo?.SignupConfirmedSyncPage?.primaryButtonText;
 
   return (
-    <AppLayout>
+    <AppLayout integration={integration}>
       {originPostVerifySetPassword ? (
         <Banner
           type="success"
