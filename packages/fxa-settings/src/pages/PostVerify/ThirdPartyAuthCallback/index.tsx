@@ -27,6 +27,7 @@ import VerificationReasons from '../../../constants/verification-reasons';
 import { currentAccount } from '../../../lib/cache';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { NavigationOptions } from '../../Signin/interfaces';
 
 type LinkedAccountData = {
   uid: hexstring;
@@ -78,7 +79,7 @@ const ThirdPartyAuthCallback = ({
    */
   const performNavigation = useCallback(
     async (linkedAccount: LinkedAccountData, needsVerification = false) => {
-      const navigationOptions = {
+      const navigationOptions: NavigationOptions = {
         email: linkedAccount.email,
         signinData: {
           uid: linkedAccount.uid,
@@ -137,7 +138,10 @@ const ThirdPartyAuthCallback = ({
       // Extract relayed fxa parameters
       const params = new URLSearchParams(fxaParams || '');
       const flowId = params.get('flowId') || params.get('flow_id') || undefined;
-      const flowBeginTime = params.get('flowBeginTime') || params.get('flow_begin_time') || undefined;
+      const flowBeginTime =
+        params.get('flowBeginTime') ||
+        params.get('flow_begin_time') ||
+        undefined;
       const originalService =
         params.get('service') || params.get('client_id') || undefined;
       const linkedAccount: LinkedAccountData =

@@ -10,7 +10,7 @@ import { logViewEvent } from '../../../lib/metrics';
 import { MozServices } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
 import GleanMetrics from '../../../lib/glean';
-import { SigninIntegration, SigninLocationState } from '../interfaces';
+import { NavigationOptions, SigninIntegration, SigninLocationState } from '../interfaces';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { handleNavigation } from '../utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
@@ -90,7 +90,7 @@ export const SigninTotpCode = ({
         verified: true,
       });
 
-      const navigationOptions = {
+      const navigationOptions: NavigationOptions = {
         email,
         signinData: {
           uid,

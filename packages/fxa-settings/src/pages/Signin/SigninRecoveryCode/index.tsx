@@ -30,6 +30,7 @@ import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import ButtonBack from '../../../components/ButtonBack';
 import classNames from 'classnames';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import { NavigationOptions } from '../interfaces';
 
 export const viewName = 'signin-recovery-code';
 
@@ -86,7 +87,7 @@ const SigninRecoveryCode = ({
   };
 
   const onSuccessNavigate = useCallback(async () => {
-    const navigationOptions = {
+    const navigationOptions : NavigationOptions = {
       email,
       signinData: {
         uid,

@@ -6,7 +6,7 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import SigninPushCode from '.';
 import { MozServices } from '../../../lib/types';
 import { getSigninState, handleNavigation } from '../utils';
-import { SigninLocationState } from '../interfaces';
+import { NavigationOptions, SigninLocationState } from '../interfaces';
 import {
   Integration,
   isWebIntegration,
@@ -86,7 +86,7 @@ export const SigninPushCodeContainer = ({
   }
 
   const onCodeVerified = async () => {
-    const navigationOptions = {
+    const navigationOptions : NavigationOptions = {
       email: signinState.email,
       signinData: { ...signinState, verified: true },
       unwrapBKey,

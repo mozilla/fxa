@@ -33,6 +33,7 @@ import { ResendStatus } from '../../../lib/types';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { NavigationOptions } from '../interfaces';
 
 export const viewName = 'signin-unblock';
 
@@ -134,7 +135,7 @@ export const SigninUnblock = ({
 
       storeAccountData(accountData);
 
-      const navigationOptions = {
+      const navigationOptions: NavigationOptions = {
         email,
         signinData: data.signIn,
         unwrapBKey: data.unwrapBKey,

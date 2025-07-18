@@ -5,7 +5,7 @@
 import React, { useContext, useEffect } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SigninRecoveryPhone from '.';
-import { SigninLocationState } from '../interfaces';
+import { NavigationOptions, SigninLocationState } from '../interfaces';
 import { getSigninState, handleNavigation } from '../utils';
 import {
   AppContext,
@@ -104,7 +104,7 @@ const SigninRecoveryPhoneContainer = ({
       });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      const navigationOptions = {
+      const navigationOptions : NavigationOptions = {
         email: signinState.email,
         signinData: {
           uid: signinState.uid,
