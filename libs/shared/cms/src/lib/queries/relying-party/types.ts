@@ -21,6 +21,8 @@ export interface Shared {
   emailFromName: string | null;
   emailLogoUrl: string | null;
   emailLogoAltText: string | null;
+  backgroundColor: string | null;
+  pageTitle: string | null;
 }
 
 export interface RelyingPartyResult {

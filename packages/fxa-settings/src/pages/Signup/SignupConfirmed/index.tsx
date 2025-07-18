@@ -23,7 +23,7 @@ const SignupConfirmed = ({
   serviceName,
   integration,
 }: SignupConfirmedProps & RouteComponentProps) => (
-  <AppLayout>
+  <AppLayout integration={integration}>
     <Ready {...{ continueHandler, isSignedIn, viewName, serviceName, integration }} />
   </AppLayout>
 );

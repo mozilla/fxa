@@ -47,6 +47,8 @@ export const RelyingPartyResultFactory = (
     emailFromName: faker.string.sample(),
     emailLogoUrl: faker.internet.url(),
     emailLogoAltText: faker.string.sample(),
+    backgroundColor: faker.color.rgb(),
+    pageTitle: faker.string.sample(),
   },
   NewDeviceLoginEmail: {
     subject: faker.string.sample(),
