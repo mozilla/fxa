@@ -100,7 +100,7 @@ export const Index = ({
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <AppLayout>
+    <AppLayout integration={integration}>
       {cmsInfo ? (
         <>
           {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (

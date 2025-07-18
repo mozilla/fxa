@@ -26,3 +26,10 @@
     @apply font-body font-normal text-sm block mt-1;
   }
 }
+
+/* Hide custom cms background on mobile (default) and show on tablet and up */
+@media (min-width: 640px) {
+  [data-testid="app"] {
+    background-image: var(--cms-bg);
+  }
+}

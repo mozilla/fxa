@@ -161,7 +161,7 @@ const SigninRecoveryPhone = ({
   const cmsInfo = integration?.getCmsInfo();
 
   return (
-    <AppLayout>
+    <AppLayout integration={integration}>
 
       <div className="relative flex items-center">
         <ButtonBack />

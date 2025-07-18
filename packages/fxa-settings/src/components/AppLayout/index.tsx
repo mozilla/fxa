@@ -8,6 +8,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useLocalization } from '@fluent/react';
 import Head from 'fxa-react/components/Head';
 import classNames from 'classnames';
+import { RelierCmsInfo } from '../../models/integrations';
 
 type AppLayoutProps = {
   // TODO: FXA-6803 - the title prop should be made mandatory
@@ -15,22 +16,38 @@ type AppLayoutProps = {
   title?: string;
   children: React.ReactNode;
   widthClass?: string;
+  integration?: { getCmsInfo?: () => RelierCmsInfo | undefined };
 };
 
 export const AppLayout = ({
   title,
   children,
   widthClass,
+  integration,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
 
+  const cmsInfo = integration?.getCmsInfo?.();
+  const cmsBackgroundColor = cmsInfo?.shared?.backgroundColor;
+  const cmsPageTitle = cmsInfo?.shared?.pageTitle;
+
+  const overrideTitle = cmsPageTitle ? cmsPageTitle : title;
+
+  // Only apply background image if cmsBackgroundColor is a valid background-image CSS value
+  const hasValidBackgroundImage = cmsBackgroundColor &&
+    (cmsBackgroundColor.includes('linear-gradient') ||
+     cmsBackgroundColor.includes('radial-gradient'));
+
   return (
     <>
-      <Head {...{ title }} />
-      <div
-        className="flex min-h-screen flex-col items-center"
-        data-testid="app"
-      >
+      <Head {...{ title: overrideTitle }} />
+        <div
+          className="flex min-h-screen flex-col items-center"
+          style={hasValidBackgroundImage ? {
+            '--cms-bg': cmsBackgroundColor
+          } as React.CSSProperties : undefined}
+          data-testid="app"
+        >
         <div id="body-top" className="w-full hidden mobileLandscape:block" />
         <header className="w-full px-6 pt-16 pb-0 mobileLandscape:py-6">
           <LinkExternal
