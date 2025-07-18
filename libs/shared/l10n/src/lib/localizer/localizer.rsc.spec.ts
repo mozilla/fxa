@@ -43,22 +43,22 @@ describe('LocalizerRsc', () => {
     it('should call getElement with createElement fragment', () => {
       mockReactLocalization.getBundle = jest.fn().mockReturnValue(true);
       localizerRsc.getFragmentWithSource('id', {}, {} as any);
-      expect(mockReactLocalization.getElement).toBeCalled();
-      expect(spyCreateFragment).toBeCalledTimes(1);
+      expect(mockReactLocalization.getElement).toHaveBeenCalled();
+      expect(spyCreateFragment).toHaveBeenCalledTimes(1);
     });
 
     it('should call getElement with fallback', () => {
       mockReactLocalization.getBundle = jest.fn().mockReturnValue(false);
       localizerRsc.getFragmentWithSource('id', {}, {} as any);
-      expect(mockReactLocalization.getElement).toBeCalled();
-      expect(spyCreateFragment).not.toBeCalled();
+      expect(mockReactLocalization.getElement).toHaveBeenCalled();
+      expect(spyCreateFragment).not.toHaveBeenCalled();
     });
   });
 
   describe('getFragment', () => {
     it('should call getElement', () => {
       localizerRsc.getFragment('id', {});
-      expect(mockReactLocalization.getElement).toBeCalled();
+      expect(mockReactLocalization.getElement).toHaveBeenCalled();
     });
   });
 
@@ -67,7 +67,7 @@ describe('LocalizerRsc', () => {
     const fallback = 'fallback text';
     it('should call getString with no vars', () => {
       localizerRsc.getString(id, fallback);
-      expect(mockReactLocalization.getString).toBeCalledWith(
+      expect(mockReactLocalization.getString).toHaveBeenCalledWith(
         id,
         undefined,
         fallback
@@ -77,7 +77,7 @@ describe('LocalizerRsc', () => {
     it('should call getString with vars', () => {
       const vars = { test: 'var' };
       localizerRsc.getString(id, vars, fallback);
-      expect(mockReactLocalization.getString).toBeCalledWith(
+      expect(mockReactLocalization.getString).toHaveBeenCalledWith(
         id,
         vars,
         fallback
@@ -93,25 +93,33 @@ describe('LocalizerRsc', () => {
     it('should call getLocalizedCurrency', () => {
       const spy = jest.spyOn(formatters, 'getLocalizedCurrency');
       localizerRsc.getLocalizedCurrency(amountInCents, currency);
-      expect(spy).toBeCalledWith(amountInCents, currency);
+      expect(spy).toHaveBeenCalledWith(amountInCents, currency);
     });
 
     it('should call getLocalizedCurrencyString', () => {
       const spy = jest.spyOn(formatters, 'getLocalizedCurrencyString');
       localizerRsc.getLocalizedCurrencyString(amountInCents, currency, locale);
-      expect(spy).toBeCalledWith(amountInCents, currency, locale);
+      expect(spy).toHaveBeenCalledWith(amountInCents, currency, locale);
     });
 
     it('should call getLocalizedDate', () => {
       const spy = jest.spyOn(formatters, 'getLocalizedDate');
       localizerRsc.getLocalizedDate(unixSeconds);
-      expect(spy).toBeCalledWith(unixSeconds, false);
+      expect(spy).toHaveBeenCalledWith(unixSeconds, false);
     });
 
     it('should call getLocalizedDateString', () => {
       const spy = jest.spyOn(formatters, 'getLocalizedDateString');
       localizerRsc.getLocalizedDateString(unixSeconds);
-      expect(spy).toBeCalledWith(unixSeconds, false);
+      expect(spy).toHaveBeenCalledWith(unixSeconds, false);
+    });
+
+    it('should call getLocalizedMonthYearString', () => {
+      const month = 4;
+      const year = 2024;
+      const spy = jest.spyOn(formatters, 'getLocalizedMonthYearString');
+      localizerRsc.getLocalizedMonthYearString(month, year, locale);
+      expect(spy).toHaveBeenCalledWith(month, year, locale);
     });
   });
 });
