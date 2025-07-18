@@ -14,8 +14,10 @@ import {
   getLocalizedDateString,
 } from '@fxa/shared/l10n';
 import chevron from './images/chevron.svg';
+import { formatPlanInterval } from '../../../utils/helpers';
 
 type PurchaseDetailsProps = {
+  interval: string;
   invoice: InvoicePreview;
   offeringPrice: number;
   priceInterval: React.ReactNode;
@@ -32,6 +34,7 @@ type PurchaseDetailsProps = {
 
 export function PurchaseDetails(props: PurchaseDetailsProps) {
   const {
+    interval,
     invoice,
     offeringPrice,
     priceInterval,
@@ -48,6 +51,7 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
     discountAmount,
     discountEnd,
     discountType,
+    remainingAmountTotal,
     startingBalance,
     subtotal,
     taxAmounts,
@@ -123,11 +127,27 @@ export function PurchaseDetails(props: PurchaseDetailsProps) {
 
             <ul className="border-b border-grey-200 py-6">
               <li className="flex items-center justify-between gap-2 leading-5 text-grey-600 text-sm">
-                <Localized id="next-plan-details-list-price">
-                  <p>List Price</p>
-                </Localized>
+                {remainingAmountTotal &&
+                offeringPrice !== remainingAmountTotal ? (
+                  <Localized
+                    id="plan-details-product-prorated-price"
+                    vars={{ productName, interval }}
+                  >
+                    <p>
+                      {productName} {formatPlanInterval(interval)} (Prorated)
+                    </p>
+                  </Localized>
+                ) : (
+                  <Localized id="next-plan-details-list-price">
+                    <p>List Price</p>
+                  </Localized>
+                )}
                 <p>
-                  {getLocalizedCurrencyString(offeringPrice, currency, locale)}
+                  {getLocalizedCurrencyString(
+                    remainingAmountTotal ?? offeringPrice,
+                    currency,
+                    locale
+                  )}
                 </p>
               </li>
 

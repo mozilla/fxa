@@ -62,6 +62,7 @@ export default async function UpgradeSuccessLayout({
         <SubscriptionTitle cart={cart} l10n={l10n} />
         <div className="mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:row-start-1 tablet:row-span-3">
           <PurchaseDetails
+            interval={cart.interval}
             invoice={cart.latestInvoicePreview ?? cart.upcomingInvoicePreview}
             offeringPrice={cart.offeringPrice}
             purchaseDetails={purchaseDetails}
