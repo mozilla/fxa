@@ -93,14 +93,10 @@ export default async function Manage({
             <div className="leading-5 text-sm">
               <Image
                 className="py-2"
-                src={getCardIcon(brand)}
-                alt={l10n.getString(
-                  'subscription-management-payment-brand-logo-alt-text',
-                  { brand },
-                  `${brand} logo`
-                )}
-                role="img"
-                aria-hidden={false}
+                src={getCardIcon(brand, l10n).img}
+                alt={getCardIcon(brand, l10n).altText}
+                width={40}
+                height={24}
               />
               {last4 && (
                 <div className="pt-2">
@@ -144,14 +140,10 @@ export default async function Manage({
             <div className="leading-5 text-sm">
               <Image
                 className="py-2"
-                src={getCardIcon(brand)}
-                alt={l10n.getString(
-                  'subscription-management-payment-brand-logo-alt-text',
-                  { brand },
-                  `${brand} logo`
-                )}
-                role="img"
-                aria-hidden={false}
+                src={getCardIcon('paypal', l10n).img}
+                alt={l10n.getString('paypal-logo-alt-text', 'PayPal logo')}
+                width={40}
+                height={24}
               />
             </div>
 
