@@ -53,7 +53,7 @@ const ConfirmSignupCode = ({
   keyFetchToken,
   unwrapBKey,
   flowQueryParams,
-  origin
+  origin,
 }: ConfirmSignupCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -221,7 +221,7 @@ const ConfirmSignupCode = ({
             });
             // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
             const { to } = getSyncNavigate(location.search, {
-              showSignupConfirmedSync: true,
+              showSignupConfirmedSync: !integration.isFirefoxMobileClient(),
             });
             navigate(to);
             return;
@@ -299,22 +299,24 @@ const ConfirmSignupCode = ({
         'Enter confirmation code'
       )}
     >
-
       {cmsInfo ? (
-          <>
-            {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
-              <img
-                data-testid="cms-logo"
-                src={cmsInfo?.shared.logoUrl}
-                alt={cmsInfo?.shared.logoAltText}
-                className="justify-start mb-4 max-h-[40px]"
-              />)}
-            <h1 className="card-header">{cmsInfo?.SignupConfirmCodePage?.headline}</h1>
-            <p className="mt-1 text-sm">
-              {cmsInfo?.SignupConfirmCodePage?.description}
-            </p>
-          </>
-        ) : (
+        <>
+          {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
+            <img
+              data-testid="cms-logo"
+              src={cmsInfo?.shared.logoUrl}
+              alt={cmsInfo?.shared.logoAltText}
+              className="justify-start mb-4 max-h-[40px]"
+            />
+          )}
+          <h1 className="card-header">
+            {cmsInfo?.SignupConfirmCodePage?.headline}
+          </h1>
+          <p className="mt-1 text-sm">
+            {cmsInfo?.SignupConfirmCodePage?.description}
+          </p>
+        </>
+      ) : (
         <CardHeader
           headingText="Enter confirmation code"
           headingAndSubheadingFtlId="confirm-signup-code-heading-2"
@@ -364,7 +366,7 @@ const ConfirmSignupCode = ({
           cmsButton: {
             text: cmsInfo?.SignupConfirmCodePage?.primaryButtonText,
             color: cmsInfo?.shared?.buttonColor,
-          }
+          },
         }}
       />
 
