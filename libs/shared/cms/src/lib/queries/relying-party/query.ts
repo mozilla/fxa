@@ -19,6 +19,8 @@ export const relyingPartyQuery = graphql(`
         emailFromName
         emailLogoUrl
         emailLogoAltText
+        backgroundColor
+        pageTitle
       }
       EmailFirstPage {
         headline

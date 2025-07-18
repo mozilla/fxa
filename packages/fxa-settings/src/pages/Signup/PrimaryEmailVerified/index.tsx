@@ -23,7 +23,7 @@ const PrimaryEmailVerified = ({
   integration
 }: PrimaryEmailVerifiedProps & RouteComponentProps) => {
   return (
-    <AppLayout>
+    <AppLayout integration={integration}>
       <Ready {...{ viewName, serviceName, isSignedIn, integration }} />
     </AppLayout>
   );
