@@ -155,6 +155,7 @@ const ThirdPartySignInForm = ({
   const stateRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const isDeeplinking = deeplink !== undefined;
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
 
   const onClick = useCallback(async () => {
     logViewEventOnce(`flow.${party}`, 'oauth-start');
@@ -199,11 +200,11 @@ const ThirdPartySignInForm = ({
   }
 
   useEffect(() => {
-    if (deeplink && formRef.current) {
+    if (deeplink && formRef.current && submitButtonRef.current) {
       // Only deeplink if this is the correct button
       if ((deeplink === "googleLogin" && party === "google") || (deeplink === "appleLogin" && party === "apple")) {
         onClick();
-        formRef.current.submit();
+        submitButtonRef.current.click();
       }
     }
 
@@ -233,6 +234,7 @@ const ThirdPartySignInForm = ({
           type="submit"
           className="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center focus-visible-default outline-offset-2"
           onClick={onClick}
+          ref={submitButtonRef}
         >
           {buttonText}
         </button>
