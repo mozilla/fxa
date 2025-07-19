@@ -67,7 +67,7 @@ describe('FormPasswordWithBalloons component', () => {
       it('disallows space-only passwords', async () => {
         renderWithLocalizationProvider(<Subject />);
         const passwordField = screen.getByLabelText('Password');
-        user.type(passwordField, '        ');
+        await user.type(passwordField, '        ');
 
         await waitFor(() => screen.getByText('Password requirements'));
         expect(screen.queryAllByText('icon-check-blue-50.svg')).toHaveLength(2);
@@ -83,7 +83,7 @@ describe('FormPasswordWithBalloons component', () => {
       it('disallows common passwords', async () => {
         renderWithLocalizationProvider(<Subject />);
         const passwordField = screen.getByLabelText('Password');
-        user.type(passwordField, 'mozilla accounts');
+        await user.type(passwordField, 'mozilla accounts');
         await waitFor(() => screen.getByText('Password requirements'));
         expect(screen.queryAllByText('icon-check-blue-50.svg')).toHaveLength(2);
 
