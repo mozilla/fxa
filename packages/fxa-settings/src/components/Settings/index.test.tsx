@@ -48,6 +48,12 @@ jest.mock('../../lib/hooks/useGeoEligibilityCheck', () => ({
   useGeoEligibilityCheck: () => mockUseGeoEligibilityCheck(),
 }));
 
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
+
 describe('Settings App', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -82,6 +88,31 @@ describe('Settings App', () => {
     expect(getByRole('heading', { level: 2 })).toHaveTextContent(
       'General application error'
     );
+  });
+
+  it('redirects to root if account is not verified', async () => {
+    const unverifiedAccount = {
+      ...MOCK_ACCOUNT,
+      primaryEmail: {
+        ...MOCK_ACCOUNT.primaryEmail,
+        verified: false,
+      },
+      emails: MOCK_ACCOUNT.emails.map((email) =>
+        email.isPrimary ? { ...email, verified: false } : email
+      ),
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({ account: unverifiedAccount })}
+      >
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await Promise.resolve();
+    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
   });
 
   it('routes to PageSettings', async () => {

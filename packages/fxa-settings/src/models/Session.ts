@@ -152,7 +152,7 @@ export class Session implements SessionData {
   }
 
   async isValid(sessionToken: string) {
-    // If the current session token is valid, the folloiwng query will succeed.
+    // If the current session token is valid, the following query will succeed.
     // If current session is not valid an 'Invalid Token' error will be thrown.
     const query = GET_SESSION_IS_VALID;
     const { data } = await this.apolloClient.query({
