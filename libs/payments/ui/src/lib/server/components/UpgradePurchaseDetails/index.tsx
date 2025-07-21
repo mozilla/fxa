@@ -57,6 +57,21 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
   const exclusiveTaxRates = taxAmounts.filter(
     (taxAmount) => !taxAmount.inclusive
   );
+  const getNewPlanLabelFtlId = (interval: string) => {
+    switch (interval) {
+      case 'daily':
+        return 'upgrade-purchase-details-new-plan-daily';
+      case 'weekly':
+        return 'upgrade-purchase-details-new-plan-weekly';
+      case 'monthly':
+      default:
+        return 'upgrade-purchase-details-new-plan-monthly';
+      case 'halfyearly':
+        return 'upgrade-purchase-details-new-plan-halfyearly';
+      case 'yearly':
+        return 'upgrade-purchase-details-new-plan-yearly';
+    }
+  };
   return (
     <section
       aria-labelledby="current-plan new-plan"
@@ -145,7 +160,7 @@ export function UpgradePurchaseDetails(props: UpgradePurchaseDetailsProps) {
         <li className="flex items-center justify-between gap-2 leading-5 text-grey-600">
           <p>
             {l10n.getString(
-              `upgrade-purchase-details-new-plan-${interval}`,
+              getNewPlanLabelFtlId(interval),
               {
                 productName,
               },
