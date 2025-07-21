@@ -193,6 +193,22 @@ config.theme.extend = {
       '70%': { transform: 'rotate(720deg)' },
       '100%': { transform: 'rotate(720deg)' },
     },
+    'email-code-fade-in': {
+      '0%': { 'fill-opacity': 0, 'stroke-opacity': 0 },
+      '100%': { 'fill-opacity': 1, 'stroke-opacity': 1 },
+    },
+    'email-code-bounce-scale': {
+      '0%': { transform: 'scale(0.7)', 'transform-origin': '71.373px 129px' },
+      '80%': { transform: 'scale(1.1)', 'transform-origin': '71.373px 129px' },
+      '100%': { transform: 'scale(1)', 'transform-origin': '71.373px 129px' },
+    },
+    'email-code-rotate': {
+      '0%': { transform: 'rotate(0deg)', 'transform-origin': '71.373px 129px' },
+      '100%': {
+        transform: 'rotate(360deg)',
+        'transform-origin': '71.373px 129px',
+      },
+    },
   },
 
   animation: {
@@ -233,6 +249,9 @@ config.theme.extend = {
     'pulse-twinkle-third':
       'sparkle 3s ease-in-out infinite, twinkle 3s infinite ease-in-out',
     'subtle-move': 'subtle-move ease-in-out infinite 5s',
+    'email-code-fade': 'email-code-fade-in 400ms ease-out both',
+    'email-code-bounce-scale': 'email-code-bounce-scale 1s ease-out forwards',
+    'email-code-rotate': 'email-code-rotate 1s ease-out forwards',
   },
 };
 
