@@ -204,7 +204,7 @@ export default async function Checkout({
             </form>
           </div>
 
-          <hr className="mx-auto w-full border-grey-200" />
+          <hr className="mx-auto w-full border-grey-200" aria-hidden="true" />
         </section>
       )}
 

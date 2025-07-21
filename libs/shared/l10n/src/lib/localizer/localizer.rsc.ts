@@ -22,6 +22,7 @@ import {
   getLocalizedCurrencyString,
   getLocalizedDate,
   getLocalizedDateString,
+  getLocalizedMonthYearString,
 } from '../l10n.formatters';
 
 /**
@@ -106,7 +107,11 @@ export class LocalizerRsc {
     return getLocalizedCurrency(amountInCents, currency);
   }
 
-  getLocalizedCurrencyString(amountInCents: number | null, currency: string, locale: string) {
+  getLocalizedCurrencyString(
+    amountInCents: number | null,
+    currency: string,
+    locale: string
+  ) {
     return getLocalizedCurrencyString(amountInCents, currency, locale);
   }
 
@@ -116,5 +121,13 @@ export class LocalizerRsc {
 
   getLocalizedDateString(unixSeconds: number, numericDate = false): string {
     return getLocalizedDateString(unixSeconds, numericDate);
+  }
+
+  getLocalizedMonthYearString(
+    month: number,
+    year: number,
+    locale: string
+  ): string {
+    return getLocalizedMonthYearString(month, year, locale);
   }
 }

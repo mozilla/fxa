@@ -11,26 +11,54 @@ import Paypal from '@fxa/shared/assets/images/payment-methods/paypal.svg';
 import Unbranded from '@fxa/shared/assets/images/payment-methods/unbranded.svg';
 import UnionPay from '@fxa/shared/assets/images/payment-methods/unionpay.svg';
 import Visa from '@fxa/shared/assets/images/payment-methods/visa.svg';
+import { LocalizerRsc } from '@fxa/shared/l10n/server';
 
-export function getCardIcon(cardBrand: string) {
+export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
   switch (cardBrand) {
     case 'amex':
-      return Amex;
+      return {
+        img: Amex,
+        altText: l10n.getString('amex-logo-alt-text', 'American Express logo'),
+      };
     case 'diners':
-      return Diners;
+      return {
+        img: Diners,
+        altText: l10n.getString('diners-logo-alt-text', 'Diners logo'),
+      };
     case 'discover':
-      return Discover;
+      return {
+        img: Discover,
+        altText: l10n.getString('discover-logo-alt-text', 'Discover logo'),
+      };
     case 'jcb':
-      return Jcb;
+      return {
+        img: Jcb,
+        altText: l10n.getString('jcb-logo-alt-text', 'JCB logo'),
+      };
     case 'mastercard':
-      return Mastercard;
+      return {
+        img: Mastercard,
+        altText: l10n.getString('mastercard-logo-alt-text', 'Mastercard logo'),
+      };
     case 'paypal':
-      return Paypal;
+      return {
+        img: Paypal,
+        altText: l10n.getString('paypal-logo-alt-text', 'PayPal logo'),
+      };
     case 'unionpay':
-      return UnionPay;
+      return {
+        img: UnionPay,
+        altText: l10n.getString('unionpay-logo-alt-text', 'Union Pay logo'),
+      };
     case 'visa':
-      return Visa;
+      return {
+        img: Visa,
+        altText: l10n.getString('visa-logo-alt-text', 'Visa logo'),
+      };
     default:
-      return Unbranded;
+      return {
+        img: Unbranded,
+        altText: l10n.getString('unbranded-logo-alt-text', 'Unbranded logo'),
+      };
   }
 }

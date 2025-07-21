@@ -57,25 +57,29 @@ type HeaderProps = {
     user: User | undefined;
     signOut: () => Promise<void>;
   };
-  cart: {
+  cart?: {
     taxAddress: {
       countryCode: string;
       postalCode: string;
     };
   };
+  redirectPath?: string;
 };
 
-export const Header = ({ auth, cart }: HeaderProps) => {
+export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
 
-  const signOutRedirectPath = buildSignOutRedirectPath(
-    params,
-    searchParams,
-    cart.taxAddress.countryCode,
-    cart.taxAddress.postalCode
-  );
+  const signOutRedirectPath =
+    cart?.taxAddress.countryCode && cart.taxAddress.postalCode
+      ? buildSignOutRedirectPath(
+          params,
+          searchParams,
+          cart.taxAddress.countryCode,
+          cart.taxAddress.postalCode
+        )
+      : redirectPath || '/';
 
   const signedIn = auth && auth.user;
 
@@ -141,7 +145,7 @@ export const Header = ({ auth, cart }: HeaderProps) => {
       'bento',
       'vpn',
       'permanent'
-    )
+    ),
   };
 
   const iconClassNames = 'inline-block w-5 -mb-1 me-1';
@@ -384,11 +388,8 @@ export const Header = ({ auth, cart }: HeaderProps) => {
                     <div className="px-4 py-5">
                       <button
                         onClick={async () => {
-                          // As of this commit, both router.push and direct location.href overwriting are necessary to ensure
-                          // the browser is in the correct state without any contentless flashes
                           await auth.signOut();
-                          router.push(signOutRedirectPath);
-                          window.location.href = signOutRedirectPath;
+                          router.replace(signOutRedirectPath);
                         }}
                         className="pl-3 group"
                       >

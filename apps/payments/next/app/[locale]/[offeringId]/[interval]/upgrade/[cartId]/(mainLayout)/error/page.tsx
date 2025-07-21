@@ -85,7 +85,7 @@ export default async function UpgradeError({
 
         {errorReason.buttonUrl && (
           <Link
-            className="flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full"
+            className="min-w-[300px] flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white"
             href={errorReason.buttonUrl}
           >
             {l10n.getString(errorReason.buttonFtl, errorReason.buttonLabel)}

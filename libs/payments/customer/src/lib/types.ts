@@ -27,6 +27,21 @@ export interface Interval {
   intervalCount: number;
 }
 
+export type PaymentProvidersType =
+  | Stripe.PaymentMethod.Type
+  | 'google_iap'
+  | 'apple_iap'
+  | 'external_paypal';
+
+export interface DefaultPaymentMethod {
+  type: PaymentProvidersType;
+  brand?: string;
+  last4?: string;
+  expMonth?: number;
+  expYear?: number;
+  billingAgreementId?: string;
+}
+
 export interface PricingForCurrency {
   price: StripePrice;
   unitAmountForCurrency: number | null;

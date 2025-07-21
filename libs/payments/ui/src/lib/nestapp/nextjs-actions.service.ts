@@ -14,6 +14,7 @@ import {
 } from '@fxa/payments/cart';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
+import { SubscriptionManagementService } from '@fxa/payments/management';
 import { CheckoutTokenManager } from '@fxa/payments/paypal';
 import {
   ProductConfigError,
@@ -32,6 +33,8 @@ import { FetchCMSDataActionArgs } from './validators/FetchCMSDataActionArgs';
 import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
 import { GetCartActionArgs } from './validators/GetCartActionArgs';
 import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenArgs';
+import { GetSubManPageContentActionArgs } from './validators/GetSubManPageContentActionArgs';
+import { GetSubManPageContentActionResult } from './validators/GetSubManPageContentActionResult';
 import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
 import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
@@ -110,6 +113,7 @@ export class NextJSActionsService {
     private eligibilityService: EligibilityService,
     private productConfigurationManager: ProductConfigurationManager,
     private profileClient: ProfileClient,
+    private subscriptionManagementService: SubscriptionManagementService,
     @Inject(StatsDService) public statsd: StatsD,
     @Inject(Logger) private log: LoggerService
   ) {}
@@ -331,6 +335,21 @@ export class NextJSActionsService {
     );
 
     return offering;
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetSubManPageContentActionArgs,
+    GetSubManPageContentActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getSubManPageContent(args: { uid: string }) {
+    const result = await this.subscriptionManagementService.getPageContent(
+      args.uid
+    );
+
+    return result;
   }
 
   @SanitizeExceptions()

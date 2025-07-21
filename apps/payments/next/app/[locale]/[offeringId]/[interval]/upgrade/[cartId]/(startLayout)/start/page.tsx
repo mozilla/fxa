@@ -91,13 +91,20 @@ export default async function Upgrade({
         {cart.paymentInfo && (
           <div className="flex items-center justify-between mt-4 text-sm">
             {cart.paymentInfo.type === 'external_paypal' ? (
-              <Image src={getCardIcon('paypal')} alt="paypal" />
+              <Image
+                src={getCardIcon('paypal', l10n).img}
+                alt={l10n.getString('paypal-logo-alt-text', 'PayPal logo')}
+                width={91}
+                height={24}
+              />
             ) : (
               <span className="flex items-center gap-2">
                 {cart.paymentInfo.brand && (
                   <Image
-                    src={getCardIcon(cart.paymentInfo.brand)}
-                    alt={cart.paymentInfo.brand}
+                    src={getCardIcon(cart.paymentInfo.brand, l10n).img}
+                    alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
+                    width={40}
+                    height={24}
                   />
                 )}
                 {l10n.getString(
@@ -132,8 +139,8 @@ export default async function Upgrade({
             `Your plan will change immediately, and you’ll be charged a prorated
           amount today for the rest of this billing cycle. Starting
           ${l10n.getLocalizedDateString(
-              cart.upcomingInvoicePreview.nextInvoiceDate
-            )}
+            cart.upcomingInvoicePreview.nextInvoiceDate
+          )}
           you’ll be charged the full amount.`
           )}
         </p>

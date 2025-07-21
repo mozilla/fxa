@@ -111,3 +111,15 @@ export function getLocalizedDateString(
 
   return new Intl.DateTimeFormat('en', options).format(date);
 }
+
+export function getLocalizedMonthYearString(
+  month: number,
+  year: number,
+  locale: string
+): string {
+  const date = new Date(year, month - 1);
+  return new Intl.DateTimeFormat(locale, {
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
+}

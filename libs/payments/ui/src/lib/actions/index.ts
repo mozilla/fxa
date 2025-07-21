@@ -11,6 +11,7 @@ export { getCartAction } from './getCart';
 export { getCartOrRedirectAction } from './getCartOrRedirect';
 export { getMetricsFlowAction } from './getMetricsFlow';
 export { getPayPalCheckoutToken } from './getPayPalCheckoutToken';
+export { getSubManPageContentAction } from './getSubManPageContent';
 export { getTaxAddressAction } from './getTaxAddress';
 export { handleStripeErrorAction } from './handleStripeError';
 export { recordEmitterEventAction } from './recordEmitterEvent';
