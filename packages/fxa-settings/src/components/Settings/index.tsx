@@ -135,6 +135,17 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" />;
   }
 
+  // If the account email isn't verified, kick back to root to prompt for verification.
+  // This should only happen if the user tries to access /settings directly
+  // without entering a confirmation code on confirm_signup_code page.
+  // Session verification requirement and redirect is handled on initial app load
+  // (look for isUnverifiedSessionError in lib/gql.ts for that handling)
+  if (account.primaryEmail.verified === false) {
+    console.warn('Account verification is require to access /settings!');
+    navigateWithQuery('/');
+    return <LoadingSpinner fullScreen />;
+  }
+
   return (
     <SettingsLayout>
       <Head />
