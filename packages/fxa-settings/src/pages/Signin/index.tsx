@@ -31,7 +31,7 @@ import {
   isClientPocket,
   isClientRelay,
 } from '../../models/integrations/client-matching';
-import { NavigationOptions, SigninFormData, SigninProps } from './interfaces';
+import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
@@ -146,7 +146,7 @@ const Signin = ({
       if (data) {
         GleanMetrics.cachedLogin.success();
 
-        const navigationOptions: NavigationOptions = {
+        const navigationOptions = {
           email,
           signinData: {
             verified: data.verified,
@@ -155,7 +155,6 @@ const Signin = ({
             uid: data.uid,
             sessionToken,
           },
-          sessionVerified: data.sessionVerified,
           integration,
           redirectTo:
             isWebIntegration(integration) && webRedirectCheck?.isValid
