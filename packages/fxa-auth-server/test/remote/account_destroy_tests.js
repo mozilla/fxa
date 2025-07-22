@@ -145,7 +145,7 @@ const config = require('../../config').default.getProperties();
         password,
         testOptions
       );
-      const res = await await client.emailStatus();
+      const res = await client.emailStatus();
       assert.equal(res.sessionVerified, false, 'session not verified');
 
       try {

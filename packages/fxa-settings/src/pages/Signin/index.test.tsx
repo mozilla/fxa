@@ -10,7 +10,6 @@ import {
   CACHED_SIGNIN_HANDLER_RESPONSE,
   createBeginSigninResponse,
   createBeginSigninResponseError,
-  createCachedSigninResponseError,
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthNativeSyncIntegration,
@@ -531,7 +530,7 @@ describe('Signin component', () => {
               await act(() => {
                 render({ beginSigninHandler, integration });
               });
-              await await enterPasswordAndSubmit();
+              await enterPasswordAndSubmit();
               expect(fxaLoginSpy).not.toHaveBeenCalled();
             });
             it('is not sent otherwise', async () => {
@@ -1060,7 +1059,7 @@ describe('Signin component', () => {
       it('requires password if cached credentials have expired', async () => {
         const cachedSigninHandler = jest
           .fn()
-          .mockReturnValueOnce(createCachedSigninResponseError());
+          .mockReturnValueOnce({ error: AuthUiErrors.SESSION_EXPIRED });
         renderWithLocalizationProvider(
           <Subject
             sessionToken={MOCK_SESSION_TOKEN}
@@ -1078,11 +1077,9 @@ describe('Signin component', () => {
 
       it('displays other errors', async () => {
         const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
-        const cachedSigninHandler = jest.fn().mockReturnValueOnce(
-          createCachedSigninResponseError({
-            errno: unexpectedError.errno,
-          })
-        );
+        const cachedSigninHandler = jest
+          .fn()
+          .mockReturnValueOnce({ error: new Error('unexpected error') });
         renderWithLocalizationProvider(
           <Subject
             sessionToken={MOCK_SESSION_TOKEN}

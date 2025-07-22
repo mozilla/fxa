@@ -173,10 +173,18 @@ const Signin = ({
         }
       }
       if (error) {
-        setLocalizedBannerError(
-          getLocalizedErrorMessage(ftlMsgResolver, error)
+        const localizedErrorMessage = getLocalizedErrorMessage(
+          ftlMsgResolver,
+          error.errno === AuthUiErrors.INVALID_TOKEN.errno
+            ? AuthUiErrors.SESSION_EXPIRED
+            : error
         );
-        if (error.errno === AuthUiErrors.SESSION_EXPIRED.errno) {
+        setLocalizedBannerError(localizedErrorMessage);
+
+        if (
+          error.errno === AuthUiErrors.SESSION_EXPIRED.errno ||
+          error.errno === AuthUiErrors.INVALID_TOKEN.errno
+        ) {
           isPasswordNeededRef.current = true;
         }
         setSigninLoading(false);

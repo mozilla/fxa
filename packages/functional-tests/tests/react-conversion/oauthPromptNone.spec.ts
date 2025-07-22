@@ -91,7 +91,7 @@ test.describe('severity-1 #smoke', () => {
       ).toBeVisible();
     });
 
-    test('redirects if session is no longer valid', async ({
+    test('redirects to signup if account no longer exists', async ({
       page,
       target,
       pages: { relier, settings, signin, signup },
@@ -146,6 +146,8 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
       await relier.signInPromptNone();
 
+      await page.waitForURL(/\/authorization/);
+
       //Verify error message
       await expect(page.getByText('Unverified user or session')).toBeVisible();
     });
@@ -158,13 +160,7 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker,
       }) => {
         const credentials = await testAccountTracker.signUp();
-        await signInAccount(
-          target,
-          page,
-          settings,
-          signin,
-          credentials
-        );
+        await signInAccount(target, page, settings, signin, credentials);
 
         const query = new URLSearchParams({
           login_hint: credentials.email,
@@ -205,13 +201,7 @@ test.describe('severity-1 #smoke', () => {
         const loginHintAccount = testAccountTracker.generateAccountDetails();
 
         const credentials = await testAccountTracker.signUp();
-        await signInAccount(
-          target,
-          page,
-          settings,
-          signin,
-          credentials
-        );
+        await signInAccount(target, page, settings, signin, credentials);
 
         const query = new URLSearchParams({
           login_hint: loginHintAccount.email,
@@ -235,13 +225,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       {
         const credentials = await testAccountTracker.signUp();
-        await signInAccount(
-          target,
-          page,
-          settings,
-          signin,
-          credentials
-        );
+        await signInAccount(target, page, settings, signin, credentials);
 
         await settings.signOut();
 
@@ -269,13 +253,7 @@ test.describe('severity-1 #smoke', () => {
 
       const credentials = await testAccountTracker.signUp();
 
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        credentials
-      );
+      await signInAccount(target, page, settings, signin, credentials);
 
       await settings.totp.addButton.click();
 

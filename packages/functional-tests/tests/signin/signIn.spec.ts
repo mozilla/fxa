@@ -97,10 +97,10 @@ test.describe('severity-2 #smoke', () => {
 
     test('unverified signin redirects to confirm email', async ({
       target,
-      syncBrowserPages: { confirmSignupCode, page, settings, signin },
+      pages: { confirmSignupCode, page, settings, signin },
       testAccountTracker,
     }) => {
-      const credentials = await testAccountTracker.signUpSync({
+      const credentials = await testAccountTracker.signUp({
         lang: 'en',
         preVerified: 'false',
       });

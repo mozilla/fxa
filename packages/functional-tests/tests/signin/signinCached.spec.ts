@@ -4,7 +4,6 @@
 
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
-import { TestAccountTracker } from '../../lib/testAccountTracker';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
 
@@ -12,22 +11,17 @@ test.describe('severity-2 #smoke', () => {
   test.describe('signin cached', () => {
     test('sign in twice, on second attempt email will be cached', async ({
       target,
-      syncBrowserPages: { page, settings, signin },
+      pages: { page, settings, signin },
       testAccountTracker,
     }) => {
-      const { email } = await signInSyncAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signIn(target, page, settings, signin, credentials);
 
       await signin.clearSessionStorage();
       await page.goto(target.contentServerUrl);
 
       await expect(signin.cachedSigninHeading).toBeVisible();
-      await expect(page.getByText(email)).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
 
       await signin.signInButton.click();
 
@@ -37,26 +31,21 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in with incorrect email case before normalization fix, on second attempt canonical form is used', async ({
       target,
-      syncBrowserPages: { page, settings, signin },
+      pages: { page, settings, signin },
       testAccountTracker,
     }) => {
-      const { email } = await signInSyncAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signIn(target, page, settings, signin, credentials);
 
       await signin.clearSessionStorage();
       await page.goto(target.contentServerUrl);
 
       await page.waitForURL(target.contentServerUrl);
 
-      await signin.denormalizeStoredEmail(email);
+      await signin.denormalizeStoredEmail(credentials.email);
 
       await expect(signin.cachedSigninHeading).toBeVisible();
-      await expect(page.getByText(email)).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
 
       await signin.signInButton.click();
 
@@ -64,21 +53,16 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
 
       //Verify email is normalized
-      await expect(settings.primaryEmail.status).toHaveText(email);
+      await expect(settings.primaryEmail.status).toHaveText(credentials.email);
     });
 
     test('expired cached credentials', async ({
       target,
-      syncBrowserPages: { page, settings, signin },
+      pages: { page, settings, signin },
       testAccountTracker,
     }) => {
-      const credentials = await signInSyncAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signIn(target, page, settings, signin, credentials);
       await signin.destroySession(credentials.email);
       await page.goto(target.contentServerUrl);
 
@@ -98,16 +82,11 @@ test.describe('severity-2 #smoke', () => {
 
     test('cached credentials that expire while on page', async ({
       target,
-      syncBrowserPages: { page, settings, signin },
+      pages: { page, settings, signin },
       testAccountTracker,
     }) => {
-      const credentials = await signInSyncAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const credentials = await testAccountTracker.signUp();
+      await signIn(target, page, settings, signin, credentials);
 
       await page.goto(target.contentServerUrl);
 
@@ -129,7 +108,7 @@ test.describe('severity-2 #smoke', () => {
 
     test('unverified cached signin redirects to confirm email', async ({
       target,
-      syncBrowserPages: { confirmSignupCode, page, settings, signin },
+      pages: { confirmSignupCode, page, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUpSync({
@@ -168,48 +147,44 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in once, use a different account', async ({
       target,
-      syncBrowserPages: { page, settings, signin },
+      pages: { page, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
-      const syncCredentials = await signInSyncAccount(
-        target,
-        page,
-        settings,
-        signin,
-        testAccountTracker
-      );
+      const secondCredentials = await testAccountTracker.signUp();
+      await signIn(target, page, settings, signin, credentials);
 
       await page.goto(target.contentServerUrl);
 
       //Check prefilled email
-      await expect(page.getByText(syncCredentials.email)).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
 
       await signin.useDifferentAccountLink.click();
-      await signin.fillOutEmailFirstForm(credentials.email);
-      await signin.fillOutPasswordForm(credentials.password);
+      await signin.fillOutEmailFirstForm(secondCredentials.email);
+      await signin.fillOutPasswordForm(secondCredentials.password);
 
       //Verify logged in on Settings page
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.primaryEmail.status).toHaveText(credentials.email);
+      await expect(settings.primaryEmail.status).toHaveText(
+        secondCredentials.email
+      );
       await settings.signOut();
 
       await expect(signin.cachedSigninHeading).toBeVisible();
 
       // Check that suggested cached account is the sync account
-      await expect(page.getByText(syncCredentials.email)).toBeVisible();
+      await expect(page.getByText(credentials.email)).toBeVisible();
     });
   });
 });
 
-async function signInSyncAccount(
+async function signIn(
   target: BaseTarget,
   page: Page,
   settings: SettingsPage,
   signin: SigninPage,
-  testAccountTracker: TestAccountTracker
-): Promise<Credentials> {
-  const credentials = await testAccountTracker.signUpSync();
+  credentials: Credentials
+): Promise<void> {
   await page.goto(target.contentServerUrl);
   await page.waitForURL(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
@@ -218,6 +193,4 @@ async function signInSyncAccount(
 
   //Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
-
-  return credentials;
 }

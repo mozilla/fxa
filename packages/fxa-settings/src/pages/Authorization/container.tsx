@@ -18,12 +18,12 @@ import { currentAccount } from '../../lib/cache';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import OAuthDataError from '../../components/OAuthDataError';
 import { cachedSignIn, handleNavigation } from '../Signin/utils';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
   AuthError,
   OAUTH_ERRORS,
   OAuthError,
 } from '../../lib/oauth/oauth-errors';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 
@@ -85,7 +85,7 @@ const AuthorizationContainer = ({
         session
       );
 
-      if (error === AuthUiErrors.SESSION_EXPIRED) {
+      if (error?.errno === AuthUiErrors.INVALID_TOKEN.errno) {
         throw new OAuthError('PROMPT_NONE_NOT_SIGNED_IN');
       }
 
@@ -93,7 +93,7 @@ const AuthorizationContainer = ({
         throw error;
       }
 
-      if (!data?.verified) {
+      if (data?.verified === false) {
         throw new OAuthError('PROMPT_NONE_UNVERIFIED');
       }
 
