@@ -11,6 +11,8 @@ const CLIENTID_123Done = 'dcdb5ae7add825d2';
 const ENTRYPOINT_SYNC = 'firefox-cms';
 const CLIENTID_SYNC = '5882386c6d801776';
 
+test.describe('severity-1 #smoke', () => {
+
 test.describe('CMS customization', () => {
   async function assertCmsCustomization(
     page: Page,
@@ -33,6 +35,10 @@ test.describe('CMS customization', () => {
 
     await expect(page.getByRole('heading', { name: headline })).toBeVisible();
     await expect(page.getByText(description)).toBeVisible();
+
+    if (description) {
+      await expect(page.getByText(description)).toBeVisible();
+    }
 
     if (logoUrl) {
       const logo = page.getByRole('img', { name: logoAlt, exact: true });
@@ -414,4 +420,5 @@ test.describe('CMS customization', () => {
       await page.getByRole('link', { name: 'Not now', exact: true }).click();
     });
   });
+});
 });

@@ -27,6 +27,31 @@ export function create(name: TargetName): BaseTarget {
 export { BaseTarget as ServerTarget };
 export { Credentials } from './base';
 
+// Default test number, see Twilio test credentials phone numbers:
+// https://www.twilio.com/docs/iam/test-credentials
+export const TEST_NUMBER = '4159929960';
+
+/**
+ * Checks the process env for a configured twilio test phone number. Defaults
+ * to generic magic test number if one is not provided.
+ * @param targetName The test target name. eg local, stage, prod.
+ * @returns
+ */
+export function getPhoneNumber(targetName: TargetName) {
+  if (targetName === 'local') {
+    return TEST_NUMBER;
+  }
+  return getFromEnvWithFallback(
+    'FUNCTIONAL_TESTS__TWILIO__TEST_NUMBER',
+    targetName,
+    TEST_NUMBER
+  );
+}
+
+export function usingRealTestPhoneNumber(targetName: TargetName) {
+  return getPhoneNumber(targetName) !== TEST_NUMBER;
+}
+
 /**
  * Helper function to get a value from the environment. If the key + __ + targetName exists, this
  * will be returned. Otherwise, if $key exists it will be returned. Otherwise undefined will be
