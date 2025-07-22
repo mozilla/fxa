@@ -26,7 +26,6 @@ import {
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import { NavigationOptions } from '../Signin/interfaces';
 
 const convertToRelierAccount = (
   account: ReturnType<typeof currentAccount>,
@@ -99,7 +98,7 @@ const AuthorizationContainer = ({
       }
 
       if (data) {
-        const navigationOptions: NavigationOptions = {
+        const navigationOptions = {
           email: account?.email!,
           signinData: {
             verified: data.verified,
@@ -108,7 +107,6 @@ const AuthorizationContainer = ({
             uid: data.uid,
             sessionToken: account?.sessionToken!,
           },
-          sessionVerified: data.sessionVerified,
           integration,
           redirectTo: integration.data.redirectTo,
           finishOAuthFlowHandler,
