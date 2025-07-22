@@ -6,9 +6,23 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     await import('./sentry.server.config');
     const { getApp } = await import('@fxa/payments/ui/server');
+    const { initTracing } = await import('@fxa/shared/otel');
     const { monkeyPatchServerLogging } = await import('@fxa/shared/log');
 
-    await getApp().initialize();
+    const app = getApp();
+    await app.initialize();
+
+    const otelConfig = app.getOtelConfig();
+    const logger = app.getLogger();
+    initTracing({
+      ...otelConfig,
+      batchProcessor: otelConfig.batchProcessor ?? true,
+      clientName: otelConfig.clientName ?? "",
+      corsUrls: otelConfig.corsUrls ?? "http://localhost:\\d*/",
+      filterPii: otelConfig.filterPii ?? true,
+      sampleRate: otelConfig.sampleRate ?? 0,
+      serviceName: otelConfig.serviceName ?? "",
+    }, logger);
 
     monkeyPatchServerLogging();
   }

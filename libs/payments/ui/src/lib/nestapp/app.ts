@@ -11,7 +11,8 @@ import { singleton } from '../utils/singleton';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import { StripeWebhookService } from '@fxa/payments/webhooks';
-import { winstonLogger } from '@fxa/shared/log';
+import { LOGGER_PROVIDER, winstonLogger, type Logger } from '@fxa/shared/log';
+import { TracingConfig } from './tracing.config';
 
 class AppSingleton {
   private app!: Awaited<
@@ -56,6 +57,14 @@ class AppSingleton {
 
   getStripeWebhookService() {
     return this.app.get(StripeWebhookService);
+  }
+
+  getOtelConfig() {
+    return this.app.get(TracingConfig);
+  }
+
+  getLogger() {
+    return this.app.get<Logger>(LOGGER_PROVIDER);
   }
 }
 
