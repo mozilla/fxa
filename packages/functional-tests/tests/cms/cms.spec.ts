@@ -34,6 +34,10 @@ test.describe('CMS customization', () => {
     await expect(page.getByRole('heading', { name: headline })).toBeVisible();
     await expect(page.getByText(description)).toBeVisible();
 
+    if (description) {
+      await expect(page.getByText(description)).toBeVisible();
+    }
+
     if (logoUrl) {
       const logo = page.getByRole('img', { name: logoAlt, exact: true });
       await expect(logo).toBeVisible();
