@@ -30,7 +30,7 @@ import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
 import { IndexContainerProps, LocationState } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import LoadingSpinnerSprite from '../../components/LoadingSpinnerSprite';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 const IndexContainer = ({
   integration,
@@ -266,7 +266,7 @@ const IndexContainer = ({
   const deeplink = queryParamModel.deeplink;
 
   return isLoading ? (
-    <LoadingSpinnerSprite />
+    <LoadingSpinner fullScreen />
   ) : (
     <Index
       {...{

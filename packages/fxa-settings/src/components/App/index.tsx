@@ -40,10 +40,10 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 
 // Components
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
-import LoadingSpinnerSprite from '../LoadingSpinnerSprite';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
@@ -344,7 +344,7 @@ export const App = ({
     isSignedIn === undefined ||
     metricsEnabled === undefined
   ) {
-    return <LoadingSpinnerSprite />;
+    return <LoadingSpinner fullScreen />;
   }
 
   return (
@@ -385,14 +385,14 @@ const SettingsRoutes = ({
       hardNavigate(`/?${params.toString()}`);
     }
 
-    return <LoadingSpinnerSprite />;
+    return <LoadingSpinner fullScreen />;
   }
 
   const settingsContext = initializeSettingsContext();
   return (
     <SettingsContext.Provider value={settingsContext}>
       <ScrollToTop default>
-        <Suspense fallback={<LoadingSpinnerSprite />}>
+        <Suspense fallback={<LoadingSpinner fullScreen />}>
           <Settings path="/settings/*" {...{ integration }} />
         </Suspense>
       </ScrollToTop>
@@ -422,7 +422,7 @@ const AuthAndAccountSetupRoutes = ({
   const useSyncEnginesResult = useSyncEngines(integration);
 
   return (
-    <Suspense fallback={<LoadingSpinnerSprite />}>
+    <Suspense fallback={<LoadingSpinner fullScreen />}>
       <Router>
         {/* Index */}
         <IndexContainer
