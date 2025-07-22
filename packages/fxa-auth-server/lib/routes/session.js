@@ -16,6 +16,7 @@ const SESSION_DOCS = require('../../docs/swagger/session-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
 const { recordSecurityEvent } = require('./utils/security-event');
+const authMethods = require('../authMethods');
 const { getOptionalCmsEmailConfig } = require('./utils/account');
 const { Container } = require('typedi');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
@@ -711,6 +712,92 @@ module.exports = function (
         await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
 
         return {};
+      },
+    },
+    {
+      method: 'GET',
+      path: '/session/verify/token',
+      options: {
+        ...SESSION_DOCS.SESSION_VERIFY_TOKEN_GET,
+        auth: {
+          strategy: 'sessionToken',
+        },
+        response: {
+          schema: isA.object({
+            accountStatus: isA
+              .string()
+              // account status cannot be null - if no account exists for the session token's uid
+              // for example if the account has been deleted since the session token was created
+              // the endpoint's authentication strategy will return an "INVALID_TOKEN" error
+              .valid('verified', 'unverified')
+              .required(),
+            sessionStatus: isA
+              .string()
+              .valid('verified', 'mustVerify', 'mustUpgrade', null)
+              .required(),
+            verificationMethod: isA.string().optional(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        log.begin('Session.verify', request);
+
+        const sessionToken = request.auth.credentials;
+        const { uid } = sessionToken;
+
+        const account = await db.account(uid);
+
+        // Account unverified
+        if (account.primaryEmail.isVerified === false) {
+          return {
+            accountStatus: 'unverified',
+            sessionStatus: 'mustVerify',
+            verificationMethod: 'email-otp',
+          };
+        }
+
+        // At this point, account is verified
+        // Check session verification
+        const availableMethods =
+          await authMethods.availableAuthenticationMethods(db, account);
+        const requiredAAL = authMethods.maximumAssuranceLevel(availableMethods);
+        const currentSessionAAL = sessionToken.authenticatorAssuranceLevel;
+
+        // Session must verify (e.g., TOTP or email)
+        if (sessionToken.mustVerify && !sessionToken.tokenVerified) {
+          if (availableMethods.has('otp') && requiredAAL === 2) {
+            return {
+              accountStatus: 'verified',
+              sessionStatus: 'mustVerify',
+              verificationMethod: 'totp-2fa',
+            };
+          }
+          return {
+            accountStatus: 'verified',
+            sessionStatus: 'mustVerify',
+            verificationMethod: 'email-otp',
+          };
+        }
+
+        // Session must be upgraded (AAL mismatch)
+        // totp-2fa is the only method that can upgrade the session AAL
+        if (
+          availableMethods.has('otp') &&
+          requiredAAL === 2 &&
+          currentSessionAAL === 1
+        ) {
+          return {
+            accountStatus: 'verified',
+            sessionStatus: 'mustUpgrade',
+            verificationMethod: 'totp-2fa',
+          };
+        }
+
+        // Session and account are fully verified
+        return {
+          accountStatus: 'verified',
+          sessionStatus: 'verified',
+        };
       },
     },
   ];

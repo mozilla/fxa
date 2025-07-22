@@ -4,12 +4,8 @@
 
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
-import {
-  NavigationOptions,
-  RecoveryEmailStatusResponse,
-  SigninLocationState,
-} from './interfaces';
-import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { NavigationOptions, SigninLocationState } from './interfaces';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
   useSession,
   isOAuthIntegration,
@@ -20,12 +16,10 @@ import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
-import { AuthError, OAuthError } from '../../lib/oauth';
+import { AuthError } from '../../lib/oauth';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
 import { InMemoryCache } from '@apollo/client';
-import AuthenticationMethods from '../../constants/authentication-methods';
-
 interface NavigationTarget {
   to: string;
   locationState?: SigninLocationState;
@@ -94,19 +88,17 @@ export const cachedSignIn = async (
   session: ReturnType<typeof useSession>
 ) => {
   try {
-    const {
-      authenticationMethods,
-      authenticatorAssuranceLevel,
-    }: {
-      authenticationMethods: AuthenticationMethods[];
-      authenticatorAssuranceLevel: number;
-    } = await authClient.accountProfile(sessionToken);
+    const { accountStatus, sessionStatus, verificationMethod } =
+      await authClient.sessionVerifyToken(sessionToken);
 
-    const totpIsActive = authenticationMethods.includes(
-      AuthenticationMethods.OTP
-    );
-    if (totpIsActive) {
-      // Cache this for subsequent requests
+    // sessionStatus can be 'verified, 'mustVerify', 'mustUpgrade'
+    // 'mustUpgrade' indicates that the session AAL is mismatched with the account AAL
+    // e.g., the user enabled 2FA from another device after this session was created
+    // currently we don't require re-verification for 'mustUpgrade'
+    // we should consider if we want to handle it and upgrade the session AAL
+
+    // Update cache with TOTP information if TOTP is active
+    if (verificationMethod === 'totp-2fa') {
       cache.modify({
         id: cache.identify({ __typename: 'Account' }),
         fields: {
@@ -117,58 +109,46 @@ export const cachedSignIn = async (
       });
     }
 
-    // after accountProfile data is retrieved we must check verified status
-    // TODO: FXA-9177 can we use the useSession hook here? Or update Apollo Cache
-    const {
-      verified,
-      sessionVerified,
-      emailVerified,
-    }: RecoveryEmailStatusResponse =
-      await authClient.recoveryEmailStatus(sessionToken);
-
-    let verificationMethod;
-    let verificationReason;
-
-    if (totpIsActive) {
-      if (authenticatorAssuranceLevel >= 2) {
-        // user is a valid and verified 2FA session, don't set any verification method
-      } else {
-        // user has 2FA enabled but is in a non-2FA session; it shouldn't happen
-        // in practice, redirect them to log in again
-        throw new OAuthError('PROMPT_NONE_NOT_SIGNED_IN');
-      }
-    } else if (!sessionVerified) {
-      verificationMethod = VerificationMethods.EMAIL_OTP;
-      verificationReason = emailVerified
-        ? VerificationReasons.SIGN_IN
-        : VerificationReasons.SIGN_UP;
-
-      if (!verified && session.sendVerificationCode) {
-        await session.sendVerificationCode();
-      }
+    // Only send verification code if the method is email-otp
+    if (sessionStatus === 'mustVerify' && verificationMethod === 'email-otp') {
+      await session.sendVerificationCode();
     }
 
     const storedLocalAccount = currentAccount();
 
+    // Map string values to enum types
+    const mappedVerificationMethod =
+      verificationMethod === 'email-otp'
+        ? VerificationMethods.EMAIL_OTP
+        : verificationMethod === 'totp-2fa'
+          ? VerificationMethods.TOTP_2FA
+          : undefined;
+
+    const mappedVerificationReason =
+      accountStatus === 'unverified'
+        ? VerificationReasons.SIGN_UP
+        : sessionStatus === 'mustVerify'
+          ? VerificationReasons.SIGN_IN
+          : undefined;
+
     return {
       data: {
-        verificationMethod,
-        verificationReason,
-        verified,
+        verified: accountStatus === 'verified' && sessionStatus === 'verified',
+        emailVerified: accountStatus === 'verified',
+        // see note above about 'mustUpgrade' - we currently don't require re-verification
+        sessionVerified:
+          sessionStatus === 'verified' || sessionStatus === 'mustUpgrade',
+        verificationMethod: mappedVerificationMethod,
+        verificationReason: mappedVerificationReason,
         // Because the cached signin was a success, we know 'uid' exists
         uid: storedLocalAccount!.uid,
-        sessionVerified, // might not need
-        emailVerified, // might not need
       },
     };
   } catch (error) {
-    // If 'invalid token' is received from profile server, it means
-    // the session token has expired
-    const { errno } = error as AuthUiError;
-    if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
+    if (error.errno === AuthUiErrors.INVALID_TOKEN.errno) {
       discardSessionToken();
-      return { error: AuthUiErrors.SESSION_EXPIRED };
     }
+    // cached signin and oauth prompt none handle errors differently - let's let those parents handle the error
     return { error };
   }
 };

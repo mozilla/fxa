@@ -91,7 +91,7 @@ test.describe('severity-1 #smoke', () => {
       ).toBeVisible();
     });
 
-    test('redirects if session is no longer valid', async ({
+    test('redirects to signup if account no longer exists', async ({
       page,
       target,
       pages: { relier, settings, signin, signup },
@@ -145,6 +145,8 @@ test.describe('severity-1 #smoke', () => {
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
       await relier.signInPromptNone();
+
+      await page.waitForURL(/\/authorization/);
 
       //Verify error message
       await expect(page.getByText('Unverified user or session')).toBeVisible();

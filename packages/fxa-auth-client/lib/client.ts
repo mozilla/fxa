@@ -1139,6 +1139,17 @@ export default class AuthClient {
     return this.sessionPost('/session/resend_code', sessionToken, {}, headers);
   }
 
+  async sessionVerifyToken(
+    sessionToken: hexstring,
+    headers?: Headers
+  ): Promise<{
+    accountStatus: 'verified' | 'unverified';
+    sessionStatus: 'verified' | 'mustVerify' | 'mustUpgrade' | null;
+    verificationMethod?: string | null;
+  }> {
+    return this.sessionGet('/session/verify/token', sessionToken, headers);
+  }
+
   async sessionReauth(
     sessionToken: hexstring,
     email: string,
@@ -2379,7 +2390,11 @@ export default class AuthClient {
     feature: string,
     headers?: Headers
   ): Promise<{ eligible: boolean }> {
-    return this.sessionGet(`/geo/eligibility/${feature}`, sessionToken, headers);
+    return this.sessionGet(
+      `/geo/eligibility/${feature}`,
+      sessionToken,
+      headers
+    );
   }
 
   /**
@@ -2388,7 +2403,7 @@ export default class AuthClient {
    * @param clientId
    * @param entrypoint
    */
-  async getCmsConfig(clientId:string, entrypoint:string) {
+  async getCmsConfig(clientId: string, entrypoint: string) {
     return this.request(
       'GET',
       `/cms/config?clientId=${clientId}&entrypoint=${entrypoint}`,

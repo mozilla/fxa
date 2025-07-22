@@ -450,21 +450,6 @@ export function createBeginSigninResponseError({
   };
 }
 
-export function createCachedSigninResponseError({
-  errno = AuthUiErrors.SESSION_EXPIRED.errno!,
-} = {}): {
-  error: AuthUiError;
-} {
-  const message = AuthUiErrorNos[errno].message;
-  return {
-    error: {
-      name: '',
-      errno,
-      message,
-    },
-  };
-}
-
 export const CACHED_SIGNIN_HANDLER_RESPONSE = {
   data: {
     verified: true,

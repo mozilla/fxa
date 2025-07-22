@@ -62,7 +62,6 @@ import {
   OAuthQueryParams,
   SigninQueryParams,
 } from '../../models/pages/signin';
-import { OAuthError } from '../../lib/oauth';
 
 jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),
@@ -166,10 +165,12 @@ jest.mock('../../lib/hooks', () => ({
   ...jest.requireActual('../../lib/hooks'),
   useCheckReactEmailFirst: () => mockUseCheckReactEmailFirst(),
 }));
+
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
     useAuthClient: jest.fn(),
+    useSession: jest.fn(),
     useSensitiveDataClient: jest.fn(),
     useConfig: jest.fn(),
   };
@@ -178,6 +179,10 @@ const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });
 const mockSensitiveDataClient = createMockSensitiveDataClient();
+const mockSession = {
+  token: MOCK_SESSION_TOKEN,
+  sendVerificationCode: jest.fn().mockResolvedValue(true),
+};
 mockSensitiveDataClient.setDataType = jest.fn();
 
 function mockModelsModule() {
@@ -203,6 +208,7 @@ function mockModelsModule() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
+  (ModelsModule.useSession as jest.Mock).mockImplementation(() => mockSession);
   (ModelsModule.useConfig as jest.Mock).mockImplementation(() => ({
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: true,
@@ -1058,34 +1064,21 @@ describe('signin container', () => {
       mockCurrentAccount(MOCK_STORED_ACCOUNT);
     });
 
-    it('runs handler, calls accountProfile and recoveryEmailStatus', async () => {
-      mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
-        authenticationMethods: ['pwd', 'email'],
-        authenticatorAssuranceLevel: 1, // email verified session
-      });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: false,
-        sessionVerified: false,
-        emailVerified: true,
+    it('returns correct data for a typical verification-needed scenario (email-otp)', async () => {
+      mockSession.sendVerificationCode = jest.fn().mockResolvedValue(true);
+      mockAuthClient.sessionVerifyToken = jest.fn().mockResolvedValue({
+        accountStatus: 'verified',
+        sessionStatus: 'mustVerify',
+        verificationMethod: 'email-otp',
       });
 
       mockUseValidateModule();
       render([mockGqlAvatarUseQuery()]);
 
-      await waitFor(() => {
-        expect(currentSigninProps?.email).toBe(MOCK_QUERY_PARAM_EMAIL);
-      });
-
       await waitFor(async () => {
         const handlerResult =
           await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
 
-        expect(mockAuthClient.accountProfile).toHaveBeenCalledWith(
-          MOCK_SESSION_TOKEN
-        );
-        expect(mockAuthClient.recoveryEmailStatus).toHaveBeenCalledWith(
-          MOCK_SESSION_TOKEN
-        );
         expect(handlerResult?.data?.verificationMethod).toEqual(
           VerificationMethods.EMAIL_OTP
         );
@@ -1098,15 +1091,37 @@ describe('signin container', () => {
       });
     });
 
-    it('does not return a verification reason with verified 2FA session', async () => {
-      mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
-        authenticationMethods: ['pwd', 'email', 'otp'],
-        authenticatorAssuranceLevel: 2, // 2FA verified session
+    it('returns correct data for a 2fa verification-needed scenario', async () => {
+      mockAuthClient.sessionVerifyToken = jest.fn().mockResolvedValue({
+        accountStatus: 'verified',
+        sessionStatus: 'mustVerify',
+        verificationMethod: 'totp-2fa',
       });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: true,
-        sessionVerified: true,
-        emailVerified: true,
+
+      mockUseValidateModule();
+      render([mockGqlAvatarUseQuery()]);
+
+      await waitFor(async () => {
+        const handlerResult =
+          await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
+
+        expect(handlerResult?.data?.verificationMethod).toEqual(
+          VerificationMethods.TOTP_2FA
+        );
+        expect(handlerResult?.data?.verificationReason).toEqual(
+          VerificationReasons.SIGN_IN
+        );
+        expect(handlerResult?.data?.verified).toEqual(false);
+        expect(handlerResult?.data?.sessionVerified).toEqual(false);
+        expect(handlerResult?.data?.emailVerified).toEqual(true);
+      });
+    });
+
+    it('returns correct data for a fully verified session', async () => {
+      mockAuthClient.sessionVerifyToken = jest.fn().mockResolvedValue({
+        accountStatus: 'verified',
+        sessionStatus: 'verified',
+        verificationMethod: undefined,
       });
 
       mockUseValidateModule();
@@ -1122,31 +1137,8 @@ describe('signin container', () => {
       });
     });
 
-    it('throws if mismatch 2FA and assurance level', async () => {
-      mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
-        authenticationMethods: ['pwd', 'email', 'otp'],
-        authenticatorAssuranceLevel: 1, // Session verified by email
-      });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: true,
-        sessionVerified: true,
-        emailVerified: true,
-      });
-
-      mockUseValidateModule();
-      render([mockGqlAvatarUseQuery()]);
-
-      await waitFor(async () => {
-        const handlerResult =
-          await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
-        expect(handlerResult).toEqual({
-          error: new OAuthError('PROMPT_NONE_NOT_SIGNED_IN'),
-        });
-      });
-    });
-
-    it('handles invalid token error', async () => {
-      mockAuthClient.accountProfile = jest
+    it('returns OAuthError for invalid token', async () => {
+      mockAuthClient.sessionVerifyToken = jest
         .fn()
         .mockRejectedValue(AuthUiErrors.INVALID_TOKEN);
 
@@ -1158,19 +1150,16 @@ describe('signin container', () => {
           await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
         expect(CacheModule.discardSessionToken).toHaveBeenCalled();
         expect(handlerResult?.data).toBeUndefined();
-        expect(handlerResult?.error?.errno).toEqual(
-          AuthUiErrors.SESSION_EXPIRED.errno
-        );
-        expect(handlerResult?.error?.message).toEqual(
-          AuthUiErrors.SESSION_EXPIRED.message
-        );
+        expect(handlerResult?.error).toBe(AuthUiErrors.INVALID_TOKEN);
       });
     });
 
-    it('handles other errors', async () => {
-      mockAuthClient.recoveryEmailStatus = jest
+    it('returns error for unexpected error', async () => {
+      const unexpectedError = new Error('Unexpected error');
+      mockAuthClient.sessionVerifyToken = jest
         .fn()
-        .mockRejectedValue(AuthUiErrors.UNEXPECTED_ERROR);
+        .mockRejectedValue(unexpectedError);
+
       mockUseValidateModule();
       render([mockGqlAvatarUseQuery()]);
 
@@ -1180,7 +1169,7 @@ describe('signin container', () => {
 
         expect(CacheModule.discardSessionToken).not.toHaveBeenCalled();
         expect(handlerResult?.data).toBeUndefined();
-        expect(handlerResult?.error).toEqual(AuthUiErrors.UNEXPECTED_ERROR);
+        expect(handlerResult?.error).toEqual(unexpectedError);
       });
     });
   });
