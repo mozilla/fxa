@@ -9,6 +9,7 @@ const ignoredFiles = require('react-dev-utils/ignoredFiles');
 const redirectServedPath = require('react-dev-utils/redirectServedPathMiddleware');
 const paths = require('./paths');
 const getHttpsConfig = require('./getHttpsConfig');
+const compression = require('compression');
 
 const host = process.env.HOST || '0.0.0.0';
 const sockHost = process.env.WDS_SOCKET_HOST;
@@ -43,8 +44,10 @@ module.exports = function (proxy, allowedHost) {
       'Access-Control-Allow-Methods': '*',
       'Access-Control-Allow-Headers': '*',
     },
-    // Enable gzip compression of generated files.
-    compress: true,
+    // This is the default webpack gzip compression option for generated files
+    // but we need to use the compression middleware directly to avoid a content-
+    // encoding problems when modifying the public HTML file. See #19012 / #19127
+    compress: false,
     static: {
       // By default WebpackDevServer serves physical files from current directory
       // in addition to all the virtual build products that it serves from memory.
@@ -125,6 +128,11 @@ module.exports = function (proxy, allowedHost) {
       // it used the same host and port.
       // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
       devServer.app.use(noopServiceWorkerMiddleware(paths.publicUrlOrPath));
+    },
+    // Enable gzip compression of generated files with our own middleware
+    setupMiddlewares: (middlewares, devServer) => {
+      middlewares.unshift(compression({ threshold: '4kb' }));
+      return middlewares;
     },
   };
 };
