@@ -15,6 +15,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { relier, subscribe, settings, signin },
       credentials,
     }, { project }) => {
+      test.fixme(true, 'To be deprecated as part of PAY-3176');
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'

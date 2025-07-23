@@ -11,6 +11,7 @@ test.describe('severity-2 #smoke', () => {
     test('apply an invalid coupon', async ({ pages: { relier, subscribe } }, {
       project,
     }) => {
+      test.fixme(true, 'To be deprecated as part of PAY-3176');
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
@@ -44,6 +45,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { relier, signin, subscribe },
       credentials,
     }, { project }) => {
+      test.fixme(true, 'To be deprecated as part of PAY-3176');
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'

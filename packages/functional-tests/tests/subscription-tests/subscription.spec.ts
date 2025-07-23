@@ -13,6 +13,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { relier, signin, subscribe },
       credentials,
     }, { project }) => {
+      test.fixme(true, 'To be deprecated as part of PAY-3176');
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
@@ -44,7 +45,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { relier, signin, subscribe },
       credentials,
     }, { project }) => {
-      test.fixme(true, "Blocking tag while works in dev, has been flaky");
+      test.fixme(true, 'To be deprecated as part of PAY-3176');
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
@@ -116,6 +117,7 @@ test.describe('severity-2 #smoke', () => {
     test('subscribe with paypal opens popup', async ({
       pages: { relier, subscribe },
     }, { project }) => {
+      test.fixme(true, 'To be deprecated as part of PAY-3176');
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
