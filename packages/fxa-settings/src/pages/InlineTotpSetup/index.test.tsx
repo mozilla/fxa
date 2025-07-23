@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import InlineTotpSetup from '.';
@@ -75,7 +75,7 @@ describe('InlineTotpSetup', () => {
 
   it('renders QR code by default when a user clicks "Continue"', async () => {
     renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
-    await user.click(screen.getByRole('button', { name: 'Continue' }))
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
     await screen.findByAltText(
       `Use the code ${MOCK_TOTP_TOKEN.secret} to set up two-step authentication in supported applications.`
     );
@@ -84,7 +84,7 @@ describe('InlineTotpSetup', () => {
   it('toggles from QR code to manual secret code view when user clicks "Can\'t scan code"', async () => {
     renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
 
-    await user.click(screen.getByRole('button', { name: 'Continue' }))
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
     await screen.findByAltText(
       `Use the code ${MOCK_TOTP_TOKEN.secret} to set up two-step authentication in supported applications.`
     );
@@ -102,7 +102,7 @@ describe('InlineTotpSetup', () => {
   it('toggles from secret code to QR code view when user clicks "Scan QR code instead?', async () => {
     renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
 
-    await user.click(screen.getByRole('button', { name: 'Continue' }))
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
     await screen.findByAltText(
       `Use the code ${MOCK_TOTP_TOKEN.secret} to set up two-step authentication in supported applications.`
     );
@@ -114,7 +114,7 @@ describe('InlineTotpSetup', () => {
     await screen.findByRole('button', { name: 'Scan QR code instead?' });
     await user.click(
       screen.getByRole('button', { name: 'Scan QR code instead?' })
-    )
+    );
     await screen.findByAltText(
       `Use the code ${MOCK_TOTP_TOKEN.secret} to set up two-step authentication in supported applications.`
     );
@@ -133,9 +133,9 @@ describe('InlineTotpSetup', () => {
       />
     );
 
-    await user.click(screen.getByRole('button', { name: 'Continue' }))
-    await user.type(screen.getByLabelText('Authentication code'), '000000')
-    await user.click(screen.getByRole('button', { name: 'Ready' }))
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await user.type(screen.getByLabelText('Authentication code'), '000000');
+    await user.click(screen.getByRole('button', { name: 'Ready' }));
     await screen.findByText('Invalid two-step authentication code');
     expect(verifyCodeHandler).toHaveBeenCalledWith('000000');
   });

@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
-import { UserEvent, userEvent } from '@testing-library/user-event';
 import { logViewEvent } from '../../../lib/metrics';
 import FlowRecoveryKeyDownload from './';
 import { renderWithRouter } from '../../../models/mocks';
@@ -36,22 +35,21 @@ const renderFlowPage = async () => {
   await act(() => {
     renderWithRouter(
       <FlowRecoveryKeyDownload
-      {...{
-        localizedBackButtonTitle,
-        localizedPageTitle,
-        navigateForward,
-        navigateBackward,
-        viewName,
-      }}
-      email={MOCK_EMAIL}
-      recoveryKeyValue={MOCK_RECOVERY_KEY_VALUE}
+        {...{
+          localizedBackButtonTitle,
+          localizedPageTitle,
+          navigateForward,
+          navigateBackward,
+          viewName,
+        }}
+        email={MOCK_EMAIL}
+        recoveryKeyValue={MOCK_RECOVERY_KEY_VALUE}
       />
     );
   });
 };
 
 describe('FlowRecoveryKeyDownload', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
