@@ -7,6 +7,7 @@ import { Provider, PROVIDER } from 'fxa-shared/db/models/auth/linked-account';
 import jwt from 'jsonwebtoken';
 
 import { jwk2pem } from '@fxa/shared/pem-jwk';
+import { StatsD } from 'hot-shots';
 
 const RISC_CONFIG_URI =
   'https://accounts.google.com/.well-known/risc-configuration';
@@ -55,15 +56,20 @@ async function getAccountFromSub(
   sub: string,
   db: any,
   provider: Provider,
-  log: any
+  log: any,
+  statsd: StatsD
 ) {
   try {
-    return db.getLinkedAccount(sub, provider);
+    return await db.getLinkedAccount(sub, provider);
   } catch (err) {
     // If the account doesn't exist, we can ignore the event.
     // This might happen if the user has already deleted their account before we got the
     // security event.
-    log.debug(`Unknown account for sub: ${sub} and provider: ${provider}`);
+    log.debug(`Unknown account for sub: ${sub} and provider: ${provider}`, {
+      error: err.message,
+      stack: err.stack,
+    });
+    statsd.increment('getAccountFromSub.error');
     return null;
   }
 }
@@ -72,20 +78,31 @@ async function revokeThirdPartySessions(
   uid: string,
   provider: Provider,
   log: any,
-  db: any
+  db: any,
+  statsd: StatsD
 ) {
-  const sessions = await db.sessions(uid);
+  try {
+    const sessions = await db.sessions(uid);
 
-  // Revoke all sessions created from third party logins
-  let deletedCount = 0;
-  for (const session of sessions) {
-    if (session.providerId === PROVIDER[provider]) {
-      await db.deleteSessionToken(session);
-      deletedCount++;
+    // Revoke all sessions created from third party logins
+    let deletedCount = 0;
+    for (const session of sessions) {
+      if (session.providerId === PROVIDER[provider]) {
+        try {
+          await db.deleteSessionToken(session);
+          deletedCount++;
+        } catch (deleteError) {
+            statsd.increment('revokeThirdPartySessions.deleteSessionToken.error');
+          // Continue with other sessions instead of failing completely
+        }
+      }
     }
-  }
 
-  log.debug(`Revoked ${deletedCount} third party sessions for user ${uid}`);
+    log.debug(`Revoked ${deletedCount} third party sessions for user ${uid}`);
+  } catch (error) {
+    statsd.increment('revokeThirdPartySessions.error');
+    throw error;
+  }
 }
 
 // See events at https://developers.google.com/identity/protocols/risc#supported_event_types
@@ -132,21 +149,28 @@ export const appleEventHandlers = {
  * @param eventDetails
  * @param log
  * @param db
+ * @param statsd
  * @returns Promise<void>)
  */
 async function handleAppleConsentRevokedEvent(
   eventDetails: AppleSETEvent,
   log: any,
-  db: any
+  db: any,
+  statsd: StatsD
 ) {
-  const sub = eventDetails.sub;
-  const account = await getAccountFromSub(sub, db, 'apple', log);
+  try {
+    const sub = eventDetails.sub;
+    const account = await getAccountFromSub(sub, db, 'apple', log, statsd);
 
-  // We have a guard that account exists because it is possible that it was
-  // removed in another security event
-  if (account) {
-    await revokeThirdPartySessions(account.uid, 'apple', log, db);
-    await db.deleteLinkedAccount(account.uid, 'apple');
+    // We have a guard that account exists because it is possible that it was
+    // removed in another event
+    if (account) {
+      await revokeThirdPartySessions(account.uid, 'apple', log, db, statsd);
+      await db.deleteLinkedAccount(account.uid, 'apple');
+    }
+  } catch (error) {
+    statsd.increment('handleAppleConsentRevokedEvent.error');
+    // Don't rethrow - log and continue to prevent unhandled promise rejection
   }
 }
 
@@ -157,18 +181,25 @@ async function handleAppleConsentRevokedEvent(
  * @param eventDetails
  * @param log
  * @param db
+ * @param statsd
  */
 async function handleAppleAccountDeleteEvent(
   eventDetails: AppleSETEvent,
   log: any,
-  db: any
+  db: any,
+  statsd: StatsD
 ) {
-  const sub = eventDetails.sub;
-  const account = await getAccountFromSub(sub, db, 'apple', log);
+  try {
+    const sub = eventDetails.sub;
+    const account = await getAccountFromSub(sub, db, 'apple', log, statsd);
 
-  if (account) {
-    await revokeThirdPartySessions(account.uid, 'apple', log, db);
-    await db.deleteLinkedAccount(account.uid, 'apple');
+    if (account) {
+      await revokeThirdPartySessions(account.uid, 'apple', log, db, statsd);
+      await db.deleteLinkedAccount(account.uid, 'apple');
+    }
+  } catch (error) {
+    statsd.increment('handleAppleAccountDeleteEvent.error');
+    // Don't rethrow - log and continue to prevent unhandled promise rejection
   }
 }
 
@@ -185,20 +216,27 @@ function handleGoogleTestEvent(eventDetails: GoogleSETEvent, log: any) {
  * @param eventDetails
  * @param log
  * @param db
+ * @param statsd
  */
 async function handleGoogleSessionsRevokedEvent(
   eventDetails: GoogleSETEvent,
   log: any,
-  db: any
+  db: any,
+  statsd: StatsD
 ) {
-  if (!eventDetails.subject) {
-    return;
-  }
-  const { sub } = eventDetails.subject;
-  const account = await getAccountFromSub(sub, db, 'google', log);
+  try {
+    if (!eventDetails.subject) {
+      return;
+    }
+    const { sub } = eventDetails.subject;
+    const account = await getAccountFromSub(sub, db, 'google', log, statsd);
 
-  if (account) {
-    await revokeThirdPartySessions(account.uid, 'google', log, db);
+    if (account) {
+      await revokeThirdPartySessions(account.uid, 'google', log, db, statsd);
+    }
+  } catch (error) {
+      statsd.increment('handleGoogleSessionsRevokedEvent.error');
+    // Don't rethrow - log and continue to prevent unhandled promise rejection
   }
 }
 
@@ -209,19 +247,26 @@ async function handleGoogleSessionsRevokedEvent(
  * @param eventDetails
  * @param log
  * @param db
+ * @param statsd
  */
 async function handleGoogleAccountDisabledEvent(
   eventDetails: GoogleSETEvent,
   log: any,
-  db: any
+  db: any,
+  statsd: StatsD
 ) {
-  const { sub } = eventDetails.subject;
+  try {
+    const { sub } = eventDetails.subject;
 
-  const account = await getAccountFromSub(sub, db, 'google', log);
+    const account = await getAccountFromSub(sub, db, 'google', log, statsd);
 
-  if (account) {
-    await revokeThirdPartySessions(account.uid, 'google', log, db);
-    await db.deleteLinkedAccount(account.uid, 'google');
+    if (account) {
+      await revokeThirdPartySessions(account.uid, 'google', log, db, statsd);
+      await db.deleteLinkedAccount(account.uid, 'google');
+    }
+  } catch (error) {
+    statsd.increment('handleGoogleAccountDisabledEvent.error');
+    // Don't rethrow - log and continue to prevent unhandled promise rejection
   }
 }
 
@@ -240,58 +285,72 @@ export function handleGoogleOtherEventType(eventType: string, log: any) {
  *  Ref: https://developer.apple.com/documentation/sign_in_with_apple/fetch_apple_s_public_key_for_verifying_token_signature
  *
  * @param token
+ * @param statsd
  */
-export async function getApplePublicKey(token: string) {
-  const appleCerts = await axios.get(APPLE_PUBLIC_KEYS);
-  const jwtHeader = jwt.decode(token, { complete: true })?.header;
-  const keyId = jwtHeader?.kid;
-  if (!keyId) {
-    throw new Error('No valid keyId found.');
+export async function getApplePublicKey(token: string, statsd: StatsD) {
+  try {
+    const appleCerts = await axios.get(APPLE_PUBLIC_KEYS);
+    const jwtHeader = jwt.decode(token, { complete: true })?.header;
+    const keyId = jwtHeader?.kid;
+    if (!keyId) {
+      throw new Error('No valid keyId found.');
+    }
+
+    const publicKey = appleCerts.data.keys.find(
+      (key: { kid: string }) => key.kid === keyId
+    );
+
+    if (!publicKey) {
+      throw new Error('Public key certificate not found.');
+    }
+
+    return {
+      pem: jwk2pem(publicKey),
+    };
+  } catch (error) {
+    statsd.increment('getApplePublicKey.error');
+    throw new Error(`Failed to get Apple public key: ${error.message}`);
   }
-
-  const publicKey = appleCerts.data.keys.find(
-    (key: { kid: string }) => key.kid === keyId
-  );
-
-  if (!publicKey) {
-    throw new Error('Public key certificate not found.');
-  }
-
-  return {
-    pem: jwk2pem(publicKey),
-  };
 }
+
 /**
  * Get Google's public key from their RISC configuration.
  *
  * @param token
+ * @param statsd
  * @returns {Promise<{pem: string, issuer: string}>}
  */
 export async function getGooglePublicKey(
-  token: string
+  token: string,
+  statsd: StatsD
 ): Promise<{ pem: string; issuer: string }> {
-  const riscConfig = await axios.get(RISC_CONFIG_URI);
-  const { jwks_uri: jwksUri, issuer } = riscConfig.data;
+  try {
+    const riscConfig = await axios.get(RISC_CONFIG_URI);
+    const { jwks_uri: jwksUri, issuer } = riscConfig.data;
 
-  const googleCerts = await axios.get(jwksUri);
-  const jwtHeader = jwt.decode(token, { complete: true })?.header;
-  const keyId = jwtHeader.kid;
-  if (!keyId) {
-    throw new Error('No valid keyId found.');
+    const googleCerts = await axios.get(jwksUri);
+    const jwtHeader = jwt.decode(token, { complete: true })?.header;
+    const keyId = jwtHeader.kid;
+    if (!keyId) {
+      throw new Error('No valid keyId found.');
+    }
+
+    const publicKey = googleCerts.data.keys.find(
+      (key: { kid: string }) => key.kid === keyId
+    );
+
+    if (!publicKey) {
+      throw new Error('Public key certificate not found.');
+    }
+
+    return {
+      pem: jwk2pem(publicKey),
+      issuer,
+    };
+  } catch (error) {
+    statsd.increment('getGooglePublicKey.error');
+    throw new Error(`Failed to get Google public key: ${error.message}`);
   }
-
-  const publicKey = googleCerts.data.keys.find(
-    (key: { kid: string }) => key.kid === keyId
-  );
-
-  if (!publicKey) {
-    throw new Error('Public key certificate not found.');
-  }
-
-  return {
-    pem: jwk2pem(publicKey),
-    issuer,
-  };
 }
 
 /**
@@ -301,20 +360,26 @@ export async function getGooglePublicKey(
  * @param clientIds
  * @param publicKeyPem
  * @param issuer
+ * @param statsd
  * @returns {Promise}
  */
 export async function validateSecurityToken(
   token: string,
   clientIds: [string],
   publicKeyPem: any,
-  issuer: string
+  issuer: string,
+  statsd: StatsD
 ) {
-  // Decode the token, validating its signature, audience, and issuer
-  return jwt.verify(token, publicKeyPem, {
-    algorithms: ['RS256'],
-    audience: clientIds,
-    issuer: issuer,
-  });
+  try {
+    return jwt.verify(token, publicKeyPem, {
+      algorithms: ['RS256'],
+      issuer,
+      audience: clientIds,
+    });
+  } catch (error) {
+    statsd.increment('validateSecurityToken.error');
+    throw new Error(`Security token validation failed: ${error.message}`);
+  }
 }
 
 /**
@@ -325,8 +390,14 @@ export async function validateSecurityToken(
  * @param clientId
  */
 export function isValidClientId(token: string, clientId: string) {
-  const decoded = jwt.decode(token, { complete: true }) as {
-    payload: GoogleJWTSETPayload;
-  };
-  return decoded && decoded.payload.aud.includes(clientId);
+  try {
+    const decoded = jwt.decode(token, { complete: true });
+    if (!decoded || typeof decoded === 'string') {
+      return false;
+    }
+    return decoded.payload.aud === clientId;
+  } catch (error) {
+    // If we can't decode the token, it's not valid
+    return false;
+  }
 }
