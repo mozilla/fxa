@@ -44,6 +44,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import { InlineRecoverySetupFlowContainer } from '../../pages/InlineRecoverySetupFlow/container';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
@@ -409,6 +410,7 @@ const AuthAndAccountSetupRoutes = ({
   integration: Integration;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
+  const config = useConfig();
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
@@ -517,8 +519,9 @@ const AuthAndAccountSetupRoutes = ({
           path="/signin_confirmed/*"
           {...{ isSignedIn, serviceName, integration }}
         />
-        <SigninRecoveryChoiceContainer path="/signin_recovery_choice/*"
-                                       {...{ integration }}
+        <SigninRecoveryChoiceContainer
+          path="/signin_recovery_choice/*"
+          {...{ integration }}
         />
         <SigninRecoveryPhoneContainer
           path="/signin_recovery_phone/*"
@@ -602,11 +605,19 @@ const AuthAndAccountSetupRoutes = ({
           {...{ isSignedIn, serviceName, flowQueryParams }}
         />
 
-        <InlineRecoverySetupContainer
-          path="/inline_recovery_setup/*"
-          integration={integration}
-          {...{ isSignedIn, serviceName }}
-        />
+        {config.featureFlags?.updatedInlineRecoverySetupFlow ? (
+          <InlineRecoverySetupFlowContainer
+            path="/inline_recovery_setup/*"
+            integration={integration}
+            {...{ isSignedIn, serviceName }}
+          />
+        ) : (
+          <InlineRecoverySetupContainer
+            path="/inline_recovery_setup/*"
+            integration={integration}
+            {...{ isSignedIn, serviceName }}
+          />
+        )}
       </Router>
     </Suspense>
   );

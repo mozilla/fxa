@@ -15,15 +15,18 @@ import {
 } from '../../Icons';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { GleanClickEventType2FA } from '../../../lib/types';
+import { CHOICES } from '../../FormChoice';
 
 type FlowSetup2faCompleteProps = (
   | {
-      backupType: 'code';
+      backupType: typeof CHOICES.code;
       numCodesRemaining: number;
+      lastFourPhoneDigits?: never;
     }
   | {
-      backupType: 'phone';
+      backupType: typeof CHOICES.phone;
       lastFourPhoneDigits: string;
+      numCodesRemaining?: never;
     }
 ) & {
   serviceName: string;

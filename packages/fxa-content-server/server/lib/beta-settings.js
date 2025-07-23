@@ -116,6 +116,10 @@ const settingsConfig = {
     updatedInlineTotpSetupFlow: config.get(
       'featureFlags.updatedInlineTotpSetupFlow'
     ),
+    updated2faSetupFlow: config.get('featureFlags.updated2faSetupFlow'),
+    updatedInlineRecoverySetupFlow: config.get(
+      'featureFlags.updatedInlineRecoverySetupFlow'
+    ),
   },
   nimbusPreview: config.get('nimbusPreview'),
   cms: {

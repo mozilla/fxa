@@ -9,7 +9,12 @@ import { useCallback, useEffect, useState, useRef } from 'react';
 import InlineTotpSetupOld from './old';
 import InlineTotpSetupNew from '.';
 import { MozServices } from '../../lib/types';
-import { Integration, isOAuthIntegration, useSession } from '../../models';
+import {
+  Integration,
+  isOAuthIntegration,
+  useConfig,
+  useSession,
+} from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { checkCode } from '../../lib/totp';
 import { useMutation, useQuery } from '@apollo/client';
@@ -23,7 +28,6 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
-import config from '../../lib/config';
 
 export const InlineTotpSetupContainer = ({
   isSignedIn,
@@ -36,6 +40,7 @@ export const InlineTotpSetupContainer = ({
   serviceName: MozServices;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
+  const config = useConfig();
   const [totp, setTotp] = useState<TotpToken>();
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>(
     undefined
@@ -101,12 +106,21 @@ export const InlineTotpSetupContainer = ({
         variables: {
           input: {
             metricsContext,
+            skipRecoveryCodes:
+              !!config.featureFlags?.updatedInlineRecoverySetupFlow,
           },
         },
       });
       setTotp(totpResp.data?.createTotp);
     })();
-  }, [createTotp, metricsContext, totpStatus, totpStatusLoading, totp]);
+  }, [
+    createTotp,
+    metricsContext,
+    totpStatus,
+    totpStatusLoading,
+    totp,
+    config.featureFlags?.updatedInlineRecoverySetupFlow,
+  ]);
 
   // Once state has settled, determine if user should be directed to another page
   useEffect(() => {

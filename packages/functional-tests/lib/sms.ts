@@ -18,6 +18,7 @@ export class SmsClient {
   private lastCode: string | undefined;
   private redisClientConnected = false;
   private hasLoggedRedisConnectionError = false;
+  private _connecting = false;
 
   constructor(public readonly targetName: TargetName) {
     const accountSid = getFromEnv(
@@ -41,13 +42,16 @@ export class SmsClient {
 
     // When testing local or in CI pipe, we should enable redis.
     if (enableRedis === 'true') {
+      this._connecting = true;
       this.redisClient = new Redis();
       this.redisClient.on('ready', () => {
+        this._connecting = false;
         this.redisClientConnected = true;
         this.hasLoggedRedisConnectionError = false;
       });
 
       this.redisClient.on('error', (err: Error) => {
+        this._connecting = false;
         if (!this.hasLoggedRedisConnectionError) {
           this.hasLoggedRedisConnectionError = true;
         }
@@ -134,6 +138,9 @@ export class SmsClient {
    * @param timeout
    */
   async _getCodeLocal(uid: string, timeout = 10000): Promise<string> {
+    while (this._connecting) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
     if (!this.redisClient) {
       throw new Error('Not connected to Redis');
     }
