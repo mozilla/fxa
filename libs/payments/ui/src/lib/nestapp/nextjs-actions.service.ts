@@ -20,10 +20,7 @@ import {
   ProductConfigError,
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
-import {
-  CartState,
-  type CartErrorReasonId,
-} from '@fxa/shared/db/mysql/account';
+import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
@@ -133,9 +130,7 @@ export class NextJSActionsService {
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
   async getCart(args: { cartId: string }) {
-    const cart = await this.cartService.getCart(args.cartId);
-
-    return cart;
+    return this.cartService.getCart(args.cartId);
   }
 
   @SanitizeExceptions({
