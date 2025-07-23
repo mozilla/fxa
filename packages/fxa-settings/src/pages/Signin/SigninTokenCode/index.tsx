@@ -161,6 +161,7 @@ const SigninTokenCode = ({
           showInlineRecoveryKeySetup,
           handleFxaLogin: false,
           handleFxaOAuthLogin: true,
+          performNavigation: !integration.isFirefoxMobileClient(),
         };
 
         await GleanMetrics.isDone();
@@ -208,7 +209,6 @@ const SigninTokenCode = ({
 
   return (
     <AppLayout>
-
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading-2"
