@@ -24,6 +24,7 @@ import {
   getApplePublicKey,
   isValidClientId,
   validateSecurityToken,
+  normalizeGoogleSETEventType,
   googleEventHandlers,
   handleGoogleOtherEventType,
   GoogleJWTSETPayload,
@@ -96,8 +97,13 @@ export class LinkedAccountHandler {
     // in a payload object.
     const { payload: token } = request.payload as any;
 
-    if (!this.applePublicKey) {
-      this.applePublicKey = await getApplePublicKey(token);
+    try {
+      if (!this.applePublicKey) {
+        this.applePublicKey = await getApplePublicKey(token, this.statsd);
+      }
+    } catch (error) {
+      this.statsd.increment('handleAppleSET.publicKeyError');
+      throw error;
     }
 
     try {
@@ -105,8 +111,14 @@ export class LinkedAccountHandler {
         token,
         this.config.appleAuthConfig.securityEventsClientIds,
         this.applePublicKey.pem,
-        APPLE_AUD
+        APPLE_AUD,
+        this.statsd
       )) as AppleJWTSETPayload;
+
+      if (!jwtPayload) {
+        this.statsd.increment('handleAppleSET.validationError');
+        return {};
+      }
 
       const { events } = jwtPayload;
       const parsedEventData: AppleSETEvent = JSON.parse(events);
@@ -115,22 +127,28 @@ export class LinkedAccountHandler {
 
       const eventType = parsedEventData.type;
 
-      if (appleEventHandlers[eventType as keyof typeof appleEventHandlers]) {
-        this.statsd.increment(`handleAppleSET.processing.${eventType}`);
-        this.log.debug('handleAppleSET.processing', {
-          eventType,
-        });
-        await appleEventHandlers[eventType as keyof typeof appleEventHandlers](
-          parsedEventData,
-          this.log,
-          this.db
-        );
-        this.statsd.increment(`handleAppleSET.processed.${eventType}`);
-        this.log.debug(`handleAppleSET.processed`, {
-          eventType,
-        });
-      } else {
-        this.statsd.increment(`handleAppleSET.unknownEventType.${eventType}`);
+      try {
+        if (appleEventHandlers[eventType as keyof typeof appleEventHandlers]) {
+          this.statsd.increment(`handleAppleSET.processing.${eventType}`);
+          this.log.debug('handleAppleSET.processing', {
+            eventType,
+          });
+          await appleEventHandlers[eventType as keyof typeof appleEventHandlers](
+            parsedEventData,
+            this.log,
+            this.db,
+            this.statsd
+          );
+          this.statsd.increment(`handleAppleSET.processed.${eventType}`);
+          this.log.debug(`handleAppleSET.processed`, {
+            eventType,
+          });
+        } else {
+          this.statsd.increment(`handleAppleSET.unknownEventType.${eventType}`);
+        }
+      } catch (eventError) {
+        this.statsd.increment(`handleAppleSET.eventHandler.error.${eventType}`);
+        // Continue processing instead of failing the entire webhook
       }
     } catch (err) {
       this.statsd.increment('handleAppleSET.validationError');
@@ -146,8 +164,13 @@ export class LinkedAccountHandler {
     const tokenBuffer = request.payload as ArrayBuffer;
     const token = tokenBuffer.toString();
 
-    if (!this.goooglePublicKey) {
-      this.goooglePublicKey = await getGooglePublicKey(token);
+    try {
+      if (!this.goooglePublicKey) {
+        this.goooglePublicKey = await getGooglePublicKey(token, this.statsd);
+      }
+    } catch (error) {
+      this.statsd.increment('handleGoogleSET.publicKeyError');
+      throw error;
     }
 
     try {
@@ -164,39 +187,50 @@ export class LinkedAccountHandler {
         token,
         this.config.googleAuthConfig.securityEventsClientIds,
         this.goooglePublicKey.pem,
-        this.goooglePublicKey.issuer
+        this.goooglePublicKey.issuer,
+        this.statsd
       )) as GoogleJWTSETPayload;
+
+      if (!jwtPayload) {
+        this.statsd.increment('handleGoogleSET.validationError');
+        return {};
+      }
+
       this.statsd.increment('handleGoogleSET.decoded');
 
       // Process each event type
       for (const eventType in jwtPayload.events) {
-        this.statsd.increment(`handleGoogleSET.processing.${eventType}`);
+        const normalizedEventType = normalizeGoogleSETEventType(eventType);
+        this.statsd.increment(`handleGoogleSET.processing.${normalizedEventType}`);
         this.log.debug('handleGoogleSET.processing', {
           eventType,
         });
-        if (
-          googleEventHandlers[eventType as keyof typeof googleEventHandlers]
-        ) {
-          await googleEventHandlers[
-            eventType as keyof typeof googleEventHandlers
-          ](jwtPayload.events[eventType], this.log, this.db);
-          this.statsd.increment(`handleGoogleSET.processed.${eventType}`);
-          this.log.debug('handleGoogleSET.processed', {
-            eventType,
-          });
-        } else {
-          // Log that an unknown event type was received and ignore it
-          handleGoogleOtherEventType(eventType, this.log);
-          this.statsd.increment(
-            `handleGoogleSET.unknownEventType.${eventType}`
-          );
+
+        try {
+          if (
+            googleEventHandlers[eventType as keyof typeof googleEventHandlers]
+          ) {
+            await googleEventHandlers[
+              eventType as keyof typeof googleEventHandlers
+            ](jwtPayload.events[eventType], this.log, this.db, this.statsd);
+            this.statsd.increment(`handleGoogleSET.processed.${normalizedEventType}`);
+            this.log.debug('handleGoogleSET.processed', {
+              eventType,
+            });
+          } else {
+            // Log that an unknown event type was received and ignore it
+            handleGoogleOtherEventType(eventType, this.log);
+            this.statsd.increment(
+              `handleGoogleSET.unknownEventType.${normalizedEventType}`
+            );
+          }
+        } catch (eventError) {
+          this.statsd.increment(`handleGoogleSET.eventHandler.error.${normalizedEventType}`);
+          // Continue processing other events instead of failing the entire webhook
         }
       }
     } catch (err) {
       this.statsd.increment('handleGoogleSET.validationError');
-      this.log.debug('handleGoogleSET.validationError', {
-        err,
-      });
       throw err;
     }
 

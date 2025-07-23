@@ -26,11 +26,11 @@ const makeRoutes = function (options = {}, requireMocks) {
   const statsd = options.statsd || { increment: sinon.spy() };
 
   const { linkedAccountRoutes } = proxyquire(
-    '../../../lib/routes/linked-accounts',
-    requireMocks || {}
-  );
+  '../../../lib/routes/linked-accounts',
+  requireMocks || {}
+);
 
-  return linkedAccountRoutes(log, db, config, mailer, profile, statsd, glean);
+return linkedAccountRoutes(log, db, config, mailer, profile, statsd, glean);
 };
 
 function runTest(route, request, assertions) {
@@ -701,8 +701,8 @@ describe('/linked_account', function () {
           },
           {
             './utils/third-party-events': {
-              validateSecurityToken: () =>
-                options.validateSecurityToken || makeJWT(),
+              validateSecurityToken: async () =>
+                options.validateSecurityToken !== undefined ? (typeof options.validateSecurityToken === 'function' ? await options.validateSecurityToken() : options.validateSecurityToken) : makeJWT(),
               isValidClientId: () => true,
               getGooglePublicKey: () => {
                 return {
@@ -723,7 +723,7 @@ describe('/linked_account', function () {
       assert.calledWithExactly(mockLog.debug, 'Received test event: Celo');
       assert.calledWithExactly(
         statsd.increment,
-        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/verification'
+        'handleGoogleSET.processed.verification'
       );
     });
 
@@ -740,7 +740,7 @@ describe('/linked_account', function () {
       });
       assert.calledWithExactly(
         statsd.increment,
-        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/sessions-revoked'
+        'handleGoogleSET.processed.sessions_revoked'
       );
       assert.calledWithExactly(
         mockLog.debug,
@@ -761,7 +761,7 @@ describe('/linked_account', function () {
       });
       assert.calledWithExactly(
         statsd.increment,
-        'handleGoogleSET.processed.https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked'
+        'handleGoogleSET.processed.tokens_revoked'
       );
       assert.calledWithExactly(
         mockLog.debug,
@@ -782,7 +782,7 @@ describe('/linked_account', function () {
       });
       assert.calledWithExactly(
         statsd.increment,
-        'handleGoogleSET.processed.https://schemas.openid.net/secevent/oauth/event-type/token-revoked'
+        'handleGoogleSET.processed.token_revoked'
       );
       assert.calledWithExactly(
         mockLog.debug,
@@ -801,7 +801,7 @@ describe('/linked_account', function () {
       });
       assert.calledWithExactly(
         statsd.increment,
-        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/account-purged'
+        'handleGoogleSET.processed.account_purged'
       );
       assert.calledWithExactly(
         mockLog.debug,
@@ -821,7 +821,7 @@ describe('/linked_account', function () {
       });
       assert.calledWithExactly(
         statsd.increment,
-        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/account-credential-change-required'
+        'handleGoogleSET.processed.credential_change_required'
       );
       assert.calledWithExactly(
         mockLog.debug,
@@ -842,7 +842,7 @@ describe('/linked_account', function () {
       });
       assert.calledWithExactly(
         statsd.increment,
-        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/account-disabled'
+        'handleGoogleSET.processed.account_disabled'
       );
       assert.calledWithExactly(
         mockLog.debug,
@@ -858,7 +858,7 @@ describe('/linked_account', function () {
       assert.notCalled(mockDB.getLinkedAccount);
       assert.calledWithExactly(
         statsd.increment,
-        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/account-enabled'
+        'handleGoogleSET.processed.account_enabled'
       );
     });
 
@@ -872,7 +872,7 @@ describe('/linked_account', function () {
       );
       assert.calledWithExactly(
         statsd.increment,
-        'handleGoogleSET.unknownEventType.https://schemas.openid.net/secevent/risc/event-type/unknown'
+        'handleGoogleSET.unknownEventType.unknown'
       );
     });
 
@@ -881,6 +881,118 @@ describe('/linked_account', function () {
       setupTest({ validateSecurityToken: jwt, unknownAccount: true });
       await runTest(route, mockRequest);
       assert.notCalled(mockDB.deleteLinkedAccount);
+      assert.notCalled(mockDB.deleteSessionToken);
+    });
+
+    it('handles database errors gracefully without unhandled promise rejection', async () => {
+      setupTest({ validateSecurityToken: makeJWT('sessionRevoked') });
+
+      // Mock database to throw an error
+      mockDB.getLinkedAccount = sinon.stub().rejects(new Error('Database connection failed'));
+
+      // This should not throw an unhandled promise rejection
+      await runTest(route, mockRequest);
+
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.decoded');
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processing.sessions_revoked'
+      );
+      // Should not call processed because the event handler failed
+      assert.notCalled(mockDB.sessions);
+      assert.notCalled(mockDB.deleteSessionToken);
+    });
+
+    it('handles session deletion errors gracefully', async () => {
+      setupTest({ validateSecurityToken: makeJWT('sessionRevoked') });
+
+      // Mock database to throw an error during session deletion
+      mockDB.getLinkedAccount = sinon.stub().resolves({ uid: UID });
+      mockDB.sessions = sinon.stub().resolves([
+        { id: 'sessionTokenId1', uid: UID, providerId: 1 },
+        { id: 'sessionTokenId2', uid: UID, providerId: 1 },
+      ]);
+      mockDB.deleteSessionToken = sinon.stub()
+        .onFirstCall().resolves()
+        .onSecondCall().rejects(new Error('Session deletion failed'));
+
+      await runTest(route, mockRequest);
+
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.decoded');
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.sessions_revoked'
+      );
+      // Should still process the first session successfully
+      assert.calledWithExactly(mockDB.deleteSessionToken, {
+        id: 'sessionTokenId1',
+        uid: UID,
+        providerId: 1,
+      });
+      assert.calledWithExactly(mockDB.deleteSessionToken, {
+        id: 'sessionTokenId2',
+        uid: UID,
+        providerId: 1,
+      });
+    });
+
+        it('verifies statsd metrics are incremented for successful operations', async () => {
+      setupTest({ validateSecurityToken: makeJWT('sessionRevoked') });
+
+      // First call - should succeed and revoke sessions
+      await runTest(route, mockRequest);
+
+      // Verify that the expected statsd metrics are called for first call
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.decoded');
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processing.sessions_revoked'
+      );
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.sessions_revoked'
+      );
+
+      // Reset the statsd spy to clear previous calls
+      statsd.increment.resetHistory();
+
+      // Second call - should fail because sessions were already revoked
+      await runTest(route, mockRequest);
+
+      // Verify that the expected statsd metrics are called for second call
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.decoded');
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processing.sessions_revoked'
+      );
+      // The processed metric should still be called even if no sessions were found to revoke
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.sessions_revoked'
+      );
+    });
+
+    it('handles JWT validation failure gracefully', async () => {
+      setupTest({ validateSecurityToken: async () => undefined });
+
+      await runTest(route, mockRequest);
+
+      // Debug: print all calls to statsd.increment
+      // eslint-disable-next-line no-console
+      console.log('statsd.increment calls:', statsd.increment.getCalls().map(call => call.args));
+
+      // Only these two metrics should be called, in order
+      sinon.assert.callCount(statsd.increment, 2);
+      sinon.assert.calledWithExactly(statsd.increment.getCall(0), 'handleGoogleSET.received');
+      sinon.assert.calledWithExactly(statsd.increment.getCall(1), 'handleGoogleSET.validationError');
+
+      // Should not call decoded or processing metrics since validation failed
+      assert.notCalled(mockDB.getLinkedAccount);
+      assert.notCalled(mockDB.sessions);
       assert.notCalled(mockDB.deleteSessionToken);
     });
   });
@@ -1035,6 +1147,44 @@ describe('/linked_account', function () {
       await runTest(route, mockRequest);
       assert.notCalled(mockDB.deleteLinkedAccount);
       assert.notCalled(mockDB.deleteSessionToken);
+    });
+
+    it('handles database errors gracefully without unhandled promise rejection', async () => {
+      setupTest({ validateSecurityToken: makeJWT('consent-revoked') });
+
+      // Mock database to throw an error
+      mockDB.getLinkedAccount = sinon.stub().rejects(new Error('Database connection failed'));
+
+      // This should not throw an unhandled promise rejection
+      await runTest(route, mockRequest);
+
+      assert.calledWithExactly(statsd.increment, 'handleAppleSET.received');
+      assert.calledWithExactly(statsd.increment, 'handleAppleSET.decoded');
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleAppleSET.processing.consent-revoked'
+      );
+      // Should not call processed because the event handler failed
+      assert.notCalled(mockDB.sessions);
+      assert.notCalled(mockDB.deleteLinkedAccount);
+    });
+
+    it('verifies statsd metrics are incremented for successful operations', async () => {
+      setupTest({ validateSecurityToken: makeJWT('consent-revoked') });
+
+      await runTest(route, mockRequest);
+
+      // Verify that the expected statsd metrics are called
+      assert.calledWithExactly(statsd.increment, 'handleAppleSET.received');
+      assert.calledWithExactly(statsd.increment, 'handleAppleSET.decoded');
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleAppleSET.processing.consent-revoked'
+      );
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleAppleSET.processed.consent-revoked'
+      );
     });
   });
 });
