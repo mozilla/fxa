@@ -10,6 +10,7 @@ test.describe('severity-2 #smoke', () => {
     test('apply an expired coupon', async ({ pages: { relier, subscribe } }, {
       project,
     }) => {
+      test.fixme(true, 'To be deprecated as part of PAY-3176');
       test.skip(
         project.name === 'production',
         'test plan not available in prod'
