@@ -41,6 +41,7 @@ import { navigate } from '@reach/router';
 import { IntegrationType } from '../../models';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
+import * as SigninUtils from './utils';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -983,6 +984,39 @@ describe('Signin component', () => {
             );
           });
         });
+
+        it('does not navigate when integration isFirefoxMobileClient', async () => {
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const cachedSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
+          const finishOAuthFlowHandler = jest
+            .fn()
+            .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeIntegration({
+            isMobile: true,
+          });
+          render({
+            cachedSigninHandler,
+            integration,
+            finishOAuthFlowHandler,
+            sessionToken: MOCK_SESSION_TOKEN,
+          });
+
+          enterPasswordAndSubmit();
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                performNavigation: false,
+              })
+            );
+          });
+          handleNavigationSpy.mockRestore();
+        });
+
         it('handles error due to TOTP required or insufficent ARC value', async () => {
           const signinResponse = createBeginSigninResponse();
           const beginSigninHandler = jest
