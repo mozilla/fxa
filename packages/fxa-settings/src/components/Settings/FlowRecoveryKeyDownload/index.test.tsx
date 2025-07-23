@@ -35,22 +35,21 @@ const renderFlowPage = async () => {
   await act(() => {
     renderWithRouter(
       <FlowRecoveryKeyDownload
-      {...{
-        localizedBackButtonTitle,
-        localizedPageTitle,
-        navigateForward,
-        navigateBackward,
-        viewName,
-      }}
-      email={MOCK_EMAIL}
-      recoveryKeyValue={MOCK_RECOVERY_KEY_VALUE}
+        {...{
+          localizedBackButtonTitle,
+          localizedPageTitle,
+          navigateForward,
+          navigateBackward,
+          viewName,
+        }}
+        email={MOCK_EMAIL}
+        recoveryKeyValue={MOCK_RECOVERY_KEY_VALUE}
       />
     );
   });
 };
 
 describe('FlowRecoveryKeyDownload', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });

@@ -6,7 +6,7 @@ import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 
 import { MozServices } from '../lib/types';
 import { MOCK_ACCOUNT } from '../models/mocks';
-import { Integration, IntegrationType, OAuthNativeIntegration, RelierCmsInfo } from '../models';
+import { Integration, IntegrationType } from '../models';
 
 export const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
 export const MOCK_UID = 'abcd1234abcd1234abcd1234abcd1234';
@@ -103,7 +103,8 @@ export const MOCK_CMS_INFO = {
     logoUrl:
       'https://gist.githubusercontent.com/vbudhram/c53b07efd1656acfff7d2c7e9d6825fe/raw/030df98ee27f609333606d36c7bf3af45af53f39/123Done_red.svg',
     logoAltText: 'logo',
-    backgroundColor: 'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 26, 26, 0.25) 40%, rgba(230, 0, 0, 0.3) 70%, rgba(179, 0, 0, 0.45) 100%)',
+    backgroundColor:
+      'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 26, 26, 0.25) 40%, rgba(230, 0, 0, 0.3) 70%, rgba(179, 0, 0, 0.45) 100%)',
   },
   EmailFirstPage: {
     headline: 'Sign up or sign in to your Mozilla account',
