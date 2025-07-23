@@ -76,19 +76,17 @@ test.describe('severity-1 #smoke', () => {
 
     test('setup fails with invalid number', async ({
       target,
-      pages: { page, settings, signin, recoveryPhone, totp, configPage },
+      pages: { page, settings, signin, recoveryPhone, totp },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
-      // TODO in FXA-11941 - remove condition
-      const totpCredentials = config.featureFlags.updated2faSetupFlow
-        ? await setup2faWithBackupCodeChoice(settings, totp)
-        : await addTotpWithBackupCodesDefault(settings, totp);
+      const totpCredentials = await setup2faWithBackupCodeChoice(
+        settings,
+        totp
+      );
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.totp.addRecoveryPhoneButton.click();
 
@@ -106,19 +104,17 @@ test.describe('severity-1 #smoke', () => {
 
     test('can setup, confirm and remove recovery phone', async ({
       target,
-      pages: { page, settings, signin, recoveryPhone, totp, configPage },
+      pages: { page, settings, signin, recoveryPhone, totp },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
-      // TODO in FXA-11941 - remove condition
-      const totpCredentials = config.featureFlags.updated2faSetupFlow
-        ? await setup2faWithBackupCodeChoice(settings, totp)
-        : await addTotpWithBackupCodesDefault(settings, totp);
+      const totpCredentials = await setup2faWithBackupCodeChoice(
+        settings,
+        totp
+      );
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.totp.addRecoveryPhoneButton.click();
 
@@ -168,19 +164,17 @@ test.describe('severity-1 #smoke', () => {
 
     test('can change recovery phone', async ({
       target,
-      pages: { page, settings, signin, recoveryPhone, totp, configPage },
+      pages: { page, settings, signin, recoveryPhone, totp },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
-      // TODO in FXA-11941 - remove condition
-      const totpCredentials = config.featureFlags.updated2faSetupFlow
-        ? await setup2faWithBackupCodeChoice(settings, totp)
-        : await addTotpWithBackupCodesDefault(settings, totp);
+      const totpCredentials = await setup2faWithBackupCodeChoice(
+        settings,
+        totp
+      );
       await expect(settings.totp.status).toHaveText('Enabled');
       await addRecoveryPhone(
         settings,
@@ -227,18 +221,15 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryChoice,
         signinRecoveryPhone,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
-      // TODO in FXA-11941 - remove condition
-      const totpCredentials = config.featureFlags.updated2faSetupFlow
-        ? await setup2faWithBackupCodeChoice(settings, totp)
-        : await addTotpWithBackupCodesDefault(settings, totp);
+      const totpCredentials = await setup2faWithBackupCodeChoice(
+        settings,
+        totp
+      );
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -281,19 +272,16 @@ test.describe('severity-1 #smoke', () => {
         signinRecoveryChoice,
         signinRecoveryPhone,
         connectAnotherDevice,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
-      // TODO in FXA-11941 - remove condition
-      const totpCredentials = config.featureFlags.updated2faSetupFlow
-        ? await setup2faWithBackupCodeChoice(settings, totp)
-        : await addTotpWithBackupCodesDefault(settings, totp);
+      const totpCredentials = await setup2faWithBackupCodeChoice(
+        settings,
+        totp
+      );
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -345,19 +333,16 @@ test.describe('severity-1 #smoke', () => {
         signinRecoveryChoice,
         signinRecoveryPhone,
         connectAnotherDevice,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
-      // TODO in FXA-11941 - remove condition
-      const totpCredentials = config.featureFlags.updated2faSetupFlow
-        ? await setup2faWithBackupCodeChoice(settings, totp)
-        : await addTotpWithBackupCodesDefault(settings, totp);
+      const totpCredentials = await setup2faWithBackupCodeChoice(
+        settings,
+        totp
+      );
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -407,19 +392,16 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryChoice,
         signinRecoveryPhone,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
-      // TODO in FXA-11941 - remove condition
-      const totpCredentials = config.featureFlags.updated2faSetupFlow
-        ? await setup2faWithBackupCodeChoice(settings, totp)
-        : await addTotpWithBackupCodesDefault(settings, totp);
+      const totpCredentials = await setup2faWithBackupCodeChoice(
+        settings,
+        totp
+      );
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -494,19 +476,16 @@ test.describe('severity-1 #smoke', () => {
         signinRecoveryChoice,
         signinRecoveryPhone,
         relier,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
-      // TODO in FXA-11941 - remove condition
-      const totpCredentials = config.featureFlags.updated2faSetupFlow
-        ? await setup2faWithBackupCodeChoice(settings, totp)
-        : await addTotpWithBackupCodesDefault(settings, totp);
+      const totpCredentials = await setup2faWithBackupCodeChoice(
+        settings,
+        totp
+      );
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -550,19 +529,16 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryChoice,
         signinRecoveryCode,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
-      // TODO in FXA-11941 - remove condition
-      const totpCredentials = config.featureFlags.updated2faSetupFlow
-        ? await setup2faWithBackupCodeChoice(settings, totp)
-        : await addTotpWithBackupCodesDefault(settings, totp);
+      const totpCredentials = await setup2faWithBackupCodeChoice(
+        settings,
+        totp
+      );
       expect;
       await expect(settings.totp.status).toHaveText('Enabled');
 
@@ -616,19 +592,16 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryChoice,
         signinRecoveryPhone,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
-      // TODO in FXA-11941 - remove condition
-      const totpCredentials = config.featureFlags.updated2faSetupFlow
-        ? await setup2faWithBackupCodeChoice(settings, totp)
-        : await addTotpWithBackupCodesDefault(settings, totp);
+      const totpCredentials = await setup2faWithBackupCodeChoice(
+        settings,
+        totp
+      );
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -674,14 +647,9 @@ test.describe('severity-1 #smoke', () => {
 
     test('can set up recovery phone during initial 2FA setup', async ({
       target,
-      pages: { page, settings, signin, recoveryPhone, totp, configPage },
+      pages: { page, settings, signin, recoveryPhone, totp },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        !config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - remove skip condition'
-      );
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
@@ -711,17 +679,10 @@ test.describe('severity-1 #smoke', () => {
         recoveryPhone,
         signinRecoveryPhone,
         totp,
-        configPage,
         signinTotpCode,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        !config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - remove skip condition'
-      );
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
@@ -776,29 +737,9 @@ async function signInAccount(
   await page.goto(target.contentServerUrl);
   await signin.fillOutEmailFirstForm(credentials.email);
   await signin.fillOutPasswordForm(credentials.password);
-
+  await page.waitForURL(/settings/);
   //Verify logged in on Settings page
   await expect(settings.settingsHeading).toBeVisible();
-}
-
-// TODO in FXA-11941 - delete this method
-async function addTotpWithBackupCodesDefault(
-  settings: SettingsPage,
-  totp: TotpPage
-): Promise<TotpCredentials> {
-  await expect(settings.settingsHeading).toBeVisible();
-  await expect(settings.totp.status).toHaveText('Disabled');
-
-  await settings.totp.addButton.click();
-  const totpCredentials =
-    await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
-
-  await expect(settings.settingsHeading).toBeVisible();
-  await expect(settings.alertBar).toHaveText(
-    'Two-step authentication has been enabled'
-  );
-
-  return totpCredentials;
 }
 
 async function setup2faWithBackupCodeChoice(

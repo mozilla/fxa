@@ -5,7 +5,6 @@
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { TestAccountTracker } from '../../lib/testAccountTracker';
-import { ConfigPage } from '../../pages/config';
 import { SettingsPage } from '../../pages/settings';
 import { TotpCredentials, TotpPage } from '../../pages/settings/totp';
 import { SigninPage } from '../../pages/signin';
@@ -23,15 +22,9 @@ test.describe('severity-1 #smoke', () => {
         signinRecoveryCode,
         signinTotpCode,
         totp,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - update test for new flow'
-      );
       const credentials = await signInAccount(
         target,
         page,
@@ -41,7 +34,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(configPage, settings, totp);
+      const { recoveryCodes } = await addTotp(settings, totp);
       await settings.signOut();
       await signinWithRecoveryCode(
         credentials,
@@ -65,15 +58,9 @@ test.describe('severity-1 #smoke', () => {
         signinRecoveryCode,
         signinTotpCode,
         totp,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - update test for new flow'
-      );
       const credentials = await signInAccount(
         target,
         page,
@@ -82,7 +69,7 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker
       );
       await settings.goto();
-      const { recoveryCodes } = await addTotp(configPage, settings, totp);
+      const { recoveryCodes } = await addTotp(settings, totp);
       await settings.signOut();
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -109,15 +96,9 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryCode,
         totp,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - update test for new flow'
-      );
       const credentials = await signInAccount(
         target,
         page,
@@ -127,7 +108,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(configPage, settings, totp);
+      const { recoveryCodes } = await addTotp(settings, totp);
       await settings.totp.getNewBackupCodesButton.click();
 
       const newCodes = await totp.getRecoveryCodes();
@@ -170,11 +151,6 @@ test.describe('severity-1 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - update test for new flow'
-      );
       const credentials = await signInAccount(
         target,
         page,
@@ -184,7 +160,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(configPage, settings, totp);
+      const { recoveryCodes } = await addTotp(settings, totp);
       await settings.signOut();
 
       for (let i = 0; i < recoveryCodes.length - 3; i++) {
@@ -219,8 +195,11 @@ test.describe('severity-1 #smoke', () => {
       const newCodes = await totp.getRecoveryCodes();
       expect(newCodes.length).toEqual(recoveryCodes.length);
 
+      // abort without completing the flow,
+      // we just want to verify that email was sent
+      // and link works
+      await settings.goto();
       // Disconnect totp, required before teardown
-      await totp.step1CancelButton.click();
       await settings.disconnectTotp();
     });
   });
@@ -245,7 +224,6 @@ async function signInAccount(
 }
 
 async function addTotp(
-  configPage: ConfigPage,
   settings: SettingsPage,
   totp: TotpPage
 ): Promise<TotpCredentials> {
@@ -253,11 +231,8 @@ async function addTotp(
   await expect(settings.totp.status).toHaveText('Disabled');
 
   await settings.totp.addButton.click();
-  // TODO in FXA-11941 - remove condition
-  const config = await configPage.getConfig();
-  const totpCredentials = config.featureFlags.updated2faSetupFlow
-    ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
-    : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
+  const totpCredentials =
+    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.alertBar).toHaveText(

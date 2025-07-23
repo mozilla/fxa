@@ -158,21 +158,16 @@ test.describe('severity-2 #smoke', () => {
         settings,
         totp,
         signinTotpCode,
-        configPage,
       },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
       await settings.totp.addButton.click();
-      // TODO in FXA-11941 - remove condition
-      const { secret } = config.featureFlags.updated2faSetupFlow
-        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
-        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
+      const { secret } =
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.signOut();
 

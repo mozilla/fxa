@@ -9,7 +9,6 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import {
   useAccount,
-  useConfig,
   useInitialSettingsState,
   useSession,
 } from '../../models';
@@ -26,7 +25,6 @@ import PageSecondaryEmailAdd from './PageSecondaryEmailAdd';
 import PageSecondaryEmailVerify from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
 import Page2faSetup from './Page2faSetup';
-import PageTwoStepAuthentication from './PageTwoStepAuthentication';
 import { Page2faReplaceRecoveryCodes } from './Page2faReplaceRecoveryCodes';
 import { PageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
 import { PageDeleteAccount } from './PageDeleteAccount';
@@ -48,7 +46,6 @@ export const Settings = ({
 }: { integration: SettingsIntegration } & RouteComponentProps) => {
   const session = useSession();
   const account = useAccount();
-  const config = useConfig();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
 
@@ -167,11 +164,7 @@ export const Settings = ({
                 to="/settings/change_password"
                 noThrow
               />
-              {config.featureFlags?.updated2faSetupFlow ? (
-                <Page2faSetup path="/two_step_authentication" />
-              ) : (
-                <PageTwoStepAuthentication path="/two_step_authentication" />
-              )}
+              <Page2faSetup path="/two_step_authentication" />
               <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
             </>
           ) : (
