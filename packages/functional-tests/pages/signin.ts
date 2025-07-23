@@ -138,6 +138,12 @@ export class SigninPage extends BaseLayout {
     await this.emailFirstSubmitButton.click();
   }
 
+  /**
+   * Fills out the password field during Sign In. Submits the form.
+   *
+   * Expects the password form heading to be visible before filling out the form.
+   * @param password
+   */
   async fillOutPasswordForm(password: string): Promise<void> {
     await expect(this.passwordFormHeading).toBeVisible();
 

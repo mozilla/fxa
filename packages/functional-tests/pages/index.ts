@@ -5,6 +5,7 @@
 import { Page } from '@playwright/test';
 import { AvatarPage } from './settings/avatar';
 import { BaseTarget } from '../lib/targets/base';
+import { BrowserSettingsPage } from './browserSettings';
 import { ConfigPage } from './config';
 import { ConfirmSignupCodePage } from './confirmSignupCode';
 import { ConnectAnotherDevicePage } from './connectAnotherDevice';
@@ -17,6 +18,7 @@ import { FxDesktopV3ForceAuthPage } from './forceAuth/fxDesktopV3';
 import { ForceAuthPage } from './forceAuth';
 import { LegalPage } from './legal';
 import { LoginPage } from './login';
+import { PairingPage } from './pairing';
 import { PostVerifyPage } from './postVerify';
 import { PrivacyPage } from './privacy';
 import { RecoveryKeyPage } from './settings/recoveryKey';
@@ -42,6 +44,7 @@ import { SignupConfirmedSyncPage } from './signupConfirmedSync';
 export function create(page: Page, target: BaseTarget) {
   return {
     avatar: new AvatarPage(page, target),
+    browserSettings: new BrowserSettingsPage(page, target),
     changePassword: new ChangePasswordPage(page, target),
     configPage: new ConfigPage(page, target),
     confirmSignupCode: new ConfirmSignupCodePage(page, target),
@@ -56,6 +59,7 @@ export function create(page: Page, target: BaseTarget) {
     legal: new LegalPage(page, target),
     login: new LoginPage(page, target),
     page,
+    pairing: new PairingPage(page, target),
     postVerify: new PostVerifyPage(page, target),
     privacy: new PrivacyPage(page, target),
     recoveryKey: new RecoveryKeyPage(page, target),

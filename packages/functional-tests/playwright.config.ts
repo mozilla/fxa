@@ -62,8 +62,9 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
     threshold: 15000, // Threshold in milliseconds
   },
 
+
   use: {
-    viewport: { width: 1280, height: 720 },
+    viewport: { width: 1920, height: 1080 },
   },
   projects: [
     ...TargetNames.map(
@@ -73,8 +74,9 @@ export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
           use: {
             browserName: 'firefox',
             targetName: name,
+            bypassCSP: true,
             launchOptions: {
-              args: DEBUG ? ['-start-debugger-server'] : undefined,
+              args: DEBUG ? ['-start-debugger-server', '--disable-web-security'] : undefined,
               firefoxUserPrefs: getFirefoxUserPrefs(name, DEBUG),
               headless: !DEBUG,
               slowMo: SLOWMO,

@@ -79,6 +79,12 @@ export class SignupPage extends BaseLayout {
     );
   }
 
+  /**
+   * Enters email on `email first` form. Continues to the next step.
+   *
+   * Expects the email form heading to be visible.
+   * @param email
+   */
   async fillOutEmailForm(email: string) {
     await expect(this.emailFormHeading).toBeVisible();
 
@@ -86,6 +92,12 @@ export class SignupPage extends BaseLayout {
     await this.submitButton.click();
   }
 
+  /**
+   * Enters password for sign up. Continues to the next step.
+   *
+   * Expects the signup form heading to be visible.
+   * @param password
+   */
   async fillOutSignupForm(password: string) {
     await expect(this.signupFormHeading).toBeVisible();
 
@@ -93,6 +105,12 @@ export class SignupPage extends BaseLayout {
     await this.createAccountButton.click();
   }
 
+  /**
+   * Enters password and verify password for sync sign up. Clicks create account button.
+   *
+   * Expects the signup form heading to be visible.
+   * @param password
+   */
   async fillOutSyncSignupForm(password: string) {
     await expect(this.signupFormHeading).toBeVisible();
 

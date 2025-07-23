@@ -28,6 +28,7 @@ export type TestOptions = {
   pages: POMS;
   syncBrowserPages: POMS;
   syncOAuthBrowserPages: POMS;
+  browserSettingPages: POMS;
   testAccountTracker: TestAccountTracker;
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
@@ -70,6 +71,15 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     await handleSyncPagesTraceStop(syncBrowserPages, testInfo);
 
     await syncBrowserPages.browser?.close();
+  },
+
+  // these pages are for interacting with browser instance pages (about:config, etc)
+  browserSettingPages: async ({ target }, use) => {
+    const browserSettings = await newPagesForBrowserSettings(target);
+
+    await use (browserSettings);
+
+    await browserSettings.browser?.close();
   },
 
   testAccountTracker: async ({ target }, use, testInfo) => {
@@ -127,7 +137,7 @@ async function newPagesForSync(
   context: 'fx_desktop_v3' | 'oauth_webchannel_v1' = 'fx_desktop_v3'
 ) {
   const browser = await firefox.launch({
-    args: DEBUG ? ['-start-debugger-server'] : undefined,
+    args: DEBUG ? ['-start-debugger-server', '--marionette'] : undefined,
     firefoxUserPrefs: getFirefoxUserPrefs(target.name, DEBUG, context),
     headless: !DEBUG,
   });
@@ -137,6 +147,16 @@ async function newPagesForSync(
   };
 }
 type SyncPages = Awaited<ReturnType<typeof newPagesForSync>>;
+
+async function newPagesForBrowserSettings(target: BaseTarget) {
+  const prefs = getFirefoxUserPrefs(target.name, DEBUG, 'fx_desktop_v3');
+  // persistentContext requires a path to a user data directory.
+  const browser = await firefox.launch({firefoxUserPrefs: prefs, headless: !DEBUG});
+  return {
+    ...(await newPages(browser, target)),
+    browser: browser,
+  }
+}
 
 /**
  * Handles stopping and capturing the trace for Sync pages.
