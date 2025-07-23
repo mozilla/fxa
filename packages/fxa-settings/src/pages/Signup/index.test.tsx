@@ -35,7 +35,7 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import { useSensitiveDataClient } from '../../models';
-import userEvent from '@testing-library/user-event';
+import { UserEvent, userEvent } from '@testing-library/user-event';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -94,13 +94,11 @@ const commonFxaLoginOptions = {
 };
 
 async function fillOutForm(withPwdConfirmation: boolean) {
-  fireEvent.input(screen.getByLabelText('Password'), {
-    target: { value: MOCK_PASSWORD },
-  });
-  withPwdConfirmation &&
-    fireEvent.input(screen.getByLabelText('Repeat password'), {
-      target: { value: MOCK_PASSWORD },
-    });
+  await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD );
+
+  if (withPwdConfirmation) {
+    await user.type(screen.getByLabelText('Repeat password'), MOCK_PASSWORD );
+  }
   await waitFor(() => {
     expect(
       screen.getByRole('button', {
@@ -110,8 +108,8 @@ async function fillOutForm(withPwdConfirmation: boolean) {
   });
 }
 
-function submit() {
-  fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+async function submit() {
+  await user.click(screen.getByRole('button', { name: 'Create account' }));
 }
 
 const user = userEvent.setup();
@@ -204,9 +202,11 @@ describe('Signup page', () => {
   });
 
   it('renders as expected when integration is sync', async () => {
-    renderWithLocalizationProvider(
-      <Subject integration={createMockSignupSyncDesktopV3Integration()} />
-    );
+    await act(() => {
+      renderWithLocalizationProvider(
+        <Subject integration={createMockSignupSyncDesktopV3Integration()} />
+      );
+    })
 
     // Password confirmation is required for sync
     expect(screen.getByLabelText('Repeat password')).toBeVisible();
@@ -221,11 +221,13 @@ describe('Signup page', () => {
   });
 
   it('renders as expected when service=relay', async () => {
-    renderWithLocalizationProvider(
-      <Subject
+    await act(() => {
+      renderWithLocalizationProvider(
+        <Subject
         integration={createMockSignupOAuthNativeIntegration('relay', false)}
-      />
-    );
+        />
+      );
+    })
 
     expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
 
@@ -308,9 +310,7 @@ describe('Signup page', () => {
       expect(GleanMetrics.registration.view).toHaveBeenCalledTimes(1);
     });
 
-    await act(async () => {
-      await user.type(screen.getByLabelText('Password'), 'a');
-    });
+    await user.type(screen.getByLabelText('Password'), 'a');
 
     await waitFor(() => {
       expect(GleanMetrics.registration.engage).toHaveBeenCalledTimes(1);
@@ -328,7 +328,7 @@ describe('Signup page', () => {
       <Subject beginSignupHandler={mockBeginSignupHandler} />
     );
     await fillOutForm(false);
-    submit();
+    await submit();
     await waitFor(() => {
       expect(mockSensitiveDataClient.setDataType).toHaveBeenCalledWith(
         SensitiveData.Key.Auth,
@@ -347,7 +347,7 @@ describe('Signup page', () => {
         it(`fails for mask ${mask}`, async () => {
           renderWithLocalizationProvider(<Subject email={mask} />);
           await fillOutForm(false);
-          submit();
+          await submit();
 
           await waitFor(() => {
             screen.getByText('Email masks can’t be used to create an account.');
@@ -360,7 +360,7 @@ describe('Signup page', () => {
   it('emits a metrics event on submit', async () => {
     renderWithLocalizationProvider(<Subject />);
     await fillOutForm(false);
-    submit();
+    await submit();
 
     await waitFor(() => {
       expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
@@ -383,7 +383,7 @@ describe('Signup page', () => {
       );
 
       await fillOutForm(false);
-      submit();
+      await submit();
 
       await waitFor(() => {
         expect(mockBeginSignupHandler).toHaveBeenCalledWith(
@@ -415,18 +415,20 @@ describe('Signup page', () => {
       });
 
       describe('on success with Sync desktop v3 integration', () => {
-        beforeEach(() => {
-          renderWithLocalizationProvider(
-            <Subject
+        beforeEach(async () => {
+          await act(() => {
+            renderWithLocalizationProvider(
+              <Subject
               integration={createMockSignupSyncDesktopV3Integration()}
               beginSignupHandler={mockBeginSignupHandler}
-            />
-          );
+              />
+            );
+          })
         });
 
         it('all sync options selected and sent', async () => {
           await fillOutForm(true);
-          submit();
+          await submit();
 
           await waitFor(() => {
             expect(mockBeginSignupHandler).toHaveBeenCalledWith(
@@ -474,7 +476,7 @@ describe('Signup page', () => {
           );
 
           await fillOutForm(true);
-          submit();
+          await submit();
 
           await waitFor(() => {
             expect(mockBeginSignupHandler).toHaveBeenCalledWith(
@@ -544,7 +546,7 @@ describe('Signup page', () => {
         />
       );
       await fillOutForm(false);
-      submit();
+      await submit();
 
       expect(fxaLoginSpy).not.toHaveBeenCalled();
 
@@ -579,7 +581,7 @@ describe('Signup page', () => {
         />
       );
       await fillOutForm(false);
-      submit();
+      await submit();
 
       await waitFor(() => {
         // Does not send services: { sync: {...} }
@@ -610,7 +612,7 @@ describe('Signup page', () => {
       );
 
       await fillOutForm(false);
-      submit();
+      await submit();
 
       await waitFor(() => {
         screen.getByText(AuthUiErrors.UNEXPECTED_ERROR.message);

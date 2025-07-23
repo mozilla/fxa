@@ -519,6 +519,11 @@ describe('IndexContainer', () => {
           }),
         });
 
+        const gleanSubmitSuccessSpy = jest.spyOn(
+          GleanMetrics.emailFirst,
+          'submitSuccess'
+        );
+
         render(
           <IndexContainer
             {...{ integration, serviceName: MozServices.Default }}
@@ -543,10 +548,6 @@ describe('IndexContainer', () => {
           },
         });
 
-        const gleanSubmitSuccessSpy = jest.spyOn(
-          GleanMetrics.emailFirst,
-          'submitSuccess'
-        );
         expect(gleanSubmitSuccessSpy).toHaveBeenCalledTimes(1);
         expect(gleanSubmitSuccessSpy).toHaveBeenCalledWith({
           event: { reason: 'registration' },
@@ -613,10 +614,10 @@ describe('IndexContainer', () => {
           />
         );
 
-        await waitFor(() => {
+        await waitFor(async () => {
           expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+          await currentIndexProps?.processEmailSubmission('invalid-email');
         });
-        await currentIndexProps?.processEmailSubmission('invalid-email');
         await waitFor(() => {
           expect(currentIndexProps?.tooltipErrorMessage).toBeDefined();
           expect(currentIndexProps?.tooltipErrorMessage).toEqual(
@@ -645,12 +646,12 @@ describe('IndexContainer', () => {
           />
         );
 
-        await waitFor(() => {
+        await waitFor(async () => {
           expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+          await currentIndexProps?.processEmailSubmission(
+            'test@relay.firefox.com'
+          );
         });
-        await currentIndexProps?.processEmailSubmission(
-          'test@relay.firefox.com'
-        );
         await waitFor(() => {
           expect(currentIndexProps?.tooltipErrorMessage).toBeDefined();
           expect(currentIndexProps?.tooltipErrorMessage).toEqual(
@@ -682,10 +683,10 @@ describe('IndexContainer', () => {
           />
         );
 
-        await waitFor(() => {
+        await waitFor(async () => {
           expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+          await currentIndexProps?.processEmailSubmission('test@firefox.com');
         });
-        await currentIndexProps?.processEmailSubmission('test@firefox.com');
         await waitFor(() => {
           expect(currentIndexProps?.tooltipErrorMessage).toBeDefined();
           expect(currentIndexProps?.tooltipErrorMessage).toEqual(
@@ -722,12 +723,12 @@ describe('IndexContainer', () => {
           />
         );
 
-        await waitFor(() => {
+        await waitFor(async () => {
           expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+          await currentIndexProps?.processEmailSubmission(
+            'mockinvaliddomain@invalid.invalid'
+          );
         });
-        await currentIndexProps?.processEmailSubmission(
-          'mockinvaliddomain@invalid.invalid'
-        );
         await waitFor(() => {
           expect(currentIndexProps?.tooltipErrorMessage).toBeDefined();
           expect(currentIndexProps?.tooltipErrorMessage).toEqual(

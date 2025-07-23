@@ -26,8 +26,10 @@ describe('InlineRecoveryKeySetup', () => {
       name: 'Got a minute to protect your data?',
     });
   });
-  it('renders as expected, step 2', () => {
-    renderWithLocalizationProvider(<Subject currentStep={2} />);
+  it('renders as expected, step 2', async () => {
+    await act(() => {
+      renderWithLocalizationProvider(<Subject currentStep={2} />);
+    });
 
     screen.getByText('Account recovery key created', { exact: false });
 

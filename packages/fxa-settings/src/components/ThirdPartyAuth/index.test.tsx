@@ -57,6 +57,10 @@ function renderWith(props?: any) {
 }
 
 const mockFormSubmit = jest.fn();
+// This prevents console errors when the deepLink logic is tested.
+// However, for some reason we cannot mock `requestSubmit` and we'll
+// still see errors logged for that.
+HTMLFormElement.prototype.submit = mockFormSubmit;
 
 describe('ThirdPartyAuthComponent', () => {
   // Form submission not supported in jest test. Instead, prevent the submission
