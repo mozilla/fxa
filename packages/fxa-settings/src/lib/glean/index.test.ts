@@ -86,6 +86,22 @@ describe('lib/glean', () => {
     pageLoadStub: SinonStub,
     handleClickEvent: SinonStub;
 
+  // Mock console to suppress test noise
+  const originalWarn = console.warn;
+  const originalInfo = console.info;
+  const originalDebug = console.debug;
+  beforeAll(() => {
+    console.warn = jest.fn();
+    console.info = jest.fn();
+    console.debug = jest.fn();
+  });
+
+  afterAll(() => {
+    console.warn = originalWarn;
+    console.info = originalInfo;
+    console.debug = originalDebug;
+  });
+
   beforeEach(async () => {
     mockMetricsContext.metricsFlow = {
       flowId: '00ff',

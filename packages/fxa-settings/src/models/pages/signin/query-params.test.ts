@@ -5,6 +5,16 @@
 import { queryStringToGenericData } from '../../../lib/model-data';
 import { SigninQueryParams } from './query-params';
 
+// Mock console.warn to suppress validation noise
+const originalWarn = console.warn;
+beforeAll(() => {
+  console.warn = jest.fn();
+});
+
+afterAll(() => {
+  console.warn = originalWarn;
+});
+
 /**
  * These tests spot check certain validation rules. We don't necessary want to revalidate that
  * the class-validator works, but there are certain params that we might want to keep an eye on

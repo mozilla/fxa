@@ -12,6 +12,16 @@ import { IndexQueryParams } from './query-params';
  */
 
 describe('SigninQueryParams checks', function () {
+  // Mock console.warn to suppress test noise
+  const originalWarn = console.warn;
+  beforeAll(() => {
+    console.warn = jest.fn();
+  });
+
+  afterAll(() => {
+    console.warn = originalWarn;
+  });
+
   function validate(query: string) {
     return new IndexQueryParams(queryStringToGenericData(query)).tryValidate();
   }
