@@ -32,15 +32,7 @@ class PairIndexView extends FormView {
   };
   model = new FormNeedsMobile();
 
-  submit() {
-    if (this.model.get('needsMobileConfirmed')) {
-      GleanMetrics.cadFirefox.syncDeviceSubmit();
-    }
-    this.metrics.flush();
-    return this.broker.openPairPreferences();
-  }
-
-  beforeRender() {
+  async beforeRender() {
     const uap = this.getUserAgent();
     const isFirefoxDesktop = uap.isFirefoxDesktop();
 
@@ -62,6 +54,45 @@ class PairIndexView extends FormView {
       // if account is not verified or missing sessionToken then offer to sign in or confirm
       return this.navigateAway(this.getEscapedSyncUrl('signin', 'fxa:pair'));
     }
+
+    // Fetch CMS config
+    await this.fetchCmsConfig();
+  }
+
+  async fetchCmsConfig() {
+    try {
+      const clientId = this.getSearchParam('client_id');
+      const entrypoint = this.getSearchParam('entrypoint');
+
+      if (clientId && entrypoint) {
+        const authUrl = this.relier._config.authServerUrl;
+        const url = new URL(`${authUrl}/v1/cms/config`);
+        url.searchParams.append('clientId', clientId);
+        url.searchParams.append('entrypoint', entrypoint);
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const cmsConfig = await response.json();
+          this.cmsConfig = cmsConfig;
+        }
+      }
+    } catch (error) {
+      // Silently fail - CMS config is optional
+    }
+  }
+
+  submit() {
+    if (this.model.get('needsMobileConfirmed')) {
+      GleanMetrics.cadFirefox.syncDeviceSubmit();
+    }
+    this.metrics.flush();
+    return this.broker.openPairPreferences();
   }
 
   setInitialContext(context) {
@@ -74,10 +105,17 @@ class PairIndexView extends FormView {
       GleanMetrics.cadFirefox.choiceView();
     }
 
+    // Apply CMS button color
+    let buttonStyle = '';
+    if (this.cmsConfig && this.cmsConfig.shared && this.cmsConfig.shared.buttonColor) {
+      buttonStyle = `style="--cta-bg: ${this.cmsConfig.shared.buttonColor}; --cta-border: ${this.cmsConfig.shared.buttonColor}; --cta-active: ${this.cmsConfig.shared.buttonColor}; --cta-disabled: ${this.cmsConfig.shared.buttonColor}60;"`;
+    }
+
     context.set({
       graphicId,
       needsMobileConfirmed,
       showSuccessMessage: this.showSuccessMessage(),
+      buttonStyle,
     });
   }
 
