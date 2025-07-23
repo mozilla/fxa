@@ -658,15 +658,20 @@ module.exports = (config) => {
     return this.doRequest('POST', `${this.baseURL}/get_random_bytes`);
   };
 
-  ClientApi.prototype.passwordChangeStart = function (
+  ClientApi.prototype.passwordChangeStart = async function (
     email,
     oldAuthPW,
-    headers
+    headers,
+    sessionTokenHex
   ) {
+    let token = undefined;
+    if (sessionTokenHex) {
+      token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    }
     return this.doRequest(
       'POST',
       `${this.baseURL}/password/change/start`,
-      null,
+      token,
       {
         email: email,
         oldAuthPW: oldAuthPW.toString('hex'),
@@ -694,35 +699,39 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.passwordChangeFinish = function (
+  ClientApi.prototype.passwordChangeFinish = async function (
     passwordChangeTokenHex,
     authPW,
     wrapKb,
     headers,
-    sessionToken
+    sessionTokenHex
   ) {
     const options = {};
-    return tokens.PasswordChangeToken.fromHex(passwordChangeTokenHex).then(
-      (token) => {
-        const requestData = {
-          authPW: authPW.toString('hex'),
-          wrapKb: wrapKb.toString('hex'),
-        };
+    let sessionToken = undefined;
+    if (sessionTokenHex) {
+      sessionToken = await tokens.SessionToken.fromHex(sessionTokenHex);
+    }
+    const token = await tokens.PasswordChangeToken.fromHex(
+      passwordChangeTokenHex
+    );
 
-        if (sessionToken) {
-          // Support legacy clients and new clients
-          requestData.sessionToken = sessionToken;
-          options.keys = true;
-        }
+    const requestData = {
+      authPW: authPW.toString('hex'),
+      wrapKb: wrapKb.toString('hex'),
+    };
 
-        return this.doRequest(
-          'POST',
-          `${this.baseURL}/password/change/finish${getQueryString(options)}`,
-          token,
-          requestData,
-          headers
-        );
-      }
+    if (sessionToken) {
+      // Support legacy clients and new clients
+      requestData.sessionToken = sessionToken.id;
+      options.keys = true;
+    }
+
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/password/change/finish${getQueryString(options)}`,
+      token,
+      requestData,
+      headers
     );
   };
 
