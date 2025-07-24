@@ -20,7 +20,8 @@ import { join, dirname, basename } from 'path';
 
 // The DEBUG env is used to debug without the playwright inspector, like in vscode
 // see .vscode/launch.json
-const DEBUG = !!process.env.DEBUG;
+// const DEBUG = !!process.env.DEBUG;
+const DEBUG = true;
 
 export { Page, expect };
 export type POMS = ReturnType<typeof createPages>;
@@ -137,7 +138,7 @@ async function newPagesForSync(
   context: 'fx_desktop_v3' | 'oauth_webchannel_v1' = 'fx_desktop_v3'
 ) {
   const browser = await firefox.launch({
-    args: DEBUG ? ['-start-debugger-server', '--marionette'] : undefined,
+    args: DEBUG ? ['-start-debugger-server', '--marionette', '--remote-allow-system-access'] : undefined,
     firefoxUserPrefs: getFirefoxUserPrefs(target.name, DEBUG, context),
     headless: !DEBUG,
   });
