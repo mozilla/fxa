@@ -34,6 +34,9 @@ export class MetricsContext {
   public planId?: string;
 
   @Field({ nullable: true })
+  public clientId?: string;
+
+  @Field({ nullable: true })
   public utmCampaign?: string;
 
   @Field({ nullable: true })

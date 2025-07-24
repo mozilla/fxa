@@ -45,6 +45,7 @@ const SCHEMA = isA
     utmTerm: UTM_SCHEMA.optional(),
     productId: isA.string().max(128).optional(),
     planId: isA.string().max(128).optional(),
+    clientId: isA.string().length(16).regex(HEX_STRING).optional(),
   })
   .unknown(false)
   .and('flowId', 'flowBeginTime');
@@ -162,6 +163,7 @@ module.exports = function (log, config) {
       data.flowBeginTime = metadata.flowBeginTime;
       data.flowCompleteSignal = metadata.flowCompleteSignal;
       data.flowType = metadata.flowType;
+      data.clientId = metadata.clientId;
 
       if (metadata.service) {
         data.service = metadata.service;
