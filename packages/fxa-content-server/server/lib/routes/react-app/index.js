@@ -29,9 +29,10 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       // first.
       routes: reactRoute.getRoutes([
         'authorization',
-        // We have to temporarily remove the `/oauth` because Fx desktop uses
-        // that path to initiate the pairing flow
-        // 'oauth'
+        // Note: 'oauth' is currently a weird case because because Fx desktop uses
+        // it to initiate the pairing flow. We have logic at the Express level to
+        // handle showing React/Backbone for this route until pairing is Reactified.
+        'oauth',
         '/',
       ]),
       fullProdRollout: true,

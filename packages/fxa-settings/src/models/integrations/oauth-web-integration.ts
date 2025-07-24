@@ -132,6 +132,10 @@ export class OAuthWebIntegration extends GenericIntegration<
   }
 
   getServiceName() {
+    // TODO: Currently we try to get the `serviceName` in `AuthAndSetupRoutes`. If the
+    // 'scope' param isn't provided and the user lands on /oauth, there's an
+    // `Uncaught OAuthError: Invalid OAuth parameter: scope`, and we should be
+    // showing `<OAuthDataError>`.
     const permissions = this.getPermissions();
     // As a special case for UX purposes, any client requesting access to
     // the user's sync data must have a display name of "Firefox Sync".
@@ -239,7 +243,7 @@ export class OAuthWebIntegration extends GenericIntegration<
 
     if (!permissions.length) {
       throw new OAuthError(OAUTH_ERRORS.INVALID_PARAMETER.errno, {
-        params: 'scope',
+        param: 'scope',
       });
     }
 
