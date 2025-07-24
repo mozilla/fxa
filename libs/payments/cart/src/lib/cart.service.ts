@@ -62,6 +62,7 @@ import {
   CartSetupInvalidPromoCodeError,
   CartRestartInvalidPromoCodeError,
   CartCouldNotRetrievePriceForCurrencyWhenAttemptingToGetCartCartError,
+  GetCartSubscriptionIdCartError,
   SetupCartCurrencyNotFoundError,
   UpdateCartCurrencyNotFoundError,
   FinalizeWithoutSubscriptionIdCartError,
@@ -904,11 +905,17 @@ export class CartService {
       subscriptions &&
       cart.state !== CartState.FAIL
     ) {
-      const subscription = subscriptions.find(
-        (subscription) => subscription.id === cart.stripeSubscriptionId
-      );
+      const subscription =
+        subscriptions.find(
+          (subscription) => subscription.id === cart.stripeSubscriptionId
+        ) ||
+        (await this.subscriptionManager.retrieve(cart.stripeSubscriptionId));
+
       // fetch latest payment info from subscription
-      assert(subscription?.latest_invoice, 'Subscription not found');
+      assert(
+        subscription?.latest_invoice,
+        new GetCartSubscriptionIdCartError(cartId)
+      );
       latestInvoicePreview = await this.invoiceManager.preview(
         subscription.latest_invoice
       );

@@ -32,6 +32,7 @@ export function buildRedirectUrl(
   const searchParamsString = optional?.searchParams
     ? `?${new URLSearchParams(optional?.searchParams).toString()}`
     : '';
+  const localeString = optional?.locale ? `${optional.locale}/` : '';
 
-  return `${startUrl}${optional?.locale}/${offeringId}/${interval}/${pageTypeUrl}${endUrl}${searchParamsString}`;
+  return `${startUrl}${localeString}${offeringId}/${interval}/${pageTypeUrl}${endUrl}${searchParamsString}`;
 }

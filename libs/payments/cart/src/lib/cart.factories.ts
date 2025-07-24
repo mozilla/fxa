@@ -20,6 +20,13 @@ import {
   TaxAmount,
   UpdateCart,
   UpdateCartInput,
+  type BaseCartDTO,
+  type FailCartDTO,
+  type Invoice,
+  type NeedsInputCartDTO,
+  type ProcessingCartDTO,
+  type StartCartDTO,
+  type SuccessCartDTO,
 } from './cart.types';
 import type { SubscriptionAttributionParams } from './checkout.types';
 
@@ -38,6 +45,20 @@ export const CheckoutCustomerDataFactory = (
 ): CheckoutCustomerData => ({
   locale: faker.helpers.arrayElement(['en-US', 'de', 'es', 'fr-FR']),
   displayName: faker.person.fullName(),
+  ...override,
+});
+
+export const InvoiceFactory = (override?: Partial<Invoice>): Invoice => ({
+  currency: faker.finance.currencyCode().toLowerCase(),
+  totalAmount: faker.number.int({ min: 1, max: 10000 }),
+  taxAmounts: [TaxAmountFactory()],
+  discountAmount: null,
+  subtotal: faker.number.int({ min: 1, max: 10000 }),
+  number: null,
+  nextInvoiceDate: faker.date.past().getTime(),
+  amountDue: faker.number.int({ min: 1, max: 10000 }),
+  creditApplied: null,
+  startingBalance: faker.number.int({ min: 1, max: 10000 }),
   ...override,
 });
 
@@ -137,4 +158,63 @@ export const ResultCartFactory = (
   version: faker.number.int(),
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
   ...override,
+});
+
+export const BaseCartDTOFactory = (
+  override?: Partial<BaseCartDTO>
+): BaseCartDTO => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { state, ...baseResultCart } = ResultCartFactory(override);
+  return {
+    ...baseResultCart,
+    metricsOptedOut: true,
+    offeringPrice: faker.number.int(),
+    upcomingInvoicePreview: InvoiceFactory(),
+    taxAddress: TaxAddressFactory(),
+    currency: faker.finance.currencyCode().toLowerCase(),
+    ...override,
+  };
+};
+
+export const StartCartDTOFactory = (
+  override?: Partial<StartCartDTO>
+): StartCartDTO => ({
+  ...BaseCartDTOFactory(),
+  hasActiveSubscriptions: false,
+  ...override,
+  state: CartState.START,
+});
+
+export const ProcessingCartDTOFactory = (
+  override?: Partial<ProcessingCartDTO>
+): ProcessingCartDTO => ({
+  ...BaseCartDTOFactory(),
+  ...override,
+  state: CartState.PROCESSING,
+});
+export const SuccessCartDTOFactory = (
+  override?: Partial<SuccessCartDTO>
+): SuccessCartDTO => ({
+  ...BaseCartDTOFactory(),
+  latestInvoicePreview: InvoiceFactory(),
+  paymentInfo: PaymentInfoFactory(),
+  hasActiveSubscriptions: true,
+  ...override,
+  state: CartState.SUCCESS,
+});
+
+export const NeedsInputCartDTOFactory = (
+  override?: Partial<NeedsInputCartDTO>
+): NeedsInputCartDTO => ({
+  ...BaseCartDTOFactory(),
+  ...override,
+  state: CartState.NEEDS_INPUT,
+});
+
+export const FailCartDTOFactory = (
+  override?: Partial<FailCartDTO>
+): FailCartDTO => ({
+  ...BaseCartDTOFactory(),
+  ...override,
+  state: CartState.FAIL,
 });

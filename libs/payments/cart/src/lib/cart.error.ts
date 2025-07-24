@@ -385,6 +385,13 @@ export class CartSubscriptionNotFoundError extends CartError {
   }
 }
 
+export class GetCartSubscriptionIdCartError extends CartSubscriptionNotFoundError {
+  constructor(cartId: string) {
+    super('Get cart missing subscription id', cartId);
+    this.name = 'GetCartSubscriptionIdCartError';
+  }
+}
+
 export class FinalizeWithoutSubscriptionIdCartError extends CartSubscriptionNotFoundError {
   constructor(cartId: string) {
     super('Cart missing subscription id in finalization', cartId);
