@@ -12,3 +12,4 @@ export * from './lib/checkout.error';
 export * from './lib/checkout.types';
 export * from './lib/tax.service';
 export * from './lib/tax.types';
+export * from './lib/cart-als.provider';

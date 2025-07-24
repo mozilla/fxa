@@ -120,6 +120,13 @@ import {
   MockGoogleIapClientConfigProvider,
 } from '@fxa/payments/iap';
 import { Logger } from '@nestjs/common';
+import type { AsyncLocalStorage } from 'async_hooks';
+import type { CartStore } from './cart-als.types';
+import {
+  AsyncLocalStorageCart,
+  AsyncLocalStorageCartProvider,
+} from './cart-als.provider';
+import { CartStoreFactory } from './cart-als.factories';
 
 jest.mock('next/navigation');
 jest.mock('@fxa/shared/error', () => ({
@@ -138,6 +145,7 @@ jest.mock('@fxa/shared/error', () => ({
 describe('CartService', () => {
   let accountManager: AccountManager;
   let accountCustomerManager: AccountCustomerManager;
+  let asyncLocalStorage: AsyncLocalStorage<CartStore>;
   let cartService: CartService;
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
@@ -168,6 +176,7 @@ describe('CartService', () => {
       providers: [
         AccountCustomerManager,
         AccountManager,
+        AsyncLocalStorageCartProvider,
         CartManager,
         CartService,
         CheckoutService,
@@ -223,6 +232,7 @@ describe('CartService', () => {
 
     accountManager = moduleRef.get(AccountManager);
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
+    asyncLocalStorage = moduleRef.get(AsyncLocalStorageCart);
     cartManager = moduleRef.get(CartManager);
     cartService = moduleRef.get(CartService);
     checkoutService = moduleRef.get(CheckoutService);
@@ -245,6 +255,13 @@ describe('CartService', () => {
     const mockPaymentIntent = StripeResponseFactory(
       StripePaymentIntentFactory()
     );
+
+    beforeEach(() => {
+      jest
+        .spyOn(asyncLocalStorage, 'getStore')
+        .mockReturnValue(CartStoreFactory());
+    });
+
     const mockSetupIntent = StripeResponseFactory(StripeSetupIntentFactory());
     it('calls cartManager.finishErrorCart', async () => {
       const mockCart = ResultCartFactory({
@@ -284,6 +301,58 @@ describe('CartService', () => {
         .spyOn(cartManager, 'fetchCartById')
         .mockRejectedValueOnce(new Error('test'))
         .mockResolvedValue(mockCart);
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'cancel')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(paymentIntentManager, 'retrieve')
+        .mockResolvedValue(mockPaymentIntent);
+
+      await expect(
+        cartService.finalizeProcessingCart(mockCart.id)
+      ).rejects.toThrow(Error);
+
+      expect(subscriptionManager.cancel).toHaveBeenCalledWith(
+        mockSubscription.id,
+        {
+          cancellation_details: {
+            comment: 'Automatic Cancellation: Cart checkout failed.',
+          },
+        }
+      );
+    });
+
+    it('cancels a created subscription with async local storage', async () => {
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockCustomer.id,
+          latest_invoice: null,
+        })
+      );
+      const mockCart = ResultCartFactory({
+        state: CartState.PROCESSING,
+        stripeSubscriptionId: undefined,
+        stripeCustomerId: mockCustomer.id,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+      });
+
+      jest
+        .spyOn(cartManager, 'fetchCartById')
+        .mockRejectedValueOnce(new Error('test'))
+        .mockResolvedValue(mockCart);
+      jest.spyOn(asyncLocalStorage, 'getStore').mockReturnValue(
+        CartStoreFactory({
+          checkout: {
+            subscriptionId: mockSubscription.id,
+          },
+        })
+      );
 
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
       jest

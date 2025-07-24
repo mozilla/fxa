@@ -74,12 +74,17 @@ import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
 import { throwIntentFailedError } from './util/throwIntentFailedError';
 import { delay } from './util/delay';
+import type { AsyncLocalStorage } from 'async_hooks';
+import { AsyncLocalStorageCart } from './cart-als.provider';
+import type { CartStore } from './cart-als.types';
 
 @Injectable()
 export class CheckoutService {
   constructor(
     private accountCustomerManager: AccountCustomerManager,
     private accountManager: AccountManager,
+    @Inject(AsyncLocalStorageCart)
+    private cartAsyncLocalStorage: AsyncLocalStorage<CartStore>,
     private cartManager: CartManager,
     private customerManager: CustomerManager,
     private eligibilityService: EligibilityService,
@@ -382,6 +387,15 @@ export class CheckoutService {
             attribution
           );
 
+    // Write the subscription ID to the async local storage
+    // so that it can be used in situations where it hasn't been
+    // added to the cart yet.
+    // Currently used by wrapWithCartCatch
+    const store = this.cartAsyncLocalStorage.getStore();
+    if (store) {
+      store.checkout.subscriptionId = subscription.id;
+    }
+
     // Get payment/setup intent for subscription
     let intent: StripePaymentIntent | StripeSetupIntent | undefined;
     try {
@@ -570,6 +584,15 @@ export class CheckoutService {
             eligibility.redundantOverlaps || [],
             attribution
           );
+
+    // Write the subscription ID to the async local storage
+    // so that it can be used in situations where it hasn't been
+    // added to the cart yet.
+    // Currently used by wrapWithCartCatch
+    const store = this.cartAsyncLocalStorage.getStore();
+    if (store) {
+      store.checkout.subscriptionId = subscription.id;
+    }
 
     await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
     await Promise.all([

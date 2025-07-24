@@ -7,6 +7,7 @@ import { TypedConfigModule } from 'nest-typed-config';
 
 import { GoogleClient, GoogleManager } from '@fxa/google';
 import {
+  AsyncLocalStorageCartProvider,
   CartManager,
   CartService,
   CheckoutService,
@@ -95,6 +96,7 @@ import { SubscriptionManagementService } from '@fxa/payments/management';
     AccountCustomerManager,
     AccountDatabaseNestFactory,
     AccountManager,
+    AsyncLocalStorageCartProvider,
     CartManager,
     CartService,
     TaxService,

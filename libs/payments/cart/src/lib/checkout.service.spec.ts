@@ -7,6 +7,8 @@ import { Test } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
 
 import {
+  AsyncLocalStorageCart,
+  AsyncLocalStorageCartProvider,
   CartManager,
   CartService,
   CheckoutCustomerDataFactory,
@@ -119,12 +121,15 @@ import {
 } from '@fxa/payments/iap';
 import { Logger } from '@nestjs/common';
 import { delay } from './util/delay';
+import type { AsyncLocalStorage } from 'async_hooks';
+import type { CartStore } from './cart-als.types';
 
 jest.mock('./util/delay.ts');
 
 describe('CheckoutService', () => {
   let accountCustomerManager: AccountCustomerManager;
   let accountManager: AccountManager;
+  let asyncLocalStorage: AsyncLocalStorage<CartStore>;
   let cartManager: CartManager;
   let checkoutService: CheckoutService;
   let customerManager: CustomerManager;
@@ -152,6 +157,7 @@ describe('CheckoutService', () => {
       providers: [
         AccountCustomerManager,
         AccountManager,
+        AsyncLocalStorageCartProvider,
         CartManager,
         CartService,
         CheckoutService,
@@ -208,6 +214,7 @@ describe('CheckoutService', () => {
 
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
     accountManager = moduleRef.get(AccountManager);
+    asyncLocalStorage = moduleRef.get(AsyncLocalStorageCart);
     cartManager = moduleRef.get(CartManager);
     checkoutService = moduleRef.get(CheckoutService);
     customerManager = moduleRef.get(CustomerManager);
@@ -650,6 +657,7 @@ describe('CheckoutService', () => {
         jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
         jest.spyOn(statsd, 'increment');
         jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
+        jest.spyOn(asyncLocalStorage, 'getStore');
       });
 
       beforeEach(async () => {
@@ -709,6 +717,10 @@ describe('CheckoutService', () => {
           },
           { idempotencyKey: mockCart.id }
         );
+      });
+
+      it('calls asyncLocalStorage.getStore', () => {
+        expect(asyncLocalStorage.getStore).toHaveBeenCalled();
       });
 
       it('calls updateFreshCart', async () => {
@@ -1052,6 +1064,7 @@ describe('CheckoutService', () => {
         jest.spyOn(paypalBillingAgreementManager, 'cancel').mockResolvedValue();
         jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
         jest.spyOn(cartManager, 'updateFreshCart').mockResolvedValue();
+        jest.spyOn(asyncLocalStorage, 'getStore');
       });
 
       beforeEach(async () => {
@@ -1124,6 +1137,10 @@ describe('CheckoutService', () => {
           },
           { idempotencyKey: mockCart.id }
         );
+      });
+
+      it('calls asyncLocalStorage.getStore', () => {
+        expect(asyncLocalStorage.getStore).toHaveBeenCalled();
       });
 
       it('deletes all paypalCustomers for user by uid', () => {
