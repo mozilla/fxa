@@ -51,6 +51,7 @@ function mockWebIntegration() {
   integration = {
     ...createMockSigninWebSyncIntegration(),
     clientInfo: undefined,
+    isFirefoxMobileClient: () => false,
   };
 }
 

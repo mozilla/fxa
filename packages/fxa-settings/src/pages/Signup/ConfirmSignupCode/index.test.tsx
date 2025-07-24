@@ -232,16 +232,15 @@ describe('ConfirmSignupCode page', () => {
   });
 
   it('renders as expected with cms', () => {
-    renderWithSession({ session, integration: createMockOAuthWebIntegration() });
+    renderWithSession({
+      session,
+      integration: createMockOAuthWebIntegration(),
+    });
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
-    expect(headingEl).toHaveTextContent(
-      'Enter confirmation code'
-    );
-    screen.getByText(
-      'For your Mozilla account'
-    );
+    expect(headingEl).toHaveTextContent('Enter confirmation code');
+    screen.getByText('For your Mozilla account');
     screen.getByLabelText('Enter 6-digit code');
 
     screen.getByRole('button', { name: 'Confirm' });
@@ -371,6 +370,23 @@ describe('ConfirmSignupCode page', () => {
       input.focus();
       await user.paste('123456');
       expect(session.verifySession).not.toHaveBeenCalled();
+    });
+
+    it('does not navigate to the confirmed page if integration is mobile sync', async () => {
+      const integration = createMockOAuthNativeIntegration(true);
+      jest.spyOn(integration, 'isFirefoxMobileClient').mockReturnValue(true);
+
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+      });
+      submit(MOCK_SIGNUP_CODE, 'Start syncing');
+
+      await waitFor(() => {
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
+      });
     });
   });
 
