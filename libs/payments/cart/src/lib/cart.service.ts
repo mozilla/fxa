@@ -37,6 +37,12 @@ import {
   AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
 import {
+  UnexpectedPayPalErrorCode,
+  PayPalPaymentMethodError,
+  PayPalServiceUnavailableError,
+  UnexpectedPayPalError,
+} from '@fxa/payments/paypal';
+import {
   ProductConfigError,
   ProductConfigurationManager,
 } from '@fxa/shared/cms';
@@ -562,7 +568,14 @@ export class CartService {
     });
   }
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [
+      UnexpectedPayPalErrorCode,
+      PayPalPaymentMethodError,
+      PayPalServiceUnavailableError,
+      UnexpectedPayPalError
+    ],
+  })
   async checkoutCartWithPaypal(
     cartId: string,
     version: number,
@@ -592,20 +605,34 @@ export class CartService {
         { checkout: { subscriptionId: undefined } },
         () => {
           // Intentionally non-blocking
-          this.wrapWithCartCatch(cartId, async () => {
-            await this.checkoutService.payWithPaypal(
-              updatedCart,
-              customerData,
-              attribution,
-              sessionUid,
-              token
-            );
+          this.wrapWithCartCatch(
+            cartId,
+            { errorAllowList: [
+              UnexpectedPayPalErrorCode,
+              PayPalPaymentMethodError,
+              PayPalServiceUnavailableError,
+              UnexpectedPayPalError,
+              ]
+            },
+            async () => {
+              await this.checkoutService.payWithPaypal(
+                updatedCart,
+                customerData,
+                attribution,
+                sessionUid,
+                token
+              );
           }).catch((error) => {
             handleException({
               error,
               className: 'CartService',
               methodName: 'checkoutCartWithPaypal',
-              allowlist: [],
+              allowlist: [
+                UnexpectedPayPalErrorCode,
+                PayPalPaymentMethodError,
+                PayPalServiceUnavailableError,
+                UnexpectedPayPalError,
+              ],
               logger: this.log as Logger,
               statsd: this.statsd,
             });
