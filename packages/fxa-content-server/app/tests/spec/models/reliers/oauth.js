@@ -334,11 +334,23 @@ describe('models/reliers/oauth', () => {
       });
 
       describe('login_hint', () => {
-        var validValues = [undefined, 'test@example.com'];
+        var validValues = [undefined, '', ' ', 'test@example.com'];
+        var expectedEmailValues = [
+          undefined,
+          undefined,
+          undefined,
+          'test@example.com',
+        ];
         // login_hint is translated to email if no email is set.
-        testValidQueryParams('login_hint', validValues, 'email', validValues);
+        // We allow an empty string/whitespace for `login_hint` but ignore it in that case.
+        testValidQueryParams(
+          'login_hint',
+          validValues,
+          'email',
+          expectedEmailValues
+        );
 
-        var invalidValues = ['', ' ', 'invalid'];
+        var invalidValues = ['invalid'];
         testInvalidQueryParams('login_hint', invalidValues);
 
         it('email takes precedence with both sent', () => {
