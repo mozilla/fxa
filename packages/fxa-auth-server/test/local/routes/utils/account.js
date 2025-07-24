@@ -5,13 +5,14 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
 
-const { fetchRpCmsData } = require('../../../../lib/routes/utils/account');
+const { fetchRpCmsData, getOptionalCmsEmailConfig } = require('../../../../lib/routes/utils/account');
 
 describe('fetchRpCmsData', () => {
   const sandbox = sinon.createSandbox();
   const mockRequest = {
     app: {
       metricsContext: {
+        clientId: '00f00f',
         service: '00f00f',
         entrypoint: 'entree',
       },
@@ -35,7 +36,7 @@ describe('fetchRpCmsData', () => {
     const actual = await fetchRpCmsData(mockRequest, mockCmsManager);
     sinon.assert.calledOnceWithExactly(
       mockCmsManager.fetchCMSData,
-      mockRequest.app.metricsContext.service,
+      mockRequest.app.metricsContext.clientId,
       mockRequest.app.metricsContext.entrypoint
     );
     assert.deepEqual(actual, rpCmsConfig);
@@ -68,7 +69,7 @@ describe('fetchRpCmsData', () => {
     const mockRequest = {
       app: {
         metricsContext: {
-          service: '00f00f',
+          clientId: '00f00f',
         },
       },
     };
@@ -93,5 +94,201 @@ describe('fetchRpCmsData', () => {
       { error: err }
     );
     assert.equal(actual, null);
+  });
+});
+
+describe('getOptionalCmsEmailConfig', () => {
+  const sandbox = sinon.createSandbox();
+  const mockRequest = {
+    app: {
+      metricsContext: {
+        clientId: '00f00f',
+        entrypoint: 'entree',
+      },
+    },
+  };
+
+  beforeEach(() => {
+    sandbox.reset();
+  });
+
+  it('returns original email options when no CMS config is available', async () => {
+    const emailOptions = {
+      acceptLanguage: 'en-US',
+      code: '123456',
+      timeZone: 'America/Los_Angeles',
+    };
+
+    const mockCmsManager = {
+      fetchCMSData: sandbox.stub().resolves({
+        relyingParties: [],
+      }),
+    };
+
+    const mockLog = { error: sandbox.stub() };
+
+    const result = await getOptionalCmsEmailConfig(emailOptions, {
+      request: mockRequest,
+      cmsManager: mockCmsManager,
+      log: mockLog,
+      emailTemplate: 'VerifyLoginCodeEmail',
+    });
+
+    assert.deepEqual(result, emailOptions);
+  });
+
+  it('returns enhanced email options when CMS config is available', async () => {
+    const emailOptions = {
+      acceptLanguage: 'en-US',
+      code: '123456',
+      timeZone: 'America/Los_Angeles',
+    };
+
+    const rpCmsConfig = {
+      clientId: 'testclient123456',
+      shared: {
+        emailFromName: 'Test App',
+        emailLogoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+      },
+      VerifyLoginCodeEmail: {
+        subject: 'Custom Subject',
+        template: 'custom-template',
+      },
+    };
+
+    const mockCmsManager = {
+      fetchCMSData: sandbox.stub().resolves({
+        relyingParties: [rpCmsConfig],
+      }),
+    };
+
+    const mockLog = { error: sandbox.stub() };
+
+    const result = await getOptionalCmsEmailConfig(emailOptions, {
+      request: mockRequest,
+      cmsManager: mockCmsManager,
+      log: mockLog,
+      emailTemplate: 'VerifyLoginCodeEmail',
+    });
+
+    assert.deepEqual(result, {
+      ...emailOptions,
+      target: 'strapi',
+      cmsRpClientId: 'testclient123456',
+      cmsRpFromName: 'Test App',
+      entrypoint: 'entree',
+      logoUrl: 'https://example.com/logo.png',
+      logoAltText: 'Test App Logo',
+      subject: 'Custom Subject',
+      template: 'custom-template',
+    });
+  });
+
+  it('returns original email options when CMS config does not have the specific email template', async () => {
+    const emailOptions = {
+      acceptLanguage: 'en-US',
+      code: '123456',
+      timeZone: 'America/Los_Angeles',
+    };
+
+    const rpCmsConfig = {
+      clientId: 'testclient123456',
+      shared: {
+        emailFromName: 'Test App',
+        emailLogoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+      },
+      // No VerifyLoginCodeEmail template
+    };
+
+    const mockCmsManager = {
+      fetchCMSData: sandbox.stub().resolves({
+        relyingParties: [rpCmsConfig],
+      }),
+    };
+
+    const mockLog = { error: sandbox.stub() };
+
+    const result = await getOptionalCmsEmailConfig(emailOptions, {
+      request: mockRequest,
+      cmsManager: mockCmsManager,
+      log: mockLog,
+      emailTemplate: 'VerifyLoginCodeEmail',
+    });
+
+    assert.deepEqual(result, emailOptions);
+  });
+
+  it('handles CMS fetch errors gracefully', async () => {
+    const emailOptions = {
+      acceptLanguage: 'en-US',
+      code: '123456',
+      timeZone: 'America/Los_Angeles',
+    };
+
+    const mockCmsManager = {
+      fetchCMSData: sandbox.stub().rejects(new Error('CMS Error')),
+    };
+
+    const mockLog = { error: sandbox.stub() };
+
+    const result = await getOptionalCmsEmailConfig(emailOptions, {
+      request: mockRequest,
+      cmsManager: mockCmsManager,
+      log: mockLog,
+      emailTemplate: 'VerifyLoginCodeEmail',
+    });
+
+    assert.deepEqual(result, emailOptions);
+    sinon.assert.calledOnce(mockLog.error);
+  });
+
+  it('works with different email templates', async () => {
+    const emailOptions = {
+      acceptLanguage: 'en-US',
+      code: '123456',
+      timeZone: 'America/Los_Angeles',
+    };
+
+    const rpCmsConfig = {
+      clientId: 'testclient123456',
+      shared: {
+        emailFromName: 'Test App',
+        emailLogoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+      },
+      VerifyShortCodeEmail: {
+        subject: 'Short Code Subject',
+        template: 'short-code-template',
+      },
+    };
+
+    const mockCmsManager = {
+      fetchCMSData: sandbox.stub().resolves({
+        relyingParties: [rpCmsConfig],
+      }),
+    };
+
+    const mockLog = { error: sandbox.stub() };
+
+    const result = await getOptionalCmsEmailConfig(emailOptions, {
+      request: mockRequest,
+      cmsManager: mockCmsManager,
+      log: mockLog,
+      emailTemplate: 'VerifyShortCodeEmail',
+    });
+
+    assert.deepEqual(result, {
+      ...emailOptions,
+      target: 'strapi',
+      cmsRpClientId: 'testclient123456',
+      cmsRpFromName: 'Test App',
+      entrypoint: 'entree',
+      logoUrl: 'https://example.com/logo.png',
+      logoAltText: 'Test App Logo',
+      subject: 'Short Code Subject',
+      template: 'short-code-template',
+    });
   });
 });
