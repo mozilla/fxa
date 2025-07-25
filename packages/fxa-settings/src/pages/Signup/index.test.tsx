@@ -30,12 +30,12 @@ import {
   MONITOR_CLIENTIDS,
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
-import { getSyncEngineIds, syncEngineConfigs } from '../../lib/sync-engines';
+import { getSyncEngineIds } from '../../lib/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import { useSensitiveDataClient } from '../../models';
-import { UserEvent, userEvent } from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -94,10 +94,10 @@ const commonFxaLoginOptions = {
 };
 
 async function fillOutForm(withPwdConfirmation: boolean) {
-  await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD );
+  await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD);
 
   if (withPwdConfirmation) {
-    await user.type(screen.getByLabelText('Repeat password'), MOCK_PASSWORD );
+    await user.type(screen.getByLabelText('Repeat password'), MOCK_PASSWORD);
   }
   await waitFor(() => {
     expect(
@@ -206,7 +206,7 @@ describe('Signup page', () => {
       renderWithLocalizationProvider(
         <Subject integration={createMockSignupSyncDesktopV3Integration()} />
       );
-    })
+    });
 
     // Password confirmation is required for sync
     expect(screen.getByLabelText('Repeat password')).toBeVisible();
@@ -224,10 +224,10 @@ describe('Signup page', () => {
     await act(() => {
       renderWithLocalizationProvider(
         <Subject
-        integration={createMockSignupOAuthNativeIntegration('relay', false)}
+          integration={createMockSignupOAuthNativeIntegration('relay', false)}
         />
       );
-    })
+    });
 
     expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
 
@@ -419,11 +419,11 @@ describe('Signup page', () => {
           await act(() => {
             renderWithLocalizationProvider(
               <Subject
-              integration={createMockSignupSyncDesktopV3Integration()}
-              beginSignupHandler={mockBeginSignupHandler}
+                integration={createMockSignupSyncDesktopV3Integration()}
+                beginSignupHandler={mockBeginSignupHandler}
               />
             );
-          })
+          });
         });
 
         it('all sync options selected and sent', async () => {

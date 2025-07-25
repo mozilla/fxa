@@ -20,6 +20,7 @@ describe('Key Stretch Experiment Model', function () {
   };
 
   const window = new ReachRouterWindow();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let model: KeyStretchExperiment;
   beforeEach(function () {
     model = new KeyStretchExperiment(new GenericData({}));
