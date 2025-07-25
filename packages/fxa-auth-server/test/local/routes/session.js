@@ -1579,3 +1579,278 @@ describe('/session/verify/verify_push', () => {
     }
   });
 });
+
+describe('/session/verify/token', () => {
+  let route, request, log, db, mailer, push, availableAuthStub;
+  const authMethods = require('../../../lib/authMethods');
+
+  beforeEach(() => {
+    db = mocks.mockDB({});
+    log = mocks.mockLog();
+    mailer = mocks.mockMailer();
+    push = mocks.mockPush();
+    const config = { smtp: { redirectDomain: 'example.com' } };
+    const routes = makeRoutes({ log, config, db, mailer, push });
+    route = getRoute(routes, '/session/verify/token');
+
+    availableAuthStub = sinon.stub(
+      authMethods,
+      'availableAuthenticationMethods'
+    );
+    request = mocks.mockRequest({
+      credentials: {
+        ...signupCodeAccount,
+        uaBrowser: 'Firefox',
+        id: 'sessionTokenId',
+      },
+      log,
+      uaBrowser: 'Firefox',
+    });
+  });
+
+  afterEach(() => {
+    availableAuthStub.restore();
+  });
+
+  it('with fully verified account and session', async () => {
+    availableAuthStub.returns(Promise.resolve(new Set(['pwd', 'email'])));
+    const verifiedAccount = {
+      uid: 'foo',
+      primaryEmail: {
+        email: 'foo@example.org',
+        isVerified: true,
+      },
+    };
+
+    const verifiedSessionToken = {
+      uid: 'foo',
+      email: 'foo@example.org',
+      emailVerified: true,
+      mustVerify: false,
+      tokenVerified: true,
+      authenticatorAssuranceLevel: 1,
+    };
+
+    db.account = sinon.spy(() => Promise.resolve(verifiedAccount));
+
+    request = mocks.mockRequest({
+      log,
+      credentials: verifiedSessionToken,
+      payload: {},
+    });
+
+    const response = await runTest(route, request);
+
+    assert.calledOnceWithExactly(db.account, 'foo');
+    assert.calledOnceWithExactly(availableAuthStub, db, verifiedAccount);
+
+    assert.deepEqual(response, {
+      accountStatus: 'verified',
+      sessionStatus: 'verified',
+    });
+  });
+
+  it('with unverified account', async () => {
+    availableAuthStub.returns(Promise.resolve(new Set(['pwd', 'email'])));
+    const unverifiedAccount = {
+      uid: 'foo',
+      primaryEmail: {
+        email: 'foo@example.org',
+        isVerified: false,
+      },
+    };
+
+    const sessionToken = {
+      uid: 'foo',
+      email: 'foo@example.org',
+      emailVerified: false,
+      mustVerify: true,
+      tokenVerified: false,
+      authenticatorAssuranceLevel: 1,
+    };
+
+    db.account = sinon.spy(() => Promise.resolve(unverifiedAccount));
+
+    request = mocks.mockRequest({
+      log,
+      credentials: sessionToken,
+      payload: {},
+    });
+
+    const response = await runTest(route, request);
+
+    assert.calledOnceWithExactly(db.account, 'foo');
+    assert.notCalled(availableAuthStub);
+
+    assert.deepEqual(response, {
+      accountStatus: 'unverified',
+      sessionStatus: 'mustVerify',
+      verificationMethod: 'email-otp',
+    });
+  });
+
+  it('with verified account and unverified session, no 2FA', async () => {
+    const verifiedAccount = {
+      uid: 'foo',
+      primaryEmail: {
+        email: 'foo@example.org',
+        isVerified: true,
+      },
+    };
+
+    const unverifiedSessionToken = {
+      uid: 'foo',
+      email: 'foo@example.org',
+      emailVerified: true,
+      mustVerify: true,
+      tokenVerified: false,
+      authenticatorAssuranceLevel: 1,
+    };
+
+    db.account = sinon.spy(() => Promise.resolve(verifiedAccount));
+    // Mock the authMethods to return expected values for AAL 1 account
+    availableAuthStub.returns(Promise.resolve(new Set(['pwd', 'email'])));
+
+    request = mocks.mockRequest({
+      log,
+      credentials: unverifiedSessionToken,
+      payload: {},
+    });
+
+    const response = await runTest(route, request);
+
+    assert.calledOnceWithExactly(db.account, 'foo');
+    assert.calledOnceWithExactly(availableAuthStub, db, verifiedAccount);
+
+    assert.deepEqual(response, {
+      accountStatus: 'verified',
+      sessionStatus: 'mustVerify',
+      verificationMethod: 'email-otp',
+    });
+  });
+
+  it('with verified account with 2FA enabled and unverified session', async () => {
+    const verifiedAccount = {
+      uid: 'foo',
+      primaryEmail: {
+        email: 'foo@example.org',
+        isVerified: true,
+      },
+    };
+
+    const unverifiedSessionToken = {
+      uid: 'foo',
+      email: 'foo@example.org',
+      emailVerified: true,
+      mustVerify: true,
+      tokenVerified: false,
+      authenticatorAssuranceLevel: 1,
+    };
+
+    db.account = sinon.spy(() => Promise.resolve(verifiedAccount));
+    // Mock account with TOTP available (AAL 2)
+    availableAuthStub.returns(
+      Promise.resolve(new Set(['pwd', 'email', 'otp']))
+    );
+
+    request = mocks.mockRequest({
+      log,
+      credentials: unverifiedSessionToken,
+      payload: {},
+    });
+
+    const response = await runTest(route, request);
+
+    assert.calledOnceWithExactly(db.account, 'foo');
+    assert.calledOnceWithExactly(availableAuthStub, db, verifiedAccount);
+
+    assert.deepEqual(response, {
+      accountStatus: 'verified',
+      sessionStatus: 'mustVerify',
+      verificationMethod: 'totp-2fa',
+    });
+  });
+
+  it('with verified account with 2FA enabled and AAL1 verified session, AAL upgrade required', async () => {
+    const verifiedAccount = {
+      uid: 'foo',
+      primaryEmail: {
+        email: 'foo@example.org',
+        isVerified: true,
+      },
+    };
+
+    const sessionToken = {
+      uid: 'foo',
+      email: 'foo@example.org',
+      emailVerified: true,
+      mustVerify: false,
+      tokenVerified: true,
+      authenticatorAssuranceLevel: 1,
+    };
+
+    db.account = sinon.spy(() => Promise.resolve(verifiedAccount));
+    availableAuthStub.returns(
+      Promise.resolve(new Set(['pwd', 'email', 'otp']))
+    );
+
+    request = mocks.mockRequest({
+      log,
+      credentials: sessionToken,
+      payload: {},
+    });
+
+    const response = await runTest(route, request);
+
+    assert.calledOnceWithExactly(db.account, 'foo');
+    assert.calledOnceWithExactly(availableAuthStub, db, verifiedAccount);
+
+    assert.deepEqual(response, {
+      accountStatus: 'verified',
+      sessionStatus: 'mustUpgrade',
+      verificationMethod: 'totp-2fa',
+    });
+  });
+
+  it('with verified account with 2FA enabled and AAL2 verified session', async () => {
+    const verifiedAccount = {
+      uid: 'foo',
+      primaryEmail: {
+        email: 'foo@example.org',
+        isVerified: true,
+      },
+    };
+
+    // Session with AAL 2 (TOTP verification)
+    const sessionToken = {
+      uid: 'foo',
+      email: 'foo@example.org',
+      emailVerified: true,
+      mustVerify: false,
+      tokenVerified: true,
+      authenticatorAssuranceLevel: 2,
+    };
+
+    db.account = sinon.spy(() => Promise.resolve(verifiedAccount));
+    // Mock account with TOTP available (AAL 2)
+    availableAuthStub.returns(
+      Promise.resolve(new Set(['pwd', 'email', 'otp']))
+    );
+
+    request = mocks.mockRequest({
+      log,
+      credentials: sessionToken,
+      payload: {},
+    });
+
+    const response = await runTest(route, request);
+
+    assert.calledOnceWithExactly(db.account, 'foo');
+    assert.calledOnceWithExactly(availableAuthStub, db, verifiedAccount);
+
+    assert.deepEqual(response, {
+      accountStatus: 'verified',
+      sessionStatus: 'verified',
+    });
+  });
+});
