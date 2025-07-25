@@ -76,6 +76,15 @@ export class CustomerManager {
     return this.stripeClient.customersDelete(customerId);
   }
 
+  async getBalance(customerId: string) {
+    const customer = await this.retrieve(customerId);
+
+    return {
+      balance: customer.balance,
+      currency: customer.currency,
+    };
+  }
+
   async setTaxId(customerId: string, taxId: string) {
     const customerTaxId = await this.getTaxId(customerId);
 

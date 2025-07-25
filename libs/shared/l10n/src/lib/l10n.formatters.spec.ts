@@ -82,6 +82,14 @@ describe('format.ts', () => {
 
           expect(actual).toMatch(pattern);
         });
+
+        it('returns a correctly formatted string - fr', () => {
+          const locale = 'fr';
+          const pattern = /\d\d février 2020/;
+          const actual = getLocalizedDateString(unixSeconds, false, locale);
+
+          expect(actual).toMatch(pattern);
+        });
       });
 
       describe('when numericDate is true', () => {

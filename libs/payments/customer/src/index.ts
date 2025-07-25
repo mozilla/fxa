@@ -14,6 +14,7 @@ export * from './lib/promotionCode.manager';
 export * from './lib/setupIntent.manager';
 export * from './lib/subscription.manager';
 export * from './lib/types';
+export * from './lib/factories/account-credit-balance.factory';
 export * from './lib/factories/pricing-for-currency.factory';
 export * from './lib/factories/tax-address.factory';
 export * from './lib/customer.error';

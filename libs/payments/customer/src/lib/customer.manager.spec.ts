@@ -116,6 +116,25 @@ describe('CustomerManager', () => {
     });
   });
 
+  describe('getBalance', () => {
+    it('returns customer balance', async () => {
+      const mockCustomer = StripeCustomerFactory({
+        currency: 'usd',
+      });
+
+      jest
+        .spyOn(stripeClient, 'customersRetrieve')
+        .mockResolvedValue(StripeResponseFactory(mockCustomer));
+
+      const result = await customerManager.getBalance(mockCustomer.id);
+
+      expect(result).toEqual({
+        balance: mockCustomer.balance,
+        currency: mockCustomer.currency,
+      });
+    });
+  });
+
   describe('isTaxEligible', () => {
     it('should return true for a taxable customer', async () => {
       const mockCustomer = StripeCustomerFactory({

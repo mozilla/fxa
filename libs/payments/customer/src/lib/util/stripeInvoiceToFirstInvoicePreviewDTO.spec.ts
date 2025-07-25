@@ -4,6 +4,7 @@
 
 import { stripeInvoiceToInvoicePreviewDTO } from './stripeInvoiceToFirstInvoicePreviewDTO';
 import {
+  StripeCouponFactory,
   StripeDiscountFactory,
   StripeResponseFactory,
   StripeTotalDiscountAmountsFactory,
@@ -47,13 +48,18 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       discountType: undefined,
       number: null,
       nextInvoiceDate: mockUpcomingInvoice.lines.data[0].period.end,
+      totalExcludingTax: mockUpcomingInvoice.total_excluding_tax,
     });
   });
 
   it('formats invoice with discount', () => {
     const mockDiscountAmount = StripeTotalDiscountAmountsFactory();
     const mockTaxAmount = StripeTotalTaxAmountsFactory();
-    const mockDiscount = StripeDiscountFactory();
+    const mockDiscount = StripeDiscountFactory({
+      coupon: StripeCouponFactory({
+        name: 'Sonny and Jerry Two-Fur-One Special',
+      }),
+    });
     const mockUpcomingInvoice = StripeResponseFactory(
       StripeUpcomingInvoiceFactory({
         discount: mockDiscount,
@@ -84,9 +90,11 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       startingBalance: mockUpcomingInvoice.starting_balance,
       unusedAmountTotal: 0,
       discountEnd: null,
-      discountType: 'forever',
+      discountType: mockDiscount.coupon.duration,
       number: null,
       nextInvoiceDate: mockUpcomingInvoice.lines.data[0].period.end,
+      promotionName: 'Sonny and Jerry Two-Fur-One Special',
+      totalExcludingTax: mockUpcomingInvoice.total_excluding_tax,
     });
   });
 
@@ -132,6 +140,7 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       discountType: undefined,
       number: null,
       nextInvoiceDate: mockUpcomingInvoice.lines.data[0].period.end,
+      totalExcludingTax: mockUpcomingInvoice.total_excluding_tax,
     });
   });
 
