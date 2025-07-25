@@ -81,6 +81,31 @@ const SESSION_VERIFY_TOTP_POST = {
   ],
 };
 
+const TOTP_REPLACE_CREATE_POST = {
+  ...TAGS_TOTP,
+  description: '/totp/replace/create',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token
+
+      Create a new randomly generated TOTP token for a user to replace an existing one. An existing TOTP token must exist for the user to request a replacement.
+    `,
+  ],
+}
+
+// TODO; not sure if this should be called verify or confirm
+const TOTP_REPLACE_VERIFY_POST = {
+  ...TAGS_TOTP,
+  description: '/totp/replace/verify',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token
+
+      Verifies the provided code is valid for TOTP and sets the new TOTP token for the user. This is used when a user is replacing their existing TOTP token.
+    `,
+  ],
+}
+
 const API_DOCS = {
   SESSION_VERIFY_TOTP_POST,
   TOTP_CREATE_POST,
@@ -88,6 +113,8 @@ const API_DOCS = {
   TOTP_EXISTS_GET,
   TOTP_VERIFY_POST,
   TOTP_VERIFY_RECOVERY_CODE_POST,
+  TOTP_REPLACE_CREATE_POST,
+  TOTP_REPLACE_VERIFY_POST,
 };
 
 export default API_DOCS;

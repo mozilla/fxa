@@ -741,6 +741,93 @@ describe('totp', () => {
       assert.calledOnceWithExactly(db.consumeRecoveryCode, 'uid', '1234567890');
     });
   });
+
+  describe('/totp/replace/create', () => {
+    it('should create a new TOTP token if user has an existing token', async () => {
+      const response = await setup(
+        { db: { email: TEST_EMAIL } },
+        {},
+        '/totp/replace/create',
+        requestOptions
+      );
+      assert.ok(response.qrCodeUrl);
+      assert.ok(response.secret);
+      assert.equal(
+        authServerCacheRedis.set.callCount,
+        1,
+        'stored TOTP token in Redis'
+      );
+    });
+    it('should throw error if the user does not have an existing token', async () => {
+      try {
+        await setup(
+          {
+            db: { email: TEST_EMAIL },
+            totpTokenVerified: false,
+            totpTokenEnabled: true
+          },
+          {},
+          '/totp/replace/create',
+          requestOptions
+        );
+        assert.fail('Expected error for missing existing TOTP token');
+      } catch (err) {
+        // TODO; need new error code/message for this, then it should pass.
+        assert.equal(err.errno, 154);
+        assert.equal(err.message, 'TOTP does not already exist for this account.');
+      }
+    });
+  });
+
+  describe('/totp/replace/verify', () => {
+    it('should verify a valid replacement totp code', async () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+      };
+      const response = await setup(
+        { db: { email: TEST_EMAIL } },
+        {},
+        '/totp/replace/verify',
+        requestOptions
+      );
+
+      assert.isTrue(response.success);
+      assert.calledOnceWithExactly(db.totpToken, 'uid');
+      assert.calledOnceWithExactly(
+        customs.checkAuthenticated,
+        request,
+        'uid',
+        TEST_EMAIL,
+        'verifyTotpCode'
+      );
+    });
+
+    it('should fail for an invalid replacement totp code', async () => {
+      requestOptions.payload = {
+        code: '123123',
+      };
+      const response = await setup(
+        { db: { email: TEST_EMAIL } },
+        {},
+        '/totp/replace/verify',
+        requestOptions
+      );
+
+      assert.isFalse(response.success);
+      assert.calledOnceWithExactly(db.totpToken, 'uid');
+      assert.calledOnceWithExactly(
+        customs.checkAuthenticated,
+        request,
+        'uid',
+        TEST_EMAIL,
+        'verifyTotpCode'
+      );
+    });
+  });
 });
 
 function setup(results, errors, routePath, requestOptions) {

@@ -26,11 +26,21 @@ const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 const TOTP_SECRET_REDIS_TTL = 3600; // 1 hour in seconds
 
 /**
+ * Default OTP Options for verifying codes.
+ */
+const DEFAULT_OTP_OPTIONS = {
+    encoding: 'hex',
+    step: 30, // 30 seconds
+    window: 1, // 1 time step
+}
+
+/**
  * Generates a Redis key for storing TOTP secrets from a uid.
  */
 function toRedisTotpSecretKey(uid) {
   return `totp:new:secret:${uid}`;
 }
+
 
 module.exports = (
   log,
@@ -701,6 +711,205 @@ module.exports = (
           }
         }
       },
+    },
+    // TODO; remove me, this is a marker so I can find it later
+    // Creates a new TOTP code/token to replace an existing one.
+    {
+      method: 'POST',
+      path: '/totp/replace/create',
+      options: {
+        ...TOTP_DOCS.TOTP_REPLACE_CREATE_POST, // TODO; check this and update as necessary
+        auth: {
+          strategy: 'sessionToken',
+          payload: 'required',
+        },
+        validate: {
+          payload: isA.object({                           // TODO; check needed fields
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            skipRecoveryCodes: isA.boolean().optional(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            qrCodeUrl: isA.string().required(),
+            secret: isA.string().required(),
+            recoveryCodes: isA.array().items(isA.string()).required(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        log.begin('totp.create', request); // TODO; update to correct string
+
+
+        // validate request
+        const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid;
+        const skipRecoveryCodes = request.payload.skipRecoveryCodes;
+
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          sessionToken.email,
+          'totpCreate'
+        );
+
+        if (sessionToken.tokenVerificationId) {
+          throw errors.unverifiedSession();
+        }
+
+        // the opposite of `/totp/create` this requires that the user already has
+        // a verified TOTP token
+        const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
+        if (!hasEnabledToken) {
+          throw errors.totpTokenAlreadyExists();
+        }
+
+        // Default options for TOTP
+        const otpOptions = {
+          encoding: 'hex',
+          step: config.step,
+          window: config.window,
+        };
+
+        const authenticator = new otplib.authenticator.Authenticator();
+        authenticator.options = Object.assign(
+          {},
+          otplib.authenticator.options,
+          otpOptions
+        );
+
+        const secret = authenticator.generateSecret();
+        await authServerCacheRedis.set(
+          toRedisTotpSecretKey(uid),
+          secret,
+          'EX',
+          TOTP_SECRET_REDIS_TTL
+        );
+
+        // TODO; check if this the the right log
+        log.info('totpToken.created', { uid });
+        // TODO; check if this is the right event
+        await request.emitMetricsEvent('totpToken.created', { uid });
+
+        const otpauth = authenticator.keyuri(
+          sessionToken.email,
+          service,
+          secret
+        );
+
+        const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
+
+        const recoveryCodes =
+          skipRecoveryCodes !== true
+            ? await db.replaceRecoveryCodes(uid, RECOVERY_CODE_COUNT)
+            : [];
+
+        return {
+          qrCodeUrl,
+          secret,
+          recoveryCodes,
+        };
+      },
+    },
+    // verify replace code and replace the existing TOTP token
+    {
+      method: 'POST',
+      path: '/totp/replace/verify',
+      options: {
+        ...TOTP_DOCS.TOTP_REPLACE_VERIFY_POST,
+        auth: {
+          strategy: 'sessionToken',
+          payload: 'required',
+        },
+        validate: {
+          payload: isA.object({
+            code: isA
+              .string()
+              .max(32)
+              .regex(validators.DIGITS)
+              .required()
+              .description(DESCRIPTION.codeTotp),
+          })
+        }
+      },
+      handler: async function (request) {
+        log.begin('totp.create', request); // TODO; update to correct string
+
+        const code = request.payload.code;
+
+        // validate request
+        const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid;
+
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          sessionToken.email,
+          'totpCreate'
+        );
+
+        // validate session token
+        if (sessionToken.tokenVerificationId) {
+          throw errors.unverifiedSession();
+        }
+        // check the redis cache for the secret. Since the existing code
+        // is verified and stored in the db we must use the redis cache
+        const newSharedSecret = await authServerCacheRedis.get(
+          toRedisTotpSecretKey(uid)
+        );
+
+        // if no existing secret, error
+        if (!newSharedSecret) {
+          throw errors.totpTokenNotFound();
+        }
+
+        // validate the incoming code
+        const isValidCode = otpUtils.verifyOtpCode(
+          code,
+          newSharedSecret,
+          DEFAULT_OTP_OPTIONS,
+          'totp.verify'
+        );
+
+        if (!isValidCode) {
+          // todo; setup new glean error, and maybe error
+          glean.twoFactorAuth.setupInvalidCodeError(request, { uid });
+          throw errors.invalidTokenVerficationCode();
+        }
+
+        // new code is valid, we can now delete the old and add the new
+        db.deleteTotpToken(uid)
+
+        // now that old code is deleted, persist new secret
+        await db.replaceTotpToken({
+          uid,
+          sharedSecret: newSharedSecret,
+          verified: true,
+          enabled: true,
+          epoch: 0,
+        });
+        // delete the new secret from redis
+        await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
+
+        // TODO; need to wrap part of this in a try/catch to handle errors/
+        // and log appropriate glean events/security events in the case of errors
+        // security event
+        recordSecurityEvent('account.two_factor_replaced_success', {
+          db,
+          request,
+        });
+        // glean event
+        glean.twoFactorAuth.codeReplacedComplete(request, { uid });
+
+        // send email notifications for success/failure
+        // This will be done in a separate ticket: https://mozilla-hub.atlassian.net/browse/FXA-12140
+
+        await profileClient.deleteCache(uid);
+        await log.notifyAttachedServices('profileDataChange', request, {
+          uid,
+        });
+
+      }
     },
   ];
 };
