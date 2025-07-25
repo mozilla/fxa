@@ -61,8 +61,10 @@ export function stripeInvoiceToInvoicePreviewDTO(
     creditApplied: invoice.ending_balance
       ? invoice.starting_balance - invoice.ending_balance
       : invoice.starting_balance,
+    promotionName: invoice.discount?.coupon.name,
     remainingAmountTotal,
     startingBalance: invoice.starting_balance,
+    totalExcludingTax: invoice.total_excluding_tax,
     unusedAmountTotal,
   };
 }

@@ -42,6 +42,10 @@ import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
 import { StrapiClient } from './strapi.client';
 import { MockStrapiClientConfigProvider } from './strapi.client.config';
+import {
+  ProductNameByPriceIdsQueryFactory,
+  ProductNameByPriceIdsResultUtil,
+} from './queries/product-name-by-price-ids';
 
 jest.mock('@type-cacheable/core', () => ({
   Cacheable: () => {
@@ -215,6 +219,23 @@ describe('productConfigurationManager', () => {
             (localization) => result.purchaseDetailsTransform(localization)
           ),
       });
+    });
+  });
+
+  describe('getProductNameByPriceIds', () => {
+    it('should return empty result', async () => {
+      const queryData = ProductNameByPriceIdsQueryFactory({
+        purchases: [],
+      });
+
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+
+      const result = await productConfigurationManager.getProductNameByPriceIds(
+        ['test']
+      );
+      expect(result).toBeInstanceOf(ProductNameByPriceIdsResultUtil);
+      expect(result.productNameForPriceId('test')).toBeUndefined;
+      expect(result.purchases).toHaveLength(0);
     });
   });
 
