@@ -4,9 +4,8 @@
 
 import { headers } from 'next/headers';
 import Image from 'next/image';
-import Link from 'next/link';
 
-import { Header } from '@fxa/payments/ui';
+import { Breadcrumbs, Header } from '@fxa/payments/ui';
 import { getApp } from '@fxa/payments/ui/server';
 import defaultAvatarIcon from '@fxa/shared/assets/images/avatar-default.svg';
 import { auth, signOut } from 'apps/payments/next/auth';
@@ -25,15 +24,6 @@ export default async function SubscriptionsLayout({
   const acceptLanguage = headers().get('accept-language');
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const session = await auth();
-  const breadcrumbs = [
-    {
-      label: l10n.getString(
-        'subscription-management-breadcrumb-subscriptions',
-        'Subscriptions'
-      ),
-      href: '/subscriptions/manage',
-    },
-  ];
 
   return (
     <>
@@ -47,43 +37,10 @@ export default async function SubscriptionsLayout({
         }}
         redirectPath={`${config.contentServerUrl}/settings`}
       />
-
-      <nav className="p-4 tablet:p-6" aria-label="Breadcrumb">
-        <ol className="flex items-center">
-          <li>
-            <Link
-              href={`${config.contentServerUrl}/settings`}
-              className="font-semibold text-blue-600 hover:underline"
-            >
-              {l10n.getString(
-                'subscription-management-breadcrumb-account-home',
-                'Account Home'
-              )}
-            </Link>
-          </li>
-
-          {breadcrumbs.map((crumb, i) => {
-            const isLast = i === breadcrumbs.length - 1;
-            return (
-              <li key={crumb.href} className="flex items-center">
-                <span className="px-3">{' > '}</span>
-                {isLast ? (
-                  <span className="font-semibold" aria-current="page">
-                    {crumb.label}
-                  </span>
-                ) : (
-                  <Link
-                    href={crumb.href}
-                    className="font-semibold text-blue-600 hover:underline"
-                  >
-                    {crumb.label}
-                  </Link>
-                )}
-              </li>
-            );
-          })}
-        </ol>
-      </nav>
+      <Breadcrumbs
+        contentServerUrl={config.contentServerUrl}
+        paymentsNextUrl={config.paymentsNextHostedUrl}
+      />
 
       <div className="flex justify-center">
         <div className="w-full py-6 text-grey-600 tablet:bg-white tablet:w-[640px] tablet:rounded-2xl tablet:shadow-sm tablet:shadow-grey-300 tablet:border-t-0 tablet:clip-shadow">

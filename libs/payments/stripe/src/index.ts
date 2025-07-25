@@ -5,6 +5,7 @@
 export * from './lib/accountCustomer/accountCustomer.error';
 export * from './lib/accountCustomer/accountCustomer.factories';
 export * from './lib/accountCustomer/accountCustomer.manager';
+export * from './lib/accountCustomer/accountCustomer.types';
 export { StripeAddressFactory } from './lib/factories/address.factory';
 export {
   StripeApiListFactory,

@@ -320,6 +320,18 @@ export class StripeClient {
     return result as StripeResponse<StripePaymentMethod>;
   }
 
+  // @CaptureTimingWithStatsD()
+  // async paymentMethodsList(
+  //   customerId: string,
+  //   params?: Stripe.PaymentMethodRetrieveParams
+  // ) {
+  //   const result = await this.stripe.paymentMethods.list(id, {
+  //     ...params,
+  //     expand: undefined,
+  //   });
+  //   return result as StripeResponse<StripePaymentMethod>;
+  // }
+
   @CaptureTimingWithStatsD()
   async customerDefaultPaymentMethodRetrieve(customerId: string) {
     const result = await this.stripe.customers.retrieve(customerId, {
