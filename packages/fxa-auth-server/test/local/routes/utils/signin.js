@@ -759,6 +759,7 @@ describe('sendSigninNotifications', () => {
         flowBeginTime: Date.now(),
         flowId:
           'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        clientId: '00f00f',
         utmCampaign: 'utm campaign',
         utmContent: 'utm content',
         utmMedium: 'utm medium',

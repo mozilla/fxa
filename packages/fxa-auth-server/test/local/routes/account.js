@@ -1423,6 +1423,7 @@ describe('/account/create', () => {
         metricsContext: {
           ...defaults.payload.metricsContext,
           service: '00f00f',
+          clientId: '00f00f',
           entrypoint: 'testo',
         },
         verificationMethod: 'email-otp',
@@ -2243,6 +2244,7 @@ describe('/account/login', () => {
         flowId:
           'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
         service: '00f00f',
+        clientId: '00f00f',
         entrypoint: 'testo',
       },
     },

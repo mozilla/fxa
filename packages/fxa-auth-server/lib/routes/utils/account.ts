@@ -63,11 +63,10 @@ export const fetchRpCmsData = async (
   logger: AuthLogger
 ): Promise<RelyingPartiesQuery['relyingParties'][0] | null> => {
   const metricsContext = await request.app.metricsContext;
-  if (metricsContext.service && metricsContext.entrypoint && cmsManager) {
+  if (metricsContext.clientId && metricsContext.entrypoint && cmsManager) {
     try {
       const res = await cmsManager.fetchCMSData(
-        // this `service` here is the OAuth client id
-        metricsContext.service,
+        metricsContext.clientId,
         metricsContext.entrypoint
       );
       return res.relyingParties.length > 0 ? res.relyingParties[0] : null;
@@ -78,3 +77,26 @@ export const fetchRpCmsData = async (
 
   return null;
 };
+
+export async function getOptionalCmsEmailConfig(
+  emailOptions,
+  { request, cmsManager, log, emailTemplate }
+) {
+  const metricsContext = await request.app.metricsContext;
+  const rpCmsConfig = await fetchRpCmsData(request, cmsManager, log);
+
+  if (!rpCmsConfig || !rpCmsConfig[emailTemplate]) {
+    return emailOptions;
+  }
+
+  return {
+    ...emailOptions,
+    target: 'strapi',
+    cmsRpClientId: rpCmsConfig.clientId,
+    cmsRpFromName: rpCmsConfig.shared?.emailFromName,
+    entrypoint: metricsContext.entrypoint,
+    logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
+    logoAltText: rpCmsConfig?.shared?.logoAltText,
+    ...rpCmsConfig[emailTemplate],
+  };
+}
