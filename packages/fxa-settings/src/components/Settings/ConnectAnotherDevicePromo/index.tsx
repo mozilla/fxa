@@ -4,10 +4,10 @@
 
 import React, { useContext } from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
-import { Localized } from '@fluent/react';
 import { getStoreImageByLanguages, StoreType } from './storeImageLoader';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import GleanMetrics from '../../../lib/glean';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 export function ConnectAnotherDevicePromo() {
   const { navigatorLanguages } = useContext(SettingsContext);
@@ -26,48 +26,38 @@ export function ConnectAnotherDevicePromo() {
       data-testid="connect-another-device-promo"
     >
       <div className="flex flex-col flex-1 text-center mobileLandscape:text-start">
-        <Localized id="connect-another-fx-mobile">
+        <FtlMsg id="connect-another-fx-mobile">
           <p className="text-sm">Get Firefox on mobile or tablet</p>
-        </Localized>
-        <Localized id="connect-another-find-fx-mobile-2">
+        </FtlMsg>
+        <FtlMsg id="connect-another-find-fx-mobile-2">
           <p className="text-grey-400 text-xs">
             Find Firefox in the Google Play and App Store.
           </p>
-        </Localized>
+        </FtlMsg>
       </div>
       <div className="flex flex-2 justify-center mt-5 mobileLandscape:mt-0 mobileLandscape:justify-end mobileLandscape:rtl:justify-start">
-        <LinkExternal
-          className="self-center rounded focus-visible-default outline-offset-2"
-          data-testid="play-store-link"
-          href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dorg.mozilla.firefox"
-          onClick={() => GleanMetrics.accountPref.googlePlaySubmit()}
-        >
-          <Localized
-            id="connect-another-play-store-image"
-            attrs={{ title: true }}
+        <FtlMsg id="connect-another-play-store-image" attrs={{ title: true }}>
+          <LinkExternal
+            className="self-center rounded focus-visible-default outline-offset-2"
+            data-testid="play-store-link"
+            href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dorg.mozilla.firefox"
+            onClick={() => GleanMetrics.accountPref.googlePlaySubmit()}
+            title="Download Firefox on Google Play"
           >
-            <GooglePlayBadge
-              role="img"
-              title="Download Firefox on Google Play"
-            />
-          </Localized>
-        </LinkExternal>
-        <LinkExternal
-          className="self-center m-2 rounded focus-visible-default outline-offset-2"
-          data-testid="app-store-link"
-          href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926"
-          onClick={() => GleanMetrics.accountPref.appleSubmit()}
-        >
-          <Localized
-            id="connect-another-app-store-image-2"
-            attrs={{ title: true }}
+            {GooglePlayBadge}
+          </LinkExternal>
+        </FtlMsg>
+        <FtlMsg id="connect-another-app-store-image-2" attrs={{ title: true }}>
+          <LinkExternal
+            className="self-center m-2 rounded focus-visible-default outline-offset-2"
+            data-testid="app-store-link"
+            href="https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926"
+            onClick={() => GleanMetrics.accountPref.appleSubmit()}
+            title="Download Firefox on the App Store"
           >
-            <AppStoreBadge
-              role="img"
-              title="Download Firefox on the App Store"
-            />
-          </Localized>
-        </LinkExternal>
+            {AppStoreBadge}
+          </LinkExternal>
+        </FtlMsg>
       </div>
     </div>
   );
