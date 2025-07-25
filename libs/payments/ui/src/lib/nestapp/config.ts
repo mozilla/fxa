@@ -20,6 +20,7 @@ import { ProfileClientConfig } from '@fxa/profile/client';
 import { ContentServerClientConfig } from '@fxa/payments/content-server';
 import { NotifierSnsConfig } from '@fxa/shared/notifier';
 import { AppleIapClientConfig, GoogleIapClientConfig } from '@fxa/payments/iap';
+import { TracingConfig } from './tracing.config';
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -40,6 +41,11 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly stripeConfig!: Partial<StripeConfig>;
+  
+  @Type(() => TracingConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly tracingConfig!: Partial<TracingConfig>;
 
   @Type(() => PaypalClientConfig)
   @ValidateNested()
