@@ -6,7 +6,8 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState, useRef } from 'react';
-import InlineTotpSetup from '.';
+import InlineTotpSetupOld from './old';
+import InlineTotpSetupNew from '.';
 import { MozServices } from '../../lib/types';
 import { Integration, isOAuthIntegration, useSession } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
@@ -22,6 +23,7 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
+import config from '../../lib/config';
 
 export const InlineTotpSetupContainer = ({
   isSignedIn,
@@ -178,10 +180,16 @@ export const InlineTotpSetupContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
+  const isUpdatedInlineTotpSetupFlow =
+    config.featureFlags?.updatedInlineTotpSetupFlow || false;
+
+  const InlineTotpSetup = isUpdatedInlineTotpSetupFlow
+    ? InlineTotpSetupNew
+    : InlineTotpSetupOld;
+
   return (
     <InlineTotpSetup
       {...{ totp, serviceName, cancelSetupHandler, verifyCodeHandler }}
-      email={signinState.email}
     />
   );
 };

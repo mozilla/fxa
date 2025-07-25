@@ -94,6 +94,7 @@ export interface Config {
     recoveryCodeSetupOnSyncSignIn?: boolean;
     recoveryPhonePasswordReset2fa?: boolean;
     updated2faSetupFlow?: boolean;
+    updatedInlineTotpSetupFlow?: boolean;
   };
   nimbusPreview: boolean;
   cms: {
@@ -177,6 +178,7 @@ export function getDefault() {
       recoveryCodeSetupOnSyncSignIn: false,
       recoveryPhonePasswordReset2fa: false,
       updated2faSetupFlow: false,
+      updatedInlineTotpSetupFlow: false,
     },
     cms: {
       // Note: Even if this flag is true, the user must be an `en` language

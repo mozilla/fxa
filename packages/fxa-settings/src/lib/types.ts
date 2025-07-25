@@ -42,6 +42,7 @@ export enum MozServices {
   TestService = '123Done',
   MonitorPlus = 'Mozilla Monitor Plus',
   MonitorStage = 'Mozilla Monitor Stage',
+  Addons = 'Add-ons',
 }
 
 // Information about a device
