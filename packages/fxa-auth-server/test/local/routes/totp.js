@@ -741,6 +741,137 @@ describe('totp', () => {
       assert.calledOnceWithExactly(db.consumeRecoveryCode, 'uid', '1234567890');
     });
   });
+
+  describe('/totp/replace/start', () => {
+    it('should create a new TOTP token if user has an existing token', async () => {
+      const response = await setup(
+        { db: { email: TEST_EMAIL } },
+        {},
+        '/totp/replace/start',
+        requestOptions
+      );
+      assert.ok(response.qrCodeUrl);
+      assert.ok(response.secret);
+      assert.equal(
+        authServerCacheRedis.set.callCount,
+        1,
+        'stored TOTP token in Redis'
+      );
+    });
+
+    it('should error if session is not verified', async () => {
+      requestOptions.credentials.tokenVerificationId = 'notverified';
+      await setup(
+        { db: { email: TEST_EMAIL } },
+        {},
+        '/totp/replace/start',
+        requestOptions
+      ).then(assert.fail, (err) => {
+        assert.deepEqual(err.errno, 138, 'unverified session error');
+      });
+    });
+
+    it('should error if the user does not have an existing token', async () => {
+      await setup({
+            db: { email: TEST_EMAIL },
+            totpTokenVerified: false,
+            totpTokenEnabled: false
+          },
+          {},
+          '/totp/replace/start',
+          requestOptions).then(assert.fail, (err) => {
+        assert.deepEqual(err.errno, 220, 'Error number for TOTP does not match');
+        assert.deepEqual(err.message, 'TOTP secret does not exist for this account.');
+      });
+    });
+  });
+
+  describe('/totp/replace/confirm', () => {
+    beforeEach(() => {
+      glean.twoFactorAuth.codeComplete.reset();
+    });
+    it('should verify a valid replacement totp code', async () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+      };
+      const response = await setup(
+        {
+          db: { email: TEST_EMAIL },
+          redis: { secret },
+        },
+        {},
+        '/totp/replace/confirm',
+        requestOptions
+      );
+
+      assert.isTrue(response.success);
+      assert.calledOnce(db.replaceTotpToken);
+      assert.calledOnce(authServerCacheRedis.del);
+      assert.calledOnce(glean.twoFactorAuth.codeComplete);
+    });
+
+    it('should fail for an invalid replacement totp code', async () => {
+      requestOptions.payload = {
+        code: 'INVALID_CODE',
+      };
+      try {
+        await setup(
+          {
+            db: { email: TEST_EMAIL },
+            totpTokenVerified: false,
+            totpTokenEnabled: false,
+            redis: { secret },
+          },
+          {},
+          '/totp/replace/confirm',
+          requestOptions
+        );
+        assert.fail('Expected request to error but it succeeded')
+      } catch (err) {
+        assert.equal(err.message, 'Invalid token confirmation code');
+      }
+    });
+
+    it('should error if session is not verified', async () => {
+      requestOptions.credentials.tokenVerificationId = 'notverified';
+      try {
+        await setup(
+          { db: { email: TEST_EMAIL } },
+          {},
+          '/totp/replace/confirm',
+          requestOptions
+        );
+        assert.fail('Expected request to error but it succeeded')
+      } catch (err) {
+        assert.equal(err.message, 'Unconfirmed session');
+      }
+    });
+
+    it('should return false if replacement fails', async () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+      };
+      const response = await setup(
+        {
+          db: { email: TEST_EMAIL },
+          redis: { secret }
+        },
+        { replaceTotpToken: true },
+        '/totp/replace/confirm',
+        requestOptions
+      );
+
+      assert.equal(response.success, false, 'should be invalid code');
+    });
+  });
 });
 
 function setup(results, errors, routePath, requestOptions) {
@@ -791,6 +922,12 @@ function setup(results, errors, routePath, requestOptions) {
           : results.totpTokenEnabled,
       sharedSecret: secret,
     });
+  });
+  db.replaceTotpToken = sinon.spy(() => {
+    if (errors.replaceTotpToken) {
+      return Promise.reject('Error replacing TOTP token');
+    }
+    return Promise.resolve();
   });
   const statsd = mocks.mockStatsd();
   routes = makeRoutes({

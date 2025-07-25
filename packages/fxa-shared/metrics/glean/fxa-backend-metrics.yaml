@@ -1027,7 +1027,7 @@ two_factor_auth:
   code_complete:
     type: event
     description: |
-      User successfully submitted a backup authentication code to complete two factor auth setup.
+      User successfully submitted a backup authentication code to complete two factor auth setup or replace.
     lifetime: ping
     send_in_pings:
       - events
@@ -1041,6 +1041,10 @@ two_factor_auth:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: Reason for what triggered the code complete, e.g. 'setup' or 'replace'
+        type: string
   set_codes_complete:
     type: event
     description: |
@@ -1087,6 +1091,23 @@ two_factor_auth:
       - fxa-staff@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-11087
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
+  code_replace_failure:
+    type: event
+    description: |
+      Event that indicates an error occurred during the replacement of an existing 2FA code
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-11714
     data_reviews:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
     expires: never
