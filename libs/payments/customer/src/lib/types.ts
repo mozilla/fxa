@@ -18,14 +18,24 @@ export type InvoicePreview = {
   nextInvoiceDate: number;
   amountDue: number;
   creditApplied: number | null;
+  promotionName?: string | null;
   remainingAmountTotal?: number;
   startingBalance: number;
+  totalExcludingTax?: number | null;
   unusedAmountTotal?: number;
+  subsequentAmount?: number;
+  subsequentAmountExcludingTax?: number | null;
+  subsequentTax?: TaxAmount[];
 };
 
 export interface Interval {
   interval: NonNullable<StripePrice['recurring']>['interval'];
   intervalCount: number;
+}
+
+export interface AccountCreditBalance {
+  balance: number;
+  currency: string | null;
 }
 
 export type PaymentProvidersType =

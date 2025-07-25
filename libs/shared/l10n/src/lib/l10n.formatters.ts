@@ -102,14 +102,15 @@ export function getLocalizedDate(
  */
 export function getLocalizedDateString(
   unixSeconds: number,
-  numericDate = false
+  numericDate = false,
+  locale = 'en'
 ): string {
   const milliseconds = unixSeconds * 1000;
   const date = new Date(milliseconds);
 
   const options = numericDate ? numericDateOptions : defaultDateOptions;
 
-  return new Intl.DateTimeFormat('en', options).format(date);
+  return new Intl.DateTimeFormat(locale, options).format(date);
 }
 
 export function getLocalizedMonthYearString(

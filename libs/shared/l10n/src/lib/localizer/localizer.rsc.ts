@@ -119,8 +119,12 @@ export class LocalizerRsc {
     return getLocalizedDate(unixSeconds, numericDate);
   }
 
-  getLocalizedDateString(unixSeconds: number, numericDate = false): string {
-    return getLocalizedDateString(unixSeconds, numericDate);
+  getLocalizedDateString(
+    unixSeconds: number,
+    numericDate = false,
+    locale?: string
+  ): string {
+    return getLocalizedDateString(unixSeconds, numericDate, locale);
   }
 
   getLocalizedMonthYearString(

@@ -1,5 +1,7 @@
 ## Page - Subscription Management
 
+subscription-management-account-credit-balance-heading = Account credit balance
+subscription-management-account-credit-balance-message = Credit will be automatically applied towards future invoices
 subscription-management-payment-information-heading = Payment Information
 subscription-management-button-add-payment-method-aria = Add payment method
 subscription-management-button-add-payment-method = Add
@@ -12,8 +14,6 @@ subscription-management-card-expires-date = Expires { $expirationDate }
 subscription-management-subscriptions-heading = Subscriptions
 subscription-management-your-subscriptions-aria = Your subscriptions
 subscription-management-no-subscriptions = You don’t have any subscriptions yet
-subscription-management-button-cancel-subscription-aria = Cancel subscription
-subscription-management-button-cancel-subscription = Cancel
 subscription-management-your-apple-iap-subscriptions-aria = Your { -brand-apple } In-App Subscriptions
 subscription-management-apple-in-app-purchase = { -brand-apple }: In-App purchase
 subscription-management-your-google-iap-subscriptions-aria = Your { -brand-google } In-App Subscriptions
@@ -25,3 +25,10 @@ subscription-management-iap-sub-expires-on = Expires on { $date }
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscription-management-button-manage-subscription-aria = Manage subscription for { $productName }
 subscription-management-button-manage-subscription = Manage
+## $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+## Daily/Weekly/Monthly/Yearly refers to the subscription interval/amount of time between billing occurrences
+subscription-management-page-subscription-interval-daily = { $productName } (daily)
+subscription-management-page-subscription-interval-weekly = { $productName } (weekly)
+subscription-management-page-subscription-interval-monthly = { $productName } (monthly)
+subscription-management-page-subscription-interval-halfyearly = { $productName } (6-month)
+subscription-management-page-subscription-interval-yearly = { $productName } (yearly)

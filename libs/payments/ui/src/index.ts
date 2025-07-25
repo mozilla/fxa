@@ -21,6 +21,7 @@ export * from './lib/client/components/PurchaseDetails';
 export * from './lib/client/components/SelectTaxLocation';
 export * from './lib/client/components/SignInForm';
 export * from './lib/client/components/SubmitButton';
+export * from './lib/client/components/SubscriptionContent';
 export * from './lib/client/components/MetricsWrapper';
 export * from './lib/client/components/StripeWrapper';
 export * from './lib/client/providers/Providers';

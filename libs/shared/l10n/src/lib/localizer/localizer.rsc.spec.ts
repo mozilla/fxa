@@ -110,8 +110,8 @@ describe('LocalizerRsc', () => {
 
     it('should call getLocalizedDateString', () => {
       const spy = jest.spyOn(formatters, 'getLocalizedDateString');
-      localizerRsc.getLocalizedDateString(unixSeconds);
-      expect(spy).toHaveBeenCalledWith(unixSeconds, false);
+      localizerRsc.getLocalizedDateString(unixSeconds, false, locale);
+      expect(spy).toHaveBeenCalledWith(unixSeconds, false, locale);
     });
 
     it('should call getLocalizedMonthYearString', () => {

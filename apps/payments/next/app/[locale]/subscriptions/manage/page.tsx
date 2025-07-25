@@ -9,10 +9,10 @@ import React from 'react';
 import { URLSearchParams } from 'url';
 
 import {
+  formatPlanInterval,
   getCardIcon,
-  ButtonVariant,
   ManageParams,
-  SubmitButton,
+  SubscriptionContent,
 } from '@fxa/payments/ui';
 import { getSubManPageContentAction } from '@fxa/payments/ui/actions';
 import { getApp } from '@fxa/payments/ui/server';
@@ -40,9 +40,8 @@ export default async function Manage({
     redirect(redirectToUrl.href);
   }
 
-  const { defaultPaymentMethod } = await getSubManPageContentAction(
-    session.user?.id
-  );
+  const { accountCreditBalance, defaultPaymentMethod, subscriptions } =
+    await getSubManPageContentAction(session.user?.id);
   const { billingAgreementId, brand, expMonth, expYear, last4, type } =
     defaultPaymentMethod || {};
   const expirationDate =
@@ -51,7 +50,6 @@ export default async function Manage({
       : undefined;
 
   //temporary until subs are returned from action
-  const subscriptions: any = [];
   const appleIapSubscriptions: any = [];
   const googleIapSubscriptions: any = [];
 
@@ -60,8 +58,60 @@ export default async function Manage({
   const CSS_SECONDARY_LINK =
     "flex items-center justify-center h-10 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-grey-100 font-semibold hover:bg-grey-200 text-black";
 
+  const getSubscriptionIntervalFtlId = (interval: string) => {
+    switch (interval) {
+      case 'daily':
+        return 'subscription-management-page-subscription-interval-daily';
+      case 'weekly':
+        return 'subscription-management-page-subscription-interval-weekly';
+      case 'monthly':
+      default:
+        return 'subscription-management-page-subscription-interval-monthly';
+      case 'halfyearly':
+        return 'subscription-management-page-subscription-interval-halfyearly';
+      case 'yearly':
+        return 'subscription-management-page-subscription-interval-yearly';
+    }
+  };
   return (
     <>
+      {accountCreditBalance.balance > 0 &&
+        accountCreditBalance.currency !== null && (
+          <>
+            <section
+              className="px-4 tablet:px-8"
+              aria-labelledby="account-credit-balance-heading"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <h2
+                  id="account-credit-balance-heading"
+                  className="font-semibold"
+                >
+                  {l10n.getString(
+                    'subscription-management-account-credit-balance-heading',
+                    'Account credit balance'
+                  )}
+                </h2>
+                <span>
+                  {l10n.getLocalizedCurrencyString(
+                    accountCreditBalance.balance,
+                    accountCreditBalance.currency,
+                    locale
+                  )}
+                </span>
+              </div>
+              <div className="text-sm">
+                {l10n.getString(
+                  'subscription-management-account-credit-balance-message',
+                  'Credit will be automatically applied towards future invoices'
+                )}
+              </div>
+            </section>
+
+            <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+          </>
+        )}
+
       <section
         className="px-4 tablet:px-8"
         aria-labelledby="payment-information-heading"
@@ -209,36 +259,21 @@ export default async function Manage({
             >
               {subscriptions.map((sub: any, index: number) => {
                 return (
-                  <li key={sub.id} aria-labelledby={`${sub.id} heading`}>
-                    <div className="flex items-center justify-between my-4">
-                      <div className="leading-5 text-sm">
-                        <h3
-                          id={`${sub.id} heading`}
-                          className="font-semibold pb-2"
-                        >
-                          Product Name
-                        </h3>
-                      </div>
-                      <div>
-                        <div>
-                          <SubmitButton
-                            className="h-10"
-                            variant={ButtonVariant.Secondary}
-                            aria-label={l10n.getString(
-                              'subscription-management-button-cancel-subscription-aria',
-                              'Cancel subscription'
-                            )}
-                          >
-                            <span>
-                              {l10n.getString(
-                                'subscription-management-button-cancel-subscription',
-                                'Cancel'
-                              )}
-                            </span>
-                          </SubmitButton>
-                        </div>
-                      </div>
-                    </div>
+                  <li
+                    key={`${sub.id}-${index}`}
+                    aria-labelledby={`${sub.id}-information`}
+                    className="leading-5"
+                  >
+                    <h3 id={`${sub.id}-information`} className="font-semibold">
+                      {sub.interval
+                        ? l10n.getString(
+                            getSubscriptionIntervalFtlId(sub.interval),
+                            { productName: sub.productName },
+                            `${sub.productName} (${formatPlanInterval(sub.interval)})`
+                          )
+                        : sub.productName}
+                    </h3>
+                    <SubscriptionContent subscription={sub} locale={locale} />
                     {index !== subscriptions.length - 1 && (
                       <hr
                         className="border-b border-grey-50 my-6"
@@ -267,7 +302,7 @@ export default async function Manage({
               {appleIapSubscriptions.map((purchase: any, index: number) => {
                 return (
                   <li
-                    key={purchase.price_id}
+                    key={`${purchase.price_id}-${index}`}
                     aria-labelledby={`${purchase.product_name}-heading`}
                   >
                     <div className="flex items-center justify-between my-4">
@@ -349,7 +384,7 @@ export default async function Manage({
               );
               return (
                 <li
-                  key={purchase.price_id}
+                  key={`${purchase.price_id}-${index}`}
                   aria-labelledby={`${purchase.product_name}-heading`}
                 >
                   <div className="flex items-center justify-between my-4">

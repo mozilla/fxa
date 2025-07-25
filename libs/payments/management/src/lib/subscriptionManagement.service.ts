@@ -3,9 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Inject, Injectable, Logger, type LoggerService } from '@nestjs/common';
+import * as Sentry from '@sentry/nestjs';
+import { StatsD } from 'hot-shots';
+
 import {
+  getSubplatInterval,
+  AccountCreditBalance,
   CustomerManager,
   DefaultPaymentMethod,
+  InvoiceManager,
   PaymentMethodManager,
   CustomerSessionManager,
   SetupIntentManager,
@@ -15,18 +21,29 @@ import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
+import type {
+  StripeCustomer,
+  StripePrice,
+  StripeSubscription,
+} from '@fxa/payments/stripe';
 import { SanitizeExceptions } from '@fxa/shared/error';
 import { CurrencyManager } from '@fxa/payments/currency';
+import { ProductConfigurationManager } from '@fxa/shared/cms';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
-  GetAccountCustomerMissingStripeId,
   CurrencyForCustomerNotFoundError,
+  GetAccountCustomerMissingStripeId,
   SetupIntentInvalidStatusError,
   SetupIntentMissingCustomerError,
   SetupIntentMissingPaymentMethodError,
+  SubscriptionContentMissingIntervalInformationError,
+  SubscriptionContentMissingLatestInvoiceError,
+  SubscriptionContentMissingLatestInvoicePreviewError,
+  SubscriptionContentMissingUpcomingInvoicePreviewError,
+  SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
   UpdateAccountCustomerMissingStripeId,
 } from './subscriptionManagement.error';
-import { StatsDService } from '@fxa/shared/metrics/statsd';
-import { StatsD } from 'hot-shots';
+import { SubscriptionContent } from './types';
 
 @Injectable()
 export class SubscriptionManagementService {
@@ -34,17 +51,32 @@ export class SubscriptionManagementService {
     @Inject(Logger) private log: LoggerService,
     @Inject(StatsDService) private statsd: StatsD,
     private accountCustomerManager: AccountCustomerManager,
+    private currencyManager: CurrencyManager,
     private customerManager: CustomerManager,
-    private paymentMethodManager: PaymentMethodManager,
-    private subscriptionManager: SubscriptionManager,
     private customerSessionManager: CustomerSessionManager,
+    private invoiceManager: InvoiceManager,
+    private paymentMethodManager: PaymentMethodManager,
     private setupIntentManager: SetupIntentManager,
-    private currencyManager: CurrencyManager
+    private productConfigurationManager: ProductConfigurationManager,
+    private subscriptionManager: SubscriptionManager
   ) {}
 
-  @SanitizeExceptions()
+  @SanitizeExceptions({
+    allowlist: [
+      SubscriptionContentMissingLatestInvoiceError,
+      SubscriptionContentMissingIntervalInformationError,
+      SubscriptionContentMissingLatestInvoicePreviewError,
+      SubscriptionContentMissingUpcomingInvoicePreviewError,
+      SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
+    ],
+  })
   async getPageContent(uid: string) {
     let defaultPaymentMethod: DefaultPaymentMethod | undefined;
+    let subscriptions: SubscriptionContent[] = [];
+    let accountCreditBalance: AccountCreditBalance = {
+      balance: 0,
+      currency: null,
+    };
     const accountCustomer = await this.accountCustomerManager
       .getAccountCustomerByUid(uid)
       .catch((error) => {
@@ -67,10 +99,153 @@ export class SubscriptionManagementService {
           subs,
           uid
         );
+
+      accountCreditBalance = {
+        balance: Math.abs(customer.balance),
+        currency: customer.currency ?? subs[0]?.currency,
+      };
+
+      if (subs.length === 0) {
+        return { accountCreditBalance, defaultPaymentMethod, subscriptions };
+      }
+
+      const priceIds = subs.flatMap((sub) =>
+        sub.items.data.map((item) => item.price.id)
+      );
+      const productMap =
+        await this.productConfigurationManager.getProductNameByPriceIds(
+          priceIds
+        );
+
+      if (!productMap) {
+        throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError(
+          priceIds
+        );
+      }
+
+      const subsContent: SubscriptionContent[] = [];
+      for (const sub of subs) {
+        const item = sub.items.data[0];
+        const price = item.price;
+        const priceId = price.id;
+        const productName = productMap.productNameForPriceId(priceId);
+        if (!productName) {
+          Sentry.captureMessage('No product name for price id', {
+            extra: { priceId },
+          });
+        }
+        const content = await this.getSubscriptionContent(
+          sub,
+          customer,
+          price,
+          productName ?? 'Mozilla Subscription'
+        );
+        subsContent.push(content);
+      }
+      subscriptions = subsContent.filter(
+        (s): s is SubscriptionContent => s !== null
+      );
     }
 
     return {
+      accountCreditBalance,
       defaultPaymentMethod,
+      subscriptions,
+    };
+  }
+
+  private async getSubscriptionContent(
+    subscription: StripeSubscription,
+    customer: StripeCustomer,
+    price: StripePrice,
+    productName: string
+  ): Promise<SubscriptionContent> {
+    const currency = subscription.currency;
+    const latestInvoiceId = subscription.latest_invoice;
+
+    if (!latestInvoiceId) {
+      throw new SubscriptionContentMissingLatestInvoiceError(subscription.id);
+    }
+
+    const interval = price.recurring?.interval;
+    const intervalCount = price.recurring?.interval_count;
+
+    if (!interval || !intervalCount) {
+      throw new SubscriptionContentMissingIntervalInformationError(
+        subscription.id,
+        price.id
+      );
+    }
+
+    const subplatInterval = getSubplatInterval(interval, intervalCount);
+    const priceId = price.id;
+
+    const [latestInvoice, upcomingInvoice] = await Promise.all([
+      this.invoiceManager.preview(latestInvoiceId),
+      this.invoiceManager.previewUpcoming({ priceId, currency, customer }),
+    ]);
+
+    if (!latestInvoice) {
+      throw new SubscriptionContentMissingLatestInvoicePreviewError(
+        subscription.id,
+        latestInvoiceId
+      );
+    }
+
+    if (!upcomingInvoice) {
+      throw new SubscriptionContentMissingUpcomingInvoicePreviewError(
+        subscription.id,
+        price.id,
+        currency,
+        customer
+      );
+    }
+
+    const {
+      amountDue,
+      creditApplied,
+      promotionName,
+      taxAmounts,
+      totalAmount,
+      totalExcludingTax,
+    } = latestInvoice;
+
+    const {
+      nextInvoiceDate,
+      subsequentAmount,
+      subsequentAmountExcludingTax,
+      subsequentTax,
+    } = upcomingInvoice;
+
+    const totalExclusiveTax = taxAmounts
+      .filter((tax) => !tax.inclusive)
+      .reduce((sum, tax) => sum + tax.amount, 0);
+
+    const nextInvoiceTotalExclusiveTax =
+      subsequentTax &&
+      subsequentTax
+        .filter((tax) => !tax.inclusive)
+        .reduce((sum, tax) => sum + tax.amount, 0);
+
+    return {
+      productName,
+      currency: subscription.currency,
+      interval: subplatInterval,
+      currentInvoiceTax: creditApplied ? 0 : Math.max(0, totalExclusiveTax),
+      currentInvoiceTotal:
+        creditApplied || amountDue <= 0
+          ? amountDue
+          : totalExclusiveTax
+            ? (totalExcludingTax ?? totalAmount)
+            : totalAmount,
+      currentPeriodEnd: subscription.current_period_end,
+      nextInvoiceDate,
+      nextInvoiceTax: nextInvoiceTotalExclusiveTax,
+      nextInvoiceTotal:
+        nextInvoiceTotalExclusiveTax && nextInvoiceTotalExclusiveTax > 0
+          ? (subsequentAmountExcludingTax ?? subsequentAmount)
+          : subsequentAmount,
+      promotionName,
     };
   }
 
