@@ -244,6 +244,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW',
     },
+    updatedInlineTotpSetupFlow: {
+      default: false,
+      doc: 'Enables a redesign of the inline TOTP setup',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_UPDATED_INLINE_TOTP_SETUP_FLOW',
+    },
   },
   cms: {
     enabled: {
@@ -251,7 +257,7 @@ const conf = (module.exports = convict({
       doc: 'Enables the CMS (Strapi) for frontend. Users are also required to be in a english locale to see the CMS content.',
       env: 'CMS_ENABLED',
       format: Boolean,
-    }
+    },
   },
   showReactApp: {
     emailFirstRoutes: {

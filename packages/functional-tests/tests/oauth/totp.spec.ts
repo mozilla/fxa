@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* eslint-disable playwright/no-conditional-in-test */
+
 import { getCode } from 'fxa-settings/src/lib/totp';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
@@ -92,9 +94,10 @@ test.describe('severity-1 #smoke', () => {
 
     test('can setup TOTP inline and login', async ({
       target,
-      pages: { page, relier, settings, signin, totp },
+      pages: { page, relier, settings, signin, totp, configPage },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
@@ -104,32 +107,62 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/inline_totp_setup/);
 
-      await expect(
-        signin.page.getByText('Enable two-step authentication')
-      ).toBeVisible();
+      // TODO: Remove conditions after the old flow is cleaned up
+      if (config.featureFlags.updatedInlineTotpSetupFlow) {
+        await expect(
+          signin.page.getByRole('heading', {
+            name: 'Set up two-step authentication',
+          })
+        ).toBeVisible();
 
-      await signin.page.getByRole('button', { name: 'Continue' }).click();
+        await signin.page.getByRole('button', { name: 'Continue' }).click();
 
-      await expect(
-        signin.page.getByText('Scan authentication code')
-      ).toBeVisible();
+        await expect(signin.page.getByText(/Scan this QR code/)).toBeVisible();
 
-      await signin.page
-        .getByRole('button', { name: 'Can’t scan code?' })
-        .click();
+        await signin.page
+          .getByRole('button', { name: 'Can’t scan QR code?' })
+          .click();
 
-      await expect(signin.page.getByText('Enter code manually')).toBeVisible();
+        const secret = (
+          await signin.page.getByTestId('manual-datablock').innerText()
+        )?.replace(/\s/g, '');
+        const code = await getCode(secret);
 
-      const secret = (
-        await signin.page.getByTestId('manual-datablock').innerText()
-      )?.replace(/\s/g, '');
-      const code = await getCode(secret);
+        await signin.page
+          .getByRole('textbox', { name: 'Enter 6-digit code' })
+          .fill(code);
 
-      await signin.page
-        .getByRole('textbox', { name: 'Authentication code' })
-        .fill(code);
+        await signin.page.getByRole('button', { name: 'Continue' }).click();
+      } else {
+        await expect(
+          signin.page.getByText('Enable two-step authentication')
+        ).toBeVisible();
 
-      await signin.page.getByRole('button', { name: 'Ready' }).click();
+        await signin.page.getByRole('button', { name: 'Continue' }).click();
+
+        await expect(
+          signin.page.getByText('Scan authentication code')
+        ).toBeVisible();
+
+        await signin.page
+          .getByRole('button', { name: 'Can’t scan code?' })
+          .click();
+
+        await expect(
+          signin.page.getByText('Enter code manually')
+        ).toBeVisible();
+
+        const secret = (
+          await signin.page.getByTestId('manual-datablock').innerText()
+        )?.replace(/\s/g, '');
+        const code = await getCode(secret);
+
+        await signin.page
+          .getByRole('textbox', { name: 'Authentication code' })
+          .fill(code);
+
+        await signin.page.getByRole('button', { name: 'Ready' }).click();
+      }
 
       await page.waitForURL(/inline_recovery_setup/);
 

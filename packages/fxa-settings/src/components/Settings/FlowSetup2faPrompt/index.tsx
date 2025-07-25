@@ -13,7 +13,8 @@ import Banner from '../../Banner';
 export type FlowSetup2faPromptProps = {
   localizedPageTitle: string;
   onContinue: () => void;
-  onBackButtonClick: () => void;
+  onBackButtonClick?: () => void;
+  hideBackButton?: boolean;
   serviceName: string;
   localizedErrorMessage?: string;
 };
@@ -21,6 +22,7 @@ export type FlowSetup2faPromptProps = {
 export const FlowSetup2faPrompt = ({
   localizedPageTitle,
   onContinue,
+  hideBackButton = true,
   onBackButtonClick,
   serviceName,
   localizedErrorMessage,
@@ -28,6 +30,7 @@ export const FlowSetup2faPrompt = ({
   return (
     <FlowContainer
       onBackButtonClick={onBackButtonClick}
+      hideBackButton={hideBackButton}
       title={localizedPageTitle}
     >
       {localizedErrorMessage && (
