@@ -204,13 +204,11 @@ test.describe('severity-2 #smoke', () => {
         signinTotpCode,
         totp,
         confirmSignupCode,
-        configPage,
       },
       testAccountTracker,
     }) => {
       test.skip(true, 'TODO: FXA-12084');
 
-      const config = await configPage.getConfig();
       const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
         preVerified: 'false',
@@ -233,10 +231,8 @@ test.describe('severity-2 #smoke', () => {
 
       await settings.totp.addButton.click();
 
-      // TODO in FXA-11941 - remove condition
-      const { secret } = config.featureFlags.updated2faSetupFlow
-        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
-        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
+      const { secret } =
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(

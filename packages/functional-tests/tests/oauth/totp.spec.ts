@@ -12,28 +12,16 @@ test.describe('severity-1 #smoke', () => {
   test.describe('OAuth totp', () => {
     test('can add TOTP to account and confirm oauth signin', async ({
       target,
-      pages: {
-        page,
-        signin,
-        relier,
-        settings,
-        totp,
-        signinTotpCode,
-        configPage,
-      },
+      pages: { page, signin, relier, settings, totp, signinTotpCode },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
       await settings.totp.addButton.click();
-      // TODO in FXA-11941 - remove condition
-      const { secret } = config.featureFlags.updated2faSetupFlow
-        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
-        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
+      const { secret } =
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication has been enabled'
@@ -57,18 +45,14 @@ test.describe('severity-1 #smoke', () => {
 
     test('can remove TOTP from account and skip confirmation', async ({
       target,
-      pages: { page, relier, settings, signin, totp, configPage },
+      pages: { page, relier, settings, signin, totp },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
       await settings.goto();
       await settings.totp.addButton.click();
-      // TODO in FXA-11941 - remove condition
-      config.featureFlags.updated2faSetupFlow
-        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
-        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
       await expect(settings.totp.status).toHaveText('Enabled');
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication has been enabled'

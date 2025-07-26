@@ -237,13 +237,7 @@ const conf = (module.exports = convict({
       doc: 'Enables recovery phone codes for 2FA in password reset',
       format: Boolean,
       env: 'FEATURE_FLAGS_RECOVERY_PHONE_PASSWORD_RESET_2FA',
-    },
-    updated2faSetupFlow: {
-      default: false,
-      doc: 'Enables a redesign of the 2fa setup flow from settings with recovery phone option',
-      format: Boolean,
-      env: 'FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW',
-    },
+    }
   },
   cms: {
     enabled: {

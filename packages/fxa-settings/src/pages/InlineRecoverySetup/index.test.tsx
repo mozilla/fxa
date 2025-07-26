@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent, UserEvent } from '@testing-library/user-event';
 import InlineRecoverySetup from '.';
 import { MozServices } from '../../lib/types';
