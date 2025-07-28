@@ -7,6 +7,7 @@ import { screen } from '@testing-library/react';
 import ConnectAnotherDevicePromo from '.';
 import { renderWithRouter } from '../../../models/mocks';
 import { getStoreImageByLanguages, StoreType } from './storeImageLoader';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 describe('Connect another device Promo', () => {
   it('renders "fresh load" <ConnectAnotherDevicePromo/> with correct content', async () => {
@@ -26,62 +27,54 @@ describe('Connect another device Promo', () => {
 });
 
 describe('getStoreImageByLanguages', () => {
-  it('should return default image, if no locale is provided', () => {
-    const expected = 'SvgEn';
-    const {
-      render: { name: actual },
-    }: any = getStoreImageByLanguages(StoreType.apple);
-
-    expect(actual).toEqual(expected);
+  it('should return default image, if no locale is provided', async () => {
+    renderWithLocalizationProvider(getStoreImageByLanguages(StoreType.apple));
+    const image = await screen.findByRole('img');
+    expect(image).toHaveAttribute('src', expect.stringContaining('en.svg'));
   });
 
-  it('should return default image, if invalid locale is provided', () => {
+  it('should return default image, if invalid locale is provided', async () => {
     const languages = ['invalidLanguage'];
-    const expected = 'SvgEn';
-    const {
-      render: { name: actual },
-    }: any = getStoreImageByLanguages(StoreType.apple, languages);
-
-    expect(actual).toEqual(expected);
+    renderWithLocalizationProvider(
+      getStoreImageByLanguages(StoreType.apple, languages)
+    );
+    const image = await screen.findByRole('img');
+    expect(image).toHaveAttribute('src', expect.stringContaining('en.svg'));
   });
 
-  it('should return image for valid language', () => {
+  it('should return image for valid language', async () => {
     const languages = ['en', 'de'];
-    const expected = 'SvgEn';
-    const {
-      render: { name: actual },
-    }: any = getStoreImageByLanguages(StoreType.apple, languages);
-
-    expect(actual).toEqual(expected);
+    renderWithLocalizationProvider(
+      getStoreImageByLanguages(StoreType.apple, languages)
+    );
+    const image = await screen.findByRole('img');
+    expect(image).toHaveAttribute('src', expect.stringContaining('en.svg'));
   });
 
-  it('should return valid image if multiple languages are provided and 1st language is not valid', () => {
+  it('should return valid image if multiple languages are provided and 1st language is not valid', async () => {
     const languages = ['invalidLanguage', 'en'];
-    const expected = 'SvgEn';
-    const {
-      render: { name: actual },
-    }: any = getStoreImageByLanguages(StoreType.apple, languages);
-
-    expect(actual).toEqual(expected);
+    renderWithLocalizationProvider(
+      getStoreImageByLanguages(StoreType.apple, languages)
+    );
+    const image = await screen.findByRole('img');
+    expect(image).toHaveAttribute('src', expect.stringContaining('en.svg'));
   });
 
-  it('should return image with region code', () => {
+  it('should return image with region code', async () => {
     const languages = ['pt-BR', 'pt'];
-    const expected = 'SvgPtBr';
-    const {
-      render: { name: actual },
-    }: any = getStoreImageByLanguages(StoreType.apple, languages);
-
-    expect(actual).toEqual(expected);
+    renderWithLocalizationProvider(
+      getStoreImageByLanguages(StoreType.apple, languages)
+    );
+    const image = await screen.findByRole('img');
+    expect(image).toHaveAttribute('src', expect.stringContaining('pt-BR.svg'));
   });
 
-  it('should return language image if region is not available', () => {
+  it('should return language image if region is not available', async () => {
     const languages = ['pt-ZA', 'pt'];
-    const expected = 'SvgPt';
-    const {
-      render: { name: actual },
-    }: any = getStoreImageByLanguages(StoreType.apple, languages);
-
-    expect(actual).toEqual(expected);
+    renderWithLocalizationProvider(
+      getStoreImageByLanguages(StoreType.apple, languages)
+    );
+    const image = await screen.findByRole('img');
+    expect(image).toHaveAttribute('src', expect.stringContaining('pt.svg'));
   });
 });
