@@ -26,23 +26,13 @@ export class TotpPage extends SettingsLayout {
   }
 
   get setup2faAppHeading() {
-    return (
-      this.page
-        .getByRole('heading', {
-          name: 'Connect to your authenticator app',
-        })
-        // TODO in FXA-11941 - remove this condition, it is the old flow
-        .or(this.page.getByRole('heading', { name: 'Step 1 of 3' }))
-    );
+    return this.page.getByRole('heading', {
+      name: 'Connect to your authenticator app',
+    });
   }
 
   get step1CantScanCodeLink() {
-    return (
-      this.page
-        .getByRole('button', { name: 'Can’t scan QR code?' })
-        // TODO in FXA-11941 - remove this condition, it is the old flow
-        .or(this.page.getByTestId('cant-scan-code'))
-    );
+    return this.page.getByRole('button', { name: 'Can’t scan QR code?' });
   }
 
   get step1ManualCode() {
@@ -54,26 +44,11 @@ export class TotpPage extends SettingsLayout {
   }
 
   get step1AuthenticationCodeTextbox() {
-    return (
-      this.page
-        .getByRole('textbox', { name: 'Enter 6-digit code' })
-        // TODO in FXA-11941 - remove this condition, it is the old flow
-        .or(this.page.getByTestId('totp-input-label'))
-    );
+    return this.page.getByRole('textbox', { name: 'Enter 6-digit code' });
   }
 
   get step1SubmitButton() {
-    return (
-      this.page
-        .getByRole('button', { name: 'Continue' })
-        // TODO in FXA-11941 - remove this condition, it is the old flow
-        .or(this.page.getByTestId('submit-totp'))
-    );
-  }
-
-  // TODO in FXA-11941 - delete this locator, element doesn't exist in new flow
-  get step1CancelButton() {
-    return this.page.getByRole('button', { name: 'Cancel' });
+    return this.page.getByRole('button', { name: 'Continue' });
   }
 
   get recoveryChoiceHeading() {
@@ -95,12 +70,9 @@ export class TotpPage extends SettingsLayout {
   }
 
   get backupCodesDownloadHeading() {
-    return (
-      this.page
-        .getByRole('heading', { name: 'Save backup authentication codes' })
-        // TODO in FXA-11941 - remove this condition, it is the old flow
-        .or(this.page.getByRole('heading', { name: 'Step 2 of 3' }))
-    );
+    return this.page.getByRole('heading', {
+      name: 'Save backup authentication codes',
+    });
   }
 
   get backupCodesDatablock() {
@@ -108,38 +80,25 @@ export class TotpPage extends SettingsLayout {
   }
 
   get backupCodesDownloadContinueButton() {
-    return (
-      this.page
-        .getByRole('button', { name: 'Continue' })
-        // TODO in FXA-11941 - remove this condition, it is the old flow
-        .or(this.page.getByTestId('ack-recovery-code'))
-    );
+    return this.page.getByRole('button', { name: 'Continue' });
   }
 
   get confirmBackupCodeHeading() {
-    return (
-      this.page
-        .getByRole('heading', { name: 'Enter backup authentication code' })
-        // TODO in FXA-11941 - remove this condition, it is the old flow
-        .or(this.page.getByRole('heading', { name: 'Step 3 of 3' }))
-    );
+    return this.page.getByRole('heading', {
+      name: 'Enter backup authentication code',
+    });
   }
 
   get confirmBackupCodeSubmitButton() {
-    return (
-      this.page
-        .getByRole('button', { name: 'Finish' })
-        // TODO in FXA-11941 - remove this condition, it is the old flow
-        .or(this.page.getByTestId('submit-recovery-code'))
-    );
+    return this.page.getByRole('button', { name: 'Finish' });
   }
 
   get confirmBackupCodeTextbox() {
     return (
       this.page
         .getByRole('textbox', { name: 'Enter 10-character code' })
-        // TODO in FXA-11941 - remove this condition, it is the old flow
-        .or(this.page.getByTestId('recovery-code-input-field'))
+        // for the "old" backup codes replacement flow
+        .or(this.page.getByTestId('recovery-code-input-label'))
     );
   }
 
@@ -213,14 +172,6 @@ export class TotpPage extends SettingsLayout {
     await expect(this.confirmBackupCodeHeading).toBeVisible();
     await this.confirmBackupCodeTextbox.fill(recoveryCode);
     await this.confirmBackupCodeSubmitButton.click();
-  }
-
-  // TODO in FXA-11941 - delete if this is not used to test recovery phone unavailable
-  async setUpTwoStepAuthWithQrCodeNoRecoveryChoice(): Promise<TotpCredentials> {
-    const secret = await this.setUp2faAppWithQrCode();
-    const recoveryCodes = await this.backupCodesDownloadStep();
-    await this.confirmBackupCodeStep(recoveryCodes[0]);
-    return { secret, recoveryCodes };
   }
 
   async setUpTwoStepAuthWithQrAndBackupCodesChoice(): Promise<TotpCredentials> {

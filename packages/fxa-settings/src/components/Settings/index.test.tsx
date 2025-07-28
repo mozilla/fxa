@@ -30,6 +30,15 @@ jest.mock('../../lib/totp-utils', () => {
   };
 });
 
+// Mocking the component here avoids dealing with all the dependecies required to start the 2fa setup flow
+// Those are tested in Page2faSetup/index.test.tsx
+jest.mock('./Page2faSetup', () => ({
+  __esModule: true,
+  default: () => (
+    <div data-testid="mock-2fa-setup-page">Mock 2FA Setup Page</div>
+  ),
+}));
+
 jest.mock('./ScrollToTop', () => ({
   __esModule: true,
   ScrollToTop: ({ children }: { children: ReactNode }) => (
@@ -43,7 +52,9 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const mockUseGeoEligibilityCheck = jest.fn().mockReturnValue({ eligible: false });
+const mockUseGeoEligibilityCheck = jest
+  .fn()
+  .mockReturnValue({ eligible: false });
 jest.mock('../../lib/hooks/useGeoEligibilityCheck', () => ({
   useGeoEligibilityCheck: () => mockUseGeoEligibilityCheck(),
 }));
@@ -52,7 +63,6 @@ const mockNavigateWithQuery = jest.fn();
 jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
   useNavigateWithQuery: () => mockNavigateWithQuery,
 }));
-
 
 describe('Settings App', () => {
   beforeEach(() => {
@@ -91,6 +101,11 @@ describe('Settings App', () => {
   });
 
   it('redirects to root if account is not verified', async () => {
+    // this warning is expected, so we don't want to see it in the test output
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
+      if (msg === 'Account verification is require to access /settings!')
+        return;
+    });
     const unverifiedAccount = {
       ...MOCK_ACCOUNT,
       primaryEmail: {
@@ -113,6 +128,7 @@ describe('Settings App', () => {
 
     await Promise.resolve();
     expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    warnSpy.mockRestore();
   });
 
   it('routes to PageSettings', async () => {
@@ -218,13 +234,18 @@ describe('Settings App', () => {
     expect(getByTestId('secondary-email-verify-form')).toBeInTheDocument();
   });
 
-  it('routes to PageTwoStepAuthentication', async () => {
+  it('routes to two step authentication page', async () => {
     const session = mockSession(true);
+    const account = {
+      ...MOCK_ACCOUNT,
+      hasPassword: true,
+    } as unknown as Account;
     const {
       getByTestId,
+      history,
       history: { navigate },
     } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ session })}>
+      <AppContext.Provider value={mockAppContext({ account, session })}>
         <Subject />
       </AppContext.Provider>,
       { route: SETTINGS_PATH }
@@ -232,7 +253,8 @@ describe('Settings App', () => {
 
     await navigate(SETTINGS_PATH + '/two_step_authentication');
 
-    expect(getByTestId('totp-input')).toBeInTheDocument();
+    expect(history.location.pathname).toBe('/settings/two_step_authentication');
+    expect(getByTestId('mock-2fa-setup-page')).toBeInTheDocument();
   });
 
   it('routes to Page2faReplaceRecoveryCodes', async () => {
@@ -353,7 +375,7 @@ describe('Settings App', () => {
       expect(history.location.pathname).toBe('/settings');
     });
 
-    it('redirects PageTwoStepAuthentication', async () => {
+    it('redirects two-step authentication page', async () => {
       await history.navigate(SETTINGS_PATH + '/two_step_authentication');
       expect(history.location.pathname).toBe('/settings');
     });

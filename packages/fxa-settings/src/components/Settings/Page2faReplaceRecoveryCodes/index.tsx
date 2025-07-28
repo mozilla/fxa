@@ -220,7 +220,6 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   );
 };
 
-// TODO: Reuse RecoveryCodeCheck in PageTwoStepAuthentication
 type RecoveryCodeForm = { recoveryCode: string };
 type RecoverCodeCheckType = {
   cancellable: boolean;

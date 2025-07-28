@@ -14,22 +14,11 @@ test.describe('severity-1 #smoke', () => {
   test.describe('set up 2fa with backup codes', () => {
     test('enable with QR code and sign in', async ({
       target,
-      pages: { page, settings, signin, signinTotpCode, totp, configPage },
+      pages: { page, settings, signin, signinTotpCode, totp },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        !config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - remove skip condition'
-      );
       const credentials = await testAccountTracker.signUp();
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        credentials
-      );
+      await signInAccount(target, page, settings, signin, credentials);
 
       const { secret } = await addTotpWithQrCodeAndBackupCodeChoice(
         settings,
@@ -62,22 +51,11 @@ test.describe('severity-1 #smoke', () => {
 
     test('enable then disable and sign in', async ({
       target,
-      pages: { page, settings, signin, totp, configPage },
+      pages: { page, settings, signin, totp },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        !config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - remove skip condition'
-      );
       const credentials = await testAccountTracker.signUp();
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        credentials
-      );
+      await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
       await addTotpWithQrCodeAndBackupCodeChoice(settings, totp);
@@ -101,14 +79,9 @@ test.describe('severity-1 #smoke', () => {
 
     test('with manual key', async ({
       target,
-      pages: { page, settings, totp, signin, configPage },
+      pages: { page, settings, totp, signin },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        !config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - remove skip condition'
-      );
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
@@ -128,22 +101,11 @@ test.describe('severity-1 #smoke', () => {
 
     test('delete account with 2FA enabled', async ({
       target,
-      pages: { page, deleteAccount, settings, signin, totp, configPage },
+      pages: { page, deleteAccount, settings, signin, totp },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        !config.featureFlags.updated2faSetupFlow,
-        'TODO in FXA-11941 - remove skip condition'
-      );
       const credentials = await testAccountTracker.signUp();
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        credentials
-      );
+      await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
       await addTotpWithQrCodeAndBackupCodeChoice(settings, totp);

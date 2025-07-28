@@ -158,13 +158,7 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker,
       }) => {
         const credentials = await testAccountTracker.signUp();
-        await signInAccount(
-          target,
-          page,
-          settings,
-          signin,
-          credentials
-        );
+        await signInAccount(target, page, settings, signin, credentials);
 
         const query = new URLSearchParams({
           login_hint: credentials.email,
@@ -205,13 +199,7 @@ test.describe('severity-1 #smoke', () => {
         const loginHintAccount = testAccountTracker.generateAccountDetails();
 
         const credentials = await testAccountTracker.signUp();
-        await signInAccount(
-          target,
-          page,
-          settings,
-          signin,
-          credentials
-        );
+        await signInAccount(target, page, settings, signin, credentials);
 
         const query = new URLSearchParams({
           login_hint: loginHintAccount.email,
@@ -235,13 +223,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       {
         const credentials = await testAccountTracker.signUp();
-        await signInAccount(
-          target,
-          page,
-          settings,
-          signin,
-          credentials
-        );
+        await signInAccount(target, page, settings, signin, credentials);
 
         await settings.signOut();
 
@@ -262,27 +244,16 @@ test.describe('severity-1 #smoke', () => {
     test('redirect to RP with prompt=none and 2FA setup', async ({
       page,
       target,
-      pages: { relier, settings, signin, totp, configPage },
+      pages: { relier, settings, signin, totp },
       testAccountTracker,
     }) => {
-      const config = await configPage.getConfig();
-
       const credentials = await testAccountTracker.signUp();
 
-      await signInAccount(
-        target,
-        page,
-        settings,
-        signin,
-        credentials
-      );
+      await signInAccount(target, page, settings, signin, credentials);
 
       await settings.totp.addButton.click();
 
-      // TODO in FXA-11941 - remove condition
-      config.featureFlags.updated2faSetupFlow
-        ? await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice()
-        : await totp.setUpTwoStepAuthWithQrCodeNoRecoveryChoice();
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication has been enabled'
       );
