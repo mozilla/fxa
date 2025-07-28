@@ -16,6 +16,9 @@ const SESSION_DOCS = require('../../docs/swagger/session-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const HEX_STRING = validators.HEX_STRING;
 const { recordSecurityEvent } = require('./utils/security-event');
+const { getOptionalCmsEmailConfig } = require('./utils/account');
+const { Container } = require('typedi');
+const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 
 module.exports = function (
   log,
@@ -42,6 +45,10 @@ module.exports = function (
   );
 
   const otpOptions = config.otp;
+
+  const cmsManager = Container.has(RelyingPartyConfigurationManager)
+    ? Container.get(RelyingPartyConfigurationManager)
+    : null;
 
   const routes = [
     {
@@ -441,7 +448,7 @@ module.exports = function (
         const sessionToken = request.auth.credentials;
 
         request.emitMetricsEvent('session.resend_code');
-        const metricsContext = await request.gatherMetricsContext({});
+        const metricsContext = await request.app.metricsContext;
 
         // Check to see if this account has a verified TOTP token. If so, then it should
         // not be allowed to bypass TOTP requirement by sending a sign-in confirmation email.
@@ -481,9 +488,9 @@ module.exports = function (
           uaOSVersion: sessionToken.uaOSVersion,
           uaDeviceType: sessionToken.uaDeviceType,
           uid: sessionToken.uid,
-          flowId: metricsContext.flow_id,
+          flowId: metricsContext.flowId,
           flowBeginTime: metricsContext.flowBeginTime,
-          deviceId: metricsContext.device_id,
+          deviceId: metricsContext.deviceId,
         };
 
         if (account.primaryEmail.isVerified) {
@@ -492,10 +499,24 @@ module.exports = function (
           await mailer.sendVerifyLoginCodeEmail(
             account.emails,
             account,
-            options
+            await getOptionalCmsEmailConfig(options, {
+              request,
+              cmsManager,
+              log,
+              emailTemplate: 'VerifyLoginCodeEmail',
+            })
           );
         } else {
-          await mailer.sendVerifyShortCodeEmail([], account, options);
+          await mailer.sendVerifyShortCodeEmail(
+            [],
+            account,
+            await getOptionalCmsEmailConfig(options, {
+              request,
+              cmsManager,
+              log,
+              emailTemplate: 'VerifyShortCodeEmail',
+            })
+          );
         }
 
         return {};

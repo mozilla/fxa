@@ -428,6 +428,74 @@ describe('metricsContext', () => {
               entrypointVariation: 'mock entrypoint experiment variation',
               migration: 'mock migration',
               service: 'mock service',
+              clientId: 'mock client id',
+              utmCampaign: 'mock utm_campaign',
+              utmContent: 'mock utm_content',
+              utmMedium: 'mock utm_medium',
+              utmSource: 'mock utm_source',
+              utmTerm: 'mock utm_term',
+              ignore: 'mock ignorable property',
+              productId: 'productId',
+              planId: 'planId',
+            }),
+          },
+        },
+        {}
+      )
+      .then((result) => {
+        assert.isObject(result);
+        assert.lengthOf(Object.keys(result), 19);
+        assert.isAbove(result.time, time);
+        assert.equal(result.device_id, 'mock device id');
+        assert.equal(result.entrypoint, 'mock entry point');
+        assert.equal(
+          result.entrypoint_experiment,
+          'mock entrypoint experiment'
+        );
+        assert.equal(
+          result.entrypoint_variation,
+          'mock entrypoint experiment variation'
+        );
+        assert.equal(result.flow_id, 'mock flow id');
+        assert.isAbove(result.flow_time, 0);
+        assert.isBelow(result.flow_time, time);
+        assert.equal(result.flowBeginTime, time);
+        assert.equal(result.flowCompleteSignal, 'mock flow complete signal');
+        assert.equal(result.flowType, 'mock flow type');
+        assert.equal(result.service, 'mock service');
+        assert.equal(result.clientId, 'mock client id');
+        assert.equal(result.utm_campaign, 'mock utm_campaign');
+        assert.equal(result.utm_content, 'mock utm_content');
+        assert.equal(result.utm_medium, 'mock utm_medium');
+        assert.equal(result.utm_source, 'mock utm_source');
+        assert.equal(result.utm_term, 'mock utm_term');
+
+        assert.equal(cache.get.callCount, 0);
+      });
+  });
+
+  it('metricsContext.gather with clientId only', () => {
+    results.get = Promise.resolve({
+      flowId: 'not this flow id',
+      flowBeginTime: 0,
+    });
+    const time = Date.now() - 1;
+    return metricsContext.gather
+      .call(
+        {
+          app: {
+            metricsContext: Promise.resolve({
+              deviceId: 'mock device id',
+              flowId: 'mock flow id',
+              flowBeginTime: time,
+              flowCompleteSignal: 'mock flow complete signal',
+              flowType: 'mock flow type',
+              context: 'mock context',
+              entrypoint: 'mock entry point',
+              entrypointExperiment: 'mock entrypoint experiment',
+              entrypointVariation: 'mock entrypoint experiment variation',
+              migration: 'mock migration',
+              clientId: 'mock client id',
               utmCampaign: 'mock utm_campaign',
               utmContent: 'mock utm_content',
               utmMedium: 'mock utm_medium',
@@ -461,7 +529,7 @@ describe('metricsContext', () => {
         assert.equal(result.flowBeginTime, time);
         assert.equal(result.flowCompleteSignal, 'mock flow complete signal');
         assert.equal(result.flowType, 'mock flow type');
-        assert.equal(result.service, 'mock service');
+        assert.equal(result.clientId, 'mock client id');
         assert.equal(result.utm_campaign, 'mock utm_campaign');
         assert.equal(result.utm_content, 'mock utm_content');
         assert.equal(result.utm_medium, 'mock utm_medium');
@@ -504,7 +572,7 @@ describe('metricsContext', () => {
         {}
       )
       .then((result) => {
-        assert.lengthOf(Object.keys(result), 8);
+        assert.lengthOf(Object.keys(result), 9);
         assert.isUndefined(result.entrypoint);
         assert.isUndefined(result.entrypoint_experiment);
         assert.isUndefined(result.entrypoint_variation);
