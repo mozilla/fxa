@@ -79,7 +79,7 @@ export default {
   onSignUpSuccess(account) {
     this.logViewEvent('success');
     this.logViewEvent('signup.success');
-    GleanMetrics.registration.success();
+    GleanMetrics.registration.submitSuccess();
 
     if (account.get('verificationMethod') === 'email-otp') {
       this.clearInput();

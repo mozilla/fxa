@@ -1406,7 +1406,8 @@ reg:
   engage:
     type: event
     description: |
-      TODO
+      Registration Page Engagement
+      Event that indicates user engagement with the registration page, typically when focusing on form fields.
     send_in_pings:
       - events
     notification_emails:
@@ -1422,7 +1423,7 @@ reg:
       - interaction
     extra_keys:
       reason:
-        description: additional context-dependent info, e.g. the cause of an error
+        description: Indicates which field the user engaged with during registration. Common values include "password" when user focuses on the password field.
         type: string
   signup_code_submit:
     type: event
@@ -1444,6 +1445,12 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates the flow context for the registration email confirmation attempt.
+          Values are either "signup" (user is confirming their account during initial signup flow) or "signin" (user is confirming their account when returning for first signin).
+        type: string
   signup_code_view:
     type: event
     description: |
@@ -1463,6 +1470,12 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: |
+          Indicates the flow context for the registration email confirmation page view.
+          Values are either "signup" (user is confirming their account during initial signup flow) or "signin" (user is confirming their account when returning for first signin).
+        type: string
   signup_code_submit_frontend_error:
     type: event
     description: |
@@ -1559,6 +1572,10 @@ reg:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      reason:
+        description: Indicates the flow context for the successful registration completion. Values are either "signup" (user completed initial signup flow) or "signin" (user completed first signin flow).
+        type: string
   cwts_engage:
     type: event
     description: |

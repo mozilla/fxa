@@ -47,7 +47,7 @@ describe('lib/glean', () => {
         ({
           clientId: mockClientId,
           service: mockService,
-        }[x])
+        })[x]
     ),
   };
   const user = {
@@ -287,7 +287,7 @@ describe('lib/glean', () => {
       // not await on these calls
       GleanMetrics.registration.view();
       GleanMetrics.registration.submit();
-      GleanMetrics.registration.success();
+      GleanMetrics.registration.submitSuccess();
 
       // the ping submissions are await'd internally in GleanMetrics...
       await new Promise((resovle) =>
@@ -322,7 +322,7 @@ describe('lib/glean', () => {
       beforeEach(() => {
         accountGetterStub = sinon
           .stub()
-          .callsFake((x) => ({ sessionToken: 'wibble', uid: 'testo' }[x]));
+          .callsFake((x) => ({ sessionToken: 'wibble', uid: 'testo' })[x]);
         sinon
           .stub(user, 'getSignedInAccount')
           .returns({ get: accountGetterStub });
@@ -402,7 +402,7 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the reg_submit_success event name', async () => {
-        GleanMetrics.registration.success();
+        GleanMetrics.registration.submitSuccess();
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_submit_success');

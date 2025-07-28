@@ -305,7 +305,7 @@ describe('lib/glean', () => {
       // not await on these calls
       GleanMetrics.registration.view();
       GleanMetrics.registration.submit();
-      GleanMetrics.registration.success();
+      GleanMetrics.registration.submitSuccess();
 
       // the ping submissions are await'd internally in GleanMetrics...
       await GleanMetrics.isDone();
@@ -407,7 +407,7 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the reg_submit_success event name', async () => {
-        GleanMetrics.registration.success();
+        GleanMetrics.registration.submitSuccess();
         await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
@@ -1166,7 +1166,7 @@ describe('lib/glean', () => {
     it('resolves', async () => {
       GleanMetrics.registration.view();
       GleanMetrics.registration.submit();
-      GleanMetrics.registration.success();
+      GleanMetrics.registration.submitSuccess();
       GleanMetrics.login.view();
       GleanMetrics.login.submit();
       GleanMetrics.login.success();

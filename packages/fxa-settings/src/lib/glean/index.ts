@@ -267,7 +267,9 @@ const recordEventMetric = (
       });
       break;
     case 'reg_success_view':
-      reg.successView.record();
+      reg.successView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
       break;
     case 'reg_age_invalid':
       reg.ageInvalid.record();

@@ -199,6 +199,23 @@ export const forgotPwdSubmit = new EventMetricType(
 );
 
 /**
+ * The user is shown a banner on the login page indicating that their account
+ * is locked with a link to the password reset page.
+ *
+ * Generated from `login.locked_account_banner_view`.
+ */
+export const lockedAccountBannerView = new EventMetricType(
+  {
+    category: 'login',
+    name: 'locked_account_banner_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  []
+);
+
+/**
  * Event that indicates the user successfully authenticated via recovery phone.
  *
  * Generated from `login.recovery_phone_success_view`.

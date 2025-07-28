@@ -150,7 +150,7 @@ export const Signup = ({
       const { data, error } = await beginSignupHandler(email, newPassword);
 
       if (data) {
-        GleanMetrics.registration.success();
+        GleanMetrics.registration.submitSuccess();
 
         const accountData: StoredAccountData = {
           email,
@@ -284,50 +284,53 @@ export const Signup = ({
       {cmsInfo ? (
         <>
           {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
-          <img
-            src={cmsInfo?.shared.logoUrl}
-            alt={cmsInfo?.shared.logoAltText}
-            className="justify-start mb-4 max-h-[40px]"
-          />)}
-          <h1 className="card-header">{cmsInfo?.SignupSetPasswordPage?.headline}</h1>
+            <img
+              src={cmsInfo?.shared.logoUrl}
+              alt={cmsInfo?.shared.logoAltText}
+              className="justify-start mb-4 max-h-[40px]"
+            />
+          )}
+          <h1 className="card-header">
+            {cmsInfo?.SignupSetPasswordPage?.headline}
+          </h1>
           <p className="mt-1 text-sm">
             {cmsInfo?.SignupSetPasswordPage?.description}
           </p>
         </>
       ) : (
-          <>
-            <CardHeader
-              headingText="Create a password"
-              headingTextFtlId="signup-heading-v2"
-            />
+        <>
+          <CardHeader
+            headingText="Create a password"
+            headingTextFtlId="signup-heading-v2"
+          />
 
-            {isDesktopRelay && (
-              <FtlMsg id="signup-relay-info">
+          {isDesktopRelay && (
+            <FtlMsg id="signup-relay-info">
+              <p className="text-base">
+                A password is needed to securely manage your masked emails and
+                access Mozilla’s security tools.
+              </p>
+            </FtlMsg>
+          )}
+
+          {isSync &&
+            (paymentMethodsWillSync ? (
+              <FtlMsg id="signup-sync-info-with-payment">
                 <p className="text-base">
-                  A password is needed to securely manage your masked emails and
-                  access Mozilla’s security tools.
+                  Sync your passwords, payment methods, bookmarks, and more
+                  everywhere you use Firefox.
                 </p>
               </FtlMsg>
-            )}
-
-            {isSync &&
-              (paymentMethodsWillSync ? (
-                <FtlMsg id="signup-sync-info-with-payment">
-                  <p className="text-base">
-                    Sync your passwords, payment methods, bookmarks, and more
-                    everywhere you use Firefox.
-                  </p>
-                </FtlMsg>
-              ) : (
-                <FtlMsg id="signup-sync-info">
-                  <p className="text-base">
-                    Sync your passwords, bookmarks, and more everywhere you use
-                    Firefox.
-                  </p>
-                </FtlMsg>
-              ))}
-          </>
-        )}
+            ) : (
+              <FtlMsg id="signup-sync-info">
+                <p className="text-base">
+                  Sync your passwords, bookmarks, and more everywhere you use
+                  Firefox.
+                </p>
+              </FtlMsg>
+            ))}
+        </>
+      )}
 
       {bannerErrorText && (
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
@@ -373,7 +376,7 @@ export const Signup = ({
               searchParams.delete('email');
               navigateWithQuery(`/?${searchParams.toString()}`, {
                 state: {
-                  prefillEmail: email
+                  prefillEmail: email,
                 },
               });
             }}
@@ -401,7 +404,7 @@ export const Signup = ({
           setSelectedNewsletterSlugs,
           cmsButton: {
             text: cmsInfo?.SignupSetPasswordPage?.primaryButtonText,
-            color: cmsInfo?.shared?.buttonColor
+            color: cmsInfo?.shared?.buttonColor,
           },
         }}
         loading={beginSignupLoading}
