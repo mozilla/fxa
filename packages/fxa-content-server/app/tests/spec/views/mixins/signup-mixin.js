@@ -40,7 +40,7 @@ describe('views/mixins/signup-mixin', function () {
       );
       regSuccessMetricEventStub = sinon.stub(
         GleanMetrics.registration,
-        'success'
+        'submitSuccess'
       );
       relier = new Relier();
       user = {

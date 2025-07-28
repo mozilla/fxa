@@ -61,7 +61,7 @@ jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
     registration: {
-      complete: jest.fn(),
+      successView: jest.fn(),
     },
     signupConfirmation: {
       view: jest.fn(),
@@ -398,7 +398,7 @@ describe('ConfirmSignupCode page', () => {
       submit();
 
       await waitFor(() => {
-        expect(GleanMetrics.registration.complete).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.registration.successView).toHaveBeenCalledTimes(1);
         expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(redirectTo);
       });
     });
@@ -421,7 +421,7 @@ describe('ConfirmSignupCode page', () => {
       submit();
 
       await waitFor(() => {
-        expect(GleanMetrics.registration.complete).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.registration.successView).toHaveBeenCalledTimes(1);
         expect(mockNavigate).toHaveBeenCalledWith('/settings', {
           replace: true,
         });

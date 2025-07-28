@@ -58,7 +58,9 @@ export const cwtsEngage = new EventMetricType(
 );
 
 /**
- * TODO
+ * Registration Page Engagement
+ * Event that indicates user engagement with the registration page, typically when
+ * focusing on form fields.
  *
  * Generated from `reg.engage`.
  */
@@ -100,7 +102,9 @@ export const marketingEngage = new EventMetricType(
  *
  * Generated from `reg.signup_code_submit`.
  */
-export const signupCodeSubmit = new EventMetricType(
+export const signupCodeSubmit = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'reg',
     name: 'signup_code_submit',
@@ -108,7 +112,7 @@ export const signupCodeSubmit = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**
@@ -137,7 +141,9 @@ export const signupCodeSubmitFrontendError = new EventMetricType<{
  *
  * Generated from `reg.signup_code_view`.
  */
-export const signupCodeView = new EventMetricType(
+export const signupCodeView = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'reg',
     name: 'signup_code_view',
@@ -145,7 +151,7 @@ export const signupCodeView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**
@@ -191,7 +197,9 @@ export const submitSuccess = new EventMetricType(
  *
  * Generated from `reg.success_view`.
  */
-export const successView = new EventMetricType(
+export const successView = new EventMetricType<{
+  reason?: string;
+}>(
   {
     category: 'reg',
     name: 'success_view',
@@ -199,7 +207,7 @@ export const successView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**

@@ -61,7 +61,8 @@ jest.mock('../../lib/glean', () => ({
       view: jest.fn(),
       engage: jest.fn(),
       submit: jest.fn(),
-      success: jest.fn(),
+      submitSuccess: jest.fn(),
+      successView: jest.fn(),
       cwts: jest.fn(),
       marketing: jest.fn(),
       changeEmail: jest.fn(),
@@ -94,10 +95,10 @@ const commonFxaLoginOptions = {
 };
 
 async function fillOutForm(withPwdConfirmation: boolean) {
-  await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD );
+  await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD);
 
   if (withPwdConfirmation) {
-    await user.type(screen.getByLabelText('Repeat password'), MOCK_PASSWORD );
+    await user.type(screen.getByLabelText('Repeat password'), MOCK_PASSWORD);
   }
   await waitFor(() => {
     expect(
@@ -206,7 +207,7 @@ describe('Signup page', () => {
       renderWithLocalizationProvider(
         <Subject integration={createMockSignupSyncDesktopV3Integration()} />
       );
-    })
+    });
 
     // Password confirmation is required for sync
     expect(screen.getByLabelText('Repeat password')).toBeVisible();
@@ -224,10 +225,10 @@ describe('Signup page', () => {
     await act(() => {
       renderWithLocalizationProvider(
         <Subject
-        integration={createMockSignupOAuthNativeIntegration('relay', false)}
+          integration={createMockSignupOAuthNativeIntegration('relay', false)}
         />
       );
-    })
+    });
 
     expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
 
@@ -393,7 +394,7 @@ describe('Signup page', () => {
       });
 
       expect(fxaLoginSpy).not.toHaveBeenCalled();
-      expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(1);
 
       expect(mockNavigate).toHaveBeenCalledWith(`/confirm_signup_code`, {
         state: {
@@ -419,11 +420,11 @@ describe('Signup page', () => {
           await act(() => {
             renderWithLocalizationProvider(
               <Subject
-              integration={createMockSignupSyncDesktopV3Integration()}
-              beginSignupHandler={mockBeginSignupHandler}
+                integration={createMockSignupSyncDesktopV3Integration()}
+                beginSignupHandler={mockBeginSignupHandler}
               />
             );
-          })
+          });
         });
 
         it('all sync options selected and sent', async () => {
@@ -446,7 +447,9 @@ describe('Signup page', () => {
               },
             },
           });
-          expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+          expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(
+            1
+          );
           await waitFor(() => {
             expect(GleanMetrics.registration.marketing).toHaveBeenCalledTimes(
               0
@@ -494,7 +497,9 @@ describe('Signup page', () => {
               },
             },
           });
-          expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+          expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(
+            1
+          );
         });
       });
 
@@ -557,7 +562,7 @@ describe('Signup page', () => {
         );
       });
       expect(GleanMetrics.registration.cwts).toHaveBeenCalledTimes(0);
-      expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.registration.marketing).toHaveBeenCalledWith({
         standard: {
           marketing: {
@@ -597,7 +602,9 @@ describe('Signup page', () => {
           MOCK_PASSWORD
         );
         expect(GleanMetrics.registration.cwts).toHaveBeenCalledTimes(0);
-        expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.registration.submitSuccess).toHaveBeenCalledTimes(
+          1
+        );
         expect(GleanMetrics.registration.marketing).not.toHaveBeenCalled();
       });
     });
@@ -618,7 +625,7 @@ describe('Signup page', () => {
         screen.getByText(AuthUiErrors.UNEXPECTED_ERROR.message);
       });
       expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
-      expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
+      expect(GleanMetrics.registration.submitSuccess).not.toHaveBeenCalled();
     });
   });
 });
