@@ -6,6 +6,7 @@ import React from 'react';
 import AppLayout from './index';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { RelierCmsInfo } from '../../models/integrations';
 
 export default {
   title: 'Components/AppLayout',
@@ -19,3 +20,137 @@ export const Basic = () => (
     <p className="mt-2">Paragraph content here</p>
   </AppLayout>
 );
+
+export const WithTitle = () => (
+  <AppLayout title="Custom Page Title">
+    <h1 className="card-header">Header content</h1>
+    <p className="mt-2">Paragraph content here</p>
+  </AppLayout>
+);
+
+export const WithWidthClass = () => (
+  <AppLayout widthClass="card-xl">
+    <h1 className="card-header">Wide content</h1>
+    <p className="mt-2">This content uses a wider card layout</p>
+  </AppLayout>
+);
+
+export const WithIntegration = () => {
+  const mockIntegration = {
+    getCmsInfo: () => ({
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+        backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        pageTitle: 'Test App - Custom Title'
+      }
+    } as RelierCmsInfo)
+  };
+
+  return (
+    <AppLayout integration={mockIntegration}>
+      <h1 className="card-header">Header content</h1>
+      <p className="mt-2">Paragraph content here</p>
+    </AppLayout>
+  );
+};
+
+export const WithIntegrationNoBackground = () => {
+  const mockIntegration = {
+    getCmsInfo: () => ({
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+        pageTitle: 'Test App - Custom Title'
+        // No backgroundColor, so no background image should be applied
+      }
+    } as RelierCmsInfo)
+  };
+
+  return (
+    <AppLayout integration={mockIntegration}>
+      <h1 className="card-header">Header content</h1>
+      <p className="mt-2">Paragraph content here</p>
+    </AppLayout>
+  );
+};
+
+export const WithIntegrationInvalidBackground = () => {
+  const mockIntegration = {
+    getCmsInfo: () => ({
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+        backgroundColor: 'invalid-color',
+        pageTitle: 'Test App - Custom Title'
+      }
+    } as RelierCmsInfo)
+  };
+
+  return (
+    <AppLayout integration={mockIntegration}>
+      <h1 className="card-header">Header content</h1>
+      <p className="mt-2">Paragraph content here</p>
+    </AppLayout>
+  );
+};
+
+export const WithIntegrationRadialGradient = () => {
+  const mockIntegration = {
+    getCmsInfo: () => ({
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+        backgroundColor: 'radial-gradient(circle, #ff6b6b, #4ecdc4)',
+        pageTitle: 'Test App - Custom Title'
+      }
+    } as RelierCmsInfo)
+  };
+
+  return (
+    <AppLayout integration={mockIntegration}>
+      <h1 className="card-header">Header content</h1>
+      <p className="mt-2">Paragraph content here</p>
+    </AppLayout>
+  );
+};
+
+export const WithIntegrationNoCmsInfo = () => {
+  const mockIntegration = {
+    getCmsInfo: () => undefined
+  };
+
+  return (
+    <AppLayout integration={mockIntegration}>
+      <h1 className="card-header">Header content</h1>
+      <p className="mt-2">Paragraph content here</p>
+    </AppLayout>
+  );
+};
+
+export const WithIntegrationNoGetCmsInfo = () => {
+  const mockIntegration = {};
+
+  return (
+    <AppLayout integration={mockIntegration}>
+      <h1 className="card-header">Header content</h1>
+      <p className="mt-2">Paragraph content here</p>
+    </AppLayout>
+  );
+};

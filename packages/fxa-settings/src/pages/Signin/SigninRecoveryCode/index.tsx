@@ -210,7 +210,7 @@ const SigninRecoveryCode = ({
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <AppLayout>
+    <AppLayout integration={integration}>
       <div className="relative flex items-center mb-5">
         <ButtonBack />
         {cmsInfo?.shared?.logoUrl && cmsInfo.shared?.logoAltText ? (

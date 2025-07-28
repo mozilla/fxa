@@ -280,7 +280,7 @@ export const Signup = ({
   return (
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
     //       - forceMessage('Account no longer exists. Recreate it?')
-    <AppLayout>
+    <AppLayout integration={integration}>
       {cmsInfo ? (
         <>
           {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (

@@ -37,6 +37,8 @@ export interface SharedRelierCmsInfo {
   buttonColor: string | undefined;
   logoUrl: string | undefined;
   logoAltText: string | undefined;
+  backgroundColor?: string | undefined;
+  pageTitle?: string | undefined;
 }
 
 export interface RelierCmsInfo {
