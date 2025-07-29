@@ -67,7 +67,7 @@ export default async function UpgradeError({
     cart.paymentInfo?.type
   );
 
-  const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config);
+  const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config, searchParams);
 
   return (
     <>

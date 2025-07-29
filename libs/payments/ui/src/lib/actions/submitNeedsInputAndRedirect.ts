@@ -6,9 +6,15 @@
 
 import { getApp } from '../nestapp/app';
 import { redirect } from 'next/navigation';
+import { URLSearchParams } from 'url';
 
-export const submitNeedsInputAndRedirectAction = async (cartId: string) => {
+export const submitNeedsInputAndRedirectAction = async (
+  cartId: string,
+  searchParams?: Record<string, string | string[]>
+) => {
   let redirectPath: string | undefined;
+  const urlSearchParams = new URLSearchParams(searchParams);
+  const params = searchParams ? `?${urlSearchParams.toString()}` : '';
   try {
     await getApp().getActionsService().submitNeedsInput({ cartId });
     redirectPath = 'success';
@@ -17,5 +23,5 @@ export const submitNeedsInputAndRedirectAction = async (cartId: string) => {
    redirectPath = 'error';
   }
 
-  redirect(redirectPath);
+  redirect(`${redirectPath}${params}`);
 };

@@ -8,17 +8,21 @@ import { StripeError } from '@stripe/stripe-js';
 import { getApp } from '../nestapp/app';
 import { redirect } from 'next/navigation';
 import { stripeErrorToErrorReasonId } from '@fxa/payments/cart';
+import { URLSearchParams } from 'url';
 
 export const handleStripeErrorAction = async (
   cartId: string,
-  stripeError: StripeError
+  stripeError: StripeError,
+  searchParams?: Record<string, string | string[]>
 ) => {
   const errorReasonId = stripeErrorToErrorReasonId(stripeError);
+  const urlSearchParams = new URLSearchParams(searchParams);
+  const params = searchParams ? `?${urlSearchParams.toString()}` : '';
 
   await getApp().getActionsService().finalizeCartWithError({
     cartId,
     errorReasonId,
   });
 
-  redirect('error');
+  redirect(`error${params}`);
 };

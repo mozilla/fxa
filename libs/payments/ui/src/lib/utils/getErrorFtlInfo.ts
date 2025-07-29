@@ -4,6 +4,7 @@
 
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { CheckoutParams } from './types';
+import { URLSearchParams } from 'url';
 
 export function getErrorFtlInfo(
   reason: CartErrorReasonId | string | null,
@@ -11,8 +12,13 @@ export function getErrorFtlInfo(
   config: {
     contentServerUrl: string;
     supportUrl: string;
-  }
+  },
+  searchParams?: Record<string, string | string[]>
 ) {
+
+  const urlSearchParams = new URLSearchParams(searchParams);
+  const queryParamString = searchParams ? `?${urlSearchParams.toString()}` : '';
+
   switch (reason) {
     case CartErrorReasonId.CART_ELIGIBILITY_STATUS_DOWNGRADE:
       return {
@@ -35,7 +41,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-manage-subscription-button',
         buttonLabel: 'Manage my subscription',
-        buttonUrl: `${config.contentServerUrl}/subscriptions`,
+        buttonUrl: `${config.contentServerUrl}/subscriptions${queryParamString}`,
         message: 'You’ve already subscribed to this product.',
         messageFtl: 'checkout-error-already-subscribed',
       };
@@ -43,7 +49,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-manage-subscription-button',
         buttonLabel: 'Manage my subscription',
-        buttonUrl: `${config.contentServerUrl}/subscriptions`,
+        buttonUrl: `${config.contentServerUrl}/subscriptions${queryParamString}`,
         message:
           'You have a mobile in-app subscription that conflicts with this product — please contact support so we can help you.',
         messageFtl: 'next-iap-blocked-contact-support',
@@ -52,7 +58,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message:
           'We were unable to determine the currency for this purchase, please try again.',
         messageFtl: 'cart-error-currency-not-determined',
@@ -61,7 +67,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message:
           'An unexpected error has occurred while processing your payment, please try again.',
         messageFtl: 'checkout-processing-general-error',
@@ -70,7 +76,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message: 'The invoice amount has changed. Please try again.',
         messageFtl: 'cart-total-mismatch-error',
       };
@@ -78,7 +84,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message:
           'Your transaction could not be processed. Please verify your credit card information and try again.',
         messageFtl: 'intent-card-error',
@@ -87,7 +93,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message:
           'It looks like your credit card has expired. Try another card.',
         messageFtl: 'intent-expired-card-error',
@@ -96,7 +102,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message:
           'Hmm. There was a problem authorizing your payment. Try again or get in touch with your card issuer.',
         messageFtl: 'intent-payment-error-try-again',
@@ -105,7 +111,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message:
           'Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.',
         messageFtl: 'intent-payment-error-get-in-touch',
@@ -114,7 +120,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message:
           'An unexpected error has occurred while processing your payment, please try again.',
         messageFtl: 'intent-payment-error-generic',
@@ -123,7 +129,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message:
           'It looks like your card has insufficient funds. Try another card.',
         messageFtl: 'intent-payment-error-insufficient-funds',
@@ -133,7 +139,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-retry-button',
         buttonLabel: 'Try again',
-        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing`,
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
         message: 'Something went wrong. Please try again later.',
         messageFtl: 'next-basic-error-message',
       };

@@ -683,10 +683,14 @@ Router = Router.extend({
       if (
         reactRouteGroups[routeGroup].routes.find((route) => routeName === route)
       ) {
+        const showBackboneOAuthRoute =
+          routeName === 'oauth' &&
+          Url.searchParam('channel_id', this.window.location.search);
         return (
           reactRouteGroups[routeGroup].featureFlagOn &&
           (this.isInReactExperiment() ||
-            reactRouteGroups[routeGroup].fullProdRollout === true)
+            reactRouteGroups[routeGroup].fullProdRollout === true) &&
+          !showBackboneOAuthRoute
         );
       }
     }

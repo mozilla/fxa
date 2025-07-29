@@ -6,7 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import * as Sentry from '@sentry/nextjs';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import errorIcon from '@fxa/shared/assets/images/error.svg';
 import { CheckoutParams, LoadingSpinner } from '@fxa/payments/ui';
@@ -32,6 +32,7 @@ export default function Error({
   const [loading, setLoading] = useState(false);
   const { locale, offeringId, interval, cartId } = useParams<ErrorParams>();
   const hasProductData = locale && offeringId && interval;
+  const queryParams = useSearchParams().toString();
 
   const SUPPORT_URL = process.env.SUPPORT_URL ?? 'https://support.mozilla.org';
 
@@ -44,8 +45,8 @@ export default function Error({
         const newCart = await restartCartAction(cartId);
         setLoading(false);
         router.push(
-          `/${locale}/${offeringId}/${interval}/checkout/${newCart.id}/${cart.state}`
-        );
+          `/${locale}/${offeringId}/${interval}/checkout/${newCart.id}/${cart.state}` +
+                                  (queryParams ? `?${queryParams}` : ''));
       } else {
         setLoading(false);
         reset();
@@ -53,7 +54,7 @@ export default function Error({
     } catch (getCartError) {
       Sentry.captureException(getCartError);
       setLoading(false);
-      router.push(`/${locale}/${offeringId}/${interval}/landing`);
+      router.push(`/${locale}/${offeringId}/${interval}/landing` + (queryParams ? `?${queryParams}` : ''));
     }
   }
 
@@ -61,7 +62,7 @@ export default function Error({
     if (cartId) {
       redirectWithCart();
     } else {
-      router.push(`/${locale}/${offeringId}/${interval}/landing`);
+      router.push(`/${locale}/${offeringId}/${interval}/landing` + (queryParams ? `?${queryParams}` : ''));
     }
   }
 

@@ -42,7 +42,7 @@ describe('lib/router', () => {
   const mockReactRouteGroups = {
     alwaysOnRoutes: {
       featureFlagOn: mockShowReactAppConfig.alwaysOnRoutes,
-      routes: ['alwaysOnRoute'],
+      routes: ['alwaysOnRoute', 'oauth'],
       fullProdRollout: true,
     },
     sometimesOnRoutes: {
@@ -563,6 +563,11 @@ describe('lib/router', () => {
           sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
           assert.isTrue(router.showReactApp('sometimesOnRoute'));
         });
+
+        it('when route is oauth but channel_id parameter is not present', () => {
+          windowMock.location.search = '';
+          assert.isTrue(router.showReactApp('oauth'));
+        });
       });
 
       describe('returns false', () => {
@@ -590,8 +595,14 @@ describe('lib/router', () => {
           sinon.stub(router, 'isInReactExperiment').callsFake(() => false);
           assert.isFalse(router.showReactApp('sometimesOnRoute'));
         });
+
+        it('when route is oauth and channel_id parameter is present', () => {
+          windowMock.location.search = '?channel_id=test123';
+          assert.isFalse(router.showReactApp('oauth'));
+        });
       });
     });
+
     describe('createReactOrBackboneViewHandler', () => {
       const viewConstructorOptions = {};
       const additionalParams = {};
