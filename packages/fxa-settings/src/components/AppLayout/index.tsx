@@ -17,6 +17,11 @@ type AppLayoutProps = {
   children: React.ReactNode;
   widthClass?: string;
   integration?: { getCmsInfo?: () => RelierCmsInfo | undefined };
+  /** Whether the content is wrapped in a card.
+   * Set to `false` for content that already provides a card, like
+   * `FlowContainer`.
+   */
+  wrapInCard?: boolean;
 };
 
 export const AppLayout = ({
@@ -24,6 +29,7 @@ export const AppLayout = ({
   children,
   widthClass,
   integration,
+  wrapInCard = true,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
 
@@ -34,20 +40,25 @@ export const AppLayout = ({
   const overrideTitle = cmsPageTitle ? cmsPageTitle : title;
 
   // Only apply background image if cmsBackgroundColor is a valid background-image CSS value
-  const hasValidBackgroundImage = cmsBackgroundColor &&
+  const hasValidBackgroundImage =
+    cmsBackgroundColor &&
     (cmsBackgroundColor.includes('linear-gradient') ||
-     cmsBackgroundColor.includes('radial-gradient'));
+      cmsBackgroundColor.includes('radial-gradient'));
 
   return (
     <>
       <Head {...{ title: overrideTitle }} />
-        <div
-          className="flex min-h-screen flex-col items-center"
-          style={hasValidBackgroundImage ? {
-            '--cms-bg': cmsBackgroundColor
-          } as React.CSSProperties : undefined}
-          data-testid="app"
-        >
+      <div
+        className="flex min-h-screen flex-col items-center"
+        style={
+          hasValidBackgroundImage
+            ? ({
+                '--cms-bg': cmsBackgroundColor,
+              } as React.CSSProperties)
+            : undefined
+        }
+        data-testid="app"
+      >
         <div id="body-top" className="w-full hidden mobileLandscape:block" />
         <header className="w-full px-6 pt-16 pb-0 mobileLandscape:py-6">
           <LinkExternal
@@ -68,7 +79,11 @@ export const AppLayout = ({
         </header>
         <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
           <section>
-            <div className={classNames('card', widthClass)}>{children}</div>
+            {wrapInCard ? (
+              <div className={classNames('card', widthClass)}>{children}</div>
+            ) : (
+              children
+            )}
           </section>
         </main>
       </div>

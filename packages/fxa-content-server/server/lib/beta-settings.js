@@ -113,6 +113,9 @@ const settingsConfig = {
     recoveryPhonePasswordReset2fa: config.get(
       'featureFlags.recoveryPhonePasswordReset2fa'
     ),
+    updatedInlineTotpSetupFlow: config.get(
+      'featureFlags.updatedInlineTotpSetupFlow'
+    ),
   },
   nimbusPreview: config.get('nimbusPreview'),
   cms: {

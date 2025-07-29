@@ -91,7 +91,9 @@ describe('FlowSetup2faPrompt', () => {
   });
 
   it('calls onBackButtonClick when back button is clicked', async () => {
-    const { onBackButtonClick } = renderFlowSetup2faPrompt();
+    const { onBackButtonClick } = renderFlowSetup2faPrompt({
+      hideBackButton: false,
+    });
 
     const backButton = screen.getByRole('button', { name: 'Back' });
     await userEvent.click(backButton);

@@ -7,7 +7,12 @@ import { TotpToken } from '../Signin/interfaces';
 
 export interface InlineTotpSetupProps {
   totp: TotpToken;
-  email: string;
+  serviceName: MozServices;
+  verifyCodeHandler: (code: string) => void;
+}
+
+export interface InlineTotpSetupPropsOld {
+  totp: TotpToken;
   serviceName?: MozServices;
   cancelSetupHandler: () => void;
   verifyCodeHandler: (code: string) => void;

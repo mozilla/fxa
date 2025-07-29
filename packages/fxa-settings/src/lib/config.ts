@@ -93,6 +93,7 @@ export interface Config {
     keyStretchV2?: boolean;
     recoveryCodeSetupOnSyncSignIn?: boolean;
     recoveryPhonePasswordReset2fa?: boolean;
+    updatedInlineTotpSetupFlow?: boolean;
   };
   nimbusPreview: boolean;
   cms: {
@@ -175,6 +176,7 @@ export function getDefault() {
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,
       recoveryPhonePasswordReset2fa: false,
+      updatedInlineTotpSetupFlow: false,
     },
     cms: {
       // Note: Even if this flag is true, the user must be an `en` language
