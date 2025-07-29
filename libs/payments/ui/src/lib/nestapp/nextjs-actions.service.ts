@@ -23,6 +23,7 @@ import {
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { SanitizeExceptions } from '@fxa/shared/error';
 import { GeoDBManager } from '@fxa/shared/geodb';
+import { AccountCustomerNotFoundError } from '@fxa/payments/stripe';
 
 import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
 import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithStripeActionArgs';
@@ -90,6 +91,10 @@ import { ServerLogActionArgs } from './validators/ServerLogActionArgs';
 import { ProfileClient } from '@fxa/profile/client';
 import { GetUserinfoResult } from './validators/GetUserinfoResult';
 import { GetUserinfoArgs } from './validators/GetUserinfoArgs';
+import { GetStripePaymentManagementDetailsArgs } from './validators/GetStripeClientSessionActionArgs';
+import { GetStripePaymentManagementDetailsResult } from './validators/GetStripePaymentManagementDetailsResult';
+import { UpdateStripePaymentDetailsArgs } from './validators/UpdateStripePaymentDetailsActionArgs';
+import { UpdateStripePaymentDetailsResult } from './validators/UpdateStripePaymentDetailsActionResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -562,6 +567,35 @@ export class NextJSActionsService {
     return await this.profileClient.getUserinfo(
       args.userinfoUrl,
       args.accessToken
+    );
+  }
+
+  @SanitizeExceptions({ allowlist: [AccountCustomerNotFoundError] })
+  @NextIOValidator(
+    GetStripePaymentManagementDetailsArgs,
+    GetStripePaymentManagementDetailsResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getStripePaymentManagementDetails(args: { uid: string }) {
+    return await this.subscriptionManagementService.getStripePaymentManagementDetails(
+      args.uid
+    );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    UpdateStripePaymentDetailsArgs,
+    UpdateStripePaymentDetailsResult
+  )
+  @CaptureTimingWithStatsD()
+  async updateStripePaymentDetails(args: {
+    uid: string;
+    confirmationTokenId: string;
+  }) {
+    return await this.subscriptionManagementService.updateStripePaymentDetails(
+      args.uid,
+      args.confirmationTokenId
     );
   }
 }

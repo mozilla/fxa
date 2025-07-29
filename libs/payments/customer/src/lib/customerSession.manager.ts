@@ -9,7 +9,7 @@ import { Injectable } from '@nestjs/common';
 export class CustomerSessionManager {
   constructor(private stripeClient: StripeClient) {}
 
-  async create(customerId: string) {
+  async createCheckoutSession(customerId: string) {
     return this.stripeClient.customersSessionsCreate({
       customer: customerId,
       components: {
@@ -20,6 +20,26 @@ export class CustomerSessionManager {
             payment_method_save: 'disabled',
             payment_method_remove: 'disabled',
             payment_method_allow_redisplay_filters: ['always', 'limited', 'unspecified'],
+          },
+        },
+      },
+    });
+  }
+
+  async createManagementSession(customerId: string) {
+    return this.stripeClient.customersSessionsCreate({
+      customer: customerId,
+      components: {
+        payment_element: {
+          enabled: true,
+          features: {
+            payment_method_redisplay: 'enabled',
+            payment_method_remove: 'enabled',
+            payment_method_allow_redisplay_filters: [
+              'always',
+              'limited',
+              'unspecified',
+            ],
           },
         },
       },

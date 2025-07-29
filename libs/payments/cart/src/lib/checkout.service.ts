@@ -420,6 +420,11 @@ export class CheckoutService {
           customer.id,
           confirmationTokenId
         );
+
+        this.statsd.increment(
+          'checkout_stripe_payment_setupintent_status',
+          { status: intent.status }
+        );
       }
     } catch (error) {
       if (error?.payment_intent) {

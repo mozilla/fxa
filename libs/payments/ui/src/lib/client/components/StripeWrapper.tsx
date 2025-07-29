@@ -67,6 +67,37 @@ const stripeElementLocales = [
   'zh-TW',
 ];
 
+const sharedOptions = {
+  appearance: {
+    variables: {
+      fontFamily:
+        'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+      fontSizeBase: '16px',
+      fontSizeSm: '16px',
+      fontWeightNormal: '500',
+      colorDanger: '#D70022',
+    },
+    rules: {
+      '.Tab': {
+        borderColor: 'rgba(0,0,0,0.3)',
+      },
+      '.Input': {
+        borderColor: 'rgba(0,0,0,0.3)',
+      },
+      '.Input::placeholder': {
+        color: '#5E5E72', // Matches grey-500 of tailwind.config.js
+        fontWeight: '400',
+      },
+      '.Label': {
+        color: '#6D6D6E', // Matches grey-400 of tailwind.config.js
+        fontWeight: '500',
+        lineHeight: '1.15',
+      },
+    },
+  },
+  paymentMethodCreation: 'manual',
+} satisfies StripeElementsOptions;
+
 function isStripeElementLocale(locale: string): locale is StripeElementLocale {
   return stripeElementLocales.includes(locale as StripeElementLocale);
 }
@@ -77,10 +108,10 @@ interface StripeWrapperProps {
   cart: {
     paymentInfo?: {
       type:
-      | Stripe.PaymentMethod.Type
-      | 'google_iap'
-      | 'apple_iap'
-      | 'external_paypal';
+        | Stripe.PaymentMethod.Type
+        | 'google_iap'
+        | 'apple_iap'
+        | 'external_paypal';
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
@@ -106,40 +137,13 @@ export function StripeWrapper({
   const isBelowMin = amount < minCharge;
 
   const options: StripeElementsOptions = {
+    ...sharedOptions,
     mode: isBelowMin ? 'setup' : 'subscription',
     locale: isStripeElementLocale(locale) ? locale : 'auto',
     amount: isBelowMin ? undefined : amount,
-    currency: currency.toLowerCase(),
-    paymentMethodCreation: 'manual',
+    currency: normalizedCurrency,
     externalPaymentMethodTypes: ['external_paypal'],
     customerSessionClientSecret: cart.paymentInfo?.customerSessionClientSecret,
-    appearance: {
-      variables: {
-        fontFamily:
-          'Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-        fontSizeBase: '16px',
-        fontSizeSm: '16px',
-        fontWeightNormal: '500',
-        colorDanger: '#D70022',
-      },
-      rules: {
-        '.Tab': {
-          borderColor: 'rgba(0,0,0,0.3)',
-        },
-        '.Input': {
-          borderColor: 'rgba(0,0,0,0.3)',
-        },
-        '.Input::placeholder': {
-          color: '#5E5E72', // Matches grey-500 of tailwind.config.js
-          fontWeight: '400',
-        },
-        '.Label': {
-          color: '#6D6D6E', // Matches grey-400 of tailwind.config.js
-          fontWeight: '500',
-          lineHeight: '1.15',
-        },
-      },
-    },
   };
 
   // Remove external_paypal if the customer has an active subscription
@@ -154,6 +158,40 @@ export function StripeWrapper({
 
   return (
     <Elements stripe={stripePromise} options={options}>
+      {children}
+    </Elements>
+  );
+}
+
+interface StripeManagementWrapperProps {
+  locale: string;
+  currency: string;
+  sessionSecret: string;
+  children: React.ReactNode;
+  instanceKey: string;
+}
+
+export function StripeManagementWrapper({
+  locale,
+  currency,
+  sessionSecret,
+  children,
+  instanceKey,
+}: StripeManagementWrapperProps) {
+  const config = useContext(ConfigContext);
+  const [stripePromise] = useState(() => loadStripe(config.stripePublicApiKey));
+
+  const options: StripeElementsOptions = {
+    ...sharedOptions,
+    mode: 'setup',
+    locale: isStripeElementLocale(locale) ? locale : 'auto',
+    currency: currency.toLowerCase(),
+    customerSessionClientSecret: sessionSecret,
+    setupFutureUsage: 'off_session',
+  };
+
+  return (
+    <Elements stripe={stripePromise} options={options} key={instanceKey}>
       {children}
     </Elements>
   );

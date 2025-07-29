@@ -31,8 +31,8 @@ describe('CustomerSessionManager', () => {
     stripeClient = moduleRef.get(StripeClient);
   });
 
-  describe('create', () => {
-    it('should create a customer session', async () => {
+  describe('createCheckoutSession', () => {
+    it('should create a checkoutcustomer session', async () => {
       const customerId = 'customerId';
       const mockCustomerSession = StripeCustomerSessionFactory();
       const mockResponse = StripeResponseFactory(mockCustomerSession);
@@ -41,10 +41,64 @@ describe('CustomerSessionManager', () => {
         .spyOn(stripeClient, 'customersSessionsCreate')
         .mockResolvedValue(mockResponse);
 
-      const result = await customerSessionManager.create(customerId);
+      const result =
+        await customerSessionManager.createCheckoutSession(customerId);
 
       expect(stripeClient.customersSessionsCreate).toHaveBeenCalledWith(
-        expect.objectContaining({ customer: customerId })
+        expect.objectContaining({
+          customer: customerId,
+          components: {
+            payment_element: {
+              enabled: true,
+              features: {
+                payment_method_redisplay: 'enabled',
+                payment_method_save: 'disabled',
+                payment_method_remove: 'disabled',
+                payment_method_allow_redisplay_filters: [
+                  'always',
+                  'limited',
+                  'unspecified',
+                ],
+              },
+            },
+          },
+        })
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('createManagementSession', () => {
+    it('should create a checkout customer session', async () => {
+      const customerId = 'customerId';
+      const mockCustomerSession = StripeCustomerSessionFactory();
+      const mockResponse = StripeResponseFactory(mockCustomerSession);
+
+      jest
+        .spyOn(stripeClient, 'customersSessionsCreate')
+        .mockResolvedValue(mockResponse);
+
+      const result =
+        await customerSessionManager.createManagementSession(customerId);
+
+      expect(stripeClient.customersSessionsCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customer: customerId,
+          components: {
+            payment_element: {
+              enabled: true,
+              features: {
+                payment_method_redisplay: 'enabled',
+                payment_method_remove: 'enabled',
+                payment_method_allow_redisplay_filters: [
+                  'always',
+                  'limited',
+                  'unspecified',
+                ],
+              },
+            },
+          },
+        })
       );
       expect(result).toEqual(mockResponse);
     });

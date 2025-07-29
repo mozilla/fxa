@@ -19,6 +19,7 @@ import { getApp } from '@fxa/payments/ui/server';
 import { LinkExternal } from '@fxa/shared/react';
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
+import Link from 'next/link';
 
 export default async function Manage({
   params,
@@ -53,6 +54,12 @@ export default async function Manage({
   const subscriptions: any = [];
   const appleIapSubscriptions: any = [];
   const googleIapSubscriptions: any = [];
+
+  const CSS_PRIMARY_LINK =
+    "flex items-center justify-center h-10 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-blue-500 font-semibold hover:bg-blue-700 text-white";
+  const CSS_SECONDARY_LINK =
+    "flex items-center justify-center h-10 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-grey-100 font-semibold hover:bg-grey-200 text-black";
+
   return (
     <>
       <section
@@ -70,9 +77,9 @@ export default async function Manage({
             )}
           </h2>
           {!defaultPaymentMethod && (
-            <SubmitButton
-              className="h-10"
-              variant={ButtonVariant.Primary}
+            <Link
+              className={CSS_PRIMARY_LINK}
+              href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
               aria-label={l10n.getString(
                 'subscription-management-button-add-payment-method-aria',
                 'Add payment method'
@@ -84,7 +91,7 @@ export default async function Manage({
                   'Add'
                 )}
               </span>
-            </SubmitButton>
+            </Link>
           )}
         </div>
 
@@ -117,21 +124,19 @@ export default async function Manage({
                 </div>
               )}
             </div>
-            <SubmitButton
-              className="h-10"
-              variant={ButtonVariant.Secondary}
+            <Link
+              className={CSS_SECONDARY_LINK}
+              href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
               aria-label={l10n.getString(
                 'subscription-management-button-change-payment-method-aria',
                 'Change payment method'
               )}
             >
-              <span>
-                {l10n.getString(
-                  'subscription-management-button-change-payment-method',
-                  'Change'
-                )}
-              </span>
-            </SubmitButton>
+              {l10n.getString(
+                'subscription-management-button-change-payment-method',
+                'Change'
+              )}
+            </Link>
           </div>
         )}
 
@@ -148,8 +153,8 @@ export default async function Manage({
             </div>
 
             <LinkExternal
+              className={CSS_SECONDARY_LINK}
               href={`${config.csp.paypalApi}/myaccount/autopay/connect/${billingAgreementId}`}
-              className="flex items-center justify-center h-12 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-grey-100 font-semibold hover:bg-grey-200 text-black"
               aria-label={l10n.getString(
                 'subscription-management-button-change-payment-method-aria',
                 'Change payment method'
@@ -291,8 +296,8 @@ export default async function Manage({
                       </div>
                       <div>
                         <LinkExternal
+                          className={CSS_SECONDARY_LINK}
                           href={`https://apps.apple.com/account/subscriptions`}
-                          className="flex items-center justify-center h-12 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-grey-100 font-semibold hover:bg-grey-200 text-black"
                           aria-label={l10n.getString(
                             'subscription-management-button-manage-subscription-aria',
                             {
@@ -382,10 +387,10 @@ export default async function Manage({
                     </div>
                     <div>
                       <LinkExternal
+                        className={CSS_SECONDARY_LINK}
                         href={`https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(
                           purchase.sku
                         )}&package=${encodeURIComponent(purchase.packageName)}`}
-                        className="flex items-center justify-center h-12 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-grey-100 font-semibold hover:bg-grey-200 text-black"
                         aria-label={l10n.getString(
                           'subscription-management-button-manage-subscription-aria',
                           {
