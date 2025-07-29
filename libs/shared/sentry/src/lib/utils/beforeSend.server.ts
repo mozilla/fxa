@@ -16,6 +16,8 @@ const EXPECTED_ERRORS = new Set([
   'IntentTryAgainError',
   'IntentGetInTouchError',
   'IntentInsufficientFundsError',
+  'PayPalPaymentMethodError',
+  'PayPalServiceUnavailableError',
 ]);
 
 export const beforeSend = function (

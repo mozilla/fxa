@@ -134,6 +134,15 @@ export function getErrorFtlInfo(
           'It looks like your card has insufficient funds. Try another card.',
         messageFtl: 'intent-payment-error-insufficient-funds',
       };
+    case CartErrorReasonId.GENERAL_PAYPAL_ERROR:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,
+        message:
+          'An unexpected error has occurred while processing your payment, please try again.',
+        messageFtl: 'general-paypal-error',
+      };
     case CartErrorReasonId.BASIC_ERROR:
     default:
       return {
