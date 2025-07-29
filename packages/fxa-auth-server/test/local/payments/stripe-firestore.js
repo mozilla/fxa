@@ -299,6 +299,7 @@ describe('StripeFirestore', () => {
       assert.calledTwice(stripe.customers.retrieve);
       assert.calledOnceWithExactly(stripe.subscriptions.list, {
         customer: customer.id,
+        status: "all"
       });
       assert.callCount(tx.set, 2); // customer + subscription
       assert.callCount(tx.get, 2); // customer + subscription
