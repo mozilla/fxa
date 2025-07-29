@@ -243,6 +243,29 @@ module.exports = (config) => {
     });
   };
 
+  Client.loginAndVerifyTotp = async function (
+    origin,
+    email,
+    password,
+    totpSecret,
+    options
+  ) {
+    if (!options) {
+      options = {};
+    }
+    options.keys = options.keys || true;
+    const client = await Client.login(origin, email, password, options);
+    client.totpAuthenticator = new otplib.authenticator.Authenticator();
+    client.totpAuthenticator.options = {
+      secret: totpSecret,
+      crypto: crypto,
+    };
+    const result = await client.verifyTotpCode(
+      client.totpAuthenticator.generate()
+    );
+    return client;
+  };
+
   Client.prototype.create = function () {
     return this.api
       .accountCreate(this.email, this.authPW, this.options)
