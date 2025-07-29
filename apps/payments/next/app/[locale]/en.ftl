@@ -32,6 +32,7 @@ intent-payment-error-try-again = Hmm. There was a problem authorizing your payme
 intent-payment-error-get-in-touch = Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.
 intent-payment-error-generic = An unexpected error has occurred while processing your payment, please try again.
 intent-payment-error-insufficient-funds = It looks like your card has insufficient funds. Try another card.
+general-paypal-error = An unexpected error has occurred while processing your payment, please try again.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
