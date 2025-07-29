@@ -6,7 +6,7 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import {
   MOCK_2FA_SECRET_KEY_RAW,
   PLACEHOLDER_QR_CODE,
@@ -18,7 +18,10 @@ import { TwoStepSetupMethod } from './types';
 export default {
   title: 'Components/Settings/FlowSetup2faApp',
   component: FlowSetup2faApp,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    withLocation('/settings/two_step_authentication'),
+  ],
 } as Meta;
 
 const verifyCodeSuccess = async (code: string) => {

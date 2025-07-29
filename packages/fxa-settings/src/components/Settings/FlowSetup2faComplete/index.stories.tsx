@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 import FlowSetup2faComplete from '.';
 import { action } from '@storybook/addon-actions';
@@ -12,7 +12,10 @@ import { action } from '@storybook/addon-actions';
 export default {
   title: 'Components/Settings/FlowSetup2faComplete',
   component: FlowSetup2faComplete,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    withLocation('/settings/two_step_authentication'),
+  ],
 } as Meta;
 
 const onContinue = () => {

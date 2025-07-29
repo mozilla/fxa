@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 import { action } from '@storybook/addon-actions';
 import { FlowSetup2faBackupCodeDownload } from '.';
@@ -13,7 +13,10 @@ import { MOCK_BACKUP_CODES, MOCK_EMAIL } from '../../../pages/mocks';
 export default {
   title: 'Components/Settings/FlowSetup2faBackupCodeDownload',
   component: FlowSetup2faBackupCodeDownload,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    withLocation('/settings/two_step_authentication'),
+  ],
 } as Meta;
 
 const navigateBackward = async () => {

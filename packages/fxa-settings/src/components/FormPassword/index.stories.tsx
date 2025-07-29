@@ -7,13 +7,13 @@ import { Subject } from './mocks';
 import { LocationProvider } from '@reach/router';
 import FormPassword from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../Settings/SettingsLayout';
 
 export default {
   title: 'Components/FormPassword',
   component: FormPassword,
-  decorators: [withLocalization],
+  decorators: [withLocalization, withLocation('/settings/password')],
 } as Meta;
 export const WithCurrentPassword = () => (
   <LocationProvider>

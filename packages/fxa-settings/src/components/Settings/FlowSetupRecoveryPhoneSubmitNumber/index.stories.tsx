@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 import { action } from '@storybook/addon-actions';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -14,7 +14,10 @@ import { RecoveryPhoneSetupReason } from '../../../lib/types';
 export default {
   title: 'Components/Settings/FlowSetupRecoveryPhoneSubmitNumber',
   component: FlowSetupRecoveryPhoneSubmitNumber,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    withLocation('/settings/recovery_phone/setup'),
+  ],
 } as Meta;
 
 const localizedPageTitle = 'Add recovery phone';
