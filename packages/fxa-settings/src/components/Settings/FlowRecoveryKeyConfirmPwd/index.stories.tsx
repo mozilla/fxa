@@ -8,13 +8,13 @@ import { Meta } from '@storybook/react';
 import { Account, AppContext, useFtlMsgResolver } from '../../../models';
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyConfirmPwd',
   component: FlowRecoveryKeyConfirmPwd,
-  decorators: [withLocalization],
+  decorators: [withLocalization, withLocation('/settings/account_recovery')],
 } as Meta;
 
 const viewName = 'example-view-name';

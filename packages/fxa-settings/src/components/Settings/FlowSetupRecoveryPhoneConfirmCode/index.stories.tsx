@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 import { action } from '@storybook/addon-actions';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -14,7 +14,10 @@ import { MOCK_NATIONAL_FORMAT_PHONE_NUMBER } from '../../../pages/mocks';
 export default {
   title: 'Components/Settings/FlowSetupRecoveryPhoneConfirmCode',
   component: FlowSetupRecoveryPhoneConfirmCode,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    withLocation('/settings/recovery_phone/setup'),
+  ],
 } as Meta;
 
 const localizedPageTitle = 'Add recovery phone';

@@ -4,14 +4,14 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import ProductPromo, { ProductPromoProps } from '.';
 import SettingsLayout from '../SettingsLayout';
 
 export default {
   title: 'Components/Settings/ProductPromo',
   component: ProductPromo,
-  decorators: [withLocalization],
+  decorators: [withLocalization, withLocation('/settings')],
 } as Meta<typeof ProductPromo>;
 
 /**

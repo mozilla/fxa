@@ -5,6 +5,11 @@
 import React from 'react';
 import { Decorator } from '@storybook/react';
 import AppLocalizationProvider from './AppLocalizationProvider';
+import {
+  createHistory,
+  createMemorySource,
+  LocationProvider,
+} from '@reach/router';
 
 // This decorator makes the localization bundles available in the stories.
 // If a localized string is available, that will be rendered in the storybook,
@@ -17,3 +22,22 @@ export const withLocalization: Decorator = (Story) => (
     <Story />
   </AppLocalizationProvider>
 );
+
+export const withLocation: (location: string | undefined) => Decorator =
+  (location) => (Story) => {
+    if (location === undefined) {
+      return (
+        <LocationProvider>
+          <Story />
+        </LocationProvider>
+      );
+    }
+    const source = createMemorySource(location);
+    const history = createHistory(source);
+
+    return (
+      <LocationProvider history={history}>
+        <Story />
+      </LocationProvider>
+    );
+  };

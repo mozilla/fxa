@@ -36,6 +36,15 @@ export const Default = storyWithAccount({
   totp: { exists: false, verified: false },
   hasPassword: true,
   passwordCreated: 1651860173938,
+  backupCodes: {
+    hasBackupCodes: false,
+  },
+  recoveryPhone: {
+    exists: false,
+    phoneNumber: null,
+    nationalFormat: null,
+    available: true,
+  },
 });
 
 export const SecurityFeaturesEnabled = storyWithAccount(
@@ -44,6 +53,16 @@ export const SecurityFeaturesEnabled = storyWithAccount(
     totp: { verified: true, exists: true },
     hasPassword: true,
     passwordCreated: 1651860173938,
+    backupCodes: {
+      hasBackupCodes: true,
+      count: 5,
+    },
+    recoveryPhone: {
+      exists: true,
+      phoneNumber: '+1234567890',
+      nationalFormat: '123-456-7890',
+      available: true,
+    },
   },
   'Account recovery key set and two factor enabled'
 );
@@ -53,6 +72,9 @@ export const NoPassword = storyWithAccount(
     recoveryKey: { exists: false },
     totp: { verified: false, exists: false },
     hasPassword: false,
+    backupCodes: {
+      hasBackupCodes: false,
+    },
   },
   'Third party auth, no password set'
 );
