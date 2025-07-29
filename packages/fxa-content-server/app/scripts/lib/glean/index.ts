@@ -170,7 +170,9 @@ const recordEventMetric = (eventName: string, properties: EventProperties) => {
       reg.signupCodeSubmit.record();
       break;
     case 'reg_success_view':
-      reg.successView.record();
+      reg.successView.record({
+        reason: properties['reason'] || '',
+      });
       break;
     case 'login_view':
       login.view.record();
@@ -423,7 +425,8 @@ export const GleanMetrics = {
   registration: {
     view: createEventFn('reg_view'),
     submit: createEventFn('reg_submit'),
-    success: createEventFn('reg_submit_success'),
+    submitSuccess: createEventFn('reg_submit_success'),
+    successView: createEventFn('reg_success_view'),
   },
 
   signupConfirmation: {

@@ -58,7 +58,9 @@ export const cwtsEngage = new EventMetricType(
 );
 
 /**
- * TODO
+ * Registration Page Engagement
+ * Event that indicates user engagement with the registration page, typically when
+ * focusing on form fields.
  *
  * Generated from `reg.engage`.
  */
@@ -106,7 +108,7 @@ export const signupCodeSubmit = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**
@@ -141,7 +143,7 @@ export const signupCodeView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**
@@ -195,7 +197,7 @@ export const successView = new EventMetricType(
     lifetime: 'ping',
     disabled: false,
   },
-  []
+  ['reason']
 );
 
 /**

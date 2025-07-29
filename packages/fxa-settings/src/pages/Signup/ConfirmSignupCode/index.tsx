@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -77,9 +77,13 @@ const ConfirmSignupCode = ({
   integration.data.validate();
 
   const reason = origin === 'signup' ? 'signup' : 'signin';
+  const hasEmittedView = useRef(false);
 
   useEffect(() => {
-    GleanMetrics.signupConfirmation.view();
+    if (!hasEmittedView.current) {
+      GleanMetrics.signupConfirmation.view({ event: { reason } });
+      hasEmittedView.current = true;
+    }
   }, [reason]);
 
   const [localizedErrorBannerHeading, setLocalizedErrorBannerHeading] =
@@ -158,7 +162,7 @@ const ConfirmSignupCode = ({
         REACT_ENTRYPOINT
       );
 
-      GleanMetrics.registration.complete({ event: { reason } });
+      GleanMetrics.registration.successView({ event: { reason } });
       // since many of the branches below lead to a redirect, we'll wait for
       // the Glean requests
       await GleanMetrics.isDone();
