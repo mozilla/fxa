@@ -69,7 +69,7 @@ export default async function CheckoutError({
     cart.paymentInfo?.type
   );
 
-  const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config);
+  const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config, searchParams);
 
   return (
     <>
