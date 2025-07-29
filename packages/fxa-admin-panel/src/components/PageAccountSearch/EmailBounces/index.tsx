@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AdminPanelFeature } from 'fxa-shared/guards';
+import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../../Guard';
 import { useMutation } from '@apollo/client';
 import { RECORD_ADMIN_SECURITY_EVENT } from '../Account/index.gql';

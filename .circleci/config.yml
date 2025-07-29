@@ -350,6 +350,14 @@ commands:
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
+
+            # Fixes
+            TEST_COUNT=$(echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >> $GREP --list" | wc -l)
+            echo "Running $TEST_COUNT tests"
+            if [ "$TEST_COUNT" -lt "$PLAYWRIGHT_WORKERS"]; then
+              PLAYWRIGHT_WORKERS=$TEST_COUNT
+            fi
+
             echo $TEST_FILES | circleci tests run \
               --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" \
               --verbose \

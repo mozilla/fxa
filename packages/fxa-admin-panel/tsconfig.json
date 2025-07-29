@@ -1,18 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "types": [
-      "jest",
-      "node",
-      "@testing-library/jest-dom"
-    ],
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "noEmit": true,
+    "types": ["jest", "@testing-library/jest-dom"],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "isolatedModules": true,
-    "noEmit": true
+    "noImplicitAny": false
   },
   "include": [
     "src"

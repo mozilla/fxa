@@ -7,11 +7,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import { PageAccountDelete } from '.';
 import { IClientConfig } from '../../../interfaces';
-import {
-  AdminPanelEnv,
-  AdminPanelGroup,
-  AdminPanelGuard,
-} from '../../../../fxa-shared/guards';
+import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
@@ -20,7 +16,7 @@ import {
 } from './mocks';
 
 // Setup the current user hook. Required for Guards.
-const mockGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
+const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
 const mockConfig: IClientConfig = mockConfigBuilder({
   user: {
     email: 'test@mozilla.com',

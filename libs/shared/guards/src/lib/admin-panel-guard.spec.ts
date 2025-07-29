@@ -3,20 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  AdminPanelEnv,
   AdminPanelFeature,
   AdminPanelGroup,
   AdminPanelGuard,
   getGroupsByEnv,
   PermissionLevel,
-} from '../../guards';
+} from './admin-panel-guard';
 import { expect } from 'chai';
+import { GuardEnv } from './guard';
 
 describe('support agents', () => {
   describe('Admin Panel Guard', () => {
     const guard = new AdminPanelGuard();
-    const stageGuard = new AdminPanelGuard(AdminPanelEnv.Stage);
-    const prodGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
+    const stageGuard = new AdminPanelGuard(GuardEnv.Stage);
+    const prodGuard = new AdminPanelGuard(GuardEnv.Prod);
 
     it('allows', () => {
       expect(
@@ -65,25 +65,25 @@ describe('support agents', () => {
         name: 'Admin',
         header: 'vpn_fxa_admin_panel_prod',
         level: PermissionLevel.Admin,
-        env: AdminPanelEnv.Prod,
+        env: GuardEnv.Prod,
       });
       expect(guard.getGroup(AdminPanelGroup.AdminStage)).deep.equal({
         name: 'Admin',
         header: 'vpn_fxa_admin_panel_stage',
         level: PermissionLevel.Admin,
-        env: AdminPanelEnv.Stage,
+        env: GuardEnv.Stage,
       });
       expect(guard.getGroup(AdminPanelGroup.SupportAgentProd)).deep.equal({
         name: 'Support',
         header: 'vpn_fxa_supportagent_prod',
         level: PermissionLevel.Support,
-        env: AdminPanelEnv.Prod,
+        env: GuardEnv.Prod,
       });
       expect(guard.getGroup(AdminPanelGroup.SupportAgentStage)).deep.equal({
         name: 'Support',
         header: 'vpn_fxa_supportagent_stage',
         level: PermissionLevel.Support,
-        env: AdminPanelEnv.Stage,
+        env: GuardEnv.Stage,
       });
     });
 
