@@ -89,7 +89,7 @@ export const cachedSignIn = async (
 ) => {
   try {
     const { accountStatus, sessionStatus, verificationMethod } =
-      await authClient.sessionVerifyToken(sessionToken);
+      await authClient.sessionVerificationStatus(sessionToken);
 
     // sessionStatus can be 'verified, 'mustVerify', 'mustUpgrade'
     // 'mustUpgrade' indicates that the session AAL is mismatched with the account AAL

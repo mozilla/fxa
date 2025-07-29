@@ -1066,7 +1066,7 @@ describe('signin container', () => {
 
     it('returns correct data for a typical verification-needed scenario (email-otp)', async () => {
       mockSession.sendVerificationCode = jest.fn().mockResolvedValue(true);
-      mockAuthClient.sessionVerifyToken = jest.fn().mockResolvedValue({
+      mockAuthClient.sessionVerificationStatus = jest.fn().mockResolvedValue({
         accountStatus: 'verified',
         sessionStatus: 'mustVerify',
         verificationMethod: 'email-otp',
@@ -1092,7 +1092,7 @@ describe('signin container', () => {
     });
 
     it('returns correct data for a 2fa verification-needed scenario', async () => {
-      mockAuthClient.sessionVerifyToken = jest.fn().mockResolvedValue({
+      mockAuthClient.sessionVerificationStatus = jest.fn().mockResolvedValue({
         accountStatus: 'verified',
         sessionStatus: 'mustVerify',
         verificationMethod: 'totp-2fa',
@@ -1118,7 +1118,7 @@ describe('signin container', () => {
     });
 
     it('returns correct data for a fully verified session', async () => {
-      mockAuthClient.sessionVerifyToken = jest.fn().mockResolvedValue({
+      mockAuthClient.sessionVerificationStatus = jest.fn().mockResolvedValue({
         accountStatus: 'verified',
         sessionStatus: 'verified',
         verificationMethod: undefined,
@@ -1138,7 +1138,7 @@ describe('signin container', () => {
     });
 
     it('returns OAuthError for invalid token', async () => {
-      mockAuthClient.sessionVerifyToken = jest
+      mockAuthClient.sessionVerificationStatus = jest
         .fn()
         .mockRejectedValue(AuthUiErrors.INVALID_TOKEN);
 
@@ -1156,7 +1156,7 @@ describe('signin container', () => {
 
     it('returns error for unexpected error', async () => {
       const unexpectedError = new Error('Unexpected error');
-      mockAuthClient.sessionVerifyToken = jest
+      mockAuthClient.sessionVerificationStatus = jest
         .fn()
         .mockRejectedValue(unexpectedError);
 

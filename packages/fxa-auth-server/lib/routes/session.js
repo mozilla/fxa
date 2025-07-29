@@ -716,7 +716,7 @@ module.exports = function (
     },
     {
       method: 'GET',
-      path: '/session/verify/token',
+      path: '/session/verification/status',
       options: {
         ...SESSION_DOCS.SESSION_VERIFY_TOKEN_GET,
         auth: {

@@ -34,7 +34,7 @@ describe('signin utils', () => {
       mockCurrentAccount.mockReturnValue(mockStoredAccount);
 
       mockAuthClient = {
-        sessionVerifyToken: jest.fn(),
+        sessionVerificationStatus: jest.fn(),
       };
 
       mockCache = new InMemoryCache();
@@ -48,7 +48,7 @@ describe('signin utils', () => {
 
     describe('successful cached signin scenarios', () => {
       it('should handle verified user with no verification needed', async () => {
-        mockAuthClient.sessionVerifyToken.mockResolvedValue({
+        mockAuthClient.sessionVerificationStatus.mockResolvedValue({
           accountStatus: 'verified',
           sessionStatus: 'verified',
           verificationMethod: undefined,
@@ -75,7 +75,7 @@ describe('signin utils', () => {
       });
 
       it('should handle TOTP 2FA verification', async () => {
-        mockAuthClient.sessionVerifyToken.mockResolvedValue({
+        mockAuthClient.sessionVerificationStatus.mockResolvedValue({
           accountStatus: 'verified',
           sessionStatus: 'mustVerify',
           verificationMethod: 'totp-2fa',
@@ -106,7 +106,7 @@ describe('signin utils', () => {
       });
 
       it('should handle email OTP verification for sign-in', async () => {
-        mockAuthClient.sessionVerifyToken.mockResolvedValue({
+        mockAuthClient.sessionVerificationStatus.mockResolvedValue({
           accountStatus: 'verified',
           sessionStatus: 'mustVerify',
           verificationMethod: 'email-otp',
@@ -132,7 +132,7 @@ describe('signin utils', () => {
       });
 
       it('should handle email OTP verification for sign-up', async () => {
-        mockAuthClient.sessionVerifyToken.mockResolvedValue({
+        mockAuthClient.sessionVerificationStatus.mockResolvedValue({
           accountStatus: 'unverified',
           sessionStatus: 'mustVerify',
           verificationMethod: 'email-otp',
@@ -160,7 +160,7 @@ describe('signin utils', () => {
 
     describe('error handling scenarios', () => {
       it('should handle INVALID_TOKEN error returned from auth server', async () => {
-        mockAuthClient.sessionVerifyToken.mockRejectedValue(
+        mockAuthClient.sessionVerificationStatus.mockRejectedValue(
           AuthUiErrors.INVALID_TOKEN
         );
 
@@ -179,7 +179,9 @@ describe('signin utils', () => {
 
       it('should handle other errors and return the original error', async () => {
         const unexpectedError = new Error('Some other error');
-        mockAuthClient.sessionVerifyToken.mockRejectedValue(unexpectedError);
+        mockAuthClient.sessionVerificationStatus.mockRejectedValue(
+          unexpectedError
+        );
 
         const result = await cachedSignIn(
           mockSessionToken,

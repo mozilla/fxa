@@ -1139,15 +1139,19 @@ export default class AuthClient {
     return this.sessionPost('/session/resend_code', sessionToken, {}, headers);
   }
 
-  async sessionVerifyToken(
+  async sessionVerificationStatus(
     sessionToken: hexstring,
     headers?: Headers
   ): Promise<{
     accountStatus: 'verified' | 'unverified';
     sessionStatus: 'verified' | 'mustVerify' | 'mustUpgrade' | null;
-    verificationMethod?: string | null;
+    verificationMethod?: 'email-otp' | 'totp-2fa' | undefined;
   }> {
-    return this.sessionGet('/session/verify/token', sessionToken, headers);
+    return this.sessionGet(
+      '/session/verification/status',
+      sessionToken,
+      headers
+    );
   }
 
   async sessionReauth(

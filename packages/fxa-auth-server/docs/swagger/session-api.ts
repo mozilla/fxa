@@ -101,7 +101,7 @@ const SESSION_RESEND_CODE_POST = {
 
 const SESSION_VERIFY_TOKEN_GET = {
   ...TAGS_SESSION,
-  description: '/session/verify/token',
+  description: '/session/verification/status',
   notes: [
     dedent`
       🔒 Authenticated with session token
@@ -123,9 +123,11 @@ const SESSION_VERIFY_TOKEN_GET = {
         200: {
           description: dedent`
             Successful responses include verification status information:
-            - \`accountStatus\`: "verified" or "unverified" (never null; if the session token is invalid or the account has been deleted, the endpoint returns an error)
-            - \`sessionStatus\`: "verified", "mustVerify", "mustUpgrade", or null
-            - \`verificationMethod\`: Required verification method (if verification needed)
+            - \`accountStatus\`: "verified" or "unverified"
+            - \`sessionStatus\`: "verified", "mustVerify", or "mustUpgrade"
+            - \`verificationMethod\`: Required verification method (if verification needed). Possible values:
+              - "email-otp": Verification by email OTP code
+              - "totp-2fa": Verification by TOTP authenticator device code
           `,
         },
       },

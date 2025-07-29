@@ -176,7 +176,9 @@ const Signin = ({
         const localizedErrorMessage = getLocalizedErrorMessage(
           ftlMsgResolver,
           error.errno === AuthUiErrors.INVALID_TOKEN.errno
-            ? AuthUiErrors.SESSION_EXPIRED
+            ? // If 'invalid token' is received, it most likely means the session token has expired
+              // Though it might also mean that the account no longer exists
+              AuthUiErrors.SESSION_EXPIRED
             : error
         );
         setLocalizedBannerError(localizedErrorMessage);

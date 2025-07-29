@@ -1580,7 +1580,7 @@ describe('/session/verify/verify_push', () => {
   });
 });
 
-describe('/session/verify/token', () => {
+describe('/session/verification/status', () => {
   let route, request, log, db, mailer, push, availableAuthStub;
   const authMethods = require('../../../lib/authMethods');
 
@@ -1591,7 +1591,7 @@ describe('/session/verify/token', () => {
     push = mocks.mockPush();
     const config = { smtp: { redirectDomain: 'example.com' } };
     const routes = makeRoutes({ log, config, db, mailer, push });
-    route = getRoute(routes, '/session/verify/token');
+    route = getRoute(routes, '/session/verification/status');
 
     availableAuthStub = sinon.stub(
       authMethods,
