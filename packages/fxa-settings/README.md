@@ -471,6 +471,8 @@ background-image: inline('/path-to-image.svg');
 
 To do this with Tailwind, you'll need to add a class to the `backgroundImage` object in the Tailwind config file. Check config files for examples.
 
+**NOTE:** While inlining SVGs is generally preferred, there are cases where non-inlined SVGs (see below) are more appropriate. This applies particularly to conditionally loaded SVGs, such as those requiring localization with multiple language variants. Inlining all SVGs in such scenarios would require importing every variant as JSX into the component, leading to a significant increase in bundle size. For example, inlining localized SVGs for [mobile App store badges](src/components/Settings/ConnectAnotherDevicePromo/storeImageLoader.tsx) would result in a 300KB+ bundle size increase. To optimize performance, non-inlined SVGs are preferred in these cases, since only SVGs of one locale will be loaded at a time.
+
 #### Non-inlined SVGs
 
 Sometimes it makes sense to let a network request fetch SVGs that are heavy/large and are used across multiple pages for faster rendering after the initial request. While our builds bust our asset caches, if an SVG persists from page to page, it can be more performant to download the image once and let the browser cache it for use across multiple pages, at least until the next release. The Mozilla and Firefox logo are good examples of this.
@@ -514,6 +516,8 @@ Since SVGs contain unique vector paths/shapes with inconsistent widths/heights, 
 Use [SVGO](https://github.com/svg/svgo) to minify SVGs. Always double check SVGs after minifying them because occasionally, something is removed or modified that changes the appearance of the SVG.
 
 Recently, we've been keeping original SVGs and appending a `.min` to those SVGs that have been ran through SVGO to make it obvious which SVGs have been minified. This can also make tweaking animations on SVGs easier as well or any other reason we may want to refer to the original graphic.
+
+In some cases, IDs defined in the `<defs>` section of different SVGs on the same page can conflict, causing rendering issues when these SVGs are inlined. This happens because inlined SVGs share the same DOM scope, unlike non-inlined SVGs, which are sandboxed. To resolve these conflicts, you can either manually update the conflicting IDs or use non-inlined SVGs. While SVGO offers a plugin to automatically prefix IDs, we do not enable it in our config for now because SVGO can sometimes alter the appearance of SVGs.
 
 ### Metrics
 
