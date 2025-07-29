@@ -135,11 +135,16 @@ module.exports = (config) => {
     origin,
     email,
     password,
-    options
+    options,
+    mailbox
   ) {
     const c = new Client(origin, options);
     await c.setupCredentials(email, password);
     await c.auth(options);
+    if (mailbox) {
+      const code = await mailbox.waitForCode(email);
+      await c.verifyEmail(code, options);
+    }
     await c.upgradeCredentials(password);
     return c;
   };
@@ -260,9 +265,7 @@ module.exports = (config) => {
       secret: totpSecret,
       crypto: crypto,
     };
-    const result = await client.verifyTotpCode(
-      client.totpAuthenticator.generate()
-    );
+    await client.verifyTotpCode(client.totpAuthenticator.generate());
     return client;
   };
 
@@ -551,7 +554,7 @@ module.exports = (config) => {
     }
 
     return this.api
-      .passwordChangeStart(this.email, this.authPW, headers)
+      .passwordChangeStart(this.email, this.authPW, headers, sessionToken)
       .then((json) => {
         this.keyFetchToken = json.keyFetchToken;
         this.passwordChangeToken = json.passwordChangeToken;
@@ -590,11 +593,15 @@ module.exports = (config) => {
     headers,
     sessionToken
   ) {
+    if (typeof sessionToken === 'string') {
+      sessionToken = await tokens.SessionToken.fromHex(sessionToken);
+    }
     const json = await this.api.passwordChangeStartV2(
       this.email,
       this.authPW,
       this.authPWVersion2,
-      headers
+      headers,
+      sessionToken
     );
     this.keyFetchToken = json.keyFetchToken;
     this.keyFetchTokenVersion2 = json.keyFetchTokenVersion2;
@@ -1083,6 +1090,7 @@ module.exports = (config) => {
     this.keyFetchTokenVersion2 = response.keyFetchTokenVersion2;
     return response;
   };
+
   Client.prototype.resetPasswordV2 = async function (
     newPassword,
     headers,
@@ -1187,7 +1195,8 @@ module.exports = (config) => {
     const resStart = await this.api.passwordChangeStart(
       this.email,
       this.authPW,
-      headers || {}
+      headers || {},
+      this.sessionToken
     );
 
     this.keyFetchToken = resStart.keyFetchToken;
@@ -1212,7 +1221,7 @@ module.exports = (config) => {
       this.wrapKbVersion2,
       this.clientSalt,
       headers || {},
-      undefined
+      this.sessionToken
     );
 
     return resFinish;
