@@ -43,6 +43,11 @@ function addAllReactRoutesConditionally(
               } else {
                 return next('route');
               }
+              // Allow '/oauth' to serve the React application, _but_ if the request URL includes
+              // a 'channel_id' query parameter, we know it's Fx Desktop trying to begin the pairing
+              // flow. Show Backbone in this case until the pair flow is converted to React.
+            } else if (req.path === '/oauth' && req.query.channel_id) {
+              return next('route');
             }
             return middleware(req, res, next);
           }
