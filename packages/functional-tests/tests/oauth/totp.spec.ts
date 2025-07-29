@@ -76,9 +76,76 @@ test.describe('severity-1 #smoke', () => {
 
     test('can setup TOTP inline and login', async ({
       target,
-      pages: { page, relier, settings, signin, totp },
+      pages: {
+        page,
+        relier,
+        settings,
+        signin,
+        totp,
+        inlineTotpSetup,
+        configPage,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        !config.featureFlags?.updatedInlineTotpSetupFlow,
+        'The updated Inline TOTP setup flow is not enabled'
+      );
+      const credentials = await testAccountTracker.signUp();
+
+      await relier.goto();
+      await relier.clickRequire2FA();
+      await signin.fillOutEmailFirstForm(credentials.email);
+      await signin.fillOutPasswordForm(credentials.password);
+
+      await page.waitForURL(/inline_totp_setup/);
+
+      await expect(inlineTotpSetup.introHeading).toBeVisible();
+      await inlineTotpSetup.continueButton.click();
+      await expect(totp.setup2faAppHeading).toBeVisible();
+      await totp.step1CantScanCodeLink.click();
+      const secret = (await totp.step1ManualCode.innerText())?.replace(
+        /\s/g,
+        ''
+      );
+      const code = await getCode(secret);
+      await totp.step1AuthenticationCodeTextbox.fill(code);
+      await totp.step1SubmitButton.click();
+
+      await page.waitForURL(/inline_recovery_setup/);
+
+      const codesRaw = await signin.page.getByTestId('datablock').innerText();
+      const recoveryCodes = codesRaw.trim().split(/\s+/);
+
+      await signin.page.getByRole('button', { name: 'Continue' }).click();
+
+      await expect(
+        signin.page.getByText('Confirm backup authentication code')
+      ).toBeVisible();
+
+      await signin.page
+        .getByRole('textbox', { name: 'Backup authentication code' })
+        .fill(recoveryCodes[0]);
+
+      await signin.page.getByRole('button', { name: 'Confirm' }).click();
+
+      expect(await relier.isLoggedIn()).toBe(true);
+
+      await settings.goto();
+      await settings.disconnectTotp();
+    });
+
+    test('can setup TOTP inline and login (old)', async ({
+      target,
+      pages: { page, relier, settings, signin, configPage },
+      testAccountTracker,
+    }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.featureFlags?.updatedInlineTotpSetupFlow,
+        'The updated Inline TOTP setup flow is enabled, skipping old tests'
+      );
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();

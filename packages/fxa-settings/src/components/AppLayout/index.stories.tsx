@@ -21,6 +21,18 @@ export const Basic = () => (
   </AppLayout>
 );
 
+export const WithoutCard = () => (
+  <AppLayout wrapInCard={false}>
+    <div className="border-2 border-blue-300 p-4 rounded-lg shadow-lg">
+      <h1 className="card-header">Header</h1>
+      <p className="mt-2">
+        The content provides it's own card, instead of being wrapped in one
+        provided by the layout.
+      </p>
+    </div>
+  </AppLayout>
+);
+
 export const WithTitle = () => (
   <AppLayout title="Custom Page Title">
     <h1 className="card-header">Header content</h1>
@@ -37,18 +49,19 @@ export const WithWidthClass = () => (
 
 export const WithIntegration = () => {
   const mockIntegration = {
-    getCmsInfo: () => ({
-      name: 'Test App',
-      clientId: 'test123',
-      entrypoint: 'test',
-      shared: {
-        buttonColor: '#0078d4',
-        logoUrl: 'https://example.com/logo.png',
-        logoAltText: 'Test App Logo',
-        backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        pageTitle: 'Test App - Custom Title'
-      }
-    } as RelierCmsInfo)
+    getCmsInfo: () =>
+      ({
+        name: 'Test App',
+        clientId: 'test123',
+        entrypoint: 'test',
+        shared: {
+          buttonColor: '#0078d4',
+          logoUrl: 'https://example.com/logo.png',
+          logoAltText: 'Test App Logo',
+          backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          pageTitle: 'Test App - Custom Title',
+        },
+      }) as RelierCmsInfo,
   };
 
   return (
@@ -61,18 +74,19 @@ export const WithIntegration = () => {
 
 export const WithIntegrationNoBackground = () => {
   const mockIntegration = {
-    getCmsInfo: () => ({
-      name: 'Test App',
-      clientId: 'test123',
-      entrypoint: 'test',
-      shared: {
-        buttonColor: '#0078d4',
-        logoUrl: 'https://example.com/logo.png',
-        logoAltText: 'Test App Logo',
-        pageTitle: 'Test App - Custom Title'
-        // No backgroundColor, so no background image should be applied
-      }
-    } as RelierCmsInfo)
+    getCmsInfo: () =>
+      ({
+        name: 'Test App',
+        clientId: 'test123',
+        entrypoint: 'test',
+        shared: {
+          buttonColor: '#0078d4',
+          logoUrl: 'https://example.com/logo.png',
+          logoAltText: 'Test App Logo',
+          pageTitle: 'Test App - Custom Title',
+          // No backgroundColor, so no background image should be applied
+        },
+      }) as RelierCmsInfo,
   };
 
   return (
@@ -85,18 +99,19 @@ export const WithIntegrationNoBackground = () => {
 
 export const WithIntegrationInvalidBackground = () => {
   const mockIntegration = {
-    getCmsInfo: () => ({
-      name: 'Test App',
-      clientId: 'test123',
-      entrypoint: 'test',
-      shared: {
-        buttonColor: '#0078d4',
-        logoUrl: 'https://example.com/logo.png',
-        logoAltText: 'Test App Logo',
-        backgroundColor: 'invalid-color',
-        pageTitle: 'Test App - Custom Title'
-      }
-    } as RelierCmsInfo)
+    getCmsInfo: () =>
+      ({
+        name: 'Test App',
+        clientId: 'test123',
+        entrypoint: 'test',
+        shared: {
+          buttonColor: '#0078d4',
+          logoUrl: 'https://example.com/logo.png',
+          logoAltText: 'Test App Logo',
+          backgroundColor: 'invalid-color',
+          pageTitle: 'Test App - Custom Title',
+        },
+      }) as RelierCmsInfo,
   };
 
   return (
@@ -109,18 +124,19 @@ export const WithIntegrationInvalidBackground = () => {
 
 export const WithIntegrationRadialGradient = () => {
   const mockIntegration = {
-    getCmsInfo: () => ({
-      name: 'Test App',
-      clientId: 'test123',
-      entrypoint: 'test',
-      shared: {
-        buttonColor: '#0078d4',
-        logoUrl: 'https://example.com/logo.png',
-        logoAltText: 'Test App Logo',
-        backgroundColor: 'radial-gradient(circle, #ff6b6b, #4ecdc4)',
-        pageTitle: 'Test App - Custom Title'
-      }
-    } as RelierCmsInfo)
+    getCmsInfo: () =>
+      ({
+        name: 'Test App',
+        clientId: 'test123',
+        entrypoint: 'test',
+        shared: {
+          buttonColor: '#0078d4',
+          logoUrl: 'https://example.com/logo.png',
+          logoAltText: 'Test App Logo',
+          backgroundColor: 'radial-gradient(circle, #ff6b6b, #4ecdc4)',
+          pageTitle: 'Test App - Custom Title',
+        },
+      }) as RelierCmsInfo,
   };
 
   return (
@@ -133,7 +149,7 @@ export const WithIntegrationRadialGradient = () => {
 
 export const WithIntegrationNoCmsInfo = () => {
   const mockIntegration = {
-    getCmsInfo: () => undefined
+    getCmsInfo: () => undefined,
   };
 
   return (

@@ -43,3 +43,5 @@ inline-totp-setup-security-code-placeholder = Authentication code
 # The "authentication code" here refers to the code provided by an authentication app.
 inline-totp-setup-code-required-error = Authentication code required
 tfa-qr-code-alt = Use the code { $code } to set up two-step authentication in supported applications.
+
+inline-totp-setup-page-title = Two-step authentication

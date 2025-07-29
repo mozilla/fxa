@@ -7,21 +7,24 @@ import { UserEvent, userEvent } from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import InlineTotpSetup from '.';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { MOCK_TOTP_TOKEN } from './mocks';
 import { MozServices } from '../../lib/types';
-import { MOCK_EMAIL, MOCK_TOTP_TOKEN } from './mocks';
-import { formatSecret } from '../../lib/utilities';
 
 const cancelSetupHandler = jest.fn();
 const verifyCodeHandler = jest.fn();
 const mockProps = {
   totp: MOCK_TOTP_TOKEN,
-  email: MOCK_EMAIL,
+  serviceName: MozServices.Addons,
   cancelSetupHandler,
   verifyCodeHandler,
 };
 
 describe('InlineTotpSetup', () => {
   let user: UserEvent;
+
+  const clickContinue = async () => {
+    await user.click(await screen.findByRole('button', { name: 'Continue' }));
+  };
 
   beforeAll(async () => {
     global.URL.createObjectURL = jest.fn();
@@ -31,93 +34,57 @@ describe('InlineTotpSetup', () => {
     user = userEvent.setup();
   });
 
-  it('renders default as expected', () => {
+  it('renders the intro as expected', () => {
     renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
+
     screen.getByRole('heading', {
-      name: `Enable two-step authentication to continue to ${MozServices.Default}`,
+      name: 'Two-step authentication',
     });
     expect(
-      screen.getByLabelText('A device with a hidden 6-digit code.', {
-        selector: 'svg',
-      })
+      screen.getByText('Set up two-step authentication')
     ).toBeInTheDocument();
-
+    expect(
+      screen.getByText(
+        'Add-ons requires you to set up two-step authentication to keep your account safe.'
+      )
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Continue' })
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Cancel setup' })
-    ).toBeInTheDocument();
   });
 
-  it('renders intro view as expected with custom service name', () => {
-    renderWithLocalizationProvider(
-      <InlineTotpSetup
-        {...{ ...mockProps, serviceName: MozServices.Monitor }}
-      />
-    );
-    screen.getByRole('heading', {
-      name: `Enable two-step authentication to continue to ${MozServices.Monitor}`,
-    });
+  it('renders step 1 as expected, showing the QR code by default', async () => {
+    renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
+    await clickContinue();
     expect(
-      screen.getByLabelText('A device with a hidden 6-digit code.', {
-        selector: 'svg',
+      await screen.findByRole('progressbar', {
+        name: 'Step 1 of 4.',
       })
     ).toBeInTheDocument();
+    expect(await screen.findByText(/Scan this QR code/)).toBeInTheDocument();
+  });
 
+  it('can go back to intro from step 1', async () => {
+    renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
+    await clickContinue();
     expect(
-      screen.getByRole('button', { name: 'Continue' })
+      await screen.findByText('Connect to your authenticator app')
     ).toBeInTheDocument();
+    user.click(screen.getByRole('button', { name: 'Back' }));
     expect(
-      screen.getByRole('button', { name: 'Cancel setup' })
+      await screen.findByText('Set up two-step authentication')
     ).toBeInTheDocument();
   });
 
-  it('renders QR code by default when a user clicks "Continue"', async () => {
+  it('calls verifyCodeHandler on code submission', async () => {
     renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
-    await user.click(screen.getByRole('button', { name: 'Continue' }))
-    await screen.findByAltText(
-      `Use the code ${MOCK_TOTP_TOKEN.secret} to set up two-step authentication in supported applications.`
+    await clickContinue();
+    await user.type(
+      await screen.findByLabelText('Enter 6-digit code'),
+      '123456'
     );
-  });
-
-  it('toggles from QR code to manual secret code view when user clicks "Can\'t scan code"', async () => {
-    renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
-
-    await user.click(screen.getByRole('button', { name: 'Continue' }))
-    await screen.findByAltText(
-      `Use the code ${MOCK_TOTP_TOKEN.secret} to set up two-step authentication in supported applications.`
-    );
-
-    const changeToManualModeButton = screen.getByRole('button', {
-      name: 'Can’t scan code?',
-    });
-
-    await user.click(changeToManualModeButton);
-
-    screen.getByText(formatSecret(MOCK_TOTP_TOKEN.secret));
-    await screen.findByRole('button', { name: 'Scan QR code instead?' });
-  });
-
-  it('toggles from secret code to QR code view when user clicks "Scan QR code instead?', async () => {
-    renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
-
-    await user.click(screen.getByRole('button', { name: 'Continue' }))
-    await screen.findByAltText(
-      `Use the code ${MOCK_TOTP_TOKEN.secret} to set up two-step authentication in supported applications.`
-    );
-
-    const changeToManualModeButton = screen.getByRole('button', {
-      name: 'Can’t scan code?',
-    });
-    await user.click(changeToManualModeButton);
-    await screen.findByRole('button', { name: 'Scan QR code instead?' });
-    await user.click(
-      screen.getByRole('button', { name: 'Scan QR code instead?' })
-    )
-    await screen.findByAltText(
-      `Use the code ${MOCK_TOTP_TOKEN.secret} to set up two-step authentication in supported applications.`
-    );
+    await clickContinue();
+    expect(verifyCodeHandler).toHaveBeenCalledWith('123456');
   });
 
   it('shows error on incorrect totp submission', async () => {
@@ -133,10 +100,15 @@ describe('InlineTotpSetup', () => {
       />
     );
 
-    await user.click(screen.getByRole('button', { name: 'Continue' }))
-    await user.type(screen.getByLabelText('Authentication code'), '000000')
-    await user.click(screen.getByRole('button', { name: 'Ready' }))
-    await screen.findByText('Invalid two-step authentication code');
+    await clickContinue();
+    await user.type(
+      await screen.findByLabelText('Enter 6-digit code'),
+      '000000'
+    );
+    await clickContinue();
     expect(verifyCodeHandler).toHaveBeenCalledWith('000000');
+    expect(
+      await screen.findByText(/Invalid or expired code/)
+    ).toBeInTheDocument();
   });
 });

@@ -3,40 +3,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import InlineTotpSetup from '.';
+import InlineTotpSetupOld from './old';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
 import { MOCK_TOTP_TOKEN } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { action } from '@storybook/addon-actions';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 export default {
-  title: 'Pages/InlineTotpSetup',
-  component: InlineTotpSetup,
+  title: 'Pages/InlineTotpSetupOld',
+  component: InlineTotpSetupOld,
   decorators: [withLocalization],
 } as Meta;
 
+const cancelSetupHandler = () => {};
 const verifyCodeHandler = (code: string) => {
   action('verifyCodeHandler')(code);
   return Promise.resolve();
 };
 
 export const Default = () => (
-  <InlineTotpSetup
+  <InlineTotpSetupOld
     totp={MOCK_TOTP_TOKEN}
-    serviceName={MozServices.Addons}
+    cancelSetupHandler={cancelSetupHandler}
     verifyCodeHandler={verifyCodeHandler}
   />
 );
 
-export const onError = () => (
-  <InlineTotpSetup
+export const WithCustomService = () => (
+  <InlineTotpSetupOld
     totp={MOCK_TOTP_TOKEN}
-    serviceName={MozServices.Addons}
-    verifyCodeHandler={(code) => {
-      action('verifyCodeHandler')(code);
-      return Promise.reject(AuthUiErrors.INVALID_TOTP_CODE);
-    }}
+    serviceName={MozServices.Monitor}
+    cancelSetupHandler={cancelSetupHandler}
+    verifyCodeHandler={verifyCodeHandler}
   />
 );

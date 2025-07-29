@@ -68,7 +68,8 @@
   "featureFlags": {
     "sendFxAStatusOnSettings": true,
     "recoveryCodeSetupOnSyncSignIn": true,
-    "recoveryPhonePasswordReset2fa": true
+    "recoveryPhonePasswordReset2fa": true,
+    "updatedInlineTotpSetupFlow": true
   },
   "rolloutRates": {
     "keyStretchV2": 1,

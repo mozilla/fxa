@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ApolloClientModule from '@apollo/client';
-import * as InlineTotpSetupModule from './index';
+import * as InlineTotpSetupModule from './old';
 import * as utils from 'fxa-react/lib/utils';
 import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 
@@ -18,7 +18,6 @@ import {
   MOCK_TOTP_TOKEN,
   MOCK_QUERY_PARAMS,
   MOCK_SIGNIN_LOCATION_STATE,
-  MOCK_EMAIL,
   MOCK_SIGNIN_RECOVERY_LOCATION_STATE,
 } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
@@ -239,7 +238,6 @@ describe('InlineTotpSetupContainer', () => {
         const args = (InlineTotpSetupModule.default as jest.Mock).mock
           .calls[0][0];
         expect(args.totp).toBe(MOCK_TOTP_TOKEN);
-        expect(args.email).toBe(MOCK_EMAIL);
         expect(args.serviceName).toBe(MozServices.Default);
       });
     });
