@@ -389,7 +389,11 @@ const { decodeJWT } = testUtils;
         })
       )[OAUTH_SCOPE_OLD_SYNC];
 
-      await client.changePassword('new password');
+      await client.changePassword(
+        'new password',
+        undefined,
+        client.sessionToken
+      );
       await server.mailbox.waitForEmail(email);
       // eslint-disable-next-line require-atomic-updates
       client = await Client.login(

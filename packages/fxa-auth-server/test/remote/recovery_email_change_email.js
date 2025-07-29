@@ -204,7 +204,11 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
         })
         .then((res) => {
           client = res;
-          return client.changePassword(newPassword);
+          return client.changePassword(
+            newPassword,
+            undefined,
+            client.sessionToken
+          );
         })
         .then((res) => {
           assert.ok(res, 'ok response');
@@ -458,7 +462,11 @@ describe(`#integration${testOptions.version} - remote change email`, function ()
       })
         .then((res) => {
           client = res;
-          return client.changePassword(newPassword);
+          return client.changePassword(
+            newPassword,
+            undefined,
+            client.sessionToken
+          );
         })
         .then((res) => {
           assert.ok(res, 'ok response');
