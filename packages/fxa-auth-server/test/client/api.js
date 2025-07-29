@@ -662,16 +662,15 @@ module.exports = (config) => {
     email,
     oldAuthPW,
     headers,
-    sessionTokenHex
+    sessionToken
   ) {
-    let token = undefined;
-    if (sessionTokenHex) {
-      token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    if (typeof sessionToken === 'string') {
+      sessionToken = await tokens.SessionToken.fromHex(sessionToken);
     }
     return this.doRequest(
       'POST',
       `${this.baseURL}/password/change/start`,
-      token,
+      sessionToken,
       {
         email: email,
         oldAuthPW: oldAuthPW.toString('hex'),
@@ -680,16 +679,21 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.passwordChangeStartV2 = function (
+  ClientApi.prototype.passwordChangeStartV2 = async function (
     email,
     oldAuthPW,
     oldauthPWVersion2,
-    headers
+    headers,
+    sessionToken
   ) {
+    if (typeof sessionToken === 'string') {
+      sessionToken = await tokens.SessionToken.fromHex(sessionToken);
+    }
+
     return this.doRequest(
       'POST',
       `${this.baseURL}/password/change/start`,
-      null,
+      sessionToken,
       {
         email: email,
         oldAuthPW: oldAuthPW.toString('hex'),
@@ -704,13 +708,14 @@ module.exports = (config) => {
     authPW,
     wrapKb,
     headers,
-    sessionTokenHex
+    sessionToken
   ) {
     const options = {};
-    let sessionToken = undefined;
-    if (sessionTokenHex) {
-      sessionToken = await tokens.SessionToken.fromHex(sessionTokenHex);
+
+    if (typeof sessionToken === 'string') {
+      sessionToken = await tokens.SessionToken.fromHex(sessionToken);
     }
+
     const token = await tokens.PasswordChangeToken.fromHex(
       passwordChangeTokenHex
     );
@@ -751,6 +756,10 @@ module.exports = (config) => {
       passwordChangeTokenHex
     );
 
+    if (typeof sessionToken === 'string') {
+      sessionToken = await tokens.SessionToken.fromHex(sessionToken);
+    }
+
     const requestData = {
       authPW: authPW.toString('hex'),
       authPWVersion2: authPWVersion2.toString('hex'),
@@ -764,7 +773,7 @@ module.exports = (config) => {
     if (sessionToken) {
       // Support legacy clients and new clients
       options.keys = true;
-      requestData.sessionToken = sessionToken;
+      requestData.sessionToken = sessionToken.id;
     }
 
     return await this.doRequest(

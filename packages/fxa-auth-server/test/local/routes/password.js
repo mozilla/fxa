@@ -749,6 +749,12 @@ describe('/password', () => {
         query: {
           keys: 'true',
         },
+        auth: {
+          credentials: {
+            email: TEST_EMAIL,
+            uid,
+          },
+        },
         log: mockLog,
         uaBrowser: 'Firefox',
         uaBrowserVersion: '57',
@@ -780,10 +786,11 @@ describe('/password', () => {
       );
 
       sinon.assert.calledWith(
-        mockCustoms.check,
+        mockCustoms.checkAuthenticated,
         mockRequest,
+        uid,
         TEST_EMAIL,
-        'passwordChange'
+        'authenticatedPasswordChange'
       );
       sinon.assert.calledWith(mockDB.accountRecord, TEST_EMAIL);
       sinon.assert.calledOnce(mockDB.createKeyFetchToken);

@@ -36,7 +36,7 @@ function getSessionTokenId(sessionTokenHex) {
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'foobar';
-      let kB, kA, client, firstAuthPW, originalSessionToken;
+      let client;
 
       return Client.createAndVerify(
         config.publicUrl,
@@ -50,15 +50,6 @@ function getSessionTokenId(sessionTokenHex) {
       )
         .then((x) => {
           client = x;
-          originalSessionToken = client.sessionToken;
-          firstAuthPW = x.authPW.toString('hex');
-          return client.keys();
-        })
-        .then((keys) => {
-          kB = keys.kB;
-          kA = keys.kA;
-        })
-        .then(() => {
           return client.emailStatus();
         })
         .then((status) => {
@@ -73,12 +64,6 @@ function getSessionTokenId(sessionTokenHex) {
         })
         .then((c) => {
           client = c;
-        })
-        .then(() => {
-          // Ignore confirm login email
-          return server.mailbox.waitForEmail(email);
-        })
-        .then(() => {
           return client.emailStatus();
         })
         .then((status) => {
@@ -92,67 +77,16 @@ function getSessionTokenId(sessionTokenHex) {
           );
         })
         .then(() => {
-          return getSessionTokenId(client.sessionToken);
-        })
-        .then((sessionTokenId) => {
-          return client.changePassword(newPassword, undefined, sessionTokenId);
-        })
-        .then((response) => {
-          // Verify correct change password response
-          assert.notEqual(
-            response.sessionToken,
-            originalSessionToken,
-            'session token has changed'
-          );
-          assert.ok(response.keyFetchToken, 'key fetch token returned');
-          assert.notEqual(
-            client.authPW.toString('hex'),
-            firstAuthPW,
-            'password has changed'
-          );
-        })
-        .then(() => {
-          return server.mailbox.waitForEmail(email);
-        })
-        .then((emailData) => {
-          const subject = emailData.headers['subject'];
-          assert.equal(subject, 'Password updated');
-          const link = emailData.headers['x-link'];
-          const query = url.parse(link, true).query;
-          assert.ok(query.email, 'email is in the link');
-        })
-        .then(() => {
-          return client.emailStatus();
-        })
-        .then((status) => {
-          // Verify correct status
-          assert.equal(status.verified, false, 'account is unverified');
-          assert.equal(status.emailVerified, true, 'account email is verified');
-          assert.equal(
-            status.sessionVerified,
-            false,
-            'account session is unverified'
-          );
-        })
-        .then(() => {
-          return Client.loginAndVerify(
-            config.publicUrl,
-            email,
+          return client.changePassword(
             newPassword,
-            server.mailbox,
-            {
-              ...testOptions,
-              keys: true,
-            }
+            undefined,
+            client.sessionToken
           );
         })
-        .then((x) => {
-          client = x;
-          return client.keys();
-        })
-        .then((keys) => {
-          assert.deepEqual(keys.kB, kB, 'kB is preserved');
-          assert.deepEqual(keys.kA, kA, 'kA is preserved');
+        .catch((err) => {
+          assert.equal(err.errno, 104);
+          assert.equal(err.error, 'Bad Request');
+          assert.equal(err.message, 'Unconfirmed account');
         });
     });
 
@@ -189,10 +123,11 @@ function getSessionTokenId(sessionTokenHex) {
           assert.equal(status.verified, true, 'account is verified');
         })
         .then(() => {
-          return getSessionTokenId(client.sessionToken);
-        })
-        .then((sessionTokenId) => {
-          return client.changePassword(newPassword, undefined, sessionTokenId);
+          return client.changePassword(
+            newPassword,
+            undefined,
+            client.sessionToken
+          );
         })
         .then((response) => {
           assert.notEqual(
@@ -245,11 +180,11 @@ function getSessionTokenId(sessionTokenHex) {
         });
     });
 
-    it('password change, with raw session data rather than session token id, return invalid token error', () => {
+    it('cannot password change w/o sessionToken', () => {
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
       const newPassword = 'foobar';
-      let client;
+      let client = undefined;
 
       return Client.createAndVerify(
         config.publicUrl,
@@ -263,101 +198,13 @@ function getSessionTokenId(sessionTokenHex) {
       )
         .then((x) => {
           client = x;
-          return client.keys();
         })
         .then(() => {
-          return client.emailStatus();
+          return client.changePassword(newPassword, undefined, undefined);
         })
-        .then((status) => {
-          assert.equal(status.verified, true, 'account is verified');
-        })
-        .then(() => {
-          return client.changePassword(
-            newPassword,
-            undefined,
-            client.sessionToken
-          );
-        })
-        .then(
-          () => {
-            assert(false);
-          },
-          (err) => {
-            assert.equal(err.errno, 110, 'Invalid token error');
-            assert.equal(
-              err.message,
-              'The authentication token could not be found'
-            );
-          }
-        );
-    });
-
-    it('password change w/o sessionToken', () => {
-      const email = server.uniqueEmail();
-      const password = 'allyourbasearebelongtous';
-      const newPassword = 'foobar';
-      let kB, kA, client, firstAuthPW;
-
-      return Client.createAndVerify(
-        config.publicUrl,
-        email,
-        password,
-        server.mailbox,
-        {
-          ...testOptions,
-          keys: true,
-        }
-      )
-        .then((x) => {
-          client = x;
-          firstAuthPW = x.authPW.toString('hex');
-          return client.keys();
-        })
-        .then((keys) => {
-          kB = keys.kB;
-          kA = keys.kA;
-        })
-        .then(() => {
-          return client.changePassword(newPassword);
-        })
-        .then((response) => {
-          assert(!response.sessionToken, 'no session token returned');
-          assert(!response.keyFetchToken, 'no key fetch token returned');
-          assert.notEqual(
-            client.authPW.toString('hex'),
-            firstAuthPW,
-            'password has changed'
-          );
-        })
-        .then(() => {
-          return server.mailbox.waitForEmail(email);
-        })
-        .then((emailData) => {
-          const subject = emailData.headers['subject'];
-          assert.equal(subject, 'Password updated');
-          const link = emailData.headers['x-link'];
-          const query = url.parse(link, true).query;
-          assert.ok(query.email, 'email is in the link');
-        })
-        .then(() => {
-          return Client.loginAndVerify(
-            config.publicUrl,
-            email,
-            newPassword,
-            server.mailbox,
-            {
-              ...testOptions,
-              keys: true,
-            }
-          );
-        })
-        .then((x) => {
-          client = x;
-          return client.keys();
-        })
-        .then((keys) => {
-          assert.deepEqual(keys.kB, kB, 'kB is preserved');
-          assert.deepEqual(keys.kA, kA, 'kA is preserved');
+        .catch((err) => {
+          assert.equal(err.errno, 110);
+          assert.equal(err.error, 'Unauthorized');
         });
     });
 
@@ -376,7 +223,7 @@ function getSessionTokenId(sessionTokenHex) {
 
       const profileBefore = await client.accountProfile();
 
-      await client.changePassword(newPassword);
+      await client.changePassword(newPassword, undefined, client.sessionToken);
       await server.mailbox.waitForEmail(email);
 
       client = await Client.loginAndVerify(
@@ -417,7 +264,11 @@ function getSessionTokenId(sessionTokenHex) {
             '0000000000000000000000000000000000000000000000000000000000000000',
             'hex'
           );
-          return client.changePassword('foobar');
+          return client.changePassword(
+            'foobar',
+            undefined,
+            client.sessionToken
+          );
         })
         .then(
           () => assert(false),
@@ -445,10 +296,11 @@ function getSessionTokenId(sessionTokenHex) {
           client = res;
 
           // Doesn't specify a sessionToken to use
-          return client.changePassword('foobar');
+          return client.changePassword('foobar', undefined, undefined);
         })
         .then(assert.fail, (err) => {
-          assert.equal(err.errno, 138, 'unverified session');
+          assert.equal(err.errno, 110);
+          assert.equal(err.error, 'Unauthorized');
         });
     });
 
@@ -470,10 +322,11 @@ function getSessionTokenId(sessionTokenHex) {
           .then((res) => {
             client = res;
             firstAuthPW = client.authPW.toString('hex');
-            return getSessionTokenId(client.sessionToken);
-          })
-          .then((sessionTokenId) => {
-            return client.changePassword('foobar', undefined, sessionTokenId);
+            return client.changePassword(
+              'foobar',
+              undefined,
+              client.sessionToken
+            );
           })
           .then((response) => {
             secondAuthPW = client.authPW.toString('hex');
@@ -487,7 +340,11 @@ function getSessionTokenId(sessionTokenHex) {
             return getSessionTokenId(sessionToken);
           })
           .then((sessionTokenId) => {
-            return client.changePassword('fizzbuzz', undefined, sessionTokenId);
+            return client.changePassword(
+              'fizzbuzz',
+              undefined,
+              client.sessionToken
+            );
           })
           .then((response) => {
             assert.notEqual(
@@ -525,13 +382,14 @@ function getSessionTokenId(sessionTokenHex) {
           )
           .then((res) => {
             client = res;
-            return getSessionTokenId(client.sessionToken);
-          })
-          .then((sessionTokenId) => {
-            return client.changePassword('foobar', undefined, sessionTokenId);
+            return client.changePassword(
+              'foobar',
+              undefined,
+              client.sessionToken
+            );
           })
           .then(assert.fail, (err) => {
-            assert.equal(err.errno, 138, 'unverified session');
+            assert.equal(err.errno, 104, 'unverified account');
           })
       );
     });
@@ -684,7 +542,7 @@ function getSessionTokenId(sessionTokenHex) {
       });
 
       it('can get keys after /password/change/start for verified user', async () => {
-        let user = await createVerifiedUser();
+        const user = await createVerifiedUser();
 
         const result = await user.api.passwordChangeStart(
           user.email,
@@ -697,7 +555,7 @@ function getSessionTokenId(sessionTokenHex) {
       });
 
       it('can get keys after /password/change/start for verified 2FA user', async () => {
-        let user = await createVerifiedUserWithVerifiedTOTP();
+        const user = await createVerifiedUserWithVerifiedTOTP();
         const result = await user.api.passwordChangeStart(
           user.email,
           user.authPW,
@@ -715,7 +573,7 @@ function getSessionTokenId(sessionTokenHex) {
           keys: true,
         });
 
-        let result = await user.api.passwordChangeStart(
+        const result = await user.api.passwordChangeStart(
           user.email,
           user.authPW,
           undefined, // headers
@@ -723,7 +581,7 @@ function getSessionTokenId(sessionTokenHex) {
         );
 
         try {
-          result = await user.api.accountKeys(result.keyFetchToken);
+          await user.api.accountKeys(result.keyFetchToken);
           assert.fail('Should have failed.');
         } catch (err) {
           assert.equal(err.message, 'Unconfirmed account');
@@ -738,13 +596,13 @@ function getSessionTokenId(sessionTokenHex) {
         });
 
         try {
-          let result = await user.api.passwordChangeStart(
+          const result = await user.api.passwordChangeStart(
             user.email,
             user.authPW,
             undefined, // headers
             user.sessionToken // sessionToken, not actually required or checked by /password/change/start at the moment, so leaving undefined!);
           );
-          result = await user.api.accountKeys(result.keyFetchToken);
+          await user.api.accountKeys(result.keyFetchToken);
           assert.fail('Should have failed.');
         } catch (err) {
           assert.equal(err.message, 'Unconfirmed account');
@@ -755,13 +613,13 @@ function getSessionTokenId(sessionTokenHex) {
         const victim = await createVerifiedUserWithVerifiedTOTP();
         const badActor = await createVerifiedUser();
         try {
-          let result = await badActor.api.passwordChangeStart(
+          const result = await badActor.api.passwordChangeStart(
             victim.email,
             victim.authPW,
             undefined, // headers
             undefined
           );
-          result = await badActor.api.accountKeys(result.keyFetchToken);
+          await badActor.api.accountKeys(result.keyFetchToken);
           assert.fail('Should have failed.');
         } catch (err) {
           assert.equal(
@@ -778,7 +636,7 @@ function getSessionTokenId(sessionTokenHex) {
         await user.destroySession();
         await user.login();
 
-        let result = await user.api.passwordChangeStart(
+        const result = await user.api.passwordChangeStart(
           user.email,
           user.authPW,
           undefined, // headers
