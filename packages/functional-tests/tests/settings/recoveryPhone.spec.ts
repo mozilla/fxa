@@ -14,32 +14,12 @@ import { RecoveryPhoneSetupPage } from '../../pages/settings/recoveryPhone';
 import { FirefoxCommand } from '../../lib/channels';
 import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
 import { getCode } from 'fxa-settings/src/lib/totp';
-import { TargetName, getFromEnvWithFallback } from '../../lib/targets';
-
-// Default test number, see Twilio test credentials phone numbers:
-// https://www.twilio.com/docs/iam/test-credentials
-const TEST_NUMBER = '4159929960';
-
-/**
- * Checks the process env for a configured twilio test phone number. Defaults
- * to generic magic test number if one is not provided.
- * @param targetName The test target name. eg local, stage, prod.
- * @returns
- */
-function getPhoneNumber(targetName: TargetName) {
-  if (targetName === 'local') {
-    return TEST_NUMBER;
-  }
-  return getFromEnvWithFallback(
-    'FUNCTIONAL_TESTS__TWILIO__TEST_NUMBER',
-    targetName,
-    TEST_NUMBER
-  );
-}
-
-function usingRealTestPhoneNumber(targetName: TargetName) {
-  return getPhoneNumber(targetName) !== TEST_NUMBER;
-}
+import {
+  TargetName,
+  getFromEnvWithFallback,
+  getPhoneNumber,
+  usingRealTestPhoneNumber,
+} from '../../lib/targets';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('recovery phone', () => {
