@@ -191,6 +191,7 @@ export class StripeFirestore {
         this.stripe.subscriptions
           .list({
             customer: customerId,
+            status: "all"
           })
           .autoPagingToArray({ limit: 100 }),
       ]);
