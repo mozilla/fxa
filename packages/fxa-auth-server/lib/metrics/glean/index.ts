@@ -314,13 +314,18 @@ export function gleanMetrics(config: ConfigType) {
       }),
     },
     twoFactorAuth: {
-      codeComplete: createEventFn('two_factor_auth_code_complete'),
+      codeComplete: createEventFn('two_factor_auth_code_complete', {
+        additionalMetrics: extraKeyReasonCb,
+      }),
       setCodesComplete: createEventFn('two_factor_auth_set_codes_complete'),
       replaceCodeComplete: createEventFn(
         'two_factor_auth_replace_code_complete'
       ),
       setupInvalidCodeError: createEventFn(
         'two_factor_auth_setup_invalid_code_error'
+      ),
+      codeReplaceFailure: createEventFn(
+        'two_factor_auth_code_replace_failure'
       ),
     },
     twoStepAuthPhoneCode: {

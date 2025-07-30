@@ -1,0 +1,6 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- DELETE FROM securityEventNames WHERE name = 'account.two_factor_replace_success';
+-- DELETE FROM securityEventNames WHERE name = 'account.two_factor_replace_failure';
+--
+-- UPDATE dbMetadata SET value = '174' WHERE name = 'schema-patch-level';

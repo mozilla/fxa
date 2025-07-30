@@ -1018,6 +1018,15 @@ AppError.totpTokenAlreadyExists = () => {
   });
 };
 
+AppError.totpTokenDoesNotExist = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.TOTP_SECRET_DOES_NOT_EXIST,
+    message: 'TOTP secret does not exist for this account.',
+  });
+};
+
 AppError.totpTokenNotFound = () => {
   return new AppError({
     code: 400,
