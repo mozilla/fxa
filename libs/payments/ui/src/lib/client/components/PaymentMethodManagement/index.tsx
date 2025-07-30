@@ -17,7 +17,10 @@ import { useState, useRef } from 'react';
 import { StripePaymentElementChangeEvent } from '@stripe/stripe-js';
 import { Localized, useLocalization } from '@fluent/react';
 import { useRouter } from 'next/navigation';
-import { updateStripePaymentDetails } from '@fxa/payments/ui/actions';
+import {
+  updateStripePaymentDetails,
+  setDefaultStripePaymentDetails,
+} from '@fxa/payments/ui/actions';
 
 export function PaymentMethodManagement({
   uid,
@@ -68,6 +71,34 @@ export function PaymentMethodManagement({
     }
   };
 
+  const handleNextAction = async (clientSecret: string) => {
+    if (!stripe) return;
+    const response = await stripe.handleNextAction({
+      clientSecret: clientSecret,
+    });
+
+    if (response.error) {
+      throw response.error;
+    }
+
+    if (
+      response.setupIntent?.status === 'requires_action' &&
+      response.setupIntent.client_secret
+    ) {
+      return await handleNextAction(response.setupIntent.client_secret);
+    } else if (response.setupIntent?.status === 'succeeded') {
+      await setDefaultStripePaymentDetails(
+        uid ?? '',
+        typeof response.setupIntent.payment_method === 'string'
+          ? response.setupIntent.payment_method
+          : (response.setupIntent.payment_method?.id ?? ''),
+        fullName
+      );
+    } else {
+      throw new Error('We could not confirm your payment method');
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -98,7 +129,15 @@ export function PaymentMethodManagement({
         throw confirmationTokenError;
       }
 
-      await updateStripePaymentDetails(uid ?? '', confirmationToken.id);
+      const response = await updateStripePaymentDetails(
+        uid ?? '',
+        confirmationToken.id
+      );
+
+      if (response.status === 'requires_action' && response.clientSecret) {
+        await handleNextAction(response.clientSecret);
+      }
+
       router.refresh();
     } catch (error) {
       console.error(error);

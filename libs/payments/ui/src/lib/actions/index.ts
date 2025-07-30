@@ -29,3 +29,4 @@ export { getCouponAction } from './getCoupon';
 export { serverLogAction } from './serverLog';
 export { getStripeClientSession } from './getStripeClientSession';
 export { updateStripePaymentDetails } from './updateStripePaymentDetails';
+export { setDefaultStripePaymentDetails } from './setDefaultStripePaymentDetails';

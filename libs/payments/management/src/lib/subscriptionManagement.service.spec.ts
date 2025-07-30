@@ -34,6 +34,7 @@ import { MockCurrencyConfigProvider } from 'libs/payments/currency/src/lib/curre
 import {
   CurrencyForCustomerNotFoundError,
   GetAccountCustomerMissingStripeId,
+  SetDefaultPaymentAccountCustomerMissingStripeId,
   SetupIntentInvalidStatusError,
   SetupIntentMissingCustomerError,
   SetupIntentMissingPaymentMethodError,
@@ -445,6 +446,7 @@ describe('SubscriptionManagementService', () => {
       expect(result).toEqual({
         id: mockSetupIntent.id,
         clientSecret: mockSetupIntent.client_secret,
+        status: mockSetupIntent.status,
       });
     });
     it('throws UpdateAccountCustomerMissingStripeId for missing stripe customer id', async () => {
@@ -638,6 +640,54 @@ describe('SubscriptionManagementService', () => {
           name: mockPaymentMethod.billing_details.name,
         }
       );
+    });
+  });
+  describe('setDefaultStripePaymentDetails', () => {
+    it("updates the customer's payment details", async () => {
+      const mockAccountCustomer = ResultAccountCustomerFactory();
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory()
+      );
+      const mockFullName = faker.person.fullName();
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(customerManager, 'update').mockResolvedValue(mockCustomer);
+
+      await subscriptionManagementService.setDefaultStripePaymentDetails(
+        mockCustomer.id,
+        mockPaymentMethod.id,
+        mockFullName
+      );
+
+      expect(customerManager.update).toHaveBeenCalledWith(
+        mockAccountCustomer.stripeCustomerId,
+        {
+          invoice_settings: {
+            default_payment_method: mockPaymentMethod.id,
+          },
+          name: mockFullName,
+        }
+      );
+    });
+    it('throws SetDefaultPaymentAccountCustomerMissingStripeId for missing stripe customer id', async () => {
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: null,
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+
+      await expect(
+        subscriptionManagementService.setDefaultStripePaymentDetails(
+          mockAccountCustomer.uid,
+          'pm_12345',
+          'john doe'
+        )
+      ).rejects.toBeInstanceOf(SetDefaultPaymentAccountCustomerMissingStripeId);
     });
   });
 });

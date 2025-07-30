@@ -29,6 +29,13 @@ export class UpdateAccountCustomerMissingStripeId extends SubscriptionManagement
   }
 }
 
+export class SetDefaultPaymentAccountCustomerMissingStripeId extends SubscriptionManagementError {
+  constructor(uid: string) {
+    super('AccountCustomer for updating default payment method is missing a Stripe customer id', { uid });
+    this.name = 'SetDefaultPaymentAccountCustomerMissingStripeId';
+  }
+}
+
 export class SetupIntentInvalidStatusError extends SubscriptionManagementError {
   constructor(setupIntentId?: string, status?: string) {
     super('ConfirmationToken failed to create successful SetupIntent', {
