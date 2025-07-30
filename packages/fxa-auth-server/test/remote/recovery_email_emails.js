@@ -536,7 +536,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
 
     it('receives change password notification', () => {
       return client
-        .changePassword('password1', undefined)
+        .changePassword('password1', undefined, client.sessionToken)
         .then((res) => {
           assert.ok(res);
           return server.mailbox.waitForEmail(email);
@@ -551,6 +551,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
 
     it('receives password reset notification', () => {
       return client
+
         .forgotPassword()
         .then(() => {
           return server.mailbox.waitForEmail(email);
@@ -559,9 +560,11 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
           return emailData.headers['x-recovery-code'];
         })
         .then((code) => {
+          console.log('!!! code', code);
           return resetPassword(client, code, 'password1', undefined, undefined);
         })
         .then((res) => {
+          console.log('!!! res', res);
           assert.ok(res);
         })
         .then(() => {
@@ -573,13 +576,14 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
         })
-        .then(() => {
+        .then(async () => {
           if (testOptions.version === 'V2') {
             return Client.upgradeCredentials(
               config.publicUrl,
               email,
               'password1',
-              { version: '', keys: true }
+              { version: '', keys: true },
+              server.mailbox
             );
           }
         })

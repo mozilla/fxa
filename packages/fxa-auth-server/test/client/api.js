@@ -658,15 +658,19 @@ module.exports = (config) => {
     return this.doRequest('POST', `${this.baseURL}/get_random_bytes`);
   };
 
-  ClientApi.prototype.passwordChangeStart = function (
+  ClientApi.prototype.passwordChangeStart = async function (
     email,
     oldAuthPW,
-    headers
+    headers,
+    sessionToken
   ) {
+    if (typeof sessionToken === 'string') {
+      sessionToken = await tokens.SessionToken.fromHex(sessionToken);
+    }
     return this.doRequest(
       'POST',
       `${this.baseURL}/password/change/start`,
-      null,
+      sessionToken,
       {
         email: email,
         oldAuthPW: oldAuthPW.toString('hex'),
@@ -675,16 +679,21 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.passwordChangeStartV2 = function (
+  ClientApi.prototype.passwordChangeStartV2 = async function (
     email,
     oldAuthPW,
     oldauthPWVersion2,
-    headers
+    headers,
+    sessionToken
   ) {
+    if (typeof sessionToken === 'string') {
+      sessionToken = await tokens.SessionToken.fromHex(sessionToken);
+    }
+
     return this.doRequest(
       'POST',
       `${this.baseURL}/password/change/start`,
-      null,
+      sessionToken,
       {
         email: email,
         oldAuthPW: oldAuthPW.toString('hex'),
@@ -694,7 +703,7 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.passwordChangeFinish = function (
+  ClientApi.prototype.passwordChangeFinish = async function (
     passwordChangeTokenHex,
     authPW,
     wrapKb,
@@ -702,27 +711,32 @@ module.exports = (config) => {
     sessionToken
   ) {
     const options = {};
-    return tokens.PasswordChangeToken.fromHex(passwordChangeTokenHex).then(
-      (token) => {
-        const requestData = {
-          authPW: authPW.toString('hex'),
-          wrapKb: wrapKb.toString('hex'),
-        };
 
-        if (sessionToken) {
-          // Support legacy clients and new clients
-          requestData.sessionToken = sessionToken;
-          options.keys = true;
-        }
+    if (typeof sessionToken === 'string') {
+      sessionToken = await tokens.SessionToken.fromHex(sessionToken);
+    }
 
-        return this.doRequest(
-          'POST',
-          `${this.baseURL}/password/change/finish${getQueryString(options)}`,
-          token,
-          requestData,
-          headers
-        );
-      }
+    const token = await tokens.PasswordChangeToken.fromHex(
+      passwordChangeTokenHex
+    );
+
+    const requestData = {
+      authPW: authPW.toString('hex'),
+      wrapKb: wrapKb.toString('hex'),
+    };
+
+    if (sessionToken) {
+      // Support legacy clients and new clients
+      requestData.sessionToken = sessionToken.id;
+      options.keys = true;
+    }
+
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/password/change/finish${getQueryString(options)}`,
+      token,
+      requestData,
+      headers
     );
   };
 
@@ -742,6 +756,10 @@ module.exports = (config) => {
       passwordChangeTokenHex
     );
 
+    if (typeof sessionToken === 'string') {
+      sessionToken = await tokens.SessionToken.fromHex(sessionToken);
+    }
+
     const requestData = {
       authPW: authPW.toString('hex'),
       authPWVersion2: authPWVersion2.toString('hex'),
@@ -755,7 +773,7 @@ module.exports = (config) => {
     if (sessionToken) {
       // Support legacy clients and new clients
       options.keys = true;
-      requestData.sessionToken = sessionToken;
+      requestData.sessionToken = sessionToken.id;
     }
 
     return await this.doRequest(

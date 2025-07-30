@@ -87,7 +87,6 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_CHANGE_START_POST,
         auth: {
-          mode: 'optional',
           strategy: 'sessionToken',
           payload: 'required',
         },
@@ -125,6 +124,11 @@ module.exports = function (
 
         try {
           const emailRecord = await db.accountRecord(email);
+
+          if (sessionToken.uid !== emailRecord.uid) {
+            throw error.invalidToken('Invalid session token');
+          }
+
           const password = new Password(
             oldAuthPW,
             emailRecord.authSalt,
@@ -148,6 +152,7 @@ module.exports = function (
               kA: emailRecord.kA,
               wrapKb: unwrappedKb,
               emailVerified: emailRecord.emailVerified,
+              tokenVerificationId: sessionToken?.tokenVerificationId,
             });
           }
 
@@ -160,6 +165,7 @@ module.exports = function (
               kA: emailRecord.kA,
               wrapKb: unwrappedKb,
               emailVerified: emailRecord.emailVerified,
+              tokenVerificationId: sessionToken?.tokenVerificationId,
             });
           }
 
@@ -222,7 +228,7 @@ module.exports = function (
                 .min(64)
                 .max(64)
                 .regex(HEX_STRING)
-                .optional()
+                .required()
                 .description(DESCRIPTION.sessionToken),
             })
             .and('authPWVersion2', 'wrapKbVersion2', 'clientSalt'),
@@ -292,6 +298,11 @@ module.exports = function (
           }
 
           const tokenData = await db.sessionToken(sessionTokenId);
+
+          if (!tokenData || tokenData.uid !== passwordChangeToken.uid) {
+            throw error.invalidToken('Invalid session token');
+          }
+
           result.previousSessionToken = tokenData;
           result.verifiedStatus = tokenData.tokenVerified;
           if (tokenData.deviceId) {
