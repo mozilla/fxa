@@ -55,7 +55,7 @@ module.exports = (log, config, db, statsd) => {
      * @param secret the secret used to verify code
      * @param otpOptions additional options
      * @param type the type of totp code being verified
-     * @returns boolean
+     * @returns {{valid: boolean, delta: number}} object with valid status and delta
      */
     verifyOtpCode(code, secret, otpOptions, type) {
       const authenticator = new otplib.authenticator.Authenticator();
@@ -66,13 +66,13 @@ module.exports = (log, config, db, statsd) => {
         { secret }
       );
       const valid = authenticator.check(code, secret);
+      const delta = authenticator.checkDelta(code, secret);
 
       if (type) {
-        const delta = authenticator.checkDelta(code, secret);
         statsd.histogram(`${type}.totp.delta_histogram`, delta);
       }
-
-      return valid;
+      // Return delta for logging
+      return { valid, delta };
     },
   };
 };

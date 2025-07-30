@@ -1031,7 +1031,7 @@ module.exports = (
         }
 
         const secret = matchedEmail.emailCode;
-        const isValid = otpUtils.verifyOtpCode(
+        const { valid: isValid } = otpUtils.verifyOtpCode(
           code,
           secret,
           otpOptions,
