@@ -103,7 +103,6 @@ const SigninRecoveryCode = ({
       queryParams: location.search,
       handleFxaLogin: true,
       handleFxaOAuthLogin: true,
-      performNavigation: !integration.isFirefoxMobileClient(),
     };
 
     const { error } = await handleNavigation(navigationOptions);
@@ -221,7 +220,7 @@ const SigninRecoveryCode = ({
           />
         ) : (
           <FtlMsg id="signin-recovery-code-heading">
-            <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
+          <HeadingPrimary marginClass="">Sign in</HeadingPrimary>
           </FtlMsg>
         )}
       </div>
@@ -266,7 +265,7 @@ const SigninRecoveryCode = ({
           codeErrorMessage,
           setCodeErrorMessage,
           cmsButton: {
-            color: cmsInfo?.shared?.buttonColor,
+            color: cmsInfo?.shared?.buttonColor
           },
         }}
         gleanDataAttrs={{ id: 'login_backup_codes_submit' }}

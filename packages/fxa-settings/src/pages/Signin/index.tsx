@@ -162,7 +162,6 @@ const Signin = ({
               : '',
           finishOAuthFlowHandler,
           queryParams: location.search,
-          performNavigation: !integration.isFirefoxMobileClient(),
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -230,7 +229,6 @@ const Signin = ({
           showInlineRecoveryKeySetup: data.showInlineRecoveryKeySetup,
           handleFxaLogin: true,
           handleFxaOAuthLogin: true,
-          performNavigation: !integration.isFirefoxMobileClient(),
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -405,7 +403,7 @@ const Signin = ({
             clientId,
             serviceName,
             cmsLogoUrl: cmsInfo?.shared?.logoUrl,
-            cmsLogoAltText: cmsInfo?.shared?.logoAltText,
+            cmsLogoAltText: cmsInfo?.shared?.logoAltText
           }}
         />
       )}
@@ -529,7 +527,7 @@ const Signin = ({
               searchParams.delete('email');
               navigateWithQuery(`/?${searchParams.toString()}`, {
                 state: {
-                  prefillEmail: email,
+                  prefillEmail: email
                 },
               });
             }}

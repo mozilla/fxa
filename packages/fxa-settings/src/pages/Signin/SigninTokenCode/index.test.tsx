@@ -20,13 +20,11 @@ import { MOCK_EMAIL, MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
   createMockSigninOAuthIntegration,
-  createMockSigninOAuthNativeSyncIntegration,
   createMockSigninWebIntegration,
 } from '../mocks';
 import VerificationReasons from '../../../constants/verification-reasons';
 import { navigate } from '@reach/router';
 import { SigninOAuthIntegration } from '../interfaces';
-import * as SigninUtils from '../utils';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -309,29 +307,6 @@ describe('SigninTokenCode page', () => {
             undefined,
             undefined,
             true
-          );
-        });
-      });
-
-      it('does not navigate if integration isFirefoxMobileClient', async () => {
-        const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
-        session = mockSession();
-        const finishOAuthFlowHandler = jest
-          .fn()
-          .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
-        const integration = createMockSigninOAuthNativeSyncIntegration({
-          isMobile: true,
-        });
-        render({
-          finishOAuthFlowHandler,
-          integration,
-        });
-        submitCode();
-        await waitFor(() => {
-          expect(handleNavigationSpy).toHaveBeenCalledWith(
-            expect.objectContaining({
-              performNavigation: false,
-            })
           );
         });
       });

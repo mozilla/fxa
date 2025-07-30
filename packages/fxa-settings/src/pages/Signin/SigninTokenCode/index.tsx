@@ -161,7 +161,6 @@ const SigninTokenCode = ({
           showInlineRecoveryKeySetup,
           handleFxaLogin: false,
           handleFxaOAuthLogin: true,
-          performNavigation: !integration.isFirefoxMobileClient(),
         };
 
         await GleanMetrics.isDone();

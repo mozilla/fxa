@@ -24,7 +24,6 @@ import { navigate } from '@reach/router';
 import { tryAgainError } from '../../../lib/oauth/hooks';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { createMockWebIntegration } from './mocks';
-import * as SigninUtils from '../utils';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -287,7 +286,7 @@ describe('SigninUnblock', () => {
     beforeEach(() => {
       hardNavigateSpy = jest
         .spyOn(utils, 'hardNavigate')
-        .mockImplementation(() => {});
+        .mockImplementation(() => { });
     });
 
     afterEach(() => {
@@ -305,12 +304,7 @@ describe('SigninUnblock', () => {
       submitButton.click();
 
       await waitFor(() => {
-        expect(hardNavigateSpy).toHaveBeenCalledWith(
-          redirectTo,
-          undefined,
-          undefined,
-          false
-        );
+        expect(hardNavigateSpy).toHaveBeenCalledWith(redirectTo, undefined, undefined, false);
       });
     });
 
@@ -341,32 +335,6 @@ describe('SigninUnblock', () => {
 
       await waitFor(() => {
         expect(navigate).toHaveBeenCalledWith('/settings', { replace: false });
-      });
-    });
-  });
-
-  describe('submit with OAuth integration', () => {
-    it('does not navigate if integration isFirefoxMobileClient', async () => {
-      const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
-      const finishOAuthFlowHandler = jest
-        .fn()
-        .mockImplementation(mockFinishOAuthFlowHandler);
-      const integration = createMockSigninOAuthNativeSyncIntegration({
-        isMobile: true,
-      });
-      renderWithSuccess(finishOAuthFlowHandler, integration);
-      const input = screen.getByRole('textbox');
-      const submitButton = screen.getByRole('button', { name: 'Continue' });
-
-      fireEvent.change(input, { target: { value: 'A1B2C3D4' } });
-      submitButton.click();
-
-      await waitFor(() => {
-        expect(handleNavigationSpy).toHaveBeenCalledWith(
-          expect.objectContaining({
-            performNavigation: false,
-          })
-        );
       });
     });
   });
