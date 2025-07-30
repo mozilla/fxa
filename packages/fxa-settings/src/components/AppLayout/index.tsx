@@ -36,6 +36,8 @@ export const AppLayout = ({
   const cmsInfo = integration?.getCmsInfo?.();
   const cmsBackgroundColor = cmsInfo?.shared?.backgroundColor;
   const cmsPageTitle = cmsInfo?.shared?.pageTitle;
+  const cmsHeaderLogoUrl = cmsInfo?.shared?.headerLogoUrl;
+  const cmsHeaderLogoAltText = cmsInfo?.shared?.headerLogoAltText;
 
   const overrideTitle = cmsPageTitle ? cmsPageTitle : title;
 
@@ -66,15 +68,23 @@ export const AppLayout = ({
             href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
             className="mobileLandscape:inline-block"
           >
-            <img
-              src={mozLogo}
-              alt={l10n.getString(
-                'app-footer-mozilla-logo-label',
-                null,
-                'Mozilla logo'
-              )}
-              className="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
-            />
+            {cmsHeaderLogoUrl ? (
+              <img
+                src={cmsHeaderLogoUrl}
+                alt={cmsHeaderLogoAltText || 'logo'}
+                className="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
+              />
+            ) : (
+              <img
+                src={mozLogo}
+                alt={l10n.getString(
+                  'app-footer-mozilla-logo-label',
+                  null,
+                  'Mozilla logo'
+                )}
+                className="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
+              />
+            )}
           </LinkExternal>
         </header>
         <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">

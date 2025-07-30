@@ -148,6 +148,7 @@ function mockSyncDesktopV3Integration() {
     isDesktopSync: () => true,
     isDesktopRelay: () => false,
     isFirefoxMobileClient: () => false,
+    getCmsInfo: () => undefined,
   } as ModelsModule.Integration;
 }
 function mockOAuthNativeIntegration(
@@ -165,6 +166,7 @@ function mockOAuthNativeIntegration(
     isDesktopSync: () => true,
     isDesktopRelay: () => false,
     isFirefoxMobileClient: () => isFirefoxMobileClient,
+    getCmsInfo: () => undefined,
   } as ModelsModule.Integration;
 }
 

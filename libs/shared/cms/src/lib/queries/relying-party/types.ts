@@ -23,6 +23,14 @@ export interface Shared {
   emailLogoAltText: string | null;
   backgroundColor: string | null;
   pageTitle: string | null;
+  headerLogoUrl: string | null;
+  headerLogoAltText: string | null;
+  featureFlags: FeatureFlags | null;
+}
+
+export interface FeatureFlags {
+  syncConfirmedPageHideCTA: boolean | null;
+  syncHidePromoAfterLogin: boolean | null;
 }
 
 export interface RelyingPartyResult {

@@ -46,6 +46,7 @@ interface SyncNavigateOptions {
   showInlineRecoveryKeySetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
+  syncHidePromoAfterLogin?: boolean;
 }
 
 export function getSyncNavigate(
@@ -54,6 +55,7 @@ export function getSyncNavigate(
     showInlineRecoveryKeySetup,
     isSignInWithThirdPartyAuth,
     showSignupConfirmedSync,
+    syncHidePromoAfterLogin,
   }: SyncNavigateOptions = {}
 ) {
   const searchParams = new URLSearchParams(queryParams);
@@ -75,6 +77,13 @@ export function getSyncNavigate(
   if (showSignupConfirmedSync) {
     return {
       to: `/signup_confirmed_sync?${searchParams}`,
+      shouldHardNavigate: false,
+    };
+  }
+
+  if (syncHidePromoAfterLogin) {
+    return {
+      to: `/settings?${searchParams}`,
       shouldHardNavigate: false,
     };
   }
@@ -188,6 +197,16 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   const isOAuth = isOAuthIntegration(integration);
   const isWebChannelIntegration =
     integration.isSync() || integration.isDesktopRelay();
+
+  // Check CMS fleature flags to determine if we should hide promos, the
+  // default is to navigate to settings
+  const cmsInfo = integration?.getCmsInfo();
+  if (cmsInfo?.shared?.featureFlags?.syncHidePromoAfterLogin && integration.isSync()) {
+    navigationOptions.showInlineRecoveryKeySetup = false;
+    navigationOptions.showSignupConfirmedSync = false;
+    navigationOptions.syncHidePromoAfterLogin = true;
+  }
+
 
   if (!navigationOptions.signinData.verified) {
     const { to, locationState } =
@@ -405,6 +424,7 @@ const getOAuthNavigationTarget = async (
         isSignInWithThirdPartyAuth:
           navigationOptions.isSignInWithThirdPartyAuth,
         showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
+        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin
       }),
       locationState,
     };
@@ -438,6 +458,7 @@ const getOAuthNavigationTarget = async (
         isSignInWithThirdPartyAuth:
           navigationOptions.isSignInWithThirdPartyAuth,
         showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
+        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin
       }),
       oauthData: {
         code,

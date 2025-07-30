@@ -39,6 +39,7 @@ const SignupConfirmedSync = ({
   const cmsInfo = integration.getCmsInfo();
   const cmsButtonColor = cmsInfo?.shared?.buttonColor;
   const cmsButtonText = cmsInfo?.SignupConfirmedSyncPage?.primaryButtonText;
+  const cmsHideCTA = !!cmsInfo?.shared?.featureFlags?.syncConfirmedPageHideCTA;
 
   return (
     <AppLayout integration={integration}>
@@ -100,7 +101,7 @@ const SignupConfirmedSync = ({
         </>
       )}
 
-      {showPairLink && (
+      {(!cmsHideCTA && showPairLink) && (
         <div className="flex mb-5">
           <FtlMsg id="signup-confirmed-sync-add-device-link">
             {/* TODO: once Pair is converted to React, use `<Link>` instead */}
