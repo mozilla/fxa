@@ -95,6 +95,7 @@ import { GetStripePaymentManagementDetailsArgs } from './validators/GetStripeCli
 import { GetStripePaymentManagementDetailsResult } from './validators/GetStripePaymentManagementDetailsResult';
 import { UpdateStripePaymentDetailsArgs } from './validators/UpdateStripePaymentDetailsActionArgs';
 import { UpdateStripePaymentDetailsResult } from './validators/UpdateStripePaymentDetailsActionResult';
+import { SetDefaultStripePaymentDetailsActionArgs } from './validators/SetDefaultStripePaymentDetailsActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -596,6 +597,21 @@ export class NextJSActionsService {
     return await this.subscriptionManagementService.updateStripePaymentDetails(
       args.uid,
       args.confirmationTokenId
+    );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(SetDefaultStripePaymentDetailsActionArgs, undefined)
+  @CaptureTimingWithStatsD()
+  async setDefaultStripePaymentDetails(args: {
+    uid: string;
+    paymentMethodId: string;
+    fullName: string;
+  }) {
+    return await this.subscriptionManagementService.setDefaultStripePaymentDetails(
+      args.uid,
+      args.paymentMethodId,
+      args.fullName
     );
   }
 }
