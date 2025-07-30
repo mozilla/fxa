@@ -49,6 +49,7 @@ export function createMockSyncIntegration() {
     getService: () => MozServices.FirefoxSync,
     isSync: () => true,
     wantsKeys: () => true,
+    getCmsInfo: () => undefined,
     data: {},
   };
 }

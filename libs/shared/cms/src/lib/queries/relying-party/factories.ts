@@ -49,6 +49,12 @@ export const RelyingPartyResultFactory = (
     emailLogoAltText: faker.string.sample(),
     backgroundColor: faker.color.rgb(),
     pageTitle: faker.string.sample(),
+    headerLogoUrl: faker.internet.url(),
+    headerLogoAltText: faker.string.sample(),
+    featureFlags: {
+      syncConfirmedPageHideCTA: faker.datatype.boolean(),
+      syncHidePromoAfterLogin: faker.datatype.boolean(),
+    },
   },
   NewDeviceLoginEmail: {
     subject: faker.string.sample(),

@@ -111,6 +111,25 @@ class PairIndexView extends FormView {
       buttonStyle = `style="--cta-bg: ${this.cmsConfig.shared.buttonColor}; --cta-border: ${this.cmsConfig.shared.buttonColor}; --cta-active: ${this.cmsConfig.shared.buttonColor}; --cta-disabled: ${this.cmsConfig.shared.buttonColor}60;"`;
     }
 
+    // Apply CMS background gradient
+    if (this.cmsConfig && this.cmsConfig.shared && this.cmsConfig.shared.backgroundColor) {
+      // Validate the background color is a valid CSS graident
+      const isValidGradient = /^linear-gradient\(/.test(this.cmsConfig.shared.backgroundColor);
+      // Not ideal, but the pairing page will be going away
+      const screenWidth = window.innerWidth;
+      if (isValidGradient && screenWidth > 768) {
+        document.body.style.background = this.cmsConfig.shared.backgroundColor;
+      }
+    }
+
+    // Apply CMS header logo
+    const headerLogoUrl = this.cmsConfig?.shared?.headerLogoUrl;
+    if (headerLogoUrl) {
+      document.getElementById('about-mozilla').style.background = `url(${headerLogoUrl}) no-repeat center center`;
+      // Make sure logo fits in the header
+      document.getElementById('about-mozilla').style.backgroundSize = 'contain';
+    }
+
     context.set({
       graphicId,
       needsMobileConfirmed,

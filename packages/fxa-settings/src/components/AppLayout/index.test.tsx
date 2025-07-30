@@ -267,4 +267,157 @@ describe('<AppLayout />', () => {
     expect(screen.getByTestId('app')).toBeInTheDocument();
     screen.getByText('Hello, world!');
   });
+
+  it('renders CMS header logo when headerLogoUrl is provided', async () => {
+    const mockIntegration = {
+      getCmsInfo: () =>
+        ({
+          name: 'Test App',
+          clientId: 'test123',
+          entrypoint: 'test',
+          shared: {
+            headerLogoUrl: 'https://example.com/cms-logo.png',
+            headerLogoAltText: 'CMS Custom Logo',
+          },
+        }) as RelierCmsInfo,
+    };
+
+    renderWithLocalizationProvider(
+      <AppLayout integration={mockIntegration}>
+        <p>Hello, world!</p>
+      </AppLayout>
+    );
+
+    const cmsLogo = screen.getByAltText('CMS Custom Logo');
+    expect(cmsLogo).toBeInTheDocument();
+    expect(cmsLogo).toHaveAttribute('src', 'https://example.com/cms-logo.png');
+    expect(cmsLogo).toHaveClass('h-auto', 'w-[140px]', 'mx-auto', 'mobileLandscape:mx-0');
+  });
+
+  it('renders CMS header logo with default alt text when headerLogoAltText is not provided', async () => {
+    const mockIntegration = {
+      getCmsInfo: () =>
+        ({
+          name: 'Test App',
+          clientId: 'test123',
+          entrypoint: 'test',
+          shared: {
+            headerLogoUrl: 'https://example.com/cms-logo.png',
+            // No headerLogoAltText
+          },
+        }) as RelierCmsInfo,
+    };
+
+    renderWithLocalizationProvider(
+      <AppLayout integration={mockIntegration}>
+        <p>Hello, world!</p>
+      </AppLayout>
+    );
+
+    const cmsLogo = screen.getByAltText('logo');
+    expect(cmsLogo).toBeInTheDocument();
+    expect(cmsLogo).toHaveAttribute('src', 'https://example.com/cms-logo.png');
+  });
+
+  it('renders default Mozilla logo when headerLogoUrl is not provided', async () => {
+    const mockIntegration = {
+      getCmsInfo: () =>
+        ({
+          name: 'Test App',
+          clientId: 'test123',
+          entrypoint: 'test',
+          shared: {
+            // No headerLogoUrl
+            buttonColor: '#0078d4',
+          },
+        }) as RelierCmsInfo,
+    };
+
+    renderWithLocalizationProvider(
+      <AppLayout integration={mockIntegration}>
+        <p>Hello, world!</p>
+      </AppLayout>
+    );
+
+    const defaultLogo = screen.getByAltText('Mozilla logo');
+    expect(defaultLogo).toBeInTheDocument();
+    // The default logo should have the mozLogo src (this will be the imported SVG)
+    expect(defaultLogo).toHaveAttribute('src');
+  });
+
+  it('renders default Mozilla logo when integration is not provided', async () => {
+    renderWithLocalizationProvider(
+      <AppLayout>
+        <p>Hello, world!</p>
+      </AppLayout>
+    );
+
+    const defaultLogo = screen.getByAltText('Mozilla logo');
+    expect(defaultLogo).toBeInTheDocument();
+    expect(defaultLogo).toHaveAttribute('src');
+  });
+
+  it('renders default Mozilla logo when getCmsInfo returns undefined', async () => {
+    const mockIntegration = {
+      getCmsInfo: () => undefined,
+    };
+
+    renderWithLocalizationProvider(
+      <AppLayout integration={mockIntegration}>
+        <p>Hello, world!</p>
+      </AppLayout>
+    );
+
+    const defaultLogo = screen.getByAltText('Mozilla logo');
+    expect(defaultLogo).toBeInTheDocument();
+    expect(defaultLogo).toHaveAttribute('src');
+  });
+
+  it('renders default Mozilla logo when getCmsInfo is missing', async () => {
+    const mockIntegration = {};
+
+    renderWithLocalizationProvider(
+      <AppLayout integration={mockIntegration}>
+        <p>Hello, world!</p>
+      </AppLayout>
+    );
+
+    const defaultLogo = screen.getByAltText('Mozilla logo');
+    expect(defaultLogo).toBeInTheDocument();
+    expect(defaultLogo).toHaveAttribute('src');
+  });
+
+  it('renders CMS header logo when both headerLogoUrl and other CMS properties are provided', async () => {
+    const mockIntegration = {
+      getCmsInfo: () =>
+        ({
+          name: 'Test App',
+          clientId: 'test123',
+          entrypoint: 'test',
+          shared: {
+            headerLogoUrl: 'https://example.com/cms-logo.png',
+            headerLogoAltText: 'CMS Custom Logo',
+            buttonColor: '#0078d4',
+            logoUrl: 'https://example.com/other-logo.png',
+            logoAltText: 'Other Logo',
+            backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            pageTitle: 'Test App - Custom Title',
+          },
+        }) as RelierCmsInfo,
+    };
+
+    renderWithLocalizationProvider(
+      <AppLayout integration={mockIntegration}>
+        <p>Hello, world!</p>
+      </AppLayout>
+    );
+
+    const cmsLogo = screen.getByAltText('CMS Custom Logo');
+    expect(cmsLogo).toBeInTheDocument();
+    expect(cmsLogo).toHaveAttribute('src', 'https://example.com/cms-logo.png');
+
+    // Verify that only one logo is rendered
+    const allImages = screen.getAllByRole('img');
+    expect(allImages).toHaveLength(1);
+  });
 });

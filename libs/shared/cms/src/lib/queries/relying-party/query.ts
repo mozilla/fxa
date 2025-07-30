@@ -21,6 +21,12 @@ export const relyingPartyQuery = graphql(`
         emailLogoAltText
         backgroundColor
         pageTitle
+        headerLogoUrl
+        headerLogoAltText
+        featureFlags {
+          syncConfirmedPageHideCTA
+          syncHidePromoAfterLogin
+        }
       }
       EmailFirstPage {
         headline

@@ -39,6 +39,14 @@ export interface SharedRelierCmsInfo {
   logoAltText: string | undefined;
   backgroundColor?: string | undefined;
   pageTitle?: string | undefined;
+  headerLogoUrl?: string | undefined;
+  headerLogoAltText?: string | undefined;
+  featureFlags?: FeatureFlagsRelierCmsInfo | undefined;
+}
+
+export interface FeatureFlagsRelierCmsInfo {
+  syncConfirmedPageHideCTA?: boolean | undefined;
+  syncHidePromoAfterLogin?: boolean | undefined;
 }
 
 export interface RelierCmsInfo {

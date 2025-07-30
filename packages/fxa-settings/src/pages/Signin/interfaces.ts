@@ -216,6 +216,7 @@ export interface NavigationOptions {
   showInlineRecoveryKeySetup?: boolean;
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
+  syncHidePromoAfterLogin?: boolean;
   handleFxaLogin?: boolean;
   handleFxaOAuthLogin?: boolean;
   syncEngines?: {
