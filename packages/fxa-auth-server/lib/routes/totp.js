@@ -379,7 +379,7 @@ module.exports = (
             window: config.window,
           };
 
-          const isValidCode = otpUtils.verifyOtpCode(
+          const { valid: isValidCode } = otpUtils.verifyOtpCode(
             code,
             sharedSecret,
             otpOptions,
@@ -556,7 +556,7 @@ module.exports = (
           window: config.window,
         };
 
-        const isValidCode = otpUtils.verifyOtpCode(
+        const { valid: isValidCode, delta } = otpUtils.verifyOtpCode(
           code,
           sharedSecret,
           otpOptions,
@@ -571,6 +571,15 @@ module.exports = (
           // an edgecase where the client may accept a code that the server rejects.
           if (!isValidCode) {
             glean.twoFactorAuth.setupInvalidCodeError(request, { uid });
+            // Lots of data to help determine the cause of FXA-12145
+            log.error('totp.setup.invalidCode', {
+              uid,
+              code,
+              step: config.step,
+              window: config.window,
+              delta,
+            });
+
             throw errors.invalidTokenVerficationCode();
           } else {
             // Once a valid TOTP code has been detected, the token becomes verified

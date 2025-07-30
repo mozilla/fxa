@@ -400,7 +400,7 @@ module.exports = function (
         const account = await db.account(uid);
         const secret = account.primaryEmail.emailCode;
 
-        const isValidCode = otpUtils.verifyOtpCode(
+        const { valid: isValidCode } = otpUtils.verifyOtpCode(
           code,
           secret,
           otpOptions,
@@ -681,7 +681,7 @@ module.exports = function (
         const account = await db.account(uid);
         const secret = account.primaryEmail.emailCode;
 
-        const isValidCode = otpUtils.verifyOtpCode(
+        const { valid: isValidCode } = otpUtils.verifyOtpCode(
           code,
           secret,
           otpOptions,
