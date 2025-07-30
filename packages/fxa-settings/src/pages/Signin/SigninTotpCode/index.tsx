@@ -108,7 +108,6 @@ export const SigninTotpCode = ({
         showInlineRecoveryKeySetup,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
-        performNavigation: !integration.isFirefoxMobileClient(),
       };
 
       const { error: navError } = await handleNavigation(navigationOptions);

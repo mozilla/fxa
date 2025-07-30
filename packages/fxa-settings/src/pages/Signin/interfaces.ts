@@ -32,7 +32,6 @@ export type SigninUnblockIntegration = Pick<
   | 'isDesktopRelay'
   | 'wantsLogin'
   | 'getCmsInfo'
-  | 'isFirefoxMobileClient'
 >;
 
 export type SigninIntegration =
@@ -47,7 +46,6 @@ export type SigninIntegration =
       | 'isDesktopSync'
       | 'isDesktopRelay'
       | 'getCmsInfo'
-      | 'isFirefoxMobileClient'
     >
   | SigninOAuthIntegration;
 
@@ -64,7 +62,6 @@ export type SigninOAuthIntegration = Pick<
   | 'isDesktopSync'
   | 'isDesktopRelay'
   | 'getCmsInfo'
-  | 'isFirefoxMobileClient'
 >;
 
 export interface LocationState {

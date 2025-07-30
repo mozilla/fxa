@@ -7,12 +7,7 @@ import Signin from '.';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { MozServices } from '../../lib/types';
-import {
-  AppContext,
-  IntegrationData,
-  IntegrationType,
-  RelierCmsInfo,
-} from '../../models';
+import { AppContext, IntegrationData, IntegrationType, RelierCmsInfo } from '../../models';
 import {
   MOCK_AUTH_AT,
   MOCK_EMAIL,
@@ -115,19 +110,13 @@ export function createMockSigninWebIntegration(): SigninIntegration {
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     getCmsInfo: () => undefined,
-    isFirefoxMobileClient: () => false,
   };
 }
 
 export function createMockSigninOAuthNativeSyncIntegration({
   type = IntegrationType.OAuthNative,
   isSync = true,
-  isMobile = false,
-}: {
-  type?: IntegrationType;
-  isSync?: boolean;
-  isMobile?: boolean;
-} = {}): SigninIntegration {
+}: { type?: IntegrationType; isSync?: boolean } = {}): SigninIntegration {
   return {
     type,
     isSync: () => isSync,
@@ -135,12 +124,11 @@ export function createMockSigninOAuthNativeSyncIntegration({
     getService: () => MozServices.FirefoxSync,
     getClientId: () => MOCK_CLIENT_ID,
     data: new IntegrationData(new GenericData({})),
-    isDesktopSync: () => isSync && !isMobile,
-    isDesktopRelay: () => !isSync && !isMobile,
+    isDesktopSync: () => true,
+    isDesktopRelay: () => !isSync,
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     getCmsInfo: () => undefined,
-    isFirefoxMobileClient: () => isSync && isMobile,
   };
 }
 
@@ -155,7 +143,7 @@ export function createMockSigninOAuthIntegration({
   service?: MozServices;
   wantsKeys?: boolean;
   isSync?: boolean;
-  cmsInfo?: RelierCmsInfo;
+  cmsInfo?: RelierCmsInfo
 } = {}): SigninOAuthIntegration {
   return {
     type: IntegrationType.OAuthWeb,
@@ -169,18 +157,15 @@ export function createMockSigninOAuthIntegration({
     data: new IntegrationData(new GenericData({})),
     isDesktopRelay: () => false,
     getCmsInfo: () => cmsInfo,
-    isFirefoxMobileClient: () => false,
   };
 }
 
 export function createMockSigninOAuthNativeIntegration({
   service = 'sync',
   isSync = true,
-  isMobile = false,
 }: {
   service?: string;
   isSync?: boolean;
-  isMobile?: boolean;
 } = {}): SigninOAuthIntegration {
   return {
     type: IntegrationType.OAuthNative,
@@ -189,12 +174,11 @@ export function createMockSigninOAuthNativeIntegration({
     wantsKeys: () => true,
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
-    isDesktopSync: () => isSync && !isMobile,
+    isDesktopSync: () => isSync,
     data: new IntegrationData(new GenericData({})),
-    isDesktopRelay: () => !isSync && !isMobile,
+    isDesktopRelay: () => !isSync,
     getClientId: () => MOCK_CLIENT_ID,
     getCmsInfo: () => undefined,
-    isFirefoxMobileClient: () => isSync && isMobile,
   };
 }
 

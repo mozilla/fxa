@@ -29,7 +29,6 @@ import * as utils from 'fxa-react/lib/utils';
 import { navigate } from '@reach/router';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import userEvent from '@testing-library/user-event';
-import * as SigninUtils from '../utils';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -248,21 +247,6 @@ describe('Sign in with TOTP code page', () => {
         );
         await waitFor(() => {
           screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
-        });
-      });
-
-      it('does not navigate if integration isFirefoxMobileClient', async () => {
-        const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
-        const integration = createMockSigninOAuthNativeSyncIntegration({
-          isMobile: true,
-        });
-        renderAndSubmitTotpCode({}, undefined, integration);
-        await waitFor(() => {
-          expect(handleNavigationSpy).toHaveBeenCalledWith(
-            expect.objectContaining({
-              performNavigation: false,
-            })
-          );
         });
       });
     });

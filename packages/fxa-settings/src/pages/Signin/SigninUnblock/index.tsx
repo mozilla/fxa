@@ -144,7 +144,6 @@ export const SigninUnblock = ({
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         redirectTo,
-        performNavigation: !integration.isFirefoxMobileClient(),
       };
 
       // If the web redirect is invalid, this shows an "Invalid redirect" message in alertBar
