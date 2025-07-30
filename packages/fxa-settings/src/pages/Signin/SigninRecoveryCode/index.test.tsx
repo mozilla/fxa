@@ -9,16 +9,11 @@ import SigninRecoveryCode from '.';
 import GleanMetrics from '../../../lib/glean';
 import {
   createMockSigninOAuthIntegration,
-  createMockSigninOAuthNativeSyncIntegration,
   createMockSigninWebIntegration,
   mockSigninLocationState,
 } from '../mocks';
 import { LocationProvider } from '@reach/router';
-import {
-  MOCK_BACKUP_CODE,
-  MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
-} from '../../mocks';
-import * as SigninUtils from '../utils';
+import { MOCK_BACKUP_CODE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { tryAgainError } from '../../../lib/oauth/hooks';
@@ -189,50 +184,6 @@ describe('PageSigninRecoveryCode', () => {
         expect(GleanMetrics.loginBackupCode.submit).toHaveBeenCalledTimes(1);
         expect(GleanMetrics.loginBackupCode.success).toHaveBeenCalledTimes(1);
       });
-    });
-  });
-
-  describe('submit with success', () => {
-    it('does not navigate when integration isFirefoxMobileClient', async () => {
-      const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
-      const mockFinishOAuthFlowHandler = jest
-        .fn()
-        .mockReturnValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
-      const mockSubmitRecoveryCode = jest
-        .fn()
-        .mockResolvedValue({ data: { consumeRecoveryCode: { remaining: 3 } } });
-      const integration = createMockSigninOAuthNativeSyncIntegration({
-        isMobile: true,
-      });
-      renderWithLocalizationProvider(
-        <LocationProvider>
-          <SigninRecoveryCode
-            finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
-            integration={integration}
-            navigateToRecoveryPhone={jest.fn()}
-            signinState={mockSigninLocationState}
-            submitRecoveryCode={mockSubmitRecoveryCode}
-          />
-        </LocationProvider>
-      );
-
-      const input = screen.getByRole('textbox');
-      const button = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.change(input, { target: { value: MOCK_BACKUP_CODE } });
-      await waitFor(() => {
-        expect(input).toHaveValue(MOCK_BACKUP_CODE);
-      });
-      button.click();
-
-      expect(integration.isFirefoxMobileClient()).toBe(true);
-      await waitFor(() => {
-        expect(handleNavigationSpy).toHaveBeenCalledWith(
-          expect.objectContaining({
-            performNavigation: false,
-          })
-        );
-      });
-      handleNavigationSpy.mockRestore();
     });
   });
 

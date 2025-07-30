@@ -9,7 +9,6 @@ import { AppContext, Integration } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import SigninRecoveryPhoneContainer from './container';
 import {
-  createMockSigninOAuthNativeSyncIntegration,
   createMockSigninWebIntegration,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
   mockSigninLocationState,
@@ -18,10 +17,6 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { SigninRecoveryPhoneProps } from './interfaces';
 import { storeAccountData } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
-import {
-  useFinishOAuthFlowHandler,
-  useOAuthKeysCheck,
-} from '../../../lib/oauth/hooks';
 
 const mockRecoveryPhoneSigninConfirm = jest.fn().mockImplementation(() => {
   return Promise.resolve();
@@ -73,14 +68,6 @@ jest.mock('../utils', () => ({
   handleNavigation: jest.fn(),
 }));
 
-jest.mock('../../../lib/oauth/hooks.tsx', () => {
-  return {
-    __esModule: true,
-    useFinishOAuthFlowHandler: jest.fn(),
-    useOAuthKeysCheck: jest.fn(),
-  };
-});
-
 let mockNavigate = jest.fn();
 function mockReachRouter(pathname = '', mockLocationState = {}) {
   jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
@@ -106,15 +93,6 @@ function applyDefaultMocks() {
   jest.restoreAllMocks();
 
   mockSigninRecoveryPhoneModule();
-  (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
-    finishOAuthFlowHandler: jest
-      .fn()
-      .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
-    oAuthDataError: null,
-  }));
-  (useOAuthKeysCheck as jest.Mock).mockImplementation(() => ({
-    oAuthKeysCheckError: null,
-  }));
   mockReachRouter('/signin_recovery_phone', {
     signinState: mockSigninLocationState,
     lastFourPhoneDigits: '1234',
@@ -196,23 +174,6 @@ describe('SigninRecoveryPhoneContainer', () => {
       await currentPageProps?.resendCode();
       expect(mockRecoveryPhoneSigninSendCode).toHaveBeenCalledWith(
         mockSigninLocationState.sessionToken
-      );
-    });
-  });
-
-  describe('with mobile integration', () => {
-    it('calls handleNavigation with performNavigation set to false', async () => {
-      const integration = createMockSigninOAuthNativeSyncIntegration({
-        isMobile: true,
-      }) as Integration;
-
-      renderSigninRecoveryPhoneContainer(integration);
-
-      await currentPageProps?.verifyCode('123456');
-      expect(handleNavigation).toHaveBeenCalledWith(
-        expect.objectContaining({
-          performNavigation: false,
-        })
       );
     });
   });

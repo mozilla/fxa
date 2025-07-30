@@ -268,6 +268,7 @@ describe('SetPassword-container', () => {
       });
     });
 
+    // TODO FXA-9871, move the navigation spy part of this to its own test file
     it('handleNavigation does not navigate when integration isFirefoxMobileClient', async () => {
       render(mockOAuthNativeIntegration({ isFirefoxMobileClient: true }));
 
@@ -277,9 +278,13 @@ describe('SetPassword-container', () => {
         await currentSetPasswordProps?.createPasswordHandler(MOCK_PASSWORD);
       });
 
-      expect(handleNavigationSpy).toHaveBeenCalledWith(
-        expect.objectContaining({ performNavigation: false })
-      );
+      expect(handleNavigationSpy).toHaveBeenCalled();
+      // Ensure handleNavigation was passed the correct arguments
+      const optionsArg = handleNavigationSpy.mock.calls[0][0];
+      expect(optionsArg.performNavigation).toBe(false);
+
+      // But navigation doesn't occur
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 });

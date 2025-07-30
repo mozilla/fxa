@@ -121,7 +121,6 @@ const SigninRecoveryPhoneContainer = ({
         queryParams: location.search,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
-        performNavigation: !integration.isFirefoxMobileClient(),
       };
 
       const recoveryPhoneSigninSuccessGleanMetric =
@@ -195,7 +194,7 @@ const SigninRecoveryPhoneContainer = ({
         resendCode,
         sendError,
         numBackupCodes,
-        integration,
+        integration
       }}
     />
   );
