@@ -23,6 +23,7 @@ export const InlineTotpSetupOld = ({
   serviceName,
   cancelSetupHandler,
   verifyCodeHandler,
+  integration,
 }: InlineTotpSetupProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedQRCodeAltText = ftlMsgResolver.getMsg(
@@ -72,7 +73,7 @@ export const InlineTotpSetupOld = ({
   };
 
   return (
-    <AppLayout>
+    <AppLayout integration={integration}>
       {showIntro && (
         <>
           <CardHeader

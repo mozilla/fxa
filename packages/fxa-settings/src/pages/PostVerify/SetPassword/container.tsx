@@ -166,6 +166,7 @@ const SetPasswordContainer = ({
         email,
         createPasswordHandler,
         offeredSyncEngineConfigs,
+        integration,
       }}
     />
   );

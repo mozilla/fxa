@@ -5,6 +5,7 @@
 import { FinishOAuthFlowHandlerResult } from '../../lib/oauth/hooks';
 import { MozServices } from '../../lib/types';
 import { SigninLocationState, TotpToken } from './../Signin/interfaces';
+import { Integration } from '../../models';
 
 export type SigninRecoveryLocationState = SigninLocationState & {
   totp: TotpToken;
@@ -18,4 +19,5 @@ export interface InlineRecoverySetupProps {
   verifyTotpHandler: () => Promise<boolean>;
   successfulSetupHandler: () => void;
   email: string;
+  integration?: Integration;
 }

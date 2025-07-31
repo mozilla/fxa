@@ -17,6 +17,7 @@ export const SetPassword = ({
   email,
   createPasswordHandler,
   offeredSyncEngineConfigs,
+  integration,
 }: SetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [createPasswordLoading, setCreatePasswordLoading] =
@@ -56,7 +57,7 @@ export const SetPassword = ({
     });
 
   return (
-    <AppLayout>
+    <AppLayout integration={integration}>
       <FtlMsg id="set-password-heading-v2">
         <h1 className="card-header">Create password to sync</h1>
       </FtlMsg>
