@@ -4,6 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import {
+  RelierCmsInfo,
   useAuthClient,
   useFtlMsgResolver,
   useSensitiveDataClient,
@@ -18,7 +19,9 @@ import { getSyncNavigate } from '../Signin/utils';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { formatRecoveryKey } from '../../lib/utilities';
 
-export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
+const InlineRecoveryKeySetupContainer = ({
+  cmsInfo,
+}: { cmsInfo?: RelierCmsInfo } & RouteComponentProps) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
@@ -140,6 +143,7 @@ export const InlineRecoveryKeySetupContainer = (_: RouteComponentProps) => {
         email,
         formattedRecoveryKey,
         navigateForward,
+        cmsInfo
       }}
     />
   );

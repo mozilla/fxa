@@ -16,7 +16,7 @@ type AppLayoutProps = {
   title?: string;
   children: React.ReactNode;
   widthClass?: string;
-  integration?: { getCmsInfo?: () => RelierCmsInfo | undefined };
+  cmsInfo?: RelierCmsInfo;
   /** Whether the content is wrapped in a card.
    * Set to `false` for content that already provides a card, like
    * `FlowContainer`.
@@ -28,11 +28,10 @@ export const AppLayout = ({
   title,
   children,
   widthClass,
-  integration,
+  cmsInfo,
   wrapInCard = true,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
-  const cmsInfo = integration?.getCmsInfo?.();
   const cmsBackgroundColor = cmsInfo?.shared?.backgroundColor;
   const cmsPageTitle = cmsInfo?.shared?.pageTitle;
   const cmsHeaderLogoUrl = cmsInfo?.shared?.headerLogoUrl;

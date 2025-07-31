@@ -13,12 +13,14 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../lib/metrics';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import DataBlockInline from '../DataBlockInline';
+import { RelierCmsInfo } from '../../models';
 
 interface RecoveryKeySetupDownloadProps {
   navigateForward: () => void;
   recoveryKeyValue: string;
   viewName: string;
   email: string;
+  cmsInfo?: RelierCmsInfo;
 }
 
 const spinner = (
@@ -34,6 +36,7 @@ export const InlineRecoveryKeySetupDownload = ({
   email,
   navigateForward,
   viewName,
+  cmsInfo,
 }: RecoveryKeySetupDownloadProps) => {
   return (
     <>
@@ -80,7 +83,7 @@ export const InlineRecoveryKeySetupDownload = ({
 
       <Suspense fallback={spinner}>
         <ButtonDownloadRecoveryKeyPDF
-          {...{ navigateForward, recoveryKeyValue, viewName, email }}
+          {...{ navigateForward, recoveryKeyValue, viewName, email, cmsInfo }}
         />
       </Suspense>
 

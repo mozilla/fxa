@@ -300,7 +300,7 @@ const ConfirmSignupCode = ({
 
   return (
     <AppLayout
-      integration={integration}
+      cmsInfo={cmsInfo}
       title={ftlMsgResolver.getMsg(
         'confirm-signup-code-page-title',
         'Enter confirmation code'

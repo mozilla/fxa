@@ -8,7 +8,7 @@ import { Meta } from '@storybook/react';
 import { MOCK_SERVICE } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { MozServices } from '../../../lib/types';
-import { createMockOAuthWebIntegration } from '../ConfirmSignupCode/mocks';
+import { createMockIntegrationWithCms } from '../../mocks';
 
 export default {
   title: 'Pages/Signup/PrimaryEmailVerified',
@@ -42,5 +42,5 @@ export const BasicIsSync = storyWithProps({
 export const BasicIsSyncCms = storyWithProps({
   isSignedIn: true,
   serviceName: MozServices.FirefoxSync,
-  integration: createMockOAuthWebIntegration(),
+  integration: createMockIntegrationWithCms(),
 });

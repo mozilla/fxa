@@ -41,13 +41,16 @@ export const InlineTotpSetup = ({
     'Two-step authentication'
   );
 
+  const cmsInfo = integration?.getCmsInfo?.();
+
   return (
-    <AppLayout wrapInCard={false} integration={integration}>
+    <AppLayout wrapInCard={false} cmsInfo={cmsInfo}>
       {currentStep === 0 && (
         <FlowSetup2faPrompt
           onContinue={() => setCurrentStep(currentStep + 1)}
           localizedPageTitle={localizedPageTitle}
           serviceName={serviceName}
+          cmsInfo={cmsInfo}
         />
       )}
       {currentStep === 1 && (
@@ -59,6 +62,7 @@ export const InlineTotpSetup = ({
           totpInfo={totp}
           verifyCode={onSubmit}
           onBackButtonClick={navigateBackward}
+          cmsInfo={cmsInfo}
         />
       )}
     </AppLayout>

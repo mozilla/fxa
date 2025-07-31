@@ -208,7 +208,7 @@ const SigninTokenCode = ({
   const cmsInfo = integration?.getCmsInfo();
 
   return (
-    <AppLayout integration={integration}>
+    <AppLayout cmsInfo={cmsInfo}>
 
       <CardHeader
         headingText="Enter confirmation code"

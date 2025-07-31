@@ -9,6 +9,8 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import FlowContainer from '../FlowContainer';
 import { GleanClickEventType2FA } from '../../../lib/types';
 import Banner from '../../Banner';
+import { RelierCmsInfo } from '../../../models';
+import CmsButtonWithFallback from '../../CmsButtonWithFallback';
 
 export type FlowSetup2faPromptProps = {
   localizedPageTitle: string;
@@ -17,6 +19,7 @@ export type FlowSetup2faPromptProps = {
   hideBackButton?: boolean;
   serviceName: string;
   localizedErrorMessage?: string;
+  cmsInfo?: RelierCmsInfo;
 };
 
 export const FlowSetup2faPrompt = ({
@@ -26,6 +29,7 @@ export const FlowSetup2faPrompt = ({
   onBackButtonClick,
   serviceName,
   localizedErrorMessage,
+  cmsInfo,
 }: FlowSetup2faPromptProps) => {
   return (
     <FlowContainer
@@ -84,13 +88,14 @@ export const FlowSetup2faPrompt = ({
         </p>
       </FtlMsg>
       <FtlMsg id="flow-setup-2fa-prompt-continue-button">
-        <button
+        <CmsButtonWithFallback
           type="submit"
           className="cta-primary cta-xl w-full"
           onClick={onContinue}
+          buttonColor={cmsInfo?.shared?.buttonColor}
         >
           Continue
-        </button>
+        </CmsButtonWithFallback>
       </FtlMsg>
     </FlowContainer>
   );

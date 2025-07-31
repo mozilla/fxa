@@ -6,10 +6,11 @@ import React from 'react';
 import ConfirmSignupCode from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { createMockOAuthNativeIntegration, createMockOAuthWebIntegration, Subject } from './mocks';
+import { createMockOAuthNativeIntegration, Subject } from './mocks';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { createMockIntegrationWithCms } from '../../mocks';
 
 export default {
   title: 'Pages/Signup/ConfirmSignupCode',
@@ -52,6 +53,6 @@ export const OAuthDesktopServiceRelay = () => (
 
 export const WithSuccessCms = () => (
   <AppContext.Provider value={mockAppContext({ account: accountWithSuccess })}>
-    <Subject integration={createMockOAuthWebIntegration()} />
+    <Subject integration={createMockIntegrationWithCms()} />
   </AppContext.Provider>
 );

@@ -42,7 +42,7 @@ const SignupConfirmedSync = ({
   const cmsHideCTA = !!cmsInfo?.shared?.featureFlags?.syncConfirmedPageHideCTA;
 
   return (
-    <AppLayout integration={integration}>
+    <AppLayout cmsInfo={cmsInfo}>
       {originPostVerifySetPassword ? (
         <Banner
           type="success"

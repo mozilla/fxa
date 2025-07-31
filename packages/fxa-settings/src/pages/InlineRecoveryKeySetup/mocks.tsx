@@ -4,9 +4,9 @@
 
 import React from 'react';
 import InlineRecoveryKeySetup from '.';
-import { MOCK_EMAIL, MOCK_RECOVERY_KEY_WITH_SPACES } from '../mocks';
+import { MOCK_CMS_INFO, MOCK_EMAIL, MOCK_RECOVERY_KEY_WITH_SPACES } from '../mocks';
 
-export const Subject = ({ currentStep = 1 }: { currentStep?: number }) => (
+export const Subject = ({ currentStep = 1, cms = false }: { currentStep?: number, cms?: boolean }) => (
   <InlineRecoveryKeySetup
     {...{ currentStep }}
     createRecoveryKeyHandler={() =>
@@ -20,5 +20,6 @@ export const Subject = ({ currentStep = 1 }: { currentStep?: number }) => (
     email={MOCK_EMAIL}
     formattedRecoveryKey={MOCK_RECOVERY_KEY_WITH_SPACES}
     navigateForward={() => {}}
+    cmsInfo={cms ? MOCK_CMS_INFO : undefined}
   />
 );
