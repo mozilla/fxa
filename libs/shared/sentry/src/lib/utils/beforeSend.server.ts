@@ -18,6 +18,7 @@ const EXPECTED_ERRORS = new Set([
   'IntentInsufficientFundsError',
   'PayPalPaymentMethodError',
   'PayPalServiceUnavailableError',
+  'PayPalActiveSubscriptionsMissingAgreementError'
 ]);
 
 export const beforeSend = function (

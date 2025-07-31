@@ -25,6 +25,7 @@ export class PaypalBillingAgreementManager {
     hasSubscriptions: boolean,
     token?: string
   ) {
+    //throw new PayPalActiveSubscriptionsMissingAgreementError(uid);
     const existingBillingAgreementId = await this.retrieveActiveId(uid);
     if (existingBillingAgreementId) return existingBillingAgreementId;
 
