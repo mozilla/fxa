@@ -87,127 +87,129 @@ export default async function Location({
   );
 
   return (
-    <section
-      className="w-full max-w-[576px] bg-white rounded-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 tablet:clip-shadow desktop:px-12 desktop:pb-12"
-      aria-labelledby="location-page-heading"
-    >
-      <h1
-        id="location-page-heading"
-        className="font-bold text-grey-600 text-xl mt-10"
+    <div className="flex justify-center">
+      <section
+        className="w-full max-w-[576px] bg-white rounded-lg shadow-sm shadow-grey-300 border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 tablet:clip-shadow desktop:px-12 desktop:pb-12"
+        aria-labelledby="location-page-heading"
       >
-        {l10n.getFragmentWithSource(
-          'location-header',
-          {
-            vars: {
-              productName: purchaseDetails.productName,
+        <h1
+          id="location-page-heading"
+          className="font-bold text-grey-600 text-xl mt-10"
+        >
+          {l10n.getFragmentWithSource(
+            'location-header',
+            {
+              vars: {
+                productName: purchaseDetails.productName,
+              },
+              elems: {
+                p: pElement,
+              },
             },
-            elems: {
-              p: pElement,
-            },
-          },
-          headerElement
+            headerElement
+          )}
+        </h1>
+        {locationStatus === LocationStatus.SanctionedLocation ? (
+          <Banner variant={BannerVariant.Error} showCloseButton={true}>
+            {l10n.getString(
+              'next-location-unsupported',
+              'Your current location is not supported according to our Terms of Service.'
+            )}
+          </Banner>
+        ) : locationStatus === LocationStatus.ProductNotAvailable ||
+          locationStatus === TaxChangeAllowedStatus.CurrencyNotFound ? (
+          <Banner variant={BannerVariant.Error} showCloseButton={true}>
+            {l10n.getString(
+              'select-tax-location-product-not-available',
+              { productName: purchaseDetails.productName },
+              `${purchaseDetails.productName} is not available in this location.`
+            )}
+          </Banner>
+        ) : locationStatus === TaxChangeAllowedStatus.CurrencyChange ? (
+          <Banner variant={BannerVariant.Error} showCloseButton={true}>
+            {l10n.getString(
+              'location-banner-currency-change',
+              'Currency change not supported. To continue, select a country that matches your current billing currency.'
+            )}
+          </Banner>
+        ) : (
+          <Banner variant={BannerVariant.Info} showCloseButton={true}>
+            {l10n.getString(
+              'location-banner-info',
+              'We weren’t able to detect your location automatically'
+            )}
+          </Banner>
         )}
-      </h1>
-      {locationStatus === LocationStatus.SanctionedLocation ? (
-        <Banner variant={BannerVariant.Error} showCloseButton={true}>
-          {l10n.getString(
-            'next-location-unsupported',
-            'Your current location is not supported according to our Terms of Service.'
-          )}
-        </Banner>
-      ) : locationStatus === LocationStatus.ProductNotAvailable ||
-        locationStatus === TaxChangeAllowedStatus.CurrencyNotFound ? (
-        <Banner variant={BannerVariant.Error} showCloseButton={true}>
-          {l10n.getString(
-            'select-tax-location-product-not-available',
-            { productName: purchaseDetails.productName },
-            `${purchaseDetails.productName} is not available in this location.`
-          )}
-        </Banner>
-      ) : locationStatus === TaxChangeAllowedStatus.CurrencyChange ? (
-        <Banner variant={BannerVariant.Error} showCloseButton={true}>
-          {l10n.getString(
-            'location-banner-currency-change',
-            'Currency change not supported. To continue, select a country that matches your current billing currency.'
-          )}
-        </Banner>
-      ) : (
-        <Banner variant={BannerVariant.Info} showCloseButton={true}>
-          {l10n.getString(
-            'location-banner-info',
-            'We weren’t able to detect your location automatically'
-          )}
-        </Banner>
-      )}
-      <div className="flex flex-col items-center">
-        <Image
-          src={locationIcon}
-          alt=""
-          className="py-6"
-          role="presentation"
-          aria-hidden="true"
-        />
-        <IsolatedSelectTaxLocation
-          cmsCountries={cms.countries}
-          locale={params.locale.substring(0, 2)}
-          productName={purchaseDetails.productName}
-          showNewTaxRateInfoMessage={false}
-          unsupportedLocations={
-            config.location.subscriptionsUnsupportedLocations
-          }
-          currentCurrency={customerCurrency}
-          saveAction={async (countryCode: string, postalCode: string) => {
-            'use server';
+        <div className="flex flex-col items-center">
+          <Image
+            src={locationIcon}
+            alt=""
+            className="py-6"
+            role="presentation"
+            aria-hidden="true"
+          />
+          <IsolatedSelectTaxLocation
+            cmsCountries={cms.countries}
+            locale={params.locale.substring(0, 2)}
+            productName={purchaseDetails.productName}
+            showNewTaxRateInfoMessage={false}
+            unsupportedLocations={
+              config.location.subscriptionsUnsupportedLocations
+            }
+            currentCurrency={customerCurrency}
+            saveAction={async (countryCode: string, postalCode: string) => {
+              'use server';
 
-            if (fxaUid) {
-              // call server Action here to validate if tax location change is allowed
-              const result = await validateLocationAction(
-                params.offeringId,
-                { countryCode, postalCode },
-                fxaUid
+              if (fxaUid) {
+                // call server Action here to validate if tax location change is allowed
+                const result = await validateLocationAction(
+                  params.offeringId,
+                  { countryCode, postalCode },
+                  fxaUid
+                );
+
+                if (!result.isValid) {
+                  return {
+                    ok: false,
+                    error: result.status,
+                  };
+                }
+              }
+
+              searchParams['countryCode'] = countryCode;
+              searchParams['postalCode'] = postalCode;
+              const redirectUrl = new URL(
+                buildRedirectUrl(
+                  params.offeringId,
+                  params.interval,
+                  'new',
+                  'checkout',
+                  {
+                    locale: params.locale,
+                    baseUrl: config.paymentsNextHostedUrl,
+                    searchParams,
+                  }
+                )
               );
 
-              if (!result.isValid) {
-                return {
-                  ok: false,
-                  error: result.status,
-                };
-              }
-            }
-
-            searchParams['countryCode'] = countryCode;
-            searchParams['postalCode'] = postalCode;
-            const redirectUrl = new URL(
-              buildRedirectUrl(
-                params.offeringId,
-                params.interval,
-                'new',
-                'checkout',
-                {
-                  locale: params.locale,
-                  baseUrl: config.paymentsNextHostedUrl,
-                  searchParams,
-                }
-              )
-            );
-
-            redirect(redirectUrl.href);
-          }}
+              redirect(redirectUrl.href);
+            }}
+          />
+          <p id="form-information" className="pt-5 text-center">
+            {l10n.getString(
+              'location-required-disclaimer',
+              `We only use this information to calculate taxes and currency.`
+            )}
+          </p>
+        </div>
+        <TermsAndPrivacy
+          l10n={l10n}
+          {...purchaseDetails}
+          {...(cms.commonContent.localizations.at(0) || cms.commonContent)}
+          contentServerUrl={config.contentServerUrl}
+          showFXALinks={true}
         />
-        <p id="form-information" className="pt-5 text-center">
-          {l10n.getString(
-            'location-required-disclaimer',
-            `We only use this information to calculate taxes and currency.`
-          )}
-        </p>
-      </div>
-      <TermsAndPrivacy
-        l10n={l10n}
-        {...purchaseDetails}
-        {...(cms.commonContent.localizations.at(0) || cms.commonContent)}
-        contentServerUrl={config.contentServerUrl}
-        showFXALinks={true}
-      />
-    </section>
+      </section>
+    </div>
   );
 }
