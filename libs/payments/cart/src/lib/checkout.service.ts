@@ -16,6 +16,7 @@ import {
 import {
   PaypalBillingAgreementManager,
   PaypalCustomerManager,
+  PayPalActiveSubscriptionsMissingAgreementError
 } from '@fxa/payments/paypal';
 import {
   CustomerManager,
@@ -518,7 +519,8 @@ export class CheckoutService {
       await this.subscriptionManager.getCustomerPayPalSubscriptions(
         customer.id
       );
-
+    console.log('about to throw PayPalActiveSubscriptionsMissingAgreementError');
+    throw new PayPalActiveSubscriptionsMissingAgreementError(uid);
     const billingAgreementId =
       await this.paypalBillingAgreementManager.retrieveOrCreateId(
         uid,
