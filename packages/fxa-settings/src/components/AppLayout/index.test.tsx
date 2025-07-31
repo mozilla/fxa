@@ -51,26 +51,23 @@ describe('<AppLayout />', () => {
     screen.getByText('Hello, world!');
   });
 
-  it('renders with integration prop and valid background image', async () => {
-    const mockIntegration = {
-      getCmsInfo: () =>
-        ({
-          name: 'Test App',
-          clientId: 'test123',
-          entrypoint: 'test',
-          shared: {
-            buttonColor: '#0078d4',
-            logoUrl: 'https://example.com/logo.png',
-            logoAltText: 'Test App Logo',
-            backgroundColor:
-              'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            pageTitle: 'Test App - Custom Title',
-          },
-        }) as RelierCmsInfo,
-    };
+  it('renders with cmsInfo prop and valid background image', async () => {
+    const mockCmsInfo = {
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+        backgroundColor:
+          'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        pageTitle: 'Test App - Custom Title',
+      },
+    } as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout cmsInfo={mockCmsInfo}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -85,25 +82,22 @@ describe('<AppLayout />', () => {
     });
   });
 
-  it('renders with integration prop and radial gradient background', async () => {
-    const mockIntegration = {
-      getCmsInfo: () =>
-        ({
-          name: 'Test App',
-          clientId: 'test123',
-          entrypoint: 'test',
-          shared: {
-            buttonColor: '#0078d4',
-            logoUrl: 'https://example.com/logo.png',
-            logoAltText: 'Test App Logo',
-            backgroundColor: 'radial-gradient(circle, #ff6b6b, #4ecdc4)',
-            pageTitle: 'Test App - Custom Title',
-          },
-        }) as RelierCmsInfo,
-    };
+  it('renders with cmsInfo prop and radial gradient background', async () => {
+    const mockCmsInfo = {
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+        backgroundColor: 'radial-gradient(circle, #ff6b6b, #4ecdc4)',
+        pageTitle: 'Test App - Custom Title',
+      },
+    } as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout cmsInfo={mockCmsInfo}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -118,25 +112,22 @@ describe('<AppLayout />', () => {
     });
   });
 
-  it('renders with integration prop but no background image when backgroundColor is missing', async () => {
-    const mockIntegration = {
-      getCmsInfo: () =>
-        ({
-          name: 'Test App',
-          clientId: 'test123',
-          entrypoint: 'test',
-          shared: {
-            buttonColor: '#0078d4',
-            logoUrl: 'https://example.com/logo.png',
-            logoAltText: 'Test App Logo',
-            pageTitle: 'Test App - Custom Title',
-            // No backgroundColor
-          },
-        }) as RelierCmsInfo,
-    };
+  it('renders with cmsInfo prop but no background image when backgroundColor is missing', async () => {
+    const mockCmsInfo = {
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+        pageTitle: 'Test App - Custom Title',
+        // No backgroundColor
+      },
+    } as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout cmsInfo={mockCmsInfo}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -149,25 +140,22 @@ describe('<AppLayout />', () => {
     expect(appElement).not.toHaveStyle({ '--cms-bg': expect.any(String) });
   });
 
-  it('renders with integration prop but no background image when backgroundColor is invalid', async () => {
-    const mockIntegration = {
-      getCmsInfo: () =>
-        ({
-          name: 'Test App',
-          clientId: 'test123',
-          entrypoint: 'test',
-          shared: {
-            buttonColor: '#0078d4',
-            logoUrl: 'https://example.com/logo.png',
-            logoAltText: 'Test App Logo',
-            backgroundColor: 'solid-color-red', // Not a valid background-image value
-            pageTitle: 'Test App - Custom Title',
-          },
-        }) as RelierCmsInfo,
-    };
+  it('renders with cmsInfo prop but no background image when backgroundColor is invalid', async () => {
+    const mockCmsInfo = {
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+        backgroundColor: 'solid-color-red', // Not a valid background-image value
+        pageTitle: 'Test App - Custom Title',
+      },
+    } as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout cmsInfo={mockCmsInfo}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -180,13 +168,9 @@ describe('<AppLayout />', () => {
     expect(appElement).not.toHaveStyle({ '--cms-bg': expect.any(String) });
   });
 
-  it('renders with integration prop but no background image when getCmsInfo returns undefined', async () => {
-    const mockIntegration = {
-      getCmsInfo: () => undefined,
-    };
-
+  it('renders with cmsInfo prop but no background image when cmsInfo is undefined', async () => {
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout cmsInfo={undefined}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -199,11 +183,9 @@ describe('<AppLayout />', () => {
     expect(appElement).not.toHaveStyle({ '--cms-bg': expect.any(String) });
   });
 
-  it('renders with integration prop but no background image when getCmsInfo is missing', async () => {
-    const mockIntegration = {};
-
+  it('renders with cmsInfo prop but no background image when cmsInfo is missing', async () => {
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -216,24 +198,21 @@ describe('<AppLayout />', () => {
     expect(appElement).not.toHaveStyle({ '--cms-bg': expect.any(String) });
   });
 
-  it('renders with integration prop and uses CMS page title when available', async () => {
-    const mockIntegration = {
-      getCmsInfo: () =>
-        ({
-          name: 'Test App',
-          clientId: 'test123',
-          entrypoint: 'test',
-          shared: {
-            buttonColor: '#0078d4',
-            logoUrl: 'https://example.com/logo.png',
-            logoAltText: 'Test App Logo',
-            pageTitle: 'CMS Custom Title',
-          },
-        }) as RelierCmsInfo,
-    };
+  it('renders with cmsInfo prop and uses CMS page title when available', async () => {
+    const mockCmsInfo = {
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+        pageTitle: 'CMS Custom Title',
+      },
+    } as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration} title="Default Title">
+      <AppLayout cmsInfo={mockCmsInfo} title="Default Title">
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -242,24 +221,21 @@ describe('<AppLayout />', () => {
     screen.getByText('Hello, world!');
   });
 
-  it('renders with integration prop and falls back to default title when CMS page title is not available', async () => {
-    const mockIntegration = {
-      getCmsInfo: () =>
-        ({
-          name: 'Test App',
-          clientId: 'test123',
-          entrypoint: 'test',
-          shared: {
-            buttonColor: '#0078d4',
-            logoUrl: 'https://example.com/logo.png',
-            logoAltText: 'Test App Logo',
-            // No pageTitle
-          },
-        }) as RelierCmsInfo,
-    };
+  it('renders with cmsInfo prop and falls back to default title when CMS page title is not available', async () => {
+    const mockCmsInfo = {
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Test App Logo',
+        // No pageTitle
+      },
+    } as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration} title="Default Title">
+      <AppLayout cmsInfo={mockCmsInfo} title="Default Title">
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -269,21 +245,18 @@ describe('<AppLayout />', () => {
   });
 
   it('renders CMS header logo when headerLogoUrl is provided', async () => {
-    const mockIntegration = {
-      getCmsInfo: () =>
-        ({
-          name: 'Test App',
-          clientId: 'test123',
-          entrypoint: 'test',
-          shared: {
-            headerLogoUrl: 'https://example.com/cms-logo.png',
-            headerLogoAltText: 'CMS Custom Logo',
-          },
-        }) as RelierCmsInfo,
-    };
+    const mockCmsInfo = {
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        headerLogoUrl: 'https://example.com/cms-logo.png',
+        headerLogoAltText: 'CMS Custom Logo',
+      },
+    } as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout cmsInfo={mockCmsInfo}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -295,21 +268,18 @@ describe('<AppLayout />', () => {
   });
 
   it('renders CMS header logo with default alt text when headerLogoAltText is not provided', async () => {
-    const mockIntegration = {
-      getCmsInfo: () =>
-        ({
-          name: 'Test App',
-          clientId: 'test123',
-          entrypoint: 'test',
-          shared: {
-            headerLogoUrl: 'https://example.com/cms-logo.png',
-            // No headerLogoAltText
-          },
-        }) as RelierCmsInfo,
-    };
+    const mockCmsInfo = {
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        headerLogoUrl: 'https://example.com/cms-logo.png',
+        // No headerLogoAltText
+      },
+    } as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout cmsInfo={mockCmsInfo}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -320,21 +290,18 @@ describe('<AppLayout />', () => {
   });
 
   it('renders default Mozilla logo when headerLogoUrl is not provided', async () => {
-    const mockIntegration = {
-      getCmsInfo: () =>
-        ({
-          name: 'Test App',
-          clientId: 'test123',
-          entrypoint: 'test',
-          shared: {
-            // No headerLogoUrl
-            buttonColor: '#0078d4',
-          },
-        }) as RelierCmsInfo,
-    };
+    const mockCmsInfo = {
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        // No headerLogoUrl
+        buttonColor: '#0078d4',
+      },
+    } as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout cmsInfo={mockCmsInfo}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -345,7 +312,7 @@ describe('<AppLayout />', () => {
     expect(defaultLogo).toHaveAttribute('src');
   });
 
-  it('renders default Mozilla logo when integration is not provided', async () => {
+  it('renders default Mozilla logo when cmsInfo is not provided', async () => {
     renderWithLocalizationProvider(
       <AppLayout>
         <p>Hello, world!</p>
@@ -357,13 +324,9 @@ describe('<AppLayout />', () => {
     expect(defaultLogo).toHaveAttribute('src');
   });
 
-  it('renders default Mozilla logo when getCmsInfo returns undefined', async () => {
-    const mockIntegration = {
-      getCmsInfo: () => undefined,
-    };
-
+  it('renders default Mozilla logo when cmsInfo is undefined', async () => {
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout cmsInfo={undefined}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -373,11 +336,9 @@ describe('<AppLayout />', () => {
     expect(defaultLogo).toHaveAttribute('src');
   });
 
-  it('renders default Mozilla logo when getCmsInfo is missing', async () => {
-    const mockIntegration = {};
-
+  it('renders default Mozilla logo when cmsInfo is missing', async () => {
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -388,26 +349,23 @@ describe('<AppLayout />', () => {
   });
 
   it('renders CMS header logo when both headerLogoUrl and other CMS properties are provided', async () => {
-    const mockIntegration = {
-      getCmsInfo: () =>
-        ({
-          name: 'Test App',
-          clientId: 'test123',
-          entrypoint: 'test',
-          shared: {
-            headerLogoUrl: 'https://example.com/cms-logo.png',
-            headerLogoAltText: 'CMS Custom Logo',
-            buttonColor: '#0078d4',
-            logoUrl: 'https://example.com/other-logo.png',
-            logoAltText: 'Other Logo',
-            backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            pageTitle: 'Test App - Custom Title',
-          },
-        }) as RelierCmsInfo,
-    };
+    const mockCmsInfo = {
+      name: 'Test App',
+      clientId: 'test123',
+      entrypoint: 'test',
+      shared: {
+        headerLogoUrl: 'https://example.com/cms-logo.png',
+        headerLogoAltText: 'CMS Custom Logo',
+        buttonColor: '#0078d4',
+        logoUrl: 'https://example.com/other-logo.png',
+        logoAltText: 'Other Logo',
+        backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        pageTitle: 'Test App - Custom Title',
+      },
+    } as RelierCmsInfo;
 
     renderWithLocalizationProvider(
-      <AppLayout integration={mockIntegration}>
+      <AppLayout cmsInfo={mockCmsInfo}>
         <p>Hello, world!</p>
       </AppLayout>
     );

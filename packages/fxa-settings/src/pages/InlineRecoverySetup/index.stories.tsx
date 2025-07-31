@@ -8,7 +8,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { InlineRecoverySetupProps } from './interfaces';
-import { MOCK_BACKUP_CODES, MOCK_EMAIL } from '../mocks';
+import { MOCK_BACKUP_CODES, MOCK_EMAIL, createMockIntegrationWithCms } from '../mocks';
 import { MozServices } from '../../lib/types';
 
 export default {
@@ -46,4 +46,15 @@ export const Default = () => (
 
 export const WithServiceName = () => (
   <ComponentWithRouter {...props} email={MOCK_EMAIL} />
+);
+
+export const WithCms = () => (
+  <ComponentWithRouter
+    recoveryCodes={MOCK_BACKUP_CODES}
+    cancelSetupHandler={cancelSetupHandler}
+    verifyTotpHandler={verifyTotpHandler}
+    successfulSetupHandler={successfulSetupHandler}
+    email={MOCK_EMAIL}
+    integration={createMockIntegrationWithCms()}
+  />
 );

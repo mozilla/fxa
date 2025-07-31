@@ -7,15 +7,18 @@ import { RecoveryKeyImage } from '../images';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { CreateRecoveryKeyHandler } from '../../pages/InlineRecoveryKeySetup/interfaces';
 import Banner from '../Banner';
-import { useFtlMsgResolver } from '../../models';
+import { RelierCmsInfo, useFtlMsgResolver } from '../../models';
 import { HeadingPrimary } from '../HeadingPrimary';
+import CmsButtonWithFallback from '../CmsButtonWithFallback';
 
 export const InlineRecoveryKeySetupCreate = ({
   createRecoveryKeyHandler,
   doLaterHandler,
+  cmsInfo
 }: {
   createRecoveryKeyHandler: () => Promise<CreateRecoveryKeyHandler>;
   doLaterHandler: () => void;
+  cmsInfo?: RelierCmsInfo
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
@@ -71,17 +74,18 @@ export const InlineRecoveryKeySetupCreate = ({
       </p>
 
       <div className="flex mb-7">
-        <button
+        <CmsButtonWithFallback
           className="flex justify-center items-center cta-primary cta-xl"
           type="submit"
           onClick={createRecoveryKey}
           disabled={isLoading}
           data-glean-id="inline_recovery_key_cta_submit"
+          buttonColor={cmsInfo?.shared?.buttonColor}
         >
           <FtlMsg id="inline-recovery-key-setup-start-button">
             Create account recovery key
           </FtlMsg>
-        </button>
+        </CmsButtonWithFallback>
       </div>
 
       <button

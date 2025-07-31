@@ -72,8 +72,10 @@ export const InlineTotpSetupOld = ({
     }
   };
 
+  const cmsInfo = integration?.getCmsInfo?.();
+
   return (
-    <AppLayout integration={integration}>
+    <AppLayout cmsInfo={cmsInfo}>
       {showIntro && (
         <>
           <CardHeader

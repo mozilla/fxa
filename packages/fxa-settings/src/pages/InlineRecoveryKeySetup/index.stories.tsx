@@ -17,3 +17,7 @@ export default {
 export const StepOne = () => <Subject />;
 export const StepTwo = () => <Subject currentStep={2} />;
 export const StepThree = () => <Subject currentStep={3} />;
+
+export const StepOneWithCms = () => <Subject cms={true}/>;
+export const StepTwoWithCms = () => <Subject currentStep={2} cms={true}/>;
+export const StepThreeWithCms = () => <Subject currentStep={3} cms={true}/>;

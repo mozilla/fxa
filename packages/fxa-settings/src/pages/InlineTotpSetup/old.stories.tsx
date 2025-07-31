@@ -9,6 +9,7 @@ import { MozServices } from '../../lib/types';
 import { MOCK_TOTP_TOKEN } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { action } from '@storybook/addon-actions';
+import { createMockIntegrationWithCms } from '../mocks';
 
 export default {
   title: 'Pages/InlineTotpSetupOld',
@@ -36,5 +37,15 @@ export const WithCustomService = () => (
     serviceName={MozServices.Monitor}
     cancelSetupHandler={cancelSetupHandler}
     verifyCodeHandler={verifyCodeHandler}
+  />
+);
+
+export const WithCms = () => (
+  <InlineTotpSetupOld
+    totp={MOCK_TOTP_TOKEN}
+    serviceName={MozServices.Monitor}
+    cancelSetupHandler={cancelSetupHandler}
+    verifyCodeHandler={verifyCodeHandler}
+    integration={createMockIntegrationWithCms()}
   />
 );

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { useAlertBar, useFtlMsgResolver } from '../../models';
+import { RelierCmsInfo, useAlertBar, useFtlMsgResolver } from '../../models';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 import { RecoveryKeyPDF } from '../ButtonDownloadRecoveryKeyPDF/RecoveryKeyPDF';
@@ -15,6 +15,7 @@ import {
 import { logViewEvent } from '../../lib/metrics';
 import { FontData, getRequiredFont } from './requiredFont';
 import { determineLocale } from '@fxa/shared/l10n';
+import CmsButtonWithFallback from '../CmsButtonWithFallback';
 
 export interface LocalizedRecoveryKeyPdfContent {
   heading: string;
@@ -34,6 +35,7 @@ interface ButtonDownloadRecoveryKeyPDFProps {
   recoveryKeyValue: string;
   viewName: string;
   email: string;
+  cmsInfo?: RelierCmsInfo;
 }
 
 export const getFilename = (email: string) => {
@@ -51,6 +53,7 @@ export const ButtonDownloadRecoveryKeyPDF = ({
   recoveryKeyValue,
   viewName,
   email,
+  cmsInfo,
 }: ButtonDownloadRecoveryKeyPDFProps) => {
   const keyCreated = Date.now();
   const currentLanguage = determineLocale(
@@ -144,16 +147,17 @@ export const ButtonDownloadRecoveryKeyPDF = ({
   return (
     <>
       <FtlMsg id="recovery-key-download-button-v3">
-        <button
+        <CmsButtonWithFallback
           className="cta-primary cta-xl w-full mt-4"
           onClick={async () => {
             logViewEvent(`flow.${viewName}`, `recovery-key.download-option`);
             await downloadFile();
             navigateForward && navigateForward();
           }}
+          buttonColor={cmsInfo?.shared?.buttonColor}
         >
           Download and continue
-        </button>
+        </CmsButtonWithFallback>
       </FtlMsg>
     </>
   );

@@ -6,6 +6,7 @@ import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 
 import { MozServices } from '../lib/types';
 import { MOCK_ACCOUNT } from '../models/mocks';
+import { Integration, IntegrationType, OAuthNativeIntegration, RelierCmsInfo } from '../models';
 
 export const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
 export const MOCK_UID = 'abcd1234abcd1234abcd1234abcd1234';
@@ -143,3 +144,16 @@ export const MOCK_CMS_INFO = {
     primaryButtonText: 'Continue',
   },
 };
+
+export const createMockIntegrationWithCms = () =>
+  ({
+    type: IntegrationType.OAuthWeb,
+    getService: () => MozServices.TestService,
+    isSync: () => false,
+    wantsKeys: () => false,
+    isDesktopRelay: () => false,
+    getCmsInfo: () => MOCK_CMS_INFO,
+    data: {
+      validate: () => {},
+    },
+  }) as Integration;

@@ -10,6 +10,7 @@ import { MOCK_TOTP_TOKEN } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { action } from '@storybook/addon-actions';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { createMockIntegrationWithCms } from '../mocks';
 
 export default {
   title: 'Pages/InlineTotpSetup',
@@ -38,5 +39,14 @@ export const onError = () => (
       action('verifyCodeHandler')(code);
       return Promise.reject(AuthUiErrors.INVALID_TOTP_CODE);
     }}
+  />
+);
+
+export const WithCms = () => (
+  <InlineTotpSetup
+    totp={MOCK_TOTP_TOKEN}
+    serviceName={MozServices.Addons}
+    verifyCodeHandler={verifyCodeHandler}
+    integration={createMockIntegrationWithCms()}
   />
 );
