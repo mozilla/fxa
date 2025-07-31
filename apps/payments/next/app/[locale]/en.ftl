@@ -33,6 +33,7 @@ intent-payment-error-get-in-touch = Hmm. There was a problem authorizing your pa
 intent-payment-error-generic = An unexpected error has occurred while processing your payment, please try again.
 intent-payment-error-insufficient-funds = It looks like your card has insufficient funds. Try another card.
 general-paypal-error = An unexpected error has occurred while processing your payment, please try again.
+paypal-active-subscription-no-billing-agreement-error = It looks like there was a problem billing your { -brand-paypal } account. Please re-enable automatic payments for your subscription.
 
 ## Processing page and Needs Input page - /checkout and /upgrade
 ## Common strings used in multiple pages
