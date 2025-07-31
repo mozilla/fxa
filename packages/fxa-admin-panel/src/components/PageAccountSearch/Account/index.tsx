@@ -12,7 +12,7 @@ import {
   BackupCodes as BackupCodesType,
   RecoveryPhone as RecoveryPhoneType,
 } from 'fxa-admin-server/src/graphql';
-import { AdminPanelFeature } from 'fxa-shared/guards';
+import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../../Guard';
 import Subscription from '../Subscription';
 import { ConnectedServices } from '../ConnectedServices';

@@ -4,7 +4,7 @@
 
 /** Enum for known environment names */
 // TODO: Refactor to be called GuardEnv... This isn't really specific to the admin panel...
-export enum AdminPanelEnv {
+export enum GuardEnv {
   Prod = 'prod',
   Stage = 'stage',
 }
@@ -42,7 +42,7 @@ export interface IGroup {
   level: number;
 
   /** Target environment */
-  env?: AdminPanelEnv;
+  env?: GuardEnv;
 }
 
 export type Permissions = Record<string, IFeature>;
