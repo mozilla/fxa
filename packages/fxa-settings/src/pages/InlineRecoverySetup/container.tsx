@@ -162,6 +162,7 @@ export const InlineRecoverySetupContainer = ({
         verifyTotpHandler,
         successfulSetupHandler,
         email: signinRecoveryLocationState.email,
+        integration,
       }}
     />
   );

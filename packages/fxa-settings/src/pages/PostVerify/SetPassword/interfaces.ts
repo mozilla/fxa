@@ -4,6 +4,7 @@
 
 import { syncEngineConfigs } from '../../../lib/sync-engines';
 import { HandledError } from '../../../lib/error-utils';
+import { Integration } from '../../../models';
 
 export interface SetPasswordFormData {
   email: string;
@@ -23,4 +24,5 @@ export interface SetPasswordProps {
   email: string;
   createPasswordHandler: CreatePasswordHandler;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
+  integration?: Integration;
 }

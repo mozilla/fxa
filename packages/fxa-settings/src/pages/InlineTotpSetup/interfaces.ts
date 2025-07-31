@@ -4,11 +4,13 @@
 
 import { MozServices } from '../../lib/types';
 import { TotpToken } from '../Signin/interfaces';
+import { Integration } from '../../models';
 
 export interface InlineTotpSetupProps {
   totp: TotpToken;
   serviceName: MozServices;
   verifyCodeHandler: (code: string) => void;
+  integration?: Integration;
 }
 
 export interface InlineTotpSetupPropsOld {
@@ -16,4 +18,5 @@ export interface InlineTotpSetupPropsOld {
   serviceName?: MozServices;
   cancelSetupHandler: () => void;
   verifyCodeHandler: (code: string) => void;
+  integration?: Integration;
 }

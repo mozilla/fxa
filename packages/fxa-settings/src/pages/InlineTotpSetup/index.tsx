@@ -16,6 +16,7 @@ export const InlineTotpSetup = ({
   totp,
   serviceName,
   verifyCodeHandler,
+  integration,
 }: InlineTotpSetupProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -41,7 +42,7 @@ export const InlineTotpSetup = ({
   );
 
   return (
-    <AppLayout wrapInCard={false}>
+    <AppLayout wrapInCard={false} integration={integration}>
       {currentStep === 0 && (
         <FlowSetup2faPrompt
           onContinue={() => setCurrentStep(currentStep + 1)}
