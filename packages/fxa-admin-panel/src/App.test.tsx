@@ -5,16 +5,12 @@
 import React from 'react';
 import App from './App';
 import { mockConfigBuilder } from './lib/config';
-import {
-  AdminPanelEnv,
-  AdminPanelGroup,
-  AdminPanelGuard,
-} from 'fxa-shared/guards';
+import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MockedProvider } from '@apollo/client/testing';
 
 it('renders without imploding', () => {
-  const guard = new AdminPanelGuard(AdminPanelEnv.Prod);
+  const guard = new AdminPanelGuard(GuardEnv.Prod);
   const config = mockConfigBuilder({
     guard,
     user: {

@@ -5,7 +5,7 @@
 import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
-import { GuardConfig } from 'fxa-shared/guards';
+import { GuardConfig } from '@fxa/shared/guards';
 import { tracingConfig } from 'fxa-shared/tracing/config';
 
 convict.addFormats(require('convict-format-with-moment'));

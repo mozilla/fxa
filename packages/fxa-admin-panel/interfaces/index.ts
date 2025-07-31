@@ -4,7 +4,7 @@
 
 import { IncomingHttpHeaders } from 'http';
 import { USER_EMAIL_HEADER, USER_GROUP_HEADER } from '../constants';
-import { AdminPanelGuard, IGroup } from 'fxa-shared/guards';
+import { AdminPanelGuard, IGroup } from '@fxa/shared/guards';
 
 export interface IUserInfo {
   group: IGroup;

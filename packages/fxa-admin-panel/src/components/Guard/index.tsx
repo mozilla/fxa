@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { useUserContext } from '../../hooks/UserContext';
-import { AdminPanelFeature } from 'fxa-shared/guards';
+import { AdminPanelFeature } from '@fxa/shared/guards';
 import { useGuardContext } from '../../hooks/GuardContext';
 
 export type GuardProps = {

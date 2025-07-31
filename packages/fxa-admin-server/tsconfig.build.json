@@ -25,6 +25,7 @@
       ],
       "@fxa/shared/error": ["libs/shared/error/src/index"],
       "@fxa/shared/geodb": ["libs/shared/geodb/src/index"],
+      "@fxa/shared/guards": ["libs/shared/guards/src/index"],
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index"],
       "@fxa/shared/log": ["libs/shared/log/src/index"],
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index"],

@@ -7,7 +7,7 @@ import { NavLink } from 'react-router-dom';
 import accountIcon from '../../images/icon-account.svg';
 import keyIcon from '../../images/icon-key.svg';
 import logsIcon from '../../images/icon-logs.svg';
-import { AdminPanelFeature } from 'fxa-shared/guards';
+import { AdminPanelFeature } from '@fxa/shared/guards';
 import Guard from '../Guard';
 
 const getNavLinkClassName = (isActive: boolean) =>
