@@ -20,7 +20,7 @@ import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
-import { AuthError, OAuthError } from '../../lib/oauth';
+import { AuthError } from '../../lib/oauth';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
 import { InMemoryCache } from '@apollo/client';
@@ -100,15 +100,17 @@ export const cachedSignIn = async (
   sessionToken: string,
   authClient: ReturnType<typeof useAuthClient>,
   cache: InMemoryCache,
-  session: ReturnType<typeof useSession>
+  session: ReturnType<typeof useSession>,
+  isOauthPromptNone = false
 ) => {
   try {
+    // retrieves the account's authentication methods only
+    // authenticatorAssuranceLevel reflects account AAL
+    // and does not reflect the token's AAL (==> not useful here)
     const {
       authenticationMethods,
-      authenticatorAssuranceLevel,
     }: {
       authenticationMethods: AuthenticationMethods[];
-      authenticatorAssuranceLevel: number;
     } = await authClient.accountProfile(sessionToken);
 
     const totpIsActive = authenticationMethods.includes(
@@ -138,22 +140,19 @@ export const cachedSignIn = async (
     let verificationMethod;
     let verificationReason;
 
-    if (totpIsActive) {
-      if (authenticatorAssuranceLevel >= 2) {
-        // user is a valid and verified 2FA session, don't set any verification method
-      } else {
-        // user has 2FA enabled but is in a non-2FA session; it shouldn't happen
-        // in practice, redirect them to log in again
-        throw new OAuthError('PROMPT_NONE_NOT_SIGNED_IN');
-      }
-    } else if (!sessionVerified) {
+    if (!emailVerified) {
+      verificationReason = VerificationReasons.SIGN_UP;
       verificationMethod = VerificationMethods.EMAIL_OTP;
-      verificationReason = emailVerified
-        ? VerificationReasons.SIGN_IN
-        : VerificationReasons.SIGN_UP;
-
-      if (!verified && session.sendVerificationCode) {
-        await session.sendVerificationCode();
+      !isOauthPromptNone && (await session.sendVerificationCode());
+    } else if (!sessionVerified) {
+      // we are inferring verification method and verification reason here
+      // ideally we would check the server directly to allow for more verification reasons
+      verificationReason = VerificationReasons.SIGN_IN;
+      if (totpIsActive) {
+        verificationMethod = VerificationMethods.TOTP_2FA;
+      } else {
+        verificationMethod = VerificationMethods.EMAIL_OTP;
+        !isOauthPromptNone && (await session.sendVerificationCode());
       }
     }
 
@@ -201,12 +200,14 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   // Check CMS fleature flags to determine if we should hide promos, the
   // default is to navigate to settings
   const cmsInfo = integration?.getCmsInfo();
-  if (cmsInfo?.shared?.featureFlags?.syncHidePromoAfterLogin && integration.isSync()) {
+  if (
+    cmsInfo?.shared?.featureFlags?.syncHidePromoAfterLogin &&
+    integration.isSync()
+  ) {
     navigationOptions.showInlineRecoveryKeySetup = false;
     navigationOptions.showSignupConfirmedSync = false;
     navigationOptions.syncHidePromoAfterLogin = true;
   }
-
 
   if (!navigationOptions.signinData.verified) {
     const { to, locationState } =
@@ -424,7 +425,7 @@ const getOAuthNavigationTarget = async (
         isSignInWithThirdPartyAuth:
           navigationOptions.isSignInWithThirdPartyAuth,
         showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
-        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin
+        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
       }),
       locationState,
     };
@@ -458,7 +459,7 @@ const getOAuthNavigationTarget = async (
         isSignInWithThirdPartyAuth:
           navigationOptions.isSignInWithThirdPartyAuth,
         showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
-        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin
+        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
       }),
       oauthData: {
         code,

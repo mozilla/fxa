@@ -78,11 +78,13 @@ const AuthorizationContainer = ({
         relierAccount
       );
 
+      const isOauthPromptNone = true;
       const { data, error } = await cachedSignIn(
         account?.sessionToken!,
         authClient,
         cache,
-        session
+        session,
+        isOauthPromptNone
       );
 
       if (error === AuthUiErrors.SESSION_EXPIRED) {
