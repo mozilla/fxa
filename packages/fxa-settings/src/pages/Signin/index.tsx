@@ -230,7 +230,9 @@ const Signin = ({
           showInlineRecoveryKeySetup: data.showInlineRecoveryKeySetup,
           handleFxaLogin: true,
           handleFxaOAuthLogin: true,
-          performNavigation: !integration.isFirefoxMobileClient(),
+          performNavigation: !(
+            integration.isFirefoxMobileClient() && data.signIn.verified
+          ),
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
