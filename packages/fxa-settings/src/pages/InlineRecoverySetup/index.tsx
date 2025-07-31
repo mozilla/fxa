@@ -37,6 +37,7 @@ const InlineRecoverySetup = ({
   verifyTotpHandler,
   successfulSetupHandler,
   email,
+  integration,
 }: InlineRecoverySetupProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
@@ -195,7 +196,7 @@ const InlineRecoverySetup = ({
   }, [showConfirmation]);
 
   return (
-    <AppLayout>
+    <AppLayout integration={integration}>
       {showConfirmation ? (
         <>
           <CardHeader

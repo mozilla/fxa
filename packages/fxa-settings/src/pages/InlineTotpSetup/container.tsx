@@ -184,10 +184,10 @@ export const InlineTotpSetupContainer = ({
     config.featureFlags?.updatedInlineTotpSetupFlow || false;
 
   return isUpdatedInlineTotpSetupFlow ? (
-    <InlineTotpSetupNew {...{ totp, serviceName, verifyCodeHandler }} />
+    <InlineTotpSetupNew {...{ totp, serviceName, verifyCodeHandler, integration }} />
   ) : (
     <InlineTotpSetupOld
-      {...{ totp, serviceName, cancelSetupHandler, verifyCodeHandler }}
+      {...{ totp, serviceName, cancelSetupHandler, verifyCodeHandler, integration }}
     />
   );
 };

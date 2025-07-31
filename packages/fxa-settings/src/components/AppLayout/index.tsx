@@ -32,7 +32,6 @@ export const AppLayout = ({
   wrapInCard = true,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
-
   const cmsInfo = integration?.getCmsInfo?.();
   const cmsBackgroundColor = cmsInfo?.shared?.backgroundColor;
   const cmsPageTitle = cmsInfo?.shared?.pageTitle;
