@@ -985,14 +985,11 @@ describe('Signin component', () => {
           });
         });
 
-        it('does not navigate when integration isFirefoxMobileClient', async () => {
+        it('does not navigate when integration isFirefoxMobileClient and the sign-in is verified', async () => {
           const handleNavigationSpy = jest.spyOn(
             SigninUtils,
             'handleNavigation'
           );
-          const cachedSigninHandler = jest
-            .fn()
-            .mockReturnValueOnce(CACHED_SIGNIN_HANDLER_RESPONSE);
           const finishOAuthFlowHandler = jest
             .fn()
             .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
@@ -1000,7 +997,11 @@ describe('Signin component', () => {
             isMobile: true,
           });
           render({
-            cachedSigninHandler,
+            beginSigninHandler: jest.fn().mockReturnValue(
+              createBeginSigninResponse({
+                verified: true,
+              })
+            ),
             integration,
             finishOAuthFlowHandler,
             sessionToken: MOCK_SESSION_TOKEN,
@@ -1011,6 +1012,39 @@ describe('Signin component', () => {
             expect(handleNavigationSpy).toHaveBeenCalledWith(
               expect.objectContaining({
                 performNavigation: false,
+              })
+            );
+          });
+          handleNavigationSpy.mockRestore();
+        });
+
+        it('still navigates if integration isFirefoxMobileClient and the sign-in is not verified', async () => {
+          const handleNavigationSpy = jest.spyOn(
+            SigninUtils,
+            'handleNavigation'
+          );
+          const finishOAuthFlowHandler = jest
+            .fn()
+            .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+          const integration = createMockSigninOAuthNativeIntegration({
+            isMobile: true,
+          });
+          render({
+            beginSigninHandler: jest.fn().mockReturnValue(
+              createBeginSigninResponse({
+                verified: false,
+              })
+            ),
+            integration,
+            finishOAuthFlowHandler,
+            sessionToken: MOCK_SESSION_TOKEN,
+          });
+
+          enterPasswordAndSubmit();
+          await waitFor(() => {
+            expect(handleNavigationSpy).toHaveBeenCalledWith(
+              expect.objectContaining({
+                performNavigation: true,
               })
             );
           });
