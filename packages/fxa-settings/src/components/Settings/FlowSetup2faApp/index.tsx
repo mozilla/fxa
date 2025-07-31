@@ -12,7 +12,7 @@ import GleanMetrics from '../../../lib/glean';
 import { GleanClickEventType2FA, TotpInfo } from '../../../lib/types';
 import { formatSecret } from '../../../lib/utilities';
 
-import { useFtlMsgResolver } from '../../../models';
+import { RelierCmsInfo, useFtlMsgResolver } from '../../../models';
 
 import Banner from '../../Banner';
 import DataBlockInline from '../../DataBlockInline';
@@ -36,6 +36,7 @@ export type FlowSetup2faAppProps = {
   ) => void;
   reason?: GleanClickEventType2FA;
   showProgressBar?: boolean;
+  cmsInfo?: RelierCmsInfo
 };
 
 export const FlowSetup2faApp = ({
@@ -49,6 +50,7 @@ export const FlowSetup2faApp = ({
   onBackButtonClick,
   reason = GleanClickEventType2FA.setup,
   showProgressBar = true,
+  cmsInfo,
 }: FlowSetup2faAppProps) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [setupMethod, setSetupMethod] =
@@ -145,6 +147,7 @@ export const FlowSetup2faApp = ({
           'Continue'
         )}
         verifyCode={handleCode}
+        cmsButton={{color: cmsInfo?.shared?.buttonColor}}
       />
     </FlowContainer>
   );

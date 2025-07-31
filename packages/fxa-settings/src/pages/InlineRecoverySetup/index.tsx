@@ -195,8 +195,10 @@ const InlineRecoverySetup = ({
       });
   }, [showConfirmation]);
 
+  const cmsInfo = integration?.getCmsInfo?.();
+
   return (
-    <AppLayout integration={integration}>
+    <AppLayout cmsInfo={cmsInfo}>
       {showConfirmation ? (
         <>
           <CardHeader

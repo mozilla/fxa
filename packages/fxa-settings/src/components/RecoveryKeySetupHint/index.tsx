@@ -6,18 +6,20 @@ import React, { useEffect, useState } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import InputText from '../InputText';
-import { useFtlMsgResolver } from '../../models';
+import { RelierCmsInfo, useFtlMsgResolver } from '../../models';
 import { logViewEvent } from '../../lib/metrics';
 import { LightbulbImage } from '../images';
 import { DISPLAY_SAFE_UNICODE } from '../../constants';
 import classNames from 'classnames';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../Banner';
+import CmsButtonWithFallback from '../CmsButtonWithFallback';
 
 export type RecoveryKeySetupHintProps = {
   updateRecoveryKeyHint: (hint: string) => Promise<void>;
   navigateForward: () => void;
   viewName: string;
+  cmsInfo?: RelierCmsInfo;
 };
 
 type FormData = { hint: string };
@@ -28,6 +30,7 @@ export const RecoveryKeySetupHint = ({
   updateRecoveryKeyHint,
   navigateForward,
   viewName,
+  cmsInfo,
 }: RecoveryKeySetupHintProps) => {
   const [localizedErrorMessage, setLocalizedErrorMessage] = useState<string>();
   const [hintError, setHintError] = useState<string>();
@@ -153,13 +156,14 @@ export const RecoveryKeySetupHint = ({
           />
         </FtlMsg>
         <FtlMsg id="flow-recovery-key-hint-cta-text">
-          <button
+          <CmsButtonWithFallback
             className="cta-primary cta-xl w-full mt-4 mb-4"
             type="submit"
             disabled={isSubmitDisabled}
+            buttonColor={cmsInfo?.shared?.buttonColor}
           >
             Finish
-          </button>
+          </CmsButtonWithFallback>
         </FtlMsg>
       </form>
     </>

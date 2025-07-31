@@ -22,8 +22,10 @@ const PrimaryEmailVerified = ({
   isSignedIn,
   integration
 }: PrimaryEmailVerifiedProps & RouteComponentProps) => {
+  const cmsInfo = integration?.getCmsInfo?.();
+
   return (
-    <AppLayout integration={integration}>
+    <AppLayout cmsInfo={cmsInfo}>
       <Ready {...{ viewName, serviceName, isSignedIn, integration }} />
     </AppLayout>
   );

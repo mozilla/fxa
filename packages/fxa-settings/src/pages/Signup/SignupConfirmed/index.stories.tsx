@@ -8,7 +8,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { MozServices } from '../../../lib/types';
-import { createMockOAuthWebIntegration } from '../ConfirmSignupCode/mocks';
+import { createMockIntegrationWithCms } from '../../mocks';
 
 export default {
   title: 'Pages/Signup/SignupConfirmed',
@@ -38,7 +38,7 @@ export const IsSyncWithCms = () => (
   <LocationProvider>
     <SignupConfirmed isSignedIn={false}
                      serviceName={MozServices.FirefoxSync}
-                     integration={createMockOAuthWebIntegration()}
+                     integration={createMockIntegrationWithCms()}
     />
   </LocationProvider>
 );

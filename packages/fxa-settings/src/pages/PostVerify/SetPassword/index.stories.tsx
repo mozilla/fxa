@@ -8,6 +8,7 @@ import SetPassword from '.';
 import { Meta } from '@storybook/react';
 import { SetPasswordProps } from './interfaces';
 import { Subject } from './mocks';
+import { createMockIntegrationWithCms } from '../../mocks';
 
 export default {
   title: 'Pages/PostVerify/SetPassword',
@@ -23,3 +24,7 @@ const storyWithProps = ({
 };
 
 export const Default = storyWithProps();
+
+export const WithCms = storyWithProps({
+  integration: createMockIntegrationWithCms(),
+});

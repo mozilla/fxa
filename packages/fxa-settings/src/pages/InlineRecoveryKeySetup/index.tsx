@@ -25,6 +25,7 @@ export const InlineRecoveryKeySetup = ({
   email,
   formattedRecoveryKey,
   navigateForward,
+  cmsInfo,
 }: InlineRecoveryKeySetupProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const doLaterHandler = () => {
@@ -48,7 +49,7 @@ export const InlineRecoveryKeySetup = ({
               <HeadingPrimary>Security recommendation</HeadingPrimary>
             </FtlMsg>
             <RecoveryKeySetupHint
-              {...{ viewName }}
+              {...{ viewName, cmsInfo }}
               navigateForward={() => {
                 hardNavigate('/pair', {}, true);
               }}
@@ -87,7 +88,7 @@ export const InlineRecoveryKeySetup = ({
             <div className="w-full flex flex-col gap-4">
               <RecoveryKeySetupDownload
                 recoveryKeyValue={formattedRecoveryKey}
-                {...{ email, navigateForward, viewName }}
+                {...{ email, navigateForward, viewName, cmsInfo }}
               />
             </div>
           </>
@@ -95,13 +96,13 @@ export const InlineRecoveryKeySetup = ({
       default:
         return (
           <InlineRecoveryKeySetupCreate
-            {...{ createRecoveryKeyHandler, doLaterHandler }}
+            {...{ createRecoveryKeyHandler, doLaterHandler, cmsInfo }}
           />
         );
     }
   };
 
-  return <AppLayout>{renderStepComponent()}</AppLayout>;
+  return <AppLayout cmsInfo={cmsInfo}>{renderStepComponent()}</AppLayout>;
 };
 
 export default InlineRecoveryKeySetup;

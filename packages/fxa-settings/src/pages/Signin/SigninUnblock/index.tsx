@@ -208,7 +208,7 @@ export const SigninUnblock = ({
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <AppLayout integration={integration}>
+    <AppLayout cmsInfo={cmsInfo}>
       <CardHeader
         headingText="Authorize this sign-in"
         headingTextFtlId="signin-unblock-header"

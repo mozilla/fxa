@@ -375,7 +375,7 @@ const Signin = ({
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <AppLayout integration={integration}>
+    <AppLayout cmsInfo={cmsInfo}>
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"

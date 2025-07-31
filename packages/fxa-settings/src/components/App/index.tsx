@@ -553,7 +553,7 @@ const AuthAndAccountSetupRoutes = ({
           path="/signin_unblock/*"
           {...{ integration, flowQueryParams }}
         />
-        <InlineRecoveryKeySetupContainer path="/inline_recovery_key_setup/*" />
+        <InlineRecoveryKeySetupContainer path="/inline_recovery_key_setup/*" cmsInfo={integration.getCmsInfo()} />
 
         {/* Signup */}
         <CannotCreateAccount path="/cannot_create_account/*" />

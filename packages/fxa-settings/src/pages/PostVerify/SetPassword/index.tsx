@@ -56,8 +56,10 @@ export const SetPassword = ({
       },
     });
 
+  const cmsInfo = integration?.getCmsInfo?.();
+
   return (
-    <AppLayout integration={integration}>
+    <AppLayout cmsInfo={cmsInfo}>
       <FtlMsg id="set-password-heading-v2">
         <h1 className="card-header">Create password to sync</h1>
       </FtlMsg>

@@ -23,10 +23,14 @@ const SigninConfirmed = ({
   isSignedIn,
   serviceName,
   integration
-}: SigninConfirmedProps & RouteComponentProps) => (
-  <AppLayout integration={integration}>
-    <Ready {...{ continueHandler, isSignedIn, viewName, serviceName, integration }} />
-  </AppLayout>
-);
+}: SigninConfirmedProps & RouteComponentProps) => {
+  const cmsInfo = integration?.getCmsInfo?.();
+
+  return (
+    <AppLayout cmsInfo={cmsInfo}>
+      <Ready {...{ continueHandler, isSignedIn, viewName, serviceName, integration }} />
+    </AppLayout>
+  );
+};
 
 export default SigninConfirmed;
