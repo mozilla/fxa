@@ -61,11 +61,10 @@ const renderWithSuccess = (
   finishOAuthFlowHandler = jest
     .fn()
     .mockReturnValueOnce(mockFinishOAuthFlowHandler),
-  integration = createMockSigninWebIntegration()
+  integration = createMockSigninWebIntegration(),
+  signinResponse = createBeginSigninResponse()
 ) => {
-  signinWithUnblockCode = jest
-    .fn()
-    .mockReturnValue(createBeginSigninResponse());
+  signinWithUnblockCode = jest.fn().mockReturnValue(signinResponse);
   resendUnblockCodeHandler = jest.fn().mockReturnValue({ success: true });
 
   renderWithLocalizationProvider(
@@ -346,7 +345,7 @@ describe('SigninUnblock', () => {
   });
 
   describe('submit with OAuth integration', () => {
-    it('does not navigate if integration isFirefoxMobileClient', async () => {
+    it('does not navigate if integration isFirefoxMobileClient and the sign-in is verified', async () => {
       const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
       const finishOAuthFlowHandler = jest
         .fn()
@@ -354,7 +353,11 @@ describe('SigninUnblock', () => {
       const integration = createMockSigninOAuthNativeSyncIntegration({
         isMobile: true,
       });
-      renderWithSuccess(finishOAuthFlowHandler, integration);
+      renderWithSuccess(
+        finishOAuthFlowHandler,
+        integration,
+        createBeginSigninResponse({ verified: true })
+      );
       const input = screen.getByRole('textbox');
       const submitButton = screen.getByRole('button', { name: 'Continue' });
 
@@ -365,6 +368,38 @@ describe('SigninUnblock', () => {
         expect(handleNavigationSpy).toHaveBeenCalledWith(
           expect.objectContaining({
             performNavigation: false,
+          })
+        );
+      });
+    });
+
+    it('still navigates if integration isFirefoxMobileClient and the sign-in is not verified', async () => {
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const finishOAuthFlowHandler = jest
+        .fn()
+        .mockImplementation(mockFinishOAuthFlowHandler);
+      const integration = createMockSigninOAuthNativeSyncIntegration({
+        isMobile: true,
+      });
+      renderWithSuccess(
+        finishOAuthFlowHandler,
+        integration,
+        createBeginSigninResponse({
+          verified: false,
+        })
+      );
+      const input = screen.getByRole('textbox');
+      const submitButton = screen.getByRole('button', { name: 'Continue' });
+
+      fireEvent.change(input, { target: { value: 'A1B2C3D4' } });
+      submitButton.click();
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            performNavigation: true,
           })
         );
       });
