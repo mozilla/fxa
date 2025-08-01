@@ -104,12 +104,18 @@ export const MOCK_CMS_INFO = {
     logoAltText: 'logo',
   },
   EmailFirstPage: {
+    logoUrl:
+      'https://gist.githubusercontent.com/dschom/5ba322ea073c446ada96b35e2d655497/raw/7a093340f726a74d692cc7c4135b3cb5ae79ab6a/123Done_blue.svg',
+    logoAltText: 'custom-email-first-logo',
     headline: 'Sign up or sign in to your Mozilla account',
     description:
       'Stay protected with continuous data monitoring and automatic data removal.',
     primaryButtonText: 'Continue',
   },
   SignupSetPasswordPage: {
+    logoUrl:
+      'https://gist.githubusercontent.com/dschom/5ba322ea073c446ada96b35e2d655497/raw/7a093340f726a74d692cc7c4135b3cb5ae79ab6a/123Done_blue.svg',
+    logoAltText: 'custom-signup-logo',
     headline: 'Create a password',
     description: 'to continue',
     primaryButtonText: 'Continue',

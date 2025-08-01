@@ -31,6 +31,7 @@ import { IndexContainerProps, LocationState } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { isMobileDevice } from '../../lib/utilities';
 
 const IndexContainer = ({
   integration,
@@ -264,6 +265,7 @@ const IndexContainer = ({
 
   const initialPrefill = prefillEmail || suggestedEmail;
   const deeplink = queryParamModel.deeplink;
+  const isMobile = isMobileDevice();
 
   return isLoading ? (
     <LoadingSpinner fullScreen />
@@ -281,6 +283,7 @@ const IndexContainer = ({
         tooltipErrorMessage,
         deeplink,
         flowQueryParams,
+        isMobile,
       }}
       prefillEmail={initialPrefill}
     />

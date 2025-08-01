@@ -34,6 +34,7 @@ export const Index = ({
   setTooltipErrorMessage,
   deeplink,
   flowQueryParams,
+  isMobile,
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
@@ -98,17 +99,21 @@ export const Index = ({
   }
 
   const cmsInfo = integration.getCmsInfo();
+  const cmsLogo = [cmsInfo?.EmailFirstPage, cmsInfo?.shared].find(
+    (x) => x?.logoAltText != null && x?.logoUrl != null
+  );
 
   return (
     <AppLayout integration={integration}>
       {cmsInfo ? (
         <>
-          {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
+          {!isMobile && cmsLogo && (
             <img
-              src={cmsInfo.shared.logoUrl}
-              alt={cmsInfo.shared.logoAltText}
+              src={cmsLogo.logoUrl}
+              alt={cmsLogo.logoAltText}
               className="justify-start mb-4 max-h-[40px]"
-            />)}
+            />
+          )}
           <h1 className="card-header">{cmsInfo?.EmailFirstPage?.headline}</h1>
           <p className="mt-1 mb-9 text-sm">
             {cmsInfo?.EmailFirstPage?.description}
