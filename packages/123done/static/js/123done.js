@@ -24,7 +24,7 @@ $(document).ready(function () {
   const sp3URL = {
     local: 'http://localhost:3035/',
     dev: '',
-    stage: 'https://payments-next.stage.fxa.nonprod.webservices.mozgcp.net/',
+    stage: 'https://payments-next.allizom.org/',
     prod: '',
   };
 
@@ -37,7 +37,7 @@ $(document).ready(function () {
 
   const pwdlessPaymentURL = {
     local: 'http://localhost:3031/checkout/',
-    stage: 'https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/checkout/',
+    stage: 'https://payments-server.allizom.org/checkout/',
   };
 
   const subscriptionConfig = {
@@ -134,17 +134,17 @@ $(document).ready(function () {
   if (paymentConfig.env === 'prod') {
     $('.btn-subscribe').hide();
   } else {
-    $('.btn-subscribe, .btn-subscribe-rp-provided-flow-metrics').each(function (
-      index
-    ) {
-      const { env, plans, product, sp3Url, sp3links } = paymentConfig;
-      const currency = $(this).attr('data-currency');
-      const sp3 = $(this).attr('data-sp3');
-      const currencyMappedURL = sp3
-        ? `${sp3Url}${sp3links[sp3]}`
-        : `${env}${product}?plan=${plans[currency]}`;
-      $(this).attr('href', currencyMappedURL);
-    });
+    $('.btn-subscribe, .btn-subscribe-rp-provided-flow-metrics').each(
+      function (index) {
+        const { env, plans, product, sp3Url, sp3links } = paymentConfig;
+        const currency = $(this).attr('data-currency');
+        const sp3 = $(this).attr('data-sp3');
+        const currencyMappedURL = sp3
+          ? `${sp3Url}${sp3links[sp3]}`
+          : `${env}${product}?plan=${plans[currency]}`;
+        $(this).attr('href', currencyMappedURL);
+      }
+    );
   }
 
   function isSubscribed() {
