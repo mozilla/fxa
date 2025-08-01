@@ -185,17 +185,23 @@ const ConfirmSignupCode = ({
         });
         navigate(to);
       } else if (isOAuthIntegration(integration)) {
-        // Check to see if the relier wants TOTP.
-        // Newly created accounts wouldn't have this so lets redirect them to signin.
-        // Certain reliers may require users to set up 2FA / TOTP
+        // Check to see if the relier wants TOTP
+        // Certain reliers (currently AMO only) may require users to set up 2FA / TOTP
         // before they can be redirected back to the RP.
-        // Notes in content-server indicate that a message should be displayed on the signin page
-        // to explain why totp setup is required, but this does not currently
-        // appear to be implemented.
+        // Newly created accounts wouldn't have this so let's redirect them to inline_totp_setup.
 
-        // Params are included to eventually allow for redirect to RP after 2FA setup
         if (integration.wantsTwoStepAuthentication()) {
-          navigateWithQuery('oauth/signin');
+          navigateWithQuery('/inline_totp_setup', {
+            state: {
+              email,
+              uid,
+              sessionToken,
+              keyFetchToken,
+              unwrapBKey,
+              verificationReason: 'signup',
+              verified: true,
+            },
+          });
           return;
         } else {
           const { redirect, code, state, error } = await finishOAuthFlowHandler(

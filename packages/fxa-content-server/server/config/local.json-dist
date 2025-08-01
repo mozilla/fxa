@@ -69,7 +69,8 @@
     "sendFxAStatusOnSettings": true,
     "recoveryCodeSetupOnSyncSignIn": true,
     "recoveryPhonePasswordReset2fa": true,
-    "updatedInlineTotpSetupFlow": true
+    "updatedInlineTotpSetupFlow": true,
+    "updatedInlineRecoverySetupFlow": true
   },
   "rolloutRates": {
     "keyStretchV2": 1,
