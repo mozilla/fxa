@@ -55,6 +55,7 @@ export const Signup = ({
   },
   deeplink,
   flowQueryParams,
+  isMobile,
 }: SignupProps) => {
   const sensitiveDataClient = useSensitiveDataClient();
 
@@ -276,6 +277,9 @@ export const Signup = ({
   }
 
   const cmsInfo = integration.getCmsInfo();
+  const cmsLogo = [cmsInfo?.SignupSetPasswordPage, cmsInfo?.shared].find(
+    (x) => x?.logoAltText != null && x?.logoUrl != null
+  );
 
   return (
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
@@ -283,10 +287,10 @@ export const Signup = ({
     <AppLayout cmsInfo={cmsInfo}>
       {cmsInfo ? (
         <>
-          {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
+          {!isMobile && cmsLogo && (
             <img
-              src={cmsInfo?.shared.logoUrl}
-              alt={cmsInfo?.shared.logoAltText}
+              src={cmsLogo.logoUrl}
+              alt={cmsLogo.logoAltText}
               className="justify-start mb-4 max-h-[40px]"
             />
           )}

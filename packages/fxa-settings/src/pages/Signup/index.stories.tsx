@@ -32,10 +32,12 @@ export default {
 
 const StoryWithProps = ({
   integration = createMockSignupOAuthWebIntegration(),
+  isMobile = false,
   offeredSyncEnginesOverride,
 }: {
   integration?: SignupIntegration;
   offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
+  isMobile?: boolean;
 }) => {
   const useSyncEnginesResult = mockUseSyncEngines(offeredSyncEnginesOverride);
 
@@ -47,6 +49,7 @@ const StoryWithProps = ({
             integration,
             beginSignupHandler: mockBeginSignupHandler,
             useSyncEnginesResult,
+            isMobile,
           }}
           email={MOCK_EMAIL}
         />
@@ -89,7 +92,38 @@ export const OAuthDesktopServiceRelay = () => (
 
 export const WithCms = () => (
   <StoryWithProps
-    integration={createMockSignupOAuthWebIntegration(MONITOR_CLIENTIDS[0], undefined, MOCK_CMS_INFO)}
+    integration={createMockSignupOAuthWebIntegration(
+      MONITOR_CLIENTIDS[0],
+      undefined,
+      MOCK_CMS_INFO
+    )}
   />
 );
 
+export const WithCmsUsingSharedFallback = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthWebIntegration(
+      MONITOR_CLIENTIDS[0],
+      undefined,
+      {
+        ...MOCK_CMS_INFO,
+        SignupSetPasswordPage: {
+          ...MOCK_CMS_INFO.SignupSetPasswordPage,
+          logoUrl: undefined,
+          logoAltText: undefined,
+        },
+      }
+    )}
+  />
+);
+
+export const WithCmsOnMobile = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthWebIntegration(
+      MONITOR_CLIENTIDS[0],
+      undefined,
+      MOCK_CMS_INFO
+    )}
+    isMobile={true}
+  />
+);

@@ -33,6 +33,11 @@ export interface PageRelierCmsInfo {
   primaryButtonText: string | undefined;
 }
 
+export interface PageRelierCmsInfoWithLogo extends PageRelierCmsInfo {
+  logoUrl: string | undefined;
+  logoAltText: string | undefined;
+}
+
 export interface SharedRelierCmsInfo {
   buttonColor: string | undefined;
   logoUrl: string | undefined;
@@ -55,14 +60,14 @@ export interface RelierCmsInfo {
   entrypoint: string;
   shared?: SharedRelierCmsInfo;
 
-  EmailFirstPage?: PageRelierCmsInfo
+  EmailFirstPage?: PageRelierCmsInfoWithLogo;
 
-  SignupSetPasswordPage?: PageRelierCmsInfo
-  SignupConfirmCodePage?: PageRelierCmsInfo
-  SignupConfirmedSyncPage?: PageRelierCmsInfo
+  SignupSetPasswordPage?: PageRelierCmsInfoWithLogo;
+  SignupConfirmCodePage?: PageRelierCmsInfo;
+  SignupConfirmedSyncPage?: PageRelierCmsInfo;
 
-  SigninPage?: PageRelierCmsInfo
-  SigninTotpCodePage?: PageRelierCmsInfo
-  SigninTokenCodePage?: PageRelierCmsInfo
-  SigninUnblockCodePage?: PageRelierCmsInfo
+  SigninPage?: PageRelierCmsInfo;
+  SigninTotpCodePage?: PageRelierCmsInfo;
+  SigninTokenCodePage?: PageRelierCmsInfo;
+  SigninUnblockCodePage?: PageRelierCmsInfo;
 }

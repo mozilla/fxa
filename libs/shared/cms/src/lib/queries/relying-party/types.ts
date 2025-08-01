@@ -6,6 +6,8 @@ export interface Page {
   headline: string | null;
   description: string | null;
   primaryButtonText: string | null;
+  logoUrl: string | null;
+  logoAltText: string | null;
 }
 
 export interface Email {
