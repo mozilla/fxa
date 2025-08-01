@@ -41,7 +41,7 @@ export const PasswordStrengthInline = ({
     if (passwordFormType === 'reset') {
       return (
         <FtlMsg id="password-strength-long-instruction">
-          <p className="mb-2 text-left">
+          <p className="mb-2 text-start">
             Pick a strong password you haven’t used on other sites. Ensure it
             meets the security requirements:
           </p>
@@ -51,7 +51,7 @@ export const PasswordStrengthInline = ({
 
     return (
       <FtlMsg id="password-strength-short-instruction">
-        <p className="mb-2 text-left">Pick a strong password:</p>
+        <p className="mb-2 text-start">Pick a strong password:</p>
       </FtlMsg>
     );
   }, [passwordFormType]);
@@ -110,7 +110,8 @@ export const PasswordStrengthInline = ({
         )}
         {requirePasswordConfirmation &&
           isUnconfirmed !== undefined &&
-          passwordFormType === 'signup' && (
+          (passwordFormType === 'signup' ||
+            passwordFormType === 'post-verify-set-password') && (
             <li data-testid="passwords-match" className="flex">
               <span className="w-7 h-7 text-center">
                 {(isPasswordEmpty || isConfirmedPasswordEmpty) && '•'}

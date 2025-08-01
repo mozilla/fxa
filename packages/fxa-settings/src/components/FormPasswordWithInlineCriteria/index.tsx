@@ -11,7 +11,7 @@ import { useFtlMsgResolver } from '../../models';
 import PasswordStrengthInline from '../PasswordStrengthInline';
 import CmsButtonWithFallback, { CmsButtonType } from '../CmsButtonWithFallback';
 
-export type PasswordFormType = 'signup' | 'reset';
+export type PasswordFormType = 'signup' | 'reset' | 'post-verify-set-password';
 
 export type FormPasswordWithInlineCriteriaProps = {
   passwordFormType: PasswordFormType;
@@ -63,6 +63,17 @@ const getTemplateValues = (passwordFormType: PasswordFormType) => {
         'form-password-with-inline-criteria-reset-submit-button';
       templateValues.buttonText = 'Create new password';
       break;
+    case 'post-verify-set-password':
+      templateValues.passwordFtlId =
+        'form-password-with-inline-criteria-set-password-new-password-label';
+      templateValues.passwordLabel = 'Password';
+      templateValues.confirmPasswordFtlId =
+        'form-password-with-inline-criteria-set-password-confirm-password-label';
+      templateValues.confirmPasswordLabel = 'Repeat password';
+      templateValues.buttonFtlId =
+        'form-password-with-inline-criteria-set-password-submit-button';
+      templateValues.buttonText = 'Start syncing';
+      break;
   }
   return templateValues;
 };
@@ -101,8 +112,7 @@ export const FormPasswordWithInlineCriteria = ({
 
   const templateValues = getTemplateValues(passwordFormType);
   const showConfirmPasswordInput =
-    passwordFormType === 'reset' ||
-    (passwordFormType === 'signup' && !!requirePasswordConfirmation);
+    passwordFormType === 'reset' || !!requirePasswordConfirmation;
 
   const onNewPwdFocus = () => {
     setSROnlyPwdFeedbackMessage('');
@@ -329,7 +339,8 @@ export const FormPasswordWithInlineCriteria = ({
           </div>
         )}
 
-        {passwordFormType === 'signup' && (
+        {(passwordFormType === 'signup' ||
+          passwordFormType === 'post-verify-set-password') && (
           <div className="mb-1">
             <PasswordStrengthInline
               {...{
