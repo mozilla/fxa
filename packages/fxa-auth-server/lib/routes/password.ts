@@ -102,21 +102,27 @@ module.exports = function (
         const form = request.payload as { email: string; oldAuthPW: string };
         const { oldAuthPW, email } = form;
 
+        // Don't bother creating a password change token if the account/session hasn't been verified.
+        // The subsequent call to 'getKeys' would fail, ultimately orphaning a passwordChangeToken...
         const sessionToken = request.auth.credentials;
-        if (sessionToken) {
-          await customs.checkAuthenticated(
-            request,
-            sessionToken.uid,
-            sessionToken.email,
-            customs.v2Enabled()
-              ? 'authenticatedPasswordChange'
-              : 'passwordChange'
-          );
-          statsd.increment('passwordChange.start.authenticated');
-        } else {
-          await customs.check(request, email, 'passwordChange');
-          statsd.increment('passwordChange.start.unauthenticated');
+
+        if (!sessionToken.emailVerified) {
+          statsd.increment('passwordChange.start.emailNotVerified');
+          throw error.unverifiedAccount();
         }
+
+        if (sessionToken.tokenVerificationId) {
+          statsd.increment('passwordChange.start.sessionNotVerified');
+          throw error.unverifiedSession();
+        }
+
+        await customs.checkAuthenticated(
+          request,
+          sessionToken.uid,
+          sessionToken.email,
+          customs.v2Enabled() ? 'authenticatedPasswordChange' : 'passwordChange'
+        );
+        statsd.increment('passwordChange.start.authenticated');
 
         let keyFetchToken: any | undefined = undefined;
         let keyFetchToken2: any | undefined = undefined;

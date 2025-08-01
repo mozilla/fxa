@@ -166,10 +166,12 @@ export const SigninUnblockContainer = ({
         });
       }
 
+      const verified = response.data?.signIn.verified;
+      const sessionToken = response.data?.signIn.sessionToken;
       // Attempt to finish key stretching upgrade now that session has been verified.
-      if (response.data?.signIn.verified) {
+      if (verified && sessionToken) {
         await tryFinalizeUpgrade(
-          response.data?.signIn.sessionToken,
+          sessionToken,
           sensitiveDataClient,
           'signin-unblock',
           credentialStatus,
