@@ -20,6 +20,8 @@ export const USER_EMAIL_HEADER = 'oidc-claim-id-token-email';
 export enum PermissionLevel {
   Admin = 0,
   Support = 1,
+  DSAR = 2,
+  ReadOnly = 3,
   None = MaxPermissionLevel,
 }
 
@@ -50,6 +52,10 @@ export enum AdminPanelGroup {
   AdminStage = 'vpn_fxa_admin_panel_stage',
   SupportAgentProd = 'vpn_fxa_supportagent_prod',
   SupportAgentStage = 'vpn_fxa_supportagent_stage',
+  ReadOnlyProd = 'vpn_fxa_admin_ro_prod',
+  ReadOnlyStage = 'vpn_fxa_admin_ro_stage',
+  DsarProd = 'vpn_fxa_admin_dsar_prod',
+  DsarStage = 'vpn_fxa_admin_dsar_stage',
   None = '',
 }
 
@@ -78,6 +84,30 @@ const adminPanelGroups: Groups = {
     level: PermissionLevel.Support,
     env: GuardEnv.Stage,
   },
+  [AdminPanelGroup.DsarProd]: {
+    name: 'DSAR',
+    header: AdminPanelGroup.DsarProd,
+    level: PermissionLevel.DSAR,
+    env: GuardEnv.Prod,
+  },
+  [AdminPanelGroup.DsarStage]: {
+    name: 'DSAR',
+    header: AdminPanelGroup.DsarStage,
+    level: PermissionLevel.DSAR,
+    env: GuardEnv.Stage,
+  },
+  [AdminPanelGroup.ReadOnlyProd]: {
+    name: 'ReadOnly',
+    header: AdminPanelGroup.ReadOnlyProd,
+    level: PermissionLevel.ReadOnly,
+    env: GuardEnv.Prod,
+  },
+  [AdminPanelGroup.ReadOnlyStage]: {
+    name: 'ReadOnly',
+    header: AdminPanelGroup.ReadOnlyStage,
+    level: PermissionLevel.ReadOnly,
+    env: GuardEnv.Stage,
+  },
   [AdminPanelGroup.None]: {
     name: 'Unknown',
     header: AdminPanelGroup.None,
@@ -92,23 +122,23 @@ export const unknownGroup = adminPanelGroups[AdminPanelGroup.None];
 const defaultAdminPanelPermissions: Permissions = {
   [AdminPanelFeature.AccountSearch]: {
     name: 'Lookup Account By Email/UID',
-    level: PermissionLevel.Support,
+    level: PermissionLevel.ReadOnly,
   },
   [AdminPanelFeature.AccountHistory]: {
     name: 'Account History',
-    level: PermissionLevel.Support,
+    level: PermissionLevel.ReadOnly,
   },
   [AdminPanelFeature.AccountDelete]: {
     name: 'Delete Account By Email/UID',
-    level: PermissionLevel.Admin,
+    level: PermissionLevel.DSAR,
   },
   [AdminPanelFeature.ConnectedServices]: {
     name: 'View Active Sessions',
-    level: PermissionLevel.Support,
+    level: PermissionLevel.ReadOnly,
   },
   [AdminPanelFeature.LinkedAccounts]: {
     name: 'View Linked Accounts',
-    level: PermissionLevel.Support,
+    level: PermissionLevel.ReadOnly,
   },
   [AdminPanelFeature.ClearEmailBounces]: {
     name: 'Clear Email Bounces',
@@ -136,7 +166,7 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.DeleteAccount]: {
     name: 'DeleteAccount Account',
-    level: PermissionLevel.Admin,
+    level: PermissionLevel.DSAR,
   },
   [AdminPanelFeature.RelyingParties]: {
     name: 'View Relying Parties',
