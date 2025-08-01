@@ -16,6 +16,7 @@ import {
   EligibilityContentByOfferingQuery,
   PageContentForOfferingQuery,
   type IapOfferingsByStoreIDsQuery,
+  ProductNameByPriceIdsQuery,
 } from '../__generated__/graphql';
 import {
   FetchCmsInvalidOfferingError,
@@ -40,6 +41,10 @@ import {
   PageContentForOfferingResultUtil,
   pageContentForOfferingQuery,
 } from './queries/page-content-for-offering';
+import {
+  ProductNameByPriceIdsResultUtil,
+  productNameByPriceIdsQuery,
+} from './queries/product-name-by-price-ids';
 import {
   PurchaseWithDetailsOfferingContentUtil,
   purchaseWithDetailsOfferingContentQuery,
@@ -136,6 +141,19 @@ export class ProductConfigurationManager {
 
     return new PageContentForOfferingResultUtil(
       queryResult as DeepNonNullable<PageContentForOfferingQuery>
+    );
+  }
+
+  async getProductNameByPriceIds(
+    stripePlanIds: string[]
+  ): Promise<ProductNameByPriceIdsResultUtil> {
+    const queryResult = await this.strapiClient.query(
+      productNameByPriceIdsQuery,
+      { stripePlanIds }
+    );
+
+    return new ProductNameByPriceIdsResultUtil(
+      queryResult as DeepNonNullable<ProductNameByPriceIdsQuery>
     );
   }
 

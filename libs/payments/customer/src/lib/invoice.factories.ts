@@ -23,5 +23,6 @@ export const InvoicePreviewFactory = (
   amountDue: faker.number.int({ min: 1, max: 1000 }),
   creditApplied: faker.number.int({ min: 0 }),
   startingBalance: faker.number.int({ max: 1000 }),
+  totalExcludingTax: faker.number.int({ min: 1, max: 1000 }),
   ...override,
 });

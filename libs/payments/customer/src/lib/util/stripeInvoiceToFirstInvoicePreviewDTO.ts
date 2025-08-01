@@ -45,6 +45,19 @@ export function stripeInvoiceToInvoicePreviewDTO(
     }
   );
 
+  const notProrated = invoice.lines.data.find(
+    (line) => line.proration === false
+  );
+  const subsequentAmount = notProrated?.amount;
+  const subsequentAmountExcludingTax =
+    notProrated?.amount_excluding_tax ?? undefined;
+
+  const subsequentTax = notProrated?.tax_amounts.map((tax) => ({
+    title: tax.tax_rate.display_name || '',
+    inclusive: tax.inclusive,
+    amount: tax.amount,
+  }));
+
   return {
     currency: invoice.currency,
     totalAmount: invoice.total,
@@ -61,8 +74,13 @@ export function stripeInvoiceToInvoicePreviewDTO(
     creditApplied: invoice.ending_balance
       ? invoice.starting_balance - invoice.ending_balance
       : invoice.starting_balance,
+    promotionName: invoice.discount?.coupon.name,
     remainingAmountTotal,
     startingBalance: invoice.starting_balance,
+    totalExcludingTax: invoice.total_excluding_tax,
     unusedAmountTotal,
+    subsequentAmount,
+    subsequentAmountExcludingTax,
+    subsequentTax,
   };
 }

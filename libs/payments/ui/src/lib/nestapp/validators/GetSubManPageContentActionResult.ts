@@ -4,12 +4,24 @@
 
 import { Type } from 'class-transformer';
 import {
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import type { PaymentProvidersType } from '@fxa/payments/customer';
+import {
+  SubplatInterval,
+  type PaymentProvidersType,
+} from '@fxa/payments/customer';
+
+class AccountCreditBalance {
+  @IsNumber()
+  balance!: number;
+
+  @IsString()
+  currency!: string | null;
+}
 
 class DefaultPaymentMethod {
   @IsString()
@@ -36,9 +48,53 @@ class DefaultPaymentMethod {
   billingAgreementId?: string;
 }
 
+class SubscriptionContent {
+  @IsString()
+  productName!: string;
+
+  @IsString()
+  currency!: string;
+
+  @IsOptional()
+  @IsEnum(SubplatInterval)
+  interval?: SubplatInterval;
+
+  @IsNumber()
+  currentInvoiceTax!: number;
+
+  @IsNumber()
+  currentInvoiceTotal!: number;
+
+  @IsNumber()
+  currentPeriodEnd!: number;
+
+  @IsNumber()
+  nextInvoiceDate!: number;
+
+  @IsOptional()
+  @IsNumber()
+  nextInvoiceTax?: number;
+
+  @IsOptional()
+  @IsNumber()
+  nextInvoiceTotal?: number;
+
+  @IsOptional()
+  @IsString()
+  promotionName?: string | null;
+}
+
 export class GetSubManPageContentActionResult {
+  @ValidateNested()
+  @Type(() => AccountCreditBalance)
+  accountCreditBalance!: AccountCreditBalance;
+
   @IsOptional()
   @ValidateNested()
   @Type(() => DefaultPaymentMethod)
   defaultPaymentMethod?: DefaultPaymentMethod;
+
+  @ValidateNested()
+  @Type(() => SubscriptionContent)
+  subscriptions!: SubscriptionContent[];
 }

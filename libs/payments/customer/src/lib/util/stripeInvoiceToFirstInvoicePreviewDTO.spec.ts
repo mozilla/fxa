@@ -4,7 +4,10 @@
 
 import { stripeInvoiceToInvoicePreviewDTO } from './stripeInvoiceToFirstInvoicePreviewDTO';
 import {
+  StripeApiListFactory,
+  StripeCouponFactory,
   StripeDiscountFactory,
+  StripeInvoiceLineItemFactory,
   StripeResponseFactory,
   StripeTotalDiscountAmountsFactory,
   StripeTotalTaxAmountsFactory,
@@ -15,8 +18,12 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
   it('formats invoice', () => {
     const mockDiscountAmount = StripeTotalDiscountAmountsFactory();
     const mockTaxAmount = StripeTotalTaxAmountsFactory();
+    const mockInvoiceLineItem = StripeInvoiceLineItemFactory({
+      tax_amounts: [mockTaxAmount],
+    });
     const mockUpcomingInvoice = StripeResponseFactory(
       StripeUpcomingInvoiceFactory({
+        lines: StripeApiListFactory([mockInvoiceLineItem]),
         total_discount_amounts: [mockDiscountAmount],
         total_tax_amounts: [mockTaxAmount],
       })
@@ -47,16 +54,34 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       discountType: undefined,
       number: null,
       nextInvoiceDate: mockUpcomingInvoice.lines.data[0].period.end,
+      subsequentAmount: mockInvoiceLineItem.amount,
+      subsequentAmountExcludingTax: mockInvoiceLineItem.amount_excluding_tax,
+      subsequentTax: [
+        {
+          title: mockTaxAmount.tax_rate.display_name,
+          inclusive: mockTaxAmount.inclusive,
+          amount: mockTaxAmount.amount,
+        },
+      ],
+      totalExcludingTax: mockUpcomingInvoice.total_excluding_tax,
     });
   });
 
   it('formats invoice with discount', () => {
     const mockDiscountAmount = StripeTotalDiscountAmountsFactory();
     const mockTaxAmount = StripeTotalTaxAmountsFactory();
-    const mockDiscount = StripeDiscountFactory();
+    const mockDiscount = StripeDiscountFactory({
+      coupon: StripeCouponFactory({
+        name: 'Sonny and Jerry Two-Fur-One Special',
+      }),
+    });
+    const mockInvoiceLineItem = StripeInvoiceLineItemFactory({
+      tax_amounts: [mockTaxAmount],
+    });
     const mockUpcomingInvoice = StripeResponseFactory(
       StripeUpcomingInvoiceFactory({
         discount: mockDiscount,
+        lines: StripeApiListFactory([mockInvoiceLineItem]),
         total_discount_amounts: [mockDiscountAmount],
         total_tax_amounts: [mockTaxAmount],
       })
@@ -84,9 +109,20 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       startingBalance: mockUpcomingInvoice.starting_balance,
       unusedAmountTotal: 0,
       discountEnd: null,
-      discountType: 'forever',
+      discountType: mockDiscount.coupon.duration,
       number: null,
       nextInvoiceDate: mockUpcomingInvoice.lines.data[0].period.end,
+      promotionName: 'Sonny and Jerry Two-Fur-One Special',
+      subsequentAmount: mockInvoiceLineItem.amount,
+      subsequentAmountExcludingTax: mockInvoiceLineItem.amount_excluding_tax,
+      subsequentTax: [
+        {
+          title: mockTaxAmount.tax_rate.display_name,
+          inclusive: mockTaxAmount.inclusive,
+          amount: mockTaxAmount.amount,
+        },
+      ],
+      totalExcludingTax: mockUpcomingInvoice.total_excluding_tax,
     });
   });
 
@@ -95,8 +131,12 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     const mockDiscountAmount2 = StripeTotalDiscountAmountsFactory();
     const mockTaxAmount1 = StripeTotalTaxAmountsFactory();
     const mockTaxAmount2 = StripeTotalTaxAmountsFactory();
+    const mockInvoiceLineItem = StripeInvoiceLineItemFactory({
+      tax_amounts: [mockTaxAmount1],
+    });
     const mockUpcomingInvoice = StripeResponseFactory(
       StripeUpcomingInvoiceFactory({
+        lines: StripeApiListFactory([mockInvoiceLineItem]),
         total_discount_amounts: [mockDiscountAmount1, mockDiscountAmount2],
         total_tax_amounts: [mockTaxAmount1, mockTaxAmount2],
       })
@@ -132,6 +172,16 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       discountType: undefined,
       number: null,
       nextInvoiceDate: mockUpcomingInvoice.lines.data[0].period.end,
+      subsequentAmount: mockInvoiceLineItem.amount,
+      subsequentAmountExcludingTax: mockInvoiceLineItem.amount_excluding_tax,
+      subsequentTax: [
+        {
+          title: mockTaxAmount1.tax_rate.display_name,
+          inclusive: mockTaxAmount1.inclusive,
+          amount: mockTaxAmount1.amount,
+        },
+      ],
+      totalExcludingTax: mockUpcomingInvoice.total_excluding_tax,
     });
   });
 
