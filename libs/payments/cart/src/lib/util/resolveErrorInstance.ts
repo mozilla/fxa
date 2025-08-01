@@ -18,7 +18,10 @@ import {
   IntentInsufficientFundsError,
 } from '../checkout.error';
 import { BaseError } from '@fxa/shared/error';
-import { PayPalError } from '@fxa/payments/paypal';
+import {
+  PayPalError,
+  PayPalActiveSubscriptionsMissingAgreementError,
+} from '@fxa/payments/paypal';
 
 export function resolveErrorInstance(error: Error) {
   /**
@@ -48,6 +51,8 @@ export function resolveErrorInstance(error: Error) {
       return CartErrorReasonId.INTENT_FAILED_GENERIC;
     case error instanceof IntentInsufficientFundsError:
       return CartErrorReasonId.INTENT_FAILED_INSUFFICIENT_FUNDS;
+    case error instanceof PayPalActiveSubscriptionsMissingAgreementError:
+      return CartErrorReasonId.PAYPAL_ACTIVE_SUBSCRIPTION_NO_BILLING_AGREEMENT;
     case error instanceof PayPalError:
       return CartErrorReasonId.GENERAL_PAYPAL_ERROR;
 

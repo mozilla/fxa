@@ -134,6 +134,15 @@ export function getErrorFtlInfo(
           'It looks like your card has insufficient funds. Try another card.',
         messageFtl: 'intent-payment-error-insufficient-funds',
       };
+    case CartErrorReasonId.PAYPAL_ACTIVE_SUBSCRIPTION_NO_BILLING_AGREEMENT:
+      return {
+        buttonFtl: 'next-payment-error-retry-button', // update according to button label
+        buttonLabel: 'Try again', // or "manage payment" or "manage subscription" or smt else?
+        buttonUrl: `/${params.locale}/${params.offeringId}/${params.interval}/landing${queryParamString}`,  //update according to above^^
+        message:
+          'It looks like there is no billing agreement for your subscription.',
+        messageFtl: 'paypal-active-subscription-no-billing-agreement-error',
+      };
     case CartErrorReasonId.GENERAL_PAYPAL_ERROR:
       return {
         buttonFtl: 'next-payment-error-retry-button',
