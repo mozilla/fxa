@@ -244,6 +244,18 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_UPDATED_INLINE_TOTP_SETUP_FLOW',
     },
+    updated2faSetupFlow: {
+      default: false,
+      doc: 'Enables a redesign of the 2fa setup flow from settings with recovery phone option',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW',
+    },
+    updatedInlineRecoverySetupFlow: {
+      default: false,
+      doc: 'Enables a redesign of the 2fa setup flow from settings with recovery phone option',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_UPDATED_INLINE_RECOVERY_SETUP_FLOW',
+    },
   },
   cms: {
     enabled: {
