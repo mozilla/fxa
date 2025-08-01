@@ -15,7 +15,7 @@ metadata:
     - url: https://subscriptions.firefox.com/
       title: Production Subscription Platform
       type: website
-    - url: https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/
+    - url: https://payments-server.allizom.org/
       title: Stage Subscription Platform
       type: website
 spec:
