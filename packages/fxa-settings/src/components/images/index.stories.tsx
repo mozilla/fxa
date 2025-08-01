@@ -21,6 +21,7 @@ import {
   BackupRecoveryPhoneSmsImage,
   BackupAuthenticationCodesImage,
   SyncCloudsImage,
+  FallingConfettiImage,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
@@ -73,3 +74,7 @@ export const BackupAuthenticationCodes = () => (
   <BackupAuthenticationCodesImage />
 );
 export const SyncClouds = () => <SyncCloudsImage />;
+
+export const ConfettiFallingFullPage = () => (
+  <FallingConfettiImage />
+);
