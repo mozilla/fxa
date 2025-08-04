@@ -931,6 +931,7 @@ describe('#integration - AccountResolver', () => {
           wrapKbVersion2: 'wrapKbVersion2',
           authPWVersion2: 'authPWVersion2',
           clientSalt: 'clientSalt',
+          sessionToken: '123456789abcdef',
           keys: true,
         });
 
@@ -940,7 +941,7 @@ describe('#integration - AccountResolver', () => {
           {
             authPW: 'authPW',
             wrapKb: 'wrapKb',
-            sessionToken: undefined,
+            sessionToken: '123456789abcdef',
             wrapKbVersion2: 'wrapKbVersion2',
             authPWVersion2: 'authPWVersion2',
             clientSalt: 'clientSalt',
