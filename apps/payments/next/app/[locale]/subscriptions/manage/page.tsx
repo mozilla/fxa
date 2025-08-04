@@ -40,6 +40,8 @@ export default async function Manage({
     redirect(redirectToUrl.href);
   }
 
+  const userId = session.user.id;
+
   const { accountCreditBalance, defaultPaymentMethod, subscriptions } =
     await getSubManPageContentAction(session.user?.id);
   const { billingAgreementId, brand, expMonth, expYear, last4, type } =
@@ -267,13 +269,13 @@ export default async function Manage({
                     <h3 id={`${sub.id}-information`} className="font-semibold">
                       {sub.interval
                         ? l10n.getString(
-                            getSubscriptionIntervalFtlId(sub.interval),
-                            { productName: sub.productName },
-                            `${sub.productName} (${formatPlanInterval(sub.interval)})`
-                          )
+                          getSubscriptionIntervalFtlId(sub.interval),
+                          { productName: sub.productName },
+                          `${sub.productName} (${formatPlanInterval(sub.interval)})`
+                        )
                         : sub.productName}
                     </h3>
-                    <SubscriptionContent subscription={sub} locale={locale} />
+                    <SubscriptionContent userId={userId} subscription={sub} locale={locale} supportUrl={`${config.contentServerUrl}/support`} />
                     {index !== subscriptions.length - 1 && (
                       <hr
                         className="border-b border-grey-50 my-6"
@@ -286,8 +288,8 @@ export default async function Manage({
             </ul>
             {(appleIapSubscriptions.length > 0 ||
               googleIapSubscriptions.length > 0) && (
-              <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
-            )}
+                <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+              )}
           </>
         )}
 
@@ -405,19 +407,19 @@ export default async function Manage({
                         {!!purchase.expiryTimeMillis &&
                           (purchase.autoRenewing
                             ? l10n.getString(
-                                'subscription-management-iap-sub-next-bill',
-                                {
-                                  date: nextBillDateL10n,
-                                },
-                                `Next billed on ${nextBillDate}`
-                              )
+                              'subscription-management-iap-sub-next-bill',
+                              {
+                                date: nextBillDateL10n,
+                              },
+                              `Next billed on ${nextBillDate}`
+                            )
                             : l10n.getString(
-                                'subscription-management-iap-sub-expires-on',
-                                {
-                                  date: nextBillDateL10n,
-                                },
-                                `Expires on ${nextBillDate}`
-                              ))}
+                              'subscription-management-iap-sub-expires-on',
+                              {
+                                date: nextBillDateL10n,
+                              },
+                              `Expires on ${nextBillDate}`
+                            ))}
                       </div>
                     </div>
                     <div>

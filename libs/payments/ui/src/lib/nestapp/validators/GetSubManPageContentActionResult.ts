@@ -50,6 +50,9 @@ class DefaultPaymentMethod {
 
 class SubscriptionContent {
   @IsString()
+  id!: string;
+
+  @IsString()
   productName!: string;
 
   @IsString()
