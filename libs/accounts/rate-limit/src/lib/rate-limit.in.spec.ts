@@ -199,10 +199,7 @@ describe('rate-limit', () => {
     expect(check4?.blockingOn).toEqual('email');
   });
 
-  it('should clear block after should clear after banDurationInSeconds', async () => {
-    /**
-     * Note that once the ban kicks in the window disappears. So despite
-     */
+  it('should clear block after block duration ends', async () => {
     rateLimit = new RateLimit(
       {
         rules: parseConfigRules(['test:ip:1:20s:1s:block']),
@@ -438,5 +435,36 @@ describe('rate-limit', () => {
     expect(check3).not.toBeNull();
     expect(check4).not.toBeNull();
     expect(check5).toBeNull();
+  });
+
+  it('should clear ban after ban duration ends', async () => {
+    rateLimit = new RateLimit(
+      {
+        rules: parseConfigRules([
+          'test :ip:1  :20s :1s :ban',
+          'testB:ip:100:20s :1s :block',
+        ]),
+      },
+      redis,
+      statsd
+    );
+
+    const check1 = await rateLimit.check('test', { ip: '127.0.0.1' });
+    const check2 = await rateLimit.check('test', { ip: '127.0.0.1' });
+    await new Promise((r) => setTimeout(r, 500));
+    const check3 = await rateLimit.check('test', { ip: '127.0.0.1' });
+    const check3b = await rateLimit.check('testB', { ip: '127.0.0.1' });
+    await new Promise((r) => setTimeout(r, 1001));
+    const check4 = await rateLimit.check('test', { ip: '127.0.0.1' });
+    const check4b = await rateLimit.check('testB', { ip: '127.0.0.1' });
+
+    expect(check1).toBeNull();
+    expect(check2?.retryAfter).toEqual(1000);
+    expect(check3?.retryAfter).toBeLessThan(501);
+    expect(check3?.retryAfter).toBeGreaterThan(450);
+    expect(check3b?.retryAfter).toBeLessThan(501);
+    expect(check3b?.retryAfter).toBeGreaterThan(450);
+    expect(check4).toBeNull();
+    expect(check4b).toBeNull();
   });
 });
