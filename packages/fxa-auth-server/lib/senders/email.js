@@ -28,6 +28,9 @@ const UTM_PREFIX = 'fx-';
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
 
+// Prod and stage IDs
+const CLIENT_IDS_AMO = ['a4907de5fa9d78fc', '285dd6fd9907a74c'];
+
 module.exports = function (log, config, bounces, statsd) {
   const oauthClientInfo = require('./oauth_client_info')(log, config);
   const verificationReminders = require('../verification-reminders')(
@@ -685,6 +688,7 @@ module.exports = function (log, config, bounces, statsd) {
         date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
+        location: message.location,
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
@@ -835,6 +839,7 @@ module.exports = function (log, config, bounces, statsd) {
         date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
+        location: message.location,
         privacyUrl: links.privacyUrl,
         reportSignInLink: links.reportSignInLink,
         reportSignInLinkAttributes: links.reportSignInLinkAttributes,
@@ -895,6 +900,7 @@ module.exports = function (log, config, bounces, statsd) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         link: links.link,
+        location: message.location,
         oneClickLink: links.oneClickLink,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
@@ -953,6 +959,7 @@ module.exports = function (log, config, bounces, statsd) {
         code: message.code,
         date,
         device: this._formatUserAgentInfo(message),
+        location: message.location,
         email: message.email,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
@@ -1015,6 +1022,7 @@ module.exports = function (log, config, bounces, statsd) {
         device: this._formatUserAgentInfo(message),
         email: message.primaryEmail,
         link: links.link,
+        location: message.location,
         oneClickLink: links.oneClickLink,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
@@ -1056,6 +1064,7 @@ module.exports = function (log, config, bounces, statsd) {
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         primaryEmail: message.primaryEmail,
         privacyUrl: links.privacyUrl,
+        location: message.location,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
@@ -1110,6 +1119,7 @@ module.exports = function (log, config, bounces, statsd) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         link: links.link,
+        location: message.location,
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
@@ -1142,6 +1152,7 @@ module.exports = function (log, config, bounces, statsd) {
       template: templateName,
       templateValues: {
         date,
+        location: message.location,
         device: this._formatUserAgentInfo(message),
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
@@ -1276,6 +1287,7 @@ module.exports = function (log, config, bounces, statsd) {
         date,
         device: this._formatUserAgentInfo(message),
         link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1314,12 +1326,18 @@ module.exports = function (log, config, bounces, statsd) {
         date,
         device: this._formatUserAgentInfo(message),
         link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
+        // Only show the banner warning for new device AMO logins, or web
+        // logins with no service associated
+        showBannerWarning:
+          message.service === undefined ||
+          CLIENT_IDS_AMO.includes(message.service),
       },
     });
   };
@@ -1358,6 +1376,7 @@ module.exports = function (log, config, bounces, statsd) {
         iosLinkAttributes: linkAttributes(links.iosLink),
         iosUrl: links.iosLink,
         link: links.link,
+        location: message.location,
         privacyUrl: links.privacyUrl,
         style: message.style,
         supportLinkAttributes: links.supportLinkAttributes,
@@ -1485,6 +1504,7 @@ module.exports = function (log, config, bounces, statsd) {
         androidLink: links.androidLink,
         date,
         device: this._formatUserAgentInfo(message),
+        location: message.location,
         email: message.email,
         iosLink: links.iosLink,
         link: links.link,
@@ -1527,6 +1547,7 @@ module.exports = function (log, config, bounces, statsd) {
         androidLink: links.androidLink,
         date,
         device: this._formatUserAgentInfo(message),
+        location: message.location,
         email: message.email,
         iosLink: links.iosLink,
         link: links.link,
@@ -1567,6 +1588,7 @@ module.exports = function (log, config, bounces, statsd) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
+        location: message.location,
         link: links.link,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
@@ -1606,6 +1628,7 @@ module.exports = function (log, config, bounces, statsd) {
         email: message.email,
         iosLink: links.iosLink,
         link: links.link,
+        location: message.location,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1889,6 +1912,7 @@ module.exports = function (log, config, bounces, statsd) {
         email: message.email,
         iosLink: links.iosLink,
         link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1930,6 +1954,7 @@ module.exports = function (log, config, bounces, statsd) {
         email: message.email,
         iosLink: links.iosLink,
         link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1971,6 +1996,7 @@ module.exports = function (log, config, bounces, statsd) {
         email: message.email,
         iosLink: links.iosLink,
         link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -2009,6 +2035,7 @@ module.exports = function (log, config, bounces, statsd) {
         email: message.email,
         iosUrl: links.iosLink,
         link: links.link,
+        location: message.location,
         privacyUrl: links.privacyUrl,
         productName: 'Firefox',
         passwordChangeLink: links.passwordChangeLink,

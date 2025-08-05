@@ -78,6 +78,7 @@ module.exports = {
         const geoData = request.app.geo;
         const emailOptions = {
           acceptLanguage: request.app.acceptLanguage,
+          location: geoData.location,
           service: clientId,
           timeZone: geoData.timeZone,
           uid: credentials.uid,

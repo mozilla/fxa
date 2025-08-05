@@ -1213,6 +1213,8 @@ describe('/account/create', () => {
         'mailer.sendVerifyEmail was called'
       );
       args = mockMailer.sendVerifyEmail.args[0];
+      assert.equal(args[2].location.city, 'Mountain View');
+      assert.equal(args[2].location.country, 'United States');
       assert.equal(args[2].acceptLanguage, 'en-US');
       assert.equal(args[2].timeZone, 'America/Los_Angeles');
       assert.equal(args[2].uaBrowser, 'Firefox Mobile');
@@ -2571,6 +2573,8 @@ describe('/account/login', () => {
       );
       args = mockMailer.sendVerifyLoginEmail.args[0];
       assert.equal(args[2].acceptLanguage, 'en-US');
+      assert.equal(args[2].location.city, 'Mountain View');
+      assert.equal(args[2].location.country, 'United States');
       assert.equal(args[2].timeZone, 'America/Los_Angeles');
       assert.equal(args[2].uaBrowser, 'Firefox');
       assert.equal(args[2].uaBrowserVersion, '50');
@@ -2757,6 +2761,14 @@ describe('/account/login', () => {
         assert.equal(
           mockMailer.sendVerifyLoginEmail.getCall(0).args[2].acceptLanguage,
           'en-US'
+        );
+        assert.equal(
+          mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city,
+          'Mountain View'
+        );
+        assert.equal(
+          mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.country,
+          'United States'
         );
         assert.equal(
           mockMailer.sendVerifyLoginEmail.getCall(0).args[2].timeZone,
@@ -3194,6 +3206,14 @@ describe('/account/login', () => {
           assert.equal(
             mockMailer.sendVerifyLoginEmail.getCall(0).args[2].acceptLanguage,
             'en-US'
+          );
+          assert.equal(
+            mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city,
+            'Mountain View'
+          );
+          assert.equal(
+            mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.country,
+            'United States'
           );
           assert.equal(
             mockMailer.sendVerifyLoginEmail.getCall(0).args[2].timeZone,

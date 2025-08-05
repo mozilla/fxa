@@ -479,6 +479,7 @@ module.exports = (
               redirectTo: redirectTo,
               resume: resume,
               service: service,
+              location: geoData.location,
               timeZone: geoData.timeZone,
               uaBrowser: request.app.ua.browser,
               uaBrowserVersion: request.app.ua.browserVersion,
