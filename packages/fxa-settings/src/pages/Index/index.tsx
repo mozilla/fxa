@@ -20,6 +20,7 @@ import { isOAuthIntegration } from '../../models';
 import GleanMetrics from '../../lib/glean';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
+import CmsLogo from '../../components/CmsLogo';
 
 export const Index = ({
   integration,
@@ -34,6 +35,7 @@ export const Index = ({
   setTooltipErrorMessage,
   deeplink,
   flowQueryParams,
+  isMobile,
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
@@ -103,12 +105,12 @@ export const Index = ({
     <AppLayout cmsInfo={cmsInfo}>
       {cmsInfo ? (
         <>
-          {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
-            <img
-              src={cmsInfo.shared.logoUrl}
-              alt={cmsInfo.shared.logoAltText}
-              className="justify-start mb-4 max-h-[40px]"
-            />)}
+          <CmsLogo
+            {...{
+              isMobile,
+              logos: [cmsInfo?.EmailFirstPage, cmsInfo?.shared],
+            }}
+          />
           <h1 className="card-header">{cmsInfo?.EmailFirstPage?.headline}</h1>
           <p className="mt-1 mb-9 text-sm">
             {cmsInfo?.EmailFirstPage?.description}

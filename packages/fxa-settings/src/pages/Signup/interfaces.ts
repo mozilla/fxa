@@ -44,6 +44,7 @@ export interface SignupProps {
   useSyncEnginesResult: ReturnType<typeof useSyncEngines>;
   deeplink?: string;
   flowQueryParams?: QueryParams;
+  isMobile: boolean;
 }
 
 export type SignupIntegration = SignupOAuthIntegration | SignupBaseIntegration;

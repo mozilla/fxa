@@ -31,6 +31,7 @@ import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { QueryParams } from '../..';
 import { isFirefoxService } from '../../models/integrations/utils';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import { isMobileDevice } from '../../lib/utilities';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -210,6 +211,8 @@ const SignupContainer = ({
   }
 
   const deeplink = queryParamModel.deeplink;
+  const isMobile = isMobileDevice();
+
   return (
     <Signup
       {...{
@@ -219,6 +222,7 @@ const SignupContainer = ({
         useSyncEnginesResult,
         deeplink,
         flowQueryParams,
+        isMobile,
       }}
     />
   );

@@ -72,7 +72,31 @@ export const WithCms = storyWithProps({
   integration: createMockIndexOAuthNativeIntegration({
     isDesktopRelay: true,
     isSync: false,
-    cmsInfo: MOCK_CMS_INFO
+    cmsInfo: MOCK_CMS_INFO,
+  }),
+});
+
+export const WithCmsOnMobile = storyWithProps({
+  integration: createMockIndexOAuthNativeIntegration({
+    isDesktopRelay: true,
+    isSync: false,
+    cmsInfo: MOCK_CMS_INFO,
+  }),
+  isMobile: true,
+});
+
+export const WithCmsWithSharedFallback = storyWithProps({
+  integration: createMockIndexOAuthNativeIntegration({
+    isDesktopRelay: true,
+    isSync: false,
+    cmsInfo: {
+      ...MOCK_CMS_INFO,
+      EmailFirstPage: {
+        ...MOCK_CMS_INFO.EmailFirstPage,
+        logoUrl: undefined,
+        logoAltText: undefined,
+      },
+    },
   }),
 });
 

@@ -40,6 +40,7 @@ import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { checkPaymentMethodsWillSync } from '../../lib/sync-engines';
 import FormPasswordWithInlineCriteria from '../../components/FormPasswordWithInlineCriteria';
+import CmsLogo from '../../components/CmsLogo';
 
 export const viewName = 'signup';
 
@@ -55,6 +56,7 @@ export const Signup = ({
   },
   deeplink,
   flowQueryParams,
+  isMobile,
 }: SignupProps) => {
   const sensitiveDataClient = useSensitiveDataClient();
 
@@ -283,13 +285,12 @@ export const Signup = ({
     <AppLayout cmsInfo={cmsInfo}>
       {cmsInfo ? (
         <>
-          {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
-            <img
-              src={cmsInfo?.shared.logoUrl}
-              alt={cmsInfo?.shared.logoAltText}
-              className="justify-start mb-4 max-h-[40px]"
-            />
-          )}
+          <CmsLogo
+            {...{
+              isMobile,
+              logos: [cmsInfo?.SignupSetPasswordPage, cmsInfo?.shared],
+            }}
+          />
           <h1 className="card-header">
             {cmsInfo?.SignupSetPasswordPage?.headline}
           </h1>

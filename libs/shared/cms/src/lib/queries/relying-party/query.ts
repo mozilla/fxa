@@ -29,11 +29,15 @@ export const relyingPartyQuery = graphql(`
         }
       }
       EmailFirstPage {
+        logoUrl
+        logoAltText
         headline
         description
         primaryButtonText
       }
       SignupSetPasswordPage {
+        logoUrl
+        logoAltText
         headline
         description
         primaryButtonText
