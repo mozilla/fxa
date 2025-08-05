@@ -9,3 +9,5 @@ export * from './lib/google/google-iap.client.config';
 export * from './lib/apple/apple-iap-purchase.manager';
 export * from './lib/google/google-iap.client';
 export * from './lib/apple/apple-iap.client.config';
+export * from './lib/apple/apple-iap.service';
+export * from './lib/google/google-iap.service';

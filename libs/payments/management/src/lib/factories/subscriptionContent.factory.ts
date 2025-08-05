@@ -4,7 +4,66 @@
 
 import { faker } from '@faker-js/faker';
 import { SubplatInterval } from '@fxa/payments/customer';
-import { SubscriptionContent } from '../types';
+import {
+  AppleIapPurchase,
+  AppleIapPurchaseResult,
+  AppleIapSubscriptionContent,
+  GoogleIapPurchase,
+  GoogleIapPurchaseResult,
+  GoogleIapSubscriptionContent,
+  SubscriptionContent,
+} from '../types';
+
+export const AppleIapPurchaseFactory = (
+  override?: Partial<AppleIapPurchase>
+): AppleIapPurchase => ({
+  storeId: faker.string.sample(),
+  expiresDate: faker.date.future().getDate(),
+  ...override,
+});
+
+export const AppleIapSubscriptionContentFactory = (
+  override?: Partial<AppleIapSubscriptionContent>
+): AppleIapSubscriptionContent => ({
+  ...AppleIapPurchaseFactory(),
+  productName: faker.string.sample(),
+  ...override,
+});
+
+export const AppleIapPurchaseResultFactory = (
+  override?: Partial<AppleIapPurchaseResult>
+): AppleIapPurchaseResult => ({
+  storeIds: [faker.string.sample()],
+  purchaseDetails: [AppleIapPurchaseFactory()],
+  ...override,
+});
+
+export const GoogleIapPurchaseFactory = (
+  override?: Partial<GoogleIapPurchase>
+): GoogleIapPurchase => ({
+  storeId: faker.string.sample(),
+  autoRenewing: true,
+  expiryTimeMillis: faker.date.future().getDate(),
+  packageName: faker.string.sample(),
+  sku: faker.string.sample(),
+  ...override,
+});
+
+export const GoogleIapSubscriptionContentFactory = (
+  override?: Partial<GoogleIapSubscriptionContent>
+): GoogleIapSubscriptionContent => ({
+  ...GoogleIapPurchaseFactory(),
+  productName: faker.string.sample(),
+  ...override,
+});
+
+export const GoogleIapPurchaseResultFactory = (
+  override?: Partial<GoogleIapPurchaseResult>
+): GoogleIapPurchaseResult => ({
+  storeIds: [faker.string.sample()],
+  purchaseDetails: [GoogleIapPurchaseFactory()],
+  ...override,
+});
 
 export const SubscriptionContentFactory = (
   override?: Partial<SubscriptionContent>

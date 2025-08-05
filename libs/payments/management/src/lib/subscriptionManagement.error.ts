@@ -32,7 +32,10 @@ export class UpdateAccountCustomerMissingStripeId extends SubscriptionManagement
 
 export class SetDefaultPaymentAccountCustomerMissingStripeId extends SubscriptionManagementError {
   constructor(uid: string) {
-    super('AccountCustomer for updating default payment method is missing a Stripe customer id', { uid });
+    super(
+      'AccountCustomer for updating default payment method is missing a Stripe customer id',
+      { uid }
+    );
     this.name = 'SetDefaultPaymentAccountCustomerMissingStripeId';
   }
 }
@@ -130,6 +133,15 @@ export class SubscriptionContentMissingUpcomingInvoicePreviewError extends Subsc
   }
 }
 
+export class SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError extends SubscriptionManagementError {
+  constructor(storeIds: string[]) {
+    super('Could not retrieve IAP product names from CMS', {
+      storeIds,
+    });
+    this.name =
+      'SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError';
+  }
+}
 export class SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError extends SubscriptionManagementError {
   constructor(priceIds: string[]) {
     super('Could not retrieve product names from CMS', {

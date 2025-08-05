@@ -11,6 +11,7 @@ import {
   type IapOfferingSubGroupOfferingResult,
   type IapOfferingSubGroupResult,
   type IapWithOfferingResult,
+  type IapOfferingDefaultPurchase,
 } from '.';
 
 export const IapOfferingByStoreIDResultFactory = (
@@ -39,7 +40,17 @@ export const IapOfferingResultFactory = (
   override?: Partial<IapOfferingResult>
 ): IapOfferingResult => ({
   apiIdentifier: faker.string.sample(),
+  defaultPurchase: IapOfferingDefaultPurchaseFactory(),
   subGroups: [IapOfferingSubGroupResultFactory()],
+  ...override,
+});
+
+export const IapOfferingDefaultPurchaseFactory = (
+  override?: Partial<IapOfferingDefaultPurchase>
+): IapOfferingDefaultPurchase => ({
+  purchaseDetails: {
+    productName: faker.string.sample(),
+  },
   ...override,
 });
 

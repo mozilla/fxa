@@ -66,8 +66,10 @@ import { PaymentsEmitterService } from '@fxa/payments/events';
 import {
   AppleIapClient,
   AppleIapPurchaseManager,
+  AppleIapService,
   GoogleIapClient,
   GoogleIapPurchaseManager,
+  GoogleIapService,
 } from '@fxa/payments/iap';
 
 @Module({
@@ -95,6 +97,7 @@ import {
     AccountCustomerManager,
     AccountDatabaseNestFactory,
     AccountManager,
+    AppleIapService,
     AsyncLocalStorageCartProvider,
     CartManager,
     CartService,
@@ -117,6 +120,7 @@ import {
     GeoDBNestFactory,
     GoogleClient,
     GoogleManager,
+    GoogleIapService,
     InvoiceManager,
     LocalizerRscFactoryProvider,
     NextJSActionsService,
