@@ -73,7 +73,6 @@ import {
 import { isPaymentIntentId } from './util/isPaymentIntentId';
 import { isPaymentIntent } from './util/isPaymentIntent';
 import { throwIntentFailedError } from './util/throwIntentFailedError';
-import { delay } from './util/delay';
 import type { AsyncLocalStorage } from 'async_hooks';
 import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
@@ -294,17 +293,6 @@ export class CheckoutService {
       offering_id: cart.offeringConfigId,
       interval: cart.interval,
     });
-
-    await delay(30000);
-
-    await this.subscriptionManager.update(subscription.id, {
-      metadata: {
-        ...subscription.metadata,
-        [STRIPE_SUBSCRIPTION_METADATA.LastUpdated]: Math.floor(
-          Date.now() / 1000
-        ),
-      },
-    });
   }
 
   async payWithStripe(
@@ -421,10 +409,9 @@ export class CheckoutService {
           confirmationTokenId
         );
 
-        this.statsd.increment(
-          'checkout_stripe_payment_setupintent_status',
-          { status: intent.status }
-        );
+        this.statsd.increment('checkout_stripe_payment_setupintent_status', {
+          status: intent.status,
+        });
       }
     } catch (error) {
       if (error?.payment_intent) {
