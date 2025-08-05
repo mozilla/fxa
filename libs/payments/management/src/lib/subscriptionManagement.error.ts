@@ -150,6 +150,15 @@ export class SubscriptionContentMissingUpcomingInvoicePreviewError extends Subsc
   }
 }
 
+export class SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError extends SubscriptionManagementError {
+  constructor(storeIds: string[]) {
+    super('Could not retrieve IAP product names from CMS', {
+      storeIds,
+    });
+    this.name =
+      'SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError';
+  }
+}
 export class SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError extends SubscriptionManagementError {
   constructor(priceIds: string[]) {
     super('Could not retrieve product names from CMS', {

@@ -4,6 +4,37 @@
 
 import { SubplatInterval } from '@fxa/payments/customer';
 
+export interface AppleIapPurchase {
+  storeId: string;
+  expiresDate?: number;
+}
+
+export interface AppleIapSubscriptionContent extends AppleIapPurchase {
+  productName: string;
+}
+
+export interface AppleIapPurchaseResult {
+  storeIds: string[];
+  purchaseDetails: AppleIapPurchase[];
+}
+
+export interface GoogleIapPurchase {
+  storeId: string;
+  autoRenewing: boolean;
+  expiryTimeMillis: number;
+  packageName: string;
+  sku: string;
+}
+
+export interface GoogleIapSubscriptionContent extends GoogleIapPurchase {
+  productName: string;
+}
+
+export interface GoogleIapPurchaseResult {
+  storeIds: string[];
+  purchaseDetails: GoogleIapPurchase[];
+}
+
 export interface SubscriptionContent {
   id: string;
   cancelAtPeriodEnd: boolean;

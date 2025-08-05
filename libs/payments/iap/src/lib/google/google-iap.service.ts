@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  AppendedPlayStoreSubscriptionPurchase,
-  DeveloperNotification,
-  NotificationType,
-} from './types';
+import { DeveloperNotification, NotificationType } from './types';
 import { GoogleIapPurchaseManager } from './google-iap-purchase.manager';
 import { PlayStoreSubscriptionPurchase } from './subscription-purchase';
 import {
@@ -22,19 +18,6 @@ export class GoogleIapService {
     private purchaseManager: GoogleIapPurchaseManager,
     private log: Logger
   ) {}
-
-  async getActiveSubscriptions(
-    uid: string
-  ): Promise<AppendedPlayStoreSubscriptionPurchase[]> {
-    const purchases = await this.purchaseManager.getForUser(uid);
-
-    // Below to be completed as part of FXA-7839
-    //return this.stripeHelper.addPriceInfoToIapPurchases(
-    //  purchases,
-    //  MozillaSubscriptionTypes.IAP_GOOGLE
-    //);
-    return purchases as AppendedPlayStoreSubscriptionPurchase[];
-  }
 
   async processNotification(
     packageName: string,
@@ -102,9 +85,7 @@ export class GoogleIapService {
     } else if (purchase.userId) {
       this.log.log('purchase already registered', { purchase });
       // Purchase record already registered to different user. Return 'conflict' to caller
-      throw new GoogleIapConflictError(
-        userId, purchase.orderId
-      );
+      throw new GoogleIapConflictError(userId, purchase.orderId);
     }
 
     // STEP 3: Register purchase to the user

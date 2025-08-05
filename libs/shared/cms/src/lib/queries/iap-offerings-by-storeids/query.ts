@@ -11,6 +11,11 @@ export const iapOfferingsByStoreIDsQuery = graphql(`
       interval
       offering {
         apiIdentifier
+        defaultPurchase {
+          purchaseDetails {
+            productName
+          }
+        }
         subGroups {
           groupName
           offerings {

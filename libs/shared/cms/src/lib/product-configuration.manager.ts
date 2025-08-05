@@ -157,6 +157,11 @@ export class ProductConfigurationManager {
     );
   }
 
+  async getProductNamesByStoreIds(storeIds: string[]) {
+    const iapOfferings = await this.getIapOfferings(storeIds);
+    return iapOfferings.getProductNamesByStoreIds(storeIds);
+  }
+
   async getPurchaseDetailsForCapabilityServiceByPlanIds(
     stripePlanIds: string[]
   ): Promise<CapabilityServiceByPlanIdsResultUtil> {

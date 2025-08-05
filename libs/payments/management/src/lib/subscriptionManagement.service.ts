@@ -28,11 +28,16 @@ import type {
 } from '@fxa/payments/stripe';
 import { SanitizeExceptions } from '@fxa/shared/error';
 import { CurrencyManager } from '@fxa/payments/currency';
+import {
+  AppleIapPurchaseManager,
+  GoogleIapPurchaseManager,
+} from '@fxa/payments/iap';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   CurrencyForCustomerNotFoundError,
   GetAccountCustomerMissingStripeId,
+  SetDefaultPaymentAccountCustomerMissingStripeId,
   SetupIntentInvalidStatusError,
   SetupIntentMissingCustomerError,
   SetupIntentMissingPaymentMethodError,
@@ -40,29 +45,37 @@ import {
   SubscriptionContentMissingLatestInvoiceError,
   SubscriptionContentMissingLatestInvoicePreviewError,
   SubscriptionContentMissingUpcomingInvoicePreviewError,
+  SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError,
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
   UpdateAccountCustomerMissingStripeId,
-  SetDefaultPaymentAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
 } from './subscriptionManagement.error';
-import { SubscriptionContent } from './types';
 import { NotifierService } from '@fxa/shared/notifier';
 import { ProfileClient } from '@fxa/profile/client';
+import {
+  AppleIapPurchaseResult,
+  AppleIapSubscriptionContent,
+  GoogleIapPurchaseResult,
+  GoogleIapSubscriptionContent,
+  SubscriptionContent,
+} from './types';
 
 @Injectable()
 export class SubscriptionManagementService {
   constructor(
     @Inject(StatsDService) private statsd: StatsD,
     private accountCustomerManager: AccountCustomerManager,
+    private appleIapPurchaseManager: AppleIapPurchaseManager,
     private currencyManager: CurrencyManager,
     private customerManager: CustomerManager,
     private customerSessionManager: CustomerSessionManager,
+    private googleIapPurchaseManager: GoogleIapPurchaseManager,
     private invoiceManager: InvoiceManager,
     private notifierService: NotifierService,
     private paymentMethodManager: PaymentMethodManager,
     private profileClient: ProfileClient,
-    private setupIntentManager: SetupIntentManager,
     private productConfigurationManager: ProductConfigurationManager,
+    private setupIntentManager: SetupIntentManager,
     private subscriptionManager: SubscriptionManager
   ) {}
 
@@ -117,25 +130,36 @@ export class SubscriptionManagementService {
       SubscriptionContentMissingLatestInvoicePreviewError,
       SubscriptionContentMissingUpcomingInvoicePreviewError,
       SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
+      SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError,
     ],
   })
   async getPageContent(uid: string) {
+    const subscriptions: SubscriptionContent[] = [];
+    let appleIapSubscriptions: AppleIapSubscriptionContent[] = [];
+    let googleIapSubscriptions: GoogleIapSubscriptionContent[] = [];
     let defaultPaymentMethod: DefaultPaymentMethod | undefined;
-    let subscriptions: SubscriptionContent[] = [];
     let accountCreditBalance: AccountCreditBalance = {
       balance: 0,
       currency: null,
     };
-    const accountCustomer = await this.accountCustomerManager
-      .getAccountCustomerByUid(uid)
-      .catch((error) => {
-        if (!(error instanceof AccountCustomerNotFoundError)) {
-          throw error;
-        }
-      });
+    const [accountCustomer, appleIapSubs, googleIapSubs] = await Promise.all([
+      this.accountCustomerManager
+        .getAccountCustomerByUid(uid)
+        .catch((error) => {
+          if (!(error instanceof AccountCustomerNotFoundError)) {
+            throw error;
+          }
+          return undefined;
+        }),
+      this.getAppleIapPurchases(uid),
+      this.getGoogleIapPurchases(uid),
+    ]);
+
+    let stripeSubs: StripeSubscription[] = [];
+    let stripeCustomer: StripeCustomer | undefined;
 
     if (accountCustomer && accountCustomer.stripeCustomerId) {
-      const [subs, customer] = await Promise.all([
+      [stripeSubs, stripeCustomer] = await Promise.all([
         this.subscriptionManager.listForCustomer(
           accountCustomer.stripeCustomerId
         ),
@@ -144,55 +168,117 @@ export class SubscriptionManagementService {
 
       defaultPaymentMethod =
         await this.paymentMethodManager.getDefaultPaymentMethod(
-          customer,
-          subs,
+          stripeCustomer,
+          stripeSubs,
           uid
         );
 
       accountCreditBalance = {
-        balance: Math.abs(customer.balance),
-        currency: customer.currency ?? subs[0]?.currency,
+        balance: Math.abs(stripeCustomer.balance),
+        currency: stripeCustomer.currency ?? stripeSubs[0]?.currency ?? null,
       };
+    }
 
-      if (subs.length === 0) {
-        return { accountCreditBalance, defaultPaymentMethod, subscriptions };
-      }
+    const hasStripe = stripeSubs.length > 0;
+    const hasAppleIap = appleIapSubs.purchaseDetails.length > 0;
+    const hasGoogleIap = googleIapSubs.purchaseDetails.length > 0;
 
-      const priceIds = subs.flatMap((sub) =>
+    if (!hasStripe && !hasAppleIap && !hasGoogleIap) {
+      return {
+        accountCreditBalance,
+        defaultPaymentMethod,
+        subscriptions: [],
+        appleIapSubscriptions: [],
+        googleIapSubscriptions: [],
+      };
+    }
+
+    if (hasStripe && stripeCustomer) {
+      const stripePriceIds = stripeSubs.flatMap((sub) =>
         sub.items.data.map((item) => item.price.id)
       );
       const productMap =
         await this.productConfigurationManager.getProductNameByPriceIds(
-          priceIds
+          stripePriceIds
         );
 
       if (!productMap) {
         throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError(
-          priceIds
+          stripePriceIds
         );
       }
 
-      const subsContent: SubscriptionContent[] = [];
-      for (const sub of subs) {
+      for (const sub of stripeSubs) {
         const item = sub.items.data[0];
         const price = item.price;
         const priceId = price.id;
         const productName = productMap.productNameForPriceId(priceId);
         if (!productName) {
           Sentry.captureMessage('No product name for price id', {
-            extra: { priceId },
+            extra: { uid, priceId, subscriptionId: sub.id },
           });
         }
         const content = await this.getSubscriptionContent(
           sub,
-          customer,
+          stripeCustomer,
           price,
           productName ?? 'Mozilla Subscription'
         );
-        subsContent.push(content);
+
+        if (content) {
+          subscriptions.push(content);
+        }
       }
-      subscriptions = subsContent.filter(
-        (s): s is SubscriptionContent => s !== null
+    }
+
+    const storeIds = [
+      ...new Set([...appleIapSubs.storeIds, ...googleIapSubs.storeIds]),
+    ];
+
+    let storeMap: Record<string, string | undefined> = {};
+    if (storeIds.length > 0) {
+      storeMap =
+        await this.productConfigurationManager.getProductNamesByStoreIds(
+          storeIds
+        );
+
+      if (!storeMap) {
+        throw new SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError(
+          storeIds
+        );
+      }
+    }
+
+    const getIapProductName = (storeId: string, fallback: string): string => {
+      if (!storeId) return fallback;
+      const productName = storeMap[storeId];
+      if (!productName) {
+        Sentry.captureMessage('No product name for store id', {
+          extra: { uid, storeId },
+        });
+      }
+      return productName ?? fallback;
+    };
+
+    if (hasAppleIap) {
+      appleIapSubscriptions = appleIapSubs.purchaseDetails.map((purchase) => ({
+        ...purchase,
+        productName: getIapProductName(
+          purchase.storeId,
+          'Apple IAP Subscription'
+        ),
+      }));
+    }
+
+    if (hasGoogleIap) {
+      googleIapSubscriptions = googleIapSubs.purchaseDetails.map(
+        (purchase) => ({
+          ...purchase,
+          productName: getIapProductName(
+            purchase.storeId,
+            'Google IAP Subscription'
+          ),
+        })
       );
     }
 
@@ -200,7 +286,50 @@ export class SubscriptionManagementService {
       accountCreditBalance,
       defaultPaymentMethod,
       subscriptions,
+      appleIapSubscriptions,
+      googleIapSubscriptions,
     };
+  }
+
+  private async getAppleIapPurchases(uid: string) {
+    const purchases: AppleIapPurchaseResult = {
+      storeIds: [],
+      purchaseDetails: [],
+    };
+
+    const appleIapSubscriptions =
+      await this.appleIapPurchaseManager.getForUser(uid);
+
+    for (const purchase of appleIapSubscriptions) {
+      purchases.storeIds.push(purchase.productId);
+      purchases.purchaseDetails.push({
+        storeId: purchase.productId,
+        expiresDate: purchase.expiresDate,
+      });
+    }
+    return purchases;
+  }
+
+  private async getGoogleIapPurchases(uid: string) {
+    const purchases: GoogleIapPurchaseResult = {
+      storeIds: [],
+      purchaseDetails: [],
+    };
+
+    const googleIapSubscriptions =
+      await this.googleIapPurchaseManager.getForUser(uid);
+
+    for (const purchase of googleIapSubscriptions) {
+      purchases.storeIds.push(purchase.sku);
+      purchases.purchaseDetails.push({
+        storeId: purchase.sku,
+        autoRenewing: purchase.autoRenewing,
+        expiryTimeMillis: purchase.expiryTimeMillis,
+        packageName: purchase.packageName,
+        sku: purchase.sku,
+      });
+    }
+    return purchases;
   }
 
   private async getSubscriptionContent(

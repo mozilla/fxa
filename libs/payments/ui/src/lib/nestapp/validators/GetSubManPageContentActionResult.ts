@@ -4,6 +4,7 @@
 
 import { Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -19,8 +20,9 @@ class AccountCreditBalance {
   @IsNumber()
   balance!: number;
 
+  @IsOptional()
   @IsString()
-  currency!: string | null;
+  currency?: string | null;
 }
 
 class DefaultPaymentMethod {
@@ -87,6 +89,38 @@ class SubscriptionContent {
   promotionName?: string | null;
 }
 
+class AppleIapSubscriptionContent {
+  @IsOptional()
+  @IsNumber()
+  expiresDate?: number;
+
+  @IsString()
+  productName!: string;
+
+  @IsString()
+  storeId!: string;
+}
+
+class GoogleIapSubscriptionContent {
+  @IsBoolean()
+  autoRenewing!: boolean;
+
+  @IsNumber()
+  expiryTimeMillis!: number;
+
+  @IsString()
+  packageName!: string;
+
+  @IsString()
+  productName!: string;
+
+  @IsString()
+  sku!: string;
+
+  @IsString()
+  storeId!: string;
+}
+
 export class GetSubManPageContentActionResult {
   @ValidateNested()
   @Type(() => AccountCreditBalance)
@@ -100,4 +134,12 @@ export class GetSubManPageContentActionResult {
   @ValidateNested()
   @Type(() => SubscriptionContent)
   subscriptions!: SubscriptionContent[];
+
+  @ValidateNested()
+  @Type(() => AppleIapSubscriptionContent)
+  appleIapSubscriptions!: AppleIapSubscriptionContent[];
+
+  @ValidateNested()
+  @Type(() => GoogleIapSubscriptionContent)
+  googleIapSubscriptions!: GoogleIapSubscriptionContent[];
 }

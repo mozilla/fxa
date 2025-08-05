@@ -63,27 +63,6 @@ describe('GoogleIapService', () => {
     jest.restoreAllMocks();
   });
 
-  describe('getActiveSubscriptions', () => {
-    const purchaseToken = faker.string.uuid();
-    const firestoreRecord = FirestoreGoogleIapPurchaseRecordFactory({
-      purchaseToken,
-    });
-    const activeSubscription =
-      PlayStoreSubscriptionPurchase.fromFirestoreObject(firestoreRecord);
-    activeSubscription.isEntitlementActive = jest.fn().mockReturnValue(true);
-
-    it('returns active Google Play subscription purchases', async () => {
-      jest.spyOn(manager, 'getForUser').mockResolvedValue([activeSubscription]);
-
-      const result = await service.getActiveSubscriptions('testUserId');
-
-      expect(result).toEqual([activeSubscription]);
-    });
-
-    // TODO - Part of FXA-7839
-    //it('returns [] if PlayBilling is undefined', async () => {});
-  });
-
   describe('processNotification', () => {
     const mockNotification = DeveloperNotificationFactory();
     const purchaseToken = faker.string.uuid();
@@ -239,7 +218,9 @@ describe('GoogleIapService', () => {
         assert.fail('Expected error');
       } catch (err) {
         expect(err).toBeInstanceOf(GoogleIapGetPurchaseError);
-        expect(err.jse_shortmsg).toBe('Failed to get purchase from Google Play store');
+        expect(err.jse_shortmsg).toBe(
+          'Failed to get purchase from Google Play store'
+        );
       }
     });
   });
