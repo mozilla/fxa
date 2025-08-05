@@ -10,6 +10,7 @@ import mocks from '../../mocks';
 import proxyquire from 'proxyquire';
 import sinon from 'sinon';
 import { URL } from 'url';
+import { MOCK_LOCATION_ALL } from '../../../lib/senders/emails/partials/userLocation/mocks';
 import {
   MOCK_DEVICE_ALL,
   MOCK_DEVICE_BROWSER,
@@ -63,6 +64,7 @@ const MESSAGE = {
   email: 'a@b.com',
   flowBeginTime: Date.now(),
   flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  location: MOCK_LOCATION_ALL,
   locations: [],
   maskedLastFourPhoneNumber: '••••••1234',
   numberRemaining: 2,
@@ -194,29 +196,33 @@ const senderTests = (sender) => new Map<string, Test | any>([
   ['from', { test: 'equal', expected: sender }],
   ['sender', { test: 'equal', expected: sender }],
 ]);
-const COMMON_TESTS = new Map<string, Test | any>([
-  [
-    'headers',
-    new Map([
-      ['X-Device-Id', { test: 'equal', expected: MESSAGE.deviceId }],
-      ['X-Flow-Begin-Time', { test: 'equal', expected: MESSAGE.flowBeginTime }],
-      ['X-Flow-Id', { test: 'equal', expected: MESSAGE.flowId }],
-      ['X-Service-Id', { test: 'equal', expected: MESSAGE.service }],
-      [
-        'X-SES-CONFIGURATION-SET',
-        { test: 'equal', expected: config.smtp.sesConfigurationSet },
-      ],
-      ['X-Uid', { test: 'equal', expected: MESSAGE.uid }],
-    ]),
-  ],
-  [
-    'text',
+const COMMON_TESTS = (templateValues = MESSAGE) =>
+  new Map<string, Test | any>([
     [
-      // Ensure no HTML character entities appear in plaintext emails, &amp; etc
-      { test: 'notMatch', expected: /(?:&#x?[0-9a-f]+;)|(?:&[a-z]+;)/i },
+      'headers',
+      new Map([
+        ['X-Device-Id', { test: 'equal', expected: templateValues.deviceId }],
+        [
+          'X-Flow-Begin-Time',
+          { test: 'equal', expected: templateValues.flowBeginTime },
+        ],
+        ['X-Flow-Id', { test: 'equal', expected: templateValues.flowId }],
+        ['X-Service-Id', { test: 'equal', expected: templateValues.service }],
+        [
+          'X-SES-CONFIGURATION-SET',
+          { test: 'equal', expected: config.smtp.sesConfigurationSet },
+        ],
+        ['X-Uid', { test: 'equal', expected: templateValues.uid }],
+      ]),
     ],
-  ],
-]);
+    [
+      'text',
+      [
+        // Ensure no HTML character entities appear in plaintext emails, &amp; etc
+        { test: 'notMatch', expected: /(?:&#x?[0-9a-f]+;)|(?:&[a-z]+;)/i },
+      ],
+    ],
+  ]);
 
 const COMMON_METRICS_OPT_OUT_TESTS: { test: string; expected: string }[] = [
   { test: 'notInclude', expected: 'utm_source=email' },
@@ -577,6 +583,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: 'Use this confirmation code:' },
@@ -608,6 +615,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: 'Use this confirmation code:' },
@@ -691,6 +699,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'Your password has been reset' },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordResetUrl', 'password-reset-success', 'reset-password', 'email', 'email_to_hash_with=')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-reset-success', 'privacy')) },
@@ -701,6 +710,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'Your password has been reset' },
       { test: 'include', expected: configUrl('initiatePasswordResetUrl', 'password-reset-success', 'reset-password', 'email', 'email_to_hash_with=') },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'password-reset-success', 'privacy')}` },
@@ -725,6 +735,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-linked', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-linked', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -736,6 +747,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'account-linked', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'account-linked', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -757,6 +769,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-device-signin', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'new-device-signin', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -768,6 +781,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'new-device-signin', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'new-device-signin', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -790,6 +804,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-device-signin', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'new-device-signin', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -802,6 +817,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'new-device-signin', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'new-device-signin', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -822,6 +838,56 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ),}
   ],
 
+  // Show warning banner when service is undefined
+  ['newDeviceLoginEmail', new Map<string, Test | any>([
+    ['html', [
+      { test: 'include', expected: 'Firefox add-on developers have been targeted by phishing email attacks recently. We’ll only send emails about your Mozilla account from accounts@firefox.com.' },
+      { test: 'include', expected: 'Check to make sure the device and location you signed in to is correct.' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Firefox add-on developers have been targeted by phishing email attacks recently. We’ll only send emails about your Mozilla account from this email address:' },
+      { test: 'include', expected: 'accounts@firefox.com' },
+      { test: 'include', expected: 'Check to make sure the device and location you signed in to is correct.' },
+    ]],
+  ]), {
+    updateTemplateValues: x => ({
+      ...x,
+      service: undefined,
+    })
+  }],
+  // Do not show warning banner when service is not in CLIENT_IDS_AMO
+  ['newDeviceLoginEmail', new Map<string, Test | any>([
+    ['html', [
+      { test: 'notInclude', expected: 'Firefox add-on developers have been targeted' },
+      { test: 'notInclude', expected: 'Check to make sure the device and location you signed in to is correct.' },
+    ]],
+    ['text', [
+      { test: 'notInclude', expected: 'Firefox add-on developers have been targeted' },
+      { test: 'notInclude', expected: 'Check to make sure the device and location you signed in to is correct.' },
+    ]],
+  ]), {
+    updateTemplateValues: x => ({
+      ...x,
+      service: '802d56ef2a9af9fa', // Monitor
+    })
+  }],
+  // Show warning banner when service is in CLIENT_IDS_AMO
+  ['newDeviceLoginEmail', new Map<string, Test | any>([
+    ['html', [
+      { test: 'include', expected: 'Firefox add-on developers have been targeted' },
+      { test: 'include', expected: 'Check to make sure the device and location you signed in to is correct.' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Firefox add-on developers have been targeted' },
+      { test: 'include', expected: 'Check to make sure the device and location you signed in to is correct.' },
+    ]],
+  ]), {
+    updateTemplateValues: x => ({
+      ...x,
+      service: 'a4907de5fa9d78fc', // AMO
+    })
+  }],
+
   ['passwordChangedEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Password updated' }],
     ['headers', new Map([
@@ -836,6 +902,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'password-changed-success', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'password-changed-success', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -846,6 +913,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'password-changed-success', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'password-changed-success', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -901,6 +969,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome-primary', 'support')) },
       { test: 'include', expected: decodeUrl(configHref('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -912,6 +981,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'welcome-primary', 'support')}` },
       { test: 'include', expected: `Confirm email:\n${configUrl('verifyPrimaryEmailUrl', 'welcome-primary', 'activate', 'code', 'uid', 'type=primary', 'primary_email_verified', 'service')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -933,6 +1003,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-signin', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -942,6 +1013,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'new-signin', 'privacy')}` },
       { test: 'include', expected: `Confirm sign-in\n${configUrl('verifyLoginUrl', 'new-signin', 'confirm-signin', 'code', 'uid', 'service')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1038,6 +1110,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'forgot-password', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'forgot-password', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1048,6 +1121,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'forgot-password', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support: ${configUrl('supportUrl', 'forgot-password', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1093,6 +1167,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'If you didn’t take this action, '},
       { test: 'include', expected: 'change your password'},
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
     ]],
@@ -1103,6 +1178,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'password-reset-account-recovery-success', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support:\n${configUrl('supportUrl', 'password-reset-account-recovery-success', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: `Download Firefox on the App Store:` },
@@ -1128,6 +1204,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'If you didn’t take this action, '},
       { test: 'include', expected: 'change your password'},
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
     ]],
@@ -1138,6 +1215,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'password-reset-w-recovery-key-prompt', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support:\n${configUrl('supportUrl', 'password-reset-w-recovery-key-prompt', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
     ]],
@@ -1260,6 +1338,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-disabled', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-two-step-disabled', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1271,6 +1350,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'account-two-step-disabled', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support:\n${configUrl('supportUrl', 'account-two-step-disabled', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1321,6 +1401,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-enabled', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-two-step-enabled', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1334,6 +1415,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'account-two-step-enabled', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support:\n${configUrl('supportUrl', 'account-two-step-enabled', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1396,6 +1478,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
       { test: 'include', expected: 'You enabled it from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'recovery-phone-added', 'manage-account', 'email', 'uid')) },
@@ -1410,6 +1493,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
       { test: 'include', expected: 'You enabled it from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'recovery-phone-added', 'manage-account', 'email', 'uid')}` },
@@ -1432,6 +1516,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'You now have a new recovery phone. Your previous phone number was deleted.' },
       { test: 'include', expected: 'You requested it from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'recovery-phone-changed', 'privacy')) },
@@ -1442,6 +1527,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'You now have a new recovery phone. Your previous phone number was deleted.' },
       { test: 'include', expected: 'You requested it from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: `If you did not authorize this action, please reset your password now at ${configUrl('initiatePasswordResetUrl', 'recovery-phone-changed', 'reset-password', 'email', 'email_to_hash_with=')}` },
@@ -1461,6 +1547,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'Your recovery phone was used' },
       { test: 'include', expected: 'Recovery phone used from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'password-reset-recovery-phone', 'manage-account', 'email', 'uid')) },
@@ -1473,6 +1560,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'Your recovery phone was used' },
       { test: 'include', expected: 'Recovery phone used from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'password-reset-recovery-phone', 'manage-account', 'email', 'uid')}` },
@@ -1495,6 +1583,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'You can still use your backup authentication codes to sign in if you arenʼt able to use your authenticator app.' },
       { test: 'include', expected: 'You requested it from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'recovery-phone-removed', 'privacy')) },
@@ -1506,6 +1595,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'You can still use your backup authentication codes to sign in if you arenʼt able to use your authenticator app.' },
       { test: 'include', expected: 'You requested it from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: `If you did not authorize this action, please reset your password now at ${configUrl('initiatePasswordResetUrl', 'recovery-phone-removed', 'reset-password', 'email', 'email_to_hash_with=')}` },
@@ -1526,6 +1616,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'If you didn’t do this, you should change your password immediately to keep your account safe.' },
       { test: 'include', expected: 'You signed in from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'signin-recovery-phone', 'manage-account', 'email', 'uid')) },
@@ -1539,6 +1630,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'If you didn’t do this, you should change your password immediately to keep your account safe.' },
       { test: 'include', expected: 'You signed in from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'signin-recovery-phone', 'manage-account', 'email', 'uid')}` },
@@ -1561,6 +1653,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'If you didn’t do this, you should change your password immediately to keep your account safe.' },
       { test: 'include', expected: 'You signed in from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'signin-recovery-code', 'manage-account', 'email', 'uid')) },
@@ -1574,6 +1667,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'If you didn’t do this, you should change your password immediately to keep your account safe.' },
       { test: 'include', expected: 'You signed in from:' },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'signin-recovery-code', 'manage-account', 'email', 'uid')}` },
@@ -1629,6 +1723,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-consume-recovery-code', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-consume-recovery-code', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1644,6 +1739,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'account-consume-recovery-code', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support:\n${configUrl('supportUrl', 'account-consume-recovery-code', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1666,6 +1762,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-replace-recovery-codes', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-replace-recovery-codes', 'support')) },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1678,6 +1775,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'account-replace-recovery-codes', 'privacy')}` },
       { test: 'include', expected: `For more info, visit Mozilla Support:\n${configUrl('supportUrl', 'account-replace-recovery-codes', 'support')}` },
       { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.date}` },
       { test: 'exists', expected: `${MESSAGE.time}` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -3236,7 +3334,7 @@ describe('lib/senders/emails:', () => {
           });
         }
 
-        COMMON_TESTS.forEach((assertions, property) => {
+        COMMON_TESTS(tmplVals).forEach((assertions, property) => {
           applyAssertions(type, message, property, assertions);
         });
         test.forEach((assertions: any, property: string) => {

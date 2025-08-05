@@ -481,6 +481,7 @@ module.exports = function (
         const options = {
           acceptLanguage: account.locale || request.app.locale,
           code,
+          location: request.app.geo.location,
           timeZone: request.app.geo.timeZone,
           uaBrowser: sessionToken.uaBrowser,
           uaBrowserVersion: sessionToken.uaBrowserVersion,

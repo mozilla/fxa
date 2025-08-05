@@ -1095,6 +1095,13 @@ describe('sendSigninNotifications', () => {
             flowId: request.payload.metricsContext.flowId,
             redirectTo: request.payload.redirectTo,
             resume: request.payload.resume,
+            location: {
+              city: 'Mountain View',
+              country: 'United States',
+              countryCode: 'US',
+              state: 'California',
+              stateCode: 'CA',
+            },
             service: 'testservice',
             timeZone: 'America/Los_Angeles',
             uaBrowser: 'Firefox Mobile',
