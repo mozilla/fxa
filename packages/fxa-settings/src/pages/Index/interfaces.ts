@@ -35,6 +35,7 @@ export interface IndexProps extends LocationState {
   tooltipErrorMessage?: string;
   deeplink?: string;
   flowQueryParams?: QueryParams;
+  isMobile: boolean;
 }
 
 export interface IndexFormData {

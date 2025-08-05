@@ -132,10 +132,12 @@ export const Subject = ({
   integration = createMockSignupWebIntegration(),
   beginSignupHandler = mockBeginSignupHandler,
   email = MOCK_EMAIL,
+  isMobile = false,
 }: {
   email?: string;
   integration?: SignupIntegration;
   beginSignupHandler?: BeginSignupHandler;
+  isMobile?: boolean;
 }) => {
   const mockUseSyncEnginesResult = mockUseSyncEngines();
   return (
@@ -146,6 +148,7 @@ export const Subject = ({
           beginSignupHandler,
           useSyncEnginesResult: mockUseSyncEnginesResult,
           email,
+          isMobile,
         }}
       />
     </LocationProvider>

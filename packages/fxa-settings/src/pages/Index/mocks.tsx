@@ -56,7 +56,7 @@ export function createMockIndexOAuthNativeIntegration({
 }: {
   isSync?: boolean;
   isDesktopRelay?: boolean;
-  cmsInfo? : RelierCmsInfo;
+  cmsInfo?: RelierCmsInfo;
 } = {}): IndexIntegration {
   return {
     type: IntegrationType.OAuthNative,
@@ -95,6 +95,7 @@ export const Subject = ({
   initialSuccessBanner = '',
   initialTooltipMessage = '',
   deeplink,
+  isMobile = false,
 }: {
   integration?: IndexIntegration;
   serviceName?: MozServices;
@@ -103,6 +104,7 @@ export const Subject = ({
   initialSuccessBanner?: string;
   initialTooltipMessage?: string;
   deeplink?: string;
+  isMobile?: boolean;
 }) => {
   const [errorBannerMessage, setErrorBannerMessage] =
     React.useState(initialErrorBanner);
@@ -125,7 +127,8 @@ export const Subject = ({
           setErrorBannerMessage,
           setSuccessBannerMessage,
           setTooltipErrorMessage,
-          deeplink
+          deeplink,
+          isMobile,
         }}
       />
     </LocationProvider>

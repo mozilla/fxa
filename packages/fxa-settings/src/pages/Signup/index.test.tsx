@@ -258,6 +258,10 @@ describe('Signup page', () => {
       />
     );
 
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.SignupSetPasswordPage.logoAltText)
+    ).toBeInTheDocument();
+
     expect(screen.queryByLabelText('Repeat password')).not.toBeInTheDocument();
 
     expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
@@ -270,6 +274,62 @@ describe('Signup page', () => {
 
     screen.getByRole('heading', { name: 'Create a password' });
     screen.getByText('to continue');
+  });
+
+  it('renders as expected when cms enabled and on mobile ', async () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockSignupOAuthWebIntegration(
+          MONITOR_CLIENTIDS[0],
+          undefined,
+          MOCK_CMS_INFO
+        )}
+        isMobile={true}
+      />
+    );
+
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.SignupSetPasswordPage.logoAltText)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.shared.logoAltText)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SignupSetPasswordPage.headline)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SignupSetPasswordPage.description)
+    ).toBeInTheDocument();
+  });
+
+  it('renders cms header expected when cms enabled and has no custom page logo', async () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockSignupOAuthWebIntegration(
+          MONITOR_CLIENTIDS[0],
+          undefined,
+          {
+            ...MOCK_CMS_INFO,
+            SignupSetPasswordPage: {
+              ...MOCK_CMS_INFO.SignupSetPasswordPage,
+              logoUrl: undefined,
+              logoAltText: undefined,
+            },
+          }
+        )}
+      />
+    );
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.shared.logoAltText)
+    ).toBeInTheDocument();
+    expect(
+      screen
+        .queryByAltText(MOCK_CMS_INFO.shared.logoAltText)
+        ?.getAttribute('src')
+    ).toEqual(MOCK_CMS_INFO.shared.logoUrl);
+    expect(
+      screen.getByText(MOCK_CMS_INFO.SignupSetPasswordPage.description)
+    ).toBeInTheDocument();
   });
 
   describe('email change', () => {

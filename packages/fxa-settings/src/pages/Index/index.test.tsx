@@ -127,6 +127,10 @@ describe('Index page', () => {
       />
     );
 
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.EmailFirstPage.logoAltText)
+    ).toBeInTheDocument();
+
     screen.getByRole('heading', {
       name: 'Sign up or sign in to your Mozilla account',
     });
@@ -143,6 +147,65 @@ describe('Index page', () => {
       'href',
       'https://www.mozilla.org/about/legal/terms/subscription-services/'
     );
+  });
+
+  it('renders as expected with cms info on mobile', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockIndexOAuthNativeIntegration({
+          isSync: false,
+          isDesktopRelay: true,
+          cmsInfo: MOCK_CMS_INFO,
+        })}
+        isMobile={true}
+      />
+    );
+
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.EmailFirstPage.logoAltText)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.shared.logoAltText)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.EmailFirstPage.headline)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.EmailFirstPage.logoAltText)
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders as expected with cms info and fallsback to shared logo', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockIndexOAuthNativeIntegration({
+          isSync: false,
+          isDesktopRelay: true,
+          cmsInfo: {
+            ...MOCK_CMS_INFO,
+            EmailFirstPage: {
+              ...MOCK_CMS_INFO.EmailFirstPage,
+              logoUrl: undefined,
+              logoAltText: undefined,
+            },
+          },
+        })}
+      />
+    );
+
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.shared.logoAltText)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(MOCK_CMS_INFO.EmailFirstPage.headline)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(MOCK_CMS_INFO.EmailFirstPage.description)
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByAltText(MOCK_CMS_INFO.EmailFirstPage.logoAltText)
+    ).not.toBeInTheDocument();
   });
 
   // This is wrapped so that the HTMLFormElement.submit can be mocked

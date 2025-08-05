@@ -100,16 +100,22 @@ export const MOCK_CMS_INFO = {
   shared: {
     buttonColor: '#D41C1C',
     logoUrl:
-      'https://gist.githubusercontent.com/vbudhram/c53b07efd1656acfff7d2c7e9d6825fe/raw/030df98ee27f609333606d36c7bf3af45af53f39/123Done_red.svg',
+      'https://gist.githubusercontent.com/dschom/857ebb2abd5f75937f211f1fd6bbf9a8/raw/33037c8905757a594e07eb29818d8519447fdec0/nightly-logo.svg',
     logoAltText: 'logo',
   },
   EmailFirstPage: {
+    logoUrl:
+      'https://gist.githubusercontent.com/dschom/c754b76333cda59f50845fe9b0ff6d52/raw/157b0af53142b24e0ddae936c711c010428e7bba/foxy-logo.svg',
+    logoAltText: 'custom-email-first-logo',
     headline: 'Sign up or sign in to your Mozilla account',
     description:
       'Stay protected with continuous data monitoring and automatic data removal.',
     primaryButtonText: 'Continue',
   },
   SignupSetPasswordPage: {
+    logoUrl:
+      'https://gist.githubusercontent.com/dschom/c754b76333cda59f50845fe9b0ff6d52/raw/157b0af53142b24e0ddae936c711c010428e7bba/foxy-logo.svg',
+    logoAltText: 'custom-signup-logo',
     headline: 'Create a password',
     description: 'to continue',
     primaryButtonText: 'Continue',
