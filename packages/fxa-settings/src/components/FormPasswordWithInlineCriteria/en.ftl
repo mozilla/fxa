@@ -12,6 +12,12 @@ form-password-with-inline-criteria-confirm-password =
   .label = Confirm password
 form-password-with-inline-criteria-reset-submit-button = Create new password
 
+form-password-with-inline-criteria-set-password-new-password-label =
+  .label = Password
+form-password-with-inline-criteria-set-password-confirm-password-label =
+  .label = Repeat password
+form-password-with-inline-criteria-set-password-submit-button = Start syncing
+
 form-password-with-inline-criteria-match-error = Passwords do not match
 form-password-with-inline-criteria-sr-too-short-message = Password must contain at least 8 characters.
 form-password-with-inline-criteria-sr-not-email-message = Password must not contain your email address.

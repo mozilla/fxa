@@ -89,7 +89,6 @@ export const SetPassword = ({
         onSubmit={handleSubmit(onSubmit)}
         // This page is only shown during the Sync flow
         isSync={true}
-        isDesktopRelay={false}
         submitButtonGleanId="third-party-auth-set-password-submit"
         passwordFormType="post-verify-set-password"
       />

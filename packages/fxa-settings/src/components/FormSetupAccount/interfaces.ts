@@ -23,8 +23,6 @@ export type FormSetupAccountProps = {
   loading: boolean;
   isSync: boolean;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
-  isDesktopRelay: boolean;
-  setSelectedNewsletterSlugs?: React.Dispatch<React.SetStateAction<string[]>>;
   submitButtonGleanId?: string;
   passwordFormType?: 'signup' | 'post-verify-set-password';
   cmsButton?: CmsButtonType;

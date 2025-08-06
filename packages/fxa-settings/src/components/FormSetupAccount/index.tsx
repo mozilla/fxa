@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import FormPasswordWithBalloons from '../FormPasswordWithBalloons';
-import ChooseNewsletters from '../ChooseNewsletters';
 import { FormSetupAccountProps } from './interfaces';
-import { newsletters } from '../ChooseNewsletters/newsletters';
+import FormPasswordWithInlineCriteria from '../FormPasswordWithInlineCriteria';
 
 export const FormSetupAccount = ({
   formState,
@@ -20,8 +18,6 @@ export const FormSetupAccount = ({
   loading,
   isSync,
   offeredSyncEngineConfigs,
-  isDesktopRelay,
-  setSelectedNewsletterSlugs,
   submitButtonGleanId,
   passwordFormType = 'signup',
   cmsButton,
@@ -35,7 +31,7 @@ export const FormSetupAccount = ({
     : loading);
 
   return (
-    <FormPasswordWithBalloons
+    <FormPasswordWithInlineCriteria
       loading={disableSubmit}
       {...{
         formState,
@@ -49,18 +45,9 @@ export const FormSetupAccount = ({
         onSubmit,
         submitButtonGleanId,
         passwordFormType,
-        cmsButton
+        cmsButton,
       }}
       requirePasswordConfirmation={isSync}
-    >
-      {!isSync && !isDesktopRelay && setSelectedNewsletterSlugs && (
-        <ChooseNewsletters
-          {...{
-            newsletters,
-            setSelectedNewsletterSlugs,
-          }}
-        />
-      )}
-    </FormPasswordWithBalloons>
+    />
   );
 };
