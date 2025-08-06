@@ -8,9 +8,6 @@ import {
   screen,
   waitFor,
   act,
-  RenderResult,
-  Queries,
-  cleanup,
 } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
