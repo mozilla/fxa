@@ -63,6 +63,7 @@ export const RelyingPartyResultFactory = (
       syncConfirmedPageHideCTA: faker.datatype.boolean(),
       syncHidePromoAfterLogin: faker.datatype.boolean(),
     },
+    favicon: faker.internet.url(),
   },
   NewDeviceLoginEmail: {
     logoUrl: faker.internet.url(),

@@ -27,6 +27,7 @@ export const relyingPartyQuery = graphql(`
           syncConfirmedPageHideCTA
           syncHidePromoAfterLogin
         }
+        favicon
       }
       EmailFirstPage {
         logoUrl

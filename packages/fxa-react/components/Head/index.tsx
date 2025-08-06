@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 import { useLocalization } from '@fluent/react';
 import { Helmet } from 'react-helmet';
 
-const Head = ({ title }: { title?: string }) => {
+const Head = ({ title, favicon }: { title?: string; favicon?: string }) => {
   const { l10n } = useLocalization();
 
   const customTitle = title
@@ -25,6 +25,7 @@ const Head = ({ title }: { title?: string }) => {
   return (
     <Helmet>
       <title>{customTitle}</title>
+      <link rel="icon" href={favicon} type="image/x-icon" key="favicon" />
     </Helmet>
   );
 };

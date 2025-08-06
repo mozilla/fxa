@@ -107,14 +107,24 @@ class PairIndexView extends FormView {
 
     // Apply CMS button color
     let buttonStyle = '';
-    if (this.cmsConfig && this.cmsConfig.shared && this.cmsConfig.shared.buttonColor) {
+    if (
+      this.cmsConfig &&
+      this.cmsConfig.shared &&
+      this.cmsConfig.shared.buttonColor
+    ) {
       buttonStyle = `style="--cta-bg: ${this.cmsConfig.shared.buttonColor}; --cta-border: ${this.cmsConfig.shared.buttonColor}; --cta-active: ${this.cmsConfig.shared.buttonColor}; --cta-disabled: ${this.cmsConfig.shared.buttonColor}60;"`;
     }
 
     // Apply CMS background gradient
-    if (this.cmsConfig && this.cmsConfig.shared && this.cmsConfig.shared.backgroundColor) {
+    if (
+      this.cmsConfig &&
+      this.cmsConfig.shared &&
+      this.cmsConfig.shared.backgroundColor
+    ) {
       // Validate the background color is a valid CSS graident
-      const isValidGradient = /^linear-gradient\(/.test(this.cmsConfig.shared.backgroundColor);
+      const isValidGradient = /^linear-gradient\(/.test(
+        this.cmsConfig.shared.backgroundColor
+      );
       // Not ideal, but the pairing page will be going away
       const screenWidth = window.innerWidth;
       if (isValidGradient && screenWidth > 768) {
@@ -125,9 +135,22 @@ class PairIndexView extends FormView {
     // Apply CMS header logo
     const headerLogoUrl = this.cmsConfig?.shared?.headerLogoUrl;
     if (headerLogoUrl) {
-      document.getElementById('about-mozilla').style.background = `url(${headerLogoUrl}) no-repeat center center`;
+      document.getElementById('about-mozilla').style.background =
+        `url(${headerLogoUrl}) no-repeat center center`;
       // Make sure logo fits in the header
       document.getElementById('about-mozilla').style.backgroundSize = 'contain';
+    }
+
+    // Apply favicon
+    const favicon = this.cmsConfig?.shared?.favicon;
+    if (favicon) {
+      let link = document.querySelector("link[rel*='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = favicon;
     }
 
     context.set({
