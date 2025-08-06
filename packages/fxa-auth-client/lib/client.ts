@@ -98,7 +98,7 @@ export type SignedInAccountData = {
 export type PasswordChangePayload = {
   authPW: string;
   wrapKb: string;
-  sessionToken?: string;
+  sessionToken: string;
   wrapKbVersion2?: string;
   authPWVersion2?: string;
   clientSalt?: string;
@@ -1234,14 +1234,15 @@ export default class AuthClient {
     );
 
     const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
-    const sessionTokenHex = sessionToken
-      ? (await hawk.deriveHawkCredentials(sessionToken, 'sessionToken')).id
-      : undefined;
+    const { id: sessionTokenId } = await hawk.deriveHawkCredentials(
+      sessionToken,
+      'sessionToken'
+    );
 
     let payload: PasswordChangePayload = {
       authPW: newCredentials.authPW,
       wrapKb,
-      sessionToken: sessionTokenHex,
+      sessionToken: sessionTokenId,
     };
 
     let unwrapBKeyVersion2: string | undefined;
@@ -2379,7 +2380,11 @@ export default class AuthClient {
     feature: string,
     headers?: Headers
   ): Promise<{ eligible: boolean }> {
-    return this.sessionGet(`/geo/eligibility/${feature}`, sessionToken, headers);
+    return this.sessionGet(
+      `/geo/eligibility/${feature}`,
+      sessionToken,
+      headers
+    );
   }
 
   /**
@@ -2388,7 +2393,7 @@ export default class AuthClient {
    * @param clientId
    * @param entrypoint
    */
-  async getCmsConfig(clientId:string, entrypoint:string) {
+  async getCmsConfig(clientId: string, entrypoint: string) {
     return this.request(
       'GET',
       `/cms/config?clientId=${clientId}&entrypoint=${entrypoint}`,

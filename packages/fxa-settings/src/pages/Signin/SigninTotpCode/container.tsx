@@ -132,9 +132,10 @@ export const SigninTotpCodeContainer = ({
       // a key stretching upgrade until the session is verified, which the process
       // can only be finished after the account has been verified on accounts that
       // require totp.
-      if (signinState?.sessionToken) {
+      const sessionToken = signinState?.sessionToken;
+      if (sessionToken) {
         await tryFinalizeUpgrade(
-          signinState?.sessionToken,
+          sessionToken,
           sensitiveDataClient,
           'signin-totp',
           credentialStatus,

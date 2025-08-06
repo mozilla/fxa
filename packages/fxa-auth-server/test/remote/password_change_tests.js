@@ -84,9 +84,9 @@ function getSessionTokenId(sessionTokenHex) {
           );
         })
         .catch((err) => {
-          assert.equal(err.errno, 104);
+          assert.equal(err.errno, 138);
           assert.equal(err.error, 'Bad Request');
-          assert.equal(err.message, 'Unconfirmed account');
+          assert.equal(err.message, 'Unconfirmed session');
         });
     });
 
@@ -389,7 +389,8 @@ function getSessionTokenId(sessionTokenHex) {
             );
           })
           .then(assert.fail, (err) => {
-            assert.equal(err.errno, 104, 'unverified account');
+            assert.equal(err.message, 'Unconfirmed session');
+            assert.equal(err.errno, 138);
           })
       );
     });
@@ -566,29 +567,7 @@ function getSessionTokenId(sessionTokenHex) {
         assert.isDefined(keys.bundle);
       });
 
-      it('cannot get keys after /password/change/start for unverified user', async () => {
-        let user = await createVerifiedUser();
-        await user.destroySession();
-        user = await loginUser(user.email, defaultPassword, {
-          keys: true,
-        });
-
-        const result = await user.api.passwordChangeStart(
-          user.email,
-          user.authPW,
-          undefined, // headers
-          user.sessionToken // sessionToken, not actually required or checked by /password/change/start at the moment, so leaving undefined!);
-        );
-
-        try {
-          await user.api.accountKeys(result.keyFetchToken);
-          assert.fail('Should have failed.');
-        } catch (err) {
-          assert.equal(err.message, 'Unconfirmed account');
-        }
-      });
-
-      it('cannot get keys after /password/change/start for unverified 2FA user', async () => {
+      it('cannot get key fetch token from /password/change/start for unverified 2FA user', async () => {
         let user = await createVerifiedUserWithVerifiedTOTP();
         await user.destroySession();
         user = await loginUser(user.email, defaultPassword, {
@@ -605,11 +584,11 @@ function getSessionTokenId(sessionTokenHex) {
           await user.api.accountKeys(result.keyFetchToken);
           assert.fail('Should have failed.');
         } catch (err) {
-          assert.equal(err.message, 'Unconfirmed account');
+          assert.equal(err.message, 'Unconfirmed session');
         }
       });
 
-      it('cannot get keys after /password/change/start for 2FA user without providing sessionToken', async () => {
+      it('cannot get key fetch token from /password/change/start without providing sessionToken', async () => {
         const victim = await createVerifiedUserWithVerifiedTOTP();
         const badActor = await createVerifiedUser();
         try {
@@ -617,7 +596,7 @@ function getSessionTokenId(sessionTokenHex) {
             victim.email,
             victim.authPW,
             undefined, // headers
-            undefined
+            undefined // sessionToken
           );
           await badActor.api.accountKeys(result.keyFetchToken);
           assert.fail('Should have failed.');
@@ -626,28 +605,6 @@ function getSessionTokenId(sessionTokenHex) {
             err.message,
             'Invalid authentication token: Missing authentication'
           );
-        }
-      });
-
-      it('cannot get keys after /password/change/start for 2FA user by providing unverified sessionToken', async () => {
-        const user = await createVerifiedUserWithVerifiedTOTP();
-
-        // Login again, but don't verify totp
-        await user.destroySession();
-        await user.login();
-
-        const result = await user.api.passwordChangeStart(
-          user.email,
-          user.authPW,
-          undefined, // headers
-          user.sessionToken
-        );
-
-        try {
-          await user.api.accountKeys(result.keyFetchToken);
-          assert.fail('Should have failed.');
-        } catch (err) {
-          assert.equal(err.message, 'Unconfirmed account');
         }
       });
 

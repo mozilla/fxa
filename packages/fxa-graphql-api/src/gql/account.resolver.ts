@@ -967,7 +967,7 @@ export class AccountResolver {
       passwordChangeToken: string;
       authPW: string;
       wrapKb: string;
-      sessionToken?: string;
+      sessionToken: string;
       wrapKbVersion2?: string;
       authPWVersion2?: string;
       clientSalt?: string;
