@@ -10,11 +10,12 @@ import InputText from '.';
 const label = 'Eveything to Nothing';
 
 it('renders as expected', () => {
-  renderWithLocalizationProvider(<InputText {...{ label }} />);
+  const { container } = renderWithLocalizationProvider(<InputText {...{ label }} />);
   expect(screen.getByTestId('input-container')).toBeInTheDocument();
   expect(screen.getByTestId('input-label')).toBeInTheDocument();
   expect(screen.getByTestId('input-field')).toBeInTheDocument();
   expect(screen.getByTestId('input-label')).toHaveTextContent(label);
+  expect(container).toMatchSnapshot();
 });
 
 it('can be disabled', () => {

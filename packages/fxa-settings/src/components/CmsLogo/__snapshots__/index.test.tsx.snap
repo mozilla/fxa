@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CmsLogo renders correctly 1`] = `
+<div>
+  <img
+    alt="foo"
+    class="m-auto mb-4 max-h-[160px]"
+    src="/foo.svg"
+  />
+</div>
+`;

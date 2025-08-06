@@ -3,14 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor, act } from '@testing-library/react';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  act,
+  within,
+} from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+
 import GleanMetrics from '../../lib/glean';
 import {
   CACHED_SIGNIN_HANDLER_RESPONSE,
   createBeginSigninResponse,
   createBeginSigninResponseError,
   createCachedSigninResponseError,
+  createMockSigninWebIntegration,
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthNativeSyncIntegration,
@@ -42,6 +50,7 @@ import { IntegrationType } from '../../models';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import * as SigninUtils from './utils';
+import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -100,17 +109,12 @@ jest.mock('../../models', () => {
   };
 });
 
-const mockLocation = () => {
-  return {
-    pathname: '/signin',
-  };
-};
 const mockNavigate = jest.fn();
+
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   navigate: jest.fn(),
   useNavigate: () => mockNavigate,
-  useLocation: () => mockLocation(),
 }));
 
 const serviceRelayText =
@@ -132,9 +136,8 @@ async function enterPasswordAndSubmit() {
   await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD);
   await submit();
 }
-const render = (props: Partial<SigninProps> = {}) => {
+const render = (props: Partial<SigninProps> = {}) =>
   renderWithLocalizationProvider(<Subject {...props} />);
-};
 
 /* Element rendered or not rendered functions */
 function signInHeaderRendered(service: MozServices = MozServices.Default) {
@@ -198,6 +201,12 @@ describe('Signin component', () => {
 
   beforeEach(() => {
     user = userEvent.setup();
+
+    // because there is a navigation that happens in one test during the forgot password flow,
+    // we need to mock location so that it can be reset fully between each test, otherwise
+    // the reach router holds onto the last location and then renders the forgot password page anchor
+    // with an `aria-current="page"` attribute since it thinks we're on that page when we're not.
+    mockWindowLocation({ pathname: '/signin' });
   });
 
   afterEach(() => {
@@ -1281,6 +1290,112 @@ describe('Signin component', () => {
         'href',
         'https://www.mozilla.org/privacy/subscription-services/'
       );
+    });
+  });
+
+  describe('snapshots - CMS', () => {
+    // The purpose of these snapshots is to ensure that we've implemented the pass
+    // through of CMS data to appropriate components. Because we also have snapshots
+    // on the components we don't need to test with cms "off"
+    const cmsProps = {
+      cmsInfo: {
+        shared: {
+          logoUrl: 'https://example.com/SNAPSHOT_TEST.png',
+          logoAltText: 'SNAPSHOT_TEST Shared Alt text for logo',
+          buttonColor: 'blue',
+          headerLogoUrl: 'https://example.com/SNAPSHOT_TEST_header.png',
+          headerLogoAltText: 'SNAPSHOT_TEST Shared Alt text for header logo',
+          pageTitle: 'SNAPSHOT_TEST Shared page title',
+          backgroundColor: 'yellow',
+          favicon: 'https://example.com/SNAPSHOT_TEST_favicon.ico',
+        },
+        SigninPage: {
+          headline: 'SNAPSHOT_TEST Custom CMS Headline',
+          description: 'SNAPSHOT_TEST Custom CMS Description',
+          primaryButtonText: 'SNAPSHOT_TEST Custom CMS Button Text',
+        },
+        // these aren't used in the Signin page, but are here to ensure consistency
+        name: 'SNAPSHOT_TEST name',
+        clientId: 'SNAPSHOT_TEST_clientId',
+        entrypoint: 'SNAPSHOT_TEST_entrypoint',
+      },
+    };
+
+    beforeEach(() => {
+      HTMLFormElement.prototype.submit = jest.fn();
+    });
+
+    it('sets the shared page title from CMS', () => {
+      render({ integration: createMockSigninWebIntegration(cmsProps) });
+
+      expect(document.title).toBe(`${cmsProps.cmsInfo.shared.pageTitle} | Mozilla accounts`);
+    });
+
+    it('sets the shared page title without CMS', () => {
+      render({ integration: createMockSigninWebIntegration() });
+
+      expect(document.title).toBe('Mozilla accounts');
+    });
+
+    it('renders CardHeader with CMS content when password is needed', () => {
+      // This path: isPasswordNeededRef.current && hasPassword === true
+      // Renders CardHeader with CMS headline and description
+      const props = {
+        integration: createMockSigninWebIntegration(cmsProps),
+        hasPassword: true,
+        sessionToken: undefined,
+      };
+
+      render(props);
+
+
+      // grab the parent element because searching by our test
+      // description only returns the <p> tag. Other elements
+      // we care about are siblings to the tag.
+      const card = screen.getByText(cmsProps.cmsInfo.SigninPage.description).parentElement!;
+
+      const cmsLogo = within(card).getByRole('img', { name: cmsProps.cmsInfo.shared.logoAltText });
+      const cmsHeadline = within(card).getByRole('heading', { name: cmsProps.cmsInfo.SigninPage.headline });
+      const cmsDescription = within(card).getByText(cmsProps.cmsInfo.SigninPage.description);
+
+      expect(cmsLogo).toMatchSnapshot('cms logo');
+      expect(cmsHeadline).toMatchSnapshot('cms headline');
+      expect(cmsDescription).toMatchSnapshot('cms description');
+    });
+
+    it('renders CardHeader with CMS content when password is not needed', () => {
+      // This path: isPasswordNeededRef.current && hasPassword === false
+      // Renders CardHeader with different props but still uses CMS logo
+      render({
+        integration: createMockSigninWebIntegration(cmsProps),
+        hasPassword: false
+      });
+
+      // the specific case here is the falsy condition of the above ternary
+      // so, we make sure our mock headline is NOT in the document as a guard against
+      // snapshotting the wrong render.
+      expect(screen.queryByText(cmsProps.cmsInfo.SigninPage.headline)).not.toBeInTheDocument();
+
+      const cmsLogo = screen.getByRole('img', { name: cmsProps.cmsInfo.shared.logoAltText });
+      expect(cmsLogo).toMatchSnapshot();
+    });
+
+    it('renders the CMS-styled submit button', () => {
+      render({ integration: createMockSigninWebIntegration(cmsProps) });
+
+      const submitButton = screen.getByRole('button', { name: 'Sign in' });
+
+      expect(submitButton).toMatchSnapshot();
+    });
+
+    it('renders AppLayout with CMS header logo', () => {
+      render({ integration: createMockSigninWebIntegration(cmsProps) });
+
+      const headerLogo = screen.getByRole('img', {
+        name: cmsProps.cmsInfo.shared.headerLogoAltText
+      });
+
+      expect(headerLogo).toMatchSnapshot();
     });
   });
 });

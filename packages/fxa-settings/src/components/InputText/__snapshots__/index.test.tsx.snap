@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders as expected 1`] = `
+<div>
+  <label
+    class="flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none border-grey-200 bg-white"
+    data-testid="input-container"
+  >
+    <span
+      class="block flex-auto"
+    >
+      <span
+        class="px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body text-grey-900 mt-3 pt-px"
+        data-testid="input-label"
+      >
+        Eveything to Nothing
+      </span>
+      <input
+        class="pb-1 pt-5 px-3 font-body rounded text-start w-full"
+        data-testid="input-field"
+        type="text"
+        value=""
+      />
+    </span>
+  </label>
+</div>
+`;

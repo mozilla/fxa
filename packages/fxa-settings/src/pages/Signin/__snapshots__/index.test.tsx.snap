@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Signin component snapshots - CMS renders AppLayout with CMS header logo 1`] = `
+<img
+  alt="SNAPSHOT_TEST Shared Alt text for header logo"
+  class="h-auto w-[140px] mx-0"
+  src="https://example.com/SNAPSHOT_TEST_header.png"
+/>
+`;
+
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is needed: cms description 1`] = `
+<p
+  class="card-subheader"
+>
+  SNAPSHOT_TEST Custom CMS Description
+</p>
+`;
+
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is needed: cms headline 1`] = `
+<h1
+  class="card-header"
+>
+  SNAPSHOT_TEST Custom CMS Headline
+</h1>
+`;
+
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is needed: cms logo 1`] = `
+<img
+  alt="SNAPSHOT_TEST Shared Alt text for logo"
+  class="justify-start mb-4 max-h-[40px]"
+  src="https://example.com/SNAPSHOT_TEST.png"
+/>
+`;
+
+exports[`Signin component snapshots - CMS renders CardHeader with CMS content when password is not needed 1`] = `
+<img
+  alt="SNAPSHOT_TEST Shared Alt text for logo"
+  class="justify-start mb-4 max-h-[40px]"
+  src="https://example.com/SNAPSHOT_TEST.png"
+/>
+`;
+
+exports[`Signin component snapshots - CMS renders the CMS-styled submit button 1`] = `
+<button
+  class="cta-primary-cms cta-xl cta-primary cta-xl"
+  style="--cta-bg: blue; --cta-border: blue; --cta-active: blue; --cta-disabled: blue60;"
+  type="submit"
+>
+  Sign in
+</button>
+`;

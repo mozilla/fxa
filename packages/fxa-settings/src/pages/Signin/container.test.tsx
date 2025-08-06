@@ -62,7 +62,6 @@ import {
   OAuthQueryParams,
   SigninQueryParams,
 } from '../../models/pages/signin';
-import { OAuthError } from '../../lib/oauth';
 
 jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),

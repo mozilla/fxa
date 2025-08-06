@@ -15,7 +15,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import DataBlockInline from '../DataBlockInline';
 import { RelierCmsInfo } from '../../models';
 
-interface RecoveryKeySetupDownloadProps {
+export interface RecoveryKeySetupDownloadProps {
   navigateForward: () => void;
   recoveryKeyValue: string;
   viewName: string;

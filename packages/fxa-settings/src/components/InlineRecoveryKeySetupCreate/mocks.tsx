@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import InlineRecoveryKeySetupCreate from '.';
+import InlineRecoveryKeySetupCreate, { InlineRecoveryKeySetupCreateProps } from '.';
 import AppLayout from '../AppLayout';
 
-export const Subject = () => (
+export const Subject = (props: Partial<InlineRecoveryKeySetupCreateProps>) => (
   <AppLayout>
     <InlineRecoveryKeySetupCreate
       createRecoveryKeyHandler={() =>
@@ -17,6 +17,7 @@ export const Subject = () => (
         })
       }
       doLaterHandler={() => Promise.resolve()}
+      {...props}
     />
   </AppLayout>
 );

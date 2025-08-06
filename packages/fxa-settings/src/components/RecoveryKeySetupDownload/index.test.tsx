@@ -7,6 +7,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
 import { MOCK_RECOVERY_KEY_WITH_SPACES } from '../../pages/mocks';
+import { RelierCmsInfo } from '../../models';
 
 describe('RecoveryKeySetupDownload', () => {
   it('renders as expected', async () => {
@@ -36,5 +37,26 @@ describe('RecoveryKeySetupDownload', () => {
     screen.getByRole('button', {
       name: 'Continue without downloading',
     });
+  });
+
+  // the rendered component is kind of large to review in snapshot,
+  // so we have a separate test that targets just the thing that
+  // cms is passed through to, the `Download and continue` button.
+  it('renders button with CMS passthrough', () => {
+    const mockCmsInfo: RelierCmsInfo = {
+      name: '',
+      clientId: '',
+      entrypoint: '',
+      shared: {
+        buttonColor: '#FF0000',
+        logoUrl: 'https://example.com/logo.png',
+        logoAltText: 'Example Logo',
+      },
+    };
+    renderWithLocalizationProvider(
+      <Subject cmsInfo={mockCmsInfo} />
+    );
+    const cmsButton = screen.getByRole('button', { name: 'Download and continue' });
+    expect(cmsButton).toMatchSnapshot();
   });
 });

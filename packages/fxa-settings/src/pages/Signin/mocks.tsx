@@ -102,7 +102,11 @@ export const mockSigninLocationState = {
   verified: false,
 };
 
-export function createMockSigninWebIntegration(): SigninIntegration {
+export function createMockSigninWebIntegration({
+  cmsInfo,
+}: {
+  cmsInfo?: RelierCmsInfo;
+} = {}): SigninIntegration {
   return {
     type: IntegrationType.Web,
     isSync: () => false,
@@ -114,7 +118,7 @@ export function createMockSigninWebIntegration(): SigninIntegration {
     isDesktopRelay: () => false,
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
-    getCmsInfo: () => undefined,
+    getCmsInfo: () => cmsInfo,
     isFirefoxMobileClient: () => false,
   };
 }

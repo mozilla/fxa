@@ -34,13 +34,14 @@ beforeAll(() => {
 
 describe('ButtonDownloadRecoveryKeyPDF', () => {
   it('renders button as expected', () => {
-    renderWithLocalizationProvider(
+    const { container } = renderWithLocalizationProvider(
       <ButtonDownloadRecoveryKeyPDF
         {...{ recoveryKeyValue, viewName }}
         email={MOCK_EMAIL}
       />
     );
     screen.getByText('Download and continue');
+    expect(container).toMatchSnapshot('without CMS');
   });
 
   // Content of downloaded file is tested in Playwright tests

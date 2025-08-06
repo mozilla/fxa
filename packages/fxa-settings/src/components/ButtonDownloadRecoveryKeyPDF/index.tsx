@@ -148,7 +148,7 @@ export const ButtonDownloadRecoveryKeyPDF = ({
     <>
       <FtlMsg id="recovery-key-download-button-v3">
         <CmsButtonWithFallback
-          className="cta-primary cta-xl w-full mt-4"
+          className="w-full mt-4"
           onClick={async () => {
             logViewEvent(`flow.${viewName}`, `recovery-key.download-option`);
             await downloadFile();
