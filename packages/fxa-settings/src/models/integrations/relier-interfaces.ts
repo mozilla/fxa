@@ -47,6 +47,7 @@ export interface SharedRelierCmsInfo {
   headerLogoUrl?: string | undefined;
   headerLogoAltText?: string | undefined;
   featureFlags?: FeatureFlagsRelierCmsInfo | undefined;
+  favicon?: string | undefined;
 }
 
 export interface FeatureFlagsRelierCmsInfo {

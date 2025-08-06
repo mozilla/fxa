@@ -45,9 +45,11 @@ export const AppLayout = ({
     (cmsBackgroundColor.includes('linear-gradient') ||
       cmsBackgroundColor.includes('radial-gradient'));
 
+  const favicon = cmsInfo?.shared?.favicon;
+
   return (
     <>
-      <Head {...{ title: overrideTitle }} />
+      <Head {...{ title: overrideTitle, favicon }} />
       <div
         className="flex min-h-screen flex-col items-center"
         style={

@@ -28,6 +28,7 @@ export interface Shared {
   headerLogoUrl: string | null;
   headerLogoAltText: string | null;
   featureFlags: FeatureFlags | null;
+  favicon: string | null;
 }
 
 export interface FeatureFlags {
