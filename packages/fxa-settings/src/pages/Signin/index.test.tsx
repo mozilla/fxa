@@ -108,17 +108,12 @@ jest.mock('../../models', () => {
   };
 });
 
-const mockLocation: Partial<Location> = {
-  pathname: '/signin',
-};
-
 const mockNavigate = jest.fn();
 
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   navigate: jest.fn(),
   useNavigate: () => mockNavigate,
-  useLocation: () => mockLocation,
 }));
 
 const serviceRelayText =
