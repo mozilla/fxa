@@ -3,14 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor, act } from '@testing-library/react';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  act,
+  RenderResult,
+  Queries,
+  cleanup,
+} from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+
 import GleanMetrics from '../../lib/glean';
 import {
   CACHED_SIGNIN_HANDLER_RESPONSE,
   createBeginSigninResponse,
   createBeginSigninResponseError,
   createCachedSigninResponseError,
+  createMockSigninWebIntegration,
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthNativeSyncIntegration,
@@ -38,10 +48,11 @@ import {
 } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
-import { IntegrationType } from '../../models';
+import { IntegrationData, IntegrationType } from '../../models';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import * as SigninUtils from './utils';
+import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -100,17 +111,17 @@ jest.mock('../../models', () => {
   };
 });
 
-const mockLocation = () => {
-  return {
-    pathname: '/signin',
-  };
+const mockLocation: Partial<Location> = {
+  pathname: '/signin',
 };
+
 const mockNavigate = jest.fn();
+
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   navigate: jest.fn(),
   useNavigate: () => mockNavigate,
-  useLocation: () => mockLocation(),
+  useLocation: () => mockLocation,
 }));
 
 const serviceRelayText =
@@ -132,9 +143,8 @@ async function enterPasswordAndSubmit() {
   await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD);
   await submit();
 }
-const render = (props: Partial<SigninProps> = {}) => {
+const render = (props: Partial<SigninProps> = {}) =>
   renderWithLocalizationProvider(<Subject {...props} />);
-};
 
 /* Element rendered or not rendered functions */
 function signInHeaderRendered(service: MozServices = MozServices.Default) {
@@ -198,6 +208,12 @@ describe('Signin component', () => {
 
   beforeEach(() => {
     user = userEvent.setup();
+
+    // because there is a navigation that happens in one test during the forgot password flow,
+    // we need to mock location so that it can be reset fully between each test, otherwise
+    // the reach router holds onto the last location and then renders the forgot password page anchor
+    // with an `aria-current="page"` attribute since it thinks we're on that page when we're not.
+    mockWindowLocation({ pathname: '/signin' });
   });
 
   afterEach(() => {
@@ -1281,6 +1297,95 @@ describe('Signin component', () => {
         'href',
         'https://www.mozilla.org/privacy/subscription-services/'
       );
+    });
+  });
+
+  describe('snapshots', () => {
+    const integrationWithCms = createMockSigninWebIntegration({
+      // if we move forward, this should probably be pulled out into
+      // a factory function to build the snapshot test data to a default state
+      // but allow for overrides where necessary.
+      cmsInfo: {
+        shared: {
+          logoUrl: 'https://example.com/SNAPSHOT_TEST.png',
+          logoAltText: 'SNAPSHOT_TEST Alt text for logo',
+          buttonColor: 'blue',
+        },
+        SigninPage: {
+          headline: 'SNAPSHOT_TEST Custom CMS Headline',
+          description: 'SNAPSHOT_TEST Custom CMS Description',
+          primaryButtonText: 'SNAPSHOT_TEST Custom CMS Button Text',
+        },
+        // these aren't used in the Signin page, but are here to ensure consistency
+        name: 'SNAPSHOT_TEST name',
+        clientId: 'SNAPSHOT_TEST_clientId',
+        entrypoint: 'SNAPSHOT_TEST_entrypoint',
+      },
+    });
+
+    const integrationWithoutCms = createMockSigninWebIntegration({
+      cmsInfo: undefined,
+    });
+
+    beforeEach(() => {
+      HTMLFormElement.prototype.submit = jest.fn();
+    });
+
+    // Tests.
+    // This iterates over the integrations, providing parity between
+    // the two different integration types, with and without CMS.
+    // This allows for coverage of both cases since there may be differences in behavior
+    // when CMS is enabled or not for all the tests.
+    // --
+    // We could go a step further still and create a "test" for each integration type,
+    // i.e., signinWeb, signinOAuth, signinOAuthNative, etc. as those may have different
+    // rendered content.
+    [
+      { integration: integrationWithCms, enabled: 'enabled' },
+      { integration: integrationWithoutCms, enabled: 'disabled' },
+    ].forEach(({ integration, enabled }) => {
+      describe(`with CMS ${enabled}`, () => {
+        it(`renders correctly`, async () => {
+          const { container } = render({ integration });
+
+          expect(container).toMatchSnapshot();
+        });
+
+        // deeplinking and passwordless don't currently change based on CMS,
+        // but having these allow us to detect IF they do change when we don't expect
+        it(`renders correctly with deeplink`, async () => {
+          const { container } = render({ integration, deeplink: 'appleLogin' });
+
+          expect(container).toMatchSnapshot();
+        });
+        it('renders passwordless UI for linked account with no password', () => {
+          const { container } = render({
+            integration,
+            hasLinkedAccount: true,
+            hasPassword: false,
+          });
+
+          expect(container).toMatchSnapshot();
+        });
+
+        it('renders success banner when present', () => {
+          const { container } = render({
+            integration,
+            localizedSuccessBannerHeading: 'Success!',
+            localizedSuccessBannerDescription:
+              'You have successfully signed in.',
+          });
+
+          expect(container).toMatchSnapshot();
+        });
+        it('renders error banner when login is locked', () => {
+          const { container } = render({
+            integration,
+            localizedErrorFromLocationState: 'Reset your password',
+          });
+          expect(container).toMatchSnapshot();
+        });
+      });
     });
   });
 });

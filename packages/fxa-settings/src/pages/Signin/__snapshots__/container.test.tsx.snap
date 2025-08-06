@@ -1,0 +1,189 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`signin container snapshots props match snapshot when CMS is disabled and falls back to localStorage email 1`] = `
+{
+  "avatarData": {
+    "account": {
+      "avatar": {
+        "id": null,
+        "url": null,
+      },
+    },
+  },
+  "avatarLoading": false,
+  "beginSigninHandler": [Function],
+  "cachedSigninHandler": [Function],
+  "deeplink": undefined,
+  "email": "johndope@example.com",
+  "finishOAuthFlowHandler": [Function],
+  "flowQueryParams": {
+    "flowId": "00ff",
+  },
+  "hasLinkedAccount": false,
+  "hasPassword": true,
+  "integration": WebIntegration {
+    "clientInfo": undefined,
+    "cmsInfo": undefined,
+    "data": WebIntegrationData {
+      "isDirty": false,
+      "modelData": "{"service":"account settings"}",
+    },
+    "features": {
+      "allowUidChange": false,
+      "fxaStatus": true,
+      "handleSignedInNotification": true,
+      "reuseExistingSession": true,
+      "supportsPairing": false,
+    },
+    "subscriptionInfo": undefined,
+    "type": "Web",
+  },
+  "localizedErrorFromLocationState": undefined,
+  "localizedSuccessBannerDescription": undefined,
+  "localizedSuccessBannerHeading": undefined,
+  "sendUnblockEmailHandler": [Function],
+  "serviceName": "account settings",
+  "sessionToken": "sessionToken",
+}
+`;
+
+exports[`signin container snapshots renders correctly when CMS is enabled and email comes from query param 1`] = `
+{
+  "avatarData": {
+    "account": {
+      "avatar": {
+        "id": null,
+        "url": null,
+      },
+    },
+  },
+  "avatarLoading": false,
+  "beginSigninHandler": [Function],
+  "cachedSigninHandler": [Function],
+  "deeplink": undefined,
+  "email": "from@queryparams.com",
+  "finishOAuthFlowHandler": [Function],
+  "flowQueryParams": {
+    "flowId": "00ff",
+  },
+  "hasLinkedAccount": "true",
+  "hasPassword": "true",
+  "integration": WebIntegration {
+    "clientInfo": undefined,
+    "cmsInfo": undefined,
+    "data": WebIntegrationData {
+      "isDirty": false,
+      "modelData": "{"service":"account settings"}",
+    },
+    "features": {
+      "allowUidChange": false,
+      "fxaStatus": true,
+      "handleSignedInNotification": true,
+      "reuseExistingSession": true,
+      "supportsPairing": false,
+    },
+    "subscriptionInfo": undefined,
+    "type": "Web",
+  },
+  "localizedErrorFromLocationState": undefined,
+  "localizedSuccessBannerDescription": undefined,
+  "localizedSuccessBannerHeading": undefined,
+  "sendUnblockEmailHandler": [Function],
+  "serviceName": "account settings",
+  "sessionToken": undefined,
+}
+`;
+
+exports[`signin container snapshots renders correctly when CMS is enabled and router state takes precedence 1`] = `
+{
+  "avatarData": {
+    "account": {
+      "avatar": {
+        "id": null,
+        "url": null,
+      },
+    },
+  },
+  "avatarLoading": false,
+  "beginSigninHandler": [Function],
+  "cachedSigninHandler": [Function],
+  "deeplink": undefined,
+  "email": "from@routerstate.com",
+  "finishOAuthFlowHandler": [Function],
+  "flowQueryParams": {
+    "flowId": "00ff",
+  },
+  "hasLinkedAccount": false,
+  "hasPassword": true,
+  "integration": WebIntegration {
+    "clientInfo": undefined,
+    "cmsInfo": undefined,
+    "data": WebIntegrationData {
+      "isDirty": false,
+      "modelData": "{"service":"account settings"}",
+    },
+    "features": {
+      "allowUidChange": false,
+      "fxaStatus": true,
+      "handleSignedInNotification": true,
+      "reuseExistingSession": true,
+      "supportsPairing": false,
+    },
+    "subscriptionInfo": undefined,
+    "type": "Web",
+  },
+  "localizedErrorFromLocationState": undefined,
+  "localizedSuccessBannerDescription": undefined,
+  "localizedSuccessBannerHeading": undefined,
+  "sendUnblockEmailHandler": [Function],
+  "serviceName": "account settings",
+  "sessionToken": undefined,
+}
+`;
+
+exports[`signin container snapshots renders correctly with minimal state and no CMS 1`] = `
+{
+  "avatarData": {
+    "account": {
+      "avatar": {
+        "id": null,
+        "url": null,
+      },
+    },
+  },
+  "avatarLoading": false,
+  "beginSigninHandler": [Function],
+  "cachedSigninHandler": [Function],
+  "deeplink": undefined,
+  "email": "fallback@localstorage.com",
+  "finishOAuthFlowHandler": [Function],
+  "flowQueryParams": {
+    "flowId": "00ff",
+  },
+  "hasLinkedAccount": false,
+  "hasPassword": true,
+  "integration": WebIntegration {
+    "clientInfo": undefined,
+    "cmsInfo": undefined,
+    "data": WebIntegrationData {
+      "isDirty": false,
+      "modelData": "{"service":"account settings"}",
+    },
+    "features": {
+      "allowUidChange": false,
+      "fxaStatus": true,
+      "handleSignedInNotification": true,
+      "reuseExistingSession": true,
+      "supportsPairing": false,
+    },
+    "subscriptionInfo": undefined,
+    "type": "Web",
+  },
+  "localizedErrorFromLocationState": undefined,
+  "localizedSuccessBannerDescription": undefined,
+  "localizedSuccessBannerHeading": undefined,
+  "sendUnblockEmailHandler": [Function],
+  "serviceName": "account settings",
+  "sessionToken": "sessionToken",
+}
+`;

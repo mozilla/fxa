@@ -64,6 +64,17 @@ import {
 } from '../../models/pages/signin';
 import { OAuthError } from '../../lib/oauth';
 
+/**
+ * Lazy config so that tests can mutate as needed, but it's returned
+ * via the mocked `useConfig` hook and mocks are left as is.
+ */
+let testConfig = {
+  featureFlags: {
+    contentManagementSystem: false,
+    recoveryCodeSetupOnSyncSignIn: true,
+  },
+};
+
 jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),
   firefox: {
@@ -203,11 +214,7 @@ function mockModelsModule() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  (ModelsModule.useConfig as jest.Mock).mockImplementation(() => ({
-    featureFlags: {
-      recoveryCodeSetupOnSyncSignIn: true,
-    },
-  }));
+  (ModelsModule.useConfig as jest.Mock).mockImplementation(() => testConfig);
 }
 
 // Call this when testing local storage
@@ -1283,6 +1290,129 @@ describe('signin container', () => {
         true,
         false
       );
+    });
+  });
+  describe('snapshots', () => {
+    it('props match snapshot when CMS is disabled and falls back to localStorage email', async () => {
+      testConfig.featureFlags.contentManagementSystem = true;
+      mockUseValidateModule({
+        queryParams: {
+          email: '',
+          hasPassword: undefined,
+          hasLinkedAccount: undefined,
+          isV2: () => false,
+        },
+      });
+      mockCurrentAccount(MOCK_STORED_ACCOUNT);
+      render([mockGqlAvatarUseQuery()]);
+
+      await waitFor(() => {
+        expect(currentSigninProps?.email).toBe(MOCK_STORED_ACCOUNT.email);
+      });
+
+      expect(currentSigninProps).toMatchSnapshot();
+    });
+    it('renders correctly when CMS is enabled and email comes from query param', async () => {
+      // Simulate CMS on
+      (ModelsModule.useConfig as jest.Mock).mockReturnValue({
+        featureFlags: {
+          contentManagementSystem: true,
+        },
+      });
+
+      mockUseValidateModule({
+        queryParams: {
+          email: MOCK_QUERY_PARAM_EMAIL,
+          hasLinkedAccount: 'true',
+          hasPassword: 'true',
+          isV2: () => false,
+        },
+      });
+
+      render([mockGqlAvatarUseQuery()]);
+
+      await waitFor(() => {
+        expect(currentSigninProps?.email).toBe(MOCK_QUERY_PARAM_EMAIL);
+      });
+
+      expect(currentSigninProps).toMatchSnapshot();
+    });
+
+    it('renders correctly when CMS is enabled and router state takes precedence', async () => {
+      (ModelsModule.useConfig as jest.Mock).mockReturnValue({
+        featureFlags: {
+          contentManagementSystem: true,
+        },
+      });
+
+      mockLocationState = {
+        email: MOCK_ROUTER_STATE_EMAIL,
+        hasLinkedAccount: false,
+        hasPassword: true,
+      };
+
+      mockUseValidateModule({
+        queryParams: {
+          email: MOCK_QUERY_PARAM_EMAIL, // Should be ignored
+          hasLinkedAccount: 'true',
+          hasPassword: 'true',
+          isV2: () => false,
+        },
+      });
+
+      render([mockGqlAvatarUseQuery()]);
+
+      await waitFor(() => {
+        expect(currentSigninProps?.email).toBe(MOCK_ROUTER_STATE_EMAIL);
+      });
+
+      expect(currentSigninProps).toMatchSnapshot();
+    });
+
+    it('renders correctly when CMS is enabled but query param validation fails', async () => {
+      (ModelsModule.useConfig as jest.Mock).mockReturnValue({
+        featureFlags: {
+          contentManagementSystem: true,
+        },
+      });
+
+      jest.spyOn(UseValidateModule, 'useValidatedQueryParams').mockReturnValue({
+        queryParamModel: {},
+        validationError: 'email', // triggers redirect
+      });
+
+      render([mockGqlAvatarUseQuery()]);
+
+      // currentSigninProps will be undefined because <Signin /> is never rendered
+      expect(currentSigninProps).toBeUndefined();
+      // Optionally snapshot the redirect trigger or loading fallback
+      expect(screen.getByLabelText('Loading…')).toBeInTheDocument();
+    });
+
+    it('renders correctly with minimal state and no CMS', async () => {
+      // default CMS config is off
+      mockUseValidateModule({
+        queryParams: {
+          email: '',
+          hasPassword: undefined,
+          hasLinkedAccount: undefined,
+          isV2: () => false,
+        },
+      });
+
+      const fallbackAccount = {
+        ...MOCK_STORED_ACCOUNT,
+        email: 'fallback@localstorage.com',
+      };
+      mockCurrentAccount(fallbackAccount);
+
+      render([mockGqlAvatarUseQuery()]);
+
+      await waitFor(() => {
+        expect(currentSigninProps?.email).toBe('fallback@localstorage.com');
+      });
+
+      expect(currentSigninProps).toMatchSnapshot();
     });
   });
 });
