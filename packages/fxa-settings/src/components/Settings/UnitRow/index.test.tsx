@@ -18,7 +18,7 @@ describe('UnitRow', () => {
       'None'
     );
     expect(screen.queryByTestId('unit-row-route')).toBeNull();
-    expect(screen.queryByTestId('unit-row-modal')).toBeNull();
+    expect(screen.queryByTestId('unit-row-modal-button')).toBeNull();
     expect(screen.queryByTestId('avatar-default')).toBeNull();
     expect(screen.queryByTestId('avatar-nondefault')).toBeNull();
   });
@@ -67,7 +67,9 @@ describe('UnitRow', () => {
   it('renders as expected with `revealModal` prop', () => {
     renderWithRouter(<UnitRow header="Display name" revealModal={() => {}} />);
 
-    expect(screen.getByTestId('unit-row-modal').textContent).toContain('Add');
+    expect(screen.getByTestId('unit-row-modal-button').textContent).toContain(
+      'Add'
+    );
   });
 
   it('renders as expected with `hideCtaText` prop', () => {
@@ -110,7 +112,7 @@ describe('UnitRow', () => {
       'Change'
     );
     expect(
-      screen.getByTestId('secondary-button-unit-row-modal').textContent
+      screen.getByTestId('secondary-button-unit-row-modal-button').textContent
     ).toContain('Disable');
   });
 

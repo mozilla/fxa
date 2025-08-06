@@ -18,6 +18,7 @@ import {
   useAlertBar,
   useConfig,
   useFtlMsgResolver,
+  useSession,
 } from '../../../models';
 
 import { Choice, CHOICES } from '../../FormChoice';
@@ -37,6 +38,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
+  const session = useSession();
   const {
     totpInfo,
     loading: totpInfoLoading,
@@ -127,6 +129,13 @@ const Page2faSetup = (_: RouteComponentProps) => {
   }, [totpInfoLoading, totpInfoError, totpInfo, showGenericError, goHome]);
 
   /* ───── early return states ───── */
+  // without a verified session, we can't set up 2FA
+  // totpInfoLoading would get stuck in a loading state and render as an infinite spinner
+  // adding a verified session guard allows the totpInfoLoading to resolve once session is verified
+  if (!session.verified) {
+    return <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />;
+  }
+
   if (totpInfoLoading) return <LoadingSpinner fullScreen />;
 
   if (totpInfoError || !totpInfo) {
@@ -258,7 +267,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
   };
 
   return (
-    <VerifiedSessionGuard onDismiss={goHome} onError={goHome}>
+    <>
       {currentStep === 1 && (
         <FlowSetup2faApp
           verifyCode={handleVerify2faAppCode}
@@ -324,7 +333,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
           {...{ currentStep, numberOfSteps, localizedPageTitle }}
         />
       )}
-    </VerifiedSessionGuard>
+    </>
   );
 };
 

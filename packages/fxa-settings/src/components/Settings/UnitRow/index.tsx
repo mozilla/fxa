@@ -52,9 +52,14 @@ export const ModalButton = ({
         className || 'cta-neutral cta-base-p',
         'w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0'
       )}
-      data-testid={formatDataTestId('unit-row-modal')}
+      data-testid={formatDataTestId('unit-row-modal-button')}
       ref={modalTriggerElement}
-      onClick={revealModal}
+      onClick={(e) => {
+        // Prevent the click that opens the modal from immediately
+        // bubbling to the overlay “outside click” handler and closing it.
+        e.stopPropagation();
+        revealModal();
+      }}
       {...(gleanDataAttrs && {
         'data-glean-id': gleanDataAttrs.id,
         'data-glean-type': gleanDataAttrs.type,
@@ -205,48 +210,65 @@ export const UnitRow = ({
             revealSecondaryModal) && (
             <div className="unit-row-actions @mobileLandscape/unitRow:flex-1 @mobileLandscape/unitRow:flex @mobileLandscape/unitRow:justify-end ">
               <div className="flex items-center h-8 gap-2 mt-2 @mobileLandscape/unitRow:mt-0 ">
-                {disabled ? (
-                  <button
-                    className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
-                    data-testid={formatDataTestId('unit-row-route')}
-                    title={disabledReason}
-                    disabled={disabled}
-                  >
-                    {!hideCtaText && ctaText}
-                  </button>
-                ) : (
+                {/* Primary Action */}
+                {!hideCtaText &&
+                  ctaText &&
+                  (disabled ? (
+                    <button
+                      className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
+                      data-testid={formatDataTestId('unit-row-disabled')}
+                      title={disabledReason}
+                      disabled={disabled}
+                      {...(ctaGleanDataAttrs && {
+                        'data-glean-id': ctaGleanDataAttrs.id,
+                        'data-glean-type': ctaGleanDataAttrs.type,
+                        'data-glean-label': ctaGleanDataAttrs.label,
+                      })}
+                    >
+                      {ctaText}
+                    </button>
+                  ) : (
+                    <>
+                      {/* Priority 1: Route link */}
+                      {route && (
+                        <Link
+                          className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
+                          data-testid={formatDataTestId('unit-row-route')}
+                          to={`${route}${location.search}`}
+                          onClick={ctaOnClickAction}
+                          {...(ctaGleanDataAttrs && {
+                            'data-glean-id': ctaGleanDataAttrs.id,
+                            'data-glean-type': ctaGleanDataAttrs.type,
+                            'data-glean-label': ctaGleanDataAttrs.label,
+                          })}
+                        >
+                          {ctaText}
+                        </Link>
+                      )}
+
+                      {/* Priority 2: Modal button (only if no route) */}
+                      {!route && revealModal && (
+                        <ModalButton
+                          {...{
+                            revealModal,
+                            ctaText,
+                            alertBarRevealed,
+                            prefixDataTestId,
+                          }}
+                        />
+                      )}
+                    </>
+                  ))}
+
+                {/* Secondary Actions (only when not disabled) */}
+                {!disabled && (
                   <>
-                    {!hideCtaText && route && (
-                      <Link
-                        className="cta-neutral cta-base-common cta-base-p transition-standard me-1 w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
-                        data-testid={formatDataTestId('unit-row-route')}
-                        to={`${route}${location.search}`}
-                        onClick={ctaOnClickAction}
-                        {...(ctaGleanDataAttrs && {
-                          'data-glean-id': ctaGleanDataAttrs.id,
-                          'data-glean-type': ctaGleanDataAttrs.type,
-                          'data-glean-label': ctaGleanDataAttrs.label,
-                        })}
-                      >
-                        {ctaText}
-                      </Link>
-                    )}
-
-                    {revealModal && (
-                      <ModalButton
-                        {...{
-                          revealModal,
-                          ctaText,
-                          alertBarRevealed,
-                          prefixDataTestId,
-                        }}
-                      />
-                    )}
-
                     {secondaryCtaRoute && (
                       <Link
                         className="cta-neutral cta-base cta-base-p transition-standard me-1"
-                        data-testid={formatDataTestId('unit-row-route')}
+                        data-testid={formatDataTestId(
+                          'unit-row-secondary-route'
+                        )}
                         to={`${secondaryCtaRoute}${location.search}`}
                         {...(secondaryButtonGleanDataAttrs && {
                           'data-glean-id': secondaryButtonGleanDataAttrs.id,
@@ -271,6 +293,8 @@ export const UnitRow = ({
                     )}
                   </>
                 )}
+
+                {/* Custom action content (always rendered) */}
                 {actionContent}
               </div>
             </div>
