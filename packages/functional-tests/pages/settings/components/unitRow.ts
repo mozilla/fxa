@@ -87,11 +87,13 @@ export class RecoveryKeyRow extends UnitRow {
 
 export class TotpRow extends UnitRow {
   get addButton() {
-    return this.page.getByTestId('two-step-unit-row-route');
+    return this.page.getByTestId('two-step-unit-row-modal-button');
   }
 
   get disableButton() {
-    return this.page.getByTestId('two-step-disable-button-unit-row-modal');
+    return this.page.getByTestId(
+      'two-step-disable-button-unit-row-modal-button'
+    );
   }
 
   get getNewBackupCodesButton() {

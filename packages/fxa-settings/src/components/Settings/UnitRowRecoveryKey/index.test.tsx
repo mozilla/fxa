@@ -77,7 +77,7 @@ describe('UnitRowRecoveryKey', () => {
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
     ).toContain('Not Set');
-    const createRKButton = screen.getByTestId('recovery-key-unit-row-route');
+    const createRKButton = screen.getByTestId('recovery-key-unit-row-disabled');
     expect(createRKButton).toBeDisabled();
     expect(createRKButton).toHaveAttribute(
       'title',

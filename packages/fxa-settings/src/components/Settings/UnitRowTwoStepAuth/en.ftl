@@ -25,4 +25,4 @@ tfa-row-disable-modal-explain-1 = You won’t be able to undo this action. You a
 # Shown in an alert bar after two-step authentication is disabled
 tfa-row-disabled-2 = Two-step authentication disabled
 tfa-row-cannot-disable-2 = Two-step authentication could not be disabled
-tfa-row-disable-cannot-verify-session = Sorry, there was a problem confirming your session
+tfa-row-verify-session-info = You need to confirm your current session to set up two-step authentication

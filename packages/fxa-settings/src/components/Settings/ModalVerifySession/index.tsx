@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import Modal from '../Modal';
 import InputText from '../../InputText';
@@ -29,6 +29,7 @@ export const ModalVerifySession = ({
 }: ModalProps) => {
   const session = useSession();
   const [errorText, setErrorText] = useState<string>();
+  const hasSentVerificationCode = useRef(false);
   const account = useAccount();
   const primaryEmail = account.primaryEmail;
   const { l10n } = useLocalization();
@@ -66,7 +67,8 @@ export const ModalVerifySession = ({
       // Check cache first, then do network request for session verification
       if (session.verified) {
         onCompleted && onCompleted();
-      } else {
+      } else if (!hasSentVerificationCode.current) {
+        hasSentVerificationCode.current = true;
         await session.sendVerificationCode();
       }
     };
