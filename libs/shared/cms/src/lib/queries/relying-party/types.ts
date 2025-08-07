@@ -40,6 +40,7 @@ export interface RelyingPartyResult {
   clientId: string | null;
   entrypoint: string | null;
   name: string | null;
+  l10nId: string;
   EmailFirstPage?: Page;
   SignupSetPasswordPage?: Page;
   SignupConfirmCodePage?: Page;
