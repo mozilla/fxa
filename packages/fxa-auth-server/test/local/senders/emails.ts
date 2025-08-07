@@ -841,7 +841,8 @@ const TESTS: [string, any, Record<string, any>?][] = [
   // Show warning banner when service is undefined
   ['newDeviceLoginEmail', new Map<string, Test | any>([
     ['html', [
-      { test: 'include', expected: 'Firefox add-on developers have been targeted by phishing email attacks recently. We’ll only send emails about your Mozilla account from accounts@firefox.com.' },
+      { test: 'include', expected: 'Firefox add-on developers have been targeted by phishing email attacks recently. We’ll only send emails about your Mozilla account from' },
+      { test: 'include', expected: 'accounts@firefox.com' },
       { test: 'include', expected: 'Check to make sure the device and location you signed in to is correct.' },
     ]],
     ['text', [
