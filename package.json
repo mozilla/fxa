@@ -145,9 +145,7 @@
       "eslint"
     ],
     "*.{ts,tsx}": [
-      "prettier --config _dev/.prettierrc --write"
-    ],
-    "packages/fxa-auth-server/**/*.{ts,tsx}": [
+      "prettier --config _dev/.prettierrc --write",
       "eslint"
     ],
     "*.css": [

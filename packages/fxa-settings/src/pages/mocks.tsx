@@ -6,7 +6,7 @@ import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 
 import { MozServices } from '../lib/types';
 import { MOCK_ACCOUNT } from '../models/mocks';
-import { Integration, IntegrationType, OAuthNativeIntegration, RelierCmsInfo } from '../models';
+import { Integration, IntegrationType } from '../models';
 
 export const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
 export const MOCK_UID = 'abcd1234abcd1234abcd1234abcd1234';
@@ -103,7 +103,8 @@ export const MOCK_CMS_INFO = {
     logoUrl:
       'https://gist.githubusercontent.com/dschom/857ebb2abd5f75937f211f1fd6bbf9a8/raw/33037c8905757a594e07eb29818d8519447fdec0/nightly-logo.svg',
     logoAltText: 'logo',
-    backgroundColor: 'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 26, 26, 0.25) 40%, rgba(230, 0, 0, 0.3) 70%, rgba(179, 0, 0, 0.45) 100%)',
+    backgroundColor:
+      'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 26, 26, 0.25) 40%, rgba(230, 0, 0, 0.3) 70%, rgba(179, 0, 0, 0.45) 100%)',
   },
   EmailFirstPage: {
     logoUrl:
