@@ -71,6 +71,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
 
         await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
           acceptLanguage,
+          location: geo.location,
           timeZone: geo.timeZone,
           uaBrowser: ua.browser,
           uaBrowserVersion: ua.browserVersion,
@@ -178,6 +179,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
 
         await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
           acceptLanguage,
+          location: geo.location,
           timeZone: geo.timeZone,
           uaBrowser: ua.browser,
           uaBrowserVersion: ua.browserVersion,

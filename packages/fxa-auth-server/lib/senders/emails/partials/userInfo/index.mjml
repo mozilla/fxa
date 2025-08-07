@@ -15,6 +15,10 @@
         <%- include('/partials/userDevice/index.mjml') %>
         <br />
       <% } %>
+      <% if (locals.location && locals.location.country) { %>
+        <%- include('/partials/userLocation/index.mjml') %>
+        <br />
+      <% } %>
       <% if (locals.date) { %>
         <%- date %>
         <br />

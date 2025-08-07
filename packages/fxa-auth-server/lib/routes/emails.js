@@ -635,6 +635,7 @@ module.exports = (
             acceptLanguage: request.app.acceptLanguage,
             email: emailData.email,
             primaryEmail,
+            location: geoData.location,
             timeZone: geoData.timeZone,
             uaBrowser: sessionToken.uaBrowser,
             uaBrowserVersion: sessionToken.uaBrowserVersion,
@@ -960,6 +961,7 @@ module.exports = (
         const mailerOpts = {
           code,
           deviceId,
+          location: geoData.location,
           timeZone: geoData.timeZone,
           timestamp: Date.now(),
           acceptLanguage: request.app.acceptLanguage,

@@ -66,6 +66,7 @@ module.exports = (
           const { acceptLanguage, clientAddress: geo, ua } = request.app;
           const emailOptions = {
             acceptLanguage,
+            location: geo.location,
             timeZone: geo.timeZone,
             uaBrowser: ua.browser,
             uaBrowserVersion: ua.browserVersion,
@@ -86,6 +87,7 @@ module.exports = (
           const { acceptLanguage, clientAddress: geo, ua } = request.app;
           const emailOptions = {
             acceptLanguage,
+            location: geo.location,
             timeZone: geo.timeZone,
             uaBrowser: ua.browser,
             uaBrowserVersion: ua.browserVersion,
@@ -414,6 +416,7 @@ module.exports = (
         const { acceptLanguage, clientAddress: geo, ua } = request.app;
         const emailOptions = {
           acceptLanguage,
+          location: geo.location,
           timeZone: geo.timeZone,
           uaBrowser: ua.browser,
           uaBrowserVersion: ua.browserVersion,

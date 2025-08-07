@@ -6,9 +6,17 @@
 
 .brand-message-container {
   @extend %banner-common;
+  background: linear-gradient(
+    88.76deg,
+    #e4eaf6 3.37%,
+    #dbeef8 39.93%,
+    #daf3f4 65.09%,
+    #e3f6ed 102.21%
+  );
+  background-color: #dbeef8;
 }
 
-.brand-message-text>div {
+.brand-message-text > div {
   @extend %text-banner-common;
 }
 

@@ -19,12 +19,18 @@ const createStory = storyWithProps(
     passwordChangeLink: 'http://localhost:3030/settings/change_password',
     link: 'http://localhost:3030/settings',
     mozillaSupportUrl: 'https://support.mozilla.org',
+    showBannerWarning: false,
   }
 );
 
 export const NewDeviceLoginFirefox = createStory(
   {},
   'New device login through Firefox'
+);
+
+export const NewDeviceLoginAMO = createStory(
+  { clientName: 'Add-ons', showBannerWarning: true },
+  'New device login through AMO or web, with warning banner'
 );
 export const NewDeviceLoginOther = createStory(
   { clientName: '123 Done' },
