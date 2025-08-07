@@ -15,3 +15,8 @@
   @extend .text-xs;
   color: global.$white !important;
 }
+
+.banner-warning-text div span a {
+  text-decoration: none !important;
+  color: global.$white !important;
+}
