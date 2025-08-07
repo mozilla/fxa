@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../models/mocks';
 import { createSubject } from './mocks';
 import {
@@ -51,13 +52,9 @@ describe('UnitRowTwoStepAuth', () => {
     expect(
       screen.getByTestId('two-step-unit-row-header-value').textContent
     ).toContain('Disabled');
-    expect(screen.getByTestId('two-step-unit-row-route').textContent).toContain(
-      'Add'
-    );
-    expect(screen.getByTestId('two-step-unit-row-route')).toHaveAttribute(
-      'data-glean-id',
-      'account_pref_two_step_auth_add_click'
-    );
+    expect(
+      screen.getByTestId('two-step-unit-row-modal-button').textContent
+    ).toContain('Add');
   });
 
   it('renders disabled state when account has no password', async () => {
@@ -84,6 +81,7 @@ describe('UnitRowTwoStepAuth', () => {
   });
 
   it('renders view as not enabled after disabling TOTP', async () => {
+    const user = userEvent.setup();
     const disableTwoStepAuthMock = jest.fn().mockResolvedValue(true);
 
     renderWithRouter(
@@ -92,7 +90,7 @@ describe('UnitRowTwoStepAuth', () => {
       })
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Disable' }));
+    await user.click(screen.getByRole('button', { name: 'Disable' }));
 
     await waitFor(() =>
       expect(
@@ -100,7 +98,7 @@ describe('UnitRowTwoStepAuth', () => {
       ).toBeInTheDocument()
     );
 
-    fireEvent.click(screen.getByTestId('modal-confirm'));
+    await user.click(screen.getByTestId('modal-confirm'));
 
     await waitFor(() =>
       expect(disableTwoStepAuthMock).toHaveBeenCalledTimes(1)
@@ -108,18 +106,22 @@ describe('UnitRowTwoStepAuth', () => {
   });
 
   it('emits expected event when the disable totp modal is rendered', async () => {
+    const user = userEvent.setup();
     renderWithRouter(createSubject());
 
-    fireEvent.click(screen.getByRole('button', { name: 'Disable' }));
+    await user.click(screen.getByRole('button', { name: 'Disable' }));
 
     await waitFor(() =>
       expect(
         screen.queryByTestId('disable-totp-modal-header')
       ).toBeInTheDocument()
     );
-    expect(
-      GleanMetrics.accountPref.twoStepAuthDisableModalView
-    ).toHaveBeenCalled();
+
+    await waitFor(() =>
+      expect(
+        GleanMetrics.accountPref.twoStepAuthDisableModalView
+      ).toHaveBeenCalled()
+    );
   });
 
   it('renders with no backup codes and no recovery phone', () => {

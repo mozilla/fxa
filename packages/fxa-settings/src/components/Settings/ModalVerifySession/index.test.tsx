@@ -4,7 +4,8 @@
 
 import 'mutationobserver-shim';
 import React from 'react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { mockSession, renderWithRouter } from '../../../models/mocks';
 import { Account, AppContext, Session } from '../../../models';
 import { ModalVerifySession } from '.';
@@ -47,7 +48,36 @@ describe('ModalVerifySession', () => {
     expect(screen.getByTestId('modal-verify-session-submit')).toBeDisabled();
   });
 
+  it('sends verification code on mount', async () => {
+    const onDismiss = jest.fn();
+    const onError = jest.fn();
+    renderWithRouter(
+      <AppContext.Provider value={{ account, session }}>
+        <ModalVerifySession {...{ onDismiss, onError }} />
+      </AppContext.Provider>
+    );
+
+    await waitFor(() => {
+      expect(session.sendVerificationCode).toHaveBeenCalled();
+    });
+  });
+
+  it('does not send verification code if already verified', async () => {
+    const session = mockSession(true);
+    const onDismiss = jest.fn();
+    const onError = jest.fn();
+    renderWithRouter(
+      <AppContext.Provider value={{ account, session }}>
+        <ModalVerifySession {...{ onDismiss, onError }} />
+      </AppContext.Provider>
+    );
+    await waitFor(() => {
+      expect(session.sendVerificationCode).not.toHaveBeenCalled();
+    });
+  });
+
   it('renders error messages', async () => {
+    const user = userEvent.setup();
     const error: any = new Error('invalid code');
     error.errno = AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno;
     const session = {
@@ -63,22 +93,26 @@ describe('ModalVerifySession', () => {
       </AppContext.Provider>
     );
 
-    await act(async () => {
-      fireEvent.input(screen.getByTestId('verification-code-input-field'), {
-        target: { value: '123456' },
-      });
-    });
-    expect(screen.getByTestId('modal-verify-session-submit')).toBeEnabled();
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('modal-verify-session-submit'));
+    await user.type(
+      screen.getByTestId('verification-code-input-field'),
+      '123456'
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('modal-verify-session-submit')).toBeEnabled();
     });
 
-    expect(screen.getByTestId('tooltip').textContent).toContain(
-      AuthUiErrors.INVALID_EXPIRED_OTP_CODE.message
-    );
+    await user.click(screen.getByTestId('modal-verify-session-submit'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('tooltip').textContent).toContain(
+        AuthUiErrors.INVALID_EXPIRED_OTP_CODE.message
+      );
+    });
   });
 
   it('bubbles other errors', async () => {
+    const user = userEvent.setup();
     const error = new Error('network error');
     const session = {
       sendVerificationCode: jest.fn().mockResolvedValue(true),
@@ -93,16 +127,19 @@ describe('ModalVerifySession', () => {
       </AppContext.Provider>
     );
 
-    await act(async () => {
-      fireEvent.input(screen.getByTestId('verification-code-input-field'), {
-        target: { value: '654321' },
-      });
-    });
-    expect(screen.getByTestId('modal-verify-session-submit')).toBeEnabled();
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('modal-verify-session-submit'));
+    await user.type(
+      screen.getByTestId('verification-code-input-field'),
+      '654321'
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('modal-verify-session-submit')).toBeEnabled();
     });
 
-    expect(onError).toHaveBeenCalledWith(error);
+    await user.click(screen.getByTestId('modal-verify-session-submit'));
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledWith(error);
+    });
   });
 });

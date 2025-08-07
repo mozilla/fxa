@@ -21,6 +21,7 @@ import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import { RecoveryPhoneSetupReason } from '../../../lib/types';
+import ModalVerifySession from '../ModalVerifySession';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
@@ -36,7 +37,19 @@ export const UnitRowTwoStepAuth = () => {
   } = account;
   const [disable2FAModalRevealed, revealDisable2FAModal, hideDisable2FAModal] =
     useBooleanState();
+  const [add2FAModalRevealed, revealAdd2FAModal, hideAdd2FAModal] =
+    useBooleanState();
   const ftlMsgResolver = useFtlMsgResolver();
+
+  const handleAdd2FA = useCallback(() => {
+    hideAdd2FAModal();
+    navigateWithQuery(route);
+  }, [navigateWithQuery, hideAdd2FAModal]);
+
+  const handleAdd2FAClick = useCallback(() => {
+    GleanMetrics.accountPref.twoStepAuthSubmit();
+    revealAdd2FAModal();
+  }, [revealAdd2FAModal]);
 
   const conditionalUnitRowProps: Partial<UnitRowProps> =
     exists && verified
@@ -64,8 +77,7 @@ export const UnitRowTwoStepAuth = () => {
           ctaGleanDataAttrs: {
             id: 'account_pref_two_step_auth_add_click',
           },
-          secondaryCtaText: undefined,
-          revealSecondaryModal: undefined,
+          revealModal: handleAdd2FAClick,
         };
 
   const getSubRows = () => {
@@ -148,16 +160,12 @@ export const UnitRowTwoStepAuth = () => {
         )}
         headerId="two-step-authentication"
         prefixDataTestId="two-step"
-        route={route}
         {...conditionalUnitRowProps}
         disabled={!account.hasPassword}
         disabledReason={ftlMsgResolver.getMsg(
           'security-set-password',
           'Set a password to sync and use certain account security features.'
         )}
-        ctaOnClickAction={() => {
-          GleanMetrics.accountPref.twoStepAuthSubmit();
-        }}
         subRows={getSubRows()}
       >
         {exists && verified ? (
@@ -177,22 +185,26 @@ export const UnitRowTwoStepAuth = () => {
           </FtlMsg>
         )}
         {howThisProtectsYourAccountLink}
-        {disable2FAModalRevealed && (
-          <VerifiedSessionGuard
-            onDismiss={hideDisable2FAModal}
+        {add2FAModalRevealed && (
+          <ModalVerifySession
+            onDismiss={() => {
+              hideAdd2FAModal();
+            }}
             onError={(error) => {
-              hideDisable2FAModal();
+              hideAdd2FAModal();
               alertBar.error(
                 ftlMsgResolver.getMsg(
-                  'tfa-row-disable-cannot-verify-session',
+                  'tfa-row-cannot-verify-session-4',
                   'Sorry, there was a problem confirming your session'
                 ),
                 error
               );
             }}
-          >
-            <DisableTwoStepAuthModal {...{ hideDisable2FAModal }} />
-          </VerifiedSessionGuard>
+            onCompleted={handleAdd2FA}
+          />
+        )}
+        {disable2FAModalRevealed && (
+          <DisableTwoStepAuthModal {...{ hideDisable2FAModal }} />
         )}
       </UnitRow>
     </>
@@ -241,7 +253,13 @@ const DisableTwoStepAuthModal = ({
       onDismiss={hideDisable2FAModal}
       onError={(error) => {
         hideDisable2FAModal();
-        alertBar.error(error.message, error);
+        alertBar.error(
+          ftlMsgResolver.getMsg(
+            'tfa-row-cannot-verify-session-4',
+            'Sorry, there was a problem confirming your session'
+          ),
+          error
+        );
       }}
     >
       <Modal

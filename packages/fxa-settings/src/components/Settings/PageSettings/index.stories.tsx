@@ -10,7 +10,7 @@ import { PageSettings } from '.';
 import { Config } from '../../../lib/config';
 
 import { LocationProvider } from '@reach/router';
-import { mockAppContext } from '../../../models/mocks';
+import { mockAppContext, mockSession } from '../../../models/mocks';
 import { AppContext } from 'fxa-settings/src/models';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -36,15 +36,21 @@ const mockAuthClient = {
 const storyWithContext = (
   account: Partial<Account>,
   storyName?: string,
-  config?: Config
+  config?: Config,
+  session = mockSession(true)
 ) => {
   const context = config
     ? {
         account: account as Account,
         config: config,
         authClient: mockAuthClient,
+        session: session,
       }
-    : { account: account as Account, authClient: mockAuthClient };
+    : {
+        account: account as Account,
+        authClient: mockAuthClient,
+        session: session,
+      };
 
   const story = () => {
     return (
@@ -62,6 +68,13 @@ const storyWithContext = (
 };
 
 export const ColdStart = storyWithContext(coldStartAccount, 'cold start');
+
+export const ColdStartUnverifiedSession = storyWithContext(
+  coldStartAccount,
+  'cold start with unverified session',
+  undefined,
+  mockSession(false)
+);
 
 export const PartiallyFilledOut = storyWithContext(
   partiallyFilledOutAccount,
