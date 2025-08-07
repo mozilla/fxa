@@ -20,10 +20,10 @@
     ]
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
+    "./**/*.ts",
+    "./**/*.tsx",
+    "./**/*.js",
+    "./**/*.jsx",
     "../../../apps/payments/next/.next/types/**/*.ts",
     "../../../dist/apps/payments/next/.next/types/**/*.ts",
     "next-env.d.ts",

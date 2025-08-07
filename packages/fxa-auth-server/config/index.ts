@@ -1545,6 +1545,7 @@ const convictConf = convict({
       default: [],
       env: 'SIGNIN_CONFIRMATION_SKIP_FOR_EMAIL_ADDRESS',
     },
+
     skipForNewAccounts: {
       enabled: {
         doc: 'Skip sign-in confirmation for newly-created accounts.',

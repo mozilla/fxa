@@ -23,6 +23,13 @@
     "esModuleInterop": true,
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
+
+    "disableSourceOfProjectReferenceRedirect": true,
+    "noEmit": true,
+    "checkJs": false,
+    "composite": true,
+    "declaration": true,
+
     "paths": {
       "@fxa/accounts/rate-limit": ["libs/accounts/rate-limit/src/index.ts"],
       "@fxa/accounts/recovery-phone": [
@@ -117,5 +124,21 @@
     ],
     "jsx": "react-jsx"
   },
-  "exclude": ["packages/*/node_modules", "node_modules", "tmp"]
+  "exclude": ["packages/*/node_modules", "node_modules", "tmp", "dist", "build"],
+  "files": [],
+  "references": [
+    { "path": "packages/functional-tests" },
+    { "path": "packages/fxa-admin-panel" },
+    { "path": "packages/fxa-admin-server" },
+    { "path": "packages/fxa-auth-client" },
+    { "path": "packages/fxa-auth-server" },
+    { "path": "packages/fxa-content-server" },
+    { "path": "packages/fxa-event-broker" },
+    { "path": "packages/fxa-graphql-api" },
+    { "path": "packages/fxa-payments-server" },
+    { "path": "packages/fxa-profile-server" },
+    { "path": "packages/fxa-react" },
+    { "path": "packages/fxa-settings" },
+    { "path": "packages/fxa-shared" },
+  ]
 }

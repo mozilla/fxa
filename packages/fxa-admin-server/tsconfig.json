@@ -9,5 +9,5 @@
     "noEmitHelpers": true,
     "importHelpers": true
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts"]
 }

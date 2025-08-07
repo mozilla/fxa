@@ -11,5 +11,5 @@
     "importHelpers": true,
     "types": ["jest"]
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts"]
 }

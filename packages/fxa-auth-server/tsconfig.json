@@ -16,9 +16,13 @@
   "include": [
     // Note, we want to include javascript and type script files. This ensures
     // ts aliases (ie imports for @fxa/...) work.
-    "bin/*",
-    "config/*",
-    "lib/**/*",
-    "scripts/**/*"
+    "bin/*.js",
+    "bin/*.ts",
+    "config/*.js",
+    "config/*.ts",
+    "lib/**/*.js",
+    "lib/**/*.ts",
+    "scripts/**/*.js",
+    "scripts/**/*.ts"
   ]
 }

@@ -25,11 +25,17 @@
   "python.pythonPath": "usr/bin/python3",
   "prettier.configPath": "_dev/.prettierrc",
   "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.tsserver.log": "verbose",
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.maxTsServerMemory": 8192,
   "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
     "**/storybook-static": true,
+    "**/dist": true,
+    "**/node_modules": true
   },
-  "cSpell.words": ["Frontends", "obvisosly"]
+  "cSpell.words": ["Frontends"],
 }

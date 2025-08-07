@@ -4,8 +4,5 @@
     "outDir": "./dist",
     "types": ["jest", "@testing-library/jest-dom"]
   },
-  "include": [
-    "./components",
-    "./lib"
-  ]
+  "include": ["./components/**/*.ts", "./components/**/*.tsx", "./lib/*.ts", "./lib/*.tsx"]
 }

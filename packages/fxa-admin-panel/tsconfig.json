@@ -7,7 +7,5 @@
     "isolatedModules": true,
     "noImplicitAny": false
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src/**/*.tsx", "src/**/*.ts"]
 }
