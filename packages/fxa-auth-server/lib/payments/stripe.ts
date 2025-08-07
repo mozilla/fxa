@@ -2868,6 +2868,33 @@ export class StripeHelper extends StripeHelperBase {
     return { lastFour, cardType };
   }
 
+  async getSubsequentPrices(invoice: Stripe.Invoice | Stripe.UpcomingInvoice) {
+    const subsequentItem = invoice.lines.data.find(
+      (line) => line.proration === false
+    );
+    const subsequentAmount = subsequentItem?.amount;
+    const subsequentAmountExcludingTax =
+      subsequentItem?.amount_excluding_tax ?? undefined;
+
+    const subsequentTax = subsequentItem?.tax_amounts.map((tax) => ({
+      inclusive: tax.inclusive,
+      amount: tax.amount,
+    }));
+
+    const exclusiveTax =
+      subsequentTax &&
+      subsequentTax
+        .filter((tax) => !tax.inclusive)
+        .reduce((sum, tax) => sum + tax.amount, 0);
+
+    return {
+      exclusiveTax,
+      total: exclusiveTax
+        ? (subsequentAmountExcludingTax ?? subsequentAmount)
+        : subsequentAmount,
+    };
+  }
+
   /**
    * Extract source details for billing emails
    */
@@ -2936,8 +2963,11 @@ export class StripeHelper extends StripeHelperBase {
   stripePlanToPaymentCycle(plan: Stripe.Plan) {
     if (plan.interval_count === 1) {
       return plan.interval;
+    } else if (plan.interval_count === 6 && plan.interval === 'month') {
+      return 'halfyear';
+    } else {
+      return `${plan.interval_count} ${plan.interval}s`;
     }
-    return `${plan.interval_count} ${plan.interval}s`;
   }
 
   /**
@@ -3001,14 +3031,18 @@ export class StripeHelper extends StripeHelperBase {
 
     let invoiceOldCurrency: string | undefined;
     let invoiceTotalOldInCents: number | undefined;
+    let invoiceTaxOldInCents: number | undefined;
     const previousLatestInvoice = previousAttributes.latest_invoice as
       | string
       | undefined;
 
     if (previousLatestInvoice) {
       const invoiceOld = await this.getInvoice(previousLatestInvoice);
+      const subsequentItem = await this.getSubsequentPrices(invoiceOld);
+
       invoiceOldCurrency = invoiceOld.currency;
-      invoiceTotalOldInCents = invoiceOld.amount_due;
+      invoiceTotalOldInCents = subsequentItem.total;
+      invoiceTaxOldInCents = subsequentItem.exclusiveTax;
     }
 
     const planIdNew = planNew.id;
@@ -3078,6 +3112,7 @@ export class StripeHelper extends StripeHelperBase {
       closeDate: event.created,
       invoiceOldCurrency,
       invoiceTotalOldInCents,
+      invoiceTaxOldInCents,
       productMetadata: productNewMetadata,
       planConfig,
     };
@@ -3337,10 +3372,8 @@ export class StripeHelper extends StripeHelperBase {
       : await this.previewInvoiceBySubscriptionId({
           subscriptionId: subscription.id,
         });
-
-    const { total: nextInvoiceTotal, currency: nextInvoiceCurrency } =
-      nextInvoice || {};
-
+    const subsequentItem = await this.getSubsequentPrices(nextInvoice);
+    const { currency: nextInvoiceCurrency } = nextInvoice || {};
     return {
       ...baseDetails,
       updateType: SUBSCRIPTION_UPDATE_TYPES.UPGRADE,
@@ -3348,9 +3381,11 @@ export class StripeHelper extends StripeHelperBase {
       productNameOld,
       productIconURLOld,
       productPaymentCycleOld,
+      paymentTaxOldInCents: baseDetails.invoiceTaxOldInCents,
       paymentAmountOldInCents: baseDetails.invoiceTotalOldInCents,
       paymentAmountOldCurrency: baseDetails.invoiceOldCurrency,
-      paymentAmountNewInCents: nextInvoiceTotal,
+      paymentAmountNewInCents: subsequentItem.total,
+      paymentTaxNewInCents: subsequentItem.exclusiveTax,
       paymentAmountNewCurrency: nextInvoiceCurrency,
       invoiceAmountDueInCents,
       invoiceNumber,
@@ -3379,7 +3414,10 @@ export class StripeHelper extends StripeHelperBase {
   async processSubscriptionEventToFirestore(event: Stripe.Event) {
     const eventObject = event.data.object as Stripe.Subscription;
     const subscriptionId = eventObject.id;
-    const customerId = typeof eventObject.customer === "string" ? eventObject.customer : eventObject.customer.id;
+    const customerId =
+      typeof eventObject.customer === 'string'
+        ? eventObject.customer
+        : eventObject.customer.id;
 
     // Update the customer if our copy of the customer is missing the currency.
     // This could occur in some edge cases where the subscription is created
@@ -3390,12 +3428,9 @@ export class StripeHelper extends StripeHelperBase {
       CUSTOMER_RESOURCE
     );
     if (!customer.deleted && !customer.currency) {
-      await this.stripeFirestore.fetchAndInsertCustomer(
-        customerId
-      );
-      const subscription = await this.stripe.subscriptions.retrieve(
-        subscriptionId
-      );
+      await this.stripeFirestore.fetchAndInsertCustomer(customerId);
+      const subscription =
+        await this.stripe.subscriptions.retrieve(subscriptionId);
       return subscription;
     }
 

@@ -35,12 +35,36 @@ export const PositiveProrated = createStory(
   'Charge - Prorated amount is positive'
 );
 
+export const PositiveProratedWithTax = createStory(
+  {
+    paymentProrated: '$60.00',
+    paymentProratedInCents: 6000,
+    paymentTaxOldInCents: 50,
+    paymentTaxOld: '$0.50',
+    paymentTaxNewInCents: 60,
+    paymentTaxNew: '$0.60',
+  },
+  'Charge - Prorated amount with tax is positive'
+);
+
 export const NegativeProrated = createStory(
   {
     paymentProrated: '$60.00',
     paymentProratedInCents: -6000,
   },
   'Credit - Prorated amount is negative'
+);
+
+export const NegativeProratedWithTax = createStory(
+  {
+    paymentProrated: '$60.00',
+    paymentProratedInCents: -6000,
+    paymentTaxOldInCents: 50,
+    paymentTaxOld: '$0.50',
+    paymentTaxNewInCents: 60,
+    paymentTaxNew: '$0.60',
+  },
+  'Credit - Prorated amount with tax is negative'
 );
 
 export const NoProrated = createStory(
