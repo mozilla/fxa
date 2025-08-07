@@ -9,16 +9,17 @@ import CmsButtonWithFallback from '.';
 
 describe('CmsButtonWithFallback', () => {
   it('renders as default button when no buttonColor is provided', () => {
-    render(<CmsButtonWithFallback>Default Button</CmsButtonWithFallback>);
+    const { container } = render(<CmsButtonWithFallback>Default Button</CmsButtonWithFallback>);
 
     const button = screen.getByRole('button', { name: 'Default Button' });
     expect(button).toBeInTheDocument();
     expect(button).toHaveClass('cta-primary', 'cta-xl');
     expect(button).not.toHaveClass('cta-primary-cms');
+    expect(container).toMatchSnapshot();
   });
 
   it('renders as CMS button when buttonColor is provided', () => {
-    render(
+    const { container } = render(
       <CmsButtonWithFallback buttonColor="#592ACB">
         CMS Button
       </CmsButtonWithFallback>
@@ -28,6 +29,7 @@ describe('CmsButtonWithFallback', () => {
     expect(button).toBeInTheDocument();
     expect(button).toHaveClass('cta-primary-cms', 'cta-xl');
     expect(button).not.toHaveClass('cta-primary');
+    expect(container).toMatchSnapshot();
   });
 
   it('uses buttonText when provided', () => {
@@ -121,7 +123,7 @@ describe('CmsButtonWithFallback', () => {
   });
 
   it('combines custom className with CMS classes', () => {
-    render(
+    const { container } = render(
       <CmsButtonWithFallback
         buttonColor="#592ACB"
         className="custom-cms-class"
@@ -132,6 +134,7 @@ describe('CmsButtonWithFallback', () => {
 
     const button = screen.getByRole('button');
     expect(button).toHaveClass('cta-primary-cms', 'cta-xl', 'custom-cms-class');
+    expect(container).toMatchSnapshot();
   });
 
   it('merges custom style with CMS styles', () => {

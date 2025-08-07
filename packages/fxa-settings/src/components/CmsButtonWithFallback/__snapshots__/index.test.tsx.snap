@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CmsButtonWithFallback combines custom className with CMS classes 1`] = `
+<div>
+  <button
+    class="cta-primary-cms cta-xl custom-cms-class"
+    style="--cta-bg: #592ACB; --cta-border: #592ACB; --cta-active: #592ACB; --cta-disabled: #592ACB60;"
+  >
+    CMS Custom Class Button
+  </button>
+</div>
+`;
+
+exports[`CmsButtonWithFallback renders as CMS button when buttonColor is provided 1`] = `
+<div>
+  <button
+    class="cta-primary-cms cta-xl"
+    style="--cta-bg: #592ACB; --cta-border: #592ACB; --cta-active: #592ACB; --cta-disabled: #592ACB60;"
+  >
+    CMS Button
+  </button>
+</div>
+`;
+
+exports[`CmsButtonWithFallback renders as default button when no buttonColor is provided 1`] = `
+<div>
+  <button
+    class="cta-primary cta-xl"
+  >
+    Default Button
+  </button>
+</div>
+`;

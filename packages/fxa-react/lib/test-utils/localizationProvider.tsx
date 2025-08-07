@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { render } from '@testing-library/react';
-import { userEvent, UserEvent } from '@testing-library/user-event';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 const reportError = () => {};
@@ -12,16 +11,12 @@ const reportError = () => {};
 export function renderWithLocalizationProvider(
   children: JSX.Element,
   messages = { en: ['testo: lol'] }
-): ReturnType<typeof render> & { user: UserEvent } {
-  const user: UserEvent = userEvent.setup();
-  return {
-    user,
-    ...render(
-      <AppLocalizationProvider {...{ messages, reportError }}>
-        {children}
-      </AppLocalizationProvider>
-    ),
-  };
+): ReturnType<typeof render> {
+  return render(
+    <AppLocalizationProvider {...{ messages, reportError }}>
+      {children}
+    </AppLocalizationProvider>
+  );
 }
 
 export function withLocalizationProvider(

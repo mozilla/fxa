@@ -290,4 +290,35 @@ describe('ThirdPartyAuthComponent', () => {
       expect(mockGleanIsDone).toHaveBeenCalled();
     });
   });
+  describe('snapshots', () => {
+
+    it('renders correctly with default props', () => {
+      const { container } = renderWith();
+
+      expect(container).toMatchSnapshot();
+    });
+
+    it('renders buttons correctly without deeplinking', () => {
+      // the rendered component(s)
+      renderWith({
+        deeplink: undefined,
+      });
+
+      const appleButton = screen.getByRole('button', { name: /continue with apple/i });
+      const googleButton = screen.getByRole('button', { name: /continue with google/i });
+
+      expect(appleButton).toMatchSnapshot('apple button snapshot');
+      expect(googleButton).toMatchSnapshot('google button snapshot');
+    });
+
+    it('renders correctly without separator', () => {
+      // separator defaults to true, so it's captured
+      // in the snapshots above
+      const { container } = renderWith({
+        showSeparator: false,
+      });
+
+      expect(container).toMatchSnapshot();
+    });
+  });
 });

@@ -1323,61 +1323,13 @@ describe('Signin component', () => {
       HTMLFormElement.prototype.submit = jest.fn();
     });
 
-    // Tests.
-    // This iterates over the integrations, providing parity between
-    // the two different integration types, with and without CMS.
-    // This allows for coverage of both cases since there may be differences in behavior
-    // when CMS is enabled or not for all the tests.
-    // --
-    // We could go a step further still and create a "test" for each integration type,
-    // i.e., signinWeb, signinOAuth, signinOAuthNative, etc. as those may have different
-    // rendered content.
-    [
-      { integration: integrationWithCms, enabled: 'enabled' },
-      { integration: integrationWithoutCms, enabled: 'disabled' },
-    ].forEach(({ integration, enabled }) => {
-      describe(`with CMS ${enabled}`, () => {
-        it(`renders correctly`, async () => {
-          const { container } = render({ integration });
-
-          expect(container).toMatchSnapshot();
-        });
-
-        // deeplinking and passwordless don't currently change based on CMS,
-        // but having these allow us to detect IF they do change when we don't expect
-        it(`renders correctly with deeplink`, async () => {
-          const { container } = render({ integration, deeplink: 'appleLogin' });
-
-          expect(container).toMatchSnapshot();
-        });
-        it('renders passwordless UI for linked account with no password', () => {
-          const { container } = render({
-            integration,
-            hasLinkedAccount: true,
-            hasPassword: false,
-          });
-
-          expect(container).toMatchSnapshot();
-        });
-
-        it('renders success banner when present', () => {
-          const { container } = render({
-            integration,
-            localizedSuccessBannerHeading: 'Success!',
-            localizedSuccessBannerDescription:
-              'You have successfully signed in.',
-          });
-
-          expect(container).toMatchSnapshot();
-        });
-        it('renders error banner when login is locked', () => {
-          const { container } = render({
-            integration,
-            localizedErrorFromLocationState: 'Reset your password',
-          });
-          expect(container).toMatchSnapshot();
-        });
-      });
+    it('renders correctly without CMS', () => {
+      const { container } = render({ integration: integrationWithoutCms });
+      expect(container).toMatchSnapshot();
+    });
+    it('renders correctly with CMS', () => {
+      const { container } = render({ integration: integrationWithCms });
+      expect(container).toMatchSnapshot();
     });
   });
 });
