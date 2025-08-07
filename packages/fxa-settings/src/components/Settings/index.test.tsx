@@ -257,7 +257,7 @@ describe('Settings App', () => {
     expect(getByTestId('mock-2fa-setup-page')).toBeInTheDocument();
   });
 
-  it('routes to Page2faReplaceRecoveryCodes', async () => {
+  it('routes to Page2faReplaceBackupCodes', async () => {
     const session = mockSession(true);
     const {
       getByTestId,
@@ -271,7 +271,7 @@ describe('Settings App', () => {
 
     await navigate(SETTINGS_PATH + '/two_step_authentication/replace_codes');
 
-    expect(getByTestId('2fa-recovery-codes')).toBeInTheDocument();
+    expect(getByTestId('2fa-backup-codes')).toBeInTheDocument();
   });
 
   it('routes to PageDeleteAccount', async () => {

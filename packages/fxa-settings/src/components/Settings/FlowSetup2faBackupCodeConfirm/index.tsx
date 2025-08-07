@@ -24,6 +24,7 @@ type FlowSetup2faBackupCodeConfirmProps = {
   errorMessage: string;
   setErrorMessage: Dispatch<SetStateAction<string>>;
   reason?: GleanClickEventType2FA;
+  customDescription?: string;
 };
 
 export const FlowSetup2faBackupCodeConfirm = ({
@@ -37,6 +38,7 @@ export const FlowSetup2faBackupCodeConfirm = ({
   setErrorMessage,
   errorMessage,
   reason = GleanClickEventType2FA.setup,
+  customDescription,
 }: FlowSetup2faBackupCodeConfirmProps) => {
   useEffect(() => {
     GleanMetrics.accountPref.twoStepAuthEnterCodeView({
@@ -62,17 +64,24 @@ export const FlowSetup2faBackupCodeConfirm = ({
         />
       )}
       <BackupCodesImage />
+
       <FtlMsg id="flow-setup-2fa-backup-code-confirm-heading">
         <h2 className="font-bold text-xl my-2">
           Enter backup authentication code
         </h2>
       </FtlMsg>
-      <FtlMsg id="flow-setup-2fa-backup-code-confirm-confirm-saved">
-        <p>
-          Confirm you saved your codes by entering one. Without these codes, you
-          might not be able to sign in if you don’t have your authenticator app.
-        </p>
-      </FtlMsg>
+
+      {customDescription ? (
+        <p>{customDescription}</p>
+      ) : (
+        <FtlMsg id="flow-setup-2fa-backup-code-confirm-confirm-saved">
+          <p>
+            Confirm you saved your codes by entering one. Without these codes,
+            you might not be able to sign in if you don't have your
+            authenticator app.
+          </p>
+        </FtlMsg>
+      )}
       <FormVerifyTotp
         codeType="alphanumeric"
         codeLength={10}
