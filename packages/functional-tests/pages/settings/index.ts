@@ -107,12 +107,4 @@ export class SettingsPage extends SettingsLayout {
     await expect(this.alertBar).toHaveText('Two-step authentication disabled');
     await expect(this.totp.status).toHaveText('Disabled');
   }
-
-  async clickPaidSubscriptions() {
-    const [subscriptionPage] = await Promise.all([
-      this.page.context().waitForEvent('page'),
-      this.page.locator('[data-testid=nav-link-subscriptions]').click(),
-    ]);
-    return subscriptionPage;
-  }
 }

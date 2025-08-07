@@ -33,7 +33,6 @@ import { SigninTokenCodePage } from './signinTokenCode';
 import { SigninTotpCodePage } from './signinTotpCode';
 import { SigninUnblockPage } from './signinUnblock';
 import { SignupPage } from './signup';
-import { SubscribePage } from './products';
 import { TermsOfService } from './termsOfService';
 import { TotpPage } from './settings/totp';
 import { InlineRecoveryKey } from './inlineRecoveryKey';
@@ -75,7 +74,6 @@ export function create(page: Page, target: BaseTarget) {
     signinUnblock: new SigninUnblockPage(page, target),
     signup: new SignupPage(page, target),
     signupConfirmedSync: new SignupConfirmedSyncPage(page, target),
-    subscribe: new SubscribePage(page, target),
     termsOfService: new TermsOfService(page, target),
     totp: new TotpPage(page, target),
   };

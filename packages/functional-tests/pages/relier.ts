@@ -86,75 +86,8 @@ export class RelierPage extends BaseLayout {
     return this.page.locator('.ready .prompt-none').click();
   }
 
-  async clickSubscribe() {
-    await this.page
-      .getByRole('link', { name: 'Subscribe to Pro (USD)' })
-      .click();
-    // We need to add a `waitUntil` option here because the page gets redirected from
-    // content-server to payments-server, and the URL changes before the page is fully loaded.
-    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`);
-  }
-
-  async clickSubscribe6Month() {
-    await this.page
-      .getByRole('link', { name: 'Subscribe to Pro 6m (USD)' })
-      .click();
-    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`);
-  }
-
-  async clickSubscribe12Month() {
-    await this.page
-      .getByRole('link', { name: 'Subscribe to Pro 12m (USD)' })
-      .click();
-    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`);
-  }
-
-  async clickSubscribeRPFlowMetrics() {
-    await this.page
-      .getByRole('link', { name: 'Subscribe to Pro (RP flow metrics)' })
-      .click();
-    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`);
-  }
-
   async clickRequire2FA() {
     await this.page.getByText('Sign In (Require 2FA)').click();
     return this.page.waitForURL(`${this.target.contentServerUrl}/**`);
-  }
-
-  async getUrl() {
-    const expectedPathRegExp = new RegExp(
-      `\\/subscriptions\\/products\\/${this.target.subscriptionConfig.product}\\?plan=${this.target.subscriptionConfig.plan}&service=(\\w+)`,
-      'i'
-    );
-    const subscribeButton = this.page.locator('[data-testid=rp-flow-metrics]');
-    await expect(subscribeButton).toHaveAttribute('href', expectedPathRegExp);
-    return subscribeButton.getAttribute('href');
-  }
-
-  getRpAcquisitionParams(searchParams: URLSearchParams) {
-    return {
-      entrypoint: searchParams.get('entrypoint'),
-      entrypoint_experiment: searchParams.get('entrypoint_experiment'),
-      entrypoint_variation: searchParams.get('entrypoint_variation'),
-      form_type: searchParams.get('form_type'),
-      utm_source: searchParams.get('utm_source'),
-      utm_campaign: searchParams.get('utm_campaign'),
-      utm_content: searchParams.get('utm_content'),
-      utm_term: searchParams.get('utm_term'),
-      utm_medium: searchParams.get('utm_medium'),
-      context: searchParams.get('context'),
-    };
-  }
-
-  getRpFlowParams(searchParams: URLSearchParams) {
-    return {
-      flow_id: searchParams.get('flow_id'),
-      device_id: searchParams.get('device_id'),
-      flow_begin_time: searchParams.get('flow_begin_time'),
-    };
-  }
-
-  getRpSearchParams(url: string) {
-    return new URL(url).searchParams;
   }
 }
