@@ -1,0 +1,711 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Signin component snapshots renders correctly with CMS 1`] = `
+<div>
+  <div
+    class="flex min-h-screen flex-col items-center"
+    data-testid="app"
+  >
+    <div
+      class="w-full hidden mobileLandscape:block"
+      id="body-top"
+    />
+    <header
+      class="w-full px-6 pt-16 pb-0 mobileLandscape:py-6"
+    >
+      <a
+        class="mobileLandscape:inline-block"
+        data-testid="link-external"
+        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
+        rel="author"
+        target="_blank"
+      >
+        <img
+          alt="Mozilla logo"
+          class="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
+          src="moz-logo-bw-rgb.svg"
+        />
+        <span
+          class="sr-only"
+        >
+          Opens in new window
+        </span>
+      </a>
+    </header>
+    <main
+      class="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1"
+    >
+      <section>
+        <div
+          class="card"
+        >
+          <img
+            alt="SNAPSHOT_TEST Alt text for logo"
+            class="justify-start mb-4 max-h-[40px]"
+            src="https://example.com/SNAPSHOT_TEST.png"
+          />
+          <h1
+            class="card-header"
+          >
+            SNAPSHOT_TEST Custom CMS Headline
+          </h1>
+          <p
+            class="card-subheader"
+          >
+            SNAPSHOT_TEST Custom CMS Description
+          </p>
+          <div
+            class="mt-9"
+          >
+            <img
+              alt="Default avatar"
+              class="rounded-full mx-auto h-24 w-24 tablet:h-40 tablet:w-40"
+              data-testid="avatar-default"
+              src="avatar-default.svg"
+            />
+            <div
+              class="my-5 text-base break-all text-center"
+            >
+              johndope@example.com
+            </div>
+          </div>
+          <form>
+            <input
+              class="hidden"
+              disabled=""
+              type="email"
+              value="johndope@example.com"
+            />
+            <div
+              class="relative"
+            >
+              <label
+                class="flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none border-grey-200 bg-white mb-5"
+                data-testid="input-container"
+              >
+                <span
+                  class="block flex-auto"
+                >
+                  <span
+                    class="px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body text-grey-900 mt-3 pt-px"
+                    data-testid="input-label"
+                  >
+                    Password
+                  </span>
+                  <input
+                    autocomplete="off"
+                    class="pb-1 pt-5 px-3 font-body rounded text-start w-[90%]"
+                    data-testid="input-field"
+                    name="password"
+                    spellcheck="false"
+                    type="password"
+                    value=""
+                  />
+                </span>
+              </label>
+              <button
+                aria-label="Your password is currently hidden."
+                aria-pressed="false"
+                class="absolute end-0 inset-y-0 my-auto mx-2 px-2 text-grey-500 box-content focus-visible-default rounded"
+                data-testid="visibility-toggle"
+                title="Show password"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="stroke-current"
+                  height="18"
+                  width="24"
+                >
+                  eye-open.svg
+                </svg>
+              </button>
+            </div>
+            <div
+              class="flex"
+            >
+              <span
+                data-testid="ftlmsg-mock"
+                id="signin-button"
+              >
+                <button
+                  class="cta-primary-cms cta-xl cta-primary cta-xl"
+                  style="--cta-bg: blue; --cta-border: blue; --cta-active: blue; --cta-disabled: blue60;"
+                  type="submit"
+                >
+                  Sign in
+                </button>
+              </span>
+            </div>
+          </form>
+          <div
+            class="flex flex-col"
+          >
+            <div
+              class="text-sm flex items-center justify-center my-6"
+            >
+              <div
+                class="flex-1 h-px bg-grey-300 divide-x"
+              />
+              <span
+                data-testid="ftlmsg-mock"
+                id="third-party-auth-options-or"
+              >
+                <div
+                  class="mx-4 text-base text-grey-300 font-extralight"
+                >
+                  or
+                </div>
+              </span>
+              <div
+                class="flex-1 h-px bg-grey-300 divide-x"
+              />
+            </div>
+            <div
+              class="flex flex-col"
+            >
+              <form
+                action=""
+                method="GET"
+              >
+                <input
+                  data-testid="google-signin-form-state"
+                  name="state"
+                  type="hidden"
+                  value="http%3A%2F%2Flocalhost%2Fsignin%3F"
+                />
+                <input
+                  name="client_id"
+                  type="hidden"
+                  value=""
+                />
+                <input
+                  name="scope"
+                  type="hidden"
+                  value="openid email profile"
+                />
+                <input
+                  name="redirect_uri"
+                  type="hidden"
+                  value=""
+                />
+                <input
+                  name="access_type"
+                  type="hidden"
+                  value="offline"
+                />
+                <input
+                  name="prompt"
+                  type="hidden"
+                  value="consent"
+                />
+                <input
+                  name="response_type"
+                  type="hidden"
+                  value="code"
+                />
+                <button
+                  class="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center focus-visible-default outline-offset-2"
+                  type="submit"
+                >
+                  <svg>
+                    google-logo.svg
+                  </svg>
+                  <span
+                    data-testid="ftlmsg-mock"
+                    id="continue-with-google-button"
+                  >
+                    <p
+                      class="pe-4"
+                    >
+                      Continue with Google
+                    </p>
+                  </span>
+                </button>
+              </form>
+              <form
+                action=""
+                method="GET"
+              >
+                <input
+                  data-testid="apple-signin-form-state"
+                  name="state"
+                  type="hidden"
+                  value="http%3A%2F%2Flocalhost%2Fsignin%3F"
+                />
+                <input
+                  name="client_id"
+                  type="hidden"
+                  value=""
+                />
+                <input
+                  name="scope"
+                  type="hidden"
+                  value="email"
+                />
+                <input
+                  name="redirect_uri"
+                  type="hidden"
+                  value=""
+                />
+                <input
+                  name="access_type"
+                  type="hidden"
+                  value="offline"
+                />
+                <input
+                  name="prompt"
+                  type="hidden"
+                  value="consent"
+                />
+                <input
+                  name="response_type"
+                  type="hidden"
+                  value="code id_token"
+                />
+                <input
+                  name="response_mode"
+                  type="hidden"
+                  value="form_post"
+                />
+                <button
+                  class="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center focus-visible-default outline-offset-2"
+                  type="submit"
+                >
+                  <svg>
+                    apple-logo.svg
+                  </svg>
+                  <span
+                    data-testid="ftlmsg-mock"
+                    id="continue-with-apple-button"
+                  >
+                    <p
+                      class="pe-4"
+                    >
+                      Continue with Apple
+                    </p>
+                  </span>
+                </button>
+              </form>
+            </div>
+          </div>
+          <div
+            class="text-grey-500 text-xs mt-5"
+          >
+            <span
+              data-testid="ftlmsg-mock"
+              id="terms-privacy-agreement-default-2"
+            >
+              <p>
+                By proceeding, you agree to the
+                 
+                <a
+                  class="link-grey"
+                  href="/legal/terms"
+                >
+                  Terms of Service
+                </a>
+                 
+                and
+                 
+                <a
+                  class="link-grey"
+                  href="/legal/privacy"
+                >
+                  Privacy Notice
+                </a>
+                .
+              </p>
+            </span>
+          </div>
+          <div
+            class="flex flex-col mt-8 tablet:justify-between tablet:flex-row"
+          >
+            <span
+              data-testid="ftlmsg-mock"
+              id="signin-use-a-different-account-link"
+            >
+              <a
+                class="text-sm link-blue cursor-pointer mb-4 mx-auto tablet:mx-0 tablet:mb-0"
+                href="/"
+              >
+                Use a different account
+              </a>
+            </span>
+            <span
+              data-testid="ftlmsg-mock"
+              id="signin-forgot-password-link"
+            >
+              <a
+                class="text-sm link-blue mx-auto tablet:mx-0"
+                href="/reset_password"
+              >
+                Forgot password?
+              </a>
+            </span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div
+    class="w-full block mobileLandscape:hidden"
+    id="body-bottom"
+  />
+</div>
+`;
+
+exports[`Signin component snapshots renders correctly without CMS 1`] = `
+<div>
+  <div
+    class="flex min-h-screen flex-col items-center"
+    data-testid="app"
+  >
+    <div
+      class="w-full hidden mobileLandscape:block"
+      id="body-top"
+    />
+    <header
+      class="w-full px-6 pt-16 pb-0 mobileLandscape:py-6"
+    >
+      <a
+        class="mobileLandscape:inline-block"
+        data-testid="link-external"
+        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
+        rel="author"
+        target="_blank"
+      >
+        <img
+          alt="Mozilla logo"
+          class="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
+          src="moz-logo-bw-rgb.svg"
+        />
+        <span
+          class="sr-only"
+        >
+          Opens in new window
+        </span>
+      </a>
+    </header>
+    <main
+      class="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1"
+    >
+      <section>
+        <div
+          class="card"
+        >
+          <span
+            data-testid="ftlmsg-mock"
+            id="signin-password-needed-header-2"
+          >
+            <h1
+              class="card-header"
+            >
+              Enter your password
+               
+              <span
+                class="card-subheader"
+              >
+                for your Mozilla account
+              </span>
+            </h1>
+          </span>
+          <div
+            class="mt-9"
+          >
+            <img
+              alt="Default avatar"
+              class="rounded-full mx-auto h-24 w-24 tablet:h-40 tablet:w-40"
+              data-testid="avatar-default"
+              src="avatar-default.svg"
+            />
+            <div
+              class="my-5 text-base break-all text-center"
+            >
+              johndope@example.com
+            </div>
+          </div>
+          <form>
+            <input
+              class="hidden"
+              disabled=""
+              type="email"
+              value="johndope@example.com"
+            />
+            <div
+              class="relative"
+            >
+              <label
+                class="flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none border-grey-200 bg-white mb-5"
+                data-testid="input-container"
+              >
+                <span
+                  class="block flex-auto"
+                >
+                  <span
+                    class="px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body text-grey-900 mt-3 pt-px"
+                    data-testid="input-label"
+                  >
+                    Password
+                  </span>
+                  <input
+                    autocomplete="off"
+                    class="pb-1 pt-5 px-3 font-body rounded text-start w-[90%]"
+                    data-testid="input-field"
+                    name="password"
+                    spellcheck="false"
+                    type="password"
+                    value=""
+                  />
+                </span>
+              </label>
+              <button
+                aria-label="Your password is currently hidden."
+                aria-pressed="false"
+                class="absolute end-0 inset-y-0 my-auto mx-2 px-2 text-grey-500 box-content focus-visible-default rounded"
+                data-testid="visibility-toggle"
+                title="Show password"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="stroke-current"
+                  height="18"
+                  width="24"
+                >
+                  eye-open.svg
+                </svg>
+              </button>
+            </div>
+            <div
+              class="flex"
+            >
+              <span
+                data-testid="ftlmsg-mock"
+                id="signin-button"
+              >
+                <button
+                  class="cta-primary cta-xl cta-primary cta-xl"
+                  type="submit"
+                >
+                  Sign in
+                </button>
+              </span>
+            </div>
+          </form>
+          <div
+            class="flex flex-col"
+          >
+            <div
+              class="text-sm flex items-center justify-center my-6"
+            >
+              <div
+                class="flex-1 h-px bg-grey-300 divide-x"
+              />
+              <span
+                data-testid="ftlmsg-mock"
+                id="third-party-auth-options-or"
+              >
+                <div
+                  class="mx-4 text-base text-grey-300 font-extralight"
+                >
+                  or
+                </div>
+              </span>
+              <div
+                class="flex-1 h-px bg-grey-300 divide-x"
+              />
+            </div>
+            <div
+              class="flex flex-col"
+            >
+              <form
+                action=""
+                method="GET"
+              >
+                <input
+                  data-testid="google-signin-form-state"
+                  name="state"
+                  type="hidden"
+                  value="http%3A%2F%2Flocalhost%2Fsignin%3F"
+                />
+                <input
+                  name="client_id"
+                  type="hidden"
+                  value=""
+                />
+                <input
+                  name="scope"
+                  type="hidden"
+                  value="openid email profile"
+                />
+                <input
+                  name="redirect_uri"
+                  type="hidden"
+                  value=""
+                />
+                <input
+                  name="access_type"
+                  type="hidden"
+                  value="offline"
+                />
+                <input
+                  name="prompt"
+                  type="hidden"
+                  value="consent"
+                />
+                <input
+                  name="response_type"
+                  type="hidden"
+                  value="code"
+                />
+                <button
+                  class="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center focus-visible-default outline-offset-2"
+                  type="submit"
+                >
+                  <svg>
+                    google-logo.svg
+                  </svg>
+                  <span
+                    data-testid="ftlmsg-mock"
+                    id="continue-with-google-button"
+                  >
+                    <p
+                      class="pe-4"
+                    >
+                      Continue with Google
+                    </p>
+                  </span>
+                </button>
+              </form>
+              <form
+                action=""
+                method="GET"
+              >
+                <input
+                  data-testid="apple-signin-form-state"
+                  name="state"
+                  type="hidden"
+                  value="http%3A%2F%2Flocalhost%2Fsignin%3F"
+                />
+                <input
+                  name="client_id"
+                  type="hidden"
+                  value=""
+                />
+                <input
+                  name="scope"
+                  type="hidden"
+                  value="email"
+                />
+                <input
+                  name="redirect_uri"
+                  type="hidden"
+                  value=""
+                />
+                <input
+                  name="access_type"
+                  type="hidden"
+                  value="offline"
+                />
+                <input
+                  name="prompt"
+                  type="hidden"
+                  value="consent"
+                />
+                <input
+                  name="response_type"
+                  type="hidden"
+                  value="code id_token"
+                />
+                <input
+                  name="response_mode"
+                  type="hidden"
+                  value="form_post"
+                />
+                <button
+                  class="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center focus-visible-default outline-offset-2"
+                  type="submit"
+                >
+                  <svg>
+                    apple-logo.svg
+                  </svg>
+                  <span
+                    data-testid="ftlmsg-mock"
+                    id="continue-with-apple-button"
+                  >
+                    <p
+                      class="pe-4"
+                    >
+                      Continue with Apple
+                    </p>
+                  </span>
+                </button>
+              </form>
+            </div>
+          </div>
+          <div
+            class="text-grey-500 text-xs mt-5"
+          >
+            <span
+              data-testid="ftlmsg-mock"
+              id="terms-privacy-agreement-default-2"
+            >
+              <p>
+                By proceeding, you agree to the
+                 
+                <a
+                  class="link-grey"
+                  href="/legal/terms"
+                >
+                  Terms of Service
+                </a>
+                 
+                and
+                 
+                <a
+                  class="link-grey"
+                  href="/legal/privacy"
+                >
+                  Privacy Notice
+                </a>
+                .
+              </p>
+            </span>
+          </div>
+          <div
+            class="flex flex-col mt-8 tablet:justify-between tablet:flex-row"
+          >
+            <span
+              data-testid="ftlmsg-mock"
+              id="signin-use-a-different-account-link"
+            >
+              <a
+                class="text-sm link-blue cursor-pointer mb-4 mx-auto tablet:mx-0 tablet:mb-0"
+                href="/"
+              >
+                Use a different account
+              </a>
+            </span>
+            <span
+              data-testid="ftlmsg-mock"
+              id="signin-forgot-password-link"
+            >
+              <a
+                class="text-sm link-blue mx-auto tablet:mx-0"
+                href="/reset_password"
+              >
+                Forgot password?
+              </a>
+            </span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div
+    class="w-full block mobileLandscape:hidden"
+    id="body-bottom"
+  />
+</div>
+`;

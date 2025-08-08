@@ -64,6 +64,17 @@ import {
 } from '../../models/pages/signin';
 import { OAuthError } from '../../lib/oauth';
 
+/**
+ * Lazy config so that tests can mutate as needed, but it's returned
+ * via the mocked `useConfig` hook and mocks are left as is.
+ */
+let testConfig = {
+  featureFlags: {
+    contentManagementSystem: false,
+    recoveryCodeSetupOnSyncSignIn: true,
+  },
+};
+
 jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),
   firefox: {
@@ -203,11 +214,7 @@ function mockModelsModule() {
   (ModelsModule.useSensitiveDataClient as jest.Mock).mockImplementation(
     () => mockSensitiveDataClient
   );
-  (ModelsModule.useConfig as jest.Mock).mockImplementation(() => ({
-    featureFlags: {
-      recoveryCodeSetupOnSyncSignIn: true,
-    },
-  }));
+  (ModelsModule.useConfig as jest.Mock).mockImplementation(() => testConfig);
 }
 
 // Call this when testing local storage

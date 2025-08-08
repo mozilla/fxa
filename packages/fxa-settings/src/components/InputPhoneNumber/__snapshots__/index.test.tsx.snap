@@ -1,0 +1,141 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InputPhoneNumber renders as expected with default countries 1`] = `
+<div>
+  <div
+    class="flex min-h-screen flex-col items-center"
+    data-testid="app"
+  >
+    <div
+      class="w-full hidden mobileLandscape:block"
+      id="body-top"
+    />
+    <header
+      class="w-full px-6 pt-16 pb-0 mobileLandscape:py-6"
+    >
+      <a
+        class="mobileLandscape:inline-block"
+        data-testid="link-external"
+        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
+        rel="author"
+        target="_blank"
+      >
+        <img
+          alt="Mozilla logo"
+          class="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
+          src="moz-logo-bw-rgb.svg"
+        />
+        <span
+          class="sr-only"
+        >
+          Opens in new window
+        </span>
+      </a>
+    </header>
+    <main
+      class="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1"
+    >
+      <section>
+        <div
+          class="card"
+        >
+          <div
+            class="flex"
+          >
+            <div
+              class="relative inline-block w-[60px] me-2"
+            >
+              <span
+                data-testid="ftlmsg-mock"
+                id="input-phone-number-country-list-aria-label"
+              >
+                <label
+                  class="sr-only"
+                  id="countryLabel"
+                >
+                  Select country
+                </label>
+              </span>
+              <select
+                aria-labelledby="countryLabel"
+                class=" w-full h-full px-2 border border-grey-200 rounded-md bg-transparent text-transparent focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus forced-color-adjust:none [@media(forced-colors:active)]:text-[ButtonFace] [@media(forced-colors:active)]:text-shadow-[0_0_0_transparent] appearance-none "
+              >
+                <option
+                  class="text-black"
+                  value="2"
+                >
+                  Canada
+                   (
+                  +1
+                  )
+                </option>
+                <option
+                  class="text-black"
+                  value="1"
+                >
+                  United States
+                   (
+                  +1
+                  )
+                </option>
+              </select>
+              <span
+                aria-hidden="true"
+                class="
+              absolute start-1 top-1/2 -translate-y-1/2
+              w-6 h-4 bg-no-repeat bg-[length:1.5rem_1rem]
+              pointer-events-none
+              bg-flag-usa
+            "
+              />
+              <svg
+                aria-hidden="true"
+                class="absolute end-1.5 top-1/2 -translate-y-1/2 w-2.5 h-2.5 fill-current text-current pointer-events-none [forced-colors:active]:text-[ButtonText]"
+                viewBox="0 0 8 5"
+              >
+                <path
+                  d="M0 0h8L4 5z"
+                />
+              </svg>
+            </div>
+            <input
+              name="countryCode"
+              type="hidden"
+              value=""
+            />
+            <label
+              class="flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none border-grey-200 bg-white text-start w-full"
+              data-testid="input-container"
+            >
+              <span
+                class="block flex-auto"
+              >
+                <span
+                  class="px-3 w-full cursor-text absolute ltr:origin-top-left rtl:origin-top-right text-sm transition-all duration-100 ease-in-out truncate font-body text-grey-900 mt-3 pt-px"
+                  data-testid="input-label"
+                >
+                  Enter phone number
+                </span>
+                <input
+                  autocomplete="off"
+                  class="pb-1 pt-5 px-3 font-body rounded text-start w-full"
+                  data-testid="input-field"
+                  name="phoneNumber"
+                  required=""
+                  spellcheck="false"
+                  type="tel"
+                  value=""
+                />
+              </span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div
+    class="w-full block mobileLandscape:hidden"
+    id="body-bottom"
+  />
+</div>
+`;

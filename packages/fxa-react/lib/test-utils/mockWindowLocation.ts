@@ -11,10 +11,11 @@ export function mockWindowLocation({
   search?: string;
   hash?: string;
 }) {
+  const originalLocation = window.location;
   delete (window as any).location;
 
   (window as any).location = {
-    ...window.location,
+    ...originalLocation,
     assign: jest.fn(),
     reload: jest.fn(),
     replace: jest.fn(),

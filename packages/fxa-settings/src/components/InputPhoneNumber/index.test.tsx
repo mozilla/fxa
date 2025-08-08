@@ -9,7 +9,7 @@ import { extendedCountryOptions, Subject } from './mocks';
 
 describe('InputPhoneNumber', () => {
   it('renders as expected with default countries', () => {
-    renderWithLocalizationProvider(<Subject />);
+    const { container } = renderWithLocalizationProvider(<Subject />);
 
     const usOption = screen.getByText('United States (+1)');
     const canadaOption = screen.getByText('Canada (+1)');
@@ -28,6 +28,7 @@ describe('InputPhoneNumber', () => {
     expect(
       screen.getByRole('textbox', { name: /Enter phone number/i })
     ).toBeInTheDocument();
+    expect(container).toMatchSnapshot();
   });
 
   it('renders a select option for every country, and the country with ID=1 is selected by default', async () => {

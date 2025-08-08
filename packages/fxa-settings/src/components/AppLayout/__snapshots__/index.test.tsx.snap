@@ -1,0 +1,108 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<AppLayout /> snapshots renders correctly with CMS 1`] = `
+<div>
+  <div
+    class="flex min-h-screen flex-col items-center"
+    data-testid="app"
+    style="--cms-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+  >
+    <div
+      class="w-full hidden mobileLandscape:block"
+      id="body-top"
+    />
+    <header
+      class="w-full px-6 pt-16 pb-0 mobileLandscape:py-6"
+    >
+      <a
+        class="mobileLandscape:inline-block"
+        data-testid="link-external"
+        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
+        rel="author"
+        target="_blank"
+      >
+        <img
+          alt="Snapshot CMS Custom Logo"
+          class="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
+          src="https://example.com/snapshot-cms-logo.png"
+        />
+        <span
+          class="sr-only"
+        >
+          Opens in new window
+        </span>
+      </a>
+    </header>
+    <main
+      class="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1"
+    >
+      <section>
+        <div
+          class="card"
+        >
+          <p>
+            Hello, world!
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div
+    class="w-full block mobileLandscape:hidden"
+    id="body-bottom"
+  />
+</div>
+`;
+
+exports[`<AppLayout /> snapshots renders correctly without CMS 1`] = `
+<div>
+  <div
+    class="flex min-h-screen flex-col items-center"
+    data-testid="app"
+  >
+    <div
+      class="w-full hidden mobileLandscape:block"
+      id="body-top"
+    />
+    <header
+      class="w-full px-6 pt-16 pb-0 mobileLandscape:py-6"
+    >
+      <a
+        class="mobileLandscape:inline-block"
+        data-testid="link-external"
+        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
+        rel="author"
+        target="_blank"
+      >
+        <img
+          alt="Mozilla logo"
+          class="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
+          src="moz-logo-bw-rgb.svg"
+        />
+        <span
+          class="sr-only"
+        >
+          Opens in new window
+        </span>
+      </a>
+    </header>
+    <main
+      class="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1"
+    >
+      <section>
+        <div
+          class="card"
+        >
+          <p>
+            Hello, world!
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div
+    class="w-full block mobileLandscape:hidden"
+    id="body-bottom"
+  />
+</div>
+`;

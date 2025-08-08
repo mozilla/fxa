@@ -378,4 +378,39 @@ describe('<AppLayout />', () => {
     const allImages = screen.getAllByRole('img');
     expect(allImages).toHaveLength(1);
   });
+
+  describe('snapshots', () => {
+    it('renders correctly with CMS', () => {
+      const mockCmsInfo = {
+        name: 'Test App',
+        clientId: 'test123',
+        entrypoint: 'snapshot-test',
+        shared: {
+          headerLogoUrl: 'https://example.com/snapshot-cms-logo.png',
+          headerLogoAltText: 'Snapshot CMS Custom Logo',
+          buttonColor: '#0078d4',
+          logoUrl: 'https://example.com/snapshot-cms-logo.png',
+          logoAltText: 'Snapshot App Logo',
+          backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          pageTitle: 'Snapshot App - Custom Title',
+        },
+      } as RelierCmsInfo;
+
+      const { container } = renderWithLocalizationProvider(
+        <AppLayout cmsInfo={mockCmsInfo}>
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+
+      expect(container).toMatchSnapshot();
+    });
+    it('renders correctly without CMS', () => {
+      const { container } = renderWithLocalizationProvider(
+        <AppLayout>
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+      expect(container).toMatchSnapshot();
+    });
+  });
 });
