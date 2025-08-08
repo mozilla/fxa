@@ -42,10 +42,7 @@ import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 
 export const viewName = 'signin';
 
-/* The avatar size must not increase until the tablet breakpoint due to logging into
- * Pocket with FxA and maybe others later: an Apple-controlled modal displays FxA in a
- * web view and we want the "Sign in" button to be displayed above the fold. See FXA-7425 */
-const avatarClassNames = 'mx-auto h-24 w-24 tablet:h-40 tablet:w-40';
+const avatarClassNames = 'h-12 w-12 desktop:h-22 desktop:w-22';
 
 const Signin = ({
   integration,
@@ -421,30 +418,34 @@ const Signin = ({
           link={localizedBannerErrorLink}
         />
       )}
-      <div className="mt-9">
-        {sessionToken && avatarData?.account?.avatar ? (
-          <Avatar
-            className={avatarClassNames}
-            avatar={avatarData.account.avatar}
-          />
-        ) : avatarLoading ? (
-          <div
-            className={classNames(
-              avatarClassNames,
-              'flex justify-center items-center'
-            )}
-          >
-            <LoadingSpinner />
+      <div className="mt-8 mb-7 desktop:my-6">
+        <div className="flex desktop:flex-col items-center gap-3 desktop:gap-2">
+          {sessionToken && avatarData?.account?.avatar ? (
+            <Avatar
+              className={avatarClassNames}
+              avatar={avatarData.account.avatar}
+            />
+          ) : avatarLoading ? (
+            <div
+              className={classNames(
+                avatarClassNames,
+                'flex justify-center items-center'
+              )}
+            >
+              <LoadingSpinner />
+            </div>
+          ) : (
+            // There was an error, so just show default avatar
+            <Avatar className={avatarClassNames} />
+          )}
+          <div className="text-base break-all text-start desktop:text-center">
+            {email}
           </div>
-        ) : (
-          // There was an error, so just show default avatar
-          <Avatar className={avatarClassNames} />
-        )}
-        <div className="my-5 text-base break-all text-center">{email}</div>
+        </div>
 
         {isDesktopRelay && (
           <FtlMsg id="signin-desktop-relay">
-            <p className="mt-2 mb-4 text-sm">
+            <p className="mt-6 mb-4 text-sm">
               Firefox will try sending you back to use an email mask after you
               sign in.
             </p>
