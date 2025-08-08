@@ -17,7 +17,8 @@ subscriptionUpgrade-upgrade-info-2 = You have successfully upgraded to { $produc
 ## $paymentProrated (String) - The one time fee to reflect the higher charge for the remainder of the payment cycle, including currency, e.g. $10.00
 subscriptionUpgrade-content-charge-prorated-1 = You have been charged a one-time fee of { $invoiceAmountDue } to reflect your subscription’s higher price for the remainder of this billing period ({ $productPaymentCycleOld }).
 subscriptionUpgrade-content-charge-credit = You have received an account credit in the amount of { $paymentProrated }.
-subscriptionUpgrade-content-starting = Starting with your next bill, your charge will change from { $paymentAmountOld } per { $productPaymentCycleOld } to { $paymentAmountNew } per { $productPaymentCycleNew }.
+subscriptionUpgrade-content-subscription-will-change = Starting with your next bill, the price of your subscription will change from { $paymentAmountOld } per { $productPaymentCycleOld } to { $paymentAmountNew } per { $productPaymentCycleNew }, excluding discounts.
+subscriptionUpgrade-content-subscription-will-change-tax = Starting with your next bill, the price of your subscription will change from { $paymentAmountOld } + { $paymentTaxOld } tax  per { $productPaymentCycleOld } to { $paymentAmountNew } + { $paymentTaxNew } tax per { $productPaymentCycleNew }, excluding discounts.
 
 # Variables:
 # $productName (String) - The name of the new subscribed product, e.g. Mozilla VPN

@@ -10,8 +10,11 @@ subscriptionUpgrade-content-charge-credit = "You have received an account credit
 subscriptionUpgrade-content-charge-prorated-1 = "You have been charged a one-time fee of <%- invoiceAmountDue %> to reflect your subscription’s higher price for the remainder of this billing period (<%- productPaymentCycleOld %>)."
 <% } %>
 
-subscriptionUpgrade-content-starting = "Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>."
-
+<% if (locals.paymentTaxOldInCents && locals.paymentTaxNewInCents) { %>
+subscriptionUpgrade-content-subscription-will-change-tax = "Starting with your next bill, the price of your subscription will change from  <%- paymentAmountOld %> + <%- paymentTaxOld %> tax per <%- productPaymentCycleOld %>  to <%- paymentAmountNew %>  + <%- paymentTaxNew %> tax per <%- productPaymentCycleNew %>, excluding discounts."
+<% } else { %>
+subscriptionUpgrade-content-subscription-will-change = "Starting with your next bill, the price of your subscription will change from  <%- paymentAmountOld %> per <%- productPaymentCycleOld %>  to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>, excluding discounts."
+<% } %>
 
 subscriptionUpgrade-existing = "If any of your existing subscriptions overlap with this upgrade, we’ll handle them and send you a separate email with the details. If your new plan includes products that require installation, we’ll send you a separate email with setup instructions."
 

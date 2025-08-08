@@ -2215,8 +2215,10 @@ module.exports = function (log, config, bounces, statsd) {
       productNameNew,
       paymentAmountOldInCents,
       paymentAmountOldCurrency,
+      paymentTaxOldInCents,
       paymentAmountNewInCents,
       paymentAmountNewCurrency,
+      paymentTaxNewInCents,
       paymentProratedInCents,
       paymentProratedCurrency,
       productPaymentCycleNew,
@@ -2256,8 +2258,18 @@ module.exports = function (log, config, bounces, statsd) {
           paymentAmountOldCurrency,
           message.acceptLanguage
         ),
+        paymentTaxOld: this._getLocalizedCurrencyString(
+          paymentTaxOldInCents,
+          paymentAmountOldCurrency,
+          message.acceptLanguage
+        ),
         paymentAmountNew: this._getLocalizedCurrencyString(
           paymentAmountNewInCents,
+          paymentAmountNewCurrency,
+          message.acceptLanguage
+        ),
+        paymentTaxNew: this._getLocalizedCurrencyString(
+          paymentTaxNewInCents,
           paymentAmountNewCurrency,
           message.acceptLanguage
         ),

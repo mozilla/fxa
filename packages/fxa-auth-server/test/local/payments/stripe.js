@@ -5980,7 +5980,8 @@ describe('#integration - StripeHelper', () => {
         eventCustomerSubscriptionUpdated.data.object.plan.interval,
       closeDate: 1326853478,
       invoiceOldCurrency: mockOldInvoice.currency,
-      invoiceTotalOldInCents: mockOldInvoice.amount_due,
+      invoiceTotalOldInCents: mockOldInvoice.total,
+      invoiceTaxOldInCents: 0,
       productMetadata: {
         emailIconURL:
           eventCustomerSubscriptionUpdated.data.object.plan.metadata
@@ -6054,6 +6055,10 @@ describe('#integration - StripeHelper', () => {
 
       beforeEach(() => {
         sandbox.stub(stripeHelper, 'getInvoice').resolves(mockOldInvoice);
+        sandbox.stub(stripeHelper, 'getSubsequentPrices').resolves({
+          exclusiveTax: 0,
+          total: mockOldInvoice.total,
+        });
         sandbox
           .stub(
             stripeHelper,
@@ -6191,6 +6196,7 @@ describe('#integration - StripeHelper', () => {
       it('calls the helper method when latest_invoice is not present', async () => {
         const expected = {
           ...expectedBaseUpdateDetails,
+          invoiceTaxOldInCents: undefined,
           invoiceTotalOldInCents: undefined,
         };
         const event = deepCopy(eventCustomerSubscriptionUpdated);
@@ -6349,6 +6355,11 @@ describe('#integration - StripeHelper', () => {
             }
           );
 
+          sandbox.stub(stripeHelper, 'getSubsequentPrices').resolves({
+            exclusiveTax: 0,
+            total: upcomingInvoice.total,
+          });
+
           const result =
             await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
               event.data.object,
@@ -6373,6 +6384,8 @@ describe('#integration - StripeHelper', () => {
             paymentAmountOldInCents: baseDetails.invoiceTotalOldInCents,
             paymentAmountNewCurrency: upcomingInvoice.currency,
             paymentAmountNewInCents: upcomingInvoice.total,
+            paymentTaxNewInCents: 0,
+            paymentTaxOldInCents: baseDetails.invoiceTaxOldInCents,
             paymentProratedCurrency: mockInvoice.currency,
             paymentProratedInCents: mockInvoice.total,
             invoiceNumber: mockInvoice.number,
@@ -6968,16 +6981,14 @@ describe('#integration - StripeHelper', () => {
         const event = deepCopy(eventCustomerUpdated);
         event.type = type;
         event.request = null;
-        stripeFirestore.fetchAndInsertCustomer = sandbox
-          .stub()
-          .resolves({});
+        stripeFirestore.fetchAndInsertCustomer = sandbox.stub().resolves({});
         dbStub.getUidAndEmailByStripeCustomerId.resolves({
           uid: newCustomer.metadata.userid,
         });
         await stripeHelper.processWebhookEventToFirestore(event);
         sinon.assert.calledOnceWithExactly(
           stripeHelper.stripeFirestore.fetchAndInsertCustomer,
-          eventCustomerUpdated.data.object.id,
+          eventCustomerUpdated.data.object.id
         );
       });
     }
@@ -7000,11 +7011,11 @@ describe('#integration - StripeHelper', () => {
           }
           stripeHelper.expandResource = sandbox.stub().resolves(customer);
           stripeFirestore.retrieveSubscription = sandbox.stub().resolves({});
-          stripeFirestore.retrieveCustomer = sandbox
-            .stub()
-            .resolves(customer);
+          stripeFirestore.retrieveCustomer = sandbox.stub().resolves(customer);
           stripeFirestore.fetchAndInsertCustomer = sandbox.stub().resolves({});
-          stripeFirestore.fetchAndInsertSubscription = sandbox.stub().resolves({});
+          stripeFirestore.fetchAndInsertSubscription = sandbox
+            .stub()
+            .resolves({});
           await stripeHelper.processWebhookEventToFirestore(event);
           if (!hasCurrency) {
             sinon.assert.calledOnceWithExactly(
