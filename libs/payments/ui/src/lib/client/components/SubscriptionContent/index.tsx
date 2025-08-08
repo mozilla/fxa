@@ -6,17 +6,23 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { Localized } from '@fluent/react';
+import { Localized, useLocalization } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 
 import { ButtonVariant, SubmitButton } from '@fxa/payments/ui';
 import couponIcon from '@fxa/shared/assets/images/ico-coupon.svg';
 import {
   getLocalizedCurrencyString,
+  getLocalizedDate,
   getLocalizedDateString,
 } from '@fxa/shared/l10n';
+import { cancelSubscriptionAtPeriodEndAction } from '../../../actions';
+import * as Dialog from '@radix-ui/react-dialog';
+import CloseIcon from '@fxa/shared/assets/images/close.svg';
+import { LinkExternal } from '@fxa/shared/react';
 
 interface Subscription {
+  id: string;
   productName: string;
   currency: string;
   interval?: string;
@@ -27,16 +33,21 @@ interface Subscription {
   nextInvoiceTax?: number;
   nextInvoiceTotal?: number;
   promotionName?: string | null;
+  cancelAtPeriodEnd: boolean;
 }
 
 interface SubscriptionContentProps {
+  userId: string;
   subscription: Subscription;
   locale: string;
+  supportUrl: string;
 }
 
 export const SubscriptionContent = ({
+  userId,
   subscription,
   locale,
+  supportUrl,
 }: SubscriptionContentProps) => {
   const {
     currency,
@@ -48,9 +59,15 @@ export const SubscriptionContent = ({
     nextInvoiceTotal,
     productName,
     promotionName,
+    cancelAtPeriodEnd,
   } = subscription;
   const [checkedState, setCheckedState] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [showCancelActionError, setShowCancelActionError] = useState(false);
+
+  const { l10n } = useLocalization();
+
   const getCurrencyFallbackText = (amount: number) => {
     return getLocalizedCurrencyString(amount, currency, locale);
   };
@@ -64,12 +81,75 @@ export const SubscriptionContent = ({
     false,
     locale
   );
+
+  async function cancelSubscriptionAtPeriodEnd() {
+    const result = await cancelSubscriptionAtPeriodEndAction(userId, subscription.id)
+    if (result.ok) {
+      setOpenDialog(true);
+      setShowCancel(false);
+      setShowCancelActionError(false);
+    } else {
+      setShowCancelActionError(true);
+    }
+  }
   return (
     <>
+      <Dialog.Root open={openDialog}>
+        <Dialog.Portal>
+          <Dialog.Overlay className='fixed inset-0 bg-black/75 z-50' />
+          <Dialog.Content
+            className='w-11/12 max-w-[545px] text-center px-7 pt-6 pb-8 rounded-xl shadow inline-block fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] bg-white'
+            onEscapeKeyDown={() => setOpenDialog(false)}
+            onPointerDownOutside={() => setOpenDialog(false)}
+            onInteractOutside={() => setOpenDialog(false)}
+          >
+            <Dialog.Title className='font-bold leading-6 m-5'>
+              <Localized id="subscription-cancellation-dialog-title">
+                We’re sorry to see you go
+              </Localized>
+            </Dialog.Title>
+            <Dialog.Description asChild className='leading-6 space-y-4'>
+              <div>
+                <Localized
+                  id="subscription-cancellation-dialog-msg"
+                  vars={{
+                    name: subscription.productName,
+                    date: getLocalizedDate(subscription.currentPeriodEnd),
+                  }}
+                >
+                  <p>
+                    Your {subscription.productName} subscription has been cancelled. You will still have access to {subscription.productName} until{' '} {getLocalizedDateString(subscription.currentPeriodEnd, false)}.
+                  </p>
+                </Localized>
+                <Localized
+                  id="subscription-cancellation-dialog-aside"
+                  vars={{ url: supportUrl }}
+                  elems={{ LinkExternal: <LinkExternal href={supportUrl} className="text-blue-500">Mozilla Support</LinkExternal> }}
+                >
+                  <p>
+                    Have questions? Visit <LinkExternal href={supportUrl} className="text-blue-500">Mozilla Support</LinkExternal>.
+                  </p>
+                </Localized>
+              </div>
+            </Dialog.Description>
+            <Dialog.Close asChild
+            >
+              <button
+                className="absolute bg-transparent border-0 cursor-pointer flex items-center justify-center w-6 h-6 m-0 p-0 top-4 right-4 hover:bg-grey-200 hover:rounded focus:border-blue-400 focus:rounded focus:shadow-input-blue-focus after:absolute after:content-[''] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10"
+                onClick={() => setOpenDialog(false)}
+              >
+                <Image src={CloseIcon} alt={l10n.getString('dialog-close', null, 'Close dialog')} />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
       {showCancel ? (
         <Form.Root
           aria-labelledby="cancel-subscription-heading"
           aria-describedby="cancel-subscription-desc"
+          action={cancelSubscriptionAtPeriodEnd}
         >
           <Localized id="subscription-content-heading-cancel-subscription">
             <h4 id="cancel-subscription-heading" className="pt-6">
@@ -116,6 +196,15 @@ export const SubscriptionContent = ({
                 </Localized>
               </label>
             </Form.Label>
+            {showCancelActionError && (
+              <Form.Message asChild>
+                <Localized id="subscription-content-cancel-action-error">
+                  <p className="mt-1 text-alert-red font-normal" role="alert">
+                    An unexpected error occurred. Please try again.
+                  </p>
+                </Localized>
+              </Form.Message>
+            )}
           </Form.Field>
           <div className="flex flex-col gap-4 tablet:flex-row items-center justify-between pt-3">
             <Localized
@@ -128,6 +217,7 @@ export const SubscriptionContent = ({
                 variant={ButtonVariant.Primary}
                 onClick={() => setShowCancel(false)}
                 aria-label={`Stay subscribed to ${productName}`}
+                showLoadingSpinner={false}
               >
                 Stay Subscribed
               </SubmitButton>
@@ -139,7 +229,7 @@ export const SubscriptionContent = ({
                 attrs={{ 'aria-label': true }}
               >
                 <SubmitButton
-                  className={`h-10 w-full tablet:w-1/2 ${!checkedState && 'bg-grey-50 text-grey-300 hover:bg-grey-50 hover:cursor-not-allowed hover:bg-inherit aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none'}`}
+                  className={`h-10 w-full tablet:w-1/2`}
                   variant={ButtonVariant.Secondary}
                   disabled={!checkedState}
                   aria-label={`Cancel your subscription to ${productName}`}
@@ -242,6 +332,12 @@ export const SubscriptionContent = ({
                 </div>
               )}
             </div>
+            {/*This is a temporary change. Permanent implementation completed as part of PAY-2510*/}
+            {cancelAtPeriodEnd && (
+              <div>
+                THIS IS CANCELLED NOW
+              </div>
+            )}
           </div>
           <Localized
             id="subscription-content-button-cancel"

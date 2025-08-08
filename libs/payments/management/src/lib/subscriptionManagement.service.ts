@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Inject, Injectable, Logger, type LoggerService } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/nestjs';
 import { StatsD } from 'hot-shots';
 
@@ -43,24 +43,72 @@ import {
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
   UpdateAccountCustomerMissingStripeId,
   SetDefaultPaymentAccountCustomerMissingStripeId,
+  CancelSubscriptionCustomerMismatch,
 } from './subscriptionManagement.error';
 import { SubscriptionContent } from './types';
+import { NotifierService } from '@fxa/shared/notifier';
+import { ProfileClient } from '@fxa/profile/client';
 
 @Injectable()
 export class SubscriptionManagementService {
   constructor(
-    @Inject(Logger) private log: LoggerService,
     @Inject(StatsDService) private statsd: StatsD,
     private accountCustomerManager: AccountCustomerManager,
     private currencyManager: CurrencyManager,
     private customerManager: CustomerManager,
     private customerSessionManager: CustomerSessionManager,
     private invoiceManager: InvoiceManager,
+    private notifierService: NotifierService,
     private paymentMethodManager: PaymentMethodManager,
+    private profileClient: ProfileClient,
     private setupIntentManager: SetupIntentManager,
     private productConfigurationManager: ProductConfigurationManager,
     private subscriptionManager: SubscriptionManager
   ) {}
+
+  @SanitizeExceptions()
+  async cancelSubscriptionAtPeriodEnd(uid: string, subscriptionId: string) {
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+    const subscription =
+      await this.subscriptionManager.retrieve(subscriptionId);
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new CancelSubscriptionCustomerMismatch(
+        uid,
+        accountCustomer.uid,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+
+    await this.subscriptionManager.update(subscriptionId, {
+      cancel_at_period_end: true,
+      metadata: {
+        ...(subscription.metadata || {}),
+        cancelled_for_customer_at: Math.floor(Date.now() / 1000),
+      },
+    });
+
+    // Figure out where to add this, or if to just duplicate it.
+    await this.customerChanged(uid);
+  }
+
+  /**
+   * Reload the customer data to reflect a change.
+   * NOTE: This is currently duplicated in checkout.service.ts
+   */
+  private async customerChanged(uid: string) {
+    await this.profileClient.deleteCache(uid);
+
+    this.notifierService.send({
+      event: 'profileDataChange',
+      data: {
+        ts: Date.now() / 1000,
+        uid,
+      },
+    });
+  }
 
   @SanitizeExceptions({
     allowlist: [
@@ -229,6 +277,7 @@ export class SubscriptionManagementService {
         .reduce((sum, tax) => sum + tax.amount, 0);
 
     return {
+      id: subscription.id,
       productName,
       currency: subscription.currency,
       interval: subplatInterval,
@@ -247,6 +296,7 @@ export class SubscriptionManagementService {
           ? (subsequentAmountExcludingTax ?? subsequentAmount)
           : subsequentAmount,
       promotionName,
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
     };
   }
 

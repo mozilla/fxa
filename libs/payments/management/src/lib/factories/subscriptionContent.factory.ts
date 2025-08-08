@@ -9,6 +9,8 @@ import { SubscriptionContent } from '../types';
 export const SubscriptionContentFactory = (
   override?: Partial<SubscriptionContent>
 ): SubscriptionContent => ({
+  id: `sub_${faker.string.alphanumeric({ length: 24 })}`,
+  cancelAtPeriodEnd: false,
   productName: faker.string.sample(),
   currency: faker.finance.currencyCode().toLowerCase(),
   interval: faker.helpers.enumValue(SubplatInterval),

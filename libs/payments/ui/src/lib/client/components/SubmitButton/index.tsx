@@ -13,6 +13,7 @@ import { forwardRef } from 'react';
 interface SubmitButtonProps {
   children: React.ReactNode;
   variant: ButtonVariant;
+  showLoadingSpinner?: boolean;
 }
 
 export const SubmitButton = forwardRef(function SubmitButton({
@@ -20,6 +21,7 @@ export const SubmitButton = forwardRef(function SubmitButton({
   disabled,
   className,
   variant,
+  showLoadingSpinner = true,
   ...otherProps
 }: SubmitButtonProps & React.HTMLProps<HTMLButtonElement>, ref: React.Ref<HTMLButtonElement>) {
   const { pending } = useFormStatus();
@@ -29,11 +31,12 @@ export const SubmitButton = forwardRef(function SubmitButton({
       variant={variant}
       {...otherProps}
       disabled={pending || disabled}
+      aria-disabled={pending || disabled}
       type="submit"
       className={className}
       ref={ref}
     >
-      {pending ? (
+      {pending && showLoadingSpinner ? (
         <>
           <Image
             src={spinnerWhiteImage}

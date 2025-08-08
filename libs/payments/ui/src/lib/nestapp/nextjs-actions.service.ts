@@ -96,6 +96,8 @@ import { GetStripePaymentManagementDetailsResult } from './validators/GetStripeP
 import { UpdateStripePaymentDetailsArgs } from './validators/UpdateStripePaymentDetailsActionArgs';
 import { UpdateStripePaymentDetailsResult } from './validators/UpdateStripePaymentDetailsActionResult';
 import { SetDefaultStripePaymentDetailsActionArgs } from './validators/SetDefaultStripePaymentDetailsActionArgs';
+import { CancelSubscriptionAtPeriodEndActionArgs } from './validators/CancelSubscriptionAtPeriodEndActionArgs';
+import { CancelSubscriptionAtPeriodEndActionResult } from './validators/CancelSubscriptionAtPeriodEndActionResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -120,6 +122,33 @@ export class NextJSActionsService {
     @Inject(StatsDService) public statsd: StatsD,
     @Inject(Logger) private log: LoggerService
   ) {}
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    CancelSubscriptionAtPeriodEndActionArgs,
+    CancelSubscriptionAtPeriodEndActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async cancelSubscriptionAtPeriodEnd(args: {
+    uid: string;
+    subscriptionId: string;
+  }) {
+    try {
+      await this.subscriptionManagementService.cancelSubscriptionAtPeriodEnd(
+        args.uid,
+        args.subscriptionId
+      );
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+      };
+    }
+  }
 
   @SanitizeExceptions()
   @NextIOValidator(GetCartStateActionArgs, GetCartStateActionResult)
