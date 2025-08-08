@@ -34,7 +34,7 @@ export const {
       issuer: config.auth.issuerUrl,
       wellKnown: config.auth.wellKnownUrl,
       checks: ['state'],
-      authorization: { params: { scope: 'email profile' } },
+      authorization: { params: { scope: 'openid email profile' } },
       clientId: config.auth.clientId,
       clientSecret: config.auth.clientSecret,
       token: config.auth.tokenUrl,
