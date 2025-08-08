@@ -7,11 +7,7 @@ import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
-import {
-  useAccount,
-  useInitialSettingsState,
-  useSession,
-} from '../../models';
+import { useAccount, useInitialSettingsState, useSession } from '../../models';
 import {
   Redirect,
   Router,
@@ -40,6 +36,7 @@ import Head from 'fxa-react/components/Head';
 import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
 import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import Page2faChange from './Page2faChange';
 
 export const Settings = ({
   integration,
@@ -165,6 +162,7 @@ export const Settings = ({
                 noThrow
               />
               <Page2faSetup path="/two_step_authentication" />
+              <Page2faChange path="/two_step_authentication/change" />
               <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
             </>
           ) : (

@@ -314,9 +314,7 @@ export function gleanMetrics(config: ConfigType) {
       }),
     },
     twoFactorAuth: {
-      codeComplete: createEventFn('two_factor_auth_code_complete', {
-        additionalMetrics: extraKeyReasonCb,
-      }),
+      codeComplete: createEventFn('two_factor_auth_code_complete'),
       setCodesComplete: createEventFn('two_factor_auth_set_codes_complete'),
       replaceCodeComplete: createEventFn(
         'two_factor_auth_replace_code_complete'
@@ -324,9 +322,7 @@ export function gleanMetrics(config: ConfigType) {
       setupInvalidCodeError: createEventFn(
         'two_factor_auth_setup_invalid_code_error'
       ),
-      codeReplaceFailure: createEventFn(
-        'two_factor_auth_code_replace_failure'
-      ),
+      codeReplaceFailure: createEventFn('two_factor_auth_code_replace_failure'),
     },
     twoStepAuthPhoneCode: {
       sent: createEventFn('two_step_auth_phone_code_sent'),
@@ -336,6 +332,10 @@ export function gleanMetrics(config: ConfigType) {
     twoStepAuthPhoneReplace: {
       success: createEventFn('two_step_auth_phone_replace_success'),
       failure: createEventFn('two_step_auth_phone_replace_failure'),
+    },
+    twoStepAuthChange: {
+      success: createEventFn('two_step_auth_change_success'),
+      failure: createEventFn('two_step_auth_change_failure'),
     },
     twoStepAuthRemove: {
       success: createEventFn('two_step_auth_remove_success'),
@@ -457,6 +457,7 @@ export const logErrorWithGlean = ({
           | 'inactiveAccountDeletion'
           | 'twoStepAuthPhoneRemove'
           | 'twoStepAuthPhoneReplace'
+          | 'twoStepAuthChange'
           | 'twoStepAuthRemove'
           | 'emailDelivery'
         >

@@ -25,6 +25,7 @@ import ModalVerifySession from '../ModalVerifySession';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
+const change2faRoute = `${route}/change`;
 
 export const UnitRowTwoStepAuth = () => {
   const alertBar = useAlertBar();
@@ -60,9 +61,13 @@ export const UnitRowTwoStepAuth = () => {
             'tfa-row-action-disable',
             'Disable'
           ),
+          ctaText: ftlMsgResolver.getMsg('tfa-row-action-change', 'Change'),
+          ctaGleanDataAttrs: {
+            id: 'account_pref_two_step_auth_change_submit',
+          },
+          route: change2faRoute,
           revealSecondaryModal: revealDisable2FAModal,
           secondaryButtonTestId: 'two-step-disable-button',
-          hideCtaText: true,
           secondaryButtonGleanDataAttrs: {
             id: 'two_step_auth_disable_click',
           },

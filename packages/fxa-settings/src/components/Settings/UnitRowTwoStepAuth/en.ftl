@@ -5,6 +5,7 @@ tfa-row-enabled = Enabled
 tfa-row-disabled-status = Disabled
 tfa-row-action-add = Add
 tfa-row-action-disable = Disable
+tfa-row-action-change = Change
 
 tfa-row-button-refresh =
   .title = Refresh two-step authentication

@@ -76,6 +76,8 @@ const recordPasswordResetRecoveryPhoneCodeCompleteStub = sinon.stub();
 const recordTwoStepAuthPhoneReplaceSuccess = sinon.stub();
 const recordTwoStepAuthPhoneReplaceFailure = sinon.stub();
 const recordTwoFactorAuthCodeReplaceFailure = sinon.stub();
+const recordTwoStepAuthChangeSuccessStub = sinon.stub();
+const recordTwoStepAuthChangeFailureStub = sinon.stub();
 
 const gleanProxy = proxyquire('../../../lib/metrics/glean', {
   './server_events': {
@@ -185,6 +187,8 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
         recordTwoStepAuthPhoneReplaceFailure,
       recordTwoFactorAuthCodeReplaceFailure:
         recordTwoFactorAuthCodeReplaceFailure,
+      recordTwoStepAuthChangeSuccess: recordTwoStepAuthChangeSuccessStub,
+      recordTwoStepAuthChangeFailure: recordTwoStepAuthChangeFailureStub,
     }),
   },
 });
