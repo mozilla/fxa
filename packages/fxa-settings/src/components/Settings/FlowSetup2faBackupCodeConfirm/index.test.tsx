@@ -21,8 +21,8 @@ const renderFlowSetup2faBackupCodeConfirm = (error?: string) => {
     setErrorMessage,
     ...renderWithLocalizationProvider(
       <FlowSetup2faBackupCodeConfirm
-        currentStep={3}
-        numberOfSteps={3}
+        currentStep={2}
+        numberOfSteps={2}
         localizedPageTitle="Two-step authentication"
         showProgressBar
         errorMessage={error || ''}
@@ -94,5 +94,25 @@ describe('FlowSetup2faBackupCodeDownload', () => {
     expect(finishButton).toBeEnabled();
     await userEvent.click(finishButton);
     expect(verifyCode).toHaveBeenCalledWith('12345abcde');
+  });
+
+  it('renders custom description when provided', () => {
+    const customDescription = 'Custom confirm description text';
+
+    renderWithLocalizationProvider(
+      <FlowSetup2faBackupCodeConfirm
+        currentStep={2}
+        numberOfSteps={2}
+        localizedPageTitle="Two-step authentication"
+        showProgressBar
+        errorMessage=""
+        onBackButtonClick={jest.fn()}
+        setErrorMessage={jest.fn()}
+        verifyCode={jest.fn()}
+        customDescription={customDescription}
+      />
+    );
+
+    expect(screen.getByText(customDescription)).toBeInTheDocument();
   });
 });

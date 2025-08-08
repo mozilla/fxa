@@ -23,7 +23,7 @@ const renderFlowSetup2faBackupCodeDownload = () => {
     ...renderWithLocalizationProvider(
       <FlowSetup2faBackupCodeDownload
         currentStep={1}
-        numberOfSteps={3}
+        numberOfSteps={2}
         localizedPageTitle="Two-step authentication"
         email={MOCK_EMAIL}
         showProgressBar
@@ -110,6 +110,26 @@ describe('FlowSetup2faBackupCodeDownload', () => {
     const cancelButton = screen.getByRole('button', { name: 'Back' });
     await userEvent.click(cancelButton);
     expect(onBackButtonClick).toHaveBeenCalled();
+  });
+
+  it('renders custom description when provided', () => {
+    const customDescription = 'Custom description text';
+
+    renderWithLocalizationProvider(
+      <FlowSetup2faBackupCodeDownload
+        currentStep={1}
+        numberOfSteps={2}
+        localizedPageTitle="Two-step authentication"
+        email={MOCK_EMAIL}
+        showProgressBar
+        backupCodes={backupCodes}
+        onBackButtonClick={jest.fn()}
+        onContinue={jest.fn()}
+        customDescription={customDescription}
+      />
+    );
+
+    expect(screen.getByText(customDescription)).toBeInTheDocument();
   });
 
   it('calls onContinue when the Continue button is clicked', async () => {
