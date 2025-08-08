@@ -23,6 +23,8 @@ import {
   EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResultUtil,
   EligibilityPurchaseResultFactory,
+  IapOfferingByStoreIDResultFactory,
+  IapOfferingsByStoreIDsResultUtil,
   ProductConfigError,
   ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResultUtil,
@@ -45,6 +47,7 @@ import { MockStrapiClientConfigProvider } from './strapi.client.config';
 import {
   ProductNameByPriceIdsQueryFactory,
   ProductNameByPriceIdsResultUtil,
+  ProductNamePurchaseResultFactory,
 } from './queries/product-name-by-price-ids';
 
 jest.mock('@type-cacheable/core', () => ({
@@ -236,6 +239,56 @@ describe('productConfigurationManager', () => {
       expect(result).toBeInstanceOf(ProductNameByPriceIdsResultUtil);
       expect(result.productNameForPriceId('test')).toBeUndefined;
       expect(result.purchases).toHaveLength(0);
+    });
+
+    it('should return successfully', async () => {
+      const purchaseResult = ProductNamePurchaseResultFactory({
+        purchaseDetails: {
+          productName: 'Sonny and Jerry Two-Fur-One Special',
+        },
+      });
+      const queryData = ProductNameByPriceIdsQueryFactory({
+        purchases: [purchaseResult],
+      });
+
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+
+      const result = await productConfigurationManager.getProductNameByPriceIds(
+        ['test']
+      );
+      expect(result).toBeInstanceOf(ProductNameByPriceIdsResultUtil);
+      expect(result.productNameForPriceId('test')).toBeDefined;
+      expect(result.purchases).toHaveLength(1);
+    });
+  });
+
+  describe('getProductNamesByStoreIds', () => {
+    it('should return product names', async () => {
+      const mockStoreIds = ['store1', 'store2'];
+      const mockIapResult = IapOfferingByStoreIDResultFactory();
+      const mockIapOfferingResult = new IapOfferingsByStoreIDsResultUtil(
+        mockIapResult
+      );
+
+      mockIapOfferingResult.getProductNamesByStoreIds = jest
+        .fn()
+        .mockReturnValue(mockIapResult);
+      jest
+        .spyOn(productConfigurationManager, 'getIapOfferings')
+        .mockResolvedValue(mockIapOfferingResult);
+
+      const result =
+        await productConfigurationManager.getProductNamesByStoreIds(
+          mockStoreIds
+        );
+
+      expect(productConfigurationManager.getIapOfferings).toHaveBeenCalledWith(
+        mockStoreIds
+      );
+      expect(
+        mockIapOfferingResult.getProductNamesByStoreIds
+      ).toHaveBeenCalledWith(mockStoreIds);
+      expect(result).toEqual(mockIapResult);
     });
   });
 

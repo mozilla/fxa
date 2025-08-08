@@ -23,6 +23,12 @@ export class AppleIapService {
     private log: Logger
   ) {}
 
+  async getActiveSubscriptions(
+    uid: string
+  ): Promise<AppStoreSubscriptionPurchase[]> {
+    return this.appleIapPurchaseManager.getForUser(uid);
+  }
+
   /**
    * Register a purchase (autorenewing subscription) to a user.
    * It's intended to be exposed to the iOS app to verify purchases made in the app.

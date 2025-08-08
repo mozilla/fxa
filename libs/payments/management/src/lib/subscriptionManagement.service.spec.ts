@@ -21,6 +21,20 @@ import {
   CustomerSessionManager,
 } from '@fxa/payments/customer';
 import {
+  AppleIapClient,
+  AppleIapPurchaseManager,
+  AppleIapService,
+  GoogleIapClient,
+  GoogleIapPurchaseManager,
+  GoogleIapService,
+  MockAppleIapClientConfigProvider,
+  MockGoogleIapClientConfigProvider,
+} from '@fxa/payments/iap';
+import {
+  AppleIapPurchaseFactory,
+  AppleIapPurchaseResultFactory,
+  GoogleIapPurchaseFactory,
+  GoogleIapPurchaseResultFactory,
   SubscriptionContentFactory,
   SubscriptionManagementService,
 } from '@fxa/payments/management';
@@ -68,6 +82,7 @@ import {
   SubscriptionContentMissingLatestInvoicePreviewError,
   SubscriptionContentMissingUpcomingInvoicePreviewError,
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
+  SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError,
   UpdateAccountCustomerMissingStripeId,
 } from './subscriptionManagement.error';
 
@@ -103,12 +118,20 @@ describe('SubscriptionManagementService', () => {
       providers: [
         Logger,
         AccountCustomerManager,
+        AppleIapClient,
+        AppleIapPurchaseManager,
+        AppleIapService,
         CurrencyManager,
         CustomerManager,
+        GoogleIapClient,
+        GoogleIapPurchaseManager,
+        GoogleIapService,
         InvoiceManager,
         MockAccountDatabaseNestFactory,
+        MockAppleIapClientConfigProvider,
         MockCurrencyConfigProvider,
         MockFirestoreProvider,
+        MockGoogleIapClientConfigProvider,
         MockPaypalClientConfigProvider,
         MockStatsDProvider,
         MockStrapiClientConfigProvider,
@@ -172,6 +195,30 @@ describe('SubscriptionManagementService', () => {
           purchases: [],
         });
       const mockProductName = faker.string.sample();
+      const mockStoreId1 = faker.string.sample();
+      const mockStoreId2 = faker.string.sample();
+      const mockIapOfferingResult: Record<string, string | undefined> = {
+        mockStoreId1: 'Premium Monthly Plan',
+        mockStoreId2: 'Premium Yearly Plan',
+      };
+      const mockAppleIapPurchase = AppleIapPurchaseFactory();
+      const mockGoogleIapPurchase = GoogleIapPurchaseFactory();
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [mockStoreId1],
+        purchaseDetails: [mockAppleIapPurchase],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [mockStoreId2],
+        purchaseDetails: [mockGoogleIapPurchase],
+      });
+      const mockAppleIapSubscriptionContent = {
+        ...mockAppleIapPurchase,
+        productName: 'Apple IAP Subscription',
+      };
+      const mockGoogleIapSubscriptionContent = {
+        ...mockGoogleIapPurchase,
+        productName: 'Google IAP Subscription',
+      };
 
       mockDeterminePaymentMethodType.mockReturnValue({
         type: 'stripe',
@@ -196,8 +243,17 @@ describe('SubscriptionManagementService', () => {
         .spyOn(productNameByPriceIdsResultUtil, 'productNameForPriceId')
         .mockReturnValue(mockProductName);
       jest
+        .spyOn(productConfigurationManager, 'getProductNamesByStoreIds')
+        .mockResolvedValue(mockIapOfferingResult);
+      jest
         .spyOn(subscriptionManagementService as any, 'getSubscriptionContent')
         .mockResolvedValue(mockSubscriptionContent);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
 
       const result =
         await subscriptionManagementService.getPageContent(mockUid);
@@ -209,6 +265,8 @@ describe('SubscriptionManagementService', () => {
         },
         defaultPaymentMethod: mockPaymentMethodInformation,
         subscriptions: [mockSubscriptionContent],
+        appleIapSubscriptions: [mockAppleIapSubscriptionContent],
+        googleIapSubscriptions: [mockGoogleIapSubscriptionContent],
       });
     });
 
@@ -217,16 +275,29 @@ describe('SubscriptionManagementService', () => {
       const mockAccountCustomer = ResultAccountCustomerFactory({
         stripeCustomerId: null,
       });
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
 
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
       jest.spyOn(subscriptionManager, 'listForCustomer').mockResolvedValue([]);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
 
       const result =
         await subscriptionManagementService.getPageContent(mockUid);
-
       expect(result).toEqual({
         accountCreditBalance: {
           balance: 0,
@@ -234,13 +305,27 @@ describe('SubscriptionManagementService', () => {
         },
         defaultPaymentMethod: undefined,
         subscriptions: [],
+        appleIapSubscriptions: [],
+        googleIapSubscriptions: [],
       });
     });
 
     it('returns page information - Stripe customer but no payment information nor subscriptions', async () => {
       const mockUid = faker.string.uuid();
       const mockAccountCustomer = ResultAccountCustomerFactory();
-      const mockStripeCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockStripeCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          currency: 'usd',
+        })
+      );
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
 
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
@@ -253,6 +338,12 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValueOnce(undefined);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
 
       const result =
         await subscriptionManagementService.getPageContent(mockUid);
@@ -264,14 +355,94 @@ describe('SubscriptionManagementService', () => {
         },
         defaultPaymentMethod: undefined,
         subscriptions: [],
+        appleIapSubscriptions: [],
+        googleIapSubscriptions: [],
       });
     });
 
-    it('gracefully handles if no product name returned for price id', async () => {
+    it('returns if there are only IAP subscriptions', async () => {
+      const mockUid = faker.string.uuid();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: null,
+      });
+      const mockStoreId1 = faker.string.sample();
+      const mockStoreId2 = faker.string.sample();
+      const mockIapOfferingResult: Record<string, string | undefined> = {
+        mockStoreId1: 'Premium Monthly Plan',
+        mockStoreId2: 'Premium Yearly Plan',
+      };
+      const mockAppleIapPurchase = AppleIapPurchaseFactory();
+      const mockGoogleIapPurchase = GoogleIapPurchaseFactory();
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [mockStoreId1],
+        purchaseDetails: [mockAppleIapPurchase],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [mockStoreId2],
+        purchaseDetails: [mockGoogleIapPurchase],
+      });
+      const mockAppleIapSubscriptionContent = {
+        ...mockAppleIapPurchase,
+        productName: 'Apple IAP Subscription',
+      };
+      const mockGoogleIapSubscriptionContent = {
+        ...mockGoogleIapPurchase,
+        productName: 'Google IAP Subscription',
+      };
+
+      mockDeterminePaymentMethodType.mockReturnValue(null);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(productConfigurationManager, 'getProductNamesByStoreIds')
+        .mockResolvedValue(mockIapOfferingResult);
+      mockDeterminePaymentMethodType.mockReturnValue(null);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest.spyOn(subscriptionManager, 'listForCustomer').mockResolvedValue([]);
+      jest
+        .spyOn(productConfigurationManager, 'getProductNamesByStoreIds')
+        .mockResolvedValue(mockIapOfferingResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
+
+      const result =
+        await subscriptionManagementService.getPageContent(mockUid);
+
+      expect(result).toEqual({
+        accountCreditBalance: {
+          balance: 0,
+          currency: null,
+        },
+        defaultPaymentMethod: undefined,
+        subscriptions: [],
+        appleIapSubscriptions: [mockAppleIapSubscriptionContent],
+        googleIapSubscriptions: [mockGoogleIapSubscriptionContent],
+      });
+    });
+
+    it('throws if CMS does not retrieve product names for price ids', async () => {
       const mockUid = faker.string.uuid();
       const mockAccountCustomer = ResultAccountCustomerFactory();
       const mockStripeCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockSubscriptions = StripeSubscriptionFactory();
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
 
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
@@ -286,6 +457,12 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValueOnce(undefined);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
       jest
         .spyOn(productConfigurationManager, 'getProductNameByPriceIds')
         .mockResolvedValue(
@@ -317,6 +494,14 @@ describe('SubscriptionManagementService', () => {
           purchases: [],
         });
       const mockProductName = faker.string.sample();
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
 
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
@@ -337,7 +522,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(productNameByPriceIdsResultUtil, 'productNameForPriceId')
         .mockReturnValue(mockProductName);
-
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -348,6 +532,12 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(subscriptionManager, 'listForCustomer')
         .mockResolvedValue([mockSubscription]);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
@@ -388,6 +578,14 @@ describe('SubscriptionManagementService', () => {
           purchases: [],
         });
       const mockProductName = faker.string.sample();
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
 
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
@@ -408,7 +606,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(productNameByPriceIdsResultUtil, 'productNameForPriceId')
         .mockReturnValue(mockProductName);
-
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -419,6 +616,12 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(subscriptionManager, 'listForCustomer')
         .mockResolvedValue([mockSubscription]);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
@@ -455,6 +658,14 @@ describe('SubscriptionManagementService', () => {
           purchases: [],
         });
       const mockProductName = faker.string.sample();
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
 
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
@@ -475,7 +686,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(productNameByPriceIdsResultUtil, 'productNameForPriceId')
         .mockReturnValue(mockProductName);
-
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -486,6 +696,12 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(subscriptionManager, 'listForCustomer')
         .mockResolvedValue([mockSubscription]);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
@@ -523,6 +739,14 @@ describe('SubscriptionManagementService', () => {
           purchases: [],
         });
       const mockProductName = faker.string.sample();
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
 
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
@@ -543,7 +767,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(productNameByPriceIdsResultUtil, 'productNameForPriceId')
         .mockReturnValue(mockProductName);
-
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -558,6 +781,12 @@ describe('SubscriptionManagementService', () => {
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
       jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
+      jest
         .spyOn(subscriptionManagementService as any, 'getSubscriptionContent')
         .mockRejectedValue(
           new SubscriptionContentMissingUpcomingInvoicePreviewError(
@@ -567,11 +796,46 @@ describe('SubscriptionManagementService', () => {
             mockStripeCustomer
           )
         );
-
       await expect(
         subscriptionManagementService.getPageContent(mockUid)
       ).rejects.toBeInstanceOf(
         SubscriptionContentMissingUpcomingInvoicePreviewError
+      );
+    });
+
+    it('throws if CMS does not retrieve product names for store ids', async () => {
+      const mockUid = faker.string.uuid();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: null,
+      });
+      const mockStoreId1 = faker.string.sample();
+      const mockAppleIapPurchase = AppleIapPurchaseFactory();
+      const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
+        storeIds: [mockStoreId1],
+        purchaseDetails: [mockAppleIapPurchase],
+      });
+      const mockGoogleIapPurchaseResult = GoogleIapPurchaseResultFactory({
+        storeIds: [],
+        purchaseDetails: [],
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getAppleIapPurchases')
+        .mockResolvedValue(mockAppleIapPurchaseResult);
+      jest
+        .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
+        .mockResolvedValue(mockGoogleIapPurchaseResult);
+      jest
+        .spyOn(productConfigurationManager, 'getProductNamesByStoreIds')
+        .mockResolvedValue(undefined as any);
+
+      await expect(
+        subscriptionManagementService.getPageContent(mockUid)
+      ).rejects.toBeInstanceOf(
+        SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError
       );
     });
   });
