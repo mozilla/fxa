@@ -16,7 +16,7 @@ import {
   EligibilityContentByOfferingQuery,
   PageContentForOfferingQuery,
   type IapOfferingsByStoreIDsQuery,
-  ProductNameByPriceIdsQuery,
+  PageContentByPriceIdsQuery,
 } from '../__generated__/graphql';
 import {
   FetchCmsInvalidOfferingError,
@@ -42,9 +42,9 @@ import {
   pageContentForOfferingQuery,
 } from './queries/page-content-for-offering';
 import {
-  ProductNameByPriceIdsResultUtil,
-  productNameByPriceIdsQuery,
-} from './queries/product-name-by-price-ids';
+  PageContentByPriceIdsResultUtil,
+  pageContentByPriceIdsQuery,
+} from './queries/page-content-by-price-ids';
 import {
   PurchaseWithDetailsOfferingContentUtil,
   purchaseWithDetailsOfferingContentQuery,
@@ -144,16 +144,23 @@ export class ProductConfigurationManager {
     );
   }
 
-  async getProductNameByPriceIds(
-    stripePlanIds: string[]
-  ): Promise<ProductNameByPriceIdsResultUtil> {
-    const queryResult = await this.strapiClient.query(
-      productNameByPriceIdsQuery,
-      { stripePlanIds }
+  async getPageContentByPriceIds(
+    stripePlanIds: string[],
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<PageContentByPriceIdsResultUtil> {
+    const locale = await this.strapiClient.getLocale(
+      acceptLanguage,
+      selectedLanguage
     );
 
-    return new ProductNameByPriceIdsResultUtil(
-      queryResult as DeepNonNullable<ProductNameByPriceIdsQuery>
+    const queryResult = await this.strapiClient.query(
+      pageContentByPriceIdsQuery,
+      { locale, stripePlanIds }
+    );
+
+    return new PageContentByPriceIdsResultUtil(
+      queryResult as DeepNonNullable<PageContentByPriceIdsQuery>
     );
   }
 

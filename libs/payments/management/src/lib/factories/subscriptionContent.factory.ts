@@ -9,7 +9,10 @@ import { SubscriptionContent } from '../types';
 export const SubscriptionContentFactory = (
   override?: Partial<SubscriptionContent>
 ): SubscriptionContent => ({
+  id: `sub_${faker.string.alphanumeric({ length: 24 })}`,
   productName: faker.string.sample(),
+  webIcon: faker.internet.url(),
+  canResubscribe: false,
   currency: faker.finance.currencyCode().toLowerCase(),
   interval: faker.helpers.enumValue(SubplatInterval),
   currentInvoiceTax: faker.number.int({ min: 1, max: 1000 }),

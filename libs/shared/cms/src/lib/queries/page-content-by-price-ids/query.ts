@@ -4,8 +4,8 @@
 
 import { graphql } from '../../../__generated__/gql';
 
-export const productNameByPriceIdsQuery = graphql(`
-  query ProductNameByPriceIds($stripePlanIds: [String]!) {
+export const pageContentByPriceIdsQuery = graphql(`
+  query pageContentByPriceIds($locale: String!, $stripePlanIds: [String]!) {
     purchases(
       filters: {
         or: [
@@ -26,6 +26,11 @@ export const productNameByPriceIdsQuery = graphql(`
       }
       purchaseDetails {
         productName
+        webIcon
+        localizations(filters: { locale: { eq: $locale } }) {
+          productName
+          webIcon
+        }
       }
       stripePlanChoices {
         stripePlanChoice

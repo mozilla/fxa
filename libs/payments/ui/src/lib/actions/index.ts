@@ -16,6 +16,7 @@ export { getTaxAddressAction } from './getTaxAddress';
 export { handleStripeErrorAction } from './handleStripeError';
 export { recordEmitterEventAction } from './recordEmitterEvent';
 export { restartCartAction } from './restartCart';
+export { resubscribeSubscriptionAction } from './resubscribeSubscription';
 export { setupCartAction } from './setupCart';
 export { updateTaxAddressAction } from './updateTaxAddress';
 export { finalizeCartWithError } from './finalizeCartWithError';

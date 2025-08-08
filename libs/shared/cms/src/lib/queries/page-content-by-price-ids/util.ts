@@ -3,32 +3,34 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  ProductNameByPriceIdsResult,
-  ProductNamePurchaseResult,
+  PageContentByPriceIdsResult,
+  PageContentByPriceIdsPurchaseResult,
 } from './types';
 
-export class ProductNameByPriceIdsResultUtil {
-  private result: Record<string, string> = {};
+export class PageContentByPriceIdsResultUtil {
+  private result: Record<string, PageContentByPriceIdsPurchaseResult> = {};
 
-  constructor(private rawResult: ProductNameByPriceIdsResult) {
+  constructor(private rawResult: PageContentByPriceIdsResult) {
     for (const purchase of rawResult.purchases) {
-      const productName = purchase.purchaseDetails.productName;
-
       for (const price of purchase.stripePlanChoices || []) {
-        this.result[price.stripePlanChoice] = productName;
+        this.result[price.stripePlanChoice] = purchase;
       }
 
       for (const legacy of purchase.offering?.stripeLegacyPlans || []) {
-        this.result[legacy.stripeLegacyPlan] = productName;
+        this.result[legacy.stripeLegacyPlan] = purchase;
       }
     }
   }
 
   productNameForPriceId(priceId: string): string | undefined {
+    return this.result[priceId].purchaseDetails.productName;
+  }
+
+  purchaseForPriceId(priceId: string) {
     return this.result[priceId];
   }
 
-  get purchases(): ProductNamePurchaseResult[] {
+  get purchases(): PageContentByPriceIdsPurchaseResult[] {
     return this.rawResult.purchases;
   }
 }

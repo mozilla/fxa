@@ -29,3 +29,15 @@ subscription-content-button-cancel-subscription =
 subscription-content-button-cancel =
   Cancel
   .aria-label = Cancel your subscription to { $productName }
+subscription-content-button-resubscribe = Resubscribe
+  .aria-label = Resubscribe to { $productName }
+
+## $date (Date) - Last day of product access
+subscription-content-resubscribe = You will lose access to { $name } on <strong>{ $date }</strong>.
+
+resubscribe-dialog-title = Want to keep using { $name }?
+resubscribe-dialog-content = Your access to { $name } will continue, and your billing cycle and payment will stay the same. Your next charge will be { $amount } on { $endDate }.
+resubscribe-dialog-action-button = Stay Subscribed
+
+resubscribe-success-dialog-title = Thanks! You’re all set.
+resubscribe-success-dialog-action-button = Close

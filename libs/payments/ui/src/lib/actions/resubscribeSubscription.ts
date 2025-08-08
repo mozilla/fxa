@@ -4,16 +4,19 @@
 
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { getApp } from '../nestapp/app';
 
-export const getSubManPageContentAction = async (
+export const resubscribeSubscriptionAction = async (
   uid: string,
-  acceptLanguage?: string | null,
-  selectedLanguage?: string
+  subscriptionId: string
 ) => {
-  const result = await getApp()
-    .getActionsService()
-    .getSubManPageContent({ uid, acceptLanguage, selectedLanguage });
+  const result = await getApp().getActionsService().resubscribeSubscription({
+    uid,
+    subscriptionId,
+  });
+
+  revalidatePath('/[locale]/subscriptions/manage');
 
   return result;
 };

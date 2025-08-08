@@ -96,6 +96,8 @@ import { GetStripePaymentManagementDetailsResult } from './validators/GetStripeP
 import { UpdateStripePaymentDetailsArgs } from './validators/UpdateStripePaymentDetailsActionArgs';
 import { UpdateStripePaymentDetailsResult } from './validators/UpdateStripePaymentDetailsActionResult';
 import { SetDefaultStripePaymentDetailsActionArgs } from './validators/SetDefaultStripePaymentDetailsActionArgs';
+import { ResubscribeSubscriptionActionArgs } from './validators/ResubscribeSubscriptionActionArgs';
+import { ResubscribeSubscriptionActionResult } from './validators/ResubscribeSubscriptionActionResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -345,9 +347,15 @@ export class NextJSActionsService {
   )
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async getSubManPageContent(args: { uid: string }) {
+  async getSubManPageContent(args: {
+    uid: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
     const result = await this.subscriptionManagementService.getPageContent(
-      args.uid
+      args.uid,
+      args.acceptLanguage || undefined,
+      args.selectedLanguage
     );
 
     return result;
@@ -442,6 +450,34 @@ export class NextJSActionsService {
     return {
       currency,
     };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    ResubscribeSubscriptionActionArgs,
+    ResubscribeSubscriptionActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async resubscribeSubscription(args: {
+    uid: string;
+
+    subscriptionId: string;
+  }) {
+    try {
+      await this.subscriptionManagementService.resubscribeSubscription(
+        args.uid,
+        args.subscriptionId
+      );
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+      };
+    }
   }
 
   @SanitizeExceptions()

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Inject, Injectable, Logger, type LoggerService } from '@nestjs/common';
-import * as Sentry from '@sentry/nestjs';
 import { StatsD } from 'hot-shots';
 
 import {
@@ -43,8 +42,11 @@ import {
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
   UpdateAccountCustomerMissingStripeId,
   SetDefaultPaymentAccountCustomerMissingStripeId,
+  ResubscribeSubscriptionCustomerMismatch,
 } from './subscriptionManagement.error';
 import { SubscriptionContent } from './types';
+import { NotifierService } from '@fxa/shared/notifier';
+import { ProfileClient } from '@fxa/profile/client';
 
 @Injectable()
 export class SubscriptionManagementService {
@@ -56,11 +58,29 @@ export class SubscriptionManagementService {
     private customerManager: CustomerManager,
     private customerSessionManager: CustomerSessionManager,
     private invoiceManager: InvoiceManager,
+    private notifierService: NotifierService,
     private paymentMethodManager: PaymentMethodManager,
+    private profileClient: ProfileClient,
     private setupIntentManager: SetupIntentManager,
     private productConfigurationManager: ProductConfigurationManager,
     private subscriptionManager: SubscriptionManager
   ) {}
+
+  /**
+   * Reload the customer data to reflect a change.
+   * NOTE: This is currently duplicated in checkout.service.ts
+   */
+  private async customerChanged(uid: string) {
+    await this.profileClient.deleteCache(uid);
+
+    this.notifierService.send({
+      event: 'profileDataChange',
+      data: {
+        ts: Date.now() / 1000,
+        uid,
+      },
+    });
+  }
 
   @SanitizeExceptions({
     allowlist: [
@@ -71,7 +91,11 @@ export class SubscriptionManagementService {
       SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
     ],
   })
-  async getPageContent(uid: string) {
+  async getPageContent(
+    uid: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ) {
     let defaultPaymentMethod: DefaultPaymentMethod | undefined;
     let subscriptions: SubscriptionContent[] = [];
     let accountCreditBalance: AccountCreditBalance = {
@@ -114,8 +138,10 @@ export class SubscriptionManagementService {
         sub.items.data.map((item) => item.price.id)
       );
       const productMap =
-        await this.productConfigurationManager.getProductNameByPriceIds(
-          priceIds
+        await this.productConfigurationManager.getPageContentByPriceIds(
+          priceIds,
+          acceptLanguage,
+          selectedLanguage
         );
 
       if (!productMap) {
@@ -129,17 +155,19 @@ export class SubscriptionManagementService {
         const item = sub.items.data[0];
         const price = item.price;
         const priceId = price.id;
-        const productName = productMap.productNameForPriceId(priceId);
-        if (!productName) {
-          Sentry.captureMessage('No product name for price id', {
-            extra: { priceId },
-          });
-        }
+        const cmsPurchase = productMap.purchaseForPriceId(priceId);
+        const productName =
+          cmsPurchase.purchaseDetails.localizations[0]?.productName ||
+          cmsPurchase.purchaseDetails.productName;
+        const webIcon =
+          cmsPurchase.purchaseDetails.localizations[0]?.webIcon ||
+          cmsPurchase.purchaseDetails.webIcon;
         const content = await this.getSubscriptionContent(
           sub,
           customer,
           price,
-          productName ?? 'Mozilla Subscription'
+          productName,
+          webIcon
         );
         subsContent.push(content);
       }
@@ -159,7 +187,8 @@ export class SubscriptionManagementService {
     subscription: StripeSubscription,
     customer: StripeCustomer,
     price: StripePrice,
-    productName: string
+    productName: string,
+    webIcon: string
   ): Promise<SubscriptionContent> {
     const currency = subscription.currency;
     const latestInvoiceId = subscription.latest_invoice;
@@ -229,7 +258,11 @@ export class SubscriptionManagementService {
         .reduce((sum, tax) => sum + tax.amount, 0);
 
     return {
+      id: subscription.id,
       productName,
+      webIcon,
+      canResubscribe:
+        subscription.status === 'active' && subscription.cancel_at_period_end,
       currency: subscription.currency,
       interval: subplatInterval,
       currentInvoiceTax: creditApplied ? 0 : Math.max(0, totalExclusiveTax),
@@ -298,6 +331,34 @@ export class SubscriptionManagementService {
       defaultPaymentMethodId: defaultPaymentMethod?.id,
       currency,
     };
+  }
+
+  @SanitizeExceptions()
+  async resubscribeSubscription(uid: string, subscriptionId: string) {
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+    const subscription =
+      await this.subscriptionManager.retrieve(subscriptionId);
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new ResubscribeSubscriptionCustomerMismatch(
+        uid,
+        accountCustomer.uid,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+
+    await this.subscriptionManager.update(subscriptionId, {
+      cancel_at_period_end: false,
+      metadata: {
+        ...(subscription.metadata || {}),
+        cancelled_for_customer_at: '',
+      },
+    });
+
+    // Figure out where to add this, or if to just duplicate it.
+    await this.customerChanged(uid);
   }
 
   @SanitizeExceptions()

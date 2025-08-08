@@ -5,7 +5,10 @@
 import { SubplatInterval } from '@fxa/payments/customer';
 
 export interface SubscriptionContent {
+  id: string;
   productName: string;
+  webIcon: string;
+  canResubscribe: boolean;
   currency: string;
   interval?: SubplatInterval;
   currentInvoiceTax: number;

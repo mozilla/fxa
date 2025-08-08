@@ -30,9 +30,30 @@ export class UpdateAccountCustomerMissingStripeId extends SubscriptionManagement
   }
 }
 
+export class ResubscribeSubscriptionCustomerMismatch extends SubscriptionManagementError {
+  constructor(
+    uid: string,
+    accountCustomer: string,
+    subscriptionCustomer: string,
+    subscriptionId: string
+  ) {
+    super('Resubscribe subscription customer does not match account customer', {
+      uid,
+      accountCustomer,
+      subscriptionCustomer,
+      subscriptionId,
+    });
+
+    this.name = 'ResubscribeSubscriptionCustomerMismatch';
+  }
+}
+
 export class SetDefaultPaymentAccountCustomerMissingStripeId extends SubscriptionManagementError {
   constructor(uid: string) {
-    super('AccountCustomer for updating default payment method is missing a Stripe customer id', { uid });
+    super(
+      'AccountCustomer for updating default payment method is missing a Stripe customer id',
+      { uid }
+    );
     this.name = 'SetDefaultPaymentAccountCustomerMissingStripeId';
   }
 }
