@@ -84,8 +84,8 @@ describe('ThirdPartyAuthComponent', () => {
       },
     });
 
-    await screen.findByText('Continue with Google');
-    await screen.findByText('Continue with Apple');
+    await screen.findByLabelText('Continue with Google');
+    await screen.findByLabelText('Continue with Apple');
     expect(mockFormSubmit).not.toHaveBeenCalled();
 
     expect(
@@ -109,7 +109,7 @@ describe('ThirdPartyAuthComponent', () => {
       onContinueWithGoogle,
     });
 
-    const button = await screen.findByText('Continue with Apple');
+    const button = await screen.findByLabelText('Continue with Apple');
     button.click();
 
     // Ensure the hidden input for state was updated.
@@ -130,7 +130,7 @@ describe('ThirdPartyAuthComponent', () => {
       onContinueWithGoogle,
     });
 
-    const button = await screen.findByText('Continue with Google');
+    const button = await screen.findByLabelText('Continue with Google');
     button.click();
 
     // Ensure the hidden input for state was updated.
@@ -216,7 +216,7 @@ describe('ThirdPartyAuthComponent', () => {
         onContinueWithGoogle,
         viewName: 'index',
       });
-      const button = await screen.findByText('Continue with Google');
+      const button = await screen.findByLabelText('Continue with Google');
       button.click();
       expect(mockStartGoogleAuthFromIndex).toHaveBeenCalled();
       expect(mockGleanIsDone).toHaveBeenCalled();
@@ -230,7 +230,7 @@ describe('ThirdPartyAuthComponent', () => {
         onContinueWithGoogle,
         viewName: 'index',
       });
-      const button = await screen.findByText('Continue with Apple');
+      const button = await screen.findByLabelText('Continue with Apple');
       button.click();
       expect(mockStartAppleAuthFromIndex).toHaveBeenCalled();
     });
@@ -243,7 +243,7 @@ describe('ThirdPartyAuthComponent', () => {
         onContinueWithGoogle,
         viewName: 'signin',
       });
-      const button = await screen.findByText('Continue with Google');
+      const button = await screen.findByLabelText('Continue with Google');
       button.click();
       expect(mockStartGoogleAuthFromLogin).toHaveBeenCalled();
       expect(mockGleanIsDone).toHaveBeenCalled();
@@ -257,7 +257,7 @@ describe('ThirdPartyAuthComponent', () => {
         onContinueWithGoogle,
         viewName: 'signin',
       });
-      const button = await screen.findByText('Continue with Apple');
+      const button = await screen.findByLabelText('Continue with Apple');
       button.click();
       expect(mockStartAppleAuthFromLogin).toHaveBeenCalled();
     });
@@ -270,7 +270,7 @@ describe('ThirdPartyAuthComponent', () => {
         onContinueWithGoogle,
         viewName: 'signup',
       });
-      const button = await screen.findByText('Continue with Google');
+      const button = await screen.findByLabelText('Continue with Google');
       button.click();
       expect(mockStartGoogleAuthFromReg).toHaveBeenCalled();
       expect(mockGleanIsDone).toHaveBeenCalled();
@@ -284,7 +284,7 @@ describe('ThirdPartyAuthComponent', () => {
         onContinueWithGoogle,
         viewName: 'signup',
       });
-      const button = await screen.findByText('Continue with Apple');
+      const button = await screen.findByLabelText('Continue with Apple');
       button.click();
       expect(mockStartAppleAuthFromReg).toHaveBeenCalled();
       expect(mockGleanIsDone).toHaveBeenCalled();
