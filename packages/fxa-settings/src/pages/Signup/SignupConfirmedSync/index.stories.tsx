@@ -8,6 +8,10 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import { createMockIntegration } from './mocks';
 import { Subject } from './mocks';
 import { MOCK_CMS_INFO } from '../../mocks';
+import {
+  CelebrateConfettiFullPageImage,
+  CelebrateConfettiV3Image,
+} from '../../../components/images';
 
 export default {
   title: 'Pages/Signup/SignupConfirmedSync',
@@ -15,10 +19,18 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
+export const ConfettiFallFullPage = () => (
+  <Subject confetti={CelebrateConfettiFullPageImage} />
+);
+export const ConfettiJiggleFullPage = () => (
+  <Subject confetti={CelebrateConfettiV3Image} />
+);
+
 export const Desktop = () => <Subject />;
 
-export const DesktopWithCms = () => <Subject
-  integration={createMockIntegration({ cmsInfo: MOCK_CMS_INFO })}/>;
+export const DesktopWithCms = () => (
+  <Subject integration={createMockIntegration({ cmsInfo: MOCK_CMS_INFO })} />
+);
 
 export const FromThirdPartyAuthSetPassword = () => (
   <Subject origin="post-verify-set-password" />

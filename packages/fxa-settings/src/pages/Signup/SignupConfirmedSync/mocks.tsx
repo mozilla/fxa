@@ -32,10 +32,12 @@ export const Subject = ({
   integration = createMockIntegration(),
   offeredSyncEngines = [],
   origin,
+  confetti,
 }: {
   integration?: ReturnType<typeof createMockIntegration>;
   offeredSyncEngines?: SignupConfirmedSyncProps['offeredSyncEngines'];
   origin?: string;
+  confetti?: SignupConfirmedSyncProps['confetti'];
 }) => {
   // If an origin is provided, wire up a memory history so
   // we’re “coming from” post-verify-set-password
@@ -55,14 +57,14 @@ export const Subject = ({
 
     return (
       <LocationProvider {...{ history }}>
-        <SignupConfirmedSync {...{ integration, offeredSyncEngines }} />
+        <SignupConfirmedSync {...{ integration, offeredSyncEngines, confetti }} />
       </LocationProvider>
     );
   }
 
   return (
     <LocationProvider>
-      <SignupConfirmedSync {...{ integration, offeredSyncEngines }} />
+      <SignupConfirmedSync {...{ integration, offeredSyncEngines, confetti }} />
     </LocationProvider>
   );
 };

@@ -21,6 +21,8 @@ import {
   BackupRecoveryPhoneSmsImage,
   BackupAuthenticationCodesImage,
   SyncCloudsImage,
+  CelebrateConfettiFullPageImage,
+  CelebrateConfettiV3Image,
 } from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
@@ -73,3 +75,10 @@ export const BackupAuthenticationCodes = () => (
   <BackupAuthenticationCodesImage />
 );
 export const SyncClouds = () => <SyncCloudsImage />;
+
+export const CelebrateConfettiFallFullPage = () => (
+  <CelebrateConfettiFullPageImage />
+);
+export const CelebrateConfettiJiggleFallFullPage = () => (
+  <CelebrateConfettiV3Image />
+);

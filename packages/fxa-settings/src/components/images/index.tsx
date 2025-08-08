@@ -20,6 +20,8 @@ import { ReactComponent as BackupRecoveryPhoneCode } from './graphic_phone_code.
 import { ReactComponent as BackupRecoveryPhoneSms } from './graphic_phone_sms.min.svg';
 import { ReactComponent as BackupAuthenticationCodes } from './graphic_authentication_codes.min.svg';
 import { ReactComponent as SyncClouds } from './graphic_sync_clouds.min.svg';
+import { ReactComponent as CelebrateConfetti } from './graphic_celebrate_confetti.svg';
+import { ReactComponent as CelebrateConfettiV3 } from './graphic_celebrate_confetti_v3.svg';
 
 export const HeartsBrokenImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
@@ -174,5 +176,31 @@ export const SyncCloudsImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabelFtlId="sync-clouds-image-aria-label"
     Image={SyncClouds}
     {...{ className, ariaHidden }}
+  />
+);
+
+export const CelebrateConfettiFullPageImage = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedImage
+    className="h-screen w-screen absolute top-0 left-0 pointer-events-none"
+    ariaLabel="TBD"
+    ariaLabelFtlId="TBD"
+    Image={CelebrateConfetti}
+    {...{ ariaHidden }}
+  />
+);
+
+export const CelebrateConfettiV3Image = ({
+  className,
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedImage
+    className="h-screen w-screen absolute top-0 left-0 pointer-events-none"
+    ariaLabel="TBD"
+    ariaLabelFtlId="TBD"
+    Image={CelebrateConfettiV3}
+    {...{ ariaHidden }}
   />
 );

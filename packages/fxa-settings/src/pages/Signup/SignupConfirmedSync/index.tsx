@@ -11,13 +11,17 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { firefox } from '../../../lib/channels/firefox';
 import { LocationState, SignupConfirmedSyncProps } from './interfaces';
-import { SyncCloudsImage } from '../../../components/images';
+import {
+  CelebrateConfettiFullPageImage,
+  SyncCloudsImage,
+} from '../../../components/images';
 import { checkPaymentMethodsWillSync } from '../../../lib/sync-engines';
 import CmsButtonWithFallback from '../../../components/CmsButtonWithFallback';
 
 const SignupConfirmedSync = ({
   integration,
   offeredSyncEngines,
+  confetti: ConfettiComponent = CelebrateConfettiFullPageImage,
 }: SignupConfirmedSyncProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const paymentMethodsSynced = checkPaymentMethodsWillSync(offeredSyncEngines);
@@ -43,6 +47,8 @@ const SignupConfirmedSync = ({
 
   return (
     <AppLayout cmsInfo={cmsInfo}>
+      <ConfettiComponent />
+
       {originPostVerifySetPassword ? (
         <Banner
           type="success"
@@ -101,7 +107,7 @@ const SignupConfirmedSync = ({
         </>
       )}
 
-      {(!cmsHideCTA && showPairLink) && (
+      {!cmsHideCTA && showPairLink && (
         <div className="flex mb-5">
           <FtlMsg id="signup-confirmed-sync-add-device-link">
             {/* TODO: once Pair is converted to React, use `<Link>` instead */}

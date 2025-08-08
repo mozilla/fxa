@@ -71,4 +71,7 @@ progress[value]::-moz-progress-bar {
       transition: none !important;
     }
   }
+  .hide-if-prefers-reduced-motion {
+    display: none;
+  }
 }
