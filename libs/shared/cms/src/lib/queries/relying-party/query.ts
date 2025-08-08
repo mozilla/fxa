@@ -12,6 +12,7 @@ export const relyingPartyQuery = graphql(`
       clientId
       entrypoint
       name
+      l10nId
       shared {
         buttonColor
         logoUrl

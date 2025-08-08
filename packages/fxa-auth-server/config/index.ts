@@ -2077,7 +2077,7 @@ const convictConf = convict({
   },
   cms: {
     enabled: {
-      default: false,
+      default: true,
       doc: 'Whether to use CMS',
       env: 'CMS_ENABLED',
       format: Boolean,
@@ -2357,6 +2357,60 @@ const convictConf = convict({
       doc: 'API key to access the Identity API of Recorded Future',
       format: String,
       env: 'RECORDED_FUTURE__IDENTITY_API_KEY',
+    },
+  },
+  cmsl10n: {
+    enabled: {
+      default: true,
+      doc: 'Enable localization logic for accounts relying party configuration',
+      env: 'CMS_L10N_ENABLED',
+      format: Boolean,
+    },
+    strapiWebhook: {
+      enabled: {
+        default: true,
+        doc: 'Enable Strapi webhook for creating l10n PRs',
+        env: 'CMS_L10N_STRAPI_WEBHOOK_ENABLED',
+        format: Boolean,
+      },
+      secret: {
+        default: 'test',
+        doc: 'Secret key to validate Strapi webhook requests',
+        env: 'CMS_L10N_STRAPI_WEBHOOK_SECRET',
+        format: String,
+      },
+      strapiUrl: {
+        default: 'http://localhost:1337',
+        doc: 'Strapi webhook URL',
+        env: 'CMS_L10N_STRAPI_WEBHOOK_STRAPI_URL',
+        format: String,
+      },
+    },
+    github: {
+      token: {
+        default: 'fake_test',
+        doc: 'GitHub personal access token for creating PRs',
+        env: 'CMS_L10N_GITHUB_TOKEN',
+        format: String,
+      },
+      owner: {
+        default: 'vbudhram',
+        doc: 'GitHub repository owner',
+        env: 'CMS_L10N_GITHUB_OWNER',
+        format: String,
+      },
+      repo: {
+        default: 'fxa-cms-l10n',
+        doc: 'GitHub repository name',
+        env: 'CMS_L10N_GITHUB_REPO',
+        format: String,
+      },
+      branch: {
+        default: 'main',
+        doc: 'GitHub base branch for PRs',
+        env: 'CMS_L10N_GITHUB_BRANCH',
+        format: String,
+      },
     },
   },
 });
