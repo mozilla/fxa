@@ -60,8 +60,7 @@ describe('<AppLayout />', () => {
         buttonColor: '#0078d4',
         logoUrl: 'https://example.com/logo.png',
         logoAltText: 'Test App Logo',
-        backgroundColor:
-          'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         pageTitle: 'Test App - Custom Title',
       },
     } as RelierCmsInfo;
@@ -264,7 +263,7 @@ describe('<AppLayout />', () => {
     const cmsLogo = screen.getByAltText('CMS Custom Logo');
     expect(cmsLogo).toBeInTheDocument();
     expect(cmsLogo).toHaveAttribute('src', 'https://example.com/cms-logo.png');
-    expect(cmsLogo).toHaveClass('h-auto', 'w-[140px]', 'mx-auto', 'mobileLandscape:mx-0');
+    expect(cmsLogo).toHaveClass('h-auto', 'w-[140px]', 'mx-0');
   });
 
   it('renders CMS header logo with default alt text when headerLogoAltText is not provided', async () => {
