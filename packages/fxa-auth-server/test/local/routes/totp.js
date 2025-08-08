@@ -772,16 +772,25 @@ describe('totp', () => {
     });
 
     it('should error if the user does not have an existing token', async () => {
-      await setup({
-            db: { email: TEST_EMAIL },
-            totpTokenVerified: false,
-            totpTokenEnabled: false
-          },
-          {},
-          '/totp/replace/start',
-          requestOptions).then(assert.fail, (err) => {
-        assert.deepEqual(err.errno, 220, 'Error number for TOTP does not match');
-        assert.deepEqual(err.message, 'TOTP secret does not exist for this account.');
+      await setup(
+        {
+          db: { email: TEST_EMAIL },
+          totpTokenVerified: false,
+          totpTokenEnabled: false,
+        },
+        {},
+        '/totp/replace/start',
+        requestOptions
+      ).then(assert.fail, (err) => {
+        assert.deepEqual(
+          err.errno,
+          220,
+          'Error number for TOTP does not match'
+        );
+        assert.deepEqual(
+          err.message,
+          'TOTP secret does not exist for this account.'
+        );
       });
     });
   });
@@ -814,6 +823,30 @@ describe('totp', () => {
       assert.calledOnce(glean.twoFactorAuth.codeComplete);
     });
 
+    it('should send postChangeTwoStepAuthentication email', async () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+      };
+      await setup(
+        {
+          db: { email: TEST_EMAIL },
+          redis: { secret },
+        },
+        {},
+        '/totp/replace/confirm',
+        requestOptions
+      );
+
+      assert.equal(
+        mailer.sendPostChangeTwoStepAuthenticationEmail.callCount,
+        1
+      );
+    });
+
     it('should fail for an invalid replacement totp code', async () => {
       requestOptions.payload = {
         code: 'INVALID_CODE',
@@ -830,7 +863,7 @@ describe('totp', () => {
           '/totp/replace/confirm',
           requestOptions
         );
-        assert.fail('Expected request to error but it succeeded')
+        assert.fail('Expected request to error but it succeeded');
       } catch (err) {
         assert.equal(err.message, 'Invalid token confirmation code');
       }
@@ -845,7 +878,7 @@ describe('totp', () => {
           '/totp/replace/confirm',
           requestOptions
         );
-        assert.fail('Expected request to error but it succeeded')
+        assert.fail('Expected request to error but it succeeded');
       } catch (err) {
         assert.equal(err.message, 'Unconfirmed session');
       }
@@ -862,7 +895,7 @@ describe('totp', () => {
       const response = await setup(
         {
           db: { email: TEST_EMAIL },
-          redis: { secret }
+          redis: { secret },
         },
         { replaceTotpToken: true },
         '/totp/replace/confirm',

@@ -41,6 +41,7 @@
   "verifyShortCode": 5,
   "verifySecondaryCode": 3,
   "postAddTwoStepAuthentication": 11,
+  "postChangeTwoStepAuthentication": 1,
   "postRemoveTwoStepAuthentication": 9,
   "postConsumeRecoveryCode": 8,
   "postNewRecoveryCodes": 7,
