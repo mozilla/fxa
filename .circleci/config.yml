@@ -326,6 +326,20 @@ commands:
           environment:
             NODE_ENV: test
 
+  check-playwright-test-count:
+    parameters:
+      project:
+        type: string
+    steps:
+      - run:
+          name: Checking Playwright Test Count
+          command: |
+            TEST_COUNT=$(echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >> $GREP --list" | wc -l)
+            if [[ "$TEST_COUNT" -eq 0 ]]; then
+              echo "No functional tests targeted to run! Exiting early."
+              circleci-agent step halt
+            fi
+
   run-playwright-tests:
     parameters:
       project:
@@ -749,6 +763,8 @@ jobs:
     steps:
       - git-checkout
       - provision
+      - check-playwright-test-count:
+          project: production
       - run-playwright-tests:
           project: production
       - store-artifacts
@@ -772,6 +788,8 @@ jobs:
       - git-checkout
       - gcp-cli/setup
       - provision
+      - check-playwright-test-count:
+          project: << parameters.project >>
       - run-playwright-tests:
           project: << parameters.project >>
           fail_fast: << parameters.fail_fast >>
@@ -798,6 +816,8 @@ jobs:
       - git-checkout
       - restore-workspace
       - gcp-cli/setup
+      - check-playwright-test-count:
+          project: local
       - run:
           name: Add localhost
           command: |
