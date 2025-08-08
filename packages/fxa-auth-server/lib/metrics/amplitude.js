@@ -60,6 +60,7 @@ const EMAIL_TYPES = {
   postVerify: 'registration',
   postVerifySecondary: 'secondary_email',
   postAddTwoStepAuthentication: '2fa',
+  postChangeTwoStepAuthentication: '2fa',
   postRemoveTwoStepAuthentication: '2fa',
   postAddAccountRecovery: 'account_recovery',
   postChangeAccountRecovery: 'account_recovery',
