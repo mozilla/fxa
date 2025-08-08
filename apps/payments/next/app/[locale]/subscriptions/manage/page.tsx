@@ -273,10 +273,10 @@ export default async function Manage({
                     >
                       {sub.interval
                         ? l10n.getString(
-                            getSubscriptionIntervalFtlId(sub.interval),
-                            { productName: sub.productName },
-                            `${sub.productName} (${formatPlanInterval(sub.interval)})`
-                          )
+                          getSubscriptionIntervalFtlId(sub.interval),
+                          { productName: sub.productName },
+                          `${sub.productName} (${formatPlanInterval(sub.interval)})`
+                        )
                         : sub.productName}
                     </h3>
                     <SubscriptionContent
@@ -285,41 +285,126 @@ export default async function Manage({
                       locale={locale}
                       supportUrl={`${config.contentServerUrl}/support`}
                     />
-                    {index !== subscriptions.length - 1 && (
-                      <hr
-                        className="border-b border-grey-50 my-6"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </li>
+                    {
+                      index !== subscriptions.length - 1 && (
+                        <hr
+                          className="border-b border-grey-50 my-6"
+                          aria-hidden="true"
+                        />
+                      )
+                    }
+                  </li >
                 );
               })}
-            </ul>
+            </ul >
             {(appleIapSubscriptions.length > 0 ||
               googleIapSubscriptions.length > 0) && (
-              <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
-            )}
+                <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+              )}
           </>
         )}
 
-        {appleIapSubscriptions.length > 0 && (
-          <>
+        {
+          appleIapSubscriptions.length > 0 && (
+            <>
+              <ul
+                aria-label={l10n.getString(
+                  'subscription-management-your-apple-iap-subscriptions-aria',
+                  'Your Apple In-App Subscriptions'
+                )}
+              >
+                {appleIapSubscriptions.map((purchase, index: number) => {
+                  let nextBillDate: string | undefined;
+                  if (purchase.expiresDate) {
+                    const dateExpired = new Date(purchase.expiresDate);
+                    nextBillDate = l10n.getLocalizedDateString(
+                      Math.floor(dateExpired.getTime() / 1000),
+                      true,
+                      locale
+                    );
+                  }
+                  return (
+                    <li
+                      key={`${purchase.storeId}-${index}`}
+                      aria-labelledby={`${purchase.productName}-heading`}
+                    >
+                      <div className="flex items-center justify-between my-4">
+                        <div className="leading-5 text-sm">
+                          <h3
+                            id={`${purchase.productName}-heading`}
+                            className="font-semibold pb-2"
+                          >
+                            {purchase.productName}
+                          </h3>
+                          <p>
+                            {l10n.getString(
+                              'subscription-management-apple-in-app-purchase',
+                              'Apple: In-App purchase'
+                            )}
+                          </p>
+                          {nextBillDate && (
+                            <p>
+                              {l10n.getString(
+                                'subscription-management-iap-sub-expires-on',
+                                {
+                                  date: nextBillDate,
+                                },
+                                `Expires on ${nextBillDate}`
+                              )}
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <LinkExternal
+                            className={CSS_SECONDARY_LINK}
+                            href={`https://apps.apple.com/account/subscriptions`}
+                            aria-label={l10n.getString(
+                              'subscription-management-button-manage-subscription-aria',
+                              {
+                                productName: purchase.productName,
+                              },
+                              `Manage subscription for ${purchase.productName}`
+                            )}
+                          >
+                            <span>
+                              {l10n.getString(
+                                'subscription-management-button-manage-subscription',
+                                'Manage'
+                              )}
+                            </span>
+                          </LinkExternal>
+                        </div>
+                      </div>
+                      {index !== appleIapSubscriptions.length - 1 && (
+                        <hr
+                          className="border-b border-grey-50 my-6"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+              {googleIapSubscriptions.length > 0 && (
+                <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+              )}
+            </>
+          )
+        }
+
+        {
+          googleIapSubscriptions.length > 0 && (
             <ul
               aria-label={l10n.getString(
-                'subscription-management-your-apple-iap-subscriptions-aria',
-                'Your Apple In-App Subscriptions'
+                'subscription-management-your-google-iap-subscriptions-aria',
+                'Your Google In-App Subscriptions'
               )}
             >
-              {appleIapSubscriptions.map((purchase, index: number) => {
-                let nextBillDate: string | undefined;
-                if (purchase.expiresDate) {
-                  const dateExpired = new Date(purchase.expiresDate);
-                  nextBillDate = l10n.getLocalizedDateString(
-                    Math.floor(dateExpired.getTime() / 1000),
-                    true,
-                    locale
-                  );
-                }
+              {googleIapSubscriptions.map((purchase, index: number) => {
+                const nextBillDate = l10n.getLocalizedDateString(
+                  purchase.expiryTimeMillis / 1000,
+                  true
+                );
                 return (
                   <li
                     key={`${purchase.storeId}-${index}`}
@@ -335,26 +420,35 @@ export default async function Manage({
                         </h3>
                         <p>
                           {l10n.getString(
-                            'subscription-management-apple-in-app-purchase',
-                            'Apple: In-App purchase'
+                            'subscription-management-google-in-app-purchase',
+                            'Google: In-App purchase'
                           )}
                         </p>
-                        {nextBillDate && (
-                          <p>
-                            {l10n.getString(
-                              'subscription-management-iap-sub-expires-on',
-                              {
-                                date: nextBillDate,
-                              },
-                              `Expires on ${nextBillDate}`
-                            )}
-                          </p>
-                        )}
+                        <p>
+                          {!!purchase.expiryTimeMillis &&
+                            (purchase.autoRenewing
+                              ? l10n.getString(
+                                'subscription-management-iap-sub-next-bill',
+                                {
+                                  date: nextBillDate,
+                                },
+                                `Next billed on ${nextBillDate}`
+                              )
+                              : l10n.getString(
+                                'subscription-management-iap-sub-expires-on',
+                                {
+                                  date: nextBillDate,
+                                },
+                                `Expires on ${nextBillDate}`
+                              ))}
+                        </p>
                       </div>
                       <div>
                         <LinkExternal
                           className={CSS_SECONDARY_LINK}
-                          href={`https://apps.apple.com/account/subscriptions`}
+                          href={`https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(
+                            purchase.sku
+                          )}&package=${encodeURIComponent(purchase.packageName)}`}
                           aria-label={l10n.getString(
                             'subscription-management-button-manage-subscription-aria',
                             {
@@ -372,107 +466,20 @@ export default async function Manage({
                         </LinkExternal>
                       </div>
                     </div>
-                    {index !== appleIapSubscriptions.length - 1 && (
-                      <hr
-                        className="border-b border-grey-50 my-6"
-                        aria-hidden="true"
-                      />
-                    )}
+                    {
+                      index !== googleIapSubscriptions.length - 1 && (
+                        <hr
+                          className="border-b border-grey-50 my-6"
+                          aria-hidden="true"
+                        />
+                      )
+                    }
                   </li>
                 );
               })}
-            </ul>
-            {googleIapSubscriptions.length > 0 && (
-              <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
-            )}
-          </>
-        )}
-
-        {googleIapSubscriptions.length > 0 && (
-          <ul
-            aria-label={l10n.getString(
-              'subscription-management-your-google-iap-subscriptions-aria',
-              'Your Google In-App Subscriptions'
-            )}
-          >
-            {googleIapSubscriptions.map((purchase, index: number) => {
-              const nextBillDate = l10n.getLocalizedDateString(
-                purchase.expiryTimeMillis / 1000,
-                true
-              );
-              return (
-                <li
-                  key={`${purchase.storeId}-${index}`}
-                  aria-labelledby={`${purchase.productName}-heading`}
-                >
-                  <div className="flex items-center justify-between my-4">
-                    <div className="leading-5 text-sm">
-                      <h3
-                        id={`${purchase.productName}-heading`}
-                        className="font-semibold pb-2"
-                      >
-                        {purchase.productName}
-                      </h3>
-                      <p>
-                        {l10n.getString(
-                          'subscription-management-google-in-app-purchase',
-                          'Google: In-App purchase'
-                        )}
-                      </p>
-                      <p>
-                        {!!purchase.expiryTimeMillis &&
-                          (purchase.autoRenewing
-                            ? l10n.getString(
-                                'subscription-management-iap-sub-next-bill',
-                                {
-                                  date: nextBillDate,
-                                },
-                                `Next billed on ${nextBillDate}`
-                              )
-                            : l10n.getString(
-                                'subscription-management-iap-sub-expires-on',
-                                {
-                                  date: nextBillDate,
-                                },
-                                `Expires on ${nextBillDate}`
-                              ))}
-                      </p>
-                    </div>
-                    <div>
-                      <LinkExternal
-                        className={CSS_SECONDARY_LINK}
-                        href={`https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(
-                          purchase.sku
-                        )}&package=${encodeURIComponent(purchase.packageName)}`}
-                        aria-label={l10n.getString(
-                          'subscription-management-button-manage-subscription-aria',
-                          {
-                            productName: purchase.productName,
-                          },
-                          `Manage subscription for ${purchase.productName}`
-                        )}
-                      >
-                        <span>
-                          {l10n.getString(
-                            'subscription-management-button-manage-subscription',
-                            'Manage'
-                          )}
-                        </span>
-                      </LinkExternal>
-                    </div>
-                  </div>
-                  {index !== googleIapSubscriptions.length - 1 && (
-                    <hr
-                      className="border-b border-grey-50 my-6"
-                      aria-hidden="true"
-                    />
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+            </ul >
+          )}
+      </section >
     </>
   );
 }

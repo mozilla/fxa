@@ -62,7 +62,8 @@ import {
 import {
   MockStrapiClientConfigProvider,
   ProductConfigurationManager,
-  ProductNameByPriceIdsResultUtil,
+  PageContentByPriceIdsResultUtil,
+  PageContentByPriceIdsPurchaseResultFactory,
   StrapiClient,
 } from '@fxa/shared/cms';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
@@ -72,6 +73,7 @@ import {
   CancelSubscriptionCustomerMismatch,
   CurrencyForCustomerNotFoundError,
   GetAccountCustomerMissingStripeId,
+  ResubscribeSubscriptionCustomerMismatch,
   SetDefaultPaymentAccountCustomerMissingStripeId,
   SetupIntentInvalidStatusError,
   SetupIntentMissingCustomerError,
@@ -89,10 +91,12 @@ import {
   NotifierService,
   NotifierSnsProvider,
 } from '@fxa/shared/notifier';
+
 import {
   MockProfileClientConfigProvider,
   ProfileClient,
 } from '@fxa/profile/client';
+
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
 jest.mock('../../../customer/src/lib/util/determinePaymentMethodType');
@@ -257,6 +261,21 @@ describe('SubscriptionManagementService', () => {
   });
 
   describe('getPageContent', () => {
+    const mockProductNameByPriceIdsResultUtil = {
+      purchaseForPriceId: jest.fn(),
+    };
+    beforeEach(() => {
+      jest
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
+        .mockResolvedValue(
+          mockProductNameByPriceIdsResultUtil as unknown as PageContentByPriceIdsResultUtil
+        );
+
+      mockProductNameByPriceIdsResultUtil.purchaseForPriceId.mockReturnValue(
+        PageContentByPriceIdsPurchaseResultFactory()
+      );
+    });
+
     it('returns page content', async () => {
       const mockUid = faker.string.uuid();
       const mockStripeCustomer = StripeResponseFactory(
@@ -279,11 +298,6 @@ describe('SubscriptionManagementService', () => {
         expMonth: mockPaymentMethod.card?.exp_month,
         expYear: mockPaymentMethod.card?.exp_year,
       };
-      const productNameByPriceIdsResultUtil =
-        new ProductNameByPriceIdsResultUtil({
-          purchases: [],
-        });
-      const mockProductName = faker.string.sample();
       const mockStoreId1 = faker.string.sample();
       const mockStoreId2 = faker.string.sample();
       const mockIapOfferingResult: Record<string, string | undefined> = {
@@ -325,12 +339,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(mockPaymentMethodInformation);
-      jest
-        .spyOn(productConfigurationManager, 'getProductNameByPriceIds')
-        .mockResolvedValue(productNameByPriceIdsResultUtil);
-      jest
-        .spyOn(productNameByPriceIdsResultUtil, 'productNameForPriceId')
-        .mockReturnValue(mockProductName);
       jest
         .spyOn(productConfigurationManager, 'getProductNamesByStoreIds')
         .mockResolvedValue(mockIapOfferingResult);
@@ -553,9 +561,9 @@ describe('SubscriptionManagementService', () => {
         .spyOn(subscriptionManagementService as any, 'getGoogleIapPurchases')
         .mockResolvedValue(mockGoogleIapPurchaseResult);
       jest
-        .spyOn(productConfigurationManager, 'getProductNameByPriceIds')
+        .spyOn(productConfigurationManager, 'getPageContentByPriceIds')
         .mockResolvedValue(
-          undefined as unknown as ProductNameByPriceIdsResultUtil
+          undefined as unknown as PageContentByPriceIdsResultUtil
         );
 
       await expect(
@@ -578,11 +586,6 @@ describe('SubscriptionManagementService', () => {
       const mockSubscription = StripeSubscriptionFactory({
         latest_invoice: null,
       });
-      const productNameByPriceIdsResultUtil =
-        new ProductNameByPriceIdsResultUtil({
-          purchases: [],
-        });
-      const mockProductName = faker.string.sample();
       const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
         storeIds: [],
         purchaseDetails: [],
@@ -605,12 +608,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
-      jest
-        .spyOn(productConfigurationManager, 'getProductNameByPriceIds')
-        .mockResolvedValue(productNameByPriceIdsResultUtil);
-      jest
-        .spyOn(productNameByPriceIdsResultUtil, 'productNameForPriceId')
-        .mockReturnValue(mockProductName);
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -662,11 +659,6 @@ describe('SubscriptionManagementService', () => {
         ]),
         latest_invoice: null,
       });
-      const productNameByPriceIdsResultUtil =
-        new ProductNameByPriceIdsResultUtil({
-          purchases: [],
-        });
-      const mockProductName = faker.string.sample();
       const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
         storeIds: [],
         purchaseDetails: [],
@@ -689,12 +681,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
-      jest
-        .spyOn(productConfigurationManager, 'getProductNameByPriceIds')
-        .mockResolvedValue(productNameByPriceIdsResultUtil);
-      jest
-        .spyOn(productNameByPriceIdsResultUtil, 'productNameForPriceId')
-        .mockReturnValue(mockProductName);
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -742,11 +728,6 @@ describe('SubscriptionManagementService', () => {
       });
       const mockInvoice = StripeInvoiceFactory();
       const mockSubscription = StripeSubscriptionFactory();
-      const productNameByPriceIdsResultUtil =
-        new ProductNameByPriceIdsResultUtil({
-          purchases: [],
-        });
-      const mockProductName = faker.string.sample();
       const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
         storeIds: [],
         purchaseDetails: [],
@@ -769,12 +750,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
-      jest
-        .spyOn(productConfigurationManager, 'getProductNameByPriceIds')
-        .mockResolvedValue(productNameByPriceIdsResultUtil);
-      jest
-        .spyOn(productNameByPriceIdsResultUtil, 'productNameForPriceId')
-        .mockReturnValue(mockProductName);
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -823,11 +798,6 @@ describe('SubscriptionManagementService', () => {
       });
       const mockPrice = StripePriceFactory();
       const mockSubscription = StripeSubscriptionFactory();
-      const productNameByPriceIdsResultUtil =
-        new ProductNameByPriceIdsResultUtil({
-          purchases: [],
-        });
-      const mockProductName = faker.string.sample();
       const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
         storeIds: [],
         purchaseDetails: [],
@@ -850,12 +820,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
-      jest
-        .spyOn(productConfigurationManager, 'getProductNameByPriceIds')
-        .mockResolvedValue(productNameByPriceIdsResultUtil);
-      jest
-        .spyOn(productNameByPriceIdsResultUtil, 'productNameForPriceId')
-        .mockReturnValue(mockProductName);
       mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
@@ -1148,6 +1112,69 @@ describe('SubscriptionManagementService', () => {
     });
   });
 
+  describe('resubscribeSubscription', () => {
+    const mockStripeCustomer = StripeCustomerFactory();
+    const mockAccountCustomer = ResultAccountCustomerFactory({
+      stripeCustomerId: mockStripeCustomer.id,
+    });
+    const mockSubscription = StripeResponseFactory(
+      StripeSubscriptionFactory({
+        customer: mockStripeCustomer.id,
+      })
+    );
+
+    beforeEach(() => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValue(mockSubscription);
+    });
+
+    it('successfully updates the subscription', async () => {
+      await subscriptionManagementService.resubscribeSubscription(
+        mockAccountCustomer.uid,
+        mockSubscription.id
+      );
+
+      expect(subscriptionManager.update).toHaveBeenCalledWith(
+        mockSubscription.id,
+        {
+          cancel_at_period_end: false,
+          metadata: {
+            cancelled_for_customer_at: '',
+          },
+        }
+      );
+      expect(privateCustomerChanged).toHaveBeenCalledWith(
+        mockAccountCustomer.uid
+      );
+    });
+
+    it('fails with error on mismatching customer id between subscription and account', async () => {
+      jest.spyOn(subscriptionManager, 'retrieve').mockResolvedValueOnce(
+        StripeResponseFactory(
+          StripeSubscriptionFactory({
+            customer: 'differentCustomerId',
+          })
+        )
+      );
+
+      await expect(
+        subscriptionManagementService.resubscribeSubscription(
+          mockAccountCustomer.uid,
+          mockSubscription.id
+        )
+      ).rejects.toBeInstanceOf(ResubscribeSubscriptionCustomerMismatch);
+      expect(subscriptionManager.update).not.toHaveBeenCalled();
+      expect(privateCustomerChanged).not.toHaveBeenCalled();
+    });
+  });
+
   describe('updateStripePaymentDetails', () => {
     it('updates the stripe customer payment method details', async () => {
       const mockPaymentMethod = StripeResponseFactory(
@@ -1395,6 +1422,7 @@ describe('SubscriptionManagementService', () => {
       );
     });
   });
+
   describe('setDefaultStripePaymentDetails', () => {
     it("updates the customer's payment details", async () => {
       const mockAccountCustomer = ResultAccountCustomerFactory();
