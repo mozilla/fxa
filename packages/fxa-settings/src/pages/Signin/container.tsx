@@ -415,18 +415,31 @@ const SigninContainer = ({
       // If an upgrade is needed try running it after we know whether or not
       // the session is verified. If the session is not verified, there's no
       // point in attempting the upgrade at this time.
+      //
+      // In this case, we should stash the credentials so we can try at a later
+      // point in then flow after verification is complete.
+      //
       if (
         credentials.credentialStatus?.upgradeNeeded === true &&
         credentials.v2Credentials
       ) {
-        if ('data' in result && result.data?.signIn.verified === true) {
+        let upgraded = false;
+        if ('data' in result) {
+          const isVerified = result.data?.signIn.verified;
           const sessionToken = result.data?.signIn.sessionToken;
-          await upgradeClient.upgrade(
-            email,
-            credentials.v1Credentials,
-            credentials.v2Credentials,
-            sessionToken
-          );
+
+          if (sessionToken && isVerified) {
+            upgraded = await upgradeClient.upgrade(
+              email,
+              credentials.v1Credentials,
+              credentials.v2Credentials,
+              sessionToken
+            );
+          }
+        }
+
+        if (upgraded) {
+          sensitiveDataClient.KeyStretchUpgradeData = undefined;
         } else {
           sensitiveDataClient.KeyStretchUpgradeData = {
             email,

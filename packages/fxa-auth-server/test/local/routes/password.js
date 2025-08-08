@@ -737,10 +737,12 @@ describe('/password', () => {
       const mockDB = mocks.mockDB({
         email: TEST_EMAIL,
         uid,
+        emailVerified: true,
       });
       const mockPush = mocks.mockPush();
       const mockMailer = mocks.mockMailer();
       const mockLog = mocks.mockLog();
+      const mockSessionToken = await mockDB.createSessionToken({});
       const mockRequest = mocks.mockRequest({
         payload: {
           email: TEST_EMAIL,
@@ -750,10 +752,7 @@ describe('/password', () => {
           keys: 'true',
         },
         auth: {
-          credentials: {
-            email: TEST_EMAIL,
-            uid,
-          },
+          credentials: mockSessionToken,
         },
         log: mockLog,
         uaBrowser: 'Firefox',
@@ -805,16 +804,15 @@ describe('/password', () => {
       const mockDB = mocks.mockDB({
         email: TEST_EMAIL,
         uid,
+        emailVerified: true,
       });
+      const mockSession = await mockDB.createSessionToken({});
       const mockPush = mocks.mockPush();
       const mockMailer = mocks.mockMailer();
       const mockLog = mocks.mockLog();
       const mockStatsd = mocks.mockStatsd();
       const mockRequest = mocks.mockRequest({
-        credentials: {
-          uid,
-          email: TEST_EMAIL,
-        },
+        credentials: mockSession,
         payload: {
           email: TEST_EMAIL,
           oldAuthPW: crypto.randomBytes(32).toString('hex'),
