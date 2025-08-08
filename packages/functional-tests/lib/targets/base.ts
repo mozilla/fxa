@@ -15,21 +15,13 @@ export type Credentials = Awaited<ReturnType<AuthClient['signUp']>> & {
   sessionToken?: string;
 };
 
-interface SubConfig {
-  product: string;
-  name: string;
-  plan: string;
-}
-
 export abstract class BaseTarget {
   readonly authClient: AuthClient;
   readonly emailClient: EmailClient;
   abstract readonly contentServerUrl: string;
-  abstract readonly paymentsServerUrl: string;
   abstract readonly relierUrl: string;
   abstract readonly relierClientID: string;
   abstract readonly name: TargetName;
-  abstract readonly subscriptionConfig: SubConfig;
 
   // Must be lazy loaded, because it depends on abstract field, 'name'.
   get smsClient() {
