@@ -308,6 +308,9 @@ commands:
       - run:
           name: Linting
           command: npx nx << parameters.nx_run >> --parallel=1 -t lint
+      - run:
+          name: Checking Dependencies
+          command: npx nx << parameters.nx_run >> -t depcheck
 
   compile:
     parameters:

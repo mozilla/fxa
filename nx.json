@@ -54,6 +54,10 @@
       "outputs": ["{projectRoot}/.eslintcache"],
       "cache": true
     },
+    "depcheck": {
+      "inputs": ["depcheck", "{projectRoot}/.dependency-cruiser.js"],
+      "outputs": []
+    },
     "prebuild": {
       "dependsOn": ["gql-copy"],
       "inputs": [],
@@ -172,6 +176,7 @@
   "namedInputs": {
     "default": ["{projectRoot}/**/*.*", "sharedGlobals"],
     "lint": ["{projectRoot}/**/*.@(js|jsx|ts|tsx)"],
+    "depcheck": ["{projectRoot}/**/*.@(js|jsx|ts|tsx)"],
     "production": [
       "default",
       "{workspaceRoot}/external/l10n/**/*.@(ftl|po)",
