@@ -15,8 +15,28 @@ type PriceIntervalProps = {
 
 export async function PriceInterval(props: PriceIntervalProps) {
   const { l10n, amount, currency, interval, locale } = props;
+  let priceIntervalId;
+  switch (interval) {
+    case 'daily':
+      priceIntervalId = 'plan-price-interval-daily';
+      break;
+    case 'weekly':
+      priceIntervalId = 'plan-price-interval-weekly';
+      break;
+    case 'halfyearly':
+      priceIntervalId = 'plan-price-interval-halfyearly';
+      break;
+    case 'yearly':
+      priceIntervalId = 'plan-price-interval-yearly';
+      break;
+    case 'monthly':
+    default:
+      priceIntervalId = 'plan-price-interval-monthly';
+      break;
+  }
+
   return l10n.getString(
-    `plan-price-interval-${interval}`,
+    priceIntervalId,
     {
       amount: l10n.getLocalizedCurrency(amount, currency),
     },
