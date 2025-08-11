@@ -28,6 +28,7 @@ type FlowSetup2faBackupCodeDownloadProps = {
   onContinue: () => void;
   reason?: GleanClickEventType2FA;
   showProgressBar?: boolean;
+  customDescription?: string;
 };
 
 export const FlowSetup2faBackupCodeDownload = ({
@@ -42,6 +43,7 @@ export const FlowSetup2faBackupCodeDownload = ({
   onContinue,
   reason = GleanClickEventType2FA.setup,
   showProgressBar = true,
+  customDescription,
 }: FlowSetup2faBackupCodeDownloadProps) => {
   const [successBannerMessage, setSuccessBannerMessage] = useState('');
   const [isMobile, setIsMobile] = useState(false);
@@ -77,11 +79,15 @@ export const FlowSetup2faBackupCodeDownload = ({
         </h2>
       </FtlMsg>
 
-      <div className="my-2" data-testid="2fa-recovery-codes">
-        <FtlMsg id="flow-setup-2fa-backup-code-dl-save-these-codes">
-          Keep these in a place you’ll remember. If you don’t have access to
-          your authenticator app you’ll need to enter one to sign in.
-        </FtlMsg>
+      <div className="my-2" data-testid="2fa-backup-codes">
+        {customDescription ? (
+          <p>{customDescription}</p>
+        ) : (
+          <FtlMsg id="flow-setup-2fa-backup-code-dl-save-these-codes">
+            Keep these in a place you’ll remember. If you don’t have access to
+            your authenticator app you’ll need to enter one to sign in.
+          </FtlMsg>
+        )}
         <div className="mt-6 flex flex-col items-center justify-between">
           {loading ? (
             <LoadingSpinner />
