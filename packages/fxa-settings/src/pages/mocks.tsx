@@ -7,6 +7,7 @@ import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 import { MozServices } from '../lib/types';
 import { MOCK_ACCOUNT } from '../models/mocks';
 import { Integration, IntegrationType } from '../models';
+import PLACEHOLDER_IMAGE_URL from './cat.jpg';
 
 export const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;
 export const MOCK_UID = 'abcd1234abcd1234abcd1234abcd1234';
@@ -26,7 +27,7 @@ export const MOCK_AUTHPW =
   'b5a61d1f7a6b1b762539bd85f783b65f635def1025c3f66fc51a438a68a77d6d';
 export const MOCK_UNBLOCK_CODE = 'A1B2C3D4';
 export const MOCK_BACKUP_CODE = 'a1b2c3d4e5';
-export const PLACEHOLDER_IMAGE_URL = 'https://loremflickr.com/512/512';
+export { PLACEHOLDER_IMAGE_URL };
 export const MOCK_AVATAR_NON_DEFAULT = {
   id: 'abc123',
   url: PLACEHOLDER_IMAGE_URL,
