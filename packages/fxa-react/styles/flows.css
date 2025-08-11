@@ -7,7 +7,7 @@
 /* Transparent border around card is for Windows HCM mode */
 
 .card {
-  @apply relative w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 py-9 mobileLandscape:shadow-card-grey-drop mb-6;
+  @apply relative w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-6 py-8 mobileLandscape:px-8 mobileLandscape:py-9 mobileLandscape:shadow-card-grey-drop mobileLandscape:mb-6;
 
   /* HACK until content-server no longer needs .card, otherwise component classes take precedence */
   &.card-xl {
@@ -15,7 +15,7 @@
   }
 
   &::before {
-    @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10 content-[''];
+    @apply h-16 mobileLandscape:h-20 start-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10 content-[''];
   }
 
   &-header {
@@ -29,7 +29,7 @@
 
 /* Hide custom cms background on mobile (default) and show on tablet and up */
 @media (min-width: 640px) {
-  [data-testid="app"] {
+  [data-testid='app'] {
     background-image: var(--cms-bg);
   }
 }

@@ -62,7 +62,7 @@ export const AppLayout = ({
         data-testid="app"
       >
         <div id="body-top" className="w-full hidden mobileLandscape:block" />
-        <header className="w-full px-6 pt-16 pb-0 mobileLandscape:py-6">
+        <header className="w-full px-6 py-4 mobileLandscape:py-6">
           <LinkExternal
             rel="author"
             href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
@@ -72,7 +72,7 @@ export const AppLayout = ({
               <img
                 src={cmsHeaderLogoUrl}
                 alt={cmsHeaderLogoAltText || 'logo'}
-                className="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
+                className="h-auto w-[140px] mx-0"
               />
             ) : (
               <img
@@ -82,7 +82,7 @@ export const AppLayout = ({
                   null,
                   'Mozilla logo'
                 )}
-                className="h-auto w-[140px] mx-auto mobileLandscape:mx-0"
+                className="h-auto w-[140px] mx-0"
               />
             )}
           </LinkExternal>
