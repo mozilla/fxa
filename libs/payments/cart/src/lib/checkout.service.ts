@@ -103,6 +103,7 @@ export class CheckoutService {
 
   /**
    * Reload the customer data to reflect a change.
+   * NOTE: This is currently duplicated in subscriptionManagement.service.ts
    */
   private async customerChanged(uid: string) {
     await this.profileClient.deleteCache(uid);

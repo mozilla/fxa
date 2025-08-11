@@ -57,6 +57,7 @@ import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import {
+  CancelSubscriptionCustomerMismatch,
   CurrencyForCustomerNotFoundError,
   GetAccountCustomerMissingStripeId,
   SetDefaultPaymentAccountCustomerMissingStripeId,
@@ -70,6 +71,16 @@ import {
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
   UpdateAccountCustomerMissingStripeId,
 } from './subscriptionManagement.error';
+import {
+  MockNotifierSnsConfigProvider,
+  NotifierService,
+  NotifierSnsProvider,
+} from '@fxa/shared/notifier';
+import {
+  MockProfileClientConfigProvider,
+  ProfileClient,
+} from '@fxa/profile/client';
+import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
 jest.mock('../../../customer/src/lib/util/determinePaymentMethodType');
 const mockDeterminePaymentMethodType = jest.mocked(determinePaymentMethodType);
@@ -97,6 +108,12 @@ describe('SubscriptionManagementService', () => {
   let setupIntentManager: SetupIntentManager;
   let customerSessionManager: CustomerSessionManager;
   let currencyManager: CurrencyManager;
+  let privateCustomerChanged: any;
+
+  const mockLogger = {
+    error: jest.fn(),
+    debug: jest.fn(),
+  };
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -109,16 +126,21 @@ describe('SubscriptionManagementService', () => {
         MockAccountDatabaseNestFactory,
         MockCurrencyConfigProvider,
         MockFirestoreProvider,
+        MockNotifierSnsConfigProvider,
         MockPaypalClientConfigProvider,
+        MockProfileClientConfigProvider,
         MockStatsDProvider,
         MockStrapiClientConfigProvider,
         MockStripeConfigProvider,
+        NotifierService,
+        NotifierSnsProvider,
         PaymentMethodManager,
         PaypalBillingAgreementManager,
         PayPalClient,
         PaypalCustomerManager,
         PriceManager,
         ProductConfigurationManager,
+        ProfileClient,
         StrapiClient,
         StripeClient,
         StripeConfig,
@@ -128,6 +150,10 @@ describe('SubscriptionManagementService', () => {
         CustomerSessionManager,
         CurrencyManager,
         MockCurrencyConfigProvider,
+        {
+          provide: LOGGER_PROVIDER,
+          useValue: mockLogger,
+        },
       ],
     }).compile();
 
@@ -142,6 +168,73 @@ describe('SubscriptionManagementService', () => {
     setupIntentManager = moduleRef.get(SetupIntentManager);
     customerSessionManager = moduleRef.get(CustomerSessionManager);
     currencyManager = moduleRef.get(CurrencyManager);
+
+    privateCustomerChanged = jest
+      .spyOn(subscriptionManagementService as any, 'customerChanged')
+      .mockResolvedValue({});
+  });
+
+  describe('cancelSubscriptionAtPeriodEnd', () => {
+    const mockStripeCustomer = StripeCustomerFactory();
+    const mockAccountCustomer = ResultAccountCustomerFactory({
+      stripeCustomerId: mockStripeCustomer.id,
+    });
+    const mockSubscription = StripeResponseFactory(
+      StripeSubscriptionFactory({
+        customer: mockStripeCustomer.id,
+      })
+    );
+
+    beforeEach(() => {
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(subscriptionManager, 'retrieve')
+        .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(subscriptionManager, 'update')
+        .mockResolvedValue(mockSubscription);
+    });
+
+    it('successfully updates the subscription', async () => {
+      await subscriptionManagementService.cancelSubscriptionAtPeriodEnd(
+        mockAccountCustomer.uid,
+        mockSubscription.id
+      );
+
+      expect(subscriptionManager.update).toHaveBeenCalledWith(
+        mockSubscription.id,
+        {
+          cancel_at_period_end: true,
+          metadata: {
+            cancelled_for_customer_at: expect.any(Number),
+          },
+        }
+      );
+      expect(privateCustomerChanged).toHaveBeenCalledWith(
+        mockAccountCustomer.uid
+      );
+    });
+
+    it('fails with error on mismatching customer id between subscription and account', async () => {
+      jest.spyOn(subscriptionManager, 'retrieve').mockResolvedValueOnce(
+        StripeResponseFactory(
+          StripeSubscriptionFactory({
+            customer: 'differentCustomerId',
+          })
+        )
+      );
+
+      await expect(
+        subscriptionManagementService.cancelSubscriptionAtPeriodEnd(
+          mockAccountCustomer.uid,
+          mockSubscription.id
+        )
+      ).rejects.toBeInstanceOf(CancelSubscriptionCustomerMismatch);
+      expect(subscriptionManager.update).not.toHaveBeenCalled();
+      expect(privateCustomerChanged).not.toHaveBeenCalled();
+    });
   });
 
   describe('getPageContent', () => {

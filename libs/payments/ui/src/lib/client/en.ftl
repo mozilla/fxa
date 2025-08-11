@@ -1,0 +1,1 @@
+dialog-close = Close dialog

@@ -5,6 +5,8 @@
 import { SubplatInterval } from '@fxa/payments/customer';
 
 export interface SubscriptionContent {
+  id: string;
+  cancelAtPeriodEnd: boolean;
   productName: string;
   currency: string;
   interval?: SubplatInterval;

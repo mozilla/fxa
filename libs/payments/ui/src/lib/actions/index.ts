@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export { applyCouponAction } from './applyCoupon';
+export { cancelSubscriptionAtPeriodEndAction } from './cancelSubscriptionAtPeriodEnd';
 export { checkoutCartWithPaypal } from './checkoutCartWithPaypal';
 export { checkoutCartWithStripe } from './checkoutCartWithStripe';
 export { determineCurrencyAction } from './determineCurrency';

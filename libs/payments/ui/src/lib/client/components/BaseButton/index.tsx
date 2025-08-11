@@ -20,14 +20,14 @@ export const BaseButton = forwardRef(function BaseButton({ children, variant, ..
   let variantStyles = '';
   switch (variant) {
     case ButtonVariant.Primary:
-      variantStyles = 'bg-blue-500 font-semibold hover:bg-blue-700 text-white';
+      variantStyles = 'bg-blue-500 font-semibold hover:bg-blue-700 aria-disabled:hover:bg-blue-500 text-white';
       break;
     case ButtonVariant.Secondary:
-      variantStyles = 'bg-grey-100 font-semibold hover:bg-grey-200 text-black';
+      variantStyles = 'bg-grey-100 font-semibold hover:bg-grey-200 aria-disabled:hover:bg-grey-100 text-black';
       break;
     case ButtonVariant.ThirdParty:
       variantStyles =
-        'w-full bg-transparent border border-grey-300 font-normal text-black hover:border-black';
+        'w-full bg-transparent border border-grey-300 font-normal text-black hover:border-black aria-disabled:hover:border-grey-300';
       break;
   }
 
