@@ -13,8 +13,16 @@ export interface IapOfferingSubGroupResult {
   offerings: IapOfferingSubGroupOfferingResult[];
 }
 
+export interface IapOfferingDefaultPurchaseDetails {
+  productName: string;
+}
+export interface IapOfferingDefaultPurchase {
+  purchaseDetails: IapOfferingDefaultPurchaseDetails;
+}
+
 export interface IapOfferingResult {
   apiIdentifier: string;
+  defaultPurchase: IapOfferingDefaultPurchase;
   subGroups: IapOfferingSubGroupResult[];
 }
 

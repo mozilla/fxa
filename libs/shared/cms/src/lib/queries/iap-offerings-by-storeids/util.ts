@@ -48,4 +48,16 @@ export class IapOfferingsByStoreIDsResultUtil {
     }
     return false;
   }
+
+  getProductNamesByStoreIds(
+    storeIds: string[]
+  ): Record<string, string | undefined> {
+    const result: Record<string, string | undefined> = {};
+    for (const storeId of storeIds) {
+      const iap = this.iaps.find((iap) => iap.storeID === storeId);
+      result[storeId] =
+        iap?.offering?.defaultPurchase?.purchaseDetails?.productName;
+    }
+    return result;
+  }
 }
