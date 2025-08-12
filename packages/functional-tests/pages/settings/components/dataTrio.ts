@@ -23,7 +23,7 @@ export class DataTrioComponent {
       //@ts-ignore
       navigator.clipboard.writeText = (text) => (window.clipboardText = text);
     });
-    await this.page.click('[data-testid=databutton-copy]');
+    await this.page.locator('[data-testid=databutton-copy]').click();
     //@ts-ignore
     return this.page.evaluate(() => window.clipboardText);
   }

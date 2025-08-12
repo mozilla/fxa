@@ -81,7 +81,7 @@ export class SettingsPage extends SettingsLayout {
     const sync = services.find((s) => s.name.includes(' on '));
 
     await sync?.signout();
-    await this.page.click('text=Rather not say >> input[name="reason"]');
+    await this.page.locator('text=Rather not say >> input[name="reason"]').click();
     await this.modalConfirmButton.click();
 
     await this.page.evaluate((uid) => {
