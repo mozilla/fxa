@@ -39,6 +39,8 @@ export interface SubscriptionContent {
   id: string;
   cancelAtPeriodEnd: boolean;
   productName: string;
+  webIcon: string;
+  canResubscribe: boolean;
   currency: string;
   interval?: SubplatInterval;
   currentInvoiceTax: number;

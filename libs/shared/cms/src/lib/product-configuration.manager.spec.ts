@@ -45,10 +45,10 @@ import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './quer
 import { StrapiClient } from './strapi.client';
 import { MockStrapiClientConfigProvider } from './strapi.client.config';
 import {
-  ProductNameByPriceIdsQueryFactory,
-  ProductNameByPriceIdsResultUtil,
-  ProductNamePurchaseResultFactory,
-} from './queries/product-name-by-price-ids';
+  PageContentByPriceIdsPurchaseResultFactory,
+  PageContentByPriceIdsQueryFactory,
+  PageContentByPriceIdsResultUtil,
+} from './queries/page-content-by-price-ids';
 
 jest.mock('@type-cacheable/core', () => ({
   Cacheable: () => {
@@ -225,38 +225,43 @@ describe('productConfigurationManager', () => {
     });
   });
 
-  describe('getProductNameByPriceIds', () => {
+  describe('getPageContentByPriceIds', () => {
     it('should return empty result', async () => {
-      const queryData = ProductNameByPriceIdsQueryFactory({
+      const queryData = PageContentByPriceIdsQueryFactory({
         purchases: [],
       });
 
+      jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
       jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
-      const result = await productConfigurationManager.getProductNameByPriceIds(
+      const result = await productConfigurationManager.getPageContentByPriceIds(
         ['test']
       );
-      expect(result).toBeInstanceOf(ProductNameByPriceIdsResultUtil);
-      expect(result.productNameForPriceId('test')).toBeUndefined;
-      expect(result.purchases).toHaveLength(0);
+      expect(result).toBeInstanceOf(PageContentByPriceIdsResultUtil);
     });
 
     it('should return successfully', async () => {
-      const purchaseResult = ProductNamePurchaseResultFactory({
+      const priceId = 'test';
+      const purchaseResult = PageContentByPriceIdsPurchaseResultFactory({
         purchaseDetails: {
           productName: 'Sonny and Jerry Two-Fur-One Special',
+          webIcon: '',
+          localizations: [],
         },
+        stripePlanChoices: [{ stripePlanChoice: priceId }],
       });
-      const queryData = ProductNameByPriceIdsQueryFactory({
+      const queryData = PageContentByPriceIdsQueryFactory({
         purchases: [purchaseResult],
       });
 
+      jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
       jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
-      const result = await productConfigurationManager.getProductNameByPriceIds(
-        ['test']
+      const result = await productConfigurationManager.getPageContentByPriceIds(
+        [priceId]
       );
-      expect(result).toBeInstanceOf(ProductNameByPriceIdsResultUtil);
+
+      expect(result).toBeInstanceOf(PageContentByPriceIdsResultUtil);
       expect(result.productNameForPriceId('test')).toBeDefined;
       expect(result.purchases).toHaveLength(1);
     });

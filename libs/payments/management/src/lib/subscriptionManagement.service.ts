@@ -49,6 +49,7 @@ import {
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
   UpdateAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
+  ResubscribeSubscriptionCustomerMismatch,
 } from './subscriptionManagement.error';
 import { NotifierService } from '@fxa/shared/notifier';
 import { ProfileClient } from '@fxa/profile/client';
@@ -133,7 +134,11 @@ export class SubscriptionManagementService {
       SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError,
     ],
   })
-  async getPageContent(uid: string) {
+  async getPageContent(
+    uid: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ) {
     const subscriptions: SubscriptionContent[] = [];
     let appleIapSubscriptions: AppleIapSubscriptionContent[] = [];
     let googleIapSubscriptions: GoogleIapSubscriptionContent[] = [];
@@ -198,8 +203,10 @@ export class SubscriptionManagementService {
         sub.items.data.map((item) => item.price.id)
       );
       const productMap =
-        await this.productConfigurationManager.getProductNameByPriceIds(
-          stripePriceIds
+        await this.productConfigurationManager.getPageContentByPriceIds(
+          stripePriceIds,
+          acceptLanguage,
+          selectedLanguage
         );
 
       if (!productMap) {
@@ -212,17 +219,19 @@ export class SubscriptionManagementService {
         const item = sub.items.data[0];
         const price = item.price;
         const priceId = price.id;
-        const productName = productMap.productNameForPriceId(priceId);
-        if (!productName) {
-          Sentry.captureMessage('No product name for price id', {
-            extra: { uid, priceId, subscriptionId: sub.id },
-          });
-        }
+        const cmsPurchase = productMap.purchaseForPriceId(priceId);
+        const productName =
+          cmsPurchase.purchaseDetails.localizations[0]?.productName ||
+          cmsPurchase.purchaseDetails.productName;
+        const webIcon =
+          cmsPurchase.purchaseDetails.localizations[0]?.webIcon ||
+          cmsPurchase.purchaseDetails.webIcon;
         const content = await this.getSubscriptionContent(
           sub,
           stripeCustomer,
           price,
-          productName ?? 'Mozilla Subscription'
+          productName,
+          webIcon
         );
 
         if (content) {
@@ -336,7 +345,8 @@ export class SubscriptionManagementService {
     subscription: StripeSubscription,
     customer: StripeCustomer,
     price: StripePrice,
-    productName: string
+    productName: string,
+    webIcon: string
   ): Promise<SubscriptionContent> {
     const currency = subscription.currency;
     const latestInvoiceId = subscription.latest_invoice;
@@ -408,6 +418,9 @@ export class SubscriptionManagementService {
     return {
       id: subscription.id,
       productName,
+      webIcon,
+      canResubscribe:
+        subscription.status === 'active' && subscription.cancel_at_period_end,
       currency: subscription.currency,
       interval: subplatInterval,
       currentInvoiceTax: creditApplied ? 0 : Math.max(0, totalExclusiveTax),
@@ -477,6 +490,34 @@ export class SubscriptionManagementService {
       defaultPaymentMethodId: defaultPaymentMethod?.id,
       currency,
     };
+  }
+
+  @SanitizeExceptions()
+  async resubscribeSubscription(uid: string, subscriptionId: string) {
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+    const subscription =
+      await this.subscriptionManager.retrieve(subscriptionId);
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new ResubscribeSubscriptionCustomerMismatch(
+        uid,
+        accountCustomer.uid,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+
+    await this.subscriptionManager.update(subscriptionId, {
+      cancel_at_period_end: false,
+      metadata: {
+        ...(subscription.metadata || {}),
+        cancelled_for_customer_at: '',
+      },
+    });
+
+    // Figure out where to add this, or if to just duplicate it.
+    await this.customerChanged(uid);
   }
 
   @SanitizeExceptions()
