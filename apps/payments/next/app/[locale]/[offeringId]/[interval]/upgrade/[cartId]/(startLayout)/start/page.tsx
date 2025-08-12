@@ -97,6 +97,13 @@ export default async function Upgrade({
                 width={91}
                 height={24}
               />
+            ) : cart.paymentInfo.type === 'link' ? (
+              <Image
+                src={getCardIcon('link', l10n).img}
+                alt={l10n.getString('link-logo-alt-text', 'Link logo')}
+                width={70}
+                height={24}
+              />
             ) : (
               <span className="flex items-center gap-2">
                 {cart.paymentInfo.brand && (
@@ -171,6 +178,7 @@ export default async function Upgrade({
               nonce={nonce}
               paypalClientId={config.paypal.clientId}
               sessionUid={session?.user?.id}
+              sessionEmail={session?.user?.email ?? undefined}
             />
           )}
       </section>

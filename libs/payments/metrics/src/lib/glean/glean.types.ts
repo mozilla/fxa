@@ -12,6 +12,7 @@ export const PaymentProvidersTypePartial = [
   'google_iap',
   'apple_iap',
   'external_paypal',
+  'link',
 ] as const;
 export type PaymentProvidersType =
   | Stripe.PaymentMethod.Type
