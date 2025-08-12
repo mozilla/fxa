@@ -15,7 +15,7 @@ import {
   UpgradePurchaseDetails,
 } from '@fxa/payments/ui/server';
 import { config } from 'apps/payments/next/config';
-import { auth, signOut } from 'apps/payments/next/auth';
+import { auth } from 'apps/payments/next/auth';
 
 export default async function UpgradeLayout({
   children,
@@ -53,10 +53,6 @@ export default async function UpgradeLayout({
       <Header
         auth={{
           user: session?.user,
-          signOut: async () => {
-            'use server';
-            await signOut({ redirect: false });
-          },
         }}
         cart={cart}
       />

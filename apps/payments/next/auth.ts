@@ -77,6 +77,17 @@ export const {
         ...token,
       };
     },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+
+      // Allows callback URLs on the same origin and to MzAs content server
+      const urlOrigin = new URL(url).origin;
+      if (urlOrigin === baseUrl || urlOrigin === config.contentServerUrl)
+        return url;
+
+      return baseUrl;
+    },
   },
   events: {
     async signIn() {

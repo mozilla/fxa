@@ -23,7 +23,7 @@ import {
   TermsAndPrivacy,
 } from '@fxa/payments/ui/server';
 import { CartState } from '@fxa/shared/db/mysql/account';
-import { auth, signOut } from 'apps/payments/next/auth';
+import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
 
 export interface CheckoutSearchParams {
@@ -61,10 +61,6 @@ export default async function CheckoutLayout({
       <Header
         auth={{
           user: session?.user,
-          signOut: async () => {
-            'use server';
-            await signOut({ redirect: false });
-          },
         }}
         cart={cart}
       />

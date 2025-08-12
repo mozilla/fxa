@@ -30,6 +30,7 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 
 function buildSignOutRedirectPath(
   params: Record<string, string | string[]>,
@@ -55,7 +56,6 @@ function buildSignOutRedirectPath(
 type HeaderProps = {
   auth?: {
     user: User | undefined;
-    signOut: () => Promise<void>;
   };
   cart?: {
     taxAddress: {
@@ -74,11 +74,11 @@ export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
   const signOutRedirectPath =
     cart?.taxAddress.countryCode && cart.taxAddress.postalCode
       ? buildSignOutRedirectPath(
-          params,
-          searchParams,
-          cart.taxAddress.countryCode,
-          cart.taxAddress.postalCode
-        )
+        params,
+        searchParams,
+        cart.taxAddress.countryCode,
+        cart.taxAddress.postalCode
+      )
       : redirectPath || '/';
 
   const signedIn = auth && auth.user;
@@ -388,8 +388,8 @@ export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
                     <div className="px-4 py-5">
                       <button
                         onClick={async () => {
-                          await auth.signOut();
-                          router.replace(signOutRedirectPath);
+                          const signOutRedirect = await signOut({ redirectTo: signOutRedirectPath, redirect: false })
+                          router.replace(signOutRedirect.url);
                         }}
                         className="pl-3 group"
                       >
