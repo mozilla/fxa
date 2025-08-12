@@ -117,7 +117,7 @@ test.describe('severity-1 #smoke', () => {
 
         // Assert no logo is shown
         const logo = page.getByRole('img', { name: '123Done logo' });
-        await expect(logo).not.toBeVisible();
+        await expect(logo).toBeHidden();
       });
 
       test('signup', async ({
@@ -126,7 +126,7 @@ test.describe('severity-1 #smoke', () => {
         pages: { signin, relier },
         testAccountTracker,
       }) => {
-        const credentials = await testAccountTracker.generateAccountDetails();
+        const credentials = testAccountTracker.generateAccountDetails();
 
         // Navigate to the CMS entrypoint
         await relier.goto(`entrypoint=${ENTRYPOINT_123Done}`);
@@ -368,7 +368,7 @@ test.describe('severity-1 #smoke', () => {
         });
         await submitButton.click();
 
-        await page.getByRole('link', { name: 'Not now', exact: true }).click();
+        await page.getByRole('link', { name: 'Not now' }).click();
       });
 
       test('signin login confirmation with Sync', async ({
