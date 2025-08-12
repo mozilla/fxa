@@ -137,12 +137,12 @@ const SigninRecoveryChoice = ({
   const cmsInfo = integration?.getCmsInfo();
   const cmsButton = {
     color: cmsInfo?.shared?.buttonColor,
-  }
+  };
 
   return (
     <AppLayout cmsInfo={cmsInfo}>
       <div className="relative flex items-center mb-5">
-        <ButtonBack />
+        <ButtonBack cmsBackgroundColor={cmsInfo?.shared?.backgroundColor} />
         {cmsInfo?.shared?.logoUrl && cmsInfo.shared?.logoAltText ? (
           <img
             src={cmsInfo.shared.logoUrl}

@@ -164,7 +164,7 @@ const SigninRecoveryPhone = ({
     <AppLayout cmsInfo={cmsInfo}>
 
       <div className="relative flex items-center">
-        <ButtonBack />
+        <ButtonBack cmsBackgroundColor={cmsInfo?.shared?.backgroundColor} />
         {cmsInfo?.shared?.logoUrl && cmsInfo.shared?.logoAltText ? (
           <img
             src={cmsInfo.shared.logoUrl}
