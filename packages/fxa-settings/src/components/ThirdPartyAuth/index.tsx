@@ -4,9 +4,10 @@
 
 import React, { useRef, FormEventHandler, useEffect, useCallback } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useLocalization } from '@fluent/react';
 
-import { ReactComponent as GoogleLogo } from './google-logo.svg';
-import { ReactComponent as AppleLogo } from './apple-logo.svg';
+import { ReactComponent as GoogleLogo } from './google-logo-viewbox.svg';
+import { ReactComponent as AppleLogo } from './apple-logo-viewbox-white.svg';
 
 import { useConfig } from '../../models';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
@@ -61,7 +62,7 @@ const ThirdPartyAuth = ({
             </div>
           </>
         )}
-        <div className="flex flex-col">
+        <div className="flex gap-4 justify-center">
           <ThirdPartySignInForm
             {...{
               party: 'google',
@@ -76,9 +77,6 @@ const ThirdPartyAuth = ({
               buttonText: (
                 <>
                   <GoogleLogo />
-                  <FtlMsg id="continue-with-google-button">
-                    <p className="pe-4">Continue with Google</p>
-                  </FtlMsg>
                 </>
               ),
               deeplink
@@ -99,9 +97,6 @@ const ThirdPartyAuth = ({
               buttonText: (
                 <>
                   <AppleLogo />
-                  <FtlMsg id="continue-with-apple-button">
-                    <p className="pe-4">Continue with Apple</p>
-                  </FtlMsg>
                 </>
               ),
               deeplink
@@ -152,9 +147,18 @@ const ThirdPartySignInForm = ({
   flowQueryParams?: QueryParams;
 }) => {
   const { logViewEventOnce } = useMetrics();
+  const { l10n } = useLocalization();
   const stateRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const isDeeplinking = deeplink !== undefined;
+
+  const getLoginAriaLabel = () => {
+    const labels = {
+      google: l10n.getString('continue-with-google-button', null, 'Continue with Google'),
+      apple: l10n.getString('continue-with-apple-button', null, 'Continue with Apple')
+    };
+    return labels[party];
+  };
 
   const onClick = useCallback(async () => {
     logViewEventOnce(`flow.${party}`, 'oauth-start');
@@ -231,8 +235,11 @@ const ThirdPartySignInForm = ({
       {!isDeeplinking ? (
         <button
           type="submit"
-          className="w-full px-2 mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black rounded-lg text-md text-center inline-flex items-center focus-visible-default outline-offset-2"
+          className={`w-[60px] h-[60px] p-4 flex items-center justify-center rounded-full border border-transparent focus-visible-default outline-offset-2 ${
+            party === 'google' ? 'bg-[#F9F4F4]' : 'bg-black'
+          }`}
           onClick={onClick}
+          aria-label={getLoginAriaLabel()}
         >
           {buttonText}
         </button>
