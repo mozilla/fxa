@@ -1678,6 +1678,38 @@ export default class AuthClient {
     return this.sessionPost('/totp/create', sessionToken, options, headers);
   }
 
+  async replaceTotpToken(
+    sessionToken: hexstring,
+    options: {
+      metricsContext?: MetricsContext;
+    },
+    headers?: Headers
+  ): Promise<{
+    qrCodeUrl: string;
+    secret: string;
+    recoveryCodes: string[];
+  }> {
+    return this.sessionPost(
+      '/totp/replace/start',
+      sessionToken,
+      options,
+      headers
+    );
+  }
+
+  async confirmReplaceTotpToken(
+    sessionToken: hexstring,
+    code: string,
+    headers?: Headers
+  ): Promise<void> {
+    return this.sessionPost(
+      '/totp/replace/confirm',
+      sessionToken,
+      { code },
+      headers
+    );
+  }
+
   async deleteTotpToken(sessionToken: hexstring, headers?: Headers) {
     return this.sessionPost('/totp/destroy', sessionToken, {}, headers);
   }
@@ -2379,7 +2411,11 @@ export default class AuthClient {
     feature: string,
     headers?: Headers
   ): Promise<{ eligible: boolean }> {
-    return this.sessionGet(`/geo/eligibility/${feature}`, sessionToken, headers);
+    return this.sessionGet(
+      `/geo/eligibility/${feature}`,
+      sessionToken,
+      headers
+    );
   }
 
   /**
@@ -2388,7 +2424,7 @@ export default class AuthClient {
    * @param clientId
    * @param entrypoint
    */
-  async getCmsConfig(clientId:string, entrypoint:string) {
+  async getCmsConfig(clientId: string, entrypoint: string) {
     return this.request(
       'GET',
       `/cms/config?clientId=${clientId}&entrypoint=${entrypoint}`,

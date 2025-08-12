@@ -599,7 +599,7 @@ module.exports = (
               request,
             });
 
-            glean.twoFactorAuth.codeComplete(request, { uid, reason: 'setup' });
+            glean.twoFactorAuth.codeComplete(request, { uid });
 
             await profileClient.deleteCache(uid);
             await log.notifyAttachedServices('profileDataChange', request, {
@@ -818,7 +818,7 @@ module.exports = (
               .regex(validators.DIGITS)
               .required()
               .description(DESCRIPTION.codeTotp),
-          })
+          }),
         },
         response: {
           schema: isA.object({
@@ -855,10 +855,10 @@ module.exports = (
 
         // Default options for TOTP
         const otpOptions = {
-            encoding: 'hex',
-            step: config.step,
-            window: config.window,
-        }
+          encoding: 'hex',
+          step: config.step,
+          window: config.window,
+        };
 
         // validate the incoming code
         const { valid: isValidCode } = otpUtils.verifyOtpCode(
@@ -890,7 +890,7 @@ module.exports = (
             db,
             request,
           });
-          glean.twoFactorAuth.codeComplete(request, { uid, reason: 'replace' });
+          glean.twoFactorAuth.replaceSuccess(request, { uid });
 
           // Email notifications are part of a separate ticket:
           // https://mozilla-hub.atlassian.net/browse/FXA-12140
@@ -902,19 +902,18 @@ module.exports = (
 
           return {
             success: true,
-          }
-
+          };
         } catch (error) {
           recordSecurityEvent('account.two_factor_replace_failure', {
             db,
             request,
           });
-          glean.twoFactorAuth.codeReplaceFailure(request, { uid });
+          glean.twoFactorAuth.replaceFailure(request, { uid });
           return {
             success: false,
-          }
+          };
         }
-      }
+      },
     },
   ];
 };

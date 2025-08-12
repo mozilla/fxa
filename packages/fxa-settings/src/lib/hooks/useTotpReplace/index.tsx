@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { useAccount, useSession } from '../../../models';
 import { TotpInfo } from '../../types';
 
-export const useTotpSetup = () => {
+export const useTotpReplace = () => {
   const account = useAccount();
   const session = useSession();
 
@@ -15,7 +15,7 @@ export const useTotpSetup = () => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!session.verified) {
+    if (!session.verified || !account.totp.verified) {
       setLoading(false);
       return;
     }
@@ -24,7 +24,7 @@ export const useTotpSetup = () => {
     const fetchTotp = async () => {
       setError(null);
       try {
-        const result = await account.createTotp(true);
+        const result = await account.replaceTotp();
         if (!cancelled) setTotpInfo(result);
       } catch (err) {
         if (!cancelled) setError(err as Error);

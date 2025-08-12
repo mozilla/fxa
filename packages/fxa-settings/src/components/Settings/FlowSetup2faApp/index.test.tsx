@@ -65,6 +65,14 @@ describe('FlowSetup2faApp', () => {
     ).toBeInTheDocument();
   });
 
+  it('displays custom QR code instruction when provided', () => {
+    renderFlowSetup2fa({
+      customQrInstructionEl: <p>Custom instruction</p>,
+    });
+
+    expect(screen.getByText('Custom instruction')).toBeInTheDocument();
+  });
+
   it('switches to the manual code step when the toggle is clicked', async () => {
     renderFlowSetup2fa();
 

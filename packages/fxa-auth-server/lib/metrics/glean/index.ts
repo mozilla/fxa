@@ -314,9 +314,7 @@ export function gleanMetrics(config: ConfigType) {
       }),
     },
     twoFactorAuth: {
-      codeComplete: createEventFn('two_factor_auth_code_complete', {
-        additionalMetrics: extraKeyReasonCb,
-      }),
+      codeComplete: createEventFn('two_factor_auth_code_complete'),
       setCodesComplete: createEventFn('two_factor_auth_set_codes_complete'),
       replaceCodeComplete: createEventFn(
         'two_factor_auth_replace_code_complete'
@@ -324,9 +322,8 @@ export function gleanMetrics(config: ConfigType) {
       setupInvalidCodeError: createEventFn(
         'two_factor_auth_setup_invalid_code_error'
       ),
-      codeReplaceFailure: createEventFn(
-        'two_factor_auth_code_replace_failure'
-      ),
+      replaceSuccess: createEventFn('two_factor_auth_replace_success'),
+      replaceFailure: createEventFn('two_factor_auth_replace_failure'),
     },
     twoStepAuthPhoneCode: {
       sent: createEventFn('two_step_auth_phone_code_sent'),
