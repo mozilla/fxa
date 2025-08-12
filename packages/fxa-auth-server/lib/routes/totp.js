@@ -892,8 +892,7 @@ module.exports = (
           });
           glean.twoFactorAuth.replaceSuccess(request, { uid });
 
-          // Email notifications are part of a separate ticket:
-          // https://mozilla-hub.atlassian.net/browse/FXA-12140
+          sendEmailNotification();
 
           await profileClient.deleteCache(uid);
           await log.notifyAttachedServices('profileDataChange', request, {
@@ -912,6 +911,37 @@ module.exports = (
           return {
             success: false,
           };
+        }
+
+        async function sendEmailNotification() {
+          const account = await db.account(sessionToken.uid);
+          const geoData = request.app.geo;
+          const ip = request.app.clientAddress;
+          const service = request.payload.service || request.query.service;
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            ip: ip,
+            location: geoData.location,
+            service: service,
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uid: sessionToken.uid,
+          };
+          try {
+            await mailer.sendPostChangeTwoStepAuthenticationEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          } catch (error) {
+            log.error('mailer.sendPostChangeTwoStepAuthenticationEmail', {
+              error,
+            });
+          }
         }
       },
     },

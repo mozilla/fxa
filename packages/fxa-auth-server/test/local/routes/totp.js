@@ -823,6 +823,30 @@ describe('totp', () => {
       assert.calledOnce(glean.twoFactorAuth.replaceSuccess);
     });
 
+    it('should send postChangeTwoStepAuthentication email', async () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+      };
+      await setup(
+        {
+          db: { email: TEST_EMAIL },
+          redis: { secret },
+        },
+        {},
+        '/totp/replace/confirm',
+        requestOptions
+      );
+
+      assert.equal(
+        mailer.sendPostChangeTwoStepAuthenticationEmail.callCount,
+        1
+      );
+    });
+
     it('should fail for an invalid replacement totp code', async () => {
       requestOptions.payload = {
         code: 'INVALID_CODE',

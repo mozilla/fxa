@@ -1465,6 +1465,42 @@ const TESTS: [string, any, Record<string, any>?][] = [
     }
   ],
 
+  ['postChangeTwoStepAuthenticationEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Two-step authentication updated' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('accountSettingsUrl', 'account-two-step-changed', 'manage-account', 'email', 'uid') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postChangeTwoStepAuthentication') }],
+      ['X-Template-Name', { test: 'equal', expected: 'postChangeTwoStepAuthentication' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postChangeTwoStepAuthentication }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Two-step authentication has been updated' },
+      { test: 'include', expected: 'You now need to use the new Mozilla account entry in your authenticator app. The older one will no longer work and you can remove it.' },
+      { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
+      { test: 'include', expected: decodeUrl(configHref('accountSettingsUrl', 'account-two-step-changed', 'manage-account', 'email', 'uid')) },
+      { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-two-step-changed', 'change-password', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-two-step-changed', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-two-step-changed', 'support')) },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Two-step authentication has been updated' },
+      { test: 'include', expected: 'You now need to use the new Mozilla account entry in your authenticator app. The older one will no longer work and you can remove it.' },
+      { test: 'include', expected: 'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication' },
+      { test: 'include', expected: `Manage account:\n${configUrl('accountSettingsUrl', 'account-two-step-changed', 'manage-account', 'email', 'uid')}` },
+      { test: 'include', expected: `change your password right away:\n${configUrl('initiatePasswordChangeUrl', 'account-two-step-changed', 'change-password', 'email')}` },
+      { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'account-two-step-changed', 'privacy')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support:\n${configUrl('supportUrl', 'account-two-step-changed', 'support')}` },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+
   ['postAddRecoveryPhoneEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Recovery phone added' }],
     ['headers', new Map([

@@ -86,6 +86,7 @@ module.exports = function (log, config, bounces, statsd) {
     postChangePrimary: 'account-email-changed',
     postVerifySecondary: 'account-email-verified',
     postAddTwoStepAuthentication: 'account-two-step-enabled',
+    postChangeTwoStepAuthentication: 'account-two-step-changed',
     postRemoveTwoStepAuthentication: 'account-two-step-disabled',
     postConsumeRecoveryCode: 'account-consume-recovery-code',
     postNewRecoveryCodes: 'account-replace-recovery-codes',
@@ -148,6 +149,7 @@ module.exports = function (log, config, bounces, statsd) {
     postChangePrimary: 'account-email-changed',
     postVerifySecondary: 'manage-account',
     postAddTwoStepAuthentication: 'manage-account',
+    postChangeTwoStepAuthentication: 'manage-account',
     postRemoveTwoStepAuthentication: 'manage-account',
     postConsumeRecoveryCode: 'manage-account',
     postNewRecoveryCodes: 'manage-account',
@@ -1513,6 +1515,47 @@ module.exports = function (log, config, bounces, statsd) {
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
         recoveryMethod: message.maskedPhoneNumber ? 'phone' : 'codes',
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+        twoFactorSupportLink:
+          'https://support.mozilla.org/kb/secure-mozilla-account-two-step-authentication',
+      },
+    });
+  };
+
+  Mailer.prototype.postChangeTwoStepAuthenticationEmail = function (message) {
+    log.trace('mailer.postChangeTwoStepAuthenticationEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'postChangeTwoStepAuthentication';
+    const links = this._generateSettingLinks(message, templateName);
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        date,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        iosLink: links.iosLink,
+        link: links.link,
+        maskedPhoneNumber: message.maskedPhoneNumber,
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
