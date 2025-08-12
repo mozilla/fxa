@@ -581,7 +581,7 @@ test.describe('severity-1 #smoke', () => {
       submitButton = page.getByRole('button', { name: 'Sign in', exact: true });
       await submitButton.click();
 
-      await page.getByRole('link', { name: 'Not now', exact: true }).click();
+      await page.getByRole('link', { name: 'Not now' }).click();
 
       // Verify successful login and go to settings
       await expect(page).toHaveURL(/settings/);
@@ -657,7 +657,7 @@ test.describe('severity-1 #smoke', () => {
       const totpCode = await getCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
-      await page.getByRole('link', { name: 'Not now', exact: true }).click();
+      await page.getByRole('link', { name: 'Not now' }).click();
 
       // Verify successful login
       await expect(page).toHaveURL(/settings/);
