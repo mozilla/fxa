@@ -17,7 +17,12 @@ test.describe('recovery key promo', () => {
 
     test('not shown after signup', async ({
       target,
-      syncBrowserPages: { page, signup, login, signupConfirmedSync },
+      syncBrowserPages: {
+        page,
+        signup,
+        confirmSignupCode,
+        signupConfirmedSync,
+      },
       testAccountTracker,
     }) => {
       const credentials = testAccountTracker.generateSignupAccountDetails();
@@ -33,8 +38,7 @@ test.describe('recovery key promo', () => {
       const code = await target.emailClient.getVerifyShortCode(
         credentials.email
       );
-      await login.setCode(code);
-      await login.clickSubmit();
+      await confirmSignupCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/signup_confirmed_sync/);
       await expect(signupConfirmedSync.bannerConfirmed).toBeVisible();

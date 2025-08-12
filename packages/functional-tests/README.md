@@ -117,9 +117,9 @@ To keep the tests readable and high-level we use the [page object model](https:/
 Example:
 
 ```ts
-test('create an account', async ({ pages: { login } }) => {
-  // login is a POM at pages/login.ts
-  await login.goto();
+test('signup web', async ({ pages: { signup } }) => {
+  // signup is a POM at pages/signup.ts
+  await signup.goto();
   //...
 });
 ```

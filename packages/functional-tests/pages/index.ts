@@ -16,7 +16,6 @@ import { FourOhFourPage } from './fourOhFour';
 import { FxDesktopV3ForceAuthPage } from './forceAuth/fxDesktopV3';
 import { ForceAuthPage } from './forceAuth';
 import { LegalPage } from './legal';
-import { LoginPage } from './login';
 import { PostVerifyPage } from './postVerify';
 import { PrivacyPage } from './privacy';
 import { RecoveryKeyPage } from './settings/recoveryKey';
@@ -55,7 +54,6 @@ export function create(page: Page, target: BaseTarget) {
     inlineRecoveryKey: new InlineRecoveryKey(page, target),
     inlineTotpSetup: new InlineTotpSetupPage(page, target),
     legal: new LegalPage(page, target),
-    login: new LoginPage(page, target),
     page,
     postVerify: new PostVerifyPage(page, target),
     privacy: new PrivacyPage(page, target),
