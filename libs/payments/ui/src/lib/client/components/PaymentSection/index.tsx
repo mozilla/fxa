@@ -56,6 +56,7 @@ interface PaymentFormProps {
   nonce?: string;
   paypalClientId: string;
   sessionUid?: string;
+  sessionEmail?: string;
 }
 
 export function PaymentSection({
@@ -66,6 +67,7 @@ export function PaymentSection({
   nonce,
   paypalClientId,
   sessionUid,
+  sessionEmail,
 }: PaymentFormProps) {
   return (
     <PayPalScriptProvider
@@ -86,6 +88,7 @@ export function PaymentSection({
           cart={cart}
           locale={locale}
           sessionUid={sessionUid}
+          sessionEmail={sessionEmail}
         />
       </StripeWrapper>
     </PayPalScriptProvider>

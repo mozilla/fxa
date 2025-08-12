@@ -24,6 +24,7 @@ export const PaymentProviders = {
   paypal: 'external_paypal',
   google_iap: 'google_iap',
   apple_iap: 'apple_iap',
+  link: 'link',
 } as const;
 
 export type PaymentProvidersType = typeof PaymentProviders;
@@ -39,6 +40,7 @@ export function buildPaymentTerms(
     hasActiveSubscriptions && provider ? provider.type : undefined;
   const items: GenericTermsListItem[] = [];
   switch (providerType) {
+    case PaymentProviders.link:
     case PaymentProviders.stripe:
       providerString = 'Stripe';
       titleLocalizationId = 'terms-and-privacy-stripe-label';
