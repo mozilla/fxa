@@ -69,11 +69,11 @@ export abstract class SettingsLayout extends BaseLayout {
   }
 
   clickModalConfirm() {
-    return this.page.click('[data-testid=modal-confirm]');
+    return this.page.locator('[data-testid=modal-confirm]').click();
   }
 
   clickChangePassword() {
-    return this.page.click('[data-testid=password-unit-row-route]');
+    return this.page.locator('[data-testid=password-unit-row-route]').click();
   }
 
   async clickHelp(): Promise<Page> {

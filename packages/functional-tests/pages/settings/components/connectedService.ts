@@ -7,12 +7,12 @@ import { ElementHandle, Page } from '@playwright/test';
 export class ConnectedService {
   name = '';
   constructor(
-    readonly element: ElementHandle<HTMLElement | SVGElement>,
+    readonly element: ElementHandle<Node>,
     readonly page: Page
   ) {}
 
   static async create(
-    element: ElementHandle<HTMLElement | SVGElement>,
+    element: ElementHandle<Node>,
     page: Page
   ) {
     const service = new ConnectedService(element, page);
