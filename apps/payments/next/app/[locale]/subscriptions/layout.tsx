@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { Breadcrumbs, Header } from '@fxa/payments/ui';
 import { getApp } from '@fxa/payments/ui/server';
 import defaultAvatarIcon from '@fxa/shared/assets/images/avatar-default.svg';
-import { auth, signOut } from 'apps/payments/next/auth';
+import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
 
 export default async function SubscriptionsLayout({
@@ -30,10 +30,6 @@ export default async function SubscriptionsLayout({
       <Header
         auth={{
           user: session?.user,
-          signOut: async () => {
-            'use server';
-            await signOut({ redirect: false });
-          },
         }}
         redirectPath={`${config.contentServerUrl}/settings`}
       />
