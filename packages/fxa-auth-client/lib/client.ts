@@ -98,7 +98,7 @@ export type SignedInAccountData = {
 export type PasswordChangePayload = {
   authPW: string;
   wrapKb: string;
-  sessionToken?: string;
+  sessionToken: string;
   wrapKbVersion2?: string;
   authPWVersion2?: string;
   clientSalt?: string;
@@ -1234,14 +1234,15 @@ export default class AuthClient {
     );
 
     const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
-    const sessionTokenHex = sessionToken
-      ? (await hawk.deriveHawkCredentials(sessionToken, 'sessionToken')).id
-      : undefined;
+    const { id: sessionTokenId } = await hawk.deriveHawkCredentials(
+      sessionToken,
+      'sessionToken'
+    );
 
     let payload: PasswordChangePayload = {
       authPW: newCredentials.authPW,
       wrapKb,
-      sessionToken: sessionTokenHex,
+      sessionToken: sessionTokenId,
     };
 
     let unwrapBKeyVersion2: string | undefined;

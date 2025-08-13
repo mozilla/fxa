@@ -124,7 +124,6 @@ export class GqlKeyStretchUpgrade {
 
     if (result1?.keyFetchToken && result1?.passwordChangeToken) {
       const result2 = await this.getWrappedKeys(result1.keyFetchToken);
-
       if (result2?.wrapKB) {
         await this.finishUpgrade(
           result2?.wrapKB,
@@ -186,13 +185,24 @@ export class GqlKeyStretchUpgrade {
         passwordChangeToken,
       };
     } catch (error) {
-      // If the user enters the wrong password, they will see an invalid password error.
-      // Otherwise something has going wrong and we should show a general error.
+      const errno = getHandledError(error).error.errno;
+
+      if (errno === 104) {
+        // Session not verified. Trying again later.
+        console.info('Account not verified. Try upgrade later.');
+      } else if (errno === 138) {
+        // Account not verified. Trying again later.
+        console.info('Account not verified. Try upgrade later.');
+      } else {
+        console.info('Unexpected errno. Try upgrade later.', errno);
+      }
+
+      // Unexpected state. Log it sentry, and try again later.
       Sentry.captureMessage(
         `Failure to finish v2 key-stretching upgrade. Could not start password change during ${this.stage}`,
         {
           tags: {
-            errno: getHandledError(error).error.errno,
+            errno,
           },
         }
       );
