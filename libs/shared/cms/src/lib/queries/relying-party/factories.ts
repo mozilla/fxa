@@ -20,6 +20,7 @@ export const RelyingPartyResultFactory = (
   clientId: faker.string.hexadecimal(),
   entrypoint: faker.string.hexadecimal(),
   name: faker.string.sample(),
+  l10nId: faker.string.sample(),
   EmailFirstPage: {
     logoUrl: faker.internet.url(),
     logoAltText: faker.internet.url(),
