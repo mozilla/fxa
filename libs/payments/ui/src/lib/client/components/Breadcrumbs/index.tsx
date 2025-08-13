@@ -46,22 +46,38 @@ export function Breadcrumbs(args: {
     label: l10n.getString(
       'subscription-management-breadcrumb-payment',
       {},
-      'Payment Methods'
+      'Manage Payment Methods'
     ),
     href: `${args.paymentsNextUrl}/subscriptions/payments/stripe`,
+  };
+  const PAYPAL_PAYMENT_METHODS = {
+    label: l10n.getString(
+      'subscription-management-breadcrumb-payment',
+      {},
+      'Manage Payment Methods'
+    ),
+    href: `${args.paymentsNextUrl}/subscriptions/payments/paypal`,
   };
 
   let breadcrumbs: Breadcrumb[] = [];
   switch (path) {
-    case `/${params.locale}/subscriptions/manage`:
-      breadcrumbs = [ACCOUNT_SETTINGS, SUBSCRIPTION_MANAGEMENT];
-      break;
     case `/${params.locale}/subscriptions/payments/stripe`:
       breadcrumbs = [
         ACCOUNT_SETTINGS,
         SUBSCRIPTION_MANAGEMENT,
         STRIPE_PAYMENT_METHODS,
       ];
+      break;
+    case `/${params.locale}/subscriptions/payments/paypal`:
+      breadcrumbs = [
+        ACCOUNT_SETTINGS,
+        SUBSCRIPTION_MANAGEMENT,
+        PAYPAL_PAYMENT_METHODS,
+      ];
+      break;
+    case `/${params.locale}/subscriptions/manage`:
+    default:
+      breadcrumbs = [ACCOUNT_SETTINGS, SUBSCRIPTION_MANAGEMENT];
       break;
   }
 

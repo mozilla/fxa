@@ -16,6 +16,7 @@ import {
   SetupIntentManager,
   SubscriptionManager,
   CustomerDeletedError,
+  STRIPE_CUSTOMER_METADATA,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
@@ -50,6 +51,7 @@ import {
   UpdateAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
   ResubscribeSubscriptionCustomerMismatch,
+  CreateBillingAgreementAccountCustomerMissingStripeId,
 } from './subscriptionManagement.error';
 import { NotifierService } from '@fxa/shared/notifier';
 import { ProfileClient } from '@fxa/profile/client';
@@ -60,6 +62,10 @@ import {
   GoogleIapSubscriptionContent,
   SubscriptionContent,
 } from './types';
+import {
+  PaypalBillingAgreementManager,
+  PaypalCustomerManager,
+} from '@fxa/payments/paypal';
 
 @Injectable()
 export class SubscriptionManagementService {
@@ -77,7 +83,9 @@ export class SubscriptionManagementService {
     private profileClient: ProfileClient,
     private productConfigurationManager: ProductConfigurationManager,
     private setupIntentManager: SetupIntentManager,
-    private subscriptionManager: SubscriptionManager
+    private subscriptionManager: SubscriptionManager,
+    private paypalBillingAgreementManager: PaypalBillingAgreementManager,
+    private paypalCustomerManager: PaypalCustomerManager
   ) {}
 
   @SanitizeExceptions()
@@ -454,6 +462,45 @@ export class SubscriptionManagementService {
     };
   }
 
+  async getCurrencyForCustomer(uid: string) {
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+
+    if (!accountCustomer.stripeCustomerId) {
+      throw new GetAccountCustomerMissingStripeId(uid);
+    }
+
+    const defaultPaymentMethodPromise =
+      this.customerManager.getDefaultPaymentMethod(
+        accountCustomer.stripeCustomerId
+      );
+
+    const customerPromise = this.customerManager.retrieve(
+      accountCustomer.stripeCustomerId
+    );
+
+    const [customer, defaultPaymentMethod] = await Promise.all([
+      customerPromise,
+      defaultPaymentMethodPromise,
+    ]);
+
+    let currency = customer.currency;
+    if (!currency && customer.shipping?.address?.country) {
+      currency = this.currencyManager.getCurrencyForCountry(
+        customer.shipping.address.country
+      );
+    }
+    if (!currency && defaultPaymentMethod?.billing_details.address?.country) {
+      currency = this.currencyManager.getCurrencyForCountry(
+        defaultPaymentMethod.billing_details.address.country
+      );
+    }
+
+    return {
+      currency,
+    };
+  }
+
   @SanitizeExceptions({ allowlist: [AccountCustomerNotFoundError] })
   async getStripePaymentManagementDetails(uid: string) {
     const accountCustomer =
@@ -616,6 +663,25 @@ export class SubscriptionManagementService {
         default_payment_method: paymentMethodId,
       },
       name: fullName,
+    });
+  }
+
+  @SanitizeExceptions()
+  async createPaypalBillingAgreementId(uid: string, token: string) {
+    await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
+    const [billingAgreementId, accountCustomer] = await Promise.all([
+      this.paypalBillingAgreementManager.create(uid, token),
+      this.accountCustomerManager.getAccountCustomerByUid(uid),
+    ]);
+
+    if (!accountCustomer.stripeCustomerId) {
+      throw new CreateBillingAgreementAccountCustomerMissingStripeId(uid);
+    }
+
+    await this.customerManager.update(accountCustomer.stripeCustomerId, {
+      metadata: {
+        [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
+      },
     });
   }
 }
