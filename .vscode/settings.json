@@ -22,14 +22,20 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "python.pythonPath": "usr/bin/python3",
   "prettier.configPath": "_dev/.prettierrc",
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.exclude": {
+    ".nx": true,
     "**/.git": true,
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
     "**/storybook-static": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/node_modules": true,
+    "**/tmp": true,
+    "**/temp": true,
+    "*.sass-cache": true,
   },
-  "cSpell.words": ["Frontends", "obvisosly"]
+  "cSpell.words": ["Frontends"]
 }
