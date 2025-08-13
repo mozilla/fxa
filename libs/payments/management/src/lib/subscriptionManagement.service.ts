@@ -16,12 +16,14 @@ import {
   SetupIntentManager,
   SubscriptionManager,
   CustomerDeletedError,
+  STRIPE_CUSTOMER_METADATA,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
   AccountCustomerNotFoundError,
 } from '@fxa/payments/stripe';
 import type {
+  ResultAccountCustomer,
   StripeCustomer,
   StripePrice,
   StripeSubscription,
@@ -50,6 +52,7 @@ import {
   UpdateAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
   ResubscribeSubscriptionCustomerMismatch,
+  CreateBillingAgreementAccountCustomerMissingStripeId,
 } from './subscriptionManagement.error';
 import { NotifierService } from '@fxa/shared/notifier';
 import { ProfileClient } from '@fxa/profile/client';
@@ -60,6 +63,10 @@ import {
   GoogleIapSubscriptionContent,
   SubscriptionContent,
 } from './types';
+import {
+  PaypalBillingAgreementManager,
+  PaypalCustomerManager,
+} from '@fxa/payments/paypal';
 
 @Injectable()
 export class SubscriptionManagementService {
@@ -77,7 +84,9 @@ export class SubscriptionManagementService {
     private profileClient: ProfileClient,
     private productConfigurationManager: ProductConfigurationManager,
     private setupIntentManager: SetupIntentManager,
-    private subscriptionManager: SubscriptionManager
+    private subscriptionManager: SubscriptionManager,
+    private paypalBillingAgreementManager: PaypalBillingAgreementManager,
+    private paypalCustomerManager: PaypalCustomerManager
   ) {}
 
   @SanitizeExceptions()
@@ -454,6 +463,43 @@ export class SubscriptionManagementService {
     };
   }
 
+  async getCurrencyForCustomer(uid: string) {
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+
+    if (!accountCustomer.stripeCustomerId) {
+      throw new GetAccountCustomerMissingStripeId(uid);
+    }
+
+    const defaultPaymentMethodPromise =
+      this.customerManager.getDefaultPaymentMethod(
+        accountCustomer.stripeCustomerId
+      );
+
+    const customerPromise = this.customerManager.retrieve(
+      accountCustomer.stripeCustomerId
+    );
+
+    const [customer, defaultPaymentMethod] = await Promise.all([
+      customerPromise,
+      defaultPaymentMethodPromise,
+    ]);
+
+    let currency = customer.currency;
+    if (!currency && customer.shipping?.address?.country) {
+      currency = this.currencyManager.getCurrencyForCountry(
+        customer.shipping.address.country
+      );
+    }
+    if (!currency && defaultPaymentMethod?.billing_details.address?.country) {
+      currency = this.currencyManager.getCurrencyForCountry(
+        defaultPaymentMethod.billing_details.address.country
+      );
+    }
+
+    return currency;
+  }
+
   @SanitizeExceptions({ allowlist: [AccountCustomerNotFoundError] })
   async getStripePaymentManagementDetails(uid: string) {
     const accountCustomer =
@@ -617,5 +663,87 @@ export class SubscriptionManagementService {
       },
       name: fullName,
     });
+  }
+
+  @SanitizeExceptions()
+  async createPaypalBillingAgreementId(uid: string, token: string) {
+    let billingAgreementId: string | undefined;
+    let accountCustomer: ResultAccountCustomer | undefined;
+    let deletedPaypalCustomer: bigint | undefined;
+    try {
+      if (await this.paypalBillingAgreementManager.retrieveActiveId(uid)) {
+        throw new Error('Customer already has a billing agreement with paypal');
+      }
+
+      accountCustomer =
+        await this.accountCustomerManager.getAccountCustomerByUid(uid);
+
+      if (!accountCustomer.stripeCustomerId) {
+        throw new CreateBillingAgreementAccountCustomerMissingStripeId(uid);
+      }
+
+      const currency = await this.getCurrencyForCustomer(uid);
+
+      const hasPaypalSubscription = (
+        await this.subscriptionManager.listForCustomer(
+          accountCustomer.stripeCustomerId
+        )
+      ).some((sub) => sub.collection_method === 'send_invoice');
+
+      if (!currency) {
+        throw new Error('Customer missing currency');
+      }
+      if (!hasPaypalSubscription) {
+        throw new Error('Customer missing paypal subscription');
+      }
+
+      deletedPaypalCustomer =
+        await this.paypalCustomerManager.deletePaypalCustomersByUid(uid);
+      billingAgreementId = await this.paypalBillingAgreementManager.create(
+        uid,
+        token
+      );
+
+      const billingAgreement =
+        await this.paypalBillingAgreementManager.retrieve(billingAgreementId);
+      this.currencyManager.assertCurrencyCompatibleWithCountry(
+        currency,
+        billingAgreement.countryCode
+      );
+
+      await this.customerManager.update(accountCustomer.stripeCustomerId, {
+        metadata: {
+          [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
+        },
+      });
+
+      await this.customerChanged(uid);
+    } catch (error) {
+      // clean up
+      if (billingAgreementId) {
+        // reinstate the paypal customer if it was deleted before the update occurred
+        if (accountCustomer) {
+          const currentBillingAgreementId =
+            await this.paypalBillingAgreementManager.retrieveActiveId(uid);
+          if (
+            deletedPaypalCustomer &&
+            currentBillingAgreementId &&
+            currentBillingAgreementId !== billingAgreementId
+          ) {
+            await this.paypalCustomerManager.createPaypalCustomer({
+              uid,
+              billingAgreementId,
+              status: 'active',
+              endedAt: null,
+            });
+          }
+        }
+
+        // cancel the newly created paypal billing agreement
+        await this.paypalBillingAgreementManager.cancel(billingAgreementId);
+      }
+
+      throw error;
+    }
   }
 }

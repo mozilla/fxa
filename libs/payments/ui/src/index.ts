@@ -5,6 +5,7 @@
 // Use this file to export React client components (e.g. those with 'use client' directive) or other non-server utilities
 
 export * from './lib/client/components/ActionButton';
+export * from './lib/client/components/AlertBar';
 export * from './lib/client/components/Banner';
 export * from './lib/client/components/BaseButton';
 export * from './lib/client/components/Breadcrumbs';
@@ -18,6 +19,7 @@ export * from './lib/client/components/PaymentStateObserver';
 export * from './lib/client/components/PaymentInputHandler';
 export * from './lib/client/components/PaymentSection';
 export * from './lib/client/components/PaymentMethodManagement';
+export * from './lib/client/components/PaypalManagement';
 export * from './lib/client/components/PurchaseDetails';
 export * from './lib/client/components/SelectTaxLocation';
 export * from './lib/client/components/SignInForm';
