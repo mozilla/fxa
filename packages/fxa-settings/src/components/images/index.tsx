@@ -20,6 +20,7 @@ import { ReactComponent as BackupRecoveryPhoneCode } from './graphic_phone_code.
 import { ReactComponent as BackupRecoveryPhoneSms } from './graphic_phone_sms.min.svg';
 import { ReactComponent as BackupAuthenticationCodes } from './graphic_authentication_codes.min.svg';
 import { ReactComponent as SyncClouds } from './graphic_sync_clouds.min.svg';
+import { ReactComponent as FallingConfetti } from './graphic_celebrate_confetti.svg';
 
 export const HeartsBrokenImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
@@ -174,5 +175,17 @@ export const SyncCloudsImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabelFtlId="sync-clouds-image-aria-label"
     Image={SyncClouds}
     {...{ className, ariaHidden }}
+  />
+);
+
+export const FallingConfettiImage = ({
+  ariaHidden,
+}: ImageProps) => (
+  <PreparedImage
+    className="h-screen w-screen absolute top-0 left-0 pointer-events-none"
+    ariaLabel="Animated falling confetti"
+    ariaLabelFtlId="confetti-falling-image-aria-label"
+    Image={FallingConfetti}
+    {...{ ariaHidden }}
   />
 );

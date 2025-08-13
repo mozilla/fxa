@@ -17,8 +17,9 @@ export default {
 
 export const Desktop = () => <Subject />;
 
-export const DesktopWithCms = () => <Subject
-  integration={createMockIntegration({ cmsInfo: MOCK_CMS_INFO })}/>;
+export const DesktopWithCms = () => (
+  <Subject integration={createMockIntegration({ cmsInfo: MOCK_CMS_INFO })} />
+);
 
 export const FromThirdPartyAuthSetPassword = () => (
   <Subject origin="post-verify-set-password" />

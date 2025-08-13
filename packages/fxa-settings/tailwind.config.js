@@ -27,6 +27,16 @@ config.content.push('./src/components/images/**/*.svg');
 
 config.theme.extend = {
   ...config.theme.extend,
+  transitionDelay: {
+    ...config.theme.extend.transitionDelay,
+    400: '400ms',
+    600: '600ms',
+    800: '800ms',
+    900: '900ms',
+    1100: '1100ms',
+    1300: '1300ms',
+    1400: '1400ms',
+  },
   backgroundImage: {
     ...config.theme.extend.backgroundImage,
     /* TODO: move this to `fxa-react`, FXA-5745 */
@@ -209,6 +219,45 @@ config.theme.extend = {
         'transform-origin': '71.373px 129px',
       },
     },
+    'confetti-fall-left': {
+      '0%': {
+        transform: 'translateY(-120vh) translateX(4vw) scaleX(1)',
+        opacity: '1',
+      },
+      '70%': {
+        opacity: '1',
+      },
+      '100%': {
+        transform: 'translateY(120vh) translateX(-1vw) scaleX(0.8)',
+        opacity: '0',
+      },
+    },
+    'confetti-fall-right': {
+      '0%': {
+        transform: 'translateY(-120vh) translateX(-12vw) scaleX(1) scaleY(1)',
+        opacity: '1',
+      },
+      '70%': {
+        opacity: '1',
+      },
+      '100%': {
+        transform: 'translateY(120vh) translateX(9vw) scaleX(0.8) scaleY(0.8)',
+        opacity: '0',
+      },
+    },
+    'confetti-fall': {
+      '0%': {
+        transform: 'translateY(-120vh)',
+        opacity: '1',
+      },
+      '70%': {
+        opacity: '1',
+      },
+      '100%': {
+        transform: 'translateY(120vh)',
+        opacity: '0',
+      },
+    },
   },
 
   animation: {
@@ -252,6 +301,9 @@ config.theme.extend = {
     'email-code-fade': 'email-code-fade-in 400ms ease-out both',
     'email-code-bounce-scale': 'email-code-bounce-scale 1s ease-out forwards',
     'email-code-rotate': 'email-code-rotate 1s ease-out forwards',
+    'confetti-fall': 'confetti-fall 4.2s ease-in-out forwards',
+    'confetti-fall-left': 'confetti-fall-left 4.2s ease-in-out forwards',
+    'confetti-fall-right': 'confetti-fall-right 4.2s ease-in-out forwards',
   },
 };
 
