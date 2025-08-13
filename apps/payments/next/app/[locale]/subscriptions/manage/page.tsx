@@ -45,6 +45,7 @@ export default async function Manage({
   const {
     accountCreditBalance,
     defaultPaymentMethod,
+    isStripeCustomer,
     subscriptions,
     appleIapSubscriptions,
     googleIapSubscriptions,
@@ -115,116 +116,120 @@ export default async function Manage({
           </>
         )}
 
-      <section
-        className="px-4 tablet:px-8"
-        aria-labelledby="payment-information-heading"
-      >
-        <div className="flex items-center justify-between">
-          <h2
-            id="payment-information-heading"
-            className={`font-semibold ${defaultPaymentMethod ? 'mb-4' : 'mb-0'}`}
+      {isStripeCustomer && (
+        <>
+          <section
+            className="px-4 tablet:px-8"
+            aria-labelledby="payment-information-heading"
           >
-            {l10n.getString(
-              'subscription-management-payment-information-heading',
-              'Payment Information'
+            <div className="flex items-center justify-between">
+              <h2
+                id="payment-information-heading"
+                className={`font-semibold ${defaultPaymentMethod ? 'mb-4' : 'mb-0'}`}
+              >
+                {l10n.getString(
+                  'subscription-management-payment-information-heading',
+                  'Payment Information'
+                )}
+              </h2>
+              {!defaultPaymentMethod && (
+                <Link
+                  className={CSS_PRIMARY_LINK}
+                  href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
+                  aria-label={l10n.getString(
+                    'subscription-management-button-add-payment-method-aria',
+                    'Add payment method'
+                  )}
+                >
+                  <span>
+                    {l10n.getString(
+                      'subscription-management-button-add-payment-method',
+                      'Add'
+                    )}
+                  </span>
+                </Link>
+              )}
+            </div>
+
+            {type === 'card' && brand && (
+              <div className="flex items-center justify-between">
+                <div className="leading-5 text-sm">
+                  <Image
+                    className="py-2"
+                    src={getCardIcon(brand, l10n).img}
+                    alt={getCardIcon(brand, l10n).altText}
+                    width={40}
+                    height={24}
+                  />
+                  {last4 && (
+                    <div className="pt-2">
+                      {l10n.getString(
+                        'subscription-management-card-ending-in',
+                        { last4 },
+                        `Card ending in ${last4}`
+                      )}
+                    </div>
+                  )}
+                  {expirationDate && (
+                    <div>
+                      {l10n.getString(
+                        'subscription-management-card-expires-date',
+                        { expirationDate },
+                        `Expires ${expirationDate}`
+                      )}
+                    </div>
+                  )}
+                </div>
+                <Link
+                  className={CSS_SECONDARY_LINK}
+                  href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
+                  aria-label={l10n.getString(
+                    'subscription-management-button-change-payment-method-aria',
+                    'Change payment method'
+                  )}
+                >
+                  {l10n.getString(
+                    'subscription-management-button-change-payment-method',
+                    'Change'
+                  )}
+                </Link>
+              </div>
             )}
-          </h2>
-          {!defaultPaymentMethod && (
-            <Link
-              className={CSS_PRIMARY_LINK}
-              href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
-              aria-label={l10n.getString(
-                'subscription-management-button-add-payment-method-aria',
-                'Add payment method'
-              )}
-            >
-              <span>
-                {l10n.getString(
-                  'subscription-management-button-add-payment-method',
-                  'Add'
-                )}
-              </span>
-            </Link>
-          )}
-        </div>
 
-        {type === 'card' && brand && (
-          <div className="flex items-center justify-between">
-            <div className="leading-5 text-sm">
-              <Image
-                className="py-2"
-                src={getCardIcon(brand, l10n).img}
-                alt={getCardIcon(brand, l10n).altText}
-                width={40}
-                height={24}
-              />
-              {last4 && (
-                <div className="pt-2">
-                  {l10n.getString(
-                    'subscription-management-card-ending-in',
-                    { last4 },
-                    `Card ending in ${last4}`
-                  )}
+            {type === 'external_paypal' && brand && (
+              <div className="flex items-center justify-between">
+                <div className="leading-5 text-sm">
+                  <Image
+                    className="py-2"
+                    src={getCardIcon('paypal', l10n).img}
+                    alt={l10n.getString('paypal-logo-alt-text', 'PayPal logo')}
+                    width={91}
+                    height={24}
+                  />
                 </div>
-              )}
-              {expirationDate && (
-                <div>
-                  {l10n.getString(
-                    'subscription-management-card-expires-date',
-                    { expirationDate },
-                    `Expires ${expirationDate}`
+
+                <LinkExternal
+                  className={CSS_SECONDARY_LINK}
+                  href={`${config.csp.paypalApi}/myaccount/autopay/connect/${billingAgreementId}`}
+                  aria-label={l10n.getString(
+                    'subscription-management-button-change-payment-method-aria',
+                    'Change payment method'
                   )}
-                </div>
-              )}
-            </div>
-            <Link
-              className={CSS_SECONDARY_LINK}
-              href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
-              aria-label={l10n.getString(
-                'subscription-management-button-change-payment-method-aria',
-                'Change payment method'
-              )}
-            >
-              {l10n.getString(
-                'subscription-management-button-change-payment-method',
-                'Change'
-              )}
-            </Link>
-          </div>
-        )}
+                >
+                  <span>
+                    {l10n.getString(
+                      'subscription-management-button-change-payment-method',
+                      'Change'
+                    )}
+                  </span>
+                </LinkExternal>
+              </div>
+            )}
+          </section>
 
-        {type === 'external_paypal' && brand && (
-          <div className="flex items-center justify-between">
-            <div className="leading-5 text-sm">
-              <Image
-                className="py-2"
-                src={getCardIcon('paypal', l10n).img}
-                alt={l10n.getString('paypal-logo-alt-text', 'PayPal logo')}
-                width={91}
-                height={24}
-              />
-            </div>
-
-            <LinkExternal
-              className={CSS_SECONDARY_LINK}
-              href={`${config.csp.paypalApi}/myaccount/autopay/connect/${billingAgreementId}`}
-              aria-label={l10n.getString(
-                'subscription-management-button-change-payment-method-aria',
-                'Change payment method'
-              )}
-            >
-              <span>
-                {l10n.getString(
-                  'subscription-management-button-change-payment-method',
-                  'Change'
-                )}
-              </span>
-            </LinkExternal>
-          </div>
-        )}
-      </section>
-
-      <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+          <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+        </>
+      )}
 
       <section
         className="px-4 tablet:px-8"

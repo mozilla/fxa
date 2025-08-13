@@ -16,6 +16,7 @@ import {
   CustomerSessionManager,
   SetupIntentManager,
   SubscriptionManager,
+  CustomerDeletedError,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
@@ -168,19 +169,27 @@ export class SubscriptionManagementService {
         this.subscriptionManager.listForCustomer(
           accountCustomer.stripeCustomerId
         ),
-        this.customerManager.retrieve(accountCustomer.stripeCustomerId),
+        this.customerManager
+          .retrieve(accountCustomer.stripeCustomerId)
+          .catch((error) => {
+            if (!(error instanceof CustomerDeletedError)) {
+              throw error;
+            }
+            return undefined;
+          }),
       ]);
 
-      defaultPaymentMethod =
-        await this.paymentMethodManager.getDefaultPaymentMethod(
-          stripeCustomer,
-          stripeSubs,
-          uid
-        );
+      defaultPaymentMethod = stripeCustomer
+        ? await this.paymentMethodManager.getDefaultPaymentMethod(
+            stripeCustomer,
+            stripeSubs,
+            uid
+          )
+        : undefined;
 
       accountCreditBalance = {
-        balance: Math.abs(stripeCustomer.balance),
-        currency: stripeCustomer.currency ?? stripeSubs[0]?.currency ?? null,
+        balance: Math.abs(stripeCustomer?.balance ?? 0),
+        currency: stripeCustomer?.currency ?? stripeSubs[0]?.currency ?? null,
       };
     }
 
@@ -192,6 +201,7 @@ export class SubscriptionManagementService {
       return {
         accountCreditBalance,
         defaultPaymentMethod,
+        isStripeCustomer: stripeCustomer ? true : false,
         subscriptions: [],
         appleIapSubscriptions: [],
         googleIapSubscriptions: [],
@@ -294,6 +304,7 @@ export class SubscriptionManagementService {
     return {
       accountCreditBalance,
       defaultPaymentMethod,
+      isStripeCustomer: stripeCustomer ? true : false,
       subscriptions,
       appleIapSubscriptions,
       googleIapSubscriptions,
