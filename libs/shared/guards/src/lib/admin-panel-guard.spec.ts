@@ -58,56 +58,6 @@ describe('support agents', () => {
           AdminPanelGroup.AdminProd
         )
       ).true;
-
-      expect(
-        prodGuard.allow(
-          AdminPanelFeature.DeleteAccount,
-          AdminPanelGroup.DsarProd
-        )
-      ).true;
-      expect(
-        stageGuard.allow(
-          AdminPanelFeature.DeleteAccount,
-          AdminPanelGroup.DsarStage
-        )
-      ).true;
-      expect(
-        prodGuard.allow(
-          AdminPanelFeature.AccountDelete,
-          AdminPanelGroup.DsarProd
-        )
-      ).true;
-      expect(
-        stageGuard.allow(
-          AdminPanelFeature.AccountDelete,
-          AdminPanelGroup.DsarStage
-        )
-      ).true;
-      expect(
-        prodGuard.allow(
-          AdminPanelFeature.AccountSearch,
-          AdminPanelGroup.DsarProd
-        )
-      ).true;
-      expect(
-        stageGuard.allow(
-          AdminPanelFeature.AccountSearch,
-          AdminPanelGroup.DsarStage
-        )
-      ).true;
-
-      expect(
-        prodGuard.allow(
-          AdminPanelFeature.AccountSearch,
-          AdminPanelGroup.ReadOnlyProd
-        )
-      ).true;
-      expect(
-        stageGuard.allow(
-          AdminPanelFeature.AccountSearch,
-          AdminPanelGroup.ReadOnlyStage
-        )
-      ).true;
     });
 
     it('looks up group', () => {
@@ -205,7 +155,7 @@ describe('support agents', () => {
     it('gets feature', () => {
       expect(guard.getFeature(AdminPanelFeature.AccountSearch)).deep.equal({
         name: 'Lookup Account By Email/UID',
-        level: PermissionLevel.ReadOnly,
+        level: PermissionLevel.Support,
       });
     });
 
@@ -215,10 +165,6 @@ describe('support agents', () => {
       expect(groups[AdminPanelGroup.SupportAgentProd]).to.exist;
       expect(groups[AdminPanelGroup.AdminStage]).to.exist;
       expect(groups[AdminPanelGroup.SupportAgentStage]).to.exist;
-      expect(groups[AdminPanelGroup.DsarProd]).to.exist;
-      expect(groups[AdminPanelGroup.DsarStage]).to.exist;
-      expect(groups[AdminPanelGroup.ReadOnlyProd]).to.exist;
-      expect(groups[AdminPanelGroup.ReadOnlyStage]).to.exist;
       expect(groups[AdminPanelGroup.None]).to.exist;
     });
 
