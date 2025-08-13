@@ -20,7 +20,17 @@
       <% } else if (locals.paymentProratedInCents > 0) { %>
         <span data-l10n-id="subscriptionUpgrade-content-charge-prorated-1" data-l10n-args="<%= JSON.stringify({invoiceAmountDue, productPaymentCycleOld}) %>">You have been charged a one-time fee of <%- invoiceAmountDue %> to reflect your subscription’s higher price for the remainder of this billing period (<%- productPaymentCycleOld %>).</span>
       <% } %>
-      <span data-l10n-id="subscriptionUpgrade-content-starting" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, productPaymentCycleNew, productPaymentCycleOld}) %>">Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>.</span>
+      <span data-l10n-id="subscriptionUpgrade-content-next-bill-change">
+        Starting with your next bill, the price of your subscription will change.
+      </span>
+      <span data-l10n-id="<%= previousRate.l10nId %>"
+        data-l10n-args="<%= previousRate.l10nArgs %>">
+          <%= previousRate.message %>
+      </span>
+      <span data-l10n-id="<%= newRate.l10nId %>"
+          data-l10n-args="<%= newRate.l10nArgs %>">
+        <%= newRate.message %>
+      </span>
     </mj-text>
 
     <mj-text css-class="text-body">

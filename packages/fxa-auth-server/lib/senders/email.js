@@ -2258,8 +2258,10 @@ module.exports = function (log, config, bounces, statsd) {
       productNameNew,
       paymentAmountOldInCents,
       paymentAmountOldCurrency,
+      paymentTaxOldInCents,
       paymentAmountNewInCents,
       paymentAmountNewCurrency,
+      paymentTaxNewInCents,
       paymentProratedInCents,
       paymentProratedCurrency,
       productPaymentCycleNew,
@@ -2276,6 +2278,273 @@ module.exports = function (log, config, bounces, statsd) {
     const template = 'subscriptionUpgrade';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
+
+    const getPreviousRateContent = (tax, interval) => {
+      let paymentTaxOld;
+
+      const paymentAmountOld = this._getLocalizedCurrencyString(
+        paymentAmountOldInCents,
+        paymentAmountOldCurrency,
+        message.acceptLanguage
+      );
+
+      if (tax) {
+        paymentTaxOld = this._getLocalizedCurrencyString(
+          tax,
+          paymentAmountOldCurrency,
+          message.acceptLanguage
+        );
+      }
+
+      switch (interval) {
+        case 'day':
+          if (paymentTaxOld) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-old-price-day-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountOld,
+                paymentTaxOld,
+              }),
+              message: `The previous rate was ${paymentAmountOld} + ${paymentTaxOld} tax per day.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-old-price-day',
+            l10nArgs: JSON.stringify({
+              paymentAmountOld,
+            }),
+            message: `The previous rate was ${paymentAmountOld} per day.`,
+          };
+        case 'week':
+          if (paymentTaxOld) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-old-price-week-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountOld,
+                paymentTaxOld,
+              }),
+              message: `The previous rate was ${paymentAmountOld} + ${paymentTaxOld} tax per week.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-old-price-week',
+            l10nArgs: JSON.stringify({
+              paymentAmountOld,
+            }),
+            message: `The previous rate was ${paymentAmountOld} per week.`,
+          };
+        case 'month':
+          if (paymentTaxOld) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-old-price-month-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountOld,
+                paymentTaxOld,
+              }),
+              message: `The previous rate was ${paymentAmountOld} + ${paymentTaxOld} tax per month.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-old-price-month',
+            l10nArgs: JSON.stringify({
+              paymentAmountOld,
+            }),
+            message: `The previous rate was ${paymentAmountOld} per month.`,
+          };
+        case 'halfyear':
+          if (paymentTaxOld) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-old-price-halfyear-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountOld,
+                paymentTaxOld,
+              }),
+              message: `The previous rate was ${paymentAmountOld} + ${paymentTaxOld} tax per six months.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-old-price-halfyear',
+            l10nArgs: JSON.stringify({
+              paymentAmountOld,
+            }),
+            message: `The previous rate was ${paymentAmountOld} per six months.`,
+          };
+        case 'year':
+          if (paymentTaxOld) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-old-price-year-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountOld,
+                paymentTaxOld,
+              }),
+              message: `The previous rate was ${paymentAmountOld} + ${paymentTaxOld} tax per year.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-old-price-year',
+            l10nArgs: JSON.stringify({
+              paymentAmountOld,
+            }),
+            message: `The previous rate was ${paymentAmountOld} per year.`,
+          };
+        default:
+          if (paymentTaxOld) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-old-price-default-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountOld,
+                paymentTaxOld,
+              }),
+              message: `The previous rate was ${paymentAmountOld} + ${paymentTaxOld} tax per billing interval.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-old-price-default',
+            l10nArgs: JSON.stringify({
+              paymentAmountOld,
+            }),
+            message: `The previous rate was ${paymentAmountOld} per billing interval.`,
+          };
+      }
+    };
+
+    const getNewRateContent = (tax, interval) => {
+      let paymentTaxNew;
+
+      const paymentAmountNew = this._getLocalizedCurrencyString(
+        paymentAmountNewInCents,
+        paymentAmountNewCurrency,
+        message.acceptLanguage
+      );
+
+      if (tax) {
+        paymentTaxNew = this._getLocalizedCurrencyString(
+          tax,
+          paymentAmountNewCurrency,
+          message.acceptLanguage
+        );
+      }
+
+      switch (interval) {
+        case 'day':
+          if (paymentTaxNew) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-new-price-day-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountNew,
+                paymentTaxNew,
+              }),
+              message: `Going forward, you will be charged ${paymentAmountNew} + ${paymentTaxNew} tax per day, excluding discounts.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-new-price-day',
+            l10nArgs: JSON.stringify({
+              paymentAmountNew,
+            }),
+            message: `Going forward, you will be charged ${paymentAmountNew} per day, excluding discounts.`,
+          };
+        case 'week':
+          if (paymentTaxNew) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-new-price-week-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountNew,
+                paymentTaxNew,
+              }),
+              message: `Going forward, you will be charged ${paymentAmountNew} + ${paymentTaxNew} tax per week, excluding discounts.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-new-price-week',
+            l10nArgs: JSON.stringify({
+              paymentAmountNew,
+            }),
+            message: `Going forward, you will be charged ${paymentAmountNew} per week, excluding discounts.`,
+          };
+        case 'month':
+          if (paymentTaxNew) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-new-price-month-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountNew,
+                paymentTaxNew,
+              }),
+              message: `Going forward, you will be charged ${paymentAmountNew} + ${paymentTaxNew} tax per month, excluding discounts.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-new-price-month',
+            l10nArgs: JSON.stringify({
+              paymentAmountNew,
+            }),
+            message: `Going forward, you will be charged ${paymentAmountNew} per month, excluding discounts.`,
+          };
+        case 'halfyear':
+          if (paymentTaxNew) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-new-price-halfyear-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountNew,
+                paymentTaxNew,
+              }),
+              message: `Going forward, you will be charged ${paymentAmountNew} + ${paymentTaxNew} tax per six months, excluding discounts.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-new-price-halfyear',
+            l10nArgs: JSON.stringify({
+              paymentAmountNew,
+            }),
+            message: `Going forward, you will be charged ${paymentAmountNew} per six months, excluding discounts.`,
+          };
+        case 'year':
+          if (paymentTaxNew) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-new-price-year-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountNew,
+                paymentTaxNew,
+              }),
+              message: `Going forward, you will be charged ${paymentAmountNew} + ${paymentTaxNew} tax per year, excluding discounts.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-new-price-year',
+            l10nArgs: JSON.stringify({
+              paymentAmountNew,
+            }),
+            message: `Going forward, you will be charged ${paymentAmountNew} per year, excluding discounts.`,
+          };
+        default:
+          if (paymentTaxNew) {
+            return {
+              l10nId: 'subscriptionUpgrade-content-new-price-default-tax',
+              l10nArgs: JSON.stringify({
+                paymentAmountNew,
+                paymentTaxNew,
+              }),
+              message: `Going forward, you will be charged ${paymentAmountNew} + ${paymentTaxNew} tax per billing interval, excluding discounts.`,
+            };
+          }
+          return {
+            l10nId: 'subscriptionUpgrade-content-new-price-default',
+            l10nArgs: JSON.stringify({
+              paymentAmountNew,
+            }),
+            message: `Going forward, you will be charged ${paymentAmountNew} per billing interval, excluding discounts.`,
+          };
+      }
+    };
+
+    const previousRateContent = getPreviousRateContent(
+      paymentTaxOldInCents,
+      productPaymentCycleOld
+    );
+    const newRateContent = getNewRateContent(
+      paymentTaxNewInCents,
+      productPaymentCycleNew
+    );
 
     return this.send({
       ...message,
@@ -2299,8 +2568,18 @@ module.exports = function (log, config, bounces, statsd) {
           paymentAmountOldCurrency,
           message.acceptLanguage
         ),
+        paymentTaxOld: this._getLocalizedCurrencyString(
+          paymentTaxOldInCents,
+          paymentAmountOldCurrency,
+          message.acceptLanguage
+        ),
         paymentAmountNew: this._getLocalizedCurrencyString(
           paymentAmountNewInCents,
+          paymentAmountNewCurrency,
+          message.acceptLanguage
+        ),
+        paymentTaxNew: this._getLocalizedCurrencyString(
+          paymentTaxNewInCents,
           paymentAmountNewCurrency,
           message.acceptLanguage
         ),
@@ -2313,6 +2592,16 @@ module.exports = function (log, config, bounces, statsd) {
         productPaymentCycleNew,
         productPaymentCycleOld,
         icon: productIconURLNew,
+        previousRate: {
+          l10nId: previousRateContent.l10nId,
+          l10nArgs: previousRateContent.l10nArgs,
+          message: previousRateContent.message,
+        },
+        newRate: {
+          l10nId: newRateContent.l10nId,
+          l10nArgs: newRateContent.l10nArgs,
+          message: newRateContent.message,
+        },
       },
     });
   };
