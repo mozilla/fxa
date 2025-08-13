@@ -7,11 +7,14 @@ export { cancelSubscriptionAtPeriodEndAction } from './cancelSubscriptionAtPerio
 export { checkoutCartWithPaypal } from './checkoutCartWithPaypal';
 export { checkoutCartWithStripe } from './checkoutCartWithStripe';
 export { determineCurrencyAction } from './determineCurrency';
+export { determineCurrencyForCustomerAction } from './determineCurrencyForCustomer';
 export { fetchCMSData } from './fetchCMSData';
 export { getCartAction } from './getCart';
 export { getCartOrRedirectAction } from './getCartOrRedirect';
 export { getMetricsFlowAction } from './getMetricsFlow';
 export { getPayPalCheckoutToken } from './getPayPalCheckoutToken';
+export { getPayPalBillingAgreementId } from './getPayPalBillingAgreementId';
+export { createPayPalBillingAgreementId } from './createPayPalBillingAgreementId';
 export { getSubManPageContentAction } from './getSubManPageContent';
 export { getTaxAddressAction } from './getTaxAddress';
 export { handleStripeErrorAction } from './handleStripeError';

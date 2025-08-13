@@ -15,7 +15,7 @@ import { redirect } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import { getStripeClientSession } from '@fxa/payments/ui/actions';
 
-export default async function Manage({
+export default async function StripePaymentManagementPage({
   params,
   searchParams,
 }: {

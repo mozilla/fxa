@@ -10,6 +10,7 @@ import React from 'react';
 import { URLSearchParams } from 'url';
 
 import {
+  AlertBar,
   formatPlanInterval,
   getCardIcon,
   ManageParams,
@@ -53,15 +54,18 @@ export default async function Manage({
   } = await getSubManPageContentAction(session.user?.id);
   const { billingAgreementId, brand, expMonth, expYear, last4, type, walletType } =
     defaultPaymentMethod || {};
+  const isPaypalBillingAgreementError =
+    type === 'external_paypal' && brand === 'paypal' && !billingAgreementId;
   const expirationDate =
     expMonth && expYear
       ? l10n.getLocalizedMonthYearString(expMonth, expYear, locale)
       : undefined;
 
-  const CSS_PRIMARY_LINK =
-    "flex items-center justify-center h-10 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-blue-500 font-semibold hover:bg-blue-700 text-white";
-  const CSS_SECONDARY_LINK =
-    "flex items-center justify-center h-10 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none bg-grey-100 font-semibold hover:bg-grey-200 text-black";
+  const CSS_LINK_SHARED =
+    "flex items-center justify-center h-10 rounded-md p-4 z-10 cursor-pointer aria-disabled:relative aria-disabled:after:absolute aria-disabled:after:content-[''] aria-disabled:after:top-0 aria-disabled:after:left-0 aria-disabled:after:w-full aria-disabled:after:h-full aria-disabled:after:bg-white aria-disabled:after:opacity-50 aria-disabled:after:z-30 aria-disabled:border-none font-semibold";
+  const CSS_PRIMARY_LINK = `${CSS_LINK_SHARED} bg-blue-500 hover:bg-blue-700 text-white`;
+  const CSS_SECONDARY_LINK = `${CSS_LINK_SHARED} bg-grey-100 hover:bg-grey-200 text-black`;
+  const CSS_ERROR_LINK = `${CSS_LINK_SHARED} bg-red-500 hover:bg-red-600 text-white`;
 
   const getSubscriptionIntervalFtlId = (interval: string) => {
     switch (interval) {
@@ -80,6 +84,26 @@ export default async function Manage({
   };
   return (
     <>
+      {isPaypalBillingAgreementError && (
+        <AlertBar>
+          <span className={'font-semibold'}>
+            {l10n.getString(
+              'subscription-management-page-paypal-error-banner',
+              'Invalid payment information; there is an error with your account.'
+            )}
+
+            <Link
+              className={'underline hover:text-grey-100 pl-1'}
+              href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`}
+            >
+              {l10n.getString(
+                'subscription-management-page-paypal-error-banner-link',
+                'Manage'
+              )}
+            </Link>
+          </span>
+        </AlertBar>
+      )}
       {accountCreditBalance.balance > 0 &&
         accountCreditBalance.currency !== null && (
           <>
@@ -293,21 +317,39 @@ export default async function Manage({
                   />
                 </div>
 
-                <LinkExternal
-                  className={CSS_SECONDARY_LINK}
-                  href={`${config.csp.paypalApi}/myaccount/autopay/connect/${billingAgreementId}`}
-                  aria-label={l10n.getString(
-                    'subscription-management-button-change-payment-method-aria',
-                    'Change payment method'
-                  )}
-                >
-                  <span>
-                    {l10n.getString(
-                      'subscription-management-button-change-payment-method',
-                      'Change'
+                {isPaypalBillingAgreementError ? (
+                  <LinkExternal
+                    className={CSS_ERROR_LINK}
+                    href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`}
+                    aria-label={l10n.getString(
+                      'subscription-management-button-manage-payment-method-aria',
+                      'Manage payment method'
                     )}
-                  </span>
-                </LinkExternal>
+                  >
+                    <span>
+                      {l10n.getString(
+                        'subscription-management-button-manage-payment-method',
+                        'Manage'
+                      )}
+                    </span>
+                  </LinkExternal>
+                ) : (
+                  <LinkExternal
+                    className={CSS_SECONDARY_LINK}
+                    href={`${config.csp.paypalApi}/myaccount/autopay/connect/${billingAgreementId}`}
+                    aria-label={l10n.getString(
+                      'subscription-management-button-change-payment-method-aria',
+                      'Change payment method'
+                    )}
+                  >
+                    <span>
+                      {l10n.getString(
+                        'subscription-management-button-change-payment-method',
+                        'Change'
+                      )}
+                    </span>
+                  </LinkExternal>
+                )}
               </div>
             )}
           </section>
