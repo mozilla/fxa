@@ -36,6 +36,7 @@ import Head from 'fxa-react/components/Head';
 import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
 import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import Page2faChange from './Page2faChange';
 
 export const Settings = ({
   integration,
@@ -161,6 +162,7 @@ export const Settings = ({
                 noThrow
               />
               <Page2faSetup path="/two_step_authentication" />
+              <Page2faChange path="/two_step_authentication/change" />
               <Page2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
             </>
           ) : (

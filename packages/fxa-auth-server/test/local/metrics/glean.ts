@@ -47,6 +47,8 @@ const recordTwoFactorAuthCodeCompleteStub = sinon.stub();
 const recordTwoFactorAuthReplaceCodeCompleteStub = sinon.stub();
 const recordTwoFactorAuthSetCodesCompleteStub = sinon.stub();
 const recordTwoFactorAuthSetupInvalidCodeErrorStub = sinon.stub();
+const recordTwoFactorAuthReplaceSuccessStub = sinon.stub();
+const recordTwoFactorAuthReplaceFailureStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeSentStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeSendErrorStub = sinon.stub();
 const recordTwoStepAuthPhoneCodeCompleteStub = sinon.stub();
@@ -75,7 +77,6 @@ const recordPasswordResetRecoveryPhoneCodeSendErrorStub = sinon.stub();
 const recordPasswordResetRecoveryPhoneCodeCompleteStub = sinon.stub();
 const recordTwoStepAuthPhoneReplaceSuccess = sinon.stub();
 const recordTwoStepAuthPhoneReplaceFailure = sinon.stub();
-const recordTwoFactorAuthCodeReplaceFailure = sinon.stub();
 
 const gleanProxy = proxyquire('../../../lib/metrics/glean', {
   './server_events': {
@@ -130,6 +131,8 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
         recordTwoFactorAuthSetCodesCompleteStub,
       recordTwoFactorAuthSetupInvalidCodeError:
         recordTwoFactorAuthSetupInvalidCodeErrorStub,
+      recordTwoFactorAuthReplaceSuccess: recordTwoFactorAuthReplaceSuccessStub,
+      recordTwoFactorAuthReplaceFailure: recordTwoFactorAuthReplaceFailureStub,
       recordTwoStepAuthPhoneCodeSent: recordTwoStepAuthPhoneCodeSentStub,
       recordTwoStepAuthPhoneCodeSendError:
         recordTwoStepAuthPhoneCodeSendErrorStub,
@@ -183,8 +186,6 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
         recordTwoStepAuthPhoneReplaceSuccess,
       recordTwoStepAuthPhoneReplaceFailure:
         recordTwoStepAuthPhoneReplaceFailure,
-      recordTwoFactorAuthCodeReplaceFailure:
-        recordTwoFactorAuthCodeReplaceFailure,
     }),
   },
 });
@@ -553,6 +554,22 @@ describe('Glean server side events', () => {
         'two_factor_auth_setup_invalid_code_error'
       );
       sinon.assert.calledOnce(recordTwoFactorAuthSetupInvalidCodeErrorStub);
+    });
+
+    it('logs a "two_factor_auth_replace_success" event', async () => {
+      await glean.twoFactorAuth.replaceSuccess(request);
+      sinon.assert.calledOnce(recordStub);
+      const metrics = recordStub.args[0][0];
+      assert.equal(metrics['event_name'], 'two_factor_auth_replace_success');
+      sinon.assert.calledOnce(recordTwoFactorAuthReplaceSuccessStub);
+    });
+
+    it('logs a "two_factor_auth_replace_failure" event', async () => {
+      await glean.twoFactorAuth.replaceFailure(request);
+      sinon.assert.calledOnce(recordStub);
+      const metrics = recordStub.args[0][0];
+      assert.equal(metrics['event_name'], 'two_factor_auth_replace_failure');
+      sinon.assert.calledOnce(recordTwoFactorAuthReplaceFailureStub);
     });
   });
 

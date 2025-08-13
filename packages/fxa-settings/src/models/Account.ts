@@ -1268,6 +1268,19 @@ export class Account implements AccountData {
     }
   }
 
+  async replaceTotp() {
+    const totp = await this.withLoadingStatus(
+      this.authClient.replaceTotpToken(sessionToken()!, {})
+    );
+    return totp;
+  }
+
+  async confirmReplaceTotp(code: string) {
+    await this.withLoadingStatus(
+      this.authClient.confirmReplaceTotpToken(sessionToken()!, code)
+    );
+  }
+
   async uploadAvatar(file: Blob) {
     const { access_token } = await this.withLoadingStatus(
       this.authClient.createOAuthToken(sessionToken()!, config.oauth.clientId, {

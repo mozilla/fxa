@@ -36,7 +36,8 @@ export type FlowSetup2faAppProps = {
   ) => void;
   reason?: GleanClickEventType2FA;
   showProgressBar?: boolean;
-  cmsInfo?: RelierCmsInfo
+  cmsInfo?: RelierCmsInfo;
+  customQrInstructionEl?: React.ReactNode;
 };
 
 export const FlowSetup2faApp = ({
@@ -51,6 +52,7 @@ export const FlowSetup2faApp = ({
   reason = GleanClickEventType2FA.setup,
   showProgressBar = true,
   cmsInfo,
+  customQrInstructionEl,
 }: FlowSetup2faAppProps) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [setupMethod, setSetupMethod] =
@@ -106,7 +108,7 @@ export const FlowSetup2faApp = ({
 
       {setupMethod === TwoStepSetupMethod.QrCode && (
         <QrCodeStep
-          {...{ reason, setSetupMethod }}
+          {...{ reason, setSetupMethod, customQrInstructionEl }}
           qrCodeUrl={totpInfo.qrCodeUrl}
         />
       )}
@@ -147,7 +149,7 @@ export const FlowSetup2faApp = ({
           'Continue'
         )}
         verifyCode={handleCode}
-        cmsButton={{color: cmsInfo?.shared?.buttonColor}}
+        cmsButton={{ color: cmsInfo?.shared?.buttonColor }}
       />
     </FlowContainer>
   );
@@ -174,10 +176,12 @@ const QrCodeStep = ({
   reason,
   setSetupMethod,
   qrCodeUrl,
+  customQrInstructionEl,
 }: {
   reason: GleanClickEventType2FA;
   setSetupMethod: React.Dispatch<React.SetStateAction<TwoStepSetupMethod>>;
   qrCodeUrl: string;
+  customQrInstructionEl?: React.ReactNode;
 }) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -190,15 +194,17 @@ const QrCodeStep = ({
 
   return (
     <div>
-      <FtlMsg
-        id="flow-setup-2a-qr-instruction"
-        elems={{ strong: <strong></strong> }}
-      >
-        <p className="text-sm">
-          <strong>Step 1: </strong>Scan this QR code using any authenticator
-          app, like Duo or Google Authenticator.
-        </p>
-      </FtlMsg>
+      {customQrInstructionEl || (
+        <FtlMsg
+          id="flow-setup-2a-qr-instruction"
+          elems={{ strong: <strong></strong> }}
+        >
+          <p className="text-sm">
+            <strong>Step 1: </strong>Scan this QR code using any authenticator
+            app, like Duo or Google Authenticator.
+          </p>
+        </FtlMsg>
+      )}
       <LearnMoreLink {...{ reason }} />
 
       <div className="relative mx-auto w-fit mt-4 mb-2 flex justify-center items-center rounded-xl border-8 border-green-800/10">

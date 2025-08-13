@@ -36,6 +36,11 @@ describe('UnitRowTwoStepAuth', () => {
       'data-glean-id',
       'two_step_auth_disable_click'
     );
+    expect(screen.getByRole('link', { name: 'Change' })).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Change' })).toHaveAttribute(
+      'data-glean-id',
+      'account_pref_two_step_auth_change_submit'
+    );
   });
 
   it('renders when two-step authentication is not enabled', () => {
