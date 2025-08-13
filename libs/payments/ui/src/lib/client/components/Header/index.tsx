@@ -154,6 +154,7 @@ export const Header = ({ auth, cart, redirectPath }: HeaderProps) => {
     <header
       className="bg-white fixed flex justify-between items-center shadow h-16 left-0 top-0 mx-auto my-0 px-4 py-0 w-full z-40 tablet:h-20"
       role="banner"
+      id="header"
     >
       <div className="flex items-center">
         <Image

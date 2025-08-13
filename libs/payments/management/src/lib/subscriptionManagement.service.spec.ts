@@ -36,15 +36,18 @@ import {
   SubscriptionManagementService,
 } from '@fxa/payments/management';
 import {
+  BillingAgreementFactory,
   MockPaypalClientConfigProvider,
   PaypalBillingAgreementManager,
   PayPalClient,
   PaypalCustomerManager,
+  ResultPaypalCustomerFactory,
 } from '@fxa/payments/paypal';
 import {
   AccountCustomerManager,
   MockStripeConfigProvider,
   ResultAccountCustomerFactory,
+  StripeAddressFactory,
   StripeApiListFactory,
   StripeClient,
   StripeConfig,
@@ -85,6 +88,10 @@ import {
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
   SubscriptionManagementCouldNotRetrieveIapContentFromCMSError,
   UpdateAccountCustomerMissingStripeId,
+  CreateBillingAgreementAccountCustomerMissingStripeId,
+  CreateBillingAgreementActiveBillingAgreement,
+  CreateBillingAgreementCurrencyNotFound,
+  CreateBillingAgreementPaypalSubscriptionNotFound,
 } from './subscriptionManagement.error';
 import {
   MockNotifierSnsConfigProvider,
@@ -119,6 +126,8 @@ describe('SubscriptionManagementService', () => {
   let customerSessionManager: CustomerSessionManager;
   let currencyManager: CurrencyManager;
   let privateCustomerChanged: any;
+  let paypalBillingAgreementManager: PaypalBillingAgreementManager;
+  let paypalCustomerManager: PaypalCustomerManager;
 
   const mockLogger = {
     error: jest.fn(),
@@ -184,6 +193,10 @@ describe('SubscriptionManagementService', () => {
     setupIntentManager = moduleRef.get(SetupIntentManager);
     customerSessionManager = moduleRef.get(CustomerSessionManager);
     currencyManager = moduleRef.get(CurrencyManager);
+    paypalBillingAgreementManager = moduleRef.get(
+      PaypalBillingAgreementManager
+    );
+    paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
 
     privateCustomerChanged = jest
       .spyOn(subscriptionManagementService as any, 'customerChanged')
@@ -1486,6 +1499,315 @@ describe('SubscriptionManagementService', () => {
           'john doe'
         )
       ).rejects.toBeInstanceOf(SetDefaultPaymentAccountCustomerMissingStripeId);
+    });
+  });
+
+  describe('getCurrencyForCustomer', () => {
+    it('gets a customers currency by customer.currency', async () => {
+      const mockCustomerId = faker.string.uuid();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockCustomerId,
+      });
+      const mockCurrency = faker.finance.currencyCode().toLowerCase();
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          id: mockCustomerId,
+          currency: mockCurrency,
+        })
+      );
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({ customer: mockCustomerId })
+      );
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(customerManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethod);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+
+      const result =
+        await subscriptionManagementService.getCurrencyForCustomer(
+          mockCustomerId
+        );
+
+      expect(result).toEqual(mockCurrency);
+    });
+    it('gets a customers currency by shipping address', async () => {
+      const mockCustomerId = faker.string.uuid();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockCustomerId,
+      });
+      const mockCurrency = faker.finance.currencyCode().toLowerCase();
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          id: mockCustomerId,
+          currency: null,
+          shipping: { address: StripeAddressFactory() },
+        })
+      );
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({ customer: mockCustomerId })
+      );
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(customerManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethod);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockCurrency);
+
+      const result =
+        await subscriptionManagementService.getCurrencyForCustomer(
+          mockCustomerId
+        );
+
+      expect(result).toEqual(mockCurrency);
+    });
+    it('gets a customers currency by billing address', async () => {
+      const mockCustomerId = faker.string.uuid();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockCustomerId,
+      });
+      const mockCurrency = faker.finance.currencyCode().toLowerCase();
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          id: mockCustomerId,
+          currency: null,
+        })
+      );
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({
+          customer: mockCustomerId,
+          billing_details: {
+            address: StripeAddressFactory(),
+            email: '',
+            name: '',
+            phone: '',
+          },
+        })
+      );
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(customerManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethod);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(currencyManager, 'getCurrencyForCountry')
+        .mockReturnValue(mockCurrency);
+
+      const result =
+        await subscriptionManagementService.getCurrencyForCustomer(
+          mockCustomerId
+        );
+
+      expect(result).toEqual(mockCurrency);
+    });
+    it('returns undefined if no currency can be found', async () => {
+      const mockCustomerId = faker.string.uuid();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockCustomerId,
+      });
+      const mockCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          id: mockCustomerId,
+          currency: null,
+        })
+      );
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({
+          customer: mockCustomerId,
+        })
+      );
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(customerManager, 'getDefaultPaymentMethod')
+        .mockResolvedValue(mockPaymentMethod);
+      jest.spyOn(customerManager, 'retrieve').mockResolvedValue(mockCustomer);
+
+      const result =
+        await subscriptionManagementService.getCurrencyForCustomer(
+          mockCustomerId
+        );
+
+      expect(result).toBeFalsy();
+    });
+    it('throws GetAccountCustomerMissingStripeId error', async () => {
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        stripeCustomerId: null,
+      });
+
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+
+      await expect(
+        subscriptionManagementService.getCurrencyForCustomer('12345')
+      ).rejects.toBeInstanceOf(GetAccountCustomerMissingStripeId);
+    });
+  });
+
+  describe('createPaypalBillingAgreementId', () => {
+    it('creates a paypal billing agreement id', async () => {
+      const mockUid = faker.string.uuid();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: faker.string.uuid(),
+      });
+      const mockPaypalCustomer = ResultPaypalCustomerFactory({
+        status: 'Cancelled',
+        endedAt: faker.date.recent().valueOf(),
+      });
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory({
+          customer: mockAccountCustomer.stripeCustomerId as string,
+          collection_method: 'send_invoice',
+        })
+      );
+      const mockBillingAgreement = BillingAgreementFactory();
+      const mockStripeCustomer = StripeResponseFactory(StripeCustomerFactory());
+
+      jest
+        .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
+        .mockResolvedValue([mockPaypalCustomer]);
+      jest
+        .spyOn(subscriptionManagementService, 'getCurrencyForCustomer')
+        .mockResolvedValue(faker.finance.currencyCode().toLowerCase());
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([mockSubscription]);
+      jest
+        .spyOn(paypalCustomerManager, 'deletePaypalCustomersByUid')
+        .mockResolvedValue(BigInt(1));
+      jest
+        .spyOn(paypalBillingAgreementManager, 'create')
+        .mockResolvedValue(faker.string.uuid());
+      jest
+        .spyOn(paypalBillingAgreementManager, 'retrieve')
+        .mockResolvedValue(mockBillingAgreement);
+      jest
+        .spyOn(currencyManager, 'assertCurrencyCompatibleWithCountry')
+        .mockReturnValue();
+      jest
+        .spyOn(customerManager, 'update')
+        .mockResolvedValue(mockStripeCustomer);
+
+      await subscriptionManagementService.createPaypalBillingAgreementId(
+        faker.string.uuid(),
+        faker.string.uuid()
+      );
+      expect(privateCustomerChanged).toHaveBeenCalled();
+    });
+    it('throws an error if the user has an active paypal billing agreement', async () => {
+      jest
+        .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
+        .mockResolvedValue(faker.string.uuid());
+
+      await expect(subscriptionManagementService.createPaypalBillingAgreementId(
+        faker.string.uuid(),
+        faker.string.uuid()
+      )).rejects.toBeInstanceOf(CreateBillingAgreementActiveBillingAgreement)
+      expect(privateCustomerChanged).not.toHaveBeenCalled();
+    });
+    it('throws an error if the account customer has no stripe id', async () => {
+      const mockUid = faker.string.uuid();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: null,
+      });
+
+      jest
+        .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+
+      await expect(subscriptionManagementService.createPaypalBillingAgreementId(
+        faker.string.uuid(),
+        faker.string.uuid()
+      )).rejects.toBeInstanceOf(CreateBillingAgreementAccountCustomerMissingStripeId)
+      expect(privateCustomerChanged).not.toHaveBeenCalled();
+    });
+    it('throws an error if no currency can be found', async () => {
+      const mockUid = faker.string.uuid();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: faker.string.uuid(),
+      });
+      const mockPaypalCustomer = ResultPaypalCustomerFactory({
+        status: 'Cancelled',
+        endedAt: faker.date.recent().valueOf(),
+      });
+
+      jest
+        .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
+        .mockResolvedValue([mockPaypalCustomer]);
+      jest
+        .spyOn(subscriptionManagementService, 'getCurrencyForCustomer')
+        .mockResolvedValue(undefined);
+
+      await expect(subscriptionManagementService.createPaypalBillingAgreementId(
+        faker.string.uuid(),
+        faker.string.uuid()
+      )).rejects.toBeInstanceOf(CreateBillingAgreementCurrencyNotFound)
+      expect(privateCustomerChanged).not.toHaveBeenCalled();
+    });
+    it('throws an error if the customer has no active paypal subscriptions', async () => {
+      const mockUid = faker.string.uuid();
+      const mockAccountCustomer = ResultAccountCustomerFactory({
+        uid: mockUid,
+        stripeCustomerId: faker.string.uuid(),
+      });
+      const mockPaypalCustomer = ResultPaypalCustomerFactory({
+        status: 'Cancelled',
+        endedAt: faker.date.recent().valueOf(),
+      });
+
+      jest
+        .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
+        .mockResolvedValue([mockPaypalCustomer]);
+      jest
+        .spyOn(subscriptionManagementService, 'getCurrencyForCustomer')
+        .mockResolvedValue(faker.finance.currencyCode().toLowerCase());
+      jest
+        .spyOn(subscriptionManager, 'listForCustomer')
+        .mockResolvedValue([]);
+
+      await expect(subscriptionManagementService.createPaypalBillingAgreementId(
+        faker.string.uuid(),
+        faker.string.uuid()
+      )).rejects.toBeInstanceOf(CreateBillingAgreementPaypalSubscriptionNotFound)
+      expect(privateCustomerChanged).not.toHaveBeenCalled();
     });
   });
 });
