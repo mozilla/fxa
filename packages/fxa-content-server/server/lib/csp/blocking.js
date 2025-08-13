@@ -23,8 +23,8 @@ module.exports = function (config) {
   const BLOB = 'blob:';
   const CDN_URL = config.get('static_resource_url');
   const DATA = 'data:';
+  const DEFAULT_ALLOWED_IMG_SOURCES = config.get('csp.allowedImgSources');
   const GLEAN_SERVER = getOrigin(config.get('glean.serverEndpoint'));
-  const GRAVATAR = 'https://secure.gravatar.com';
   const GQL_SERVER = getOrigin(config.get('settings_gql_url'));
   const OAUTH_SERVER = getOrigin(config.get('oauth_url'));
   const PROFILE_SERVER = getOrigin(config.get('profile_url'));
@@ -103,10 +103,10 @@ module.exports = function (config) {
         // Gravatar support was removed in #4927, but we don't want
         // to break the site for users who already use a Gravatar as
         // their profile image.
-        GRAVATAR,
         PROFILE_IMAGES_SERVER,
         // default monogram avatars
         PROFILE_SERVER,
+        ...DEFAULT_ALLOWED_IMG_SOURCES,
       ]),
       mediaSrc: [BLOB],
       objectSrc: [NONE],
@@ -128,7 +128,6 @@ module.exports = function (config) {
       DATA,
       GLEAN_SERVER,
       GQL_SERVER,
-      GRAVATAR,
       NONE,
       OAUTH_SERVER,
       PAIRING_SERVER_HTTP,
