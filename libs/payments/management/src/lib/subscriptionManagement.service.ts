@@ -16,6 +16,7 @@ import {
   CustomerSessionManager,
   SetupIntentManager,
   SubscriptionManager,
+  STRIPE_CUSTOMER_METADATA,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
@@ -44,10 +45,12 @@ import {
   UpdateAccountCustomerMissingStripeId,
   SetDefaultPaymentAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
+  CreateBillingAgreementAccountCustomerMissingStripeId,
 } from './subscriptionManagement.error';
 import { SubscriptionContent } from './types';
 import { NotifierService } from '@fxa/shared/notifier';
 import { ProfileClient } from '@fxa/profile/client';
+import { PaypalBillingAgreementManager } from '@fxa/payments/paypal';
 
 @Injectable()
 export class SubscriptionManagementService {
@@ -63,7 +66,8 @@ export class SubscriptionManagementService {
     private profileClient: ProfileClient,
     private setupIntentManager: SetupIntentManager,
     private productConfigurationManager: ProductConfigurationManager,
-    private subscriptionManager: SubscriptionManager
+    private subscriptionManager: SubscriptionManager,
+    private paypalBillingAgreementManager: PaypalBillingAgreementManager
   ) {}
 
   @SanitizeExceptions()
@@ -434,6 +438,24 @@ export class SubscriptionManagementService {
         default_payment_method: paymentMethodId,
       },
       name: fullName,
+    });
+  }
+
+  @SanitizeExceptions()
+  async createPaypalBillingAgreementId(uid: string, token: string) {
+    const [billingAgreementId, accountCustomer] = await Promise.all([
+      this.paypalBillingAgreementManager.create(uid, token),
+      this.accountCustomerManager.getAccountCustomerByUid(uid),
+    ]);
+
+    if (!accountCustomer.stripeCustomerId) {
+      throw new CreateBillingAgreementAccountCustomerMissingStripeId(uid);
+    }
+
+    await this.customerManager.update(accountCustomer.stripeCustomerId, {
+      metadata: {
+        [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: billingAgreementId,
+      },
     });
   }
 }

@@ -15,7 +15,10 @@ import {
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { SubscriptionManagementService } from '@fxa/payments/management';
-import { CheckoutTokenManager } from '@fxa/payments/paypal';
+import {
+  CheckoutTokenManager,
+  PaypalBillingAgreementManager,
+} from '@fxa/payments/paypal';
 import {
   ProductConfigError,
   ProductConfigurationManager,
@@ -98,6 +101,10 @@ import { UpdateStripePaymentDetailsResult } from './validators/UpdateStripePayme
 import { SetDefaultStripePaymentDetailsActionArgs } from './validators/SetDefaultStripePaymentDetailsActionArgs';
 import { CancelSubscriptionAtPeriodEndActionArgs } from './validators/CancelSubscriptionAtPeriodEndActionArgs';
 import { CancelSubscriptionAtPeriodEndActionResult } from './validators/CancelSubscriptionAtPeriodEndActionResult';
+import { GetPaypalBillingAgreementActiveIdArgs } from './validators/GetPaypalBillingAgreementActiveIdArgs';
+import { GetPaypalBillingAgreementActiveIdResult } from './validators/GetPaypalBillingAgreementActiveIdResult';
+import { CreatePaypalBillingAgreementIdArgs } from './validators/CreatePaypalBillingAgreementIdArgs';
+import { CreatePaypalBillingAgreementIdResult } from './validators/CreatePaypalBillingAgreementIdResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -119,6 +126,7 @@ export class NextJSActionsService {
     private productConfigurationManager: ProductConfigurationManager,
     private profileClient: ProfileClient,
     private subscriptionManagementService: SubscriptionManagementService,
+    private paypalBillingAgreementManager: PaypalBillingAgreementManager,
     @Inject(StatsDService) public statsd: StatsD,
     @Inject(Logger) private log: LoggerService
   ) {}
@@ -288,6 +296,35 @@ export class NextJSActionsService {
     return {
       token,
     };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetPaypalBillingAgreementActiveIdArgs,
+    GetPaypalBillingAgreementActiveIdResult
+  )
+  // @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getPaypalBillingAgreementActiveId(args: { uid: string }) {
+    const paypalBillingAgreementId =
+      await this.paypalBillingAgreementManager.retrieveActiveId(args.uid);
+
+    return {
+      paypalBillingAgreementId,
+    };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    CreatePaypalBillingAgreementIdArgs,
+    CreatePaypalBillingAgreementIdResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async createPayPalBillingAgreementId(args: { uid: string; token: string }) {
+    const paypalBillingAgreementId =
+      await this.paypalBillingAgreementManager.create(args.uid, args.token);
+    return { paypalBillingAgreementId };
   }
 
   @SanitizeExceptions()
