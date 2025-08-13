@@ -5,6 +5,7 @@
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
+import { RelierCmsInfo } from '../../models';
 
 describe('InlineRecoveryKeySetupCreate', () => {
   it('renders as expected', () => {
@@ -28,10 +29,37 @@ describe('InlineRecoveryKeySetupCreate', () => {
       'Create an account recovery key so you can restore your sync browsing data if you ever forget your password.'
     );
     screen.getByRole('button', {
-      name: 'Create account recovery key',
-    });
-    screen.getByRole('button', {
       name: 'Do it later',
     });
+    const button = screen.getByRole('button', {
+      name: 'Create account recovery key',
+    });
+
+    expect(button).toMatchSnapshot();
+  });
+
+  it('renders button with CMS passthrough', () => {
+    const cmsInfo: RelierCmsInfo = {
+      name: '',
+      clientId: '',
+      entrypoint: '',
+      shared: {
+        buttonColor: '#000000',
+        logoUrl: '',
+        logoAltText: ''
+      }
+    };
+    // in this test, we don't want the full container, only the button that
+    // cms info is passed onto to ensure we're still passing through
+    renderWithLocalizationProvider(
+      <Subject cmsInfo={cmsInfo} />
+    );
+
+    const cmsButton = screen.queryByRole('button', {
+      name: 'Create account recovery key',
+    });
+
+    // shared.buttonColor gets applied and is in snapshot
+    expect(cmsButton).toMatchSnapshot();
   });
 });

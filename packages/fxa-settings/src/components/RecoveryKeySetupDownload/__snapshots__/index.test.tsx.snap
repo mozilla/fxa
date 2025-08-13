@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RecoveryKeySetupDownload renders button with CMS passthrough 1`] = `
+<button
+  class="cta-primary-cms cta-xl w-full mt-4"
+  style="--cta-bg: #FF0000; --cta-border: #FF0000; --cta-active: #FF0000; --cta-disabled: #FF000060;"
+>
+  Download and continue
+</button>
+`;

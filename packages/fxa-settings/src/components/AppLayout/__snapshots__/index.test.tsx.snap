@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<AppLayout /> snapshots renders correctly with CMS: background wrapper 1`] = `
+<div
+  class="flex min-h-screen flex-col items-center"
+  data-testid="app"
+  style="--cms-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+/>
+`;
+
+exports[`<AppLayout /> snapshots renders correctly with CMS: header logo 1`] = `
+<img
+  alt="Snapshot CMS Custom Logo"
+  class="h-auto w-[140px] mx-0"
+  src="https://example.com/snapshot-cms-logo.png"
+/>
+`;
+
+exports[`<AppLayout /> snapshots renders correctly with CMS: title 1`] = `"Snapshot App - Custom Title | Mozilla accounts"`;
+
+exports[`<AppLayout /> snapshots renders correctly without CMS: background wrapper 1`] = `
+<div
+  class="flex min-h-screen flex-col items-center"
+  data-testid="app"
+/>
+`;
+
+exports[`<AppLayout /> snapshots renders correctly without CMS: header logo 1`] = `
+<img
+  alt="Mozilla logo"
+  class="h-auto w-[140px] mx-0"
+  src="moz-logo-bw-rgb.svg"
+/>
+`;
+
+exports[`<AppLayout /> snapshots renders correctly without CMS: title 1`] = `"Mozilla accounts"`;

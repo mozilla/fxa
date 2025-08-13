@@ -276,7 +276,7 @@ describe('Signup page', () => {
     screen.getByText('to continue');
   });
 
-  it('renders as expected when cms enabled and on mobile ', async () => {
+  it('renders as expected when cms enabled and on mobile', async () => {
     renderWithLocalizationProvider(
       <Subject
         integration={createMockSignupOAuthWebIntegration(

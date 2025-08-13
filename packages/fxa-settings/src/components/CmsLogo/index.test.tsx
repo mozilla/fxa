@@ -8,7 +8,7 @@ import CmsLogo from '.';
 
 describe('CmsLogo', () => {
   it('renders correctly', () => {
-    render(
+    const { container } = render(
       <CmsLogo
         {...{
           isMobile: false,
@@ -26,6 +26,7 @@ describe('CmsLogo', () => {
     expect(img).toBeInTheDocument();
     expect(img.getAttribute('alt')).toEqual('foo');
     expect(img.getAttribute('src')).toEqual('/foo.svg');
+    expect(container).toMatchSnapshot();
   });
 
   it('falls back when alt text is missing', () => {

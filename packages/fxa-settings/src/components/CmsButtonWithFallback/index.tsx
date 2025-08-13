@@ -36,6 +36,9 @@ interface CmsButtonWithFallbackProps extends React.ButtonHTMLAttributes<HTMLButt
  * it applies CMS-specific CSS classes and custom properties for consistent
  * theming across CMS-integrated pages.
  *
+ * The `className` property is applied as `cta-primary-cms cta-xl` when
+ * `buttonColor` is provided otherwise it falls back to `cta-primary cta-xl` + passed in value
+ *
  * @example
  * // Default button (no CMS styling)
  * <CmsButtonWithFallback type="submit" disabled={false}>
