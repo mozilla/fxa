@@ -131,6 +131,9 @@ export class GetSubManPageContentActionResult {
   @Type(() => DefaultPaymentMethod)
   defaultPaymentMethod?: DefaultPaymentMethod;
 
+  @IsBoolean()
+  isStripeCustomer!: boolean;
+
   @ValidateNested()
   @Type(() => SubscriptionContent)
   subscriptions!: SubscriptionContent[];
