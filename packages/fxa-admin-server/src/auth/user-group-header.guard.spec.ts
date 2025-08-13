@@ -12,7 +12,7 @@ import {
   AdminPanelFeature,
   AdminPanelGroup,
   USER_GROUP_HEADER,
-} from '@fxa/shared/guards';
+} from 'fxa-shared/guards';
 import { UserGroupGuard } from './user-group-header.guard';
 
 describe('UserGroupGuard for graphql', () => {

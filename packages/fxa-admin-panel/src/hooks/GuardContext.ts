@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { createContext, useContext } from 'react';
-import { AdminPanelGuard } from '@fxa/shared/guards';
+import { AdminPanelGuard } from 'fxa-shared/guards';
 
 export interface IGuardContext {
   guard: AdminPanelGuard;

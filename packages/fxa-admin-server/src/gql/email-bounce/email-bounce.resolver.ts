@@ -5,7 +5,7 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 
-import { AdminPanelFeature } from '@fxa/shared/guards';
+import { AdminPanelFeature } from 'fxa-shared/guards';
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
 import { Features } from '../../auth/user-group-header.decorator';

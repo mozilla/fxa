@@ -7,7 +7,7 @@ import { ApolloError, useMutation, useQuery } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { RelyingParty } from 'fxa-admin-server/src/graphql';
 import ErrorAlert from '../ErrorAlert';
-import { AdminPanelFeature } from '@fxa/shared/guards';
+import { AdminPanelFeature } from '../../../../fxa-shared/guards';
 import { Guard } from '../Guard';
 import { getFormattedDate } from '../../lib/utils';
 import { TableRowYHeader, TableYHeaders } from '../TableYHeaders';

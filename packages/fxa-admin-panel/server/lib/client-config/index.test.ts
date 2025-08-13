@@ -6,12 +6,12 @@ import { ClientConfig } from '.';
 import { SERVER_CONFIG_PLACEHOLDER } from '../../../constants';
 import { JSDOM } from 'jsdom';
 import {
-  GuardEnv,
+  AdminPanelEnv,
   AdminPanelGroup,
   PermissionLevel,
   USER_EMAIL_HEADER,
   USER_GROUP_HEADER,
-} from '@fxa/shared/guards';
+} from 'fxa-shared/guards';
 import { IUserInfo } from '../../../interfaces';
 
 describe('ClientConfig', () => {
@@ -49,7 +49,7 @@ describe('ClientConfig', () => {
         name: 'Admin',
         header: 'vpn_fxa_admin_panel_prod',
         level: PermissionLevel.Admin,
-        env: GuardEnv.Prod,
+        env: AdminPanelEnv.Prod,
       },
     });
   });
@@ -61,7 +61,7 @@ describe('ClientConfig', () => {
         name: 'Support',
         header: 'vpn_fxa_supportagent_prod',
         level: PermissionLevel.Support,
-        env: GuardEnv.Prod,
+        env: AdminPanelEnv.Prod,
       },
     });
   });
@@ -97,7 +97,7 @@ describe('ClientConfig', () => {
         name: 'Support',
         header: AdminPanelGroup.SupportAgentProd,
         level: PermissionLevel.Support,
-        env: GuardEnv.Prod,
+        env: AdminPanelEnv.Prod,
       },
     });
   });
@@ -111,7 +111,7 @@ describe('ClientConfig', () => {
           name: 'Admin',
           header: AdminPanelGroup.AdminProd,
           level: PermissionLevel.Admin,
-          env: GuardEnv.Prod,
+          env: AdminPanelEnv.Prod,
         },
       }
     );

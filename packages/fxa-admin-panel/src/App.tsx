@@ -10,7 +10,7 @@ import AppLayout from './components/AppLayout';
 import AccountSearch from './components/PageAccountSearch';
 import { PagePermissions } from './components/PagePermissions';
 import { IClientConfig, IUserInfo } from '../interfaces';
-import { AdminPanelFeature, AdminPanelGuard } from '@fxa/shared/guards';
+import { AdminPanelFeature, AdminPanelGuard } from 'fxa-shared/guards';
 import PageRelyingParties from './components/PageRelyingParties';
 import PageAccountDelete from './components/PageAccountDelete';
 

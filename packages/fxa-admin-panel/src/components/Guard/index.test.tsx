@@ -7,14 +7,14 @@ import { render } from '@testing-library/react';
 import { IClientConfig } from '../../../interfaces';
 import { Guard } from './index';
 import {
-  GuardEnv,
+  AdminPanelEnv,
   AdminPanelFeature,
   AdminPanelGroup,
   AdminPanelGuard,
-} from '@fxa/shared/guards';
+} from 'fxa-shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
 
-const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
+const mockGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
 const mockGroup = mockGuard.getGroup(AdminPanelGroup.SupportAgentProd);
 
 export const mockConfig: IClientConfig = mockConfigBuilder({

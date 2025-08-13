@@ -24,7 +24,7 @@ import {
 import { AttachedSession } from 'fxa-shared/connected-services/models/AttachedSession';
 import { Account, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
-import { AdminPanelFeature } from '@fxa/shared/guards';
+import { AdminPanelFeature } from 'fxa-shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { CurrentUser } from '../../auth/auth-header.decorator';

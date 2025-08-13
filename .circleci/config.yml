@@ -364,7 +364,6 @@ commands:
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
-
             echo $TEST_FILES | circleci tests run \
               --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" \
               --verbose \

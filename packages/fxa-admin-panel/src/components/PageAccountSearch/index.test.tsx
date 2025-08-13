@@ -9,7 +9,11 @@ import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { AccountSearch } from './index';
 import { EDIT_LOCALE, RECORD_ADMIN_SECURITY_EVENT } from './Account/index.gql';
 import { GET_ACCOUNT_BY_EMAIL, GET_EMAILS_LIKE } from './index.gql';
-import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
+import {
+  AdminPanelEnv,
+  AdminPanelGroup,
+  AdminPanelGuard,
+} from 'fxa-shared/guards';
 import { UNSUBSCRIBE_FROM_MAILING_LISTS } from './DangerZone/index.gql';
 import { CLEAR_BOUNCES_BY_EMAIL } from './EmailBounces/index.gql';
 
@@ -22,7 +26,7 @@ let calledAccountSearch = false;
 let calledGetEmailsLike = false;
 
 // Mock AdminPanelGuard
-const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
+const mockGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
 const mockGroup = mockGuard.getGroup(AdminPanelGroup.AdminProd);
 jest.mock('../../hooks/UserContext.ts', () => {
   return {
@@ -304,12 +308,7 @@ class GetEmailsLike {
     calledGetEmailsLike = true;
     // Return the original testEmail if the search matches its first 6 characters
     // Otherwise return a mock email that matches the search pattern
-    const mockEmail =
-      search === testEmail.substring(0, 6)
-        ? testEmail
-        : search.includes('@')
-          ? search
-          : `${search}@example.com`;
+    const mockEmail = search === testEmail.substring(0, 6) ? testEmail : (search.includes('@') ? search : `${search}@example.com`);
     return {
       data: {
         getEmailsLike: [{ email: mockEmail }],

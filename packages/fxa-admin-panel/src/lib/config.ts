@@ -9,7 +9,7 @@ import {
   unknownGroup,
   USER_EMAIL_HEADER,
   USER_GROUP_HEADER,
-} from '@fxa/shared/guards';
+} from 'fxa-shared/guards';
 import { SERVER_CONFIG_PLACEHOLDER } from '../../constants';
 import { IClientConfig } from '../../interfaces';
 

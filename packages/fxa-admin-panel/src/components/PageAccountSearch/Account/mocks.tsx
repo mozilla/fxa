@@ -10,8 +10,8 @@ export const mockUnsubscribe = (success: boolean): MockedResponse => {
     query: UNSUBSCRIBE_FROM_MAILING_LISTS,
   };
 
-  let result: { data: { status: boolean } } | undefined;
-  let error: Error | undefined;
+  let result = undefined;
+  let error = undefined;
   if (success) {
     result = {
       data: {

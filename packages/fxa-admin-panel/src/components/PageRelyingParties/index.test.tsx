@@ -14,12 +14,16 @@ import {
   MOCK_RP_FALSY_FIELDS,
 } from './mocks';
 import { IClientConfig } from '../../../interfaces';
-import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
+import {
+  AdminPanelEnv,
+  AdminPanelGroup,
+  AdminPanelGuard,
+} from '../../../../fxa-shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 // Setup the current user hook. Required for Guards.
-const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
+const mockGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
 
 const mockConfig: IClientConfig = mockConfigBuilder({
   user: {

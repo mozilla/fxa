@@ -5,7 +5,7 @@
 import { useMutation } from '@apollo/client';
 import { Email } from 'fxa-admin-server/src/graphql';
 import { RECORD_ADMIN_SECURITY_EVENT } from '../Account/index.gql';
-import { AdminPanelFeature } from '@fxa/shared/guards';
+import { AdminPanelFeature } from 'fxa-shared/guards';
 import Guard from '../../Guard';
 import { getFormattedDate } from '../../../lib/utils';
 import { ReactElement } from 'react';

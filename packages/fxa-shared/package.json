@@ -109,6 +109,14 @@
       "import": "./dist/esm/packages/fxa-shared/feature-flags/*.js",
       "require": "./dist/cjs/packages/fxa-shared/feature-flags/*.js"
     },
+    "./guards": {
+      "import": "./dist/esm/packages/fxa-shared/guards/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/guards/index.js"
+    },
+    "./guards/*": {
+      "import": "./dist/esm/packages/fxa-shared/guards/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/guards/*.js"
+    },
     "./lib/*": {
       "import": "./dist/esm/packages/fxa-shared/lib/*.js",
       "require": "./dist/cjs/packages/fxa-shared/lib/*.js"

@@ -242,7 +242,6 @@
     "jest-environment-jsdom": "29.7.0",
     "jest-environment-node": "^29.7.0",
     "json": "^11.0.0",
-    "jsonc-eslint-parser": "^2.1.0",
     "mocha-junit-reporter": "^2.2.0",
     "mocha-multi": "^1.1.7",
     "nx": "21.1.2",

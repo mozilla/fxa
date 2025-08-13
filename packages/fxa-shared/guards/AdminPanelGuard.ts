@@ -7,8 +7,8 @@ import {
   Permissions,
   Groups,
   MaxPermissionLevel,
-  GuardEnv,
-} from './guard';
+  AdminPanelEnv,
+} from './Guard';
 
 /** The header key containing the user group. */
 export const USER_GROUP_HEADER = 'remote-groups';
@@ -58,25 +58,25 @@ const adminPanelGroups: Groups = {
     name: 'Admin',
     header: AdminPanelGroup.AdminProd,
     level: PermissionLevel.Admin,
-    env: GuardEnv.Prod,
+    env: AdminPanelEnv.Prod,
   },
   [AdminPanelGroup.AdminStage]: {
     name: 'Admin',
     header: AdminPanelGroup.AdminStage,
     level: PermissionLevel.Admin,
-    env: GuardEnv.Stage,
+    env: AdminPanelEnv.Stage,
   },
   [AdminPanelGroup.SupportAgentProd]: {
     name: 'Support',
     header: AdminPanelGroup.SupportAgentProd,
     level: PermissionLevel.Support,
-    env: GuardEnv.Prod,
+    env: AdminPanelEnv.Prod,
   },
   [AdminPanelGroup.SupportAgentStage]: {
     name: 'Support',
     header: AdminPanelGroup.SupportAgentStage,
     level: PermissionLevel.Support,
-    env: GuardEnv.Stage,
+    env: AdminPanelEnv.Stage,
   },
   [AdminPanelGroup.None]: {
     name: 'Unknown',
@@ -161,7 +161,7 @@ const defaultAdminPanelPermissions: Permissions = {
  * @param env The target environment
  * @returns Set of groups
  */
-export function getGroupsByEnv(env?: GuardEnv) {
+export function getGroupsByEnv(env?: AdminPanelEnv) {
   return Object.values(adminPanelGroups)
     .filter((x) => env == null || x.env == null || x.env === env)
     .reduce((map: Groups, x) => {
@@ -172,11 +172,11 @@ export function getGroupsByEnv(env?: GuardEnv) {
 
 /** Setup configured guard for admin panel */
 export class AdminPanelGuard extends Guard<AdminPanelFeature, AdminPanelGroup> {
-  protected envToNum(env?: GuardEnv): number {
+  protected envToNum(env?: AdminPanelEnv): number {
     return env === 'prod' ? 10 : env === 'stage' ? 20 : 30;
   }
 
-  constructor(env?: GuardEnv) {
+  constructor(env?: AdminPanelEnv) {
     super(defaultAdminPanelPermissions, getGroupsByEnv(env));
   }
 }

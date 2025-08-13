@@ -33775,7 +33775,6 @@ __metadata:
     jose: "npm:^5.9.6"
     jsdom: "npm:^26.0.0"
     json: "npm:^11.0.0"
-    jsonc-eslint-parser: "npm:^2.1.0"
     knex: "npm:^3.1.0"
     kysely: "npm:^0.27.2"
     lint-staged: "npm:^15.2.0"

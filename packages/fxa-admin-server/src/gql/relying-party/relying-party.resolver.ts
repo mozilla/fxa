@@ -6,7 +6,7 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { uuidTransformer } from '../../database/transformers';
 
-import { AdminPanelFeature } from '@fxa/shared/guards';
+import { AdminPanelFeature } from 'fxa-shared/guards';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
 import { Features } from '../../auth/user-group-header.decorator';
 import { DatabaseService } from '../../database/database.service';
