@@ -33,6 +33,8 @@ import { RelierClientInfo, RelierSubscriptionInfo, RelierCmsInfo } from './integ
 import { NimbusResult } from '../lib/nimbus';
 import * as Sentry from '@sentry/browser';
 
+const DEFAULT_CMS_ENTRYPOINT = 'default';
+
 // Define the hook's return type, mimicking useQuery's structure
 interface FetchState {
   loading: boolean;
@@ -211,7 +213,11 @@ export function useCmsInfoState() {
 
   const urlQueryData = new UrlQueryData(new ReachRouterWindow());
   const clientId = urlQueryData.get('client_id');
-  const entrypoint = urlQueryData.get('entrypoint');
+
+  // If entrypoint is not provided in the URL, set a "default" value.
+  // CMS customizations that have a default entrypoint created will get loaded, otw
+  // the fallback experience will be loaded.
+  const entrypoint = urlQueryData.get('entrypoint') || DEFAULT_CMS_ENTRYPOINT;
 
   const [state, setState] = useState<FetchState>({
     loading: false,
@@ -224,7 +230,6 @@ export function useCmsInfoState() {
     // 1. CMS is not enabled in the config
     // 2. The user's locale is not English
     // 3. The clientId is not provided or is not a valid 16 digit hex
-    // 4. The entrypoint is not provided
 
     function isEnglishLocale() {
       // Check primary language
