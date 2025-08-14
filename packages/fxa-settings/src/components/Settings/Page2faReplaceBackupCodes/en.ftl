@@ -17,7 +17,7 @@ tfa-create-code-success-alert = Backup authentication codes created
 
 # Custom messaging for users replacing existing backup codes - Download step (1 of 2)
 # On this step, the codes are not yet replaced in the database - the old codes are still valid until step 2 is completed.
-tfa-replace-code-download-description = Keep these in a place you'll remember. Your old codes will be replaced after you finish the next step.
+tfa-replace-code-download-description = Keep these in a place you’ll remember. Your old codes will be replaced after you finish the next step.
 
 # Custom messaging for users replacing existing backup codes - Confirm step (2 of 2)
 # Until this confirmation step is successfully completed, the old codes are still active and the new codes are not saved in the database.
