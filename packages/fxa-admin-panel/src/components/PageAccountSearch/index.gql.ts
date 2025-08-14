@@ -159,6 +159,8 @@ export const GET_ACCOUNT_BY_UID = gql`
         verified
         createdAt
         name
+        ipAddr
+        additionalInfo
       }
       totp {
         verified
