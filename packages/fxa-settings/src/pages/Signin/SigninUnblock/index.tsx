@@ -233,7 +233,7 @@ export const SigninUnblock = ({
         </p>
       </FtlMsg>
 
-      {integration.isDesktopRelay() && (
+      {integration.isFirefoxClientServiceRelay() && (
         <FtlMsg id="signin-unblock-desktop-relay">
           <p className="text-sm mt-2">
             Firefox will try sending you back to use an email mask after you

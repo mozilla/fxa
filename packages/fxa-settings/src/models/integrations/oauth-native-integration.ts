@@ -88,11 +88,9 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     );
   }
 
-  // Note, if/when we expand this to other services, possibly consider making a
-  // isSyncOptional method (or whatever name makes sense) instead
-  isDesktopRelay() {
+  isFirefoxClientServiceRelay() {
     return (
-      this.isFirefoxDesktopClient() &&
+      (this.isFirefoxDesktopClient() || this.isFirefoxMobileClient()) &&
       this.data.service === OAuthNativeServices.Relay
     );
   }

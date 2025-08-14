@@ -151,7 +151,7 @@ export const SigninTotpCode = ({
         </FtlMsg>
       </div>
 
-      {integration.isDesktopRelay() && (
+      {integration.isFirefoxClientServiceRelay() && (
         <FtlMsg id="signin-totp-code-desktop-relay">
           <p className="mt-2 mb-4 text-sm">
             Firefox will try sending you back to use an email mask after you

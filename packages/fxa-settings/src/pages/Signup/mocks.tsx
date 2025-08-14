@@ -30,7 +30,7 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
     getService: () => undefined,
     getClientId: () => undefined,
     isSync: () => false,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
     wantsKeys: () => false,
     getCmsInfo: () => undefined,
   };
@@ -42,7 +42,7 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
     getService: () => 'sync',
     getClientId: () => undefined,
     isSync: () => true,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
     wantsKeys: () => false,
     getCmsInfo: () => undefined,
   };
@@ -60,7 +60,7 @@ export function createMockSignupOAuthWebIntegration(
     getService: () => service || MozServices.Default,
     getClientId: () => clientId || MOCK_CLIENT_ID,
     isSync: () => false,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
     wantsKeys: () => false,
     getCmsInfo: () => cmsInfo,
   };
@@ -78,7 +78,7 @@ export function createMockSignupOAuthNativeIntegration(
     getService: () => service,
     getClientId: () => MOCK_CLIENT_ID,
     isSync: () => isSync,
-    isDesktopRelay: () => !isSync,
+    isFirefoxClientServiceRelay: () => !isSync,
     wantsKeys: () => true,
     getCmsInfo: () => cmsInfo,
   };

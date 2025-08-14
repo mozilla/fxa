@@ -97,7 +97,9 @@ jest.mock('../../lib/glean', () => ({
   },
 }));
 
-const mockUseGeoEligibilityCheck = jest.fn().mockReturnValue({ eligible: false });
+const mockUseGeoEligibilityCheck = jest
+  .fn()
+  .mockReturnValue({ eligible: false });
 jest.mock('../../lib/hooks/useGeoEligibilityCheck', () => ({
   useGeoEligibilityCheck: () => mockUseGeoEligibilityCheck(),
 }));
@@ -181,7 +183,7 @@ describe('metrics', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: jest.fn(),
-      isDesktopRelay: jest.fn(),
+      isFirefoxClientServiceRelay: jest.fn(),
       getServiceName: jest.fn(),
       getClientId: jest.fn(),
       getCmsInfo: jest.fn(),
@@ -227,7 +229,7 @@ describe('glean', () => {
     });
     const mockIntegration = {
       isSync: jest.fn(),
-      isDesktopRelay: jest.fn(),
+      isFirefoxClientServiceRelay: jest.fn(),
       getServiceName: jest.fn(),
       getClientId: jest.fn(),
       data: {},
@@ -301,7 +303,7 @@ describe('loading spinner states', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: jest.fn().mockReturnValueOnce(true),
-      isDesktopRelay: jest.fn().mockReturnValueOnce(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
       data: {
         context: {},
       },
@@ -343,7 +345,7 @@ describe('AuthAndAccountSetupRoutes', () => {
       isSync: () => true,
       type: IntegrationType.OAuthNative,
       data: {},
-      isDesktopRelay: () => false,
+      isFirefoxClientServiceRelay: () => false,
       getClientId: () => {},
       getCmsInfo: () => undefined,
     };
@@ -393,7 +395,7 @@ describe('SettingsRoutes', () => {
     });
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => false,
-      isDesktopRelay: jest.fn().mockReturnValueOnce(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
       getServiceName: jest.fn(),
     });
     (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
@@ -430,7 +432,7 @@ describe('SettingsRoutes', () => {
     (currentAccount as jest.Mock).mockReturnValue(null);
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => false,
-      isDesktopRelay: () => false,
+      isFirefoxClientServiceRelay: () => false,
       data: {
         context: {},
       },
@@ -463,7 +465,7 @@ describe('SettingsRoutes', () => {
   it('redirects to sign out of sync warning', async () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
-      isDesktopRelay: () => false,
+      isFirefoxClientServiceRelay: () => false,
       data: {
         context: {},
       },
@@ -515,7 +517,7 @@ describe('SettingsRoutes', () => {
 
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
-      isDesktopRelay: () => false,
+      isFirefoxClientServiceRelay: () => false,
       data: {
         context: {},
       },

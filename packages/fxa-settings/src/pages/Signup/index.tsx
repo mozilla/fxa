@@ -69,7 +69,7 @@ export const Signup = ({
   const isOAuth = isOAuthIntegration(integration);
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const isSync = integration.isSync();
-  const isDesktopRelay = integration.isDesktopRelay();
+  const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const paymentMethodsWillSync =
     isSync && checkPaymentMethodsWillSync(offeredSyncEngines);
 
@@ -198,7 +198,7 @@ export const Signup = ({
               sync: syncEngines,
             },
           });
-        } else if (isDesktopRelay) {
+        } else if (isFirefoxClientServiceRelay) {
           firefox.fxaLogin({
             email,
             sessionToken: data.signUp.sessionToken,
@@ -258,7 +258,7 @@ export const Signup = ({
       offeredSyncEngines,
       selectedEnginesForGlean,
       isSyncOAuth,
-      isDesktopRelay,
+      isFirefoxClientServiceRelay,
       isOAuth,
       sensitiveDataClient,
     ]
@@ -305,7 +305,7 @@ export const Signup = ({
             headingTextFtlId="signup-heading-v2"
           />
 
-          {isDesktopRelay && (
+          {isFirefoxClientServiceRelay && (
             <FtlMsg id="signup-relay-info">
               <p className="text-base">
                 A password is needed to securely manage your masked emails and
@@ -413,7 +413,7 @@ export const Signup = ({
       />
 
       {/* Third party auth is not currently supported for sync */}
-      {!isSync && !isDesktopRelay && (
+      {!isSync && !isFirefoxClientServiceRelay && (
         <ThirdPartyAuth viewName="signup" flowQueryParams={flowQueryParams} />
       )}
 
@@ -421,7 +421,7 @@ export const Signup = ({
         isPocketClient={client === MozServices.Pocket}
         isMonitorClient={client === MozServices.Monitor}
         isRelayClient={client === MozServices.Relay}
-        {...{ isDesktopRelay }}
+        {...{ isFirefoxClientServiceRelay }}
       />
     </AppLayout>
   );

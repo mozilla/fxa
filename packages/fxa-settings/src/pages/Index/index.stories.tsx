@@ -40,7 +40,7 @@ export const Default = storyWithProps();
 
 export const WithServiceRelayIntegration = storyWithProps({
   integration: createMockIndexOAuthNativeIntegration({
-    isDesktopRelay: true,
+    isFirefoxClientServiceRelay: true,
     isSync: false,
   }),
 });
@@ -70,7 +70,7 @@ export const Pocket = storyWithProps({
 
 export const WithCms = storyWithProps({
   integration: createMockIndexOAuthNativeIntegration({
-    isDesktopRelay: true,
+    isFirefoxClientServiceRelay: true,
     isSync: false,
     cmsInfo: MOCK_CMS_INFO,
   }),
@@ -78,7 +78,7 @@ export const WithCms = storyWithProps({
 
 export const WithCmsOnMobile = storyWithProps({
   integration: createMockIndexOAuthNativeIntegration({
-    isDesktopRelay: true,
+    isFirefoxClientServiceRelay: true,
     isSync: false,
     cmsInfo: MOCK_CMS_INFO,
   }),
@@ -87,7 +87,7 @@ export const WithCmsOnMobile = storyWithProps({
 
 export const WithCmsWithSharedFallback = storyWithProps({
   integration: createMockIndexOAuthNativeIntegration({
-    isDesktopRelay: true,
+    isFirefoxClientServiceRelay: true,
     isSync: false,
     cmsInfo: {
       ...MOCK_CMS_INFO,

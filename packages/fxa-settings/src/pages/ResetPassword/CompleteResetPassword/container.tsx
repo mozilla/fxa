@@ -180,9 +180,8 @@ const CompleteResetPasswordContainer = ({
     };
 
     // TODO in FXA-9672: do not use Account model in reset password pages
-    const accountResetData = await account.resetPasswordWithRecoveryKey(
-      options
-    );
+    const accountResetData =
+      await account.resetPasswordWithRecoveryKey(options);
 
     return accountResetData;
   };
@@ -240,7 +239,9 @@ const CompleteResetPasswordContainer = ({
           keyFetchToken: accountResetData.keyFetchToken,
           unwrapBKey: accountResetData.unwrapBKey,
         }),
-        services: integration.isDesktopRelay() ? { relay: {} } : { sync: {} },
+        services: integration.isFirefoxClientServiceRelay()
+          ? { relay: {} }
+          : { sync: {} },
       });
 
       if (isOAuth) {
@@ -363,7 +364,7 @@ const CompleteResetPasswordContainer = ({
         recoveryKeyExists,
         estimatedSyncDeviceCount,
       }}
-      isDesktopServiceRelay={integration.isDesktopRelay()}
+      isFirefoxClientServiceRelay={integration.isFirefoxClientServiceRelay()}
       integrationIsSync={integration.isSync()}
       locationState={location.state as CompleteResetPasswordLocationState}
     />

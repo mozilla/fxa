@@ -39,7 +39,7 @@ export const Index = ({
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
-  const isDesktopRelay = integration.isDesktopRelay();
+  const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const isOAuth = isOAuthIntegration(integration);
   const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
@@ -130,7 +130,7 @@ export const Index = ({
             </FtlMsg>
           </p>
         </>
-      ) : isDesktopRelay ? (
+      ) : isFirefoxClientServiceRelay ? (
         <>
           <h1 className="card-header">
             <FtlMsg id="index-relay-header">Create an email mask</FtlMsg>
@@ -202,7 +202,7 @@ export const Index = ({
           </FtlMsg>
         </p>
       ) : (
-        !isDesktopRelay && (
+        !isFirefoxClientServiceRelay && (
           <ThirdPartyAuth
             showSeparator
             viewName="index"
@@ -211,7 +211,12 @@ export const Index = ({
         )
       )}
       <TermsPrivacyAgreement
-        {...{ isPocketClient, isMonitorClient, isDesktopRelay, isRelayClient }}
+        {...{
+          isPocketClient,
+          isMonitorClient,
+          isFirefoxClientServiceRelay,
+          isRelayClient,
+        }}
       />
     </AppLayout>
   );
