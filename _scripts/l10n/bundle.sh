@@ -56,7 +56,9 @@ for d in */; do
     echo '' > main.ftl
     for bundle in "${BUNDLES_LIST[@]}"; do
         if [ -f "$bundle.ftl" ]; then
-            cat "$bundle.ftl" >> main.ftl
+            # Filter out comment lines (starting with #)
+            # Use || true to prevent script failure when grep finds no matches
+            grep -v '^[[:space:]]*#' "$bundle.ftl" >> main.ftl || true
         else
             echo "$PREFIX: Missing bundle - $d$bundle.ftl"
         fi
