@@ -29,7 +29,7 @@ export type SigninUnblockIntegration = Pick<
   | 'wantsKeys'
   | 'data'
   | 'isDesktopSync'
-  | 'isDesktopRelay'
+  | 'isFirefoxClientServiceRelay'
   | 'wantsLogin'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
@@ -45,7 +45,7 @@ export type SigninIntegration =
       | 'wantsKeys'
       | 'data'
       | 'isDesktopSync'
-      | 'isDesktopRelay'
+      | 'isFirefoxClientServiceRelay'
       | 'getCmsInfo'
       | 'isFirefoxMobileClient'
     >
@@ -62,7 +62,7 @@ export type SigninOAuthIntegration = Pick<
   | 'wantsLogin'
   | 'data'
   | 'isDesktopSync'
-  | 'isDesktopRelay'
+  | 'isFirefoxClientServiceRelay'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
 >;

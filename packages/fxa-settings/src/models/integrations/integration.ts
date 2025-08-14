@@ -70,7 +70,7 @@ export class GenericIntegration<
   }
 
   hasWebChannelSupport() {
-    return this.isSync() || this.isDesktopRelay() || this.isDesktopSync();
+    return this.isSync() || this.isFirefoxClientServiceRelay();
   }
 
   isSync() {
@@ -81,7 +81,7 @@ export class GenericIntegration<
     return false;
   }
 
-  isDesktopRelay() {
+  isFirefoxClientServiceRelay() {
     return false;
   }
 

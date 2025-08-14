@@ -209,7 +209,6 @@ const SigninTokenCode = ({
 
   return (
     <AppLayout cmsInfo={cmsInfo}>
-
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading-2"
@@ -249,7 +248,7 @@ const SigninTokenCode = ({
         </p>
       </FtlMsg>
 
-      {integration.isDesktopRelay() && (
+      {integration.isFirefoxClientServiceRelay() && (
         <FtlMsg id="signin-token-code-instruction-desktop-relay">
           <p className="mt-2 text-sm">
             Firefox will try sending you back to use an email mask after you

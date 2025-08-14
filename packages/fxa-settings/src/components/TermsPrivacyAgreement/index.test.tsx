@@ -74,7 +74,9 @@ it('renders component as expected for Monitor clients', () => {
 });
 
 it('renders component as expected when service=relay', () => {
-  renderWithLocalizationProvider(<TermsPrivacyAgreement isDesktopRelay />);
+  renderWithLocalizationProvider(
+    <TermsPrivacyAgreement isFirefoxClientServiceRelay />
+  );
   // testAllL10n(screen, bundle);
 
   testSubscriptionTos();

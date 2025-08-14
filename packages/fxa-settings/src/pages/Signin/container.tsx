@@ -308,7 +308,7 @@ const SigninContainer = ({
       // warning. The browser will automatically respond with { ok: true } without
       // prompting the user if it matches the email the browser has data for.
       if (
-        (integration.isSync() || integration.isDesktopRelay()) &&
+        (integration.isSync() || integration.isFirefoxClientServiceRelay()) &&
         !originFromEmailFirst
       ) {
         const { ok } = await firefox.fxaCanLinkAccount({ email });

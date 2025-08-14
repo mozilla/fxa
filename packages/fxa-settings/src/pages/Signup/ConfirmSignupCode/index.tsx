@@ -69,7 +69,7 @@ const ConfirmSignupCode = ({
 
   const navigateWithQuery = useNavigateWithQuery();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
-  const isDesktopRelay = integration.isDesktopRelay();
+  const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const isSync = integration.isSync();
   const submitFormOnPaste = !isSync;
 
@@ -237,7 +237,7 @@ const ConfirmSignupCode = ({
               navigate(to);
             }
             return;
-          } else if (isDesktopRelay) {
+          } else if (isFirefoxClientServiceRelay) {
             firefox.fxaOAuthLogin({
               action: 'signup',
               code,
@@ -358,7 +358,7 @@ const ConfirmSignupCode = ({
         </p>
       </FtlMsg>
 
-      {isDesktopRelay && (
+      {isFirefoxClientServiceRelay && (
         <FtlMsg id="confirm-signup-code-desktop-relay">
           <p className="mt-2 text-sm">
             Firefox will try sending you back to use an email mask after you

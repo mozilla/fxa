@@ -41,20 +41,23 @@ export const mockWebIntegration = {
   getService: () => MozServices.Default,
   isSync: () => false,
   wantsKeys: () => false,
-  isDesktopRelay: () => false,
+  isFirefoxClientServiceRelay: () => false,
   getCmsInfo: () => undefined,
   data: {
     validate: () => {},
   },
 } as WebIntegration;
 
-export const createMockOAuthNativeIntegration = (isSync = true, cmsInfo?: RelierCmsInfo  ) =>
+export const createMockOAuthNativeIntegration = (
+  isSync = true,
+  cmsInfo?: RelierCmsInfo
+) =>
   ({
     type: IntegrationType.OAuthNative,
     getService: () => MozServices.FirefoxSync,
     isSync: () => isSync,
     wantsKeys: () => false,
-    isDesktopRelay: () => !isSync,
+    isFirefoxClientServiceRelay: () => !isSync,
     getCmsInfo: () => cmsInfo,
     data: {
       validate: () => {},

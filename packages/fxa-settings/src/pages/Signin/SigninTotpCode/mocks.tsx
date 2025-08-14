@@ -26,7 +26,7 @@ export const mockWebSigninIntegration = {
   getService: () => MozServices.Default,
   isSync: () => false,
   wantsKeys: () => false,
-  isDesktopRelay: () => false,
+  isFirefoxClientServiceRelay: () => false,
   getCmsInfo: () => undefined,
   isFirefoxMobileClient: () => false,
 } as SigninIntegration;
@@ -40,7 +40,7 @@ export const mockOAuthNativeSigninIntegration = (
     getService: () => (isSync ? MozServices.FirefoxSync : MozServices.Relay),
     isSync: () => isSync,
     wantsKeys: () => false,
-    isDesktopRelay: () => !isSync,
+    isFirefoxClientServiceRelay: () => !isSync,
     data: new IntegrationData(
       new GenericData({
         redirectTo: 'http://localhost/',

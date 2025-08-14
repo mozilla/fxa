@@ -62,7 +62,7 @@ function mockIntegration() {
     getClientId: () => undefined,
     isSync: () => true,
     wantsKeys: () => true,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
     getCmsInfo: () => undefined,
   };
 }

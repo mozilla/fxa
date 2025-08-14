@@ -20,7 +20,7 @@ export const Subject = ({
   testErrorMessage = '',
   estimatedSyncDeviceCount,
   integrationIsSync = false,
-  isDesktopServiceRelay = false,
+  isFirefoxClientServiceRelay: isDesktopServiceRelay = false,
 }: Partial<CompleteResetPasswordProps> & {
   testErrorMessage?: string;
 }) => {
@@ -47,7 +47,7 @@ export const Subject = ({
           recoveryKeyExists,
           estimatedSyncDeviceCount,
           integrationIsSync,
-          isDesktopServiceRelay,
+          isFirefoxClientServiceRelay: isDesktopServiceRelay,
         }}
       />
     </LocationProvider>

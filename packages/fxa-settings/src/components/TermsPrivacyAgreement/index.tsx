@@ -11,20 +11,23 @@ export type TermsPrivacyAgreementProps = {
   isPocketClient?: boolean;
   isMonitorClient?: boolean;
   isRelayClient?: boolean; // Relay is oauth RP
-  isDesktopRelay?: boolean; // `service=relay` on Fx desktop client ID
+  isFirefoxClientServiceRelay?: boolean; // `service=relay` on Fx desktop or mobile client ID
 };
 
 const TermsPrivacyAgreement = ({
   isPocketClient = false,
   isMonitorClient = false,
   isRelayClient = false,
-  isDesktopRelay = false,
+  isFirefoxClientServiceRelay = false,
 }: TermsPrivacyAgreementProps) => {
   return (
     <div
-      className={`text-grey-500 text-xs ${isDesktopRelay ? 'mt-8' : 'mt-5'}`}
+      className={`text-grey-500 text-xs ${isFirefoxClientServiceRelay ? 'mt-8' : 'mt-5'}`}
     >
-      {isPocketClient || isMonitorClient || isDesktopRelay || isRelayClient ? (
+      {isPocketClient ||
+      isMonitorClient ||
+      isFirefoxClientServiceRelay ||
+      isRelayClient ? (
         <>
           <FtlMsg id="terms-privacy-agreement-intro-2">
             <p>By proceeding, you agree to the:</p>
@@ -70,7 +73,9 @@ const TermsPrivacyAgreement = ({
                 </li>
               </FtlMsg>
             )}
-            {(isMonitorClient || isDesktopRelay || isRelayClient) && (
+            {(isMonitorClient ||
+              isFirefoxClientServiceRelay ||
+              isRelayClient) && (
               <FtlMsg
                 id="terms-privacy-agreement-monitor-3"
                 elems={{

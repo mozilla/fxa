@@ -7,7 +7,8 @@ import { LocationProvider } from '@reach/router';
 import {
   IntegrationType,
   OAuthIntegrationData,
-  OAuthNativeIntegration, RelierCmsInfo,
+  OAuthNativeIntegration,
+  RelierCmsInfo,
   WebIntegration,
   WebIntegrationData,
 } from '../../../models';
@@ -33,7 +34,7 @@ export function createMockWebIntegration(): WebIntegration {
     isSync: () => false,
     wantsKeys: () => false,
     isDesktopSync: () => false,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
     data: new WebIntegrationData(new GenericData({})),
     getCmsInfo: () => undefined,
   } as WebIntegration;
@@ -50,7 +51,7 @@ export function createOAuthNativeIntegration(
     isSync: () => isSync,
     wantsKeys: () => false,
     isDesktopSync: () => false,
-    isDesktopRelay: () => !isSync,
+    isFirefoxClientServiceRelay: () => !isSync,
     data: new OAuthIntegrationData(new GenericData({})),
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,

@@ -26,7 +26,13 @@ export type ReadyProps = {
 
 export type ReadyBaseIntegration = Pick<
   Integration,
-  'type' | 'data' | 'getService' | 'getClientId' | 'isDesktopRelay' | 'isSync' | 'getCmsInfo'
+  | 'type'
+  | 'data'
+  | 'getService'
+  | 'getClientId'
+  | 'isFirefoxClientServiceRelay'
+  | 'isSync'
+  | 'getCmsInfo'
 >;
 
 export type ViewNameType =
@@ -103,8 +109,6 @@ const Ready = ({
     navigate(FXA_PRODUCT_PAGE_URL, { replace: true });
   };
 
-
-
   useEffect(() => {
     if (viewName === 'reset-password-confirmed') {
       GleanMetrics.passwordReset.createNewSuccess();
@@ -137,7 +141,11 @@ const Ready = ({
             </FtlMsg>
             <div className="flex justify-center mx-auto mt-6">
               <FtlMsg id="manage-your-account-button">
-                <CmsButtonWithFallback className="cta-primary cta-xl" onClick={startBrowsing} buttonColor={cmsButton?.color}>
+                <CmsButtonWithFallback
+                  className="cta-primary cta-xl"
+                  onClick={startBrowsing}
+                  buttonColor={cmsButton?.color}
+                >
                   Manage your account
                 </CmsButtonWithFallback>
               </FtlMsg>

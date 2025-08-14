@@ -70,7 +70,7 @@ export function createMockWebIntegration({
   //   ),
   //   getService: () => MozServices.Default,
   //   getClientId: () => undefined,
-  //   isDesktopRelay: () => false,
+  //   isFirefoxClientServiceRelay: () => false,
   // };
 
   const integration = new WebIntegration(
@@ -87,7 +87,7 @@ export function createMockWebIntegration({
     expect(integration.type).toEqual(IntegrationType.Web);
     expect(integration.getService()).toEqual(MozServices.Default);
     expect(integration.getClientId()).toBeUndefined();
-    expect(integration.isDesktopRelay()).toBeFalsy();
+    expect(integration.isFirefoxClientServiceRelay()).toBeFalsy();
     expect(integration.isSync()).toBeFalsy();
   }
 
@@ -109,7 +109,7 @@ export function createMockOAuthWebIntegration(
   //   wantsTwoStepAuthentication: () => false,
   //   isSync: () => false,
   //   getPermissions: () => [],
-  //   isDesktopRelay: () => false,
+  //   isFirefoxClientServiceRelay: () => false,
   // };
 
   const integration = new OAuthWebIntegration(
@@ -142,7 +142,7 @@ export function createMockOAuthWebIntegration(
     expect(integration.wantsTwoStepAuthentication()).toEqual(false);
     expect(integration.isSync()).toEqual(false);
     expect(integration.getPermissions()).toEqual(['profile:email']);
-    expect(integration.isDesktopRelay()).toEqual(false);
+    expect(integration.isFirefoxClientServiceRelay()).toEqual(false);
   }
 
   return integration;
@@ -163,7 +163,7 @@ export function createMockOAuthNativeIntegration(
   //   wantsTwoStepAuthentication: () => false,
   //   isSync: () => isSync,
   //   getPermissions: () => [],
-  //   isDesktopRelay: () => !isSync,
+  //   isFirefoxClientServiceRelay: () => !isSync,
   // };
 
   const integration = new OAuthNativeIntegration(
@@ -205,7 +205,7 @@ export function createMockOAuthNativeIntegration(
     expect(integration.wantsTwoStepAuthentication()).toEqual(false);
     expect(integration.isSync()).toEqual(isSync);
     expect(integration.getPermissions()).toEqual(['profile:email']);
-    expect(integration.isDesktopRelay()).toEqual(!isSync);
+    expect(integration.isFirefoxClientServiceRelay()).toEqual(!isSync);
   }
 
   return integration;

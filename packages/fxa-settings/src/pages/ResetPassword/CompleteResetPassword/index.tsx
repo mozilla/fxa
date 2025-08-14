@@ -30,7 +30,7 @@ const CompleteResetPassword = ({
   estimatedSyncDeviceCount,
   recoveryKeyExists,
   integrationIsSync,
-  isDesktopServiceRelay,
+  isFirefoxClientServiceRelay,
 }: CompleteResetPasswordProps) => {
   const location = useLocation();
   const searchParams = location.search;
@@ -94,7 +94,7 @@ const CompleteResetPassword = ({
       */}
       <input type="email" value={email} className="hidden" readOnly />
 
-      {isDesktopServiceRelay && (
+      {isFirefoxClientServiceRelay && (
         <Banner
           type="info"
           content={{

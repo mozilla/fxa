@@ -81,7 +81,7 @@ function mockSyncDesktopV3Integration() {
     wantsKeys: () => true,
     data: { service: 'sync' },
     isDesktopSync: () => true,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
   } as Integration;
 }
 function mockOAuthWebIntegration(
@@ -95,7 +95,7 @@ function mockOAuthWebIntegration(
     wantsKeys: () => true,
     data,
     isDesktopSync: () => false,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
   } as Integration;
 }
 
@@ -107,7 +107,7 @@ function mockOAuthNativeIntegration() {
     isSync: () => true,
     wantsKeys: () => true,
     isDesktopSync: () => true,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
     data: {
       service: 'sync',
       context: Constants.FX_SYNC_CONTEXT,
@@ -124,7 +124,7 @@ function mockWebIntegration() {
   //   isSync: () => false,
   //   wantsKeys: () => false,
   //   isDesktopSync: () => false,
-  //   isDesktopRelay: () => false,
+  //   isFirefoxClientServiceRelay: () => false,
   //   data: {},
   // } as Integration;
 
@@ -140,7 +140,7 @@ function mockWebIntegration() {
   expect(integration.isSync()).toBeFalsy();
   expect(integration.wantsKeys()).toBeFalsy();
   expect(integration.isDesktopSync()).toBeFalsy();
-  expect(integration.isDesktopRelay()).toBeFalsy();
+  expect(integration.isFirefoxClientServiceRelay()).toBeFalsy();
 }
 
 function applyDefaultMocks() {
