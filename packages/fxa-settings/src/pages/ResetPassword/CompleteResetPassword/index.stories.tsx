@@ -20,7 +20,7 @@ export const NoSync = () => (
 
 export const OAuthDesktopServiceRelay = () => (
   <Subject
-    isDesktopServiceRelay={true}
+    isFirefoxClientServiceRelay={true}
     estimatedSyncDeviceCount={0}
     recoveryKeyExists={false}
   />

@@ -90,7 +90,7 @@ describe('Index page', () => {
       <Subject
         integration={createMockIndexOAuthNativeIntegration({
           isSync: false,
-          isDesktopRelay: true,
+          isFirefoxClientServiceRelay: true,
         })}
       />
     );
@@ -121,7 +121,7 @@ describe('Index page', () => {
       <Subject
         integration={createMockIndexOAuthNativeIntegration({
           isSync: false,
-          isDesktopRelay: true,
+          isFirefoxClientServiceRelay: true,
           cmsInfo: MOCK_CMS_INFO,
         })}
       />
@@ -154,7 +154,7 @@ describe('Index page', () => {
       <Subject
         integration={createMockIndexOAuthNativeIntegration({
           isSync: false,
-          isDesktopRelay: true,
+          isFirefoxClientServiceRelay: true,
           cmsInfo: MOCK_CMS_INFO,
         })}
         isMobile={true}
@@ -180,7 +180,7 @@ describe('Index page', () => {
       <Subject
         integration={createMockIndexOAuthNativeIntegration({
           isSync: false,
-          isDesktopRelay: true,
+          isFirefoxClientServiceRelay: true,
           cmsInfo: {
             ...MOCK_CMS_INFO,
             EmailFirstPage: {

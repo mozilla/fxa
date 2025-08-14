@@ -39,6 +39,6 @@ export const RelayClient = () => (
 
 export const OAuthNativeRelay = () => (
   <AppLayout>
-    <TermsPrivacyAgreement isDesktopRelay />
+    <TermsPrivacyAgreement isFirefoxClientServiceRelay />
   </AppLayout>
 );

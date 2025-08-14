@@ -39,7 +39,7 @@ export function createMockWebIntegration(
   //   wantsKeys: () => false,
   //   wantsTwoStepAuthentication: () => false,
   //   isDesktopSync: () => false,
-  //   isDesktopRelay: () => false,
+  //   isFirefoxClientServiceRelay: () => false,
   // };
 
   const { redirectTo } = data || {};
@@ -58,7 +58,7 @@ export function createMockWebIntegration(
   expect(integration.wantsKeys()).toBeFalsy();
   expect(integration.wantsTwoStepAuthentication()).toBeFalsy();
   expect(integration.isDesktopSync()).toBeFalsy();
-  expect(integration.isDesktopRelay()).toBeFalsy();
+  expect(integration.isFirefoxClientServiceRelay()).toBeFalsy();
   expect(integration.data.redirectTo).toEqual(redirectTo);
 
   return integration;
@@ -74,7 +74,7 @@ export function createMockSigninWebSyncIntegration() {
     wantsTwoStepAuthentication: () => false,
     data: new WebIntegrationData(new GenericData({})),
     isDesktopSync: () => true,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
     wantsLogin: () => false,
     getCmsInfo: () => undefined,
   };

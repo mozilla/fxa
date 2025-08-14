@@ -172,7 +172,7 @@ const IndexContainer = ({
           await checkEmailDomain(email);
         }
 
-        if (integration.isSync() || integration.isDesktopRelay()) {
+        if (integration.isSync() || integration.isFirefoxClientServiceRelay()) {
           const { ok } = await firefox.fxaCanLinkAccount({ email });
           if (!ok) {
             throw AuthUiErrors.USER_CANCELED_LOGIN;

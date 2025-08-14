@@ -195,7 +195,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   const { integration } = navigationOptions;
   const isOAuth = isOAuthIntegration(integration);
   const isWebChannelIntegration =
-    integration.isSync() || integration.isDesktopRelay();
+    integration.isSync() || integration.isFirefoxClientServiceRelay();
 
   // Check CMS fleature flags to determine if we should hide promos, the
   // default is to navigate to settings
@@ -328,7 +328,7 @@ function sendFxaLogin(navigationOptions: NavigationOptions) {
       keyFetchToken: navigationOptions.signinData.keyFetchToken,
       unwrapBKey: navigationOptions.unwrapBKey,
     }),
-    services: navigationOptions.integration.isDesktopRelay()
+    services: navigationOptions.integration.isFirefoxClientServiceRelay()
       ? { relay: {} }
       : { sync: navigationOptions.syncEngines || {} },
   });
@@ -468,7 +468,7 @@ const getOAuthNavigationTarget = async (
       },
       locationState,
     };
-  } else if (navigationOptions.integration.isDesktopRelay()) {
+  } else if (navigationOptions.integration.isFirefoxClientServiceRelay()) {
     return {
       to: '/settings',
       oauthData: {

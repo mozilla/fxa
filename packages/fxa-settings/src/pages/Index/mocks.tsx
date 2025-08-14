@@ -26,7 +26,7 @@ export function createMockIndexOAuthIntegration({
   //   type: IntegrationType.OAuthWeb,
   //   isSync: () => false,
   //   getClientId: () => clientId,
-  //   isDesktopRelay: () => false,
+  //   isFirefoxClientServiceRelay: () => false,
   //   data: new OAuthIntegrationData(
   //     new GenericData({
   //       context: '',
@@ -51,18 +51,18 @@ export function createMockIndexOAuthIntegration({
 }
 export function createMockIndexOAuthNativeIntegration({
   isSync = true,
-  isDesktopRelay = false,
+  isFirefoxClientServiceRelay = false,
   cmsInfo,
 }: {
   isSync?: boolean;
-  isDesktopRelay?: boolean;
+  isFirefoxClientServiceRelay?: boolean;
   cmsInfo?: RelierCmsInfo;
 } = {}): IndexIntegration {
   return {
     type: IntegrationType.OAuthNative,
     isSync: () => isSync,
     getClientId: () => MOCK_CLIENT_ID,
-    isDesktopRelay: () => isDesktopRelay,
+    isFirefoxClientServiceRelay: () => isFirefoxClientServiceRelay,
     getCmsInfo: () => cmsInfo,
     data: new OAuthIntegrationData(
       new GenericData({
@@ -77,7 +77,7 @@ export function createMockIndexWebIntegration(): IndexIntegration {
     type: IntegrationType.Web,
     isSync: () => false,
     getClientId: () => undefined,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
     getCmsInfo: () => undefined,
     data: new IntegrationData(
       new GenericData({

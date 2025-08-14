@@ -76,7 +76,7 @@ describe('CompleteResetPassword page', () => {
     it('renders expected text when service=relay', async () => {
       renderWithLocalizationProvider(
         <Subject
-          isDesktopServiceRelay={true}
+          isFirefoxClientServiceRelay={true}
           estimatedSyncDeviceCount={0}
           recoveryKeyExists={false}
         />

@@ -84,7 +84,7 @@ const Signin = ({
   const [hasEngaged, setHasEngaged] = useState<boolean>(false);
 
   const isOAuth = isOAuthIntegration(integration);
-  const isDesktopRelay = integration.isDesktopRelay();
+  const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const clientId = integration.getClientId();
   const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
@@ -119,7 +119,7 @@ const Signin = ({
   });
 
   const hideThirdPartyAuth =
-    (integration.isSync() || isDesktopRelay) && hasPassword;
+    (integration.isSync() || isFirefoxClientServiceRelay) && hasPassword;
 
   useEffect(() => {
     if (!isPasswordNeededRef.current) {
@@ -443,7 +443,7 @@ const Signin = ({
           </div>
         </div>
 
-        {isDesktopRelay && (
+        {isFirefoxClientServiceRelay && (
           <FtlMsg id="signin-desktop-relay">
             <p className="mt-6 mb-4 text-sm">
               Firefox will try sending you back to use an email mask after you
@@ -513,7 +513,12 @@ const Signin = ({
       )}
 
       <TermsPrivacyAgreement
-        {...{ isPocketClient, isMonitorClient, isDesktopRelay, isRelayClient }}
+        {...{
+          isPocketClient,
+          isMonitorClient,
+          isFirefoxClientServiceRelay,
+          isRelayClient,
+        }}
       />
 
       <div className="flex flex-col mt-8 tablet:justify-between tablet:flex-row">

@@ -108,7 +108,7 @@ describe('IndexContainer', () => {
     //   isSync: () => false,
     //   wantsKeys: () => false,
     //   isDesktopSync: () => false,
-    //   isDesktopRelay: () => false,
+    //   isFirefoxClientServiceRelay: () => false,
     //   data: {},
     // } as Integration;
 
@@ -124,7 +124,7 @@ describe('IndexContainer', () => {
     expect(integration.isSync()).toBeFalsy();
     expect(integration.wantsKeys()).toBeFalsy();
     expect(integration.isDesktopSync()).toBeFalsy();
-    expect(integration.isDesktopRelay()).toBeFalsy();
+    expect(integration.isFirefoxClientServiceRelay()).toBeFalsy();
   }
 
   function mockUnsupportedContextIntegration() {
@@ -136,7 +136,7 @@ describe('IndexContainer', () => {
     //   isSync: () => false,
     //   wantsKeys: () => false,
     //   isDesktopSync: () => false,
-    //   isDesktopRelay: () => false,
+    //   isFirefoxClientServiceRelay: () => false,
     //   data: { context: 'fx_desktop_v2' },
     // } as Integration;
 
@@ -153,7 +153,7 @@ describe('IndexContainer', () => {
     expect(integration.isSync()).toBeFalsy();
     expect(integration.wantsKeys()).toBeFalsy();
     expect(integration.isDesktopSync()).toBeFalsy();
-    expect(integration.isDesktopRelay()).toBeFalsy();
+    expect(integration.isFirefoxClientServiceRelay()).toBeFalsy();
   }
 
   beforeEach(() => {

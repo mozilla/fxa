@@ -159,7 +159,7 @@ export const createMockIntegrationWithCms = () =>
     getService: () => MozServices.TestService,
     isSync: () => false,
     wantsKeys: () => false,
-    isDesktopRelay: () => false,
+    isFirefoxClientServiceRelay: () => false,
     getCmsInfo: () => MOCK_CMS_INFO,
     data: {
       validate: () => {},
