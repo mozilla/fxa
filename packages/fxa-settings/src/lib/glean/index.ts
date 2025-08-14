@@ -33,7 +33,7 @@ import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
-import { appFramework } from 'fxa-shared/metrics/glean/web/event';
+import { appFramework, cmsCustomizationEnrollment } from 'fxa-shared/metrics/glean/web/event';
 import {
   oauthClientId,
   service,
@@ -166,6 +166,10 @@ const initMetrics = async () => {
   );
 
   appFramework.set('react');
+
+  // If the user has any cms info, they are considered enrolled in CMS customization.
+  const cmsInfo = !!metricsContext.integration?.getCmsInfo();
+  cmsCustomizationEnrollment.set(cmsInfo);
 };
 
 const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
