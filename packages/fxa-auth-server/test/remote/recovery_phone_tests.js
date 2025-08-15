@@ -113,7 +113,8 @@ describe(`#integration - recovery phone`, function () {
       secret: totpResult.secret,
       crypto: crypto,
     };
-    await client.verifyTotpCode(client.totpAuthenticator.generate());
+    await client.verifyTotpSetupCode(client.totpAuthenticator.generate());
+    await client.completeTotpSetup();
   });
 
   afterEach(async function () {
@@ -321,7 +322,8 @@ describe('#integration - recovery phone - feature flag check', () => {
         secret: totpResult.secret,
         crypto: crypto,
       };
-      await client.verifyTotpCode(client.totpAuthenticator.generate());
+      await client.verifyTotpSetupCode(client.totpAuthenticator.generate());
+      await client.completeTotpSetup();
       await client.recoveryPhoneCreate('+14159929960');
       assert.fail('Should have received an error');
     } catch (err) {

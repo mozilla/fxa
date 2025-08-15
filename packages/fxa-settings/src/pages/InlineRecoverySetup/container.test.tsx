@@ -88,14 +88,6 @@ jest.mock('../../models', () => {
   };
 });
 
-let mockGetCode = jest.fn().mockReturnValue('123456');
-jest.mock('../../lib/totp', () => {
-  return {
-    ...jest.requireActual('../../lib/totp'),
-    getCode: jest.fn((...args) => mockGetCode(...args)),
-  };
-});
-
 jest.mock('./index', () => {
   return {
     __esModule: true,
@@ -103,22 +95,19 @@ jest.mock('./index', () => {
   };
 });
 
-let mockVerifyTotpMutation = jest
-  .fn()
-  .mockResolvedValue({ data: { verifyTotp: { success: true } } });
+let mockCompleteTotpSetup = jest.fn().mockResolvedValue({ success: true });
 
 let mockTotpStatusQuery = jest.fn();
 function setMocks() {
   mockLocationState = {};
   mockSessionHook = () => ({ token: 'ABBA' });
 
+  // not used anymore; keep default to avoid affecting other tests
   jest.spyOn(ApolloClientModule, 'useMutation').mockReturnValue([
-    async (...args: any[]) => {
-      return mockVerifyTotpMutation(...args);
-    },
+    (async () => ({})) as any,
     {
       loading: false,
-      called: true,
+      called: false,
       client: {} as ApolloClient<any>,
       reset: () => {},
     },
@@ -134,6 +123,8 @@ function setMocks() {
     .mockReturnValue(mockTotpStatusQuery());
   (InlineRecoverySetupModule.default as jest.Mock).mockReset();
   mockNavigateHook.mockReset();
+  mockCompleteTotpSetup.mockClear();
+  (mockAuthClient as any).completeTotpSetup = mockCompleteTotpSetup;
   (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
     finishOAuthFlowHandler: jest
       .fn()
@@ -282,7 +273,7 @@ describe('InlineRecoverySetupContainer', () => {
       });
 
       describe('verifyTotpHandler', () => {
-        it('returns the verifyTotp result', async () => {
+        it('calls completeTotpSetup on the auth client and returns true', async () => {
           render();
           await waitFor(() => {
             expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
@@ -291,16 +282,7 @@ describe('InlineRecoverySetupContainer', () => {
             .calls[0][0];
           const verifyTotpHandler = args.verifyTotpHandler;
           const result = await verifyTotpHandler();
-          expect(mockGetCode).toHaveBeenCalledWith(MOCK_TOTP_TOKEN.secret);
-          expect(mockVerifyTotpMutation).toHaveBeenCalledTimes(1);
-          expect(mockVerifyTotpMutation).toHaveBeenCalledWith({
-            variables: {
-              input: {
-                code: '123456',
-                service: MOCK_CLIENT_ID,
-              },
-            },
-          });
+          expect(mockCompleteTotpSetup).toHaveBeenCalledTimes(1);
           expect(result).toBe(true);
         });
       });

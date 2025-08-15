@@ -1237,6 +1237,35 @@ module.exports = (config) => {
     });
   };
 
+  ClientApi.prototype.verifyTotpSetupCode = function (
+    sessionTokenHex,
+    code,
+    options = {}
+  ) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
+      return this.doRequest(
+        'POST',
+        `${this.baseURL}/totp/setup/verify`,
+        token,
+        { code, metricsContext: options.metricsContext }
+      );
+    });
+  };
+
+  ClientApi.prototype.completeTotpSetup = function (
+    sessionTokenHex,
+    options = {}
+  ) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
+      return this.doRequest(
+        'POST',
+        `${this.baseURL}/totp/setup/complete`,
+        token,
+        { service: options.service, metricsContext: options.metricsContext }
+      );
+    });
+  };
+
   ClientApi.prototype.deleteTotpToken = function (sessionTokenHex) {
     return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('POST', `${this.baseURL}/totp/destroy`, token, {});

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useMutation, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -11,7 +11,6 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../lib/oauth/hooks';
-import { getCode } from '../../lib/totp';
 import { MozServices } from '../../lib/types';
 import {
   Integration,
@@ -21,14 +20,12 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
-import { VERIFY_TOTP_MUTATION } from './gql';
 import InlineRecoverySetupFlow from './index';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { SigninRecoveryLocationState } from './interfaces';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
 import { GET_TOTP_STATUS } from '../../components/App/gql';
 import OAuthDataError from '../../components/OAuthDataError';
-import { isFirefoxService } from '../../models/integrations/utils';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Choice } from '../../components/FormChoice';
 import { totpUtils } from '../../lib/totp-utils';
@@ -129,24 +126,19 @@ export const InlineRecoverySetupFlowContainer = ({
     [navigateForward]
   );
 
-  const [verifyTotp] = useMutation<{ verifyTotp: { success: boolean } }>(
-    VERIFY_TOTP_MUTATION
-  );
   const verifyTotpHandler = useCallback(async () => {
-    const code = await getCode(totp!.secret);
-    const service = integration.getService();
-    const clientId = integration.getClientId();
-
-    const result = await verifyTotp({
-      variables: {
-        input: {
-          code,
-          ...(isFirefoxService(service) ? { service } : { service: clientId }),
-        },
-      },
-    });
-    return result.data!.verifyTotp.success;
-  }, [integration, totp, verifyTotp]);
+    try {
+      await authClient.completeTotpSetup(
+        signinRecoveryLocationState!.sessionToken,
+        { service: serviceName }
+      );
+      return true;
+    } catch (err) {
+      // todo handle this error better
+      // auth-server may return more specific errors (including throttling)
+      return false;
+    }
+  }, [authClient, signinRecoveryLocationState, serviceName]);
 
   const [phoneData, setPhoneData] = useState<{
     phoneNumber: string;

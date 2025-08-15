@@ -319,6 +319,7 @@ export function gleanMetrics(config: ConfigType) {
       replaceCodeComplete: createEventFn(
         'two_factor_auth_replace_code_complete'
       ),
+      setupVerifySuccess: createEventFn('two_factor_auth_setup_verify_success'),
       setupInvalidCodeError: createEventFn(
         'two_factor_auth_setup_invalid_code_error'
       ),

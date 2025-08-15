@@ -6,7 +6,7 @@ import jsQR from 'jsqr';
 import UPNG from 'upng-js';
 import { expect } from '../../lib/fixtures/standard';
 import { SettingsLayout } from './layout';
-import { getCode } from 'fxa-settings/src/lib/totp';
+import { getCode } from '../../lib/totp';
 import { DataTrioComponent } from './components/dataTrio';
 
 export type TotpCredentials = {

@@ -69,7 +69,10 @@ const {
 
           // Verify TOTP token
           const code = authenticator.generate();
-          return client.verifyTotpCode(code, {
+          return client.verifyTotpSetupCode(code);
+        })
+        .then(() => {
+          return client.completeTotpSetup({
             metricsContext,
             service: 'sync',
           });

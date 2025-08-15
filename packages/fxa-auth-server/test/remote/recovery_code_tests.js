@@ -51,9 +51,11 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
         client = x;
         assert.ok(client.authAt, 'authAt was set');
         return client.createTotpToken({ metricsContext }).then((result) => {
-          otplib.authenticator.options = {
-            secret: result.secret,
-          };
+          otplib.authenticator.options = Object.assign(
+            {},
+            otplib.authenticator.options,
+            { secret: result.secret }
+          );
           recoveryCodes = result.recoveryCodes;
           assert.equal(
             result.recoveryCodes.length,
@@ -61,15 +63,15 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
             'backup authentication codes returned'
           );
 
-          // Verify TOTP token so that initial backup authentication codes are generated
+          // Verify TOTP setup and then complete setup so that initial backup authentication codes are generated
           const code = otplib.authenticator.generate();
           return client
-            .verifyTotpCode(code, { metricsContext })
+            .verifyTotpSetupCode(code, { metricsContext })
             .then((response) => {
-              assert.equal(response.success, true, 'totp codes match');
-
-              return server.mailbox.waitForEmail(email);
+              assert.equal(response.success, true, 'totp setup code valid');
+              return client.completeTotpSetup({ metricsContext });
             })
+            .then(() => server.mailbox.waitForEmail(email))
             .then((emailData) => {
               assert.equal(
                 emailData.headers['x-template-name'],

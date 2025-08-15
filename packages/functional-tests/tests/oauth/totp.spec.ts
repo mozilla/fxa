@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getCode } from 'fxa-settings/src/lib/totp';
+import { getCode } from '../../lib/totp';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
@@ -392,7 +392,7 @@ test.describe('severity-1 #smoke', () => {
       await totp.chooseBackupCodesOption();
       const recoveryCodes = await totp.backupCodesDownloadStep();
       await totp.confirmBackupCodeStep(recoveryCodes[0]);
-      await page.getByRole('button', { name: 'Continue' }).click();
+      await page.getByRole('button', { name: /Continue/ }).click();
 
       expect(await relier.isLoggedIn()).toBe(true);
 

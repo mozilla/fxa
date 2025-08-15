@@ -196,7 +196,8 @@ const config = require('../../config').default.getProperties();
         crypto: crypto,
       };
       const totpCode = client.totpAuthenticator.generate();
-      await client.verifyTotpCode(totpCode);
+      await client.verifyTotpSetupCode(totpCode);
+      await client.completeTotpSetup();
 
       // Log in again. This creates a new unverified session
       client = await Client.login(

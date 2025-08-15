@@ -5,7 +5,7 @@
 import { FirefoxCommand } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import { relayDesktopOAuthQueryParams } from '../../lib/query-params';
-import { getCode } from 'packages/fxa-settings/src/lib/totp';
+import { getCode } from '../../lib/totp';
 
 test.describe('relay integration', () => {
   test('signup with Relay desktop', async ({

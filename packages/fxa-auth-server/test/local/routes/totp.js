@@ -10,6 +10,7 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const otplib = require('otplib');
 const { Container } = require('typedi');
+const crypto = require('crypto');
 const { AccountEventsManager } = require('../../../lib/account-events');
 const authErrors = require('../../../lib/error');
 const { RecoveryPhoneService } = require('@fxa/accounts/recovery-phone');
@@ -249,239 +250,10 @@ describe('totp', () => {
   describe('/session/verify/totp', () => {
     afterEach(() => {
       glean.login.totpSuccess.reset();
-      glean.twoFactorAuth.codeComplete();
+      glean.login.totpFailure.reset();
     });
 
-    it('should enable and verify TOTP token', () => {
-      const authenticator = new otplib.authenticator.Authenticator();
-      authenticator.options = Object.assign({}, otplib.authenticator.options, {
-        secret,
-      });
-      requestOptions.payload = {
-        code: authenticator.generate(secret),
-      };
-      return setup(
-        {
-          db: { email: TEST_EMAIL },
-          redis: { secret },
-          totpTokenVerified: false,
-          totpTokenEnabled: false,
-        },
-        { totpToken: true },
-        '/session/verify/totp',
-        requestOptions
-      ).then((response) => {
-        assert.equal(response.success, true, 'should be valid code');
-        assert.equal(
-          authServerCacheRedis.get.callCount,
-          1,
-          'got TOTP token from Redis'
-        );
-        assert.equal(
-          authServerCacheRedis.del.callCount,
-          1,
-          'deleted TOTP token from Redis'
-        );
-        assert.equal(
-          db.replaceTotpToken.callCount,
-          1,
-          'called replace TOTP token'
-        );
-        assert.equal(
-          profile.deleteCache.callCount,
-          1,
-          'called profile client delete cache'
-        );
-        assert.equal(
-          profile.deleteCache.getCall(0).args[0],
-          'uid',
-          'called profile client delete cache'
-        );
-
-        assert.equal(
-          log.notifyAttachedServices.callCount,
-          1,
-          'call notifyAttachedServices'
-        );
-        let args = log.notifyAttachedServices.args[0];
-        assert.equal(
-          args.length,
-          3,
-          'log.notifyAttachedServices was passed three arguments'
-        );
-        assert.equal(
-          args[0],
-          'profileDataChange',
-          'first argument was event name'
-        );
-        assert.equal(args[1], request, 'second argument was request object');
-        assert.equal(
-          args[2].uid,
-          'uid',
-          'third argument was event data with a uid'
-        );
-
-        // verifies session
-        assert.equal(
-          db.verifyTokensWithMethod.callCount,
-          1,
-          'call verify session'
-        );
-        args = db.verifyTokensWithMethod.args[0];
-        assert.equal(sessionId, args[0], 'called with correct session id');
-        assert.equal('totp-2fa', args[1], 'called with correct method');
-
-        // emits correct metrics
-        sinon.assert.calledOnce(request.emitMetricsEvent);
-        sinon.assert.calledWith(
-          request.emitMetricsEvent,
-          'totpToken.verified',
-          { uid: 'uid' }
-        );
-
-        // correct emails sent
-        assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
-        assert.equal(mailer.sendPostAddTwoStepAuthenticationEmail.callCount, 1);
-
-        assert.equal(
-          mockRecoveryPhoneService.hasConfirmed.callCount,
-          1,
-          'check for recovery phone'
-        );
-
-        assert.calledWithExactly(accountEventsManager.recordSecurityEvent, db, {
-          name: 'account.two_factor_added',
-          uid: 'uid',
-          ipAddr: '63.245.221.32',
-          tokenId: 'id',
-          additionalInfo: {
-            userAgent: 'test user-agent',
-            location: {
-              city: 'Mountain View',
-              country: 'United States',
-              countryCode: 'US',
-              state: 'California',
-              stateCode: 'CA',
-            },
-          },
-        });
-
-        sinon.assert.calledOnce(glean.twoFactorAuth.codeComplete);
-
-        assert.calledWithExactly(accountEventsManager.recordSecurityEvent, db, {
-          name: 'account.two_factor_challenge_success',
-          uid: 'uid',
-          ipAddr: '63.245.221.32',
-          tokenId: 'id',
-          additionalInfo: {
-            userAgent: 'test user-agent',
-            location: {
-              city: 'Mountain View',
-              country: 'United States',
-              countryCode: 'US',
-              state: 'California',
-              stateCode: 'CA',
-            },
-          },
-        });
-      });
-    });
-
-    it('should throw errors.invalidTokenVerficationCode for invalid code during setup', async () => {
-      // Simulate setup (isSetup = true) by making totpTokenVerified false
-      requestOptions.credentials.tokenVerified = false;
-      requestOptions.payload = {
-        code: 'INVALID_CODE',
-      };
-      try {
-        await setup(
-          {
-            db: { email: TEST_EMAIL },
-            redis: { secret },
-            totpTokenVerified: false,
-            totpTokenEnabled: false,
-          },
-          {},
-          '/session/verify/totp',
-          requestOptions
-        );
-        assert.fail('Invalid token verification code error was not thrown');
-      } catch (err) {
-        assert.equal(
-          err.errno,
-          authErrors.ERRNO.INVALID_TOKEN_VERIFICATION_CODE
-        );
-        assert.equal(
-          err.message,
-          authErrors.invalidTokenVerficationCode().message
-        );
-        assert.calledOnce(glean.twoFactorAuth.setupInvalidCodeError);
-      }
-    });
-
-    it('should handle bad account state (enabled=true, verified=false) during setup', () => {
-      const authenticator = new otplib.authenticator.Authenticator();
-      authenticator.options = Object.assign({}, otplib.authenticator.options, {
-        secret,
-      });
-      requestOptions.payload = {
-        code: authenticator.generate(secret),
-      };
-      return setup(
-        {
-          db: { email: TEST_EMAIL },
-          redis: { secret },
-          totpTokenVerified: false,
-          totpTokenEnabled: true, // Bad state: enabled but not verified
-        },
-        { totpToken: false }, // Force token lookup to succeed (not throw error)
-        '/session/verify/totp',
-        requestOptions
-      ).then((response) => {
-        assert.equal(response.success, true, 'should be valid code');
-
-        // Should get secret from Redis for bad state
-        assert.equal(
-          authServerCacheRedis.get.callCount,
-          1,
-          'should get secret from Redis'
-        );
-
-        // Should replace with verified token
-        assert.equal(
-          db.replaceTotpToken.callCount,
-          1,
-          'should replace TOTP token'
-        );
-        const replaceArgs = db.replaceTotpToken.getCall(0).args[0];
-        assert.equal(
-          replaceArgs.uid,
-          'uid',
-          'should replace token for correct uid'
-        );
-        assert.equal(replaceArgs.verified, true, 'should set verified to true');
-        assert.equal(replaceArgs.enabled, true, 'should set enabled to true');
-
-        // Should clean up Redis
-        assert.equal(
-          authServerCacheRedis.del.callCount,
-          1,
-          'should delete Redis secret'
-        );
-
-        // Should send setup completion email
-        assert.equal(
-          mailer.sendPostAddTwoStepAuthenticationEmail.callCount,
-          1,
-          'should send setup completion email'
-        );
-        assert.equal(
-          mailer.sendNewDeviceLoginEmail.callCount,
-          0,
-          'should not send new device email'
-        );
-      });
-    });
+    // Note: this endpoint only verifies sessions; setup flow is covered by /totp/setup/* tests.
 
     it('should verify session with TOTP token - sync', () => {
       const authenticator = new otplib.authenticator.Authenticator();
@@ -688,6 +460,177 @@ describe('totp', () => {
     });
   });
 
+  // This endpoint is used for code verification during TOTP setup only
+  describe('/totp/setup/verify', () => {
+    beforeEach(() => {
+      glean.twoFactorAuth.setupVerifySuccess.reset();
+      glean.twoFactorAuth.setupInvalidCodeError.reset();
+    });
+
+    it('should verify a valid totp code', async () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+      };
+
+      const response = await setup(
+        { db: { email: TEST_EMAIL }, redis: { secret } },
+        {},
+        '/totp/setup/verify',
+        requestOptions
+      );
+      assert.isTrue(response.success);
+      // Confirm we touched Redis to set both secret and verified digest
+      assert.equal(authServerCacheRedis.set.callCount, 2);
+      assert.calledOnce(glean.twoFactorAuth.setupVerifySuccess);
+      assert.calledOnceWithExactly(
+        customs.checkAuthenticated,
+        request,
+        'uid',
+        TEST_EMAIL,
+        'verifyTotpCode'
+      );
+    });
+
+    it('should fail for an invalid totp code', async () => {
+      requestOptions.payload = {
+        code: '123123',
+      };
+
+      try {
+        await setup(
+          { db: { email: TEST_EMAIL }, redis: { secret } },
+          {},
+          '/totp/setup/verify',
+          requestOptions
+        );
+        assert.fail('Expected invalid code error');
+      } catch (err) {
+        assert.equal(
+          err.errno,
+          authErrors.ERRNO.INVALID_TOKEN_VERIFICATION_CODE
+        );
+        assert.equal(authServerCacheRedis.set.callCount, 0);
+        assert.calledOnce(glean.twoFactorAuth.setupInvalidCodeError);
+      }
+    });
+
+    it('should fail for an unverified session (still returns invalid code)', async () => {
+      requestOptions.credentials.tokenVerified = false;
+      requestOptions.payload = { code: '123123' };
+      try {
+        await setup(
+          { db: { email: TEST_EMAIL }, redis: { secret } },
+          {},
+          '/totp/setup/verify',
+          requestOptions
+        );
+        assert.fail('Expected invalid code error');
+      } catch (err) {
+        assert.equal(
+          err.errno,
+          authErrors.ERRNO.INVALID_TOKEN_VERIFICATION_CODE
+        );
+        assert.calledOnce(glean.twoFactorAuth.setupInvalidCodeError);
+      }
+    });
+
+    it('should fail for a missing secret', async () => {
+      requestOptions.credentials.tokenVerified = true;
+      requestOptions.payload = { code: '123123' };
+      try {
+        await setup(
+          { db: { email: TEST_EMAIL } },
+          {},
+          '/totp/setup/verify',
+          requestOptions
+        );
+        assert.fail('Expected missing secret error');
+      } catch (err) {
+        assert.equal(err.errno, authErrors.ERRNO.TOTP_TOKEN_NOT_FOUND);
+      }
+    });
+  });
+
+  describe('/totp/setup/complete', () => {
+    beforeEach(() => {
+      glean.twoFactorAuth.codeComplete.reset();
+    });
+
+    it('should complete the setup process', async () => {
+      requestOptions.credentials.tokenVerified = true;
+      const verifiedDigest = crypto
+        .createHash('sha256')
+        .update(secret)
+        .digest('hex');
+      const response = await setup(
+        { db: { email: TEST_EMAIL }, redis: { secret, verifiedDigest } },
+        {},
+        '/totp/setup/complete',
+        requestOptions
+      );
+      assert.isTrue(response.success);
+      assert.calledOnce(db.replaceTotpToken);
+      assert.calledOnce(db.verifyTokensWithMethod);
+      assert.equal(authServerCacheRedis.del.callCount, 2);
+      assert.calledOnce(profile.deleteCache);
+      assert.calledOnce(log.notifyAttachedServices);
+      assert.calledOnce(glean.twoFactorAuth.codeComplete);
+      assert.calledOnce(mailer.sendPostAddTwoStepAuthenticationEmail);
+    });
+
+    it('should fail for an unverified session', async () => {
+      requestOptions.credentials.tokenVerificationId = 'notverified';
+      try {
+        await setup(
+          { db: { email: TEST_EMAIL } },
+          {},
+          '/totp/setup/complete',
+          requestOptions
+        );
+        assert.fail('Expected error');
+      } catch (err) {
+        assert.equal(err.message, 'Unconfirmed session');
+      }
+    });
+
+    it('should fail for a missing secret', async () => {
+      requestOptions.credentials.tokenVerified = true;
+      try {
+        await setup(
+          { db: { email: TEST_EMAIL } },
+          {},
+          '/totp/setup/complete',
+          requestOptions
+        );
+        assert.fail('Expected error');
+      } catch (err) {
+        assert.equal(err.errno, authErrors.ERRNO.TOTP_TOKEN_NOT_FOUND);
+      }
+    });
+
+    it('should fail if setup not verified', async () => {
+      requestOptions.credentials.tokenVerified = true;
+      const responsePromise = setup(
+        {
+          db: { email: TEST_EMAIL },
+          redis: { secret, verifiedDigest: 'mismatch' },
+        },
+        {},
+        '/totp/setup/complete',
+        requestOptions
+      );
+      await assert.isRejected(
+        responsePromise,
+        authErrors.invalidTokenVerficationCode().message
+      );
+    });
+  });
+
+  // This endpoint is used for password reset only
   describe('/totp/verify', () => {
     it('should verify a valid totp code', async () => {
       const authenticator = new otplib.authenticator.Authenticator();
@@ -980,7 +923,15 @@ function setup(results, errors, routePath, requestOptions) {
   db = mocks.mockDB(results.db, errors.db);
   authServerCacheRedis = {
     set: sinon.stub(),
-    get: sinon.spy(() => {
+    get: sinon.stub((key) => {
+      if (results.redis) {
+        if (key && key.includes(':secret:')) {
+          return Promise.resolve(results.redis.secret || null);
+        }
+        if (key && key.includes(':verified:')) {
+          return Promise.resolve(results.redis.verifiedDigest || null);
+        }
+      }
       return Promise.resolve(results.redis ? results.redis.secret : null);
     }),
     del: sinon.stub(),

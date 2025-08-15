@@ -13,6 +13,13 @@ module.exports = (config) => {
   const hkdf = require('../../lib/crypto/hkdf');
   const tokens = require('../../lib/tokens')({ trace: function () {} }, config);
 
+  // Ensure tests generate TOTP codes using the same encoding as the server
+  otplib.authenticator.options = Object.assign(
+    {},
+    otplib.authenticator.options,
+    { encoding: 'hex' }
+  );
+
   function Client(origin, options) {
     this.uid = null;
     this.authAt = 0;
@@ -220,9 +227,13 @@ module.exports = (config) => {
           client.totpAuthenticator.options = {
             secret: result.secret,
             crypto: crypto,
+            encoding: 'hex',
           };
-          return client.verifyTotpCode(client.totpAuthenticator.generate());
+          return client.verifyTotpSetupCode(
+            client.totpAuthenticator.generate()
+          );
         })
+        .then(() => client.completeTotpSetup())
         .then(() => {
           return client;
         });
@@ -908,6 +919,14 @@ module.exports = (config) => {
 
   Client.prototype.verifyTotpCode = function (code, options = {}) {
     return this.api.verifyTotpCode(this.sessionToken, code, options);
+  };
+
+  Client.prototype.verifyTotpSetupCode = function (code, options = {}) {
+    return this.api.verifyTotpSetupCode(this.sessionToken, code, options);
+  };
+
+  Client.prototype.completeTotpSetup = function (options = {}) {
+    return this.api.completeTotpSetup(this.sessionToken, options);
   };
 
   Client.prototype.geoEligibilityCheck = async function (feature) {

@@ -13,7 +13,7 @@ import { SigninTotpCodePage } from '../../pages/signinTotpCode';
 import { RecoveryPhoneSetupPage } from '../../pages/settings/recoveryPhone';
 import { FirefoxCommand } from '../../lib/channels';
 import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
-import { getCode } from 'fxa-settings/src/lib/totp';
+import { getCode } from '../../lib/totp';
 import {
   TargetName,
   getFromEnvWithFallback,

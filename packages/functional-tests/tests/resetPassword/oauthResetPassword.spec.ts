@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getCode } from 'fxa-settings/src/lib/totp';
+import { getCode } from '../../lib/totp';
 import { expect, test } from '../../lib/fixtures/standard';
 import { ResetPasswordPage } from '../../pages/resetPassword';
 import { SigninPage } from '../../pages/signin';
