@@ -9,14 +9,19 @@
     {{/showSuccessMessage}}
 
     {{#needsMobileConfirmed}}
-      <button id="back-btn" class="me-4 tablet:me-0 tablet:p-4 inline-block tablet:absolute tablet:-start-20 -top-1.5 w-5 h-3.5 p-5 bg-back-arrow bg-auto bg-center bg-no-repeat rtl:transform rtl:-scale-x-100 rounded hover:bg-grey-50 active:bg-grey-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500" aria-label="{{#t}}Back{{/t}}" title="{{#t}}Back{{/t}}"></button>
+    <div class="relative flex items-center">
+      <button id="back-btn" class="me-4 tablet:me-0 p-2 inline-block tablet:absolute tablet:-start-20 -top-1.5 rounded hover:bg-grey-50 active:bg-grey-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500" aria-label="{{#t}}Back{{/t}}" title="{{#t}}Back{{/t}}">
+        <svg height="20" viewBox="0 0 16 14" width="20" xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="text-grey-400 {{tabletBackArrowColor}} w-6 h-auto rtl:transform rtl:-scale-x-100"><path d="m15 5.99998h-11.58597l4.293-4.293c.37897-.39238.37355-1.016085-.01218-1.401818-.38573-.3857343-1.00944-.3911541-1.40182-.012182l-5.999999 6c-.3903823.3905-.3903823 1.0235 0 1.414l5.999999 6.00002c.39238.379 1.01609.3735 1.40182-.0122s.39115-1.0094.01218-1.4018l-4.293-4.29302h11.58597c.5523 0 1-.44772 1-1s-.4477-1-1-1z"/></svg>
+      </button>
+        <h1 class="text-grey-400 mb-0 tablet:mb-5 text-base inline-block align-top tablet:mt-0" id="cad-header">{{#t}}Connect another device{{/t}}</h1>
+      </div>
     {{/needsMobileConfirmed}}
-
-    <h1 class="mb-5 text-grey-400 text-base{{#needsMobileConfirmed}} inline-block align-top mt-2 tablet:mt-0{{/needsMobileConfirmed}}" id="cad-header">{{#t}}Connect another device{{/t}}</h1>
 
     {{^needsMobileConfirmed}}
+      <h1 class="mb-5 text-grey-400 text-base" id="cad-header">{{#t}}Connect another device{{/t}}</h1>
       <h2 id="pair-header" class="card-header focus:outline-none" tabindex="-1">{{#t}}Sync your Firefox experience{{/t}}</h2>
     {{/needsMobileConfirmed}}
+
     {{#needsMobileConfirmed}}
       <h2 id="pair-header-mobile" class="card-header focus:outline-none" tabindex="-1">{{#t}}Download Firefox for mobile{{/t}}</h2>
     {{/needsMobileConfirmed}}
@@ -51,7 +56,7 @@
           </fieldset>
 
         <div class="flex mt-6">
-          <button id="set-needs-mobile" class="cta-primary-cms cta-xl" type="button" disabled {{{buttonStyle}}}>{{#t}}Continue{{/t}}</button>
+          <button id="set-needs-mobile" class="cta-primary-cms cta-xl {{buttonTextShadowClass}}" type="button" disabled {{{buttonStyle}}}>{{#t}}Continue{{/t}}</button>
         </div>
       </form>
 
@@ -70,7 +75,7 @@
 
       <form novalidate>
         <div class="flex">
-          <button id="start-pairing" class="cta-primary-cms cta-xl" type="submit" {{{buttonStyle}}}>{{#t}}Continue to sync{{/t}}</button>
+          <button id="start-pairing" class="cta-primary-cms cta-xl {{buttonTextShadowClass}}" type="submit" {{{buttonStyle}}}>{{#t}}Continue to sync{{/t}}</button>
         </div>
       </form>
       <p class="mt-5 text-sm text-center"><a id="pair-not-now" class="link-blue" href="/settings">{{#t}}Not now{{/t}}</a></p>

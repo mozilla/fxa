@@ -14,6 +14,10 @@ import MarketingMixin from '../mixins/marketing-mixin';
 import PairingGraphicsMixin from '../mixins/pairing-graphics-mixin';
 import SyncAuthMixin from '../mixins/sync-auth-mixin';
 import PairingTotpMixin from './pairing-totp-mixin';
+import {
+  getTextColorClassName,
+  hasSufficientContrast,
+} from 'fxa-react/lib/calculate-contrast';
 
 const GLEAN_EVENT_REASON_HAS_MOBILE = 'has mobile';
 const GLEAN_EVENT_REASON_NO_MOBILE = 'does not have mobile';
@@ -107,12 +111,23 @@ class PairIndexView extends FormView {
 
     // Apply CMS button color
     let buttonStyle = '';
+    // Apply CMS button text shadow if needed
+    let buttonTextShadowClass = '';
     if (
       this.cmsConfig &&
       this.cmsConfig.shared &&
       this.cmsConfig.shared.buttonColor
     ) {
       buttonStyle = `style="--cta-bg: ${this.cmsConfig.shared.buttonColor}; --cta-border: ${this.cmsConfig.shared.buttonColor}; --cta-active: ${this.cmsConfig.shared.buttonColor}; --cta-disabled: ${this.cmsConfig.shared.buttonColor}60;"`;
+      if (
+        !hasSufficientContrast(
+          this.cmsConfig.shared.buttonColor.trim(),
+          // CTA text is always white
+          '#ffffff'
+        )
+      ) {
+        buttonTextShadowClass = 'text-shadow-cms';
+      }
     }
 
     // Apply CMS background gradient
@@ -153,11 +168,36 @@ class PairIndexView extends FormView {
       link.href = favicon;
     }
 
+    let tabletBackArrowColor = 'tablet:text-grey-400 tablet:hover:bg-grey-50'; // default
+    if (
+      this.cmsConfig &&
+      this.cmsConfig.shared &&
+      this.cmsConfig.shared.backgroundColor
+    ) {
+      const textColorClass = getTextColorClassName(
+        this.cmsConfig.shared.backgroundColor.trim()
+      );
+      switch (textColorClass) {
+        case 'text-white':
+          tabletBackArrowColor = 'tablet:text-white tablet:hover:bg-white/10';
+          break;
+        case 'text-grey-600':
+          tabletBackArrowColor =
+            'tablet:text-grey-600 tablet:hover:bg-grey-900/10';
+          break;
+        case 'text-grey-400':
+        default:
+          break;
+      }
+    }
+
     context.set({
       graphicId,
       needsMobileConfirmed,
       showSuccessMessage: this.showSuccessMessage(),
       buttonStyle,
+      buttonTextShadowClass,
+      tabletBackArrowColor,
     });
   }
 

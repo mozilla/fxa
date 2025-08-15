@@ -42,7 +42,7 @@ exports[`Signin component snapshots - CMS renders CardHeader with CMS content wh
 
 exports[`Signin component snapshots - CMS renders the CMS-styled submit button 1`] = `
 <button
-  class="cta-primary-cms cta-xl cta-primary cta-xl"
+  class="cta-primary-cms cta-xl text-shadow-cms cta-primary cta-xl"
   style="--cta-bg: blue; --cta-border: blue; --cta-active: blue; --cta-disabled: blue60;"
   type="submit"
 >

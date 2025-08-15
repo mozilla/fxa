@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import classNames from 'classnames';
+import { hasSufficientContrast } from 'fxa-react/lib/calculate-contrast';
 
 export type CmsButtonType = {
   color?: string;
@@ -89,10 +91,16 @@ const CmsButtonWithFallback: React.FC<CmsButtonWithFallbackProps> = ({
 
   return (
     <button
-      className={
-        (isCms ? 'cta-primary-cms cta-xl' : 'cta-primary cta-xl') +
-        (className ? ` ${className}` : '')
-      }
+      className={classNames(
+        isCms ? 'cta-primary-cms' : 'cta-primary',
+        'cta-xl',
+        {
+          // add a text-shadow if the CMS background color does not meet color contast
+          // standards, as our CTA button text is always white
+          'text-shadow-cms': isCms && buttonColor && !hasSufficientContrast(buttonColor.trim(), '#ffffff'),
+        },
+        className
+      )}
       style={cmsStyles}
       {...rest}
     >

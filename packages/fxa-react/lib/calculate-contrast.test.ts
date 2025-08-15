@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MOCK_CMS_INFO } from '../../pages/mocks';
 import {
   getTextColorClassName,
+  hasSufficientContrast,
   parseColor,
   calculateLuminance,
   calculateContrastRatio,
@@ -27,7 +27,7 @@ describe('calculate-contrast', () => {
       it('should return text-grey-400 for light gradients', () => {
         expect(
           getTextColorClassName(
-            'linear-gradient(135deg, rgba(255, 245, 235, 0.8) 0%, rgba(255, 250, 240, 0.6) 100%)'
+            'radial-gradient(circle, rgba(255, 245, 235, 0.8) 0%, rgba(255, 250, 240, 0.6) 100%)'
           )
         ).toBe('text-grey-400');
         expect(
@@ -68,9 +68,8 @@ describe('calculate-contrast', () => {
 
       it('should return text-white for medium colors that have poor contrast with grey', () => {
         expect(getTextColorClassName('#7037d4')).toBe('text-white');
-        expect(
-          getTextColorClassName(MOCK_CMS_INFO.shared.backgroundColor)
-        ).toBe('text-white');
+        // Using a test background color instead of MOCK_CMS_INFO
+        expect(getTextColorClassName('#6D37D1')).toBe('text-white');
       });
 
       it('should return text-white for dark gradients', () => {
@@ -81,7 +80,7 @@ describe('calculate-contrast', () => {
         ).toBe('text-white');
         expect(
           getTextColorClassName(
-            'linear-gradient(135deg, rgba(139, 64, 0, 1) 0%, rgba(101, 67, 33, 1) 100%)'
+            'radial-gradient(circle at center, rgba(139, 64, 0, 1) 0%, rgba(101, 67, 33, 1) 100%)'
           )
         ).toBe('text-white');
         expect(
@@ -91,7 +90,7 @@ describe('calculate-contrast', () => {
         ).toBe('text-white');
         expect(
           getTextColorClassName(
-            'linear-gradient(135deg, rgba(0, 0, 128, 1) 0%, rgba(25, 25, 112, 1) 100%)'
+            'radial-gradient(circle, rgba(0, 0, 128, 1) 0%, rgba(25, 25, 112, 1) 100%)'
           )
         ).toBe('text-white');
         expect(
@@ -112,7 +111,7 @@ describe('calculate-contrast', () => {
         ).toBe('text-grey-600');
         expect(
           getTextColorClassName(
-            'linear-gradient(135deg, rgba(250, 100, 210, 1) 0%, rgba(220, 200, 240, 1) 100%)'
+            'radial-gradient(ellipse at top, rgba(250, 100, 210, 1) 0%, rgba(220, 200, 240, 1) 100%)'
           )
         ).toBe('text-grey-600');
       });
@@ -223,6 +222,74 @@ describe('calculate-contrast', () => {
         darkBackgroundLuminance
       );
       expect(contrast).toBeGreaterThanOrEqual(4.5);
+    });
+  });
+
+  describe('hasSufficientContrast', () => {
+    describe('with white text (#ffffff)', () => {
+      it('should return true for dark backgrounds that meet WCAG AA contrast', () => {
+        expect(hasSufficientContrast('#000000', '#ffffff')).toBe(true);
+        expect(hasSufficientContrast('#333333', '#ffffff')).toBe(true);
+        expect(hasSufficientContrast('#4B0082', '#ffffff')).toBe(true);
+        expect(hasSufficientContrast('rgb(0, 0, 0)', '#ffffff')).toBe(true);
+      });
+
+      it('should return false for light backgrounds that fail WCAG AA contrast', () => {
+        expect(hasSufficientContrast('#ffffff', '#ffffff')).toBe(false);
+        expect(hasSufficientContrast('#ffff00', '#ffffff')).toBe(false);
+        expect(
+          hasSufficientContrast('rgba(255, 255, 255, 0.9)', '#ffffff')
+        ).toBe(false);
+      });
+
+      it('should handle gradients correctly', () => {
+        expect(
+          hasSufficientContrast(
+            'linear-gradient(135deg, #000000 0%, #333333 100%)',
+            '#ffffff'
+          )
+        ).toBe(true);
+        expect(
+          hasSufficientContrast(
+            'radial-gradient(ellipse at center, #ffffff 0%, #f0f0f0 100%)',
+            '#ffffff'
+          )
+        ).toBe(false);
+      });
+    });
+
+    describe('with dark text', () => {
+      it('should return true for light backgrounds that meet WCAG AA contrast', () => {
+        expect(hasSufficientContrast('#ffffff', '#000000')).toBe(true);
+        expect(hasSufficientContrast('#f8f8f8', '#333333')).toBe(true);
+        expect(hasSufficientContrast('#ffff99', '#000080')).toBe(true);
+      });
+
+      it('should return false for dark backgrounds that fail WCAG AA contrast', () => {
+        expect(hasSufficientContrast('#000000', '#000000')).toBe(false);
+        expect(hasSufficientContrast('#333333', '#666666')).toBe(false);
+      });
+    });
+
+    it('should handle colors near the 4.5:1 threshold correctly', () => {
+      expect(hasSufficientContrast('#767676', '#ffffff')).toBe(true); // Just above 4.5:1 ratio
+      expect(hasSufficientContrast('#777777', '#ffffff')).toBe(false); // Just below 4.5:1 ratio
+    });
+
+    describe('with transparent colors', () => {
+      it('should handle alpha values correctly by blending with white background', () => {
+        expect(hasSufficientContrast('rgba(0, 0, 0, 0.8)', '#ffffff')).toBe(
+          true
+        );
+        expect(hasSufficientContrast('rgba(0, 0, 0, 0.2)', '#ffffff')).toBe(
+          false
+        );
+      });
+    });
+
+    it('should handle an empty string', () => {
+      expect(hasSufficientContrast('', '#ffffff')).toBe(true);
+      expect(hasSufficientContrast('#000000', '')).toBe(true);
     });
   });
 
