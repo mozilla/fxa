@@ -15,6 +15,8 @@ const createStory = storyWithProps(
   {
     sync: false,
     subject: 'N/A',
+    logoUrl: 'https://accounts-cdn.stage.mozaws.net/other/monitor-logo.svg',
+    logoAltText: 'Monitor logo',
   },
   'fxa',
   'strapi'
