@@ -63,7 +63,33 @@ export function Breadcrumbs(args: {
 
   return (
     <nav className="p-4 tablet:p-6" aria-label="Breadcrumb">
-      <ol className="flex items-center">
+      <ol className="flex items-center tablet:hidden">
+        {breadcrumbs.map(({ label, href }, i) => {
+          const isPrev = i === breadcrumbs.length - 2;
+          if (!isPrev) return null;
+
+          const url = new URL(href);
+          url.search = searchParams.toString();
+          href = url.href;
+
+          return (
+            <li className="flex items-center" key={`breadcrumb-nav-${i}`}>
+              <Link
+                href={href}
+                className="inline-flex items-center font-semibold text-blue-600"
+                style={{ gap: '10px', minHeight: '44px' }}
+              >
+                <span aria-hidden="true" className="text-2xl leading-none mr-2">
+                  &lt;
+                </span>
+                <span>{label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+
+      <ol className="hidden tablet:flex items-center">
         {breadcrumbs.map(({ label, href }, i) => {
           const isLast = i === breadcrumbs.length - 1;
 
