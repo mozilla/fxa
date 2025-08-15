@@ -131,6 +131,15 @@ const conf = (module.exports = convict({
       doc: 'Location of "report-uri" for report-only CSP rules',
       env: 'CSP_REPORT_ONLY_URI',
     },
+    allowedImgSources: {
+      default: [
+        'https://secure.gravatar.com',
+        'https://cdn.accounts.firefox.com',
+      ],
+      doc: 'Default allowed img sources for CSP blocking',
+      env: 'CSP_ALLOWED_IMG_SOURCES',
+      format: Array,
+    },
   },
   disable_locale_check: {
     default: false,
