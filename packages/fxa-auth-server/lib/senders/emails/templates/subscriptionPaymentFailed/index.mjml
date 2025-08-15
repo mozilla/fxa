@@ -21,8 +21,8 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionPaymentFailed-content-outdated">
-        It may be that your credit card has expired, or your current payment method is out of date.
+      <span data-l10n-id="subscriptionPaymentFailed-content-outdated-1">
+        It may be that your payment method has expired, or your current payment method is out-of-date.
       </span>
     </mj-text>
   </mj-column>
