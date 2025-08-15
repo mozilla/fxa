@@ -9,6 +9,7 @@ const oauth = require('./oauth');
 const config = require('./config');
 const version = require('./version');
 const cookieSession = require('cookie-session');
+const lusca = require('lusca');
 
 const logger = morgan('short');
 
@@ -43,7 +44,11 @@ app.use(function (req, res, next) {
       secret: config.get('cookie_secret'),
       path: '/api',
       httpOnly: true,
-    })(req, res, next);
+    })(req, res, function(err) {
+      if (err) return next(err);
+      // Add CSRF protection for /api endpoints
+      lusca.csrf()(req, res, next);
+    });
   } else {
     return next();
   }
