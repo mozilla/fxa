@@ -10,11 +10,19 @@ export interface ColorRGBA {
 }
 
 const DEFAULT_COLOR = 'text-grey-400';
+const HEX_OR_RGB_REGEX =
+  /#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|rgb\([^)]+\)|rgba\([^)]+\)/g;
+const WCAG_AA_CONTRAST = 4.5;
+
 export const TEXT_COLORS = {
   'text-white': { r: 255, g: 255, b: 255 },
   'text-grey-400': { r: 109, g: 109, b: 110 },
   'text-grey-600': { r: 50, g: 49, b: 60 },
 };
+
+function extractColorsFromGradient(gradient: string): string[] {
+  return gradient.match(HEX_OR_RGB_REGEX) || [];
+}
 
 /**
  * Determines the optimal text color class to use over a background color based on WCAG AA contrast ratios.
@@ -28,12 +36,57 @@ export function getTextColorClassName(cssBackgroundValue: string): string {
   return calculateSolidColorContrast(cssBackgroundValue);
 }
 
+/**
+ * Checks if the given text color meets WCAG AA contrast requirements against the background color.
+ * @param backgroundColorValue CSS background color value (solid color or gradient) - should be non-empty
+ * @param textColorValue CSS text color value (solid color) - should be non-empty
+ * @returns true if contrast meets WCAG AA requirements (4.5:1), false otherwise
+ */
+export function hasSufficientContrast(
+  backgroundColorValue: string,
+  textColorValue: string
+): boolean {
+  if (!backgroundColorValue.trim() || !textColorValue.trim()) {
+    return true; // Default
+  }
+
+  const backgroundLuminance = getBackgroundLuminance(backgroundColorValue);
+  const textColor = parseColor(textColorValue);
+  const textLuminance = calculateLuminance(
+    textColor.r,
+    textColor.g,
+    textColor.b
+  );
+
+  const contrastRatio = calculateContrastRatio(
+    backgroundLuminance,
+    textLuminance
+  );
+  return contrastRatio >= WCAG_AA_CONTRAST;
+}
+
+function getBackgroundLuminance(cssBackgroundValue: string): number {
+  if (cssBackgroundValue.includes('gradient')) {
+    const colorMatches = extractColorsFromGradient(cssBackgroundValue);
+    if (colorMatches.length === 0) {
+      return calculateLuminance(255, 255, 255); // default to white
+    }
+    const effectiveColor = blendColorsWithAlpha(colorMatches);
+    return calculateLuminance(
+      effectiveColor.r,
+      effectiveColor.g,
+      effectiveColor.b
+    );
+  } else {
+    const colorRgba = parseColor(cssBackgroundValue);
+    const blendedColor = blendWithWhiteBackground(colorRgba);
+    return calculateLuminance(blendedColor.r, blendedColor.g, blendedColor.b);
+  }
+}
+
 function calculateGradientContrast(gradient: string): string {
   // Extract colors from gradient
-  const colorMatches =
-    gradient.match(
-      /#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|rgb\([^)]+\)|rgba\([^)]+\)/g
-    ) || [];
+  const colorMatches = extractColorsFromGradient(gradient);
   if (colorMatches.length === 0) {
     return DEFAULT_COLOR;
   }
@@ -95,19 +148,19 @@ function getTextColorForLuminance(backgroundLuminance: number): string {
   // Prefer text-grey-400 if it meets WCAG AA
   // Note 4.5 is for text elements, but non-text elements need a 3:1 ratio to pass.
   // We'll err on the side of caution anyway since gradients BG colors are estimates.
-  if (medGreyContrast >= 4.5) {
+  if (medGreyContrast >= WCAG_AA_CONTRAST) {
     return 'text-grey-400';
   }
-  if (whiteContrast >= 4.5) {
+  if (whiteContrast >= WCAG_AA_CONTRAST) {
     return 'text-white';
   }
-  if (darkGreyContrast >= 4.5) {
+  if (darkGreyContrast >= WCAG_AA_CONTRAST) {
     return 'text-grey-600';
   }
 
   // If all values fail AA contrast, we want to use text-grey-400, but if
   // contrast value for it is terrible (2.25:1 or less), use the next best one.
-  if (medGreyContrast < 2.25) {
+  if (medGreyContrast < WCAG_AA_CONTRAST / 2) {
     const bestContrast = Math.max(
       whiteContrast,
       medGreyContrast,

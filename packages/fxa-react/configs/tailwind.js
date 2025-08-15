@@ -349,6 +349,14 @@ module.exports = {
     }),
     tailwindcssDir(),
     require('@tailwindcss/container-queries'),
+    plugin(function ({ addUtilities, theme }) {
+      addUtilities({
+        '.text-shadow-cms': {
+          textShadow:
+            '0px 0px 2px rgb(0 0 0 / .6), 0px 1px 2px rgb(0 0 0 / 0.3), 0px 3px 2px rgb(0 0 0 / 0.1)',
+        },
+      });
+    }),
   ],
   // Workaround for TW's JIT engine, to provide access to all TW classes
   // for styling/debugging in browser DevTools (in dev mode only)
