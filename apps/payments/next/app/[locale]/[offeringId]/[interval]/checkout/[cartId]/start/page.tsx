@@ -285,6 +285,7 @@ export default async function Checkout({
               nonce={nonce}
               paypalClientId={config.paypal.clientId}
               sessionUid={session?.user?.id}
+              sessionEmail={session?.user?.email ?? undefined}
             />
           )}
       </section>

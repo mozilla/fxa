@@ -11,6 +11,7 @@ import {
   PaymentElement,
   useStripe,
   useElements,
+  LinkAuthenticationElement,
 } from '@stripe/react-stripe-js';
 import {
   ConfirmationTokenCreateParams,
@@ -85,6 +86,7 @@ interface CheckoutFormProps {
   };
   locale: string;
   sessionUid?: string;
+  sessionEmail?: string;
 }
 
 export function CheckoutForm({
@@ -92,6 +94,7 @@ export function CheckoutForm({
   cart,
   locale,
   sessionUid,
+  sessionEmail,
 }: CheckoutFormProps) {
   const { l10n } = useLocalization();
   const elements = useElements();
@@ -115,6 +118,10 @@ export function CheckoutForm({
   const [isSavedPaymentMethod, setIsSavedPaymentMethod] = useState(
     !!cart?.paymentInfo?.type
   );
+  const [showLinkAuthElement, setShowLinkAuthElement] = useState(false);
+  const linkAuthOptions = sessionEmail
+    ? { defaultValues: { email: sessionEmail } }
+    : {};
 
   const engageGlean = useCallbackOnce(() => {
     recordEmitterEventAction(
@@ -141,9 +148,14 @@ export function CheckoutForm({
             }
           }
 
-          //Show or hide the PayPal button
+          //Show or hide the PayPal button and Link
+          const hasSavedPaymentMethod = !!event?.value?.payment_method?.id;
+          const isNewCardSelected = event?.value?.type === 'card' && !hasSavedPaymentMethod;
+
+          setShowLinkAuthElement(isNewCardSelected && hasSavedPaymentMethod);
+
           setSelectedPaymentMethod(event?.value?.type || '');
-          setIsSavedPaymentMethod(!!event?.value?.payment_method?.id);
+          setIsSavedPaymentMethod(hasSavedPaymentMethod);
         });
       } else {
         setIsPaymentElementLoading(false);
@@ -220,6 +232,7 @@ export function CheckoutForm({
           payment_method_data: {
             billing_details: {
               name: fullName,
+              email: sessionEmail || undefined,
             },
           },
         }
@@ -352,27 +365,37 @@ export function CheckoutForm({
             </div>
           </div>
         ) : (
-          <PaymentElement
-            options={{
-              layout: {
-                type: 'accordion',
-                defaultCollapsed: false,
-                radios: false,
-                spacedAccordionItems: true,
-              },
-              readOnly: !formEnabled,
-              terms: {
-                card: 'never',
-              },
-              defaultValues: {
-                billingDetails: {
-                  address: {
-                    country: cart.taxAddress.countryCode,
+          <>
+            {showLinkAuthElement && (
+              <div>
+                <LinkAuthenticationElement
+                  options={linkAuthOptions}
+                />
+              </div>
+            )}
+            <PaymentElement
+              options={{
+                layout: {
+                  type: 'accordion',
+                  defaultCollapsed: false,
+                  radios: false,
+                  spacedAccordionItems: true,
+                },
+                readOnly: !formEnabled,
+                terms: {
+                  card: 'never',
+                },
+                defaultValues: {
+                  billingDetails: {
+                    email: sessionEmail || undefined,
+                    address: {
+                      country: cart.taxAddress.countryCode,
+                    },
                   },
                 },
-              },
-            }}
-          />
+              }}
+            />
+          </>
         )}
         {!isPaymentElementLoading && (
           <Form.Submit asChild>

@@ -6,6 +6,7 @@ import Amex from '@fxa/shared/assets/images/payment-methods/amex.svg';
 import Diners from '@fxa/shared/assets/images/payment-methods/diners.svg';
 import Discover from '@fxa/shared/assets/images/payment-methods/discover.svg';
 import Jcb from '@fxa/shared/assets/images/payment-methods/jcb.svg';
+import Link from '@fxa/shared/assets/images/payment-methods/link.svg';
 import Mastercard from '@fxa/shared/assets/images/payment-methods/mastercard.svg';
 import Paypal from '@fxa/shared/assets/images/payment-methods/paypal.svg';
 import Unbranded from '@fxa/shared/assets/images/payment-methods/unbranded.svg';
@@ -35,6 +36,11 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
         img: Jcb,
         altText: l10n.getString('jcb-logo-alt-text', 'JCB logo'),
       };
+    case 'link':
+      return {
+        img: Link,
+        altText: l10n.getString('link-logo-alt-text', 'Link logo'),
+      }
     case 'mastercard':
       return {
         img: Mastercard,
