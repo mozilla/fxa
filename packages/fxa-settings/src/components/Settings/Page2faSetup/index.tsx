@@ -144,21 +144,15 @@ const Page2faSetup = (_: RouteComponentProps) => {
 
   /* ───── handlers ───── */
   const handleVerify2faAppCode = async (code: string) => {
-    if (!totpInfo.secret) {
-      showGenericError();
-      goHome();
+    try {
+      await account.verifyTotpSetupCode(code);
+      GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
+      nextStep();
       return {};
-    }
-
-    if (!(await totpUtils.checkCode(totpInfo.secret, code))) {
+    } catch (e) {
+      console.log(e);
       return { error: true };
     }
-
-    GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
-
-    // Proceed to backup method selection or backup code setup
-    nextStep();
-    return {};
   };
 
   const handleBackupChoice = (choice: Choice) => {
@@ -167,19 +161,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
   };
 
   const enable2fa = async () => {
-    if (!totpInfo.secret) {
-      showGenericError();
-      goHome();
-      return;
-    }
-
-    const totpCode = await totpUtils.getCode(totpInfo.secret);
-    if (!totpCode) {
-      showGenericError();
-      goHome();
-      return;
-    }
-    await account.verifyTotp(totpCode);
+    await account.completeTotpSetup();
   };
 
   const handleBackupCodeConfirm = async (code: string) => {

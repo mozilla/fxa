@@ -39,20 +39,16 @@ jest.mock('@reach/router', () => {
 });
 
 const mockSessionHook = jest.fn();
+const mockVerifyTotpSetupCode = jest.fn();
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
     useSession: () => mockSessionHook(),
+    useAuthClient: () => ({ verifyTotpSetupCode: mockVerifyTotpSetupCode }),
   };
 });
 
-const mockCheckCode = jest.fn();
-jest.mock('../../lib/totp', () => {
-  return {
-    ...jest.requireActual('../../lib/totp'),
-    checkCode: () => mockCheckCode(),
-  };
-});
+// No client-side TOTP validation in the new flow
 
 const mockTotpStatusQuery = jest.fn();
 const mockCreateTotpMutation = jest.fn();
@@ -79,7 +75,7 @@ function setMocks() {
     search,
     state: MOCK_SIGNIN_LOCATION_STATE,
   });
-  mockCheckCode.mockReturnValue(true);
+  mockVerifyTotpSetupCode.mockReset();
   mockSessionHook.mockReturnValue({
     isSessionVerified: async () => true,
   });
@@ -288,8 +284,8 @@ describe('InlineTotpSetupContainer', () => {
       });
 
       describe('verifyCodeHandler', () => {
-        it('throws an error when the code is invalid', async () => {
-          mockCheckCode.mockReturnValue(false);
+        it('throws an error when the server rejects the code', async () => {
+          mockVerifyTotpSetupCode.mockRejectedValue(new Error('bad'));
           render();
           await waitFor(() => {
             expect(InlineTotpSetupModule.default).toHaveBeenCalled();
@@ -310,9 +306,7 @@ describe('InlineTotpSetupContainer', () => {
         });
 
         it('throws an error when checking the code errors', async () => {
-          mockCheckCode.mockImplementation(() => {
-            throw new Error();
-          });
+          mockVerifyTotpSetupCode.mockRejectedValue(new Error('err'));
           render();
           await waitFor(() => {
             expect(InlineTotpSetupModule.default).toHaveBeenCalled();
@@ -333,6 +327,7 @@ describe('InlineTotpSetupContainer', () => {
         });
 
         it('redirects to inline_recovery_setup when the code is valid', async () => {
+          mockVerifyTotpSetupCode.mockResolvedValue({ success: true });
           render();
           await waitFor(() => {
             expect(InlineTotpSetupModule.default).toHaveBeenCalled();

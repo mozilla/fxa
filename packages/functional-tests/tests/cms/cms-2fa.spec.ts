@@ -4,7 +4,7 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
-import { getCode } from 'fxa-settings/src/lib/totp';
+import { getCode } from '../../lib/totp';
 import {
   TargetName,
   getFromEnvWithFallback,
@@ -158,7 +158,8 @@ test.describe('severity-1 #smoke', () => {
       await settings.totp.addButton.click();
 
       // Set up 2FA with QR code and backup codes
-      const { secret } =  await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+      const { secret } =
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
@@ -592,7 +593,8 @@ test.describe('severity-1 #smoke', () => {
       await settings.totp.addButton.click();
 
       // Set up 2FA with QR code and backup codes
-      const { secret } = await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+      const { secret } =
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(

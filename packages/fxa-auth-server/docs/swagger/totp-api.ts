@@ -71,7 +71,7 @@ const TOTP_VERIFY_RECOVERY_CODE_POST = {
 
 const SESSION_VERIFY_TOTP_POST = {
   ...TAGS_TOTP,
-  description: '/session/verifiy/totp',
+  description: '/session/verify/totp',
   notes: [
     dedent`
       🔒 Authenticated with session token
@@ -91,7 +91,7 @@ const TOTP_REPLACE_START_POST = {
       Create a new randomly generated TOTP token for a user to replace an existing one. An existing TOTP token must exist for the user to request a replacement.
     `,
   ],
-}
+};
 
 const TOTP_REPLACE_CONFIRM_POST = {
   ...TAGS_TOTP,
@@ -103,7 +103,31 @@ const TOTP_REPLACE_CONFIRM_POST = {
       Verifies the provided code is valid for TOTP and sets the new TOTP token for the user. This is used when a user is replacing their existing TOTP token.
     `,
   ],
-}
+};
+
+const TOTP_SETUP_VERIFY_POST = {
+  ...TAGS_TOTP,
+  description: '/totp/setup/verify',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token
+
+      Verifies an authenticator app code against the in-progress TOTP secret stored in Redis during setup. On success, marks the setup as verified in Redis and aligns TTLs.
+    `,
+  ],
+};
+
+const TOTP_SETUP_COMPLETE_POST = {
+  ...TAGS_TOTP,
+  description: '/totp/setup/complete',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token
+
+      Completes TOTP setup by validating the Redis verification flag for the current secret, then persisting the secret to the database as enabled and verified. Cleans up temporary Redis entries.
+    `,
+  ],
+};
 
 const API_DOCS = {
   SESSION_VERIFY_TOTP_POST,
@@ -114,6 +138,8 @@ const API_DOCS = {
   TOTP_VERIFY_RECOVERY_CODE_POST,
   TOTP_REPLACE_START_POST,
   TOTP_REPLACE_CONFIRM_POST,
+  TOTP_SETUP_VERIFY_POST,
+  TOTP_SETUP_COMPLETE_POST,
 };
 
 export default API_DOCS;
