@@ -31,6 +31,13 @@ export const PositiveProrated = createStory(
   {
     paymentProrated: '$60.00',
     paymentProratedInCents: 6000,
+    previousRate: {
+      message: 'Your previous rate was $9.89 per month.',
+    },
+    newRate: {
+      message:
+        'Going forward, you will be charged $69.89 per year, excluding discounts.',
+    },
   },
   'Charge - Prorated amount is positive'
 );
@@ -43,6 +50,13 @@ export const PositiveProratedWithTax = createStory(
     paymentTaxOld: '$0.50',
     paymentTaxNewInCents: 60,
     paymentTaxNew: '$0.60',
+    previousRate: {
+      message: 'Your previous rate was $9.89 + $0.50 tax per month.',
+    },
+    newRate: {
+      message:
+        'Going forward, you will be charged $69.89 + $0.60 tax per year, excluding discounts.',
+    },
   },
   'Charge - Prorated amount with tax is positive'
 );
@@ -51,6 +65,13 @@ export const NegativeProrated = createStory(
   {
     paymentProrated: '$60.00',
     paymentProratedInCents: -6000,
+    previousRate: {
+      message: 'Your previous rate was $9.89 per month.',
+    },
+    newRate: {
+      message:
+        'Going forward, you will be charged $69.89 per year, excluding discounts.',
+    },
   },
   'Credit - Prorated amount is negative'
 );
@@ -63,6 +84,13 @@ export const NegativeProratedWithTax = createStory(
     paymentTaxOld: '$0.50',
     paymentTaxNewInCents: 60,
     paymentTaxNew: '$0.60',
+    previousRate: {
+      message: 'Your previous rate was $9.89 + $0.50 tax per month.',
+    },
+    newRate: {
+      message:
+        'Going forward, you will be charged $69.89 + $0.60 tax per year, excluding discounts.',
+    },
   },
   'Credit - Prorated amount with tax is negative'
 );
@@ -71,6 +99,13 @@ export const NoProrated = createStory(
   {
     paymentProrated: '$0.00',
     paymentProratedInCents: 0,
+    previousRate: {
+      message: 'Your previous rate was $9.89 per month.',
+    },
+    newRate: {
+      message:
+        'Going forward, you will be charged $69.89 per year, excluding discounts.',
+    },
   },
   'Prorated amount is zero'
 );
