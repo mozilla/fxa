@@ -7,13 +7,8 @@ import { action } from '@storybook/addon-actions';
 import { Meta } from '@storybook/react';
 
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { totpUtils } from '../../../lib/totp-utils';
 import Page2faSetup from '.';
 import { Subject } from './mocks';
-
-// mock check code function to avoid requiring a real totp that changes every 30s
-totpUtils.checkCode = async () => true;
-totpUtils.getCode = async () => '';
 
 export default {
   title: 'Pages/Settings/TwoStepAuthSetup',
@@ -25,8 +20,11 @@ export const WithRecoveryPhoneOption = () => (
   <Subject
     account={{
       recoveryPhone: { available: true },
-      verifyTotp: async () => {
-        action('Verify and enable 2FA')();
+      verifyTotpSetupCode: async (code: string) => {
+        action('Verify 2FA code')();
+      },
+      completeTotpSetup: async () => {
+        action('Complete 2FA setup')();
       },
       addRecoveryPhone: async (phoneNumber: string) => {
         action('Start phone setup')();
@@ -46,8 +44,11 @@ export const WithRecoveryPhoneUnavailable = () => (
   <Subject
     account={{
       recoveryPhone: { available: false },
-      verifyTotp: async () => {
-        action('Verify and enable 2FA')();
+      verifyTotpSetupCode: async (code: string) => {
+        action('Verify 2FA code')();
+      },
+      completeTotpSetup: async () => {
+        action('Complete 2FA setup')();
       },
       refresh: async () => {
         action('Refresh account data for display in settings page')();

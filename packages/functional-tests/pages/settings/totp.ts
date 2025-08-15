@@ -6,7 +6,7 @@ import jsQR from 'jsqr';
 import UPNG from 'upng-js';
 import { expect } from '../../lib/fixtures/standard';
 import { SettingsLayout } from './layout';
-import { getCode } from 'fxa-settings/src/lib/totp';
+import { getCode } from '../../lib/totp';
 import { DataTrioComponent } from './components/dataTrio';
 
 export type TotpCredentials = {
@@ -122,6 +122,7 @@ export class TotpPage extends SettingsLayout {
       throw new Error('No secret found in QR code');
     }
 
+    // Generate a TOTP code locally using the same settings as the server (hex secret)
     const code = await getCode(secret);
     await this.step1AuthenticationCodeTextbox.fill(code);
     await this.step1SubmitButton.click();

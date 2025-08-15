@@ -1092,6 +1092,23 @@ two_factor_auth:
     expires: never
     data_sensitivity:
       - interaction
+  setup_verify_success:
+    type: event
+    description: |
+      Event that indicates the user successfully verified their authenticator app code during initial 2FA setup (server-side verification success).
+    lifetime: ping
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-12128
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - interaction
   code_replace_failure:
     type: event
     description: |
@@ -1232,7 +1249,6 @@ two_step_auth_phone_replace:
     expires: never
     data_sensitivity:
       - interaction
-
 
 two_step_auth_remove:
   success:

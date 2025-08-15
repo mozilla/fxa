@@ -1243,6 +1243,35 @@ export class Account implements AccountData {
     return totp;
   }
 
+  async verifyTotpSetupCode(code: string) {
+    await this.withLoadingStatus(
+      this.authClient.verifyTotpSetupCode(sessionToken()!, code, {})
+    );
+  }
+
+  async completeTotpSetup() {
+    // Only update local cache if the server-side setup completes successfully
+    await this.withLoadingStatus(
+      this.authClient.completeTotpSetup(sessionToken()!, {})
+    );
+    try {
+      await this.refresh('recoveryPhone');
+      const cache = this.apolloClient.cache;
+      cache.modify({
+        id: cache.identify({ __typename: 'Account' }),
+        fields: {
+          totp(currentTotp) {
+            return { ...currentTotp, verified: true };
+          },
+        },
+      });
+      await this.refresh('backupCodes');
+    } catch (e) {
+      // Surface to caller; ensures no partial/local updates if follow-up steps fail
+      throw e;
+    }
+  }
+
   async verifyTotp(code: string) {
     try {
       await this.withLoadingStatus(

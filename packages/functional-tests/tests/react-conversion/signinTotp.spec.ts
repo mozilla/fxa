@@ -2,20 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getCode } from 'fxa-settings/src/lib/totp';
+import { getCode } from '../../lib/totp';
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
     test('add totp', async ({
-      pages: {
-        settings,
-        totp,
-        page,
-        signin,
-        signup,
-        signinTotpCode,
-      },
+      pages: { settings, totp, page, signin, signup, signinTotpCode },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -106,14 +99,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('error message when totp code is invalid', async ({
-      pages: {
-        page,
-        settings,
-        totp,
-        signin,
-        signup,
-        signinTotpCode,
-      },
+      pages: { page, settings, totp, signin, signup, signinTotpCode },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
