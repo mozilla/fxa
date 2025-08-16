@@ -336,6 +336,14 @@ const conf = convict({
     // Note: This format is a number because the value needs to be in seconds
     format: Number,
   },
+  cors: {
+    origin: {
+      doc: 'Value for the Access-Control-Allow-Origin response header',
+      format: String,
+      env: 'CORS_ORIGIN',
+      default: '*',
+    },
+  },
   clientFormatter: {
     i18n: {
       defaultLanguage: {
