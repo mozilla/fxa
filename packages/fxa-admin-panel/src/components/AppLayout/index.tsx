@@ -4,7 +4,6 @@
 
 import React from 'react';
 import Header from 'fxa-react/components/Header';
-import LogoLockup from 'fxa-react/components/LogoLockup';
 import LinkAbout from '../../components/LinkAbout';
 import Nav from '../../components/Nav';
 import Footer from 'fxa-react/components/Footer';
@@ -15,16 +14,19 @@ type AppLayoutProps = {
 };
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const logoLockup = (
-    <LogoLockup className="text-white font-semibold text-shadow-md">
+  const Title = (
+    <h1
+      data-testid="logo-text"
+      className={`hidden tablet:inline-flex self-center text-xl text-white font-semibold text-shadow-md mr-5`}
+    >
       Mozilla Accounts Admin Panel
-    </LogoLockup>
+    </h1>
   );
 
   return (
     <div data-testid="app" className="flex flex-col min-h-screen">
       <Header
-        left={logoLockup}
+        left={Title}
         right={<LinkAbout />}
         className="bg-cover bg-no-repeat bg-gradient-to-r from-violet-700 via-yellow-600 to-red-500"
         styles={{ backgroundImage: `url(${headerBackground})` }}
