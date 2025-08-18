@@ -83,8 +83,13 @@ export const {
 
       // Allows callback URLs on the same origin and to MzAs content server
       const urlOrigin = new URL(url).origin;
-      if (urlOrigin === baseUrl || urlOrigin === config.contentServerUrl)
+      if (
+        urlOrigin === baseUrl ||
+        urlOrigin === config.contentServerUrl ||
+        urlOrigin === config.paymentsNextHostedUrl // Support for local HTTPS
+      ) {
         return url;
+      }
 
       return baseUrl;
     },

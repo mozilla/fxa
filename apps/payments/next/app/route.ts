@@ -10,10 +10,7 @@ export async function GET(request: NextRequest) {
     notFound();
   }
   if (config.featureFlagSubManage) {
-    redirect(
-      new URL(`/subscriptions/landing/${request.nextUrl.search}`, request.url)
-        .href
-    );
+    redirect(`/subscriptions/landing/${request.nextUrl.search}`);
   } else {
     redirect(
       `${config.contentServerClientConfig.url}/subscriptions${request.nextUrl.search}`
