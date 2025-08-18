@@ -457,6 +457,7 @@ export const Account = ({
           email: primaryEmail, // only the primary for now
           onCleared: onCleared,
           unsubscribeToken: '<USER_TOKEN>',
+          has2FA: totps && totps.some((x) => x.enabled),
         }}
       />
     </>

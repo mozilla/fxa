@@ -37,6 +37,7 @@ export enum AdminPanelFeature {
   DisableAccount = 'DisableAccount',
   EditLocale = 'EditLocale',
   EnableAccount = 'EnableAccount',
+  Remove2FA = 'Remove2FA',
   UnverifyEmail = 'UnverifyEmail',
   UnlinkAccount = 'UnlinkAccount',
   DeleteAccount = 'DeleteAccount',
@@ -154,6 +155,10 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.EnableAccount]: {
     name: 'Enable Account',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.Remove2FA]: {
+    name: 'Reset 2FA',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.UnverifyEmail]: {
