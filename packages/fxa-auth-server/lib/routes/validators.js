@@ -897,3 +897,8 @@ module.exports.entrypoint = isA.string()
   .regex(/^[a-zA-Z0-9_.-]+$/) // Only allow letters, digits, underscores, dots, and dashes
   .max(256)
   .required();
+
+module.exports.locale = isA.string()
+  .regex(/^[a-z]{2}(-[A-Z]{2})?$/) // ISO 639-1 language codes (e.g., 'en', 'es', 'en-US', 'es-MX')
+  .max(10)
+  .optional();

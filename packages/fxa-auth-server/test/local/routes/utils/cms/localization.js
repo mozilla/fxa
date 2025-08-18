@@ -38,6 +38,10 @@ describe('CMSLocalization', () => {
           secret: 'test-secret',
           strapiUrl: 'http://localhost:1337',
         },
+        ftlUrl: {
+          template: 'https://raw.githubusercontent.com/test-owner/test-repo/main/locales/{locale}/cms.ftl',
+          timeout: 5000,
+        },
         github: {
           token: 'test-token',
           owner: 'test-owner',
@@ -52,7 +56,15 @@ describe('CMSLocalization', () => {
       },
     };
 
-    localization = new CMSLocalization(mockLog, mockConfig, mockStatsd);
+    // Create mock CMS manager for testing
+    const mockCmsManager = {
+      getCachedFtlContent: sandbox.stub(),
+      cacheFtlContent: sandbox.stub(),
+      invalidateFtlCache: sandbox.stub(),
+      getFtlContent: sandbox.stub(),
+    };
+
+    localization = new CMSLocalization(mockLog, mockConfig, mockCmsManager, mockStatsd);
   });
 
   describe('strapiToFtl', () => {
@@ -322,197 +334,6 @@ testClient-SigninPage-message-abcdef12 = Quote: \\"Hello\\"
       assert.equal(result.SigninPage.description, 'Line 1\nLine 2\rLine 3');
       // Note: The current implementation may not handle all escape sequences
       // This test reflects the actual behavior
-    });
-  });
-
-  describe('mergeCmsWithLocalization', () => {
-    it('merges base CMS data with localized data', () => {
-      const baseData = {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        name: 'Firefox Desktop Sync',
-        l10nId: 'desktopSyncFirefoxCms',
-        SigninPage: {
-          headline: 'Original headline',
-          description: 'Original description'
-        },
-        EmailFirstPage: {
-          headline: 'Original email headline'
-        }
-      };
-
-      const localizedData = {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        name: 'Firefox Desktop Sync',
-        l10nId: 'desktopSyncFirefoxCms',
-        SigninPage: {
-          headline: 'Localized headline',
-          description: 'Localized description'
-        },
-        EmailFirstPage: {
-          headline: 'Localized email headline',
-          description: 'New localized description'
-        }
-      };
-
-      const result = localization.mergeCmsWithLocalization(baseData, localizedData);
-
-      assert.deepEqual(result, {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        name: 'Firefox Desktop Sync',
-        l10nId: 'desktopSyncFirefoxCms',
-        SigninPage: {
-          headline: 'Localized headline',
-          description: 'Localized description'
-        },
-        EmailFirstPage: {
-          headline: 'Localized email headline',
-          description: 'New localized description'
-        }
-      });
-    });
-
-    it('returns base data when localized data is null', () => {
-      const baseData = {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        name: 'Firefox Desktop Sync',
-        l10nId: 'desktopSyncFirefoxCms',
-        SigninPage: {
-          headline: 'Original headline'
-        }
-      };
-
-      const result = localization.mergeCmsWithLocalization(baseData, null);
-
-      assert.deepEqual(result, baseData);
-    });
-
-    it('returns localized data when base data is null', () => {
-      const localizedData = {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        name: 'Firefox Desktop Sync',
-        l10nId: 'desktopSyncFirefoxCms',
-        SigninPage: {
-          headline: 'Localized headline'
-        }
-      };
-
-      const result = localization.mergeCmsWithLocalization(null, localizedData);
-
-      assert.deepEqual(result, localizedData);
-    });
-
-    it('preserves base metadata fields', () => {
-      const baseData = {
-        clientId: 'original-client',
-        entrypoint: 'original-entrypoint',
-        name: 'Original Name',
-        l10nId: 'original-l10nId',
-        SigninPage: {
-          headline: 'Original headline'
-        }
-      };
-
-      const localizedData = {
-        clientId: 'localized-client',
-        entrypoint: 'localized-entrypoint',
-        name: 'Localized Name',
-        l10nId: 'localized-l10nId',
-        SigninPage: {
-          headline: 'Localized headline'
-        }
-      };
-
-      const result = localization.mergeCmsWithLocalization(baseData, localizedData);
-
-      assert.equal(result.clientId, 'original-client');
-      assert.equal(result.entrypoint, 'original-entrypoint');
-      assert.equal(result.name, 'Original Name');
-      assert.equal(result.l10nId, 'original-l10nId');
-      assert.equal(result.SigninPage.headline, 'Localized headline');
-    });
-  });
-
-  describe('fetchLocalizationFromGitHub', () => {
-    it('fetches localization data from GitHub', async () => {
-      const mockFtlContent = `
-# Generated on 2025-08-07T14:13:00.605Z
-# FTL file for CMS localization
-
-# desktopSyncFirefoxCms - Firefox Desktop Sync
-# Headline for Signin Page
-desktopSyncFirefoxCms-SigninPage-headline-e8d28194 = Enter your password
-`;
-
-      const mockResponse = {
-        ok: true,
-        status: 200,
-        text: () => Promise.resolve(mockFtlContent)
-      };
-
-      const originalFetch = global.fetch;
-      global.fetch = sandbox.stub().resolves(mockResponse);
-
-      try {
-        const result = await localization.fetchLocalizationFromGitHub('en');
-
-        sinon.assert.calledOnce(global.fetch);
-        assert.equal(result, mockFtlContent);
-        sinon.assert.calledWith(mockLog.info, 'cms.localization.github.fetch.success', {
-          locale: 'en',
-          ftlContentLength: mockFtlContent.length
-        });
-      } finally {
-        global.fetch = originalFetch;
-      }
-    });
-
-    it('returns empty string when file not found', async () => {
-      const mockResponse = {
-        ok: false,
-        status: 404,
-        text: () => Promise.resolve('Not Found')
-      };
-
-      const originalFetch = global.fetch;
-      global.fetch = sandbox.stub().resolves(mockResponse);
-
-      try {
-        const result = await localization.fetchLocalizationFromGitHub('en');
-
-        assert.equal(result, '');
-        // Note: The actual URL in the implementation may vary
-        sinon.assert.calledWith(mockLog.warn, 'cms.localization.github.notFound', {
-          locale: 'en',
-          ftlUrl: sinon.match.string
-        });
-      } finally {
-        global.fetch = originalFetch;
-      }
-    });
-
-    it('throws error for other HTTP errors', async () => {
-      const mockResponse = {
-        ok: false,
-        status: 500,
-        text: () => Promise.resolve('Internal Server Error')
-      };
-
-      const originalFetch = global.fetch;
-      global.fetch = sandbox.stub().resolves(mockResponse);
-
-      try {
-        await assert.isRejected(
-          localization.fetchLocalizationFromGitHub('en'),
-          /GitHub API returned 500/
-        );
-      } finally {
-        global.fetch = originalFetch;
-      }
     });
   });
 
@@ -809,6 +630,338 @@ desktopSyncFirefoxCms-SigninPage-headline-e8d28194 = Enter your password
       } finally {
         global.fetch = originalFetch;
       }
+    });
+  });
+
+  describe('extractBaseLocale', () => {
+    it('extracts base locale from specific locale', () => {
+      assert.equal(localization.extractBaseLocale('en-US'), 'en');
+      assert.equal(localization.extractBaseLocale('es-MX'), 'es');
+      assert.equal(localization.extractBaseLocale('fr-CA'), 'fr');
+      assert.equal(localization.extractBaseLocale('pt-BR'), 'pt');
+    });
+
+    it('returns null for base locales', () => {
+      assert.equal(localization.extractBaseLocale('en'), 'en');
+      assert.equal(localization.extractBaseLocale('es'), 'es');
+      assert.equal(localization.extractBaseLocale('fr'), 'fr');
+    });
+
+    it('returns null for invalid locale formats', () => {
+      assert.isNull(localization.extractBaseLocale('invalid'));
+      assert.isNull(localization.extractBaseLocale(''));
+      assert.isNull(localization.extractBaseLocale('toolong-locale-format'));
+      assert.isNull(localization.extractBaseLocale('123'));
+    });
+  });
+
+  describe('fetchLocalizedFtlWithFallback', () => {
+    let mockCmsManager;
+
+    beforeEach(() => {
+      // Access the mock CMS manager from the localization instance
+      mockCmsManager = {
+        getCachedFtlContent: sandbox.stub(),
+        cacheFtlContent: sandbox.stub(),
+        getFtlContent: sandbox.stub(),
+      };
+      // Replace the CMS manager in the localization instance
+      localization.cmsManager = mockCmsManager;
+
+
+    });
+
+    it('returns cached content when available', async () => {
+      const locale = 'es';
+      const cachedContent = 'cached FTL content';
+
+      mockCmsManager.getFtlContent.resolves(cachedContent);
+
+      const result = await localization.fetchLocalizedFtlWithFallback(locale);
+
+      assert.equal(result, cachedContent);
+      sinon.assert.calledWith(mockCmsManager.getFtlContent, locale, mockConfig);
+      sinon.assert.calledWith(mockStatsd.increment, 'cms.getLocalizedConfig.ftl.success');
+    });
+
+    it('fetches from URL when cache misses and caches result', async () => {
+      const locale = 'fr';
+      const ftlContent = 'fresh FTL content';
+
+      mockCmsManager.getFtlContent.resolves(ftlContent);
+
+      const result = await localization.fetchLocalizedFtlWithFallback(locale);
+
+      assert.equal(result, ftlContent);
+      sinon.assert.calledWith(mockCmsManager.getFtlContent, locale, mockConfig);
+      sinon.assert.calledWith(mockStatsd.increment, 'cms.getLocalizedConfig.ftl.success');
+    });
+
+    it('handles errors gracefully and continues with fallback', async () => {
+      const locale = 'de-US';
+      const baseLocale = 'de';
+      const ftlContent = 'fallback content';
+
+      mockCmsManager.getFtlContent.onFirstCall().rejects(new Error('Specific locale failed'));
+      mockCmsManager.getFtlContent.onSecondCall().resolves(ftlContent);
+
+      const result = await localization.fetchLocalizedFtlWithFallback(locale);
+
+      assert.equal(result, ftlContent);
+      sinon.assert.calledWith(mockLog.error, 'cms.getLocalizedConfig.locale.failed', {
+        locale,
+        error: 'Specific locale failed'
+      });
+      sinon.assert.calledWith(mockLog.info, 'cms.getLocalizedConfig.locale.fallback', {
+        originalLocale: locale,
+        fallbackLocale: baseLocale
+      });
+    });
+
+    it('falls back to base locale when specific locale fails', async () => {
+      const locale = 'en-US';
+      const baseLocale = 'en';
+      const fallbackContent = 'base locale content';
+
+      mockCmsManager.getFtlContent.onFirstCall().rejects(new Error('Specific locale failed'));
+      mockCmsManager.getFtlContent.onSecondCall().resolves(fallbackContent);
+
+      const result = await localization.fetchLocalizedFtlWithFallback(locale);
+
+      assert.equal(result, fallbackContent);
+      sinon.assert.calledWith(mockCmsManager.getFtlContent.firstCall, locale, mockConfig);
+      sinon.assert.calledWith(mockCmsManager.getFtlContent.secondCall, baseLocale, mockConfig);
+      sinon.assert.calledWith(mockLog.info, 'cms.getLocalizedConfig.locale.fallback', {
+        originalLocale: locale,
+        fallbackLocale: baseLocale
+      });
+    });
+
+    it('uses base locale when specific locale fails', async () => {
+      const locale = 'es-MX';
+      const baseLocale = 'es';
+      const baseContent = 'base content';
+
+      mockCmsManager.getFtlContent.onFirstCall().rejects(new Error('Specific locale failed'));
+      mockCmsManager.getFtlContent.onSecondCall().resolves(baseContent);
+
+      const result = await localization.fetchLocalizedFtlWithFallback(locale);
+
+      assert.equal(result, baseContent);
+      sinon.assert.calledWith(mockLog.info, 'cms.getLocalizedConfig.locale.fallback', {
+        originalLocale: locale,
+        fallbackLocale: baseLocale
+      });
+      sinon.assert.calledWith(mockStatsd.increment, 'cms.getLocalizedConfig.ftl.success');
+    });
+
+    it('returns empty string when all attempts fail', async () => {
+      const locale = 'pt-BR';
+
+      mockCmsManager.getFtlContent.onFirstCall().rejects(new Error('Specific locale failed'));
+      mockCmsManager.getFtlContent.onSecondCall().rejects(new Error('Base locale failed'));
+
+      const result = await localization.fetchLocalizedFtlWithFallback(locale);
+
+      assert.equal(result, '');
+      sinon.assert.calledWith(mockStatsd.increment, 'cms.getLocalizedConfig.ftl.fallback');
+    });
+
+    it('handles errors gracefully and returns empty string', async () => {
+      const locale = 'it-IT';
+
+      mockCmsManager.getFtlContent.onFirstCall().rejects(new Error('Specific locale failed'));
+      mockCmsManager.getFtlContent.onSecondCall().rejects(new Error('Base locale failed'));
+
+      const result = await localization.fetchLocalizedFtlWithFallback(locale);
+
+      assert.equal(result, '');
+      sinon.assert.calledWith(mockLog.error, 'cms.getLocalizedConfig.locale.failed', {
+        locale,
+        error: 'Specific locale failed'
+      });
+      sinon.assert.calledWith(mockLog.error, 'cms.getLocalizedConfig.locale.fallback.failed', {
+        originalLocale: locale,
+        fallbackLocale: 'it',
+        error: 'Base locale failed'
+      });
+    });
+  });
+
+  describe('mergeConfigs', () => {
+    beforeEach(() => {
+      // Mock the convertFtlToStrapiFormat method
+      sandbox.stub(localization, 'convertFtlToStrapiFormat');
+    });
+
+    it('merges base config with localized data', async () => {
+      const baseConfig = {
+        l10nId: 'testClient',
+        name: 'Test Client',
+        clientId: 'test-client',
+        entrypoint: 'test',
+        SigninPage: {
+          headline: 'Enter your password',
+          description: 'Original description'
+        },
+        EmailFirstPage: {
+          headline: 'Welcome'
+        }
+      };
+
+      const ftlContent = 'mock FTL content';
+      const localizedData = {
+        SigninPage: {
+          headline: 'Introduzca su contraseña',
+          // description should remain from base config
+        },
+        NewPage: {
+          headline: 'Nueva página'
+        }
+      };
+
+      localization.convertFtlToStrapiFormat.returns(localizedData);
+
+      const result = await localization.mergeConfigs(baseConfig, ftlContent, 'test-client', 'test');
+
+      assert.equal(result.l10nId, 'testClient');
+      assert.equal(result.name, 'Test Client');
+      assert.equal(result.clientId, 'test-client');
+      assert.equal(result.entrypoint, 'test');
+
+      // Localized content should override base
+      assert.equal(result.SigninPage.headline, 'Introduzca su contraseña');
+      // Non-localized content should remain from base
+      assert.equal(result.SigninPage.description, 'Original description');
+      // Base content should remain
+      assert.equal(result.EmailFirstPage.headline, 'Welcome');
+      // New localized content should be added
+      assert.equal(result.NewPage.headline, 'Nueva página');
+
+      sinon.assert.calledWith(localization.convertFtlToStrapiFormat, 'testClient', ftlContent, baseConfig);
+    });
+
+    it('returns base config when FTL content is empty', async () => {
+      const baseConfig = {
+        l10nId: 'testClient',
+        name: 'Test Client'
+      };
+
+      const result = await localization.mergeConfigs(baseConfig, '', 'test-client', 'test');
+
+      assert.deepEqual(result, baseConfig);
+      sinon.assert.notCalled(localization.convertFtlToStrapiFormat);
+    });
+
+    it('returns base config when base config is null/undefined', async () => {
+      const result1 = await localization.mergeConfigs(null, 'ftl content', 'client', 'entry');
+      const result2 = await localization.mergeConfigs(undefined, 'ftl content', 'client', 'entry');
+
+      assert.isNull(result1);
+      assert.isUndefined(result2);
+      sinon.assert.notCalled(localization.convertFtlToStrapiFormat);
+    });
+
+    it('handles conversion errors gracefully', async () => {
+      const baseConfig = {
+        l10nId: 'testClient',
+        name: 'Test Client'
+      };
+      const ftlContent = 'invalid FTL content';
+
+      localization.convertFtlToStrapiFormat.throws(new Error('Conversion failed'));
+
+      const result = await localization.mergeConfigs(baseConfig, ftlContent, 'test-client', 'test');
+
+      assert.deepEqual(result, baseConfig);
+      sinon.assert.calledWith(mockLog.error, 'cms.getLocalizedConfig.merge.error', {
+        error: 'Conversion failed',
+        clientId: 'test-client',
+        entrypoint: 'test'
+      });
+    });
+
+    it('performs deep merge correctly', async () => {
+      const baseConfig = {
+        l10nId: 'testClient',
+        SigninPage: {
+          headline: 'Original headline',
+          description: 'Original description',
+          button: {
+            text: 'Sign In',
+            style: 'primary'
+          }
+        }
+      };
+
+      const localizedData = {
+        SigninPage: {
+          headline: 'Localized headline',
+          button: {
+            text: 'Iniciar Sesión'
+            // style should remain from base
+          }
+        }
+      };
+
+      localization.convertFtlToStrapiFormat.returns(localizedData);
+
+      const result = await localization.mergeConfigs(baseConfig, 'ftl content', 'client', 'entry');
+
+      assert.equal(result.SigninPage.headline, 'Localized headline');
+      assert.equal(result.SigninPage.description, 'Original description');
+      assert.equal(result.SigninPage.button.text, 'Iniciar Sesión');
+      assert.equal(result.SigninPage.button.style, 'primary');
+    });
+  });
+
+  describe('generateFtlContentFromEntries', () => {
+    beforeEach(() => {
+      // Mock the strapiToFtl method
+      sandbox.stub(localization, 'strapiToFtl');
+    });
+
+    it('delegates to strapiToFtl method', () => {
+      const entries = [
+        { l10nId: 'client1', name: 'Client 1' },
+        { l10nId: 'client2', name: 'Client 2' }
+      ];
+      const expectedFtl = 'Generated FTL content';
+
+      localization.strapiToFtl.returns(expectedFtl);
+
+      const result = localization.generateFtlContentFromEntries(entries);
+
+      assert.equal(result, expectedFtl);
+      sinon.assert.calledWith(localization.strapiToFtl, entries);
+    });
+
+    it('handles empty entries array', () => {
+      const entries = [];
+      const expectedFtl = 'Empty FTL content';
+
+      localization.strapiToFtl.returns(expectedFtl);
+
+      const result = localization.generateFtlContentFromEntries(entries);
+
+      assert.equal(result, expectedFtl);
+      sinon.assert.calledWith(localization.strapiToFtl, entries);
+    });
+
+    it('passes through all entries without modification', () => {
+      const entries = [
+        {
+          l10nId: 'testClient',
+          name: 'Test Client',
+          SigninPage: { headline: 'Test' }
+        }
+      ];
+
+      localization.strapiToFtl.returns('FTL output');
+      localization.generateFtlContentFromEntries(entries);
+
+      // Verify the exact same entries object was passed
+      sinon.assert.calledWith(localization.strapiToFtl, entries);
     });
   });
 });

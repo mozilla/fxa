@@ -6,19 +6,24 @@ import { ConfigType } from '../../../../config';
 import { AuthLogger } from '../../../types';
 import crypto from 'crypto';
 import { Octokit } from '@octokit/rest';
+import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
+import { StatsD } from 'hot-shots';
 
 export class CMSLocalization {
   private octokit: Octokit;
 
   constructor(
     private log: AuthLogger,
-    private config: ConfigType
+    private config: ConfigType,
+    private cmsManager: RelyingPartyConfigurationManager,
+    private statsd: StatsD
   ) {
     // Initialize Octokit client
     const { github } = this.config.cmsl10n;
     this.octokit = new Octokit({
       auth: github.token,
     });
+    this.cmsManager = cmsManager;
   }
 
   /**
@@ -186,7 +191,7 @@ export class CMSLocalization {
     return ftlLines.join('\n');
   }
 
-    /**
+  /**
    * Sanitize content for FTL format
    */
   private sanitizeContent(content: string): string {
@@ -200,12 +205,10 @@ export class CMSLocalization {
       // eslint-disable-next-line no-control-regex
       .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '') // Remove control characters (preserve tab, newline, carriage return)
       .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width spaces and BOM
-
-
       .trim(); // Remove leading/trailing whitespace
   }
 
-    /**
+  /**
    * Generate FTL ID with l10nId prefix, component name, field name, and hash
    */
   private generateFtlIdWithL10nId(l10nId: string, fieldPath: string, value: string): string {
@@ -256,49 +259,6 @@ export class CMSLocalization {
   }
 
   /**
-   * Fetch localization data from GitHub
-   */
-  async fetchLocalizationFromGitHub(locale: string): Promise<string> {
-    try {
-      const { github } = this.config.cmsl10n;
-      const ftlUrl = `https://raw.githubusercontent.com/${github.owner}/${github.repo}/main/locale/${locale}/cms.ftl`;
-
-      this.log.info('cms.localization.github.fetch', { locale, ftlUrl });
-
-      const response = await fetch(ftlUrl, {
-        headers: {
-          'Authorization': `token ${github.token}`,
-          'Accept': 'text/plain',
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          this.log.warn('cms.localization.github.notFound', { locale, ftlUrl });
-          return '';
-        }
-        throw new Error(`GitHub API returned ${response.status}: ${await response.text()}`);
-      }
-
-      const ftlContent = await response.text();
-      const ftlContentLength = ftlContent.length;
-
-      this.log.info('cms.localization.github.fetch.success', {
-        locale,
-        ftlContentLength,
-      });
-
-      return ftlContent;
-    } catch (error) {
-      this.log.error('cms.localization.github.fetch.error', {
-        error: error.message,
-        locale,
-      });
-      throw error;
-    }
-  }
-
-  /**
    * Convert FTL content to Strapi format
    */
   convertFtlToStrapiFormat(
@@ -330,8 +290,6 @@ export class CMSLocalization {
         const ftlIdParts = ftlId.split('-');
         if (ftlIdParts.length >= 3) {
           const ftlL10nId = ftlIdParts[0];
-
-          // Only process entries that match our target l10nId
           if (ftlL10nId === l10nId) {
             const fieldPath = this.parseFtlIdToFieldPath(ftlId);
 
@@ -383,45 +341,6 @@ export class CMSLocalization {
     });
 
     return strapiFormat;
-  }
-
-  /**
-   * Merge base CMS data with localized data
-   */
-  mergeCmsWithLocalization(baseData: any, localizedData: any): any {
-    if (!baseData) {
-      return localizedData;
-    }
-
-    if (!localizedData) {
-      return baseData;
-    }
-
-    const merged = { ...baseData };
-
-    // Merge each component
-    for (const [componentName, componentData] of Object.entries(localizedData)) {
-      if (componentName === 'clientId' || componentName === 'entrypoint' || componentName === 'name' || componentName === 'l10nId') {
-        // Preserve base metadata
-        continue;
-      }
-
-      if (typeof componentData === 'object' && componentData !== null) {
-        // Initialize component if it doesn't exist in base data
-        if (!merged[componentName]) {
-          merged[componentName] = {};
-        }
-
-        // Merge component fields
-        for (const [fieldName, fieldValue] of Object.entries(componentData)) {
-          if (typeof fieldValue === 'string') {
-            merged[componentName][fieldName] = fieldValue;
-          }
-        }
-      }
-    }
-
-    return merged;
   }
 
   /**
@@ -737,5 +656,129 @@ export class CMSLocalization {
       });
       throw error;
     }
+  }
+
+  /**
+   * Fetch localized FTL content with fallback logic
+   * Uses the cached getFtlContent method which handles caching automatically
+   */
+  public async fetchLocalizedFtlWithFallback(locale: string): Promise<string> {
+    let hadErrors = false;
+
+    // First try the specific locale (e.g., 'en-US') using the cached getFtlContent method
+    try {
+      const ftlContent = await this.cmsManager.getFtlContent(locale, this.config);
+      // Even if content is empty, this is a successful fetch
+      this.statsd.increment('cms.getLocalizedConfig.ftl.success');
+      if (ftlContent) {
+        return ftlContent;
+      }
+    } catch (error) {
+      hadErrors = true;
+      // Log the failure but don't increment metrics yet
+      this.log.error('cms.getLocalizedConfig.locale.failed', {
+        locale,
+        error: error.message
+      });
+    }
+
+    // If specific locale failed or returned empty content, try base language fallback
+    const baseLocale = this.extractBaseLocale(locale);
+    if (baseLocale && baseLocale !== locale) {
+      try {
+        this.log.info('cms.getLocalizedConfig.locale.fallback', {
+          originalLocale: locale,
+          fallbackLocale: baseLocale
+        });
+
+        const fallbackContent = await this.cmsManager.getFtlContent(baseLocale, this.config);
+        // Even if content is empty, this is a successful fetch
+        this.statsd.increment('cms.getLocalizedConfig.ftl.success');
+        if (fallbackContent) {
+          return fallbackContent;
+        }
+      } catch (error) {
+        hadErrors = true;
+        this.log.error('cms.getLocalizedConfig.locale.fallback.failed', {
+          originalLocale: locale,
+          fallbackLocale: baseLocale,
+          error: error.message
+        });
+      }
+    }
+
+    // Both attempts failed or returned empty content
+    // Only increment ftl.fallback if we had actual errors, not just empty content
+    if (hadErrors) {
+      this.statsd.increment('cms.getLocalizedConfig.ftl.fallback');
+    }
+    return '';
+  }
+
+  /**
+   * Extract base locale from a locale string
+   * Supports BCP 47 locale format: language[-script][-region][-variant][-extension]
+   */
+  public extractBaseLocale(locale: string): string | null {
+    // Extract base language from locale (e.g., 'en-US' -> 'en', 'es-MX' -> 'es', 'zh-Hans-CN' -> 'zh')
+    // BCP 47 allows language subtags of 2-3 characters, so we use {2,3} instead of {2}
+    const match = locale.match(/^([a-z]{2,3})(?:-[A-Za-z0-9]+)*$/);
+    return match ? match[1] : null;
+  }
+
+  /**
+   * Merge base config with localized FTL content
+   */
+  public async mergeConfigs(baseConfig: Record<string, unknown>, ftlContent: string, clientId: string, entrypoint: string): Promise<Record<string, unknown>> {
+    if (!ftlContent || !baseConfig) {
+      return baseConfig;
+    }
+
+    try {
+      // Generate l10nId for this client/entrypoint combination
+      const l10nId = baseConfig.l10nId as string;
+
+      // Convert FTL to Strapi format using existing utility
+      const localizedData = this.convertFtlToStrapiFormat(
+        l10nId,
+        ftlContent,
+        baseConfig
+      );
+
+      // Deep merge with base config (localized data takes precedence)
+      return this.deepMerge(baseConfig, localizedData);
+    } catch (error) {
+      this.log.error('cms.getLocalizedConfig.merge.error', {
+        error: error.message,
+        clientId,
+        entrypoint
+      });
+      // Return base config if merge fails
+      return baseConfig;
+    }
+  }
+
+  /**
+   * Deep merge utility for combining base and localized configs
+   */
+  private deepMerge(base: Record<string, unknown>, localized: Record<string, unknown>): Record<string, unknown> {
+    const result = { ...base };
+
+    for (const [key, value] of Object.entries(localized)) {
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        result[key] = this.deepMerge((result[key] as Record<string, unknown>) || {}, value as Record<string, unknown>);
+      } else {
+        result[key] = value;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Generate FTL content from Strapi entries
+   */
+  public generateFtlContentFromEntries(entries: Record<string, unknown>[]): string {
+    return this.strapiToFtl(entries);
   }
 }
