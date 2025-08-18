@@ -13,6 +13,7 @@ import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';
+import cors from 'cors';
 
 const appConfig = Config.getProperties() as AppConfig;
 
@@ -24,6 +25,20 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
     nestConfig
+  );
+
+  app.use(
+    cors({
+      origin: appConfig.cors.origin,
+      credentials: true,
+      methods: ['GET', 'POST', 'OPTIONS'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'remote-groups',
+        'oidc-claim-id-token-email',
+      ],
+    })
   );
 
   // This applies GQL query allowlisting
