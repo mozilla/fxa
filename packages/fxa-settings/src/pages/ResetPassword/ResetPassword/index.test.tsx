@@ -59,7 +59,7 @@ describe('ResetPassword', () => {
         user.type(screen.getByRole('textbox'), `${MOCK_EMAIL} `)
       );
 
-      await waitFor(() => user.click(screen.getByRole('button')));
+      await waitFor(() => user.click(screen.getByRole('button', { name: 'Continue' })));
 
       expect(mockRequestResetPasswordCode).toHaveBeenCalledWith(MOCK_EMAIL);
 
@@ -79,7 +79,7 @@ describe('ResetPassword', () => {
         user.type(screen.getByRole('textbox'), ` ${MOCK_EMAIL}`)
       );
 
-      await waitFor(() => user.click(screen.getByRole('button')));
+      await waitFor(() => user.click(screen.getByRole('button', { name: 'Continue' })));
 
       expect(mockRequestResetPasswordCode).toHaveBeenCalledWith(MOCK_EMAIL);
       expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
@@ -94,7 +94,7 @@ describe('ResetPassword', () => {
         );
 
         await expect(screen.getByRole('heading', { level: 1 })).toBeVisible();
-        await waitFor(() => user.click(screen.getByRole('button')));
+        await waitFor(() => user.click(screen.getByRole('button', { name: 'Continue' })));
 
         expect(screen.getByText('Valid email required')).toBeVisible();
         expect(mockRequestResetPasswordCode).not.toHaveBeenCalled();
@@ -111,7 +111,7 @@ describe('ResetPassword', () => {
         await expect(screen.getByRole('heading', { level: 1 })).toBeVisible();
         await waitFor(() => user.type(screen.getByRole('textbox'), 'boop'));
 
-        await waitFor(() => user.click(screen.getByRole('button')));
+        await waitFor(() => user.click(screen.getByRole('button', { name: 'Continue' })));
 
         expect(screen.getByText('Valid email required')).toBeVisible();
         expect(mockRequestResetPasswordCode).not.toHaveBeenCalled();

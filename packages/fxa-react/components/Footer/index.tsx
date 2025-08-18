@@ -7,7 +7,13 @@ import { Localized, useLocalization } from '@fluent/react';
 import LinkExternal from '../LinkExternal';
 import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 
-export const Footer = () => {
+export const Footer = ({
+  showLocaleToggle = false,
+  localeToggleComponent
+}: {
+  showLocaleToggle?: boolean;
+  localeToggleComponent?: React.ComponentType<{ placement?: 'footer' | 'header' }>;
+}) => {
   const { l10n } = useLocalization();
   return (
     <footer
@@ -51,6 +57,11 @@ export const Footer = () => {
           </LinkExternal>
         </Localized>
       </div>
+      {showLocaleToggle && localeToggleComponent && (
+        <div className="w-full mobileLandscape:w-auto flex items-center mt-3 mobileLandscape:mt-0 mobileLandscape:ml-10">
+          {React.createElement(localeToggleComponent, { placement: 'footer' })}
+        </div>
+      )}
     </footer>
   );
 };

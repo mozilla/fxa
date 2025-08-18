@@ -120,6 +120,7 @@ const settingsConfig = {
     updatedInlineRecoverySetupFlow: config.get(
       'featureFlags.updatedInlineRecoverySetupFlow'
     ),
+    showLocaleToggle: config.get('featureFlags.showLocaleToggle'),
   },
   nimbusPreview: config.get('nimbusPreview'),
   cms: {

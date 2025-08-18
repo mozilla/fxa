@@ -71,6 +71,7 @@
     "recoveryPhonePasswordReset2fa": true,
     "updatedInlineTotpSetupFlow": true,
     "updatedInlineRecoverySetupFlow": true
+    "showLocaleToggle": true
   },
   "rolloutRates": {
     "keyStretchV2": 1,

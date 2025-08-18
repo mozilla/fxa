@@ -9,6 +9,8 @@ import { useLocalization } from '@fluent/react';
 import Head from 'fxa-react/components/Head';
 import classNames from 'classnames';
 import { RelierCmsInfo } from '../../models/integrations';
+import { LocaleToggle } from '../LocaleToggle';
+import { useConfig } from '../../models/hooks';
 
 type AppLayoutProps = {
   // TODO: FXA-6803 - the title prop should be made mandatory
@@ -25,6 +27,8 @@ type AppLayoutProps = {
    * `FlowContainer`.
    */
   wrapInCard?: boolean;
+  /** Whether to show the locale toggle in the footer */
+  showLocaleToggle?: boolean;
 };
 
 const looseValidBgCheck = (value: string | undefined) => {
@@ -45,6 +49,7 @@ export const AppLayout = ({
   wrapInCard = true,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
+  const config = useConfig();
   const cmsBackgroundColor = cmsInfo?.shared?.backgroundColor;
   const cmsHeaderBackground = cmsInfo?.shared?.headerBackground;
   const cmsPageTitle = cmsInfo?.shared?.pageTitle;
@@ -57,6 +62,8 @@ export const AppLayout = ({
   const hasValidHeaderBackground = looseValidBgCheck(cmsHeaderBackground);
 
   const favicon = cmsInfo?.shared?.favicon;
+
+  const showLocaleToggle =config.featureFlags?.showLocaleToggle;
 
   return (
     <>
@@ -116,7 +123,7 @@ export const AppLayout = ({
           </LinkExternal>
         </header>
         <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
-          <section>
+          <section className="relative">
             {wrapInCard ? (
               <div className={classNames('card', widthClass)}>{children}</div>
             ) : (
@@ -125,6 +132,14 @@ export const AppLayout = ({
           </section>
         </main>
       </div>
+      <footer>
+            {/* LocaleToggle positioned in lower left corner of page */}
+            {showLocaleToggle && (
+              <div className="fixed bottom-6 left-6 z-10">
+                <LocaleToggle placement="footer" />
+              </div>
+            )}
+      </footer>
       <div id="body-bottom" className="w-full block mobileLandscape:hidden" />
     </>
   );

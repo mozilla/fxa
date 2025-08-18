@@ -16,7 +16,8 @@ describe('InputPhoneNumber', () => {
     expect(usOption).toBeInTheDocument();
     expect(canadaOption).toBeInTheDocument();
 
-    const options = screen.getAllByRole('option');
+    const phoneSelect = screen.getByLabelText('Select country');
+    const options = phoneSelect.querySelectorAll('option');
     expect(options.length).toBe(2);
 
     // expect list to be sorted alphabetically
@@ -34,14 +35,15 @@ describe('InputPhoneNumber', () => {
     renderWithLocalizationProvider(
       <Subject countries={extendedCountryOptions} />
     );
-    let options = screen.getAllByRole('option');
+    const phoneSelect = screen.getByLabelText('Select country');
+    let options = phoneSelect.querySelectorAll('option');
     expect(options.length).toBe(extendedCountryOptions.length);
 
     // There should be an option for each country listed
     expect(extendedCountryOptions.length).toEqual(options.length);
     extendedCountryOptions.forEach((countryOption) => {
       expect(
-        options.some((option) =>
+        Array.from(options).some((option) =>
           option.textContent?.includes(countryOption.name)
         )
       ).toBe(true);
