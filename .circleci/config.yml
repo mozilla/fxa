@@ -369,7 +369,7 @@ commands:
             echo "targeting project << parameters.project >> $GREP"
             npx nx build fxa-auth-client
 
-            cd packages/functional-tests/tests
+            cd packages/functional-tests
 
             circleci tests glob "./**/*.spec.ts" \
             | circleci tests run \
