@@ -5,7 +5,7 @@
 import React from 'react';
 import { ReactComponent as BackArrow } from './back-arrow.svg';
 import { useFtlMsgResolver } from '../../models';
-import { getTextColorClassName } from './calculate-contrast';
+import { getTextColorClassName } from 'fxa-react/lib/calculate-contrast';
 
 interface ButtonBackProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
@@ -32,20 +32,21 @@ const ButtonBack = ({
     ftlMsgResolver.getMsg('button-back-aria-label', 'Back');
 
   const getTabletArrowColor = () => {
+    const defaultClasses = 'tablet:text-grey-400 tablet:hover:bg-grey-400/10';
     if (!cmsBackgroundColor) {
-      return 'tablet:text-grey-400';
+      return defaultClasses;
     }
 
     const textColorClass = getTextColorClassName(cmsBackgroundColor.trim());
     // Map to hardcoded class names for Tailwind tree shaking
     switch (textColorClass) {
       case 'text-white':
-        return 'tablet:text-white';
+        return 'tablet:text-white tablet:hover:bg-white/10';
       case 'text-grey-600':
-        return 'tablet:text-grey-600';
+        return 'tablet:text-grey-600 tablet:hover:bg-grey-900/10';
       case 'text-grey-400':
       default:
-        return 'tablet:text-grey-400';
+        return defaultClasses;
     }
   };
 
@@ -55,9 +56,9 @@ const ButtonBack = ({
       data-testid={dataTestId}
       title={localizedButtonTitle}
       aria-label={localizedButtonAriaLabel}
-      className="me-4 tablet:me-0 tablet:p-4 tablet:absolute tablet:-start-24 rounded focus-visible-default"
+      className={`me-4 tablet:me-0 p-2 tablet:absolute tablet:-start-24 rounded focus-visible-default text-grey-400 ${getTabletArrowColor()}`}
     >
-      <BackArrow className={`w-6 h-auto text-grey-400 ${getTabletArrowColor()} rtl:transform rtl:-scale-x-100`} />
+      <BackArrow className="w-6 h-auto rtl:transform rtl:-scale-x-100" />
     </button>
   );
 };
