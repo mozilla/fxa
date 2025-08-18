@@ -335,7 +335,7 @@ commands:
           name: Checking Playwright Test Count
           command: |
             TEST_COUNT=$(
-              circleci tests glob "./**/*.spec.ts" \
+              circleci tests glob "packages/functional-tests/**/*.spec.ts" \
               | circleci tests run \
                   --command="bash -eo pipefail -c 'yarn playwright test --project=<< parameters.project >> ${GREP:+${GREP[*]}} --list || true'" \
                   --timings-type=filename \
@@ -346,6 +346,7 @@ commands:
               echo "No functional tests targeted to run! Exiting early."
               circleci-agent step halt
             fi
+            echo "Found $TEST_COUNT functional tests to run."
 
   run-playwright-tests:
     parameters:
@@ -373,7 +374,7 @@ commands:
 
             circleci tests glob "./**/*.spec.ts" \
             | circleci tests run \
-                --command="bash -eo pipefail -c 'yarn playwright test --project=<< parameters.project >> ${GREP:+${GREP[*]}} || true'" \
+                --command="bash -eo pipefail -c 'yarn playwright test --project=<< parameters.project >> ${GREP:+${GREP[*]}} \"$@\" || true'" \
                 --verbose \
                 --split-by=timings \
                 --timings-type=filename
