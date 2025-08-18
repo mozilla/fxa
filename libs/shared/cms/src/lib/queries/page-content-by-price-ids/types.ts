@@ -2,12 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+export interface PageContentByPriceIdsCommonContentResult {
+  supportUrl: string;
+}
+
 export interface PageContentByPriceIdsStripeLegacyPlanResult {
   stripeLegacyPlan: string;
 }
 
 export interface PageContentByPriceIdsOfferingResult {
   stripeLegacyPlans: PageContentByPriceIdsStripeLegacyPlanResult[];
+  commonContent: PageContentByPriceIdsCommonContentResult & {
+    localizations: PageContentByPriceIdsCommonContentResult[];
+  };
 }
 
 export interface PageContentByPriceIdsPurchaseDetailsResult {

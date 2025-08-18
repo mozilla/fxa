@@ -164,9 +164,9 @@ export class ProductConfigurationManager {
     );
   }
 
-  async getProductNamesByStoreIds(storeIds: string[]) {
+  async getIapPageContentByStoreIds(storeIds: string[]) {
     const iapOfferings = await this.getIapOfferings(storeIds);
-    return iapOfferings.getProductNamesByStoreIds(storeIds);
+    return iapOfferings.getIapPageContentByStoreIds(storeIds);
   }
 
   async getPurchaseDetailsForCapabilityServiceByPlanIds(
@@ -202,11 +202,19 @@ export class ProductConfigurationManager {
   }
 
   async getIapOfferings(
-    storeIDs: string[]
+    storeIDs: string[],
+    acceptLanguage?: string,
+    selectedLanguage?: string
   ): Promise<IapOfferingsByStoreIDsResultUtil> {
+    const locale = await this.strapiClient.getLocale(
+      acceptLanguage,
+      selectedLanguage
+    );
+
     const queryResult = await this.strapiClient.query(
       iapOfferingsByStoreIDsQuery,
       {
+        locale,
         storeIDs,
       }
     );

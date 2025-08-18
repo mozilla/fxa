@@ -49,15 +49,22 @@ export class IapOfferingsByStoreIDsResultUtil {
     return false;
   }
 
-  getProductNamesByStoreIds(
+  getIapPageContentByStoreIds(
     storeIds: string[]
-  ): Record<string, string | undefined> {
-    const result: Record<string, string | undefined> = {};
-    for (const storeId of storeIds) {
-      const iap = this.iaps.find((iap) => iap.storeID === storeId);
-      result[storeId] =
-        iap?.offering?.defaultPurchase?.purchaseDetails?.productName;
+  ): Record<string, IapWithOfferingResult> {
+    const iapMap: Record<string, IapWithOfferingResult> = {};
+    for (const iap of this.iaps) {
+      iapMap[iap.storeID] = iap;
     }
+
+    const result: Record<string, IapWithOfferingResult> = {};
+
+    for (const storeId of storeIds) {
+      const iap = iapMap[storeId];
+
+      result[storeId] = iap;
+    }
+
     return result;
   }
 }

@@ -17,11 +17,20 @@ export interface IapOfferingDefaultPurchaseDetails {
   productName: string;
 }
 export interface IapOfferingDefaultPurchase {
-  purchaseDetails: IapOfferingDefaultPurchaseDetails;
+  purchaseDetails: IapOfferingDefaultPurchaseDetails & {
+    localizations: IapOfferingDefaultPurchaseDetails[];
+  };
+}
+
+export interface IapOfferingCommonContentResult {
+  supportUrl: string;
 }
 
 export interface IapOfferingResult {
   apiIdentifier: string;
+  commonContent: IapOfferingCommonContentResult & {
+    localizations: IapOfferingCommonContentResult[];
+  };
   defaultPurchase: IapOfferingDefaultPurchase;
   subGroups: IapOfferingSubGroupResult[];
 }

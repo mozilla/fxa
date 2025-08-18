@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Inject, Injectable } from '@nestjs/common';
-import * as Sentry from '@sentry/nestjs';
 import { StatsD } from 'hot-shots';
 
 import {
@@ -46,7 +45,7 @@ import {
   SubscriptionContentMissingLatestInvoiceError,
   SubscriptionContentMissingLatestInvoicePreviewError,
   SubscriptionContentMissingUpcomingInvoicePreviewError,
-  SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError,
+  SubscriptionManagementCouldNotRetrieveIapContentFromCMSError,
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
   UpdateAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
@@ -132,7 +131,7 @@ export class SubscriptionManagementService {
       SubscriptionContentMissingLatestInvoicePreviewError,
       SubscriptionContentMissingUpcomingInvoicePreviewError,
       SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
-      SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError,
+      SubscriptionManagementCouldNotRetrieveIapContentFromCMSError,
     ],
   })
   async getPageContent(
@@ -141,8 +140,8 @@ export class SubscriptionManagementService {
     selectedLanguage?: string
   ) {
     const subscriptions: SubscriptionContent[] = [];
-    let appleIapSubscriptions: AppleIapSubscriptionContent[] = [];
-    let googleIapSubscriptions: GoogleIapSubscriptionContent[] = [];
+    const appleIapSubscriptions: AppleIapSubscriptionContent[] = [];
+    const googleIapSubscriptions: GoogleIapSubscriptionContent[] = [];
     let defaultPaymentMethod: DefaultPaymentMethod | undefined;
     let accountCreditBalance: AccountCreditBalance = {
       balance: 0,
@@ -233,15 +232,15 @@ export class SubscriptionManagementService {
         const productName =
           cmsPurchase.purchaseDetails.localizations[0]?.productName ||
           cmsPurchase.purchaseDetails.productName;
-        const webIcon =
-          cmsPurchase.purchaseDetails.localizations[0]?.webIcon ||
-          cmsPurchase.purchaseDetails.webIcon;
+        const webIcon = cmsPurchase.purchaseDetails.webIcon;
+        const supportUrl = cmsPurchase.offering.commonContent.supportUrl;
         const content = await this.getSubscriptionContent(
           sub,
           stripeCustomer,
           price,
           productName,
-          webIcon
+          webIcon,
+          supportUrl
         );
 
         if (content) {
@@ -250,55 +249,55 @@ export class SubscriptionManagementService {
       }
     }
 
-    const storeIds = [
-      ...new Set([...appleIapSubs.storeIds, ...googleIapSubs.storeIds]),
-    ];
+    if (hasAppleIap || hasGoogleIap) {
+      const storeIds = [
+        ...new Set([...appleIapSubs.storeIds, ...googleIapSubs.storeIds]),
+      ];
 
-    let storeMap: Record<string, string | undefined> = {};
-    if (storeIds.length > 0) {
-      storeMap =
-        await this.productConfigurationManager.getProductNamesByStoreIds(
+      const storeMap =
+        await this.productConfigurationManager.getIapPageContentByStoreIds(
           storeIds
         );
 
       if (!storeMap) {
-        throw new SubscriptionManagementCouldNotRetrieveIapProductNamesFromCMSError(
+        throw new SubscriptionManagementCouldNotRetrieveIapContentFromCMSError(
           storeIds
         );
       }
-    }
 
-    const getIapProductName = (storeId: string, fallback: string): string => {
-      if (!storeId) return fallback;
-      const productName = storeMap[storeId];
-      if (!productName) {
-        Sentry.captureMessage('No product name for store id', {
-          extra: { uid, storeId },
-        });
+      if (hasAppleIap) {
+        for (const purchase of appleIapSubs.purchaseDetails) {
+          const cmsContent = storeMap[purchase.storeId];
+          const productName =
+            cmsContent.offering.defaultPurchase.purchaseDetails.localizations[0]
+              ?.productName ||
+            cmsContent.offering.defaultPurchase.purchaseDetails.productName;
+          const supportUrl = cmsContent.offering.commonContent.supportUrl;
+
+          appleIapSubscriptions.push({
+            ...purchase,
+            productName,
+            supportUrl,
+          });
+        }
       }
-      return productName ?? fallback;
-    };
 
-    if (hasAppleIap) {
-      appleIapSubscriptions = appleIapSubs.purchaseDetails.map((purchase) => ({
-        ...purchase,
-        productName: getIapProductName(
-          purchase.storeId,
-          'Apple IAP Subscription'
-        ),
-      }));
-    }
+      if (hasGoogleIap) {
+        for (const purchase of googleIapSubs.purchaseDetails) {
+          const cmsContent = storeMap[purchase.storeId];
+          const productName =
+            cmsContent.offering.defaultPurchase.purchaseDetails.localizations[0]
+              ?.productName ||
+            cmsContent.offering.defaultPurchase.purchaseDetails.productName;
+          const supportUrl = cmsContent.offering.commonContent.supportUrl;
 
-    if (hasGoogleIap) {
-      googleIapSubscriptions = googleIapSubs.purchaseDetails.map(
-        (purchase) => ({
-          ...purchase,
-          productName: getIapProductName(
-            purchase.storeId,
-            'Google IAP Subscription'
-          ),
-        })
-      );
+          googleIapSubscriptions.push({
+            ...purchase,
+            productName,
+            supportUrl,
+          });
+        }
+      }
     }
 
     return {
@@ -357,7 +356,8 @@ export class SubscriptionManagementService {
     customer: StripeCustomer,
     price: StripePrice,
     productName: string,
-    webIcon: string
+    webIcon: string,
+    supportUrl: string
   ): Promise<SubscriptionContent> {
     const currency = subscription.currency;
     const latestInvoiceId = subscription.latest_invoice;
@@ -429,6 +429,7 @@ export class SubscriptionManagementService {
     return {
       id: subscription.id,
       productName,
+      supportUrl,
       webIcon,
       canResubscribe:
         subscription.status === 'active' && subscription.cancel_at_period_end,

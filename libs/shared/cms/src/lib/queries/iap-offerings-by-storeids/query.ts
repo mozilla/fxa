@@ -5,15 +5,24 @@
 import { graphql } from '../../../__generated__/gql';
 
 export const iapOfferingsByStoreIDsQuery = graphql(`
-  query IapOfferingsByStoreIDs($storeIDs: [String!]!) {
+  query IapOfferingsByStoreIDs($locale: String!, $storeIDs: [String!]!) {
     iaps(filters: { storeID: { in: $storeIDs } }) {
       storeID
       interval
       offering {
         apiIdentifier
+        commonContent {
+          supportUrl
+          localizations(filters: { locale: { eq: $locale } }) {
+            supportUrl
+          }
+        }
         defaultPurchase {
           purchaseDetails {
             productName
+            localizations(filters: { locale: { eq: $locale } }) {
+              productName
+            }
           }
         }
         subGroups {

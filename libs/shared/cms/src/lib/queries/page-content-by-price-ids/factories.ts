@@ -52,6 +52,10 @@ export const PageContentByPriceIdsOfferingResultFactory = (
       stripeLegacyPlan: faker.string.alpha(10),
     })
   ),
+  commonContent: {
+    supportUrl: faker.internet.url(),
+    localizations: [{ supportUrl: faker.internet.url() }],
+  },
   ...override,
 });
 
