@@ -334,7 +334,14 @@ commands:
       - run:
           name: Checking Playwright Test Count
           command: |
-            TEST_COUNT=$(echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >> $GREP --list" | wc -l)
+            TEST_COUNT=$(
+              circleci tests glob "./**/*.spec.ts" \
+              | circleci tests run \
+                  --command="bash -eo pipefail -c 'yarn playwright test --project=<< parameters.project >> ${GREP:+${GREP[*]}} --list || true'" \
+                  --timings-type=filename \
+              | wc -l
+            )
+
             if [[ "$TEST_COUNT" -eq 0 ]]; then
               echo "No functional tests targeted to run! Exiting early."
               circleci-agent step halt
@@ -361,15 +368,15 @@ commands:
             fi
             echo "targeting project << parameters.project >> $GREP"
             npx nx build fxa-auth-client
-            cd packages/functional-tests/tests
-            TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
-            cd ..
 
-            echo $TEST_FILES | circleci tests run \
-              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" \
-              --verbose \
-              --split-by=timings \
-              --timings-type=classname
+            cd packages/functional-tests/tests
+
+            circleci tests glob "./**/*.spec.ts" \
+            | circleci tests run \
+                --command="bash -eo pipefail -c 'yarn playwright test --project=<< parameters.project >> ${GREP:+${GREP[*]}} || true'" \
+                --verbose \
+                --split-by=timings \
+                --timings-type=filename
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>

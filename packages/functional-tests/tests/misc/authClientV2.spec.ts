@@ -67,6 +67,8 @@ test.describe('auth-client-tests', () => {
     expect(status2.upgradeNeeded).toBeTruthy();
     expect(status2.currentVersion).toEqual('v1');
     expect(status2.clientSalt).toBeUndefined();
+    // TODO: REMOVE ME, TESTING ONLY
+    expect(true).toBeFalsy();
   });
 
   test('it creates with v2 and signs in with v2 or v1', async ({
