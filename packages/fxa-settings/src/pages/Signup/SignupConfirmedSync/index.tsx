@@ -43,9 +43,10 @@ const SignupConfirmedSync = ({
   const cmsButtonColor = cmsInfo?.shared?.buttonColor;
   const cmsButtonText = cmsInfo?.SignupConfirmedSyncPage?.primaryButtonText;
   const cmsHideCTA = !!cmsInfo?.shared?.featureFlags?.syncConfirmedPageHideCTA;
+  const title = cmsInfo?.SignupConfirmedSyncPage?.pageTitle;
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout {...{ cmsInfo, title }}>
       <FallingConfettiImage />
 
       {originPostVerifySetPassword ? (

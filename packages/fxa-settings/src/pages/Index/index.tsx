@@ -100,9 +100,10 @@ export const Index = ({
   }
 
   const cmsInfo = integration.getCmsInfo();
+  const title = cmsInfo?.EmailFirstPage?.pageTitle;
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout {...{ cmsInfo, title }}>
       {cmsInfo ? (
         <>
           <CmsLogo

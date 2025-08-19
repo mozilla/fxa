@@ -12,7 +12,6 @@ import {
   MOCK_CMS_INFO_NO_BG,
   MOCK_CMS_INFO_INVALID_BG_COLOR,
   MOCK_CMS_INFO_WITH_PAGE_TITLE,
-  MOCK_CMS_INFO_NO_PAGE_TITLE,
   MOCK_CMS_INFO_HEADER_LOGO,
   MOCK_CMS_INFO_HEADER_LOGO_NO_ALT,
   MOCK_CMS_INFO_DEFAULT_LOGO,
@@ -49,6 +48,7 @@ describe('<AppLayout />', () => {
     );
 
     expect(screen.getByTestId('app')).toBeInTheDocument();
+    expect(document.title).toBe('Test Page Title | Mozilla accounts');
     screen.getByText('Hello, world!');
   });
 
@@ -106,7 +106,9 @@ describe('<AppLayout />', () => {
     screen.getByText('Hello, world!');
 
     // Check that no CSS custom property is set
-    expect(screen.getByTestId('app')).not.toHaveStyle({ '--cms-bg': expect.any(String) });
+    expect(screen.getByTestId('app')).not.toHaveStyle({
+      '--cms-bg': expect.any(String),
+    });
   });
 
   it('renders with integration prop but no background image when backgroundColor is invalid', async () => {
@@ -120,7 +122,9 @@ describe('<AppLayout />', () => {
     screen.getByText('Hello, world!');
 
     // Check that no CSS custom property is set
-    expect(screen.getByTestId('app')).not.toHaveStyle({ '--cms-bg': expect.any(String) });
+    expect(screen.getByTestId('app')).not.toHaveStyle({
+      '--cms-bg': expect.any(String),
+    });
   });
 
   it('renders with integration prop but no background image when getCmsInfo returns undefined', async () => {
@@ -134,7 +138,9 @@ describe('<AppLayout />', () => {
     screen.getByText('Hello, world!');
 
     // Check that no CSS custom property is set
-    expect(screen.getByTestId('app')).not.toHaveStyle({ '--cms-bg': expect.any(String) });
+    expect(screen.getByTestId('app')).not.toHaveStyle({
+      '--cms-bg': expect.any(String),
+    });
   });
 
   it('renders with integration prop but no background image when getCmsInfo is missing', async () => {
@@ -148,28 +154,35 @@ describe('<AppLayout />', () => {
     screen.getByText('Hello, world!');
 
     // Check that no CSS custom property is set
-    expect(screen.getByTestId('app')).not.toHaveStyle({ '--cms-bg': expect.any(String) });
+    expect(screen.getByTestId('app')).not.toHaveStyle({
+      '--cms-bg': expect.any(String),
+    });
   });
 
-  it('renders with integration prop and uses CMS page title when available', async () => {
+  it('renders with integration prop and uses title over cms-shared-title when available', async () => {
+    const expectedTitle = 'Custom Title';
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_WITH_PAGE_TITLE} title="Default Title">
+      <AppLayout cmsInfo={MOCK_CMS_INFO_WITH_PAGE_TITLE} title={expectedTitle}>
         <p>Hello, world!</p>
       </AppLayout>
     );
 
     expect(screen.getByTestId('app')).toBeInTheDocument();
+    // explicit check for title. Title is concatenated with
+    // ` | Mozilla accounts` in the `head` component
+    expect(document.title).toBe(`${expectedTitle} | Mozilla accounts`);
     screen.getByText('Hello, world!');
   });
 
-  it('renders with integration prop and falls back to default title when CMS page title is not available', async () => {
+  it('renders with integration prop and uses cms-shared-title when title is not available', async () => {
     renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_NO_PAGE_TITLE} title="Default Title">
+      <AppLayout cmsInfo={MOCK_CMS_INFO_WITH_PAGE_TITLE} title={undefined}>
         <p>Hello, world!</p>
       </AppLayout>
     );
 
     expect(screen.getByTestId('app')).toBeInTheDocument();
+    expect(document.title).toBe('CMS Custom Title | Mozilla accounts');
     screen.getByText('Hello, world!');
   });
 
@@ -288,11 +301,15 @@ describe('<AppLayout />', () => {
       // title should have override
       const title = document.title;
       // header logo image
-      const headerLogo = screen.getByRole('img', { name: mockCmsInfo.shared?.headerLogoAltText });
+      const headerLogo = screen.getByRole('img', {
+        name: mockCmsInfo.shared?.headerLogoAltText,
+      });
       // div containing the background styling. We use cloneNode to remove
       // child content so the snap is only the background styles we want to ensure
       // are getting passed through
-      const backgroundWrapper = container.querySelector('.flex-col')?.cloneNode(false);
+      const backgroundWrapper = container
+        .querySelector('.flex-col')
+        ?.cloneNode(false);
 
       expect(title).toMatchSnapshot('title');
       expect(headerLogo).toMatchSnapshot('header logo');
@@ -310,7 +327,9 @@ describe('<AppLayout />', () => {
       // should be default header logo image
       const headerLogo = screen.getByRole('img', { name: 'Mozilla logo' });
       // div containing the background styling
-      const backgroundWrapper = container.querySelector('.flex-col')?.cloneNode(false)
+      const backgroundWrapper = container
+        .querySelector('.flex-col')
+        ?.cloneNode(false);
 
       expect(title).toMatchSnapshot('title');
       expect(headerLogo).toMatchSnapshot('header logo');

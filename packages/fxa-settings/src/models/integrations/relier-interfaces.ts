@@ -31,6 +31,7 @@ export interface PageRelierCmsInfo {
   headline: string | undefined;
   description: string | undefined;
   primaryButtonText: string | undefined;
+  pageTitle?: string | undefined;
 }
 
 export interface PageRelierCmsInfoWithLogo extends PageRelierCmsInfo {

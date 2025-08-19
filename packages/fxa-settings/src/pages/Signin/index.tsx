@@ -370,9 +370,10 @@ const Signin = ({
   }
 
   const cmsInfo = integration.getCmsInfo();
+  const title = cmsInfo?.SigninPage?.pageTitle;
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout {...{ cmsInfo, title }}>
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"

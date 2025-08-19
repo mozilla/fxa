@@ -13,6 +13,9 @@ import { RelierCmsInfo } from '../../models/integrations';
 type AppLayoutProps = {
   // TODO: FXA-6803 - the title prop should be made mandatory
   // the string should be localized
+  /**
+   * `title` takes precedence over the `cmsInfo.shared.pageTitle` if both are present.
+   */
   title?: string;
   children: React.ReactNode;
   widthClass?: string;
@@ -37,7 +40,7 @@ export const AppLayout = ({
   const cmsHeaderLogoUrl = cmsInfo?.shared?.headerLogoUrl;
   const cmsHeaderLogoAltText = cmsInfo?.shared?.headerLogoAltText;
 
-  const overrideTitle = cmsPageTitle ? cmsPageTitle : title;
+  const overrideTitle = title ? title : cmsPageTitle;
 
   // Only apply background image if cmsBackgroundColor is a valid background-image CSS value
   const hasValidBackgroundImage =

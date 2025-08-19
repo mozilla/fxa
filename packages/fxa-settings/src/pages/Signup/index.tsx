@@ -278,11 +278,12 @@ export const Signup = ({
   }
 
   const cmsInfo = integration.getCmsInfo();
+  const title = cmsInfo?.SignupSetPasswordPage?.pageTitle;
 
   return (
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
     //       - forceMessage('Account no longer exists. Recreate it?')
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout {...{ cmsInfo, title }}>
       {cmsInfo ? (
         <>
           <CmsLogo
