@@ -222,6 +222,32 @@ export default async function Manage({
               </div>
             )}
 
+            {type === 'amazon_pay' && (
+              <div className="flex items-center justify-between">
+                <div className="leading-5 text-sm">
+                  <Image
+                    src={getCardIcon('amazon_pay', l10n).img}
+                    alt={l10n.getString('amazon-pay-logo-alt-text', 'Amazon Pay logo')}
+                    width={70}
+                    height={24}
+                  />
+                </div>
+                <Link
+                  className={CSS_SECONDARY_LINK}
+                  href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
+                  aria-label={l10n.getString(
+                    'subscription-management-button-change-payment-method-aria',
+                    'Change payment method'
+                  )}
+                >
+                  {l10n.getString(
+                    'subscription-management-button-change-payment-method',
+                    'Change'
+                  )}
+                </Link>
+              </div>
+            )}
+
             {type === 'external_paypal' && brand && (
               <div className="flex items-center justify-between">
                 <div className="leading-5 text-sm">

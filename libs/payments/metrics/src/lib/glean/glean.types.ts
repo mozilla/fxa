@@ -13,6 +13,7 @@ export const PaymentProvidersTypePartial = [
   'apple_iap',
   'external_paypal',
   'link',
+  'amazon_pay',
 ] as const;
 export type PaymentProvidersType =
   | Stripe.PaymentMethod.Type

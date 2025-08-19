@@ -104,6 +104,13 @@ export default async function Upgrade({
                 width={70}
                 height={24}
               />
+            ) : cart.paymentInfo.type === 'amazon_pay' ? (
+              <Image
+                src={getCardIcon('amazon_pay', l10n).img}
+                alt={l10n.getString('amazon-pay-logo-alt-text', 'Amazon Pay logo')}
+                width={70}
+                height={24}
+              />
             ) : (
               <span className="flex items-center gap-2">
                 {cart.paymentInfo.brand && (

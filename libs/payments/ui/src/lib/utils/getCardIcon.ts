@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import AmazonPay from '@fxa/shared/assets/images/payment-methods/amazon-pay.svg';
 import Amex from '@fxa/shared/assets/images/payment-methods/amex.svg';
 import Diners from '@fxa/shared/assets/images/payment-methods/diners.svg';
 import Discover from '@fxa/shared/assets/images/payment-methods/discover.svg';
@@ -16,6 +17,11 @@ import { LocalizerRsc } from '@fxa/shared/l10n/server';
 
 export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
   switch (cardBrand) {
+    case 'amazon_pay':
+      return {
+        img: AmazonPay,
+        altText: l10n.getString('amazon-pay-logo-alt-text', 'Amazon Pay logo'),
+      };
     case 'amex':
       return {
         img: Amex,

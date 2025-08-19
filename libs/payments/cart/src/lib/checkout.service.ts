@@ -76,6 +76,7 @@ import { throwIntentFailedError } from './util/throwIntentFailedError';
 import type { AsyncLocalStorage } from 'async_hooks';
 import { AsyncLocalStorageCart } from './cart-als.provider';
 import type { CartStore } from './cart-als.types';
+import { CartEligibilityStatus } from '@fxa/shared/db/mysql/account';
 
 @Injectable()
 export class CheckoutService {
@@ -397,11 +398,23 @@ export class CheckoutService {
       );
 
       if (invoice.payment_intent && invoice.amount_due !== 0) {
+        const pageType = cart.eligibilityStatus === CartEligibilityStatus.UPGRADE
+          ? 'upgrade'
+          : 'checkout';
+
+        const baseUrl = process.env['PAYMENTS_NEXT_HOSTED_URL'];
+
         intent = await this.paymentIntentManager.confirm(
           invoice.payment_intent,
           {
             confirmation_token: confirmationTokenId,
             off_session: false,
+            ...(baseUrl && {
+              return_url:
+                  `${baseUrl}` +
+                  `/${customerData.locale}/${cart.offeringConfigId}/${cart.interval}` +
+                  `/${pageType}/${cart.id}/processing`,
+            }),
           }
         );
       } else {
