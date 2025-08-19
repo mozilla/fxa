@@ -106,6 +106,8 @@ describe('lib/glean', () => {
       entrypointVariation: 'earth',
     } as WebIntegrationData;
 
+    mockIntegration.getCmsInfo = jest.fn().mockResolvedValue({});
+
     setDeviceTypeStub = sandbox.stub(deviceType, 'set');
     setEntrypointStub = sandbox.stub(entrypoint, 'set');
     setEventNameStub = sandbox.stub(event.name, 'set');
