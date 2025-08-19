@@ -109,6 +109,7 @@ export const Index = ({
             {...{
               isMobile,
               logos: [cmsInfo?.EmailFirstPage, cmsInfo?.shared],
+              logoPosition: cmsInfo?.EmailFirstPage?.logoUrl ? 'center' : 'left',
             }}
           />
           <h1 className="card-header">{cmsInfo?.EmailFirstPage?.headline}</h1>

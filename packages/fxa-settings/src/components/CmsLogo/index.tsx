@@ -6,6 +6,7 @@ import React from 'react';
 
 const CmsLogo = (opts: {
   isMobile: boolean;
+  logoPosition: 'left' | 'center';
   logos: Array<
     | {
         logoUrl?: string;
@@ -23,7 +24,9 @@ const CmsLogo = (opts: {
         <img
           src={logo.logoUrl}
           alt={logo.logoAltText}
-          className="m-auto mb-4 max-h-[160px]"
+          className={`${
+            opts.logoPosition === 'center' ? 'justify-center mb-4 max-h-[160px]' : 'justify-left mb-4 max-h-[40px]'
+          }`}
         />
       )}
     </>
