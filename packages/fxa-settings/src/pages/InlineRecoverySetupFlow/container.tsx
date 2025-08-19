@@ -30,7 +30,7 @@ import { GET_TOTP_STATUS } from '../../components/App/gql';
 import OAuthDataError from '../../components/OAuthDataError';
 import { isFirefoxService } from '../../models/integrations/utils';
 import { SensitiveData } from '../../lib/sensitive-data-client';
-import { Choice, CHOICES } from '../../components/FormChoice';
+import { Choice } from '../../components/FormChoice';
 import { totpUtils } from '../../lib/totp-utils';
 import { getErrorFtlId, getHandledError } from '../../lib/error-utils';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
@@ -115,15 +115,18 @@ export const InlineRecoverySetupFlowContainer = ({
     setBackupCodes(codes);
     setGeneratingCodes(false);
   }, [backupCodes, config.recoveryCodes, generatingCodes]);
+
+  // Always generate codes early; they will only be persisted if the user confirms them
+  useEffect(() => {
+    createRecoveryCodes();
+  }, [createRecoveryCodes]);
+
   const backupChoiceCb = useCallback(
     async (choice: Choice) => {
-      if (choice === CHOICES.code) {
-        await createRecoveryCodes();
-      }
       setBackupMethod(choice);
       navigateForward();
     },
-    [createRecoveryCodes, navigateForward]
+    [navigateForward]
   );
 
   const [verifyTotp] = useMutation<{ verifyTotp: { success: boolean } }>(
@@ -282,6 +285,7 @@ export const InlineRecoverySetupFlowContainer = ({
         currentStep,
         backupMethod,
         backupCodes,
+        generatingCodes,
         phoneData,
         navigateForward,
         navigateBackward,

@@ -42,6 +42,7 @@ export const ChoiceScreen = () => (
     currentStep={1}
     backupMethod={null}
     backupCodes={[]}
+    generatingCodes={false}
     phoneData={{ phoneNumber: '', nationalFormat: '' }}
     {...{
       flowHasPhoneChoice,
@@ -66,6 +67,7 @@ export const BackupCodesCopyAndDownload = () => (
     currentStep={2}
     backupMethod={'code'}
     backupCodes={MOCK_BACKUP_CODES}
+    generatingCodes={false}
     phoneData={{ phoneNumber: '', nationalFormat: '' }}
     {...{
       flowHasPhoneChoice,
@@ -90,6 +92,7 @@ export const BackupCodesConfirmation = () => (
     currentStep={3}
     backupMethod={'code'}
     backupCodes={MOCK_BACKUP_CODES}
+    generatingCodes={false}
     phoneData={{ phoneNumber: '', nationalFormat: '' }}
     {...{
       flowHasPhoneChoice,
@@ -114,6 +117,7 @@ export const BackupCodesChoiceComplete = () => (
     currentStep={4}
     backupMethod={'code'}
     backupCodes={MOCK_BACKUP_CODES}
+    generatingCodes={false}
     phoneData={{ phoneNumber: '', nationalFormat: '' }}
     {...{
       flowHasPhoneChoice,
@@ -138,6 +142,7 @@ export const RecoveryPhoneNumber = () => (
     currentStep={2}
     backupMethod={'phone'}
     backupCodes={[]}
+    generatingCodes={false}
     phoneData={{ phoneNumber: '', nationalFormat: '' }}
     {...{
       flowHasPhoneChoice,
@@ -162,6 +167,7 @@ export const RecoveryPhoneConfirmation = () => (
     currentStep={3}
     backupMethod={'phone'}
     backupCodes={[]}
+    generatingCodes={false}
     phoneData={{
       phoneNumber: '12345678900',
       nationalFormat: '+1 234-567-8900',
@@ -189,6 +195,7 @@ export const RecoveryPhoneChoiceComplete = () => (
     currentStep={4}
     backupMethod={'phone'}
     backupCodes={[]}
+    generatingCodes={false}
     phoneData={{
       phoneNumber: '12345678900',
       nationalFormat: '+1 234-567-8900',
