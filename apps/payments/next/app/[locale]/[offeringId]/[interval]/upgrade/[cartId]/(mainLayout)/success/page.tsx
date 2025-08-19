@@ -19,6 +19,8 @@ import { CheckoutParams } from '@fxa/payments/ui/server';
 import Image from 'next/image';
 import { Metadata } from 'next';
 import { config } from 'apps/payments/next/config';
+import { redirect } from 'next/navigation';
+import { URLSearchParams } from 'url';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +48,20 @@ export default async function UpgradeSuccess({
   params: CheckoutParams;
   searchParams: Record<string, string | string[]>;
 }) {
+  if (
+    searchParams?.payment_intent ||
+    searchParams?.payment_intent_client_secret ||
+    searchParams?.redirect_status
+  ) {
+    const cleanedParams = new URLSearchParams(searchParams);
+    cleanedParams.delete('payment_intent');
+    cleanedParams.delete('payment_intent_client_secret');
+    cleanedParams.delete('redirect_status');
+    const queryParamString = `?${cleanedParams.toString()}`;
+    redirect(
+      `/${params.locale}/${params.offeringId}/${params.interval}/upgrade/${params.cartId}/success${queryParamString}`
+    );
+  }
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
 

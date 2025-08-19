@@ -65,6 +65,7 @@ class PaymentInfo {
     'google_iap',
     'apple_iap',
     'external_paypal',
+    'amazon_pay',
   ] satisfies PaymentProvidersType[])
   type!: PaymentProvidersType;
 

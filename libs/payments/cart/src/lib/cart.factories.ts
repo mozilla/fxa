@@ -107,6 +107,7 @@ export const PaymentInfoFactory = (
     'google_iap',
     'apple_iap',
     'external_paypal',
+    'amazon_pay'
   ]),
   ...override,
 });

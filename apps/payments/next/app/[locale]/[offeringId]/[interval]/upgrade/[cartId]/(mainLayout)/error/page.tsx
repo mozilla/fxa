@@ -5,6 +5,8 @@
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { URLSearchParams } from 'url';
 
 import errorIcon from '@fxa/shared/assets/images/error.svg';
 import {
@@ -49,6 +51,20 @@ export default async function UpgradeError({
   params: CheckoutParams;
   searchParams: Record<string, string | string[]>;
 }) {
+  if (
+    searchParams?.payment_intent ||
+    searchParams?.payment_intent_client_secret ||
+    searchParams?.redirect_status
+  ) {
+    const cleanedParams = new URLSearchParams(searchParams);
+    cleanedParams.delete('payment_intent');
+    cleanedParams.delete('payment_intent_client_secret');
+    cleanedParams.delete('redirect_status');
+    const queryParamString = `?${cleanedParams.toString()}`;
+    redirect(
+      `/${params.locale}/${params.offeringId}/${params.interval}/upgrade/${params.cartId}/error${queryParamString}`
+    );
+  }
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
 

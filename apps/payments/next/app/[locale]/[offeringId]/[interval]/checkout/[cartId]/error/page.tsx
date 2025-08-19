@@ -8,6 +8,8 @@ import Link from 'next/link';
 
 import errorIcon from '@fxa/shared/assets/images/error.svg';
 import checkIcon from '@fxa/shared/assets/images/check.svg';
+import { redirect } from 'next/navigation';
+import { URLSearchParams } from 'url';
 import {
   getApp,
   CheckoutParams,
@@ -51,6 +53,20 @@ export default async function CheckoutError({
   params: CheckoutParams;
   searchParams: Record<string, string | string[]>;
 }) {
+  if (
+    searchParams?.payment_intent ||
+    searchParams?.payment_intent_client_secret ||
+    searchParams?.redirect_status
+  ) {
+    const cleanedParams = new URLSearchParams(searchParams);
+    cleanedParams.delete('payment_intent');
+    cleanedParams.delete('payment_intent_client_secret');
+    cleanedParams.delete('redirect_status');
+    const queryParamString = `?${cleanedParams.toString()}`;
+    redirect(
+      `/${params.locale}/${params.offeringId}/${params.interval}/checkout/${params.cartId}/error${queryParamString}`
+    );
+  }
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
 
