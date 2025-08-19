@@ -22,6 +22,12 @@ If this is your first time running the tests, run `npx playwright install --with
 - `yarn playwright test` will let you set any of the [cli options](https://playwright.dev/docs/test-cli#reference)
 - You can also add cli options after any of the npm scripts
 
+For example, to run a specific test against stage:
+
+```
+yarn test --project=stage --grep="errors on xss redirect_to parameter"
+```
+
 ### Specifying a target in tests
 
 Some tests only work with certain targets. The content-server mocha tests for example will only work on `local`. Use [annotations](https://playwright.dev/docs/test-annotations#annotations) and [TestInfo](https://playwright.dev/docs/api/class-testinfo) to determine when a test should run.
