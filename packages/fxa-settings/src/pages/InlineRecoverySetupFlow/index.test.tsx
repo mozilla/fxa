@@ -56,6 +56,7 @@ const props = {
   serviceName: MozServices.Default,
   email: MOCK_EMAIL,
   backupCodes: [],
+  generatingCodes: false,
   phoneData: { phoneNumber: '', nationalFormat: '' },
   verifyTotpHandler,
   currentStep: 1,
@@ -112,6 +113,7 @@ describe('InlineRecoverySetupFlow', () => {
           ...props,
           flowHasPhoneChoice: false,
           backupCodes: MOCK_BACKUP_CODES,
+          generatingCodes: false,
         }}
       />
     );
@@ -137,6 +139,7 @@ describe('InlineRecoverySetupFlow', () => {
           ...props,
           flowHasPhoneChoice: false,
           backupCodes: MOCK_BACKUP_CODES,
+          generatingCodes: false,
           currentStep: 2,
         }}
       />
@@ -206,6 +209,7 @@ describe('InlineRecoverySetupFlow', () => {
           currentStep: 4,
           backupMethod: 'code',
           backupCodes: MOCK_BACKUP_CODES,
+          generatingCodes: false,
         }}
       />
     );

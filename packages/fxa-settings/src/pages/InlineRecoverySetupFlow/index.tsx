@@ -26,6 +26,7 @@ const InlineRecoverySetupFlow = ({
   currentStep,
   backupMethod,
   backupCodes,
+  generatingCodes,
   phoneData,
   navigateForward,
   navigateBackward,
@@ -67,6 +68,7 @@ const InlineRecoverySetupFlow = ({
           onContinue: navigateForward,
           onBackButtonClick: navigateBackward,
           localizedPageTitle,
+          loading: generatingCodes,
         }}
       />
     ),
@@ -77,8 +79,10 @@ const InlineRecoverySetupFlow = ({
       localizedPageTitle,
       navigateBackward,
       navigateForward,
+      generatingCodes,
     ]
   );
+
   const CodeConfirm = useCallback(
     () => (
       <FlowSetup2faBackupCodeConfirm

@@ -323,7 +323,10 @@ describe('InlineRecoverySetupFlowContainer', () => {
             await args.verifyPhoneNumber('12345678900');
           });
           args = (InlineRecoverySetupFlowModule.default as jest.Mock).mock
-            .calls[1][0];
+            .calls[
+            (InlineRecoverySetupFlowModule.default as jest.Mock).mock.calls
+              .length - 1
+          ][0];
           await waitFor(async () => {
             await args.sendSmsCode();
           });
@@ -353,7 +356,10 @@ describe('InlineRecoverySetupFlowContainer', () => {
             await args.backupChoiceCb('code');
           });
           args = (InlineRecoverySetupFlowModule.default as jest.Mock).mock
-            .calls[1][0];
+            .calls[
+            (InlineRecoverySetupFlowModule.default as jest.Mock).mock.calls
+              .length - 1
+          ][0];
           await waitFor(async () => {
             await args.completeBackupCodeSetup('wibble');
           });

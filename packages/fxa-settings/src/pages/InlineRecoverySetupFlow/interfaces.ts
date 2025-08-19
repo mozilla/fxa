@@ -18,6 +18,7 @@ export interface InlineRecoverySetupFlowProps {
   currentStep: number;
   backupMethod: Choice | null;
   backupCodes: string[];
+  generatingCodes: boolean;
   phoneData: {
     phoneNumber: string;
     nationalFormat: string | undefined;
