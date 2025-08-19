@@ -289,6 +289,7 @@ export const Signup = ({
             {...{
               isMobile,
               logos: [cmsInfo?.SignupSetPasswordPage, cmsInfo?.shared],
+              logoPosition: cmsInfo?.SignupSetPasswordPage?.logoUrl ? 'center' : 'left',
             }}
           />
           <h1 className="card-header">
