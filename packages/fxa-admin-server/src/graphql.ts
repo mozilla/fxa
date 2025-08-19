@@ -232,6 +232,7 @@ export interface IQuery {
 }
 
 export interface IMutation {
+    remove2FA(uid: string): boolean | Promise<boolean>;
     unverifyEmail(email: string): boolean | Promise<boolean>;
     disableAccount(uid: string): boolean | Promise<boolean>;
     editLocale(uid: string, locale: string): boolean | Promise<boolean>;

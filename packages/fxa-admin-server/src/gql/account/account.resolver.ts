@@ -192,6 +192,46 @@ export class AccountResolver {
       .limit(10);
   }
 
+  @Features(AdminPanelFeature.Remove2FA)
+  @Mutation((returns) => Boolean)
+  public async remove2FA(@Args('uid') uid: string) {
+    this.eventLogging.onEvent(EventNames.Remove2FA);
+    const rowsDeleted = await this.db.totp.transaction(async (trx) => {
+      const recoveryPhoneRecordsDeleted = await this.db.recoveryPhones
+        .query(trx)
+        .delete()
+        .where('uid', uuidTransformer.to(uid));
+      const recoveryCodeRecordsDeleted = await this.db.recoveryCodes
+        .query(trx)
+        .delete()
+        .where('uid', uuidTransformer.to(uid));
+      const totpRecordsDeleted = await this.db.totp
+        .query(trx)
+        .delete()
+        .where('uid', uuidTransformer.to(uid));
+
+      return (
+        recoveryCodeRecordsDeleted +
+        recoveryPhoneRecordsDeleted +
+        totpRecordsDeleted
+      );
+    });
+
+    const deleted = rowsDeleted > 0;
+
+    if (deleted) {
+      await this.notifier.send({
+        event: 'profileDataChange',
+        data: {
+          ts: Date.now() / 1000,
+          uid,
+        },
+      });
+    }
+
+    return deleted;
+  }
+
   // unverifies the user's email. will have to verify again on next login
   @Features(AdminPanelFeature.UnverifyEmail)
   @Mutation((returns) => Boolean)

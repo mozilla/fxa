@@ -13,6 +13,7 @@ export enum EventNames {
   AccountSearch = 'account-search',
   EditLocale = 'edit-locale',
   UnsubscribeFromMailingLists = 'unsubscribe-from-mailing-lists',
+  Remove2FA = 'remove-2fa',
 }
 
 /**

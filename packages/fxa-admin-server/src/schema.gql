@@ -228,6 +228,7 @@ type Query {
 }
 
 type Mutation {
+  remove2FA(uid: String!): Boolean!
   unverifyEmail(email: String!): Boolean!
   disableAccount(uid: String!): Boolean!
   editLocale(uid: String!, locale: String!): Boolean!

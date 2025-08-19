@@ -612,4 +612,30 @@ describe('#integration - AccountResolver', () => {
     expect(result[0].status).toEqual('No account found');
     expect(result[0].taskName).toEqual('');
   });
+
+  it('removes 2FA', async () => {
+    const success = (await resolver.remove2FA(USER_1.uid)) as Boolean;
+    expect(success).toBeTruthy();
+    const updatedResult = await resolver.totp({ uid: USER_1.uid } as Account);
+    expect(updatedResult).toEqual([]);
+    expect(notifier.send).toBeCalledWith({
+      event: 'profileDataChange',
+      data: {
+        ts: expect.any(Number),
+        uid: USER_1.uid,
+      },
+    });
+  });
+
+  it('fails to remove 2FA', async () => {
+    const success = (await resolver.remove2FA('0f0f0f00f00f')) as Boolean;
+    expect(success).toBeFalsy();
+    expect(notifier.send).not.toBeCalledWith({
+      event: 'profileDataChange',
+      data: {
+        ts: expect.any(Number),
+        uid: '0f0f0f00f00f',
+      },
+    });
+  });
 });

@@ -22,6 +22,12 @@ export const ENABLE_ACCOUNT = gql`
   }
 `;
 
+export const REMOVE_2FA = gql`
+  mutation remove2FA($uid: String!) {
+    remove2FA(uid: $uid)
+  }
+`;
+
 export const SEND_PASSWORD_RESET_EMAIL = gql`
   mutation sendPasswordResetEmail($email: String!) {
     sendPasswordResetEmail(email: $email)

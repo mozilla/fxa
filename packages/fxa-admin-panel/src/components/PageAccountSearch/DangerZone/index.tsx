@@ -12,6 +12,7 @@ import { ReactElement } from 'react';
 import {
   DISABLE_ACCOUNT,
   ENABLE_ACCOUNT,
+  REMOVE_2FA,
   SEND_PASSWORD_RESET_EMAIL,
   UNSUBSCRIBE_FROM_MAILING_LISTS,
   UNVERIFY_EMAIL,
@@ -22,6 +23,7 @@ type DangerZoneProps = {
   email: Email;
   disabledAt: number | null;
   onCleared: Function;
+  has2FA?: boolean | null;
 };
 
 const DangerZoneAction = ({
@@ -68,6 +70,7 @@ export const DangerZone = ({
   email,
   disabledAt,
   onCleared,
+  has2FA,
 }: DangerZoneProps) => {
   const [unverify, { loading: unverifyLoading }] = useMutation(UNVERIFY_EMAIL, {
     onCompleted: () => {
@@ -130,6 +133,16 @@ export const DangerZone = ({
     },
   });
 
+  const [remove2FA] = useMutation(REMOVE_2FA, {
+    onCompleted: () => {
+      window.alert('2FA was removed from the account.');
+      onCleared();
+    },
+    onError: () => {
+      window.alert('Error removing 2FA.');
+    },
+  });
+
   const [sendPasswordResetEmail] = useMutation(SEND_PASSWORD_RESET_EMAIL, {
     onCompleted: () => {
       window.alert(`Password reset email sent to ${email.email}`);
@@ -158,6 +171,16 @@ export const DangerZone = ({
     recordAdminSecurityEvent({ variables: { uid, name: 'account.enable' } });
   };
 
+  const handleRemove2FA = () => {
+    if (!window.confirm('Are you sure?')) {
+      return;
+    }
+    remove2FA({ variables: { uid } });
+    recordAdminSecurityEvent({
+      variables: { uid, name: 'account.two_factor_removed' },
+    });
+  };
+
   const handleSendPasswordReset = () => {
     if (!window.confirm('Are you sure?')) {
       return;
@@ -179,6 +202,7 @@ export const DangerZone = ({
           AdminPanelFeature.DisableAccount,
           AdminPanelFeature.EnableAccount,
           AdminPanelFeature.UnsubscribeFromMailingLists,
+          AdminPanelFeature.Remove2FA,
         ]}
       >
         <h3 className="mt-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-2 pt-1 rounded-sm text-lg text-white">
@@ -217,6 +241,16 @@ export const DangerZone = ({
             description="Allows this account to log in."
             buttonHandler={handleEnable}
             buttonText="Enable"
+          />
+        </Guard>
+      )}
+      {has2FA && (
+        <Guard features={[AdminPanelFeature.Remove2FA]}>
+          <DangerZoneAction
+            header="Remove 2FA"
+            description="Delete the account's 2FA."
+            buttonHandler={handleRemove2FA}
+            buttonText="Remove 2FA"
           />
         </Guard>
       )}
