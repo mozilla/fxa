@@ -6,7 +6,7 @@ import type { OperationVariables } from '@apollo/client';
 import { Firestore } from '@google-cloud/firestore';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { Inject, Injectable } from '@nestjs/common';
-import cacheManager, { Cacheable } from '@type-cacheable/core';
+import cacheManager, { Cacheable, CacheClear } from '@type-cacheable/core';
 import EventEmitter from 'events';
 import { GraphQLClient } from 'graphql-request';
 import * as Sentry from '@sentry/node';
@@ -55,6 +55,9 @@ export class StrapiClient {
     event: 'response',
     listener: (response: StrapiClientEventResponse) => void
   ) => EventEmitter;
+  private memoryCacheAdapter: MemoryAdapter;
+  private firestoreCacheAdapter: FirestoreAdapter;
+
   constructor(
     private strapiClientConfig: StrapiClientConfig,
     @Inject(FirestoreService) private firestore: Firestore
@@ -66,6 +69,13 @@ export class StrapiClient {
     });
     this.emitter = new EventEmitter();
     this.on = this.emitter.on.bind(this.emitter);
+
+    this.memoryCacheAdapter = new MemoryAdapter();
+    this.firestoreCacheAdapter = new FirestoreAdapter(
+      this.firestore,
+      this.strapiClientConfig.firestoreCacheCollectionName ||
+        CMS_QUERY_CACHE_KEY
+    );
   }
 
   async getLocale(
@@ -111,7 +121,7 @@ export class StrapiClient {
       ),
     ttlSeconds: (_, context: StrapiClient) =>
       context.strapiClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL_SECONDS,
-    client: new MemoryAdapter(),
+    client: (_, context: StrapiClient) => context.memoryCacheAdapter,
   })
   @Cacheable({
     cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
@@ -139,12 +149,7 @@ export class StrapiClient {
     ttlSeconds: (_, context: StrapiClient) =>
       context.strapiClientConfig.firestoreOfflineCacheTTL ||
       DEFAULT_FIRESTORE_OFFLINE_CACHE_TTL_SECONDS,
-    client: (_, context: StrapiClient) =>
-      new FirestoreAdapter(
-        context.firestore,
-        context.strapiClientConfig.firestoreCacheCollectionName ||
-          CMS_QUERY_CACHE_KEY
-      ),
+    client: (_, context: StrapiClient) => context.firestoreCacheAdapter,
   })
   async query<Result, Variables extends OperationVariables>(
     query: TypedDocumentNode<Result, Variables>,
@@ -173,6 +178,19 @@ export class StrapiClient {
       throw new StrapiQueryError(query, variables, e);
     }
   }
+
+  @CacheClear({
+    cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
+    client: (_, context: StrapiClient) => context.memoryCacheAdapter,
+  })
+  @CacheClear({
+    cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
+    client: (_, context: StrapiClient) => context.firestoreCacheAdapter,
+  })
+  async invalidateQueryCache<Result, Variables extends OperationVariables>(
+    query: TypedDocumentNode<Result, Variables>,
+    variables: Variables
+  ) {}
 
   private async getLocales(): Promise<string[]> {
     const localesResult = (await this.query(localesQuery, {})) as LocalesResult;

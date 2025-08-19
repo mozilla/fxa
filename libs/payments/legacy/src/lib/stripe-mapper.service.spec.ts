@@ -32,6 +32,11 @@ jest.mock('@type-cacheable/core', () => ({
       return descriptor;
     };
   },
+  CacheClear: () => {
+    return (target: any, propertyKey: any, descriptor: any) => {
+      return descriptor;
+    };
+  },
   setOptions: jest.fn(),
 }));
 

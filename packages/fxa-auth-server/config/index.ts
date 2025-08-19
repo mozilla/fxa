@@ -2090,6 +2090,26 @@ const convictConf = convict({
         format: Number,
       },
     },
+    webhookCacheInvalidation: {
+      enabled: {
+        default: false,
+        doc: 'Invalidate CMS cache by webhook',
+        env: 'CMS_WEBHOOK_CACHE_INVALIDATION_ENABLED',
+        format: Boolean,
+      },
+      headerKey: {
+        default: 'fxa-cms-cache-webhook-auth',
+        doc: 'The header key where to location a value to auth the request',
+        env: 'CMS_WEBHOOK_CACHE_INVALIDATION_HEADER',
+        format: String,
+      },
+      headerVal: {
+        default: 'CHANGEME',
+        doc: 'The header key where to location a value to auth the request',
+        env: 'CMS_WEBHOOK_CACHE_INVALIDATION_SECRET',
+        format: String,
+      },
+    },
     strapiClient: {
       graphqlApiUri: {
         default: 'http://localhost:1337/graphql',

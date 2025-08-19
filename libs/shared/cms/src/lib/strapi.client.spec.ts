@@ -12,6 +12,8 @@ import { MockStrapiClientConfigProvider } from './strapi.client.config';
 import { LocalesResultFactory } from './queries/locales';
 import { Test } from '@nestjs/testing';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
+import { relyingPartyQuery } from './queries/relying-party';
+import { CacheClear } from '@type-cacheable/core';
 
 jest.mock('graphql-request', () => ({
   GraphQLClient: function () {
@@ -21,18 +23,38 @@ jest.mock('graphql-request', () => ({
   },
 }));
 
-jest.mock('@type-cacheable/core', () => ({
-  Cacheable: () => {
-    return (target: any, propertyKey: any, descriptor: any) => {
-      return descriptor;
-    };
-  },
-  setOptions: jest.fn(),
-}));
+jest.mock('@type-cacheable/core', () => {
+  const noopDecorator =
+    () =>
+    (
+      target: any,
+      propertyKey: string | symbol,
+      descriptor: PropertyDescriptor
+    ) =>
+      descriptor;
+
+  const Cacheable = jest.fn(() => noopDecorator);
+  const CacheClear = jest.fn(() => noopDecorator);
+
+  const defaultExport = {
+    setOptions: jest.fn(),
+  };
+
+  return {
+    __esModule: true,
+    default: defaultExport,
+    Cacheable,
+    CacheClear,
+  };
+});
 
 jest.mock('@fxa/shared/db/type-cacheable', () => ({
-  NetworkFirstStrategy: function () {},
-  MemoryAdapter: function () {},
+  MemoryAdapter: jest.fn().mockImplementation(() => ({})),
+  FirestoreAdapter: jest.fn().mockImplementation(() => ({})),
+  CacheFirstStrategy: jest.fn().mockImplementation(() => ({})),
+  StaleWhileRevalidateWithFallbackStrategy: jest
+    .fn()
+    .mockImplementation(() => ({})),
 }));
 
 jest.useFakeTimers();
@@ -146,6 +168,16 @@ describe('StrapiClient', () => {
         selectedLanguage
       );
       expect(result).toBe(selectedLanguage);
+    });
+  });
+
+  describe('invalidateQueryCache', () => {
+    it('invokes CacheClear', async () => {
+      await strapiClient.invalidateQueryCache(relyingPartyQuery, {
+        clientId: 'test-client',
+        entrypoint: 'test-entrypoint',
+      });
+      expect(CacheClear).toHaveBeenCalledTimes(2);
     });
   });
 });

@@ -7,26 +7,43 @@ import { StatsD } from 'hot-shots';
 import { DocumentNode } from 'graphql';
 
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-import {
-  relyingPartyQuery,
-  RelyingPartyConfigurationManager
-} from '../../src';
+import { relyingPartyQuery, RelyingPartyConfigurationManager } from '../../src';
 import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
 import { RelyingPartyQueryFactory } from './queries/relying-party/factories';
 
-// Mock external dependencies
-jest.mock('@type-cacheable/core', () => ({
-  Cacheable: () => {
-    return (target: any, propertyKey: any, descriptor: any) => descriptor;
-  },
-  setOptions: jest.fn(),
-}));
+jest.mock('@type-cacheable/core', () => {
+  const noopDecorator =
+    () =>
+    (
+      target: any,
+      propertyKey: string | symbol,
+      descriptor: PropertyDescriptor
+    ) =>
+      descriptor;
+
+  const Cacheable = jest.fn(() => noopDecorator);
+  const CacheClear = jest.fn(() => noopDecorator);
+
+  const defaultExport = {
+    setOptions: jest.fn(),
+  };
+
+  return {
+    __esModule: true,
+    default: defaultExport,
+    Cacheable,
+    CacheClear,
+  };
+});
 
 jest.mock('@fxa/shared/db/type-cacheable', () => ({
-  NetworkFirstStrategy: function () {},
-  AsyncLocalStorageAdapter: function () {},
-  CacheFirstStrategy: function () {},
-  MemoryAdapter: function () {},
+  MemoryAdapter: jest.fn().mockImplementation(() => ({})),
+  FirestoreAdapter: jest.fn().mockImplementation(() => ({})),
+  CacheFirstStrategy: jest.fn().mockImplementation(() => ({})),
+  AsyncLocalStorageAdapter: jest.fn().mockImplementation(() => ({})),
+  StaleWhileRevalidateWithFallbackStrategy: jest
+    .fn()
+    .mockImplementation(() => ({})),
 }));
 
 // Mock Apollo's getOperationName
@@ -50,6 +67,7 @@ describe('RelyingPartyConfigurationManager', () => {
       query: jest.fn(),
       on: jest.fn(),
       emit: jest.fn(),
+      invalidateQueryCache: jest.fn(),
     } as any;
 
     const module = await Test.createTestingModule({
@@ -58,10 +76,11 @@ describe('RelyingPartyConfigurationManager', () => {
         { provide: StatsDService, useValue: mockStatsd },
         { provide: StrapiClient, useValue: mockStrapiClient },
       ],
-    })
-      .compile();
+    }).compile();
 
-    relyingPartyConfigurationManager = module.get(RelyingPartyConfigurationManager);
+    relyingPartyConfigurationManager = module.get(
+      RelyingPartyConfigurationManager
+    );
   });
 
   afterEach(() => {
@@ -163,6 +182,22 @@ describe('RelyingPartyConfigurationManager', () => {
       await expect(
         relyingPartyConfigurationManager.fetchCMSData(clientId, entrypoint)
       ).rejects.toThrow('Query failed');
+    });
+  });
+
+  describe('invalidateCache', () => {
+    it('should call StrapiClient.invalidateCache', async () => {
+      const clientId = 'test-client-id';
+      const entrypoint = 'test-entrypoint';
+
+      await relyingPartyConfigurationManager.invalidateCache(
+        clientId,
+        entrypoint
+      );
+      expect(mockStrapiClient.invalidateQueryCache).toHaveBeenCalledWith(
+        relyingPartyQuery,
+        { clientId, entrypoint }
+      );
     });
   });
 });

@@ -7,9 +7,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-import {
-  relyingPartyQuery
-} from '@fxa/shared/cms';
+import { relyingPartyQuery } from '@fxa/shared/cms';
 import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
 
 @Injectable()
@@ -43,6 +41,12 @@ export class RelyingPartyConfigurationManager {
 
   async fetchCMSData(clientId: string, entrypoint: string) {
     return await this.strapiClient.query(relyingPartyQuery, {
+      clientId,
+      entrypoint,
+    });
+  }
+  async invalidateCache(clientId: string, entrypoint: string) {
+    return await this.strapiClient.invalidateQueryCache(relyingPartyQuery, {
       clientId,
       entrypoint,
     });
