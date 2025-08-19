@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninRecoveryCode from '.';
 import GleanMetrics from '../../../lib/glean';
@@ -23,7 +24,6 @@ import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { tryAgainError } from '../../../lib/oauth/hooks';
 import { mockOAuthNativeSigninIntegration } from '../SigninTotpCode/mocks';
-import userEvent from '@testing-library/user-event';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -161,6 +161,7 @@ describe('PageSigninRecoveryCode', () => {
     });
 
     it('emits metrics events on submit and success', async () => {
+      const user = userEvent.setup();
       const mockSubmitRecoveryCode = jest
         .fn()
         .mockResolvedValue({ data: { consumeRecoveryCode: { remaining: 3 } } });
@@ -178,11 +179,9 @@ describe('PageSigninRecoveryCode', () => {
 
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.change(input, { target: { value: MOCK_BACKUP_CODE } });
-      await waitFor(() => {
-        expect(input).toHaveValue(MOCK_BACKUP_CODE);
-      });
-      button.click();
+      await user.type(input, MOCK_BACKUP_CODE);
+      expect(button).toBeEnabled();
+      await user.click(button);
 
       await waitFor(() => {
         expect(mockSubmitRecoveryCode).toHaveBeenCalled();
@@ -194,6 +193,7 @@ describe('PageSigninRecoveryCode', () => {
 
   describe('submit with success', () => {
     it('does not navigate when integration isFirefoxMobileClient', async () => {
+      const user = userEvent.setup();
       const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
       const mockFinishOAuthFlowHandler = jest
         .fn()
@@ -218,11 +218,9 @@ describe('PageSigninRecoveryCode', () => {
 
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.change(input, { target: { value: MOCK_BACKUP_CODE } });
-      await waitFor(() => {
-        expect(input).toHaveValue(MOCK_BACKUP_CODE);
-      });
-      button.click();
+      await user.type(input, MOCK_BACKUP_CODE);
+      expect(button).toBeEnabled();
+      await user.click(button);
 
       expect(integration.isFirefoxMobileClient()).toBe(true);
       await waitFor(() => {
@@ -251,15 +249,14 @@ describe('PageSigninRecoveryCode', () => {
         </LocationProvider>
       );
       const button = screen.getByRole('button', { name: 'Confirm' });
+      expect(button).toBeDisabled();
+
+      // Button should be disabled, so clicking it should not trigger submission
       button.click();
-      await waitFor(() => {
-        const tooltip = screen.getByTestId('tooltip');
-        expect(tooltip).toHaveTextContent(
-          'Backup authentication code required'
-        );
-      });
+      expect(mockSubmitRecoveryCode).not.toHaveBeenCalled();
     });
     it('shows an error tooltip when invalid code error response on submit', async () => {
+      const user = userEvent.setup();
       const mockSubmitRecoveryCodeWithError = jest.fn().mockResolvedValueOnce({
         error: { errno: AuthUiErrors.INVALID_RECOVERY_CODE.errno },
       });
@@ -276,17 +273,16 @@ describe('PageSigninRecoveryCode', () => {
       );
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.change(input, { target: { value: MOCK_BACKUP_CODE } });
-      await waitFor(() => {
-        expect(input).toHaveValue(MOCK_BACKUP_CODE);
-      });
-      button.click();
+      await user.type(input, MOCK_BACKUP_CODE);
+      expect(button).toBeEnabled();
+      await user.click(button);
       await waitFor(() => {
         const tooltip = screen.getByTestId('tooltip');
         expect(tooltip).toHaveTextContent('Invalid backup authentication code');
       });
     });
     it('shows an error banner for an OAuth error', async () => {
+      const user = userEvent.setup();
       const mockSubmitRecoveryCode = jest
         .fn()
         .mockResolvedValue({ data: { consumeRecoveryCode: { remaining: 3 } } });
@@ -306,17 +302,16 @@ describe('PageSigninRecoveryCode', () => {
 
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.change(input, { target: { value: MOCK_BACKUP_CODE } });
-      // await waitFor(() => {
-      expect(input).toHaveValue(MOCK_BACKUP_CODE);
-      // });
-      button.click();
+      await user.type(input, MOCK_BACKUP_CODE);
+      expect(button).toBeEnabled();
+      await user.click(button);
 
       await waitFor(() => {
         screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
       });
     });
     it('shows an error banner for other errors on submit', async () => {
+      const user = userEvent.setup();
       const mockSubmitRecoveryCodeWithError = jest.fn().mockResolvedValueOnce({
         // error response, but not invalid code
         error: {},
@@ -334,11 +329,9 @@ describe('PageSigninRecoveryCode', () => {
       );
       const input = screen.getByRole('textbox');
       const button = screen.getByRole('button', { name: 'Confirm' });
-      fireEvent.change(input, { target: { value: MOCK_BACKUP_CODE } });
-      await waitFor(() => {
-        expect(input).toHaveValue(MOCK_BACKUP_CODE);
-      });
-      button.click();
+      await user.type(input, MOCK_BACKUP_CODE);
+      expect(button).toBeEnabled();
+      await user.click(button);
       await waitFor(() => {
         const tooltip = screen.queryByTestId('tooltip');
         expect(tooltip).not.toBeInTheDocument();

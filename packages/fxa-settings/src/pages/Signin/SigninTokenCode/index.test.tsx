@@ -5,6 +5,7 @@
 import React from 'react';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -174,45 +175,70 @@ describe('SigninTokenCode page', () => {
   });
 
   describe('onSubmit code submission', () => {
-    function submit() {
-      fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    async function submit() {
+      const button = screen.getByRole('button', { name: 'Confirm' });
+      expect(button).toBeEnabled();
+      await userEvent.click(button);
     }
-    function submitCode(code = MOCK_SIGNUP_CODE) {
-      fireEvent.change(screen.getByLabelText('Enter 6-digit code'), {
-        target: { value: code },
-      });
-      submit();
+    async function submitCode(code = MOCK_SIGNUP_CODE) {
+      const user = userEvent.setup();
+      const input = screen.getByLabelText('Enter 6-digit code');
+      await user.type(input, code);
+      await submit();
     }
     describe('does not submit and displays tooltip', () => {
       beforeEach(() => {
         render();
       });
-      async function expectNoSubmission() {
-        await waitFor(() => {
-          expect(session.verifySession).not.toHaveBeenCalled();
-          expect(screen.getByTestId('tooltip')).toHaveTextContent(
-            'Confirmation code required'
-          );
-          expect(GleanMetrics.loginConfirmation.submit).not.toHaveBeenCalled();
-        });
-      }
       it('if no input', async () => {
-        submit();
-        expectNoSubmission();
+        const button = screen.getByRole('button', { name: 'Confirm' });
+        expect(button).toBeDisabled();
+
+        // Button should be disabled, so clicking it should not trigger submission
+        fireEvent.click(button);
+        expect(session.verifySession).not.toHaveBeenCalled();
+        expect(GleanMetrics.loginConfirmation.submit).not.toHaveBeenCalled();
       });
       // Note, we don't have a test for more than 6 because the input doesn't allow this
       it('if input length is less than 6', async () => {
         // whitespace should get trimmed, so this should be a length of 5
-        submitCode('12345 ');
-        expectNoSubmission();
+        const user = userEvent.setup();
+        const input = screen.getByLabelText('Enter 6-digit code');
+        await user.type(input, '12345 ');
+
+        const button = screen.getByRole('button', { name: 'Confirm' });
+        expect(button).toBeDisabled();
+
+        // Button should be disabled, so clicking it should not trigger submission
+        fireEvent.click(button);
+        expect(session.verifySession).not.toHaveBeenCalled();
+        expect(GleanMetrics.loginConfirmation.submit).not.toHaveBeenCalled();
       });
       it('if input is not numeric', async () => {
-        submitCode('1234z5');
-        expectNoSubmission();
+        const user = userEvent.setup();
+        const input = screen.getByLabelText('Enter 6-digit code');
+        await user.type(input, '1234z5');
+
+        const button = screen.getByRole('button', { name: 'Confirm' });
+        expect(button).toBeDisabled();
+
+        // Button should be disabled, so clicking it should not trigger submission
+        fireEvent.click(button);
+        expect(session.verifySession).not.toHaveBeenCalled();
+        expect(GleanMetrics.loginConfirmation.submit).not.toHaveBeenCalled();
       });
       it('if input is scientific notation', async () => {
-        submitCode('100e10');
-        expectNoSubmission();
+        const user = userEvent.setup();
+        const input = screen.getByLabelText('Enter 6-digit code');
+        await user.type(input, '100e10');
+
+        const button = screen.getByRole('button', { name: 'Confirm' });
+        expect(button).toBeDisabled();
+
+        // Button should be disabled, so clicking it should not trigger submission
+        fireEvent.click(button);
+        expect(session.verifySession).not.toHaveBeenCalled();
+        expect(GleanMetrics.loginConfirmation.submit).not.toHaveBeenCalled();
       });
     });
     it('on throttled error, renders banner with throttled message', async () => {
@@ -220,7 +246,7 @@ describe('SigninTokenCode page', () => {
         verifySession: jest.fn().mockRejectedValue(AuthUiErrors.THROTTLED),
       } as unknown as Session;
       render();
-      submitCode();
+      await submitCode();
       await screen.findByText(
         'You’ve tried too many times. Please try again later.'
       );
@@ -234,7 +260,7 @@ describe('SigninTokenCode page', () => {
           .mockRejectedValue(AuthUiErrors.INVALID_EXPIRED_OTP_CODE),
       } as unknown as Session;
       render();
-      submitCode();
+      await submitCode();
       expect(await screen.findByTestId('tooltip')).toHaveTextContent(
         'Invalid or expired confirmation code'
       );
@@ -268,7 +294,7 @@ describe('SigninTokenCode page', () => {
         render({
           onSessionVerified: mockOnSessionVerified,
         });
-        submitCode();
+        await submitCode();
 
         await expectSuccessGleanEvents();
         expect(mockOnSessionVerified).toHaveBeenCalledTimes(1);
@@ -278,7 +304,7 @@ describe('SigninTokenCode page', () => {
         session = mockSession();
         const verificationReason = VerificationReasons.CHANGE_PASSWORD;
         render({ verificationReason });
-        submitCode();
+        await submitCode();
 
         await expectSuccessGleanEvents();
         expect(hardNavigateSpy).toHaveBeenCalledWith(
@@ -301,7 +327,7 @@ describe('SigninTokenCode page', () => {
           .mockImplementation(() => {});
 
         render({ finishOAuthFlowHandler, integration });
-        submitCode();
+        await submitCode();
         await expectSuccessGleanEvents();
         await waitFor(() => {
           expect(hardNavigate).toHaveBeenCalledWith(
@@ -326,7 +352,7 @@ describe('SigninTokenCode page', () => {
           finishOAuthFlowHandler,
           integration,
         });
-        submitCode();
+        await submitCode();
         await waitFor(() => {
           expect(handleNavigationSpy).toHaveBeenCalledWith(
             expect.objectContaining({

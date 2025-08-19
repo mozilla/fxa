@@ -110,7 +110,7 @@ describe('RecoveryKeySetupHint', () => {
     const textInput = screen.getByRole('textbox', {
       name: 'Enter a hint (optional)',
     });
-    await waitFor(() => user.type(textInput, hintValueTooLong));
+    await user.type(textInput, hintValueTooLong);
     expect(textInput).toHaveValue('a'.repeat(MAX_HINT_LENGTH));
   });
 
