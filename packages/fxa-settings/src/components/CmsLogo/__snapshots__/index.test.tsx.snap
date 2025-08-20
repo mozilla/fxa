@@ -2,20 +2,28 @@
 
 exports[`CmsLogo renders correctly with center positioning 1`] = `
 <div>
-  <img
-    alt="foo"
-    class="justify-center mb-4 max-h-[160px]"
-    src="/foo.svg"
-  />
+  <div
+    class="mb-4 text-center"
+  >
+    <img
+      alt="foo"
+      class="max-h-[160px] mx-auto"
+      src="/foo.svg"
+    />
+  </div>
 </div>
 `;
 
 exports[`CmsLogo renders correctly with default left positioning 1`] = `
 <div>
-  <img
-    alt="foo"
-    class="justify-left mb-4 max-h-[40px]"
-    src="/foo.svg"
-  />
+  <div
+    class="mb-4 text-left"
+  >
+    <img
+      alt="foo"
+      class="max-h-[40px]"
+      src="/foo.svg"
+    />
+  </div>
 </div>
 `;
