@@ -67,7 +67,7 @@ export function Breadcrumbs(args: {
 
   return (
     <nav
-      className="flex items-center h-11 tablet:h-[76px] p-4 tablet:p-6 border-b tablet:border-b-0 border-grey-100"
+      className="flex items-center h-11 tablet:h-[76px] pt-4 px-4 pb-2 tablet:p-6 border-b tablet:border-b-0 border-grey-100"
       aria-label="Breadcrumb"
     >
       <ol className="tablet:hidden">
