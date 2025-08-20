@@ -5,6 +5,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
+
+import leftArrowIcon from '@fxa/shared/assets/images/chevron-left.svg';
+import rightArrowIcon from '@fxa/shared/assets/images/chevron-right.svg';
 import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import { useLocalization } from '@fluent/react';
 
@@ -62,8 +66,46 @@ export function Breadcrumbs(args: {
   }
 
   return (
-    <nav className="p-4 tablet:p-6" aria-label="Breadcrumb">
-      <ol className="flex items-center">
+    <nav
+      className="flex items-center h-11 tablet:h-[76px] p-4 tablet:p-6 border-b tablet:border-b-0 border-grey-100"
+      aria-label="Breadcrumb"
+    >
+      <ol className="tablet:hidden">
+        {breadcrumbs.map(({ label, href }, i) => {
+          const isPrev = i === breadcrumbs.length - 2;
+          if (!isPrev) return null;
+
+          const url = new URL(href);
+          url.search = searchParams.toString();
+          href = url.href;
+
+          return (
+            <li key={`breadcrumb-nav-${i}`}>
+              <Link
+                href={href}
+                className="inline-flex items-center text-blue-600 gap-3 hover:underline"
+                aria-label={l10n.getString(
+                  'subscription-management-breadcrumb-back-aria',
+                  {
+                    page: label
+                  },
+                  `Go back to ${label}`
+                )}
+              >
+                <Image
+                  src={leftArrowIcon}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-6 h-6"
+                />
+                <span className="pb-0.5">{label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+
+      <ol className="hidden tablet:flex">
         {breadcrumbs.map(({ label, href }, i) => {
           const isLast = i === breadcrumbs.length - 1;
 
@@ -73,15 +115,24 @@ export function Breadcrumbs(args: {
 
           return (
             <li className="flex items-center" key={`breadcrumb-nav-${i}`}>
-              {i >= 1 && <div className="px-3">&gt;</div>}
+              {i >= 1 && (
+                <div className="px-3">
+                  <Image
+                    src={rightArrowIcon}
+                    alt=""
+                    aria-hidden="true"
+                    className="w-6 h-6"
+                  />
+                </div>
+              )}
               {isLast ? (
-                <span className="font-semibold" aria-current="page">
+                <span aria-current="page" className="pb-0.5">
                   {label}
                 </span>
               ) : (
                 <Link
                   href={href}
-                  className="font-semibold text-blue-600 hover:underline"
+                  className="text-blue-600 hover:underline pb-0.5"
                 >
                   {label}
                 </Link>
