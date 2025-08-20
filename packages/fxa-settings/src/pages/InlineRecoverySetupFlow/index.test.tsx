@@ -9,6 +9,7 @@ import { GleanClickEventType2FA, MozServices } from '../../lib/types';
 import { renderWithRouter } from '../../models/mocks';
 import { MOCK_BACKUP_CODES, MOCK_EMAIL } from '../mocks';
 import GleanMetrics from '../../lib/glean';
+import { CHOICES } from '../../components/FormChoice';
 
 const setRecoveryCodesFn = jest.fn();
 const addRecoveryPhoneFn = jest.fn().mockResolvedValue('');
@@ -162,6 +163,21 @@ describe('InlineRecoverySetupFlow', () => {
     expect(navigateBackward).toHaveBeenCalledTimes(1);
   });
 
+  it('when phone is unavailable, renders the code download screen with provided codes', async () => {
+    renderWithRouter(
+      <InlineRecoverySetupFlow
+        {...{
+          ...props,
+          flowHasPhoneChoice: false,
+          backupCodes: MOCK_BACKUP_CODES,
+          currentStep: 1,
+        }}
+      />
+    );
+    screen.getByRole('heading', { name: 'Save backup authentication codes' });
+    MOCK_BACKUP_CODES.forEach((x) => screen.getByText(x));
+  });
+
   it('renders the recovery phone number screen', async () => {
     renderWithRouter(
       <InlineRecoverySetupFlow
@@ -242,6 +258,31 @@ describe('InlineRecoverySetupFlow', () => {
 
     expect(screen.getByText(/•••••• 8900/)).toBeInTheDocument();
 
+    await user.click(
+      screen.getByRole('button', { name: `Continue to ${MozServices.Default}` })
+    );
+    expect(successSetupHandler).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders the flow complete screen for backup codes when phone not available', async () => {
+    renderWithRouter(
+      <InlineRecoverySetupFlow
+        {...{
+          ...props,
+          flowHasPhoneChoice: false,
+          currentStep: 3,
+          backupMethod: CHOICES.code,
+          backupCodes: MOCK_BACKUP_CODES,
+        }}
+      />
+    );
+    expect(
+      GleanMetrics.accountPref.twoStepAuthCompleteView
+    ).toHaveBeenCalledWith({
+      event: { reason: GleanClickEventType2FA.inline },
+    });
+    screen.getByText('Two-step authentication enabled');
+    screen.getByText('8 codes remaining');
     await user.click(
       screen.getByRole('button', { name: `Continue to ${MozServices.Default}` })
     );
