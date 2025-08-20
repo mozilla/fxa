@@ -33,11 +33,19 @@ export abstract class BaseTokenCodePage extends BaseLayout {
     return this.page.locator('.success');
   }
 
+  get invalidCodeError() {
+    return this.page.getByText(/Invalid two-step authentication code/);
+  }
+
   get tooltip() {
     this.checkPath();
     return this.page.locator('.tooltip');
   }
 
+  /**
+   * Enters the code and clicks 'submit' button.
+   * @param code 2FA backup code
+   */
   async fillOutCodeForm(code: string) {
     this.checkPath();
     await this.codeInput.fill(code);

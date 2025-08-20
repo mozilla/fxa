@@ -5,6 +5,7 @@
 import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
 import { getReactFeatureFlagUrl } from '../lib/react-flag';
+import { Credentials } from '../lib/targets';
 
 export class SigninPage extends BaseLayout {
   readonly path = 'signin';
@@ -143,5 +144,26 @@ export class SigninPage extends BaseLayout {
 
     await this.passwordTextbox.fill(password);
     await this.signInButton.click();
+  }
+
+  /**
+   * Completes steps to sign in with email and password. This will navigate to the correct
+   * page if necessary. No assertions are made after submitting password form, leaving flow
+   * assertions up to the caller.
+   * @param Credentials
+   */
+  async emailFirstSignin({
+    email,
+    password,
+  }: Credentials) {
+    if (this.page.url() !== this.url) {
+      // avoid navigating if we don't need to.
+      // Checking url is faster than an extra navigation
+      await this.goto();
+    }
+    await this.fillOutEmailFirstForm(email);
+    await this.fillOutPasswordForm(password);
+    // no assertion so that tests can use this with flows that would touch
+    // other pages before settings. i.e., totp verify, etc.
   }
 }

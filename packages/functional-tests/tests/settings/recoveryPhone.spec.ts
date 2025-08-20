@@ -553,7 +553,7 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/settings/);
 
-      await expect(await settings.totp.status).toHaveText('Enabled');
+      await expect(settings.totp.status).toHaveText('Enabled');
 
       await expect(settings.settingsHeading).toBeVisible();
 

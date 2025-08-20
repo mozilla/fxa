@@ -90,6 +90,10 @@ export class TotpRow extends UnitRow {
     return this.page.getByTestId('two-step-unit-row-modal-button');
   }
 
+  get changeButton() {
+    return this.page.getByTestId('two-step-unit-row-route');
+  }
+
   get disableButton() {
     return this.page.getByTestId(
       'two-step-disable-button-unit-row-modal-button'

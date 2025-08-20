@@ -79,4 +79,24 @@ export class RecoveryPhoneSetupPage extends SettingsLayout {
   async clickResendCode() {
     await this.resendCodeButton.click();
   }
+
+  /**
+   * Enters the target's test phone number and clicks `Send Code`
+   */
+  async submitPhoneNumber() {
+    await this.page.waitForURL(/recovery_phone\/setup/);
+    await expect(this.addHeader()).toBeVisible();
+    await this.enterPhoneNumber(this.target.smsClient.getPhoneNumber());
+    await this.clickSendCode();
+  }
+
+  /**
+   * Enters provided code and clicks submit
+   * @param code
+   */
+  async submitCode(code: string) {
+    await expect(this.confirmHeader).toBeVisible();
+    await this.enterCode(code);
+    await this.clickConfirm();
+  }
 }
