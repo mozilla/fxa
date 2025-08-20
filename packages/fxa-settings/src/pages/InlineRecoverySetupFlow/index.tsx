@@ -167,7 +167,7 @@ const InlineRecoverySetupFlow = ({
           {...{
             serviceName,
             backupType: backupMethod as typeof CHOICES.phone,
-            lastFourPhoneDigits: phoneData.phoneNumber,
+            lastFourPhoneDigits: phoneData.phoneNumber.slice(-4),
             reason: GleanClickEventType2FA.inline,
             onContinue: () => {
               successfulSetupHandler();
