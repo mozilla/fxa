@@ -21,13 +21,15 @@ const CmsLogo = (opts: {
   return (
     <>
       {!opts.isMobile && logo && (
-        <img
-          src={logo.logoUrl}
-          alt={logo.logoAltText}
-          className={`${
-            opts.logoPosition === 'center' ? 'justify-center mb-4 max-h-[160px]' : 'justify-left mb-4 max-h-[40px]'
-          }`}
-        />
+        <div className={`mb-4 ${opts.logoPosition === 'center' ? 'text-center' : 'text-left'}`}>
+          <img
+            src={logo.logoUrl}
+            alt={logo.logoAltText}
+            className={`${
+              opts.logoPosition === 'center' ? 'max-h-[160px] mx-auto' : 'max-h-[40px]'
+            }`}
+          />
+        </div>
       )}
     </>
   );

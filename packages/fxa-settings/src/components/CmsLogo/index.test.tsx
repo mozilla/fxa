@@ -24,13 +24,19 @@ describe('CmsLogo', () => {
     );
 
     const img = screen.getByRole('img');
+    const wrapper = img.parentElement;
+    
     expect(img).toBeInTheDocument();
     expect(img.getAttribute('alt')).toEqual('foo');
     expect(img.getAttribute('src')).toEqual('/foo.svg');
-    expect(img).toHaveClass('justify-left');
     expect(img).toHaveClass('max-h-[40px]');
-    expect(img).not.toHaveClass('justify-center');
     expect(img).not.toHaveClass('max-h-[160px]');
+    expect(img).not.toHaveClass('mx-auto');
+    
+    expect(wrapper).toHaveClass('text-left');
+    expect(wrapper).toHaveClass('mb-4');
+    expect(wrapper).not.toHaveClass('text-center');
+    
     expect(container).toMatchSnapshot();
   });
 
@@ -51,13 +57,19 @@ describe('CmsLogo', () => {
     );
 
     const img = screen.getByRole('img');
+    const wrapper = img.parentElement;
+    
     expect(img).toBeInTheDocument();
     expect(img.getAttribute('alt')).toEqual('foo');
     expect(img.getAttribute('src')).toEqual('/foo.svg');
-    expect(img).toHaveClass('justify-center');
     expect(img).toHaveClass('max-h-[160px]');
-    expect(img).not.toHaveClass('justify-left');
+    expect(img).toHaveClass('mx-auto');
     expect(img).not.toHaveClass('max-h-[40px]');
+    
+    expect(wrapper).toHaveClass('text-center');
+    expect(wrapper).toHaveClass('mb-4');
+    expect(wrapper).not.toHaveClass('text-left');
+    
     expect(container).toMatchSnapshot();
   });
 
