@@ -226,7 +226,11 @@ export const InlineRecoverySetupFlowContainer = ({
   );
 
   const { data: totpStatus, loading: totpStatusLoading } =
-    useQuery<TotpStatusResponse>(GET_TOTP_STATUS);
+    useQuery<TotpStatusResponse>(GET_TOTP_STATUS, {
+      // Use fetchPolicy: 'network-only' to bypass Apollo cache so this reflects the
+      // current account state, not possibly cached data from another signed-in account.
+      fetchPolicy: 'network-only',
+    });
 
   const successfulSetupHandler = useCallback(async () => {
     // When this is called, we know signinRecoveryLocationState exists.
@@ -255,6 +259,10 @@ export const InlineRecoverySetupFlowContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
+  // we only care about "verified" here, not "exists"
+  // because "exists" only tells us that totp setup was started.
+  // Prior to using Redis during setup, tokens were directly stored in the database,
+  // but may never be marked as enabled/verified if setup is aborted or unsuccessful.
   if (totpStatus?.account?.totp.verified) {
     navigateWithQuery('/signin_totp_code', {
       state: signinLocationState,

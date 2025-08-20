@@ -149,10 +149,9 @@ describe('InlineTotpSetupContainer', () => {
       render({ isSignedIn: false });
       const location = mockLocationHook();
       await waitFor(() =>
-        expect(mockNavigateHook).toHaveBeenCalledWith(
-          `/signup${location.search}`,
-          { state: undefined }
-        )
+        expect(mockNavigateHook).toHaveBeenCalledWith(`/${location.search}`, {
+          state: undefined,
+        })
       );
     });
 
@@ -166,10 +165,9 @@ describe('InlineTotpSetupContainer', () => {
       const location = mockLocationHook();
       render();
       await waitFor(() => {
-        expect(mockNavigateHook).toHaveBeenCalledWith(
-          `/signup${location.search}`,
-          { state: undefined }
-        );
+        expect(mockNavigateHook).toHaveBeenCalledWith(`/${location.search}`, {
+          state: undefined,
+        });
       });
     });
 
@@ -187,9 +185,32 @@ describe('InlineTotpSetupContainer', () => {
       });
     });
 
-    it('redirects when totp is active on the account', async () => {
+    it('redirects when totp is active on the account (even if the session is verified)', async () => {
       mockSessionHook.mockImplementationOnce(() => ({
         isSessionVerified: async () => true,
+      }));
+      mockTotpStatusQuery.mockImplementation(() => {
+        return {
+          data: MOCK_TOTP_STATUS_VERIFIED,
+          loading: false,
+        };
+      });
+      jest
+        .spyOn(ApolloClientModule, 'useQuery')
+        .mockReturnValue(mockTotpStatusQuery());
+      render();
+      const location = mockLocationHook();
+      await waitFor(() => {
+        expect(mockNavigateHook).toHaveBeenCalledWith(
+          `/signin_totp_code${location.search}`,
+          { state: MOCK_SIGNIN_LOCATION_STATE }
+        );
+      });
+    });
+
+    it('redirects when totp is active on the account and the session is not verified', async () => {
+      mockSessionHook.mockImplementationOnce(() => ({
+        isSessionVerified: async () => false,
       }));
       mockTotpStatusQuery.mockImplementation(() => {
         return {
