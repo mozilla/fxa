@@ -28,9 +28,14 @@ test.describe('severity-2 #smoke', () => {
       page,
       pages: { signin },
     }) => {
-      await page.goto(
+      const response = await page.goto(
         `${target.contentServerUrl}/?redirect_to=javascript:alert(1)`
       );
+
+      if (response && response.status() === 406) {
+        // WAF blocked request with 406 (Fastly's default error code) before it reaches app; that's sufficient for pass.
+        return;
+      }
 
       // only error message shown on screen in case of xss redirect_to
       await expect(
