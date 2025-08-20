@@ -150,12 +150,12 @@ const InlineRecoverySetupFlow = ({
 
   const Complete = useCallback(
     () =>
-      backupMethod === CHOICES.code ? (
+      backupMethod === CHOICES.phone ? (
         <FlowSetup2faComplete
           {...{
             serviceName,
-            backupType: backupMethod as typeof CHOICES.code,
-            numCodesRemaining: backupCodes.length,
+            backupType: CHOICES.phone,
+            lastFourPhoneDigits: phoneData.phoneNumber.slice(-4),
             reason: GleanClickEventType2FA.inline,
             onContinue: () => {
               successfulSetupHandler();
@@ -163,11 +163,13 @@ const InlineRecoverySetupFlow = ({
           }}
         />
       ) : (
+        // This is the default when enabling a recovery phone is not available
+        // or the user picked backup codes on the choice screen.
         <FlowSetup2faComplete
           {...{
             serviceName,
-            backupType: backupMethod as typeof CHOICES.phone,
-            lastFourPhoneDigits: phoneData.phoneNumber.slice(-4),
+            backupType: CHOICES.code,
+            numCodesRemaining: backupCodes.length,
             reason: GleanClickEventType2FA.inline,
             onContinue: () => {
               successfulSetupHandler();

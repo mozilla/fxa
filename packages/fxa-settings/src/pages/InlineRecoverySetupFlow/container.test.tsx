@@ -150,6 +150,8 @@ let mockTotpStatusQuery = jest.fn();
 function setMocks() {
   mockLocationState = {};
   mockSessionHook = () => ({ token: 'ABBA' });
+  // Reset generated codes mock between tests to avoid cross-test contamination
+  mockGenerateCodes = jest.fn((...args: any[]) => ['wibble', 'quux']);
 
   jest.spyOn(ApolloClientModule, 'useMutation').mockReturnValue([
     async (...args: any[]) => {
@@ -286,6 +288,45 @@ describe('InlineRecoverySetupFlowContainer', () => {
       render();
       await waitFor(() => {
         expect(accountRefreshFn).toHaveBeenCalledWith('account');
+      });
+    });
+
+    it('sets flowHasPhoneChoice to false when recovery phone is not available', async () => {
+      recoveryPhoneFn = jest.fn().mockReturnValue({ available: false });
+
+      render();
+      await waitFor(() => {
+        expect(InlineRecoverySetupFlowModule.default).toHaveBeenCalled();
+        const args = (InlineRecoverySetupFlowModule.default as jest.Mock).mock
+          .calls[0][0];
+        expect(args.flowHasPhoneChoice).toBe(false);
+      });
+    });
+
+    it('shows code-download flow first and toggles generatingCodes during auto-generation when phone is unavailable', async () => {
+      recoveryPhoneFn = jest.fn().mockReturnValue({ available: false });
+
+      render();
+
+      // Initial render after effect starts generation
+      await waitFor(() => {
+        expect(InlineRecoverySetupFlowModule.default).toHaveBeenCalled();
+        const args = (
+          InlineRecoverySetupFlowModule.default as jest.Mock
+        ).mock.calls.slice(-1)[0][0];
+        expect(args.flowHasPhoneChoice).toBe(false);
+        expect(args.generatingCodes).toBe(true);
+        expect(args.backupCodes).toEqual([]);
+      });
+
+      // After codes finish generating, props should reflect the new codes and loading false
+      await waitFor(() => {
+        expect(mockGenerateCodes).toHaveBeenCalled();
+        const args = (
+          InlineRecoverySetupFlowModule.default as jest.Mock
+        ).mock.calls.slice(-1)[0][0];
+        expect(args.generatingCodes).toBe(false);
+        expect(args.backupCodes).toEqual(['wibble', 'quux']);
       });
     });
 
