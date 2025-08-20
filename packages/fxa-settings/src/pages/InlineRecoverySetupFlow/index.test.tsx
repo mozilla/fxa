@@ -57,7 +57,7 @@ const props = {
   email: MOCK_EMAIL,
   backupCodes: [],
   generatingCodes: false,
-  phoneData: { phoneNumber: '', nationalFormat: '' },
+  phoneData: { phoneNumber: '+12345678900', nationalFormat: '(234) 567-8900' },
   verifyTotpHandler,
   currentStep: 1,
   navigateForward,
@@ -239,6 +239,9 @@ describe('InlineRecoverySetupFlow', () => {
     });
     screen.getByText('Two-step authentication enabled');
     screen.getByText('Recovery phone');
+
+    expect(screen.getByText(/•••••• 8900/)).toBeInTheDocument();
+
     await user.click(
       screen.getByRole('button', { name: `Continue to ${MozServices.Default}` })
     );
