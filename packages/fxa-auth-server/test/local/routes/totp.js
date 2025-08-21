@@ -419,6 +419,70 @@ describe('totp', () => {
       }
     });
 
+    it('should handle bad account state (enabled=true, verified=false) during setup', () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+      };
+      return setup(
+        {
+          db: { email: TEST_EMAIL },
+          redis: { secret },
+          totpTokenVerified: false,
+          totpTokenEnabled: true, // Bad state: enabled but not verified
+        },
+        { totpToken: false }, // Force token lookup to succeed (not throw error)
+        '/session/verify/totp',
+        requestOptions
+      ).then((response) => {
+        assert.equal(response.success, true, 'should be valid code');
+
+        // Should get secret from Redis for bad state
+        assert.equal(
+          authServerCacheRedis.get.callCount,
+          1,
+          'should get secret from Redis'
+        );
+
+        // Should replace with verified token
+        assert.equal(
+          db.replaceTotpToken.callCount,
+          1,
+          'should replace TOTP token'
+        );
+        const replaceArgs = db.replaceTotpToken.getCall(0).args[0];
+        assert.equal(
+          replaceArgs.uid,
+          'uid',
+          'should replace token for correct uid'
+        );
+        assert.equal(replaceArgs.verified, true, 'should set verified to true');
+        assert.equal(replaceArgs.enabled, true, 'should set enabled to true');
+
+        // Should clean up Redis
+        assert.equal(
+          authServerCacheRedis.del.callCount,
+          1,
+          'should delete Redis secret'
+        );
+
+        // Should send setup completion email
+        assert.equal(
+          mailer.sendPostAddTwoStepAuthenticationEmail.callCount,
+          1,
+          'should send setup completion email'
+        );
+        assert.equal(
+          mailer.sendNewDeviceLoginEmail.callCount,
+          0,
+          'should not send new device email'
+        );
+      });
+    });
+
     it('should verify session with TOTP token - sync', () => {
       const authenticator = new otplib.authenticator.Authenticator();
       authenticator.options = Object.assign({}, otplib.authenticator.options, {
