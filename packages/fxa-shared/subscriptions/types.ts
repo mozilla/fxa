@@ -174,7 +174,13 @@ export type WebSubscription = Pick<
   };
 
 export type IapSubscription = PlayStoreSubscription | AppStoreSubscription;
-export type MozillaSubscription = WebSubscription | IapSubscription;
+export type MozillaSubscription =
+  | (WebSubscription & {
+      priceInfo?: SubscriptionManagementPriceInfo;
+    })
+  | (IapSubscription & {
+      priceInfo?: SubscriptionManagementPriceInfo;
+    });
 
 export const PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT = 'missing_agreement';
 export const PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE = 'funding_source';
@@ -227,4 +233,11 @@ export type SubscriptionChangeEligibility = {
   subscriptionEligibilityResult: SubscriptionEligibilityResult;
   eligibleSourcePlan?: AbbrevPlan;
   redundantOverlaps?: SubscriptionChangeEligibility[];
+};
+
+export type SubscriptionManagementPriceInfo = {
+  amount: string | number | null;
+  currency: string;
+  interval: Stripe.Price.Recurring.Interval;
+  interval_count: number;
 };

@@ -436,6 +436,12 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
     .required()
     .description(DESCRIPTIONS.productId),
   product_name: isA.string().required().description(DESCRIPTIONS.productName),
+  priceInfo: isA.object({
+    amount: isA.number().required(),
+    currency: isA.string().required(),
+    interval: isA.string().required(),
+    interval_count: isA.number().required(),
+  }),
   status: isA.string().required().description(DESCRIPTIONS.status),
   subscription_id: module.exports.subscriptionsSubscriptionId
     .required()
@@ -893,7 +899,8 @@ module.exports.thirdPartyProvider = isA
 module.exports.thirdPartyIdToken = module.exports.jwt.optional();
 module.exports.thirdPartyOAuthCode = isA.string().optional();
 
-module.exports.entrypoint = isA.string()
+module.exports.entrypoint = isA
+  .string()
   .regex(/^[a-zA-Z0-9_.-]+$/) // Only allow letters, digits, underscores, dots, and dashes
   .max(256)
   .required();

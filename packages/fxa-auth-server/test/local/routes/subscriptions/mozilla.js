@@ -51,14 +51,23 @@ const VALID_REQUEST = {
   },
 };
 const mockCustomer = { id: 'cus_testo', subscriptions: { data: {} } };
-const mockSubsAndBillingDetails = {
-  subscriptions: [
-    {
-      _subscription_type: 'web',
-      subscription_id: 'sub_1JhyIYBVqmGyQTMa3XMF6ADj',
-    },
-  ],
+const mockSubscription = {
+  _subscription_type: 'web',
+  subscription_id: 'sub_1JhyIYBVqmGyQTMa3XMF6ADj',
+};
+const expectedBillingDetails = {
   payment_provider: 'dinersclub',
+};
+const mockSubsAndBillingDetails = {
+  ...expectedBillingDetails,
+  customerCurrency: 'usd',
+  subscriptions: [mockSubscription],
+};
+const mockSubscriptionManagementPriceInfo = {
+  amount: 400,
+  currency: 'usd',
+  interval: 'month',
+  interval_count: 1,
 };
 const mockFormattedWebSubscription = {
   created: 1588972390,
@@ -179,6 +188,9 @@ describe('mozilla-subscriptions', () => {
       getBillingDetailsAndSubscriptions: sandbox
         .stub()
         .resolves(mockSubsAndBillingDetails),
+      getSubscriptionManagementPriceInfo: sandbox
+        .stub()
+        .resolves(mockSubscriptionManagementPriceInfo),
       fetchCustomer: sandbox.stub().resolves(mockCustomer),
       formatSubscriptionsForSupport: sandbox
         .stub()
@@ -204,11 +216,20 @@ describe('mozilla-subscriptions', () => {
         '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
       );
       assert.deepEqual(resp, {
-        ...mockSubsAndBillingDetails,
+        ...expectedBillingDetails,
         subscriptions: [
-          ...mockSubsAndBillingDetails.subscriptions,
-          mockGooglePlaySubscription,
-          mockAppStoreSubscription,
+          {
+            ...mockSubscription,
+            priceInfo: mockSubscriptionManagementPriceInfo,
+          },
+          {
+            ...mockGooglePlaySubscription,
+            priceInfo: mockSubscriptionManagementPriceInfo,
+          },
+          {
+            ...mockAppStoreSubscription,
+            priceInfo: mockSubscriptionManagementPriceInfo,
+          },
         ],
       });
       assert.equal(
@@ -231,6 +252,7 @@ describe('mozilla-subscriptions', () => {
         getSubscriptions: sandbox.stub().resolves([]),
       };
       stripeHelper.addPriceInfoToIapPurchases = sandbox.stub().resolves([]);
+
       const resp = await runTest(
         '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
         {
@@ -239,14 +261,22 @@ describe('mozilla-subscriptions', () => {
         }
       );
       assert.deepEqual(resp, {
-        ...mockSubsAndBillingDetails,
-        subscriptions: [...mockSubsAndBillingDetails.subscriptions],
+        ...expectedBillingDetails,
+        subscriptions: [
+          {
+            ...mockSubscription,
+            priceInfo: mockSubscriptionManagementPriceInfo,
+          },
+        ],
       });
     });
 
     it('gets customer billing details and only Google Play subscriptions', async () => {
       const stripeHelper = {
         getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
+        getSubscriptionManagementPriceInfo: sandbox
+          .stub()
+          .resolves(mockSubscriptionManagementPriceInfo),
         addPriceInfoToIapPurchases: sandbox
           .stub()
           .resolves([mockGooglePlaySubscription]),
@@ -262,13 +292,21 @@ describe('mozilla-subscriptions', () => {
         }
       );
       assert.deepEqual(resp, {
-        subscriptions: [mockGooglePlaySubscription],
+        subscriptions: [
+          {
+            ...mockGooglePlaySubscription,
+            priceInfo: mockSubscriptionManagementPriceInfo,
+          },
+        ],
       });
     });
 
     it('gets customer billing details and only App Store subscriptions', async () => {
       const stripeHelper = {
         getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
+        getSubscriptionManagementPriceInfo: sandbox
+          .stub()
+          .resolves(mockSubscriptionManagementPriceInfo),
         addPriceInfoToIapPurchases: sandbox
           .stub()
           .resolves([mockAppStoreSubscription]),
@@ -284,7 +322,12 @@ describe('mozilla-subscriptions', () => {
         }
       );
       assert.deepEqual(resp, {
-        subscriptions: [mockAppStoreSubscription],
+        subscriptions: [
+          {
+            ...mockAppStoreSubscription,
+            priceInfo: mockSubscriptionManagementPriceInfo,
+          },
+        ],
       });
     });
 
