@@ -533,15 +533,21 @@ module.exports = (
 
         await customs.checkAuthenticated(request, uid, email, 'verifyTotpCode');
 
-        let sharedSecret, tokenVerified;
+        let sharedSecret, tokenVerified, tokenEnabled;
         try {
-          ({ sharedSecret, verified: tokenVerified } = await db.totpToken(uid));
+          ({
+            sharedSecret,
+            verified: tokenVerified,
+            enabled: tokenEnabled,
+          } = await db.totpToken(uid));
         } catch (err) {
           if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
+            // If the user doesn't have a TOTP token yet, grab the secret from redis
             sharedSecret = await authServerCacheRedis.get(
               toRedisTotpSecretKey(uid)
             );
             tokenVerified = false;
+            tokenEnabled = false;
             if (sharedSecret == null) {
               throw errors.totpTokenNotFound();
             }
@@ -557,14 +563,32 @@ module.exports = (
           window: config.window,
         };
 
+        const isSetup = !tokenVerified;
+
+        if (isSetup) {
+          // 2FA being enabled, but not verified, is an invalid account state.
+          // If the user is in this state, pull the secret from redis
+          // so the user can complete the flow and replace their token.
+          if (tokenEnabled) {
+            const cachedSecret = await authServerCacheRedis.get(
+              toRedisTotpSecretKey(uid)
+            );
+            if (cachedSecret) {
+              sharedSecret = cachedSecret;
+            } else {
+              log.error('totp.setup.invalidState.missingRedisSecret', { uid });
+              throw errors.totpTokenNotFound();
+            }
+          }
+        }
+
+        // Validate code against the correct secret (for both setup and login flows)
         const { valid: isValidCode, delta } = otpUtils.verifyOtpCode(
           code,
           sharedSecret,
           otpOptions,
           'session.verify'
         );
-
-        const isSetup = !tokenVerified;
 
         if (isSetup) {
           // We currently check for code validity client-side, and then check again
