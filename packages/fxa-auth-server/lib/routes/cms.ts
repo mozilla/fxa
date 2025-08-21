@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import crypto from 'crypto';
 import { ConfigType } from '../../config';
 import { AuthLogger, AuthRequest } from '../types';
 import { Container } from 'typedi';
@@ -32,45 +33,49 @@ export class CMSHandler {
     this.localization = new CMSLocalization(log, config);
   }
 
-  async getConfig(request: AuthRequest) {
-    this.log.begin('cms.getConfig', request);
-
+  ensureCmsManager() {
     if (!this.cmsManager) {
       throw AppError.featureNotEnabled();
     }
+  }
+
+  async getConfig(request: AuthRequest) {
+    this.log.begin('cms.getConfig', request);
 
     const clientId = request.query.clientId;
     const entrypoint = request.query.entrypoint;
 
     try {
-      const result = await this.cmsManager.fetchCMSData(clientId, entrypoint);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const result = await this.cmsManager!.fetchCMSData(clientId, entrypoint);
 
       const { relyingParties } = result;
       if (!relyingParties || relyingParties.length === 0) {
         this.statsd.increment('cms.getConfig.empty');
-        this.log.info(
-          'cms.getConfig: No relying parties found',
-          { clientId, entrypoint },
-        );
+        this.log.info('cms.getConfig: No relying parties found', {
+          clientId,
+          entrypoint,
+        });
         return {};
       }
 
       if (relyingParties.length > 1) {
         this.statsd.increment('cms.getConfig.multiple');
-        this.log.info(
-          'cms.getConfig: Multiple relying parties found',
-          { clientId, entrypoint },
-        );
+        this.log.info('cms.getConfig: Multiple relying parties found', {
+          clientId,
+          entrypoint,
+        });
       }
 
       return relyingParties[0];
     } catch (error) {
       // We don't want failures to fetch a config to bubble up to the user.
       this.statsd.increment('cms.getConfig.error');
-      this.log.error(
-        'cms.getConfig: Error getting relying party',
-        { clientId, entrypoint, error },
-      );
+      this.log.error('cms.getConfig: Error getting relying party', {
+        clientId,
+        entrypoint,
+        error,
+      });
       return {};
     }
   }
@@ -83,7 +88,7 @@ export class CMSHandler {
     if (!this.config.cmsl10n.strapiWebhook.enabled) {
       this.log.warn('cms.strapiWebhook.disabled', {});
       return {
-        success: true
+        success: true,
       };
     }
 
@@ -94,7 +99,9 @@ export class CMSHandler {
       throw new Error('Missing authorization header');
     }
 
-    if (authorization !== `Bearer ${this.config.cmsl10n.strapiWebhook.secret}`) {
+    if (
+      authorization !== `Bearer ${this.config.cmsl10n.strapiWebhook.secret}`
+    ) {
       this.log.warn('cms.strapiWebhook.invalidAuthorization', {});
       throw new Error('Invalid authorization header');
     }
@@ -159,7 +166,7 @@ export class CMSHandler {
             eventType,
             entryId: webhookPayload?.entry?.id,
             model: webhookPayload?.model,
-            entriesCount: allEntries.length
+            entriesCount: allEntries.length,
           }
         );
       } else {
@@ -167,7 +174,7 @@ export class CMSHandler {
           eventType,
           entryId: webhookPayload?.entry?.id,
           model: webhookPayload?.model,
-          entriesCount: allEntries.length
+          entriesCount: allEntries.length,
         });
       }
 
@@ -212,6 +219,78 @@ export class CMSHandler {
       throw error;
     }
   }
+
+  async handleCacheInvalidationWebhook(
+    request: AuthRequest
+  ): Promise<{ success: boolean }> {
+    if (
+      !this.config.cms.enabled ||
+      !this.config.cms.webhookCacheInvalidation.enabled
+    ) {
+      throw AppError.featureNotEnabled();
+    }
+
+    this.log.begin('cms.cacheReset.handle', request);
+    const webhookPayload = request.payload as StrapiWebhookPayload;
+
+    if (
+      !request.headers[this.config.cms.webhookCacheInvalidation.headerKey] ||
+      !crypto.timingSafeEqual(
+        Buffer.from(
+          request.headers[this.config.cms.webhookCacheInvalidation.headerKey]
+        ),
+        Buffer.from(this.config.cms.webhookCacheInvalidation.headerVal)
+      )
+    ) {
+      this.log.error(
+        'cms.cacheReset.error.auth',
+        Object.fromEntries(
+          Object.entries(webhookPayload.entry).filter(([k, _]) =>
+            ['clientId', 'documentId', 'entrypoint', 'name'].includes(k)
+          )
+        )
+      );
+      this.statsd.increment('cms.cacheReset.error.auth', {
+        clientId: webhookPayload.entry.clientId,
+        entrypoint: webhookPayload.entry.entrypoint,
+      });
+      throw new Error('Invalid authorization header');
+    }
+
+    if (
+      webhookPayload.model === 'relying-party' &&
+      ['entry.delete', 'entry.publish', 'entry.unpublish'].includes(
+        webhookPayload.event
+      )
+    ) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        await this.cmsManager!.invalidateCache(
+          webhookPayload.entry.clientId,
+          webhookPayload.entry.entrypoint
+        );
+        this.log.info('cms.cacheReset.success', {
+          clientId: webhookPayload.entry.clientId,
+          entrypoint: webhookPayload.entry.entrypoint,
+        });
+        this.statsd.increment('cms.cacheReset.success', {
+          clientId: webhookPayload.entry.clientId,
+          entrypoint: webhookPayload.entry.entrypoint,
+        });
+      } catch (err) {
+        this.log.error('cms.cacheReset.error.invalidation', {
+          error: err.message,
+        });
+        this.statsd.increment('cms.cacheReset.error.invalidation', {
+          clientId: webhookPayload.entry.clientId,
+          entrypoint: webhookPayload.entry.entrypoint,
+        });
+        throw err;
+      }
+    }
+
+    return { success: true };
+  }
 }
 
 export const cmsRoutes = (
@@ -220,11 +299,16 @@ export const cmsRoutes = (
   statsd: StatsD
 ) => {
   const cmsHandler = new CMSHandler(log, config, statsd);
+  const featureEnabledCheck = () => {
+    cmsHandler.ensureCmsManager();
+    return true;
+  };
   return [
     {
       method: 'GET',
       path: '/cms/config',
       options: {
+        pre: [{ method: featureEnabledCheck }],
         validate: {
           query: isA.object({
             clientId: validators.clientId.required(),
@@ -239,6 +323,15 @@ export const cmsRoutes = (
       path: '/cms/webhook/strapi',
       handler: (request: AuthRequest) =>
         cmsHandler.handleStrapiWebhook(request),
+    },
+    {
+      method: 'POST',
+      path: '/cms/cache/reset',
+      options: {
+        pre: [{ method: featureEnabledCheck }],
+      },
+      handler: async (request: AuthRequest) =>
+        cmsHandler.handleCacheInvalidationWebhook(request),
     },
   ];
 };

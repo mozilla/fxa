@@ -26,13 +26,13 @@ function createStrapiTestData() {
       clientId: 'sync-client',
       SigninPage: {
         headline: 'Enter your password',
-        description: 'to sign in to Firefox and start syncing'
+        description: 'to sign in to Firefox and start syncing',
       },
       EmailFirstPage: {
         headline: 'Welcome to Firefox Sync',
-        description: 'Sync your passwords, tabs, and bookmarks'
-      }
-    }
+        description: 'Sync your passwords, tabs, and bookmarks',
+      },
+    },
   ];
 }
 
@@ -45,6 +45,14 @@ describe('cms', () => {
     };
 
     mockConfig = {
+      cms: {
+        enabled: true,
+        webhookCacheInvalidation: {
+          enabled: true,
+          headerKey: 'cms-cache-reset-header',
+          headerVal: 'neo',
+        },
+      },
       cmsl10n: {
         enabled: true,
         strapiWebhook: {
@@ -62,6 +70,7 @@ describe('cms', () => {
     // Mock CMS Manager
     mockCmsManager = {
       fetchCMSData: sandbox.stub(),
+      invalidateCache: sandbox.stub(),
     };
 
     // Mock Localization
@@ -78,17 +87,17 @@ describe('cms', () => {
     sandbox.stub(Container, 'has').returns(true);
     sandbox.stub(Container, 'get').returns(mockCmsManager);
 
-        // Use proxyquire to mock dependencies
+    // Use proxyquire to mock dependencies
     const cmsModule = proxyquire('../../../lib/routes/cms', {
       '@fxa/shared/cms': {
-        RelyingPartyConfigurationManager: mockCmsManager
+        RelyingPartyConfigurationManager: mockCmsManager,
       },
       './utils/cms': {
-        CMSLocalization: function() {
+        CMSLocalization: function () {
           return mockLocalization;
         },
-        StrapiWebhookPayload: {}
-      }
+        StrapiWebhookPayload: {},
+      },
     });
 
     routes = cmsModule.default(log, mockConfig, mockStatsD);
@@ -117,21 +126,21 @@ describe('cms', () => {
             clientId: 'sync-client',
             SigninPage: {
               headline: 'Enter your password',
-              description: 'to sign in to Firefox and start syncing'
+              description: 'to sign in to Firefox and start syncing',
             },
             EmailFirstPage: {
               headline: 'Welcome to Firefox Sync',
-              description: 'Sync your passwords, tabs, and bookmarks'
-            }
-          }
-        ]
+              description: 'Sync your passwords, tabs, and bookmarks',
+            },
+          },
+        ],
       };
       mockCmsManager.fetchCMSData.resolves(mockResult);
 
       request = {
         query: {
           clientId: 'desktopSyncFirefoxCms',
-          entrypoint: 'desktop-sync'
+          entrypoint: 'desktop-sync',
         },
         log: log,
       };
@@ -140,7 +149,11 @@ describe('cms', () => {
 
       assert.deepEqual(response, mockResult.relyingParties[0]);
       assert.calledOnce(mockCmsManager.fetchCMSData);
-      assert.calledWith(mockCmsManager.fetchCMSData, 'desktopSyncFirefoxCms', 'desktop-sync');
+      assert.calledWith(
+        mockCmsManager.fetchCMSData,
+        'desktopSyncFirefoxCms',
+        'desktop-sync'
+      );
     });
 
     it('should return empty object when no relying parties found', async () => {
@@ -149,7 +162,7 @@ describe('cms', () => {
       request = {
         query: {
           clientId: 'test-client',
-          entrypoint: 'test-entrypoint'
+          entrypoint: 'test-entrypoint',
         },
         log: log,
       };
@@ -171,8 +184,8 @@ describe('cms', () => {
             clientId: 'sync-client',
             SigninPage: {
               headline: 'Enter your password',
-              description: 'to sign in to Firefox and start syncing'
-            }
+              description: 'to sign in to Firefox and start syncing',
+            },
           },
           {
             id: 'mobileSyncFirefoxCms',
@@ -181,17 +194,17 @@ describe('cms', () => {
             clientId: 'mobile-sync-client',
             SigninPage: {
               headline: 'Sign in to Firefox',
-              description: 'Access your synced data'
-            }
-          }
-        ]
+              description: 'Access your synced data',
+            },
+          },
+        ],
       };
       mockCmsManager.fetchCMSData.resolves(mockResult);
 
       request = {
         query: {
           clientId: 'desktopSyncFirefoxCms',
-          entrypoint: 'desktop-sync'
+          entrypoint: 'desktop-sync',
         },
         log: log,
       };
@@ -209,7 +222,7 @@ describe('cms', () => {
       request = {
         query: {
           clientId: 'test-client',
-          entrypoint: 'test-entrypoint'
+          entrypoint: 'test-entrypoint',
         },
         log: log,
       };
@@ -227,7 +240,7 @@ describe('cms', () => {
       request = {
         query: {
           clientId: 'test-client',
-          entrypoint: 'test-entrypoint'
+          entrypoint: 'test-entrypoint',
         },
         log: log,
       };
@@ -245,7 +258,7 @@ describe('cms', () => {
     it('should validate required clientId parameter', async () => {
       request = {
         query: {
-          entrypoint: 'test-entrypoint'
+          entrypoint: 'test-entrypoint',
         },
         log: log,
       };
@@ -255,7 +268,10 @@ describe('cms', () => {
         assert.fail('Should have thrown validation error');
       } catch (error) {
         // The validation error might be wrapped or have different format
-        assert.ok(error.message.includes('clientId') || error.message.includes('validation'));
+        assert.ok(
+          error.message.includes('clientId') ||
+            error.message.includes('validation')
+        );
       }
     });
   });
@@ -270,9 +286,9 @@ describe('cms', () => {
         event: 'entry.publish',
         entry: {
           id: 123,
-          updatedAt: '2023-01-01T00:00:00.000Z'
+          updatedAt: '2023-01-01T00:00:00.000Z',
         },
-        model: 'relying-party'
+        model: 'relying-party',
       };
 
       const strapiData = createStrapiTestData();
@@ -284,7 +300,7 @@ describe('cms', () => {
 
       request = {
         headers: {
-          authorization: 'Bearer test-webhook-secret'
+          authorization: 'Bearer test-webhook-secret',
         },
         payload: webhookPayload,
         log: log,
@@ -328,14 +344,18 @@ describe('cms', () => {
       } catch (error) {
         assert.equal(error.message, 'Missing authorization header');
         assert.calledOnce(log.warn);
-        assert.calledWith(log.warn, 'cms.strapiWebhook.missingAuthorization', {});
+        assert.calledWith(
+          log.warn,
+          'cms.strapiWebhook.missingAuthorization',
+          {}
+        );
       }
     });
 
     it('should reject when authorization token is invalid', async () => {
       request = {
         headers: {
-          authorization: 'Bearer wrong-secret'
+          authorization: 'Bearer wrong-secret',
         },
         payload: { event: 'entry.publish' },
         log: log,
@@ -347,7 +367,11 @@ describe('cms', () => {
       } catch (error) {
         assert.equal(error.message, 'Invalid authorization header');
         assert.calledOnce(log.warn);
-        assert.calledWith(log.warn, 'cms.strapiWebhook.invalidAuthorization', {});
+        assert.calledWith(
+          log.warn,
+          'cms.strapiWebhook.invalidAuthorization',
+          {}
+        );
       }
     });
 
@@ -355,12 +379,12 @@ describe('cms', () => {
       const webhookPayload = {
         event: 'entry.update',
         entry: { id: 123 },
-        model: 'relying-party'
+        model: 'relying-party',
       };
 
       request = {
         headers: {
-          authorization: 'Bearer test-webhook-secret'
+          authorization: 'Bearer test-webhook-secret',
         },
         payload: webhookPayload,
         log: log,
@@ -371,20 +395,20 @@ describe('cms', () => {
       assert.deepEqual(response, { success: true });
       assert.calledTwice(log.info);
       // Check that the skipped log was called
-      const skippedCall = log.info.getCalls().find(call =>
-        call.args[0] === 'cms.strapiWebhook.skipped'
-      );
+      const skippedCall = log.info
+        .getCalls()
+        .find((call) => call.args[0] === 'cms.strapiWebhook.skipped');
       assert.exists(skippedCall);
       assert.deepEqual(skippedCall.args[1], {
         eventType: 'entry.update',
-        reason: 'Event not in allowed list'
+        reason: 'Event not in allowed list',
       });
     });
 
     it('should skip when no event type is provided', async () => {
       request = {
         headers: {
-          authorization: 'Bearer test-webhook-secret'
+          authorization: 'Bearer test-webhook-secret',
         },
         payload: {},
         log: log,
@@ -395,13 +419,13 @@ describe('cms', () => {
       assert.deepEqual(response, { success: true });
       assert.calledTwice(log.info);
       // Check that the skipped log was called
-      const skippedCall = log.info.getCalls().find(call =>
-        call.args[0] === 'cms.strapiWebhook.skipped'
-      );
+      const skippedCall = log.info
+        .getCalls()
+        .find((call) => call.args[0] === 'cms.strapiWebhook.skipped');
       assert.exists(skippedCall);
       assert.deepEqual(skippedCall.args[1], {
         eventType: undefined,
-        reason: 'Event not in allowed list'
+        reason: 'Event not in allowed list',
       });
     });
 
@@ -409,14 +433,14 @@ describe('cms', () => {
       const webhookPayload = {
         event: 'entry.publish',
         entry: { id: 123 },
-        model: 'relying-party'
+        model: 'relying-party',
       };
 
       mockLocalization.fetchAllStrapiEntries.resolves([]);
 
       request = {
         headers: {
-          authorization: 'Bearer test-webhook-secret'
+          authorization: 'Bearer test-webhook-secret',
         },
         payload: webhookPayload,
         log: log,
@@ -433,7 +457,7 @@ describe('cms', () => {
       const webhookPayload = {
         event: 'entry.publish',
         entry: { id: 123, updatedAt: '2023-01-01T00:00:00.000Z' },
-        model: 'relying-party'
+        model: 'relying-party',
       };
 
       const strapiData = createStrapiTestData();
@@ -445,7 +469,7 @@ describe('cms', () => {
 
       request = {
         headers: {
-          authorization: 'Bearer test-webhook-secret'
+          authorization: 'Bearer test-webhook-secret',
         },
         payload: webhookPayload,
         log: log,
@@ -463,7 +487,7 @@ describe('cms', () => {
       const webhookPayload = {
         event: 'entry.publish',
         entry: { id: 123, updatedAt: '2023-01-01T00:00:00.000Z' },
-        model: 'relying-party'
+        model: 'relying-party',
       };
 
       const strapiData = createStrapiTestData();
@@ -475,7 +499,7 @@ describe('cms', () => {
 
       request = {
         headers: {
-          authorization: 'Bearer test-webhook-secret'
+          authorization: 'Bearer test-webhook-secret',
         },
         payload: webhookPayload,
         log: log,
@@ -485,7 +509,11 @@ describe('cms', () => {
 
       assert.deepEqual(response, { success: true });
       assert.calledOnce(mockLocalization.createGitHubPR);
-      assert.calledWith(mockLocalization.createGitHubPR, 'ftl-content', 'all-entries');
+      assert.calledWith(
+        mockLocalization.createGitHubPR,
+        'ftl-content',
+        'all-entries'
+      );
       assert.calledWith(mockLocalization.strapiToFtl, strapiData);
     });
 
@@ -493,14 +521,16 @@ describe('cms', () => {
       const webhookPayload = {
         event: 'entry.publish',
         entry: { id: 123 },
-        model: 'relying-party'
+        model: 'relying-party',
       };
 
-      mockLocalization.fetchAllStrapiEntries.rejects(new Error('Strapi API Error'));
+      mockLocalization.fetchAllStrapiEntries.rejects(
+        new Error('Strapi API Error')
+      );
 
       request = {
         headers: {
-          authorization: 'Bearer test-webhook-secret'
+          authorization: 'Bearer test-webhook-secret',
         },
         payload: webhookPayload,
         log: log,
@@ -515,7 +545,7 @@ describe('cms', () => {
         assert.calledWith(mockStatsD.increment, 'cms.strapiWebhook.error');
         assert.calledOnce(log.error);
         assert.calledWith(log.error, 'cms.strapiWebhook.error', {
-          error: 'Strapi API Error'
+          error: 'Strapi API Error',
         });
       }
     });
@@ -524,7 +554,7 @@ describe('cms', () => {
       const webhookPayload = {
         event: 'entry.publish',
         entry: { id: 123 },
-        model: 'relying-party'
+        model: 'relying-party',
       };
 
       const strapiData = createStrapiTestData();
@@ -534,7 +564,7 @@ describe('cms', () => {
 
       request = {
         headers: {
-          authorization: 'Bearer test-webhook-secret'
+          authorization: 'Bearer test-webhook-secret',
         },
         payload: webhookPayload,
         log: log,
@@ -554,17 +584,19 @@ describe('cms', () => {
       const webhookPayload = {
         event: 'entry.publish',
         entry: { id: 123 },
-        model: 'relying-party'
+        model: 'relying-party',
       };
 
       const strapiData = createStrapiTestData();
 
       mockLocalization.fetchAllStrapiEntries.resolves(strapiData);
-      mockLocalization.validateGitHubConfig.rejects(new Error('GitHub config invalid'));
+      mockLocalization.validateGitHubConfig.rejects(
+        new Error('GitHub config invalid')
+      );
 
       request = {
         headers: {
-          authorization: 'Bearer test-webhook-secret'
+          authorization: 'Bearer test-webhook-secret',
         },
         payload: webhookPayload,
         log: log,
@@ -577,6 +609,132 @@ describe('cms', () => {
         assert.equal(error.message, 'GitHub config invalid');
         assert.calledOnce(mockLocalization.validateGitHubConfig);
       }
+    });
+  });
+
+  describe('POST /cms/cache/reset', () => {
+    const webhookPayload = {
+      model: 'relying-party',
+      entry: {
+        clientId: 'fed321',
+        documentId: '0001-22-333333',
+        entrypoint: 'testo',
+        name: '123MaybeDone',
+      },
+    };
+
+    beforeEach(() => {
+      route = getRoute(routes, '/cms/cache/reset', 'POST');
+    });
+
+    it('should throw on invalid header', async () => {
+      const req = {
+        headers: { 'cms-cache-reset-header': 'geo' },
+        payload: webhookPayload,
+      };
+      try {
+        await route.handler(req);
+        assert.fail('an error should have been thrown');
+      } catch (error) {
+        assert.calledWith(
+          log.error,
+          'cms.cacheReset.error.auth',
+          webhookPayload.entry
+        );
+        assert.calledWith(mockStatsD.increment, 'cms.cacheReset.error.auth', {
+          clientId: webhookPayload.entry.clientId,
+          entrypoint: webhookPayload.entry.entrypoint,
+        });
+        assert.equal(error.message, 'Invalid authorization header');
+      }
+    });
+
+    it('should skip if the webhook event model is not relying-party', async () => {
+      const req = {
+        headers: {
+          [mockConfig.cms.webhookCacheInvalidation.headerKey]:
+            mockConfig.cms.webhookCacheInvalidation.headerVal,
+        },
+        payload: { ...webhookPayload, model: 'something-else' },
+      };
+      await route.handler(req);
+      assert.notCalled(log.info);
+      assert.notCalled(log.error);
+      assert.notCalled(mockStatsD.increment);
+    });
+
+    it('should skip if the webhook event type does not require invalidation', async () => {
+      const req = {
+        headers: {
+          [mockConfig.cms.webhookCacheInvalidation.headerKey]:
+            mockConfig.cms.webhookCacheInvalidation.headerVal,
+        },
+        payload: { ...webhookPayload, event: 'entry.create' },
+      };
+      await route.handler(req);
+      assert.notCalled(log.info);
+      assert.notCalled(log.error);
+      assert.notCalled(mockStatsD.increment);
+    });
+
+    it('should throw an error if the cms manager throws an error', async () => {
+      const req = {
+        headers: {
+          [mockConfig.cms.webhookCacheInvalidation.headerKey]:
+            mockConfig.cms.webhookCacheInvalidation.headerVal,
+        },
+        payload: { ...webhookPayload, event: 'entry.publish' },
+      };
+      mockCmsManager.invalidateCache.rejects(new Error('An error happened'));
+
+      try {
+        await route.handler(req);
+        assert.fail('an error should have been thrown.');
+      } catch (error) {
+        assert.calledWith(log.error, 'cms.cacheReset.error.invalidation', {
+          error: error.message,
+        });
+        assert.calledWith(
+          mockStatsD.increment,
+          'cms.cacheReset.error.invalidation',
+          {
+            clientId: webhookPayload.entry.clientId,
+            entrypoint: webhookPayload.entry.entrypoint,
+          }
+        );
+        assert.equal(error.message, 'An error happened');
+      }
+    });
+
+    it('invalidates cms cache via mockCmsManager.invalidateCache', async () => {
+      const req = {
+        headers: {
+          [mockConfig.cms.webhookCacheInvalidation.headerKey]:
+            mockConfig.cms.webhookCacheInvalidation.headerVal,
+        },
+        payload: { ...webhookPayload, event: 'entry.publish' },
+      };
+      mockCmsManager.invalidateCache.resolves();
+
+      const result = await route.handler(req);
+      assert.deepEqual(result, { success: true });
+      assert.calledOnceWithExactly(
+        mockCmsManager.invalidateCache,
+        webhookPayload.entry.clientId,
+        webhookPayload.entry.entrypoint
+      );
+      assert.calledOnceWithExactly(log.info, 'cms.cacheReset.success', {
+        clientId: webhookPayload.entry.clientId,
+        entrypoint: webhookPayload.entry.entrypoint,
+      });
+      assert.calledOnceWithExactly(
+        mockStatsD.increment,
+        'cms.cacheReset.success',
+        {
+          clientId: webhookPayload.entry.clientId,
+          entrypoint: webhookPayload.entry.entrypoint,
+        }
+      );
     });
   });
 

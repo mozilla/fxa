@@ -50,20 +50,39 @@ import {
   PageContentByPriceIdsResultUtil,
 } from './queries/page-content-by-price-ids';
 
-jest.mock('@type-cacheable/core', () => ({
-  Cacheable: () => {
-    return (target: any, propertyKey: any, descriptor: any) => {
-      return descriptor;
-    };
-  },
-  setOptions: jest.fn(),
-}));
+jest.mock('@type-cacheable/core', () => {
+  const noopDecorator =
+    () =>
+    (
+      target: any,
+      propertyKey: string | symbol,
+      descriptor: PropertyDescriptor
+    ) =>
+      descriptor;
+
+  const Cacheable = jest.fn(() => noopDecorator);
+  const CacheClear = jest.fn(() => noopDecorator);
+
+  const defaultExport = {
+    setOptions: jest.fn(),
+  };
+
+  return {
+    __esModule: true,
+    default: defaultExport,
+    Cacheable,
+    CacheClear,
+  };
+});
 
 jest.mock('@fxa/shared/db/type-cacheable', () => ({
-  NetworkFirstStrategy: function () {},
-  AsyncLocalStorageAdapter: function () {},
-  CacheFirstStrategy: function () {},
-  MemoryAdapter: function () {},
+  MemoryAdapter: jest.fn().mockImplementation(() => ({})),
+  FirestoreAdapter: jest.fn().mockImplementation(() => ({})),
+  CacheFirstStrategy: jest.fn().mockImplementation(() => ({})),
+  AsyncLocalStorageAdapter: jest.fn().mockImplementation(() => ({})),
+  StaleWhileRevalidateWithFallbackStrategy: jest
+    .fn()
+    .mockImplementation(() => ({})),
 }));
 
 describe('productConfigurationManager', () => {
