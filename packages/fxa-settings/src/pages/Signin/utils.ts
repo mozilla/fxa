@@ -339,19 +339,14 @@ const getUnverifiedNavigationTarget = (
 ) => {
   const { verificationReason, verificationMethod } =
     navigationOptions.signinData;
-  const { integration, queryParams } = navigationOptions;
-  const isOAuth = isOAuthIntegration(integration);
+  const { queryParams } = navigationOptions;
 
   const getUnverifiedNavTo = () => {
-    // TODO in FXA-9177 Consider storing state in Apollo cache instead of location state
-    if (
-      ((verificationReason === VerificationReasons.SIGN_IN ||
-        verificationReason === VerificationReasons.CHANGE_PASSWORD) &&
-        verificationMethod === VerificationMethods.TOTP_2FA) ||
-      (isOAuth && integration.wantsTwoStepAuthentication())
-    ) {
+    if (verificationMethod === VerificationMethods.TOTP_2FA) {
       return `/signin_totp_code${queryParams || ''}`;
-    } else if (verificationReason === VerificationReasons.SIGN_UP) {
+    }
+
+    if (verificationReason === VerificationReasons.SIGN_UP) {
       return `/confirm_signup_code${queryParams || ''}`;
     }
     return `/signin_token_code${queryParams || ''}`;

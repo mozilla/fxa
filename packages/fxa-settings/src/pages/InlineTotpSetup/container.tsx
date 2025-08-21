@@ -60,14 +60,18 @@ export const InlineTotpSetupContainer = ({
   );
 
   const { data: totpStatus, loading: totpStatusLoading } =
-    useQuery<TotpStatusResponse>(GET_TOTP_STATUS);
+    useQuery<TotpStatusResponse>(GET_TOTP_STATUS, {
+      // Use fetchPolicy: 'network-only' to bypass Apollo cache so this reflects the
+      // current account state, not possibly cached data from another signed-in account.
+      fetchPolicy: 'network-only',
+    });
 
   const signinState = getSigninState(location.state);
 
   const navTo = useCallback(
     (
       uri:
-        | '/signup'
+        | '/'
         | '/signin_token_code'
         | '/signin_totp_code'
         | '/inline_recovery_setup',
@@ -125,14 +129,16 @@ export const InlineTotpSetupContainer = ({
   // Once state has settled, determine if user should be directed to another page
   useEffect(() => {
     if (!isSignedIn || !signinState) {
-      navTo('/signup');
-    } else if (sessionVerified === false) {
-      navTo('/signin_token_code', signinState ? signinState : undefined);
-    } else if (
-      totpStatusLoading === false &&
-      totpStatus?.account?.totp.verified
-    ) {
+      navTo('/');
+      return;
+    }
+    if (totpStatus?.account?.totp.verified) {
       navTo('/signin_totp_code', signinState ? signinState : undefined);
+      return;
+    }
+    if (sessionVerified === false) {
+      navTo('/signin_token_code', signinState ? signinState : undefined);
+      return;
     }
   }, [
     sessionVerified,
@@ -141,6 +147,7 @@ export const InlineTotpSetupContainer = ({
     isSignedIn,
     signinState,
     navTo,
+    navigateWithQuery,
   ]);
 
   const cancelSetupHandler = useCallback(() => {
@@ -198,10 +205,18 @@ export const InlineTotpSetupContainer = ({
     config.featureFlags?.updatedInlineTotpSetupFlow || false;
 
   return isUpdatedInlineTotpSetupFlow ? (
-    <InlineTotpSetupNew {...{ totp, serviceName, verifyCodeHandler, integration }} />
+    <InlineTotpSetupNew
+      {...{ totp, serviceName, verifyCodeHandler, integration }}
+    />
   ) : (
     <InlineTotpSetupOld
-      {...{ totp, serviceName, cancelSetupHandler, verifyCodeHandler, integration }}
+      {...{
+        totp,
+        serviceName,
+        cancelSetupHandler,
+        verifyCodeHandler,
+        integration,
+      }}
     />
   );
 };

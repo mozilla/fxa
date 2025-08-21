@@ -443,6 +443,39 @@ describe('Signin component', () => {
             });
           });
 
+          it('OAuth forced 2FA without TOTP navigates to /signin_token_code (email OTP first)', async () => {
+            const beginSigninHandler = jest.fn().mockReturnValueOnce(
+              createBeginSigninResponse({
+                verified: false,
+                verificationMethod: VerificationMethods.EMAIL_OTP,
+              })
+            );
+            const integration = createMockSigninOAuthIntegration();
+            // Force RP to require two-step authentication
+            (integration.wantsTwoStepAuthentication as unknown as
+              | jest.Mock
+              | undefined) = undefined;
+            integration.wantsTwoStepAuthentication = () => true;
+
+            render({ beginSigninHandler, integration });
+
+            await enterPasswordAndSubmit();
+
+            await waitFor(() => {
+              expect(navigate).toHaveBeenCalledWith('/signin_token_code', {
+                replace: false,
+                state: {
+                  email: MOCK_EMAIL,
+                  uid: MOCK_UID,
+                  sessionToken: MOCK_SESSION_TOKEN,
+                  verified: false,
+                  verificationMethod: 'email-otp',
+                  verificationReason: VerificationReasons.SIGN_IN,
+                },
+              });
+            });
+          });
+
           it('navigates to /inline_recovery_key_setup when showInlineRecoveryKeySetup is true', async () => {
             const integration = createMockSigninOAuthNativeSyncIntegration();
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
@@ -1096,6 +1129,45 @@ describe('Signin component', () => {
             },
           });
         });
+
+        it('navigates to /inline_totp_setup when RP requires two-step auth and session is verified', async () => {
+          const signinResponse = createBeginSigninResponse({ verified: true });
+          const beginSigninHandler = jest
+            .fn()
+            .mockReturnValueOnce(signinResponse);
+          const finishOAuthFlowHandler = jest
+            .fn()
+            .mockImplementationOnce(() => ({
+              error: AuthUiErrors.TOTP_REQUIRED,
+            }));
+          const integration = createMockSigninOAuthIntegration();
+          // Make the RP explicitly request AAL2
+          (integration.wantsTwoStepAuthentication as unknown as
+            | jest.Mock
+            | undefined) = undefined;
+          integration.wantsTwoStepAuthentication = () => true;
+
+          render({ finishOAuthFlowHandler, integration, beginSigninHandler });
+
+          await enterPasswordAndSubmit();
+          await waitFor(() => {
+            expect(navigate).toHaveBeenCalledWith('/inline_totp_setup', {
+              replace: true,
+              state: {
+                email: MOCK_EMAIL,
+                keyFetchToken: signinResponse.data.signIn.keyFetchToken,
+                sessionToken: signinResponse.data.signIn.sessionToken,
+                uid: signinResponse.data.signIn.uid,
+                unwrapBKey: signinResponse.data.unwrapBKey,
+                verificationMethod:
+                  signinResponse.data.signIn.verificationMethod,
+                verificationReason:
+                  signinResponse.data.signIn.verificationReason,
+                verified: signinResponse.data.signIn.verified,
+              },
+            });
+          });
+        });
       });
     });
 
@@ -1328,7 +1400,9 @@ describe('Signin component', () => {
     it('sets the shared page title from CMS', () => {
       render({ integration: createMockSigninWebIntegration(cmsProps) });
 
-      expect(document.title).toBe(`${cmsProps.cmsInfo.shared.pageTitle} | Mozilla accounts`);
+      expect(document.title).toBe(
+        `${cmsProps.cmsInfo.shared.pageTitle} | Mozilla accounts`
+      );
     });
 
     it('sets the shared page title without CMS', () => {
@@ -1348,15 +1422,22 @@ describe('Signin component', () => {
 
       render(props);
 
-
       // grab the parent element because searching by our test
       // description only returns the <p> tag. Other elements
       // we care about are siblings to the tag.
-      const card = screen.getByText(cmsProps.cmsInfo.SigninPage.description).parentElement!;
+      const card = screen.getByText(
+        cmsProps.cmsInfo.SigninPage.description
+      ).parentElement!;
 
-      const cmsLogo = within(card).getByRole('img', { name: cmsProps.cmsInfo.shared.logoAltText });
-      const cmsHeadline = within(card).getByRole('heading', { name: cmsProps.cmsInfo.SigninPage.headline });
-      const cmsDescription = within(card).getByText(cmsProps.cmsInfo.SigninPage.description);
+      const cmsLogo = within(card).getByRole('img', {
+        name: cmsProps.cmsInfo.shared.logoAltText,
+      });
+      const cmsHeadline = within(card).getByRole('heading', {
+        name: cmsProps.cmsInfo.SigninPage.headline,
+      });
+      const cmsDescription = within(card).getByText(
+        cmsProps.cmsInfo.SigninPage.description
+      );
 
       expect(cmsLogo).toMatchSnapshot('cms logo');
       expect(cmsHeadline).toMatchSnapshot('cms headline');
@@ -1368,15 +1449,19 @@ describe('Signin component', () => {
       // Renders CardHeader with different props but still uses CMS logo
       render({
         integration: createMockSigninWebIntegration(cmsProps),
-        hasPassword: false
+        hasPassword: false,
       });
 
       // the specific case here is the falsy condition of the above ternary
       // so, we make sure our mock headline is NOT in the document as a guard against
       // snapshotting the wrong render.
-      expect(screen.queryByText(cmsProps.cmsInfo.SigninPage.headline)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(cmsProps.cmsInfo.SigninPage.headline)
+      ).not.toBeInTheDocument();
 
-      const cmsLogo = screen.getByRole('img', { name: cmsProps.cmsInfo.shared.logoAltText });
+      const cmsLogo = screen.getByRole('img', {
+        name: cmsProps.cmsInfo.shared.logoAltText,
+      });
       expect(cmsLogo).toMatchSnapshot();
     });
 
@@ -1392,7 +1477,7 @@ describe('Signin component', () => {
       render({ integration: createMockSigninWebIntegration(cmsProps) });
 
       const headerLogo = screen.getByRole('img', {
-        name: cmsProps.cmsInfo.shared.headerLogoAltText
+        name: cmsProps.cmsInfo.shared.headerLogoAltText,
       });
 
       expect(headerLogo).toMatchSnapshot();

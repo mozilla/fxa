@@ -84,6 +84,10 @@ const SigninTokenCodeContainer = ({
       return;
     }
     const getTotpStatus = async () => {
+      // We only care about "verified" here, not "exists"
+      // because "exists" only tells us that totp setup was started.
+      // Prior to using Redis during setup, tokens were directly stored in the database,
+      // but may never be marked as enabled/verified if setup is aborted or unsuccessful.
       const { verified } = await authClient.checkTotpTokenExists(
         signinState.sessionToken
       );
