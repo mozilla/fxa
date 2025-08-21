@@ -117,7 +117,7 @@ const Ready = ({
 
   const cmsInfo = integration?.getCmsInfo();
   const cmsButton = {
-    color: cmsInfo?.shared?.buttonColor,
+    color: cmsInfo?.shared.buttonColor,
   };
 
   return (

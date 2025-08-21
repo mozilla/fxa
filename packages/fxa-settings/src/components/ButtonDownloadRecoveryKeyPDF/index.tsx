@@ -154,7 +154,7 @@ export const ButtonDownloadRecoveryKeyPDF = ({
             await downloadFile();
             navigateForward && navigateForward();
           }}
-          buttonColor={cmsInfo?.shared?.buttonColor}
+          buttonColor={cmsInfo?.shared.buttonColor}
         >
           Download and continue
         </CmsButtonWithFallback>

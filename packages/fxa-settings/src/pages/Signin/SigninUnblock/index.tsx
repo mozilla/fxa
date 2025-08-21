@@ -214,8 +214,8 @@ export const SigninUnblock = ({
         headingText="Authorize this sign-in"
         headingTextFtlId="signin-unblock-header"
         {...{
-          cmsLogoUrl: cmsInfo?.shared?.logoUrl,
-          cmsLogoAltText: cmsInfo?.shared?.logoAltText,
+          cmsLogoUrl: cmsInfo?.shared.logoUrl,
+          cmsLogoAltText: cmsInfo?.shared.logoAltText,
           cmsHeadline: cmsInfo?.SigninUnblockCodePage?.headline,
           cmsDescription: cmsInfo?.SigninUnblockCodePage?.description,
         }}
@@ -253,7 +253,7 @@ export const SigninUnblock = ({
           setCodeErrorMessage,
           isLoading,
           cmsButton: {
-            color: cmsInfo?.shared?.buttonColor,
+            color: cmsInfo?.shared.buttonColor,
             text: cmsInfo?.SigninUnblockCodePage?.primaryButtonText,
           },
         }}

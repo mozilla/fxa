@@ -17,7 +17,7 @@ import {
   MOCK_CMS_INFO_DEFAULT_LOGO,
   MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS,
 } from './mocks';
-import { RelierCmsInfo } from '../../models';
+import { MOCK_CMS_INFO } from '../../pages/mocks';
 
 // Mock the useConfig hook
 jest.mock('../../models/hooks', () => ({
@@ -309,24 +309,8 @@ describe('<AppLayout />', () => {
 
   describe('snapshots', () => {
     it('renders correctly with CMS', () => {
-      const mockCmsInfo: RelierCmsInfo = {
-        name: 'Test App',
-        clientId: 'test123',
-        entrypoint: 'snapshot-test',
-        shared: {
-          headerLogoUrl: 'https://example.com/snapshot-cms-logo.png',
-          headerLogoAltText: 'Snapshot CMS Custom Logo',
-          buttonColor: '#0078d4',
-          logoUrl: 'https://example.com/snapshot-cms-logo.png',
-          logoAltText: 'Snapshot App Logo',
-          backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          headerBackground: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
-          pageTitle: 'Snapshot App - Custom Title',
-        },
-      };
-
       const { container } = renderWithLocalizationProvider(
-        <AppLayout cmsInfo={mockCmsInfo}>
+        <AppLayout cmsInfo={MOCK_CMS_INFO}>
           <p>Hello, world!</p>
         </AppLayout>
       );
@@ -334,9 +318,7 @@ describe('<AppLayout />', () => {
       // title should have override
       const title = document.title;
       // header logo image
-      const headerLogo = screen.getByRole('img', {
-        name: mockCmsInfo.shared?.headerLogoAltText,
-      });
+      const headerLogo = screen.getByRole('img', { name: MOCK_CMS_INFO.shared.headerLogoAltText });
       // div containing the background styling. We use cloneNode to remove
       // child content so the snap is only the background styles we want to ensure
       // are getting passed through

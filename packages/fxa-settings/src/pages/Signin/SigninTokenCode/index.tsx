@@ -214,8 +214,8 @@ const SigninTokenCode = ({
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading-2"
         {...{
-          cmsLogoUrl: cmsInfo?.shared?.logoUrl,
-          cmsLogoAltText: cmsInfo?.shared?.logoAltText,
+          cmsLogoUrl: cmsInfo?.shared.logoUrl,
+          cmsLogoAltText: cmsInfo?.shared.logoAltText,
           cmsHeadline: cmsInfo?.SigninTokenCodePage?.headline,
           cmsDescription: cmsInfo?.SigninTokenCodePage?.description,
         }}
@@ -267,7 +267,7 @@ const SigninTokenCode = ({
           codeErrorMessage,
           setCodeErrorMessage,
           cmsButton: {
-            color: cmsInfo?.shared?.buttonColor,
+            color: cmsInfo?.shared.buttonColor,
           },
         }}
       />

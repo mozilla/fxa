@@ -4,7 +4,7 @@ exports[`<AppLayout /> snapshots renders correctly with CMS: background wrapper 
 <div
   class="flex min-h-screen flex-col items-center tablet:[background:var(--cms-bg)]"
   data-testid="app"
-  style="--cms-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+  style="--cms-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 26, 26, 0.25) 40%, rgba(230, 0, 0, 0.3) 70%, rgba(179, 0, 0, 0.45) 100%);"
 />
 `;
 
@@ -17,13 +17,13 @@ exports[`<AppLayout /> snapshots renders correctly with CMS: header background 1
 
 exports[`<AppLayout /> snapshots renders correctly with CMS: header logo 1`] = `
 <img
-  alt="Snapshot CMS Custom Logo"
+  alt="custom-header-logo"
   class="h-auto w-[140px] mx-0"
-  src="https://example.com/snapshot-cms-logo.png"
+  src="https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg"
 />
 `;
 
-exports[`<AppLayout /> snapshots renders correctly with CMS: title 1`] = `"Snapshot App - Custom Title | Mozilla accounts"`;
+exports[`<AppLayout /> snapshots renders correctly with CMS: title 1`] = `"MOCK Shared Title | Mozilla accounts"`;
 
 exports[`<AppLayout /> snapshots renders correctly without CMS: background wrapper 1`] = `
 <div

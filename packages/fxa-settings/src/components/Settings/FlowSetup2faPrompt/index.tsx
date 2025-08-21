@@ -92,7 +92,7 @@ export const FlowSetup2faPrompt = ({
           type="submit"
           className="cta-primary cta-xl w-full"
           onClick={onContinue}
-          buttonColor={cmsInfo?.shared?.buttonColor}
+          buttonColor={cmsInfo?.shared.buttonColor}
         >
           Continue
         </CmsButtonWithFallback>

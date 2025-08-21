@@ -19,7 +19,7 @@ exports[`InlineRecoveryKeySetupCreate renders button with CMS passthrough 1`] = 
 <button
   class="cta-primary-cms cta-xl flex justify-center items-center"
   data-glean-id="inline_recovery_key_cta_submit"
-  style="--cta-bg: #000000; --cta-border: #000000; --cta-active: #000000; --cta-disabled: #00000060;"
+  style="--cta-bg: #D41C1C; --cta-border: #D41C1C; --cta-active: #D41C1C; --cta-disabled: #D41C1C60;"
   type="submit"
 >
   <span

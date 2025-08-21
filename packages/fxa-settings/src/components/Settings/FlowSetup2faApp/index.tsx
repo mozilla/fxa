@@ -149,7 +149,7 @@ export const FlowSetup2faApp = ({
           'Continue'
         )}
         verifyCode={handleCode}
-        cmsButton={{ color: cmsInfo?.shared?.buttonColor }}
+        cmsButton={{ color: cmsInfo?.shared.buttonColor }}
       />
     </FlowContainer>
   );

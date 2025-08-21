@@ -165,36 +165,7 @@ export class GenericIntegration<
   }
 
   getCmsInfo() {
-    const isCmsEnabled = (cmsInfo?: RelierCmsInfo): boolean => {
-      if (
-        !cmsInfo?.EmailFirstPage ||
-        !cmsInfo?.SignupConfirmCodePage ||
-        !cmsInfo?.SignupSetPasswordPage ||
-        !cmsInfo?.SigninPage ||
-        !cmsInfo.shared
-      ) {
-        return false;
-      }
-
-      const requiredFields = [
-        cmsInfo.EmailFirstPage.headline,
-        cmsInfo.EmailFirstPage.primaryButtonText,
-
-        cmsInfo.SignupConfirmCodePage.headline,
-        cmsInfo.SignupConfirmCodePage.primaryButtonText,
-
-        cmsInfo.SignupSetPasswordPage.headline,
-        cmsInfo.SignupSetPasswordPage.primaryButtonText,
-
-        cmsInfo.SigninPage.headline,
-        cmsInfo.SigninPage.description,
-      ];
-
-      return requiredFields.every((field) => !!field);
-    };
-
-    return this.cmsInfo && isCmsEnabled(this.cmsInfo)
-      ? this.cmsInfo
-      : undefined;
+    // Still check for an empty object and only return if not empty.
+    return Object.keys(this.cmsInfo || {}).length > 0 ? this.cmsInfo : undefined;
   }
 }

@@ -28,9 +28,9 @@ export interface RelierAccount {
 }
 
 export interface PageRelierCmsInfo {
-  headline: string | undefined;
+  headline: string;
   description: string | undefined;
-  primaryButtonText: string | undefined;
+  primaryButtonText: string;
   pageTitle?: string | undefined;
 }
 
@@ -61,15 +61,15 @@ export interface RelierCmsInfo {
   name: string;
   clientId: string;
   entrypoint: string;
-  shared?: SharedRelierCmsInfo;
+  shared: SharedRelierCmsInfo;
 
-  EmailFirstPage?: PageRelierCmsInfoWithLogo;
+  EmailFirstPage: PageRelierCmsInfoWithLogo;
 
-  SignupSetPasswordPage?: PageRelierCmsInfoWithLogo;
-  SignupConfirmCodePage?: PageRelierCmsInfo;
+  SignupSetPasswordPage: PageRelierCmsInfoWithLogo;
+  SignupConfirmCodePage: PageRelierCmsInfo;
   SignupConfirmedSyncPage?: PageRelierCmsInfo;
 
-  SigninPage?: PageRelierCmsInfo;
+  SigninPage: PageRelierCmsInfo;
   SigninTotpCodePage?: PageRelierCmsInfo;
   SigninTokenCodePage?: PageRelierCmsInfo;
   SigninUnblockCodePage?: PageRelierCmsInfo;

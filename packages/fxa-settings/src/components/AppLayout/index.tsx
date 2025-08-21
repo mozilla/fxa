@@ -61,7 +61,7 @@ export const AppLayout = ({
   const hasValidBackgroundImage = looseValidBgCheck(cmsBackgroundColor);
   const hasValidHeaderBackground = looseValidBgCheck(cmsHeaderBackground);
 
-  const favicon = cmsInfo?.shared?.favicon;
+  const favicon = cmsInfo?.shared.favicon;
 
   const showLocaleToggle =config.featureFlags?.showLocaleToggle;
 

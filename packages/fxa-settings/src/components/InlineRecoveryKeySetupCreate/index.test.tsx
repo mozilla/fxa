@@ -5,7 +5,7 @@
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
-import { RelierCmsInfo } from '../../models';
+import { MOCK_CMS_INFO } from '../../pages/mocks';
 
 describe('InlineRecoveryKeySetupCreate', () => {
   it('renders as expected', () => {
@@ -39,20 +39,11 @@ describe('InlineRecoveryKeySetupCreate', () => {
   });
 
   it('renders button with CMS passthrough', () => {
-    const cmsInfo: RelierCmsInfo = {
-      name: '',
-      clientId: '',
-      entrypoint: '',
-      shared: {
-        buttonColor: '#000000',
-        logoUrl: '',
-        logoAltText: ''
-      }
-    };
+
     // in this test, we don't want the full container, only the button that
     // cms info is passed onto to ensure we're still passing through
     renderWithLocalizationProvider(
-      <Subject cmsInfo={cmsInfo} />
+      <Subject cmsInfo={MOCK_CMS_INFO} />
     );
 
     const cmsButton = screen.queryByRole('button', {

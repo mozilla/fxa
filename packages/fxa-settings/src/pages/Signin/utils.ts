@@ -201,7 +201,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   // default is to navigate to settings
   const cmsInfo = integration?.getCmsInfo();
   if (
-    cmsInfo?.shared?.featureFlags?.syncHidePromoAfterLogin &&
+    cmsInfo?.shared.featureFlags?.syncHidePromoAfterLogin &&
     integration.isSync()
   ) {
     navigationOptions.showInlineRecoveryKeySetup = false;

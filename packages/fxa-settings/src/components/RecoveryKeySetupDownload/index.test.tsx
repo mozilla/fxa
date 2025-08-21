@@ -6,8 +6,7 @@ import React from 'react';
 import { screen, waitFor, within } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
-import { MOCK_RECOVERY_KEY_WITH_SPACES } from '../../pages/mocks';
-import { RelierCmsInfo } from '../../models';
+import { MOCK_CMS_INFO, MOCK_RECOVERY_KEY_WITH_SPACES } from '../../pages/mocks';
 
 describe('RecoveryKeySetupDownload', () => {
   it('renders as expected', async () => {
@@ -43,18 +42,8 @@ describe('RecoveryKeySetupDownload', () => {
   // so we have a separate test that targets just the thing that
   // cms is passed through to, the `Download and continue` button.
   it('renders button with CMS passthrough', () => {
-    const mockCmsInfo: RelierCmsInfo = {
-      name: '',
-      clientId: '',
-      entrypoint: '',
-      shared: {
-        buttonColor: '#FF0000',
-        logoUrl: 'https://example.com/logo.png',
-        logoAltText: 'Example Logo',
-      },
-    };
     renderWithLocalizationProvider(
-      <Subject cmsInfo={mockCmsInfo} />
+      <Subject cmsInfo={MOCK_CMS_INFO} />
     );
     const cmsButton = screen.getByRole('button', { name: 'Download and continue' });
     expect(cmsButton).toMatchSnapshot();

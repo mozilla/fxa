@@ -101,25 +101,29 @@ export const MOCK_CMS_INFO = {
   name: '123Done - app',
   shared: {
     buttonColor: '#D41C1C',
-    logoUrl:
-      'https://gist.githubusercontent.com/dschom/857ebb2abd5f75937f211f1fd6bbf9a8/raw/33037c8905757a594e07eb29818d8519447fdec0/nightly-logo.svg',
+    logoUrl: 'https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg',
+    headerLogoUrl: 'https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg',
     logoAltText: 'logo',
-    backgroundColor:
-      'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 26, 26, 0.25) 40%, rgba(230, 0, 0, 0.3) 70%, rgba(179, 0, 0, 0.45) 100%)',
+    backgroundColor: 'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 26, 26, 0.25) 40%, rgba(230, 0, 0, 0.3) 70%, rgba(179, 0, 0, 0.45) 100%)',
+    headerBackground: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+    headerLogoAltText: 'custom-header-logo',
+    pageTitle: 'MOCK Shared Title',
+    featureFlags: {
+      syncConfirmedPageHideCTA: false,
+      syncHidePromoAfterLogin: false,
+    },
+    favicon: ''
   },
   EmailFirstPage: {
-    logoUrl:
-      'https://gist.githubusercontent.com/dschom/c754b76333cda59f50845fe9b0ff6d52/raw/157b0af53142b24e0ddae936c711c010428e7bba/foxy-logo.svg',
+    logoUrl: 'https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg',
     logoAltText: 'custom-email-first-logo',
     headline: 'Sign up or sign in to your Mozilla account',
-    description:
-      'Stay protected with continuous data monitoring and automatic data removal.',
+    description: 'Stay protected with continuous data monitoring and automatic data removal.',
     primaryButtonText: 'Continue',
     pageTitle: 'Sign up or sign in to your Mozilla account',
   },
   SignupSetPasswordPage: {
-    logoUrl:
-      'https://gist.githubusercontent.com/dschom/c754b76333cda59f50845fe9b0ff6d52/raw/157b0af53142b24e0ddae936c711c010428e7bba/foxy-logo.svg',
+    logoUrl: 'https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg',
     logoAltText: 'custom-signup-logo',
     headline: 'Create a password',
     description: 'to continue',
@@ -134,8 +138,7 @@ export const MOCK_CMS_INFO = {
   },
   SignupConfirmedSyncPage: {
     headline: 'Sync is turned on',
-    description:
-      'Your passwords, addresses, bookmarks, history, and more can sync everywhere you use Firefox.',
+    description: 'Your passwords, addresses, bookmarks, history, and more can sync everywhere you use Firefox.',
     primaryButtonText: 'Add another device',
     pageTitle: 'Sync is turned on',
   },
@@ -158,6 +161,12 @@ export const MOCK_CMS_INFO = {
     primaryButtonText: 'Continue',
     pageTitle: 'Authorize this sign-in',
   },
+  SigninTotpCodePage: {
+    headline: 'Enter verification code',
+    description: 'for your Mozilla account',
+    primaryButtonText: 'Continue',
+    pageTitle: 'Enter verification code',
+  }
 };
 
 export const createMockIntegrationWithCms = () =>

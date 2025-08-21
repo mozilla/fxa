@@ -261,12 +261,12 @@ export type ComponentAccountsFeatureFlagsInput = {
 export type ComponentAccountsPageConfig = {
   __typename?: 'ComponentAccountsPageConfig';
   description: Maybe<Scalars['String']['output']>;
-  headline: Maybe<Scalars['String']['output']>;
+  headline: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   logoAltText: Maybe<Scalars['String']['output']>;
   logoUrl: Maybe<Scalars['String']['output']>;
   pageTitle: Maybe<Scalars['String']['output']>;
-  primaryButtonText: Maybe<Scalars['String']['output']>;
+  primaryButtonText: Scalars['String']['output'];
 };
 
 export type ComponentAccountsPageConfigFiltersInput = {
@@ -1727,14 +1727,14 @@ export type QueryUsersPermissionsUsers_ConnectionArgs = {
 
 export type RelyingParty = {
   __typename?: 'RelyingParty';
-  EmailFirstPage: Maybe<ComponentAccountsPageConfig>;
+  EmailFirstPage: ComponentAccountsPageConfig;
   NewDeviceLoginEmail: Maybe<ComponentAccountsEmailConfig>;
-  SigninPage: Maybe<ComponentAccountsPageConfig>;
+  SigninPage: ComponentAccountsPageConfig;
   SigninTokenCodePage: Maybe<ComponentAccountsPageConfig>;
   SigninUnblockCodePage: Maybe<ComponentAccountsPageConfig>;
-  SignupConfirmCodePage: Maybe<ComponentAccountsPageConfig>;
+  SignupConfirmCodePage: ComponentAccountsPageConfig;
   SignupConfirmedSyncPage: Maybe<ComponentAccountsPageConfig>;
-  SignupSetPasswordPage: Maybe<ComponentAccountsPageConfig>;
+  SignupSetPasswordPage: ComponentAccountsPageConfig;
   VerifyLoginCodeEmail: Maybe<ComponentAccountsEmailConfig>;
   VerifyShortCodeEmail: Maybe<ComponentAccountsEmailConfig>;
   clientId: Maybe<Scalars['String']['output']>;
@@ -1744,7 +1744,7 @@ export type RelyingParty = {
   l10nId: Scalars['String']['output'];
   name: Maybe<Scalars['String']['output']>;
   publishedAt: Maybe<Scalars['DateTime']['output']>;
-  shared: Maybe<ComponentAccountsShared>;
+  shared: ComponentAccountsShared;
   updatedAt: Maybe<Scalars['DateTime']['output']>;
 };
 
@@ -2376,7 +2376,7 @@ export type RelyingPartiesQueryVariables = Exact<{
 }>;
 
 
-export type RelyingPartiesQuery = { __typename?: 'Query', relyingParties: Array<{ __typename?: 'RelyingParty', clientId: string | null, entrypoint: string | null, name: string | null, l10nId: string, shared: { __typename?: 'ComponentAccountsShared', buttonColor: string | null, logoUrl: string | null, logoAltText: string | null, emailFromName: string | null, emailLogoUrl: string | null, emailLogoAltText: string | null, emailLogoWidth: string | null, backgroundColor: string | null, headerBackground: string | null, pageTitle: string | null, headerLogoUrl: string | null, headerLogoAltText: string | null, favicon: string | null, featureFlags: { __typename?: 'ComponentAccountsFeatureFlags', syncConfirmedPageHideCTA: boolean | null, syncHidePromoAfterLogin: boolean | null } | null } | null, EmailFirstPage: { __typename?: 'ComponentAccountsPageConfig', logoUrl: string | null, logoAltText: string | null, headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null } | null, SignupSetPasswordPage: { __typename?: 'ComponentAccountsPageConfig', logoUrl: string | null, logoAltText: string | null, headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null } | null, SignupConfirmCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null } | null, SignupConfirmedSyncPage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null } | null, SigninPage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null } | null, SigninTokenCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null } | null, SigninUnblockCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string | null, description: string | null, primaryButtonText: string | null, pageTitle: string | null } | null, NewDeviceLoginEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, VerifyLoginCodeEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, VerifyShortCodeEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null } | null> };
+export type RelyingPartiesQuery = { __typename?: 'Query', relyingParties: Array<{ __typename?: 'RelyingParty', clientId: string | null, entrypoint: string | null, name: string | null, l10nId: string, shared: { __typename?: 'ComponentAccountsShared', buttonColor: string | null, logoUrl: string | null, logoAltText: string | null, emailFromName: string | null, emailLogoUrl: string | null, emailLogoAltText: string | null, emailLogoWidth: string | null, backgroundColor: string | null, headerBackground: string | null, pageTitle: string | null, headerLogoUrl: string | null, headerLogoAltText: string | null, favicon: string | null, featureFlags: { __typename?: 'ComponentAccountsFeatureFlags', syncConfirmedPageHideCTA: boolean | null, syncHidePromoAfterLogin: boolean | null } | null }, EmailFirstPage: { __typename?: 'ComponentAccountsPageConfig', logoUrl: string | null, logoAltText: string | null, headline: string, description: string | null, primaryButtonText: string, pageTitle: string | null }, SignupSetPasswordPage: { __typename?: 'ComponentAccountsPageConfig', logoUrl: string | null, logoAltText: string | null, headline: string, description: string | null, primaryButtonText: string, pageTitle: string | null }, SignupConfirmCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string, description: string | null, primaryButtonText: string, pageTitle: string | null }, SignupConfirmedSyncPage: { __typename?: 'ComponentAccountsPageConfig', headline: string, description: string | null, primaryButtonText: string, pageTitle: string | null } | null, SigninPage: { __typename?: 'ComponentAccountsPageConfig', headline: string, description: string | null, primaryButtonText: string, pageTitle: string | null }, SigninTokenCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string, description: string | null, primaryButtonText: string, pageTitle: string | null } | null, SigninUnblockCodePage: { __typename?: 'ComponentAccountsPageConfig', headline: string, description: string | null, primaryButtonText: string, pageTitle: string | null } | null, NewDeviceLoginEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, VerifyLoginCodeEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null, VerifyShortCodeEmail: { __typename?: 'ComponentAccountsEmailConfig', subject: string, headline: string, description: string } | null } | null> };
 
 export type ServicesWithCapabilitiesQueryVariables = Exact<{ [key: string]: never; }>;
 
