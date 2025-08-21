@@ -59,6 +59,7 @@ export default async function Manage({
         <PaymentMethodManagement
           uid={session?.user?.id}
           defaultPaymentMethodId={defaultPaymentMethodId}
+          sessionEmail={session?.user?.email ?? undefined}
         />
       </StripeManagementWrapper>
     </section>

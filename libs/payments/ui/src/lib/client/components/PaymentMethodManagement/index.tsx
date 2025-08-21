@@ -25,9 +25,11 @@ import {
 export function PaymentMethodManagement({
   uid,
   defaultPaymentMethodId,
+  sessionEmail,
 }: {
   uid?: string;
   defaultPaymentMethodId?: string;
+  sessionEmail?: string;
 }) {
   const { l10n } = useLocalization();
   const stripe = useStripe();
@@ -121,7 +123,12 @@ export function PaymentMethodManagement({
         await stripe.createConfirmationToken({
           elements,
           params: {
-            payment_method_data: { billing_details: { name: fullName } },
+            payment_method_data: {
+              billing_details: {
+                name: fullName,
+                email: sessionEmail || undefined,
+              }
+            },
           },
         });
 
@@ -226,6 +233,11 @@ export function PaymentMethodManagement({
                     defaultCollapsed: false,
                     radios: false,
                     spacedAccordionItems: true,
+                  },
+                  defaultValues: {
+                    billingDetails: {
+                      email: sessionEmail || undefined,
+                    },
                   },
                 }}
               />
