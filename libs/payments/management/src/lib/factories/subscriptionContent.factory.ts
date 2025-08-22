@@ -27,6 +27,7 @@ export const AppleIapSubscriptionContentFactory = (
 ): AppleIapSubscriptionContent => ({
   ...AppleIapPurchaseFactory(),
   productName: faker.string.sample(),
+  supportUrl: faker.internet.url(),
   ...override,
 });
 
@@ -54,6 +55,7 @@ export const GoogleIapSubscriptionContentFactory = (
 ): GoogleIapSubscriptionContent => ({
   ...GoogleIapPurchaseFactory(),
   productName: faker.string.sample(),
+  supportUrl: faker.internet.url(),
   ...override,
 });
 
@@ -71,6 +73,7 @@ export const SubscriptionContentFactory = (
   id: `sub_${faker.string.alphanumeric({ length: 24 })}`,
   cancelAtPeriodEnd: false,
   productName: faker.string.sample(),
+  supportUrl: faker.internet.url(),
   webIcon: faker.internet.url(),
   canResubscribe: false,
   currency: faker.finance.currencyCode().toLowerCase(),

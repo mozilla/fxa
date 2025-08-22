@@ -56,12 +56,12 @@ describe('IapOfferingsByStoreIDsResultUtil', () => {
     });
   });
 
-  describe('getProductNamesByStoreIds', () => {
+  describe('getIapPageContentByStoreIds', () => {
     it('returns a map for product names by store ids', () => {
       const result = IapOfferingByStoreIDResultFactory();
       const storeId = result.iaps[0].storeID;
       const util = new IapOfferingsByStoreIDsResultUtil(result);
-      expect(util.getProductNamesByStoreIds([storeId])).toBeDefined();
+      expect(util.getIapPageContentByStoreIds([storeId])).toBeDefined();
     });
   });
 });

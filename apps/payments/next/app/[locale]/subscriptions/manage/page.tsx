@@ -4,6 +4,7 @@
 
 import { headers } from 'next/headers';
 import Image from 'next/image';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import React from 'react';
 import { URLSearchParams } from 'url';
@@ -16,10 +17,10 @@ import {
 } from '@fxa/payments/ui';
 import { getSubManPageContentAction } from '@fxa/payments/ui/actions';
 import { getApp } from '@fxa/payments/ui/server';
+import helpIcon from '@fxa/shared/assets/images/help2.svg';
 import { LinkExternal } from '@fxa/shared/react';
 import { auth } from 'apps/payments/next/auth';
 import { config } from 'apps/payments/next/config';
-import Link from 'next/link';
 
 export default async function Manage({
   params,
@@ -298,188 +299,148 @@ export default async function Manage({
                     aria-labelledby={`${sub.productName}-information`}
                     className="leading-5"
                   >
-                    <h3
-                      id={`${sub.productName}-information`}
-                      className="font-semibold"
-                    >
-                      {sub.interval
-                        ? l10n.getString(
-                          getSubscriptionIntervalFtlId(sub.interval),
+                    <div className="flex justify-between">
+                      <h3
+                        id={`${sub.productName}-information`}
+                        className="font-semibold"
+                      >
+                        {sub.interval
+                          ? l10n.getString(
+                              getSubscriptionIntervalFtlId(sub.interval),
+                              { productName: sub.productName },
+                              `${sub.productName} (${formatPlanInterval(sub.interval)})`
+                            )
+                          : sub.productName}
+                      </h3>
+                      <LinkExternal
+                        href={sub.supportUrl}
+                        className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1"
+                        aria-label={l10n.getString(
+                          'subscription-management-button-support-aria',
                           { productName: sub.productName },
-                          `${sub.productName} (${formatPlanInterval(sub.interval)})`
-                        )
-                        : sub.productName}
-                    </h3>
+                          `Get help for ${sub.productName}`
+                        )}
+                        data-testid={`link-external-support-${sub.productName}`}
+                      >
+                        <Image
+                          src={helpIcon}
+                          alt=""
+                          width={16}
+                          height={16}
+                          role="presentation"
+                          aria-hidden="true"
+                        />
+                        <span>
+                          {l10n.getString(
+                            'subscription-management-button-support',
+                            'Get help'
+                          )}
+                        </span>
+                      </LinkExternal>
+                    </div>
                     <SubscriptionContent
                       userId={userId}
                       subscription={sub}
                       locale={locale}
-                      supportUrl={`${config.contentServerUrl}/support`}
+                      supportUrl={sub.supportUrl}
                     />
-                    {
-                      index !== subscriptions.length - 1 && (
-                        <hr
-                          className="border-b border-grey-50 my-6"
-                          aria-hidden="true"
-                        />
-                      )
-                    }
-                  </li >
+                    {index !== subscriptions.length - 1 && (
+                      <hr
+                        className="border-b border-grey-50 my-6"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </li>
                 );
               })}
-            </ul >
+            </ul>
             {(appleIapSubscriptions.length > 0 ||
               googleIapSubscriptions.length > 0) && (
-                <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
-              )}
+              <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+            )}
           </>
         )}
 
-        {
-          appleIapSubscriptions.length > 0 && (
-            <>
-              <ul
-                aria-label={l10n.getString(
-                  'subscription-management-your-apple-iap-subscriptions-aria',
-                  'Your Apple In-App Subscriptions'
-                )}
-              >
-                {appleIapSubscriptions.map((purchase, index: number) => {
-                  let nextBillDate: string | undefined;
-                  if (purchase.expiresDate) {
-                    const dateExpired = new Date(purchase.expiresDate);
-                    nextBillDate = l10n.getLocalizedDateString(
-                      Math.floor(dateExpired.getTime() / 1000),
-                      true,
-                      locale
-                    );
-                  }
-                  return (
-                    <li
-                      key={`${purchase.storeId}-${index}`}
-                      aria-labelledby={`${purchase.productName}-heading`}
-                    >
-                      <div className="flex items-center justify-between my-4">
-                        <div className="leading-5 text-sm">
-                          <h3
-                            id={`${purchase.productName}-heading`}
-                            className="font-semibold pb-2"
-                          >
-                            {purchase.productName}
-                          </h3>
-                          <p>
-                            {l10n.getString(
-                              'subscription-management-apple-in-app-purchase',
-                              'Apple: In-App purchase'
-                            )}
-                          </p>
-                          {nextBillDate && (
-                            <p>
-                              {l10n.getString(
-                                'subscription-management-iap-sub-expires-on',
-                                {
-                                  date: nextBillDate,
-                                },
-                                `Expires on ${nextBillDate}`
-                              )}
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <LinkExternal
-                            className={CSS_SECONDARY_LINK}
-                            href={`https://apps.apple.com/account/subscriptions`}
-                            aria-label={l10n.getString(
-                              'subscription-management-button-manage-subscription-aria',
-                              {
-                                productName: purchase.productName,
-                              },
-                              `Manage subscription for ${purchase.productName}`
-                            )}
-                          >
-                            <span>
-                              {l10n.getString(
-                                'subscription-management-button-manage-subscription',
-                                'Manage'
-                              )}
-                            </span>
-                          </LinkExternal>
-                        </div>
-                      </div>
-                      {index !== appleIapSubscriptions.length - 1 && (
-                        <hr
-                          className="border-b border-grey-50 my-6"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-              {googleIapSubscriptions.length > 0 && (
-                <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
-              )}
-            </>
-          )
-        }
-
-        {
-          googleIapSubscriptions.length > 0 && (
+        {appleIapSubscriptions.length > 0 && (
+          <>
             <ul
               aria-label={l10n.getString(
-                'subscription-management-your-google-iap-subscriptions-aria',
-                'Your Google In-App Subscriptions'
+                'subscription-management-your-apple-iap-subscriptions-aria',
+                'Your Apple In-App Subscriptions'
               )}
             >
-              {googleIapSubscriptions.map((purchase, index: number) => {
-                const nextBillDate = l10n.getLocalizedDateString(
-                  purchase.expiryTimeMillis / 1000,
-                  true
-                );
+              {appleIapSubscriptions.map((purchase, index: number) => {
+                let nextBillDate: string | undefined;
+                if (purchase.expiresDate) {
+                  const dateExpired = new Date(purchase.expiresDate);
+                  nextBillDate = l10n.getLocalizedDateString(
+                    Math.floor(dateExpired.getTime() / 1000),
+                    true,
+                    locale
+                  );
+                }
                 return (
                   <li
                     key={`${purchase.storeId}-${index}`}
                     aria-labelledby={`${purchase.productName}-heading`}
                   >
+                    <div className="flex justify-between">
+                      <h3
+                        id={`${purchase.productName}-heading`}
+                        className="font-semibold pb-2"
+                      >
+                        {purchase.productName}
+                      </h3>
+                      <LinkExternal
+                        href={purchase.supportUrl}
+                        className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1"
+                        aria-label={l10n.getString(
+                          'subscription-management-button-support-aria',
+                          { productName: purchase.productName },
+                          `Get help for ${purchase.productName}`
+                        )}
+                        data-testid={`link-external-support-${purchase.productName}`}
+                      >
+                        <Image
+                          src={helpIcon}
+                          alt=""
+                          width={16}
+                          height={16}
+                          role="presentation"
+                          aria-hidden="true"
+                        />
+                        <span>
+                          {l10n.getString(
+                            'subscription-management-button-support',
+                            'Get help'
+                          )}
+                        </span>
+                      </LinkExternal>
+                    </div>
                     <div className="flex items-center justify-between my-4">
                       <div className="leading-5 text-sm">
-                        <h3
-                          id={`${purchase.productName}-heading`}
-                          className="font-semibold pb-2"
-                        >
-                          {purchase.productName}
-                        </h3>
                         <p>
                           {l10n.getString(
-                            'subscription-management-google-in-app-purchase',
-                            'Google: In-App purchase'
+                            'subscription-management-apple-in-app-purchase',
+                            'Apple: In-App purchase'
                           )}
                         </p>
-                        <p>
-                          {!!purchase.expiryTimeMillis &&
-                            (purchase.autoRenewing
-                              ? l10n.getString(
-                                'subscription-management-iap-sub-next-bill',
-                                {
-                                  date: nextBillDate,
-                                },
-                                `Next billed on ${nextBillDate}`
-                              )
-                              : l10n.getString(
-                                'subscription-management-iap-sub-expires-on',
-                                {
-                                  date: nextBillDate,
-                                },
-                                `Expires on ${nextBillDate}`
-                              ))}
-                        </p>
+                        {nextBillDate && (
+                          <p>
+                            {l10n.getString(
+                              'subscription-management-iap-sub-expires-on',
+                              {
+                                date: nextBillDate,
+                              },
+                              `Expires on ${nextBillDate}`
+                            )}
+                          </p>
+                        )}
                       </div>
                       <div>
                         <LinkExternal
                           className={CSS_SECONDARY_LINK}
-                          href={`https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(
-                            purchase.sku
-                          )}&package=${encodeURIComponent(purchase.packageName)}`}
+                          href={`https://apps.apple.com/account/subscriptions`}
                           aria-label={l10n.getString(
                             'subscription-management-button-manage-subscription-aria',
                             {
@@ -497,20 +458,134 @@ export default async function Manage({
                         </LinkExternal>
                       </div>
                     </div>
-                    {
-                      index !== googleIapSubscriptions.length - 1 && (
-                        <hr
-                          className="border-b border-grey-50 my-6"
-                          aria-hidden="true"
-                        />
-                      )
-                    }
+                    {index !== appleIapSubscriptions.length - 1 && (
+                      <hr
+                        className="border-b border-grey-50 my-6"
+                        aria-hidden="true"
+                      />
+                    )}
                   </li>
                 );
               })}
-            </ul >
-          )}
-      </section >
+            </ul>
+            {googleIapSubscriptions.length > 0 && (
+              <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+            )}
+          </>
+        )}
+
+        {googleIapSubscriptions.length > 0 && (
+          <ul
+            aria-label={l10n.getString(
+              'subscription-management-your-google-iap-subscriptions-aria',
+              'Your Google In-App Subscriptions'
+            )}
+          >
+            {googleIapSubscriptions.map((purchase, index: number) => {
+              const nextBillDate = l10n.getLocalizedDateString(
+                purchase.expiryTimeMillis / 1000,
+                true
+              );
+              return (
+                <li
+                  key={`${purchase.storeId}-${index}`}
+                  aria-labelledby={`${purchase.productName}-heading`}
+                >
+                  <div className="flex justify-between">
+                    <h3
+                      id={`${purchase.productName}-heading`}
+                      className="font-semibold pb-2"
+                    >
+                      {purchase.productName}
+                    </h3>
+                    <LinkExternal
+                      href={purchase.supportUrl}
+                      className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1"
+                      aria-label={l10n.getString(
+                        'subscription-management-button-support-aria',
+                        { productName: purchase.productName },
+                        `Get help for ${purchase.productName}`
+                      )}
+                      data-testid={`link-external-support-${purchase.productName}`}
+                    >
+                      <Image
+                        src={helpIcon}
+                        alt=""
+                        width={16}
+                        height={16}
+                        role="presentation"
+                        aria-hidden="true"
+                      />
+                      <span>
+                        {l10n.getString(
+                          'subscription-management-button-support',
+                          'Get help'
+                        )}
+                      </span>
+                    </LinkExternal>
+                  </div>
+                  <div className="flex items-center justify-between my-4">
+                    <div className="leading-5 text-sm">
+                      <p>
+                        {l10n.getString(
+                          'subscription-management-google-in-app-purchase',
+                          'Google: In-App purchase'
+                        )}
+                      </p>
+                      <p>
+                        {!!purchase.expiryTimeMillis &&
+                          (purchase.autoRenewing
+                            ? l10n.getString(
+                                'subscription-management-iap-sub-next-bill',
+                                {
+                                  date: nextBillDate,
+                                },
+                                `Next billed on ${nextBillDate}`
+                              )
+                            : l10n.getString(
+                                'subscription-management-iap-sub-expires-on',
+                                {
+                                  date: nextBillDate,
+                                },
+                                `Expires on ${nextBillDate}`
+                              ))}
+                      </p>
+                    </div>
+                    <div>
+                      <LinkExternal
+                        className={CSS_SECONDARY_LINK}
+                        href={`https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(
+                          purchase.sku
+                        )}&package=${encodeURIComponent(purchase.packageName)}`}
+                        aria-label={l10n.getString(
+                          'subscription-management-button-manage-subscription-aria',
+                          {
+                            productName: purchase.productName,
+                          },
+                          `Manage subscription for ${purchase.productName}`
+                        )}
+                      >
+                        <span>
+                          {l10n.getString(
+                            'subscription-management-button-manage-subscription',
+                            'Manage'
+                          )}
+                        </span>
+                      </LinkExternal>
+                    </div>
+                  </div>
+                  {index !== googleIapSubscriptions.length - 1 && (
+                    <hr
+                      className="border-b border-grey-50 my-6"
+                      aria-hidden="true"
+                    />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </>
   );
 }

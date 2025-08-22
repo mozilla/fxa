@@ -286,7 +286,7 @@ describe('productConfigurationManager', () => {
     });
   });
 
-  describe('getProductNamesByStoreIds', () => {
+  describe('getIapPageContentByStoreIds', () => {
     it('should return product names', async () => {
       const mockStoreIds = ['store1', 'store2'];
       const mockIapResult = IapOfferingByStoreIDResultFactory();
@@ -294,7 +294,7 @@ describe('productConfigurationManager', () => {
         mockIapResult
       );
 
-      mockIapOfferingResult.getProductNamesByStoreIds = jest
+      mockIapOfferingResult.getIapPageContentByStoreIds = jest
         .fn()
         .mockReturnValue(mockIapResult);
       jest
@@ -302,7 +302,7 @@ describe('productConfigurationManager', () => {
         .mockResolvedValue(mockIapOfferingResult);
 
       const result =
-        await productConfigurationManager.getProductNamesByStoreIds(
+        await productConfigurationManager.getIapPageContentByStoreIds(
           mockStoreIds
         );
 
@@ -310,7 +310,7 @@ describe('productConfigurationManager', () => {
         mockStoreIds
       );
       expect(
-        mockIapOfferingResult.getProductNamesByStoreIds
+        mockIapOfferingResult.getIapPageContentByStoreIds
       ).toHaveBeenCalledWith(mockStoreIds);
       expect(result).toEqual(mockIapResult);
     });

@@ -11,6 +11,7 @@ export interface AppleIapPurchase {
 
 export interface AppleIapSubscriptionContent extends AppleIapPurchase {
   productName: string;
+  supportUrl: string;
 }
 
 export interface AppleIapPurchaseResult {
@@ -28,6 +29,7 @@ export interface GoogleIapPurchase {
 
 export interface GoogleIapSubscriptionContent extends GoogleIapPurchase {
   productName: string;
+  supportUrl: string;
 }
 
 export interface GoogleIapPurchaseResult {
@@ -39,6 +41,7 @@ export interface SubscriptionContent {
   id: string;
   cancelAtPeriodEnd: boolean;
   productName: string;
+  supportUrl: string;
   webIcon: string;
   canResubscribe: boolean;
   currency: string;

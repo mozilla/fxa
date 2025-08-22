@@ -23,6 +23,12 @@ export const pageContentByPriceIdsQuery = graphql(`
         stripeLegacyPlans(pagination: { limit: 100 }) {
           stripeLegacyPlan
         }
+        commonContent {
+          supportUrl
+          localizations(filters: { locale: { eq: $locale } }) {
+            supportUrl
+          }
+        }
       }
       purchaseDetails {
         productName

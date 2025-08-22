@@ -40,6 +40,10 @@ export const IapOfferingResultFactory = (
   override?: Partial<IapOfferingResult>
 ): IapOfferingResult => ({
   apiIdentifier: faker.string.sample(),
+  commonContent: {
+    supportUrl: faker.internet.url(),
+    localizations: [{ supportUrl: faker.internet.url() }],
+  },
   defaultPurchase: IapOfferingDefaultPurchaseFactory(),
   subGroups: [IapOfferingSubGroupResultFactory()],
   ...override,
@@ -50,6 +54,7 @@ export const IapOfferingDefaultPurchaseFactory = (
 ): IapOfferingDefaultPurchase => ({
   purchaseDetails: {
     productName: faker.string.sample(),
+    localizations: [{ productName: faker.string.sample() }],
   },
   ...override,
 });
