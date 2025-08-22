@@ -27,6 +27,7 @@ export const RelyingPartyResultFactory = (
     headline: faker.string.sample(),
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
   },
   SignupSetPasswordPage: {
     logoUrl: faker.internet.url(),
@@ -34,6 +35,7 @@ export const RelyingPartyResultFactory = (
     headline: faker.string.sample(),
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
   },
   SignupConfirmCodePage: {
     logoUrl: faker.internet.url(),
@@ -41,6 +43,7 @@ export const RelyingPartyResultFactory = (
     headline: faker.string.sample(),
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
   },
   SignupConfirmedSyncPage: {
     logoUrl: faker.internet.url(),
@@ -48,6 +51,7 @@ export const RelyingPartyResultFactory = (
     headline: faker.string.sample(),
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
   },
   shared: {
     buttonColor: faker.color.rgb(),
@@ -93,6 +97,7 @@ export const RelyingPartyResultFactory = (
     headline: faker.string.sample(),
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
   },
   SigninTokenCodePage: {
     logoUrl: faker.internet.url(),
@@ -100,6 +105,7 @@ export const RelyingPartyResultFactory = (
     headline: faker.string.sample(),
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
   },
   SigninUnblockCodePage: {
     logoUrl: faker.internet.url(),
@@ -107,6 +113,7 @@ export const RelyingPartyResultFactory = (
     headline: faker.string.sample(),
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
+    pageTitle: faker.string.sample(),
   },
   ...override,
 });

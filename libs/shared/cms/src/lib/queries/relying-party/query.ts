@@ -36,6 +36,7 @@ export const relyingPartyQuery = graphql(`
         headline
         description
         primaryButtonText
+        pageTitle
       }
       SignupSetPasswordPage {
         logoUrl
@@ -43,31 +44,37 @@ export const relyingPartyQuery = graphql(`
         headline
         description
         primaryButtonText
+        pageTitle
       }
       SignupConfirmCodePage {
         headline
         description
         primaryButtonText
+        pageTitle
       }
       SignupConfirmedSyncPage {
         headline
         description
         primaryButtonText
+        pageTitle
       }
       SigninPage {
         headline
         description
         primaryButtonText
+        pageTitle
       }
       SigninTokenCodePage {
         headline
         description
         primaryButtonText
+        pageTitle
       }
       SigninUnblockCodePage {
         headline
         description
         primaryButtonText
+        pageTitle
       }
       shared {
         buttonColor

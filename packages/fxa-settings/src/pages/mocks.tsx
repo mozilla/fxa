@@ -115,6 +115,7 @@ export const MOCK_CMS_INFO = {
     description:
       'Stay protected with continuous data monitoring and automatic data removal.',
     primaryButtonText: 'Continue',
+    pageTitle: 'Sign up or sign in to your Mozilla account',
   },
   SignupSetPasswordPage: {
     logoUrl:
@@ -123,33 +124,39 @@ export const MOCK_CMS_INFO = {
     headline: 'Create a password',
     description: 'to continue',
     primaryButtonText: 'Continue',
+    pageTitle: 'Create a password',
   },
   SignupConfirmCodePage: {
     headline: 'Enter confirmation code',
     description: 'For your Mozilla account',
     primaryButtonText: 'Confirm',
+    pageTitle: 'Enter confirmation code',
   },
   SignupConfirmedSyncPage: {
     headline: 'Sync is turned on',
     description:
       'Your passwords, addresses, bookmarks, history, and more can sync everywhere you use Firefox.',
     primaryButtonText: 'Add another device',
+    pageTitle: 'Sync is turned on',
   },
 
   SigninPage: {
     headline: 'Enter your password',
     description: 'for your Mozilla account',
     primaryButtonText: 'Sign in',
+    pageTitle: 'Enter your password',
   },
   SigninTokenCodePage: {
     headline: 'Enter confirmation code',
     description: 'for your Mozilla account',
     primaryButtonText: 'Continue',
+    pageTitle: 'Enter confirmation code',
   },
   SigninUnblockCodePage: {
     headline: 'Authorize this sign-in',
     description: 'for your Mozilla account',
     primaryButtonText: 'Continue',
+    pageTitle: 'Authorize this sign-in',
   },
 };
 

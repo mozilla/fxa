@@ -304,14 +304,15 @@ const ConfirmSignupCode = ({
 
   const cmsInfo = integration.getCmsInfo();
 
-  return (
-    <AppLayout
-      cmsInfo={cmsInfo}
-      title={ftlMsgResolver.getMsg(
+  const title = cmsInfo?.SignupConfirmCodePage?.pageTitle
+    ? cmsInfo?.SignupConfirmCodePage?.pageTitle
+    : ftlMsgResolver.getMsg(
         'confirm-signup-code-page-title',
         'Enter confirmation code'
-      )}
-    >
+      );
+
+  return (
+    <AppLayout {...{ cmsInfo, title }}>
       {cmsInfo ? (
         <>
           {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
