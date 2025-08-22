@@ -82,6 +82,7 @@ interface CheckoutFormProps {
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
+      walletType?: string;
     };
   };
   locale: string;
@@ -122,6 +123,7 @@ export function CheckoutForm({
   const linkAuthOptions = sessionEmail
     ? { defaultValues: { email: sessionEmail } }
     : {};
+  const [isNotCard, setIsNotCard] = useState(false);
 
   const engageGlean = useCallbackOnce(() => {
     recordEmitterEventAction(
@@ -152,6 +154,10 @@ export function CheckoutForm({
           const hasSavedPaymentMethod = !!event?.value?.payment_method?.id;
           const isNewCardSelected = event?.value?.type === 'card' && !hasSavedPaymentMethod;
 
+          const selectedType = event?.value?.type || '';
+          const isNotCardType = selectedType !== 'card';
+          setIsNotCard(isNotCardType);
+
           setShowLinkAuthElement(isNewCardSelected && hasSavedPaymentMethod);
 
           setSelectedPaymentMethod(event?.value?.type || '');
@@ -166,7 +172,7 @@ export function CheckoutForm({
   const showPayPalButton = selectedPaymentMethod === 'external_paypal';
   const isStripe = cart?.paymentInfo?.type !== 'external_paypal';
   const showFullNameInput =
-    !isPaymentElementLoading && !showPayPalButton && !isSavedPaymentMethod;
+    !isPaymentElementLoading && !showPayPalButton && !isSavedPaymentMethod && selectedPaymentMethod === 'card' && !isNotCard;
   const nonStripeFieldsComplete = !showFullNameInput || !!fullName;
 
   const submitHandler = async (

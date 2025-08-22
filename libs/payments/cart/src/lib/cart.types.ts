@@ -57,6 +57,7 @@ export interface PaymentInfo {
   last4?: string;
   brand?: string;
   customerSessionClientSecret?: string;
+  walletType?: string;
 }
 
 export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {

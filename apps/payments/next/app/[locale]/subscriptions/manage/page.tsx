@@ -50,7 +50,7 @@ export default async function Manage({
     appleIapSubscriptions,
     googleIapSubscriptions,
   } = await getSubManPageContentAction(session.user?.id);
-  const { billingAgreementId, brand, expMonth, expYear, last4, type } =
+  const { billingAgreementId, brand, expMonth, expYear, last4, type, walletType } =
     defaultPaymentMethod || {};
   const expirationDate =
     expMonth && expYear
@@ -151,7 +151,65 @@ export default async function Manage({
               )}
             </div>
 
-            {type === 'card' && brand && (
+            {type === 'card' && walletType && (
+              <div className="flex items-center justify-between">
+                <div className="leading-5 text-sm">
+                  <div className="flex items-center gap-3 py-2">
+                    <Image
+                      src={getCardIcon(walletType === 'apple_pay' ? 'apple_pay' : 'google_pay', l10n).img}
+                      alt={
+                        walletType === 'apple_pay'
+                          ? l10n.getString('apple-pay-logo-alt-text', 'Apple Pay logo')
+                          : l10n.getString('google-pay-logo-alt-text', 'Google Pay logo')
+                      }
+                      width={40}
+                      height={24}
+                    />
+                    {brand && (
+                      <Image
+                        src={getCardIcon(brand, l10n).img}
+                        alt={getCardIcon(brand, l10n).altText}
+                        width={40}
+                        height={24}
+                      />
+                    )}
+                    {last4 && (
+                      <div>
+                        {l10n.getString(
+                          'subscription-management-card-ending-in',
+                          { last4 },
+                          `Card ending in ${last4}`
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {expirationDate && (
+                    <div>
+                      {l10n.getString(
+                        'subscription-management-card-expires-date',
+                        { expirationDate },
+                        `Expires ${expirationDate}`
+                      )}
+                    </div>
+                  )}
+                </div>
+                <Link
+                  className={CSS_SECONDARY_LINK}
+                  href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
+                  aria-label={l10n.getString(
+                    'subscription-management-button-change-payment-method-aria',
+                    'Change payment method'
+                  )}
+                >
+                  {l10n.getString(
+                    'subscription-management-button-change-payment-method',
+                    'Change'
+                  )}
+                </Link>
+              </div>
+            )}
+
+            {type === 'card' && brand && !walletType && (
               <div className="flex items-center justify-between">
                 <div className="leading-5 text-sm">
                   <Image

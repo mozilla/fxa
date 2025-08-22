@@ -5,9 +5,10 @@
 import {
   CustomerDeletedError,
   CustomerManager,
-  determinePaymentMethodType,
   InvoiceManager,
   SubscriptionManager,
+  PaymentMethodManager,
+  SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import { PaymentProvidersType } from '@fxa/payments/metrics';
@@ -24,7 +25,8 @@ export class SubscriptionEventsService {
     private subscriptionManager: SubscriptionManager,
     private customerManager: CustomerManager,
     private invoiceManager: InvoiceManager,
-    private emitterService: PaymentsEmitterService
+    private emitterService: PaymentsEmitterService,
+    private paymentMethodManager: PaymentMethodManager,
   ) {}
 
   async handleCustomerSubscriptionDeleted(
@@ -44,10 +46,16 @@ export class SubscriptionEventsService {
         subscription.customer
       );
       uid = customer.metadata['userid'];
-      const paymentMethodType = determinePaymentMethodType(customer, [
+      const paymentMethodType = await this.paymentMethodManager.determineType(customer, [
         subscription,
       ]);
-      if (paymentMethodType?.type === 'stripe') {
+      if (paymentMethodType?.type === SubPlatPaymentMethodType.ApplePay) {
+        paymentProvider = 'apple_pay';
+      } else if (paymentMethodType?.type === SubPlatPaymentMethodType.GooglePay) {
+        paymentProvider = 'google_pay';
+      } else if (paymentMethodType?.type === SubPlatPaymentMethodType.Link) {
+        paymentProvider = 'link';
+      } else if (paymentMethodType?.type === SubPlatPaymentMethodType.Card || paymentMethodType?.type === SubPlatPaymentMethodType.Stripe) {
         paymentProvider = 'card';
       } else if (paymentMethodType?.type === 'external_paypal') {
         paymentProvider = 'external_paypal';

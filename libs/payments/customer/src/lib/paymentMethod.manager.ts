@@ -10,8 +10,17 @@ import {
   StripeCustomer,
   StripeSubscription,
 } from '@fxa/payments/stripe';
-import { DefaultPaymentMethod } from './types';
-import { determinePaymentMethodType } from './util/determinePaymentMethodType';
+import {
+  DefaultPaymentMethod,
+  SubPlatPaymentMethodType,
+  StripePaymentMethod,
+  PayPalPaymentMethod,
+} from './types';
+
+type PaymentMethodTypeResponse =
+  | StripePaymentMethod
+  | PayPalPaymentMethod
+  | null;
 
 @Injectable()
 export class PaymentMethodManager {
@@ -37,11 +46,11 @@ export class PaymentMethodManager {
     uid: string
   ) {
     let defaultPaymentMethod: DefaultPaymentMethod | undefined;
-    const paymentMethodType = determinePaymentMethodType(
+    const paymentMethodType = await this.determineType(
       customer,
       subscriptions
     );
-    if (paymentMethodType?.type === 'stripe') {
+    if (paymentMethodType?.type === SubPlatPaymentMethodType.Stripe) {
       const paymentMethod = await this.retrieve(
         paymentMethodType.paymentMethodId
       );
@@ -51,6 +60,7 @@ export class PaymentMethodManager {
         last4: paymentMethod.card?.last4,
         expMonth: paymentMethod.card?.exp_month,
         expYear: paymentMethod.card?.exp_year,
+        walletType: paymentMethod.card?.wallet?.type,
       };
     } else if (paymentMethodType?.type === 'external_paypal') {
       const billingAgreementId =
@@ -63,4 +73,57 @@ export class PaymentMethodManager {
     }
     return defaultPaymentMethod;
   }
+
+  async determineType ( //used to be determinePaymentMethodType
+    customer?: StripeCustomer,
+    subscriptions?: StripeSubscription[]
+  ): Promise <PaymentMethodTypeResponse> {
+    // First check if payment method is PayPal
+    // Note, this needs to happen first since a customer could also have a
+    // default payment method. However if PayPal is set as the payment method,
+    // it should take precedence.
+    if (
+      subscriptions?.length &&
+      subscriptions[0].collection_method === 'send_invoice'
+    ) {
+      return {
+        type: SubPlatPaymentMethodType.PayPal,
+      };
+    }
+
+    if (customer?.invoice_settings.default_payment_method) {
+      const paymentMethod = await this.retrieve(
+        customer.invoice_settings.default_payment_method
+      );
+      if (paymentMethod.card?.wallet?.type === 'apple_pay') {
+        return {
+          type: SubPlatPaymentMethodType.ApplePay,
+          paymentMethodId: customer.invoice_settings.default_payment_method,
+        }
+      } else if (paymentMethod.card?.wallet?.type === 'google_pay') {
+        return {
+          type: SubPlatPaymentMethodType.GooglePay,
+          paymentMethodId: customer.invoice_settings.default_payment_method,
+        }
+      } else if (paymentMethod.type === 'link') {
+        return {
+          type: SubPlatPaymentMethodType.Link,
+          paymentMethodId: customer.invoice_settings.default_payment_method,
+        }
+      } else if (paymentMethod.type === 'card') {
+        return {
+          type: SubPlatPaymentMethodType.Card,
+          paymentMethodId: customer.invoice_settings.default_payment_method,
+        }
+      } else {
+        return {
+          type: SubPlatPaymentMethodType.Stripe,
+          paymentMethodId: customer.invoice_settings.default_payment_method,
+        };
+      }
+    }
+
+    return null;
+  };
+
 }

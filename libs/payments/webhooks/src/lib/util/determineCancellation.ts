@@ -11,6 +11,14 @@ export enum CancellationReason {
   Redundant = 'redundant',
 }
 
+const STRIPE_PAYMENT_PROVIDER_TYPES = new Set([
+  'card',
+  'google_pay',
+  'apple_pay',
+  'link',
+  'stripe',
+]);
+
 export const determineCancellation = (
   paymentProvider: PaymentProvidersType,
   subscription: StripeSubscription,
@@ -28,7 +36,7 @@ export const determineCancellation = (
         ? CancellationReason.CustomerInitiated
         : CancellationReason.Involuntary;
     }
-  } else if (paymentProvider === 'card') {
+  } else if (STRIPE_PAYMENT_PROVIDER_TYPES.has(paymentProvider)) {
     return subscription.cancellation_details
       ? subscription.cancellation_details?.reason === 'cancellation_requested'
         ? CancellationReason.CustomerInitiated

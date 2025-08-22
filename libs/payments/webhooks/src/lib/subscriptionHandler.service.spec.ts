@@ -21,6 +21,8 @@ import {
   InvoiceManager,
   PriceManager,
   SubscriptionManager,
+  PaymentMethodManager,
+  SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import {
@@ -47,7 +49,6 @@ import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { CustomerSubscriptionDeletedResponseFactory } from './factories';
-import { determinePaymentMethodType } from '@fxa/payments/customer';
 import {
   CancellationReason,
   determineCancellation,
@@ -55,7 +56,6 @@ import {
 import { Logger } from '@nestjs/common';
 
 jest.mock('@fxa/payments/customer');
-const mockDeterminePaymentMethodType = jest.mocked(determinePaymentMethodType);
 jest.mock('./util/determineCancellation');
 const mockDetermineCancellation = jest.mocked(determineCancellation);
 
@@ -65,6 +65,7 @@ describe('SubscriptionEventsService', () => {
   let customerManager: CustomerManager;
   let invoiceManager: InvoiceManager;
   let emitterService: PaymentsEmitterService;
+  let paymentMethodManager: PaymentMethodManager;
 
   const mockEmitter = {
     emit: jest.fn(),
@@ -118,6 +119,7 @@ describe('SubscriptionEventsService', () => {
     customerManager = module.get(CustomerManager);
     invoiceManager = module.get(InvoiceManager);
     emitterService = module.get(PaymentsEmitterService);
+    paymentMethodManager = module.get(PaymentMethodManager);
   });
 
   afterEach(() => {
@@ -138,8 +140,8 @@ describe('SubscriptionEventsService', () => {
       jest
         .spyOn(emitterService, 'getEmitter')
         .mockReturnValue(mockEmitter as any);
-      mockDeterminePaymentMethodType.mockReturnValue({
-        type: 'stripe',
+      jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        type: SubPlatPaymentMethodType.Stripe,
         paymentMethodId: 'pm_id',
       });
     });
@@ -161,8 +163,8 @@ describe('SubscriptionEventsService', () => {
       });
 
       it('should emit the subscriptionEnded event, with paymentProvider external_paypal', async () => {
-        mockDeterminePaymentMethodType.mockReturnValue({
-          type: 'external_paypal',
+        (paymentMethodManager.determineType as jest.Mock).mockResolvedValueOnce({
+          type: SubPlatPaymentMethodType.PayPal,
         });
         await subscriptionEventsService.handleCustomerSubscriptionDeleted(
           mockEvent,

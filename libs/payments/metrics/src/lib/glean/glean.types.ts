@@ -18,6 +18,8 @@ export type PaymentProvidersType =
   | Stripe.PaymentMethod.Type
   | 'google_iap'
   | 'apple_iap'
+  | 'google_pay'
+  | 'apple_pay'
   | 'external_paypal';
 
 export type CommonMetrics = {

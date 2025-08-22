@@ -11,7 +11,6 @@ import {
   MockCurrencyConfigProvider,
 } from '@fxa/payments/currency';
 import {
-  determinePaymentMethodType,
   CustomerManager,
   InvoiceManager,
   PaymentMethodManager,
@@ -99,8 +98,6 @@ import {
 
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
 
-jest.mock('../../../customer/src/lib/util/determinePaymentMethodType');
-const mockDeterminePaymentMethodType = jest.mocked(determinePaymentMethodType);
 
 jest.mock('@fxa/shared/error', () => ({
   ...jest.requireActual('@fxa/shared/error'),
@@ -323,10 +320,6 @@ describe('SubscriptionManagementService', () => {
         productName: 'Google IAP Subscription',
       };
 
-      mockDeterminePaymentMethodType.mockReturnValue({
-        type: 'stripe',
-        paymentMethodId: 'pm_id',
-      });
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -382,7 +375,6 @@ describe('SubscriptionManagementService', () => {
         purchaseDetails: [],
       });
 
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -426,7 +418,6 @@ describe('SubscriptionManagementService', () => {
         purchaseDetails: [],
       });
 
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -490,7 +481,6 @@ describe('SubscriptionManagementService', () => {
         productName: 'Google IAP Subscription',
       };
 
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -500,7 +490,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(productConfigurationManager, 'getProductNamesByStoreIds')
         .mockResolvedValue(mockIapOfferingResult);
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -545,7 +534,6 @@ describe('SubscriptionManagementService', () => {
         purchaseDetails: [],
       });
 
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -599,7 +587,6 @@ describe('SubscriptionManagementService', () => {
         purchaseDetails: [],
       });
 
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -612,7 +599,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -672,7 +658,6 @@ describe('SubscriptionManagementService', () => {
         purchaseDetails: [],
       });
 
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -685,7 +670,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -741,7 +725,6 @@ describe('SubscriptionManagementService', () => {
         purchaseDetails: [],
       });
 
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -754,7 +737,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -811,7 +793,6 @@ describe('SubscriptionManagementService', () => {
         purchaseDetails: [],
       });
 
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
@@ -824,7 +805,6 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(paymentMethodManager, 'getDefaultPaymentMethod')
         .mockResolvedValue(undefined);
-      mockDeterminePaymentMethodType.mockReturnValue(null);
       jest
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);

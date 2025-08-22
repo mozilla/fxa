@@ -28,6 +28,28 @@ export type InvoicePreview = {
   subsequentTax?: TaxAmount[];
 };
 
+export enum SubPlatPaymentMethodType {
+  PayPal = 'external_paypal',
+  Stripe = 'stripe',
+  Card = 'card',
+  ApplePay = 'apple_pay',
+  GooglePay = 'google_pay',
+  Link = 'link',
+}
+
+export interface StripePaymentMethod {
+  type: SubPlatPaymentMethodType.Card
+    | SubPlatPaymentMethodType.ApplePay
+    | SubPlatPaymentMethodType.GooglePay
+    | SubPlatPaymentMethodType.Link
+    | SubPlatPaymentMethodType.Stripe
+  paymentMethodId: string;
+}
+
+export interface PayPalPaymentMethod {
+  type: 'external_paypal';
+}
+
 export interface Interval {
   interval: NonNullable<StripePrice['recurring']>['interval'];
   intervalCount: number;
@@ -51,6 +73,7 @@ export interface DefaultPaymentMethod {
   expMonth?: number;
   expYear?: number;
   billingAgreementId?: string;
+  walletType?: string;
 }
 
 export interface PricingForCurrency {

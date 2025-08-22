@@ -5,13 +5,15 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 import { PaymentMethodManager } from './paymentMethod.manager';
-import { determinePaymentMethodType } from './util/determinePaymentMethodType';
 import {
   MockPaypalClientConfigProvider,
   PaypalBillingAgreementManager,
   PayPalClient,
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
+import {
+  SubPlatPaymentMethodType,
+} from '@fxa/payments/customer';
 import {
   StripeClient,
   MockStripeConfigProvider,
@@ -22,9 +24,6 @@ import {
 } from '@fxa/payments/stripe';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
-
-jest.mock('./util/determinePaymentMethodType');
-const mockDeterminePaymentMethodType = jest.mocked(determinePaymentMethodType);
 
 describe('PaymentMethodManager', () => {
   let paymentMethodManager: PaymentMethodManager;
@@ -100,8 +99,8 @@ describe('PaymentMethodManager', () => {
       const mockSubscriptions = [StripeSubscriptionFactory()];
       const mockUid = faker.string.uuid();
 
-      mockDeterminePaymentMethodType.mockReturnValue({
-        type: 'stripe',
+      jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        type: SubPlatPaymentMethodType.Stripe,
         paymentMethodId: 'pm_id',
       });
       jest
@@ -119,6 +118,7 @@ describe('PaymentMethodManager', () => {
         last4: mockPaymentMethod.card?.last4,
         expMonth: mockPaymentMethod.card?.exp_month,
         expYear: mockPaymentMethod.card?.exp_year,
+        walletType: mockPaymentMethod.card?.wallet?.type,
       });
     });
 
@@ -128,8 +128,8 @@ describe('PaymentMethodManager', () => {
       const mockSubscriptions = [StripeSubscriptionFactory()];
       const mockUid = faker.string.uuid();
 
-      mockDeterminePaymentMethodType.mockReturnValue({
-        type: 'external_paypal',
+      jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        type: SubPlatPaymentMethodType.PayPal,
       });
       jest
         .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
@@ -145,6 +145,51 @@ describe('PaymentMethodManager', () => {
         brand: 'paypal',
         billingAgreementId: mockPaypalBillingAgreementId,
       });
+    });
+  });
+
+  describe('determineType', () => {
+    it('returns card', async () => {
+      const mockCustomer = StripeCustomerFactory({
+        invoice_settings: {
+            custom_fields: null,
+            default_payment_method: 'any',
+            footer: null,
+            rendering_options: null,
+          },
+      });
+
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({
+          type: 'card',
+        })
+      );
+      jest.spyOn(paymentMethodManager, 'retrieve').mockResolvedValue(mockPaymentMethod);
+
+      await expect(
+        paymentMethodManager.determineType(mockCustomer)
+      ).resolves.toEqual({
+        type: SubPlatPaymentMethodType.Card,
+        paymentMethodId: expect.any(String),
+      });
+    });
+
+    it('returns external_paypal', async () => {
+      const mockSubscription = StripeSubscriptionFactory({
+        collection_method: 'send_invoice',
+      });
+
+      await expect(
+        paymentMethodManager.determineType(undefined, [mockSubscription])
+      ).resolves.toEqual({
+        type: SubPlatPaymentMethodType.PayPal,
+      });
+    });
+
+    it('returns null', async () => {
+      await expect(
+        paymentMethodManager.determineType(undefined, undefined)
+      ).resolves.toBeNull();
     });
   });
 });
