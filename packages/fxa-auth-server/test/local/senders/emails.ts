@@ -59,6 +59,7 @@ const MESSAGE = {
   acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
   appStoreLink: 'https://example.com/app-store',
   code: 'abc123',
+  expirationTime: 5,
   date: moment().tz('America/Los_Angeles').format('dddd, ll'),
   deviceId: 'foo',
   email: 'a@b.com',
@@ -1097,6 +1098,40 @@ const TESTS: [string, any, Record<string, any>?][] = [
       }
     ),}
   ],
+
+  ['verifyAccountChangeEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: `Use ${MESSAGE.code} to change your account` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyAccountChange') }],
+      ['X-Account-Change-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifyAccountChange' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyAccountChange }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Are you changing your account info?' },
+      { test: 'include', expected: 'Help us keep your account safe by approving this change on:' },
+      { test: 'include', expected: 'If yes, here is your authorization code:' },
+      { test: 'include', expected: 'It expires in 5 minutes.'},
+      { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'account-change-verify-code', 'change-password', 'email')) },
+      { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'account-change-verify-code', 'privacy')) },
+      { test: 'include', expected: decodeUrl(configHref('supportUrl', 'account-change-verify-code', 'support')) },
+      { test: 'include', expected: MESSAGE.code },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Are you changing your account info?' },
+      { test: 'include', expected: 'Help us keep your account safe by approving this change on:'},
+      { test: 'include', expected: `change your password right away:\n${configUrl('initiatePasswordChangeUrl', 'account-change-verify-code', 'change-password', 'email')}` },
+      { test: 'include', expected: `Mozilla Accounts Privacy Notice\n${configUrl('privacyUrl', 'account-change-verify-code', 'privacy')}` },
+      { test: 'include', expected: `For more info, visit Mozilla Support:\n${configUrl('supportUrl', 'account-change-verify-code', 'support')}` },
+      { test: 'include', expected: `If yes, here is your authorization code:\n\n${MESSAGE.code}` },
+      { test: 'include', expected: `${MESSAGE.date}` },
+      { test: 'exists', expected: `${MESSAGE.time}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
 
   ['recoveryEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Reset your password' }],
