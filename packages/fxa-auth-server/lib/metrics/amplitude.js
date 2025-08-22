@@ -80,6 +80,7 @@ const EMAIL_TYPES = {
   verifyShortCode: 'registration',
   verifyLogin: 'login',
   verifyLoginCode: 'login',
+  verifyAccountChange: 'verify',
   verifyPrimary: 'verify',
   verificationReminderFirst: 'registration',
   verificationReminderSecond: 'registration',

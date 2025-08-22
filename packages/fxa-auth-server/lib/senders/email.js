@@ -104,6 +104,7 @@ module.exports = function (log, config, bounces, statsd) {
     verifyShortCode: 'welcome',
     verifyLogin: 'new-signin',
     verifyLoginCode: 'new-signin-verify-code',
+    verifyAccountChange: 'account-change-verify-code',
     verifyPrimary: 'welcome-primary',
     verifySecondaryCode: 'welcome-secondary',
   };
@@ -1032,6 +1033,65 @@ module.exports = function (log, config, bounces, statsd) {
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
         time,
+      },
+    });
+  };
+
+  Mailer.prototype.verifyAccountChangeEmail = async function (message) {
+    log.trace('mailer.verifyAccountChangeEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'verifyAccountChange';
+    const query = {
+      code: message.code,
+      uid: message.uid,
+    };
+
+    if (message.service) {
+      query.service = message.service;
+    }
+    if (message.redirectTo) {
+      query.redirectTo = message.redirectTo;
+    }
+    if (message.resume) {
+      query.resume = message.resume;
+    }
+
+    const links = this._generateLinks(
+      this.verifyLoginUrl,
+      message,
+      query,
+      templateName
+    );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Account-Change-Verify-Code': message.code,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        code: message.code,
+        expirationTime: message.expirationTime,
+        date,
+        device: this._formatUserAgentInfo(message),
+        location: message.location,
+        email: message.email,
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+        tokenCode: message.code,
       },
     });
   };
