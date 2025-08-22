@@ -23,6 +23,8 @@ export function throwIntentFailedError(
   intentType: 'SetupIntent' | 'PaymentIntent'
 ) {
   switch (errorCode) {
+    case 'payment_intent_payment_attempt_failed':
+    case 'payment_method_provider_decline':
     case 'card_declined': {
       switch (declineCode) {
         case 'approve_with_id':

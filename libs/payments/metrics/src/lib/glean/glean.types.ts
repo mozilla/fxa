@@ -6,6 +6,9 @@ import Stripe from 'stripe';
 
 export const CheckoutTypes = ['with-accounts', 'without-accounts'] as const;
 export type CheckoutTypesType = (typeof CheckoutTypes)[number];
+import {
+  SubPlatPaymentMethodType,
+} from '@fxa/payments/customer';
 
 export const PaymentProvidersTypePartial = [
   'card',
@@ -16,6 +19,7 @@ export const PaymentProvidersTypePartial = [
 ] as const;
 export type PaymentProvidersType =
   | Stripe.PaymentMethod.Type
+  | SubPlatPaymentMethodType
   | 'google_iap'
   | 'apple_iap'
   | 'external_paypal';
