@@ -91,7 +91,7 @@ export const Index = ({
     // To avoid flickering, we just render third party auth when deeplinking
     return (
       <ThirdPartyAuth
-        showSeparator={false}
+        showSeparator={true}
         viewName="deeplink"
         deeplink={deeplink}
         flowQueryParams={flowQueryParams}
@@ -109,7 +109,9 @@ export const Index = ({
             {...{
               isMobile,
               logos: [cmsInfo?.EmailFirstPage, cmsInfo?.shared],
-              logoPosition: cmsInfo?.EmailFirstPage?.logoUrl ? 'center' : 'left',
+              logoPosition: cmsInfo?.EmailFirstPage?.logoUrl
+                ? 'center'
+                : 'left',
             }}
           />
           <h1 className="card-header">{cmsInfo?.EmailFirstPage?.headline}</h1>
