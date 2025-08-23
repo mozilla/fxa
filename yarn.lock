@@ -32669,6 +32669,7 @@ __metadata:
     supertest: "npm:^7.0.0"
     tailwindcss: "npm:3.4.3"
     tailwindcss-textshadow: "npm:^2.1.3"
+    tsc-alias: "npm:^1.8.8"
     typescript: "npm:5.5.3"
     webpack: "npm:^5.97.0"
   languageName: unknown
