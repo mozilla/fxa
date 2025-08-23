@@ -1026,10 +1026,18 @@ export const createDB = (
       log.trace('DB.securityEvent', {
         securityEvent: event,
       });
-      await SecurityEvent.create({
+
+      const payload = {
         ...event,
+        uid: event.uid,
+        name: event.name,
+        ipAddr: event.ipAddr,
+        tokenId: event.tokenId,
+        additionalInfo: event.additionalInfo,
         ipHmacKey: config.securityHistory.ipHmacKey,
-      });
+      };
+
+      await SecurityEvent.create(payload);
     }
 
     async securityEvents(params: { uid: string; ipAddr: string }) {

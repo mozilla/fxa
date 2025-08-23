@@ -158,7 +158,7 @@ export class AccountEventsManager {
    * @param db - auth db
    * @param message - message
    */
-  public recordSecurityEvent(db: AuthDatabase, message: SecurityEvent) {
+  public async recordSecurityEvent(db: AuthDatabase, message: SecurityEvent) {
     const { uid, name, ipAddr, tokenId, additionalInfo } = message;
 
     const eventData: SecurityEvent = {
@@ -174,7 +174,7 @@ export class AccountEventsManager {
     };
 
     try {
-      db.securityEvent(eventData);
+      await db.securityEvent(eventData);
       this.statsd.increment(`accountEvents.recordSecurityEvent.write.${name}`);
     } catch (err) {
       // Failing to write to events shouldn't break anything

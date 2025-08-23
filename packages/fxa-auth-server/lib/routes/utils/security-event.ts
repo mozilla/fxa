@@ -2,16 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
 import { AccountEventsManager } from '../../account-events';
 import { Container } from 'typedi';
 
-export function recordSecurityEvent(name: any, opts: any) {
+export async function recordSecurityEvent(name: SecurityEventNames, opts: any) {
   const mgr = Container.get(AccountEventsManager);
   if (mgr == null || typeof mgr.recordSecurityEvent !== 'function') {
     return;
   }
 
-  mgr.recordSecurityEvent(opts.db, {
+  await mgr.recordSecurityEvent(opts.db, {
     name,
     uid: opts?.account?.uid || opts?.request?.auth?.credentials?.uid,
     ipAddr: opts?.request?.app?.clientAddress,
