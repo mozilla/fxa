@@ -374,7 +374,8 @@ export class AccountHandler {
               cmsRpFromName: rpCmsConfig.shared?.emailFromName,
               entrypoint: metricsContext.entrypoint,
               logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-              logoAltText: rpCmsConfig?.shared?.logoAltText,
+              logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
+              logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
               ...rpCmsConfig.VerifyShortCodeEmail,
             };
 
@@ -1270,7 +1271,8 @@ export class AccountHandler {
                 cmsRpFromName: rpCmsConfig.shared?.emailFromName,
                 entrypoint,
                 logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-                logoAltText: rpCmsConfig?.shared?.logoAltText,
+                logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
+                logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
                 ...rpCmsConfig.NewDeviceLoginEmail,
               };
               await this.mailer.sendNewDeviceLoginEmail(

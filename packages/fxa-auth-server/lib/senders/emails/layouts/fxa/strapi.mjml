@@ -23,7 +23,7 @@
         <mj-column>
           <% if (locals.logoUrl) { %>
             <mj-image css-class="mozilla-logo"
-              width="120px"
+              width="<%- locals.logoWidth ?? '280px' %>"
               src="<%- locals.logoUrl %>"
               alt="<%- locals.logoAltText %>"
               title="<%- locals.logoAltText %>">

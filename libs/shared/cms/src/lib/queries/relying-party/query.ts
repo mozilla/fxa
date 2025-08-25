@@ -20,6 +20,7 @@ export const relyingPartyQuery = graphql(`
         emailFromName
         emailLogoUrl
         emailLogoAltText
+        emailLogoWidth
         backgroundColor
         pageTitle
         headerLogoUrl
@@ -83,6 +84,7 @@ export const relyingPartyQuery = graphql(`
         emailFromName
         emailLogoUrl
         emailLogoAltText
+        emailLogoWidth
       }
       NewDeviceLoginEmail {
         subject
