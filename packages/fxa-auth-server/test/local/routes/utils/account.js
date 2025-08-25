@@ -5,7 +5,10 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
 
-const { fetchRpCmsData, getOptionalCmsEmailConfig } = require('../../../../lib/routes/utils/account');
+const {
+  fetchRpCmsData,
+  getOptionalCmsEmailConfig,
+} = require('../../../../lib/routes/utils/account');
 
 describe('fetchRpCmsData', () => {
   const sandbox = sinon.createSandbox();
@@ -149,7 +152,8 @@ describe('getOptionalCmsEmailConfig', () => {
       shared: {
         emailFromName: 'Test App',
         emailLogoUrl: 'https://example.com/logo.png',
-        logoAltText: 'Test App Logo',
+        emailLogoAltText: 'Test App Logo',
+        emailLogoWidth: '280px',
       },
       VerifyLoginCodeEmail: {
         subject: 'Custom Subject',
@@ -180,6 +184,7 @@ describe('getOptionalCmsEmailConfig', () => {
       entrypoint: 'entree',
       logoUrl: 'https://example.com/logo.png',
       logoAltText: 'Test App Logo',
+      logoWidth: '280px',
       subject: 'Custom Subject',
       template: 'custom-template',
     });
@@ -197,7 +202,8 @@ describe('getOptionalCmsEmailConfig', () => {
       shared: {
         emailFromName: 'Test App',
         emailLogoUrl: 'https://example.com/logo.png',
-        logoAltText: 'Test App Logo',
+        emailLogoAltText: 'Test App Logo',
+        emailLogoWidth: '280px',
       },
       // No VerifyLoginCodeEmail template
     };
@@ -256,7 +262,8 @@ describe('getOptionalCmsEmailConfig', () => {
       shared: {
         emailFromName: 'Test App',
         emailLogoUrl: 'https://example.com/logo.png',
-        logoAltText: 'Test App Logo',
+        emailLogoAltText: 'Test App Logo',
+        emailLogoWidth: '280px',
       },
       VerifyShortCodeEmail: {
         subject: 'Short Code Subject',
@@ -287,6 +294,7 @@ describe('getOptionalCmsEmailConfig', () => {
       entrypoint: 'entree',
       logoUrl: 'https://example.com/logo.png',
       logoAltText: 'Test App Logo',
+      logoWidth: '280px',
       subject: 'Short Code Subject',
       template: 'short-code-template',
     });

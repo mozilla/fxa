@@ -1240,7 +1240,7 @@ describe('sendSigninNotifications', () => {
   });
 
   describe('when using CMS for emails', () => {
-    it('uses CMS content for verifyLoginCode emai', () => {
+    it('uses CMS content for verifyLoginCode email', () => {
       sessionToken.tokenVerified = false;
       sessionToken.tokenVerificationId = 'tokenVerifyCode';
       sessionToken.mustVerify = true;
@@ -1310,7 +1310,8 @@ describe('sendSigninNotifications', () => {
               cmsRpFromName: rpCmsConfig.shared?.emailFromName,
               entrypoint: 'testo',
               logoUrl: rpCmsConfig?.shared?.emailLogoUrl,
-              logoAltText: rpCmsConfig?.shared?.logoAltText,
+              logoAltText: rpCmsConfig?.shared?.emailLogoAltText,
+              logoWidth: rpCmsConfig?.shared?.emailLogoWidth,
               ...rpCmsConfig.VerifyLoginCodeEmail,
             }
           );

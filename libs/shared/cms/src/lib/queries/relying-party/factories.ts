@@ -60,6 +60,7 @@ export const RelyingPartyResultFactory = (
     emailFromName: faker.string.sample(),
     emailLogoUrl: faker.internet.url(),
     emailLogoAltText: faker.string.sample(),
+    emailLogoWidth: `${faker.number.int({ min: 10, max: 1000 })}px`,
     backgroundColor: faker.color.rgb(),
     pageTitle: faker.string.sample(),
     headerLogoUrl: faker.internet.url(),
