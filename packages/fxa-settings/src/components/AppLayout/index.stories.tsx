@@ -123,6 +123,29 @@ export const WithCmsInfoRadialGradient = () => {
   );
 };
 
+export const WithCmsInfoBackgroundAndHeaderBackground = () => {
+  const mockCmsInfo = {
+    name: 'Test App',
+    clientId: 'test123',
+    entrypoint: 'test',
+    shared: {
+      buttonColor: '#0078d4',
+      logoUrl: 'https://example.com/logo.png',
+      logoAltText: 'Test App Logo',
+      backgroundColor: '#000',
+      headerBackground: '#ccc',
+      pageTitle: 'Test App - Custom Title',
+    },
+  } as RelierCmsInfo;
+
+  return (
+    <AppLayout cmsInfo={mockCmsInfo}>
+      <h1 className="card-header">Header content</h1>
+      <p className="mt-2">Paragraph content here</p>
+    </AppLayout>
+  );
+};
+
 export const WithCmsInfoUndefined = () => {
   return (
     <AppLayout cmsInfo={undefined}>

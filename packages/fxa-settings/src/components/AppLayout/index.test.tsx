@@ -288,6 +288,7 @@ describe('<AppLayout />', () => {
           logoUrl: 'https://example.com/snapshot-cms-logo.png',
           logoAltText: 'Snapshot App Logo',
           backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          headerBackground: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
           pageTitle: 'Snapshot App - Custom Title',
         },
       };
@@ -310,10 +311,15 @@ describe('<AppLayout />', () => {
       const backgroundWrapper = container
         .querySelector('.flex-col')
         ?.cloneNode(false);
+      // header containing the background styling
+      const headerBackground = container
+        .querySelector('header')
+        ?.cloneNode(false);
 
       expect(title).toMatchSnapshot('title');
       expect(headerLogo).toMatchSnapshot('header logo');
       expect(backgroundWrapper).toMatchSnapshot('background wrapper');
+      expect(headerBackground).toMatchSnapshot('header background');
     });
 
     it('renders correctly without CMS', () => {
@@ -330,10 +336,15 @@ describe('<AppLayout />', () => {
       const backgroundWrapper = container
         .querySelector('.flex-col')
         ?.cloneNode(false);
+      // header without background styling
+      const headerBackground = container
+        .querySelector('header')
+        ?.cloneNode(false);
 
       expect(title).toMatchSnapshot('title');
       expect(headerLogo).toMatchSnapshot('header logo');
       expect(backgroundWrapper).toMatchSnapshot('background wrapper');
+      expect(headerBackground).toMatchSnapshot('header background');
     });
   });
 });

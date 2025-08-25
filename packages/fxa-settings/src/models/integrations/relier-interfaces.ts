@@ -43,6 +43,7 @@ export interface SharedRelierCmsInfo {
   buttonColor: string | undefined;
   logoUrl: string | undefined;
   logoAltText: string | undefined;
+  headerBackground?: string | undefined;
   backgroundColor?: string | undefined;
   pageTitle?: string | undefined;
   headerLogoUrl?: string | undefined;
