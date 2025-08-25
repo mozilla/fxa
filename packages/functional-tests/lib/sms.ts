@@ -7,6 +7,10 @@ import Redis from 'ioredis';
 import type { Redis as RedisType } from 'ioredis';
 import { TargetName, getFromEnv, getFromEnvWithFallback } from './targets';
 
+// Default test number, see Twilio test credentials phone numbers:
+// https://www.twilio.com/docs/iam/test-credentials
+export const TEST_NUMBER = '4159929960';
+
 function wait() {
   return new Promise((r) => setTimeout(r, 500));
 }
@@ -77,12 +81,66 @@ export class SmsClient {
     return !!this.redisClient;
   }
 
+  usingRealTestPhoneNumber() {
+    return this.getPhoneNumber() !== TEST_NUMBER;
+  }
+
+
   async getCode(recipientNumber: string, uid: string, timeout = 10000) {
     if (this.isTwilioEnabled()) {
       return this._getCodeTwilio(recipientNumber);
     } else {
       return this._getCodeLocal(uid, timeout);
     }
+  }
+
+  /**
+   * Guard function against misconfiguration of test phone numbers.
+   *
+   * Two conditions are checked:
+   *  - If a `real` number is configured and Twilio is NOT enabled
+   *  - If a `fake` number is configured and Redis is NOT enabled
+   *
+   * An error is thrown if either condition is met.
+   *
+   * Usage:
+   * ``` typescript
+   * test.describe('phone number tests', () => {
+   *    test.beforeAll(({target}) => {
+   *       // call in beforeAll to ensure proper configuration
+   *       target.smsClient.guardTestPhoneNumber();
+   *    });
+   * })
+   * ```
+   */
+  guardTestPhoneNumber() {
+    const usingRealNumber = this.usingRealTestPhoneNumber();
+    const isTwilioEnabled = this.isTwilioEnabled();
+    const isRedisEnabled = this.isRedisEnabled();
+
+    if (usingRealNumber && !isTwilioEnabled) {
+      throw new Error('Twilio must be enabled when using a real test number.');
+    }
+    if (!usingRealNumber && !isRedisEnabled) {
+      throw new Error('Redis must be enabled when using a test number.');
+    }
+  }
+
+  /**
+   * Checks the process env for a configured twilio test phone number. Defaults
+   * to generic magic test number if one is not provided.
+   * @param targetName The test target name. eg local, stage, prod.
+   * @returns
+   */
+  getPhoneNumber() {
+    if (this.targetName === 'local') {
+      return TEST_NUMBER;
+    }
+    return getFromEnvWithFallback(
+      'FUNCTIONAL_TESTS__TWILIO__TEST_NUMBER',
+      this.targetName,
+      TEST_NUMBER
+    );
   }
 
   async _getCodeTwilio(

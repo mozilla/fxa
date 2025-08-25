@@ -40,7 +40,6 @@ test.describe('severity-1 #smoke', () => {
         credentials,
         recoveryCodes[0],
         page,
-        settings,
         signin,
         signinRecoveryCode,
         signinTotpCode
@@ -128,7 +127,6 @@ test.describe('severity-1 #smoke', () => {
         credentials,
         newCodes[0],
         page,
-        settings,
         signin,
         signinRecoveryCode,
         signinTotpCode
@@ -147,7 +145,6 @@ test.describe('severity-1 #smoke', () => {
         signinTotpCode,
         signinRecoveryCode,
         totp,
-        configPage,
       },
       testAccountTracker,
     }) => {
@@ -168,7 +165,6 @@ test.describe('severity-1 #smoke', () => {
           credentials,
           recoveryCodes[i],
           page,
-          settings,
           signin,
           signinRecoveryCode,
           signinTotpCode
@@ -181,7 +177,6 @@ test.describe('severity-1 #smoke', () => {
         credentials,
         recoveryCodes[recoveryCodes.length - 1],
         page,
-        settings,
         signin,
         signinRecoveryCode,
         signinTotpCode
@@ -247,7 +242,6 @@ async function signinWithRecoveryCode(
   credentials: Credentials,
   recoveryCode: string,
   page: Page,
-  settings: SettingsPage,
   signin: SigninPage,
   signinRecoveryCode: SigninRecoveryCodePage,
   signinTotpCode: SigninTotpCodePage
