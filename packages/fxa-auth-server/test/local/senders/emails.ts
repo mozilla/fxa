@@ -2566,7 +2566,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ],
 
   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: `Credit card for ${MESSAGE.productName} expired or expiring soon` }],
+    ['subject', { test: 'equal', expected: `Payment method for ${MESSAGE.productName} expired or expiring soon` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentExpired') }],
       ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentExpired' }],
@@ -2580,7 +2580,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Credit card for ${MESSAGE.productName} expired or expiring soon` },
+      { test: 'include', expected: `Payment method for ${MESSAGE.productName} expired or expiring soon` },
       { test: 'include', expected: `for ${MESSAGE.productName} is expired or about to expire.` },
       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -2590,7 +2590,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       {...x, subscriptions: [{planId: MESSAGE.planId, productId: MESSAGE.productId, ...x.subscriptions[0]}]})}],
 
   ['subscriptionPaymentExpiredEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Credit card for your subscriptions is expired or expiring soon' }],
+    ['subject', { test: 'equal', expected: 'The payment method for your subscriptions is expired or expiring soon' }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionsPaymentExpired') }],
       ['X-Template-Name', { test: 'equal', expected: 'subscriptionsPaymentExpired' }],
@@ -2604,7 +2604,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: 'Credit card for your subscriptions is expired or expiring soon' },
+      { test: 'include', expected: 'The payment method for your subscriptions is expired or expiring soon' },
       { test: 'include', expected: 'using to make payments for the following subscriptions is expired or about to expire.' },
       { test: 'include', expected: configUrl('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy') },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -2645,7 +2645,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-provider-cancelled', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: 'Sorry, we’re having trouble with your payment method' },
       { test: 'include', expected: `We have detected a problem with your payment method for ${MESSAGE.productName}.` },
-      { test: 'include', expected: 'It may be that your credit card has expired, or your current payment method is out of date.' },
+      { test: 'include', expected: 'It may be that your payment method has expired, or your current payment method is out-of-date.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
@@ -2675,7 +2675,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-provider-cancelled', 'update-billing', 'email', 'uid')) },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-provider-cancelled', 'subscription-terms') },
       { test: 'include', expected: 'We have detected a problem with your payment method for the following subscriptions.' },
-      { test: 'include', expected: 'It may be that your credit card has expired, or your current payment method is out of date.' },
+      { test: 'include', expected: 'It may be that your payment method has expired, or your current payment method is out-of-date.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [

@@ -6,7 +6,7 @@ subscriptionsPaymentProviderCancelled-content-detected = "We have detected a pro
 
 <%- subscriptions.map(({ productName }) => `  - ${productName}`).join("\r") %>
 
-subscriptionsPaymentProviderCancelled-content-payment = "It may be that your credit card has expired, or your current payment method is out of date."
+subscriptionsPaymentProviderCancelled-content-payment-1 = "It may be that your payment method has expired, or your current payment method is out-of-date."
 
 <%- include ('/partials/subscriptionUpdatePayment/index.txt', { updateBillingUrl }) %>
 
