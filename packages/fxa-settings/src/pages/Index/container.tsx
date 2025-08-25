@@ -266,9 +266,10 @@ const IndexContainer = ({
   const initialPrefill = prefillEmail || suggestedEmail;
   const deeplink = queryParamModel.deeplink;
   const isMobile = isMobileDevice();
+  const cmsInfo = integration.getCmsInfo();
 
   return isLoading ? (
-    <LoadingSpinner fullScreen />
+    <LoadingSpinner fullScreen backgroundColor={cmsInfo?.shared?.backgroundColor} />
   ) : (
     <Index
       {...{

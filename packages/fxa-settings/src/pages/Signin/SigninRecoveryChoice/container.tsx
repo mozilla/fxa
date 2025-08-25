@@ -215,20 +215,24 @@ export const SigninRecoveryChoiceContainer = ({
     redirectToRecoveryCode,
     autoSendPhoneCode,
   ]);
-
+  const cmsInfo = integration.getCmsInfo();
+  const loadingProps = {
+    backgroundColor: cmsInfo?.shared?.backgroundColor,
+    fullScreen: true,
+  };
   if (!signinState || !signinState.sessionToken) {
-    return <LoadingSpinner fullScreen />;
+    return <LoadingSpinner {...loadingProps} />;
   }
 
   if (loading) {
-    return <LoadingSpinner fullScreen />;
+    return <LoadingSpinner {...loadingProps} />;
   }
 
   if (!phoneData.phoneNumber) {
-    return <LoadingSpinner fullScreen />;
+    return <LoadingSpinner {...loadingProps} />;
   } else if (!numBackupCodes || numBackupCodes === 0) {
     // Don't do anything here; auto-send is handled in useEffect above
-    return <LoadingSpinner fullScreen />;
+    return <LoadingSpinner {...loadingProps} />;
   }
 
   return (
