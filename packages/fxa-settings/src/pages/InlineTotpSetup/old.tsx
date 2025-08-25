@@ -270,7 +270,7 @@ export const InlineTotpSetupOld = ({
                 formAttributes={{
                   inputLabelText: 'Authentication code',
                   inputFtlId: 'inline-totp-setup-security-code-placeholder',
-                  pattern: 'd{6}',
+                  pattern: '\\d{6}',
                   maxLength: 6,
                   submitButtonText: 'Ready',
                   submitButtonFtlId: 'inline-totp-setup-ready-button',

@@ -72,5 +72,133 @@ describe('FormVerifyCode component', () => {
     expect(verifyCode).not.toHaveBeenCalled();
   });
 
+  describe('Submit button state management', () => {
+    it('should disable submit button initially', () => {
+      renderWithLocalizationProvider(<Subject />);
+      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('should enable submit button when valid code is entered', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject />);
+      const input = screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
+      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+
+      // Initially disabled
+      expect(submitButton).toBeDisabled();
+
+      // Type valid 4-digit code
+      await user.type(input, '1234');
+
+      // Button should be enabled
+      expect(submitButton).toBeEnabled();
+    });
+
+    it('should disable submit button when invalid code is entered', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject />);
+      const input = screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
+      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+
+      // Type invalid code (less than 4 digits)
+      await user.type(input, '123');
+
+      // Button should remain disabled
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('should disable submit button when code becomes invalid', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject />);
+      const input = screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
+      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+
+      // Type valid code first
+      await user.type(input, '1234');
+      expect(submitButton).toBeEnabled();
+
+      // Clear input to make it invalid
+      await user.clear(input);
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('should handle different pattern validations correctly', async () => {
+      const user = userEvent.setup();
+      const customFormAttributes = {
+        inputFtlId: 'demo-input-label-id',
+        inputLabelText: 'Enter your 6-digit code',
+        pattern: '[0-9]{6}',
+        maxLength: 6,
+        submitButtonFtlId: 'demo-submit-button-id',
+        submitButtonText: 'Check that code',
+      };
+
+      renderWithLocalizationProvider(
+        <Subject
+          formAttributes={customFormAttributes}
+          verifyCode={jest.fn().mockImplementation((code: string) => Promise.resolve())}
+        />
+      );
+
+      const input = screen.getByRole('textbox', { name: 'Enter your 6-digit code' });
+      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+
+      // Initially disabled
+      expect(submitButton).toBeDisabled();
+
+      // Type 5 digits (invalid for 6-digit pattern)
+      await user.type(input, '12345');
+      expect(submitButton).toBeDisabled();
+
+      // Type 6 digits (valid for 6-digit pattern)
+      await user.type(input, '6');
+      expect(submitButton).toBeEnabled();
+    });
+  });
+
+  describe('Input validation', () => {
+    it('should validate code pattern in real-time', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject />);
+
+      const input = screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
+      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+
+      // Type character by character
+      await user.type(input, '1');
+      expect(submitButton).toBeDisabled();
+
+      await user.type(input, '2');
+      expect(submitButton).toBeDisabled();
+
+      await user.type(input, '3');
+      expect(submitButton).toBeDisabled();
+
+      await user.type(input, '4');
+      expect(submitButton).toBeEnabled();
+    });
+
+    it('should handle backspace and editing correctly', async () => {
+      const user = userEvent.setup();
+      renderWithLocalizationProvider(<Subject />);
+
+      const input = screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
+      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+
+      // Type valid code
+      await user.type(input, '1234');
+      expect(submitButton).toBeEnabled();
+
+      // Backspace to make it invalid
+      await user.keyboard('{Backspace}');
+      expect(submitButton).toBeDisabled();
+
+      // Type again to make it valid
+      await user.type(input, '4');
+      expect(submitButton).toBeEnabled();
+    });
+  });
+
   // TODO Add tests for (engage, success, etc.) metrics events once submit button enabled
 });

@@ -13,10 +13,11 @@ export const Subject = ({
   localizedCustomCodeRequiredMessage = '',
   verifyCode = onFormSubmit,
   submitFormOnPaste = true,
-}: Partial<FormVerifyCodeProps>) => {
+  formAttributes: customFormAttributes,
+}: Partial<FormVerifyCodeProps> & { formAttributes?: FormAttributes }) => {
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
 
-  const formAttributes: FormAttributes = {
+  const formAttributes: FormAttributes = customFormAttributes || {
     inputFtlId: 'demo-input-label-id',
     inputLabelText: 'Enter your 4-digit code',
     pattern: '[0-9]{4}',

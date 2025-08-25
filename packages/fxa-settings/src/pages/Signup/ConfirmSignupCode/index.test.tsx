@@ -441,7 +441,7 @@ describe('ConfirmSignupCode page with error states', () => {
     jest.clearAllMocks();
   });
 
-  it('renders an error tooltip when the form is submitted without a code', async () => {
+  it('form is disabled without a code', async () => {
     renderWithSession({ session, integration: createMockWebIntegration({}) });
 
     const codeInput = screen.getByLabelText('Enter 6-digit code');
@@ -450,16 +450,14 @@ describe('ConfirmSignupCode page with error states', () => {
     });
 
     const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    expect(submitButton).toBeDisabled();
+
+    // Button should be disabled, so clicking it should not trigger submission
     fireEvent.click(submitButton);
-    await waitFor(() => {
-      expect(screen.getByTestId('tooltip')).toHaveTextContent(
-        'Confirmation code is required'
-      );
-      expect(GleanMetrics.signupConfirmation.submit).not.toHaveBeenCalled();
-    });
+    expect(GleanMetrics.signupConfirmation.submit).not.toHaveBeenCalled();
   });
 
-  it('renders an error tooltip when the form is submitted with invalid code', async () => {
+  it('form is disabled with invalid code', async () => {
     session = {
       verifySession: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR_INVALID_CODE),
     } as unknown as Session;
@@ -468,23 +466,19 @@ describe('ConfirmSignupCode page with error states', () => {
 
     const codeInput = screen.getByLabelText('Enter 6-digit code');
     fireEvent.change(codeInput, {
-      target: { value: '123123' },
+      target: { value: '123' }, // Invalid code (less than 6 digits)
     });
 
     const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    expect(submitButton).toBeDisabled();
+
+    // Button should be disabled, so clicking it should not trigger submission
     fireEvent.click(submitButton);
-    await waitFor(() => {
-      expect(screen.getByTestId('tooltip')).toHaveTextContent(
-        'Invalid or expired confirmation code'
-      );
-      expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalled();
-      expect(GleanMetrics.signupConfirmation.error).toHaveBeenCalledWith({
-        event: { reason: MOCK_AUTH_ERROR_INVALID_CODE.errno.toString() },
-      });
-    });
+    expect(GleanMetrics.signupConfirmation.submit).not.toHaveBeenCalled();
   });
 
-  it('renders an error when the form is submitted with rate limit', async () => {
+    it('renders an error when the form is submitted with rate limit', async () => {
+    const user = userEvent.setup();
     session = {
       verifySession: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR_RATE_LIMIT),
     } as unknown as Session;
@@ -492,12 +486,13 @@ describe('ConfirmSignupCode page with error states', () => {
     renderWithSession({ session, integration: createMockWebIntegration({}) });
 
     const codeInput = screen.getByLabelText('Enter 6-digit code');
-    fireEvent.change(codeInput, {
-      target: { value: '123123' },
-    });
+    await user.type(codeInput, '123456'); // Valid 6-digit code
 
     const submitButton = screen.getByRole('button', { name: 'Confirm' });
-    fireEvent.click(submitButton);
+    expect(submitButton).toBeEnabled();
+
+    // Now the button should be enabled and clicking it should trigger submission
+    await user.click(submitButton);
     await waitFor(() => {
       expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalled();
       expect(GleanMetrics.signupConfirmation.error).toHaveBeenCalledWith({

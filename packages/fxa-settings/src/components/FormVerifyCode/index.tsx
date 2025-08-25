@@ -67,6 +67,7 @@ const FormVerifyCode = ({
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedLabel = ftlMsgResolver.getMsg(
@@ -81,13 +82,15 @@ const FormVerifyCode = ({
     }
   };
 
-  const { handleSubmit, register, errors } = useForm<FormData>({
+  const { handleSubmit, register, errors, watch } = useForm<FormData>({
     mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
       code: '',
     },
   });
+
+  const codeValue = watch('code');
 
   const localizedDefaultCodeRequiredMessage = ftlMsgResolver.getMsg(
     'form-verify-code-default-error',
@@ -121,6 +124,15 @@ const FormVerifyCode = ({
       onSubmit({ code: pastedText });
     }
   };
+
+  useEffect(() => {
+    if (codeValue && codeValue.length > 0) {
+      const isValid = new RegExp(formAttributes.pattern).test(codeValue);
+      setIsDisabled(!isValid);
+    } else {
+      setIsDisabled(true);
+    }
+  }, [codeValue, formAttributes.pattern]);
 
   return (
     <form
@@ -161,7 +173,7 @@ const FormVerifyCode = ({
         <CmsButtonWithFallback
           type="submit"
           className="cta-primary cta-xl"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isDisabled}
           data-glean-id={gleanDataAttrs?.id}
           data-glean-label={gleanDataAttrs?.label}
           data-glean-type={gleanDataAttrs?.type}
