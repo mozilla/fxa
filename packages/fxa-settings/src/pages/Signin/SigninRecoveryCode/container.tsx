@@ -109,9 +109,10 @@ export const SigninRecoveryCodeContainer = ({
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
+  const cmsInfo = integration.getCmsInfo();
   if (!signinState) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return <LoadingSpinner fullScreen backgroundColor={cmsInfo?.shared?.backgroundColor} />;
   }
 
   return (

@@ -56,11 +56,12 @@ export const LoadingSpinner = ({
 
   return (
     <div
+      style={ backgroundColor ? ({'--cms-bg': backgroundColor} as React.CSSProperties) : undefined}
       className={classNames(
         className,
         fullScreen &&
-          'bg-grey-20 flex items-center flex-col justify-center h-screen select-none',
-        backgroundColor
+          'flex items-center flex-col justify-center h-screen select-none',
+          backgroundColor,
       )}
       data-testid="loading-spinner"
     >
