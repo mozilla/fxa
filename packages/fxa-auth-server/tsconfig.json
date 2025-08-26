@@ -3,9 +3,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "allowJs": true,
-    // Permit, but do not report errors for JS files
-    // TODO: Remove after transition to TS is complete
-    "checkJs": false,
+    "checkJs": true,
     "outDir": "./dist",
     "types": ["accept-language", "mocha", "mozlog", "node", "fxa-geodb"],
     "lib": ["ESNext"],
@@ -19,6 +17,7 @@
     "bin/*",
     "config/*",
     "lib/**/*",
-    "scripts/**/*"
+    "scripts/**/*",
+    "tests/**/*"
   ]
 }
