@@ -26,7 +26,7 @@
     <mj-text css-class="code-large"><%- code %></mj-text>
 
     <mj-text css-class="text-body-no-margin">
-      <span data-l10n-id="verifyAccountChange-expiry-notice">
+      <span data-l10n-id="verifyAccountChange-expiry-notice" data-l10n-args="<%= JSON.stringify({ expirationTime }) %>">
         It expires in <%- expirationTime === 1 ? '1 minute' : expirationTime + ' minutes' %>.
       </span>
     </mj-text>

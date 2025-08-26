@@ -8,6 +8,6 @@ verifyAccountChange-prompt = "If yes, here is your authorization code:"
 
 <%- code %>
 
-verifyAccountChange-expiry-notice = "It expires in <%- expirationTime == 1 ? '1 minute' : expirationTime + ' minutes' %>."
+verifyAccountChange-expiry-notice = "It expires in <%- expirationTime === 1 ? '1 minute' : expirationTime + ' minutes' %>."
 
 <%- include('/partials/automatedEmailChangePassword/index.txt') %>
