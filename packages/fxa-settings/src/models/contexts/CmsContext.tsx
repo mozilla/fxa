@@ -55,5 +55,4 @@ export const useCms = (): CmsContextValue => {
   return context;
 };
 
-// Export the context for testing or advanced usage
 export { CmsContext };
