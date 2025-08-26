@@ -5,7 +5,6 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { RelierCmsInfo } from '../integrations';
 
-// Define the context value type
 type CmsContextValue = {
   cmsInfo: RelierCmsInfo | undefined;
   isLoading: boolean;
