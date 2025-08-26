@@ -9,10 +9,12 @@ import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+// import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
+import CmsLoadingSpinner from '../../../components/CmsLoadingSpinner';
+import { useCms } from '../../../models/contexts/CmsContext';
 
 export const SigninRecoveryChoiceContainer = ({
   integration,
@@ -215,24 +217,26 @@ export const SigninRecoveryChoiceContainer = ({
     redirectToRecoveryCode,
     autoSendPhoneCode,
   ]);
-  const cmsInfo = integration.getCmsInfo();
+
+  const { backgroundColor } = useCms();
+
   const loadingProps = {
-    backgroundColor: cmsInfo?.shared?.backgroundColor,
+    backgroundColor,
     fullScreen: true,
   };
   if (!signinState || !signinState.sessionToken) {
-    return <LoadingSpinner {...loadingProps} />;
+    return <CmsLoadingSpinner {...loadingProps} />;
   }
 
   if (loading) {
-    return <LoadingSpinner {...loadingProps} />;
+    return <CmsLoadingSpinner {...loadingProps} />;
   }
 
   if (!phoneData.phoneNumber) {
-    return <LoadingSpinner {...loadingProps} />;
+    return <CmsLoadingSpinner {...loadingProps} />;
   } else if (!numBackupCodes || numBackupCodes === 0) {
     // Don't do anything here; auto-send is handled in useEffect above
-    return <LoadingSpinner {...loadingProps} />;
+    return <CmsLoadingSpinner {...loadingProps} />;
   }
 
   return (

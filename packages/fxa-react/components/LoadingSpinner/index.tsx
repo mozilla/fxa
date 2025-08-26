@@ -61,7 +61,7 @@ export const LoadingSpinner = ({
         className,
         fullScreen &&
           'flex items-center flex-col justify-center h-screen select-none',
-          backgroundColor,
+        backgroundColor && 'tablet:[background:var(--cms-bg)]',
       )}
       data-testid="loading-spinner"
     >

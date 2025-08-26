@@ -231,6 +231,9 @@ export function useCmsInfoState() {
     // 2. The user's locale is not English
     // 3. The clientId is not provided or is not a valid 16 digit hex
 
+    // To prevent also fetching cms data on /settings, should we consider
+    // a check here for the isSignedIn state and window.location.pathname?
+
     function isEnglishLocale() {
       // Check primary language
       const primaryLanguage = navigator.language;

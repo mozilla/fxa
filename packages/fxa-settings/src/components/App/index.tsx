@@ -24,6 +24,7 @@ import { MozServices } from '../../lib/types';
 
 import {
   Integration,
+  useCmsInfoState,
   useConfig,
   useInitialMetricsQueryState,
   useIntegration,
@@ -40,11 +41,12 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 
 // Components
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import CmsLoadingSpinner from '../CmsLoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
 import { InlineRecoverySetupFlowContainer } from '../../pages/InlineRecoverySetupFlow/container';
+import { CmsProvider } from '../../models/contexts/CmsContext';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
@@ -338,6 +340,8 @@ export const App = ({
     metricsEnabled,
   ]);
 
+  const cmsInfoState = useCmsInfoState();
+
   // Wait until app initialization is complete
   if (
     metricsLoading ||
@@ -345,21 +349,27 @@ export const App = ({
     isSignedIn === undefined ||
     metricsEnabled === undefined
   ) {
-    return <LoadingSpinner fullScreen />;
+    return (
+      <CmsProvider cmsInfo={cmsInfoState.data?.cmsInfo} isLoading={cmsInfoState.loading} error={cmsInfoState.error}>
+        <CmsLoadingSpinner fullScreen />
+      </CmsProvider>
+    )
   }
 
   return (
-    <Router basepath="/">
-      <AuthAndAccountSetupRoutes
-        {...{
-          isSignedIn,
-          integration,
-          flowQueryParams: updatedFlowQueryParams,
-        }}
-        path="/*"
-      />
-      <SettingsRoutes {...{ isSignedIn, integration }} path="/settings/*" />
-    </Router>
+    <CmsProvider cmsInfo={cmsInfoState.data?.cmsInfo} isLoading={cmsInfoState.loading} error={cmsInfoState.error}>
+      <Router basepath="/">
+        <AuthAndAccountSetupRoutes
+          {...{
+            isSignedIn,
+            integration,
+            flowQueryParams: updatedFlowQueryParams,
+          }}
+          path="/*"
+        />
+        <SettingsRoutes {...{ isSignedIn, integration }} path="/settings/*" />
+      </Router>
+    </CmsProvider>
   );
 };
 
@@ -386,14 +396,14 @@ const SettingsRoutes = ({
       hardNavigate(`/?${params.toString()}`);
     }
 
-    return <LoadingSpinner fullScreen />;
+    return <CmsLoadingSpinner fullScreen />;
   }
 
   const settingsContext = initializeSettingsContext();
   return (
     <SettingsContext.Provider value={settingsContext}>
       <ScrollToTop default>
-        <Suspense fallback={<LoadingSpinner fullScreen />}>
+        <Suspense fallback={<CmsLoadingSpinner fullScreen />}>
           <Settings path="/settings/*" {...{ integration }} />
         </Suspense>
       </ScrollToTop>
@@ -424,7 +434,7 @@ const AuthAndAccountSetupRoutes = ({
   const useSyncEnginesResult = useSyncEngines(integration);
 
   return (
-    <Suspense fallback={<LoadingSpinner fullScreen />}>
+    <Suspense fallback={<CmsLoadingSpinner fullScreen />}>
       <Router>
         {/* Index */}
         <IndexContainer
