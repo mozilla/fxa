@@ -3,7 +3,7 @@
 verifyAccountChange-subject = Use { $code } to change your account
 # Variables:
 # $expirationTime (Number) - Represents the expiration time in minutes
-verifyAccountChange-preview = { $expirationTime: ->
+verifyAccountChange-preview = { $expirationTime ->
   [one] This code expires in { $expirationTime } minute.
   *[other] This code expires in { $expirationTime } minutes.
 }
@@ -13,7 +13,7 @@ verifyAccountChange-safe = Help us keep your account safe by approving this chan
 verifyAccountChange-prompt = If yes, here is your authorization code:
 # Variables:
 # $expirationTime (Number) - Represents the expiration time in minutes
-verifyAccountChange-expiry-notice = { $expirationTime: ->
+verifyAccountChange-expiry-notice = { $expirationTime ->
   [one] It expires in { $expirationTime } minute.
   *[other] It expires in { $expirationTime } minutes.
 }
