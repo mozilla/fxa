@@ -2433,6 +2433,72 @@ const convictConf = convict({
       },
     },
   },
+  mfa: {
+    enabled: {
+      default: true,
+      doc: 'Flag for whether or not mfa are enabled.',
+      format: Boolean,
+      env: 'MFA__ENABLED',
+    },
+    actions: {
+      default: ['test'],
+      doc: 'Actions protected by MFA',
+      format: Array,
+      env: 'MFA__ACTIONS',
+    },
+    jwt: {
+      expiresInSec: {
+        default: 60 * 10,
+        doc: 'Duration that JWT tokens guarding mfa last for.',
+        format: Number,
+        env: 'MFA__JWT__EXPIRES_IN_SEC',
+      },
+      issuer: {
+        default: 'accounts.firefox.com',
+        doc: 'The value of the `iss` property of the id_token',
+        format: String,
+        env: 'MFA__JWT__ISSUER',
+      },
+      audience: {
+        default: 'fxa',
+        doc: 'The audience for the mfa token.',
+        format: String,
+        env: 'MFA__JWT__AUDIENCE',
+      },
+      secretKey: {
+        default: 'foxes',
+        doc: 'The secret key to sign tokens with. Do not share!',
+        format: String,
+        env: 'MFA__JWT__KEY',
+      },
+    },
+    otp: {
+      epoch: {
+        default: undefined,
+        doc: 'Overrides epoch otp options',
+        format: Number,
+        env: 'MFA__OTP__EPOCH',
+      },
+      step: {
+        default: 1,
+        doc: 'Overrides step otp options',
+        format: Number,
+        env: 'MFA__OTP__STEP',
+      },
+      window: {
+        default: 60 * 5,
+        doc: 'Overrides window otp options',
+        format: Number,
+        env: 'MFA__OTP__WINDOW',
+      },
+      digits: {
+        default: 8,
+        doc: 'Length of code',
+        format: Number,
+        env: 'MFA__OTP__DIGITS',
+      },
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

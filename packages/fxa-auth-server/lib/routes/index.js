@@ -232,6 +232,9 @@ module.exports = function (
   const { geoRoutes } = require('./geo-location');
   const geo = geoRoutes(config, log);
 
+  const { mfaRoutes } = require('./mfa');
+  const mfa = mfaRoutes(customs, db, log, mailer, statsd, config);
+
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {
     basePath = '';
@@ -258,7 +261,8 @@ module.exports = function (
     cloudTasks,
     cloudScheduler,
     cms,
-    geo
+    geo,
+    mfa
   );
 
   function optionallyIgnoreTrace(fn) {

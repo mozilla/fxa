@@ -33,12 +33,7 @@ module.exports = function (
   glean,
   statsd
 ) {
-  const otpUtils = require('../../lib/routes/utils/otp')(
-    log,
-    config,
-    db,
-    statsd
-  );
+  const otpUtils = require('./utils/otp').default(db, statsd);
 
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []

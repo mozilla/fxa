@@ -56,6 +56,7 @@ const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const { AccountManager } = require('@fxa/shared/account/account');
 const { setupAccountDatabase } = require('@fxa/shared/db/mysql/account');
 const { EmailCloudTaskManager } = require('../lib/email-cloud-tasks');
+const { OtpUtils } = require('../lib/routes/utils/otp');
 
 async function run(config) {
   Container.set(AppConfig, config);
@@ -115,6 +116,9 @@ async function run(config) {
   const push = require('../lib/push')(log, database, config, statsd);
   const { pushboxApi } = require('../lib/pushbox');
   const pushbox = pushboxApi(log, config, statsd);
+
+  const otpUtils = new OtpUtils(database, statsd);
+  Container.set(OtpUtils, otpUtils);
 
   const accountEventsManager = config.accountEvents.enabled
     ? new AccountEventsManager(database)
@@ -190,7 +194,10 @@ async function run(config) {
       Container.set(CapabilityManager, capabilityManager);
       Container.set(EligibilityManager, eligibilityManager);
 
-      const cmsAccounts = new RelyingPartyConfigurationManager(strapiClient, statsd);
+      const cmsAccounts = new RelyingPartyConfigurationManager(
+        strapiClient,
+        statsd
+      );
       Container.set(RelyingPartyConfigurationManager, cmsAccounts);
     }
 

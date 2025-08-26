@@ -323,6 +323,31 @@ export default class AuthClient {
     );
   }
 
+  private async jwtGet(path: string, jwt: string, headers?: Headers) {
+    const authorization = 'Bearer ' + jwt;
+    if (!headers) {
+      headers = new Headers({ authorization });
+    } else {
+      headers.set('authorization', authorization);
+    }
+    return this.request('GET', path, null, headers);
+  }
+
+  private async jwtPost(
+    path: string,
+    jwt: string,
+    payload: any,
+    headers?: Headers
+  ) {
+    const authorization = 'Bearer ' + jwt;
+    if (!headers) {
+      headers = new Headers({ authorization });
+    } else {
+      headers.set('authorization', authorization);
+    }
+    return this.request('POST', path, payload, headers);
+  }
+
   private async sessionPost(
     path: string,
     sessionToken: hexstring,
@@ -1486,6 +1511,50 @@ export default class AuthClient {
       { id },
       headers
     );
+  }
+
+  async mfaRequestOtp(
+    sessionToken: hexstring,
+    action: string,
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/mfa/otp/request',
+      sessionToken,
+      {
+        action,
+      },
+      headers
+    );
+  }
+
+  async mfaOtpVerify(
+    sessionToken: hexstring,
+    code: string,
+    action: string,
+    headers?: Headers
+  ) {
+    return this.sessionPost(
+      '/mfa/otp/verify',
+      sessionToken,
+      {
+        code,
+        action,
+      },
+      headers
+    );
+  }
+
+  async mfaTestGet(jwt: string, headers?: Headers) {
+    return this.jwtGet('/mfa/test', jwt, headers);
+  }
+
+  async mfaTestPost(jwt: string, headers?: Headers) {
+    return this.jwtPost('/mfa/test', jwt, headers);
+  }
+
+  async mfaTestPost2(jwt: string, headers?: Headers) {
+    return this.jwtPost('/mfa/test2', jwt, headers);
   }
 
   async deviceList(sessionToken: hexstring, headers?: Headers) {

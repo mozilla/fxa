@@ -442,9 +442,11 @@ function mockDB(data, errors) {
         data: crypto.randomBytes(32),
         email: data.email,
         emailVerified: data.emailVerified,
+        emailCode: data.emailCode,
         primaryEmail: {
           normalizedEmail: normalizeEmail(data.email),
           email: data.email,
+          emailCode: data.emailCode,
           isVerified: data.emailVerified,
           isPrimary: true,
         },
