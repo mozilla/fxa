@@ -50,6 +50,7 @@ export enum EmailType {
   recovery,
   unblockCode,
   verify,
+  verifyAccountChange,
   verifySecondaryCode,
   verifyShortCode,
   verifyLogin,
@@ -68,6 +69,7 @@ export enum EmailType {
 
 export enum EmailHeader {
   verifyCode = 'x-verify-code',
+  verifyAccountChangeCode = 'x-account-change-verify-code',
   shortCode = 'x-verify-short-code',
   unblockCode = 'x-unblock-code',
   signinCode = 'x-signin-verify-code',
@@ -192,6 +194,16 @@ export class EmailClient {
       email,
       EmailType.verifyLoginCode,
       EmailHeader.signinCode
+    );
+    await this.clear(email);
+    return code;
+  }
+
+  async getVerifyAccountChangeCode(email: string): Promise<string> {
+    const code = await this.waitForEmail(
+      email,
+      EmailType.verifyAccountChange,
+      EmailHeader.verifyAccountChangeCode
     );
     await this.clear(email);
     return code;

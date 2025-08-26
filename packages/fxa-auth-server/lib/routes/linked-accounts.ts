@@ -65,7 +65,7 @@ export class LinkedAccountHandler {
         config.googleAuthConfig.clientId
       );
     }
-    this.otpUtils = require('./utils/otp')(log, config, db, statsd);
+    this.otpUtils = require('./utils/otp').default(db, statsd);
   }
 
   // As generated tokens expire after 6 months (180 days) per Apple documentation,
@@ -133,12 +133,9 @@ export class LinkedAccountHandler {
           this.log.debug('handleAppleSET.processing', {
             eventType,
           });
-          await appleEventHandlers[eventType as keyof typeof appleEventHandlers](
-            parsedEventData,
-            this.log,
-            this.db,
-            this.statsd
-          );
+          await appleEventHandlers[
+            eventType as keyof typeof appleEventHandlers
+          ](parsedEventData, this.log, this.db, this.statsd);
           this.statsd.increment(`handleAppleSET.processed.${eventType}`);
           this.log.debug(`handleAppleSET.processed`, {
             eventType,
@@ -201,7 +198,9 @@ export class LinkedAccountHandler {
       // Process each event type
       for (const eventType in jwtPayload.events) {
         const normalizedEventType = normalizeGoogleSETEventType(eventType);
-        this.statsd.increment(`handleGoogleSET.processing.${normalizedEventType}`);
+        this.statsd.increment(
+          `handleGoogleSET.processing.${normalizedEventType}`
+        );
         this.log.debug('handleGoogleSET.processing', {
           eventType,
         });
@@ -213,7 +212,9 @@ export class LinkedAccountHandler {
             await googleEventHandlers[
               eventType as keyof typeof googleEventHandlers
             ](jwtPayload.events[eventType], this.log, this.db, this.statsd);
-            this.statsd.increment(`handleGoogleSET.processed.${normalizedEventType}`);
+            this.statsd.increment(
+              `handleGoogleSET.processed.${normalizedEventType}`
+            );
             this.log.debug('handleGoogleSET.processed', {
               eventType,
             });
@@ -225,7 +226,9 @@ export class LinkedAccountHandler {
             );
           }
         } catch (eventError) {
-          this.statsd.increment(`handleGoogleSET.eventHandler.error.${normalizedEventType}`);
+          this.statsd.increment(
+            `handleGoogleSET.eventHandler.error.${normalizedEventType}`
+          );
           // Continue processing other events instead of failing the entire webhook
         }
       }
@@ -249,8 +252,8 @@ export class LinkedAccountHandler {
     let idToken: any;
     const code = requestPayload.code;
 
-    const { deviceId, flowId, flowBeginTime } = await request.app
-      .metricsContext;
+    const { deviceId, flowId, flowBeginTime } =
+      await request.app.metricsContext;
 
     switch (provider) {
       case 'google': {

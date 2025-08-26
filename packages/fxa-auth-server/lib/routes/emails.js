@@ -97,12 +97,7 @@ module.exports = (
   );
 
   const otpOptions = config.otp;
-  const otpUtils = require('../../lib/routes/utils/otp')(
-    log,
-    config,
-    db,
-    statsd
-  );
+  const otpUtils = require('./utils/otp').default(db, statsd);
 
   return [
     {

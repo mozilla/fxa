@@ -12,9 +12,7 @@ const mocks = require('../../../mocks');
 const Password = require('../../../../lib/crypto/password')({}, {});
 const error = require('../../../../lib/error');
 const butil = require('../../../../lib/crypto/butil');
-const otpUtils = require('../../../../lib/routes/utils/otp')(
-  {},
-  {},
+const otpUtils = require('../../../../lib/routes/utils/otp').default(
   {},
   { histogram: () => {} }
 );

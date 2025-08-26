@@ -24,6 +24,7 @@ const {
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
 const { logErrorWithGlean } = require('./metrics/glean');
+const mfa = require('./routes/auth-schemes/mfa');
 
 function trimLocale(header) {
   if (!header) {
@@ -489,6 +490,9 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
     googleOIDC.strategy(config.cloudScheduler.oidc)
   );
   server.auth.strategy('cloudSchedulerOIDC', 'cloudSchedulerOIDC');
+
+  server.auth.scheme('mfa', mfa.strategy(config));
+  server.auth.strategy('mfa', 'mfa');
 
   // register all plugins and Swagger configuration
   await server.register([

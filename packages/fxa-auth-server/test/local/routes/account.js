@@ -2258,6 +2258,7 @@ describe('/account/login', () => {
   const mockDB = mocks.mockDB({
     email: TEST_EMAIL,
     emailVerified: true,
+    emailCode: 'ab12cd34',
     keyFetchTokenId: keyFetchTokenId,
     sessionTokenId: sessionTokenId,
     uaBrowser: 'Firefox',
@@ -3429,7 +3430,7 @@ describe('/account/login', () => {
       });
     });
 
-    it('logs a Glean pign on verify login code email sent', () => {
+    it('logs a Glean ping on verify login code email sent', () => {
       glean.login.verifyCodeEmailSent.reset();
       return runTest(
         route,

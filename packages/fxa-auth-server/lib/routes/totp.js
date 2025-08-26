@@ -44,12 +44,7 @@ module.exports = (
   authServerCacheRedis,
   statsd
 ) => {
-  const otpUtils = require('../../lib/routes/utils/otp')(
-    log,
-    config,
-    db,
-    statsd
-  );
+  const otpUtils = require('../../lib/routes/utils/otp').default(db, statsd);
 
   // Currently, QR codes are rendered with the highest possible
   // error correction, which should in theory allow clients to

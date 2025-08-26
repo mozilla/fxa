@@ -49,6 +49,7 @@ import { DB } from '../db';
 import { StatsD } from 'hot-shots';
 import { recordSecurityEvent } from './utils/security-event';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
+import { OtpUtils } from './utils/otp';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -62,7 +63,7 @@ const MS_ONE_MONTH = MS_ONE_DAY * 30;
 export class AccountHandler {
   private OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS: Set<string>;
 
-  private otpUtils: any;
+  private otpUtils: OtpUtils;
   private otpOptions: ConfigType['otp'];
   private skipConfirmationForEmailAddresses: string[];
   private capabilityService: CapabilityService;
@@ -89,7 +90,7 @@ export class AccountHandler {
     private glean: ReturnType<typeof gleanMetrics>,
     private statsd: StatsD
   ) {
-    this.otpUtils = require('./utils/otp')(log, config, db, statsd);
+    this.otpUtils = require('./utils/otp').default(db, statsd);
     this.skipConfirmationForEmailAddresses = config.signinConfirmation
       .skipForEmailAddresses as string[];
 

@@ -16,12 +16,7 @@ const { recordSecurityEvent } = require('./utils/security-event');
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
 module.exports = (log, db, config, customs, mailer, glean, statsd) => {
-  const otpUtils = require('../../lib/routes/utils/otp')(
-    log,
-    config,
-    db,
-    statsd
-  );
+  const otpUtils = require('./utils/otp').default(db, statsd);
   const codeConfig = config.recoveryCodes;
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
   const backupCodeManager = Container.get(BackupCodeManager);

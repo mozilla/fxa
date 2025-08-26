@@ -1150,9 +1150,7 @@ describe('/recovery_email', () => {
       stripeHelper,
     });
 
-    otpUtils = require('../../../lib/routes/utils/otp')(
-      {},
-      { otp: otpOptions },
+    otpUtils = require('../../../lib/routes/utils/otp').default(
       {},
       { histogram: () => {} }
     );

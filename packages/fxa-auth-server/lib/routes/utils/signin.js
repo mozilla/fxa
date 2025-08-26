@@ -37,7 +37,7 @@ module.exports = (
   const unblockCodeLen =
     (config.signinUnblock && config.signinUnblock.codeLength) || 8;
   const otpOptions = config.otp;
-  const otpUtils = otp(log, config, db, statsd);
+  const otpUtils = otp.default(db, statsd);
 
   const accountEventsManager = Container.has(AccountEventsManager)
     ? Container.get(AccountEventsManager)
