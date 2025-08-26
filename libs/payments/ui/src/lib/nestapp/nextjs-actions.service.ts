@@ -259,6 +259,13 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async handleStripeRedirect(args: { cartId: string; paymentIntentId: string; redirectStatus: string }) {
+    await this.cartService.handleStripeRedirect(args.cartId, args.paymentIntentId, args.redirectStatus);
+  }
+
+  @SanitizeExceptions()
   @NextIOValidator(FinalizeCartWithErrorArgs, undefined)
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()

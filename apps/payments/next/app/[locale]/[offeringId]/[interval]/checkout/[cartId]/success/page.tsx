@@ -4,6 +4,7 @@
 
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
+import { URLSearchParams } from 'url';
 import Image from 'next/image';
 import { auth } from 'apps/payments/next/auth';
 import { getCardIcon } from '@fxa/payments/ui';
@@ -19,6 +20,7 @@ import {
   buildPageMetadata,
 } from '@fxa/payments/ui/server';
 import { config } from 'apps/payments/next/config';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +48,20 @@ export default async function CheckoutSuccess({
   params: CheckoutParams;
   searchParams: Record<string, string | string[]>;
 }) {
+  if (
+    searchParams?.payment_intent ||
+    searchParams?.payment_intent_client_secret ||
+    searchParams?.redirect_status
+  ) {
+    const cleanedParams = new URLSearchParams(searchParams);
+    cleanedParams.delete('payment_intent');
+    cleanedParams.delete('payment_intent_client_secret');
+    cleanedParams.delete('redirect_status');
+    const queryParamString = `?${cleanedParams.toString()}`;
+    redirect(
+      `/${params.locale}/${params.offeringId}/${params.interval}/checkout/${params.cartId}/success${queryParamString}`
+    );
+  }
   const { locale } = params;
   const acceptLanguage = headers().get('accept-language');
 
@@ -159,6 +175,13 @@ export default async function CheckoutSuccess({
             <Image
               src={getCardIcon('link', l10n).img}
               alt={l10n.getString('link-logo-alt-text', 'Link logo')}
+              width={70}
+              height={24}
+            />
+          ) : cart.paymentInfo.type === 'amazon_pay' ? (
+            <Image
+              src={getCardIcon('amazon_pay', l10n).img}
+              alt={l10n.getString('amazon-pay-logo-alt-text', 'Amazon Pay logo')}
               width={70}
               height={24}
             />

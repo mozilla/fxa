@@ -25,6 +25,7 @@ export const PaymentProviders = {
   google_iap: 'google_iap',
   apple_iap: 'apple_iap',
   link: 'link',
+  amazon_pay: 'amazon_pay',
 } as const;
 
 export type PaymentProvidersType = typeof PaymentProviders;
@@ -41,6 +42,7 @@ export function buildPaymentTerms(
   const items: GenericTermsListItem[] = [];
   switch (providerType) {
     case PaymentProviders.link:
+    case PaymentProviders.amazon_pay:
     case PaymentProviders.stripe:
       providerString = 'Stripe';
       titleLocalizationId = 'terms-and-privacy-stripe-label';

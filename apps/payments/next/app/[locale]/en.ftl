@@ -11,6 +11,7 @@ visa-logo-alt-text = { -brand-visa } logo
 # Alt text for generic payment card logo
 unbranded-logo-alt-text = Unbranded logo
 link-logo-alt-text = { -brand-link } logo
+amazon-pay-logo-alt-text = { -brand-amazon-pay } logo
 
 ## Error pages - /checkout and /upgrade
 ## Common strings used in multiple pages

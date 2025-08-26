@@ -50,7 +50,7 @@ export const StripePaymentIntentFactory = (
       persistent_token: null,
     },
   },
-  payment_method_types: ['card', 'link'],
+  payment_method_types: ['card', 'link', 'amazon_pay'],
   processing: null,
   receipt_email: null,
   review: null,

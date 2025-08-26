@@ -50,6 +50,7 @@
 -product-firefox-relay-short = Relay
 -product-pocket = Pocket
 
+-brand-amazon-pay = Amazon Pay
 -brand-apple = Apple
 -brand-google = Google
 -brand-paypal = PayPal

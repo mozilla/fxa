@@ -1083,4 +1083,55 @@ export class CartService {
       }
     });
   }
+
+  @SanitizeExceptions()
+  async handleStripeRedirect(
+    cartId: string,
+    paymentIntentId: string,
+    redirectStatus: string
+  ) {
+    return this.wrapWithCartCatch(cartId, async () => {
+      const cart = await this.cartManager.fetchCartById(cartId);
+
+      if (cart.stripeIntentId !== paymentIntentId) {
+        await this.cartManager.updateFreshCart(cartId, cart.version, {
+          stripeIntentId: paymentIntentId,
+        });
+      }
+
+      const isPayIntentId = isPaymentIntentId(paymentIntentId);
+
+      for (let i = 0; i < 10; i++) {
+        const intent = isPayIntentId
+          ? await this.paymentIntentManager.retrieve(paymentIntentId)
+          : await this.setupIntentManager.retrieve(paymentIntentId);
+
+        if (redirectStatus === 'succeeded'|| intent.status === 'succeeded') {
+          await this.submitNeedsInput(cartId);
+          return;
+        }
+
+        if (redirectStatus === 'failed' || intent.status === 'requires_payment_method') {
+          const errorCode = isPaymentIntent(intent)
+            ? intent.last_payment_error?.code
+            : intent.last_setup_error?.code;
+          const declineCode = isPaymentIntent(intent)
+            ? intent.last_payment_error?.decline_code
+            : intent.last_setup_error?.decline_code;
+
+          throwIntentFailedError(
+            errorCode,
+            declineCode,
+            cart.id,
+            intent.id,
+            isPaymentIntentId(intent.id) ? 'PaymentIntent' : 'SetupIntent'
+          );
+        }
+
+        await new Promise((r) => setTimeout(r, 500));
+      }
+
+      throw new SubmitNeedsInputFailedError(cartId);
+    });
+  }
 }
