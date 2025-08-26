@@ -65,19 +65,44 @@ export interface TaxAmount {
   amount: number;
 }
 
+/*
+ * Metadata from Stripe is an object of strings (even if you pass a number or other type)
+ * where values may or may not be present (represented as undefined)
+ */
+type StripeMetadata<T extends string> = {
+  [key in T]?: string;
+};
+/**
+ * Stripe metadata input allows null to "unset" a value.
+ */
+type StripeMetadataInput<T extends string> = {
+  [key in T]?: string | number | null;
+};
+
 export enum STRIPE_CUSTOMER_METADATA {
   PaypalAgreement = 'paypalAgreementId',
+  Userid = 'userid',
+  GeoIpDate = 'geoip_date',
 }
+export type StripeCustomerMetadata = StripeMetadata<STRIPE_CUSTOMER_METADATA>;
+export type StripeCustomerMetadataInput =
+  StripeMetadataInput<STRIPE_CUSTOMER_METADATA>;
 
 export enum STRIPE_PRICE_METADATA {
   AppStoreProductIds = 'appStoreProductIds',
   PlaySkuIds = 'playSkuIds',
   PromotionCodes = 'promotionCodes',
 }
+export type StripePriceMetadata = StripeMetadata<STRIPE_PRICE_METADATA>;
+export type StripePriceMetadataInput =
+  StripeMetadataInput<STRIPE_PRICE_METADATA>;
 
 export enum STRIPE_PRODUCT_METADATA {
   PromotionCodes = 'promotionCodes',
 }
+export type StripeProductMetadata = StripeMetadata<STRIPE_PRODUCT_METADATA>;
+export type StripeProductMetadataInput =
+  StripeMetadataInput<STRIPE_PRODUCT_METADATA>;
 
 export enum STRIPE_SUBSCRIPTION_METADATA {
   Currency = 'currency',
@@ -97,13 +122,19 @@ export enum STRIPE_SUBSCRIPTION_METADATA {
   SessionEntrypoint = 'session_entrypoint',
   SessionEntrypointExperiment = 'session_entrypoint_experiment',
   SessionEntrypointVariation = 'session_entrypoint_variation',
-  LastUpdated = 'last_updated', // TODO - No longer required. Remove once subscription metadata update logic is updated
 }
+export type StripeSubscriptionMetadata =
+  StripeMetadata<STRIPE_SUBSCRIPTION_METADATA>;
+export type StripeSubscriptionMetadataInput =
+  StripeMetadataInput<STRIPE_SUBSCRIPTION_METADATA>;
 
 export enum STRIPE_INVOICE_METADATA {
   RetryAttempts = 'paymentAttempts',
   PaypalTransactionId = 'paypalTransactionId',
 }
+export type StripeInvoiceMetadata = StripeMetadata<STRIPE_INVOICE_METADATA>;
+export type StripeInvoiceMetadataInput =
+  StripeMetadataInput<STRIPE_INVOICE_METADATA>;
 
 export enum SubplatInterval {
   Daily = 'daily',

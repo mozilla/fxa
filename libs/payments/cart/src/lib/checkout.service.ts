@@ -280,7 +280,6 @@ export class CheckoutService {
     if (cart.couponCode) {
       await this.subscriptionManager.update(subscription.id, {
         metadata: {
-          ...subscription.metadata,
           [STRIPE_SUBSCRIPTION_METADATA.SubscriptionPromotionCode]:
             cart.couponCode,
         },
@@ -729,9 +728,12 @@ export class CheckoutService {
 
         await this.subscriptionManager.update(redundantSubscription.id, {
           metadata: {
-            redundantCancellation: 'true',
-            autoCancelledRedundantFor: upgradedSubscription.id,
-            cancelled_for_customer_at: Math.floor(Date.now() / 1000),
+            [STRIPE_SUBSCRIPTION_METADATA.RedundantCancellation]: 'true',
+            [STRIPE_SUBSCRIPTION_METADATA.AutoCancelledRedundantFor]:
+              upgradedSubscription.id,
+            [STRIPE_SUBSCRIPTION_METADATA.CancelledForCustomerAt]: Math.floor(
+              Date.now() / 1000
+            ),
           },
         });
 

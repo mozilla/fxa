@@ -58,7 +58,7 @@ describe('SubscriptionManager', () => {
         mockPrice.id
       );
 
-      expect(stripeClient.subscriptionsCancel).toBeCalledWith(
+      expect(stripeClient.subscriptionsCancel).toHaveBeenCalledWith(
         mockSubscription.id
       );
     });
@@ -102,7 +102,7 @@ describe('SubscriptionManager', () => {
 
       await subscriptionManager.cancel(mockSubscription.id);
 
-      expect(stripeClient.subscriptionsCancel).toBeCalledWith(
+      expect(stripeClient.subscriptionsCancel).toHaveBeenCalledWith(
         mockSubscription.id,
         undefined
       );
@@ -127,7 +127,10 @@ describe('SubscriptionManager', () => {
 
       const result = await subscriptionManager.create(params, options);
 
-      expect(stripeClient.subscriptionsCreate).toBeCalledWith(params, options);
+      expect(stripeClient.subscriptionsCreate).toHaveBeenCalledWith(
+        params,
+        options
+      );
       expect(result).toEqual(mockResponse);
     });
   });
@@ -143,7 +146,7 @@ describe('SubscriptionManager', () => {
 
       const result = await subscriptionManager.retrieve(mockSubscription.id);
 
-      expect(stripeClient.subscriptionsRetrieve).toBeCalledWith(
+      expect(stripeClient.subscriptionsRetrieve).toHaveBeenCalledWith(
         mockSubscription.id
       );
       expect(result).toEqual(mockResponse);
@@ -167,7 +170,7 @@ describe('SubscriptionManager', () => {
         mockParams
       );
 
-      expect(stripeClient.subscriptionsUpdate).toBeCalledWith(
+      expect(stripeClient.subscriptionsUpdate).toHaveBeenCalledWith(
         mockSubscription.id,
         mockParams
       );
@@ -193,27 +196,11 @@ describe('SubscriptionManager', () => {
         mockParams
       );
 
-      expect(stripeClient.subscriptionsUpdate).toBeCalledWith(
+      expect(stripeClient.subscriptionsUpdate).toHaveBeenCalledWith(
         mockSubscription.id,
         mockParams
       );
       expect(result).toEqual(mockResponse);
-    });
-
-    it('throws if metadata key does not match', async () => {
-      const mockParams = {
-        metadata: {
-          amount: '1200',
-          [STRIPE_SUBSCRIPTION_METADATA.SubscriptionPromotionCode]:
-            'test-coupon',
-          promotionCode: 'test-coupon',
-        },
-      };
-      const mockSubscription = StripeSubscriptionFactory(mockParams);
-
-      expect(() =>
-        subscriptionManager.update(mockSubscription.id, mockParams)
-      ).rejects.toThrow('Invalid metadata key: promotionCode');
     });
   });
 

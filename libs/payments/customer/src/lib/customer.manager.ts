@@ -11,7 +11,7 @@ import {
   MOZILLA_TAX_ID,
 } from '@fxa/payments/stripe';
 import { CustomerDeletedError } from './customer.error';
-import { TaxAddress } from './types';
+import { TaxAddress, STRIPE_CUSTOMER_METADATA, type StripeCustomerMetadataInput } from './types';
 import { isCustomerTaxEligible } from './util/isCustomerTaxEligible';
 
 @Injectable()
@@ -30,7 +30,12 @@ export class CustomerManager {
   /**
    * Updates a customer record
    */
-  update(customerId: string, params?: Stripe.CustomerUpdateParams) {
+  async update(
+    customerId: string,
+    params: Omit<Stripe.CustomerUpdateParams, 'metadata'> & {
+      metadata?: StripeCustomerMetadataInput,
+    },
+  ) {
     return this.stripeClient.customersUpdate(customerId, params);
   }
 
@@ -60,9 +65,11 @@ export class CustomerManager {
       name: displayName || '',
       description: uid,
       metadata: {
-        userid: uid,
-        geoip_date: taxAddress ? new Date().toString() : null,
-      },
+        [STRIPE_CUSTOMER_METADATA.Userid]: uid,
+        [STRIPE_CUSTOMER_METADATA.GeoIpDate]: taxAddress
+          ? new Date().toString()
+          : null,
+      } satisfies StripeCustomerMetadataInput,
       shipping,
     });
 

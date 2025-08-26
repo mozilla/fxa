@@ -105,12 +105,8 @@ const mockDeterminePaymentMethodType = jest.mocked(determinePaymentMethodType);
 
 jest.mock('@fxa/shared/error', () => ({
   ...jest.requireActual('@fxa/shared/error'),
-  SanitizeExceptions: jest.fn(({ allowlist = [] } = {}) => {
-    return function (
-      target: any,
-      propertyKey: string,
-      descriptor: PropertyDescriptor
-    ) {
+  SanitizeExceptions: jest.fn(() => {
+    return function (_: any, __: string, descriptor: PropertyDescriptor) {
       return descriptor;
     };
   }),
@@ -302,10 +298,10 @@ describe('SubscriptionManagementService', () => {
       const mockStoreId1 = faker.string.sample();
       const mockStoreId2 = faker.string.sample();
       const mockIapOfferingResult1 = IapWithOfferingResultFactory({
-        storeId: mockStoreId1,
+        storeID: mockStoreId1,
       });
       const mockIapOfferingResult2 = IapWithOfferingResultFactory({
-        storeId: mockStoreId2,
+        storeID: mockStoreId2,
       });
       const mockIapResult = {
         [mockStoreId1]: mockIapOfferingResult1,
@@ -489,10 +485,10 @@ describe('SubscriptionManagementService', () => {
       const mockStoreId1 = faker.string.sample();
       const mockStoreId2 = faker.string.sample();
       const mockIapOfferingResult1 = IapWithOfferingResultFactory({
-        storeId: mockStoreId1,
+        storeID: mockStoreId1,
       });
       const mockIapOfferingResult2 = IapWithOfferingResultFactory({
-        storeId: mockStoreId2,
+        storeID: mockStoreId2,
       });
       const mockIapResult = {
         [mockStoreId1]: mockIapOfferingResult1,
