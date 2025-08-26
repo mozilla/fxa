@@ -15,7 +15,11 @@ import {
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { SubscriptionManagementService } from '@fxa/payments/management';
-import { CheckoutTokenManager } from '@fxa/payments/paypal';
+import {
+  CheckoutTokenManager,
+  PaypalBillingAgreementManager,
+  PaypalCustomerManager,
+} from '@fxa/payments/paypal';
 import {
   ProductConfigError,
   ProductConfigurationManager,
@@ -100,6 +104,11 @@ import { CancelSubscriptionAtPeriodEndActionArgs } from './validators/CancelSubs
 import { CancelSubscriptionAtPeriodEndActionResult } from './validators/CancelSubscriptionAtPeriodEndActionResult';
 import { ResubscribeSubscriptionActionArgs } from './validators/ResubscribeSubscriptionActionArgs';
 import { ResubscribeSubscriptionActionResult } from './validators/ResubscribeSubscriptionActionResult';
+import { GetPaypalBillingAgreementActiveIdArgs } from './validators/GetPaypalBillingAgreementActiveIdArgs';
+import { GetPaypalBillingAgreementActiveIdResult } from './validators/GetPaypalBillingAgreementActiveIdResult';
+import { CreatePaypalBillingAgreementIdArgs } from './validators/CreatePaypalBillingAgreementIdArgs';
+import { DetermineCurrencyForCustomerActionArgs } from './validators/DetermineCurrencyForCustomerActionArgs';
+import { DetermineCurrencyForCustomerActionResult } from './validators/DetermineCurrencyForCustomerActionResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -121,6 +130,8 @@ export class NextJSActionsService {
     private productConfigurationManager: ProductConfigurationManager,
     private profileClient: ProfileClient,
     private subscriptionManagementService: SubscriptionManagementService,
+    private paypalBillingAgreementManager: PaypalBillingAgreementManager,
+    private paypalCustomerManager: PaypalCustomerManager,
     @Inject(StatsDService) public statsd: StatsD,
     @Inject(Logger) private log: LoggerService
   ) {}
@@ -290,6 +301,32 @@ export class NextJSActionsService {
     return {
       token,
     };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    GetPaypalBillingAgreementActiveIdArgs,
+    GetPaypalBillingAgreementActiveIdResult
+  )
+  @CaptureTimingWithStatsD()
+  async getPaypalBillingAgreementActiveId(args: { uid: string }) {
+    const paypalBillingAgreementId =
+      await this.paypalBillingAgreementManager.retrieveActiveId(args.uid);
+
+    return {
+      paypalBillingAgreementId,
+    };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(CreatePaypalBillingAgreementIdArgs, undefined)
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async createPayPalBillingAgreementId(args: { uid: string; token: string }) {
+    await this.subscriptionManagementService.createPaypalBillingAgreementId(
+      args.uid,
+      args.token
+    );
   }
 
   @SanitizeExceptions()
@@ -475,6 +512,22 @@ export class NextJSActionsService {
     const currency = this.currencyManager.getCurrencyForCountry(
       location.countryCode
     );
+
+    return {
+      currency,
+    };
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    DetermineCurrencyForCustomerActionArgs,
+    DetermineCurrencyForCustomerActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async determineCurrencyForCustomer(args: { uid: string }) {
+    const currency =
+      await this.subscriptionManagementService.getCurrencyForCustomer(args.uid);
 
     return {
       currency,
