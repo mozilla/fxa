@@ -26,6 +26,7 @@ export interface Shared {
   emailLogoAltText: string | null;
   emailLogoWidth: string | null;
   backgroundColor: string | null;
+  headerBackground: string | null;
   pageTitle: string | null;
   headerLogoUrl: string | null;
   headerLogoAltText: string | null;

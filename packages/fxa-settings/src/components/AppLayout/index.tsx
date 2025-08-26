@@ -27,6 +27,16 @@ type AppLayoutProps = {
   wrapInCard?: boolean;
 };
 
+const looseValidBgCheck = (value: string | undefined) => {
+  return (
+    value &&
+    (value.includes('linear-gradient') ||
+      value.includes('radial-gradient') ||
+      value.includes('rgb') ||
+      value.includes('#'))
+  );
+};
+
 export const AppLayout = ({
   title,
   children,
@@ -36,17 +46,15 @@ export const AppLayout = ({
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
   const cmsBackgroundColor = cmsInfo?.shared?.backgroundColor;
+  const cmsHeaderBackground = cmsInfo?.shared?.headerBackground;
   const cmsPageTitle = cmsInfo?.shared?.pageTitle;
   const cmsHeaderLogoUrl = cmsInfo?.shared?.headerLogoUrl;
   const cmsHeaderLogoAltText = cmsInfo?.shared?.headerLogoAltText;
 
   const overrideTitle = title ? title : cmsPageTitle;
 
-  // Only apply background image if cmsBackgroundColor is a valid background-image CSS value
-  const hasValidBackgroundImage =
-    cmsBackgroundColor &&
-    (cmsBackgroundColor.includes('linear-gradient') ||
-      cmsBackgroundColor.includes('radial-gradient'));
+  const hasValidBackgroundImage = looseValidBgCheck(cmsBackgroundColor);
+  const hasValidHeaderBackground = looseValidBgCheck(cmsHeaderBackground);
 
   const favicon = cmsInfo?.shared?.favicon;
 
@@ -54,7 +62,10 @@ export const AppLayout = ({
     <>
       <Head {...{ title: overrideTitle, favicon }} />
       <div
-        className="flex min-h-screen flex-col items-center"
+        className={classNames(
+          'flex min-h-screen flex-col items-center',
+          hasValidBackgroundImage && 'tablet:[background:var(--cms-bg)]'
+        )}
         style={
           hasValidBackgroundImage
             ? ({
@@ -65,7 +76,21 @@ export const AppLayout = ({
         data-testid="app"
       >
         <div id="body-top" className="w-full hidden mobileLandscape:block" />
-        <header className="w-full px-6 py-4 mobileLandscape:py-6">
+        <header
+          className={classNames(
+            'w-full px-6 py-4 mobileLandscape:py-6',
+            // TODO: default to white if cms background is an image, do in FXA-12188
+            hasValidHeaderBackground &&
+              'tablet:[background:var(--cms-header-bg)]'
+          )}
+          style={
+            hasValidHeaderBackground
+              ? ({
+                  '--cms-header-bg': cmsHeaderBackground,
+                } as React.CSSProperties)
+              : undefined
+          }
+        >
           <LinkExternal
             rel="author"
             href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"

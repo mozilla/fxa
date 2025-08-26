@@ -2,9 +2,16 @@
 
 exports[`<AppLayout /> snapshots renders correctly with CMS: background wrapper 1`] = `
 <div
-  class="flex min-h-screen flex-col items-center"
+  class="flex min-h-screen flex-col items-center tablet:[background:var(--cms-bg)]"
   data-testid="app"
   style="--cms-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"
+/>
+`;
+
+exports[`<AppLayout /> snapshots renders correctly with CMS: header background 1`] = `
+<header
+  class="w-full px-6 py-4 mobileLandscape:py-6 tablet:[background:var(--cms-header-bg)]"
+  style="--cms-header-bg: linear-gradient(135deg, #764ba2 0%, #667eea 100%);"
 />
 `;
 
@@ -22,6 +29,12 @@ exports[`<AppLayout /> snapshots renders correctly without CMS: background wrapp
 <div
   class="flex min-h-screen flex-col items-center"
   data-testid="app"
+/>
+`;
+
+exports[`<AppLayout /> snapshots renders correctly without CMS: header background 1`] = `
+<header
+  class="w-full px-6 py-4 mobileLandscape:py-6"
 />
 `;
 
