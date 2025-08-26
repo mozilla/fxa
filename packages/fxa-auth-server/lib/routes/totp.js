@@ -245,7 +245,7 @@ module.exports = (
           }
         }
 
-        recordSecurityEvent('account.two_factor_removed', {
+        await recordSecurityEvent('account.two_factor_removed', {
           db,
           request,
         });
@@ -618,7 +618,7 @@ module.exports = (
             });
             await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
 
-            recordSecurityEvent('account.two_factor_added', {
+            await recordSecurityEvent('account.two_factor_added', {
               db,
               request,
             });
@@ -652,7 +652,7 @@ module.exports = (
 
           await request.emitMetricsEvent('totpToken.verified', { uid });
 
-          recordSecurityEvent('account.two_factor_challenge_success', {
+          await recordSecurityEvent('account.two_factor_challenge_success', {
             db,
             request,
           });
@@ -669,7 +669,7 @@ module.exports = (
           });
           await request.emitMetricsEvent('totpToken.unverified', { uid });
 
-          recordSecurityEvent('account.two_factor_challenge_failure', {
+          await recordSecurityEvent('account.two_factor_challenge_failure', {
             db,
             request,
           });
@@ -910,7 +910,7 @@ module.exports = (
 
           await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
 
-          recordSecurityEvent('account.two_factor_replace_success', {
+          await recordSecurityEvent('account.two_factor_replace_success', {
             db,
             request,
           });
@@ -927,7 +927,7 @@ module.exports = (
             success: true,
           };
         } catch (error) {
-          recordSecurityEvent('account.two_factor_replace_failure', {
+          await recordSecurityEvent('account.two_factor_replace_failure', {
             db,
             request,
           });

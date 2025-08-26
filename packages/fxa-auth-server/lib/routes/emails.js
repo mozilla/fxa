@@ -649,7 +649,7 @@ module.exports = (
           throw emailUtils.sendError(err, true);
         }
 
-        recordSecurityEvent('account.secondary_email_added', {
+        await recordSecurityEvent('account.secondary_email_added', {
           db,
           request,
           account,
@@ -750,7 +750,10 @@ module.exports = (
 
         await db.deleteEmail(uid, normalizeEmail(email));
 
-        recordSecurityEvent('account.secondary_email_removed', { db, request });
+        await recordSecurityEvent('account.secondary_email_removed', {
+          db,
+          request,
+        });
 
         await db.resetAccountTokens(uid);
 
@@ -889,7 +892,7 @@ module.exports = (
             uid,
           });
 
-          recordSecurityEvent('account.primary_secondary_swapped', {
+          await recordSecurityEvent('account.primary_secondary_swapped', {
             db,
             request,
           });

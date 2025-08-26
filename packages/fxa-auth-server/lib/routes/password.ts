@@ -398,13 +398,13 @@ module.exports = function (
               uid: passwordChangeToken.uid,
             });
 
-            recordSecurityEvent('account.password_upgrade_success', {
+            await recordSecurityEvent('account.password_upgrade_success', {
               db,
               request,
               account: passwordChangeToken,
             });
 
-            recordSecurityEvent('account.password_upgraded', {
+            await recordSecurityEvent('account.password_upgraded', {
               db,
               request,
               account: passwordChangeToken,
@@ -428,13 +428,13 @@ module.exports = function (
             uid: passwordChangeToken.uid,
           });
 
-          recordSecurityEvent('account.password_reset_success', {
+          await recordSecurityEvent('account.password_reset_success', {
             db,
             request,
             account: passwordChangeToken,
           });
 
-          recordSecurityEvent('account.password_changed', {
+          await recordSecurityEvent('account.password_changed', {
             db,
             request,
             account: passwordChangeToken,
@@ -685,7 +685,7 @@ module.exports = function (
 
         await request.emitMetricsEvent('password.forgot.send_otp.completed');
 
-        recordSecurityEvent('account.password_reset_otp_sent', {
+        await recordSecurityEvent('account.password_reset_otp_sent', {
           db,
           request,
           account: { uid: account.uid },
@@ -746,7 +746,7 @@ module.exports = function (
         glean.resetPassword.otpVerified(request);
         await request.emitMetricsEvent('password.forgot.verify_otp.completed');
 
-        recordSecurityEvent('account.password_reset_otp_verified', {
+        await recordSecurityEvent('account.password_reset_otp_verified', {
           db,
           request,
           account: { uid: account.uid },
@@ -982,7 +982,7 @@ module.exports = function (
         });
         await Promise.all([
           request.emitMetricsEvent('password.forgot.resend_code.completed'),
-          recordSecurityEvent('account.password_reset_requested', {
+          await recordSecurityEvent('account.password_reset_requested', {
             db,
             request,
           }),
@@ -1215,7 +1215,7 @@ module.exports = function (
           verifierVersion
         );
 
-        recordSecurityEvent('account.password_added', {
+        await recordSecurityEvent('account.password_added', {
           db,
           request,
           account: { uid },

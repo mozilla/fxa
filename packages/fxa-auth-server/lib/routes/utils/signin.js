@@ -42,7 +42,7 @@ module.exports = (
   const accountEventsManager = Container.has(AccountEventsManager)
     ? Container.get(AccountEventsManager)
     : {
-        recordSecurityEvent: () => {},
+        recordSecurityEvent: async () => {},
       };
   const cmsManager = Container.has(RelyingPartyConfigurationManager)
     ? Container.get(RelyingPartyConfigurationManager)
@@ -561,8 +561,8 @@ module.exports = (
         }
       }
 
-      function recordSecurityEvent() {
-        accountEventsManager.recordSecurityEvent(db, {
+      async function recordSecurityEvent() {
+        await accountEventsManager.recordSecurityEvent(db, {
           name: 'account.login',
           uid: accountRecord.uid,
           ipAddr: request.app.clientAddress,

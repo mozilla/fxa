@@ -185,7 +185,7 @@ class RecoveryPhoneHandler {
       this.statsd.increment('account.recoveryPhone.signinSendCode.success');
       await this.glean.twoStepAuthPhoneCode.sent(request);
 
-      recordSecurityEvent('account.recovery_phone_send_code', {
+      await recordSecurityEvent('account.recovery_phone_send_code', {
         db: this.db,
         request,
       });
@@ -263,7 +263,7 @@ class RecoveryPhoneHandler {
 
       this.glean.resetPassword.recoveryPhoneCodeSent(request);
 
-      recordSecurityEvent('account.recovery_phone_send_code', {
+      await recordSecurityEvent('account.recovery_phone_send_code', {
         db: this.db,
         request,
       });
@@ -319,7 +319,7 @@ class RecoveryPhoneHandler {
       );
       if (success) {
         this.statsd.increment('account.recoveryPhone.setupPhoneNumber.success');
-        recordSecurityEvent('account.recovery_phone_send_code', {
+        await recordSecurityEvent('account.recovery_phone_send_code', {
           db: this.db,
           request,
         });
@@ -431,7 +431,7 @@ class RecoveryPhoneHandler {
       // this signals the end of the login flow
       await request.emitMetricsEvent('account.confirmed', { uid });
 
-      recordSecurityEvent('account.recovery_phone_signin_complete', {
+      await recordSecurityEvent('account.recovery_phone_signin_complete', {
         db: this.db,
         request,
       });
@@ -462,7 +462,7 @@ class RecoveryPhoneHandler {
       return { status: RecoveryPhoneStatus.SUCCESS };
     }
 
-    recordSecurityEvent('account.recovery_phone_signin_failed', {
+    await recordSecurityEvent('account.recovery_phone_signin_failed', {
       db: this.db,
       request,
     });
@@ -559,7 +559,7 @@ class RecoveryPhoneHandler {
         }
       }
 
-      recordSecurityEvent('account.recovery_phone_setup_complete', {
+      await recordSecurityEvent('account.recovery_phone_setup_complete', {
         db: this.db,
         request,
       });
@@ -571,7 +571,7 @@ class RecoveryPhoneHandler {
       };
     }
 
-    recordSecurityEvent('account.recovery_phone_setup_failed', {
+    await recordSecurityEvent('account.recovery_phone_setup_failed', {
       db: this.db,
       request,
     });
@@ -631,7 +631,7 @@ class RecoveryPhoneHandler {
     if (!replacedSuccess) {
       await this.glean.twoStepAuthPhoneReplace.failure(request);
       this.statsd.increment('account.recoveryPhone.changePhoneNumber.failure');
-      recordSecurityEvent('account.recovery_phone_replace_failed', {
+      await recordSecurityEvent('account.recovery_phone_replace_failed', {
         db: this.db,
         request,
       });
@@ -646,7 +646,7 @@ class RecoveryPhoneHandler {
     const { phoneNumber, nationalFormat } =
       await this.recoveryPhoneService.hasConfirmed(uid);
 
-    recordSecurityEvent('account.recovery_phone_replace_complete', {
+    await recordSecurityEvent('account.recovery_phone_replace_complete', {
       db: this.db,
       request,
     });
@@ -729,10 +729,13 @@ class RecoveryPhoneHandler {
 
       this.statsd.increment('account.resetPassword.recoveryPhone.success');
 
-      recordSecurityEvent('account.recovery_phone_reset_password_complete', {
-        db: this.db,
-        request,
-      });
+      await recordSecurityEvent(
+        'account.recovery_phone_reset_password_complete',
+        {
+          db: this.db,
+          request,
+        }
+      );
 
       const account = await this.db.account(uid);
       const { acceptLanguage, geo, ua } = request.app;
@@ -764,7 +767,7 @@ class RecoveryPhoneHandler {
       return { status: RecoveryPhoneStatus.SUCCESS };
     }
 
-    recordSecurityEvent('account.recovery_phone_reset_password_failed', {
+    await recordSecurityEvent('account.recovery_phone_reset_password_failed', {
       db: this.db,
       request,
     });
@@ -800,7 +803,7 @@ class RecoveryPhoneHandler {
       const { acceptLanguage, geo, ua } = request.app;
 
       try {
-        recordSecurityEvent('account.recovery_phone_removed', {
+        await recordSecurityEvent('account.recovery_phone_removed', {
           db: this.db,
           request,
           account,

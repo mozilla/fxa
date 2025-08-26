@@ -618,7 +618,7 @@ export class AccountHandler {
       });
     }
 
-    recordSecurityEvent('account.create', {
+    await recordSecurityEvent('account.create', {
       db: this.db,
       request,
       account,
@@ -975,7 +975,7 @@ export class AccountHandler {
         request
       );
       if (!match) {
-        recordSecurityEvent('account.login.failure', {
+        await recordSecurityEvent('account.login.failure', {
           db: this.db,
           request,
           account: accountRecord,
@@ -1839,7 +1839,7 @@ export class AccountHandler {
     await recoveryKeyDeleteAndEmailNotification();
     await createSessionToken();
     await createKeyFetchToken();
-    recordSecurityEvent('account.reset', {
+    await recordSecurityEvent('account.reset', {
       db: this.db,
       account,
       request,
