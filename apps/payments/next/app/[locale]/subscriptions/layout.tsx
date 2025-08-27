@@ -57,11 +57,11 @@ export default async function SubscriptionsLayout({
             />
             <h1
               id="profile-heading"
-              className="leading-6 overflow-hidden font-semibold text-ellipsis text-start text-nowrap tablet:text-xl"
+              className="overflow-hidden font-semibold text-ellipsis text-start text-nowrap tablet:text-xl"
             >
               <div>{session?.user?.name || session?.user?.email}</div>
               {session?.user?.name && (
-                <div className="font-normal leading-6 text-base text-grey-400 mb-0">
+                <div className="font-normal text-base text-grey-400 mb-0">
                   {session?.user?.email}
                 </div>
               )}
