@@ -194,10 +194,7 @@ async function run(config) {
       Container.set(CapabilityManager, capabilityManager);
       Container.set(EligibilityManager, eligibilityManager);
 
-      const cmsAccounts = new RelyingPartyConfigurationManager(
-        strapiClient,
-        statsd
-      );
+      const cmsAccounts = new RelyingPartyConfigurationManager(strapiClient, statsd, firestore, log);
       Container.set(RelyingPartyConfigurationManager, cmsAccounts);
     }
 

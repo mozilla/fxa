@@ -37,6 +37,8 @@ secrets.json
 .es5
 .es5cache
 /artifacts
+**/artifacts
+**/.nx/cache/**/artifacts
 .last-audit
 .eslintcache
 storybooks-publish
@@ -60,6 +62,7 @@ coverage.html
 **/coverage
 **/.nyc_output
 test-results.xml
+**/artifacts/tests/**/*.xml
 
 # Local configuration
 /_dev/firebase/.config

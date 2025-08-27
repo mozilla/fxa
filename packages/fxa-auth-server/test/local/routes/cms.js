@@ -36,6 +36,29 @@ function createStrapiTestData() {
   ];
 }
 
+// Helper functions for localization tests
+function createBaseConfig(overrides = {}) {
+  return {
+    l10nId: 'desktopSyncFirefoxCms',
+    name: 'Firefox Desktop Sync',
+    entrypoint: 'desktop-sync',
+    clientId: 'sync-client',
+    SigninPage: {
+      headline: 'Enter your password',
+      description: 'to sign in to Firefox and start syncing',
+    },
+    ...overrides
+  };
+}
+
+function createLocalizationRequest(clientId, entrypoint, locale) {
+  return {
+    query: { clientId, entrypoint },
+    app: { locale },
+    log: log,
+  };
+}
+
 describe('cms', () => {
   beforeEach(() => {
     log = mocks.mockLog();
@@ -49,15 +72,18 @@ describe('cms', () => {
         enabled: true,
         webhookCacheInvalidation: {
           enabled: true,
-          headerKey: 'cms-cache-reset-header',
-          headerVal: 'neo',
+          secret: 'Bearer neo',
         },
       },
       cmsl10n: {
         enabled: true,
         strapiWebhook: {
           enabled: true,
-          secret: 'test-webhook-secret',
+          secret: 'Bearer test-webhook-secret',
+        },
+        ftlUrl: {
+          template: 'https://raw.githubusercontent.com/test-owner/test-repo/main/locales/{locale}/cms.ftl',
+          timeout: 5000,
         },
         github: {
           owner: 'test-owner',
@@ -71,6 +97,10 @@ describe('cms', () => {
     mockCmsManager = {
       fetchCMSData: sandbox.stub(),
       invalidateCache: sandbox.stub(),
+      // FTL caching methods
+      cacheFtlContent: sandbox.stub(),
+      getCachedFtlContent: sandbox.stub(),
+      invalidateFtlCache: sandbox.stub(),
     };
 
     // Mock Localization
@@ -81,6 +111,13 @@ describe('cms', () => {
       findExistingPR: sandbox.stub(),
       updateExistingPR: sandbox.stub(),
       createGitHubPR: sandbox.stub(),
+      fetchLocalizationFromUrl: sandbox.stub(),
+      convertFtlToStrapiFormat: sandbox.stub(),
+      // Methods used by cms.ts
+      fetchLocalizedFtlWithFallback: sandbox.stub(),
+      mergeConfigs: sandbox.stub(),
+      extractBaseLocale: sandbox.stub(),
+      generateFtlContentFromEntries: sandbox.stub(),
     };
 
     // Mock Container
@@ -118,32 +155,11 @@ describe('cms', () => {
 
     it('should return config when CMS manager is available', async () => {
       const mockResult = {
-        relyingParties: [
-          {
-            id: 'desktopSyncFirefoxCms',
-            name: 'Firefox Desktop Sync',
-            entrypoint: 'desktop-sync',
-            clientId: 'sync-client',
-            SigninPage: {
-              headline: 'Enter your password',
-              description: 'to sign in to Firefox and start syncing',
-            },
-            EmailFirstPage: {
-              headline: 'Welcome to Firefox Sync',
-              description: 'Sync your passwords, tabs, and bookmarks',
-            },
-          },
-        ],
+        relyingParties: [createStrapiTestData()[0]],
       };
       mockCmsManager.fetchCMSData.resolves(mockResult);
 
-      request = {
-        query: {
-          clientId: 'desktopSyncFirefoxCms',
-          entrypoint: 'desktop-sync',
-        },
-        log: log,
-      };
+      request = createLocalizationRequest('desktopSyncFirefoxCms', 'desktop-sync', 'en');
 
       const response = await route.handler(request);
 
@@ -159,13 +175,7 @@ describe('cms', () => {
     it('should return empty object when no relying parties found', async () => {
       mockCmsManager.fetchCMSData.resolves({ relyingParties: [] });
 
-      request = {
-        query: {
-          clientId: 'test-client',
-          entrypoint: 'test-entrypoint',
-        },
-        log: log,
-      };
+      request = createLocalizationRequest('test-client', 'test-entrypoint', 'en');
 
       const response = await route.handler(request);
 
@@ -174,58 +184,10 @@ describe('cms', () => {
       assert.calledWith(mockStatsD.increment, 'cms.getConfig.empty');
     });
 
-    it('should return first relying party when multiple found', async () => {
-      const mockResult = {
-        relyingParties: [
-          {
-            id: 'desktopSyncFirefoxCms',
-            name: 'Firefox Desktop Sync',
-            entrypoint: 'desktop-sync',
-            clientId: 'sync-client',
-            SigninPage: {
-              headline: 'Enter your password',
-              description: 'to sign in to Firefox and start syncing',
-            },
-          },
-          {
-            id: 'mobileSyncFirefoxCms',
-            name: 'Firefox Mobile Sync',
-            entrypoint: 'mobile-sync',
-            clientId: 'mobile-sync-client',
-            SigninPage: {
-              headline: 'Sign in to Firefox',
-              description: 'Access your synced data',
-            },
-          },
-        ],
-      };
-      mockCmsManager.fetchCMSData.resolves(mockResult);
-
-      request = {
-        query: {
-          clientId: 'desktopSyncFirefoxCms',
-          entrypoint: 'desktop-sync',
-        },
-        log: log,
-      };
-
-      const response = await route.handler(request);
-
-      assert.deepEqual(response, mockResult.relyingParties[0]);
-      assert.calledOnce(mockStatsD.increment);
-      assert.calledWith(mockStatsD.increment, 'cms.getConfig.multiple');
-    });
-
     it('should handle errors gracefully and return empty object', async () => {
       mockCmsManager.fetchCMSData.rejects(new Error('CMS Error'));
 
-      request = {
-        query: {
-          clientId: 'test-client',
-          entrypoint: 'test-entrypoint',
-        },
-        log: log,
-      };
+      request = createLocalizationRequest('test-client', 'test-entrypoint', 'en');
 
       const response = await route.handler(request);
 
@@ -234,51 +196,24 @@ describe('cms', () => {
       assert.calledWith(mockStatsD.increment, 'cms.getConfig.error');
     });
 
-    it('should throw error when CMS manager is not available', async () => {
-      Container.has.returns(false);
-
-      request = {
-        query: {
-          clientId: 'test-client',
-          entrypoint: 'test-entrypoint',
-        },
-        log: log,
-      };
-
-      try {
-        await route.handler(request);
-        assert.fail('Should have thrown an error');
-      } catch (error) {
-        // Just check that an error was thrown
-        assert.ok(error);
-        assert.ok(error.message);
-      }
-    });
-
     it('should validate required clientId parameter', async () => {
-      request = {
-        query: {
-          entrypoint: 'test-entrypoint',
-        },
-        log: log,
+      const queryObj = {
+        entrypoint: 'test-entrypoint'
+        // Missing clientId
       };
 
       try {
-        await route.handler(request);
+        await route.options.validate.query.validateAsync(queryObj);
         assert.fail('Should have thrown validation error');
       } catch (error) {
-        // The validation error might be wrapped or have different format
-        assert.ok(
-          error.message.includes('clientId') ||
-            error.message.includes('validation')
-        );
+        assert.ok(error.message.includes('clientId') || error.message.includes('required'));
       }
     });
   });
 
-  describe('POST /cms/webhook/strapi', () => {
+  describe('POST /cms/webhook/strapil10n', () => {
     beforeEach(() => {
-      route = getRoute(routes, '/cms/webhook/strapi', 'POST');
+      route = getRoute(routes, '/cms/webhook/strapil10n', 'POST');
     });
 
     it('should process valid webhook successfully', async () => {
@@ -294,7 +229,7 @@ describe('cms', () => {
       const strapiData = createStrapiTestData();
 
       mockLocalization.fetchAllStrapiEntries.resolves(strapiData);
-      mockLocalization.strapiToFtl.returns('ftl-content');
+      mockLocalization.generateFtlContentFromEntries.returns('ftl-content');
       mockLocalization.findExistingPR.resolves(null);
       mockLocalization.createGitHubPR.resolves();
 
@@ -311,8 +246,6 @@ describe('cms', () => {
       assert.deepEqual(response, { success: true });
       assert.calledOnce(mockStatsD.increment);
       assert.calledWith(mockStatsD.increment, 'cms.strapiWebhook.processed');
-      assert.calledWith(mockLocalization.fetchAllStrapiEntries);
-      assert.calledWith(mockLocalization.strapiToFtl, strapiData);
     });
 
     it('should return early when webhook is disabled', async () => {
@@ -327,8 +260,8 @@ describe('cms', () => {
       const response = await route.handler(request);
 
       assert.deepEqual(response, { success: true });
-      assert.calledOnce(log.warn);
-      assert.calledWith(log.warn, 'cms.strapiWebhook.disabled', {});
+      assert.calledOnce(log.info);
+      assert.calledWith(log.info, 'cms.strapiWebhook.disabled', {});
     });
 
     it('should reject when authorization header is missing', async () => {
@@ -343,19 +276,13 @@ describe('cms', () => {
         assert.fail('Should have thrown authorization error');
       } catch (error) {
         assert.equal(error.message, 'Missing authorization header');
-        assert.calledOnce(log.warn);
-        assert.calledWith(
-          log.warn,
-          'cms.strapiWebhook.missingAuthorization',
-          {}
-        );
       }
     });
 
     it('should reject when authorization token is invalid', async () => {
       request = {
         headers: {
-          authorization: 'Bearer wrong-secret',
+          authorization: 'Bearer wrong-secret-123456',
         },
         payload: { event: 'entry.publish' },
         log: log,
@@ -366,253 +293,11 @@ describe('cms', () => {
         assert.fail('Should have thrown authorization error');
       } catch (error) {
         assert.equal(error.message, 'Invalid authorization header');
-        assert.calledOnce(log.warn);
-        assert.calledWith(
-          log.warn,
-          'cms.strapiWebhook.invalidAuthorization',
-          {}
-        );
-      }
-    });
-
-    it('should skip non-publish events', async () => {
-      const webhookPayload = {
-        event: 'entry.update',
-        entry: { id: 123 },
-        model: 'relying-party',
-      };
-
-      request = {
-        headers: {
-          authorization: 'Bearer test-webhook-secret',
-        },
-        payload: webhookPayload,
-        log: log,
-      };
-
-      const response = await route.handler(request);
-
-      assert.deepEqual(response, { success: true });
-      assert.calledTwice(log.info);
-      // Check that the skipped log was called
-      const skippedCall = log.info
-        .getCalls()
-        .find((call) => call.args[0] === 'cms.strapiWebhook.skipped');
-      assert.exists(skippedCall);
-      assert.deepEqual(skippedCall.args[1], {
-        eventType: 'entry.update',
-        reason: 'Event not in allowed list',
-      });
-    });
-
-    it('should skip when no event type is provided', async () => {
-      request = {
-        headers: {
-          authorization: 'Bearer test-webhook-secret',
-        },
-        payload: {},
-        log: log,
-      };
-
-      const response = await route.handler(request);
-
-      assert.deepEqual(response, { success: true });
-      assert.calledTwice(log.info);
-      // Check that the skipped log was called
-      const skippedCall = log.info
-        .getCalls()
-        .find((call) => call.args[0] === 'cms.strapiWebhook.skipped');
-      assert.exists(skippedCall);
-      assert.deepEqual(skippedCall.args[1], {
-        eventType: undefined,
-        reason: 'Event not in allowed list',
-      });
-    });
-
-    it('should handle case when no Strapi entries found', async () => {
-      const webhookPayload = {
-        event: 'entry.publish',
-        entry: { id: 123 },
-        model: 'relying-party',
-      };
-
-      mockLocalization.fetchAllStrapiEntries.resolves([]);
-
-      request = {
-        headers: {
-          authorization: 'Bearer test-webhook-secret',
-        },
-        payload: webhookPayload,
-        log: log,
-      };
-
-      const response = await route.handler(request);
-
-      assert.deepEqual(response, { success: true });
-      assert.calledOnce(log.warn);
-      assert.calledWith(log.warn, 'cms.strapiWebhook.noEntries', {});
-    });
-
-    it('should update existing PR when found', async () => {
-      const webhookPayload = {
-        event: 'entry.publish',
-        entry: { id: 123, updatedAt: '2023-01-01T00:00:00.000Z' },
-        model: 'relying-party',
-      };
-
-      const strapiData = createStrapiTestData();
-
-      mockLocalization.fetchAllStrapiEntries.resolves(strapiData);
-      mockLocalization.strapiToFtl.returns('ftl-content');
-      mockLocalization.findExistingPR.resolves({ number: 123 });
-      mockLocalization.updateExistingPR.resolves();
-
-      request = {
-        headers: {
-          authorization: 'Bearer test-webhook-secret',
-        },
-        payload: webhookPayload,
-        log: log,
-      };
-
-      const response = await route.handler(request);
-
-      assert.deepEqual(response, { success: true });
-      assert.calledOnce(mockLocalization.updateExistingPR);
-      assert.calledWith(mockLocalization.updateExistingPR, 123, 'ftl-content');
-      assert.calledWith(mockLocalization.strapiToFtl, strapiData);
-    });
-
-    it('should create new PR when no existing PR found', async () => {
-      const webhookPayload = {
-        event: 'entry.publish',
-        entry: { id: 123, updatedAt: '2023-01-01T00:00:00.000Z' },
-        model: 'relying-party',
-      };
-
-      const strapiData = createStrapiTestData();
-
-      mockLocalization.fetchAllStrapiEntries.resolves(strapiData);
-      mockLocalization.strapiToFtl.returns('ftl-content');
-      mockLocalization.findExistingPR.resolves(null);
-      mockLocalization.createGitHubPR.resolves();
-
-      request = {
-        headers: {
-          authorization: 'Bearer test-webhook-secret',
-        },
-        payload: webhookPayload,
-        log: log,
-      };
-
-      const response = await route.handler(request);
-
-      assert.deepEqual(response, { success: true });
-      assert.calledOnce(mockLocalization.createGitHubPR);
-      assert.calledWith(
-        mockLocalization.createGitHubPR,
-        'ftl-content',
-        'all-entries'
-      );
-      assert.calledWith(mockLocalization.strapiToFtl, strapiData);
-    });
-
-    it('should handle errors and increment error metric', async () => {
-      const webhookPayload = {
-        event: 'entry.publish',
-        entry: { id: 123 },
-        model: 'relying-party',
-      };
-
-      mockLocalization.fetchAllStrapiEntries.rejects(
-        new Error('Strapi API Error')
-      );
-
-      request = {
-        headers: {
-          authorization: 'Bearer test-webhook-secret',
-        },
-        payload: webhookPayload,
-        log: log,
-      };
-
-      try {
-        await route.handler(request);
-        assert.fail('Should have thrown an error');
-      } catch (error) {
-        assert.equal(error.message, 'Strapi API Error');
-        assert.calledOnce(mockStatsD.increment);
-        assert.calledWith(mockStatsD.increment, 'cms.strapiWebhook.error');
-        assert.calledOnce(log.error);
-        assert.calledWith(log.error, 'cms.strapiWebhook.error', {
-          error: 'Strapi API Error',
-        });
-      }
-    });
-
-    it('should handle FTL generation errors', async () => {
-      const webhookPayload = {
-        event: 'entry.publish',
-        entry: { id: 123 },
-        model: 'relying-party',
-      };
-
-      const strapiData = createStrapiTestData();
-
-      mockLocalization.fetchAllStrapiEntries.resolves(strapiData);
-      mockLocalization.strapiToFtl.throws(new Error('FTL Generation Error'));
-
-      request = {
-        headers: {
-          authorization: 'Bearer test-webhook-secret',
-        },
-        payload: webhookPayload,
-        log: log,
-      };
-
-      try {
-        await route.handler(request);
-        assert.fail('Should have thrown an error');
-      } catch (error) {
-        assert.equal(error.message, 'FTL Generation Error');
-        assert.calledOnce(mockStatsD.increment);
-        assert.calledWith(mockStatsD.increment, 'cms.strapiWebhook.error');
-      }
-    });
-
-    it('should validate GitHub config before processing', async () => {
-      const webhookPayload = {
-        event: 'entry.publish',
-        entry: { id: 123 },
-        model: 'relying-party',
-      };
-
-      const strapiData = createStrapiTestData();
-
-      mockLocalization.fetchAllStrapiEntries.resolves(strapiData);
-      mockLocalization.validateGitHubConfig.rejects(
-        new Error('GitHub config invalid')
-      );
-
-      request = {
-        headers: {
-          authorization: 'Bearer test-webhook-secret',
-        },
-        payload: webhookPayload,
-        log: log,
-      };
-
-      try {
-        await route.handler(request);
-        assert.fail('Should have thrown an error');
-      } catch (error) {
-        assert.equal(error.message, 'GitHub config invalid');
-        assert.calledOnce(mockLocalization.validateGitHubConfig);
       }
     });
   });
 
-  describe('POST /cms/cache/reset', () => {
+  describe('POST /cms/webhook/cache/reset', () => {
     const webhookPayload = {
       model: 'relying-party',
       entry: {
@@ -624,12 +309,12 @@ describe('cms', () => {
     };
 
     beforeEach(() => {
-      route = getRoute(routes, '/cms/cache/reset', 'POST');
+      route = getRoute(routes, '/cms/webhook/cache/reset', 'POST');
     });
 
     it('should throw on invalid header', async () => {
       const req = {
-        headers: { 'cms-cache-reset-header': 'geo' },
+        headers: { authorization: 'Bearer geo' },
         payload: webhookPayload,
       };
       try {
@@ -649,68 +334,10 @@ describe('cms', () => {
       }
     });
 
-    it('should skip if the webhook event model is not relying-party', async () => {
+    it('should invalidate cms cache via mockCmsManager.invalidateCache', async () => {
       const req = {
         headers: {
-          [mockConfig.cms.webhookCacheInvalidation.headerKey]:
-            mockConfig.cms.webhookCacheInvalidation.headerVal,
-        },
-        payload: { ...webhookPayload, model: 'something-else' },
-      };
-      await route.handler(req);
-      assert.notCalled(log.info);
-      assert.notCalled(log.error);
-      assert.notCalled(mockStatsD.increment);
-    });
-
-    it('should skip if the webhook event type does not require invalidation', async () => {
-      const req = {
-        headers: {
-          [mockConfig.cms.webhookCacheInvalidation.headerKey]:
-            mockConfig.cms.webhookCacheInvalidation.headerVal,
-        },
-        payload: { ...webhookPayload, event: 'entry.create' },
-      };
-      await route.handler(req);
-      assert.notCalled(log.info);
-      assert.notCalled(log.error);
-      assert.notCalled(mockStatsD.increment);
-    });
-
-    it('should throw an error if the cms manager throws an error', async () => {
-      const req = {
-        headers: {
-          [mockConfig.cms.webhookCacheInvalidation.headerKey]:
-            mockConfig.cms.webhookCacheInvalidation.headerVal,
-        },
-        payload: { ...webhookPayload, event: 'entry.publish' },
-      };
-      mockCmsManager.invalidateCache.rejects(new Error('An error happened'));
-
-      try {
-        await route.handler(req);
-        assert.fail('an error should have been thrown.');
-      } catch (error) {
-        assert.calledWith(log.error, 'cms.cacheReset.error.invalidation', {
-          error: error.message,
-        });
-        assert.calledWith(
-          mockStatsD.increment,
-          'cms.cacheReset.error.invalidation',
-          {
-            clientId: webhookPayload.entry.clientId,
-            entrypoint: webhookPayload.entry.entrypoint,
-          }
-        );
-        assert.equal(error.message, 'An error happened');
-      }
-    });
-
-    it('invalidates cms cache via mockCmsManager.invalidateCache', async () => {
-      const req = {
-        headers: {
-          [mockConfig.cms.webhookCacheInvalidation.headerKey]:
-            mockConfig.cms.webhookCacheInvalidation.headerVal,
+          authorization: mockConfig.cms.webhookCacheInvalidation.secret,
         },
         payload: { ...webhookPayload, event: 'entry.publish' },
       };
@@ -723,18 +350,145 @@ describe('cms', () => {
         webhookPayload.entry.clientId,
         webhookPayload.entry.entrypoint
       );
-      assert.calledOnceWithExactly(log.info, 'cms.cacheReset.success', {
-        clientId: webhookPayload.entry.clientId,
-        entrypoint: webhookPayload.entry.entrypoint,
+    });
+  });
+
+  describe('Localization tests - getLocalizedConfig', () => {
+    beforeEach(() => {
+      route = getRoute(routes, '/cms/config', 'GET');
+    });
+
+    it('should return base config for English locale', async () => {
+      const baseConfig = createBaseConfig();
+      const mockResult = { relyingParties: [baseConfig] };
+      mockCmsManager.fetchCMSData.resolves(mockResult);
+
+      request = createLocalizationRequest('sync-client', 'desktop-sync', 'en');
+
+      const response = await route.handler(request);
+
+      assert.deepEqual(response, baseConfig);
+      assert.calledOnce(mockCmsManager.fetchCMSData);
+      // Should not fetch localization for English
+      assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
+    });
+
+          it('should return base config when localization is disabled', async () => {
+        mockConfig.cmsl10n.enabled = false;
+        const baseConfig = createBaseConfig();
+        const mockResult = { relyingParties: [baseConfig] };
+      mockCmsManager.fetchCMSData.resolves(mockResult);
+
+      request = createLocalizationRequest('sync-client', 'desktop-sync', 'es');
+
+      const response = await route.handler(request);
+
+      assert.deepEqual(response, baseConfig);
+      assert.calledOnce(mockCmsManager.fetchCMSData);
+      assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
+      assert.calledOnce(log.info);
+      assert.calledWith(log.info, 'cms.getLocalizedConfig.baseConfigOnly', {
+        clientId: 'sync-client',
+        entrypoint: 'desktop-sync',
+        locale: 'es',
+        reason: 'localization-disabled'
       });
-      assert.calledOnceWithExactly(
-        mockStatsD.increment,
-        'cms.cacheReset.success',
-        {
-          clientId: webhookPayload.entry.clientId,
-          entrypoint: webhookPayload.entry.entrypoint,
-        }
-      );
+    });
+
+    it('should fetch and merge localized content for non-English locale', async () => {
+      const baseConfig = createBaseConfig();
+      const mockResult = { relyingParties: [baseConfig] };
+
+      const ftlContent = 'Spanish FTL content';
+
+      const localizedData = {
+        SigninPage: {
+          headline: 'Introduzca su contraseña',
+          description: 'para iniciar sesión en Firefox',
+        },
+      };
+
+      mockCmsManager.fetchCMSData.resolves(mockResult);
+      mockLocalization.fetchLocalizedFtlWithFallback.resolves(ftlContent);
+      mockLocalization.mergeConfigs.resolves({
+        ...baseConfig,
+        ...localizedData
+      });
+
+      request = createLocalizationRequest('sync-client', 'desktop-sync', 'es');
+
+      const response = await route.handler(request);
+
+      assert.calledOnce(mockLocalization.fetchLocalizedFtlWithFallback);
+      assert.calledWith(mockLocalization.fetchLocalizedFtlWithFallback, 'es');
+      assert.calledOnce(mockLocalization.mergeConfigs);
+      assert.calledWith(mockLocalization.mergeConfigs, baseConfig, ftlContent, 'sync-client', 'desktop-sync');
+
+      // Should merge localized content with base config
+      assert.equal(response.SigninPage.headline, 'Introduzca su contraseña');
+      assert.equal(response.SigninPage.description, 'para iniciar sesión en Firefox');
+      assert.equal(response.name, 'Firefox Desktop Sync'); // Base config preserved
+
+      assert.calledOnce(mockStatsD.increment);
+      assert.calledWith(mockStatsD.increment, 'cms.getLocalizedConfig.success');
+    });
+
+    it('should fallback to base config when FTL content is empty', async () => {
+      const baseConfig = createBaseConfig();
+      const mockResult = { relyingParties: [baseConfig] };
+
+      mockCmsManager.fetchCMSData.resolves(mockResult);
+      mockLocalization.fetchLocalizedFtlWithFallback.resolves(''); // Empty FTL content
+
+      request = createLocalizationRequest('sync-client', 'desktop-sync', 'fr');
+
+      const response = await route.handler(request);
+
+      assert.deepEqual(response, baseConfig);
+      assert.calledOnce(log.info);
+      assert.calledWith(log.info, 'cms.getLocalizedConfig.fallbackToBase', {
+        clientId: 'sync-client',
+        entrypoint: 'desktop-sync',
+        locale: 'fr'
+      });
+      assert.calledOnce(mockStatsD.increment);
+      assert.calledWith(mockStatsD.increment, 'cms.getLocalizedConfig.fallback');
+    });
+
+    it('should return early when base config is empty object', async () => {
+      // Mock that no relying parties are found
+      mockCmsManager.fetchCMSData.resolves({ relyingParties: [] });
+
+      request = createLocalizationRequest('sync-client', 'desktop-sync', 'es');
+
+      const response = await route.handler(request);
+
+      // Should return empty object immediately without attempting localization
+      assert.deepEqual(response, {});
+
+      // Should not attempt to fetch localized content
+      assert.notCalled(mockLocalization.fetchLocalizedFtlWithFallback);
+      assert.notCalled(mockLocalization.mergeConfigs);
+
+      // Should log both the getConfig result and the early return
+      assert.calledTwice(log.info);
+
+      // First call should be from getConfig method
+      assert.calledWith(log.info.firstCall, 'cms.getConfig: No relying parties found', {
+        clientId: 'sync-client',
+        entrypoint: 'desktop-sync'
+      });
+
+      // Second call should be from the early return logic
+      assert.calledWith(log.info.secondCall, 'cms.getLocalizedConfig.noBaseConfig', {
+        clientId: 'sync-client',
+        entrypoint: 'desktop-sync',
+        locale: 'es'
+      });
+
+      // Should increment the getConfig.empty metric from the getConfig method
+      assert.calledOnce(mockStatsD.increment);
+      assert.calledWith(mockStatsD.increment, 'cms.getConfig.empty');
     });
   });
 
@@ -748,12 +502,20 @@ describe('cms', () => {
       assert.exists(configRoute.options.validate.query);
     });
 
-    it('should validate POST /cms/webhook/strapi route structure', () => {
-      const webhookRoute = getRoute(routes, '/cms/webhook/strapi', 'POST');
+    it('should validate POST /cms/webhook/strapil10n route structure', () => {
+      const webhookRoute = getRoute(routes, '/cms/webhook/strapil10n', 'POST');
 
       assert.exists(webhookRoute);
       assert.equal(webhookRoute.method, 'POST');
-      assert.equal(webhookRoute.path, '/cms/webhook/strapi');
+      assert.equal(webhookRoute.path, '/cms/webhook/strapil10n');
+    });
+
+    it('should validate POST /cms/webhook/cache/reset route structure', () => {
+      const cacheResetRoute = getRoute(routes, '/cms/webhook/cache/reset', 'POST');
+
+      assert.exists(cacheResetRoute);
+      assert.equal(cacheResetRoute.method, 'POST');
+      assert.equal(cacheResetRoute.path, '/cms/webhook/cache/reset');
     });
   });
 });

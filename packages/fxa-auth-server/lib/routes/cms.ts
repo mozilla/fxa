@@ -14,7 +14,7 @@ import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { CMSLocalization, StrapiWebhookPayload } from './utils/cms';
 
 export class CMSHandler {
-  private readonly cmsManager: RelyingPartyConfigurationManager | null;
+  private readonly cmsManager: RelyingPartyConfigurationManager;
   private config: ConfigType;
   private statsd: StatsD;
   private localization: CMSLocalization;
@@ -24,13 +24,11 @@ export class CMSHandler {
     config: ConfigType,
     statsD: StatsD
   ) {
-    this.cmsManager = Container.has(RelyingPartyConfigurationManager)
-      ? Container.get(RelyingPartyConfigurationManager)
-      : null;
+    this.cmsManager = Container.get(RelyingPartyConfigurationManager);
     this.config = config;
     this.statsd = statsD;
     this.log = log;
-    this.localization = new CMSLocalization(log, config);
+    this.localization = new CMSLocalization(log, config, this.cmsManager, this.statsd);
   }
 
   ensureCmsManager() {
@@ -80,13 +78,111 @@ export class CMSHandler {
     }
   }
 
-  async handleStrapiWebhook(
+  private async getBaseConfig(clientId: string, entrypoint: string) {
+    if (!this.cmsManager) {
+      throw AppError.featureNotEnabled();
+    }
+
+    const result = await this.cmsManager.fetchCMSData(clientId, entrypoint);
+    const { relyingParties } = result;
+
+    if (!relyingParties || relyingParties.length === 0) {
+      return {};
+    }
+
+    const baseConfig = relyingParties[0];
+    return baseConfig || {};
+  }
+
+  async getLocalizedConfig(request: AuthRequest) {
+    this.log.begin('cms.getLocalizedConfig', request);
+
+    const { clientId, entrypoint } = request.query;
+    const locale = request.app.locale || 'en';
+
+    try {
+      // 1. Fetch base config using existing logic
+      const baseConfig = await this.getConfig(request);
+
+      // 2. If no base config found, return early
+      if (!baseConfig || Object.keys(baseConfig).length === 0) {
+        this.log.info('cms.getLocalizedConfig.noBaseConfig', {
+          clientId,
+          entrypoint,
+          locale
+        });
+        return {};
+      }
+
+      // 3. If locale is 'en' or localization disabled, return base config
+      if (locale === 'en' || !this.config.cmsl10n.enabled) {
+        this.log.info('cms.getLocalizedConfig.baseConfigOnly', {
+          clientId,
+          entrypoint,
+          locale,
+          reason: locale === 'en' ? 'default-locale' : 'localization-disabled'
+        });
+        return baseConfig;
+      }
+
+      // 4. Try to fetch localized FTL content with fallback logic
+      const ftlContent = await this.localization.fetchLocalizedFtlWithFallback(locale);
+
+      // 5. If no localized content, return base config
+      if (!ftlContent) {
+        this.log.info('cms.getLocalizedConfig.fallbackToBase', {
+          clientId,
+          entrypoint,
+          locale
+        });
+        this.statsd.increment('cms.getLocalizedConfig.fallback');
+        return baseConfig;
+      }
+
+      // 6. Merge base config with localized data
+      const localizedConfig = await this.localization.mergeConfigs(baseConfig, ftlContent, clientId, entrypoint);
+
+      this.log.info('cms.getLocalizedConfig.success', {
+        clientId,
+        entrypoint,
+        locale,
+        ftlContentLength: ftlContent.length
+      });
+      this.statsd.increment('cms.getLocalizedConfig.success');
+
+      return localizedConfig;
+    } catch (error) {
+      // Fallback to base config on any error
+      this.log.error('cms.getLocalizedConfig.error', {
+        clientId,
+        entrypoint,
+        locale,
+        error: error.message
+      });
+      this.statsd.increment('cms.getLocalizedConfig.error');
+
+      // Try to return base config as fallback, but if that fails too, return empty object
+      try {
+        return await this.getBaseConfig(clientId, entrypoint);
+      } catch (fallbackError) {
+        this.log.error('cms.getLocalizedConfig.fallbackError', {
+          clientId,
+          entrypoint,
+          locale,
+          error: fallbackError.message
+        });
+        return {};
+      }
+    }
+  }
+
+  async handleStrapil10nWebhook(
     request: AuthRequest
   ): Promise<{ success: boolean }> {
     this.log.begin('cms.strapiWebhook.handle', request);
 
     if (!this.config.cmsl10n.strapiWebhook.enabled) {
-      this.log.warn('cms.strapiWebhook.disabled', {});
+      this.log.info('cms.strapiWebhook.disabled', {});
       return {
         success: true,
       };
@@ -95,19 +191,24 @@ export class CMSHandler {
     // Validate webhook authorization
     const authorization = request.headers.authorization as string;
     if (!authorization) {
-      this.log.warn('cms.strapiWebhook.missingAuthorization', {});
+      this.log.error('cms.strapiWebhook.missingAuthorization', {});
       throw new Error('Missing authorization header');
     }
 
+    const authHeader = request.headers.authorization;
     if (
-      authorization !== `Bearer ${this.config.cmsl10n.strapiWebhook.secret}`
+      !authHeader ||
+      !crypto.timingSafeEqual(
+        Buffer.from(authHeader),
+        Buffer.from(this.config.cmsl10n.strapiWebhook.secret)
+      )
     ) {
-      this.log.warn('cms.strapiWebhook.invalidAuthorization', {});
+      this.log.error('cms.strapiWebhook.invalidAuthorization', {});
       throw new Error('Invalid authorization header');
     }
 
     try {
-      // Parse webhook payload to get event type
+      // Parse webhook payload to get an event type
       const webhookPayload = request.payload as StrapiWebhookPayload;
       const eventType = webhookPayload?.event;
 
@@ -118,14 +219,14 @@ export class CMSHandler {
       });
 
       // Only process specific events to avoid duplicate PRs
-      // Strapi sends multiple events on publish: entry.publish, entry.update, etc.
+      // Currently handle for relying-party model and entry.publish event
       // Only create PRs when entries are actually published
       const allowedEvents = ['entry.publish'];
 
-      if (!eventType || !allowedEvents.includes(eventType)) {
+      if (!eventType || !allowedEvents.includes(eventType) || webhookPayload.model !== 'relying-party') {
         this.log.info('cms.strapiWebhook.skipped', {
           eventType,
-          reason: 'Event not in allowed list',
+          reason: 'Event not in allowed list or not relying-party model',
         });
         return { success: true };
       }
@@ -142,7 +243,7 @@ export class CMSHandler {
       const allEntries = await this.localization.fetchAllStrapiEntries();
 
       if (allEntries.length === 0) {
-        this.log.warn('cms.strapiWebhook.noEntries', {});
+        this.log.info('cms.strapiWebhook.noEntries', {});
         return { success: true };
       }
 
@@ -150,7 +251,7 @@ export class CMSHandler {
       await this.localization.validateGitHubConfig();
 
       // Generate FTL content for all entries
-      const ftlContent = this.generateFtlContentFromEntries(allEntries);
+      const ftlContent = this.localization.generateFtlContentFromEntries(allEntries);
 
       // Check for existing PR
       const existingPr = await this.localization.findExistingPR(
@@ -196,30 +297,6 @@ export class CMSHandler {
     }
   }
 
-  private generateFtlContentFromEntries(entries: any[]): string {
-    this.log.info('cms.strapiWebhook.generateFtlContent.start', {
-      totalEntries: entries.length,
-    });
-
-    try {
-      // Use the localization utility to convert Strapi entries to FTL format
-      const ftlContent = this.localization.strapiToFtl(entries);
-
-      this.log.info('cms.strapiWebhook.generateFtlContent.success', {
-        totalEntries: entries.length,
-        ftlContentLength: ftlContent.length,
-      });
-
-      return ftlContent;
-    } catch (error) {
-      this.log.error('cms.strapiWebhook.generateFtlContent.error', {
-        error: error.message,
-        totalEntries: entries.length,
-      });
-      throw error;
-    }
-  }
-
   async handleCacheInvalidationWebhook(
     request: AuthRequest
   ): Promise<{ success: boolean }> {
@@ -233,13 +310,12 @@ export class CMSHandler {
     this.log.begin('cms.cacheReset.handle', request);
     const webhookPayload = request.payload as StrapiWebhookPayload;
 
+    const authHeader = request.headers.authorization;
     if (
-      !request.headers[this.config.cms.webhookCacheInvalidation.headerKey] ||
+      !authHeader ||
       !crypto.timingSafeEqual(
-        Buffer.from(
-          request.headers[this.config.cms.webhookCacheInvalidation.headerKey]
-        ),
-        Buffer.from(this.config.cms.webhookCacheInvalidation.headerVal)
+        Buffer.from(authHeader),
+        Buffer.from(this.config.cms.webhookCacheInvalidation.secret)
       )
     ) {
       this.log.error(
@@ -316,23 +392,23 @@ export const cmsRoutes = (
           }),
         },
       },
-      handler: (request: AuthRequest) => cmsHandler.getConfig(request),
+      handler: (request: AuthRequest) => cmsHandler.getLocalizedConfig(request),
     },
     {
       method: 'POST',
-      path: '/cms/webhook/strapi',
+      path: '/cms/webhook/strapil10n',
       handler: (request: AuthRequest) =>
-        cmsHandler.handleStrapiWebhook(request),
+        cmsHandler.handleStrapil10nWebhook(request),
     },
     {
       method: 'POST',
-      path: '/cms/cache/reset',
+      path: '/cms/webhook/cache/reset',
       options: {
         pre: [{ method: featureEnabledCheck }],
       },
       handler: async (request: AuthRequest) =>
         cmsHandler.handleCacheInvalidationWebhook(request),
-    },
+    }
   ];
 };
 

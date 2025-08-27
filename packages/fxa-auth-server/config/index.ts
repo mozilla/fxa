@@ -2097,15 +2097,9 @@ const convictConf = convict({
         env: 'CMS_WEBHOOK_CACHE_INVALIDATION_ENABLED',
         format: Boolean,
       },
-      headerKey: {
-        default: 'fxa-cms-cache-webhook-auth',
-        doc: 'The header key where to location a value to auth the request',
-        env: 'CMS_WEBHOOK_CACHE_INVALIDATION_HEADER',
-        format: String,
-      },
-      headerVal: {
-        default: 'CHANGEME',
-        doc: 'The header key where to location a value to auth the request',
+      secret: {
+        default: 'Bearer CHANGEME',
+        doc: 'The secret used in the Authorization header for the webhook',
         env: 'CMS_WEBHOOK_CACHE_INVALIDATION_SECRET',
         format: String,
       },
@@ -2382,7 +2376,7 @@ const convictConf = convict({
   cmsl10n: {
     enabled: {
       default: false,
-      doc: 'Enable localization logic for accounts relying party configuration',
+      doc: 'Enable localization on the /cms/config endpoint. When enabled, the endpoint will attempt to fetch and merge localized FTL content with the base CMS configuration. When disabled, only the base configuration is returned.',
       env: 'CMS_L10N_ENABLED',
       format: Boolean,
     },
@@ -2394,8 +2388,8 @@ const convictConf = convict({
         format: Boolean,
       },
       secret: {
-        default: 'test',
-        doc: 'Secret key to validate Strapi webhook requests',
+        default: 'Bearer CHANGEME',
+        doc: 'The secret used in the Authorization header for the webhook',
         env: 'CMS_L10N_STRAPI_WEBHOOK_SECRET',
         format: String,
       },
@@ -2404,6 +2398,40 @@ const convictConf = convict({
         doc: 'Strapi webhook URL',
         env: 'CMS_L10N_STRAPI_WEBHOOK_STRAPI_URL',
         format: String,
+      },
+    },
+    ftlUrl: {
+      template: {
+        default: 'https://raw.githubusercontent.com/mozilla/fxa-cms-l10n/main/locales/{locale}/cms.ftl',
+        doc: 'URL template for FTL files. Use {locale} placeholder for locale substitution',
+        env: 'CMS_L10N_FTL_URL_TEMPLATE',
+        format: String,
+      },
+      timeout: {
+        default: 5000, // 5 seconds
+        doc: 'Timeout for FTL requests in milliseconds',
+        env: 'CMS_L10N_FTL_TIMEOUT',
+        format: Number,
+      }
+    },
+    ftlCache: {
+      memoryTtl: {
+        default: 900, // 15 minutes
+        doc: 'TTL for FTL content in memory cache (seconds)',
+        env: 'CMS_L10N_FTL_CACHE_MEMORY_TTL',
+        format: Number,
+      },
+      firestoreTtl: {
+        default: 3600, // 1 hour
+        doc: 'TTL for FTL content in Firestore cache (seconds)',
+        env: 'CMS_L10N_FTL_CACHE_FIRESTORE_TTL',
+        format: Number,
+      },
+      firestoreOfflineTtl: {
+        default: 604800, // 7 days
+        doc: 'TTL for FTL content in Firestore offline cache (seconds)',
+        env: 'CMS_L10N_FTL_CACHE_FIRESTORE_OFFLINE_TTL',
+        format: Number,
       },
     },
     github: {
