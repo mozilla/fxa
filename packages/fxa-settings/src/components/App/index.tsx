@@ -47,6 +47,7 @@ import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
 import { InlineRecoverySetupFlowContainer } from '../../pages/InlineRecoverySetupFlow/container';
 import { CmsProvider } from '../../models/contexts/CmsContext';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
@@ -350,9 +351,7 @@ export const App = ({
     metricsEnabled === undefined
   ) {
     return (
-      <CmsProvider cmsInfo={cmsInfoState.data?.cmsInfo} isLoading={cmsInfoState.loading} error={cmsInfoState.error}>
-        <CmsLoadingSpinner fullScreen />
-      </CmsProvider>
+        <LoadingSpinner fullScreen />
     )
   }
 
