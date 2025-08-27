@@ -19,6 +19,18 @@ import {
 } from './mocks';
 import { RelierCmsInfo } from '../../models';
 
+// Mock the useConfig hook
+jest.mock('../../models/hooks', () => ({
+  useConfig: jest.fn(() => ({
+    featureFlags: {
+      showLocaleToggle: false
+    }
+  })),
+  useFtlMsgResolver: () => ({
+    getMsg: (id: string, fallback: string) => fallback
+  })
+}));
+
 describe('<AppLayout />', () => {
   it('renders as expected with children', async () => {
     renderWithLocalizationProvider(
@@ -273,6 +285,26 @@ describe('<AppLayout />', () => {
 
     // Verify that only one logo is rendered
     expect(screen.getAllByRole('img')).toHaveLength(1);
+  });
+
+  describe('LocaleToggle visibility', () => {
+    it('shows LocaleToggle when feature flag enabled', () => {
+      // Tried to not use require here but it was not working
+      const { useConfig } = require('../../models/hooks');
+      useConfig.mockReturnValue({
+        featureFlags: {
+          showLocaleToggle: true
+        }
+      });
+
+      renderWithLocalizationProvider(
+        <AppLayout>
+          <p>Hello, world!</p>
+        </AppLayout>
+      );
+
+      expect(screen.getByTestId('locale-select')).toBeInTheDocument();
+    });
   });
 
   describe('snapshots', () => {

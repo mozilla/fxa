@@ -32,6 +32,7 @@ import {
 import { RelierClientInfo, RelierSubscriptionInfo, RelierCmsInfo } from './integrations';
 import { NimbusResult } from '../lib/nimbus';
 import * as Sentry from '@sentry/browser';
+import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
 
 const DEFAULT_CMS_ENTRYPOINT = 'default';
 
@@ -210,6 +211,7 @@ export function useCmsInfoState() {
   }
 
   const authUrl = config?.servers.auth.url;
+  const { currentLocale } = useDynamicLocalization();
 
   const urlQueryData = new UrlQueryData(new ReachRouterWindow());
   const clientId = urlQueryData.get('client_id');
@@ -267,6 +269,7 @@ export function useCmsInfoState() {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
+            'Accept-Language': currentLocale,
           },
         });
 
@@ -303,7 +306,7 @@ export function useCmsInfoState() {
     return () => {
       mounted = false;
     };
-  }, [authUrl, clientId, entrypoint, config.cms.enabled]);
+  }, [authUrl, clientId, entrypoint, config.cms.enabled, currentLocale]);
 
   return state;
 }

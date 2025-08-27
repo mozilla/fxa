@@ -711,8 +711,8 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the account_pref_display_name_submit event name', async () => {
-        GleanMetrics.accountPref.displayNameSubmit();
         const spy = sandbox.spy(accountPref.displayNameSubmit, 'record');
+        GleanMetrics.accountPref.displayNameSubmit();
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
@@ -723,8 +723,8 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the account_pref_secondary_email_submit event name', async () => {
-        GleanMetrics.accountPref.secondaryEmailSubmit();
         const spy = sandbox.spy(accountPref.secondaryEmailSubmit, 'record');
+        GleanMetrics.accountPref.secondaryEmailSubmit();
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(
@@ -735,8 +735,8 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the account_pref_two_step_auth_submit event name', async () => {
-        GleanMetrics.accountPref.twoStepAuthSubmit();
         const spy = sandbox.spy(accountPref.twoStepAuthSubmit, 'record');
+        GleanMetrics.accountPref.twoStepAuthSubmit();
         await GleanMetrics.isDone();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(

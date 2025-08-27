@@ -265,6 +265,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_UPDATED_INLINE_RECOVERY_SETUP_FLOW',
     },
+    showLocaleToggle: {
+      default: false,
+      doc: 'Enables the locale toggle in the footer',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_SHOW_LOCALE_TOGGLE',
+    },
   },
   cms: {
     enabled: {

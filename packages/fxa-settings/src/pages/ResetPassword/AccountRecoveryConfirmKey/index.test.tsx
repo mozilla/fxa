@@ -69,7 +69,7 @@ describe('AccountRecoveryConfirmKey', () => {
           user.type(screen.getByRole('textbox'), MOCK_RECOVERY_KEY)
         );
 
-        const submitButton = screen.getByRole('button');
+        const submitButton = screen.getByRole('button', { name: 'Continue' });
         expect(submitButton).toBeEnabled();
         await waitFor(() => user.click(submitButton));
 
@@ -84,7 +84,7 @@ describe('AccountRecoveryConfirmKey', () => {
         renderWithLocalizationProvider(
           <Subject verifyRecoveryKey={mockVerifyRecoveryKey} />
         );
-        const submitButton = screen.getByRole('button');
+        const submitButton = screen.getByRole('button', { name: 'Continue' });
 
         const input = screen.getByRole('textbox');
 
@@ -100,7 +100,7 @@ describe('AccountRecoveryConfirmKey', () => {
     describe('errors', () => {
       it('with an empty input', async () => {
         renderWithLocalizationProvider(<Subject />);
-        const submitButton = screen.getByRole('button');
+        const submitButton = screen.getByRole('button', { name: 'Continue' });
         expect(submitButton).toBeDisabled();
       });
 
@@ -109,7 +109,7 @@ describe('AccountRecoveryConfirmKey', () => {
         renderWithLocalizationProvider(
           <Subject verifyRecoveryKey={mockVerifyRecoveryKey} />
         );
-        const submitButton = screen.getByRole('button');
+        const submitButton = screen.getByRole('button', { name: 'Continue' });
         const input = screen.getByRole('textbox');
 
         await waitFor(() => user.type(input, MOCK_RECOVERY_KEY.slice(0, -1)));
@@ -121,7 +121,7 @@ describe('AccountRecoveryConfirmKey', () => {
         renderWithLocalizationProvider(
           <Subject verifyRecoveryKey={mockVerifyRecoveryKey} />
         );
-        const submitButton = screen.getByRole('button');
+        const submitButton = screen.getByRole('button', { name: 'Continue' });
         expect(submitButton).toBeDisabled();
 
         const input = screen.getByRole('textbox');
@@ -136,7 +136,7 @@ describe('AccountRecoveryConfirmKey', () => {
         renderWithLocalizationProvider(
           <Subject verifyRecoveryKey={mockVerifyRecoveryKey} />
         );
-        const submitButton = screen.getByRole('button');
+        const submitButton = screen.getByRole('button', { name: 'Continue' });
 
         const input = screen.getByRole('textbox');
         // contains a character that is not valid in Crockford base32

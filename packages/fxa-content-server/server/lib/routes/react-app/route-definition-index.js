@@ -64,6 +64,9 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_UPDATED_INLINE_RECOVERY_SETUP_FLOW = config.get(
     'featureFlags.updatedInlineRecoverySetupFlow'
   );
+  const FEATURE_FLAGS_SHOW_LOCALE_TOGGLE = config.get(
+    'featureFlags.showLocaleToggle'
+  );
   const NIMBUS_PREVIEW = config.get('nimbusPreview');
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
@@ -131,6 +134,7 @@ function getIndexRouteDefinition(config) {
       updated2faSetupFlow: FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW,
       updatedInlineRecoverySetupFlow:
         FEATURE_FLAGS_UPDATED_INLINE_RECOVERY_SETUP_FLOW,
+      showLocaleToggle: FEATURE_FLAGS_SHOW_LOCALE_TOGGLE,
     },
     cms: {
       enabled: CMS_ENABLED,

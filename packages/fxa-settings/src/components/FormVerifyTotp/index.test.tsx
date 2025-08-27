@@ -13,14 +13,14 @@ describe('FormVerifyTotp component', () => {
     renderWithLocalizationProvider(<Subject />);
     expect(screen.getByText('Enter 6-digit code')).toBeVisible();
     expect(screen.getAllByRole('textbox')).toHaveLength(1);
-    const button = screen.getByRole('button');
+    const button = screen.getByRole('button', { name: 'Submit' });
     expect(button).toHaveTextContent('Submit');
   });
 
   describe('submit button', () => {
     it('is disabled on render', () => {
       renderWithLocalizationProvider(<Subject />);
-      const button = screen.getByRole('button');
+      const button = screen.getByRole('button', { name: 'Submit' });
       expect(button).toHaveTextContent('Submit');
       expect(button).toBeDisabled();
     });
@@ -29,7 +29,7 @@ describe('FormVerifyTotp component', () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject />);
       const input = screen.getByRole('textbox');
-      const button = screen.getByRole('button');
+      const button = screen.getByRole('button', { name: 'Submit' });
       expect(button).toHaveTextContent('Submit');
       expect(button).toBeDisabled();
 
@@ -42,7 +42,7 @@ describe('FormVerifyTotp component', () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject />);
       const input = screen.getByRole('textbox');
-      const button = screen.getByRole('button');
+      const button = screen.getByRole('button', { name: 'Submit' });
       expect(button).toHaveTextContent('Submit');
       expect(button).toBeDisabled();
 

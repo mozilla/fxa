@@ -22,7 +22,7 @@ describe('ResetPasswordConfirmed', () => {
     expect(
       screen.getByText('Your password has been reset')
     ).toBeInTheDocument();
-    const submitButton = screen.getByRole('button');
+    const submitButton = screen.getByRole('button', { name: 'Continue to Mozilla Monitor' });
     expect(submitButton).toHaveTextContent('Continue to Mozilla Monitor');
     expect(submitButton).toHaveAttribute(
       'data-glean-id',
@@ -50,7 +50,7 @@ describe('ResetPasswordConfirmed', () => {
         serviceName={MozServices.Monitor}
       />
     );
-    user.click(screen.getByRole('button'));
+    user.click(screen.getByRole('button', { name: 'Continue to Mozilla Monitor' }));
     await waitFor(() => expect(mockContinueHandler).toHaveBeenCalledTimes(1));
   });
 });

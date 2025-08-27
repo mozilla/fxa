@@ -96,6 +96,7 @@ export interface Config {
     updatedInlineTotpSetupFlow?: boolean;
     updated2faSetupFlow?: boolean;
     updatedInlineRecoverySetupFlow?: boolean;
+    showLocaleToggle?: boolean;
   };
   nimbusPreview: boolean;
   cms: {
@@ -181,6 +182,7 @@ export function getDefault() {
       updatedInlineTotpSetupFlow: false,
       updated2faSetupFlow: false,
       updatedInlineRecoverySetupFlow: false,
+      showLocaleToggle: false,
     },
     cms: {
       // Note: Even if this flag is true, the user must be an `en` language

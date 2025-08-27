@@ -7,12 +7,16 @@ import HeaderLockup from '../HeaderLockup';
 import ContentSkip from '../ContentSkip';
 import Footer from 'fxa-react/components/Footer';
 import { AlertBar } from '../AlertBar';
+import { useConfig } from '../../../models/hooks';
+import { LocaleToggle } from '../../LocaleToggle';
 
 type SettingsLayoutProps = {
   children: React.ReactNode;
 };
 
 export const SettingsLayout = ({ children }: SettingsLayoutProps) => {
+  const config = useConfig();
+
   return (
     <div
       className="flex flex-col justify-between min-h-screen"
@@ -27,7 +31,10 @@ export const SettingsLayout = ({ children }: SettingsLayoutProps) => {
           {children}
         </main>
       </div>
-      <Footer />
+      <Footer
+        showLocaleToggle={config.featureFlags?.showLocaleToggle}
+        localeToggleComponent={LocaleToggle}
+      />
       <div id="body-bottom" className="block mobileLandscape:hidden" />
     </div>
   );
