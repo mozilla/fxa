@@ -118,13 +118,6 @@ jest.mock('../../models', () => {
   };
 });
 
-let mockGetCode = jest.fn().mockReturnValue('215364');
-jest.mock('../../lib/totp', () => {
-  return {
-    ...jest.requireActual('../../lib/totp'),
-    getCode: jest.fn((...args) => mockGetCode(...args)),
-  };
-});
 let mockGenerateCodes = jest.fn((...args) => ['wibble', 'quux']);
 jest.mock('../../lib/totp-utils', () => {
   return {
@@ -142,9 +135,7 @@ jest.mock('./index', () => {
   };
 });
 
-let mockVerifyTotpMutation = jest
-  .fn()
-  .mockResolvedValue({ data: { verifyTotp: { success: true } } });
+let mockCompleteTotpSetup = jest.fn().mockResolvedValue({ success: true });
 
 let mockTotpStatusQuery = jest.fn();
 function setMocks() {
@@ -154,12 +145,10 @@ function setMocks() {
   mockGenerateCodes = jest.fn((...args: any[]) => ['wibble', 'quux']);
 
   jest.spyOn(ApolloClientModule, 'useMutation').mockReturnValue([
-    async (...args: any[]) => {
-      return mockVerifyTotpMutation(...args);
-    },
+    (async () => ({})) as any,
     {
       loading: false,
-      called: true,
+      called: false,
       client: {} as ApolloClient<any>,
       reset: () => {},
     },
@@ -175,6 +164,8 @@ function setMocks() {
     .mockReturnValue(mockTotpStatusQuery());
   (InlineRecoverySetupFlowModule.default as jest.Mock).mockReset();
   mockNavigateHook.mockReset();
+  mockCompleteTotpSetup.mockClear();
+  (mockAuthClient as any).completeTotpSetup = mockCompleteTotpSetup;
   (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
     finishOAuthFlowHandler: jest
       .fn()
@@ -383,11 +374,7 @@ describe('InlineRecoverySetupFlowContainer', () => {
             '12345678900',
             true
           );
-          expect(mockGetCode).toHaveBeenCalled();
-          expect(mockVerifyTotpMutation).toHaveBeenCalled();
-          expect(
-            mockVerifyTotpMutation.mock.calls[0][0].variables.input.code
-          ).toBe('215364');
+          expect(mockCompleteTotpSetup).toHaveBeenCalledTimes(1);
         });
       });
 
@@ -405,11 +392,7 @@ describe('InlineRecoverySetupFlowContainer', () => {
             await args.completeBackupCodeSetup('wibble');
           });
           expect(setRecoveryCodesFn).toHaveBeenCalledWith(['wibble', 'quux']);
-          expect(mockGetCode).toHaveBeenCalled();
-          expect(mockVerifyTotpMutation).toHaveBeenCalled();
-          expect(
-            mockVerifyTotpMutation.mock.calls[0][0].variables.input.code
-          ).toBe('215364');
+          expect(mockCompleteTotpSetup).toHaveBeenCalledTimes(1);
         });
       });
 

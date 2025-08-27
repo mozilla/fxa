@@ -11226,13 +11226,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@otplib/preset-browser@npm:^12.0.1":
-  version: 12.0.1
-  resolution: "@otplib/preset-browser@npm:12.0.1"
-  checksum: 10c0/ec0f61905d0e337fc68e0717b85fcdfb1b42263b1b7a7e96f89379a86d004c88a9ff5cf82a37de50696d6f3ecb219bdb1992f85a69320f8bccf38b49c492e1e2
-  languageName: node
-  linkType: hard
-
 "@oxc-resolver/binding-darwin-arm64@npm:1.12.0":
   version: 1.12.0
   resolution: "@oxc-resolver/binding-darwin-arm64@npm:1.12.0"
@@ -33432,7 +33425,6 @@ __metadata:
     "@emotion/react": "npm:^11.13.3"
     "@emotion/styled": "npm:^11.13.0"
     "@material-ui/core": "npm:v5.0.0-alpha.24"
-    "@otplib/preset-browser": "npm:^12.0.1"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.3"
     "@reach/router": "npm:^1.3.4"
     "@react-pdf/renderer": "npm:3.2.1"

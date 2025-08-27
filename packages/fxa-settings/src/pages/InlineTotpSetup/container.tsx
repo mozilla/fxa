@@ -14,9 +14,9 @@ import {
   isOAuthIntegration,
   useConfig,
   useSession,
+  useAuthClient,
 } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { checkCode } from '../../lib/totp';
 import { useMutation, useQuery } from '@apollo/client';
 import { CREATE_TOTP_MUTATION } from './gql';
 import { getSigninState } from '../Signin/utils';
@@ -50,6 +50,7 @@ export const InlineTotpSetupContainer = ({
   };
   const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
+  const authClient = useAuthClient();
   const metricsContext = queryParamsToMetricsContext(
     flowQueryParams as unknown as Record<string, string>
   );
@@ -165,11 +166,9 @@ export const InlineTotpSetupContainer = ({
   const verifyCodeHandler = useCallback(
     async (code: string) => {
       try {
-        const isValid = await checkCode(totp!.secret, code);
-
-        if (!isValid) {
-          throw AuthUiErrors.INVALID_TOTP_CODE;
-        }
+        await authClient.verifyTotpSetupCode(signinState!.sessionToken, code, {
+          metricsContext,
+        });
 
         const state = {
           ...Object.assign({}, signinState),
@@ -181,10 +180,12 @@ export const InlineTotpSetupContainer = ({
           Object.keys(state).length > 0 ? state : undefined
         );
       } catch (error) {
+        // TODO: handle this error better
+        // auth-server may return more specific errors (including throttling)
         throw AuthUiErrors.INVALID_TOTP_CODE;
       }
     },
-    [navTo, totp, signinState]
+    [authClient, navTo, totp, signinState, metricsContext]
   );
 
   if (!isSignedIn || !signinState) {

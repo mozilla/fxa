@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-import { getCode } from 'packages/fxa-settings/src/lib/totp';
+import { getCode } from '../../lib/totp';
 
 test.describe('recovery key promo', () => {
   test.describe('inline', () => {

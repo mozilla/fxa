@@ -1748,6 +1748,33 @@ export default class AuthClient {
     return this.sessionPost('/totp/create', sessionToken, options, headers);
   }
 
+  async verifyTotpSetupCode(
+    sessionToken: hexstring,
+    code: string,
+    options: { metricsContext?: MetricsContext } = {},
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.sessionPost(
+      '/totp/setup/verify',
+      sessionToken,
+      { code, ...options },
+      headers
+    );
+  }
+
+  async completeTotpSetup(
+    sessionToken: hexstring,
+    options: { service?: string; metricsContext?: MetricsContext } = {},
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.sessionPost(
+      '/totp/setup/complete',
+      sessionToken,
+      { ...options },
+      headers
+    );
+  }
+
   async replaceTotpToken(
     sessionToken: hexstring,
     options: {

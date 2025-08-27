@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useMutation, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -13,7 +13,6 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../lib/oauth/hooks';
-import { getCode } from '../../lib/totp';
 import { MozServices } from '../../lib/types';
 import {
   Integration,
@@ -21,14 +20,12 @@ import {
   useAuthClient,
   useSensitiveDataClient,
 } from '../../models';
-import { VERIFY_TOTP_MUTATION } from './gql';
 import InlineRecoverySetup from './index';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { SigninRecoveryLocationState } from './interfaces';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
 import { GET_TOTP_STATUS } from '../../components/App/gql';
 import OAuthDataError from '../../components/OAuthDataError';
-import { isFirefoxService } from '../../models/integrations/utils';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 
 export const InlineRecoverySetupContainer = ({
@@ -64,9 +61,6 @@ export const InlineRecoverySetupContainer = ({
   );
 
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>();
-  const [verifyTotp] = useMutation<{ verifyTotp: { success: boolean } }>(
-    VERIFY_TOTP_MUTATION
-  );
   const [oAuthError, setOAuthError] =
     useState<FinishOAuthFlowHandlerResult['error']>();
 
@@ -78,20 +72,17 @@ export const InlineRecoverySetupContainer = ({
     });
 
   const verifyTotpHandler = useCallback(async () => {
-    const code = await getCode(totp!.secret);
-    const service = integration.getService();
-    const clientId = integration.getClientId();
-
-    const result = await verifyTotp({
-      variables: {
-        input: {
-          code,
-          ...(isFirefoxService(service) ? { service } : { service: clientId }),
-        },
-      },
-    });
-    return result.data!.verifyTotp.success;
-  }, [integration, totp, verifyTotp]);
+    // Server-side verification only; do not generate codes client-side here
+    try {
+      await authClient.completeTotpSetup(
+        signinRecoveryLocationState!.sessionToken,
+        { service: serviceName }
+      );
+      return true;
+    } catch (e) {
+      throw AuthUiErrors.INVALID_TOTP_CODE;
+    }
+  }, [authClient, signinRecoveryLocationState, serviceName]);
 
   const successfulSetupHandler = useCallback(async () => {
     // When this is called, we know signinRecoveryLocationState exists.

@@ -89,16 +89,12 @@ jest.mock('fxa-react/components/LoadingSpinner', () => () => (
 
 // Utility & hook mocks ───────────────────────────────────────────────────────
 
-const mockCheckCode = jest.fn();
-const mockGetCode = jest.fn();
 const mockGenerateRecoveryCodes = jest
   .fn()
   .mockResolvedValue(MOCK_BACKUP_CODES);
 
 jest.mock('../../../lib/totp-utils', () => ({
   totpUtils: {
-    checkCode: (...args: any[]) => mockCheckCode(...args),
-    getCode: (...args: any[]) => mockGetCode(...args),
     generateRecoveryCodes: (...args: any[]) =>
       mockGenerateRecoveryCodes(...args),
   },
@@ -181,12 +177,10 @@ describe('Page2faSetup', () => {
     it('progresses through download & confirm and navigates home', async () => {
       const account = {
         recoveryPhone: { available: false },
-        verifyTotp: jest.fn(),
+        verifyTotpSetupCode: jest.fn(),
+        completeTotpSetup: jest.fn(),
         setRecoveryCodes: jest.fn(),
       } as unknown as Account;
-
-      mockCheckCode.mockResolvedValue(true);
-      mockGetCode.mockResolvedValue('000000');
       mockUseTotpSetup.mockReturnValue({
         totpInfo: baseTotpInfo,
         loading: false,
@@ -214,7 +208,7 @@ describe('Page2faSetup', () => {
         expect(account.setRecoveryCodes).toHaveBeenCalledWith(
           MOCK_BACKUP_CODES
         );
-        expect(account.verifyTotp).toHaveBeenCalled();
+        expect(account.completeTotpSetup).toHaveBeenCalled();
         expect(mockNavigateWithQuery).toHaveBeenCalled(); // navigated home
       });
     });
@@ -228,12 +222,11 @@ describe('Page2faSetup', () => {
           .fn()
           .mockResolvedValue({ nationalFormat: '+1 555‑0100' }),
         confirmRecoveryPhone: jest.fn(),
-        verifyTotp: jest.fn(),
+        verifyTotpSetupCode: jest.fn(),
+        completeTotpSetup: jest.fn(),
         refresh: jest.fn(),
       } as unknown as Account;
 
-      mockCheckCode.mockResolvedValue(true);
-      mockGetCode.mockResolvedValue('000000');
       mockUseTotpSetup.mockReturnValue({
         totpInfo: baseTotpInfo,
         loading: false,
@@ -260,7 +253,7 @@ describe('Page2faSetup', () => {
         expect(screen.getByTestId('sms-step')).toBeInTheDocument()
       );
 
-      // confirm SMS code – should trigger verifyTotp + refresh + nav home
+      // confirm SMS code – should trigger completeTotpSetup + refresh
       fireEvent.click(screen.getByText('confirm-sms'));
 
       await waitFor(() => {
@@ -269,7 +262,7 @@ describe('Page2faSetup', () => {
           MOCK_FULL_PHONE_NUMBER,
           true
         );
-        expect(account.verifyTotp).toHaveBeenCalled();
+        expect(account.completeTotpSetup).toHaveBeenCalled();
         expect(account.refresh).toHaveBeenCalledWith('recoveryPhone');
       });
     });

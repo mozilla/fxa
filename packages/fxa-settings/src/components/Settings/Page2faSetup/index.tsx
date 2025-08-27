@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, RouteComponentProps } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
 
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
@@ -29,8 +29,6 @@ import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { FtlMsg } from 'fxa-react/lib/utils';
 
 const Page2faSetup = (_: RouteComponentProps) => {
   const account = useAccount();
@@ -144,21 +142,14 @@ const Page2faSetup = (_: RouteComponentProps) => {
 
   /* ───── handlers ───── */
   const handleVerify2faAppCode = async (code: string) => {
-    if (!totpInfo.secret) {
-      showGenericError();
-      goHome();
+    try {
+      await account.verifyTotpSetupCode(code);
+      GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
+      nextStep();
       return {};
-    }
-
-    if (!(await totpUtils.checkCode(totpInfo.secret, code))) {
+    } catch (e) {
       return { error: true };
     }
-
-    GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
-
-    // Proceed to backup method selection or backup code setup
-    nextStep();
-    return {};
   };
 
   const handleBackupChoice = (choice: Choice) => {
@@ -167,19 +158,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
   };
 
   const enable2fa = async () => {
-    if (!totpInfo.secret) {
-      showGenericError();
-      goHome();
-      return;
-    }
-
-    const totpCode = await totpUtils.getCode(totpInfo.secret);
-    if (!totpCode) {
-      showGenericError();
-      goHome();
-      return;
-    }
-    await account.verifyTotp(totpCode);
+    await account.completeTotpSetup();
   };
 
   const handleBackupCodeConfirm = async (code: string) => {
@@ -197,40 +176,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
       await account.setRecoveryCodes(backupCodes);
       await enable2fa();
     } catch (error) {
-      // If this throws, the initial client-side code check succeeded but the
-      // back-end rejected it. The user needs to begin the flow again.
-      if (error.errno === AuthUiErrors.INVALID_OTP_CODE.errno) {
-        const startOverLink = (
-          <Link
-            className="link-blue"
-            to="/settings/two_step_authentication"
-            onClick={() => {
-              navigateWithQuery('/settings/two_step_authentication');
-              alertBar.hide();
-            }}
-          >
-            start over
-          </Link>
-        );
-
-        alertBar.error(
-          <FtlMsg
-            id="two-factor-auth-setup-token-verification-error"
-            elems={{ a: startOverLink }}
-          >
-            <>
-              There was a problem enabling two-step authentication. Check that
-              your device’s clock is set to update automatically and{' '}
-              {startOverLink}.
-            </>
-          </FtlMsg>
-        );
-      } else {
-        showGenericError();
-      }
-      // for any error other than an incorrect backup code
-      // return to main settings page with generic error message
-      // there is no action the user can take at this step
+      showGenericError();
       goHome();
       return;
     }

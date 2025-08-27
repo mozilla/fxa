@@ -1243,13 +1243,21 @@ export class Account implements AccountData {
     return totp;
   }
 
-  async verifyTotp(code: string) {
+  async verifyTotpSetupCode(code: string) {
+    await this.withLoadingStatus(
+      this.authClient.verifyTotpSetupCode(sessionToken()!, code, {})
+    );
+  }
+
+  async completeTotpSetup(service?: string) {
     try {
       await this.withLoadingStatus(
-        this.authClient.verifyTotpCode(sessionToken()!, code)
+        this.authClient.completeTotpSetup(
+          sessionToken()!,
+          service ? { service } : {}
+        )
       );
-      // We must requery for this because this endpoint checks
-      // for if recovery codes exist
+      // Only update local cache if the server-side setup completes successfully
       await this.refresh('recoveryPhone');
       const cache = this.apolloClient.cache;
       cache.modify({
@@ -1262,8 +1270,7 @@ export class Account implements AccountData {
       });
       await this.refresh('backupCodes');
     } catch (e) {
-      // Re-throw and allow the presentation layer to display the error.
-      // We don't want to set `totp.verified` to `true` if there's an error.
+      // Surface to caller; ensures no partial/local updates if follow-up steps fail
       throw e;
     }
   }

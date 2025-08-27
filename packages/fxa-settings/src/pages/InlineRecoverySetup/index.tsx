@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import DataBlock from '../../components/DataBlock';
 import { BackupCodesImage } from '../../components/images';
 import CardHeader from '../../components/CardHeader';
@@ -16,10 +15,7 @@ import FormVerifyCode, {
   commonBackupCodeFormAttributes,
 } from '../../components/FormVerifyCode';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import {
-  InlineRecoverySetupProps,
-  SigninRecoveryLocationState,
-} from './interfaces';
+import { InlineRecoverySetupProps } from './interfaces';
 import {
   getErrorFtlId,
   getHandledError,
@@ -40,12 +36,6 @@ const InlineRecoverySetup = ({
   integration,
 }: InlineRecoverySetupProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
-  const navigateWithQuery = useNavigateWithQuery();
-  const location = useLocation() as ReturnType<typeof useLocation> & {
-    state?: SigninRecoveryLocationState;
-  };
-  const signinRecoveryLocationState = location.state;
-  const { totp, ...signinLocationState } = signinRecoveryLocationState || {};
   const localizedIncorrectBackupCodeError = ftlMsgResolver.getMsg(
     'tfa-incorrect-recovery-code-1',
     'Incorrect backup authentication code'
@@ -132,34 +122,6 @@ const InlineRecoverySetup = ({
               AuthUiErrors.TOTP_TOKEN_NOT_FOUND.message
             )
           );
-        } else if (error.errno === AuthUiErrors.INVALID_OTP_CODE.errno) {
-          const startOverLink = (
-            <Link
-              className="link-blue"
-              to="/inline_totp_setup"
-              state={signinLocationState}
-              onClick={() => {
-                navigateWithQuery('/inline_totp_setup', {
-                  state: signinLocationState,
-                });
-              }}
-            >
-              start over
-            </Link>
-          );
-
-          setBannerErrorLocalized(
-            <FtlMsg
-              id="two-factor-auth-setup-token-verification-error"
-              elems={{ a: startOverLink }}
-            >
-              <>
-                There was a problem enabling two-step authentication. Check that
-                your device’s clock is set to update automatically and{' '}
-                {startOverLink}.
-              </>
-            </FtlMsg>
-          );
         } else {
           setRecoveryCodeError(
             ftlMsgResolver.getMsg(
@@ -176,8 +138,6 @@ const InlineRecoverySetup = ({
       recoveryCodes,
       successfulSetupHandler,
       verifyTotpHandler,
-      navigateWithQuery,
-      signinLocationState,
     ]
   );
 

@@ -23,6 +23,8 @@ export class RelierPage extends BaseLayout {
   }
 
   async isLoggedIn() {
+    // Ensure we've navigated back to the relier before checking login status
+    await this.page.waitForURL(`${this.target.relierUrl}/**`);
     const loggedInStatus = this.page.locator('#loggedin');
     await loggedInStatus.waitFor();
     return loggedInStatus.isVisible();
