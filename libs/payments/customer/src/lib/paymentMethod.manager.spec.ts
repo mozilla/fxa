@@ -21,6 +21,7 @@ import {
   StripeCustomerFactory,
   StripePaymentMethodFactory,
   StripeSubscriptionFactory,
+  StripeCardPaymentMethodFactory,
 } from '@fxa/payments/stripe';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
@@ -159,11 +160,7 @@ describe('PaymentMethodManager', () => {
           },
       });
 
-      const mockPaymentMethod = StripeResponseFactory(
-        StripePaymentMethodFactory({
-          type: 'card',
-        })
-      );
+      const mockPaymentMethod = StripeResponseFactory(StripeCardPaymentMethodFactory());
       jest.spyOn(paymentMethodManager, 'retrieve').mockResolvedValue(mockPaymentMethod);
 
       await expect(
@@ -222,10 +219,9 @@ describe('PaymentMethodManager', () => {
       });
 
       const mockPaymentMethod = StripeResponseFactory(
-        {
-          type: 'card',
-          card: { wallet: { type: 'apple_pay' } },
-        } as any
+        StripeCardPaymentMethodFactory({
+          walletType: 'apple_pay'
+        })
       );
       jest.spyOn(paymentMethodManager, 'retrieve').mockResolvedValue(mockPaymentMethod);
 
@@ -248,10 +244,9 @@ describe('PaymentMethodManager', () => {
       });
 
       const mockPaymentMethod = StripeResponseFactory(
-        {
-          type: 'card',
-          card: { wallet: { type: 'google_pay' } },
-        } as any
+        StripeCardPaymentMethodFactory({
+          walletType: 'google_pay'
+        })
       );
       jest.spyOn(paymentMethodManager, 'retrieve').mockResolvedValue(mockPaymentMethod);
 
