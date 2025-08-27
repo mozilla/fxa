@@ -1035,8 +1035,8 @@ function mockAppStoreSubscriptions(methods) {
 
 function mockAccountEventsManager() {
   const mgr = {
-    recordSecurityEvent: sinon.stub(),
-    recordEmailEvent: sinon.stub(),
+    recordSecurityEvent: sinon.stub().resolves({}),
+    recordEmailEvent: sinon.stub().resolves({}),
   };
   Container.set(AccountEventsManager, mgr);
   return mgr;
