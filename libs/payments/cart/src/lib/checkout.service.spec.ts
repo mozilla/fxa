@@ -579,10 +579,9 @@ describe('CheckoutService', () => {
         mockSubscription.id,
         {
           metadata: {
-            ...mockSubscription.metadata,
             [STRIPE_SUBSCRIPTION_METADATA.SubscriptionPromotionCode]:
               mockCart.couponCode,
-          },
+          }
         }
       );
     });
@@ -767,7 +766,7 @@ describe('CheckoutService', () => {
         jest
           .spyOn(customerManager, 'getDefaultPaymentMethod')
           .mockResolvedValue(existingPayentMethod);
-        await expect(
+        expect(
           checkoutService.payWithStripe(
             mockCart,
             mockConfirmationToken.id,
@@ -1154,9 +1153,14 @@ describe('CheckoutService', () => {
       });
 
       it('calls customermanager.update', () => {
-        expect(customerManager.update).toHaveBeenCalledWith(mockCustomer.id, {
-          metadata: { paypalAgreementId: mockBillingAgreementId },
-        });
+        expect(customerManager.update).toHaveBeenCalledWith(
+          mockCustomer.id,
+          {
+            metadata: {
+              paypalAgreementId: mockBillingAgreementId,
+            }
+          }
+        );
       });
       it('calls cartManager.updateFreshCart', () => {
         expect(cartManager.updateFreshCart).toHaveBeenCalledWith(
@@ -1380,7 +1384,7 @@ describe('CheckoutService', () => {
             redundantCancellation: 'true',
             autoCancelledRedundantFor: subscription.id,
             cancelled_for_customer_at: expect.anything(),
-          },
+          }
         }
       );
       expect(subscriptionManager.cancel).toHaveBeenCalledWith(

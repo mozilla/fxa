@@ -16,6 +16,7 @@ import {
   SetupIntentManager,
   SubscriptionManager,
   CustomerDeletedError,
+  STRIPE_SUBSCRIPTION_METADATA,
 } from '@fxa/payments/customer';
 import {
   AccountCustomerManager,
@@ -99,8 +100,9 @@ export class SubscriptionManagementService {
     await this.subscriptionManager.update(subscriptionId, {
       cancel_at_period_end: true,
       metadata: {
-        ...(subscription.metadata || {}),
-        cancelled_for_customer_at: Math.floor(Date.now() / 1000),
+        [STRIPE_SUBSCRIPTION_METADATA.CancelledForCustomerAt]: Math.floor(
+          Date.now() / 1000
+        ),
       },
     });
 
@@ -523,8 +525,7 @@ export class SubscriptionManagementService {
     await this.subscriptionManager.update(subscriptionId, {
       cancel_at_period_end: false,
       metadata: {
-        ...(subscription.metadata || {}),
-        cancelled_for_customer_at: '',
+        [STRIPE_SUBSCRIPTION_METADATA.CancelledForCustomerAt]: '',
       },
     });
 

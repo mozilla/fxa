@@ -15,6 +15,7 @@ import {
 import { TaxAddressFactory } from './factories/tax-address.factory';
 import { CustomerManager } from './customer.manager';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
+import { STRIPE_CUSTOMER_METADATA } from './types';
 
 describe('CustomerManager', () => {
   let customerManager: CustomerManager;
@@ -48,36 +49,47 @@ describe('CustomerManager', () => {
   });
 
   describe('update', () => {
-    it('should update an existing customer from Stripe', async () => {
-      const mockCustomer = StripeResponseFactory(
-        StripeCustomerFactory({
-          address: {
-            city: faker.location.city(),
-            country: faker.location.countryCode(),
-            line1: faker.location.streetAddress(),
-            line2: '',
-            postal_code: faker.location.zipCode(),
-            state: faker.location.state(),
-          },
-        })
-      );
-
+    const mockParams = {
+      address: {
+        city: faker.location.city(),
+        country: faker.location.countryCode(),
+        line1: faker.location.streetAddress(),
+        line2: '',
+        postal_code: faker.location.zipCode(),
+        state: faker.location.state(),
+      },
+    };
+    const existingMetadata = { userid: 'some-uid' };
+    const mockCustomer = StripeCustomerFactory({
+      ...mockParams,
+      metadata: existingMetadata,
+    });
+    const mockCustomerResponse = StripeResponseFactory(mockCustomer);
+    beforeEach(() => {
       jest
         .spyOn(stripeClient, 'customersUpdate')
-        .mockResolvedValue(mockCustomer);
+        .mockResolvedValue(mockCustomerResponse);
+    });
 
-      const result = await customerManager.update(mockCustomer.id, {
-        address: {
-          city: faker.location.city(),
-          country: faker.location.countryCode(),
-          line1: faker.location.streetAddress(),
-          line2: '',
-          postal_code: faker.location.zipCode(),
-          state: faker.location.state(),
+    it('should update an existing customer from Stripe', async () => {
+      const result = await customerManager.update(mockCustomer.id, mockParams);
+
+      expect(result).toEqual(mockCustomerResponse);
+    });
+
+    it('updates metadata', async () => {
+      const mockParams = {
+        metadata: {
+          [STRIPE_CUSTOMER_METADATA.PaypalAgreement]: 'paypal_agreement_id',
         },
-      });
+      };
 
-      expect(result).toEqual(mockCustomer);
+      await customerManager.update(mockCustomer.id, mockParams);
+
+      expect(stripeClient.customersUpdate).toHaveBeenCalledWith(
+        mockCustomer.id,
+        mockParams
+      );
     });
   });
 
