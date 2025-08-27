@@ -39,6 +39,8 @@ export const SigninRecoveryChoiceContainer = ({
   const [autoSendAttempted, setAutoSendAttempted] = useState(false);
   const autoSendInProgress = useRef(false);
 
+  const cmsInfo = integration.getCmsInfo();
+
   useEffect(() => {
     if (!signinState || !signinState.sessionToken) {
       return;
@@ -221,11 +223,22 @@ export const SigninRecoveryChoiceContainer = ({
   }
 
   if (loading) {
-    return <LoadingSpinner fullScreen />;
+    return (
+      <LoadingSpinner
+        fullScreen
+        backgroundColor={cmsInfo?.shared?.background}
+      />
+    );
   }
 
   if (!phoneData.phoneNumber) {
-    return <LoadingSpinner fullScreen />;
+    debugger;
+    return (
+      <LoadingSpinner
+        fullScreen
+        backgroundColor={cmsInfo?.shared?.background}
+      />
+    );
   } else if (!numBackupCodes || numBackupCodes === 0) {
     // Don't do anything here; auto-send is handled in useEffect above
     return <LoadingSpinner fullScreen />;

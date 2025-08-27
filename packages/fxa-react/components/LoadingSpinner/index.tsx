@@ -14,6 +14,7 @@ export type LoadingSpinnerProps = {
   imageClassName?: string;
   spinnerType?: SpinnerType;
   fullScreen?: boolean;
+  backgroundColor?: string;
 };
 
 export const LoadingSpinner = ({
@@ -21,6 +22,7 @@ export const LoadingSpinner = ({
   imageClassName = 'w-10 h-10 animate-spin',
   spinnerType = SpinnerType.Blue,
   fullScreen = false,
+  backgroundColor,
 }: LoadingSpinnerProps) => {
   const { l10n } = useLocalization();
   const loadingAriaLabel = l10n.getString(
@@ -54,10 +56,16 @@ export const LoadingSpinner = ({
 
   return (
     <div
+      style={
+        backgroundColor
+          ? ({ '--cms-bg': backgroundColor } as React.CSSProperties)
+          : undefined
+      }
       className={classNames(
         className,
         fullScreen &&
-          'bg-grey-20 flex items-center flex-col justify-center h-screen select-none'
+          'bg-grey-20 flex items-center flex-col justify-center h-screen select-none',
+        backgroundColor && 'tablet:[background:var(--cms-bg)]'
       )}
       data-testid="loading-spinner"
     >
