@@ -9,6 +9,7 @@ export interface Page {
   logoUrl: string | null;
   logoAltText: string | null;
   pageTitle: string | null;
+  splitLayout: boolean | null;
 }
 
 export interface Email {
@@ -25,8 +26,12 @@ export interface Shared {
   emailLogoUrl: string | null;
   emailLogoAltText: string | null;
   emailLogoWidth: string | null;
-  backgroundColor: string | null;
-  headerBackground: string | null;
+  backgrounds: {
+    defaultLayout: string | null;
+    header: string | null;
+    splitLayout: string | null;
+    splitLayoutAltText: string | null;
+  };
   pageTitle: string | null;
   headerLogoUrl: string | null;
   headerLogoAltText: string | null;

@@ -28,6 +28,7 @@ export const RelyingPartyResultFactory = (
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
     pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
   },
   SignupSetPasswordPage: {
     logoUrl: faker.internet.url(),
@@ -36,6 +37,7 @@ export const RelyingPartyResultFactory = (
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
     pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
   },
   SignupConfirmCodePage: {
     logoUrl: faker.internet.url(),
@@ -44,6 +46,7 @@ export const RelyingPartyResultFactory = (
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
     pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
   },
   SignupConfirmedSyncPage: {
     logoUrl: faker.internet.url(),
@@ -52,6 +55,7 @@ export const RelyingPartyResultFactory = (
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
     pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
   },
   shared: {
     buttonColor: faker.color.rgb(),
@@ -61,8 +65,12 @@ export const RelyingPartyResultFactory = (
     emailLogoUrl: faker.internet.url(),
     emailLogoAltText: faker.string.sample(),
     emailLogoWidth: `${faker.number.int({ min: 10, max: 1000 })}px`,
-    backgroundColor: faker.color.rgb(),
-    headerBackground: faker.color.rgb(),
+    backgrounds: {
+      defaultLayout: faker.color.rgb(),
+      splitLayout: faker.color.rgb(),
+      header: faker.color.rgb(),
+      splitLayoutAltText: faker.string.sample(),
+    },
     pageTitle: faker.string.sample(),
     headerLogoUrl: faker.internet.url(),
     headerLogoAltText: faker.string.sample(),
@@ -78,6 +86,7 @@ export const RelyingPartyResultFactory = (
     subject: faker.string.sample(),
     headline: faker.string.sample(),
     description: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
   },
   VerifyLoginCodeEmail: {
     logoUrl: faker.internet.url(),
@@ -85,6 +94,7 @@ export const RelyingPartyResultFactory = (
     subject: faker.string.sample(),
     headline: faker.string.sample(),
     description: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
   },
   VerifyShortCodeEmail: {
     logoUrl: faker.internet.url(),
@@ -92,6 +102,7 @@ export const RelyingPartyResultFactory = (
     subject: faker.string.sample(),
     headline: faker.string.sample(),
     description: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
   },
   SigninPage: {
     logoUrl: faker.internet.url(),
@@ -100,6 +111,7 @@ export const RelyingPartyResultFactory = (
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
     pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
   },
   SigninTokenCodePage: {
     logoUrl: faker.internet.url(),
@@ -108,6 +120,7 @@ export const RelyingPartyResultFactory = (
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
     pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
   },
   SigninUnblockCodePage: {
     logoUrl: faker.internet.url(),
@@ -116,6 +129,7 @@ export const RelyingPartyResultFactory = (
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
     pageTitle: faker.string.sample(),
+    splitLayout: faker.datatype.boolean(),
   },
   ...override,
 });
