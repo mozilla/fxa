@@ -115,6 +115,7 @@ interface StripeWrapperProps {
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
+      walletType?: string;
     };
     hasActiveSubscriptions?: boolean;
   };

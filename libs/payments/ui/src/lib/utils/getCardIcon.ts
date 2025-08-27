@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Amex from '@fxa/shared/assets/images/payment-methods/amex.svg';
+import ApplePay from '@fxa/shared/assets/images/payment-methods/apple-pay.svg';
 import Diners from '@fxa/shared/assets/images/payment-methods/diners.svg';
 import Discover from '@fxa/shared/assets/images/payment-methods/discover.svg';
+import GooglePay from '@fxa/shared/assets/images/payment-methods/google-pay.svg';
 import Jcb from '@fxa/shared/assets/images/payment-methods/jcb.svg';
 import Link from '@fxa/shared/assets/images/payment-methods/link.svg';
 import Mastercard from '@fxa/shared/assets/images/payment-methods/mastercard.svg';
@@ -21,6 +23,11 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
         img: Amex,
         altText: l10n.getString('amex-logo-alt-text', 'American Express logo'),
       };
+    case 'apple_pay':
+      return {
+        img: ApplePay,
+        altText: l10n.getString('apple-pay-logo-alt-text', 'Apple Pay logo'),
+      };
     case 'diners':
       return {
         img: Diners,
@@ -30,6 +37,11 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: Discover,
         altText: l10n.getString('discover-logo-alt-text', 'Discover logo'),
+      };
+    case 'google_pay':
+      return {
+        img: GooglePay,
+        altText: l10n.getString('google-pay-logo-alt-text', 'Google Pay logo'),
       };
     case 'jcb':
       return {

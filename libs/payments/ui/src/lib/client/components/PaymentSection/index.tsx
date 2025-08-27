@@ -49,6 +49,7 @@ interface PaymentFormProps {
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
+      walletType?: string;
     };
     hasActiveSubscriptions: boolean;
   };

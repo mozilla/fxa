@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { PaymentProvidersType } from '@fxa/payments/metrics';
 import { StripeInvoice, StripeSubscription } from '@fxa/payments/stripe';
+import {
+  SubPlatPaymentMethodType,
+} from '@fxa/payments/customer';
 
 export enum CancellationReason {
   CustomerInitiated = 'customer_initiated',
@@ -11,8 +13,16 @@ export enum CancellationReason {
   Redundant = 'redundant',
 }
 
+const STRIPE_PAYMENT_PROVIDER_TYPES = new Set([
+  SubPlatPaymentMethodType.Card,
+  SubPlatPaymentMethodType.GooglePay,
+  SubPlatPaymentMethodType.ApplePay,
+  SubPlatPaymentMethodType.Link,
+  SubPlatPaymentMethodType.Stripe,
+]);
+
 export const determineCancellation = (
-  paymentProvider: PaymentProvidersType,
+  paymentProvider: SubPlatPaymentMethodType,
   subscription: StripeSubscription,
   latestInvoice?: StripeInvoice
 ): CancellationReason | undefined => {
@@ -20,7 +30,7 @@ export const determineCancellation = (
     return CancellationReason.Redundant;
   }
 
-  if (paymentProvider === 'external_paypal') {
+  if (paymentProvider === SubPlatPaymentMethodType.PayPal) {
     if (!latestInvoice) {
       return undefined;
     } else {
@@ -28,7 +38,7 @@ export const determineCancellation = (
         ? CancellationReason.CustomerInitiated
         : CancellationReason.Involuntary;
     }
-  } else if (paymentProvider === 'card') {
+  } else if (STRIPE_PAYMENT_PROVIDER_TYPES.has(paymentProvider)) {
     return subscription.cancellation_details
       ? subscription.cancellation_details?.reason === 'cancellation_requested'
         ? CancellationReason.CustomerInitiated

@@ -20,13 +20,13 @@ import {
   PaymentMethodManager,
   CustomerSessionManager,
   PaymentIntentManager,
-  determinePaymentMethodType,
   retrieveSubscriptionItem,
   TaxAddress,
   PriceManager,
   getSubplatInterval,
   SetupIntentManager,
   PromotionCodeError,
+  SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
   EligibilityService,
@@ -877,24 +877,35 @@ export class CartService {
     }
 
     let paymentInfo: PaymentInfo | undefined;
-    const paymentMethodType = determinePaymentMethodType(
+    const paymentMethodType = await this.paymentMethodManager.determineType(
       customer,
       subscriptions
     );
-    if (paymentMethodType?.type === 'stripe') {
-      const paymentMethod = await this.paymentMethodManager.retrieve(
-        paymentMethodType.paymentMethodId
-      );
-      paymentInfo = {
-        type: paymentMethod.type,
-        last4: paymentMethod.card?.last4,
-        brand: paymentMethod.card?.brand,
-        customerSessionClientSecret: customerSession?.client_secret,
-      };
-    } else if (paymentMethodType?.type === 'external_paypal') {
-      paymentInfo = {
-        type: 'external_paypal',
-      };
+
+    switch (paymentMethodType?.type) {
+      case SubPlatPaymentMethodType.PayPal:
+        paymentInfo = {
+          type: 'external_paypal',
+        };
+        break;
+      case SubPlatPaymentMethodType.Link:
+      case SubPlatPaymentMethodType.Card:
+      case SubPlatPaymentMethodType.ApplePay:
+      case SubPlatPaymentMethodType.GooglePay:
+      case SubPlatPaymentMethodType.Stripe: {
+        const paymentMethod = await this.paymentMethodManager.retrieve(
+          paymentMethodType.paymentMethodId
+        );
+        const walletType = paymentMethod.card?.wallet?.type;
+        paymentInfo = {
+          type: paymentMethod.type,
+          last4: paymentMethod.card?.last4,
+          brand: paymentMethod.card?.brand,
+          customerSessionClientSecret: customerSession?.client_secret,
+          ...(walletType ? { walletType } : {}),
+        };
+        break;
+      }
     }
 
     // Cart latest invoice data

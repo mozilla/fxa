@@ -10,6 +10,9 @@ import {
 } from '@fxa/payments/metrics';
 import { LocationStatus } from '@fxa/payments/eligibility';
 import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
+import {
+  SubPlatPaymentMethodType,
+} from '@fxa/payments/customer';
 
 export type CheckoutEvents = CommonMetrics;
 export type CheckoutPaymentEvents = CommonMetrics & {
@@ -21,7 +24,7 @@ export type SubscriptionEndedEvents = {
   priceId: string;
   priceInterval?: string;
   priceIntervalCount?: number;
-  paymentProvider?: PaymentProvidersType;
+  paymentProvider?: SubPlatPaymentMethodType;
   providerEventId: string;
   cancellationReason: CancellationReason;
   uid?: string;

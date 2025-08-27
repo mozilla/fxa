@@ -14,6 +14,7 @@ import {
   InvoiceManager,
   PriceManager,
   SubscriptionManager,
+  PaymentMethodManager,
 } from '@fxa/payments/customer';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import {
@@ -55,12 +56,20 @@ describe('StripeWebhookService', () => {
     log: jest.fn(),
   };
 
+  const paymentMethodManagerMock = {
+    determineType: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
         {
           provide: Logger,
           useValue: mockLogger,
+        },
+        {
+          provide: PaymentMethodManager,
+          useValue: paymentMethodManagerMock
         },
         MockStripeConfigProvider,
         StripeClient,
