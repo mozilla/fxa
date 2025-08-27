@@ -30,23 +30,31 @@ subscription-content-button-cancel =
   Cancel
   .aria-label = Cancel your subscription to { $productName }
 subscription-content-cancel-action-error = An unexpected error occurred. Please try again.
-
 subscription-cancellation-dialog-title = We’re sorry to see you go
 # $name (String) - The name of the subscribed product.
 # $date (Date) - Last day of product access
 subscription-cancellation-dialog-msg = Your { $name } subscription has been cancelled. You will still have access to { $name } until { $date }.
 subscription-cancellation-dialog-aside = Have questions? Visit <LinkExternal>{ -brand-mozilla } Support</LinkExternal>.
-
-
 subscription-content-button-resubscribe = Resubscribe
   .aria-label = Resubscribe to { $productName }
-
+# $name (String) - The name of the subscribed product.
 # $date (Date) - Last day of product access
 subscription-content-resubscribe = You will lose access to { $name } on <strong>{ $date }</strong>.
-
+# $name (String) - The name of the subscribed product.
 resubscribe-dialog-title = Want to keep using { $name }?
-resubscribe-dialog-content = Your access to { $name } will continue, and your billing cycle and payment will stay the same. Your next charge will be { $amount } on { $endDate }.
-resubscribe-dialog-action-button = Stay Subscribed
 
+## $name (String) - The name of the subscribed product.
+## $amount (Number) - The amount billed (excluding tax if tax does not exist). It will be formatted as currency.
+## $tax (Number) - The tax added on, not included in amount. It will be formatted as currency.
+## $endDate (Date) - The end date of the subscription period.
+
+resubscribe-dialog-content = Your access to { $name } will continue, and your billing cycle and payment will stay the same. Your next charge will be { $amount } on { $endDate }.
+resubscribe-dialog-content-with-tax = Your access to { $name } will continue, and your billing cycle and payment will stay the same. Your next charge will be { $amount } + { $tax } tax on { $endDate }.
+# $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
+resubscribe-dialog-action-button-resubscribe = Resubscribe
+  .aria-label = Resubscribe to { $productName }
 resubscribe-success-dialog-title = Thanks! You’re all set.
-resubscribe-success-dialog-action-button = Close
+resubscribe-success-dialog-action-button-close = Close
+  .aria-label = Close dialog
+
+##
