@@ -46,6 +46,7 @@ export function PaymentMethodManagement({
   const [hasFullNameError, setHasFullNameError] = useState(false);
   const [isNonDefaultCardSelected, setIsNonDefaultCardSelected] =
     useState(false);
+  const [isNonCardSelected, setIsNonCardSelected] = useState(false);
 
   const handleReady = () => {
     setIsReady(true);
@@ -55,6 +56,14 @@ export function PaymentMethodManagement({
     event: StripePaymentElementChangeEvent
   ) => {
     setIsComplete(event.complete);
+
+    if (event.value.type !== 'card') {
+      setIsNonCardSelected(true);
+      setIsInputNewCardDetails(false);
+      setHasFullNameError(false);
+      return;
+    }
+    setIsNonCardSelected(false);
 
     if (event.value.type === 'card' && !event.value.payment_method) {
       setIsInputNewCardDetails(true);
@@ -105,6 +114,11 @@ export function PaymentMethodManagement({
     event.preventDefault();
 
     if (!stripe || !elements || !isComplete) {
+      return;
+    }
+
+    if (isInputNewCardDetails && !fullName) {
+      setHasFullNameError(true);
       return;
     }
 
@@ -250,7 +264,7 @@ export function PaymentMethodManagement({
             </Form.Message>
           )}
         </Form.Field>
-        {isInputNewCardDetails && (
+        {(isInputNewCardDetails || isNonCardSelected) && (
           <div className="flex flex-row justify-center pt-4">
             <Form.Submit asChild>
               <BaseButton

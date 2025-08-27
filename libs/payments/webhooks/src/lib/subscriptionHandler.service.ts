@@ -5,12 +5,12 @@
 import {
   CustomerDeletedError,
   CustomerManager,
-  determinePaymentMethodType,
   InvoiceManager,
   SubscriptionManager,
+  PaymentMethodManager,
+  SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import { PaymentsEmitterService } from '@fxa/payments/events';
-import { PaymentProvidersType } from '@fxa/payments/metrics';
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
 import {
@@ -24,7 +24,8 @@ export class SubscriptionEventsService {
     private subscriptionManager: SubscriptionManager,
     private customerManager: CustomerManager,
     private invoiceManager: InvoiceManager,
-    private emitterService: PaymentsEmitterService
+    private emitterService: PaymentsEmitterService,
+    private paymentMethodManager: PaymentMethodManager,
   ) {}
 
   async handleCustomerSubscriptionDeleted(
@@ -36,7 +37,7 @@ export class SubscriptionEventsService {
     );
     const price = subscription.items.data[0].price;
 
-    let paymentProvider: PaymentProvidersType | undefined;
+    let paymentProvider: SubPlatPaymentMethodType | undefined;
     let determinedCancellation: CancellationReason | undefined;
     let uid: string | undefined;
     try {
@@ -44,17 +45,13 @@ export class SubscriptionEventsService {
         subscription.customer
       );
       uid = customer.metadata['userid'];
-      const paymentMethodType = determinePaymentMethodType(customer, [
+      const paymentMethodType = await this.paymentMethodManager.determineType(customer, [
         subscription,
       ]);
-      if (paymentMethodType?.type === 'stripe') {
-        paymentProvider = 'card';
-      } else if (paymentMethodType?.type === 'external_paypal') {
-        paymentProvider = 'external_paypal';
-      }
+      paymentProvider = paymentMethodType?.type;
 
       const latestInvoice =
-        paymentProvider === 'external_paypal' && subscription.latest_invoice
+        paymentProvider === SubPlatPaymentMethodType.PayPal && subscription.latest_invoice
           ? await this.invoiceManager.retrieve(subscription.latest_invoice)
           : undefined;
 

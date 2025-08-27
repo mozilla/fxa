@@ -51,7 +51,9 @@
 -product-pocket = Pocket
 
 -brand-apple = Apple
+-brand-apple-pay = Apple Pay
 -brand-google = Google
+-brand-google-pay = Google Pay
 -brand-paypal = PayPal
 -brand-name-stripe = Stripe
 -brand-amex = American Express

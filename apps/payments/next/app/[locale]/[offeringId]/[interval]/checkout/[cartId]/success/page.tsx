@@ -148,7 +148,55 @@ export default async function CheckoutSuccess({
             cart.latestInvoicePreview?.currency,
             locale
           )}
-          {cart.paymentInfo.type === 'external_paypal' ? (
+          {cart.paymentInfo.walletType === 'apple_pay' ? (
+            <div className="flex items-center gap-3">
+              <Image
+                src={getCardIcon('apple_pay', l10n).img}
+                alt={l10n.getString('apple-pay-logo-alt-text', 'Apple Pay logo')}
+                width={40}
+                height={24}
+              />
+              <span className="flex items-center gap-2">
+                {cart.paymentInfo.brand && (
+                  <Image
+                    src={getCardIcon(cart.paymentInfo.brand, l10n).img}
+                    alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
+                    width={40}
+                    height={24}
+                  />
+                )}
+                {l10n.getString(
+                  'next-payment-confirmation-cc-card-ending-in',
+                  { last4: cart.paymentInfo.last4 ?? '' },
+                  `Card ending in ${cart.paymentInfo.last4}`
+                )}
+              </span>
+            </div>
+          ) : cart.paymentInfo.walletType === 'google_pay' ? (
+            <div className="flex items-center gap-3">
+              <Image
+                src={getCardIcon('google_pay', l10n).img}
+                alt={l10n.getString('google-pay-logo-alt-text', 'Google Pay logo')}
+                width={40}
+                height={24}
+              />
+              <span className="flex items-center gap-2">
+                {cart.paymentInfo.brand && (
+                  <Image
+                    src={getCardIcon(cart.paymentInfo.brand, l10n).img}
+                    alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
+                    width={40}
+                    height={24}
+                  />
+                )}
+                {l10n.getString(
+                  'next-payment-confirmation-cc-card-ending-in',
+                  { last4: cart.paymentInfo.last4 ?? '' },
+                  `Card ending in ${cart.paymentInfo.last4}`
+                )}
+              </span>
+            </div>
+          ) : cart.paymentInfo.type === 'external_paypal' ? (
             <Image
               src={getCardIcon('paypal', l10n).img}
               alt={l10n.getString('paypal-logo-alt-text', 'PayPal logo')}
