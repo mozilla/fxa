@@ -62,6 +62,9 @@ const taxRateFr = require('./fixtures/stripe/taxRateFr.json');
 const plan1 = require('./fixtures/stripe/plan1.json');
 const plan2 = require('./fixtures/stripe/plan2.json');
 const plan3 = require('./fixtures/stripe/plan3.json');
+const price1 = require('./fixtures/stripe/price1.json');
+const price2 = require('./fixtures/stripe/price2.json');
+const price3 = require('./fixtures/stripe/price3.json');
 const product1 = require('./fixtures/stripe/product1.json');
 const product2 = require('./fixtures/stripe/product2.json');
 const product3 = require('./fixtures/stripe/product3.json');
@@ -333,6 +336,9 @@ describe('#integration - StripeHelper', () => {
     listStripePlans = sandbox
       .stub(stripeHelper.stripe.plans, 'list')
       .returns(asyncIterable([plan1, plan2, plan3]));
+    sandbox
+      .stub(stripeHelper.stripe.prices, 'list')
+      .returns(asyncIterable([price1, price2, price3]));
     sandbox
       .stub(stripeHelper.stripe.taxRates, 'list')
       .returns(asyncIterable([taxRateDe, taxRateFr]));
@@ -3295,6 +3301,30 @@ describe('#integration - StripeHelper', () => {
       assert.deepEqual(
         await stripeHelper.allPlans(),
         JSON.parse(await mockRedis.get('listStripePlans'))
+      );
+    });
+  });
+
+  describe('allPrices', () => {
+    it('pulls a list of plans and caches it', async () => {
+      assert.lengthOf(await stripeHelper.allPrices(), 3);
+      assert(mockRedis.get.calledOnce);
+
+      assert.lengthOf(await stripeHelper.allPrices(), 3);
+      assert(mockRedis.get.calledTwice);
+      assert(mockRedis.set.calledOnce);
+
+      // Assert that a TTL was set for this cache entry
+      assert.deepEqual(mockRedis.set.args[0][2], [
+        'EX',
+        mockConfig.subhub.plansCacheTtlSeconds,
+      ]);
+
+      assert(stripeHelper.stripe.prices.list.calledOnce);
+
+      assert.deepEqual(
+        await stripeHelper.allPrices(),
+        JSON.parse(await mockRedis.get('listStripePrices'))
       );
     });
   });
@@ -7157,8 +7187,79 @@ describe('#integration - StripeHelper', () => {
     });
   });
 
+  describe('getSubscriptionManagementPriceInfo', () => {
+    const currency = 'USD';
+
+    it('successfully returns priceInfo', async () => {
+      const actual = await stripeHelper.getSubscriptionManagementPriceInfo(price1.id, currency);
+      assert.deepEqual(actual, {
+        amount: 499,
+        currency: 'usd',
+        interval: 'month',
+        interval_count: 1,
+      });
+    })
+
+    it('throws if price not found', async () => {
+      try {
+        await stripeHelper.getSubscriptionManagementPriceInfo('invalid', currency);
+        assert.fail('Expected method to throw an error');
+      } catch (error) {
+        assert.instanceOf(error, Error);
+        assert.equal(error.message, 'Price not found');
+      }
+    })
+
+    it('throws if not a recurring price', async () => {
+      const newPrice1 = deepCopy(price1);
+      newPrice1.recurring = null;
+      sandbox.stub(stripeHelper, 'allPrices').resolves([newPrice1]);
+      
+      try {
+        await stripeHelper.getSubscriptionManagementPriceInfo(newPrice1.id, currency);
+        assert.fail('Expected method to throw an error');
+      } catch (error) {
+        assert.instanceOf(error, Error);
+        assert.equal(error.message, 'Only support recurring prices');
+      }
+
+    })
+
+    it('throws if price does not support customer currency', async () => {
+      try {
+        await stripeHelper.getSubscriptionManagementPriceInfo(price1.id, 'zar');
+        assert.fail('Expected method to throw an error');
+      } catch (error) {
+        assert.instanceOf(error, Error);
+        assert.equal(error.message, 'Price does not support this currency');
+      }
+
+    })
+
+    it('throws if price amount could not be determined', async () => {
+      const newPrice1 = deepCopy(price1);
+      newPrice1.currency_options = {
+        usd: {
+          custom_unit_amount: null,
+          tax_behavior: "exclusive",
+          unit_amount: null,
+          unit_amount_decimal: null
+        }
+      };
+      sandbox.stub(stripeHelper, 'allPrices').resolves([newPrice1]);
+
+      try {
+        await stripeHelper.getSubscriptionManagementPriceInfo(newPrice1.id, currency);
+        assert.fail('Expected method to throw an error');
+      } catch (error) {
+        assert.instanceOf(error, Error);
+        assert.equal(error.message, 'Price amount is required');
+      }
+    })
+  })
+
   describe('getBillingDetailsAndSubscriptions', () => {
-    const customer = { id: 'cus_xyz' };
+    const customer = { id: 'cus_xyz', currency: 'usd' };
     const billingDetails = { payment_provider: 'paypal' };
     const billingAgreementId = 'ba-123';
     const mockInvoice = { status: 'paid' };
@@ -7212,6 +7313,7 @@ describe('#integration - StripeHelper', () => {
 
       assert.deepEqual(actual, {
         customerId: customer.id,
+        customerCurrency: customer.currency,
         subscriptions: [],
         ...billingDetails,
       });
@@ -7232,6 +7334,7 @@ describe('#integration - StripeHelper', () => {
 
       assert.deepEqual(actual, {
         customerId: customer.id,
+        customerCurrency: customer.currency,
         subscriptions: [],
         billing_agreement_id: billingAgreementId,
         ...billingDetails,
@@ -7255,6 +7358,7 @@ describe('#integration - StripeHelper', () => {
 
       assert.deepEqual(actual, {
         customerId: customer.id,
+        customerCurrency: customer.currency,
         subscriptions: [],
         billing_agreement_id: null,
         paypal_payment_error: PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
@@ -7271,6 +7375,7 @@ describe('#integration - StripeHelper', () => {
 
       assert.deepEqual(actual, {
         customerId: customer.id,
+        customerCurrency: customer.currency,
         subscriptions: [],
         billing_agreement_id: billingAgreementId,
         paypal_payment_error: PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
@@ -7294,6 +7399,7 @@ describe('#integration - StripeHelper', () => {
 
       assert.deepEqual(actual, {
         customerId: customer.id,
+        customerCurrency: customer.currency,
         subscriptions: [],
         billing_agreement_id: billingAgreementId,
         ...billingDetails,
@@ -7322,6 +7428,7 @@ describe('#integration - StripeHelper', () => {
         await stripeHelper.getBillingDetailsAndSubscriptions('uid');
       assert.deepEqual(actual, {
         customerId: customer.id,
+        customerCurrency: customer.currency,
         subscriptions,
         billing_agreement_id: billingAgreementId,
         ...billingDetails,

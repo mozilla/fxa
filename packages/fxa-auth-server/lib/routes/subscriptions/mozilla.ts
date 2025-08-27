@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import { CapabilityService } from '../../../lib/payments/capability';
-import { MozillaSubscription } from 'fxa-shared/subscriptions/types';
+import { type WebSubscription } from 'fxa-shared/subscriptions/types';
 import { Container } from 'typedi';
 
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
@@ -14,11 +14,15 @@ import {
   appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
   playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
 } from '../../payments/iap/iap-formatter';
-import { PaymentBillingDetails, StripeHelper } from '../../payments/stripe';
+import { StripeHelper } from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { handleAuth } from './utils';
 import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
+import type { AppendedPlayStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/google-play/types';
+import type { AppendedAppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/types';
+
+const DEFAULT_CURRENCY = 'usd';
 
 export class MozillaSubscriptionHandler {
   constructor(
@@ -30,6 +34,87 @@ export class MozillaSubscriptionHandler {
     protected appStoreSubscriptions: AppStoreSubscriptions,
     protected capabilityService: CapabilityService
   ) {}
+
+  private async mapMozillaSubscriptions({
+    customerCurrency,
+    stripeSubscriptions,
+    iapGooglePlaySubscriptions,
+    iapAppStoreSubscriptions,
+  }: {
+    customerCurrency: string | null | undefined;
+    stripeSubscriptions: WebSubscription[];
+    iapGooglePlaySubscriptions: AppendedPlayStoreSubscriptionPurchase[];
+    iapAppStoreSubscriptions: AppendedAppStoreSubscriptionPurchase[];
+  }) {
+    const stripePromises =
+      stripeSubscriptions?.map(async (sub) => {
+        if (!customerCurrency) {
+          throw new Error('Customer currency required');
+        }
+
+        return this.stripeHelper
+          .getSubscriptionManagementPriceInfo(sub.plan_id, customerCurrency)
+          .then((priceInfo) => ({
+            priceId: sub.plan_id,
+            priceInfo,
+          }));
+      }) || [];
+
+    const googleIapSubsPromises =
+      iapGooglePlaySubscriptions?.map((sub) =>
+        this.stripeHelper
+          .getSubscriptionManagementPriceInfo(
+            sub.price_id,
+            sub.priceCurrencyCode || DEFAULT_CURRENCY
+          )
+          .then((priceInfo) => ({
+            priceId: sub.price_id,
+            priceInfo: priceInfo,
+          }))
+      ) || [];
+    const appleIapSubsPromises =
+      iapAppStoreSubscriptions?.map((sub) =>
+        this.stripeHelper
+          .getSubscriptionManagementPriceInfo(
+            sub.price_id,
+            sub.currency || DEFAULT_CURRENCY
+          )
+          .then((priceInfo) => ({
+            priceId: sub.price_id,
+            priceInfo: priceInfo,
+          }))
+      ) || [];
+
+    const subsPriceInfo = await Promise.all([
+      ...stripePromises,
+      ...googleIapSubsPromises,
+      ...appleIapSubsPromises,
+    ]);
+
+    const stripeMozSubs = stripeSubscriptions.map((sub) => {
+      return {
+        ...sub,
+        priceInfo: subsPriceInfo.find((info) => info.priceId === sub.plan_id)
+          ?.priceInfo,
+      };
+    });
+    const googleIapMozSubs = iapGooglePlaySubscriptions.map((sub) => {
+      return {
+        ...playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO(sub),
+        priceInfo: subsPriceInfo.find((info) => info.priceId === sub.price_id)
+          ?.priceInfo,
+      };
+    });
+    const appleIapMozSubs = iapAppStoreSubscriptions.map((sub) => {
+      return {
+        ...appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO(sub),
+        priceInfo: subsPriceInfo.find((info) => info.priceId === sub.price_id)
+          ?.priceInfo,
+      };
+    });
+
+    return [...stripeMozSubs, ...googleIapMozSubs, ...appleIapMozSubs];
+  }
 
   async getBillingDetailsAndSubscriptions(request: AuthRequest) {
     this.log.begin(
@@ -59,25 +144,24 @@ export class MozillaSubscriptionHandler {
       throw error.unknownCustomer(uid);
     }
 
-    const response: {
-      customerId?: string;
-      subscriptions: MozillaSubscription[];
-    } & Partial<PaymentBillingDetails> =
-      stripeBillingDetailsAndSubscriptions || {
-        subscriptions: [],
-      };
+    const {
+      subscriptions: stripeSubscriptions,
+      customerCurrency,
+      ...billingDetails
+    } = stripeBillingDetailsAndSubscriptions
+      ? stripeBillingDetailsAndSubscriptions
+      : { subscriptions: [], customerCurrency: undefined };
+
+    const mozillaSubscriptions = await this.mapMozillaSubscriptions({
+      customerCurrency,
+      stripeSubscriptions,
+      iapGooglePlaySubscriptions,
+      iapAppStoreSubscriptions,
+    });
 
     return {
-      ...response,
-      subscriptions: [
-        ...response.subscriptions,
-        ...iapGooglePlaySubscriptions.map(
-          playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO
-        ),
-        ...iapAppStoreSubscriptions.map(
-          appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO
-        ),
-      ],
+      ...billingDetails,
+      subscriptions: mozillaSubscriptions,
     };
   }
 

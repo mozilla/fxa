@@ -19,6 +19,12 @@ export const iapExtraStripeInfoSchema = joi.object({
   price_id: joi.string().required(),
   product_id: joi.string().required(),
   product_name: joi.string().required(),
+  priceInfo: joi.object({
+    amount: joi.number().required(),
+    currency: joi.string().required(),
+    interval: joi.string().required(),
+    interval_count: joi.number().required(),
+  }),
 });
 
 export type iapExtraStripeInfoSchema = {

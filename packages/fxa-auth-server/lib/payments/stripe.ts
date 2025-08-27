@@ -289,7 +289,9 @@ export class StripeHelper extends StripeHelperBase {
    * @param plan
    * @returns true if plan is valid
    */
-  protected override async validatePlan(plan: Stripe.Plan): Promise<boolean> {
+  protected override async validatePlan(
+    plan: Stripe.Plan | Stripe.Price
+  ): Promise<boolean> {
     const { error } = await subscriptionProductMetadataValidator.validateAsync({
       ...plan.metadata,
       ...(plan.product as Stripe.Product)?.metadata,
@@ -2307,6 +2309,43 @@ export class StripeHelper extends StripeHelperBase {
     return null;
   }
 
+  async getSubscriptionManagementPriceInfo(priceId: string, currency: string) {
+    const prices = await this.allPrices();
+    const price = prices.find((p) => p.id === priceId);
+
+    if (!price) {
+      throw new Error('Price not found');
+    }
+
+    const normalizedCurrency = currency.toLowerCase();
+    const currencyOption = price.currency_options?.[normalizedCurrency];
+
+    if (!price.recurring) {
+      throw new Error('Only support recurring prices');
+    }
+
+    if (!currencyOption) {
+      throw new Error('Price does not support this currency');
+    }
+
+    const { unit_amount, unit_amount_decimal } = currencyOption;
+    const amount =
+      unit_amount ??
+      (unit_amount_decimal != null
+        ? Math.round(parseFloat(unit_amount_decimal))
+        : null);
+    if (!amount) {
+      throw new Error('Price amount is required');
+    }
+
+    return {
+      amount,
+      currency: normalizedCurrency,
+      interval: price.recurring.interval,
+      interval_count: price.recurring.interval_count,
+    };
+  }
+
   async getBillingDetailsAndSubscriptions(uid: string) {
     const customer = await this.fetchCustomer(uid, [
       'invoice_settings.default_payment_method',
@@ -2319,9 +2358,11 @@ export class StripeHelper extends StripeHelperBase {
     const billingDetails = await this.extractBillingDetails(customer);
     const detailsAndSubs: {
       customerId: string;
+      customerCurrency: string | null | undefined;
       subscriptions: WebSubscription[];
     } & PaymentBillingDetails = {
       customerId: customer.id,
+      customerCurrency: customer.currency,
       subscriptions: [],
       ...billingDetails,
     };

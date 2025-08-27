@@ -45,6 +45,7 @@ export const SOURCE_RESOURCE = 'sources';
 export const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
 export const TAX_RATE_RESOURCE = 'taxRates';
 export const STRIPE_PLANS_CACHE_KEY = 'listStripePlans';
+export const STRIPE_PRICES_CACHE_KEY = 'listStripePrices';
 export const STRIPE_PRODUCTS_CACHE_KEY = 'listStripeProducts';
 
 export const STRIPE_OBJECT_TYPE_TO_RESOURCE: Record<string, string> = {
@@ -165,7 +166,9 @@ export abstract class StripeHelper {
    * @param plan - Plan to validate
    * @returns - true if plan is valid
    */
-  protected abstract validatePlan(plan: Stripe.Plan): Promise<boolean>;
+  protected abstract validatePlan(
+    plan: Stripe.Plan | Stripe.Price
+  ): Promise<boolean>;
 
   /**
    * Fetch all product data and cache it if Redis is enabled.
@@ -313,7 +316,7 @@ export abstract class StripeHelper {
    * Append any matching prices and related info to their corresponding IAP purchases.
    */
   async addPriceInfoToIapPurchases<
-    T extends AppStoreSubscriptionPurchase | PlayStoreSubscriptionPurchase
+    T extends AppStoreSubscriptionPurchase | PlayStoreSubscriptionPurchase,
   >(
     purchases: T[],
     iapType: Omit<SubscriptionType, typeof MozillaSubscriptionTypes.WEB>
@@ -400,6 +403,60 @@ export abstract class StripeHelper {
     return plans;
   }
 
+  /**
+   * Fetches all prices from stripe and returns them.
+   *
+   * Use `allPrices` below to use the cached-enhanced version.
+   *
+   * Note: This is expected to be a temporary method and will be deprecated
+   * as part of PAY-2001
+   */
+  async fetchAllPrices(): Promise<Stripe.Price[]> {
+    const prices: Stripe.Price[] = [];
+
+    for await (const item of this.stripe.prices.list({
+      expand: ['data.product', 'data.currency_options'],
+    })) {
+      if (!item.product) {
+        this.log.error(
+          `fetchAllPrices - Price "${item.id}" missing Product`,
+          item
+        );
+        continue;
+      }
+
+      if (typeof item.product === 'string') {
+        this.log.error(
+          `fetchAllPrices - Price "${item.id}" failed to load Product`,
+          item
+        );
+        continue;
+      }
+
+      if (item.product.deleted === true) {
+        this.log.error(
+          `fetchAllPrices - Price "${item.id}" associated with Deleted Product`,
+          item
+        );
+        continue;
+      }
+
+      item.product.metadata = mapValues(item.product.metadata, (v) => v.trim());
+      item.metadata = mapValues(item.metadata, (v) => v.trim());
+
+      // We should return all the plans when relying on Firestore docs for
+      // their configuration
+      if (
+        this.config.subscriptions.productConfigsFirestore.enabled ||
+        (await this.validatePlan(item))
+      ) {
+        prices.push(item);
+      }
+    }
+
+    return prices;
+  }
+
   async allConfiguredPlans(): Promise<ConfiguredPlan[] | Stripe.Plan[]> {
     // for a transitional period we will include configs from both Firestore
     // docs and Stripe metadata when enabled by the feature flag, making it
@@ -445,6 +502,22 @@ export abstract class StripeHelper {
   })
   async allPlans(): Promise<Stripe.Plan[]> {
     return this.fetchAllPlans();
+  }
+
+  /**
+   * Fetches all prices from stripe and returns them.
+   *
+   * Uses Redis caching if configured.
+   *
+   * Note: This is expected to be a temporary method and will be deprecated
+   * as part of PAY-2001
+   */
+  @Cacheable({
+    cacheKey: STRIPE_PRICES_CACHE_KEY,
+    ttlSeconds: (args, context) => context.plansAndProductsCacheTtlSeconds,
+  })
+  async allPrices(): Promise<Stripe.Price[]> {
+    return this.fetchAllPrices();
   }
 
   async allAbbrevPlans(acceptLanguage = 'en'): Promise<AbbrevPlan[]> {
@@ -609,9 +682,8 @@ export abstract class StripeHelper {
           if (
             err.name === FirestoreStripeError.FIRESTORE_PAYMENT_METHOD_NOT_FOUND
           ) {
-            const paymentMethod = await this.stripe.paymentMethods.retrieve(
-              resource
-            );
+            const paymentMethod =
+              await this.stripe.paymentMethods.retrieve(resource);
             // Payment methods may not be attached to customers, in which case we
             // cannot store it in Firestore.
             if (paymentMethod.customer) {
@@ -658,8 +730,8 @@ export function determineIapIdentifiers(
     iapType === MozillaSubscriptionTypes.IAP_GOOGLE
       ? STRIPE_PRICE_METADATA.PLAY_SKU_IDS
       : iapType === MozillaSubscriptionTypes.IAP_APPLE
-      ? STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS
-      : null;
+        ? STRIPE_PRICE_METADATA.APP_STORE_PRODUCT_IDS
+        : null;
 
   if (!key) {
     throw new Error('Invalid iapType');

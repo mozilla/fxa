@@ -109,7 +109,7 @@ export class AppStoreSubscriptionPurchase {
   private renewalOfferIdentifier?: string;
   private revocationDate?: number;
   private revocationReason?: number;
-  private currency!: string;
+  currency!: string;
   private price!: number;
   private storefront!: string;
   private renewalCurrency?: string;
