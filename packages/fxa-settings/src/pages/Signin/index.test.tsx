@@ -1367,10 +1367,9 @@ describe('Signin component', () => {
   });
 
   describe('snapshots - CMS', () => {
-
     const cmsProps = {
-      cmsInfo: MOCK_CMS_INFO
-    }
+      cmsInfo: MOCK_CMS_INFO,
+    };
 
     beforeEach(() => {
       HTMLFormElement.prototype.submit = jest.fn();

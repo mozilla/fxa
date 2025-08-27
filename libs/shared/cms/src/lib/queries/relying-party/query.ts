@@ -21,14 +21,18 @@ export const relyingPartyQuery = graphql(`
         emailLogoUrl
         emailLogoAltText
         emailLogoWidth
-        backgroundColor
-        headerBackground
         pageTitle
         headerLogoUrl
         headerLogoAltText
         featureFlags {
           syncConfirmedPageHideCTA
           syncHidePromoAfterLogin
+        }
+        backgrounds {
+          defaultLayout
+          header
+          splitLayout
+          splitLayoutAltText
         }
         favicon
       }
@@ -39,6 +43,7 @@ export const relyingPartyQuery = graphql(`
         description
         primaryButtonText
         pageTitle
+        splitLayout
       }
       SignupSetPasswordPage {
         logoUrl
@@ -47,12 +52,14 @@ export const relyingPartyQuery = graphql(`
         description
         primaryButtonText
         pageTitle
+        splitLayout
       }
       SignupConfirmCodePage {
         headline
         description
         primaryButtonText
         pageTitle
+        splitLayout
       }
       SignupConfirmedSyncPage {
         headline
@@ -63,33 +70,28 @@ export const relyingPartyQuery = graphql(`
           url
           altText
         }
+        splitLayout
       }
       SigninPage {
         headline
         description
         primaryButtonText
         pageTitle
+        splitLayout
       }
       SigninTokenCodePage {
         headline
         description
         primaryButtonText
         pageTitle
+        splitLayout
       }
       SigninUnblockCodePage {
         headline
         description
         primaryButtonText
         pageTitle
-      }
-      shared {
-        buttonColor
-        logoUrl
-        logoAltText
-        emailFromName
-        emailLogoUrl
-        emailLogoAltText
-        emailLogoWidth
+        splitLayout
       }
       NewDeviceLoginEmail {
         subject

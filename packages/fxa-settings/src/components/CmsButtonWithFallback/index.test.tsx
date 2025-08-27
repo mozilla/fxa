@@ -9,7 +9,9 @@ import CmsButtonWithFallback from '.';
 
 describe('CmsButtonWithFallback', () => {
   it('renders as default button when no buttonColor is provided', () => {
-    const { container } = render(<CmsButtonWithFallback>Default Button</CmsButtonWithFallback>);
+    const { container } = render(
+      <CmsButtonWithFallback>Default Button</CmsButtonWithFallback>
+    );
 
     const button = screen.getByRole('button', { name: 'Default Button' });
     expect(button).toBeInTheDocument();
@@ -39,24 +41,26 @@ describe('CmsButtonWithFallback', () => {
       </CmsButtonWithFallback>
     );
 
-    expect(screen.getByRole('button', { name: 'Custom Text' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Custom Text' })
+    ).toBeInTheDocument();
     expect(screen.queryByText('This should not show')).not.toBeInTheDocument();
   });
 
   it('falls back to children when buttonText is not provided', () => {
-    render(
-      <CmsButtonWithFallback>
-        Fallback Text
-      </CmsButtonWithFallback>
-    );
+    render(<CmsButtonWithFallback>Fallback Text</CmsButtonWithFallback>);
 
-    expect(screen.getByRole('button', { name: 'Fallback Text' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Fallback Text' })
+    ).toBeInTheDocument();
   });
 
   it('falls back to "Continue" when neither buttonText nor children are provided', () => {
     render(<CmsButtonWithFallback />);
 
-    expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Continue' })
+    ).toBeInTheDocument();
   });
 
   it('applies CMS styles when buttonColor is provided', () => {
@@ -124,10 +128,7 @@ describe('CmsButtonWithFallback', () => {
 
   it('combines custom className with CMS classes', () => {
     const { container } = render(
-      <CmsButtonWithFallback
-        buttonColor="#592ACB"
-        className="custom-cms-class"
-      >
+      <CmsButtonWithFallback buttonColor="#592ACB" className="custom-cms-class">
         CMS Custom Class Button
       </CmsButtonWithFallback>
     );
@@ -138,14 +139,11 @@ describe('CmsButtonWithFallback', () => {
   });
 
   it('merges custom style with CMS styles', () => {
-    const customStyle = { backgroundColor: 'red', fontSize: '16px' };
+    const customStyle = { background: 'red', fontSize: '16px' };
     const buttonColor = '#592ACB';
 
     render(
-      <CmsButtonWithFallback
-        buttonColor={buttonColor}
-        style={customStyle}
-      >
+      <CmsButtonWithFallback buttonColor={buttonColor} style={customStyle}>
         Styled CMS Button
       </CmsButtonWithFallback>
     );
@@ -156,7 +154,7 @@ describe('CmsButtonWithFallback', () => {
       '--cta-border': buttonColor,
       '--cta-active': buttonColor,
       '--cta-disabled': `${buttonColor}60`,
-      backgroundColor: 'red',
+      background: 'red',
       fontSize: '16px',
     });
   });

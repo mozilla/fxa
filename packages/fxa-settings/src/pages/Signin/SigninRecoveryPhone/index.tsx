@@ -58,7 +58,7 @@ const SigninRecoveryPhone = ({
   resendCode,
   sendError,
   numBackupCodes,
-  integration
+  integration,
 }: SigninRecoveryPhoneProps & RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorDescription, setErrorDescription] = useState('');
@@ -162,9 +162,10 @@ const SigninRecoveryPhone = ({
 
   return (
     <AppLayout cmsInfo={cmsInfo}>
-
       <div className="relative flex items-center">
-        <ButtonBack cmsBackgroundColor={cmsInfo?.shared.backgroundColor} />
+        <ButtonBack
+          cmsBackground={cmsInfo?.shared.backgrounds?.defaultLayout}
+        />
         {cmsInfo?.shared.logoUrl && cmsInfo.shared.logoAltText ? (
           <img
             src={cmsInfo.shared.logoUrl}
@@ -241,7 +242,7 @@ const SigninRecoveryPhone = ({
         gleanDataAttrs={{ id: 'login_backup_phone_submit' }}
         className="my-6"
         cmsButton={{
-          color: cmsInfo?.shared.buttonColor
+          color: cmsInfo?.shared.buttonColor,
         }}
       />
       <div className="flex justify-between mt-5 text-sm">

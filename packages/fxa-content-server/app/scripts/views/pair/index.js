@@ -130,20 +130,17 @@ class PairIndexView extends FormView {
       }
     }
 
-    // Apply CMS background gradient
+    // Apply CMS background
     if (
       this.cmsConfig &&
       this.cmsConfig.shared &&
-      this.cmsConfig.shared.backgroundColor
+      this.cmsConfig.shared.backgrounds.defaultLayout
     ) {
-      // Validate the background color is a valid CSS graident
-      const isValidGradient = /^linear-gradient\(/.test(
-        this.cmsConfig.shared.backgroundColor
-      );
       // Not ideal, but the pairing page will be going away
       const screenWidth = window.innerWidth;
-      if (isValidGradient && screenWidth > 768) {
-        document.body.style.background = this.cmsConfig.shared.backgroundColor;
+      if (screenWidth > 768) {
+        document.body.style.background =
+          this.cmsConfig.shared.backgrounds.defaultLayout;
       }
     }
 
@@ -172,10 +169,10 @@ class PairIndexView extends FormView {
     if (
       this.cmsConfig &&
       this.cmsConfig.shared &&
-      this.cmsConfig.shared.backgroundColor
+      this.cmsConfig.shared.backgrounds.defaultLayout
     ) {
       const textColorClass = getTextColorClassName(
-        this.cmsConfig.shared.backgroundColor.trim()
+        this.cmsConfig.shared.backgrounds.defaultLayout.trim()
       );
       switch (textColorClass) {
         case 'text-white':

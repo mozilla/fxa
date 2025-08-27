@@ -27,18 +27,9 @@ type AppLayoutProps = {
    * `FlowContainer`.
    */
   wrapInCard?: boolean;
+  splitLayout?: boolean;
   /** Whether to show the locale toggle in the footer */
   showLocaleToggle?: boolean;
-};
-
-const looseValidBgCheck = (value: string | undefined) => {
-  return (
-    value &&
-    (value.includes('linear-gradient') ||
-      value.includes('radial-gradient') ||
-      value.includes('rgb') ||
-      value.includes('#'))
-  );
 };
 
 export const AppLayout = ({
@@ -46,24 +37,21 @@ export const AppLayout = ({
   children,
   widthClass,
   cmsInfo,
+  splitLayout = false,
   wrapInCard = true,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
   const config = useConfig();
-  const cmsBackgroundColor = cmsInfo?.shared?.backgroundColor;
-  const cmsHeaderBackground = cmsInfo?.shared?.headerBackground;
+  const cmsBackgrounds = cmsInfo?.shared?.backgrounds;
   const cmsPageTitle = cmsInfo?.shared?.pageTitle;
   const cmsHeaderLogoUrl = cmsInfo?.shared?.headerLogoUrl;
   const cmsHeaderLogoAltText = cmsInfo?.shared?.headerLogoAltText;
 
   const overrideTitle = title ? title : cmsPageTitle;
 
-  const hasValidBackgroundImage = looseValidBgCheck(cmsBackgroundColor);
-  const hasValidHeaderBackground = looseValidBgCheck(cmsHeaderBackground);
+  const favicon = cmsInfo?.shared?.favicon;
 
-  const favicon = cmsInfo?.shared.favicon;
-
-  const showLocaleToggle =config.featureFlags?.showLocaleToggle;
+  const showLocaleToggle = config.featureFlags?.showLocaleToggle;
 
   return (
     <>
@@ -71,12 +59,13 @@ export const AppLayout = ({
       <div
         className={classNames(
           'flex min-h-screen flex-col items-center',
-          hasValidBackgroundImage && 'tablet:[background:var(--cms-bg)]'
+          cmsBackgrounds?.defaultLayout && 'tablet:[background:var(--cms-bg)]',
+          splitLayout && 'tablet:relative'
         )}
         style={
-          hasValidBackgroundImage
+          cmsBackgrounds?.defaultLayout
             ? ({
-                '--cms-bg': cmsBackgroundColor,
+                '--cms-bg': cmsBackgrounds.defaultLayout,
               } as React.CSSProperties)
             : undefined
         }
@@ -86,14 +75,15 @@ export const AppLayout = ({
         <header
           className={classNames(
             'w-full px-6 py-4 mobileLandscape:py-6',
-            // TODO: default to white if cms background is an image, do in FXA-12188
-            hasValidHeaderBackground &&
-              'tablet:[background:var(--cms-header-bg)]'
+            cmsBackgrounds?.header &&
+              'tablet:[background:var(--cms-header-bg)]',
+            // Absolute position so the background-image can optionally show through.
+            splitLayout && 'tablet:absolute'
           )}
           style={
-            hasValidHeaderBackground
+            cmsBackgrounds?.header
               ? ({
-                  '--cms-header-bg': cmsHeaderBackground,
+                  '--cms-header-bg': cmsBackgrounds.header,
                 } as React.CSSProperties)
               : undefined
           }
@@ -122,23 +112,53 @@ export const AppLayout = ({
             )}
           </LinkExternal>
         </header>
-        <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
-          <section className="relative">
-            {wrapInCard ? (
-              <div className={classNames('card', widthClass)}>{children}</div>
-            ) : (
-              children
-            )}
-          </section>
-        </main>
+
+        {!splitLayout ? (
+          <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
+            <section>
+              {wrapInCard ? (
+                <div className={classNames('card', widthClass)}>{children}</div>
+              ) : (
+                children
+              )}
+            </section>
+          </main>
+        ) : (
+          <div className="flex flex-col tablet:flex-row w-full flex-1">
+            <div
+              className={classNames(
+                'hidden tablet:flex flex-1',
+                cmsBackgrounds?.splitLayout &&
+                  'tablet:[background:var(--cms-split-layout-bg)]'
+              )}
+              /* Some split layout backgrounds, such as an artsy galaxy fox, should have
+              alt text for user delight. Others can be considered purely decorative. If
+              alt text is given, include it. */
+              {...(cmsBackgrounds?.splitLayoutAltText && {
+                role: 'img',
+                'aria-label': cmsBackgrounds.splitLayoutAltText,
+              })}
+              style={
+                cmsBackgrounds?.splitLayout
+                  ? ({
+                      '--cms-split-layout-bg': cmsBackgrounds.splitLayout,
+                    } as React.CSSProperties)
+                  : undefined
+              }
+            />
+            <main className="mobileLandscape:items-center tablet:flex-1 tablet:bg-white py-8 px-6 tablet:px-10 mobileLandscape:py-9 tablet:ml-auto flex justify-center flex-1">
+              <section>{children}</section>
+            </main>
+          </div>
+        )}
       </div>
       <footer>
-            {/* LocaleToggle positioned in lower left corner of page */}
-            {showLocaleToggle && (
-              <div className="fixed bottom-6 left-6 z-10">
-                <LocaleToggle placement="footer" />
-              </div>
-            )}
+        {/* LocaleToggle positioned in lower left corner of page */}
+        {showLocaleToggle && (
+          <div className="fixed bottom-6 left-6 z-10">
+            <LocaleToggle placement="footer" />
+          </div>
+        )}
       </footer>
       <div id="body-bottom" className="w-full block mobileLandscape:hidden" />
     </>

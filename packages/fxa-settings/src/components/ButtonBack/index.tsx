@@ -12,7 +12,7 @@ interface ButtonBackProps {
   dataTestId?: string;
   localizedAriaLabel?: string;
   localizedTitle?: string;
-  cmsBackgroundColor?: string;
+  cmsBackground?: string;
 }
 
 // This component assumes a parent container with class 'relative flex'
@@ -22,7 +22,7 @@ const ButtonBack = ({
   dataTestId,
   localizedAriaLabel,
   localizedTitle,
-  cmsBackgroundColor,
+  cmsBackground,
 }: ButtonBackProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedButtonTitle =
@@ -33,11 +33,11 @@ const ButtonBack = ({
 
   const getTabletArrowColor = () => {
     const defaultClasses = 'tablet:text-grey-400 tablet:hover:bg-grey-400/10';
-    if (!cmsBackgroundColor) {
+    if (!cmsBackground) {
       return defaultClasses;
     }
 
-    const textColorClass = getTextColorClassName(cmsBackgroundColor.trim());
+    const textColorClass = getTextColorClassName(cmsBackground.trim());
     // Map to hardcoded class names for Tailwind tree shaking
     switch (textColorClass) {
       case 'text-white':

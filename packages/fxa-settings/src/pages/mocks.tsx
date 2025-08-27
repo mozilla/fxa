@@ -102,23 +102,29 @@ export const MOCK_CMS_INFO = {
   shared: {
     buttonColor: '#D41C1C',
     logoUrl: 'https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg',
-    headerLogoUrl: 'https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg',
+    headerLogoUrl:
+      'https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg',
     logoAltText: 'logo',
-    backgroundColor: 'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 26, 26, 0.25) 40%, rgba(230, 0, 0, 0.3) 70%, rgba(179, 0, 0, 0.45) 100%)',
-    headerBackground: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
     headerLogoAltText: 'custom-header-logo',
     pageTitle: 'MOCK Shared Title',
     featureFlags: {
       syncConfirmedPageHideCTA: false,
       syncHidePromoAfterLogin: false,
     },
-    favicon: ''
+    favicon: '',
+    backgrounds: {
+      header: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+      defaultLayout:
+        'linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 26, 26, 0.25) 40%, rgba(230, 0, 0, 0.3) 70%, rgba(179, 0, 0, 0.45) 100%)',
+      splitLayout: 'linear-gradient(135deg, #667eea 0%, #FF69B4 100%)',
+    },
   },
   EmailFirstPage: {
     logoUrl: 'https://cdn.accounts.firefox.com/other/firefox-browser-logo.svg',
     logoAltText: 'custom-email-first-logo',
     headline: 'Sign up or sign in to your Mozilla account',
-    description: 'Stay protected with continuous data monitoring and automatic data removal.',
+    description:
+      'Stay protected with continuous data monitoring and automatic data removal.',
     primaryButtonText: 'Continue',
     pageTitle: 'Sign up or sign in to your Mozilla account',
   },
@@ -138,7 +144,8 @@ export const MOCK_CMS_INFO = {
   },
   SignupConfirmedSyncPage: {
     headline: 'Sync is turned on',
-    description: 'Your passwords, addresses, bookmarks, history, and more can sync everywhere you use Firefox.',
+    description:
+      'Your passwords, addresses, bookmarks, history, and more can sync everywhere you use Firefox.',
     primaryButtonText: 'Add another device',
     pageTitle: 'Sync is turned on',
     primaryImage: {
@@ -170,7 +177,7 @@ export const MOCK_CMS_INFO = {
     description: 'for your Mozilla account',
     primaryButtonText: 'Continue',
     pageTitle: 'Enter verification code',
-  }
+  },
 };
 
 export const createMockIntegrationWithCms = () =>

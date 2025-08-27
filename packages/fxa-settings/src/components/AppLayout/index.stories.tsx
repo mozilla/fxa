@@ -7,7 +7,7 @@ import AppLayout from './index';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { RelierCmsInfo } from '../../models/integrations';
-import { MOCK_CMS_INFO } from '../../pages/mocks';
+import { MOCK_CMS_INFO, PLACEHOLDER_IMAGE_URL } from '../../pages/mocks';
 
 export default {
   title: 'Components/AppLayout',
@@ -67,7 +67,7 @@ export const WithCmsInfoNoBackground = () => {
       logoUrl: 'https://example.com/logo.png',
       logoAltText: 'Test App Logo',
       pageTitle: 'Test App - Custom Title',
-      // No backgroundColor, so no background image should be applied
+      // No background, so no background should be applied
     },
   } as RelierCmsInfo;
 
@@ -88,7 +88,9 @@ export const WithCmsInfoInvalidBackground = () => {
       buttonColor: '#0078d4',
       logoUrl: 'https://example.com/logo.png',
       logoAltText: 'Test App Logo',
-      backgroundColor: 'invalid-color',
+      backgrounds: {
+        defaultLayout: 'invalid-color',
+      },
       pageTitle: 'Test App - Custom Title',
     },
   } as RelierCmsInfo;
@@ -110,7 +112,9 @@ export const WithCmsInfoRadialGradient = () => {
       buttonColor: '#0078d4',
       logoUrl: 'https://example.com/logo.png',
       logoAltText: 'Test App Logo',
-      backgroundColor: 'radial-gradient(circle, #ff6b6b, #4ecdc4)',
+      backgrounds: {
+        defaultLayout: 'radial-gradient(circle, #ff6b6b, #4ecdc4)',
+      },
       pageTitle: 'Test App - Custom Title',
     },
   } as RelierCmsInfo;
@@ -123,7 +127,7 @@ export const WithCmsInfoRadialGradient = () => {
   );
 };
 
-export const WithCmsInfoBackgroundAndHeaderBackground = () => {
+export const WithCmsDefaultLayoutBackgroundAndHeaderBackground = () => {
   const mockCmsInfo = {
     name: 'Test App',
     clientId: 'test123',
@@ -132,14 +136,64 @@ export const WithCmsInfoBackgroundAndHeaderBackground = () => {
       buttonColor: '#0078d4',
       logoUrl: 'https://example.com/logo.png',
       logoAltText: 'Test App Logo',
-      backgroundColor: '#000',
-      headerBackground: '#ccc',
+      backgrounds: {
+        defaultLayout: '#000',
+        header: '#ccc',
+      },
       pageTitle: 'Test App - Custom Title',
     },
   } as RelierCmsInfo;
 
   return (
     <AppLayout cmsInfo={mockCmsInfo}>
+      <h1 className="card-header">Header content</h1>
+      <p className="mt-2">Paragraph content here</p>
+    </AppLayout>
+  );
+};
+
+export const WithCmsSplitLayoutBackgroundGradient = () => {
+  return (
+    <AppLayout cmsInfo={MOCK_CMS_INFO} splitLayout>
+      <h1 className="card-header">Header content</h1>
+      <p className="mt-2">Paragraph content here</p>
+    </AppLayout>
+  );
+};
+
+export const WithCmsSplitLayoutBackgroundImage = () => {
+  const mockCmsInfo = {
+    ...MOCK_CMS_INFO,
+    shared: {
+      ...MOCK_CMS_INFO.shared,
+      backgrounds: {
+        splitLayout: `url(${PLACEHOLDER_IMAGE_URL}) no-repeat 50% 100% / cover`,
+      },
+    },
+  };
+
+  return (
+    <AppLayout cmsInfo={mockCmsInfo} splitLayout>
+      <h1 className="card-header">Header content</h1>
+      <p className="mt-2">Paragraph content here</p>
+    </AppLayout>
+  );
+};
+
+export const WithCmsSplitLayoutBackgroundImageHeaderBackground = () => {
+  const mockCmsInfo = {
+    ...MOCK_CMS_INFO,
+    shared: {
+      ...MOCK_CMS_INFO.shared,
+      backgrounds: {
+        header: 'linear-gradient(135deg, #dffffd, #ccc)',
+        splitLayout: `url(${PLACEHOLDER_IMAGE_URL}) no-repeat 50% 100% / cover`,
+      },
+    },
+  } as RelierCmsInfo;
+
+  return (
+    <AppLayout cmsInfo={mockCmsInfo} splitLayout>
       <h1 className="card-header">Header content</h1>
       <p className="mt-2">Paragraph content here</p>
     </AppLayout>

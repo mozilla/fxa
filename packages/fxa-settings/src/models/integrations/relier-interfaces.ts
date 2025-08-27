@@ -36,6 +36,7 @@ export interface PageRelierCmsInfo {
     url: string;
     altText: string;
   } | null;
+  splitLayout?: boolean | undefined;
 }
 
 export interface PageRelierCmsInfoWithLogo extends PageRelierCmsInfo {
@@ -43,12 +44,18 @@ export interface PageRelierCmsInfoWithLogo extends PageRelierCmsInfo {
   logoAltText: string | undefined;
 }
 
+export interface SharedBackgroundsRelierCmsInfo {
+  defaultLayout?: string | undefined;
+  header?: string | undefined;
+  splitLayout?: string | undefined;
+  splitLayoutAltText?: string | undefined;
+}
+
 export interface SharedRelierCmsInfo {
   buttonColor: string | undefined;
   logoUrl: string | undefined;
   logoAltText: string | undefined;
-  headerBackground?: string | undefined;
-  backgroundColor?: string | undefined;
+  backgrounds?: SharedBackgroundsRelierCmsInfo;
   pageTitle?: string | undefined;
   headerLogoUrl?: string | undefined;
   headerLogoAltText?: string | undefined;
