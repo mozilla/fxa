@@ -238,8 +238,7 @@ export function useCmsInfoState() {
         return true;
       }
 
-      // Check preferred languages
-      return navigator.languages.some(lang => lang.startsWith('en'));
+      return false;
     }
 
     if (
