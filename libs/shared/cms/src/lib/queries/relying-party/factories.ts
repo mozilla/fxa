@@ -52,6 +52,10 @@ export const RelyingPartyResultFactory = (
     description: faker.string.sample(),
     primaryButtonText: faker.string.sample(),
     pageTitle: faker.string.sample(),
+    primaryImage: {
+      url: faker.internet.url(),
+      altText: faker.string.sample(),
+    },
   },
   shared: {
     buttonColor: faker.color.rgb(),
