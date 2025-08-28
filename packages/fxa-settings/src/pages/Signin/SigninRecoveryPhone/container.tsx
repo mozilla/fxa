@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SigninRecoveryPhone from '.';
 import { SigninLocationState } from '../interfaces';
@@ -74,6 +74,17 @@ const SigninRecoveryPhoneContainer = ({
   );
 
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
+
+  // TODO: remove this artificial delay for testing
+  const [artificialDelay, setArtificialDelay] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setArtificialDelay(false);
+    }, 1000); // 1 second delay
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const redirectTo =
     isWebIntegration(integration) && webRedirectCheck?.isValid
@@ -187,6 +198,8 @@ const SigninRecoveryPhoneContainer = ({
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
 
+  const shouldLoadInCard = artificialDelay; // Use artificial delay for testing. todo, figure out all places to set loading state
+
   return (
     <SigninRecoveryPhone
       {...{
@@ -196,6 +209,7 @@ const SigninRecoveryPhoneContainer = ({
         sendError,
         numBackupCodes,
         integration,
+        loadInCard: shouldLoadInCard,
       }}
     />
   );

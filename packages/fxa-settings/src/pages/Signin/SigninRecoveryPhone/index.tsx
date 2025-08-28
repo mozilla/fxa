@@ -58,7 +58,8 @@ const SigninRecoveryPhone = ({
   resendCode,
   sendError,
   numBackupCodes,
-  integration
+  integration,
+  loadInCard = false
 }: SigninRecoveryPhoneProps & RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorDescription, setErrorDescription] = useState('');
@@ -161,7 +162,7 @@ const SigninRecoveryPhone = ({
   const cmsInfo = integration?.getCmsInfo();
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout cmsInfo={cmsInfo} loadInCard={loadInCard}>
 
       <div className="relative flex items-center">
         <ButtonBack cmsBackgroundColor={cmsInfo?.shared?.backgroundColor} />

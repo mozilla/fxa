@@ -96,6 +96,7 @@ export interface SigninProps {
   localizedSuccessBannerDescription?: string;
   deeplink?: string;
   flowQueryParams?: QueryParams;
+  loadInCard?: boolean;
 }
 
 export type BeginSigninHandler = (

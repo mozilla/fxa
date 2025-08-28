@@ -12,7 +12,7 @@ import {
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useMutation } from '@apollo/client';
 import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import {
@@ -60,7 +60,7 @@ export const SigninRecoveryCodeContainer = ({
     unwrapBKey
   );
 
-  const [consumeRecoveryCode] = useMutation<ConsumeRecoveryCodeResponse>(
+  const [consumeRecoveryCode, {loading: codeSubmitting}] = useMutation<ConsumeRecoveryCodeResponse>(
     CONSUME_RECOVERY_CODE_MUTATION
   );
 
@@ -82,11 +82,14 @@ export const SigninRecoveryCodeContainer = ({
     [consumeRecoveryCode]
   );
 
+  const [sendingPhoneCode, setSendingPhoneCode] = useState(false);
+
   const navigateToRecoveryPhone = async () => {
     if (!signinState) {
       return;
     }
     try {
+      setSendingPhoneCode(true);
       await authClient.recoveryPhoneSigninSendCode(signinState.sessionToken);
       navigateWithQuery('/signin_recovery_phone', {
         state: { signinState, lastFourPhoneDigits },
@@ -99,6 +102,8 @@ export const SigninRecoveryCodeContainer = ({
         return;
       }
       return handledError;
+    } finally {
+      setSendingPhoneCode(false);
     }
   };
 
@@ -114,6 +119,11 @@ export const SigninRecoveryCodeContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
+  // For this container, we can use CardLoadingSpinner for any additional loading states
+  // since we have the basic data (signinState)
+    const loadInCard =
+      codeSubmitting || sendingPhoneCode; // do we also need to wait for the useOAuthKeysCheck?
+
   return (
     <SigninRecoveryCode
       {...{
@@ -125,6 +135,7 @@ export const SigninRecoveryCodeContainer = ({
         signinState,
         submitRecoveryCode,
         unwrapBKey,
+        loadInCard,
       }}
     />
   );

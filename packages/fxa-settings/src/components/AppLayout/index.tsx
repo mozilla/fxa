@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { RelierCmsInfo } from '../../models/integrations';
 import { LocaleToggle } from '../LocaleToggle';
 import { useConfig } from '../../models/hooks';
+import { CardLoadingSpinner } from '../CardLoadingSpinner';
 
 type AppLayoutProps = {
   // TODO: FXA-6803 - the title prop should be made mandatory
@@ -29,6 +30,10 @@ type AppLayoutProps = {
   wrapInCard?: boolean;
   /** Whether to show the locale toggle in the footer */
   showLocaleToggle?: boolean;
+  /** Whether to show a loading spinner within the card instead of children.
+   * This preserves the background styling while showing a loading state.
+   */
+  loadInCard?: boolean;
 };
 
 const looseValidBgCheck = (value: string | undefined) => {
@@ -47,6 +52,7 @@ export const AppLayout = ({
   widthClass,
   cmsInfo,
   wrapInCard = true,
+  loadInCard = false,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
   const config = useConfig();
@@ -124,8 +130,17 @@ export const AppLayout = ({
         </header>
         <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
           <section className="relative">
-            {wrapInCard ? (
-              <div className={classNames('card', widthClass)}>{children}</div>
+            {loadInCard ? (
+              <>
+                {console.debug('🐛 CardLoadingSpinner AppLayout render')}
+                {/** Perhaps this is a good places for a context as well, something like AppLayoutLoadingContext */}
+                <CardLoadingSpinner widthClass={widthClass} />
+              </>
+            ) : wrapInCard ? (
+              <>
+                {console.debug('🐛 AppLayout wrap in card render')}
+                <div className={classNames('card', widthClass)}>{children}</div>
+              </>
             ) : (
               children
             )}

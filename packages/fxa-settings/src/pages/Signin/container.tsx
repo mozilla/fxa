@@ -284,6 +284,17 @@ const SigninContainer = ({
   const { data: avatarData, loading: avatarLoading } =
     useQuery<AvatarResponse>(AVATAR_QUERY);
 
+  // TODO: remove this artificial delay for testing
+  const [artificialDelay, setArtificialDelay] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setArtificialDelay(false);
+    }, 1000); // 1 second delay
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const [beginSignin] = useMutation<BeginSigninResponse>(BEGIN_SIGNIN_MUTATION);
 
   const [credentialStatus] = useMutation<CredentialStatusResponse>(
@@ -517,6 +528,11 @@ const SigninContainer = ({
 
   const deeplink = queryParamModel.deeplink;
 
+  // Determine if we should show loading in card
+  // We show CardLoadingSpinner while avatar is loading, but only if we have the basic data
+  const shouldLoadInCard = (avatarLoading || artificialDelay ) && hasLinkedAccount !== undefined && hasPassword !== undefined;
+
+
   return (
     <Signin
       {...{
@@ -537,6 +553,7 @@ const SigninContainer = ({
         localizedSuccessBannerDescription,
         deeplink,
         flowQueryParams,
+        loadInCard: shouldLoadInCard,
       }}
     />
   );

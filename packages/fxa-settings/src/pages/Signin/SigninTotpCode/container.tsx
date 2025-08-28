@@ -28,7 +28,6 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
@@ -43,6 +42,7 @@ import {
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import CardLoadingSpinner from '../../../components/CardLoadingSpinner';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -84,7 +84,7 @@ export const SigninTotpCodeContainer = ({
       ? integration.data.redirectTo
       : '';
 
-  const [verifyTotpCode] = useMutation(VERIFY_TOTP_CODE_MUTATION);
+  const [verifyTotpCode, {loading: isVerifyingTotpLoading}] = useMutation(VERIFY_TOTP_CODE_MUTATION);
   const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
     PASSWORD_CHANGE_START_MUTATION
   );
@@ -163,8 +163,10 @@ export const SigninTotpCodeContainer = ({
       signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
   ) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return <CardLoadingSpinner />; // not sure about this... maybe not?
   }
+
+  const loadInCard = isVerifyingTotpLoading;
 
   return (
     <SigninTotpCode
@@ -177,6 +179,7 @@ export const SigninTotpCodeContainer = ({
         serviceName,
         keyFetchToken,
         unwrapBKey,
+        loadInCard,
       }}
     />
   );

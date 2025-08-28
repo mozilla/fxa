@@ -307,6 +307,44 @@ describe('<AppLayout />', () => {
     });
   });
 
+  describe('loadInCard functionality', () => {
+    it('shows CardLoadingSpinner when loadInCard is true', () => {
+      renderWithLocalizationProvider(
+        <AppLayout loadInCard={true}>
+          <p>This content should not be visible</p>
+        </AppLayout>
+      );
+
+      // Should show the loading spinner instead of children
+      expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+      expect(screen.queryByText('This content should not be visible')).not.toBeInTheDocument();
+    });
+
+    it('shows children when loadInCard is false (default)', () => {
+      renderWithLocalizationProvider(
+        <AppLayout>
+          <p>This content should be visible</p>
+        </AppLayout>
+      );
+
+      // Should show children instead of loading spinner
+      expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
+      expect(screen.getByText('This content should be visible')).toBeInTheDocument();
+    });
+
+    // not _really_ needed since we probably don't NEED to allow a width override. But hey, it's still valid
+    it('passes widthClass to CardLoadingSpinner when loadInCard is true', () => {
+      renderWithLocalizationProvider(
+        <AppLayout loadInCard={true} widthClass="w-96">
+          <p>Content</p>
+        </AppLayout>
+      );
+
+      const card = screen.getByTestId('loading-spinner').closest('.card');
+      expect(card).toHaveClass('w-96');
+    });
+  });
+
   describe('snapshots', () => {
     it('renders correctly with CMS', () => {
       const mockCmsInfo: RelierCmsInfo = {

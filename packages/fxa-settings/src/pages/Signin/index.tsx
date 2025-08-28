@@ -62,6 +62,7 @@ const Signin = ({
   localizedSuccessBannerDescription,
   deeplink,
   flowQueryParams,
+  loadInCard = false,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -373,7 +374,7 @@ const Signin = ({
   const title = cmsInfo?.SigninPage?.pageTitle;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, loadInCard }}>
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"

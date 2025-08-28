@@ -42,6 +42,7 @@ const SigninRecoveryCode = ({
   signinState,
   submitRecoveryCode,
   unwrapBKey,
+  loadInCard = false,
 }: SigninRecoveryCodeProps & RouteComponentProps) => {
   useEffect(() => {
     GleanMetrics.loginBackupCode.view();
@@ -210,7 +211,7 @@ const SigninRecoveryCode = ({
   const cmsInfo = integration.getCmsInfo();
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout cmsInfo={cmsInfo} loadInCard={loadInCard}>
       <div className="relative flex items-center mb-5">
         <ButtonBack cmsBackgroundColor={cmsInfo?.shared?.backgroundColor} />
         {cmsInfo?.shared?.logoUrl && cmsInfo.shared?.logoAltText ? (
