@@ -230,23 +230,29 @@ export function useCmsInfoState() {
   useEffect(() => {
     // We disable the CMS if:
     // 1. CMS is not enabled in the config
-    // 2. The user's locale is not English
-    // 3. The clientId is not provided or is not a valid 16 digit hex
+    // 2. l10nEnabled is false AND user's locale is not English
+    // 3. User language toggle is not English
+    // 4. The clientId is not provided or is not a valid 16 digit hex
+    //
+    // These steps are a best effort to prevent users from seeing a page with both English and non-English text.
 
-    function isEnglishLocale() {
-      // Check primary language
-      const primaryLanguage = navigator.language;
-      if (primaryLanguage.startsWith('en')) {
+    function shouldFetchCms() {
+      // If l10nEnabled is true, fetch cms config for any locale
+      if (config?.cms?.l10nEnabled === true) {
         return true;
       }
 
-      // Check preferred languages
-      return navigator.languages.some(lang => lang.startsWith('en'));
+      // If l10nEnabled is false, only fetch for English locales
+      // Check both browser language and user's selected locale
+      const isEnglishBrowser = navigator.language.startsWith('en');
+      const isEnglishSelected = currentLocale.startsWith('en');
+
+      return isEnglishBrowser || isEnglishSelected;
     }
 
     if (
       !config.cms.enabled ||
-      !isEnglishLocale() ||
+      !shouldFetchCms() ||
       !clientId ||
       !isHexadecimal(clientId) ||
       !length(clientId, 16) ||
@@ -306,7 +312,7 @@ export function useCmsInfoState() {
     return () => {
       mounted = false;
     };
-  }, [authUrl, clientId, entrypoint, config.cms.enabled, currentLocale]);
+  }, [authUrl, clientId, entrypoint, config.cms.enabled, config.cms?.l10nEnabled, currentLocale]);
 
   return state;
 }
