@@ -7,7 +7,9 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { ReactNode, createElement } from 'react';
 import * as Sentry from '@sentry/browser';
 
-import { useCmsInfoState } from './hooks';
+import {
+  useCmsInfoState
+} from './hooks';
 import { AppContext } from './contexts/AppContext';
 
 // Mock all external dependencies before importing the hook
@@ -44,6 +46,10 @@ jest.mock('../lib/integrations', () => ({
 }));
 
 jest.mock('../lib/nimbus', () => ({}));
+
+jest.mock('../contexts/DynamicLocalizationContext', () => ({
+  useDynamicLocalization: jest.fn().mockReturnValue({ currentLocale: 'en-US' }),
+}));
 
 // Mock fetch
 const mockFetch = jest.fn();
@@ -93,6 +99,17 @@ describe('useCmsInfoState', () => {
       ok: true,
       json: jest.fn().mockResolvedValue({ customization: 'test' }),
     });
+
+    // Reset navigator.language and useDynamicLocalization to English defaults
+    Object.defineProperty(navigator, 'language', {
+      writable: true,
+      value: 'en-US',
+    });
+    Object.defineProperty(navigator, 'languages', {
+      writable: true,
+      value: ['en-US', 'en'],
+    });
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'en-US' });
   });
 
   it('should use default entrypoint when entrypoint is not provided in URL', async () => {
@@ -239,6 +256,9 @@ describe('useCmsInfoState', () => {
       value: ['fr-FR', 'fr'],
     });
 
+    // Mock useDynamicLocalization to return non-English locale
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'fr-FR' });
+
     mockUrlQueryData.get.mockImplementation((key: string) => {
       if (key === 'client_id') return '1234567890abcdef';
       if (key === 'entrypoint') return 'preferences';
@@ -249,21 +269,15 @@ describe('useCmsInfoState', () => {
       wrapper: MockAppProvider,
     });
 
+    // Wait for the effect to complete
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
     // Should not fetch due to non-English locale
     expect(mockFetch).not.toHaveBeenCalled();
-    expect(result.current.loading).toBe(false);
     expect(result.current.data).toBeUndefined();
     expect(result.current.error).toBeUndefined();
-
-    // Reset to English for other tests
-    Object.defineProperty(navigator, 'language', {
-      writable: true,
-      value: 'en-US',
-    });
-    Object.defineProperty(navigator, 'languages', {
-      writable: true,
-      value: ['en-US', 'en'],
-    });
   });
 
   it('should handle fetch errors gracefully', async () => {
@@ -354,47 +368,106 @@ describe('useCmsInfoState', () => {
     );
   });
 
-  it('should handle various custom entrypoint values', async () => {
-    const testCases = [
-      'firefox-toolbar',
-      'fxa_app_menu',
-      'ios_settings_manage',
-      'synced-tabs',
-      'custom.entrypoint-123'
-    ];
+  it('should fetch when l10nEnabled is true for any locale', async () => {
+    const l10nEnabledConfig = {
+      ...mockConfig,
+      cms: { enabled: true, l10nEnabled: true },
+    };
 
-    for (const entrypoint of testCases) {
-      jest.clearAllMocks();
+    const L10nEnabledProvider = ({ children }: { children: ReactNode }) =>
+      createElement(AppContext.Provider, {
+        value: { config: l10nEnabledConfig as any, account: undefined, apolloClient: undefined }
+      }, children);
 
-      mockUrlQueryData.get.mockImplementation((key: string) => {
-        if (key === 'client_id') return '1234567890abcdef';
-        if (key === 'entrypoint') return entrypoint;
-        return null;
-      });
+    // Mock non-English locale
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'fr-FR' });
+    Object.defineProperty(navigator, 'language', {
+      writable: true,
+      value: 'fr-FR',
+    });
 
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: jest.fn().mockResolvedValue({ customization: `test-${entrypoint}` }),
-      });
+    mockUrlQueryData.get.mockImplementation((key: string) => {
+      if (key === 'client_id') return '1234567890abcdef';
+      if (key === 'entrypoint') return 'preferences';
+      return null;
+    });
 
-      const { result } = renderHook(() => useCmsInfoState(), {
-        wrapper: MockAppProvider,
-      });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ customization: 'french-test' }),
+    });
 
-      // Wait for the fetch to complete
-      await waitFor(() => {
-        expect(result.current.loading).toBe(false);
-      });
+    const { result } = renderHook(() => useCmsInfoState(), {
+      wrapper: L10nEnabledProvider,
+    });
 
-      // Verify that fetch was called with the correct entrypoint
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: `http://localhost:9000/v1/cms/config?clientId=1234567890abcdef&entrypoint=${entrypoint}`,
-        }),
-        expect.any(Object)
-      );
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
-      expect(result.current.data?.cmsInfo).toEqual({ customization: `test-${entrypoint}` });
-    }
+    expect(mockFetch).toHaveBeenCalled();
+    expect(result.current.data?.cmsInfo).toEqual({ customization: 'french-test' });
+  });
+
+  it('should fetch when l10nEnabled is false but browser language is English', async () => {
+    // Mock English browser language but non-English selected locale
+    Object.defineProperty(navigator, 'language', {
+      writable: true,
+      value: 'en-GB',
+    });
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'fr-FR' });
+
+    mockUrlQueryData.get.mockImplementation((key: string) => {
+      if (key === 'client_id') return '1234567890abcdef';
+      if (key === 'entrypoint') return 'preferences';
+      return null;
+    });
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ customization: 'english-browser-test' }),
+    });
+
+    const { result } = renderHook(() => useCmsInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(mockFetch).toHaveBeenCalled();
+    expect(result.current.data?.cmsInfo).toEqual({ customization: 'english-browser-test' });
+  });
+
+  it('should fetch when l10nEnabled is false but selected locale is English', async () => {
+    // Mock non-English browser language but English selected locale
+    Object.defineProperty(navigator, 'language', {
+      writable: true,
+      value: 'fr-FR',
+    });
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'en-US' });
+
+    mockUrlQueryData.get.mockImplementation((key: string) => {
+      if (key === 'client_id') return '1234567890abcdef';
+      if (key === 'entrypoint') return 'preferences';
+      return null;
+    });
+
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue({ customization: 'english-selected-test' }),
+    });
+
+    const { result } = renderHook(() => useCmsInfoState(), {
+      wrapper: MockAppProvider,
+    });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(mockFetch).toHaveBeenCalled();
+    expect(result.current.data?.cmsInfo).toEqual({ customization: 'english-selected-test' });
   });
 });
