@@ -9,7 +9,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Integration, useAuthClient } from '../../../models';
 import { cache } from '../../../lib/cache';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { CreatePasswordHandler } from './interfaces';
 import { HandledError } from '../../../lib/error-utils';
 import {
@@ -56,6 +56,20 @@ const SetPasswordContainer = ({
     integration
   );
 
+  // playing with a state management to keep track of in flight requests
+  const [pending, setPending] = useState(0);
+  const withCardLoading = useCallback(
+    async <T,>(fn: () => Promise<T>): Promise<T> => {
+      setPending((n) => n + 1);
+      try {
+        return await fn();
+      } finally {
+        setPending((n) => n - 1);
+      }
+    },
+    []
+  );
+
   const getKeyFetchToken = useCallback(
     async (authPW: string, email: string, sessionToken: string) => {
       // We must reauth for another `keyFetchToken` because it was used in
@@ -78,63 +92,65 @@ const SetPasswordContainer = ({
   const createPassword = useCallback(
     (uid: string, email: string, sessionToken: string): CreatePasswordHandler =>
       async (newPassword: string) => {
-        try {
-          const { passwordCreated, authPW, unwrapBKey } =
-            await authClient.createPassword(sessionToken, email, newPassword);
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              passwordCreated() {
-                return passwordCreated;
+        return withCardLoading(async () => {
+          try {
+            const { passwordCreated, authPW, unwrapBKey } =
+              await authClient.createPassword(sessionToken, email, newPassword);
+            cache.modify({
+              id: cache.identify({ __typename: 'Account' }),
+              fields: {
+                passwordCreated() {
+                  return passwordCreated;
+                },
               },
-            },
-          });
+            });
 
-          const keyFetchToken = await getKeyFetchToken(
-            authPW,
-            email,
-            sessionToken
-          );
+            const keyFetchToken = await getKeyFetchToken(
+              authPW,
+              email,
+              sessionToken
+            );
 
-          GleanMetrics.thirdPartyAuthSetPassword.success({
-            sync: { cwts: selectedEnginesForGlean },
-          });
+            GleanMetrics.thirdPartyAuthSetPassword.success({
+              sync: { cwts: selectedEnginesForGlean },
+            });
 
-          const navigationOptions: NavigationOptions = {
-            email,
-            signinData: {
-              uid,
-              sessionToken,
-              verified: true,
-              keyFetchToken,
-            },
-            unwrapBKey,
-            integration,
-            finishOAuthFlowHandler,
-            queryParams: location.search,
-            handleFxaLogin: true,
-            handleFxaOAuthLogin: true,
-            showSignupConfirmedSync: true,
-            origin: 'post-verify-set-password',
-            syncEngines: {
-              offeredEngines: offeredSyncEngines,
-              declinedEngines: declinedSyncEngines,
-            },
-            // Don't navigate mobile users. The client controls the web view and
-            // users will see a "flash" of whatever page we navigate them to
-            // before the client closes the view. See FXA-11944
-            performNavigation: !integration.isFirefoxMobileClient(),
-          };
+            const navigationOptions: NavigationOptions = {
+              email,
+              signinData: {
+                uid,
+                sessionToken,
+                verified: true,
+                keyFetchToken,
+              },
+              unwrapBKey,
+              integration,
+              finishOAuthFlowHandler,
+              queryParams: location.search,
+              handleFxaLogin: true,
+              handleFxaOAuthLogin: true,
+              showSignupConfirmedSync: true,
+              origin: 'post-verify-set-password',
+              syncEngines: {
+                offeredEngines: offeredSyncEngines,
+                declinedEngines: declinedSyncEngines,
+              },
+              // Don't navigate mobile users. The client controls the web view and
+              // users will see a "flash" of whatever page we navigate them to
+              // before the client closes the view. See FXA-11944
+              performNavigation: !integration.isFirefoxMobileClient(),
+            };
 
-          const { error } = await handleNavigation(navigationOptions);
-          return { error };
-        } catch (error) {
-          const { errno } = error as HandledError;
-          if (errno && AuthUiErrorNos[errno]) {
+            const { error } = await handleNavigation(navigationOptions);
             return { error };
+          } catch (error) {
+            const { errno } = error as HandledError;
+            if (errno && AuthUiErrorNos[errno]) {
+              return { error };
+            }
+            return { error: AuthUiErrors.UNEXPECTED_ERROR as HandledError };
           }
-          return { error: AuthUiErrors.UNEXPECTED_ERROR as HandledError };
-        }
+        })
       },
     [
       authClient,
@@ -145,6 +161,7 @@ const SetPasswordContainer = ({
       offeredSyncEngines,
       selectedEnginesForGlean,
       location.search,
+      withCardLoading,
     ]
   );
 
@@ -160,6 +177,7 @@ const SetPasswordContainer = ({
   // Curry already checked values
   const createPasswordHandler = createPassword(uid, email, sessionToken);
 
+  const loadInCard = pending > 0;
   return (
     <SetPassword
       {...{
@@ -167,6 +185,7 @@ const SetPasswordContainer = ({
         createPasswordHandler,
         offeredSyncEngineConfigs,
         integration,
+        loadInCard,
       }}
     />
   );

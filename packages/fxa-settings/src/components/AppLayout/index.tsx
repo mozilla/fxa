@@ -52,7 +52,7 @@ export const AppLayout = ({
   widthClass,
   cmsInfo,
   wrapInCard = true,
-  loadInCard = false,
+  loadInCard: loading = false,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
   const config = useConfig();
@@ -130,20 +130,34 @@ export const AppLayout = ({
         </header>
         <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
           <section className="relative">
-            {loadInCard ? (
+            {loading ? (
               <>
-                {console.debug('🐛 CardLoadingSpinner AppLayout render')}
                 {/** Perhaps this is a good places for a context as well, something like AppLayoutLoadingContext */}
                 <CardLoadingSpinner widthClass={widthClass} />
               </>
             ) : wrapInCard ? (
               <>
-                {console.debug('🐛 AppLayout wrap in card render')}
                 <div className={classNames('card', widthClass)}>{children}</div>
               </>
             ) : (
               children
             )}
+            {/* I think this would work too... just having the loading state and using the default spinner,
+                it would just need styling. Perhaps the CardLoadingSpinner is an argument for that then,
+                so all the times we need a card it's consistent? 🤔
+            {wrapInCard ? (
+              <>
+                <div className={classNames('card', widthClass)}>
+                  {
+                  loading
+                  ? <LoadingSpinner />
+                  : children
+                  }
+                </div>
+              </>
+            ) : (
+              children
+            )} */}
           </section>
         </main>
       </div>

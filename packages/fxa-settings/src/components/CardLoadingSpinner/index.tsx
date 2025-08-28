@@ -24,13 +24,13 @@ export const CardLoadingSpinner = ({
     // but it appears to be working well.
     <div className={classNames('relative', className)}>
       <section className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
-        <div className={classNames('card', widthClass)}>
-          <div className="flex items-center justify-center py-8">
+        <div className={classNames( widthClass, 'h-[30rem]')}>
+            <div className="flex items-center justify-center h-full w-full">
             <LoadingSpinner
               spinnerType={spinnerType}
               imageClassName={`${spinnerSize} animate-spin`}
             />
-          </div>
+            </div>
         </div>
       </section>
     </div>

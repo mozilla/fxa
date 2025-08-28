@@ -25,4 +25,5 @@ export interface SetPasswordProps {
   createPasswordHandler: CreatePasswordHandler;
   offeredSyncEngineConfigs?: typeof syncEngineConfigs;
   integration?: Integration;
+  loadInCard?: boolean;
 }

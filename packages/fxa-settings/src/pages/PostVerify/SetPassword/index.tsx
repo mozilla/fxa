@@ -18,6 +18,7 @@ export const SetPassword = ({
   createPasswordHandler,
   offeredSyncEngineConfigs,
   integration,
+  loadInCard,
 }: SetPasswordProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const [createPasswordLoading, setCreatePasswordLoading] =
@@ -59,7 +60,7 @@ export const SetPassword = ({
   const cmsInfo = integration?.getCmsInfo?.();
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout {...{cmsInfo, loadInCard}}>
       <FtlMsg id="set-password-heading-v2">
         <h1 className="card-header">Create password to sync</h1>
       </FtlMsg>

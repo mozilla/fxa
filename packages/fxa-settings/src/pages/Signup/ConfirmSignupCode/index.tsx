@@ -134,10 +134,12 @@ const ConfirmSignupCode = ({
     setCodeErrorMessage('');
   }
 
+  const [busy, setBusy] = useState(false);
   async function verifySession(code: string) {
     clearErrorMessages();
     logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
     GleanMetrics.signupConfirmation.submit({ event: { reason } });
+    setBusy(true); //todo, remove this it's not needed for this page
     try {
       const hasSelectedNewsletters = newsletters && newsletters.length > 0;
       const service = integration.getService();
@@ -299,6 +301,8 @@ const ConfirmSignupCode = ({
         // Any other error messages should be displayed in an error banner
         setLocalizedErrorBannerHeading(localizedErrorMessage);
       }
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -312,7 +316,7 @@ const ConfirmSignupCode = ({
       );
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, loadInCard: busy }}>
       {cmsInfo ? (
         <>
           {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
