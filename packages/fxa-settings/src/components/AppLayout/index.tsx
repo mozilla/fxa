@@ -152,14 +152,13 @@ export const AppLayout = ({
           </div>
         )}
       </div>
-      <footer>
-        {/* LocaleToggle positioned in lower left corner of page */}
-        {showLocaleToggle && (
+      {showLocaleToggle && (
+        <footer>
           <div className="fixed bottom-6 left-6 z-10">
-            <LocaleToggle placement="footer" />
+            <LocaleToggle />
           </div>
-        )}
       </footer>
+      )}
       <div id="body-bottom" className="w-full block mobileLandscape:hidden" />
     </>
   );

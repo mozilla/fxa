@@ -7,6 +7,7 @@ import {
   LocaleOption,
   getAvailableLocales,
   isRTLLocale,
+  isUsingBrowserDefault,
   LOCALE_MAPPINGS
 } from '../locales';
 import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
@@ -16,22 +17,27 @@ export interface LocaleManager {
   currentLanguage: LocaleOption | undefined;
   availableLocales: LocaleOption[];
   switchLocale: (newLocale: string) => Promise<void>;
+  clearLocalePreference: () => Promise<void>;
+  isUsingBrowserDefault: boolean;
   isRTL: boolean;
   isLoading: boolean;
 }
 
 export const useLocaleManager = (): LocaleManager => {
-  const { currentLocale, switchLanguage, isLoading } = useDynamicLocalization();
+  const { currentLocale, switchLanguage, clearLanguagePreference, isLoading } = useDynamicLocalization();
   const [availableLocales] = useState<LocaleOption[]>(() => getAvailableLocales());
 
   const currentLanguage = LOCALE_MAPPINGS[currentLocale];
   const isRTL = isRTLLocale(currentLocale);
+  const browserDefault = isUsingBrowserDefault();
 
   return {
     currentLocale,
     currentLanguage,
     availableLocales,
     switchLocale: switchLanguage,
+    clearLocalePreference: clearLanguagePreference,
+    isUsingBrowserDefault: browserDefault,
     isRTL,
     isLoading
   };

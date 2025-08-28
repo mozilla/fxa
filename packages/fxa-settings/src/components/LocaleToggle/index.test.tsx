@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { LocaleToggle } from './index';
 
 // Mock the useLocaleManager hook
 const mockSwitchLocale = jest.fn();
+const mockClearLocalePreference = jest.fn();
 
 const mockUseLocaleManager = jest.fn(() => ({
   currentLocale: 'en',
@@ -19,23 +20,37 @@ const mockUseLocaleManager = jest.fn(() => ({
     { code: 'he', name: 'Hebrew', nativeName: 'עברית', rtl: true },
   ],
   switchLocale: mockSwitchLocale,
-  isLoading: false,
+  clearLocalePreference: mockClearLocalePreference,
+  isUsingBrowserDefault: false,
+  isLoading: false
 }));
 
 jest.mock('../../lib/hooks/useLocaleManager', () => ({
   useLocaleManager: () => mockUseLocaleManager(),
 }));
 
+// Mock getBrowserDefaultLocaleInfo
+jest.mock('../../lib/locales', () => ({
+  ...jest.requireActual('../../lib/locales'),
+  getBrowserDefaultLocaleInfo: () => ({
+    code: 'en',
+    name: 'English',
+    nativeName: 'English',
+    rtl: false
+  })
+}));
+
 // Mock the useFtlMsgResolver hook
 jest.mock('../../models', () => ({
   useFtlMsgResolver: () => ({
-    getMsg: (id: string, fallback: string) => fallback,
-  }),
+    getMsg: (_id: string, fallback: string) => fallback
+  })
 }));
 
 describe('LocaleToggle', () => {
   beforeEach(() => {
     mockSwitchLocale.mockClear();
+    mockClearLocalePreference.mockClear();
     // Reset to default mock
     mockUseLocaleManager.mockReturnValue({
       currentLocale: 'en',
@@ -46,30 +61,32 @@ describe('LocaleToggle', () => {
         { code: 'he', name: 'Hebrew', nativeName: 'עברית', rtl: true },
       ],
       switchLocale: mockSwitchLocale,
-      isLoading: false,
+      clearLocalePreference: mockClearLocalePreference,
+      isUsingBrowserDefault: false,
+      isLoading: false
     });
   });
 
   it('renders correctly with all required elements and attributes', () => {
     renderWithLocalizationProvider(<LocaleToggle />);
 
-    const select = screen.getByTestId('locale-select');
+    const select = screen.getByRole('combobox', { name: 'Select language' });
     expect(select).toBeInTheDocument();
     expect(select).toHaveAttribute('aria-label', 'Select language');
     expect(select).toHaveAttribute('id', 'locale-select');
     expect(select).toHaveValue('en');
 
     // Check that all locales are rendered
-    expect(screen.getByTestId('locale-option-en')).toBeInTheDocument();
-    expect(screen.getByTestId('locale-option-es')).toBeInTheDocument();
-    expect(screen.getByTestId('locale-option-fr')).toBeInTheDocument();
-    expect(screen.getByTestId('locale-option-he')).toBeInTheDocument();
+    expect(select).toHaveTextContent('English');
+    expect(select).toHaveTextContent('Español');
+    expect(select).toHaveTextContent('Français');
+    expect(select).toHaveTextContent('עברית');
   });
 
   it('displays locale names correctly with proper formatting', () => {
     renderWithLocalizationProvider(<LocaleToggle />);
 
-    const select = screen.getByTestId('locale-select');
+    const select = screen.getByRole('combobox', { name: 'Select language' });
     // English shows only native name
     expect(select).toHaveTextContent('English');
     // Non-English locales show both native and English names
@@ -79,10 +96,11 @@ describe('LocaleToggle', () => {
   });
 
   it('calls switchLocale when a different locale is selected', async () => {
+    const user = userEvent.setup();
     renderWithLocalizationProvider(<LocaleToggle />);
 
-    const select = screen.getByTestId('locale-select');
-    fireEvent.change(select, { target: { value: 'es' } });
+    const select = screen.getByRole('combobox', { name: 'Select language' });
+    await user.selectOptions(select, 'es');
 
     await waitFor(() => {
       expect(mockSwitchLocale).toHaveBeenCalledWith('es');
@@ -90,10 +108,11 @@ describe('LocaleToggle', () => {
   });
 
   it('does not call switchLocale when the same locale is selected', async () => {
+    const user = userEvent.setup();
     renderWithLocalizationProvider(<LocaleToggle />);
 
-    const select = screen.getByTestId('locale-select');
-    fireEvent.change(select, { target: { value: 'en' } });
+    const select = screen.getByRole('combobox', { name: 'Select language' });
+    await user.selectOptions(select, 'en');
 
     await waitFor(() => {
       expect(mockSwitchLocale).not.toHaveBeenCalled();
@@ -107,26 +126,22 @@ describe('LocaleToggle', () => {
         { code: 'en', name: 'English', nativeName: 'English', rtl: false },
       ],
       switchLocale: mockSwitchLocale,
-      isLoading: true,
+      clearLocalePreference: mockClearLocalePreference,
+      isUsingBrowserDefault: false,
+      isLoading: true
     });
 
     renderWithLocalizationProvider(<LocaleToggle />);
 
-    const select = screen.getByTestId('locale-select');
+    const select = screen.getByRole('combobox', { name: 'Select language' });
     expect(select).toBeDisabled();
   });
 
-  it('applies custom className', () => {
-    renderWithLocalizationProvider(<LocaleToggle className="custom-class" />);
-
-    const container = screen.getByTestId('locale-select').parentElement;
-    expect(container).toHaveClass('custom-class');
-  });
 
   it('has proper accessibility attributes and labeling', () => {
     renderWithLocalizationProvider(<LocaleToggle />);
 
-    const select = screen.getByTestId('locale-select');
+    const select = screen.getByRole('combobox', { name: 'Select language' });
     expect(select).toHaveAttribute('id', 'locale-select');
     expect(select).toHaveAttribute('aria-label', 'Select language');
 
@@ -141,14 +156,17 @@ describe('LocaleToggle', () => {
       currentLocale: 'en',
       availableLocales: [],
       switchLocale: mockSwitchLocale,
-      isLoading: false,
+      clearLocalePreference: mockClearLocalePreference,
+      isUsingBrowserDefault: false,
+      isLoading: false
     });
 
     const { rerender } = renderWithLocalizationProvider(<LocaleToggle />);
 
-    let select = screen.getByTestId('locale-select');
+    let select = screen.getByRole('combobox', { name: 'Select language' });
     expect(select).toBeInTheDocument();
-    expect(select.children).toHaveLength(0);
+    expect(select.children).toHaveLength(1);
+    expect(screen.getByText('Browser default')).toBeInTheDocument();
 
     // Test locales with missing or duplicate properties
     mockUseLocaleManager.mockReturnValue({
@@ -159,14 +177,64 @@ describe('LocaleToggle', () => {
         { code: 'fr', name: 'French', nativeName: 'French', rtl: false }, // Same as nativeName
       ],
       switchLocale: mockSwitchLocale,
-      isLoading: false,
+      clearLocalePreference: mockClearLocalePreference,
+      isUsingBrowserDefault: false,
+      isLoading: false
     });
 
     rerender(<LocaleToggle />);
 
-    select = screen.getByTestId('locale-select');
+    select = screen.getByRole('combobox', { name: 'Select language' });
     expect(select).toHaveTextContent('English');
     expect(select).toHaveTextContent('Español (Spanish)');
     expect(select).toHaveTextContent('French'); // Should not show duplicate
+  });
+
+  it('shows browser default option and handles selection correctly', () => {
+    renderWithLocalizationProvider(<LocaleToggle />);
+
+    const select = screen.getByRole('combobox', { name: 'Select language' });
+
+    // Browser default option should be present
+    expect(screen.getByText('Browser default')).toBeInTheDocument();
+
+    // Should have browser default + 4 language options
+    expect(select.children).toHaveLength(5);
+  });
+
+  it('handles browser default selection', async () => {
+    const user = userEvent.setup();
+    renderWithLocalizationProvider(<LocaleToggle />);
+
+    const select = screen.getByRole('combobox', { name: 'Select language' });
+
+    // Select browser default
+    await user.selectOptions(select, 'browser-default');
+
+    await waitFor(() => {
+      expect(mockClearLocalePreference).toHaveBeenCalledTimes(1);
+      expect(mockSwitchLocale).not.toHaveBeenCalled();
+    });
+  });
+
+  it('shows browser default as selected when using browser default', () => {
+    mockUseLocaleManager.mockReturnValue({
+      currentLocale: 'fr',
+      availableLocales: [
+        { code: 'en', name: 'English', nativeName: 'English', rtl: false },
+        { code: 'fr', name: 'French', nativeName: 'Français', rtl: false }
+      ],
+      switchLocale: mockSwitchLocale,
+      clearLocalePreference: mockClearLocalePreference,
+      isUsingBrowserDefault: true,
+      isLoading: false
+    });
+
+    renderWithLocalizationProvider(<LocaleToggle />);
+
+    const select = screen.getByRole('combobox', { name: 'Select language' }) as HTMLSelectElement;
+
+    // Should show the actual browser language (English) when using browser default
+    expect(select.value).toBe('en'); // Browser default locale from mock
   });
 });
