@@ -25,9 +25,7 @@ export default function AuthErrorPage({
   const errorMessage = Array.isArray(searchParams?.error)
     ? searchParams.error[0]
     : searchParams?.error;
-  getApp()
-    .getEmitterService()
-    .emit('auth', { type: 'error', errorMessage });
+  getApp().getEmitterService().emit('auth', { type: 'error', errorMessage });
 
   return (
     <>
@@ -87,7 +85,7 @@ export default function AuthErrorPage({
                   'Try again'
                 )}
                 variant={ButtonVariant.Primary}
-                className="text-base"
+                className="h-12 text-base"
               >
                 {l10n.getString('next-payment-error-retry-button', 'Try again')}
               </BaseButton>

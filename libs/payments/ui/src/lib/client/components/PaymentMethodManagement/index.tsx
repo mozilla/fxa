@@ -141,7 +141,7 @@ export function PaymentMethodManagement({
               billing_details: {
                 name: fullName,
                 email: sessionEmail || undefined,
-              }
+              },
             },
           },
         });
@@ -268,7 +268,7 @@ export function PaymentMethodManagement({
           <div className="flex flex-row justify-center pt-4">
             <Form.Submit asChild>
               <BaseButton
-                className="mt-10 w-full"
+                className="h-10 mt-10 w-full"
                 type="submit"
                 variant={ButtonVariant.Primary}
                 aria-disabled={
@@ -297,7 +297,7 @@ export function PaymentMethodManagement({
           <div className="flex flex-row justify-center pt-4">
             <Form.Submit asChild>
               <BaseButton
-                className="mt-10 w-full"
+                className="h-10 mt-10 w-full"
                 type="submit"
                 variant={ButtonVariant.Primary}
                 aria-disabled={!stripe || !isComplete || isLoading}

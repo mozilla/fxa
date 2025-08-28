@@ -75,10 +75,10 @@ interface CheckoutFormProps {
     };
     paymentInfo?: {
       type:
-      | Stripe.PaymentMethod.Type
-      | 'google_iap'
-      | 'apple_iap'
-      | 'external_paypal';
+        | Stripe.PaymentMethod.Type
+        | 'google_iap'
+        | 'apple_iap'
+        | 'external_paypal';
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
@@ -152,7 +152,8 @@ export function CheckoutForm({
 
           //Show or hide the PayPal button and Link
           const hasSavedPaymentMethod = !!event?.value?.payment_method?.id;
-          const isNewCardSelected = event?.value?.type === 'card' && !hasSavedPaymentMethod;
+          const isNewCardSelected =
+            event?.value?.type === 'card' && !hasSavedPaymentMethod;
 
           const selectedType = event?.value?.type || '';
           const isNotCardType = selectedType !== 'card';
@@ -172,7 +173,11 @@ export function CheckoutForm({
   const showPayPalButton = selectedPaymentMethod === 'external_paypal';
   const isStripe = cart?.paymentInfo?.type !== 'external_paypal';
   const showFullNameInput =
-    !isPaymentElementLoading && !showPayPalButton && !isSavedPaymentMethod && selectedPaymentMethod === 'card' && !isNotCard;
+    !isPaymentElementLoading &&
+    !showPayPalButton &&
+    !isSavedPaymentMethod &&
+    selectedPaymentMethod === 'card' &&
+    !isNotCard;
   const nonStripeFieldsComplete = !showFullNameInput || !!fullName;
 
   const submitHandler = async (
@@ -235,13 +240,13 @@ export function CheckoutForm({
     const confirmationTokenParams: ConfirmationTokenCreateParams | undefined =
       !isSavedPaymentMethod
         ? {
-          payment_method_data: {
-            billing_details: {
-              name: fullName,
-              email: sessionEmail || undefined,
+            payment_method_data: {
+              billing_details: {
+                name: fullName,
+                email: sessionEmail || undefined,
+              },
             },
-          },
-        }
+          }
         : undefined;
 
     // Create the ConfirmationToken using the details collected by the Payment Element
@@ -256,7 +261,11 @@ export function CheckoutForm({
       if (confirmationTokenError.type === 'validation_error') {
         return;
       } else {
-        await handleStripeErrorAction(cart.id, confirmationTokenError, searchParamsRecord);
+        await handleStripeErrorAction(
+          cart.id,
+          confirmationTokenError,
+          searchParamsRecord
+        );
         return;
       }
     }
@@ -374,9 +383,7 @@ export function CheckoutForm({
           <>
             {showLinkAuthElement && (
               <div>
-                <LinkAuthenticationElement
-                  options={linkAuthOptions}
-                />
+                <LinkAuthenticationElement options={linkAuthOptions} />
               </div>
             )}
             <PaymentElement
@@ -450,7 +457,7 @@ export function CheckoutForm({
               />
             ) : (
               <BaseButton
-                className="mt-10 w-full"
+                className="h-12 mt-10 w-full"
                 type="submit"
                 variant={ButtonVariant.Primary}
                 aria-disabled={
