@@ -160,7 +160,7 @@ export const RecoveryKeySetupHint = ({
             className="cta-primary cta-xl w-full mt-4 mb-4"
             type="submit"
             disabled={isSubmitDisabled}
-            buttonColor={cmsInfo?.shared?.buttonColor}
+            buttonColor={cmsInfo?.shared.buttonColor}
           >
             Finish
           </CmsButtonWithFallback>

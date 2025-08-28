@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export interface Page {
-  headline: string | null;
+  headline: string;
   description: string | null;
-  primaryButtonText: string | null;
+  primaryButtonText: string;
   logoUrl: string | null;
   logoAltText: string | null;
   pageTitle: string | null;
@@ -44,14 +44,14 @@ export interface RelyingPartyResult {
   entrypoint: string | null;
   name: string | null;
   l10nId: string;
-  EmailFirstPage?: Page;
-  SignupSetPasswordPage?: Page;
-  SignupConfirmCodePage?: Page;
-  SignupConfirmedSyncPage?: Page;
-  SigninPage?: Page;
+  EmailFirstPage: Page;
+  SignupSetPasswordPage: Page;
+  SignupConfirmCodePage: Page;
+  SignupConfirmedSyncPage: Page;
+  SigninPage: Page;
   SigninTokenCodePage?: Page;
   SigninUnblockCodePage?: Page;
-  shared?: Shared;
+  shared: Shared;
   NewDeviceLoginEmail?: Email;
   VerifyLoginCodeEmail?: Email;
   VerifyShortCodeEmail?: Email;

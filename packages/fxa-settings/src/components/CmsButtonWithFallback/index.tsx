@@ -95,7 +95,7 @@ const CmsButtonWithFallback: React.FC<CmsButtonWithFallbackProps> = ({
         isCms ? 'cta-primary-cms' : 'cta-primary',
         'cta-xl',
         {
-          // add a text-shadow if the CMS background color does not meet color contast
+          // add a text-shadow if the CMS background color does not meet color contrast
           // standards, as our CTA button text is always white
           'text-shadow-cms': isCms && buttonColor && !hasSufficientContrast(buttonColor.trim(), '#ffffff'),
         },

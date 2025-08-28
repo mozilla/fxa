@@ -125,7 +125,7 @@ export const SigninTotpCode = ({
     <AppLayout {...{ cmsInfo, title }}>
       {cmsInfo ? (
         <>
-          {cmsInfo.shared?.logoUrl && cmsInfo.shared?.logoAltText && (
+          {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (
             <img
               src={cmsInfo.shared.logoUrl}
               alt={cmsInfo.shared.logoAltText}
@@ -182,7 +182,7 @@ export const SigninTotpCode = ({
         verifyCode={onSubmit}
         className="my-6"
         cmsButton={{
-          color: cmsInfo?.shared?.buttonColor,
+          color: cmsInfo?.shared.buttonColor,
         }}
       />
       <div className="mt-8 link-blue text-sm flex justify-between">

@@ -370,7 +370,7 @@ const Signin = ({
   }
 
   const cmsInfo = integration.getCmsInfo();
-  const title = cmsInfo?.SigninPage?.pageTitle;
+  const title = cmsInfo?.SigninPage.pageTitle;
 
   return (
     <AppLayout {...{ cmsInfo, title }}>
@@ -388,10 +388,10 @@ const Signin = ({
           headingText="Enter your password"
           headingAndSubheadingFtlId="signin-password-needed-header-2"
           {...{
-            cmsLogoUrl: cmsInfo?.shared?.logoUrl,
-            cmsLogoAltText: cmsInfo?.shared?.logoAltText,
-            cmsHeadline: cmsInfo?.SigninPage?.headline,
-            cmsDescription: cmsInfo?.SigninPage?.description,
+            cmsLogoUrl: cmsInfo?.shared.logoUrl,
+            cmsLogoAltText: cmsInfo?.shared.logoAltText,
+            cmsHeadline: cmsInfo?.SigninPage.headline,
+            cmsDescription: cmsInfo?.SigninPage.description,
           }}
         />
       ) : (
@@ -404,8 +404,8 @@ const Signin = ({
           {...{
             clientId,
             serviceName,
-            cmsLogoUrl: cmsInfo?.shared?.logoUrl,
-            cmsLogoAltText: cmsInfo?.shared?.logoAltText,
+            cmsLogoUrl: cmsInfo?.shared.logoUrl,
+            cmsLogoAltText: cmsInfo?.shared.logoAltText,
           }}
         />
       )}
@@ -497,7 +497,7 @@ const Signin = ({
                 className="cta-primary cta-xl"
                 type="submit"
                 disabled={signinLoading}
-                buttonColor={cmsInfo?.shared?.buttonColor}
+                buttonColor={cmsInfo?.shared.buttonColor}
               >
                 Sign in
               </CmsButtonWithFallback>

@@ -25,6 +25,7 @@ import {
   Subject,
 } from './mocks';
 import {
+  MOCK_CMS_INFO,
   MOCK_EMAIL,
   MOCK_KEY_FETCH_TOKEN,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
@@ -46,7 +47,7 @@ import {
 } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
-import { IntegrationType } from '../../models';
+import { IntegrationType, RelierCmsInfo } from '../../models';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import * as SigninUtils from './utils';
@@ -1366,38 +1367,19 @@ describe('Signin component', () => {
   });
 
   describe('snapshots - CMS', () => {
-    // The purpose of these snapshots is to ensure that we've implemented the pass
-    // through of CMS data to appropriate components. Because we also have snapshots
-    // on the components we don't need to test with cms "off"
+
     const cmsProps = {
-      cmsInfo: {
-        shared: {
-          logoUrl: 'https://example.com/SNAPSHOT_TEST.png',
-          logoAltText: 'SNAPSHOT_TEST Shared Alt text for logo',
-          buttonColor: 'blue',
-          headerLogoUrl: 'https://example.com/SNAPSHOT_TEST_header.png',
-          headerLogoAltText: 'SNAPSHOT_TEST Shared Alt text for header logo',
-          pageTitle: 'SNAPSHOT_TEST Shared page title',
-          backgroundColor: 'yellow',
-          favicon: 'https://example.com/SNAPSHOT_TEST_favicon.ico',
-        },
-        SigninPage: {
-          headline: 'SNAPSHOT_TEST Custom CMS Headline',
-          description: 'SNAPSHOT_TEST Custom CMS Description',
-          primaryButtonText: 'SNAPSHOT_TEST Custom CMS Button Text',
-        },
-        // these aren't used in the Signin page, but are here to ensure consistency
-        name: 'SNAPSHOT_TEST name',
-        clientId: 'SNAPSHOT_TEST_clientId',
-        entrypoint: 'SNAPSHOT_TEST_entrypoint',
-      },
-    };
+      cmsInfo: MOCK_CMS_INFO
+    }
 
     beforeEach(() => {
       HTMLFormElement.prototype.submit = jest.fn();
     });
 
     it('sets the shared page title from CMS', () => {
+      // Ensure pageTitle is not available on SigninPage, cast to type
+      // to allow undefined
+      (cmsProps.cmsInfo as RelierCmsInfo).SigninPage.pageTitle = undefined;
       render({ integration: createMockSigninWebIntegration(cmsProps) });
 
       expect(document.title).toBe(

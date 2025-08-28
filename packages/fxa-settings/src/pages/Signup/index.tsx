@@ -289,15 +289,15 @@ export const Signup = ({
           <CmsLogo
             {...{
               isMobile,
-              logos: [cmsInfo?.SignupSetPasswordPage, cmsInfo?.shared],
-              logoPosition: cmsInfo?.SignupSetPasswordPage?.logoUrl ? 'center' : 'left',
+              logos: [cmsInfo.SignupSetPasswordPage, cmsInfo.shared],
+              logoPosition: cmsInfo.SignupSetPasswordPage.logoUrl ? 'center' : 'left',
             }}
           />
           <h1 className="card-header">
-            {cmsInfo?.SignupSetPasswordPage?.headline}
+            {cmsInfo.SignupSetPasswordPage.headline}
           </h1>
           <p className="mt-1 text-sm">
-            {cmsInfo?.SignupSetPasswordPage?.description}
+            {cmsInfo.SignupSetPasswordPage.description}
           </p>
         </>
       ) : (
@@ -406,8 +406,8 @@ export const Signup = ({
           requirePasswordConfirmation: isSync,
           setSelectedNewsletterSlugs,
           cmsButton: {
-            text: cmsInfo?.SignupSetPasswordPage?.primaryButtonText,
-            color: cmsInfo?.shared?.buttonColor,
+            text: cmsInfo?.SignupSetPasswordPage.primaryButtonText,
+            color: cmsInfo?.shared.buttonColor,
           },
         }}
         loading={beginSignupLoading}

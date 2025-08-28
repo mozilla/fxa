@@ -82,7 +82,7 @@ export const InlineRecoveryKeySetupCreate = ({
           onClick={createRecoveryKey}
           disabled={isLoading}
           data-glean-id="inline_recovery_key_cta_submit"
-          buttonColor={cmsInfo?.shared?.buttonColor}
+          buttonColor={cmsInfo?.shared.buttonColor}
         >
           <FtlMsg id="inline-recovery-key-setup-start-button">
             Create account recovery key

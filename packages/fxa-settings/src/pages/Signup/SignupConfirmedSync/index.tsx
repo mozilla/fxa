@@ -40,9 +40,9 @@ const SignupConfirmedSync = ({
   const showPairLink = integration.isDesktopSync();
 
   const cmsInfo = integration.getCmsInfo();
-  const cmsButtonColor = cmsInfo?.shared?.buttonColor;
+  const cmsButtonColor = cmsInfo?.shared.buttonColor;
   const cmsButtonText = cmsInfo?.SignupConfirmedSyncPage?.primaryButtonText;
-  const cmsHideCTA = !!cmsInfo?.shared?.featureFlags?.syncConfirmedPageHideCTA;
+  const cmsHideCTA = !!cmsInfo?.shared.featureFlags?.syncConfirmedPageHideCTA;
   const title = cmsInfo?.SignupConfirmedSyncPage?.pageTitle;
 
   return (

@@ -109,13 +109,13 @@ export const Index = ({
           <CmsLogo
             {...{
               isMobile,
-              logos: [cmsInfo?.EmailFirstPage, cmsInfo?.shared],
-              logoPosition: cmsInfo?.EmailFirstPage?.logoUrl ? 'center' : 'left',
+              logos: [cmsInfo.EmailFirstPage, cmsInfo.shared],
+              logoPosition: cmsInfo.EmailFirstPage.logoUrl ? 'center' : 'left',
             }}
           />
-          <h1 className="card-header">{cmsInfo?.EmailFirstPage?.headline}</h1>
+          <h1 className="card-header">{cmsInfo.EmailFirstPage.headline}</h1>
           <p className="mt-1 mb-9 text-sm">
-            {cmsInfo?.EmailFirstPage?.description}
+            {cmsInfo.EmailFirstPage.description}
           </p>
         </>
       ) : isSync ? (
@@ -187,8 +187,8 @@ export const Index = ({
               type="submit"
               data-glean-id="email_first_submit"
               disabled={isSubmitting}
-              buttonColor={cmsInfo?.shared?.buttonColor}
-              buttonText={cmsInfo?.EmailFirstPage?.primaryButtonText}
+              buttonColor={cmsInfo?.shared.buttonColor}
+              buttonText={cmsInfo?.EmailFirstPage.primaryButtonText}
             >
               Sign up or sign in
             </CmsButtonWithFallback>

@@ -4,7 +4,7 @@
 
 import { RelierCmsInfo } from '../../models/integrations';
 
-export const MOCK_CMS_INFO_VALID_LINEAR_BG: RelierCmsInfo = {
+export const MOCK_CMS_INFO_VALID_LINEAR_BG = {
   name: 'Test App',
   clientId: 'test123',
   entrypoint: 'test',
@@ -15,9 +15,9 @@ export const MOCK_CMS_INFO_VALID_LINEAR_BG: RelierCmsInfo = {
     backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     pageTitle: 'Test App - Custom Title',
   },
-};
+} as RelierCmsInfo;
 
-export const MOCK_CMS_INFO_VALID_RADIAL_BG: RelierCmsInfo = {
+export const MOCK_CMS_INFO_VALID_RADIAL_BG = {
   name: 'Test App',
   clientId: 'test123',
   entrypoint: 'test',
@@ -28,9 +28,9 @@ export const MOCK_CMS_INFO_VALID_RADIAL_BG: RelierCmsInfo = {
     backgroundColor: 'radial-gradient(circle, #ff6b6b, #4ecdc4)',
     pageTitle: 'Test App - Custom Title',
   },
-};
+} as RelierCmsInfo;
 
-export const MOCK_CMS_INFO_NO_BG: RelierCmsInfo = {
+export const MOCK_CMS_INFO_NO_BG = {
   name: 'Test App',
   clientId: 'test123',
   entrypoint: 'test',
@@ -40,9 +40,9 @@ export const MOCK_CMS_INFO_NO_BG: RelierCmsInfo = {
     logoAltText: 'Test App Logo',
     pageTitle: 'Test App - Custom Title',
   },
-};
+} as RelierCmsInfo;
 
-export const MOCK_CMS_INFO_INVALID_BG_COLOR: RelierCmsInfo = {
+export const MOCK_CMS_INFO_INVALID_BG_COLOR = {
   name: 'Test App',
   clientId: 'test123',
   entrypoint: 'test',
@@ -53,9 +53,9 @@ export const MOCK_CMS_INFO_INVALID_BG_COLOR: RelierCmsInfo = {
     backgroundColor: 'solid-color-red',
     pageTitle: 'Test App - Custom Title',
   },
-};
+} as RelierCmsInfo;
 
-export const MOCK_CMS_INFO_WITH_PAGE_TITLE: RelierCmsInfo = {
+export const MOCK_CMS_INFO_WITH_PAGE_TITLE = {
   name: 'Test App',
   clientId: 'test123',
   entrypoint: 'test',
@@ -65,9 +65,9 @@ export const MOCK_CMS_INFO_WITH_PAGE_TITLE: RelierCmsInfo = {
     logoAltText: 'Test App Logo',
     pageTitle: 'CMS Custom Title',
   },
-};
+} as RelierCmsInfo;
 
-export const MOCK_CMS_INFO_NO_PAGE_TITLE: RelierCmsInfo = {
+export const MOCK_CMS_INFO_NO_PAGE_TITLE = {
   name: 'Test App',
   clientId: 'test123',
   entrypoint: 'test',
@@ -76,9 +76,9 @@ export const MOCK_CMS_INFO_NO_PAGE_TITLE: RelierCmsInfo = {
     logoUrl: 'https://example.com/logo.png',
     logoAltText: 'Test App Logo',
   },
-};
+} as RelierCmsInfo;
 
-export const MOCK_CMS_INFO_HEADER_LOGO: RelierCmsInfo = {
+export const MOCK_CMS_INFO_HEADER_LOGO = {
   name: 'Test App',
   clientId: 'test123',
   entrypoint: 'test',
@@ -89,9 +89,9 @@ export const MOCK_CMS_INFO_HEADER_LOGO: RelierCmsInfo = {
     headerLogoUrl: 'https://example.com/cms-logo.png',
     headerLogoAltText: 'CMS Custom Logo',
   },
-};
+} as RelierCmsInfo;
 
-export const MOCK_CMS_INFO_HEADER_LOGO_NO_ALT: RelierCmsInfo = {
+export const MOCK_CMS_INFO_HEADER_LOGO_NO_ALT = {
   name: 'Test App',
   clientId: 'test123',
   entrypoint: 'test',
@@ -101,9 +101,9 @@ export const MOCK_CMS_INFO_HEADER_LOGO_NO_ALT: RelierCmsInfo = {
     logoAltText: undefined,
     headerLogoUrl: 'https://example.com/cms-logo.png',
   },
-};
+} as RelierCmsInfo;
 
-export const MOCK_CMS_INFO_DEFAULT_LOGO: RelierCmsInfo = {
+export const MOCK_CMS_INFO_DEFAULT_LOGO = {
   name: 'Test App',
   clientId: 'test123',
   entrypoint: 'test',
@@ -112,9 +112,9 @@ export const MOCK_CMS_INFO_DEFAULT_LOGO: RelierCmsInfo = {
     logoUrl: undefined,
     logoAltText: undefined,
   },
-};
+} as RelierCmsInfo;
 
-export const MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS: RelierCmsInfo = {
+export const MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS = {
   name: 'Test App',
   clientId: 'test123',
   entrypoint: 'test',
@@ -127,7 +127,7 @@ export const MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS: RelierCmsInfo = {
     backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     pageTitle: 'Test App - Custom Title',
   },
-};
+} as RelierCmsInfo;
 
 export const INTEGRATION_WITH_UNDEFINED_GETCMSINFO = {
   getCmsInfo: () => undefined,

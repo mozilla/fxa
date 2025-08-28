@@ -315,19 +315,19 @@ const ConfirmSignupCode = ({
     <AppLayout {...{ cmsInfo, title }}>
       {cmsInfo ? (
         <>
-          {cmsInfo?.shared?.logoUrl && cmsInfo?.shared?.logoAltText && (
+          {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (
             <img
               data-testid="cms-logo"
-              src={cmsInfo?.shared.logoUrl}
-              alt={cmsInfo?.shared.logoAltText}
+              src={cmsInfo.shared.logoUrl}
+              alt={cmsInfo.shared.logoAltText}
               className="justify-start mb-4 max-h-[40px]"
             />
           )}
           <h1 className="card-header">
-            {cmsInfo?.SignupConfirmCodePage?.headline}
+            {cmsInfo.SignupConfirmCodePage.headline}
           </h1>
           <p className="mt-1 text-sm">
-            {cmsInfo?.SignupConfirmCodePage?.description}
+            {cmsInfo.SignupConfirmCodePage.description}
           </p>
         </>
       ) : (
@@ -378,8 +378,8 @@ const ConfirmSignupCode = ({
           setCodeErrorMessage,
           submitFormOnPaste,
           cmsButton: {
-            text: cmsInfo?.SignupConfirmCodePage?.primaryButtonText,
-            color: cmsInfo?.shared?.buttonColor,
+            text: cmsInfo?.SignupConfirmCodePage.primaryButtonText,
+            color: cmsInfo?.shared.buttonColor,
           },
         }}
       />

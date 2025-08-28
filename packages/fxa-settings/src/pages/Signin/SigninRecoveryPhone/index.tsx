@@ -164,8 +164,8 @@ const SigninRecoveryPhone = ({
     <AppLayout cmsInfo={cmsInfo}>
 
       <div className="relative flex items-center">
-        <ButtonBack cmsBackgroundColor={cmsInfo?.shared?.backgroundColor} />
-        {cmsInfo?.shared?.logoUrl && cmsInfo.shared?.logoAltText ? (
+        <ButtonBack cmsBackgroundColor={cmsInfo?.shared.backgroundColor} />
+        {cmsInfo?.shared.logoUrl && cmsInfo.shared.logoAltText ? (
           <img
             src={cmsInfo.shared.logoUrl}
             alt={cmsInfo.shared.logoAltText}
@@ -241,7 +241,7 @@ const SigninRecoveryPhone = ({
         gleanDataAttrs={{ id: 'login_backup_phone_submit' }}
         className="my-6"
         cmsButton={{
-          color: cmsInfo?.shared?.buttonColor
+          color: cmsInfo?.shared.buttonColor
         }}
       />
       <div className="flex justify-between mt-5 text-sm">
