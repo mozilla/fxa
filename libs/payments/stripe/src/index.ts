@@ -33,6 +33,7 @@ export {
 } from './lib/factories/subscription.factory';
 export { StripePromotionCodeFactory } from './lib/factories/promotion-code.factory';
 export { StripePaymentMethodFactory } from './lib/factories/payment-method.factory';
+export { StripeCardPaymentMethodFactory } from './lib/factories/card-payment-method.factory';
 export { StripePaymentIntentFactory } from './lib/factories/payment-intent.factory';
 export { StripeSetupIntentFactory } from './lib/factories/setup-intent.factory';
 export { StripeTaxRateFactory } from './lib/factories/tax-rate.factory';

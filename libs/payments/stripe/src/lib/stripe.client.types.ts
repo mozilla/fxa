@@ -353,6 +353,8 @@ export type StripePaymentMethod = NegotiateExpanded<
   'customer'
 >;
 
+export type StripeWalletType = 'apple_pay' | 'google_pay';
+
 /**
  * Stripe.PaymentIntent with expanded fields removed
  */
