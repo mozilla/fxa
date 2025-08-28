@@ -101,6 +101,7 @@ export interface Config {
   nimbusPreview: boolean;
   cms: {
     enabled: boolean;
+    l10nEnabled: boolean;
   };
 }
 
@@ -185,8 +186,8 @@ export function getDefault() {
       showLocaleToggle: false,
     },
     cms: {
-      // Note: Even if this flag is true, the user must be an `en` language
       enabled: false,
+      l10nEnabled: false
     },
     nimbusPreview: false,
   } as Config;
