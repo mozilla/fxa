@@ -22,7 +22,7 @@ const syncTextSecondary =
   'A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.';
 
 function thirdPartyAuthWithSeparatorRendered() {
-  screen.getByText('or');
+  screen.getByText('Sign in with');
   screen.getByRole('button', {
     name: /Continue with Google/,
   });

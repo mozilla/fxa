@@ -35,7 +35,7 @@ const ThirdPartyAuth = ({
   showSeparator = true,
   viewName = 'unknown',
   deeplink,
-  flowQueryParams
+  flowQueryParams,
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
 
@@ -53,9 +53,9 @@ const ThirdPartyAuth = ({
           <>
             <div className="text-sm flex items-center justify-center my-6">
               <div className="flex-1 h-px bg-grey-300 divide-x"></div>
-              <FtlMsg id="third-party-auth-options-or">
+              <FtlMsg id="third-party-auth-options-sign-in-with">
                 <div className="mx-4 text-base text-grey-300 font-extralight">
-                  or
+                  Sign in with
                 </div>
               </FtlMsg>
               <div className="flex-1 h-px bg-grey-300 divide-x"></div>
@@ -79,7 +79,7 @@ const ThirdPartyAuth = ({
                   <GoogleLogo />
                 </>
               ),
-              deeplink
+              deeplink,
             }}
           />
           <ThirdPartySignInForm
@@ -99,7 +99,7 @@ const ThirdPartyAuth = ({
                   <AppleLogo />
                 </>
               ),
-              deeplink
+              deeplink,
             }}
           />
         </div>
@@ -128,7 +128,7 @@ const ThirdPartySignInForm = ({
   onSubmit,
   viewName,
   deeplink,
-  flowQueryParams
+  flowQueryParams,
 }: {
   party: 'google' | 'apple';
   authorizationEndpoint: string;
@@ -154,8 +154,16 @@ const ThirdPartySignInForm = ({
 
   const getLoginAriaLabel = () => {
     const labels = {
-      google: l10n.getString('continue-with-google-button', null, 'Continue with Google'),
-      apple: l10n.getString('continue-with-apple-button', null, 'Continue with Apple')
+      google: l10n.getString(
+        'continue-with-google-button',
+        null,
+        'Continue with Google'
+      ),
+      apple: l10n.getString(
+        'continue-with-apple-button',
+        null,
+        'Continue with Apple'
+      ),
     };
     return labels[party];
   };
@@ -197,7 +205,6 @@ const ThirdPartySignInForm = ({
     }
   }, [party, stateRef, viewName, logViewEventOnce, flowQueryParams]);
 
-
   if (onSubmit === undefined) {
     onSubmit = () => true;
   }
@@ -205,16 +212,23 @@ const ThirdPartySignInForm = ({
   useEffect(() => {
     if (deeplink && formRef.current) {
       // Only deeplink if this is the correct button
-      if ((deeplink === "googleLogin" && party === "google") || (deeplink === "appleLogin" && party === "apple")) {
+      if (
+        (deeplink === 'googleLogin' && party === 'google') ||
+        (deeplink === 'appleLogin' && party === 'apple')
+      ) {
         onClick();
         formRef.current.submit();
       }
     }
-
   }, [deeplink, onClick, party]);
 
   return (
-    <form action={authorizationEndpoint} method="GET" onSubmit={onSubmit} ref={formRef}>
+    <form
+      action={authorizationEndpoint}
+      method="GET"
+      onSubmit={onSubmit}
+      ref={formRef}
+    >
       <input
         data-testid={`${party}-signin-form-state`}
         ref={stateRef}
@@ -243,7 +257,7 @@ const ThirdPartySignInForm = ({
         >
           {buttonText}
         </button>
-      ) : null }
+      ) : null}
     </form>
   );
 };
@@ -263,7 +277,10 @@ function getState(flowQueryParams: QueryParams | undefined) {
   const combinedParams = {
     ...paramsObject,
     ...Object.fromEntries(
-      Object.entries(flowQueryParams || {}).map(([key, value]) => [key, String(value)])
+      Object.entries(flowQueryParams || {}).map(([key, value]) => [
+        key,
+        String(value),
+      ])
     ),
   };
 
@@ -278,7 +295,8 @@ function getState(flowQueryParams: QueryParams | undefined) {
   ]);
   // we won't need these params that are used for internal backbone/react navigation
   return encodeURIComponent(
-    `${window.location.origin}${window.location.pathname
+    `${window.location.origin}${
+      window.location.pathname
     }?${filteredParams.toString()}`
   );
 }
