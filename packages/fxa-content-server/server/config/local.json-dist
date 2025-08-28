@@ -70,7 +70,7 @@
     "recoveryCodeSetupOnSyncSignIn": true,
     "recoveryPhonePasswordReset2fa": true,
     "updatedInlineTotpSetupFlow": true,
-    "updatedInlineRecoverySetupFlow": true
+    "updatedInlineRecoverySetupFlow": true,
     "showLocaleToggle": true
   },
   "rolloutRates": {
