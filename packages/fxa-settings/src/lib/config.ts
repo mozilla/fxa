@@ -13,6 +13,11 @@ export interface Config {
     baseUrl: string;
   };
   marketingEmailPreferencesUrl: string;
+  mfa: {
+    otp: {
+      expiresInMinutes: number;
+    };
+  };
   metrics: {
     navTiming: {
       enabled: boolean;
@@ -116,6 +121,11 @@ export function getDefault() {
     metrics: {
       navTiming: { enabled: false, endpoint: '/check-your-metrics-config' },
     },
+    mfa: {
+      otp: {
+        expiresInMinutes: 5,
+      },
+    },
     sentry: {
       dsn: '',
       env: 'local',
@@ -187,7 +197,7 @@ export function getDefault() {
     },
     cms: {
       enabled: false,
-      l10nEnabled: false
+      l10nEnabled: false,
     },
     nimbusPreview: false,
   } as Config;
