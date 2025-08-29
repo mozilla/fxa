@@ -247,7 +247,13 @@ const ConfirmSignupCode = ({
             goToSettingsWithAlertSuccess();
           } else {
             // Navigate to relying party
-            hardNavigate(redirect);
+            if (origin === 'signup') {
+              hardNavigate(redirect, { newAccount: 'true' });
+            } else {
+              hardNavigate(redirect, {
+                newAccountVerification: 'true',
+              });
+            }
             return;
           }
         }
