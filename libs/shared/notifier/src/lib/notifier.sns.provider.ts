@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { SNS } from 'aws-sdk';
+
+
+import { SNS } from '@aws-sdk/client-sns';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NotifierSnsConfig } from './notifier.sns.config';

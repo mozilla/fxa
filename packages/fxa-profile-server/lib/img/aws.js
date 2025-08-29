@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const aws = require('aws-sdk');
+
+
+const { S3 } = require('@aws-sdk/client-s3');
+
 const P = require('../promise');
 
 const config = require('../config');
@@ -20,7 +23,7 @@ if (!/^[a-zA-Z0-9_\-]+$/.test(PUBLIC_BUCKET)) {
 }
 
 function AwsDriver() {
-  this._s3 = new aws.S3();
+  this._s3 = new S3();
 }
 
 AwsDriver.connect = function awsConnect(options) {

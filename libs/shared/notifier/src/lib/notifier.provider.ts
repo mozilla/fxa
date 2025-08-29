@@ -5,7 +5,7 @@
 import { ConfigService } from '@nestjs/config';
 import { Provider } from '@nestjs/common';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
-import { SNS } from 'aws-sdk';
+import { SNS } from '@aws-sdk/client-sns';
 import { StatsD } from 'hot-shots';
 import { NotifierSnsService } from './notifier.sns.provider';
 import { NotifierService } from './notifier.service';

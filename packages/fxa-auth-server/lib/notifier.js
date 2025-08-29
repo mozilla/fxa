@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
+'use strict';;
 /**
  * This notifier is called by the logger via `notifyAttachedServices`
  * to send notifications to Amazon SNS/SQS.
  */
-const AWS = require('aws-sdk');
+
+
+const { SNS } = require('@aws-sdk/client-sns');
 const { config } = require('../config');
 
 const notifierSnsTopicArn = config.get('snsTopicArn');
@@ -27,7 +28,10 @@ if (notifierSnsTopicArn !== 'disabled') {
   // This will pull in default credentials, region data etc
   // from the metadata service available to the instance.
   // It's magic, and it's awesome.
-  sns = new AWS.SNS({ endpoint: notifierSnsTopicEndpoint, region: region });
+  sns = new SNS({
+    endpoint: notifierSnsTopicEndpoint,
+    region: region,
+  });
 }
 
 function formatMessageAttributes(msg) {
