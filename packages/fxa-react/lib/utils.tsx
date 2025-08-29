@@ -14,9 +14,9 @@ const DEFAULT_NAVIGATE_TIMEOUT_MS = 200;
 // intentional.
 export function hardNavigate(
   href: string,
-  additionalQueryParams = {},
+  additionalQueryParams: Record<string, string> = {},
   includeCurrentQueryParams = false,
-  replace: boolean = false,
+  replace: boolean = false
 ) {
   // If there are any query params in the href, we automatically include them in the new url.
   const url = new URL(href, window.location.origin);
@@ -111,7 +111,7 @@ export class FtlMsgResolver {
   constructor(
     public readonly l10n: ReactLocalization,
     public readonly strict: boolean
-  ) { }
+  ) {}
 
   /**
    * A wrapper around l10n.getString that provides more safety. When strict is true, using this function ensures:

@@ -217,12 +217,14 @@ export const Subject = ({
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   offeredSyncEngines,
   declinedSyncEngines,
+  origin,
 }: {
   integration?: ConfirmSignupCodeIntegration;
   newsletterSlugs?: string[];
   finishOAuthFlowHandler?: FinishOAuthFlowHandler;
   offeredSyncEngines?: string[];
   declinedSyncEngines?: string[];
+  origin?: string;
 }) => {
   return (
     <LocationProvider>
@@ -233,6 +235,7 @@ export const Subject = ({
           finishOAuthFlowHandler,
           offeredSyncEngines,
           declinedSyncEngines,
+          origin,
         }}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
         email={MOCK_EMAIL}
