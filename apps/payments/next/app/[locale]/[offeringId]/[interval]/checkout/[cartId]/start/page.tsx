@@ -165,6 +165,7 @@ export default async function Checkout({
               }}
             >
               <BaseButton
+                className="h-12"
                 variant={ButtonVariant.ThirdParty}
                 aria-label={l10n.getString(
                   'continue-signin-with-google-button',
@@ -187,6 +188,7 @@ export default async function Checkout({
               }}
             >
               <BaseButton
+                className="h-12"
                 variant={ButtonVariant.ThirdParty}
                 aria-label={l10n.getString(
                   'continue-signin-with-apple-button',

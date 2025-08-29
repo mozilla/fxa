@@ -25,13 +25,13 @@ type SaveActionSignature = (
   postalCode: string
 ) => Promise<
   | {
-    ok: false;
-    error: string | { message: string; data: any };
-  }
+      ok: false;
+      error: string | { message: string; data: any };
+    }
   | {
-    ok: true;
-    data: any;
-  }
+      ok: true;
+      data: any;
+    }
   | void
 >;
 
@@ -57,6 +57,7 @@ const Collapsed = ({
         <span>
           <Form.Submit asChild>
             <SubmitButton
+              className="h-12"
               variant={ButtonVariant.Primary}
               data-testid="tax-location-edit-button"
             >
@@ -136,7 +137,9 @@ const Expanded = ({
 
   const currentCurrencyDisplayName =
     currentCurrency &&
-    new Intl.DisplayNames([locale], { type: 'currency' }).of(currentCurrency.toUpperCase());
+    new Intl.DisplayNames([locale], { type: 'currency' }).of(
+      currentCurrency.toUpperCase()
+    );
 
   useEffect(() => {
     countries.registerLocale(
@@ -189,23 +192,19 @@ const Expanded = ({
 
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries());
-    const formCountryCode = typeof data.countryCode === 'string' ? data.countryCode : '';
-    const formPostalCode = typeof data.postalCode === 'string' ? data.postalCode : '';
+    const formCountryCode =
+      typeof data.countryCode === 'string' ? data.countryCode : '';
+    const formPostalCode =
+      typeof data.postalCode === 'string' ? data.postalCode : '';
 
-    if (
-      formCountryCode &&
-      unsupportedLocations.includes(formCountryCode)
-    ) {
+    if (formCountryCode && unsupportedLocations.includes(formCountryCode)) {
       setServerErrors((prev) => ({ ...prev, unsupportedCountry: true }));
     }
 
     try {
       if (formCountryCode && formPostalCode) {
         const { isValid, formattedPostalCode } =
-          await validateAndFormatPostalCode(
-            formPostalCode,
-            formCountryCode,
-          );
+          await validateAndFormatPostalCode(formPostalCode, formCountryCode);
 
         if (!isValid) {
           setServerErrors((prev) => ({ ...prev, invalidPostalCode: true }));
@@ -481,7 +480,7 @@ const Expanded = ({
         {!buttonContent && (
           <BaseButton
             variant={ButtonVariant.Secondary}
-            className="w-full"
+            className="h-12 w-full"
             data-testid="tax-location-cancel-button"
             onClick={cancelAction}
             type="button"
@@ -493,7 +492,7 @@ const Expanded = ({
         <Form.Submit asChild>
           <BaseButton
             variant={ButtonVariant.Primary}
-            className="w-full"
+            className="h-12 w-full"
             data-testid="tax-location-save-button"
             type="submit"
             disabled={blockingErrorExists || isLoading}

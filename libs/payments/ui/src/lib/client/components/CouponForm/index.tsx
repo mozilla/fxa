@@ -66,6 +66,7 @@ const WithCoupon = ({
             {readOnly ? null : (
               <Form.Submit asChild>
                 <SubmitButton
+                  className="h-12"
                   variant={ButtonVariant.Secondary}
                   data-testid="coupon-remove-button"
                 >
@@ -185,6 +186,7 @@ const WithoutCoupon = ({
             </Form.Control>
             <Form.Submit asChild>
               <SubmitButton
+                className="h-12"
                 variant={ButtonVariant.Primary}
                 data-testid="coupon-button"
                 disabled={readOnly}
