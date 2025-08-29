@@ -9,6 +9,7 @@ export interface Page {
   logoUrl: string | null;
   logoAltText: string | null;
   pageTitle: string | null;
+  primaryImage: Image | null;
 }
 
 export interface Email {
@@ -55,4 +56,9 @@ export interface RelyingPartyResult {
   NewDeviceLoginEmail?: Email;
   VerifyLoginCodeEmail?: Email;
   VerifyShortCodeEmail?: Email;
+}
+
+export interface Image {
+  url: string;
+  altText: string;
 }

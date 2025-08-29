@@ -141,6 +141,10 @@ export const MOCK_CMS_INFO = {
     description: 'Your passwords, addresses, bookmarks, history, and more can sync everywhere you use Firefox.',
     primaryButtonText: 'Add another device',
     pageTitle: 'Sync is turned on',
+    primaryImage: {
+      url: 'https://raw.githubusercontent.com/mozilla/fxa/9b124e626c48067a653518ecb4af420679256a5f/assets/other/cms/fox_with_devices.svg',
+      altText: 'A cartoon fox with a laptop and a smartphone',
+    },
   },
 
   SigninPage: {

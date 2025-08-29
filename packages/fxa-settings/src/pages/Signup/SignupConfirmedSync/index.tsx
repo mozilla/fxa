@@ -44,6 +44,7 @@ const SignupConfirmedSync = ({
   const cmsButtonText = cmsInfo?.SignupConfirmedSyncPage?.primaryButtonText;
   const cmsHideCTA = !!cmsInfo?.shared.featureFlags?.syncConfirmedPageHideCTA;
   const title = cmsInfo?.SignupConfirmedSyncPage?.pageTitle;
+  const cmsSyncEnabledImage = cmsInfo?.SignupConfirmedSyncPage?.primaryImage;
 
   return (
     <AppLayout {...{ cmsInfo, title }}>
@@ -73,8 +74,15 @@ const SignupConfirmedSync = ({
         />
       )}
 
-      <SyncCloudsImage className="mx-auto mt-4 max-h-44" />
-
+      {cmsSyncEnabledImage ? (
+        <img
+          src={cmsSyncEnabledImage.url}
+          alt={cmsSyncEnabledImage.altText}
+          className="mx-auto mt-4 max-h-44"
+        />
+      ) : (
+        <SyncCloudsImage className="mx-auto mt-4 max-h-44" />
+      )}
       {cmsInfo ? (
         <>
           <h1 className="card-header">
