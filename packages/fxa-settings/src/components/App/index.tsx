@@ -348,6 +348,12 @@ export const App = ({
     return <LoadingSpinner fullScreen />;
   }
 
+  // If we're on settings route but user is not signed in, redirect immediately
+  if (window.location.pathname?.includes('/settings') && !isSignedIn) {
+    hardNavigate('/');
+    return <LoadingSpinner fullScreen />;
+  }
+
   return (
     <Router basepath="/">
       <AuthAndAccountSetupRoutes
