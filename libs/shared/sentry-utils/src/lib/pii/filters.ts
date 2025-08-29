@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ErrorEvent, Event } from '@sentry/core';
 
-import { SQS } from 'aws-sdk';
+import { Message } from '@aws-sdk/client-sqs';
 
 import { IFilterAction, PiiData } from '../models/pii';
 import { Logger } from '../sentry.types';
@@ -181,12 +181,12 @@ export class SqsMessageFilter extends FilterBase {
   /**
    * Filter Body of sqs messages
    */
-  public filter(event: SQS.Message) {
+  public filter(event: Message) {
     this.filterBody(event);
     return event;
   }
 
-  protected filterBody(event: SQS.Message) {
+  protected filterBody(event: Message) {
     event.Body = this.applyFilters(event.Body);
     return this;
   }

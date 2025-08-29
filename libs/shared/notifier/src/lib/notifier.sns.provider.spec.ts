@@ -4,7 +4,7 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { SNS } from 'aws-sdk';
+import { SNS } from '@aws-sdk/client-sns';
 import { MockNotifierSnsConfig } from './notifier.sns.config';
 import {
   LegacyNotifierSnsFactory,
@@ -12,7 +12,7 @@ import {
 } from './notifier.sns.provider';
 
 const mockSNS = jest.fn();
-jest.mock('aws-sdk', () => {
+jest.mock('@aws-sdk/client-sns', () => {
   return {
     SNS: function (...args: any) {
       return mockSNS(...args);

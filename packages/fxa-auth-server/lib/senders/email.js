@@ -6,7 +6,7 @@
 
 const emailUtils = require('../email/utils/helpers');
 const moment = require('moment-timezone');
-const AWS = require('aws-sdk');
+const { SES } = require('@aws-sdk/client-ses');
 const nodemailer = require('nodemailer');
 const safeUserAgent = require('fxa-shared/lib/user-agent').default;
 const url = require('url');
@@ -316,7 +316,11 @@ module.exports = function (log, config, bounces, statsd) {
         pass: mailerConfig.password,
       };
     } else {
-      const ses = new AWS.SES({ apiVersion: '2010-12-01' });
+      const ses = new SES({
+        // The key apiVersion is no longer supported in v3, and can be removed.
+        // @deprecated The client uses the "latest" apiVersion.
+        apiVersion: '2010-12-01',
+      });
       options = {
         SES: { ses },
         sendingRate: 5,

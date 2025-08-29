@@ -6,7 +6,12 @@ import { LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
 import { Inject, Injectable } from '@nestjs/common';
 import type { LoggerService } from '@nestjs/common';
-import { AWSError, SNS } from 'aws-sdk';
+import { ServiceException } from '@smithy/smithy-client';
+import {
+  MessageAttributeValue,
+  PublishCommandOutput,
+  SNS,
+} from '@aws-sdk/client-sns';
 import { StatsD } from 'hot-shots';
 
 import { NotifierSnsConfig } from './notifier.sns.config';
@@ -34,7 +39,10 @@ export class NotifierService {
 
   send(
     event: any,
-    callback?: (err: AWSError | undefined, data: SNS.PublishResponse) => void
+    callback?: (
+      err: ServiceException | undefined,
+      data: PublishCommandOutput | undefined
+    ) => void
   ) {
     const msg = event.data || {};
     msg.event = event.event;
@@ -47,17 +55,20 @@ export class NotifierService {
         Message: JSON.stringify(msg),
         MessageAttributes: this.formatMessageAttributes(msg),
       },
-      (err: AWSError, data: SNS.PublishResponse) => {
-        this.onPublish(err, data, startTime, callback);
+      (err: unknown, data?: PublishCommandOutput) => {
+        this.onPublish(err as any, data, startTime, callback);
       }
     );
   }
 
   public onPublish(
-    err: AWSError | undefined,
-    data: SNS.PublishResponse,
+    err: ServiceException,
+    data: PublishCommandOutput | undefined,
     startTime: number,
-    callback?: (err: AWSError | undefined, data: SNS.PublishResponse) => void
+    callback?: (
+      err: ServiceException,
+      data: PublishCommandOutput | undefined
+    ) => void
   ) {
     if (this.statsd) {
       this.statsd.timing('notifier.publish', Date.now() - startTime);
@@ -77,8 +88,8 @@ export class NotifierService {
   private formatMessageAttributes(msg: {
     event: string;
     email: string;
-  }): SNS.MessageAttributeMap {
-    const map: SNS.MessageAttributeMap = {};
+  }): Record<string, MessageAttributeValue> {
+    const map: Record<string, MessageAttributeValue> = {};
 
     map['event_type'] = {
       DataType: 'String',

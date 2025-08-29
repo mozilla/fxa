@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ErrorEvent } from '@sentry/core';
-import { SQS } from 'aws-sdk';
+import { Message } from '@aws-sdk/client-sqs';
 import { Logger } from '../sentry.types';
 import { IFilterAction, PiiData } from '../models/pii';
 import {
@@ -253,7 +253,7 @@ describe('pii-filters', () => {
     const sqsFilter = new SqsMessageFilter([new PiiRegexFilter(/foo/gi)]);
 
     it('filters body', () => {
-      let msg = { Body: 'A message with foo in it.' } as SQS.Message;
+      let msg = { Body: 'A message with foo in it.' } as Message;
       msg = sqsFilter.filter(msg);
 
       expect(msg).toEqual({
