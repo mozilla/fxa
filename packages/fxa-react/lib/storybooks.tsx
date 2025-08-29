@@ -23,7 +23,7 @@ export const withLocalization: Decorator = (Story) => (
   </AppLocalizationProvider>
 );
 
-export const withLocation: (location: string | undefined) => Decorator =
+export const withLocation: (location?: string) => Decorator =
   (location) => (Story) => {
     if (location === undefined) {
       return (
