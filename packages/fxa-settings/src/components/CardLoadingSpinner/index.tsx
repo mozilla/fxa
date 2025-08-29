@@ -10,25 +10,25 @@ export type CardLoadingSpinnerProps = {
   className?: string;
   widthClass?: string;
   spinnerType?: SpinnerType;
-  spinnerSize?: string;
+  imageClassName?: string;
 };
 
 export const CardLoadingSpinner = ({
   className,
   widthClass = 'w-full tablet:w-[30rem]',
   spinnerType = SpinnerType.Blue,
-  spinnerSize = 'w-10 h-10',
+  imageClassName = 'w-10 h-10 animate-spin',
 }: CardLoadingSpinnerProps) => {
   return (
     // ai helped here with the layout, so I'm not sure what all we would need
     // but it appears to be working well.
     <div className={classNames('relative', className)}>
       <section className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
-        <div className={classNames( widthClass, 'h-[30rem]')}>
+        <div className={classNames('card', widthClass, 'h-[30rem]')}>
             <div className="flex items-center justify-center h-full w-full">
             <LoadingSpinner
               spinnerType={spinnerType}
-              imageClassName={`${spinnerSize} animate-spin`}
+              imageClassName={imageClassName}
             />
             </div>
         </div>

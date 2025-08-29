@@ -45,6 +45,7 @@ import { ScrollToTop } from '../Settings/ScrollToTop';
 import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
 import { InlineRecoverySetupFlowContainer } from '../../pages/InlineRecoverySetupFlow/container';
+import CardLoadingSpinner from '../CardLoadingSpinner';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
@@ -424,7 +425,7 @@ const AuthAndAccountSetupRoutes = ({
   const useSyncEnginesResult = useSyncEngines(integration);
 
   return (
-    <Suspense fallback={<LoadingSpinner fullScreen />}>
+    <Suspense fallback={<CardLoadingSpinner />}>
       <Router>
         {/* Index */}
         <IndexContainer

@@ -49,7 +49,7 @@ describe('CardLoadingSpinner', () => {
   });
 
   it('renders with custom spinner size', () => {
-    renderWithLocalizationProvider(<CardLoadingSpinner spinnerSize="w-16 h-16" />);
+    renderWithLocalizationProvider(<CardLoadingSpinner imageClassName="w-16 h-16 animate-spin" />);
 
     const spinner = screen.getByTestId('loading-spinner');
     expect(spinner).toHaveAttribute('data-image-class', 'w-16 h-16 animate-spin');

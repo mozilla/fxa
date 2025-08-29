@@ -34,7 +34,7 @@ storiesOf('Components/CardLoadingSpinner', module)
   ))
   .add('large spinner', () => (
     <div className="min-h-screen bg-grey-20 flex items-center justify-center">
-      <CardLoadingSpinner spinnerSize="w-16 h-16" />
+      <CardLoadingSpinner imageClassName="w-16 h-16 animate-spin" />
     </div>
   ))
   .add('with CMS background simulation', () => (
