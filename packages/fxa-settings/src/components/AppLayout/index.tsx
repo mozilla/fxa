@@ -63,7 +63,7 @@ export const AppLayout = ({
 
   const favicon = cmsInfo?.shared.favicon;
 
-  const showLocaleToggle =config.featureFlags?.showLocaleToggle;
+  const showLocaleToggle = config.featureFlags?.showLocaleToggle;
 
   return (
     <>
@@ -132,14 +132,13 @@ export const AppLayout = ({
           </section>
         </main>
       </div>
-      <footer>
-            {/* LocaleToggle positioned in lower left corner of page */}
-            {showLocaleToggle && (
-              <div className="fixed bottom-6 left-6 z-10">
-                <LocaleToggle placement="footer" />
-              </div>
-            )}
+      {showLocaleToggle && (
+        <footer>
+          <div className="fixed bottom-6 left-6 z-10">
+            <LocaleToggle placement="footer" />
+          </div>
       </footer>
+      )}
       <div id="body-bottom" className="w-full block mobileLandscape:hidden" />
     </>
   );

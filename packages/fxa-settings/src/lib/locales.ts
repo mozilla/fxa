@@ -136,3 +136,40 @@ export const getLocalePreference = (): string | null => {
     return null;
   }
 };
+
+// Clear locale preference from localStorage (enables browser default)
+export const clearLocalePreference = (): void => {
+  try {
+    localStorage.removeItem(LOCALE_STORAGE_KEY);
+  } catch (error) {
+    console.warn('Failed to clear locale preference:', error);
+  }
+};
+
+// Check if user is using browser default (no saved preference)
+export const isUsingBrowserDefault = (): boolean => {
+  return getLocalePreference() === null;
+};
+
+// Get browser's default locale information
+export const getBrowserDefaultLocaleInfo = (): LocaleOption | null => {
+  const browserLang = navigator.language;
+  let detectedLocale = null;
+
+  // Check if browser language is directly supported
+  if (browserLang && supportedLanguages.includes(browserLang)) {
+    detectedLocale = browserLang;
+  } else {
+    const baseLang = browserLang?.split('-')[0];
+    if (baseLang && supportedLanguages.includes(baseLang)) {
+      detectedLocale = baseLang;
+    }
+  }
+
+  if (detectedLocale && LOCALE_MAPPINGS[detectedLocale]) {
+    return LOCALE_MAPPINGS[detectedLocale];
+  }
+
+  // Default to English if browser locale not supported
+  return LOCALE_MAPPINGS['en'] || null;
+};
