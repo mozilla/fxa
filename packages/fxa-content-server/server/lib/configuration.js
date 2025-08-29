@@ -627,6 +627,16 @@ const conf = (module.exports = convict({
       format: 'url',
     },
   },
+  mfa: {
+    otp: {
+      expiresInMinutes: {
+        default: 5,
+        doc: 'The number of minutes before the OTP for MFA expires',
+        env: 'FXA_MFA_OTP_EXPIRES_IN_MINUTES',
+        format: Number,
+      },
+    },
+  },
   mxRecordValidation: {
     enabled: {
       default: true,

@@ -57,6 +57,11 @@
   "recovery_codes": {
     "count": 3
   },
+  "mfa": {
+    "otp": {
+      "expiresInMinutes": 5
+    }
+  },
   "showReactApp": {
     "simpleRoutes": true,
     "resetPasswordRoutes": true,
