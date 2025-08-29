@@ -36,7 +36,8 @@
     "test-unit": "echo No unit tests present for $npm_package_name",
     "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/fxa-settings-jest-integration-results.xml SKIP_PREFLIGHT_CHECK=true node scripts/test.js --watchAll=false --ci --runInBand --reporters=default --reporters=jest-junit",
     "watch-ftl": "grunt watch-ftl",
-    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'",
+    "depcheck": "depcruise --config .dependency-cruiser.js src"
   },
   "jest": {
     "roots": [
@@ -227,6 +228,7 @@
     "babel-loader": "^9.1.3",
     "babel-plugin-named-exports-order": "^0.0.2",
     "babel-plugin-transform-typescript-metadata": "^0.3.2",
+    "dependency-cruiser": "^17.0.1",
     "eslint": "^8.57.1",
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-jest": "^27.6.0",
