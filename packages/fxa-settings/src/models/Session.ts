@@ -69,21 +69,22 @@ export class Session implements SessionData {
     }
   }
 
-  private get data() {
-    const { session } = this.apolloClient.cache.readQuery<{
+  private get data(): Session | undefined {
+    const result = this.apolloClient.cache.readQuery<{
       session: Session;
     }>({
       query: GET_SESSION_VERIFIED,
-    })!;
-    return session;
+    });
+
+    return result?.session;
   }
 
   get token(): string {
-    return this.data.token;
+    return this.data?.token || '';
   }
 
   get verified(): boolean {
-    return this.data.verified;
+    return this.data?.verified || false;
   }
 
   // TODO: Use GQL verifyCode instead of authClient
