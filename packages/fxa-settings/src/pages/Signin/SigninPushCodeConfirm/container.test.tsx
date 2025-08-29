@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as AccountCacheModule from '../../../lib/cache/account-cache';
+
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { SigninPushCodeConfirmContainer } from './container';
 
@@ -9,9 +11,15 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { LocationProvider } from '@reach/router';
 
 import * as UseValidateModule from '../../../lib/hooks/useValidate';
-import { MOCK_HEXSTRING_32, MOCK_REMOTE_METADATA } from '../../mocks';
+import {
+  MOCK_HEXSTRING_32,
+  MOCK_REMOTE_METADATA,
+  MOCK_SESSION_TOKEN,
+} from '../../mocks';
+
 import { ModelDataProvider } from '../../../lib/model-data';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
 
 function applyDefaultMocks() {
   jest.resetAllMocks();
@@ -19,9 +27,12 @@ function applyDefaultMocks() {
 
   mockUseValidateModule();
   mockReactUtilsModule();
+  mockCacheModule();
 }
 
-let mockVerifyLoginPushRequest = jest.fn().mockResolvedValue({});
+let mockVerifyLoginPushRequest = jest.fn().mockImplementation((...args) => {
+  return {};
+});
 jest.mock('../../../models', () => {
   return {
     ...jest.requireActual('../../../models'),
@@ -41,6 +52,14 @@ jest.mock('@reach/router', () => {
     useNavigate: () => mockNavigate,
   };
 });
+
+function mockCacheModule() {
+  jest.spyOn(AccountCacheModule, 'getCurrentAccount').mockReturnValue({
+    uid: MOCK_ACCOUNT.uid,
+    email: MOCK_ACCOUNT.primaryEmail.email,
+    sessionToken: MOCK_SESSION_TOKEN,
+  });
+}
 
 function mockUseValidateModule() {
   jest.spyOn(UseValidateModule, 'useValidatedQueryParams').mockReturnValue({
@@ -75,7 +94,7 @@ describe('SigninPushCodeConfirm container', () => {
     fireEvent.click(screen.getByText('Confirm login'));
     await waitFor(() => {
       expect(mockVerifyLoginPushRequest).toHaveBeenCalledWith(
-        null,
+        MOCK_SESSION_TOKEN,
         MOCK_HEXSTRING_32,
         '123456'
       );

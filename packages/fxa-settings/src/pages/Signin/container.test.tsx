@@ -6,7 +6,7 @@ import * as UseValidateModule from '../../lib/hooks/useValidate';
 import * as SigninModule from './index';
 import * as ModelsModule from '../../models';
 import * as ReactUtils from 'fxa-react/lib/utils';
-import * as CacheModule from '../../lib/cache';
+import * as AccountCacheModule from '../../lib/cache/account-cache';
 import * as CryptoModule from 'fxa-auth-client/lib/crypto';
 import * as SentryModule from '@sentry/browser';
 
@@ -154,7 +154,9 @@ function applyDefaultMocks() {
   mockSigninModule();
   mockModelsModule();
   mockUseValidateModule({ queryParams: MOCK_QUERY_PARAM_MODEL_NO_VALUES });
-  mockCurrentAccount({ uid: '123' });
+  mockCurrentAccount({
+    uid: '123',
+  });
   mockCryptoModule();
   mockSentryModule();
 }
@@ -219,13 +221,17 @@ function mockModelsModule() {
 
 // Call this when testing local storage
 function mockCurrentAccount(storedAccount: any) {
-  jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
   jest
-    .spyOn(CacheModule, 'findAccountByEmail')
+    .spyOn(AccountCacheModule, 'getCurrentAccount')
+    .mockReturnValue(storedAccount);
+  jest
+    .spyOn(AccountCacheModule, 'setCurrentAccount')
+    .mockReturnValue(undefined);
+  jest
+    .spyOn(AccountCacheModule, 'findAccountByEmail')
     .mockImplementation((email: string) => {
-      return email === storedAccount.email ? storedAccount : undefined;
+      return email === storedAccount?.email ? storedAccount : undefined;
     });
-  jest.spyOn(CacheModule, 'discardSessionToken');
 }
 
 const MOCK_QUERY_PARAM_EMAIL = 'from@queryparams.com';
@@ -409,14 +415,14 @@ describe('signin container', () => {
       });
       it('is handled if not provided in query params or location state', async () => {
         render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).toHaveBeenCalled();
+        expect(AccountCacheModule.getCurrentAccount).toHaveBeenCalled();
         expect(mockNavigate).toHaveBeenCalledWith('/');
         expect(SigninModule.default).not.toHaveBeenCalled();
       });
       it('uses local storage value if email is not provided via query param or router state', async () => {
         mockCurrentAccount(MOCK_STORED_ACCOUNT);
         render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).toHaveBeenCalled();
+        expect(AccountCacheModule.getCurrentAccount).toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninProps?.email).toBe(MOCK_STORED_ACCOUNT.email);
         });
@@ -428,12 +434,12 @@ describe('signin container', () => {
           email: 'foo@bar.com',
         };
         jest
-          .spyOn(CacheModule, 'lastStoredAccount')
+          .spyOn(AccountCacheModule, 'findLastStoredAccount')
           .mockReturnValue(LAST_STORED_ACCOUNT);
         mockCurrentAccount(undefined);
         render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).toHaveBeenCalled();
-        expect(CacheModule.lastStoredAccount).toHaveBeenCalled();
+        expect(AccountCacheModule.getCurrentAccount).toHaveBeenCalled();
+        expect(AccountCacheModule.findLastStoredAccount).toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninProps?.email).toBe(LAST_STORED_ACCOUNT.email);
         });
@@ -1217,7 +1223,6 @@ describe('signin container', () => {
       await waitFor(async () => {
         const handlerResult =
           await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
-        expect(CacheModule.discardSessionToken).toHaveBeenCalled();
         expect(handlerResult?.data).toBeUndefined();
         expect(handlerResult?.error?.errno).toEqual(
           AuthUiErrors.SESSION_EXPIRED.errno
@@ -1239,7 +1244,6 @@ describe('signin container', () => {
         const handlerResult =
           await currentSigninProps?.cachedSigninHandler(MOCK_SESSION_TOKEN);
 
-        expect(CacheModule.discardSessionToken).not.toHaveBeenCalled();
         expect(handlerResult?.data).toBeUndefined();
         expect(handlerResult?.error).toEqual(AuthUiErrors.UNEXPECTED_ERROR);
       });

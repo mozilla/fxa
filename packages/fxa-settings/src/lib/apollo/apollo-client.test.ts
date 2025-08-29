@@ -1,12 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { errorHandler } from './gql';
+import { errorHandler } from './apollo-client';
 import { ErrorResponse } from '@apollo/client/link/error';
 import { Operation, NextLink, ServerError } from '@apollo/client/core';
 import { GraphQLError } from 'graphql';
-import { cache } from './cache';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
+import { apolloCache } from '../cache';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../cache/apollo-cache.gql';
 import * as Sentry from '@sentry/browser';
 
 describe('errorHandler', () => {
@@ -23,7 +23,9 @@ describe('errorHandler', () => {
 
   it('updates local signed in status if called with a GQL authentication error', () => {
     const writeQueryMock = jest.fn();
-    jest.spyOn(cache, 'writeQuery').mockImplementation(writeQueryMock);
+    jest
+      .spyOn(apolloCache._cache, 'writeQuery')
+      .mockImplementation(writeQueryMock);
 
     const errorResponse: ErrorResponse = {
       graphQLErrors: [

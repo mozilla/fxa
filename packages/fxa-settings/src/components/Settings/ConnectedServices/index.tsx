@@ -9,16 +9,17 @@ import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import groupBy from 'lodash.groupby';
 import { forwardRef, useCallback, useState } from 'react';
-import { clearSignedInAccountUid } from '../../../lib/cache';
+import { accountCache } from '../../../lib/cache';
 import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';
-import { AttachedClient, useAccount, useAlertBar } from '../../../models';
+import { useAccount, useAlertBar } from '../../../models';
 import { ButtonIconReload } from '../ButtonIcon';
 import { ConnectAnotherDevicePromo } from '../ConnectAnotherDevicePromo';
 import { Modal } from '../Modal';
 import { VerifiedSessionGuard } from '../VerifiedSessionGuard';
 import { Service } from './Service';
 import GleanMetrics from '../../../lib/glean';
+import { AttachedClient } from '../../../lib/types';
 
 const UTM_PARAMS =
   '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
@@ -126,7 +127,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
           (hasMultipleSessions &&
             clientsWithMatchingName.find((c) => c.isCurrentSession))
         ) {
-          clearSignedInAccountUid();
+          accountCache.clearSignedInAccountUid();
           window.location.assign(`${window.location.origin}/signin`);
         } else if (reason === 'suspicious' || reason === 'lost') {
           // Wait to clear disconnecting state till the advice modal has been shown
@@ -213,7 +214,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
               classNames="hidden mobileLandscape:inline-block"
               testId="connected-services-refresh"
               disabled={account.loading}
-              onClick={() => account.refresh('clients')}
+              onClick={() => account.refreshConnectedClients()}
             />
           </Localized>
         </div>

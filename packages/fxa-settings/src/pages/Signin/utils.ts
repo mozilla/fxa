@@ -18,12 +18,15 @@ import {
 } from '../../models';
 import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { currentAccount, discardSessionToken } from '../../lib/cache';
+import {
+  accountCache,
+  apolloCache,
+  MissingCachedAccount,
+} from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
 import { AuthError } from '../../lib/oauth';
 import GleanMetrics from '../../lib/glean';
 import { OAuthData } from '../../lib/oauth/hooks';
-import { InMemoryCache } from '@apollo/client';
 import AuthenticationMethods from '../../constants/authentication-methods';
 
 interface NavigationTarget {
@@ -99,7 +102,6 @@ export function getSyncNavigate(
 export const cachedSignIn = async (
   sessionToken: string,
   authClient: ReturnType<typeof useAuthClient>,
-  cache: InMemoryCache,
   session: ReturnType<typeof useSession>,
   isOauthPromptNone = false
 ) => {
@@ -116,16 +118,11 @@ export const cachedSignIn = async (
     const totpIsActive = authenticationMethods.includes(
       AuthenticationMethods.OTP
     );
+
+    // !!! TBD !!!
+    // Is this really enough to make ensure that totp both exists and is verified?
     if (totpIsActive) {
-      // Cache this for subsequent requests
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          totp() {
-            return { exists: true, verified: true };
-          },
-        },
-      });
+      apolloCache.setAccountTotpStatus(true, true);
     }
 
     // after accountProfile data is retrieved we must check verified status
@@ -134,8 +131,10 @@ export const cachedSignIn = async (
       verified,
       sessionVerified,
       emailVerified,
-    }: RecoveryEmailStatusResponse =
-      await authClient.recoveryEmailStatus(sessionToken);
+    }: RecoveryEmailStatusResponse = await authClient.recoveryEmailStatus(
+      // TODO: It'd be better if we just didn't make a request in this state. We know it'll fail.
+      sessionToken
+    );
 
     let verificationMethod;
     let verificationReason;
@@ -156,15 +155,20 @@ export const cachedSignIn = async (
       }
     }
 
-    const storedLocalAccount = currentAccount();
+    const storedLocalAccount = accountCache.getCurrentAccount();
+
+    // The account should exist since sign in was valid! If not, something is very wrong
+    // fail fast.
+    if (!storedLocalAccount) {
+      throw new MissingCachedAccount();
+    }
 
     return {
       data: {
         verificationMethod,
         verificationReason,
         verified,
-        // Because the cached signin was a success, we know 'uid' exists
-        uid: storedLocalAccount!.uid,
+        uid: storedLocalAccount.uid,
         sessionVerified, // might not need
         emailVerified, // might not need
       },
@@ -174,7 +178,11 @@ export const cachedSignIn = async (
     // the session token has expired
     const { errno } = error as AuthUiError;
     if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
-      discardSessionToken();
+      const account = accountCache.getCurrentAccount();
+      if (account) {
+        account.sessionToken = undefined;
+        accountCache.setAccount(account);
+      }
       return { error: AuthUiErrors.SESSION_EXPIRED };
     }
     return { error };
@@ -487,7 +495,8 @@ export function getSigninState(
 // When SigninLocationState is not available from the router state,
 // this method can be used to check local storage
 function getStoredAccountInfo() {
-  const { email, sessionToken, uid, verified } = currentAccount() || {};
+  const { email, sessionToken, uid, verified } =
+    accountCache.getCurrentAccount() || {};
   if (email && sessionToken && uid && verified !== undefined) {
     return {
       email,

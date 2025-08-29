@@ -6,6 +6,7 @@ import React, { forwardRef } from 'react';
 import { useAccount } from '../../../models';
 import { Localized } from '@fluent/react';
 import { LinkedAccount } from './LinkedAccount';
+import { LinkedAccount as LinkedAccountType } from '../../../lib/types';
 
 export const LinkedAccounts = forwardRef<HTMLDivElement>((_, ref) => {
   const account = useAccount();
@@ -30,7 +31,7 @@ export const LinkedAccounts = forwardRef<HTMLDivElement>((_, ref) => {
               </Localized>
             </div>
 
-            {linkedAccounts.map((linkedAccount) => (
+            {linkedAccounts.map((linkedAccount: LinkedAccountType) => (
               <LinkedAccount
                 key={linkedAccount.providerId}
                 providerId={linkedAccount.providerId}

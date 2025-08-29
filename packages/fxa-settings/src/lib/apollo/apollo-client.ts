@@ -8,13 +8,13 @@ import {
   NormalizedCacheObject,
   Observable,
   from,
+  gql,
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { ErrorHandler, onError } from '@apollo/client/link/error';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
-import { cache, sessionToken, typeDefs } from './cache';
+import { accountCache, apolloCache } from '../cache';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 import * as Sentry from '@sentry/browser';
 
 /**
@@ -68,10 +68,7 @@ const afterwareLink = new ApolloLink((operation, forward) => {
       });
 
     if (successWithAuth) {
-      cache.writeQuery({
-        query: GET_LOCAL_SIGNED_IN_STATUS,
-        data: { isSignedIn: true },
-      });
+      apolloCache.setLocalSignedInStatus(true);
     }
     return response;
   });
@@ -85,10 +82,7 @@ export const errorHandler: ErrorHandler = ({
   if (graphQLErrors) {
     for (const error of graphQLErrors) {
       if (isUnauthorizedError(error)) {
-        cache.writeQuery({
-          query: GET_LOCAL_SIGNED_IN_STATUS,
-          data: { isSignedIn: false },
-        });
+        apolloCache.setLocalSignedInStatus(false);
       } else if (isUnverifiedSessionError(error)) {
         if (window.location && window.location.pathname.includes('settings')) {
           // Redirect to /signin since that page will send the user
@@ -102,10 +96,7 @@ export const errorHandler: ErrorHandler = ({
           // If the user isn't in Settings and they see this message they may hit it due to
           // the initial metrics query - e.g. if they attempt to sign in and see the TOTP page,
           // they'll be in this state.
-          cache.writeQuery({
-            query: GET_LOCAL_SIGNED_IN_STATUS,
-            data: { isSignedIn: false },
-          });
+          apolloCache.setLocalSignedInStatus(false);
         }
       } else {
         // Add error as bread crumb, so if there's a down stream exception, we can
@@ -152,10 +143,11 @@ const sentryLink = new ApolloLink((operation, forward) => {
   });
 });
 
-let apolloClientInstance: ApolloClient<NormalizedCacheObject>;
+let apolloClient: ApolloClient<NormalizedCacheObject>;
+
 export function createApolloClient(gqlServerUri: string) {
-  if (apolloClientInstance) {
-    return apolloClientInstance;
+  if (apolloClient) {
+    return apolloClient;
   }
 
   // httpLink makes the actual requests to the server
@@ -167,7 +159,8 @@ export function createApolloClient(gqlServerUri: string) {
     return {
       headers: {
         ...headers,
-        Authorization: 'Bearer ' + sessionToken(),
+        Authorization:
+          'Bearer ' + accountCache.getCurrentAccount()?.sessionToken,
       },
     };
   });
@@ -175,11 +168,11 @@ export function createApolloClient(gqlServerUri: string) {
   // Set `isSignedIn` status and cancel the network request for
   // the initial GQL query that needs a session token
   const sessionTokenCheckLink = new ApolloLink((operation, forward) => {
-    if (!sessionToken() && operation.operationName === initialOperationName) {
-      cache.writeQuery({
-        query: GET_LOCAL_SIGNED_IN_STATUS,
-        data: { isSignedIn: false },
-      });
+    if (
+      accountCache.getCurrentAccount()?.sessionToken &&
+      operation.operationName === initialOperationName
+    ) {
+      apolloCache.setLocalSignedInStatus(false);
       return new Observable((observer) => {
         // Important! When calling next with fabricated data, we must make sure that required fields
         // are present. Otherwise, we will get the following error:
@@ -197,8 +190,19 @@ export function createApolloClient(gqlServerUri: string) {
   // errorLink handles error responses from the server
   const errorLink = onError(errorHandler);
 
+  // sessionToken is added as a local field as an example.
+  const typeDefs = gql`
+    extend type Account {
+      primaryEmail: Email!
+    }
+    extend type Session {
+      token: String!
+    }
+  `;
+
   const apolloClientConfig = {
-    cache,
+    // One exception, where we gain access to the internal raw cache value.
+    cache: apolloCache._cache,
     link: from([
       errorLink,
       sentryLink,
@@ -214,7 +218,7 @@ export function createApolloClient(gqlServerUri: string) {
       name: window.location.host === 'localhost:3030' ? 'settings' : '',
     },
   };
-  apolloClientInstance = new ApolloClient(apolloClientConfig);
+  apolloClient = new ApolloClient(apolloClientConfig);
 
-  return apolloClientInstance;
+  return apolloClient;
 }

@@ -5,7 +5,7 @@
 import * as SigninPushCodeModule from '.';
 import { SigninPushCodeProps } from './interfaces';
 import * as ReactUtils from 'fxa-react/lib/utils';
-import * as CacheModule from '../../../lib/cache';
+import * as AccountCacheModule from '../../../lib/cache/account-cache';
 
 import { Integration, useSensitiveDataClient } from '../../../models';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -102,8 +102,16 @@ function mockReactUtilsModule() {
 }
 
 // Set this when testing local storage
-function mockCurrentAccount(storedAccount = { uid: '123' }) {
-  jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
+function mockCurrentAccount(
+  storedAccount = {
+    uid: '123',
+    email: 'foo@mozilla.com',
+    sessionToken: 'session123',
+  }
+) {
+  jest
+    .spyOn(AccountCacheModule, 'getCurrentAccount')
+    .mockReturnValue(storedAccount);
 }
 
 function resetMockSensitiveDataClient() {
@@ -140,7 +148,7 @@ describe('SigninPushCode container', () => {
         mockLocationState = createMockSigninLocationState();
         render();
         await waitFor(() => {
-          expect(CacheModule.currentAccount).not.toHaveBeenCalled();
+          expect(AccountCacheModule.getCurrentAccount).not.toHaveBeenCalled();
         });
         expect(currentSigninPushCodeProps?.signinState.email).toBe(MOCK_EMAIL);
         expect(SigninPushCodeModule.default).toHaveBeenCalled();
@@ -148,7 +156,7 @@ describe('SigninPushCode container', () => {
       it('router state takes precedence over local storage', async () => {
         mockLocationState = createMockSigninLocationState();
         render();
-        expect(CacheModule.currentAccount).not.toHaveBeenCalled();
+        expect(AccountCacheModule.getCurrentAccount).not.toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninPushCodeProps?.signinState.email).toBe(
             MOCK_EMAIL
@@ -160,7 +168,7 @@ describe('SigninPushCode container', () => {
         mockLocationState = {};
         mockCurrentAccount(MOCK_STORED_ACCOUNT);
         render();
-        expect(CacheModule.currentAccount).toHaveBeenCalled();
+        expect(AccountCacheModule.getCurrentAccount).toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninPushCodeProps?.signinState.email).toBe(
             MOCK_STORED_ACCOUNT.email
@@ -171,7 +179,7 @@ describe('SigninPushCode container', () => {
       it('is handled if not provided in location state or local storage', async () => {
         mockLocationState = {};
         render();
-        expect(CacheModule.currentAccount).toHaveBeenCalled();
+        expect(AccountCacheModule.getCurrentAccount).toHaveBeenCalled();
         expect(mockNavigate).toHaveBeenCalledWith('/');
         expect(SigninPushCodeModule.default).not.toHaveBeenCalled();
       });

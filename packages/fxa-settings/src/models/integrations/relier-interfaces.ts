@@ -18,7 +18,7 @@ export interface RelierSubscriptionInfo {
 export interface RelierAccount {
   uid: string;
   email: string;
-  sessionToken: string;
+  sessionToken?: string;
   verifyIdToken(
     idTokenHint: string,
     clientId: string,

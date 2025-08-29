@@ -20,7 +20,7 @@ const account = {
   resendEmailCode: jest.fn().mockResolvedValue(true),
   makeEmailPrimary: jest.fn().mockResolvedValue(true),
   deleteSecondaryEmail: jest.fn().mockResolvedValue(true),
-  refresh: jest.fn(),
+  refreshAccount: jest.fn(),
 } as unknown as Account;
 
 jest.mock('../../../models/AlertBarInfo');
@@ -121,7 +121,7 @@ describe('UnitRowSecondaryEmail', () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-refresh'));
       });
-      expect(account.refresh).toHaveBeenCalledWith('account');
+      expect(account.refreshAccount).toHaveBeenCalled();
     });
   });
 

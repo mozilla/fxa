@@ -5,7 +5,7 @@
 // This is a memory store that's api compatible with localStorage
 // and sessionStorage, used for testing lib/storage.
 
-class NullStorage {
+export class NullStorage {
   _storage: { [key: string]: any } = {};
 
   getItem(key: string): any {
@@ -32,5 +32,3 @@ class NullStorage {
     this._storage = {};
   }
 }
-
-export default NullStorage;

@@ -92,7 +92,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
       : await account.confirmRecoveryPhone(code, phoneData.phoneNumber, false);
     // get the latest status of recovery phone info
     // ensure correct data is shown on the settings page
-    await account.refresh('recoveryPhone');
+    await account.refreshRecoveryPhone();
   };
 
   const verifyPhoneNumber = async (phoneNumberInput: string) => {
@@ -118,7 +118,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
             verifyPhoneNumber,
             currentStep,
             numberOfSteps,
-            reason
+            reason,
           }}
         />
       )}
@@ -139,7 +139,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
             verifyRecoveryCode,
             currentStep,
             numberOfSteps,
-            reason
+            reason,
           }}
         />
       )}

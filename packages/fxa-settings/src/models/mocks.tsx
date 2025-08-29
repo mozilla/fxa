@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { AccountData, ProfileInfo, Session } from '.';
+
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
   AppContext,
@@ -22,13 +22,22 @@ import { AlertBarInfo } from './AlertBarInfo';
 import { ReachRouterWindow } from '../lib/window';
 import { UrlQueryData } from '../lib/model-data';
 import { SensitiveDataClient } from '../lib/sensitive-data-client';
+import { AccountData, ProfileInfo } from '../lib/types';
+import { Session } from './Session';
 
 const DEFAULT_APP_CONTEXT = defaultAppContext();
-export const MOCK_ACCOUNT: AccountData =
-  DEFAULT_APP_CONTEXT.account as unknown as AccountData;
 
-export const MOCK_SESSION: Session =
-  DEFAULT_APP_CONTEXT.session as unknown as Session;
+// Type gaurds to ensure default app context is setup properly.
+if (!DEFAULT_APP_CONTEXT.account) {
+  throw new Error('Invalid mock state. account must be provided!');
+}
+if (!DEFAULT_APP_CONTEXT.session) {
+  throw new Error('Invalid mock state. Session must be provided!');
+}
+
+export const MOCK_ACCOUNT: AccountData = DEFAULT_APP_CONTEXT.account;
+
+export const MOCK_SESSION: Session = DEFAULT_APP_CONTEXT.session;
 
 export function createHistoryWithQuery(path: string, queryParams?: string) {
   const history = createHistory(createMemorySource(path));
@@ -94,7 +103,8 @@ export function mockSession(
   const session = {
     verified,
     token: 'deadc0de',
-  } as Session;
+  } as unknown as Session;
+
   if (typeof jest !== 'undefined') {
     session.destroy = isError
       ? jest.fn().mockRejectedValue(new Error())

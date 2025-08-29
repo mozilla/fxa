@@ -6,7 +6,7 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
-import { AccountAvatar } from '../../lib/interfaces';
+import { AccountAvatar } from '../../lib/types';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { MozServices } from '../../lib/types';
 import { Account, Integration } from '../../models';

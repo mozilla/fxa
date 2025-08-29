@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as Sentry from '@sentry/browser';
 import base32Decode from 'base32-decode';
 import { gql, ApolloClient, ApolloError } from '@apollo/client';
 import config from '../lib/config';
@@ -15,122 +16,29 @@ import AuthClient, {
 } from 'fxa-auth-client/browser';
 import { MetricsContext } from '@fxa/shared/glean';
 import {
-  currentAccount,
-  getStoredAccountData,
-  sessionToken,
+  apolloCache,
+  accountCache,
+  MissingCachedAccount,
+  InvalidCachedAccountState,
 } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
-import Storage from '../lib/storage';
+import { storage } from '../lib/storage';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
-import { LinkedAccountProviderIds, MozServices } from '../lib/types';
 import {
-  GET_LOCAL_SIGNED_IN_STATUS,
-  GET_TOTP_STATUS,
+  AccountData,
+  AttachedClient,
+  Email,
+  LinkedAccount,
+  MozServices,
+  StoredAccountData,
+} from '../lib/types';
+import {
   GET_BACKUP_CODES_STATUS,
   GET_RECOVERY_PHONE,
 } from '../components/App/gql';
-import {
-  AccountAvatar,
-  AccountBackupCodes,
-  AccountTotp,
-} from '../lib/interfaces';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { getHandledError } from '../lib/error-utils';
-
-export interface DeviceLocation {
-  city: string | null;
-  country: string | null;
-  state: string | null;
-  stateCode: string | null;
-}
-
-export interface Email {
-  email: string;
-  isPrimary: boolean;
-  verified: boolean;
-}
-
-export interface LinkedAccount {
-  providerId: LinkedAccountProviderIds;
-  authAt: number;
-  enabled: boolean;
-}
-
-export interface SecurityEvent {
-  name: string;
-  createdAt: number;
-  verified?: boolean;
-}
-
-export interface PasswordForgotSendCodePayload {
-  passwordForgotToken: string;
-}
-
-export interface RecoveryKeyBundlePayload {
-  recoveryData: string;
-}
-
-// TODO: why doesn't this match fxa-graphql-api/src/lib/resolvers/types/attachedClient.ts?
-// DOUBLE TODO: The fact it doeesn't can cuase type safety issues. See FXA-10326
-export interface AttachedClient {
-  clientId: string;
-  isCurrentSession: boolean;
-  userAgent: string;
-  deviceType: string | null;
-  deviceId: string | null;
-  name: string | null;
-  lastAccessTime: number;
-  lastAccessTimeFormatted: string;
-  approximateLastAccessTime: number | null;
-  approximateLastAccessTimeFormatted: string | null;
-  location: DeviceLocation;
-  os: string | null;
-  sessionTokenId: string | null;
-  refreshTokenId: string | null;
-}
-
-interface Subscription {
-  created: number;
-  productName: string;
-}
-
-export interface AccountData {
-  uid: hexstring;
-  displayName: string | null;
-  avatar: AccountAvatar & {
-    isDefault: boolean;
-  };
-  accountCreated: number;
-  passwordCreated: number;
-  hasPassword: boolean;
-  recoveryKey: {
-    exists: boolean;
-    estimatedSyncDeviceCount?: number;
-  };
-  metricsEnabled: boolean;
-  primaryEmail: Email;
-  emails: Email[];
-  attachedClients: AttachedClient[];
-  linkedAccounts: LinkedAccount[];
-  totp: AccountTotp;
-  backupCodes: AccountBackupCodes;
-  recoveryPhone: {
-    exists: boolean;
-    phoneNumber: string | null;
-    nationalFormat: string | null;
-    available: boolean;
-  };
-  subscriptions: Subscription[];
-  securityEvents: SecurityEvent[];
-}
-
-export interface ProfileInfo {
-  uid: hexstring;
-  displayName: string | null;
-  avatar: AccountAvatar;
-  primaryEmail: Email;
-  emails: Email[];
-}
+import { GET_ACCOUNT } from '../lib/cache/apollo-cache.gql';
 
 // Account attributes that can be persisted
 const PERSISTENT = {
@@ -190,78 +98,7 @@ export const GET_PROFILE_INFO = gql`
   }
 `;
 
-export const GET_ACCOUNT = gql`
-  query GetAccount {
-    account {
-      uid
-      displayName
-      avatar {
-        id
-        url
-        isDefault @client
-      }
-      accountCreated
-      passwordCreated
-      recoveryKey {
-        exists
-        estimatedSyncDeviceCount
-      }
-      metricsEnabled
-      primaryEmail @client
-      emails {
-        email
-        isPrimary
-        verified
-      }
-      attachedClients {
-        clientId
-        isCurrentSession
-        userAgent
-        deviceType
-        deviceId
-        name
-        lastAccessTime
-        lastAccessTimeFormatted
-        approximateLastAccessTime
-        approximateLastAccessTimeFormatted
-        location {
-          city
-          country
-          state
-          stateCode
-        }
-        os
-        sessionTokenId
-        refreshTokenId
-      }
-      totp {
-        exists
-        verified
-      }
-      backupCodes {
-        hasBackupCodes
-        count
-      }
-      recoveryPhone {
-        exists
-        phoneNumber
-        nationalFormat
-        available
-      }
-      subscriptions {
-        created
-        productName
-      }
-      linkedAccounts {
-        providerId
-        authAt
-        enabled
-      }
-    }
-  }
-`;
-
-export const GET_CONNECTED_CLIENTS = gql`
+const GET_CONNECTED_CLIENTS = gql`
   query GetConnectedClients {
     account {
       attachedClients {
@@ -289,7 +126,7 @@ export const GET_CONNECTED_CLIENTS = gql`
   }
 `;
 
-export const GET_RECOVERY_KEY_EXISTS = gql`
+const GET_RECOVERY_KEY_EXISTS = gql`
   query GetRecoveryKeyExists {
     account {
       recoveryKey {
@@ -299,7 +136,7 @@ export const GET_RECOVERY_KEY_EXISTS = gql`
   }
 `;
 
-export const GET_SECURITY_EVENTS = gql`
+const GET_SECURITY_EVENTS = gql`
   query GetSecurityEvents {
     account {
       securityEvents {
@@ -375,12 +212,18 @@ export class Account implements AccountData {
   }
 
   private get data() {
-    const { account } = this.apolloClient.cache.readQuery<{
-      account: AccountData;
-    }>({
-      query: GET_ACCOUNT,
-    })!;
-    return account;
+    let data = apolloCache.getAccountData();
+
+    if (data?.account) {
+      return data.account;
+    }
+
+    Sentry.captureMessage(
+      'apolloCache missing cached query state for GET_ACCOUNT.'
+    );
+    throw new InvalidCachedAccountState(
+      'apolloCache missing cached query state for GET_ACCOUNT.'
+    );
   }
 
   get loading() {
@@ -481,42 +324,56 @@ export class Account implements AccountData {
     return this.emails.length > 1 && this.emails[1].verified;
   }
 
-  async refresh(
-    field:
-      | 'account'
-      | 'clients'
-      | 'totp'
-      | 'recovery'
-      | 'securityEvents'
-      | 'backupCodes'
-      | 'recoveryPhone'
-  ) {
-    let query = GET_ACCOUNT;
-    switch (field) {
-      case 'clients':
-        query = GET_CONNECTED_CLIENTS;
-        break;
-      case 'recovery':
-        query = GET_RECOVERY_KEY_EXISTS;
-        break;
-      case 'totp':
-        query = GET_TOTP_STATUS;
-        break;
-      case 'backupCodes':
-        query = GET_BACKUP_CODES_STATUS;
-        break;
-      case 'recoveryPhone':
-        query = GET_RECOVERY_PHONE;
-        break;
-    }
+  /**
+   * Important! The following refresh*() functions will not trigger
+   * reactive state changes. They will, however, update the state
+   * in apollo's cache so that if another action results in
+   * a rerender the UI will appear updated.
+   **/
+  async refreshAccount() {
     await this.withLoadingStatus(
       this.apolloClient.query({
         fetchPolicy: 'network-only',
-        query,
+        query: GET_ACCOUNT,
       })
     );
   }
 
+  async refreshConnectedClients() {
+    await this.withLoadingStatus(
+      this.apolloClient.query({
+        fetchPolicy: 'network-only',
+        query: GET_CONNECTED_CLIENTS,
+      })
+    );
+  }
+
+  async refreshRecoveryKeyStatus() {
+    await this.withLoadingStatus(
+      this.apolloClient.query({
+        fetchPolicy: 'network-only',
+        query: GET_RECOVERY_KEY_EXISTS,
+      })
+    );
+  }
+
+  private async refreshBackupCodes() {
+    await this.withLoadingStatus(
+      this.apolloClient.query({
+        fetchPolicy: 'network-only',
+        query: GET_BACKUP_CODES_STATUS,
+      })
+    );
+  }
+
+  async refreshRecoveryPhone() {
+    await this.withLoadingStatus(
+      this.apolloClient.query({
+        fetchPolicy: 'network-only',
+        query: GET_RECOVERY_PHONE,
+      })
+    );
+  }
   async getAccountStatusByEmail(email: string): Promise<boolean> {
     return this.withLoadingStatus(
       (await this.authClient.accountStatusByEmail(email)).exists
@@ -530,25 +387,6 @@ export class Account implements AccountData {
     });
     const { account } = data;
     return account.securityEvents;
-  }
-
-  async getProfileInfo() {
-    try {
-      const { data } = await this.apolloClient.query({
-        fetchPolicy: 'network-only',
-        query: GET_PROFILE_INFO,
-      });
-      const { account } = data;
-      return account as ProfileInfo;
-    } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
-        | number
-        | undefined;
-      if (errno && AuthUiErrorNos[errno]) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
-    }
   }
 
   async getRecoveryKeyBundle(
@@ -590,7 +428,7 @@ export class Account implements AccountData {
         this.primaryEmail.email,
         oldPassword,
         newPassword,
-        sessionToken()!,
+        getCurrentSessionToken(),
         {
           keys: true,
         }
@@ -605,32 +443,22 @@ export class Account implements AccountData {
       response.keyFetchToken,
       response.unwrapBKey
     );
-    sessionToken(response.sessionToken);
-    this.apolloClient.cache.writeQuery({
-      query: gql`
-        query UpdatePassword {
-          account {
-            passwordCreated
-          }
-          session {
-            verified
-          }
-        }
-      `,
-      data: {
-        account: {
-          passwordCreated: response.authAt * 1000,
-          __typename: 'Account',
-        },
-        session: { verified: response.verified, __typename: 'Session' },
-      },
-    });
+
+    const account = accountCache.findAccountByUid(response.uid);
+    if (!account) {
+      throw new MissingCachedAccount();
+    }
+    account.sessionToken = response.sessionToken;
+    account.verified = response.verified;
+    accountCache.setAccount(account);
+
+    apolloCache.setUpdatedPassword(response.authAt, response.verified);
   }
 
   async createPassword(newPassword: string) {
     const passwordCreatedResult = await this.withLoadingStatus(
       this.authClient.createPassword(
-        sessionToken()!,
+        getCurrentSessionToken(),
         this.primaryEmail.email,
         newPassword
       )
@@ -651,7 +479,7 @@ export class Account implements AccountData {
     service?: string,
     redirectTo?: string,
     metricsContext?: MetricsContext
-  ): Promise<PasswordForgotSendCodePayload> {
+  ): Promise<{ passwordForgotToken: string }> {
     let options: {
       service?: string;
       resume?: string;
@@ -873,14 +701,22 @@ export class Account implements AccountData {
       });
       accountReset.unwrapBKey = credentials.unwrapBKey;
       accountReset.unwrapBKeyVersion2 = credentialsV2?.unwrapBKey;
-      currentAccount(getStoredAccountData(accountReset));
-      sessionToken(accountReset.sessionToken);
-      if (accountReset.verified) {
-        this.apolloClient.cache.writeQuery({
-          query: GET_LOCAL_SIGNED_IN_STATUS,
-          data: { isSignedIn: true },
-        });
+
+      const account = accountCache.findAccountByUid(accountReset.uid);
+      if (!account) {
+        throw new MissingCachedAccount();
       }
+      account.verified = accountReset.verified;
+      account.sessionToken = accountReset.sessionToken;
+      accountCache.setAccount(account);
+
+      if (accountReset.verified) {
+        apolloCache.setLocalSignedInStatus(true);
+      } else {
+        // TBD, seems like we should make sure this is symmetric.
+        apolloCache.setLocalSignedInStatus(false);
+      }
+
       return accountReset;
     } catch (err) {
       throw getHandledError(err);
@@ -920,14 +756,14 @@ export class Account implements AccountData {
         variables: { input: { displayName } },
       })
     );
-    const legacyLocalStorageAccount = currentAccount()!;
-    legacyLocalStorageAccount.displayName = displayName;
-    currentAccount(legacyLocalStorageAccount);
-    firefox.profileChanged({ uid: this.uid });
-  }
+    const account = accountCache.getCurrentAccount();
+    if (!account) {
+      throw new MissingCachedAccount();
+    }
+    account.displayName = displayName;
+    accountCache.setAccount(account);
 
-  setLastLogin(date: number) {
-    // FOLLOW-UP: Not yet implemented.
+    firefox.profileChanged({ uid: this.uid });
   }
 
   async deleteAvatar() {
@@ -1022,13 +858,8 @@ export class Account implements AccountData {
       )
     );
 
-    currentAccount(getStoredAccountData(linkedAccount));
-    sessionToken(linkedAccount.sessionToken);
-
-    this.apolloClient.cache.writeQuery({
-      query: GET_LOCAL_SIGNED_IN_STATUS,
-      data: { isSignedIn: true },
-    });
+    accountCache.setCurrentAccount(linkedAccount);
+    apolloCache.setLocalSignedInStatus(true);
 
     return linkedAccount;
   }
@@ -1039,24 +870,8 @@ export class Account implements AccountData {
   // Not currently in use but could be handy if we move towards removing the confirmation requirement
   async replaceRecoveryCodes() {
     return this.withLoadingStatus(
-      this.authClient.replaceRecoveryCodes(sessionToken()!)
+      this.authClient.replaceRecoveryCodes(getCurrentSessionToken())
     );
-  }
-
-  /**
-   * Check if the user has TOTP set up. This should be converted to a GQL query.
-   */
-  async hasTotpAuthClient() {
-    try {
-      const { verified } = await this.withLoadingStatus(
-        this.authClient.checkTotpTokenExists(sessionToken()!)
-      );
-      return verified;
-    } catch (e) {
-      // Proceed as if the user does not have TOTP set up, they will be
-      // prompted for it before they can access settings
-      return false;
-    }
   }
 
   /**
@@ -1064,9 +879,9 @@ export class Account implements AccountData {
    */
   async setRecoveryCodes(recoveryCodes: string[]) {
     const result = await this.withLoadingStatus(
-      this.authClient.setRecoveryCodes(sessionToken()!, recoveryCodes)
+      this.authClient.setRecoveryCodes(getCurrentSessionToken(), recoveryCodes)
     );
-    await this.refresh('backupCodes');
+    await this.refreshBackupCodes();
     return result;
   }
 
@@ -1076,15 +891,18 @@ export class Account implements AccountData {
    */
   async updateRecoveryCodes(recoveryCodes: string[]) {
     const result = await this.withLoadingStatus(
-      this.authClient.updateRecoveryCodes(sessionToken()!, recoveryCodes)
+      this.authClient.updateRecoveryCodes(
+        getCurrentSessionToken(),
+        recoveryCodes
+      )
     );
-    await this.refresh('backupCodes');
+    await this.refreshBackupCodes();
     return result;
   }
 
   async createSecondaryEmail(email: string) {
     await this.withLoadingStatus(
-      this.authClient.recoveryEmailCreate(sessionToken()!, email, {
+      this.authClient.recoveryEmailCreate(getCurrentSessionToken(), email, {
         verificationMethod: 'email-otp',
       })
     );
@@ -1109,7 +927,7 @@ export class Account implements AccountData {
   async verifySecondaryEmail(email: string, code: string) {
     await this.withLoadingStatus(
       this.authClient.recoveryEmailSecondaryVerifyCode(
-        sessionToken()!,
+        getCurrentSessionToken(),
         email,
         code
       )
@@ -1129,7 +947,8 @@ export class Account implements AccountData {
 
   async disableTwoStepAuth() {
     await this.withLoadingStatus(
-      this.authClient.deleteTotpToken(sessionToken()!)
+      // TODO: Don't make call if account or session token is missing
+      this.authClient.deleteTotpToken(getCurrentSessionToken())
     );
 
     const cache = this.apolloClient.cache;
@@ -1141,13 +960,13 @@ export class Account implements AccountData {
         },
       },
     });
-    await this.refresh('recoveryPhone');
-    await this.refresh('backupCodes');
+    await this.refreshRecoveryPhone();
+    await this.refreshBackupCodes();
   }
 
   async deleteRecoveryKey() {
     await this.withLoadingStatus(
-      this.authClient.deleteRecoveryKey(sessionToken()!)
+      this.authClient.deleteRecoveryKey(getCurrentSessionToken())
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1165,7 +984,7 @@ export class Account implements AccountData {
 
   async deleteSecondaryEmail(email: string) {
     await this.withLoadingStatus(
-      this.authClient.recoveryEmailDestroy(sessionToken()!, email)
+      this.authClient.recoveryEmailDestroy(getCurrentSessionToken(), email)
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1185,7 +1004,10 @@ export class Account implements AccountData {
 
   async makeEmailPrimary(email: string) {
     await this.withLoadingStatus(
-      this.authClient.recoveryEmailSetPrimaryEmail(sessionToken()!, email)
+      this.authClient.recoveryEmailSetPrimaryEmail(
+        getCurrentSessionToken(),
+        email
+      )
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1213,23 +1035,27 @@ export class Account implements AccountData {
       },
     });
 
-    const legacyLocalStorageAccount = currentAccount()!;
-    legacyLocalStorageAccount.email = email;
-    currentAccount(legacyLocalStorageAccount);
-
+    const account = accountCache.getCurrentAccount();
+    if (account) {
+      account.email = email;
+      accountCache.setCurrentAccount(account);
+    }
     firefox.profileChanged({ uid: this.uid });
   }
 
   async resendEmailCode(email: string) {
     return this.withLoadingStatus(
-      this.authClient.recoveryEmailSecondaryResendCode(sessionToken()!, email)
+      this.authClient.recoveryEmailSecondaryResendCode(
+        getCurrentSessionToken(),
+        email
+      )
     );
   }
 
   async createTotp(skipRecoveryCodes = false) {
     const opts = skipRecoveryCodes ? { skipRecoveryCodes } : {};
     const totp = await this.withLoadingStatus(
-      this.authClient.createTotpToken(sessionToken()!, opts)
+      this.authClient.createTotpToken(getCurrentSessionToken(), opts)
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1245,7 +1071,7 @@ export class Account implements AccountData {
 
   async verifyTotpSetupCode(code: string) {
     await this.withLoadingStatus(
-      this.authClient.verifyTotpSetupCode(sessionToken()!, code, {})
+      this.authClient.verifyTotpSetupCode(getCurrentSessionToken(), code, {})
     );
   }
 
@@ -1253,12 +1079,12 @@ export class Account implements AccountData {
     try {
       await this.withLoadingStatus(
         this.authClient.completeTotpSetup(
-          sessionToken()!,
+          getCurrentSessionToken(),
           service ? { service } : {}
         )
       );
       // Only update local cache if the server-side setup completes successfully
-      await this.refresh('recoveryPhone');
+      await this.refreshRecoveryPhone();
       const cache = this.apolloClient.cache;
       cache.modify({
         id: cache.identify({ __typename: 'Account' }),
@@ -1268,7 +1094,7 @@ export class Account implements AccountData {
           },
         },
       });
-      await this.refresh('backupCodes');
+      await this.refreshBackupCodes();
     } catch (e) {
       // Surface to caller; ensures no partial/local updates if follow-up steps fail
       throw e;
@@ -1277,23 +1103,27 @@ export class Account implements AccountData {
 
   async replaceTotp() {
     const totp = await this.withLoadingStatus(
-      this.authClient.replaceTotpToken(sessionToken()!, {})
+      this.authClient.replaceTotpToken(getCurrentSessionToken(), {})
     );
     return totp;
   }
 
   async confirmReplaceTotp(code: string) {
     await this.withLoadingStatus(
-      this.authClient.confirmReplaceTotpToken(sessionToken()!, code)
+      this.authClient.confirmReplaceTotpToken(getCurrentSessionToken(), code)
     );
   }
 
   async uploadAvatar(file: Blob) {
     const { access_token } = await this.withLoadingStatus(
-      this.authClient.createOAuthToken(sessionToken()!, config.oauth.clientId, {
-        scope: 'profile:write clients:write',
-        ttl: 300,
-      })
+      this.authClient.createOAuthToken(
+        getCurrentSessionToken(),
+        config.oauth.clientId,
+        {
+          scope: 'profile:write clients:write',
+          ttl: 300,
+        }
+      )
     );
     const response = await this.withLoadingStatus(
       fetch(`${config.servers.profile.url}/v1/avatar/upload`, {
@@ -1324,7 +1154,7 @@ export class Account implements AccountData {
   async createRecoveryKey(password: string, replaceKey: boolean = false) {
     const reauth = await this.withLoadingStatus(
       this.authClient.sessionReauth(
-        sessionToken()!,
+        getCurrentSessionToken(),
         this.primaryEmail.email,
         password,
         {
@@ -1340,7 +1170,7 @@ export class Account implements AccountData {
       await generateRecoveryKey(this.uid, keys);
     await this.withLoadingStatus(
       this.authClient.createRecoveryKey(
-        sessionToken()!,
+        getCurrentSessionToken(),
         recoveryKeyId,
         recoveryData,
         true,
@@ -1364,7 +1194,7 @@ export class Account implements AccountData {
 
   async updateRecoveryKeyHint(hint: string) {
     await this.withLoadingStatus(
-      this.authClient.updateRecoveryKeyHint(sessionToken()!, hint)
+      this.authClient.updateRecoveryKeyHint(getCurrentSessionToken(), hint)
     );
   }
 
@@ -1391,15 +1221,17 @@ export class Account implements AccountData {
         variables: { input: { state } },
       })
     );
-    const legacyLocalStorageAccount = currentAccount()!;
-    legacyLocalStorageAccount.metricsEnabled = state === 'in';
-    currentAccount(legacyLocalStorageAccount);
+    const account = accountCache.getCurrentAccount();
+    if (account) {
+      account.metricsEnabled = state === 'in';
+      accountCache.setAccount(account);
+    }
     firefox.profileChanged({ metricsEnabled: this.metricsEnabled });
   }
 
   async unlinkThirdParty(providerId: number) {
     await this.withLoadingStatus(
-      this.authClient.unlinkThirdParty(sessionToken()!, providerId)
+      this.authClient.unlinkThirdParty(getCurrentSessionToken(), providerId)
     );
 
     const cache = this.apolloClient.cache;
@@ -1421,11 +1253,11 @@ export class Account implements AccountData {
         this.primaryEmail.email,
         password,
         {},
-        sessionToken()!
+        getCurrentSessionToken()
       )
     );
     firefox.accountDeleted(this.uid);
-    Storage.factory('localStorage').clear();
+    storage.local.clear();
   }
 
   async resetPasswordWithRecoveryKey(opts: {
@@ -1448,44 +1280,33 @@ export class Account implements AccountData {
         isFirefoxMobileClient: opts.isFirefoxMobileClient,
       }
     );
-    currentAccount(currentAccount(getStoredAccountData(data)));
-    sessionToken(data.sessionToken);
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        recoveryKey(existingData) {
-          return {
-            exists: false,
-            estimatedSyncDeviceCount: existingData.estimatedSyncDeviceCount,
-          };
-        },
-      },
-    });
-    cache.writeQuery({
-      query: GET_LOCAL_SIGNED_IN_STATUS,
-      data: { isSignedIn: true },
-    });
+
+    const accountData = getStoredAccountData(data);
+    accountCache.setCurrentAccount(accountData);
+
+    apolloCache.setAccountRecoveryKeyExists(false);
+    apolloCache.setLocalSignedInStatus(true);
+
     return data;
   }
 
   async removeRecoveryPhone() {
     const result = await this.withLoadingStatus(
-      this.authClient.recoveryPhoneDelete(sessionToken()!)
+      this.authClient.recoveryPhoneDelete(getCurrentSessionToken())
     );
     return result;
   }
 
   async addRecoveryPhone(phoneNumber: string) {
     const result = await this.withLoadingStatus(
-      this.authClient.recoveryPhoneCreate(sessionToken()!, phoneNumber)
+      this.authClient.recoveryPhoneCreate(getCurrentSessionToken(), phoneNumber)
     );
     return result;
   }
 
   async changeRecoveryPhone(code: string) {
     const result = await this.withLoadingStatus(
-      this.authClient.recoveryPhoneChange(sessionToken()!, code)
+      this.authClient.recoveryPhoneChange(getCurrentSessionToken(), code)
     );
     return result;
   }
@@ -1497,7 +1318,7 @@ export class Account implements AccountData {
   ) {
     const { nationalFormat } = await this.withLoadingStatus(
       this.authClient.recoveryPhoneConfirmSetup(
-        sessionToken()!,
+        getCurrentSessionToken(),
         code,
         isInitial2faSetup
       )
@@ -1517,4 +1338,52 @@ export class Account implements AccountData {
       },
     });
   }
+}
+
+/**
+ * Get's the current session token from the 'current' account
+ * held in local storage.
+ * @returns
+ * @throws MissingCachedAccount - If the current account is null.
+ * @throws InvalidCachedAccountState - If the current count is found, but it does not have a session token set.
+ */
+function getCurrentSessionToken(): string {
+  const account = accountCache.getCurrentAccount();
+  if (!account) {
+    throw new MissingCachedAccount();
+  } else if (!account.sessionToken) {
+    throw new InvalidCachedAccountState('Missing session token');
+  }
+  return account.sessionToken;
+}
+
+export function getStoredAccountData({
+  uid,
+  sessionToken,
+  alertText,
+  displayName,
+  metricsEnabled,
+  lastLogin,
+  email,
+  verified,
+}: {
+  uid: string;
+  sessionToken: string;
+  alertText: string;
+  displayName: string;
+  metricsEnabled: boolean;
+  lastLogin: number;
+  email: string;
+  verified: boolean;
+}): StoredAccountData {
+  return {
+    uid,
+    sessionToken,
+    alertText,
+    displayName,
+    metricsEnabled,
+    lastLogin,
+    email,
+    verified,
+  };
 }

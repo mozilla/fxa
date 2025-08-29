@@ -182,11 +182,13 @@ export async function init(enabled: boolean, flowQueryParams: QueryParams) {
       flowEventData = await flowResponse.json();
     }
 
+    const uuidJson = localStorage.getItem('__fxa_storage.uniqueUserId');
+
     let uniqueUserIdFromLocalStorage;
     try {
-      uniqueUserIdFromLocalStorage = JSON.parse(
-        localStorage.getItem('__fxa_storage.uniqueUserId')!
-      );
+      if (uuidJson) {
+        uniqueUserIdFromLocalStorage = JSON.parse(uuidJson);
+      }
     } catch (e) {}
 
     flowEventData.uniqueUserId = flowQueryParams.uniqueUserId

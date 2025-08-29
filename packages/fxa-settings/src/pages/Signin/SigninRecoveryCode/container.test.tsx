@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ReachRouterModule from '@reach/router';
-import * as CacheModule from '../../../lib/cache';
+import * as AccountCacheModule from '../../../lib/cache/account-cache';
 import * as SigninRecoveryCodeModule from './index';
 
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
@@ -66,7 +66,7 @@ function mockSigninRecoveryCodeModule() {
 }
 
 function mockCache(opts: any = {}, isEmpty = false) {
-  jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(
+  jest.spyOn(AccountCacheModule, 'getCurrentAccount').mockReturnValue(
     isEmpty
       ? undefined
       : {

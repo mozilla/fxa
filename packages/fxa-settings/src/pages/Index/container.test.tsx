@@ -5,7 +5,7 @@
 import * as ModelsModule from '../../models';
 import * as IndexModule from './index';
 import * as ReactUtils from 'fxa-react/lib/utils';
-import * as cache from '../../lib/cache';
+import * as AccountCacheModule from '../../lib/cache/account-cache';
 
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
@@ -398,14 +398,16 @@ describe('IndexContainer', () => {
       mockLocationState = {}; // no prefillEmail
 
       // Mock currentAccount with a valid email
-      jest.spyOn(cache, 'currentAccount').mockReturnValue({
+      jest.spyOn(AccountCacheModule, 'getCurrentAccount').mockReturnValue({
         uid: 'abc123',
         email: 'current@example.com',
         lastLogin: Date.now(),
       });
 
       // Ensure lastStoredAccount returns null so it doesn’t interfere
-      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue(undefined);
+      jest
+        .spyOn(AccountCacheModule, 'findLastStoredAccount')
+        .mockReturnValue(undefined);
 
       mockUseValidatedQueryParams.mockReturnValue({
         queryParamModel: {}, // no email query param
@@ -447,10 +449,11 @@ describe('IndexContainer', () => {
       mockLocationState = {}; // no prefillEmail
 
       // Mock no currentAccount but a lastStoredAccount exists
-      jest.spyOn(cache, 'currentAccount').mockReturnValue(undefined);
-      jest.spyOn(cache, 'lastStoredAccount').mockReturnValue({
+      jest.spyOn(AccountCacheModule, 'getCurrentAccount').mockReturnValue(null);
+      jest.spyOn(AccountCacheModule, 'findLastStoredAccount').mockReturnValue({
         uid: 'stored123',
         email: 'stored@example.com',
+        sessionToken: 'session123',
         lastLogin: Date.now(),
       });
 

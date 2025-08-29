@@ -12,7 +12,7 @@ import { isEmailMask } from 'fxa-shared/email/helpers';
 
 import firefox from '../../lib/channels/firefox';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { currentAccount, lastStoredAccount } from '../../lib/cache';
+import { accountCache } from '../../lib/cache';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
@@ -209,8 +209,8 @@ const IndexContainer = ({
   const suggestedEmail =
     queryParamModel.email ||
     queryParamModel.loginHint ||
-    currentAccount()?.email ||
-    lastStoredAccount()?.email;
+    accountCache.getCurrentAccount()?.email ||
+    accountCache.findLastStoredAccount()?.email;
 
   // If we just came from another Mozilla accounts page with a prefill email in location state,
   // ignore suggested email. Prefill email is used for clicks on "Use different account" or "Change email".

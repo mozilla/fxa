@@ -1,10 +1,22 @@
 import { makeVar } from '@apollo/client';
 import { ReactNode } from 'react';
-import { consumeAlertTextExternal } from '../lib/cache';
+import { accountCache } from '../lib/cache';
 
 export type NotificationType = 'success' | 'info' | 'error' | 'warning';
 
-export const alertContent = makeVar<string | ReactNode>(consumeAlertTextExternal() || '');
+export function consumeAlertTextExternal() {
+  const account = accountCache.getCurrentAccount();
+  const text = account?.alertText || null;
+  if (account && text) {
+    account.alertText = undefined;
+    accountCache.setCurrentAccount(account);
+  }
+  return text;
+}
+
+export const alertContent = makeVar<string | ReactNode>(
+  consumeAlertTextExternal() || ''
+);
 export const alertType = makeVar<NotificationType>('success');
 export const alertVisible = makeVar(!!alertContent());
 

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
-import { DeviceLocation } from '../../../models/Account';
+import { DeviceLocation } from '../../../lib/types';
 import { ReactComponent as WebIcon } from './web.svg';
 import { ReactComponent as DesktopIcon } from './desktop.svg';
 import { ReactComponent as FPNIcon } from './fpn.svg';

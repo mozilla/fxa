@@ -19,7 +19,7 @@ import { REACT_ENTRYPOINT } from '../../constants';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../lib/glean';
 import { usePageViewEvent } from '../../lib/metrics';
-import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
+import { accountCache } from '../../lib/cache';
 import {
   useSensitiveDataClient,
   useFtlMsgResolver,
@@ -39,6 +39,7 @@ import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
+import { StoredAccountData } from '../../lib/types';
 
 export const viewName = 'signin';
 
@@ -210,7 +211,7 @@ const Signin = ({
           metricsEnabled: data.signIn.metricsEnabled,
         };
 
-        storeAccountData(accountData);
+        accountCache.setCurrentAccount(accountData);
 
         const navigationOptions = {
           email,
@@ -468,7 +469,7 @@ const Signin = ({
               required
               autoFocus
               onChange={() => {
-                // Only log the engage event once. Note that this text box is autofocused, so
+                // Only log the engage event once. Note that this text box is auto focused, so
                 // using autofocus wouldn't be a good way to do this.
                 if (hasEngaged === false) {
                   setHasEngaged(true);
@@ -486,7 +487,7 @@ const Signin = ({
             />
           )}
           {/* This non-fulfilled input tricks the browser, when trying to
-              sign in with the wrong password, into not showing the doorhanger.
+              sign in with the wrong password, into not showing the door hanger.
               TODO: this causes problems with react-hook-form, do we even need it?
            */}
           {/* <input className="hidden" required /> */}

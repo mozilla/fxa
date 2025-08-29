@@ -16,7 +16,7 @@ import {
 } from '../mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { SigninRecoveryPhoneProps } from './interfaces';
-import { storeAccountData } from '../../../lib/storage-utils';
+import { setCurrentAccount } from '../../../lib/cache/account-cache';
 import { handleNavigation } from '../utils';
 import {
   useFinishOAuthFlowHandler,
@@ -64,8 +64,9 @@ jest.mock('../../../lib/error-utils', () => ({
   getLocalizedErrorMessage: jest.fn().mockImplementation((err) => err.message),
 }));
 
-jest.mock('../../../lib/storage-utils', () => ({
-  storeAccountData: jest.fn(),
+jest.mock('../../../lib/cache/account-cache', () => ({
+  setCurrentAccount: jest.fn(),
+  getCurrentAccount: jest.fn(),
 }));
 
 jest.mock('../utils', () => ({
@@ -180,7 +181,7 @@ describe('SigninRecoveryPhoneContainer', () => {
         mockSigninLocationState.sessionToken,
         '123456'
       );
-      expect(storeAccountData).toHaveBeenCalledWith({
+      expect(setCurrentAccount).toHaveBeenCalledWith({
         email: mockSigninLocationState.email,
         sessionToken: mockSigninLocationState.sessionToken,
         uid: mockSigninLocationState.uid,

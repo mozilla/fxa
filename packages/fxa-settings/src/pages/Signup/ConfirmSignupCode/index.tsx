@@ -30,7 +30,7 @@ import { ConfirmSignupCodeProps } from './interfaces';
 import firefox from '../../../lib/channels/firefox';
 import GleanMetrics from '../../../lib/glean';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
-import { storeAccountData } from '../../../lib/storage-utils';
+import { accountCache } from '../../../lib/cache';
 import {
   getErrorFtlId,
   getLocalizedErrorMessage,
@@ -167,7 +167,7 @@ const ConfirmSignupCode = ({
       // the Glean requests
       await GleanMetrics.isDone();
 
-      storeAccountData({
+      accountCache.setCurrentAccount({
         sessionToken,
         email,
         uid,

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ModelsModule from '../../../models';
-import * as CacheModule from '../../../lib/cache';
+import * as AccountCacheModule from '../../../lib/cache/account-cache';
 import * as SetPasswordModule from '.';
 
 import AuthClient from 'fxa-auth-client/browser';
@@ -96,7 +96,9 @@ function mockCurrentAccount(
     email: MOCK_EMAIL,
   }
 ) {
-  jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
+  jest
+    .spyOn(AccountCacheModule, 'getCurrentAccount')
+    .mockReturnValue(storedAccount);
 }
 
 let currentSetPasswordProps: SetPasswordProps | undefined;

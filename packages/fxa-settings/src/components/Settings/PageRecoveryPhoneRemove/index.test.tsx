@@ -41,7 +41,7 @@ jest.mock('@reach/router', () => ({
 }));
 
 const account = {
-  refresh: jest.fn(),
+  refreshRecoveryPhone: jest.fn(),
   removeRecoveryPhone: jest.fn().mockResolvedValue({}),
   recoveryPhone: { phoneNumber: MOCK_FULL_PHONE_NUMBER },
 } as unknown as Account;

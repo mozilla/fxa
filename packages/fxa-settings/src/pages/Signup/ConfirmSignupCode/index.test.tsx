@@ -77,11 +77,6 @@ jest.mock('../../../lib/cache', () => ({
   currentAccount: () => MOCK_STORED_ACCOUNT,
 }));
 
-jest.mock('../../../lib/storage-utils', () => ({
-  ...jest.requireActual('../../../lib/storage-utils'),
-  persistAccount: jest.fn(),
-}));
-
 jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 
 let session: Session;
@@ -477,7 +472,7 @@ describe('ConfirmSignupCode page with error states', () => {
     expect(GleanMetrics.signupConfirmation.submit).not.toHaveBeenCalled();
   });
 
-    it('renders an error when the form is submitted with rate limit', async () => {
+  it('renders an error when the form is submitted with rate limit', async () => {
     const user = userEvent.setup();
     session = {
       verifySession: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR_RATE_LIMIT),

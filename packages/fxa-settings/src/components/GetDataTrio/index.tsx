@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from 'react';
+import * as Sentry from '@sentry/browser';
 import { copy } from '../../lib/clipboard';
 import { ReactComponent as CopyIcon } from './copy.min.svg';
 import { ReactComponent as InlineCopyIcon } from './copy-inline.svg';
@@ -160,7 +161,12 @@ export const GetDataTrio = ({
   const pageTitle = ftlMsgResolver.getMsg(pageTitleId, contentType);
 
   const print = useCallback(() => {
-    const printWindow = window.open('', 'Print', 'height=600,width=800')!;
+    const printWindow = window.open('', 'Print', 'height=600,width=800');
+    if (printWindow == null) {
+      Sentry.captureMessage('Could not open print window.');
+      return;
+    }
+
     printWindow.document.write(recoveryCodesPrintTemplate(value, pageTitle));
     printWindow.document.close();
     printWindow.focus();

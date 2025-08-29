@@ -24,7 +24,7 @@ import {
 import ResetPasswordWithRecoveryKeyVerified from './index';
 import { SETTINGS_PATH } from '../../../constants';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { currentAccount } from '../../../lib/cache';
+import { accountCache } from '../../../lib/cache';
 
 const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   integration,
@@ -45,7 +45,7 @@ const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
     useState<FinishOAuthFlowHandlerResult['error']>();
 
   const account = useAccount();
-  const { uid, sessionToken, email } = currentAccount() || {};
+  const { uid, sessionToken, email } = accountCache.getCurrentAccount() || {};
   const updateRecoveryKeyHint = useCallback(
     async (hint: string) => account.updateRecoveryKeyHint(hint),
     [account]

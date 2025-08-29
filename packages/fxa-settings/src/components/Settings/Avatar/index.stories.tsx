@@ -6,7 +6,7 @@ import React from 'react';
 import Avatar from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { AccountAvatar } from '../../../lib/interfaces';
+import { AccountAvatar } from '../../../lib/types';
 import {
   MOCK_AVATAR_DEFAULT,
   MOCK_AVATAR_NON_DEFAULT,

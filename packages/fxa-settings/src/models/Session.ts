@@ -1,53 +1,13 @@
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
 import AuthClient from 'fxa-auth-client/browser';
-import {
-  sessionToken,
-  clearSignedInAccountUid,
-  currentAccount,
-} from '../lib/cache';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
+import { accountCache, apolloCache } from '../lib/cache';
+import * as Sentry from '@sentry/browser';
 
-export interface SessionData {
-  verified: boolean | null;
-  token: string | null;
-  verifySession?: (
-    code: string,
-    options: {
-      service?: string;
-      scopes?: string[];
-      marketingOptIn?: boolean;
-      newsletters?: string[];
-    }
-  ) => Promise<void>;
-  destroy?: () => void;
-}
-
-export const GET_SESSION_VERIFIED = gql`
-  query GetSession {
-    session {
-      verified
-    }
-  }
-`;
-
-export const GET_SESSION_IS_VALID = gql`
-  query GetSessionIsValid($sessionToken: String!) {
-    isValidToken(sessionToken: $sessionToken)
-  }
-`;
-
-export const DESTROY_SESSION = gql`
-  mutation DestroySession {
-    destroySession(input: {}) {
-      clientMutationId
-    }
-  }
-`;
-
-export class Session implements SessionData {
+export class Session {
   private readonly authClient: AuthClient;
+
+  // TBD: Why isn't this a typed object! Or at least, NormalizedCacheObject...
   private readonly apolloClient: ApolloClient<object>;
-  private _loading: boolean;
 
   constructor(
     authClient: AuthClient,
@@ -55,38 +15,17 @@ export class Session implements SessionData {
   ) {
     this.authClient = authClient;
     this.apolloClient = apolloClient;
-    this._loading = false;
-  }
-
-  private async withLoadingStatus<T>(promise: Promise<T>) {
-    this._loading = true;
-    try {
-      return await promise;
-    } catch (e) {
-      throw e;
-    } finally {
-      this._loading = false;
-    }
-  }
-
-  private get data() {
-    const { session } = this.apolloClient.cache.readQuery<{
-      session: Session;
-    }>({
-      query: GET_SESSION_VERIFIED,
-    })!;
-    return session;
-  }
-
-  get token(): string {
-    return this.data.token;
   }
 
   get verified(): boolean {
-    return this.data.verified;
+    const data = apolloCache.getSessionVerified();
+
+    if (data != null) {
+      return data.verified;
+    }
+    return false;
   }
 
-  // TODO: Use GQL verifyCode instead of authClient
   async verifySession(
     code: string,
     options: {
@@ -96,78 +35,108 @@ export class Session implements SessionData {
       newsletters?: string[];
     } = {}
   ) {
-    await this.withLoadingStatus(
-      this.authClient.sessionVerifyCode(sessionToken()!, code, options)
-    );
-    this.apolloClient.cache.modify({
-      fields: {
-        session: () => {
-          return true;
-        },
-      },
-    });
-    this.apolloClient.cache.writeQuery({
-      query: GET_LOCAL_SIGNED_IN_STATUS,
-      data: { isSignedIn: true },
-    });
+    let success = false;
+    const token = accountCache.getCurrentAccount()?.sessionToken;
+    if (token) {
+      try {
+        await this.authClient.sessionVerifyCode(token, code, options);
+        success = true;
+      } catch (err) {
+        // Capture this for now, just so we can keep an eye on things
+        Sentry.captureException(err);
+      }
+    }
+
+    // TBD: Pretty sure we wanted to change this session.verified is true
+    apolloCache.setSessionVerified(success);
+
+    // TBD: Very unclear. Why are we setting this here? This action has to do with session.verify, not with isSigned!
+    // I'd think the user was already signed in if they got to this point.
+    apolloCache.setLocalSignedInStatus(success);
   }
 
   async sendVerificationCode() {
-    await this.withLoadingStatus(
-      this.authClient.sessionResendVerifyCode(sessionToken()!)
-    );
+    const token = accountCache.getCurrentAccount()?.sessionToken;
+    if (token != null) {
+      await this.authClient.sessionResendVerifyCode(token);
+    }
   }
 
   async destroy() {
     await this.apolloClient.mutate({
-      mutation: DESTROY_SESSION,
+      mutation: gql`
+        mutation DestroySession {
+          destroySession(input: {}) {
+            clientMutationId
+          }
+        }
+      `,
       variables: { input: {} },
     });
 
-    clearSignedInAccountUid();
+    accountCache.clearSignedInAccountUid();
   }
 
   get isDestroyed() {
-    return currentAccount() == null;
+    return accountCache.getCurrentAccount() == null;
   }
 
   async isSessionVerified() {
-    const query = GET_SESSION_VERIFIED;
-    const { data } = await this.apolloClient.query({
+    const result = await this.apolloClient.query<{
+      session: { verified: boolean };
+    }>({
       fetchPolicy: 'network-only',
-      query,
+      query: gql`
+        query GetSession {
+          session {
+            verified
+          }
+        }
+      `,
     });
 
-    const { session } = data;
-    const sessionStatus: boolean = session.verified;
+    apolloCache.setSessionVerified(result.data.session.verified);
 
-    this.apolloClient.cache.modify({
-      fields: {
-        session: () => {
-          return sessionStatus;
-        },
-      },
-    });
-    return sessionStatus;
+    return result.data.session.verified;
+
+    // Huh? Leaving this here, cause it seems very wrong... but I don't understand how/why
+    // it doesn't cause more problems....
+    //
+    // Is this overwriting the state of 'session' in the cache with a boolean value???
+    //
+    // const { session } = result.data;
+    // const sessionStatus: boolean = session.verified;
+    // this.apolloClient.cache.modify({
+    //   fields: {
+    //     session: () => {
+    //       return sessionStatus;
+    //     },
+    //   },
+    // });
+    // return sessionStatus;
   }
 
   async isValid(sessionToken: string) {
     // If the current session token is valid, the following query will succeed.
     // If current session is not valid an 'Invalid Token' error will be thrown.
-    const query = GET_SESSION_IS_VALID;
-    const { data } = await this.apolloClient.query({
+    const result = await this.apolloClient.query<{ isValidToken: boolean }>({
       fetchPolicy: 'network-only',
-      query,
+      query: gql`
+        query GetSessionIsValid($sessionToken: String!) {
+          isValidToken(sessionToken: $sessionToken)
+        }
+      `,
       variables: { sessionToken },
     });
-    if (data?.isValidToken === true) {
-      this.apolloClient.cache.writeQuery({
-        query: GET_LOCAL_SIGNED_IN_STATUS,
-        data: { isSignedIn: true },
-      });
-      return true;
-    }
 
-    return false;
+    if (result.data.isValidToken === true) {
+      apolloCache.setLocalSignedInStatus(true);
+      return true;
+    } else {
+      // Seems like this was missing... If the token isn't valid, then the user
+      // cannot be signed in.
+      apolloCache.setLocalSignedInStatus(false);
+      return false;
+    }
   }
 }

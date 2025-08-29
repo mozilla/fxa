@@ -22,7 +22,7 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../lib/metrics';
-import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
+import { accountCache } from '../../lib/cache';
 import { MozServices } from '../../lib/types';
 import {
   isOAuthIntegration,
@@ -154,7 +154,7 @@ export const Signup = ({
       if (data) {
         GleanMetrics.registration.submitSuccess();
 
-        const accountData: StoredAccountData = {
+        const accountData = {
           email,
           uid: data.signUp.uid,
           lastLogin: Date.now(),
@@ -165,7 +165,7 @@ export const Signup = ({
 
         // Persist account data to local storage to match parity with content-server
         // this allows the recent account to be used for /signin
-        storeAccountData(accountData);
+        accountCache.setCurrentAccount(accountData);
 
         // Set these for use in ConfirmSignupCode
         sensitiveDataClient.setDataType(SensitiveData.Key.Auth, {
@@ -289,15 +289,17 @@ export const Signup = ({
           <CmsLogo
             {...{
               isMobile,
-              logos: [cmsInfo.SignupSetPasswordPage, cmsInfo.shared],
-              logoPosition: cmsInfo.SignupSetPasswordPage.logoUrl ? 'center' : 'left',
+              logos: [cmsInfo?.SignupSetPasswordPage, cmsInfo?.shared],
+              logoPosition: cmsInfo?.SignupSetPasswordPage?.logoUrl
+                ? 'center'
+                : 'left',
             }}
           />
           <h1 className="card-header">
-            {cmsInfo.SignupSetPasswordPage.headline}
+            {cmsInfo?.SignupSetPasswordPage.headline}
           </h1>
           <p className="mt-1 text-sm">
-            {cmsInfo.SignupSetPasswordPage.description}
+            {cmsInfo?.SignupSetPasswordPage.description}
           </p>
         </>
       ) : (

@@ -5,11 +5,8 @@
 import { useContext, useRef, useEffect, useMemo, useState } from 'react';
 import { isHexadecimal, length } from 'class-validator';
 import { AppContext } from './contexts/AppContext';
-import {
-  INITIAL_SETTINGS_QUERY,
-  SettingsContext,
-} from './contexts/SettingsContext';
-import { useQuery } from '@apollo/client';
+import { SettingsContext } from './contexts/SettingsContext';
+import { gql, useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { getDefault } from '../lib/config';
@@ -20,19 +17,20 @@ import {
 import { ReachRouterWindow } from '../lib/window';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
 import {
-  GET_LOCAL_SIGNED_IN_STATUS,
   INITIAL_METRICS_QUERY,
   GET_PRODUCT_INFO,
   GET_CLIENT_INFO,
 } from '../components/App/gql';
 import {
-  MetricsDataResult,
-  SignedInAccountStatus,
-} from '../components/App/interfaces';
-import { RelierClientInfo, RelierSubscriptionInfo, RelierCmsInfo } from './integrations';
+  RelierClientInfo,
+  RelierSubscriptionInfo,
+  RelierCmsInfo,
+} from './integrations';
 import { NimbusResult } from '../lib/nimbus';
 import * as Sentry from '@sentry/browser';
 import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
+import { MetricsDataResult, SignedInAccountStatus } from '../lib/types';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../lib/cache/apollo-cache.gql';
 
 const DEFAULT_CMS_ENTRYPOINT = 'default';
 
@@ -93,7 +91,11 @@ export function useIntegration() {
 
   return useMemo(() => {
     // If we are still loading data, just return an null integration
-    if (clientInfoState.loading || productInfoState.loading || cmsInfoState.loading) {
+    if (
+      clientInfoState.loading ||
+      productInfoState.loading ||
+      cmsInfoState.loading
+    ) {
       return null;
     }
 
@@ -172,7 +174,82 @@ export function useInitialSettingsState() {
   if (!apolloClient) {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
-  return useQuery(INITIAL_SETTINGS_QUERY, { client: apolloClient });
+  return useQuery(
+    gql`
+      query GetInitialSettingsState {
+        account {
+          uid
+          displayName
+          avatar {
+            id
+            url
+            isDefault @client
+          }
+          accountCreated
+          passwordCreated
+          recoveryKey {
+            exists
+            estimatedSyncDeviceCount
+          }
+          metricsEnabled
+          primaryEmail @client
+          emails {
+            email
+            isPrimary
+            verified
+          }
+          attachedClients {
+            clientId
+            isCurrentSession
+            userAgent
+            deviceType
+            deviceId
+            name
+            lastAccessTime
+            lastAccessTimeFormatted
+            approximateLastAccessTime
+            approximateLastAccessTimeFormatted
+            location {
+              city
+              country
+              state
+              stateCode
+            }
+            os
+            sessionTokenId
+            refreshTokenId
+          }
+          totp {
+            exists
+            verified
+          }
+          backupCodes {
+            hasBackupCodes
+            count
+          }
+          recoveryPhone {
+            exists
+            phoneNumber
+            nationalFormat
+            available
+          }
+          subscriptions {
+            created
+            productName
+          }
+          linkedAccounts {
+            providerId
+            authAt
+            enabled
+          }
+        }
+        session {
+          verified
+        }
+      }
+    `,
+    { client: apolloClient }
+  );
 }
 
 // TODO: FXA-8286, test pattern for container components, which will determine
@@ -242,12 +319,8 @@ export function useCmsInfoState() {
         return true;
       }
 
-      // If l10nEnabled is false, only fetch for English locales
-      // Check both browser language and user's selected locale
-      const isEnglishBrowser = navigator.language.startsWith('en');
-      const isEnglishSelected = currentLocale.startsWith('en');
-
-      return isEnglishBrowser || isEnglishSelected;
+      // Check preferred languages
+      return navigator.languages.some((lang) => lang.startsWith('en'));
     }
 
     if (
@@ -284,7 +357,9 @@ export function useCmsInfoState() {
         if (response.ok) {
           config = await response.json();
         } else {
-          Sentry.captureMessage(`Failure to parse CMS config for clientId ${clientId} and entrypoint ${entrypoint}`);
+          Sentry.captureMessage(
+            `Failure to parse CMS config for clientId ${clientId} and entrypoint ${entrypoint}`
+          );
         }
 
         if (mounted) {
@@ -295,7 +370,9 @@ export function useCmsInfoState() {
           });
         }
       } catch (error) {
-        Sentry.captureMessage(`Failure to fetch CMS config for clientId ${clientId} and entrypoint ${entrypoint}`);
+        Sentry.captureMessage(
+          `Failure to fetch CMS config for clientId ${clientId} and entrypoint ${entrypoint}`
+        );
 
         if (mounted) {
           setState({
@@ -312,7 +389,14 @@ export function useCmsInfoState() {
     return () => {
       mounted = false;
     };
-  }, [authUrl, clientId, entrypoint, config.cms.enabled, config.cms?.l10nEnabled, currentLocale]);
+  }, [
+    authUrl,
+    clientId,
+    entrypoint,
+    config.cms.enabled,
+    config.cms?.l10nEnabled,
+    currentLocale,
+  ]);
 
   return state;
 }

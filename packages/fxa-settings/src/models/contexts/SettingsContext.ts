@@ -6,83 +6,9 @@ import { gql } from '@apollo/client';
 import React from 'react';
 import config from '../../lib/config';
 import firefox, { FirefoxCommand } from '../../lib/channels/firefox';
-import { createApolloClient } from '../../lib/gql';
-import { Account, GET_PROFILE_INFO } from '../Account';
 import { AlertBarInfo } from '../AlertBarInfo';
-
-export const INITIAL_SETTINGS_QUERY = gql`
-  query GetInitialSettingsState {
-    account {
-      uid
-      displayName
-      avatar {
-        id
-        url
-        isDefault @client
-      }
-      accountCreated
-      passwordCreated
-      recoveryKey {
-        exists
-        estimatedSyncDeviceCount
-      }
-      metricsEnabled
-      primaryEmail @client
-      emails {
-        email
-        isPrimary
-        verified
-      }
-      attachedClients {
-        clientId
-        isCurrentSession
-        userAgent
-        deviceType
-        deviceId
-        name
-        lastAccessTime
-        lastAccessTimeFormatted
-        approximateLastAccessTime
-        approximateLastAccessTimeFormatted
-        location {
-          city
-          country
-          state
-          stateCode
-        }
-        os
-        sessionTokenId
-        refreshTokenId
-      }
-      totp {
-        exists
-        verified
-      }
-      backupCodes {
-        hasBackupCodes
-        count
-      }
-      recoveryPhone {
-        exists
-        phoneNumber
-        nationalFormat
-        available
-      }
-      subscriptions {
-        created
-        productName
-      }
-      linkedAccounts {
-        providerId
-        authAt
-        enabled
-      }
-    }
-    session {
-      verified
-    }
-  }
-`;
+import { createApolloClient } from '../../lib/apollo/apollo-client';
+import { apolloCache } from '../../lib/cache';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -96,28 +22,43 @@ export function initializeSettingsContext() {
   const apolloClient = createApolloClient(config.servers.gql.url);
 
   const isForCurrentUser = (event: Event) => {
-    const { account } = apolloClient.cache.readQuery<{ account: Account }>({
-      query: gql`
-        query GetUid {
-          account {
-            uid
-          }
-        }
-      `,
-    })!;
-    return account.uid === (event as CustomEvent).detail.uid;
+    const result = apolloCache.getAccountUid();
+    return result?.account.uid === (event as CustomEvent).detail.uid;
   };
 
   firefox.addEventListener(FirefoxCommand.ProfileChanged, (event) => {
     if (isForCurrentUser(event)) {
+      // Does this just update the cache state? If so why not just use account...
+      // Also why is this not awaited?
+      // This query used to be in Account.ts, but was only referenced by
+      // Account->getProfileInfo, which was never used!
       apolloClient.query({
-        query: GET_PROFILE_INFO,
+        query: gql`
+          query GetProfileInfo {
+            account {
+              uid
+              displayName
+              avatar {
+                id
+                url
+              }
+              primaryEmail @client
+              emails {
+                email
+                isPrimary
+                verified
+              }
+            }
+          }
+        `,
         fetchPolicy: 'network-only',
       });
     }
   });
   firefox.addEventListener(FirefoxCommand.PasswordChanged, (event) => {
     if (isForCurrentUser(event)) {
+      // TBD! Wut!? why is firefox letting us know the password changed. Don't
+      // we handle this?
       apolloClient.writeQuery({
         query: gql`
           query UpdatePasswordCreated {

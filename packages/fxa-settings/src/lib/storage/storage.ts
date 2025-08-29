@@ -5,8 +5,8 @@
 // This module abstracts interaction with storage
 // backends such as localStorage or sessionStorage.
 
-import NullStorage from './null-storage';
-import { searchParam } from './utilities';
+import { NullStorage } from './null-storage';
+import { searchParam } from '../utilities';
 
 const NAMESPACE = '__fxa_storage';
 
@@ -39,7 +39,7 @@ interface DOMStorage {
   clear(): void;
 }
 
-class Storage {
+export class Storage {
   private _backend: DOMStorage;
 
   constructor(backend: DOMStorage) {
@@ -151,4 +151,17 @@ class Storage {
   }
 }
 
-export default Storage;
+// Common Singletons
+const localStorage = Storage.factory('localStorage');
+const sessionStorage = Storage.factory('sessionStorage');
+export const storage = {
+  get local() {
+    return localStorage;
+  },
+  get session() {
+    return sessionStorage;
+  },
+  get legacySessionStorage() {
+    return window.sessionStorage;
+  },
+};

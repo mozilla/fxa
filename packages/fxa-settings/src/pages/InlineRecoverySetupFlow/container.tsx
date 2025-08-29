@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as Sentry from '@sentry/browser';
 import { useQuery } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
@@ -51,7 +52,7 @@ export const InlineRecoverySetupFlowContainer = ({
         // can't just put an expression here so a function call it is
         (() => account.recoveryPhone)();
       } catch {
-        await account.refresh('account');
+        await account.refreshAccount();
       } finally {
         setLoadingAccount(false);
       }
@@ -198,6 +199,7 @@ export const InlineRecoverySetupFlowContainer = ({
           );
         } else if (error.errno === AuthUiErrors.INVALID_OTP_CODE.errno) {
         } else {
+          Sentry.captureException(err);
           setBackupCodeError(
             ftlMsgResolver.getMsg(
               'tfa-cannot-verify-code-4',

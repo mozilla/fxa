@@ -11,8 +11,8 @@ import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
 import { ApolloProvider } from '@apollo/client';
-import { createApolloClient } from './lib/gql';
-import Storage from './lib/storage';
+import { createApolloClient } from './lib/apollo/apollo-client';
+import { Storage } from './lib/storage/storage';
 import './styles/tailwind.out.css';
 import CookiesDisabled from './pages/CookiesDisabled';
 import { navigate } from '@reach/router';
@@ -81,9 +81,7 @@ try {
 
   render(
     <React.StrictMode>
-      <DynamicLocalizationProvider
-        baseDir={config.l10n.baseUrl}
-      >
+      <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
         <AppErrorBoundary>
           <AppContext.Provider value={appContext}>
             <ApolloProvider client={apolloClient}>

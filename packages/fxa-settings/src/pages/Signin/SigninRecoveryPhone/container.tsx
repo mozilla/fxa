@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SigninRecoveryPhone from '.';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState, handleNavigation } from '../utils';
 import {
-  AppContext,
   isWebIntegration,
   useAlertBar,
   useAuthClient,
@@ -24,13 +23,12 @@ import {
 } from '../../../lib/oauth/hooks';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import OAuthDataError from '../../../components/OAuthDataError';
-import { storeAccountData } from '../../../lib/storage-utils';
+import { accountCache, apolloCache } from '../../../lib/cache';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import {
   SigninRecoveryPhoneContainerProps,
   SigninRecoveryPhoneLocationState,
 } from './interfaces';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
 import GleanMetrics from '../../../lib/glean';
 
 const SigninRecoveryPhoneContainer = ({
@@ -38,7 +36,6 @@ const SigninRecoveryPhoneContainer = ({
 }: SigninRecoveryPhoneContainerProps & RouteComponentProps) => {
   const alertBar = useAlertBar();
   const authClient = useAuthClient();
-  const { apolloClient } = useContext(AppContext);
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: SigninRecoveryPhoneLocationState;
@@ -86,7 +83,7 @@ const SigninRecoveryPhoneContainer = ({
     }
 
     try {
-      storeAccountData({
+      accountCache.setCurrentAccount({
         sessionToken: signinState.sessionToken,
         email: signinState.email,
         uid: signinState.uid,
@@ -98,10 +95,8 @@ const SigninRecoveryPhoneContainer = ({
       // so we need to wait a bit before navigating to the next page. This is
       // a temporary fix until we find a better solution, most likely with refactoring
       // how we handle state in the app.
-      apolloClient?.cache.writeQuery({
-        query: GET_LOCAL_SIGNED_IN_STATUS,
-        data: { isSignedIn: true },
-      });
+      apolloCache.setLocalSignedInStatus(true);
+
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const navigationOptions = {

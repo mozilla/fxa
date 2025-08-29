@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AccountTotp } from '../../../lib/interfaces';
+import { AccountTotp } from '../../../lib/types';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
 import { SensitiveData } from './../../../lib/sensitive-data-client';

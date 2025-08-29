@@ -5,7 +5,7 @@
 // Mocked Module Imports
 import * as SigninTotpCodeModule from './index';
 import * as UseValidateModule from '../../../lib/hooks/useValidate';
-import * as CacheModule from '../../../lib/cache';
+import * as AccountCacheModule from '../../../lib/cache/account-cache';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as ReachRouterModule from '@reach/router';
 import * as ApolloModule from '@apollo/client';
@@ -82,7 +82,7 @@ jest.mock('../../../lib/gql-key-stretch-upgrade', () => {
 });
 
 function mockCache(opts: any = {}, isEmpty = false) {
-  jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(
+  jest.spyOn(AccountCacheModule, 'getCurrentAccount').mockReturnValue(
     isEmpty
       ? undefined
       : {

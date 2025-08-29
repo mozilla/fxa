@@ -4,7 +4,7 @@
 
 import * as ModelsModule from '../../../models';
 import * as ReachRouterModule from '@reach/router';
-import * as CacheModule from '../../../lib/cache';
+import * as AccountCacheModule from '../../../lib/cache/account-cache';
 import * as SigninRecoveryChoiceModule from './index';
 
 import { waitFor } from '@testing-library/react';
@@ -62,7 +62,7 @@ function mockSigninRecoveryChoiceModule() {
 }
 
 function mockCache(opts: any = {}, isEmpty = false) {
-  jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(
+  jest.spyOn(AccountCacheModule, 'getCurrentAccount').mockReturnValue(
     isEmpty
       ? undefined
       : {

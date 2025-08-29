@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as Sentry from '@sentry/browser';
 import { useMutation } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
 
@@ -69,10 +70,18 @@ export const SigninUnblockContainer = ({
   };
 
   const sensitiveDataClient = useSensitiveDataClient();
-  // We keep the previous non-null assertion on 'password' here because the
-  // flow dictates we definitely have it.
-  const { plainTextPassword: password } =
-    sensitiveDataClient.getDataType(SensitiveData.Key.Password)! || {};
+
+  const passwordData = sensitiveDataClient.getDataType(
+    SensitiveData.Key.Password
+  );
+  let password = undefined;
+  if (passwordData?.plainTextPassword) {
+    password = passwordData?.plainTextPassword;
+  } else {
+    // Note the flow dictates that this data should always exist.
+    Sentry.captureMessage('Unexpected state. passwordData missing!');
+    throw new Error('Unexpected state. passwordData missing!');
+  }
 
   const { email, hasLinkedAccount, hasPassword } = location.state || {};
 

@@ -27,12 +27,12 @@ import firefox from '../../../lib/channels/firefox';
 import { useState } from 'react';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { storeAccountData } from '../../../lib/storage-utils';
 import { SETTINGS_PATH } from '../../../constants';
 import { LocationState } from '../../Signin/interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { accountCache } from '../../../lib/cache';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance
@@ -205,6 +205,7 @@ const CompleteResetPasswordContainer = ({
         undefined,
         includeRecoveryKeyPrompt
       );
+
     return accountResetData;
   };
 
@@ -215,7 +216,7 @@ const CompleteResetPasswordContainer = ({
       return;
     }
 
-    storeAccountData({
+    accountCache.setCurrentAccount({
       uid: accountResetData.uid,
       email,
       lastLogin: Date.now(),
@@ -304,7 +305,7 @@ const CompleteResetPasswordContainer = ({
 
           // we cannot create a new recovery key if the session is not verified
           if (accountResetData.verified) {
-            await account.refresh('account');
+            await account.refreshAccount();
             const recoveryKey = await account.createRecoveryKey(newPassword);
             sensitiveDataClient.setDataType(SensitiveData.Key.NewRecoveryKey, {
               recoveryKey,

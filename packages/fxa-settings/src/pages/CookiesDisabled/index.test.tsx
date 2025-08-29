@@ -22,6 +22,7 @@ function setLocationSearch(search = '') {
   delete window.location;
   window.location = {
     ...originalWindow.location,
+    // @ts-ignore
     search,
   };
 }
@@ -76,6 +77,7 @@ describe('CookiesDisabled', () => {
     });
 
     afterAll(() => {
+      // @ts-ignore
       window.location = originalWindow.location;
       window.navigator = originalWindow.navigator;
     });

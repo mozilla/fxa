@@ -14,7 +14,7 @@ import { SigninIntegration, SigninLocationState } from '../interfaces';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { handleNavigation } from '../utils';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { storeAccountData } from '../../../lib/storage-utils';
+import { accountCache } from '../../../lib/cache';
 import {
   getLocalizedErrorMessage,
   HandledError,
@@ -82,7 +82,7 @@ export const SigninTotpCode = ({
     } else {
       GleanMetrics.totpForm.success();
 
-      storeAccountData({
+      accountCache.setCurrentAccount({
         sessionToken,
         email,
         uid,

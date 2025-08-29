@@ -14,8 +14,7 @@ import {
 } from 'react';
 
 import { QueryParams } from '../..';
-import { storeAccountData } from '../../lib/storage-utils';
-import { currentAccount, getAccountByUid } from '../../lib/cache';
+import { accountCache } from '../../lib/cache';
 import { firefox } from '../../lib/channels/firefox';
 import * as MetricsFlow from '../../lib/metrics-flow';
 import GleanMetrics from '../../lib/glean';
@@ -200,7 +199,7 @@ export const App = ({
       }
 
       // if there is already a valid current account, use it
-      const localUser = currentAccount();
+      const localUser = accountCache.getCurrentAccount();
       if (
         localUser?.sessionToken &&
         (await session.isValid(localUser.sessionToken))
@@ -230,20 +229,25 @@ export const App = ({
         );
       }
 
-      if (userFromBrowser?.sessionToken) {
+      if (userFromBrowser && userFromBrowser.sessionToken) {
         // If the session is valid, try to set it as the current account
         isValidSession = await session.isValid(userFromBrowser.sessionToken);
         if (isValidSession) {
-          const cachedUser = getAccountByUid(userFromBrowser.uid);
-          storeAccountData(
-            cachedUser
-              ? {
-                  ...cachedUser,
-                  // Make sure we are apply the session token we validated
-                  sessionToken: userFromBrowser.sessionToken,
-                }
-              : userFromBrowser
-          );
+          const cachedUser = accountCache.findAccountByUid(userFromBrowser.uid);
+
+          if (cachedUser != null) {
+            accountCache.setCurrentAccount({
+              ...cachedUser,
+              sessionToken: userFromBrowser.sessionToken,
+            });
+          } else {
+            accountCache.setCurrentAccount({
+              email: userFromBrowser.email,
+              uid: userFromBrowser.uid,
+              sessionToken: userFromBrowser.sessionToken,
+              verified: userFromBrowser.verified,
+            });
+          }
         }
       }
 
@@ -411,7 +415,7 @@ const AuthAndAccountSetupRoutes = ({
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
   const config = useConfig();
-  const localAccount = currentAccount();
+  const localAccount = accountCache.getCurrentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
   const location = useLocation();
@@ -556,7 +560,10 @@ const AuthAndAccountSetupRoutes = ({
           path="/signin_unblock/*"
           {...{ integration, flowQueryParams }}
         />
-        <InlineRecoveryKeySetupContainer path="/inline_recovery_key_setup/*" cmsInfo={integration.getCmsInfo()} />
+        <InlineRecoveryKeySetupContainer
+          path="/inline_recovery_key_setup/*"
+          cmsInfo={integration.getCmsInfo()}
+        />
 
         {/* Signup */}
         <CannotCreateAccount path="/cannot_create_account/*" />

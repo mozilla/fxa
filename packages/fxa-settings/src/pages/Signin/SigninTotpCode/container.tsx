@@ -33,7 +33,6 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
 import {
   CREDENTIAL_STATUS_MUTATION,
   GET_ACCOUNT_KEYS_MUTATION,
@@ -43,6 +42,7 @@ import {
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../lib/cache/apollo-cache.gql';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -108,6 +108,9 @@ export const SigninTotpCodeContainer = ({
           },
         },
         update: (cache, { data }) => {
+          // TBD: Why would we do this? If the verifyTotpSucceeded, they must be signed in right?
+          //       Under what condition would they not be signed in? Also, if verifyTotp is not
+          //.      successful, should the user be put into a 'isSignedIn = false' state?
           if (data?.verifyTotp.success) {
             // Update the Apollo cache with the new signed in status
             const cacheData = cache.readQuery({

@@ -4,7 +4,7 @@
 
 import * as SigninTokenCodeModule from '.';
 import * as ReactUtils from 'fxa-react/lib/utils';
-import * as CacheModule from '../../../lib/cache';
+import * as AccountCacheModule from '../../../lib/cache/account-cache';
 
 import { SigninTokenCodeProps } from './interfaces';
 import { Integration, useSensitiveDataClient } from '../../../models';
@@ -15,6 +15,7 @@ import { screen, waitFor } from '@testing-library/react';
 import {
   MOCK_EMAIL,
   MOCK_KEY_FETCH_TOKEN,
+  MOCK_SESSION_TOKEN,
   MOCK_STORED_ACCOUNT,
   MOCK_UNWRAP_BKEY,
 } from '../../mocks';
@@ -91,8 +92,16 @@ function mockReactUtilsModule() {
 }
 
 // Set this when testing local storage
-function mockCurrentAccount(storedAccount = { uid: '123' }) {
-  jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
+function mockCurrentAccount(
+  storedAccount = {
+    uid: '123',
+    email: 'foo@mozilla.com',
+    sessionToken: MOCK_SESSION_TOKEN,
+  }
+) {
+  jest
+    .spyOn(AccountCacheModule, 'getCurrentAccount')
+    .mockReturnValue(storedAccount);
 }
 
 function resetMockSensitiveDataClient() {
@@ -134,7 +143,7 @@ describe('SigninTokenCode container', () => {
           expect(screen.getByText('signin token code mock')).toBeInTheDocument()
         );
         await waitFor(() => {
-          expect(CacheModule.currentAccount).not.toHaveBeenCalled();
+          expect(AccountCacheModule.getCurrentAccount).not.toHaveBeenCalled();
         });
         expect(currentSigninTokenCodeProps?.signinState.email).toBe(MOCK_EMAIL);
         expect(currentSigninTokenCodeProps?.integration).toBe(integration);
@@ -143,7 +152,7 @@ describe('SigninTokenCode container', () => {
       it('router state takes precedence over local storage', async () => {
         mockLocationState = createMockSigninLocationState();
         render([]);
-        expect(CacheModule.currentAccount).not.toHaveBeenCalled();
+        expect(AccountCacheModule.getCurrentAccount).not.toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninTokenCodeProps?.signinState.email).toBe(
             MOCK_EMAIL
@@ -155,7 +164,7 @@ describe('SigninTokenCode container', () => {
         mockLocationState = {};
         mockCurrentAccount(MOCK_STORED_ACCOUNT);
         render([]);
-        expect(CacheModule.currentAccount).toHaveBeenCalled();
+        expect(AccountCacheModule.getCurrentAccount).toHaveBeenCalled();
         await waitFor(() => {
           expect(currentSigninTokenCodeProps?.signinState.email).toBe(
             MOCK_STORED_ACCOUNT.email
@@ -166,7 +175,7 @@ describe('SigninTokenCode container', () => {
       it('is handled if not provided in location state or local storage', async () => {
         mockLocationState = {};
         render([]);
-        expect(CacheModule.currentAccount).toHaveBeenCalled();
+        expect(AccountCacheModule.getCurrentAccount).toHaveBeenCalled();
         expect(mockNavigate).toHaveBeenCalledWith('/');
         expect(SigninTokenCodeModule.default).not.toHaveBeenCalled();
       });

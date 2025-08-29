@@ -4,11 +4,11 @@
 
 import React from 'react';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
-import { Account, AppContext, LinkedAccount } from '../../../models';
+import { Account, AppContext } from '../../../models';
 import LinkedAccounts from '../LinkedAccounts';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
-import { LinkedAccountProviderIds } from '../../../lib/types';
+import { LinkedAccount, LinkedAccountProviderIds } from '../../../lib/types';
 import { withLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';
 

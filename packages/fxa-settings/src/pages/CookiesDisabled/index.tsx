@@ -7,7 +7,7 @@ import AppLayout from '../../components/AppLayout';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import Storage from '../../lib/storage';
+import { Storage } from '../../lib/storage';
 import { searchParams } from '../../lib/utilities';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import CardHeader from '../../components/CardHeader';

@@ -4,11 +4,10 @@
 
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SetPassword from '.';
-import { currentAccount } from '../../../lib/cache';
+import { accountCache, apolloCache } from '../../../lib/cache';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Integration, useAuthClient } from '../../../models';
-import { cache } from '../../../lib/cache';
 import { useCallback } from 'react';
 import { CreatePasswordHandler } from './interfaces';
 import { HandledError } from '../../../lib/error-utils';
@@ -41,7 +40,7 @@ const SetPasswordContainer = ({
 } & RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const authClient = useAuthClient();
-  const storedLocalAccount = currentAccount();
+  const storedLocalAccount = accountCache.getCurrentAccount();
   const email = storedLocalAccount?.email;
   const sessionToken = storedLocalAccount?.sessionToken;
   const uid = storedLocalAccount?.uid;
@@ -81,14 +80,8 @@ const SetPasswordContainer = ({
         try {
           const { passwordCreated, authPW, unwrapBKey } =
             await authClient.createPassword(sessionToken, email, newPassword);
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              passwordCreated() {
-                return passwordCreated;
-              },
-            },
-          });
+
+          apolloCache.setAccountPasswordCreated(passwordCreated);
 
           const keyFetchToken = await getKeyFetchToken(
             authPW,

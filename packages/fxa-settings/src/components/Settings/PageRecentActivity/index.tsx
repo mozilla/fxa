@@ -8,6 +8,7 @@ import FlowContainer from '../FlowContainer';
 import { useAccount, useFtlMsgResolver } from '../../../models';
 import { SecurityEvent as SecurityEventSection } from './SecurityEvent';
 import React, { useState, useEffect } from 'react';
+import { SecurityEvent } from '../../../lib/types';
 
 export const PageRecentActivity = (_: RouteComponentProps) => {
   const account = useAccount();
@@ -31,7 +32,7 @@ export const PageRecentActivity = (_: RouteComponentProps) => {
     >
       <ol className="mt-5 relative border-s border-gray-100">
         {!!securityEvents &&
-          securityEvents.map((securityEvent) => (
+          securityEvents.map((securityEvent: SecurityEvent) => (
             <SecurityEventSection
               {...{
                 key: securityEvent.name + securityEvent.createdAt,

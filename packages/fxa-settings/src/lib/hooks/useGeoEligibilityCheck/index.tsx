@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useState, useEffect, useRef } from 'react';
-import { sessionToken } from '../../cache';
+import { accountCache } from '../../cache';
 import { useAuthClient } from '../../../models';
 
 const featureEligibilityCache = new Map<string, boolean>();
@@ -19,7 +19,7 @@ export function useGeoEligibilityCheck(feature: string): {
 
   useEffect(() => {
     if (featureEligibilityCache.has(feature)) {
-      setEligible(featureEligibilityCache.get(feature)!);
+      setEligible(featureEligibilityCache.get(feature) || false);
       setLoading(false);
       return;
     }
@@ -28,7 +28,10 @@ export function useGeoEligibilityCheck(feature: string): {
       hasChecked.current = feature;
 
       authClient
-        .geoEligibilityCheck(sessionToken()!, feature)
+        .geoEligibilityCheck(
+          accountCache.getCurrentAccount()?.sessionToken || '',
+          feature
+        )
         .then(({ eligible }) => {
           featureEligibilityCache.set(feature, eligible);
           setEligible(eligible);

@@ -4,7 +4,7 @@
 
 import * as ModelsModule from '../../../models';
 import * as utils from 'fxa-react/lib/utils';
-import * as CacheModule from '../../../lib/cache';
+import * as AccountCacheModule from '../../../lib/cache/account-cache';
 
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
@@ -46,9 +46,12 @@ function mockCurrentAccount(
     uid: '123',
     sessionToken: MOCK_SESSION_TOKEN,
     email: MOCK_EMAIL,
+    providerUid: '456',
   }
 ) {
-  jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
+  jest
+    .spyOn(AccountCacheModule, 'getCurrentAccount')
+    .mockReturnValue(storedAccount);
 }
 
 jest.mock('../../../lib/oauth/hooks', () => {

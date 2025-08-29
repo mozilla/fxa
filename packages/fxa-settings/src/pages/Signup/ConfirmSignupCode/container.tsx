@@ -5,7 +5,7 @@
 import React, { useEffect } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { currentAccount } from '../../../lib/cache';
+import { accountCache } from '../../../lib/cache';
 import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
@@ -38,7 +38,7 @@ function getAccountInfo(
   let uid = uidFromLocationState;
   // only read from local storage if email isn't provided via router state
   if (!email || !sessionToken || !uid) {
-    const storedLocalAccount = currentAccount();
+    const storedLocalAccount = accountCache.getCurrentAccount();
     email = storedLocalAccount?.email;
     sessionToken = storedLocalAccount?.sessionToken;
     uid = storedLocalAccount?.uid;
@@ -134,22 +134,32 @@ const SignupConfirmCodeContainer = ({
   }
 
   if (oAuthDataError) {
-    return <OAuthDataError error={oAuthDataError} gleanMetric={GleanMetrics.signupConfirmation.error} />;
+    return (
+      <OAuthDataError
+        error={oAuthDataError}
+        gleanMetric={GleanMetrics.signupConfirmation.error}
+      />
+    );
   }
   if (oAuthKeysCheckError) {
     if (!keyFetchToken || !unwrapBKey) {
       const localizedErrorMessage = ftlMsg.getMsg(
         'signin-code-expired-error',
         'Code expired. Please sign in again.'
-      )
+      );
       navigateWithQuery('/signin', {
         state: {
-          localizedErrorMessage
-        }
+          localizedErrorMessage,
+        },
       });
       return <LoadingSpinner fullScreen />;
     }
-    return <OAuthDataError error={oAuthKeysCheckError} gleanMetric={GleanMetrics.signupConfirmation.error}/>;
+    return (
+      <OAuthDataError
+        error={oAuthKeysCheckError}
+        gleanMetric={GleanMetrics.signupConfirmation.error}
+      />
+    );
   }
 
   return (
@@ -166,7 +176,7 @@ const SignupConfirmCodeContainer = ({
         keyFetchToken,
         unwrapBKey,
         flowQueryParams,
-        origin
+        origin,
       }}
     />
   );

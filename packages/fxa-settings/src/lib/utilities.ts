@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import base32Encode from 'base32-encode';
-import { AttachedClient } from '../models/Account';
+import { AttachedClient } from './types';
 
 // Various utilities that don't fit in a standalone lib
 
@@ -115,6 +115,7 @@ export function isBase32Crockford(value: string) {
 }
 
 export function formatRecoveryKey(recoveryKeyBuffer: ArrayBufferLike) {
+  // @ts-ignore
   return base32Encode(recoveryKeyBuffer, 'Crockford').match(/.{4}/g)!.join(' ');
 }
 

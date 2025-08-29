@@ -6,7 +6,7 @@ import React from 'react';
 import { Localized } from '@fluent/react';
 import classNames from 'classnames';
 import defaultAvatar from './avatar-default.svg';
-import { AccountAvatar } from '../../../lib/interfaces';
+import { AccountAvatar } from '../../../lib/types';
 
 type AvatarProps = {
   className?: string;

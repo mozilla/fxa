@@ -11,6 +11,7 @@ import crypto from 'crypto';
 
 // react-pdf required TextEncoder for EncodeStream
 // See https://github.com/diegomura/react-pdf/issues/2054#issue-1407270392
+// @ts-ignore
 global.TextEncoder = TextEncoder;
 // @ts-ignore
 global.TextDecoder = TextDecoder;

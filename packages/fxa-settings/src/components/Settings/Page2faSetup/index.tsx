@@ -208,7 +208,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
       goHome();
       return;
     }
-    await account.refresh('recoveryPhone');
+    await account.refreshRecoveryPhone();
     // success message controlled by child component
   };
 

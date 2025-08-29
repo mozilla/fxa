@@ -8,7 +8,7 @@ import InlineRecoveryKeySetupContainer from './container';
 import * as InlineRecoveryKeySetupModule from '.';
 import * as ModelsModule from '../../models';
 import * as utils from 'fxa-react/lib/utils';
-import * as CacheModule from '../../lib/cache';
+import * as AccountCacheModule from '../../lib/cache/account-cache';
 import AuthClient from 'fxa-auth-client/browser';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import {
@@ -69,8 +69,9 @@ function mockCurrentAccount(
     email: MOCK_EMAIL,
   }
 ) {
-  jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(storedAccount);
-  jest.spyOn(CacheModule, 'discardSessionToken');
+  jest
+    .spyOn(AccountCacheModule, 'getCurrentAccount')
+    .mockReturnValue(storedAccount);
 }
 
 function applyDefaultMocks() {

@@ -121,7 +121,7 @@ describe('DropDownAvatarMenu', () => {
       window.location = {
         ...window.location,
         assign: jest.fn(),
-      };
+      } as unknown as any;
 
       renderWithLocalizationProvider(
         <AppContext.Provider

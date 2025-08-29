@@ -94,7 +94,7 @@ let mockAccount = new (class {
   get recoveryPhone() {
     return recoveryPhoneFn();
   }
-  async refresh(x: string) {
+  async refreshAccount(x: string) {
     return accountRefreshFn(x);
   }
   async addRecoveryPhone(x: string) {
@@ -278,7 +278,7 @@ describe('InlineRecoverySetupFlowContainer', () => {
     it('loads the account', async () => {
       render();
       await waitFor(() => {
-        expect(accountRefreshFn).toHaveBeenCalledWith('account');
+        expect(accountRefreshFn).toHaveBeenCalled();
       });
     });
 

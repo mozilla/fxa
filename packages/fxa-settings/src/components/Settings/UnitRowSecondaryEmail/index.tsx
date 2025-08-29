@@ -4,13 +4,14 @@
 
 import React, { ReactNode, useCallback, useState } from 'react';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { useAccount, Email, useAlertBar } from '../../../models';
+import { useAccount, useAlertBar } from '../../../models';
 import UnitRow from '../UnitRow';
 import ModalVerifySession from '../ModalVerifySession';
 import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
+import { Email } from '../../../lib/types';
 
 type UnitRowSecondaryEmailContentAndActionsProps = {
   secondary: Email;
@@ -191,7 +192,7 @@ export const UnitRowSecondaryEmail = () => {
                         title="Refresh email"
                         classNames="@mobileLandscape/unitRow:hidden ms-1"
                         disabled={account.loading}
-                        onClick={() => account.refresh('account')}
+                        onClick={() => account.refreshAccount()}
                       />
                     </Localized>
                   )}
@@ -276,7 +277,7 @@ export const UnitRowSecondaryEmail = () => {
                     classNames="hidden @mobileLandscape/unitRow:inline-block ms-1"
                     testId="secondary-email-refresh"
                     disabled={account.loading}
-                    onClick={() => account.refresh('account')}
+                    onClick={() => account.refreshAccount()}
                   />
                 </Localized>
               )}

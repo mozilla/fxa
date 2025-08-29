@@ -9,7 +9,7 @@ import SigninPushCodeConfirm from './index';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { PushSigninQueryParams } from '../../../models/pages/signin/push-signin-query-params';
 import { FtlMsg } from '../../../../../fxa-react/lib/utils';
-import { sessionToken } from '../../../lib/cache';
+import { accountCache } from '../../../lib/cache';
 
 export const SigninPushCodeConfirmContainer = (props: RouteComponentProps) => {
   const authClient = useAuthClient();
@@ -35,12 +35,15 @@ export const SigninPushCodeConfirmContainer = (props: RouteComponentProps) => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      await authClient.verifyLoginPushRequest(
-        sessionToken()!,
-        tokenVerificationId,
-        code
-      );
-      setSessionVerified(true);
+      const token = accountCache.getCurrentAccount()?.sessionToken;
+      if (token) {
+        await authClient.verifyLoginPushRequest(
+          token,
+          tokenVerificationId,
+          code
+        );
+        setSessionVerified(true);
+      }
     } catch (error) {
       setErrorMessage('Error verifying login push request');
     } finally {

@@ -263,7 +263,7 @@ describe('Page2faSetup', () => {
           true
         );
         expect(account.completeTotpSetup).toHaveBeenCalled();
-        expect(account.refresh).toHaveBeenCalledWith('recoveryPhone');
+        expect(account.refreshRecoveryPhone).toHaveBeenCalled();
       });
     });
   });

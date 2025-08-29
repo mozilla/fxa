@@ -14,17 +14,12 @@ import {
 } from '../../../models';
 import { handleNavigation } from '../../Signin/utils';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import {
-  StoredAccountData,
-  storeAccountData,
-  setCurrentAccount,
-} from '../../../lib/storage-utils';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import { isThirdPartyAuthCallbackIntegration } from '../../../models/integrations/third-party-auth-callback-integration';
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
-import { currentAccount } from '../../../lib/cache';
+import { accountCache } from '../../../lib/cache';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
@@ -52,21 +47,6 @@ const ThirdPartyAuthCallback = ({
   const { finishOAuthFlowHandler } = useFinishOAuthFlowHandler(
     authClient,
     integration
-  );
-
-  const storeLinkedAccountData = useCallback(
-    async (linkedAccount: LinkedAccountData, needsVerification = false) => {
-      const accountData: StoredAccountData = {
-        email: linkedAccount.email,
-        uid: linkedAccount.uid,
-        lastLogin: Date.now(),
-        sessionToken: linkedAccount.sessionToken,
-        verified: !needsVerification,
-        metricsEnabled: true,
-      };
-      return storeAccountData(accountData);
-    },
-    []
   );
 
   /**
@@ -137,7 +117,10 @@ const ThirdPartyAuthCallback = ({
       // Extract relayed fxa parameters
       const params = new URLSearchParams(fxaParams || '');
       const flowId = params.get('flowId') || params.get('flow_id') || undefined;
-      const flowBeginTime = params.get('flowBeginTime') || params.get('flow_begin_time') || undefined;
+      const flowBeginTime =
+        params.get('flowBeginTime') ||
+        params.get('flow_begin_time') ||
+        undefined;
       const originalService =
         params.get('service') || params.get('client_id') || undefined;
       const linkedAccount: LinkedAccountData =
@@ -158,9 +141,14 @@ const ThirdPartyAuthCallback = ({
       const totpRequired =
         linkedAccount.verificationMethod === VerificationMethods.TOTP_2FA;
 
-      await storeLinkedAccountData(linkedAccount, totpRequired);
-
-      setCurrentAccount(linkedAccount.uid);
+      accountCache.setCurrentAccount({
+        email: linkedAccount.email,
+        uid: linkedAccount.uid,
+        lastLogin: Date.now(),
+        sessionToken: linkedAccount.sessionToken,
+        verified: !totpRequired,
+        metricsEnabled: true,
+      });
 
       // HACK: Hard navigate is required here to ensure that the new integration
       // is created based off updated search params.
@@ -171,13 +159,7 @@ const ThirdPartyAuthCallback = ({
       // TODO validate what should happen here
       navigateWithQuery('/');
     }
-  }, [
-    account,
-    flowQueryParams,
-    integration,
-    navigateWithQuery,
-    storeLinkedAccountData,
-  ]);
+  }, [account, flowQueryParams, integration, navigateWithQuery]);
 
   const navigateNext = useCallback(
     async (linkedAccount: LinkedAccountData) => {
@@ -215,15 +197,20 @@ const ThirdPartyAuthCallback = ({
       return;
     }
 
-    const currentData = currentAccount() as LinkedAccountData;
+    const account = accountCache.getCurrentAccount();
     if (
       integration &&
       !isThirdPartyAuthCallbackIntegration(integration) &&
-      currentData &&
-      currentData.sessionToken
+      account?.providerUid &&
+      account?.sessionToken
     ) {
       isVerifyFxAAuth.current = true;
-      navigateNext(currentData);
+      navigateNext({
+        uid: account.uid,
+        sessionToken: account.sessionToken,
+        email: account.email,
+        providerUid: account.providerUid,
+      });
     }
   }, [integration, navigateNext]);
 

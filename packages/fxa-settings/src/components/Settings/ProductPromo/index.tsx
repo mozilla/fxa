@@ -7,8 +7,8 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import monitorTextLogo from './monitor-text-logo.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
-import { MozServices } from '../../../lib/types';
-import { AccountData, useConfig } from '../../../models';
+import { AccountData, MozServices } from '../../../lib/types';
+import { useConfig } from '../../../models';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 import { LINK } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
@@ -41,7 +41,8 @@ export function getProductPromoData(
   monitorPlusPromoEligible = false
 ) {
   const hasMonitor = attachedClients.some(
-    ({ name }) => name === MozServices.Monitor || name === MozServices.MonitorStage
+    ({ name }) =>
+      name === MozServices.Monitor || name === MozServices.MonitorStage
   );
 
   const hasMonitorPlus = subscriptions.some(

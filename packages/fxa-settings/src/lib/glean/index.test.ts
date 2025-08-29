@@ -32,10 +32,10 @@ import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
 import { Config } from '../config';
 import { WebIntegration, useAccount, WebIntegrationData } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
-import { currentAccount } from '../cache';
+import { getCurrentAccount } from '../cache/account-cache';
 
-jest.mock('../../lib/cache', () => ({
-  currentAccount: jest.fn(),
+jest.mock('../../lib/cache/account-cache', () => ({
+  getCurrentAccount: jest.fn(),
 }));
 
 const sandbox = sinon.createSandbox();
@@ -143,7 +143,7 @@ describe('lib/glean', () => {
 
   describe('disabled', () => {
     it('does not call Glean.initialize', () => {
-      (currentAccount as jest.Mock).mockReturnValue(undefined);
+      (getCurrentAccount as jest.Mock).mockReturnValue(undefined);
       const initStub = sandbox.stub(Glean, 'initialize');
       sandbox.stub(Glean, 'setUploadEnabled');
       const setEnabledSpy = sandbox.spy(GleanMetrics, 'setEnabled');
@@ -324,7 +324,7 @@ describe('lib/glean', () => {
 
     describe('hashed uid', () => {
       it('logs userId when session token exists', async () => {
-        (currentAccount as jest.Mock).mockReturnValue(mockAccount);
+        (getCurrentAccount as jest.Mock).mockReturnValue(mockAccount);
         GleanMetrics.login.success();
         // the ping submissions are await'd internally in GleanMetrics...
         await GleanMetrics.isDone();

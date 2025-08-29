@@ -29,8 +29,7 @@ import { SETTINGS_PATH } from '../../constants';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
-import { currentAccount } from '../../lib/cache';
-import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
+import { accountCache } from '../../lib/cache';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
 import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
@@ -84,15 +83,18 @@ export const Settings = ({
       }
 
       // If the current account in local storage matches the account in the
-      // apollo cache, the state is syncrhonized and no action is required.
-      if (currentAccount()?.uid === accountUidFromApolloCache) {
+      // apollo cache, the state is synchronized and no action is required.
+      if (accountCache.getCurrentAccount()?.uid === accountUidFromApolloCache) {
         return;
       }
 
       // If there is not a match, and the state exists in local storage, swap
       // the active account, so apollo cache and localstorage are in sync.
-      if (hasAccount(accountUidFromApolloCache)) {
-        setCurrentAccount(accountUidFromApolloCache);
+      const cachedApolloAccount = accountCache.findAccountByUid(
+        accountUidFromApolloCache
+      );
+      if (cachedApolloAccount != null) {
+        accountCache.setCurrentAccount(cachedApolloAccount);
         return;
       }
 
