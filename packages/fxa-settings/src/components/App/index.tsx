@@ -349,7 +349,7 @@ export const App = ({
   }
 
   // If we're on settings route but user is not signed in, redirect immediately
-  if (window.location.pathname.includes('/settings') && !isSignedIn) {
+  if (window.location.pathname?.includes('/settings') && !isSignedIn) {
     hardNavigate('/');
     return <LoadingSpinner fullScreen />;
   }
