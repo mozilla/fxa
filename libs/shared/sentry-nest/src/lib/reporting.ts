@@ -5,7 +5,7 @@ import { ApolloServerErrorCode } from '@apollo/server/errors';
 
 import { CommonPiiActions, SqsMessageFilter } from '@fxa/shared/sentry-utils';
 import { GraphQLError } from 'graphql';
-import { SQS } from 'aws-sdk';
+import { Message } from '@aws-sdk/client-sqs';
 import { Request } from 'express';
 
 export interface ExtraContext {
@@ -24,7 +24,7 @@ const sqsMessageFilter = new SqsMessageFilter([
  * @param err Error object to capture.
  * @param message SQS Message to include with error.
  */
-export function captureSqsError(err: Error, message?: SQS.Message): void {
+export function captureSqsError(err: Error, message?: Message): void {
   Sentry.withScope((scope) => {
     if (message?.Body) {
       message = sqsMessageFilter.filter(message);

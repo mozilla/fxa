@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const AWS = require('aws-sdk');
+
+
+const { SQS } = require('@aws-sdk/client-sqs');
+
 const P = require('./promise');
 
 module.exports = function (logger) {
@@ -14,7 +17,9 @@ module.exports = function (logger) {
       );
       return;
     }
-    this.sqs = new AWS.SQS({ region: region });
+    this.sqs = new SQS({
+      region: region,
+    });
     this.queueUrl = queueURL;
   }
 

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigService } from 'aws-sdk';
+import { ConfigService } from '@aws-sdk/client-config-service';
 
 import { LoggerModule } from '../logger/logger.module';
 import { MozLoggerService } from '../logger/logger.service';
