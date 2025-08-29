@@ -50,26 +50,34 @@ export class PaymentMethodManager {
       customer,
       subscriptions
     );
-    if (paymentMethodType?.type === SubPlatPaymentMethodType.Stripe) {
-      const paymentMethod = await this.retrieve(
-        paymentMethodType.paymentMethodId
-      );
-      defaultPaymentMethod = {
-        type: paymentMethod.type,
-        brand: paymentMethod.card?.brand,
-        last4: paymentMethod.card?.last4,
-        expMonth: paymentMethod.card?.exp_month,
-        expYear: paymentMethod.card?.exp_year,
-        walletType: paymentMethod.card?.wallet?.type,
-      };
-    } else if (paymentMethodType?.type === 'external_paypal') {
-      const billingAgreementId =
-        await this.paypalBillingAgreementManager.retrieveActiveId(uid);
-      defaultPaymentMethod = {
-        type: 'external_paypal',
-        brand: 'paypal',
-        billingAgreementId,
-      };
+    switch (paymentMethodType?.type) {
+      case SubPlatPaymentMethodType.Link:
+      case SubPlatPaymentMethodType.Card:
+      case SubPlatPaymentMethodType.ApplePay:
+      case SubPlatPaymentMethodType.GooglePay:
+      case SubPlatPaymentMethodType.Stripe: {
+        const paymentMethod = await this.retrieve(
+          paymentMethodType.paymentMethodId
+        );
+        defaultPaymentMethod = {
+          type: paymentMethod.type,
+          brand: paymentMethod.card?.brand,
+          last4: paymentMethod.card?.last4,
+          expMonth: paymentMethod.card?.exp_month,
+          expYear: paymentMethod.card?.exp_year,
+          walletType: paymentMethod.card?.wallet?.type,
+        };
+        break;
+      }
+      case SubPlatPaymentMethodType.PayPal:
+        const billingAgreementId =
+          await this.paypalBillingAgreementManager.retrieveActiveId(uid);
+        defaultPaymentMethod = {
+          type: 'external_paypal',
+          brand: 'paypal',
+          billingAgreementId,
+        };
+        break;
     }
     return defaultPaymentMethod;
   }
