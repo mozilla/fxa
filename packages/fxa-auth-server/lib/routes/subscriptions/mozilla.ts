@@ -14,15 +14,32 @@ import {
   appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
   playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
 } from '../../payments/iap/iap-formatter';
-import { StripeHelper } from '../../payments/stripe';
+import {
+  StripeHelper,
+  SubscriptionManagementPriceInfoError,
+} from '../../payments/stripe';
 import { AuthLogger, AuthRequest } from '../../types';
 import validators from '../validators';
 import { handleAuth } from './utils';
 import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
 import type { AppendedPlayStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/google-play/types';
 import type { AppendedAppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/types';
+import { VError } from 'verror';
 
 const DEFAULT_CURRENCY = 'usd';
+
+export class SubscriptionManagementPriceMappingError extends VError {
+  constructor(cause: Error, info: any) {
+    super(
+      {
+        name: 'SubscriptionManagementPriceMappingError',
+        cause,
+        info,
+      },
+      'Error ocurred while mapping price info.'
+    );
+  }
+}
 
 export class MozillaSubscriptionHandler {
   constructor(
@@ -152,17 +169,28 @@ export class MozillaSubscriptionHandler {
       ? stripeBillingDetailsAndSubscriptions
       : { subscriptions: [], customerCurrency: undefined };
 
-    const mozillaSubscriptions = await this.mapMozillaSubscriptions({
-      customerCurrency,
-      stripeSubscriptions,
-      iapGooglePlaySubscriptions,
-      iapAppStoreSubscriptions,
-    });
-
-    return {
-      ...billingDetails,
-      subscriptions: mozillaSubscriptions,
-    };
+    try {
+      const mozillaSubscriptions = await this.mapMozillaSubscriptions({
+        customerCurrency,
+        stripeSubscriptions,
+        iapGooglePlaySubscriptions,
+        iapAppStoreSubscriptions,
+      });
+      return {
+        ...billingDetails,
+        subscriptions: mozillaSubscriptions,
+      };
+    } catch (error) {
+      if (error instanceof SubscriptionManagementPriceInfoError) {
+        const info = VError.info(error);
+        throw new SubscriptionManagementPriceMappingError(error, {
+          ...info,
+          uid,
+        });
+      } else {
+        throw error;
+      }
+    }
   }
 
   async getPlanEligibility(request: AuthRequest) {

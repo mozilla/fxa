@@ -84,6 +84,19 @@ import { generateIdempotencyKey, roundTime } from './utils';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { reportSentryError, reportSentryMessage } from '../sentry';
 import { StripeMapperService } from '@fxa/payments/legacy';
+import { VError } from 'verror';
+
+export class SubscriptionManagementPriceInfoError extends VError {
+  constructor(message: string, priceId: string, currency: string) {
+    super(
+      {
+        name: 'SubscriptionManagementPriceInfoError',
+        info: { priceId, currency },
+      },
+      message
+    );
+  }
+}
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -2314,18 +2327,30 @@ export class StripeHelper extends StripeHelperBase {
     const price = prices.find((p) => p.id === priceId);
 
     if (!price) {
-      throw new Error('Price not found');
+      throw new SubscriptionManagementPriceInfoError(
+        'Price not found',
+        priceId,
+        currency
+      );
     }
 
     const normalizedCurrency = currency.toLowerCase();
     const currencyOption = price.currency_options?.[normalizedCurrency];
 
     if (!price.recurring) {
-      throw new Error('Only support recurring prices');
+      throw new SubscriptionManagementPriceInfoError(
+        'Only support recurring prices',
+        priceId,
+        currency
+      );
     }
 
     if (!currencyOption) {
-      throw new Error('Price does not support this currency');
+      throw new SubscriptionManagementPriceInfoError(
+        'Price does not support this currency',
+        priceId,
+        currency
+      );
     }
 
     const { unit_amount, unit_amount_decimal } = currencyOption;
@@ -2335,7 +2360,11 @@ export class StripeHelper extends StripeHelperBase {
         ? Math.round(parseFloat(unit_amount_decimal))
         : null);
     if (!amount) {
-      throw new Error('Price amount is required');
+      throw new SubscriptionManagementPriceInfoError(
+        'Price amount is required',
+        priceId,
+        currency
+      );
     }
 
     return {
