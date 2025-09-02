@@ -212,7 +212,9 @@ const SigninRecoveryCode = ({
   return (
     <AppLayout cmsInfo={cmsInfo}>
       <div className="relative flex items-center mb-5">
-        <ButtonBack cmsBackgroundColor={cmsInfo?.shared.backgroundColor} />
+        <ButtonBack
+          cmsBackground={cmsInfo?.shared.backgrounds?.defaultLayout}
+        />
         {cmsInfo?.shared.logoUrl && cmsInfo.shared.logoAltText ? (
           <img
             src={cmsInfo.shared.logoUrl}

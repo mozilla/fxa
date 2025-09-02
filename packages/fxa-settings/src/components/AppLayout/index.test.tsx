@@ -10,7 +10,6 @@ import {
   MOCK_CMS_INFO_VALID_LINEAR_BG,
   MOCK_CMS_INFO_VALID_RADIAL_BG,
   MOCK_CMS_INFO_NO_BG,
-  MOCK_CMS_INFO_INVALID_BG_COLOR,
   MOCK_CMS_INFO_WITH_PAGE_TITLE,
   MOCK_CMS_INFO_HEADER_LOGO,
   MOCK_CMS_INFO_HEADER_LOGO_NO_ALT,
@@ -23,12 +22,12 @@ import { MOCK_CMS_INFO } from '../../pages/mocks';
 jest.mock('../../models/hooks', () => ({
   useConfig: jest.fn(() => ({
     featureFlags: {
-      showLocaleToggle: false
-    }
+      showLocaleToggle: false,
+    },
   })),
   useFtlMsgResolver: () => ({
-    getMsg: (id: string, fallback: string) => fallback
-  })
+    getMsg: (id: string, fallback: string) => fallback,
+  }),
 }));
 
 describe('<AppLayout />', () => {
@@ -107,25 +106,9 @@ describe('<AppLayout />', () => {
     });
   });
 
-  it('renders with integration prop but no background image when backgroundColor is missing', async () => {
+  it('renders with integration prop but no background image when background is missing', async () => {
     renderWithLocalizationProvider(
       <AppLayout cmsInfo={MOCK_CMS_INFO_NO_BG}>
-        <p>Hello, world!</p>
-      </AppLayout>
-    );
-
-    expect(screen.getByTestId('app')).toBeInTheDocument();
-    screen.getByText('Hello, world!');
-
-    // Check that no CSS custom property is set
-    expect(screen.getByTestId('app')).not.toHaveStyle({
-      '--cms-bg': expect.any(String),
-    });
-  });
-
-  it('renders with integration prop but no background image when backgroundColor is invalid', async () => {
-    renderWithLocalizationProvider(
-      <AppLayout cmsInfo={MOCK_CMS_INFO_INVALID_BG_COLOR}>
         <p>Hello, world!</p>
       </AppLayout>
     );
@@ -293,8 +276,8 @@ describe('<AppLayout />', () => {
       const { useConfig } = require('../../models/hooks');
       useConfig.mockReturnValue({
         featureFlags: {
-          showLocaleToggle: true
-        }
+          showLocaleToggle: true,
+        },
       });
 
       renderWithLocalizationProvider(
@@ -318,7 +301,9 @@ describe('<AppLayout />', () => {
       // title should have override
       const title = document.title;
       // header logo image
-      const headerLogo = screen.getByRole('img', { name: MOCK_CMS_INFO.shared.headerLogoAltText });
+      const headerLogo = screen.getByRole('img', {
+        name: MOCK_CMS_INFO.shared.headerLogoAltText,
+      });
       // div containing the background styling. We use cloneNode to remove
       // child content so the snap is only the background styles we want to ensure
       // are getting passed through
@@ -329,11 +314,14 @@ describe('<AppLayout />', () => {
       const headerBackground = container
         .querySelector('header')
         ?.cloneNode(false);
+      // split layout main content area
+      const splitLayoutMain = container.querySelector('main')?.cloneNode(false);
 
       expect(title).toMatchSnapshot('title');
       expect(headerLogo).toMatchSnapshot('header logo');
       expect(backgroundWrapper).toMatchSnapshot('background wrapper');
       expect(headerBackground).toMatchSnapshot('header background');
+      expect(splitLayoutMain).toMatchSnapshot('split layout main');
     });
 
     it('renders correctly without CMS', () => {

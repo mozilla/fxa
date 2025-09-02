@@ -18,26 +18,26 @@ export default {
 } as Meta;
 
 interface SubjectProps {
-  cmsBackgroundColor?: string;
+  cmsBackground?: string;
   description: string;
 }
 
-const Subject = ({ cmsBackgroundColor, description }: SubjectProps) => {
-  const cmsInfo: RelierCmsInfo | undefined = cmsBackgroundColor
-    ? {
+const Subject = ({ cmsBackground, description }: SubjectProps) => {
+  const cmsInfo: RelierCmsInfo | undefined = cmsBackground
+    ? ({
         shared: {
-          backgroundColor: cmsBackgroundColor,
+          backgrounds: {
+            defaultLayout: cmsBackground,
+          },
         },
-      } as RelierCmsInfo
+      } as RelierCmsInfo)
     : undefined;
 
   return (
     <AppLayout {...{ cmsInfo }}>
       <div className="relative flex items-start p-8 min-h-[200px]">
-        <ButtonBack {...{ cmsBackgroundColor }} />
-        <HeadingPrimary>
-          {description}
-        </HeadingPrimary>
+        <ButtonBack {...{ cmsBackground }} />
+        <HeadingPrimary>{description}</HeadingPrimary>
       </div>
     </AppLayout>
   );
@@ -49,28 +49,28 @@ export const Default = () => (
 
 export const LightBackgroundDefaultArrow = () => (
   <Subject
-    cmsBackgroundColor="linear-gradient(135deg, rgba(240, 255, 250, 1) 0%, rgba(250, 245, 240, 1) 100%)"
+    cmsBackground="linear-gradient(135deg, rgba(240, 255, 250, 1) 0%, rgba(250, 245, 240, 1) 100%)"
     description="Light background - default arrow"
   />
 );
 
 export const MediumBackgroundWhiteArrow = () => (
   <Subject
-    cmsBackgroundColor={MOCK_CMS_INFO.shared.backgroundColor}
+    cmsBackground={MOCK_CMS_INFO.shared.backgrounds.defaultLayout}
     description="Light-medium gradient background - white arrow"
   />
 );
 
 export const DarkBackgroundWhiteArrow = () => (
   <Subject
-    cmsBackgroundColor="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    cmsBackground="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
     description="Dark gradient background - white arrow"
   />
 );
 
 export const MediumBackgroundDarkArrow = () => (
   <Subject
-    cmsBackgroundColor="linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)"
+    cmsBackground="linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)"
     description="Medium gradient background - dark grey arrow"
   />
 );

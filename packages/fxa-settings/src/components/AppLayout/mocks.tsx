@@ -12,7 +12,9 @@ export const MOCK_CMS_INFO_VALID_LINEAR_BG = {
     buttonColor: '#0078d4',
     logoUrl: 'https://example.com/logo.png',
     logoAltText: 'Test App Logo',
-    backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    backgrounds: {
+      defaultLayout: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    },
     pageTitle: 'Test App - Custom Title',
   },
 } as RelierCmsInfo;
@@ -25,7 +27,9 @@ export const MOCK_CMS_INFO_VALID_RADIAL_BG = {
     buttonColor: '#0078d4',
     logoUrl: 'https://example.com/logo.png',
     logoAltText: 'Test App Logo',
-    backgroundColor: 'radial-gradient(circle, #ff6b6b, #4ecdc4)',
+    backgrounds: {
+      defaultLayout: 'radial-gradient(circle, #ff6b6b, #4ecdc4)',
+    },
     pageTitle: 'Test App - Custom Title',
   },
 } as RelierCmsInfo;
@@ -50,7 +54,9 @@ export const MOCK_CMS_INFO_INVALID_BG_COLOR = {
     buttonColor: '#0078d4',
     logoUrl: 'https://example.com/logo.png',
     logoAltText: 'Test App Logo',
-    backgroundColor: 'solid-color-red',
+    backgrounds: {
+      defaultLayout: 'solid-color-red',
+    },
     pageTitle: 'Test App - Custom Title',
   },
 } as RelierCmsInfo;
@@ -124,7 +130,9 @@ export const MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS = {
     buttonColor: '#0078d4',
     logoUrl: 'https://example.com/other-logo.png',
     logoAltText: 'Other Logo',
-    backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    backgrounds: {
+      defaultLayout: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    },
     pageTitle: 'Test App - Custom Title',
   },
 } as RelierCmsInfo;
