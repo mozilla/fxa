@@ -252,10 +252,14 @@ export function useCmsInfoState() {
 
       // If l10nEnabled is false, only fetch for English locales
       // Check both browser language and user's selected locale
-      const isEnglishBrowser = navigator.language.startsWith('en');
-      const isEnglishSelected = currentLocale.startsWith('en');
+      let isEnglish = false;
+      if (currentLocale) {
+        isEnglish = currentLocale.startsWith('en');
+      } else if (navigator.language) {
+        isEnglish = navigator.language.startsWith('en');
+      }
 
-      return isEnglishBrowser || isEnglishSelected;
+      return isEnglish;
     }
 
     if (
