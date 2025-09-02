@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getCode } from '../../lib/totp';
+import { getTotpCode } from '../../lib/totp';
 import { expect, test } from '../../lib/fixtures/standard';
 import { ResetPasswordPage } from '../../pages/resetPassword';
 import { SigninPage } from '../../pages/signin';
@@ -122,7 +122,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPassword.fillOutResetPasswordCodeForm(code);
 
       // Fill out the TOTP form
-      const totpCode = await getCode(secret);
+      const totpCode = await getTotpCode(secret);
       await resetPassword.fillOutTotpForm(totpCode);
 
       await resetPassword.fillOutNewPasswordForm(newPassword);

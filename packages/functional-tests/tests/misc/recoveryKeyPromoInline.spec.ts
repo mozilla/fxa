@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-import { getCode } from '../../lib/totp';
+import { getTotpCode } from '../../lib/totp';
 
 test.describe('recovery key promo', () => {
   test.describe('inline', () => {
@@ -187,7 +187,7 @@ test.describe('recovery key promo', () => {
 
       await page.waitForURL(/signin_totp_code/);
 
-      const totpCode = await getCode(secret);
+      const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
       await inlineRecoveryKey.getInlineRecoveryHeader();
