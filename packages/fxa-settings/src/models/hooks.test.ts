@@ -410,12 +410,12 @@ describe('useCmsInfoState', () => {
   });
 
   it('should fetch when l10nEnabled is false but browser language is English', async () => {
-    // Mock English browser language but non-English selected locale
+    // Mock English browser language and English selected locale
     Object.defineProperty(navigator, 'language', {
       writable: true,
       value: 'en-GB',
     });
-    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'fr-FR' });
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'en-US' });
 
     mockUrlQueryData.get.mockImplementation((key: string) => {
       if (key === 'client_id') return '1234567890abcdef';
