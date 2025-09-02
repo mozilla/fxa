@@ -85,6 +85,7 @@ import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { reportSentryError, reportSentryMessage } from '../sentry';
 import { StripeMapperService } from '@fxa/payments/legacy';
 import { VError } from 'verror';
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 
 export class SubscriptionManagementPriceInfoError extends VError {
   constructor(message: string, priceId: string, currency: string) {
@@ -1661,16 +1662,65 @@ export class StripeHelper extends StripeHelperBase {
     );
   }
 
-  getPaymentProvider(customer: Stripe.Customer) {
+  async getPaymentProvider(
+    customer: Stripe.Customer,
+    paymentIntentId?: string
+  ): Promise<SubPlatPaymentMethodType | 'paypal' | 'not_chosen'> {
     const subscription = customer.subscriptions?.data.find((sub) =>
       ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
     );
-    if (subscription) {
-      return subscription.collection_method === 'send_invoice'
-        ? 'paypal'
-        : 'stripe';
+
+    if (!subscription) return 'not_chosen';
+
+    if (subscription.collection_method === 'send_invoice') {
+      return 'paypal';
     }
-    return 'not_chosen';
+
+    let paymentMethod: Stripe.PaymentMethod | null = null;
+
+    if (paymentIntentId) {
+      const paymentIntent =
+        await this.stripe.paymentIntents.retrieve(paymentIntentId);
+      paymentMethod = await this.getPaymentMethod(
+        paymentIntent.payment_method as string
+      );
+    } else if (typeof subscription.latest_invoice === 'string') {
+      const invoice = await this.stripe.invoices.retrieve(
+        subscription.latest_invoice
+      );
+
+      if (
+        invoice.payment_intent &&
+        typeof invoice.payment_intent === 'string'
+      ) {
+        const paymentIntent = await this.stripe.paymentIntents.retrieve(
+          invoice.payment_intent
+        );
+        if (paymentIntent.payment_method) {
+          paymentMethod = await this.getPaymentMethod(
+            paymentIntent.payment_method as string
+          );
+        }
+      }
+    }
+
+    if (paymentMethod) {
+      const walletType = paymentMethod.card?.wallet?.type;
+
+      if (walletType === 'apple_pay') {
+        return SubPlatPaymentMethodType.ApplePay;
+      } else if (walletType === 'google_pay') {
+        return SubPlatPaymentMethodType.GooglePay;
+      } else if (paymentMethod.type === 'link') {
+        return SubPlatPaymentMethodType.Link;
+      } else if (paymentMethod.type === 'card') {
+        return SubPlatPaymentMethodType.Card;
+      } else {
+        return SubPlatPaymentMethodType.Stripe;
+      }
+    }
+
+    return SubPlatPaymentMethodType.Stripe;
   }
 
   /**
@@ -2433,7 +2483,7 @@ export class StripeHelper extends StripeHelperBase {
    */
   async extractBillingDetails(customer: Stripe.Customer) {
     const defaultPayment = customer.invoice_settings.default_payment_method;
-    const paymentProvider = this.getPaymentProvider(customer);
+    const paymentProvider = await this.getPaymentProvider(customer);
 
     if (defaultPayment) {
       if (typeof defaultPayment === 'string') {
@@ -2714,7 +2764,7 @@ export class StripeHelper extends StripeHelperBase {
     }
 
     // Dig up & expand objects in the invoice that usually come as just IDs
-    const { plan } = lineItem;
+    const { amount: offeringAmountInCents, plan } = lineItem;
     if (!plan) {
       // No plan is present if this is not a subscription or proration, which
       // should never happen as we only have subscriptions.
@@ -2775,6 +2825,35 @@ export class StripeHelper extends StripeHelperBase {
       );
     }
 
+    let remainingAmountTotal: number | undefined;
+    let unusedAmountTotal = 0;
+
+    if (invoice.lines.data) {
+      const totals = invoice.lines.data.reduce(
+        (totals, line) => {
+          if (line.proration === true) {
+            const amount = line.amount || 0;
+            const description = line.description || '';
+
+            if (amount < 0 && /^Unused/i.test(description)) {
+              totals.unusedAmountTotal += amount;
+            } else if (amount > 0 && /^Remaining/i.test(description)) {
+              totals.remainingAmountTotal =
+                (totals.remainingAmountTotal ?? 0) + amount;
+            }
+          }
+          return totals;
+        },
+        {
+          remainingAmountTotal: undefined as number | undefined,
+          unusedAmountTotal: 0,
+        }
+      );
+
+      remainingAmountTotal = totals.remainingAmountTotal;
+      unusedAmountTotal = totals.unusedAmountTotal;
+    }
+
     const {
       email,
       metadata: { userid: uid },
@@ -2788,9 +2867,16 @@ export class StripeHelper extends StripeHelperBase {
       subtotal: invoiceSubtotalInCents,
       hosted_invoice_url: invoiceLink,
       tax: invoiceTaxAmountInCents,
+      total_tax_amounts: invoiceTotalTaxAmounts,
       status: invoiceStatus,
       amount_due: invoiceAmountDueInCents,
+      ending_balance: invoiceEndingBalance,
+      starting_balance: invoiceStartingBalance,
     } = invoice;
+
+    const hasExclusiveTax = invoiceTotalTaxAmounts.some(
+      (tax) => !tax.inclusive
+    );
 
     const nextInvoiceDate = lineItem.period.end;
 
@@ -2799,10 +2885,6 @@ export class StripeHelper extends StripeHelperBase {
         invoice.total_discount_amounts.length &&
         invoice.total_discount_amounts[0].amount) ||
       null;
-
-    // Only show the Subtotal when there is a Discount
-    const showSubtotal =
-      invoiceDiscountAmountInCents || discountType || discountDuration;
 
     const { id: planId, nickname: planName } = plan;
     const abbrevPlan = await this.findAbbrevPlanById(planId);
@@ -2831,7 +2913,11 @@ export class StripeHelper extends StripeHelperBase {
       charge,
     });
 
-    const payment_provider = this.getPaymentProvider(customer);
+    const paymentIntent = invoice.payment_intent as string;
+    const payment_provider = await this.getPaymentProvider(
+      customer,
+      paymentIntent
+    );
 
     return {
       uid,
@@ -2839,17 +2925,25 @@ export class StripeHelper extends StripeHelperBase {
       cardType,
       lastFour,
       payment_provider,
+      creditAppliedInCents: invoiceEndingBalance
+        ? invoiceStartingBalance - invoiceEndingBalance
+        : invoiceStartingBalance,
       invoiceAmountDueInCents,
       invoiceLink,
       invoiceNumber,
       invoiceStatus,
+      invoiceStartingBalance,
       invoiceTotalInCents,
       invoiceTotalCurrency,
-      invoiceSubtotalInCents: showSubtotal ? invoiceSubtotalInCents : null,
-      invoiceDiscountAmountInCents,
+      invoiceSubtotalInCents,
+      invoiceDiscountAmountInCents:
+        invoiceDiscountAmountInCents && -1 & invoiceDiscountAmountInCents,
       invoiceTaxAmountInCents,
       invoiceDate: new Date(invoiceDate * 1000),
       nextInvoiceDate: new Date(nextInvoiceDate * 1000),
+      offeringPriceInCents: hasExclusiveTax
+        ? abbrevPlan.amount
+        : offeringAmountInCents,
       productId,
       productName,
       planId,
@@ -2858,8 +2952,9 @@ export class StripeHelper extends StripeHelperBase {
       planSuccessActionButtonURL,
       planConfig,
       productMetadata,
-      showPaymentMethod: !!invoiceTotalInCents,
-      showTaxAmount: false, // Currently we do not want to show tax amounts in emails
+      remainingAmountTotalInCents: remainingAmountTotal,
+      showTaxAmount: hasExclusiveTax,
+      unusedAmountTotalInCents: unusedAmountTotal,
       discountType,
       discountDuration,
     };

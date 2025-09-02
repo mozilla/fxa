@@ -1,25 +1,40 @@
-subscriptionFirstInvoice-content-invoice-number-plaintext = "Invoice Number: <%- invoiceNumber %>"
-<% if (showProratedAmount) { %>
-  subscriptionSubsequentInvoice-content-plan-change = "Plan change: <%- paymentProrated %>"
+subscription-charges-invoice-summary = "Invoice Summary"
+
+subscription-charges-content-invoice-number-plaintext = "Invoice number: <%- invoiceNumber %>"
+subscription-charges-invoice-date-plaintext = "Date: <%- invoiceDateOnly %>"
+<%- include ('/partials/paymentProvider/index.txt') %>
+<% if (remainingAmountTotalInCents && offeringPriceInCents !== remainingAmountTotalInCents) { %>
+subscription-charges-prorated-price-plaintext = "Prorated price: <%- remainingAmountTotal %>"
+<% } else { %>
+subscription-charges-list-price-plaintext = "List price: <%- offeringPrice %>"
 <% } %>
-<% if (invoiceSubtotal) { %>
-  subscriptionFirstInvoiceDiscount-content-subtotal = "Subtotal: <%- invoiceSubtotal %>"
+<% if (!!unusedAmountTotalInCents) { %>
+subscription-charges-credit-from-unused-time-plaintext = "Credit from unused time: <%- unusedAmountTotal %>"
+<% if (invoiceSubtotalInCents !== invoiceTotalInCents) { %>
+subscriptionFirstInvoiceDiscount-content-subtotal = "Subtotal: <%- invoiceSubtotal %>"
+<% } %>
+<% } %>
+<% if (discountType && invoiceDiscountAmount) { %>
+<% if (discountType === 'once') { %>
+  subscription-charges-one-time-discount-plaintext = "One-time discount: <%- invoiceDiscountAmount %>"
+<% } %>
+<% if (discountType === 'repeating') { %>
+  subscription-charges-repeating-discount-plaintext = "<%discountDuration%>-month discount: <%- invoiceDiscountAmount %>"
+<% } %>
+<% if (discountType === 'forever') { %>
+  subscription-charges-discount-plaintext = "Discount: <%- invoiceDiscountAmount %>"
+<% } %>
 <% } %>
 <% if (showTaxAmount) { %>
   subscriptionCharges-content-tax = "Taxes & fees: <%- invoiceTaxAmount %>"
 <% } %>
-<% if (discountType && invoiceDiscountAmount) { %>
-<% if (discountType === 'once') { %>
-  subscriptionFirstInvoiceDiscount-content-discount-one-time = "One time Discount: -<%- invoiceDiscountAmount %>"
+<% if (invoiceTotalInCents !== invoiceAmountDueInCents) { %>
+subscription-charges-total-plaintext = "Total: <%- invoiceTotal %>"
 <% } %>
-<% if (discountType === 'repeating') { %>
-  subscriptionFirstInvoiceDiscount-content-discount-repeating = "<%discountDuration%>-month Discount: -<%- invoiceDiscountAmount %>"
+<% if (!!creditAppliedInCents && invoiceStartingBalance < 0) { %>
+subscription-charges-credit-applied-plaintext = "Credit applied: <%- creditApplied %>"
 <% } %>
-<% if (discountType === 'forever') { %>
-  subscriptionFirstInvoiceDiscount-content-discount = "Discount: -<%- invoiceDiscountAmount %>"
-<% } %>
-<% } %>
-subscriptionFirstInvoice-content-total-due = "Charged <%- invoiceAmountDue %> on <%- invoiceDateOnly %>"
+subscription-charges-amount-paid-plaintext = "Amount paid: <%- invoiceAmountDue %>"
 <% if (locals.invoiceTotalInCents < 0) { %>
-subscriptionFirstInvoice-content-credit = "You have received an account credit of <%- invoiceTotal %>, which will be applied to your future invoices."
+subscription-charges-credit-received = "You have received an account credit of <%- invoiceTotal %>, which will be applied to your future invoices."
 <% } %>
