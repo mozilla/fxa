@@ -56,7 +56,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
           RECOVERY_CODE_COUNT
         );
 
-        recordSecurityEvent('account.recovery_codes_replaced', {
+        await recordSecurityEvent('account.recovery_codes_replaced', {
           db,
           request,
         });
@@ -124,7 +124,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
 
         // no email notification, notice about codes will be included in postAddTwoStepAuthentication email
 
-        recordSecurityEvent('account.recovery_codes_set', {
+        await recordSecurityEvent('account.recovery_codes_set', {
           db,
           request,
           account,
@@ -184,7 +184,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
           uid,
         });
 
-        recordSecurityEvent('account.recovery_codes_created', {
+        await recordSecurityEvent('account.recovery_codes_created', {
           db,
           request,
           account,
@@ -321,7 +321,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         await request.emitMetricsEvent('account.confirmed', { uid });
         glean.login.recoveryCodeSuccess(request, { uid });
 
-        recordSecurityEvent('account.recovery_codes_signin_complete', {
+        await recordSecurityEvent('account.recovery_codes_signin_complete', {
           db,
           request,
           account,

@@ -108,12 +108,12 @@ module.exports = (
 
           if (enabled) {
             await request.emitMetricsEvent('recoveryKey.created', { uid });
-            recordSecurityEvent('account.recovery_key_added', {
+            await recordSecurityEvent('account.recovery_key_added', {
               db,
               request,
               account: { uid },
             });
-            sendKeyCreationEmail();
+            await sendKeyCreationEmail();
           }
         }
 
@@ -121,23 +121,23 @@ module.exports = (
           log.info('account.recoveryKey.changed', { uid });
           if (enabled) {
             await request.emitMetricsEvent('recoveryKey.changed', { uid });
-            recordSecurityEvent('account.recovery_key_removed', {
+            await recordSecurityEvent('account.recovery_key_removed', {
               db,
               request,
             });
-            recordSecurityEvent('account.recovery_key_added', {
+            await recordSecurityEvent('account.recovery_key_added', {
               db,
               request,
               account: { uid },
             });
-            sendKeyChangeEmail();
+            await sendKeyChangeEmail();
           }
         }
 
         async function attemptKeyChange() {
           await db.deleteRecoveryKey(uid);
           await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, enabled);
-          postKeyChange();
+          await postKeyChange();
         }
 
         try {
@@ -162,7 +162,7 @@ module.exports = (
               recoveryData,
               enabled
             );
-            postKeyCreation();
+            await postKeyCreation();
           }
         } catch (err) {
           // `recoveryKeyExists` will return true if and only if there is an *enabled* recovery
@@ -251,13 +251,13 @@ module.exports = (
               emailOptions
             );
           }
-          recordSecurityEvent('account.recovery_key_challenge_success', {
+          await recordSecurityEvent('account.recovery_key_challenge_success', {
             db,
             request,
             account: { uid },
           });
         } catch (err) {
-          recordSecurityEvent('account.recovery_key_challenge_failure', {
+          await recordSecurityEvent('account.recovery_key_challenge_failure', {
             db,
             request,
             account: { uid },
@@ -328,9 +328,8 @@ module.exports = (
         log.begin('recoveryKeyExists', request);
 
         const uid = request.auth.credentials.uid;
-        const recoveryKeyRecordWithHint = await db.getRecoveryKeyRecordWithHint(
-          uid
-        );
+        const recoveryKeyRecordWithHint =
+          await db.getRecoveryKeyRecordWithHint(uid);
 
         // We try our best to estimate the number of Sync devices that could be impacted by using a recovery key.
         // It is an estimate because we currently can't query the Sync service to get the actual number of items
@@ -409,7 +408,10 @@ module.exports = (
         }
 
         await db.deleteRecoveryKey(uid);
-        recordSecurityEvent('account.recovery_key_removed', { db, request });
+        await recordSecurityEvent('account.recovery_key_removed', {
+          db,
+          request,
+        });
 
         const account = await db.account(uid);
 
