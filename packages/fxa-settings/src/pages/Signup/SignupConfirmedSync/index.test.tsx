@@ -10,6 +10,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { createMockIntegration, Subject } from './mocks';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { firefox } from '../../../lib/channels/firefox';
+import { RelierCmsInfo } from '../../../models';
 
 function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
@@ -97,5 +98,24 @@ describe('SignupConfirmedSync', () => {
     expect(
       screen.getByRole('heading', { name: 'Sync is turned on' })
     ).toBeInTheDocument();
+  });
+
+  it('uses the CMS image if url and alt text exist', () => {
+    const cmsInfo = {
+      shared: { buttonColor: '#333' },
+      SignupConfirmedSyncPage: {
+        primaryImage: {
+          url: 'https://example.com/sync.png',
+          altText: 'sync is on',
+        },
+      },
+    } as unknown as RelierCmsInfo;
+
+    renderWithLocalizationProvider(
+      <Subject integration={createMockIntegration({ cmsInfo })} />
+    );
+
+    const cmsImg = screen.getByRole('img', { name: 'sync is on' });
+    expect(cmsImg).toHaveAttribute('src', 'https://example.com/sync.png');
   });
 });

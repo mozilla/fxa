@@ -59,6 +59,10 @@ export const relyingPartyQuery = graphql(`
         description
         primaryButtonText
         pageTitle
+        primaryImage {
+          url
+          altText
+        }
       }
       SigninPage {
         headline

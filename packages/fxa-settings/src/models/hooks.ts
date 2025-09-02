@@ -29,7 +29,11 @@ import {
   MetricsDataResult,
   SignedInAccountStatus,
 } from '../components/App/interfaces';
-import { RelierClientInfo, RelierSubscriptionInfo, RelierCmsInfo } from './integrations';
+import {
+  RelierClientInfo,
+  RelierSubscriptionInfo,
+  RelierCmsInfo,
+} from './integrations';
 import { NimbusResult } from '../lib/nimbus';
 import * as Sentry from '@sentry/browser';
 import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
@@ -93,7 +97,11 @@ export function useIntegration() {
 
   return useMemo(() => {
     // If we are still loading data, just return an null integration
-    if (clientInfoState.loading || productInfoState.loading || cmsInfoState.loading) {
+    if (
+      clientInfoState.loading ||
+      productInfoState.loading ||
+      cmsInfoState.loading
+    ) {
       return null;
     }
 
@@ -284,7 +292,9 @@ export function useCmsInfoState() {
         if (response.ok) {
           config = await response.json();
         } else {
-          Sentry.captureMessage(`Failure to parse CMS config for clientId ${clientId} and entrypoint ${entrypoint}`);
+          Sentry.captureMessage(
+            `Failure to parse CMS config for clientId ${clientId} and entrypoint ${entrypoint}`
+          );
         }
 
         if (mounted) {
@@ -295,7 +305,9 @@ export function useCmsInfoState() {
           });
         }
       } catch (error) {
-        Sentry.captureMessage(`Failure to fetch CMS config for clientId ${clientId} and entrypoint ${entrypoint}`);
+        Sentry.captureMessage(
+          `Failure to fetch CMS config for clientId ${clientId} and entrypoint ${entrypoint}`
+        );
 
         if (mounted) {
           setState({
@@ -312,7 +324,14 @@ export function useCmsInfoState() {
     return () => {
       mounted = false;
     };
-  }, [authUrl, clientId, entrypoint, config.cms.enabled, config.cms?.l10nEnabled, currentLocale]);
+  }, [
+    authUrl,
+    clientId,
+    entrypoint,
+    config.cms.enabled,
+    config.cms?.l10nEnabled,
+    currentLocale,
+  ]);
 
   return state;
 }
