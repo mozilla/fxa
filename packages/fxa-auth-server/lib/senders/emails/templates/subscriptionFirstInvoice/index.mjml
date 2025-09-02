@@ -10,19 +10,19 @@
       <span data-l10n-id="subscriptionFirstInvoice-title" data-l10n-args="<%= JSON.stringify({productName}) %>">Thank you for subscribing to <%- productName %></span>
     </mj-text>
 
-    <mj-text css-class="text-body">
+    <mj-text css-class="text-body-mb-4">
       <span data-l10n-id="subscriptionFirstInvoice-content-processing">
         Your payment is currently processing and may take up to four business days to complete.
       </span>
     </mj-text>
 
-    <mj-text css-class="text-body">
+    <mj-text css-class="text-body-mb-4">
       <span data-l10n-id="subscriptionFirstInvoice-content-install-2" data-l10n-args="<%= JSON.stringify({productName}) %>">
         You will receive a separate email on how to start using <%- productName %>.
       </span>
     </mj-text>
 
-    <mj-text css-class="text-body">
+    <mj-text css-class="text-body-no-bottom-margin">
       <span data-l10n-id="subscriptionFirstInvoice-content-auto-renew">
         Your subscription will automatically renew each billing period unless you choose to cancel.
       </span>
@@ -30,14 +30,13 @@
 
     <%- include ('/partials/subscriptionCharges/index.mjml') %>
     <%- include ('/partials/viewInvoice/index.mjml') %>
-    <%- include ('/partials/paymentProvider/index.mjml') %>
 
-    <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionFirstInvoice-content-next-invoice" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">
-        Next Invoice: <%- nextInvoiceDateOnly %>
+    <mj-text align="center" css-class="text-body-top-margin text-body-no-bottom-margin">
+      <span data-l10n-id="subscriptionFirstInvoice-content-your-next-invoice" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">
+        Your next invoice will be issued on <%- nextInvoiceDateOnly %>.
       </span>
     </mj-text>
   </mj-column>
 </mj-section>
 
-<%- include ('/partials/subscriptionSupport/index.mjml') %>
+<%- include ('/partials/subscriptionSupportGetHelp/index.mjml') %>

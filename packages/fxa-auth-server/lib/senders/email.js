@@ -283,7 +283,6 @@ module.exports = function (log, config, bounces, statsd) {
     mastercard: 'Mastercard',
     unionpay: 'UnionPay',
     visa: 'Visa',
-    unknown: 'Unknown',
   };
 
   function cardTypeToText(cardType) {
@@ -294,6 +293,88 @@ module.exports = function (log, config, bounces, statsd) {
       CARD_TYPE_TO_TEXT[cardType.toLowerCase()] || CARD_TYPE_TO_TEXT.unknown
     );
   }
+
+  const getPaymentMethodContent = (paymentProvider, cardType, lastFour) => {
+    if (paymentProvider === 'paypal') {
+      return {
+        l10nId: 'payment-method-paypal-1',
+        l10nArgs: null,
+        message: 'Payment Method: PayPal',
+      };
+    } else if (paymentProvider === 'apple_pay') {
+      return {
+        l10nId: 'payment-method-apple-pay',
+        l10nArgs: null,
+        message: 'Payment Method: Apple Pay',
+      };
+    } else if (paymentProvider === 'google_pay') {
+      return {
+        l10nId: 'payment-method-google-pay',
+        l10nArgs: null,
+        message: 'Payment Method: Google Pay',
+      };
+    } else if (paymentProvider === 'link') {
+      return {
+        l10nId: 'payment-method-link',
+        l10nArgs: null,
+        message: 'Payment Method: Link',
+      };
+    } else {
+      if (cardType && lastFour) {
+        switch (cardType) {
+          case 'amex':
+            return {
+              l10nId: 'payment-provider-card-ending-in-amex',
+              l10nArgs: JSON.stringify({ lastFour }),
+              message: `Payment method: American Express ending in ${lastFour}`,
+            };
+          case 'diners':
+            return {
+              l10nId: 'payment-provider-card-ending-in-diners',
+              l10nArgs: JSON.stringify({ lastFour }),
+              message: `Payment method: Diners Club ending in ${lastFour}`,
+            };
+          case 'discover':
+            return {
+              l10nId: 'payment-provider-card-ending-in-discover',
+              l10nArgs: JSON.stringify({ lastFour }),
+              message: `Payment method: Discover ending in ${lastFour}`,
+            };
+          case 'jcb':
+            return {
+              l10nId: 'payment-provider-card-ending-in-jcb',
+              l10nArgs: JSON.stringify({ lastFour }),
+              message: `Payment method: JCB ending in ${lastFour}`,
+            };
+          case 'mastercard':
+            return {
+              l10nId: 'payment-provider-card-ending-in-mastercard',
+              l10nArgs: JSON.stringify({ lastFour }),
+              message: `Payment method: Mastercard ending in ${lastFour}`,
+            };
+          case 'unionpay':
+            return {
+              l10nId: 'payment-provider-card-ending-in-unionpay',
+              l10nArgs: JSON.stringify({ lastFour }),
+              message: `Payment method: UnionPay ending in ${lastFour}`,
+            };
+          case 'visa':
+            return {
+              l10nId: 'payment-provider-card-ending-in-visa',
+              l10nArgs: JSON.stringify({ lastFour }),
+              message: `Payment method: Visa ending in ${lastFour}`,
+            };
+          default:
+            return {
+              l10nId: 'payment-provider-card-ending-in',
+              l10nArgs: JSON.stringify({ lastFour }),
+              message: `Payment method: Card ending in ${lastFour}`,
+            };
+        }
+      }
+    }
+    return null;
+  };
 
   function Mailer(mailerConfig, sender) {
     let options = {
@@ -2619,6 +2700,7 @@ module.exports = function (log, config, bounces, statsd) {
         ...links,
         uid,
         email,
+        invoiceAmountDueInCents,
         invoiceAmountDue: this._getLocalizedCurrencyString(
           invoiceAmountDueInCents,
           paymentAmountNewCurrency,
@@ -3158,23 +3240,27 @@ module.exports = function (log, config, bounces, statsd) {
       planId,
       planEmailIconURL,
       productName,
+      creditAppliedInCents,
       invoiceLink,
       invoiceAmountDueInCents,
       invoiceNumber,
       invoiceDate,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      invoiceStartingBalance,
       invoiceSubtotalInCents,
       invoiceDiscountAmountInCents,
       invoiceTaxAmountInCents,
+      offeringPriceInCents,
       cardType,
       lastFour,
       nextInvoiceDate,
       payment_provider,
       paymentProratedInCents,
       paymentProratedCurrency,
-      showPaymentMethod,
+      remainingAmountInCents,
       showTaxAmount,
+      unusedAmountTotalInCents,
       discountType,
       discountDuration,
     } = message;
@@ -3205,6 +3291,13 @@ module.exports = function (log, config, bounces, statsd) {
         message.acceptLanguage
       );
     }
+    const paymentMethodContent = getPaymentMethodContent(
+      payment_provider,
+      cardType,
+      lastFour
+    );
+
+    const knownCard = Object.keys(CARD_TYPE_TO_TEXT).includes(cardType);
 
     return this.send({
       ...message,
@@ -3213,8 +3306,22 @@ module.exports = function (log, config, bounces, statsd) {
       template,
       templateValues: {
         ...links,
+        manageSubscriptionUrl: links.manageSubscriptionUrl,
         uid,
         email,
+        creditApplied: this._getLocalizedCurrencyString(
+          creditAppliedInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        creditAppliedInCents,
+        creditReceived:
+          invoiceTotalInCents < 0 &&
+          this._getLocalizedCurrencyString(
+            -1 * invoiceTotalInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
         invoiceAmountDue: this._getLocalizedCurrencyString(
           invoiceAmountDueInCents,
           invoiceTotalCurrency,
@@ -3224,24 +3331,28 @@ module.exports = function (log, config, bounces, statsd) {
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          invoiceDate
+          invoiceDate,
+          'LL'
         ),
         nextInvoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          nextInvoiceDate
+          nextInvoiceDate,
+          'LL'
         ),
         icon: planEmailIconURL,
         productName,
         invoiceLink,
         invoiceNumber,
         invoiceDate,
+        invoiceStartingBalance,
         invoiceTotalInCents,
         invoiceTotal: this._getLocalizedCurrencyString(
-          Math.abs(invoiceTotalInCents),
+          invoiceTotalInCents,
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        invoiceSubtotalInCents,
         invoiceSubtotal:
           invoiceSubtotalInCents &&
           this._getLocalizedCurrencyString(
@@ -3264,16 +3375,39 @@ module.exports = function (log, config, bounces, statsd) {
             message.acceptLanguage
           ),
         payment_provider,
-        cardType,
-        cardName: cardTypeToText(cardType),
+        cardName: knownCard ? cardTypeToText(cardType) : undefined,
         lastFour,
         nextInvoiceDate,
         paymentProrated,
         showProratedAmount,
-        showPaymentMethod,
         showTaxAmount,
         discountType,
         discountDuration,
+        offeringPrice:
+          offeringPriceInCents &&
+          this._getLocalizedCurrencyString(
+            offeringPriceInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        offeringPriceInCents,
+        paymentMethod: paymentMethodContent && {
+          l10nId: paymentMethodContent.l10nId,
+          l10nArgs: paymentMethodContent.l10nArgs,
+          message: paymentMethodContent.message,
+        },
+        remainingAmountTotal:
+          remainingAmountInCents &&
+          this._getLocalizedCurrencyString(
+            remainingAmountInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        unusedAmountTotal: this._getLocalizedCurrencyString(
+          unusedAmountTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
       },
     });
   };
@@ -3286,21 +3420,25 @@ module.exports = function (log, config, bounces, statsd) {
       planId,
       planEmailIconURL,
       productName,
+      creditAppliedInCents,
       invoiceAmountDueInCents,
       invoiceNumber,
       invoiceDate,
       invoiceLink,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      invoiceStartingBalance,
       invoiceSubtotalInCents,
       invoiceDiscountAmountInCents,
       invoiceTaxAmountInCents,
+      offeringPriceInCents,
       payment_provider,
       cardType,
       lastFour,
       nextInvoiceDate,
-      showPaymentMethod,
+      remainingAmountInCents,
       showTaxAmount,
+      unusedAmountTotalInCents,
       discountType,
       discountDuration,
     } = message;
@@ -3320,6 +3458,13 @@ module.exports = function (log, config, bounces, statsd) {
     const template = 'subscriptionFirstInvoice';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
+    const paymentMethodContent = getPaymentMethodContent(
+      payment_provider,
+      cardType,
+      lastFour
+    );
+    const knownCard = Object.keys(CARD_TYPE_TO_TEXT).includes(cardType);
+
     return this.send({
       ...message,
       headers,
@@ -3327,8 +3472,22 @@ module.exports = function (log, config, bounces, statsd) {
       template,
       templateValues: {
         ...links,
+        manageSubscriptionUrl: links.manageSubscriptionUrl,
         uid,
         email,
+        creditApplied: this._getLocalizedCurrencyString(
+          creditAppliedInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        creditAppliedInCents,
+        creditReceived:
+          invoiceTotalInCents < 0 &&
+          this._getLocalizedCurrencyString(
+            -1 * invoiceTotalInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
         invoiceAmountDue: this._getLocalizedCurrencyString(
           invoiceAmountDueInCents,
           invoiceTotalCurrency,
@@ -3337,12 +3496,14 @@ module.exports = function (log, config, bounces, statsd) {
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          invoiceDate
+          invoiceDate,
+          'LL'
         ),
         nextInvoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          nextInvoiceDate
+          nextInvoiceDate,
+          'LL'
         ),
         icon: planEmailIconURL,
         productName,
@@ -3354,6 +3515,7 @@ module.exports = function (log, config, bounces, statsd) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        invoiceSubtotalInCents,
         invoiceSubtotal:
           invoiceSubtotalInCents &&
           this._getLocalizedCurrencyString(
@@ -3375,16 +3537,40 @@ module.exports = function (log, config, bounces, statsd) {
             invoiceTotalCurrency,
             message.acceptLanguage
           ),
+        invoiceStartingBalance,
         payment_provider,
-        cardType,
-        cardName: cardTypeToText(cardType),
+        cardName: knownCard ? cardTypeToText(cardType) : undefined,
         lastFour,
         nextInvoiceDate,
-        showPaymentMethod,
-        showTaxAmount,
         showProratedAmount: false,
+        showTaxAmount,
         discountType,
         discountDuration,
+        offeringPrice:
+          offeringPriceInCents &&
+          this._getLocalizedCurrencyString(
+            offeringPriceInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        offeringPriceInCents,
+        paymentMethod: paymentMethodContent && {
+          l10nId: paymentMethodContent.l10nId,
+          l10nArgs: paymentMethodContent.l10nArgs,
+          message: paymentMethodContent.message,
+        },
+        remainingAmountTotal:
+          remainingAmountInCents &&
+          this._getLocalizedCurrencyString(
+            remainingAmountInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        unusedAmountTotal: this._getLocalizedCurrencyString(
+          unusedAmountTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
       },
     });
   };
@@ -3809,6 +3995,12 @@ module.exports = function (log, config, bounces, statsd) {
       { ...query, email, uid },
       templateName,
       'cancel-subscription'
+    );
+    links.manageSubscriptionUrl = this._generateUTMLink(
+      this.subscriptionSettingsUrl,
+      { ...query, email, uid },
+      templateName,
+      'manage-subscription'
     );
     links.reactivateSubscriptionUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,

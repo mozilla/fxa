@@ -10,8 +10,7 @@ subscriptionFirstInvoice-content-auto-renew = "Your subscription will automatica
 
 <%- include ('/partials/subscriptionCharges/index.txt') %>
 <%- include ('/partials/viewInvoice/index.txt') %>
-<%- include ('/partials/paymentProvider/index.txt') %>
 
-subscriptionFirstInvoice-content-next-invoice = "Next Invoice: <%- nextInvoiceDateOnly %>"
+subscriptionFirstInvoice-content-your-next-invoice = "Your next invoice will be issued on <%- nextInvoiceDateOnly %>."
 
-<%- include ('/partials/subscriptionSupport/index.txt') %>
+<%- include ('/partials/subscriptionSupportGetHelp/index.txt') %>
