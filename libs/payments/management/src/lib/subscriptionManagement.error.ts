@@ -75,6 +75,56 @@ export class SetDefaultPaymentAccountCustomerMissingStripeId extends Subscriptio
   }
 }
 
+export class CreateBillingAgreementActiveBillingAgreement extends SubscriptionManagementError {
+  constructor(uid: string) {
+    super(
+      'Account already has an active paypal billing agreement',
+      { uid }
+    );
+    this.name = 'CreateBillingAgreementActiveBillingAgreement';
+  }
+}
+
+export class CreateBillingAgreementAccountCustomerMissingStripeId extends SubscriptionManagementError {
+  constructor(uid: string) {
+    super(
+      'AccountCustomer for updating default payment method is missing a Stripe customer id',
+      { uid }
+    );
+    this.name = 'CreateBillingAgreementAccountCustomerMissingStripeId';
+  }
+}
+
+export class CreateBillingAgreementCurrencyNotFound extends SubscriptionManagementError {
+  constructor(uid: string) {
+    super(
+      'Currency could not be found for account',
+      { uid }
+    );
+    this.name = 'CreateBillingAgreementCurrencyNotFound';
+  }
+}
+
+export class CreateBillingAgreementPaypalSubscriptionNotFound extends SubscriptionManagementError {
+  constructor(uid: string) {
+    super(
+      'No PayPal subscription found when creating billing agreement',
+      { uid }
+    );
+    this.name = 'CreateBillingAgreementPaypalSubscriptionNotFound';
+  }
+}
+
+export class CreateBillingAgreementSetupFailed extends SubscriptionManagementError {
+  constructor(uid: string, causes: any[]) {
+    super('One or more calls failed while creating a billing agreement', {
+      uid,
+      causes,
+    });
+    this.name = 'CreateBillingAgreementSetupFailed';
+  }
+}
+
 export class SetupIntentInvalidStatusError extends SubscriptionManagementError {
   constructor(setupIntentId?: string, status?: string) {
     super('ConfirmationToken failed to create successful SetupIntent', {
