@@ -1590,7 +1590,7 @@ const convictConf = convict({
     ipProfiling: {
       allowedRecency: {
         doc: 'Length of time since previously verified event to allow skipping confirmation',
-        default: '72 hours',
+        default: '7 days',
         format: 'duration',
         env: 'IP_PROFILING_RECENCY',
       },
