@@ -4,18 +4,22 @@
 
 import React from 'react';
 import classNames from 'classnames';
-import { hasSufficientContrast } from 'fxa-react/lib/calculate-contrast';
+import {
+  hasSufficientContrast,
+  TEXT_COLORS,
+} from 'fxa-react/lib/calculate-contrast';
 
 export type CmsButtonType = {
   color?: string;
   text?: string;
-}
+};
 
 /**
  * Props for the CmsButtonWithFallback component.
  * Extends all standard HTML button attributes.
  */
-interface CmsButtonWithFallbackProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface CmsButtonWithFallbackProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * The color to use for CMS styling. When provided, the button will use
    * CMS-specific classes and CSS custom properties for styling.
@@ -73,35 +77,63 @@ const CmsButtonWithFallback: React.FC<CmsButtonWithFallbackProps> = ({
   className = '',
   style,
   children,
+  disabled,
   ...rest
 }) => {
-  // Determine if this should be a CMS button based on buttonColor presence
-  const isCms = Boolean(buttonColor);
+  // Determine the default color of a disabled button
+  const disabledButtonColor = buttonColor ? `${buttonColor}60` : undefined;
 
-  // Apply CMS-specific styles if buttonColor is provided
-  const cmsStyles = isCms
-    ? ({
+  // Determines whether to use a dark or light text color depending on contrast
+  const getTextColor = () => {
+    const { r, g, b } = TEXT_COLORS['text-grey-600'];
+    const defaultTextColor = '#ffffff';
+
+    if (
+      disabled &&
+      disabledButtonColor &&
+      !hasSufficientContrast(disabledButtonColor, defaultTextColor)
+    ) {
+      return { color: `rgb(${r} ${g} ${b} / .5)` };
+    }
+
+    if (
+      !disabled &&
+      buttonColor &&
+      !hasSufficientContrast(buttonColor, defaultTextColor)
+    ) {
+      return { color: `rgb(${r} ${g} ${b} / var(--tw-text-opacity, 1))` };
+    }
+
+    return {};
+  };
+
+  // Determines the styles to apply based on isCms state
+  const getStyle = () => {
+    if (buttonColor) {
+      return {
         '--cta-bg': buttonColor,
         '--cta-border': buttonColor,
         '--cta-active': buttonColor,
-        '--cta-disabled': `${buttonColor}60`,
-        ...style,
-      } as any)
-    : style || {};
+        '--cta-disabled': disabledButtonColor,
+        ...getTextColor(),
+        ...(style || {}),
+      };
+    }
+    return style;
+  };
+
+  // Determines which classnames to apply
+  const getClassName = () => {
+    return buttonColor
+      ? classNames('cta-primary-cms', 'cta-xl', className)
+      : classNames('cta-primary', 'cta-xl', className);
+  };
 
   return (
     <button
-      className={classNames(
-        isCms ? 'cta-primary-cms' : 'cta-primary',
-        'cta-xl',
-        {
-          // add a text-shadow if the CMS background color does not meet color contrast
-          // standards, as our CTA button text is always white
-          'text-shadow-cms': isCms && buttonColor && !hasSufficientContrast(buttonColor.trim(), '#ffffff'),
-        },
-        className
-      )}
-      style={cmsStyles}
+      className={getClassName()}
+      style={getStyle()}
+      disabled={disabled}
       {...rest}
     >
       {buttonText || children || 'Continue'}
