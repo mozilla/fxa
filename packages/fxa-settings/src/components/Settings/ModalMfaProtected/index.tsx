@@ -69,7 +69,9 @@ export const ModalMfaProtected = ({
           </h2>
         </FtlMsg>
         <FtlMsg id="modal-mfa-protected-subtitle">
-          <p className="text-base mt-1">Help us make sure it’s you changing your account info</p>
+          <p className="text-base mt-1">
+            Help us make sure it’s you changing your account info
+          </p>
         </FtlMsg>
         {showResendSuccessBanner && <ResendCodeSuccessBanner />}
 
@@ -83,7 +85,9 @@ export const ModalMfaProtected = ({
           }}
         >
           <p id="modal-mfa-protected-desc" className="my-6">
-            Enter the code that was sent to <span className="font-bold">{email}</span> within {expirationTime === 1 ? '1 minute' : `${expirationTime} minutes`}.
+            Enter the code that was sent to{' '}
+            <span className="font-bold">{email}</span> within{' '}
+            {expirationTime === 1 ? '1 minute' : `${expirationTime} minutes`}.
           </p>
         </FtlMsg>
 
