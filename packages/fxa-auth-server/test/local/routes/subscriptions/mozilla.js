@@ -152,6 +152,11 @@ const db = mocks.mockDB({
   locale: ACCOUNT_LOCALE,
 });
 const customs = mocks.mockCustoms();
+const mockConfig = {
+  subscriptions: {
+    billingPriceInfoFeature: true,
+  },
+};
 let stripeHelper;
 let capabilityService;
 
@@ -170,6 +175,7 @@ async function runTest(routePath, routeDependencies = {}) {
     log,
     db,
     customs,
+    config: mockConfig,
     stripeHelper,
     capabilityService,
     playSubscriptions,
@@ -229,6 +235,42 @@ describe('mozilla-subscriptions', () => {
           {
             ...mockAppStoreSubscription,
             priceInfo: mockSubscriptionManagementPriceInfo,
+          },
+        ],
+      });
+      assert.equal(
+        iapFormatterSpy.playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO
+          .callCount,
+        1
+      );
+      assert.equal(
+        iapFormatterSpy.appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO
+          .callCount,
+        1
+      );
+    });
+
+    it('gets customer billing details and Stripe, Google Play, and App Store subscriptions without priceInfo', async () => {
+      const resp = await runTest(
+        '/oauth/mozilla-subscriptions/customer/billing-and-subscriptions',
+        {
+          config: { subscriptions: { billingPriceInfoFeature: false } },
+        }
+      );
+      assert.deepEqual(resp, {
+        ...expectedBillingDetails,
+        subscriptions: [
+          {
+            ...mockSubscription,
+            priceInfo: undefined,
+          },
+          {
+            ...mockGooglePlaySubscription,
+            priceInfo: undefined,
+          },
+          {
+            ...mockAppStoreSubscription,
+            priceInfo: undefined,
           },
         ],
       });

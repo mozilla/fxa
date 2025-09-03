@@ -25,6 +25,7 @@ import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
 import type { AppendedPlayStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/google-play/types';
 import type { AppendedAppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/types';
 import { VError } from 'verror';
+import type { ConfigType } from '../../../config';
 
 const DEFAULT_CURRENCY = 'usd';
 
@@ -45,6 +46,7 @@ export class MozillaSubscriptionHandler {
   constructor(
     protected log: AuthLogger,
     protected db: any,
+    protected config: ConfigType,
     protected customs: any,
     protected stripeHelper: StripeHelper,
     protected playSubscriptions: PlaySubscriptions,
@@ -63,50 +65,62 @@ export class MozillaSubscriptionHandler {
     iapGooglePlaySubscriptions: AppendedPlayStoreSubscriptionPurchase[];
     iapAppStoreSubscriptions: AppendedAppStoreSubscriptionPurchase[];
   }) {
-    const stripePromises =
-      stripeSubscriptions?.map(async (sub) => {
-        if (!customerCurrency) {
-          throw new Error('Customer currency required');
-        }
+    let subsPriceInfo: {
+      priceId: string;
+      priceInfo: {
+        amount: number;
+        currency: string;
+        interval: string;
+        interval_count: number;
+      };
+    }[] = [];
 
-        return this.stripeHelper
-          .getSubscriptionManagementPriceInfo(sub.plan_id, customerCurrency)
-          .then((priceInfo) => ({
-            priceId: sub.plan_id,
-            priceInfo,
-          }));
-      }) || [];
+    if (this.config.subscriptions.billingPriceInfoFeature) {
+      const stripePromises =
+        stripeSubscriptions?.map(async (sub) => {
+          if (!customerCurrency) {
+            throw new Error('Customer currency required');
+          }
 
-    const googleIapSubsPromises =
-      iapGooglePlaySubscriptions?.map((sub) =>
-        this.stripeHelper
-          .getSubscriptionManagementPriceInfo(
-            sub.price_id,
-            sub.priceCurrencyCode || DEFAULT_CURRENCY
-          )
-          .then((priceInfo) => ({
-            priceId: sub.price_id,
-            priceInfo: priceInfo,
-          }))
-      ) || [];
-    const appleIapSubsPromises =
-      iapAppStoreSubscriptions?.map((sub) =>
-        this.stripeHelper
-          .getSubscriptionManagementPriceInfo(
-            sub.price_id,
-            sub.currency || DEFAULT_CURRENCY
-          )
-          .then((priceInfo) => ({
-            priceId: sub.price_id,
-            priceInfo: priceInfo,
-          }))
-      ) || [];
+          return this.stripeHelper
+            .getSubscriptionManagementPriceInfo(sub.plan_id, customerCurrency)
+            .then((priceInfo) => ({
+              priceId: sub.plan_id,
+              priceInfo,
+            }));
+        }) || [];
 
-    const subsPriceInfo = await Promise.all([
-      ...stripePromises,
-      ...googleIapSubsPromises,
-      ...appleIapSubsPromises,
-    ]);
+      const googleIapSubsPromises =
+        iapGooglePlaySubscriptions?.map((sub) =>
+          this.stripeHelper
+            .getSubscriptionManagementPriceInfo(
+              sub.price_id,
+              sub.priceCurrencyCode || DEFAULT_CURRENCY
+            )
+            .then((priceInfo) => ({
+              priceId: sub.price_id,
+              priceInfo: priceInfo,
+            }))
+        ) || [];
+      const appleIapSubsPromises =
+        iapAppStoreSubscriptions?.map((sub) =>
+          this.stripeHelper
+            .getSubscriptionManagementPriceInfo(
+              sub.price_id,
+              sub.currency || DEFAULT_CURRENCY
+            )
+            .then((priceInfo) => ({
+              priceId: sub.price_id,
+              priceInfo: priceInfo,
+            }))
+        ) || [];
+
+      subsPriceInfo = await Promise.all([
+        ...stripePromises,
+        ...googleIapSubsPromises,
+        ...appleIapSubsPromises,
+      ]);
+    }
 
     const stripeMozSubs = stripeSubscriptions.map((sub) => {
       return {
@@ -221,6 +235,7 @@ export class MozillaSubscriptionHandler {
 export const mozillaSubscriptionRoutes = ({
   log,
   db,
+  config,
   customs,
   stripeHelper,
   playSubscriptions,
@@ -230,6 +245,7 @@ export const mozillaSubscriptionRoutes = ({
   log: AuthLogger;
   db: any;
   customs: any;
+  config: ConfigType;
   stripeHelper: StripeHelper;
   playSubscriptions?: PlaySubscriptions;
   appStoreSubscriptions?: AppStoreSubscriptions;
@@ -247,6 +263,7 @@ export const mozillaSubscriptionRoutes = ({
   const mozillaSubscriptionHandler = new MozillaSubscriptionHandler(
     log,
     db,
+    config,
     customs,
     stripeHelper,
     playSubscriptions,
