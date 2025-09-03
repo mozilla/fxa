@@ -2,12 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const AWS = require('aws-sdk');
+
+
+const { SQS } = require('@aws-sdk/client-sqs');
+
 const inherits = require('util').inherits;
 const EventEmitter = require('events').EventEmitter;
 
 function Sink(region, url) {
-  this.sqs = new AWS.SQS({ region: region });
+  this.sqs = new SQS({
+    region: region,
+  });
   this.url = url;
   this.errTimer = null;
   this.onMessageReceived = messageReceived.bind(this);

@@ -7,7 +7,7 @@ import { GraphQLError } from 'graphql';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import * as Sentry from '@sentry/node';
 import { ErrorEvent } from '@sentry/core';
-import { SQS } from 'aws-sdk';
+import { Message } from '@aws-sdk/client-sqs';
 import { Request } from 'express';
 
 import { CommonPiiActions } from '../../sentry/pii-filter-actions';
@@ -110,7 +110,7 @@ export function filterSentryEvent(
  * @param err Error object to capture.
  * @param message SQS Message to include with error.
  */
-export function captureSqsError(err: Error, message?: SQS.Message): void {
+export function captureSqsError(err: Error, message?: Message): void {
   Sentry.withScope((scope) => {
     if (message?.Body) {
       message = sqsMessageFilter.filter(message);
