@@ -197,6 +197,19 @@ describe('ThirdPartyAuthComponent', () => {
     expect(mockViewWithNoPasswordSet).not.toHaveBeenCalled();
   });
 
+  it('buttons match snapshot', async () => {
+    renderWith({
+      enabled: true,
+      onContinueWithApple,
+      onContinueWithGoogle,
+    });
+
+    const googleButton = await screen.findByLabelText('Continue with Google');
+    const appleButton = await screen.findByLabelText('Continue with Apple');
+    expect(googleButton).toMatchSnapshot('google');
+    expect(appleButton).toMatchSnapshot('apple');
+  });
+
   describe('emits metrics', () => {
     it('emits glean metrics loginNoPwView', () => {
       renderWith({
