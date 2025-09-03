@@ -6,7 +6,7 @@ import jsQR from 'jsqr';
 import UPNG from 'upng-js';
 import { expect } from '../../lib/fixtures/standard';
 import { SettingsLayout } from './layout';
-import { getCode } from '../../lib/totp';
+import { getTotpCode } from '../../lib/totp';
 import { DataTrioComponent } from './components/dataTrio';
 
 export type TotpCredentials = {
@@ -122,7 +122,7 @@ export class TotpPage extends SettingsLayout {
       throw new Error('No secret found in QR code');
     }
 
-    const code = await getCode(secret);
+    const code = await getTotpCode(secret);
     await this.step1AuthenticationCodeTextbox.fill(code);
     await this.step1SubmitButton.click();
     return secret;
@@ -134,7 +134,7 @@ export class TotpPage extends SettingsLayout {
 
     await this.step1CantScanCodeLink.click();
     const secret = (await this.step1ManualCode.innerText())?.replace(/\s/g, '');
-    const code = await getCode(secret);
+    const code = await getTotpCode(secret);
     await this.step1AuthenticationCodeTextbox.fill(code);
     await this.step1SubmitButton.click();
     return secret;

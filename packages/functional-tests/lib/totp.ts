@@ -4,8 +4,10 @@
 
 import { authenticator as otplibAuthenticator } from 'otplib';
 
-// Generate a TOTP code matching server settings (hex-encoded secret)
-export async function getCode(secretHex: string): Promise<string> {
+/**
+ * Generate a TOTP code matching server settings (hex-encoded secret)
+ */
+export async function getTotpCode(secretHex: string): Promise<string> {
   const auth = new otplibAuthenticator.Authenticator();
   auth.options = Object.assign({}, otplibAuthenticator.options, {
     encoding: 'hex',

@@ -4,13 +4,7 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
-import { getCode } from '../../lib/totp';
-import {
-  TargetName,
-  getFromEnvWithFallback,
-  getPhoneNumber,
-  usingRealTestPhoneNumber,
-} from '../../lib/targets';
+import { getTotpCode } from '../../lib/totp';
 
 const ENTRYPOINT_123Done = 'purple';
 const CLIENTID_123Done = 'dcdb5ae7add825d2';
@@ -220,7 +214,7 @@ test.describe('severity-1 #smoke', () => {
       });
 
       // Enter TOTP code
-      const totpCode = await getCode(secret);
+      const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
       // Verify successful login
@@ -294,15 +288,12 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(recoveryPhone.addHeader()).toBeVisible();
 
-      await recoveryPhone.enterPhoneNumber(getPhoneNumber(target.name));
+      await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
       await recoveryPhone.clickSendCode();
 
       await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-      const code = await target.smsClient.getCode(
-        getPhoneNumber(target.name),
-        credentials.uid
-      );
+      const code = await target.smsClient.getCode({ ...credentials });
 
       await recoveryPhone.enterCode(code);
       await recoveryPhone.clickConfirm();
@@ -382,10 +373,7 @@ test.describe('severity-1 #smoke', () => {
       });
 
       // Get SMS code and enter it
-      const smsCode = await target.smsClient.getCode(
-        getPhoneNumber(target.name),
-        credentials.uid
-      );
+      const smsCode = await target.smsClient.getCode({ ...credentials });
 
       await signinRecoveryPhone.enterCode(smsCode);
       await signinRecoveryPhone.clickConfirm();
@@ -656,7 +644,7 @@ test.describe('severity-1 #smoke', () => {
       });
 
       // Enter TOTP code
-      const totpCode = await getCode(secret);
+      const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
       await page.getByRole('link', { name: 'Not now' }).click();

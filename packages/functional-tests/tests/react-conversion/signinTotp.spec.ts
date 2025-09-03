@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getCode } from '../../lib/totp';
+import { getTotpCode } from '../../lib/totp';
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
@@ -35,7 +35,7 @@ test.describe('severity-1 #smoke', () => {
       await signup.fillOutEmailForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
       await page.waitForURL(/signin_totp_code/);
-      const totpCode = await getCode(secret);
+      const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
       await expect(page).toHaveURL(/settings/);
@@ -87,7 +87,7 @@ test.describe('severity-1 #smoke', () => {
       await signup.fillOutEmailForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
       await page.waitForURL(/signin_totp_code/);
-      const totpCode = await getCode(secret);
+      const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
       await expect(page).toHaveURL(/pair/);
@@ -134,7 +134,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // Required before teardown
-      const code = await getCode(secret);
+      const code = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(code);
       await settings.disconnectTotp();
     });

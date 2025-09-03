@@ -5,7 +5,7 @@
 import { FirefoxCommand } from '../../lib/channels';
 import { expect, test } from '../../lib/fixtures/standard';
 import { relayDesktopOAuthQueryParams } from '../../lib/query-params';
-import { getCode } from '../../lib/totp';
+import { getTotpCode } from '../../lib/totp';
 
 test.describe('relay integration', () => {
   test('signup with Relay desktop', async ({
@@ -119,7 +119,7 @@ test.describe('relay integration', () => {
 
     await page.waitForURL(/signin_totp_code/);
 
-    const totpCode = await getCode(secret);
+    const totpCode = await getTotpCode(secret);
     await signinTotpCode.fillOutCodeForm(totpCode);
 
     await page.waitForURL(/settings/);

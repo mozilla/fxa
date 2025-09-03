@@ -3,13 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-import { getCode } from '../../lib/totp';
-import {
-  TargetName,
-  getFromEnvWithFallback,
-  getPhoneNumber,
-  usingRealTestPhoneNumber,
-} from '../../lib/targets';
+import { getTotpCode } from '../../lib/totp';
 
 test.describe('severity-1 #smoke', () => {
   test('can reset password with 2FA enabled', async ({
@@ -54,7 +48,7 @@ test.describe('severity-1 #smoke', () => {
     });
 
     // Fill out the TOTP form
-    const totpCode = await getCode(secret);
+    const totpCode = await getTotpCode(secret);
     await resetPassword.fillOutTotpForm(totpCode);
 
     // Create and submit new password
@@ -243,7 +237,7 @@ test.describe('severity-1 #smoke', () => {
     await page.waitForURL(/confirm_totp_reset_password/);
 
     // Fill out the TOTP form
-    const totpCode = await getCode(secret);
+    const totpCode = await getTotpCode(secret);
     await resetPassword.fillOutTotpForm(totpCode);
 
     // Create and submit new password
@@ -315,30 +309,8 @@ test.describe('severity-1 #smoke', () => {
 
 test.describe('reset password with recovery phone', () => {
   test.describe.configure({ mode: 'serial' });
-
   test.beforeAll(async ({ target }) => {
-    /**
-     * Important! Twilio does not allow you to fetch messages when using test
-     * credentials. Twilio also does not allow you to send messages to magic
-     * test numbers with real credentials.
-     *
-     * Therefore, if a 'magic' test number is configured, then we need to
-     * use redis to peek at codes sent out, and if a 'real' testing phone
-     * number is being being used, then we need to check the Twilio API for
-     * the message sent out and look at the code within.
-     */
-    if (
-      usingRealTestPhoneNumber(target.name) &&
-      !target.smsClient.isTwilioEnabled()
-    ) {
-      throw new Error('Twilio must be enabled when using a real test number.');
-    }
-    if (
-      !usingRealTestPhoneNumber(target.name) &&
-      !target.smsClient.isRedisEnabled()
-    ) {
-      throw new Error('Redis must be enabled when using a real test number.');
-    }
+    target.smsClient.guardTestPhoneNumber();
   });
 
   test.beforeEach(async ({ pages: { configPage } }) => {
@@ -355,6 +327,7 @@ test.describe('reset password with recovery phone', () => {
   }) => {
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
+    const testNumber = target.smsClient.getPhoneNumber();
 
     await signin.goto();
     await signin.fillOutEmailFirstForm(credentials.email);
@@ -377,15 +350,12 @@ test.describe('reset password with recovery phone', () => {
 
     await expect(recoveryPhone.addHeader()).toBeVisible();
 
-    await recoveryPhone.enterPhoneNumber(getPhoneNumber(target.name));
+    await recoveryPhone.enterPhoneNumber(testNumber);
     await recoveryPhone.clickSendCode();
 
     await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-    let smsCode = await target.smsClient.getCode(
-      getPhoneNumber(target.name),
-      credentials.uid
-    );
+    let smsCode = await target.smsClient.getCode({ ...credentials });
 
     await recoveryPhone.enterCode(smsCode);
     await recoveryPhone.clickConfirm();
@@ -415,10 +385,7 @@ test.describe('reset password with recovery phone', () => {
 
     await page.waitForURL(/reset_password_recovery_phone/);
 
-    smsCode = await target.smsClient.getCode(
-      getPhoneNumber(target.name),
-      credentials.uid
-    );
+    smsCode = await target.smsClient.getCode({ ...credentials });
 
     await resetPassword.fillRecoveryPhoneCodeForm(smsCode);
 
@@ -445,6 +412,7 @@ test.describe('reset password with recovery phone', () => {
   }) => {
     const credentials = await testAccountTracker.signUp();
     const newPassword = testAccountTracker.generatePassword();
+    const testNumber = target.smsClient.getPhoneNumber();
 
     await signin.goto();
     await signin.fillOutEmailFirstForm(credentials.email);
@@ -468,15 +436,12 @@ test.describe('reset password with recovery phone', () => {
 
     await expect(recoveryPhone.addHeader()).toBeVisible();
 
-    await recoveryPhone.enterPhoneNumber(getPhoneNumber(target.name));
+    await recoveryPhone.enterPhoneNumber(testNumber);
     await recoveryPhone.clickSendCode();
 
     await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-    let smsCode = await target.smsClient.getCode(
-      getPhoneNumber(target.name),
-      credentials.uid
-    );
+    let smsCode = await target.smsClient.getCode({ ...credentials });
 
     await recoveryPhone.enterCode(smsCode);
     await recoveryPhone.clickConfirm();
@@ -506,10 +471,7 @@ test.describe('reset password with recovery phone', () => {
 
     await page.waitForURL(/reset_password_recovery_phone/);
 
-    smsCode = await target.smsClient.getCode(
-      getPhoneNumber(target.name),
-      credentials.uid
-    );
+    smsCode = await target.smsClient.getCode({ ...credentials });
 
     await resetPassword.fillRecoveryPhoneCodeForm(
       `${Number(smsCode) + 1}`.padStart(smsCode.length, '0')

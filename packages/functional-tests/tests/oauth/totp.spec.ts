@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getCode } from '../../lib/totp';
+import { getTotpCode } from '../../lib/totp';
 import { Page, expect, test } from '../../lib/fixtures/standard';
 import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
 import { SigninPage } from '../../pages/signin';
-import { getPhoneNumber } from '../../lib/targets';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('OAuth totp', () => {
@@ -34,7 +33,7 @@ test.describe('severity-1 #smoke', () => {
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
       await expect(page).toHaveURL(/signin_totp_code/);
-      const code = await getCode(secret);
+      const code = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(code);
 
       expect(await relier.isLoggedIn()).toBe(true);
@@ -111,7 +110,7 @@ test.describe('severity-1 #smoke', () => {
         /\s/g,
         ''
       );
-      const code = await getCode(secret);
+      const code = await getTotpCode(secret);
       await totp.step1AuthenticationCodeTextbox.fill(code);
       await totp.step1SubmitButton.click();
 
@@ -177,7 +176,7 @@ test.describe('severity-1 #smoke', () => {
       const secret = (
         await signin.page.getByTestId('manual-datablock').innerText()
       )?.replace(/\s/g, '');
-      const code = await getCode(secret);
+      const code = await getTotpCode(secret);
 
       await signin.page
         .getByRole('textbox', { name: 'Authentication code' })
@@ -247,7 +246,7 @@ test.describe('severity-1 #smoke', () => {
       const secret = (
         await signin.page.getByTestId('manual-datablock').innerText()
       )?.replace(/\s/g, '');
-      const code = await getCode(secret);
+      const code = await getTotpCode(secret);
 
       await signin.page
         .getByRole('textbox', { name: 'Authentication code' })
@@ -315,7 +314,7 @@ test.describe('severity-1 #smoke', () => {
       const secret = (
         await signin.page.getByTestId('manual-datablock').innerText()
       )?.replace(/\s/g, '');
-      const code = await getCode(secret);
+      const code = await getTotpCode(secret);
 
       await signin.page
         .getByRole('textbox', { name: 'Authentication code' })
@@ -326,15 +325,12 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/inline_recovery_setup/);
 
       await totp.chooseRecoveryPhoneOption();
-      await recoveryPhone.enterPhoneNumber(getPhoneNumber(target.name));
+      await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
       await recoveryPhone.clickSendCode();
 
       await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-      const smsCode = await target.smsClient.getCode(
-        getPhoneNumber(target.name),
-        credentials.uid
-      );
+      const smsCode = await target.smsClient.getCode({ ...credentials });
 
       await recoveryPhone.enterCode(smsCode);
       await recoveryPhone.clickConfirm();
@@ -383,7 +379,7 @@ test.describe('severity-1 #smoke', () => {
         /\s/g,
         ''
       );
-      const code = await getCode(secret);
+      const code = await getTotpCode(secret);
       await totp.step1AuthenticationCodeTextbox.fill(code);
       await totp.step1SubmitButton.click();
 
@@ -437,22 +433,19 @@ test.describe('severity-1 #smoke', () => {
         /\s/g,
         ''
       );
-      const code = await getCode(secret);
+      const code = await getTotpCode(secret);
       await totp.step1AuthenticationCodeTextbox.fill(code);
       await totp.step1SubmitButton.click();
 
       await page.waitForURL(/inline_recovery_setup/);
 
       await totp.chooseRecoveryPhoneOption();
-      await recoveryPhone.enterPhoneNumber(getPhoneNumber(target.name));
+      await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
       await recoveryPhone.clickSendCode();
 
       await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-      const smsCode = await target.smsClient.getCode(
-        getPhoneNumber(target.name),
-        credentials.uid
-      );
+      const smsCode = await target.smsClient.getCode({ ...credentials });
 
       await recoveryPhone.enterCode(smsCode);
       await recoveryPhone.clickConfirm();

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getCode } from '../../lib/totp';
+import { getTotpCode } from '../../lib/totp';
 import { expect, test } from '../../lib/fixtures/standard';
 
 /**
@@ -64,7 +64,7 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(page).toHaveURL(/signin_totp_code/);
 
-      const totpCode = await getCode(totpCredentials.secret);
+      const totpCode = await getTotpCode(totpCredentials.secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
       await expect(page).toHaveURL(/settings/);

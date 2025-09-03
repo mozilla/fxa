@@ -85,17 +85,36 @@ export class SmsClient {
     return this.getPhoneNumber() !== TEST_NUMBER;
   }
 
-
-  async getCode(recipientNumber: string, uid: string, timeout = 10000) {
+  /**
+   * Gets the sent SMS code for an account uid. If no number is provided
+   * `this.getPhoneNumber()` is used to get a default.
+   * @returns
+   */
+  async getCode({
+    uid,
+    phoneNumber = this.getPhoneNumber(),
+    timeout = 10000,
+  }: {
+    uid: string;
+    phoneNumber?: string;
+    timeout?: number;
+  }) {
     if (this.isTwilioEnabled()) {
-      return this._getCodeTwilio(recipientNumber);
+      return this._getCodeTwilio(phoneNumber);
     } else {
       return this._getCodeLocal(uid, timeout);
     }
   }
 
   /**
-   * Guard function against misconfiguration of test phone numbers.
+   * Important! Twilio does not allow you to fetch messages when using test
+   * credentials. Twilio also does not allow you to send messages to magic
+   * test numbers with real credentials.
+   *
+   * Therefore, if a 'magic' test number is configured, then we need to
+   * use redis to peek at codes sent out, and if a 'real' testing phone
+   * number is being being used, then we need to check the Twilio API for
+   * the message sent out and look at the code within.
    *
    * Two conditions are checked:
    *  - If a `real` number is configured and Twilio is NOT enabled

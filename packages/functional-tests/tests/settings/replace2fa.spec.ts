@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { getCode } from '../../lib/totp';
+import { getTotpCode } from '../../lib/totp';
 import { expect, Page, test } from '../../lib/fixtures/standard';
-import { Credentials, getPhoneNumber } from '../../lib/targets';
+import { Credentials } from '../../lib/targets';
 import { SettingsPage } from '../../pages/settings';
 import { TotpCredentials, TotpPage } from '../../pages/settings/totp';
 import { SigninTotpCodePage } from '../../pages/signinTotpCode';
@@ -38,7 +38,7 @@ test.describe('severity-2 #smoke', () => {
       await settings.signOut();
 
       // signin with _new_ 2fa
-      const code = await getCode(newSecret);
+      const code = await getTotpCode(newSecret);
       await signin.emailFirstSignin(credentials);
       await page.waitForURL(/signin_totp_code/);
       await signinTotpCode.fillOutCodeForm(code);
@@ -64,7 +64,7 @@ test.describe('severity-2 #smoke', () => {
       await settings.signOut();
 
       // attempt signin with _old_ 2fa (should fail)
-      const oldSecretCode = await getCode(oldSecret);
+      const oldSecretCode = await getTotpCode(oldSecret);
       await signin.emailFirstSignin(credentials);
       await page.waitForURL(/signin_totp_code/);
       await signinTotpCode.fillOutCodeForm(oldSecretCode);
@@ -266,10 +266,7 @@ const completeSigninWithDualRecovery = async ({
   await signinRecoveryChoice.clickContinue();
   // new RegExp because template literal isn't supported directly inside regex literal
   await page.waitForURL(new RegExp(`signin_recovery_${method.toLowerCase()}`));
-  const code = await target.smsClient.getCode(
-    getPhoneNumber(target.name),
-    credentials.uid
-  );
+  const code = await target.smsClient.getCode({ ...credentials });
   await recoveries[method].fillOutCodeForm(code);
 };
 
@@ -291,10 +288,7 @@ const addPhoneRecovery = async ({
 
   await recoveryPhone.submitPhoneNumber();
 
-  const code = await target.smsClient.getCode(
-    getPhoneNumber(target.name),
-    credentials.uid
-  );
+  const code = await target.smsClient.getCode({ ...credentials });
 
   await recoveryPhone.submitCode(code);
 };
