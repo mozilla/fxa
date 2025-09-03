@@ -45,6 +45,7 @@ import {
   DeleteRecoveryKeyInput,
   DeleteTotpInput,
   EmailInput,
+  MfaTestInput,
   PasswordChangeFinishInput,
   PasswordChangeStartInput,
   PasswordForgotCodeStatusInput,
@@ -70,6 +71,7 @@ import {
   ChangeRecoveryCodesPayload,
   CreateTotpPayload,
   CredentialStatusPayload,
+  MfaTestGetPayload,
   PasswordChangeFinishPayload,
   PasswordChangeStartPayload,
   PasswordForgotCodeStatusPayload,
@@ -1000,5 +1002,15 @@ export class AccountResolver {
     input: string
   ) {
     return this.authAPI.wrappedAccountKeys(input, headers);
+  }
+
+  @Mutation((returns) => MfaTestGetPayload)
+  @CatchGatewayError
+  public async mfaTest(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => MfaTestInput })
+    input: MfaTestInput
+  ) {
+    return await this.authAPI.mfaTestGet(input.jwt, headers);
   }
 }

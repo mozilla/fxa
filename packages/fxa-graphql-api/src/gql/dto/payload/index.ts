@@ -24,3 +24,4 @@ export * from './credential-status';
 export * from './password-change-start';
 export * from './password-change-finish';
 export * from './wrapped-keys';
+export * from './mfa-test';
