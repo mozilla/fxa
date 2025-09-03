@@ -12,12 +12,16 @@ import {
   GET_ACCOUNT_BY_EMAIL,
   GET_ACCOUNT_BY_UID,
   GET_EMAILS_LIKE,
+  GET_ACCOUNT_BY_RECOVERY_PHONE,
+  GET_RECOVERY_PHONES_LIKE,
 } from './index.gql';
 
 function validateUID(uid: string) {
   // checks if input string is in uid format (hex, 32 digit)
   return /^[0-9a-fA-F]{32}/.test(uid);
 }
+
+type SearchType = 'email' | 'uid' | 'recoveryPhone';
 
 export const AccountSearch = () => {
   const [showResult, setShowResult] = useState<boolean>(false);
@@ -28,11 +32,22 @@ export const AccountSearch = () => {
   // define two queries to search by either email or uid.
   const [getAccountByEmail, emailResults] = useLazyQuery(GET_ACCOUNT_BY_EMAIL);
   const [getAccountByUID, uidResults] = useLazyQuery(GET_ACCOUNT_BY_UID);
+  const [getAccountByRecoveryPhone, recoveryPhoneResults] = useLazyQuery(
+    GET_ACCOUNT_BY_RECOVERY_PHONE
+  );
   // choose which query result to show based on type of query made
-  const [isEmail, setIsEmail] = useState<boolean>(false);
-  const queryResults = isEmail && showResult ? emailResults : uidResults;
+  const [searchType, setSearchType] = useState<SearchType | null>(null);
+  const queryResults =
+    searchType === 'email' && showResult
+      ? emailResults
+      : searchType === 'recoveryPhone' && showResult
+        ? recoveryPhoneResults
+        : uidResults;
   const [getEmailLike, { data: returnedEmails }] =
     useLazyQuery(GET_EMAILS_LIKE);
+  const [getRecoveryPhonesLike, { data: returnedPhones }] = useLazyQuery(
+    GET_RECOVERY_PHONES_LIKE
+  );
 
   const handleSubmit = (event: React.FormEvent) => {
     const trimmedSearchInput = searchInput.trim();
@@ -45,7 +60,7 @@ export const AccountSearch = () => {
       getAccountByUID({
         variables: { uid: trimmedSearchInput, autoCompleted: false },
       });
-      setIsEmail(false);
+      setSearchType('uid');
       setShowResult(true);
     } else if (
       !isUID &&
@@ -59,21 +74,38 @@ export const AccountSearch = () => {
           autoCompleted: selectedSuggestion === trimmedSearchInput,
         },
       });
-      setIsEmail(true);
+      setSearchType('email');
       setShowResult(true);
-    }
-    // invalid input, neither email nor uid
-    else {
-      window.alert('Invalid email or UID format');
+    } else if (/^\+?[1-9]\d{1,14}$/.test(trimmedSearchInput)) {
+      // Check if input is a valid phone number
+      getAccountByRecoveryPhone({
+        variables: {
+          phoneNumber: trimmedSearchInput,
+          autoCompleted: selectedSuggestion === trimmedSearchInput,
+        },
+      });
+      setSearchType('recoveryPhone');
+      setShowResult(true);
+    } else {
+      window.alert('Invalid email, UID, or phone number format');
     }
   };
 
-  const filteredList: string[] = [];
-  if (returnedEmails != null && showSuggestion) {
-    for (let i = 0; i < returnedEmails.getEmailsLike.length; i++) {
-      filteredList[i] = returnedEmails.getEmailsLike[i].email;
-    }
-  }
+  const filteredEmailList: string[] =
+    returnedEmails != null && showSuggestion
+      ? returnedEmails.getEmailsLike.map(
+          (item: { email: string }) => item.email
+        )
+      : [];
+
+  const filteredPhoneList: string[] =
+    returnedPhones && showSuggestion
+      ? returnedPhones.getRecoveryPhonesLike.map(
+          (item: { phoneNumber: string }) => item.phoneNumber
+        )
+      : [];
+
+  const suggestions = [...filteredEmailList, ...filteredPhoneList];
 
   const onTextChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value.trim();
@@ -82,6 +114,7 @@ export const AccountSearch = () => {
       setShowSuggestion(false);
     } else if (value.length >= 5) {
       getEmailLike({ variables: { search: value.trim() } });
+      getRecoveryPhonesLike({ variables: { search: value.trim() } });
       setShowSuggestion(true);
     }
   };
@@ -99,7 +132,7 @@ export const AccountSearch = () => {
   };
 
   const renderSuggestions = () => {
-    return filteredList.map((item) => (
+    return suggestions.map((item) => (
       <a
         key={item}
         className="p-2 border-b border-grey-100 block hover:bg-grey-10 focus:bg-grey-10 z-50"
@@ -118,9 +151,9 @@ export const AccountSearch = () => {
     <div data-testid="account-search">
       <h2 className="header-page">Account Search</h2>
       <p className="mb-1">
-        Search for a Mozilla user account by email or UID and view its details,
-        including: secondary emails, email bounces, time-based one-time
-        passwords, recovery keys, and current session.
+        Search for a Mozilla user account by email, recovery phone, or UID, and
+        view its details, including: secondary emails, email bounces, time-based
+        one-time passwords, recovery keys, and current session.
       </p>
       <p className="mb-1">
         Email addresses are blocked from the FxA email sender when an email sent
@@ -129,6 +162,11 @@ export const AccountSearch = () => {
         information will be displayed as well as email bounces attached to the
         account. Delete the block on the email by deleting the bounced email
         data.
+      </p>
+      <p className="mb-1">
+        <strong>NOTE:</strong> Searching by recovery phone requires the full
+        phone number, including the country code, without any spaces, dashes, or
+        parentheses (e.g., +12345678900).
       </p>
 
       <form
@@ -140,7 +178,7 @@ export const AccountSearch = () => {
           htmlFor="email"
           className="block uppercase text-sm text-grey-500"
         >
-          Email or UID to search for:
+          Email, recovery phone, or UID to search for:
         </label>
 
         <div className="flex max-w-lg mt-2 relative">
@@ -152,7 +190,7 @@ export const AccountSearch = () => {
             id="email"
             type="search"
             onChange={handleChange}
-            placeholder="Email or UID"
+            placeholder="Email, recovery phone, or UID"
             data-testid="email-input"
             className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500"
           />
@@ -167,7 +205,7 @@ export const AccountSearch = () => {
               alt="search icon"
             />
           </button>
-          {showSuggestion && filteredList.length > 0 && (
+          {showSuggestion && suggestions.length > 0 && (
             <div
               className="suggestions-list absolute top-full w-full bg-white border border-grey-100 mt-3 shadow-sm rounded overflow-hidden z-50"
               data-testid="email-suggestions"
@@ -206,6 +244,7 @@ const AccountSearchResult = ({
   data?: {
     accountByEmail: AccountType;
     accountByUid: AccountType;
+    accountByRecoveryPhone: AccountType[];
   };
   query: string;
 }) => {
@@ -223,12 +262,58 @@ const AccountSearchResult = ({
   }
 
   if (data?.accountByEmail) {
-    return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
+    return (
+      <>
+        <hr />
+        <Account {...{ query, onCleared }} {...data.accountByEmail} />
+      </>
+    );
   }
 
   if (data?.accountByUid) {
-    return <Account {...{ query, onCleared }} {...data.accountByUid} />;
+    return (
+      <>
+        <hr />
+        <Account {...{ query, onCleared }} {...data.accountByUid} />
+      </>
+    );
   }
+
+  if (data?.accountByRecoveryPhone && data.accountByRecoveryPhone.length > 0) {
+    if (data.accountByRecoveryPhone.length === 1) {
+      return (
+        <>
+          <hr />
+          <Account
+            {...{ query, onCleared }}
+            {...data.accountByRecoveryPhone[0]}
+          />
+        </>
+      );
+    }
+    return (
+      <>
+        <hr />
+        <p className="mb-1">
+          {data.accountByRecoveryPhone.length} accounts found:
+        </p>
+        {data.accountByRecoveryPhone.map((account, index) => (
+          <details
+            key={account.uid}
+            className="mb-2 border border-grey-100 rounded overflow-hidden"
+          >
+            <summary className="bg-grey-50 px-4 py-2 cursor-pointer hover:bg-grey-100">
+              {`${index + 1}. ${account.email}`}
+            </summary>
+            <div className="px-4 bg-white">
+              <Account {...{ query, onCleared }} {...account} />
+            </div>
+          </details>
+        ))}
+      </>
+    );
+  }
+
   return (
     <>
       <hr />

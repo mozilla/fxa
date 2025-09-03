@@ -8,7 +8,12 @@ import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { AccountSearch } from './index';
 import { EDIT_LOCALE, RECORD_ADMIN_SECURITY_EVENT } from './Account/index.gql';
-import { GET_ACCOUNT_BY_EMAIL, GET_EMAILS_LIKE } from './index.gql';
+import {
+  GET_ACCOUNT_BY_EMAIL,
+  GET_ACCOUNT_BY_RECOVERY_PHONE,
+  GET_EMAILS_LIKE,
+  GET_RECOVERY_PHONES_LIKE,
+} from './index.gql';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { UNSUBSCRIBE_FROM_MAILING_LISTS } from './DangerZone/index.gql';
 import { CLEAR_BOUNCES_BY_EMAIL } from './EmailBounces/index.gql';
@@ -16,10 +21,12 @@ import { CLEAR_BOUNCES_BY_EMAIL } from './EmailBounces/index.gql';
 const chance = new Chance();
 
 let testEmail: string;
+let testPhone: string;
 let testLocale: string = 'en-US';
 let deleteBouncesMutationCalled = false;
 let calledAccountSearch = false;
 let calledGetEmailsLike = false;
+let calledGetRecoveryPhonesLike = false;
 
 // Mock AdminPanelGuard
 const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
@@ -225,6 +232,171 @@ class GetAccountsByEmail {
   }
 }
 
+class GetAccountsByRecoveryPhone {
+  static request(phoneNumber: string, autoCompleted: boolean) {
+    return {
+      query: GET_ACCOUNT_BY_RECOVERY_PHONE,
+      variables: {
+        phoneNumber,
+        autoCompleted,
+      },
+    };
+  }
+  static result(phoneNumber: string, minimal: boolean) {
+    calledAccountSearch = true;
+
+    // Minimal flag indicates a sparse response is okay
+    if (minimal) {
+      return {
+        data: {
+          accountByEmail: {
+            uid: '123',
+            clientSalt: '',
+            createdAt: 1658534643990,
+            verifierSetAt: 1589467100316,
+            disabledAt: null,
+            locale: testLocale,
+            lockedAt: null,
+            email: testEmail,
+            emails: [
+              {
+                email: testEmail,
+                isVerified: true,
+                isPrimary: true,
+                createdAt: 1658534643990,
+              },
+            ],
+            emailBounces: [],
+            securityEvents: [],
+            totp: [],
+            backupCodes: [],
+            recoveryPhone: [
+              {
+                exists: true,
+                lastFourDigits: phoneNumber.slice(-4),
+              },
+            ],
+            recoveryKeys: [],
+            linkedAccounts: [],
+            attachedClients: [],
+            subscriptions: [],
+            accountEvents: [],
+            carts: [],
+          },
+        },
+      };
+    }
+
+    // Otherwise provide richer result
+    const bounce = {
+      email: testEmail,
+      createdAt: chance.timestamp(),
+      bounceType: 'Permanent',
+      bounceSubType: 'General',
+      diagnosticCode: 100,
+      templateName: 'xyz',
+    };
+
+    return {
+      data: {
+        accountByEmail: {
+          uid: 'a1b2c3',
+          clientSalt: '',
+          verifierSetAt: 1589467100316,
+          email: testEmail,
+          emails: [
+            {
+              email: testEmail,
+              isPrimary: true,
+              isVerified: true,
+              createdAt: chance.timestamp(),
+            },
+          ],
+          createdAt: chance.timestamp(),
+          disabledAt: null,
+          locale: testLocale,
+          lockedAt: null,
+          emailBounces: [bounce, { ...bounce, createdAt: chance.timestamp() }],
+          totp: [
+            {
+              verified: true,
+              enabled: true,
+              createdAt: 1589467100316,
+            },
+          ],
+          backupCodes: [
+            {
+              hasBackupCodes: true,
+              count: 3,
+            },
+          ],
+          recoveryPhone: [
+            {
+              exists: true,
+              lastFourDigits: phoneNumber.slice(-4),
+            },
+          ],
+          recoveryKeys: [
+            {
+              createdAt: 1589467100316,
+              verifiedAt: 1589467100316,
+              enabled: true,
+            },
+          ],
+          attachedClients: [
+            {
+              deviceId: 'xxxxxxxx-did-1',
+              deviceType: 'desktop',
+              clientId: null,
+              createdTime: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
+              createdTimeFormatted: '1 hour ago',
+              lastAccessTime: new Date(Date.now() - 5 * 1e3).getTime(),
+              lastAccessTimeFormatted: '5 seconds ago',
+              location: {
+                city: null,
+                country: null,
+                countryCode: null,
+                state: null,
+                stateCode: null,
+              },
+              name: "UserX's Nightly on machine-xyz",
+              os: 'Mac OS X',
+              userAgent: 'Chrome 89',
+              sessionTokenId: 'xxxxxxxx-stid-1',
+              refreshTokenId: null,
+            },
+          ],
+          linkedAccounts: [],
+          securityEvents: [],
+          subscriptions: [],
+          carts: [],
+          accountEvents: [
+            {
+              name: 'emailSent',
+              createdAt: new Date(Date.now() - 60 * 60 * 1e3).getTime(),
+              template: 'recovery',
+              eventType: 'emailEvent',
+              service: 'sync',
+            },
+          ],
+        },
+      },
+    };
+  }
+  static mock(
+    phoneNumber: string,
+    autoCompleted: boolean,
+    minimal: boolean,
+    error?: Error
+  ) {
+    return {
+      request: this.request(phoneNumber, autoCompleted),
+      result: this.result(phoneNumber, minimal),
+      error,
+    };
+  }
+}
+
 class EditLocaleMock {
   static request(uid: string, locale: string) {
     // Update the test locale fake state. This will effect the result from
@@ -324,6 +496,38 @@ class GetEmailsLike {
   }
 }
 
+class GetRecoveryPhonesLike {
+  static request(searchTerm: string) {
+    return {
+      query: GET_RECOVERY_PHONES_LIKE,
+      variables: {
+        search: searchTerm,
+      },
+    };
+  }
+  static result(search: string) {
+    calledGetRecoveryPhonesLike = true;
+    if (testPhone.startsWith(search)) {
+      return {
+        data: {
+          getRecoveryPhonesLike: [{ phoneNumber: testPhone }],
+        },
+      };
+    }
+    return {
+      data: {
+        getRecoveryPhonesLike: [],
+      },
+    };
+  }
+  static mock(search: string) {
+    return {
+      request: this.request(search),
+      result: this.result(search),
+    };
+  }
+}
+
 // Helper function to render Account Search with mocks
 function renderView(mocks?: any) {
   render(
@@ -336,6 +540,7 @@ function renderView(mocks?: any) {
 beforeEach(() => {
   jest.spyOn(window, 'confirm').mockImplementation(() => true);
   testEmail = chance.email();
+  testPhone = '+12345678900';
   deleteBouncesMutationCalled = false;
   calledAccountSearch = false;
   calledGetEmailsLike = false;
@@ -351,10 +556,12 @@ it('renders without imploding', () => {
   expect(screen.getByTestId('search-form')).toBeInTheDocument();
 });
 
-it('calls account search', async () => {
+it('calls account search by email', async () => {
   renderView([
     GetAccountsByEmail.mock(testEmail, false, true),
+    GetAccountsByRecoveryPhone.mock(testPhone, false, true),
     GetEmailsLike.mock(testEmail),
+    GetRecoveryPhonesLike.mock(testEmail),
   ]);
   fireEvent.change(screen.getByTestId('email-input'), {
     target: { value: testEmail },
@@ -365,11 +572,30 @@ it('calls account search', async () => {
   expect(calledAccountSearch).toBeTruthy();
 });
 
-it('auto completes', async () => {
+it('calls account search by recovery phone', async () => {
+  renderView([
+    GetAccountsByEmail.mock(testEmail, false, true),
+    GetAccountsByRecoveryPhone.mock(testPhone, false, true),
+    GetEmailsLike.mock(testPhone),
+    GetRecoveryPhonesLike.mock(testPhone),
+  ]);
+
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: testPhone },
+  });
+  fireEvent.click(screen.getByTestId('search-button'));
+
+  await waitFor(() => screen.getByTestId('account-section'));
+  expect(calledAccountSearch).toBeTruthy();
+});
+
+it('auto completes email suggestions', async () => {
   const searchTerm = testEmail.substring(0, 6);
   renderView([
-    GetEmailsLike.mock(searchTerm),
     GetAccountsByEmail.mock(testEmail, true, true),
+    GetAccountsByRecoveryPhone.mock(testPhone, true, true),
+    GetEmailsLike.mock(searchTerm),
+    GetRecoveryPhonesLike.mock(searchTerm),
   ]);
 
   fireEvent.change(screen.getByTestId('email-input'), {
@@ -389,9 +615,37 @@ it('auto completes', async () => {
   expect(screen.getByTestId('email-input')).toHaveValue(testEmail);
 });
 
+it('auto completes recovery phone suggestions', async () => {
+  const searchTerm = testPhone.substring(0, 6);
+  renderView([
+    GetAccountsByEmail.mock(testEmail, true, true),
+    GetAccountsByRecoveryPhone.mock(testPhone, true, true),
+    GetEmailsLike.mock(searchTerm),
+    GetRecoveryPhonesLike.mock(searchTerm),
+  ]);
+
+  fireEvent.change(screen.getByTestId('email-input'), {
+    target: { value: searchTerm },
+  });
+
+  await waitFor(() => screen.getByTestId('email-suggestions'));
+  const suggestionsElements = screen
+    .getByTestId('email-suggestions')
+    .getElementsByTagName('a');
+  // phone suggestions come after email ones.
+  fireEvent.click(suggestionsElements[suggestionsElements.length - 1]);
+  fireEvent.click(screen.getByTestId('search-button'));
+
+  await waitFor(() => screen.getByTestId('account-section'));
+  expect(calledGetRecoveryPhonesLike).toBeTruthy();
+  expect(calledAccountSearch).toBeTruthy();
+  expect(screen.getByTestId('email-input')).toHaveValue(testPhone);
+});
+
 it('displays the account email bounces, and can clear them', async () => {
   renderView([
     GetEmailsLike.mock(testEmail),
+    GetRecoveryPhonesLike.mock(testEmail),
     GetAccountsByEmail.mock(testEmail, false, false),
     RecordAdminSecurityEvent.mock(),
     ClearBouncesByEmail.mock(testEmail),
@@ -418,6 +672,7 @@ it('displays the account email bounces, and can clear them', async () => {
 it('displays the error state if there is an error', async () => {
   renderView([
     GetEmailsLike.mock(testEmail),
+    GetRecoveryPhonesLike.mock(testEmail),
     GetAccountsByEmail.mock(testEmail, false, true, new Error('zoiks')),
   ]);
 
@@ -438,6 +693,7 @@ describe('Editing user locale', () => {
   async function setup(newLocale: string | null, success: boolean = true) {
     const mocks = [
       GetEmailsLike.mock(testEmail),
+      GetRecoveryPhonesLike.mock(testEmail),
       GetAccountsByEmail.mock(testEmail, false, true),
       EditLocaleMock.mock('123', 'en-CA', success),
       GetAccountsByEmail.mock(testEmail, false, true),
@@ -544,6 +800,7 @@ describe('unsubscribe from mailing lists', () => {
   async function renderAndClickUnSubscribe(success: boolean) {
     renderView([
       GetEmailsLike.mock(testEmail),
+      GetRecoveryPhonesLike.mock(testEmail),
       GetAccountsByEmail.mock(testEmail, false, true),
       Unsubscribe.mock('123', success),
     ]);
