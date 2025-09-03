@@ -19,8 +19,8 @@ test.describe('severity-2 #smoke', () => {
   }) => {
     const credentials = await testAccountTracker.signUpSync();
     const client = target.createAuthClient(2);
-    let resp = await client.mfaRequestOtp(credentials.sessionToken, 'test');
-    expect(resp.status).toBe('success');
+    const resp1 = await client.mfaRequestOtp(credentials.sessionToken, 'test');
+    expect(resp1.status).toBe('success');
 
     // Verify the otp code
     const code = await target.emailClient.getVerifyAccountChangeCode(
@@ -28,20 +28,24 @@ test.describe('severity-2 #smoke', () => {
     );
 
     // Try accessing the protected action test endpoint with jwt
-    resp = await client.mfaOtpVerify(credentials.sessionToken, code, 'test');
-    expect(resp.accessToken).toBeDefined();
-    const jwtAccessToken = resp.accessToken;
+    const resp2 = await client.mfaOtpVerify(
+      credentials.sessionToken,
+      code,
+      'test'
+    );
+    expect(resp2.accessToken).toBeDefined();
+    const jwtAccessToken = resp2.accessToken;
 
     // Try accessing the protected action again
-    resp = await client.mfaTestGet(jwtAccessToken);
-    expect(resp.status).toBe('success');
+    const resp3 = await client.mfaTestGet(jwtAccessToken);
+    expect(resp3.status).toBe('success');
 
-    resp = await client.mfaTestPost(jwtAccessToken);
-    expect(resp.status).toBe('success');
+    const resp4 = await client.mfaTestPost(jwtAccessToken);
+    expect(resp4.status).toBe('success');
 
     let scopeError = undefined;
     try {
-      resp = await client.mfaTestPost2(jwtAccessToken);
+      await client.mfaTestPost2(jwtAccessToken);
     } catch (err) {
       scopeError = err;
     }

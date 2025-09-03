@@ -33,7 +33,7 @@ describe('mfa', () => {
       enabled: true,
       actions: ['test'],
       otp: {
-        digits: 8,
+        digits: 6,
       },
       jwt: {
         secretKey: 'foxes',
@@ -158,6 +158,7 @@ describe('mfa', () => {
       error = err;
     }
     assert.isDefined(error);
+    assert.equal(error.errno, 110);
     assert.equal(error.message, 'jwt malformed');
   });
 
@@ -172,6 +173,7 @@ describe('mfa', () => {
       error = err;
     }
     assert.isDefined(error);
+    assert.equal(error.errno, 110);
     assert.equal(error.message, 'jwt expired');
   });
 });

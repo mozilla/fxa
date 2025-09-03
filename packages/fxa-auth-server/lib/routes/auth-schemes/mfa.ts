@@ -31,10 +31,16 @@ export const strategy = (config: ConfigType) => {
         audience: config.mfa.jwt.audience,
         issuer: config.mfa.jwt.issuer,
       };
-      const decoded = jwt.verify(token, key, opts) as {
-        sub?: string;
-        scope?: string[];
-      };
+
+      let decoded;
+      try {
+        decoded = jwt.verify(token, key, opts) as {
+          sub?: string;
+          scope?: string[];
+        };
+      } catch (err) {
+        throw AppError.invalidToken(err.message);
+      }
 
       // Ensure required state
       if (decoded.sub == null || decoded.scope == null) {

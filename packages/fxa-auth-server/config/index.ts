@@ -2402,7 +2402,8 @@ const convictConf = convict({
     },
     ftlUrl: {
       template: {
-        default: 'https://raw.githubusercontent.com/mozilla/fxa-cms-l10n/main/locales/{locale}/cms.ftl',
+        default:
+          'https://raw.githubusercontent.com/mozilla/fxa-cms-l10n/main/locales/{locale}/cms.ftl',
         doc: 'URL template for FTL files. Use {locale} placeholder for locale substitution',
         env: 'CMS_L10N_FTL_URL_TEMPLATE',
         format: String,
@@ -2412,7 +2413,7 @@ const convictConf = convict({
         doc: 'Timeout for FTL requests in milliseconds',
         env: 'CMS_L10N_FTL_TIMEOUT',
         format: Number,
-      }
+      },
     },
     ftlCache: {
       memoryTtl: {
@@ -2520,7 +2521,7 @@ const convictConf = convict({
         env: 'MFA__OTP__WINDOW',
       },
       digits: {
-        default: 8,
+        default: 6,
         doc: 'Length of code',
         format: Number,
         env: 'MFA__OTP__DIGITS',

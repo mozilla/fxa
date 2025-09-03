@@ -75,3 +75,5 @@ export type TotpInfo = {
   secret: string;
   recoveryCodes?: string[];
 };
+
+export type MfaScope = 'test';

@@ -1517,7 +1517,7 @@ export default class AuthClient {
     sessionToken: hexstring,
     action: string,
     headers?: Headers
-  ) {
+  ): Promise<{ status: string }> {
     return this.sessionPost(
       '/mfa/otp/request',
       sessionToken,
@@ -1533,7 +1533,7 @@ export default class AuthClient {
     code: string,
     action: string,
     headers?: Headers
-  ) {
+  ): Promise<{ accessToken: string }> {
     return this.sessionPost(
       '/mfa/otp/verify',
       sessionToken,
@@ -1545,7 +1545,10 @@ export default class AuthClient {
     );
   }
 
-  async mfaTestGet(jwt: string, headers?: Headers) {
+  async mfaTestGet(
+    jwt: string,
+    headers?: Headers
+  ): Promise<{ status: string }> {
     return this.jwtGet('/mfa/test', jwt, headers);
   }
 

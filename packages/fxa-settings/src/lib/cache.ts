@@ -7,6 +7,7 @@ import { StoredAccountData } from './storage-utils';
 import { v4 as uuid } from 'uuid';
 import * as Sentry from '@sentry/browser';
 import { Constants } from './constants';
+import { MfaScope } from './types';
 
 const storage = Storage.factory('localStorage');
 
@@ -260,5 +261,114 @@ export function isInReactExperiment() {
     return parsedData && parsedData.enrolled === true;
   } catch (error) {
     return false;
+  }
+}
+
+/**
+ * External Container for holding JWTs.
+ *
+ * For now tokens will be held in page memory. This works as long as we have
+ * no hard navigates, which should be the case in fxa settings. If edge cases
+ * arise consider swapping `static state` for session storage.
+ */
+export class JwtTokenCache {
+  /** The following works with React.useSyncExternalStore. */
+  private static state: Record<string, string> = {};
+  private static listeners = new Set<() => void>();
+  static subscribe(listener: () => void) {
+    JwtTokenCache.listeners.add(listener);
+    return () => {
+      JwtTokenCache.listeners.delete(listener);
+    };
+  }
+  static getSnapshot() {
+    return JwtTokenCache.state;
+  }
+
+  /**
+   * Get's the key for the JWT in the store
+   * @param sessionToken
+   * @param scope
+   * @returns
+   */
+  static getKey(sessionToken: string, scope: MfaScope) {
+    return `${sessionToken}-${scope}`;
+  }
+
+  /**
+   * Looks up if the token exists.
+   * @param sessionToken SessionToken that jwt was derived from.
+   * @param scope Scope that jwt applies to.
+   * @returns
+   */
+  static hasToken(sessionToken: string, scope: MfaScope) {
+    const key = JwtTokenCache.getKey(sessionToken, scope);
+    return this.state[key] != null;
+  }
+
+  /**
+   * Retrieves a token from the cache. If the token is missing, throws an error.
+   * @param sessionToken SessionToken that jwt was derived from.
+   * @param scope Scope that jwt applies to.
+   * @returns jwt token
+   * @throws JwtNotFoundError
+   */
+  static getToken(sessionToken: string, scope: MfaScope) {
+    const key = JwtTokenCache.getKey(sessionToken, scope);
+    const jwt = JwtTokenCache.state[key];
+    if (jwt == null) {
+      throw new JwtNotFoundError();
+    }
+    return jwt;
+  }
+
+  /**
+   * Sets the state of a token in the cache.
+   * @param sessionToken SessionToken that jwt was derived from.
+   * @param scope Scope that jwt applies to.
+   * @param jwt The token
+   */
+  static setToken(sessionToken: string, scope: MfaScope, jwt: string) {
+    if (!sessionToken) {
+      throw new Error('Invalid sessionToken');
+    }
+    if (!scope) {
+      throw new Error('Invalid scope');
+    }
+    if (!jwt) {
+      throw new Error('Invalid jwt');
+    }
+
+    const key = JwtTokenCache.getKey(sessionToken, scope);
+    this.state[key] = jwt;
+    this.state = {
+      ...this.state,
+      [key]: jwt,
+    };
+    JwtTokenCache.listeners.forEach((l) => l());
+  }
+
+  /**
+   * Removes a token from the cache.
+   * @param sessionToken SessionToken that jwt was derived from.
+   * @param scope Scope that jwt applies to.
+   */
+  static removeToken(sessionToken: string, scope: MfaScope) {
+    const key = JwtTokenCache.getKey(sessionToken, scope);
+    delete this.state[key];
+    this.state = { ...this.state };
+    JwtTokenCache.listeners.forEach((l) => l());
+  }
+}
+
+/**
+ * Special error state that arises if jwt is not found in cache.
+ */
+export class JwtNotFoundError extends Error {
+  // Mimic auth error status
+  errno = 110;
+  code = 401;
+  constructor(message = 'Could not locate jwt in cache.') {
+    super(message);
   }
 }
