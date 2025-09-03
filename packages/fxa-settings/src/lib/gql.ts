@@ -14,7 +14,7 @@ import { ErrorHandler, onError } from '@apollo/client/link/error';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { cache, sessionToken, typeDefs } from './cache';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
+import { GET_LOCAL_SIGNED_IN_STATUS } from './app-gql';
 import * as Sentry from '@sentry/browser';
 
 /**

@@ -5,7 +5,7 @@
 import { ModelDataStore } from '../../lib/model-data';
 import { Constants } from '../../lib/constants';
 import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
-import { IntegrationFlags } from '../../lib/integrations';
+import { IntegrationFlags } from '../../lib/integrations/interfaces';
 import { OAuthIntegrationData } from './data/data';
 import { IntegrationFeatures } from './features';
 import { RelierAccount, RelierClientInfo } from './relier-interfaces';

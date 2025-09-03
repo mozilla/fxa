@@ -9,7 +9,7 @@ import {
   createHistoryWithQuery,
   produceComponent,
 } from '../models/mocks';
-import { Account } from '../models';
+import { Account } from '../models/Account';
 
 export function renderStoryWithHistory(
   component: ReactElement,

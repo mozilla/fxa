@@ -4,7 +4,7 @@
 
 import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
-import { QueryParams } from '../../index';
+import { QueryParams } from '../../lib/query-params';
 
 export type IndexIntegration = Pick<
   Integration,

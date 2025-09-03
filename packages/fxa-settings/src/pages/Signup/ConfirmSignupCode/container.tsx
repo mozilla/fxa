@@ -22,7 +22,7 @@ import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
 import { useQuery } from '@apollo/client';
 import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
 import OAuthDataError from '../../../components/OAuthDataError';
-import { QueryParams } from '../../..';
+import { QueryParams } from '../../../lib/query-params';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import GleanMetrics from '../../../lib/glean';
 
@@ -134,22 +134,32 @@ const SignupConfirmCodeContainer = ({
   }
 
   if (oAuthDataError) {
-    return <OAuthDataError error={oAuthDataError} gleanMetric={GleanMetrics.signupConfirmation.error} />;
+    return (
+      <OAuthDataError
+        error={oAuthDataError}
+        gleanMetric={GleanMetrics.signupConfirmation.error}
+      />
+    );
   }
   if (oAuthKeysCheckError) {
     if (!keyFetchToken || !unwrapBKey) {
       const localizedErrorMessage = ftlMsg.getMsg(
         'signin-code-expired-error',
         'Code expired. Please sign in again.'
-      )
+      );
       navigateWithQuery('/signin', {
         state: {
-          localizedErrorMessage
-        }
+          localizedErrorMessage,
+        },
       });
       return <LoadingSpinner fullScreen />;
     }
-    return <OAuthDataError error={oAuthKeysCheckError} gleanMetric={GleanMetrics.signupConfirmation.error}/>;
+    return (
+      <OAuthDataError
+        error={oAuthKeysCheckError}
+        gleanMetric={GleanMetrics.signupConfirmation.error}
+      />
+    );
   }
 
   return (
@@ -166,7 +176,7 @@ const SignupConfirmCodeContainer = ({
         keyFetchToken,
         unwrapBKey,
         flowQueryParams,
-        origin
+        origin,
       }}
     />
   );

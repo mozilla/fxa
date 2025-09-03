@@ -28,7 +28,7 @@ import {
   GET_TOTP_STATUS,
   GET_BACKUP_CODES_STATUS,
   GET_RECOVERY_PHONE,
-} from '../components/App/gql';
+} from '../lib/app-gql';
 import {
   AccountAvatar,
   AccountBackupCodes,

@@ -5,7 +5,7 @@
 import { RouteComponentProps } from '@reach/router';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { Integration, OAuthWebIntegration } from '../../../models';
-import { QueryParams } from '../../..';
+import { QueryParams } from '../../../lib/query-params';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 export type LocationState = {

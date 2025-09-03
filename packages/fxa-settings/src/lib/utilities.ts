@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import base32Encode from 'base32-encode';
-import { AttachedClient } from '../models/Account';
+type DeviceLike = { deviceType?: string | null; name?: string | null };
 
 // Various utilities that don't fit in a standalone lib
 
@@ -96,9 +96,7 @@ export function splitEncodedParams(
     .reduce((newObj, key) => Object.assign(newObj, { [key]: terms[key] }), {});
 }
 
-export function isMobileDevice(
-  client?: Pick<AttachedClient, 'deviceType' | 'name'>
-) {
+export function isMobileDevice(client?: DeviceLike) {
   if (client) {
     return (
       client.deviceType === 'mobile' ||

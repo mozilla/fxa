@@ -57,7 +57,7 @@ import VerificationMethods from '../../constants/verification-methods';
 import { KeyStretchExperiment } from '../../models/experiments';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { searchParams } from '../../lib/utilities';
-import { QueryParams } from '../..';
+import { QueryParams } from '../../lib/query-params';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { MetricsContext } from '@fxa/shared/glean';
 import {

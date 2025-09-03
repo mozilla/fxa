@@ -33,7 +33,7 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../lib/app-gql';
 import {
   CREDENTIAL_STATUS_MUTATION,
   GET_ACCOUNT_KEYS_MUTATION,

@@ -28,7 +28,7 @@ import { KeyStretchExperiment } from '../../models/experiments/key-stretch-exper
 import { handleGQLError } from './utils';
 import VerificationMethods from '../../constants/verification-methods';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
-import { QueryParams } from '../..';
+import { QueryParams } from '../../lib/query-params';
 import { isFirefoxService } from '../../models/integrations/utils';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
 import { isMobileDevice } from '../../lib/utilities';

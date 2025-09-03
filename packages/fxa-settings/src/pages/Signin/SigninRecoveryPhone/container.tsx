@@ -30,7 +30,7 @@ import {
   SigninRecoveryPhoneContainerProps,
   SigninRecoveryPhoneLocationState,
 } from './interfaces';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../lib/app-gql';
 import GleanMetrics from '../../../lib/glean';
 
 const SigninRecoveryPhoneContainer = ({

@@ -13,10 +13,8 @@ import { useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { getDefault } from '../lib/config';
-import {
-  DefaultIntegrationFlags,
-  IntegrationFactory,
-} from '../lib/integrations';
+import { IntegrationFactory } from '../lib/integrations/integration-factory';
+import { DefaultIntegrationFlags } from '../lib/integrations/integration-factory-flags';
 import { ReachRouterWindow } from '../lib/window';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
 import {
@@ -24,11 +22,11 @@ import {
   INITIAL_METRICS_QUERY,
   GET_PRODUCT_INFO,
   GET_CLIENT_INFO,
-} from '../components/App/gql';
+} from '../lib/app-gql';
 import {
   MetricsDataResult,
   SignedInAccountStatus,
-} from '../components/App/interfaces';
+} from '../lib/app-interfaces';
 import {
   RelierClientInfo,
   RelierSubscriptionInfo,

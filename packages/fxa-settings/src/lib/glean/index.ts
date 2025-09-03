@@ -33,7 +33,10 @@ import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
-import { appFramework, cmsCustomizationEnrollment } from 'fxa-shared/metrics/glean/web/event';
+import {
+  appFramework,
+  cmsCustomizationEnrollment,
+} from 'fxa-shared/metrics/glean/web/event';
 import {
   oauthClientId,
   service,
@@ -47,7 +50,7 @@ import * as sync from 'fxa-shared/metrics/glean/web/sync';
 import * as standard from 'fxa-shared/metrics/glean/web/standard';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
-import { Integration } from '../../models';
+import { Integration } from '../../models/integrations/integration';
 import { MetricsFlow } from '../metrics-flow';
 import { currentAccount } from '../../lib/cache';
 

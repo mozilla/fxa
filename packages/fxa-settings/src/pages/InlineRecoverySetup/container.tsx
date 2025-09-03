@@ -24,7 +24,7 @@ import InlineRecoverySetup from './index';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { SigninRecoveryLocationState } from './interfaces';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
-import { GET_TOTP_STATUS } from '../../components/App/gql';
+import { GET_TOTP_STATUS } from '../../lib/app-gql';
 import OAuthDataError from '../../components/OAuthDataError';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 

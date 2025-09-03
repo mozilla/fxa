@@ -5,7 +5,7 @@ import {
   clearSignedInAccountUid,
   currentAccount,
 } from '../lib/cache';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../lib/app-gql';
 
 export interface SessionData {
   verified: boolean | null;

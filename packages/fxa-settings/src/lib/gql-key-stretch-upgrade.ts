@@ -9,7 +9,7 @@ import {
   GetAccountKeysResponse,
   PasswordChangeFinishResponse,
   PasswordChangeStartResponse,
-} from '../pages/Signin/interfaces';
+} from './gql-key-stretch-upgrade.types';
 import * as Sentry from '@sentry/browser';
 import {
   getCredentials,

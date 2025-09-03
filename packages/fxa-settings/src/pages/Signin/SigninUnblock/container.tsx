@@ -38,7 +38,7 @@ import {
   SigninUnblockLocationState,
 } from './interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { QueryParams } from '../../..';
+import { QueryParams } from '../../../lib/query-params';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import OAuthDataError from '../../../components/OAuthDataError';
 import {

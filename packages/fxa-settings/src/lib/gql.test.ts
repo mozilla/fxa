@@ -6,7 +6,7 @@ import { ErrorResponse } from '@apollo/client/link/error';
 import { Operation, NextLink, ServerError } from '@apollo/client/core';
 import { GraphQLError } from 'graphql';
 import { cache } from './cache';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../lib/app-gql';
 import * as Sentry from '@sentry/browser';
 
 describe('errorHandler', () => {

@@ -13,7 +13,7 @@ import {
   startTransition,
 } from 'react';
 
-import { QueryParams } from '../..';
+import { QueryParams } from '../../lib/query-params';
 import { storeAccountData } from '../../lib/storage-utils';
 import { currentAccount, getAccountByUid } from '../../lib/cache';
 import { firefox } from '../../lib/channels/firefox';
@@ -556,7 +556,10 @@ const AuthAndAccountSetupRoutes = ({
           path="/signin_unblock/*"
           {...{ integration, flowQueryParams }}
         />
-        <InlineRecoveryKeySetupContainer path="/inline_recovery_key_setup/*" cmsInfo={integration.getCmsInfo()} />
+        <InlineRecoveryKeySetupContainer
+          path="/inline_recovery_key_setup/*"
+          cmsInfo={integration.getCmsInfo()}
+        />
 
         {/* Signup */}
         <CannotCreateAccount path="/cannot_create_account/*" />

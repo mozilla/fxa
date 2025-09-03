@@ -21,7 +21,7 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { NavigationOptions } from '../../Signin/interfaces';
 import { handleNavigation } from '../../Signin/utils';
 import GleanMetrics from '../../../lib/glean';
-import { QueryParams } from '../../..';
+import { QueryParams } from '../../../lib/query-params';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import useSyncEngines from '../../../lib/hooks/useSyncEngines';
 

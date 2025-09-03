@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { gql } from '@apollo/client';
-// DEPRECATED: move to lib/app-gql
 
 // Glean init needs 'metricsEnabled' and 'uid'.
 // "Amplitude" init needs 'metricsEnabled', 'uid', 'recoveryKey',

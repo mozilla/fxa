@@ -5,7 +5,7 @@
 import { IsEmail, IsHexadecimal, IsOptional, Length } from 'class-validator';
 import { ModelDataProvider, bind } from '../../lib/model-data';
 
-export * from './verification-info';
+export * from './import';
 
 export type VerificationInfoLinkStatus = 'expired' | 'damaged' | 'valid';
 

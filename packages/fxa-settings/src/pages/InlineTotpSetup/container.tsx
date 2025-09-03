@@ -21,11 +21,11 @@ import { useMutation, useQuery } from '@apollo/client';
 import { CREATE_TOTP_MUTATION } from './gql';
 import { getSigninState } from '../Signin/utils';
 import { SigninLocationState, TotpToken } from '../Signin/interfaces';
-import { GET_TOTP_STATUS } from '../../components/App/gql';
+import { GET_TOTP_STATUS } from '../../lib/app-gql';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
 import { SigninRecoveryLocationState } from '../InlineRecoverySetup/interfaces';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { QueryParams } from '../..';
+import { QueryParams } from '../../lib/query-params';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
 

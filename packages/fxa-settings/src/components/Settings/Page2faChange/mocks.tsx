@@ -8,7 +8,8 @@ import {
   mockAppContext,
   mockSession,
 } from '../../../models/mocks';
-import { Account, AppContext } from '../../../models';
+import { Account } from '../../../models/Account';
+import { AppContext } from '../../../models/contexts/AppContext';
 import Page2faChange from '.';
 import {
   LocationProvider,

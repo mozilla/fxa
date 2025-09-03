@@ -19,7 +19,7 @@ import {
   storeAccountData,
   setCurrentAccount,
 } from '../../../lib/storage-utils';
-import { QueryParams } from '../../..';
+import { QueryParams } from '../../../lib/query-params';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import { isThirdPartyAuthCallbackIntegration } from '../../../models/integrations/third-party-auth-callback-integration';
 import VerificationMethods from '../../../constants/verification-methods';
@@ -137,7 +137,10 @@ const ThirdPartyAuthCallback = ({
       // Extract relayed fxa parameters
       const params = new URLSearchParams(fxaParams || '');
       const flowId = params.get('flowId') || params.get('flow_id') || undefined;
-      const flowBeginTime = params.get('flowBeginTime') || params.get('flow_begin_time') || undefined;
+      const flowBeginTime =
+        params.get('flowBeginTime') ||
+        params.get('flow_begin_time') ||
+        undefined;
       const originalService =
         params.get('service') || params.get('client_id') || undefined;
       const linkedAccount: LinkedAccountData =

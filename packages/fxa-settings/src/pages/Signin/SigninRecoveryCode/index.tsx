@@ -29,7 +29,7 @@ import Banner from '../../../components/Banner';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import ButtonBack from '../../../components/ButtonBack';
 import classNames from 'classnames';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../lib/app-gql';
 
 export const viewName = 'signin-recovery-code';
 

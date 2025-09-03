@@ -15,7 +15,7 @@ import { createAppContext, mockAppContext } from '../../../models/mocks';
 import { useAccount } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { handleNavigation } from '../../Signin/utils';
-import { QueryParams } from '../../../index';
+import { QueryParams } from '../../../lib/query-params';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
 import { LocationProvider } from '@reach/router';
 import { GenericData } from '../../../lib/model-data';

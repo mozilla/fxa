@@ -9,8 +9,9 @@ import { BeginSigninError } from '../../lib/error-utils';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { MozServices } from '../../lib/types';
-import { Account, Integration } from '../../models';
-import { QueryParams } from '../..';
+import { Account } from '../../models/Account';
+import { Integration } from '../../models/integrations/integration';
+import { QueryParams } from '../../lib/query-params';
 
 export interface AvatarResponse {
   account: {

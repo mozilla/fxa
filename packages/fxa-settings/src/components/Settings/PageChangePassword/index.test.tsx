@@ -18,7 +18,8 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { AppContext, Account } from '../../../models';
+import { AppContext } from '../../../models/contexts/AppContext';
+import { Account } from '../../../models/Account';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import {
   inputCurrentPassword,

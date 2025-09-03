@@ -1,6 +1,9 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { InMemoryCache, gql } from '@apollo/client';
 import Storage from './storage';
-import { Email } from '../models';
 import { searchParam } from '../lib/utilities';
 import config from './config';
 import { StoredAccountData } from './storage-utils';
@@ -8,6 +11,8 @@ import { v4 as uuid } from 'uuid';
 import * as Sentry from '@sentry/browser';
 import { Constants } from './constants';
 import { MfaScope } from './types';
+
+type Email = { email: string; isPrimary: boolean; verified: boolean };
 
 const storage = Storage.factory('localStorage');
 

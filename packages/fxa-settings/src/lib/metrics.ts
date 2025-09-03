@@ -5,7 +5,7 @@
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { window } from './window';
 import { v4 as uuid } from 'uuid';
-import { QueryParams } from '..';
+import { QueryParams } from './query-params';
 import { once } from './utilities';
 import { useEffect } from 'react';
 import { MetricsContext } from '@fxa/shared/metrics/glean';

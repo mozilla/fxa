@@ -9,7 +9,9 @@ import {
   usePageViewEvent,
 } from '../../../lib/metrics';
 import { PageCreatePassword } from '.';
-import { Account, AlertBarInfo, AppContext } from '../../../models';
+import { Account } from '../../../models/Account';
+import { AlertBarInfo } from '../../../models/AlertBarInfo';
+import { AppContext } from '../../../models/contexts/AppContext';
 import {
   mockAppContext,
   mockSettingsContext,
