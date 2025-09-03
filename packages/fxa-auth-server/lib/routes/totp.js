@@ -291,7 +291,6 @@ module.exports = (
         },
         validate: {
           payload: isA.object({
-            service: validators.service,
             metricsContext: METRICS_CONTEXT_SCHEMA,
           }),
         },
