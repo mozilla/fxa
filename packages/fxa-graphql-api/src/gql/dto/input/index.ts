@@ -28,3 +28,4 @@ export { LegalInput } from './legal';
 export * from './credential-status';
 export * from './password-change-finish';
 export * from './password-change-start';
+export * from './mfa';

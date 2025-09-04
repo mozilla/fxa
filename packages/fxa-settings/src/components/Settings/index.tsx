@@ -38,6 +38,7 @@ import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import Page2faChange from './Page2faChange';
 import PageMfaGuardTestWithAuthClient from './PageMfaGuardTest';
+import PageMfaGuardTestWithGql from './PageMfaGuardWithGqlTest';
 
 export const Settings = ({
   integration,
@@ -199,6 +200,7 @@ export const Settings = ({
           <PageRecoveryPhoneRemove path="/recovery_phone/remove" />
 
           <PageMfaGuardTestWithAuthClient path="/mfa_guard/test/auth_client" />
+          <PageMfaGuardTestWithGql path="/mfa_guard/test/gql" />
         </ScrollToTop>
       </Router>
     </SettingsLayout>
