@@ -18,8 +18,9 @@ import { URLSearchParams } from 'url';
 async function validateCartStateAndRedirectAction(
   cartId: string,
   page: SupportedPages,
-  searchParams?: Record<string, string | string[]>
-): Promise<void> {
+  searchParams?: Record<string, string | string[]>,
+  redirectNow = true
+) {
   const urlSearchParams = new URLSearchParams(searchParams);
   const params = searchParams ? `?${urlSearchParams.toString()}` : '';
   const { state } = await getApp().getActionsService().getCartState({
@@ -27,8 +28,19 @@ async function validateCartStateAndRedirectAction(
   });
 
   if (!validateCartState(state, page)) {
-    redirect(getRedirect(state) + params);
+    const redirectToUrl = getRedirect(state) + params;
+
+    if (redirectNow) {
+      redirect(redirectToUrl);
+    } else {
+      return {
+        redirectToUrl,
+        state,
+      };
+    }
   }
+
+  return;
 }
 
 export { validateCartStateAndRedirectAction };

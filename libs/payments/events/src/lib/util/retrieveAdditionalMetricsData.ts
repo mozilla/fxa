@@ -53,12 +53,14 @@ export async function retrieveAdditionalMetricsData(
           errorReasonId: cartData.value.errorReasonId,
           couponCode: cartData.value.couponCode,
           currency: cartData.value.currency,
+          stripeCustomerId: cartData.value.stripeCustomerId,
         }
       : {
           uid: '',
           errorReasonId: null,
           couponCode: '',
           currency: '',
+          stripeCustomerId: '',
         };
 
   return {

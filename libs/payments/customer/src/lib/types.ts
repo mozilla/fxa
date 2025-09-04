@@ -38,17 +38,23 @@ export enum SubPlatPaymentMethodType {
 }
 
 export interface StripePaymentMethod {
-  type: SubPlatPaymentMethodType.Card
+  type:
+    | SubPlatPaymentMethodType.Card
     | SubPlatPaymentMethodType.ApplePay
     | SubPlatPaymentMethodType.GooglePay
     | SubPlatPaymentMethodType.Link
-    | SubPlatPaymentMethodType.Stripe
+    | SubPlatPaymentMethodType.Stripe;
   paymentMethodId: string;
 }
 
 export interface PayPalPaymentMethod {
   type: SubPlatPaymentMethodType.PayPal;
 }
+
+export type PaymentMethodTypeResponse =
+  | StripePaymentMethod
+  | PayPalPaymentMethod
+  | null;
 
 export interface Interval {
   interval: NonNullable<StripePrice['recurring']>['interval'];
