@@ -419,6 +419,10 @@ export function gleanMetrics(config: ConfigType) {
     twoStepAuthPhoneRemove: {
       success: createEventFn('two_step_auth_phone_remove_success'),
     },
+    loginConfirmSkipFor: {
+      knownIp: createEventFn('login_confirm_skip_for_known_ip'),
+      newAccount: createEventFn('login_confirm_skip_for_new_account'),
+    }
   };
 }
 
@@ -457,6 +461,7 @@ export const logErrorWithGlean = ({
           | 'twoStepAuthPhoneReplace'
           | 'twoStepAuthRemove'
           | 'emailDelivery'
+          | 'loginConfirmSkipFor'
         >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {

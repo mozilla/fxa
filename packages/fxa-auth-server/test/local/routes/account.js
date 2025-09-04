@@ -41,6 +41,7 @@ const { ProfileClient } = require('@fxa/profile/client');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
 const glean = mocks.mockGlean();
 const profile = mocks.mockProfile();
+const statsd = mocks.mockStatsd();
 const rpCmsConfig = {
   clientId: '00f00f',
   shared: {
@@ -114,7 +115,7 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     options.signinUtils ||
     proxyquire('../../../lib/routes/utils/signin', {
       '../utils/otp': () => ({ generateOtpCode: sinon.stub() }),
-    })(log, config, customs, db, mailer, cadReminders, glean);
+    })(log, config, customs, db, mailer, cadReminders, glean, statsd);
   if (options.checkPassword) {
     signinUtils.checkPassword = options.checkPassword;
   }
@@ -190,7 +191,8 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     oauthDb,
     options.stripeHelper,
     pushbox,
-    glean
+    glean,
+    statsd
   );
 };
 
@@ -3328,6 +3330,40 @@ describe('/account/login', () => {
             !response.verified,
             'response indicates account is unverified'
           );
+        });
+      });
+
+      it("logs metrics when accountAge is under maxAge config threshold", () => {
+        glean.loginConfirmSkipFor.newAccount.reset();
+
+        setup(true, 0);
+
+        return runTest(route, mockRequest, () => {
+          sinon.assert.calledOnce(glean.loginConfirmSkipFor.newAccount);
+          sinon.assert.calledWith(statsd.increment, 'account.signin.confirm.bypass.newAccount');
+        });
+      });
+
+      it("logs metrics when sign-in ipProfiling is allowed and a known ip address is used within threshold", () => {
+        glean.loginConfirmSkipFor.knownIp.reset();
+        config.securityHistory.ipProfiling.allowedRecency = 1 * 60 * 1000; // 1 minute
+        mockDB.verifiedLoginSecurityEvents = sinon.spy((arg) => {
+          return Promise.resolve([
+            {
+              name: 'account.login',
+              createdAt: Date.now(),
+              verified: true,
+            },
+          ]);
+        });
+        return runTest(route, mockRequest, (response) => {
+          assert.equal(
+            mockDB.verifiedLoginSecurityEvents.callCount,
+            1,
+            'db.securityEvents was called'
+          );
+
+          sinon.assert.called(glean.loginConfirmSkipFor.knownIp);
         });
       });
     });
