@@ -52,6 +52,11 @@ export interface PayPalPaymentMethod {
   type: SubPlatPaymentMethodType.PayPal;
 }
 
+export type PaymentMethodTypeResponse =
+  | StripePaymentMethod
+  | PayPalPaymentMethod
+  | null;
+
 export interface Interval {
   interval: NonNullable<StripePrice['recurring']>['interval'];
   intervalCount: number;

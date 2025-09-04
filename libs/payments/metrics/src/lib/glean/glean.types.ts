@@ -6,9 +6,7 @@ import Stripe from 'stripe';
 
 export const CheckoutTypes = ['with-accounts', 'without-accounts'] as const;
 export type CheckoutTypesType = (typeof CheckoutTypes)[number];
-import {
-  SubPlatPaymentMethodType,
-} from '@fxa/payments/customer';
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 
 export const PaymentProvidersTypePartial = [
   'card',
@@ -34,7 +32,7 @@ export type CommonMetrics = {
 
 export type CartMetrics = Pick<
   ResultCart,
-  'uid' | 'errorReasonId' | 'couponCode' | 'currency'
+  'uid' | 'errorReasonId' | 'couponCode' | 'currency' | 'stripeCustomerId'
 >;
 
 export type CmsMetricsData = {

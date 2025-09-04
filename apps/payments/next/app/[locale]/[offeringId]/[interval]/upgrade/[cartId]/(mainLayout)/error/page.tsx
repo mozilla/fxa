@@ -16,7 +16,6 @@ import {
 } from '@fxa/payments/ui/server';
 import {
   getCartOrRedirectAction,
-  recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
 import { config } from 'apps/payments/next/config';
 import { Metadata } from 'next';
@@ -59,13 +58,6 @@ export default async function UpgradeError({
   );
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const [cart] = await Promise.all([cartPromise]);
-
-  recordEmitterEventAction(
-    'checkoutFail',
-    { ...params },
-    searchParams,
-    cart.paymentInfo?.type
-  );
 
   const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config, searchParams);
 

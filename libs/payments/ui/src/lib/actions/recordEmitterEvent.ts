@@ -10,25 +10,20 @@ import { PaymentProvidersType } from '@fxa/payments/cart';
 import { PaymentsEmitterEventsKeysType } from '@fxa/payments/events';
 
 async function recordEmitterEventAction(
-  eventName: PaymentsEmitterEventsKeysType,
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>
-): Promise<void>;
-
-async function recordEmitterEventAction(
-  eventName: 'checkoutFail',
-  params: Record<string, string | string[]>,
-  searchParams: Record<string, string | string[]>,
-  paymentProvider?: PaymentProvidersType
-): Promise<void>;
-
-async function recordEmitterEventAction(
-  eventName: 'checkoutSubmit' | 'checkoutSuccess',
+  eventName: 'checkoutSubmit',
   params: Record<string, string | string[]>,
   searchParams: Record<string, string | string[]>,
   paymentProvider: PaymentProvidersType
 ): Promise<void>;
-
+async function recordEmitterEventAction(
+  eventName:
+    | 'checkoutView'
+    | 'checkoutEngage'
+    | 'checkoutSuccess'
+    | 'checkoutFail',
+  params: Record<string, string | string[]>,
+  searchParams: Record<string, string | string[]>
+): Promise<void>;
 async function recordEmitterEventAction(
   eventName: PaymentsEmitterEventsKeysType,
   params: Record<string, string | string[]>,
@@ -41,11 +36,13 @@ async function recordEmitterEventAction(
     searchParams: flattenRouteParams(searchParams),
   };
 
-  return getApp().getActionsService().recordEmitterEvent({
-    eventName,
-    requestArgs,
-    paymentProvider,
-  });
+  return getApp()
+    .getActionsService()
+    .recordEmitterEvent({
+      eventName,
+      requestArgs,
+      paymentProvider: paymentProvider || undefined,
+    });
 }
 
 export { recordEmitterEventAction };
