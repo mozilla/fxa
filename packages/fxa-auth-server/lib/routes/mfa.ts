@@ -315,8 +315,11 @@ export const mfaRoutes = (
       path: '/mfa/test',
       options: {
         auth: {
-          strategy: 'mfa',
-          scope: ['mfa:test'],
+          strategies: ['sessionToken', 'mfa'],
+          access: [
+            { entity: 'any' }, // for sessionToken strategy
+            { scope: ['mfa:test'] }, // for mfa strategy
+          ],
           payload: false,
         },
       },
@@ -330,8 +333,11 @@ export const mfaRoutes = (
       path: '/mfa/test2',
       options: {
         auth: {
-          strategy: 'mfa',
-          scope: ['mfa:test2'],
+          strategies: ['sessionToken', 'mfa'],
+          access: [
+            { scope: false }, // for sessionToken strategy
+            { scope: ['mfa:test'] }, // for mfa strategy
+          ],
           payload: false,
         },
       },

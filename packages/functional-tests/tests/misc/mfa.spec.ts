@@ -43,6 +43,12 @@ test.describe('severity-2 #smoke', () => {
     const resp4 = await client.mfaTestPost(jwtAccessToken);
     expect(resp4.status).toBe('success');
 
+    const resp5 = await client.mfaTestPostWithSessionToken(
+      credentials.sessionToken,
+      {}
+    );
+    expect(resp5.status).toBe('success');
+
     let scopeError = undefined;
     try {
       await client.mfaTestPost2(jwtAccessToken);
@@ -56,5 +62,14 @@ test.describe('severity-2 #smoke', () => {
     expect(scopeError?.data).toBe(
       '{"got":["mfa:test"],"need":[{"selection":["mfa:test2"]}]}'
     );
+
+    // Emulates a multi auth strategy where the session token is allowed as a fallback.
+    // This is useful for making non breaking changes as we transition over to using
+    // the JWTs.
+    const resp6 = await client.mfaTestPost2WithSessionToken(
+      credentials.sessionToken,
+      {}
+    );
+    expect(resp6.status).toBe('success');
   });
 });

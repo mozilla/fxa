@@ -154,8 +154,12 @@ async function fetchOrTimeout(
     init.signal = aborter.signal;
     id = setTimeout((() => aborter.abort()) as TimerHandler, timeout);
   }
+  const log = input.toString().indexOf('test2') > 0;
   try {
-    return await fetch(input, init);
+    log && console.log('!!! fetch', { input, init });
+    const result = await fetch(input, init);
+    log && console.log('!!! fetch result', result);
+    return result;
   } finally {
     if (id) {
       clearTimeout(id);
@@ -1556,8 +1560,24 @@ export default class AuthClient {
     return this.jwtPost('/mfa/test', jwt, headers);
   }
 
+  async mfaTestPostWithSessionToken(
+    sessionToken: string,
+    payload: any,
+    headers?: Headers
+  ) {
+    return this.sessionPost('/mfa/test', sessionToken, payload, headers);
+  }
+
   async mfaTestPost2(jwt: string, headers?: Headers) {
     return this.jwtPost('/mfa/test2', jwt, headers);
+  }
+
+  async mfaTestPost2WithSessionToken(
+    sessionToken: string,
+    payload: any,
+    headers?: Headers
+  ) {
+    return this.sessionPost('/mfa/test2', sessionToken, payload, headers);
   }
 
   async deviceList(sessionToken: hexstring, headers?: Headers) {
