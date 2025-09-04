@@ -1066,5 +1066,23 @@ describe('#integration - AccountResolver', () => {
         });
       });
     });
+
+    describe('mafTest', () => {
+      it('succeeds', async () => {
+        authClient.mfaTestGet = jest.fn().mockResolvedValue({
+          status: 'success',
+        });
+        const result = await resolver.mfaTest(headers, {
+          jwt: 'jwt-123',
+        });
+        expect(authClient.mfaTestGet).toHaveBeenCalledWith(
+          'jwt-123',
+          expect.any(Object)
+        );
+        expect(result).toStrictEqual({
+          status: 'success',
+        });
+      });
+    });
   });
 });
