@@ -1,6 +1,7 @@
 {
   "root": true,
   "extends": ["react-app", "react-app/jest"],
+  "plugins": ["header"],
   "rules": {
     "import/export": "error",
     "import/named": "off",
@@ -18,7 +19,11 @@
     "testing-library/render-result-naming-convention": "off",
     "testing-library/prefer-screen-queries": "off",
     "testing-library/no-unnecessary-act": "off",
-    "testing-library/no-container": "off"
+    "testing-library/no-container": "off",
+    "header/header": [
+      2, "block",
+      " This Source Code Form is subject to the terms of the Mozilla Public\n * License, v. 2.0. If a copy of the MPL was not distributed with this\n * file, You can obtain one at http://mozilla.org/MPL/2.0/. "
+    ]
   },
   "overrides": [
     {
@@ -29,5 +34,5 @@
       }
     }
   ],
-  "ignorePatterns": ["build/", "scripts/build.js"]
+  "ignorePatterns": ["build/", "scripts/build.js", "dist/"]
 }
