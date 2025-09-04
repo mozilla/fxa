@@ -93,6 +93,7 @@ function renderWithSession({
   finishOAuthFlowHandler,
   offeredSyncEngines,
   declinedSyncEngines,
+  origin,
 }: {
   session?: Session;
   newsletterSlugs?: string[];
@@ -100,6 +101,7 @@ function renderWithSession({
   finishOAuthFlowHandler?: FinishOAuthFlowHandler;
   offeredSyncEngines?: string[];
   declinedSyncEngines?: string[];
+  origin?: string;
 }) {
   renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ session })}>
@@ -110,6 +112,7 @@ function renderWithSession({
           finishOAuthFlowHandler,
           offeredSyncEngines,
           declinedSyncEngines,
+          origin,
         }}
       />
     </AppContext.Provider>
@@ -307,6 +310,42 @@ describe('ConfirmSignupCode page', () => {
         expect.anything()
       );
     });
+
+    it('attaches newAccount=true query param when confirming an account created in the same flow', async () => {
+      renderWithSession({
+        session,
+        integration,
+        origin: 'signup',
+      });
+      submit(MOCK_SIGNUP_CODE);
+
+      await waitFor(() => {
+        expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            newAccount: 'true',
+          })
+        );
+      });
+    });
+
+    it('attaches newAccountVerification=true query param when confirming an account created previously but not yet verified', async () => {
+      renderWithSession({
+        session,
+        integration,
+        origin: 'signin',
+      });
+      submit(MOCK_SIGNUP_CODE);
+
+      await waitFor(() => {
+        expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.objectContaining({
+            newAccountVerification: 'true',
+          })
+        );
+      });
+    });
   });
 
   describe('OAuth native integration', () => {
@@ -477,7 +516,7 @@ describe('ConfirmSignupCode page with error states', () => {
     expect(GleanMetrics.signupConfirmation.submit).not.toHaveBeenCalled();
   });
 
-    it('renders an error when the form is submitted with rate limit', async () => {
+  it('renders an error when the form is submitted with rate limit', async () => {
     const user = userEvent.setup();
     session = {
       verifySession: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR_RATE_LIMIT),

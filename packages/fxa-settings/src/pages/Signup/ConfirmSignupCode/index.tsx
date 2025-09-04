@@ -247,12 +247,17 @@ const ConfirmSignupCode = ({
             goToSettingsWithAlertSuccess();
           } else {
             // Navigate to relying party
-            hardNavigate(redirect);
+            if (origin === 'signup') {
+              hardNavigate(redirect, { newAccount: 'true' });
+            } else {
+              hardNavigate(redirect, {
+                newAccountVerification: 'true',
+              });
+            }
             return;
           }
         }
       } else if (isWebIntegration(integration)) {
-        // SubPlat redirect
         if (integration.data.redirectTo) {
           if (webRedirectCheck.isValid) {
             hardNavigate(integration.data.redirectTo);
