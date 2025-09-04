@@ -229,6 +229,7 @@
     "babel-plugin-transform-typescript-metadata": "^0.3.2",
     "eslint": "^8.57.1",
     "eslint-config-react-app": "^7.0.1",
+    "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^27.6.0",
     "eslint-plugin-react": "^7.32.2",
     "fxa-shared": "workspace:*",

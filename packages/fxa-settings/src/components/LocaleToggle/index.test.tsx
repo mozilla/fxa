@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/2.0/. */
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
@@ -16,21 +16,21 @@ const mockUseLocaleManager = jest.fn(() => ({
     { code: 'en', name: 'English', nativeName: 'English', rtl: false },
     { code: 'es', name: 'Spanish', nativeName: 'Español', rtl: false },
     { code: 'fr', name: 'French', nativeName: 'Français', rtl: false },
-    { code: 'he', name: 'Hebrew', nativeName: 'עברית', rtl: true }
+    { code: 'he', name: 'Hebrew', nativeName: 'עברית', rtl: true },
   ],
   switchLocale: mockSwitchLocale,
-  isLoading: false
+  isLoading: false,
 }));
 
 jest.mock('../../lib/hooks/useLocaleManager', () => ({
-  useLocaleManager: () => mockUseLocaleManager()
+  useLocaleManager: () => mockUseLocaleManager(),
 }));
 
 // Mock the useFtlMsgResolver hook
 jest.mock('../../models', () => ({
   useFtlMsgResolver: () => ({
-    getMsg: (id: string, fallback: string) => fallback
-  })
+    getMsg: (id: string, fallback: string) => fallback,
+  }),
 }));
 
 describe('LocaleToggle', () => {
@@ -43,10 +43,10 @@ describe('LocaleToggle', () => {
         { code: 'en', name: 'English', nativeName: 'English', rtl: false },
         { code: 'es', name: 'Spanish', nativeName: 'Español', rtl: false },
         { code: 'fr', name: 'French', nativeName: 'Français', rtl: false },
-        { code: 'he', name: 'Hebrew', nativeName: 'עברית', rtl: true }
+        { code: 'he', name: 'Hebrew', nativeName: 'עברית', rtl: true },
       ],
       switchLocale: mockSwitchLocale,
-      isLoading: false
+      isLoading: false,
     });
   });
 
@@ -104,10 +104,10 @@ describe('LocaleToggle', () => {
     mockUseLocaleManager.mockReturnValue({
       currentLocale: 'en',
       availableLocales: [
-        { code: 'en', name: 'English', nativeName: 'English', rtl: false }
+        { code: 'en', name: 'English', nativeName: 'English', rtl: false },
       ],
       switchLocale: mockSwitchLocale,
-      isLoading: true
+      isLoading: true,
     });
 
     renderWithLocalizationProvider(<LocaleToggle />);
@@ -141,7 +141,7 @@ describe('LocaleToggle', () => {
       currentLocale: 'en',
       availableLocales: [],
       switchLocale: mockSwitchLocale,
-      isLoading: false
+      isLoading: false,
     });
 
     const { rerender } = renderWithLocalizationProvider(<LocaleToggle />);
@@ -156,10 +156,10 @@ describe('LocaleToggle', () => {
       availableLocales: [
         { code: 'en', name: 'English', nativeName: 'English', rtl: false },
         { code: 'es', name: 'Spanish', nativeName: 'Español', rtl: false },
-        { code: 'fr', name: 'French', nativeName: 'French', rtl: false } // Same as nativeName
+        { code: 'fr', name: 'French', nativeName: 'French', rtl: false }, // Same as nativeName
       ],
       switchLocale: mockSwitchLocale,
-      isLoading: false
+      isLoading: false,
     });
 
     rerender(<LocaleToggle />);
