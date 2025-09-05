@@ -1778,36 +1778,45 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Initiates the TOTP replacement flow using an MFA JWT.
+   * Expects a JWT with scope `mfa:2fa` and returns data required to
+   * complete the replace flow (QR code URL and shared secret).
+   *
+   * @param jwt - MFA access token (must include the `mfa:2fa` scope)
+   * @param options - Optional request options such as metrics context
+   * @param headers - Optional additional headers for the request
+   * @returns A promise resolving to the QR code URL, secret, and optional recovery codes
+   */
   async replaceTotpToken(
-    sessionToken: hexstring,
+    jwt: string,
     options: {
       metricsContext?: MetricsContext;
-    },
+    } = {},
     headers?: Headers
   ): Promise<{
     qrCodeUrl: string;
     secret: string;
     recoveryCodes: string[];
   }> {
-    return this.sessionPost(
-      '/totp/replace/start',
-      sessionToken,
-      options,
-      headers
-    );
+    return this.jwtPost('/totp/replace/start', jwt, options, headers);
   }
 
+  /**
+   * Confirms TOTP replacement by verifying the code for the in-progress secret.
+   * Requires a valid MFA JWT scoped to the action (e.g. `mfa:2fa`).
+   *
+   * @param jwt - MFA access token (must include the `mfa:2fa` scope)
+   * @param code - 6-digit authenticator app code to validate the new secret
+   * @param headers - Optional additional headers for the request
+   * @returns A promise that resolves when the replacement has been accepted
+   */
   async confirmReplaceTotpToken(
-    sessionToken: hexstring,
+    jwt: string,
     code: string,
     headers?: Headers
   ): Promise<void> {
-    return this.sessionPost(
-      '/totp/replace/confirm',
-      sessionToken,
-      { code },
-      headers
-    );
+    return this.jwtPost('/totp/replace/confirm', jwt, { code }, headers);
   }
 
   async deleteTotpToken(sessionToken: hexstring, headers?: Headers) {

@@ -46,6 +46,15 @@ jest.mock('./ScrollToTop', () => ({
   ),
 }));
 
+// Mock the MFA guard so we can assert guarded pages render it without
+// pulling in the guard's dependencies or child flows
+jest.mock('./MfaGuard', () => ({
+  __esModule: true,
+  MfaGuard: ({ children }: { children: ReactNode }) => (
+    <div data-testid="mfa-guard">MockMfaGuard</div>
+  ),
+}));
+
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
@@ -340,6 +349,61 @@ describe('Settings App', () => {
 
     await navigate(SETTINGS_PATH + '/create_password');
     expect(history.location.pathname).toBe('/settings/change_password');
+  });
+
+  describe('guarded routes render MFA guard', () => {
+    it('renders MFA guard on two_step_authentication/change', async () => {
+      const session = mockSession(true);
+      const account = {
+        ...MOCK_ACCOUNT,
+        hasPassword: true,
+      } as unknown as Account;
+      const {
+        getByTestId,
+        history: { navigate },
+      } = renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account, session })}>
+          <Subject />
+        </AppContext.Provider>,
+        { route: SETTINGS_PATH }
+      );
+
+      await navigate(SETTINGS_PATH + '/two_step_authentication/change');
+
+      expect(getByTestId('mfa-guard')).toBeInTheDocument();
+    });
+
+    it('renders MFA guard on mfa_guard/test/auth_client', async () => {
+      const {
+        getByTestId,
+        history: { navigate },
+      } = renderWithRouter(
+        <AppContext.Provider value={mockAppContext()}>
+          <Subject />
+        </AppContext.Provider>,
+        { route: SETTINGS_PATH }
+      );
+
+      await navigate(SETTINGS_PATH + '/mfa_guard/test/auth_client');
+
+      expect(getByTestId('mfa-guard')).toBeInTheDocument();
+    });
+
+    it('renders MFA guard on mfa_guard/test/gql', async () => {
+      const {
+        getByTestId,
+        history: { navigate },
+      } = renderWithRouter(
+        <AppContext.Provider value={mockAppContext()}>
+          <Subject />
+        </AppContext.Provider>,
+        { route: SETTINGS_PATH }
+      );
+
+      await navigate(SETTINGS_PATH + '/mfa_guard/test/gql');
+
+      expect(getByTestId('mfa-guard')).toBeInTheDocument();
+    });
   });
 
   describe('prevents access to certain routes when account has no password', () => {

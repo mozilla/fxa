@@ -891,8 +891,9 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_REPLACE_START_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -909,19 +910,15 @@ module.exports = (
       handler: async function (request) {
         log.begin('totp.replace.create', request);
 
-        const sessionToken = request.auth.credentials;
-        const uid = sessionToken.uid;
+        const { uid } = request.auth.credentials;
+        const account = await db.account(uid);
 
         await customs.checkAuthenticated(
           request,
           uid,
-          sessionToken.email,
+          account.email,
           'totpCreate'
         );
-
-        if (sessionToken.tokenVerificationId) {
-          throw errors.unverifiedSession();
-        }
 
         // the opposite of `/totp/create` this requires that the user already has
         // a verified TOTP token to be replaced.
@@ -966,11 +963,7 @@ module.exports = (
         log.info('totpToken.replace.created', { uid });
         await request.emitMetricsEvent('totpToken.replace.created', { uid });
 
-        const otpauth = authenticator.keyuri(
-          sessionToken.email,
-          service,
-          secret
-        );
+        const otpauth = authenticator.keyuri(account.email, service, secret);
 
         const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
 
@@ -986,8 +979,9 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_REPLACE_CONFIRM_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -1009,19 +1003,15 @@ module.exports = (
         log.begin('totp.replace.confirm', request);
 
         const code = request.payload.code;
-        const sessionToken = request.auth.credentials;
-        const uid = sessionToken.uid;
+        const { uid } = request.auth.credentials;
+        const account = await db.account(uid);
 
         await customs.checkAuthenticated(
           request,
           uid,
-          sessionToken.email,
+          account.email,
           'totpReplace'
         );
-
-        if (sessionToken.tokenVerificationId) {
-          throw errors.unverifiedSession();
-        }
         // check the redis cache for the NEW secret. Since the existing code
         // is verified and stored in the db we must use the redis cache
         const newSharedSecret = await authServerCacheRedis.get(
@@ -1093,7 +1083,7 @@ module.exports = (
         }
 
         async function sendEmailNotification() {
-          const account = await db.account(sessionToken.uid);
+          const account = await db.account(uid);
           const geoData = request.app.geo;
           const ip = request.app.clientAddress;
           const service = request.payload.service || request.query.service;
@@ -1108,7 +1098,7 @@ module.exports = (
             uaOS: request.app.ua.os,
             uaOSVersion: request.app.ua.osVersion,
             uaDeviceType: request.app.ua.deviceType,
-            uid: sessionToken.uid,
+            uid: uid,
           };
           try {
             await mailer.sendPostChangeTwoStepAuthenticationEmail(

@@ -766,18 +766,6 @@ describe('totp', () => {
       );
     });
 
-    it('should error if session is not verified', async () => {
-      requestOptions.credentials.tokenVerificationId = 'notverified';
-      await setup(
-        { db: { email: TEST_EMAIL } },
-        {},
-        '/totp/replace/start',
-        requestOptions
-      ).then(assert.fail, (err) => {
-        assert.deepEqual(err.errno, 138, 'unverified session error');
-      });
-    });
-
     it('should error if the user does not have an existing token', async () => {
       await setup(
         {
@@ -873,21 +861,6 @@ describe('totp', () => {
         assert.fail('Expected request to error but it succeeded');
       } catch (err) {
         assert.equal(err.message, 'Invalid token confirmation code');
-      }
-    });
-
-    it('should error if session is not verified', async () => {
-      requestOptions.credentials.tokenVerificationId = 'notverified';
-      try {
-        await setup(
-          { db: { email: TEST_EMAIL } },
-          {},
-          '/totp/replace/confirm',
-          requestOptions
-        );
-        assert.fail('Expected request to error but it succeeded');
-      } catch (err) {
-        assert.equal(err.message, 'Unconfirmed session');
       }
     });
 

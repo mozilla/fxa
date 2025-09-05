@@ -85,6 +85,7 @@ module.exports = (printLogs) => {
           const vsc = mail.headers['x-verify-short-code'];
           const sc = mail.headers['x-signin-verify-code'];
           const rpc = mail.headers['x-password-forgot-otp'];
+          const mfa = mail.headers['x-account-change-verify-code'];
           const template = mail.headers['x-template-name'];
 
           // Workaround because the email service wraps this header in `< >`.
@@ -105,6 +106,8 @@ module.exports = (printLogs) => {
             console.log('\x1B[36mReport link:', rul, '\x1B[39m');
           } else if (rpc) {
             console.log('\x1B[36mReset password Otp:', rpc, '\x1B[39m');
+          } else if (mfa) {
+            console.log('\x1B[36mMfa code:', mfa, '\x1B[39m');
           } else if (TEMPLATES_WITH_NO_CODE.has(template)) {
             console.log(`Notification email: ${template}`);
           } else {

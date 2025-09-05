@@ -14,20 +14,14 @@ import { useTotpReplace } from '../../../lib/hooks/useTotpReplace';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 
 import FlowSetup2faApp from '../FlowSetup2faApp';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { MfaGuard } from '../MfaGuard';
 import { GleanClickEventType2FA } from '../../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
-const Page2faChange = (_: RouteComponentProps) => {
-  const account = useAccount();
+export const Page2faChange = () => {
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
-  const {
-    totpInfo,
-    loading: totpInfoLoading,
-    error: totpInfoError,
-  } = useTotpReplace();
 
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'page-2fa-change-title',
@@ -73,47 +67,54 @@ const Page2faChange = (_: RouteComponentProps) => {
     [navigateWithQuery]
   );
 
-  // if there is an issue retrieving totp info, 2FA cannot be set up
-  // --> return to main settings page with alert bar message
-  useEffect(() => {
-    if (!totpInfoLoading && (totpInfoError || !totpInfo)) {
-      showGenericError();
+  const ReplaceTotpFlow = () => {
+    const account = useAccount();
+    const { totpInfo, loading, error } = useTotpReplace();
+
+    // if there is an issue retrieving totp info, 2FA cannot be set up
+    // --> return to main settings page with alert bar message
+    useEffect(() => {
+      if (!loading && (error || !totpInfo)) {
+        showGenericError();
+        goHome();
+      }
+    }, [loading, error, totpInfo]);
+
+    if (loading) return <LoadingSpinner fullScreen />;
+    if (error || !totpInfo) return <></>;
+
+    const handleVerify2faAppCode = async (code: string) => {
+      try {
+        await account.confirmReplaceTotp(code);
+      } catch (error) {
+        return { error: true };
+      }
+
+      GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
+      showSuccess();
       goHome();
-    }
-  }, [totpInfoLoading, totpInfoError, totpInfo, showGenericError, goHome]);
+      return {};
+    };
 
-  /* ───── early return states ───── */
-  if (totpInfoLoading) return <LoadingSpinner fullScreen />;
-
-  if (totpInfoError || !totpInfo) {
-    return <></>;
-  }
-
-  /* ───── handlers ───── */
-  const handleVerify2faAppCode = async (code: string) => {
-    try {
-      await account.confirmReplaceTotp(code);
-    } catch (error) {
-      return { error: true };
-    }
-
-    GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
-
-    showSuccess();
-    goHome();
-    return {};
-  };
-
-  return (
-    <VerifiedSessionGuard onDismiss={goHome} onError={goHome}>
+    return (
       <FlowSetup2faApp
         verifyCode={handleVerify2faAppCode}
         onBackButtonClick={goHome}
         {...{ localizedPageTitle, customQrInstructionEl, totpInfo }}
         reason={GleanClickEventType2FA.replace}
       />
-    </VerifiedSessionGuard>
+    );
+  };
+
+  return <ReplaceTotpFlow />;
+};
+
+const MfaGuardPage2faChange = (_: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="2fa">
+      <Page2faChange />
+    </MfaGuard>
   );
 };
 
-export default Page2faChange;
+export default MfaGuardPage2faChange;

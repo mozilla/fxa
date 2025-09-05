@@ -81,7 +81,9 @@ export class SettingsPage extends SettingsLayout {
     const sync = services.find((s) => s.name.includes(' on '));
 
     await sync?.signout();
-    await this.page.locator('text=Rather not say >> input[name="reason"]').click();
+    await this.page
+      .locator('text=Rather not say >> input[name="reason"]')
+      .click();
     await this.modalConfirmButton.click();
 
     await this.page.evaluate((uid) => {
@@ -106,5 +108,23 @@ export class SettingsPage extends SettingsLayout {
     await expect(this.settingsHeading).toBeVisible();
     await expect(this.alertBar).toHaveText('Two-step authentication disabled');
     await expect(this.totp.status).toHaveText('Disabled');
+  }
+
+  /**
+   * Confirms the MFA modal (MfaGuard) by retrieving the code from the inbox
+   * and submitting it. Use when an action triggers the protected modal.
+   *
+   * @param email - The account email address to fetch the MFA code for.
+   */
+  async confirmMfaGuard(email: string) {
+    const code =
+      await this.target.emailClient.getVerifyAccountChangeCode(email);
+    await this.page
+      .getByRole('heading', { name: 'Enter confirmation code' })
+      .waitFor();
+    await this.page
+      .getByRole('textbox', { name: 'Enter 6-digit code' })
+      .fill(code);
+    await this.page.getByRole('button', { name: 'Confirm' }).click();
   }
 }
