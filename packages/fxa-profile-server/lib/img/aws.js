@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
-
 const { S3 } = require('@aws-sdk/client-s3');
 
 const P = require('../promise');
@@ -11,6 +9,7 @@ const P = require('../promise');
 const config = require('../config');
 const logger = require('../logging')('img.aws');
 
+const PUBLIC_REGION = config.get('img.uploads.dest.region');
 const PUBLIC_BUCKET = config.get('img.uploads.dest.public');
 const CACHE_CONTROL_HEADER = `immutable,public,max-age=${config.get(
   'img.uploads.cacheControlSeconds'
@@ -23,7 +22,7 @@ if (!/^[a-zA-Z0-9_\-]+$/.test(PUBLIC_BUCKET)) {
 }
 
 function AwsDriver() {
-  this._s3 = new S3();
+  this._s3 = new S3({ region: PUBLIC_REGION });
 }
 
 AwsDriver.connect = function awsConnect(options) {
