@@ -4,14 +4,20 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
-import { isRTLLocale, saveLocalePreference, getCurrentLocale } from '../lib/locales';
-import { supportedLanguages } from '@fxa/shared/l10n';
-
-const DEFAULT_LOCALE = 'en';
+import {
+  isRTLLocale,
+  saveLocalePreference,
+  clearLocalePreference,
+  getCurrentLocale,
+  validateLocale,
+  detectBrowserDefaultLocale,
+  DEFAULT_LOCALE
+} from '../lib/locales';
 
 interface DynamicLocalizationContextType {
   currentLocale: string;
   switchLanguage: (locale: string) => Promise<void>;
+  clearLanguagePreference: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -46,7 +52,7 @@ export const DynamicLocalizationProvider: React.FC<{
 
   const switchLanguage = useCallback(async (locale: string) => {
     // Validate against supported languages
-    if (!supportedLanguages.includes(locale)) {
+    if (!validateLocale(locale)) {
       console.warn(`Locale ${locale} is not supported`);
       return;
     }
@@ -79,10 +85,39 @@ export const DynamicLocalizationProvider: React.FC<{
     }
   }, [currentLocale]);
 
+  const clearLanguagePreference = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      // 1. Clear preference from localStorage
+      clearLocalePreference();
+
+      // 2. Get browser's default locale
+      const browserDefaultLocale = detectBrowserDefaultLocale();
+
+      // 3. Update document attributes
+      document.documentElement.lang = browserDefaultLocale;
+      document.documentElement.dir = isRTLLocale(browserDefaultLocale) ? 'rtl' : 'ltr';
+
+      // 4. Update state
+      setCurrentLocale(browserDefaultLocale);
+      setUserLocales([browserDefaultLocale, DEFAULT_LOCALE]);
+
+      // 5. Force AppLocalizationProvider to re-mount and reload bundles
+      setKey(prev => prev + 1);
+
+    } catch (error) {
+      // Clear failed, ignore it
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   return (
     <DynamicLocalizationContext.Provider value={{
       currentLocale,
       switchLanguage,
+      clearLanguagePreference,
       isLoading
     }}>
       <AppLocalizationProvider
@@ -104,6 +139,7 @@ export const useDynamicLocalization = () => {
     return {
       currentLocale: DEFAULT_LOCALE,
       switchLanguage: async () => {},
+      clearLanguagePreference: async () => {},
       isLoading: false
     };
   }

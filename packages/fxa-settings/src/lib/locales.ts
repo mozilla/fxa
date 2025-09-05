@@ -4,6 +4,9 @@
 
 import { supportedLanguages, rtlLocales } from '@fxa/shared/l10n';
 
+// Default locale constant
+export const DEFAULT_LOCALE = 'en';
+
 export interface LocaleOption {
   code: string;          // 'en', 'es', 'fr'
   name: string;          // 'English', 'Español', 'Français'
@@ -92,30 +95,18 @@ export const isRTLLocale = (locale: string): boolean => {
 export const getCurrentLocale = (): string => {
   // 1. Check localStorage for user preference
   const savedLocale = getLocalePreference();
-  if (savedLocale && supportedLanguages.includes(savedLocale)) {
+  if (savedLocale && validateLocale(savedLocale)) {
     return savedLocale;
   }
 
   // 2. Check document.documentElement.lang
   const documentLang = document.documentElement.lang;
-  if (documentLang && supportedLanguages.includes(documentLang)) {
+  if (documentLang && validateLocale(documentLang)) {
     return documentLang;
   }
 
-  // 3. Check navigator.language
-  const browserLang = navigator.language;
-  if (browserLang && supportedLanguages.includes(browserLang)) {
-    return browserLang;
-  }
-
-  // 4. Check base language (e.g., 'en' from 'en-US')
-  const baseLang = browserLang?.split('-')[0];
-  if (baseLang && supportedLanguages.includes(baseLang)) {
-    return baseLang;
-  }
-
-  // 5. Default to English
-  return 'en';
+  // 3. Use browser default detection
+  return detectBrowserDefaultLocale();
 };
 
 // Save locale preference to localStorage
@@ -135,4 +126,53 @@ export const getLocalePreference = (): string | null => {
     console.warn('Failed to get locale preference:', error);
     return null;
   }
+};
+
+// Clear locale preference from localStorage (enables browser default)
+export const clearLocalePreference = (): void => {
+  try {
+    localStorage.removeItem(LOCALE_STORAGE_KEY);
+  } catch (error) {
+    console.warn('Failed to clear locale preference:', error);
+  }
+};
+
+// Check if user is using browser default (no saved preference)
+export const isUsingBrowserDefault = (): boolean => {
+  return getLocalePreference() === null;
+};
+
+// Validate that a locale is supported
+export const validateLocale = (locale: string): boolean => {
+  return supportedLanguages.includes(locale);
+};
+
+// Detect browser's default locale with fallback chain
+export const detectBrowserDefaultLocale = (): string => {
+  // Check navigator.language first
+  const browserLang = navigator.language;
+  if (browserLang && validateLocale(browserLang)) {
+    return browserLang;
+  }
+
+  // Check base language (e.g., 'en' from 'en-US')
+  const baseLang = browserLang?.split('-')[0];
+  if (baseLang && validateLocale(baseLang)) {
+    return baseLang;
+  }
+
+  // Default to English
+  return DEFAULT_LOCALE;
+};
+
+// Get browser's default locale information
+export const getBrowserDefaultLocaleInfo = (): LocaleOption | null => {
+  const detectedLocale = detectBrowserDefaultLocale();
+
+  if (LOCALE_MAPPINGS[detectedLocale]) {
+    return LOCALE_MAPPINGS[detectedLocale];
+  }
+
+  // Fallback to English if locale mapping not found
+  return LOCALE_MAPPINGS[DEFAULT_LOCALE] || null;
 };
