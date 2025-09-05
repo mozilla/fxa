@@ -1666,23 +1666,15 @@ export default class AuthClient {
     return this.sessionGet('/recovery_emails', sessionToken, headers);
   }
 
-  async recoveryEmailCreate(
-    sessionToken: hexstring,
-    email: string,
-    options: {
-      verificationMethod?: string;
-    } = {},
-    headers?: Headers
-  ) {
-    return this.sessionPost(
-      '/recovery_email',
-      sessionToken,
-      {
-        email,
-        ...options,
-      },
-      headers
-    );
+  /**
+   * Creates a new recovery email for the account.
+   * @param jwt Required scope 'mfa:email'
+   * @param email Recovery email to add to account
+   * @param headers
+   * @returns Response
+   */
+  async recoveryEmailCreate(jwt: string, email: string, headers?: Headers) {
+    return this.jwtPost('/mfa/recovery_email', jwt, { email }, headers);
   }
 
   async recoveryEmailDestroy(
@@ -1713,15 +1705,23 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Verifies a recovery email by confirming the code sent to that email address.
+   * @param jwt Required scope 'mfa:email'
+   * @param email Recovery email verify
+   * @param code Verification code sent to recovery email
+   * @param headers
+   * @returns Response
+   */
   async recoveryEmailSecondaryVerifyCode(
-    sessionToken: hexstring,
+    jwt: string,
     email: string,
     code: string,
     headers?: Headers
   ): Promise<{}> {
-    return this.sessionPost(
-      '/recovery_email/secondary/verify_code',
-      sessionToken,
+    return this.jwtPost(
+      '/mfa/recovery_email/secondary/verify_code',
+      jwt,
       { email, code },
       headers
     );

@@ -128,7 +128,7 @@ test.describe('severity-1 #smoke', () => {
         uid,
       });
       await signin.fillOutPasswordForm(credentials.password);
-      // fails on this chck for react (message not sent)
+      // fails on this check for react (message not sent)
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
         FirefoxCommand.LinkAccount
       );
@@ -146,7 +146,8 @@ test.describe('severity-1 #smoke', () => {
         target,
         settings,
         secondaryEmail,
-        nonBlockedEmail
+        nonBlockedEmail,
+        credentials.email
       );
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(credentials.password);
@@ -162,9 +163,11 @@ async function changePrimaryEmail(
   target: BaseTarget,
   settings: SettingsPage,
   secondaryEmail: SecondaryEmailPage,
-  email: string
+  email: string,
+  primaryEmail: string
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
+  await settings.confirmMfaGuard(primaryEmail);
   await secondaryEmail.fillOutEmail(email);
   const code: string = await target.emailClient.getVerifySecondaryCode(email);
   await secondaryEmail.fillOutVerificationCode(code);

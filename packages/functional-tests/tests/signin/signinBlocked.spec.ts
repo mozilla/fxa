@@ -166,6 +166,7 @@ test.describe('severity-2 #smoke', () => {
 
       await settings.goto();
       await settings.secondaryEmail.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       await secondaryEmail.fillOutEmail(blockedEmail);
       const verifyCode: string =
         await target.emailClient.getVerifySecondaryCode(blockedEmail);
