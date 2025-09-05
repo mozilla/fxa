@@ -138,7 +138,12 @@ export const InlineTotpSetupContainer = ({
       return;
     }
     if (sessionVerified === false) {
-      navTo('/signin_token_code', signinState ? signinState : undefined);
+      (async () => {
+        // The `/signin_token_code` does not automatically send a verification code, so we need to do it manually
+        // before redirecting to the page
+        await session.sendVerificationCode();
+        navTo('/signin_token_code', signinState ? signinState : undefined);
+      })();
       return;
     }
   }, [
@@ -147,6 +152,7 @@ export const InlineTotpSetupContainer = ({
     totpStatusLoading,
     isSignedIn,
     signinState,
+    session,
     navTo,
     navigateWithQuery,
   ]);

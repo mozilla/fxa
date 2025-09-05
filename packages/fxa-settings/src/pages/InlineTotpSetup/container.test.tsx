@@ -40,6 +40,7 @@ jest.mock('@reach/router', () => {
 
 const mockSessionHook = jest.fn();
 const mockVerifyTotpSetupCode = jest.fn();
+const mockSendVerificationCode = jest.fn();
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
@@ -76,8 +77,10 @@ function setMocks() {
     state: MOCK_SIGNIN_LOCATION_STATE,
   });
   mockVerifyTotpSetupCode.mockReset();
+  mockSendVerificationCode.mockReset();
   mockSessionHook.mockReturnValue({
     isSessionVerified: async () => true,
+    sendVerificationCode: mockSendVerificationCode,
   });
   mockCreateTotpMutation.mockResolvedValue({
     data: { createTotp: MOCK_TOTP_TOKEN },
@@ -174,6 +177,23 @@ describe('InlineTotpSetupContainer', () => {
       render();
       const location = mockLocationHook();
       await waitFor(() => {
+        expect(mockNavigateHook).toHaveBeenCalledWith(
+          `/signin_token_code${location.search}`,
+          { state: MOCK_SIGNIN_LOCATION_STATE }
+        );
+      });
+    });
+
+    it('sends verification code when session is not verified', async () => {
+      mockSendVerificationCode.mockResolvedValue(undefined);
+      mockSessionHook.mockImplementationOnce(() => ({
+        isSessionVerified: async () => false,
+        sendVerificationCode: mockSendVerificationCode,
+      }));
+      render();
+      const location = mockLocationHook();
+      await waitFor(() => {
+        expect(mockSendVerificationCode).toHaveBeenCalled();
         expect(mockNavigateHook).toHaveBeenCalledWith(
           `/signin_token_code${location.search}`,
           { state: MOCK_SIGNIN_LOCATION_STATE }
