@@ -8,13 +8,19 @@ import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../models/mocks';
 import { MfaGuard } from './index';
 import { JwtTokenCache } from '../../../lib/cache';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 const mockSessionToken = 'session-xyz';
 const mockOtp = '123456';
 const mockScope = 'test';
 const mockAuthClient = {
   mfaRequestOtp: jest.fn().mockResolvedValue(undefined),
-  mfaOtpVerify: jest.fn().mockResolvedValue({ accessToken: 'new-jwt' }),
+  mfaOtpVerify: jest.fn((sessionToken, code, requiredScope) => {
+    if (code === mockOtp) {
+      return Promise.resolve({ accessToken: 'new-jwt' });
+    }
+    return Promise.reject(AuthUiErrors.INVALID_EXPIRED_OTP_CODE);
+  }),
 };
 const mockFtlMsgResolver = {
   getMsg: (id: string, fallback: string) => fallback,
@@ -87,5 +93,49 @@ describe('MfaGuard', () => {
       screen.queryByText('Enter confirmation code')
     ).not.toBeInTheDocument();
     expect(mockAuthClient.mfaRequestOtp).not.toHaveBeenCalled();
+  });
+
+  it('shows error banner on invalid OTP', async () => {
+    renderWithRouter(
+      <MfaGuard requiredScope={mockScope}>
+        <div>secured</div>
+      </MfaGuard>
+    );
+
+    expect(screen.queryByText('Enter confirmation code')).toBeInTheDocument();
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Enter 6-digit code' }),
+      '654321'
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    expect(
+      await screen.findByText('Invalid or expired confirmation code')
+    ).toBeInTheDocument();
+  });
+
+  it('clears error banner on input change', async () => {
+    renderWithRouter(
+      <MfaGuard requiredScope={mockScope}>
+        <div>secured</div>
+      </MfaGuard>
+    );
+
+    expect(screen.getByText('Enter confirmation code')).toBeInTheDocument();
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Enter 6-digit code' }),
+      '654321'
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+
+    expect(
+      await screen.findByText('Invalid or expired confirmation code')
+    ).toBeInTheDocument();
+
+    await userEvent.clear(screen.getByRole('textbox'));
+
+    expect(
+      screen.queryByText('Invalid or expired confirmation code')
+    ).not.toBeInTheDocument();
   });
 });

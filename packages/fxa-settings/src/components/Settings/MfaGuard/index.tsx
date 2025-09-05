@@ -10,7 +10,7 @@ import React, {
 } from 'react';
 import { useErrorHandler } from 'react-error-boundary';
 
-import { useAccount, useAuthClient } from '../../../models';
+import { useAccount, useAuthClient, useFtlMsgResolver } from '../../../models';
 import Modal from '../ModalMfaProtected';
 import {
   JwtTokenCache,
@@ -19,6 +19,8 @@ import {
 import { MfaScope } from '../../../lib/types';
 import { useNavigate } from '@reach/router';
 import { MfaErrorBoundary } from './error-boundary';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 /**
  * This is a guard component designed to wrap around components that perform
@@ -38,6 +40,9 @@ export const MfaGuard = ({
   // Whether the modal to enter the OTP code is displayed
   const [showModal, setShowModal] = useState(false);
 
+  const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
+    useState<string | undefined>(undefined);
+
   // Reactive state: if the store state changes, a re-render is triggered
   const jwtState = useSyncExternalStore(
     JwtTokenCache.subscribe,
@@ -47,6 +52,8 @@ export const MfaGuard = ({
   const authClient = useAuthClient();
   const navigate = useNavigate();
   const sessionToken = getSessionToken();
+
+  const ftlMsgResolver = useFtlMsgResolver();
 
   // If no session token exists, kick them to sign-in
   if (!sessionToken) {
@@ -89,7 +96,12 @@ export const MfaGuard = ({
       );
       JwtTokenCache.setToken(sessionToken, requiredScope, result.accessToken);
     } catch (err) {
-      // TODO: FXA-12328 - Handle invalid code error state.
+      if (err.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno) {
+        setLocalizedErrorBannerMessage(
+          getLocalizedErrorMessage(ftlMsgResolver, err)
+        );
+        return;
+      }
 
       // TODO: FXA-12329 - There might be some errors to handle inline like rate-limiting.
       handleError(err);
@@ -105,11 +117,14 @@ export const MfaGuard = ({
   };
 
   const onDismiss = () => {
+    setShowModal(false);
+    clearErrorMessage();
+    // TODO: set showResendSuccessBanner to false
     navigate('/settings');
   };
 
-  const clearErrorTooltip = () => {
-    // TODO: FXA-12328 - Handle invalid code error state.
+  const clearErrorMessage = () => {
+    setLocalizedErrorBannerMessage(undefined);
   };
 
   const email = account.email;
@@ -125,9 +140,10 @@ export const MfaGuard = ({
         onSubmit: onSubmitOtp,
         onDismiss,
         handleResendCode,
-        clearErrorTooltip,
+        clearErrorMessage,
         resendCodeLoading,
         showResendSuccessBanner,
+        localizedErrorBannerMessage,
       }}
     >
       <p>Re-verify Account!</p>

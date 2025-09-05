@@ -9,7 +9,7 @@ import InputText from '../../InputText';
 import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { EmailCodeImage } from '../../images';
-import { ResendCodeSuccessBanner } from '../../Banner';
+import Banner, { ResendCodeSuccessBanner } from '../../Banner';
 
 type ModalProps = {
   email: string;
@@ -17,8 +17,8 @@ type ModalProps = {
   onSubmit: (code: string) => void;
   onDismiss: () => void;
   handleResendCode: () => void;
-  clearErrorTooltip: () => void;
-  localizedErrorTooltipMessage?: string;
+  clearErrorMessage: () => void;
+  localizedErrorBannerMessage?: string;
   resendCodeLoading: boolean;
   showResendSuccessBanner: boolean;
 };
@@ -33,8 +33,8 @@ export const ModalMfaProtected = ({
   onSubmit,
   onDismiss,
   handleResendCode,
-  clearErrorTooltip,
-  localizedErrorTooltipMessage,
+  clearErrorMessage,
+  localizedErrorBannerMessage,
   resendCodeLoading,
   showResendSuccessBanner,
 }: ModalProps) => {
@@ -74,6 +74,13 @@ export const ModalMfaProtected = ({
           </p>
         </FtlMsg>
         {showResendSuccessBanner && <ResendCodeSuccessBanner />}
+        {localizedErrorBannerMessage && (
+          <Banner
+            type="error"
+            bannerId="modal-mfa-protected-error-banner"
+            content={{ localizedHeading: localizedErrorBannerMessage }}
+          />
+        )}
 
         <EmailCodeImage />
 
@@ -102,10 +109,13 @@ export const ModalMfaProtected = ({
               required: true,
               pattern: /^\s*[0-9]{6}\s*$/,
             })}
-            onChange={clearErrorTooltip}
-            {...{
-              errorText: localizedErrorTooltipMessage,
-            }}
+            onChange={clearErrorMessage}
+            ariaDescribedBy={
+              localizedErrorBannerMessage
+                ? 'modal-mfa-protected-error-banner'
+                : undefined
+            }
+            hasErrors={!!localizedErrorBannerMessage}
           />
         </div>
 

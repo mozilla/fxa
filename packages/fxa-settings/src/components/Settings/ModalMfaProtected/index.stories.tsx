@@ -18,14 +18,14 @@ export default {
 
 export const DefaultWithValidCode123456 = () => {
   const [modalRevealed, showModal, hideModal] = useBooleanState(true);
-  const [localizedErrorTooltipMessage, setLocalizedErrorTooltipMessage] =
+  const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
     useState<string | undefined>(undefined);
   const [showResendSuccessBanner, setShowResendSuccessBanner] =
     useState<boolean>(false);
 
   const dismiss = () => {
     hideModal();
-    setLocalizedErrorTooltipMessage(undefined);
+    setLocalizedErrorBannerMessage(undefined);
     setShowResendSuccessBanner(false);
   };
 
@@ -49,18 +49,18 @@ export const DefaultWithValidCode123456 = () => {
             if (code === '123456') {
               dismiss();
             } else {
-              setLocalizedErrorTooltipMessage(
+              setLocalizedErrorBannerMessage(
                 'Invalid or expired confirmation code.'
               );
               setShowResendSuccessBanner(false);
             }
           }}
           {...{
-            localizedErrorTooltipMessage,
+            localizedErrorBannerMessage: localizedErrorBannerMessage,
             showResendSuccessBanner,
           }}
-          clearErrorTooltip={() => {
-            setLocalizedErrorTooltipMessage(undefined);
+          clearErrorMessage={() => {
+            setLocalizedErrorBannerMessage(undefined);
           }}
           onDismiss={dismiss}
           handleResendCode={() => {
