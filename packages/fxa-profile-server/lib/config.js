@@ -105,6 +105,11 @@ const conf = convict({
           default: 'BUCKET_NAME',
           env: 'IMG_UPLOADS_DEST_PUBLIC',
         },
+        region: {
+          doc: 'The AWS region of the image S3 bucket.',
+          default: 'us-east-1',
+          env: 'IMG_UPLOADS_DEST_REGION',
+        },
       },
       maxSize: {
         doc: 'Maximum bytes allow for uploads',
