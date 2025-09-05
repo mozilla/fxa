@@ -319,10 +319,21 @@ export const mfaRoutes = (
           scope: ['mfa:test'],
           payload: false,
         },
+        validate: {
+          payload: isA.object({
+            message: isA.string(),
+          }),
+        },
       },
       handler: function (request: AuthRequest) {
         log.begin('mfa.test', request);
-        return { status: 'success' };
+        const { message } = request.payload as unknown as { message: string };
+        const { uid } = request.auth.credentials;
+        return {
+          status: 'success',
+          uid,
+          echo: message,
+        };
       },
     },
     {
