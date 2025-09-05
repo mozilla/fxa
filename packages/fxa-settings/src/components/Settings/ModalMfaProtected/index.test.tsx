@@ -15,7 +15,7 @@ const defaultProps = {
   onSubmit: () => {},
   onDismiss: () => {},
   handleResendCode: () => {},
-  clearErrorTooltip: () => {},
+  clearErrorMessage: () => {},
   resendCodeLoading: false,
   showResendSuccessBanner: false,
 };
@@ -98,14 +98,14 @@ describe('ModalMfaProtected', () => {
     expect(onDismiss).toHaveBeenCalled();
   });
 
-  it('displays banners and tooltips', () => {
+  it('displays error banner', () => {
     renderWithRouter(
       <ModalMfaProtected
         {...defaultProps}
-        localizedErrorTooltipMessage="error tooltip"
+        localizedErrorBannerMessage="error banner"
       />
     );
-    expect(screen.getByText('error tooltip')).toBeInTheDocument();
+    expect(screen.getByText('error banner')).toBeInTheDocument();
   });
 
   it('shows code resend success banner', () => {
