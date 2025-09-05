@@ -48,6 +48,10 @@ export const Nav = ({
     `${config.marketingEmailPreferencesUrl}?email=${encodeURIComponent(
       primaryEmail
     )}`;
+  const subscriptionLink = config.featureFlags
+    ?.paymentsNextSubscriptionManagement
+    ? `${config.servers.paymentsNext.url}/subscriptions/manage`
+    : '/subscriptions';
 
   useEffect(() => {
     let observer: IntersectionObserver | null = null;
@@ -217,7 +221,7 @@ export const Nav = ({
             <LinkExternal
               className="font-bold focus-visible-default rounded-sm outline-offset-2"
               data-testid="nav-link-subscriptions"
-              href="/subscriptions"
+              href={subscriptionLink}
             >
               <Localized id="nav-paid-subs">Paid Subscriptions</Localized>
               <OpenExternal
