@@ -19,7 +19,11 @@ export class CustomerSessionManager {
             payment_method_redisplay: 'enabled',
             payment_method_save: 'disabled',
             payment_method_remove: 'disabled',
-            payment_method_allow_redisplay_filters: ['always', 'limited', 'unspecified'],
+            payment_method_allow_redisplay_filters: [
+              'always',
+              'limited',
+              'unspecified',
+            ],
           },
         },
       },
@@ -34,7 +38,7 @@ export class CustomerSessionManager {
           enabled: true,
           features: {
             payment_method_redisplay: 'enabled',
-            payment_method_remove: 'enabled',
+            payment_method_remove: 'disabled',
             payment_method_allow_redisplay_filters: [
               'always',
               'limited',
