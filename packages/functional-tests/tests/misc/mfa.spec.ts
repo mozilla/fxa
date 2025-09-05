@@ -40,8 +40,10 @@ test.describe('severity-2 #smoke', () => {
     const resp3 = await client.mfaTestGet(jwtAccessToken);
     expect(resp3.status).toBe('success');
 
-    const resp4 = await client.mfaTestPost(jwtAccessToken);
+    const resp4 = await client.mfaTestPost(jwtAccessToken, { message: 'foo' });
     expect(resp4.status).toBe('success');
+    expect(resp4.uid).toBe(credentials.uid);
+    expect(resp4.echo).toBe('foo');
 
     let scopeError = undefined;
     try {
