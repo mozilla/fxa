@@ -172,4 +172,12 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   );
 };
 
-export default PageSecondaryEmailVerify;
+const MfaGuardedPageSecondaryEmailVerify = (_: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="email">
+      <PageSecondaryEmailVerify {..._} />
+    </MfaGuard>
+  );
+};
+
+export default MfaGuardedPageSecondaryEmailVerify;

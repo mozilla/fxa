@@ -552,6 +552,7 @@ module.exports = (
         auth: {
           strategy: 'mfa',
           scope: ['mfa:email'],
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -618,7 +619,22 @@ module.exports = (
         await db.createEmail(uid, emailData);
 
         const geoData = request.app.geo;
+
         try {
+          console.debug('🐛 email props', {
+            code: otpUtils.generateOtpCode(hex, otpOptions),
+            deviceId: request.app.ua.deviceId,
+            acceptLanguage: request.app.acceptLanguage,
+            email: emailData.email,
+            primaryEmail,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uid,
+          });
           await mailer.sendVerifySecondaryCodeEmail([emailData], account, {
             code: otpUtils.generateOtpCode(hex, otpOptions),
             deviceId: request.app.ua.deviceId,
@@ -978,8 +994,9 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'mfa',
+          scope: ['mfa:email'],
+          payload: false,
         },
         validate: {
           payload: isA.object({

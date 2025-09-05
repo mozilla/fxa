@@ -212,7 +212,7 @@ const RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST = {
   description: '/recovery_email/secondary/verify_code',
   notes: [
     dedent`
-      🔒 Authenticated with session token
+      🔒 Authenticated with session MFA JWT (scope: mfa:email)
 
       This endpoint verifies a secondary email using a time based (otp) code.
     `,

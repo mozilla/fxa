@@ -1108,6 +1108,7 @@ export class Account implements AccountData {
 
   async verifySecondaryEmail(email: string, code: string) {
     const jwt = this.getCachedJwtByScope('email');
+    console.debug('verifySecondaryEmail JWT:', jwt);
     await this.withLoadingStatus(
       this.authClient.recoveryEmailSecondaryVerifyCode(jwt, email, code)
     );
