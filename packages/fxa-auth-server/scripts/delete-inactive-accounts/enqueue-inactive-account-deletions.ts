@@ -110,6 +110,12 @@ const init = async () => {
       true
     )
     .option(
+      '--debug [true|false]',
+      'Log more.  Defaults to false.',
+      parseBooleanArg,
+      false
+    )
+    .option(
       '--enqueue-emails [true|false]',
       'Whether to enqueue Cloud Tasks to send the first notification email.  Defaults to false.',
       parseBooleanArg,
@@ -232,6 +238,11 @@ const init = async () => {
     return 0;
   }
 
+  const debugLog = (message: string) => {
+    if (!program.debug) return;
+    console.log(message);
+  };
+
   // {{{ dependencies
 
   const log = initLog({
@@ -300,6 +311,7 @@ const init = async () => {
     tableNamePrefix: string,
     filepath: string
   ) => {
+    debugLog(`CSV: writing ${uids.length} uids into ${filepath}`);
     const fd = fs.openSync(filepath, 'w');
     fs.writeSync(fd, uids.join(os.EOL));
     fs.closeSync(fd);
@@ -307,6 +319,7 @@ const init = async () => {
     const dataset = program.bqDataset.split('.')[1];
     const tableName = postfixTableName(tableNamePrefix);
 
+    debugLog(`BQ: loading ${filepath} into ${tableName}`);
     await bq.dataset(dataset).createTable(tableName, {
       schema: [
         { name: 'uid', type: 'STRING', maxLength: '32', mode: 'REQUIRED' },
@@ -347,6 +360,8 @@ const init = async () => {
       statsd
     )();
 
+    debugLog(`MySQL results count: ${accounts.length}`);
+
     if (!accounts.length) {
       hasMaxResultsCount = false;
       break;
@@ -359,6 +374,8 @@ const init = async () => {
     hasMaxResultsCount = accounts.length === program.resultsLimit;
     totalRowsReturned += accounts.length;
   }
+
+  debugLog(`MySQL total rows returned: ${totalRowsReturned}`);
 
   const inactivesMySqlResultsTableName = await saveUidsToBqTable(
     inactiveCandidateUids,
@@ -376,22 +393,40 @@ const init = async () => {
   const refreshTokensFn = oauthDb.getRefreshTokensByUid.bind(oauthDb);
   const accessTokensFn = oauthDb.getAccessTokensByUid.bind(oauthDb);
 
-  const _checkActiveSessionToken = async (uid: string) =>
-    await hasActiveSessionToken(sessionTokensFn, uid, activeByDateTimestamp);
+  let sessionCheckCount = 0;
+  let refreshTokenCheckCount = 0;
+  let accessTokenCheckCount = 0;
+
+  const _checkActiveSessionToken = async (uid: string) => {
+    sessionCheckCount++;
+    return await hasActiveSessionToken(
+      sessionTokensFn,
+      uid,
+      activeByDateTimestamp
+    );
+  };
   const checkActiveSessionToken = emitStatsdMetrics(
     _checkActiveSessionToken,
     'accounts.inactive.session-token-check',
     statsd
   );
-  const _checkRefreshToken = async (uid: string) =>
-    await hasActiveRefreshToken(refreshTokensFn, uid, activeByDateTimestamp);
+  const _checkRefreshToken = async (uid: string) => {
+    refreshTokenCheckCount++;
+    return await hasActiveRefreshToken(
+      refreshTokensFn,
+      uid,
+      activeByDateTimestamp
+    );
+  };
   const checkRefreshToken = emitStatsdMetrics(
     _checkRefreshToken,
     'accounts.inactive.refresh-token-check',
     statsd
   );
-  const _checkAccessToken = async (uid: string) =>
-    await hasAccessToken(accessTokensFn, uid);
+  const _checkAccessToken = async (uid: string) => {
+    accessTokenCheckCount++;
+    return await hasAccessToken(accessTokensFn, uid);
+  };
   const checkAccessToken = emitStatsdMetrics(
     _checkAccessToken,
     'accounts.inactive.access-token-check',
@@ -438,6 +473,7 @@ const init = async () => {
     await inactiveCandidatesJob.getQueryResults();
 
   console.log(`Exclusions join job id: ${inactiveCandidatesJob.id}`);
+  debugLog(`Total candidates to check: ${inactiveCandidateRecords.length}`);
 
   // /join exclusions and build the final list of inactive candidates }}}
 
@@ -476,6 +512,10 @@ const init = async () => {
   }
 
   await queue.onIdle();
+  debugLog(`Session check total: ${sessionCheckCount}`);
+  debugLog(`Refresh token check total: ${refreshTokenCheckCount}`);
+  debugLog(`Access token check total: ${accessTokenCheckCount}`);
+  console.log(`Number of inactive accounts: ${inactiveAccountUids.length}`);
 
   // /exhaustive active status check }}}
 
@@ -563,7 +603,6 @@ const init = async () => {
 
   // /enqueue google tasks for sending the first notification email }}}
 
-  console.log(`Number of inactive accounts: ${inactiveAccountUids.length}`);
   console.log(`Number of emails queued: ${emailsQueued}`);
 
   return 0;
