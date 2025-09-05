@@ -271,6 +271,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_SHOW_LOCALE_TOGGLE',
     },
+    paymentsNextSubscriptionManagement: {
+      default: false,
+      doc: 'Enables Paid Subscriptions link in Account Settings to redirect to payments next',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT',
+    },
   },
   cms: {
     enabled: {
@@ -746,6 +752,12 @@ const conf = (module.exports = convict({
       doc: 'The url of the Pairing channel server.',
       env: 'PAIRING_SERVER_BASE_URI',
     },
+  },
+  payments_next_hosted_url: {
+    default: 'http://localhost:3035',
+    doc: 'the url of the Payments-Next server',
+    env: 'PAYMENTS_NEXT_HOSTED_URL',
+    format: 'url',
   },
   port: {
     default: 3030,

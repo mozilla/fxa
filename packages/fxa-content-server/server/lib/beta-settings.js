@@ -73,6 +73,9 @@ const settingsConfig = {
     profile: {
       url: config.get('profile_url'),
     },
+    paymentsNext: {
+      url: config.get('payments_next_hosted_url'),
+    },
   },
   oauth: {
     clientId: config.get('oauth_client_id'),
@@ -126,6 +129,9 @@ const settingsConfig = {
       'featureFlags.updatedInlineRecoverySetupFlow'
     ),
     showLocaleToggle: config.get('featureFlags.showLocaleToggle'),
+    paymentsNextSubscriptionManagement: config.get(
+      'featureFlags.paymentsNextSubscriptionManagement'
+    ),
   },
   nimbusPreview: config.get('nimbusPreview'),
   cms: {
