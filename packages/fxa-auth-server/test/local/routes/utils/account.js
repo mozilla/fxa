@@ -68,7 +68,7 @@ describe('fetchRpCmsData', () => {
     assert.equal(actual, null);
   });
 
-  it('returns null there is no entrypoint in metrics context', async () => {
+  it('uses default entrypoint when entrypoint is missing from metrics context', async () => {
     const mockRequest = {
       app: {
         metricsContext: {
@@ -76,8 +76,22 @@ describe('fetchRpCmsData', () => {
         },
       },
     };
-    const actual = await fetchRpCmsData(mockRequest);
-    assert.equal(actual, null);
+    const rpCmsConfig = {
+      shared: {},
+    };
+    const mockCmsManager = {
+      fetchCMSData: sandbox.stub().resolves({
+        relyingParties: [rpCmsConfig],
+      }),
+    };
+
+    const actual = await fetchRpCmsData(mockRequest, mockCmsManager);
+    sinon.assert.calledOnceWithExactly(
+      mockCmsManager.fetchCMSData,
+      mockRequest.app.metricsContext.clientId,
+      'default' // Should use 'default' as fallback
+    );
+    assert.deepEqual(actual, rpCmsConfig);
   });
 
   it('logs an error', async () => {
