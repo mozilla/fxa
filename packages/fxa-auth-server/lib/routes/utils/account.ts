@@ -63,11 +63,15 @@ export const fetchRpCmsData = async (
   logger: AuthLogger
 ): Promise<RelyingPartiesQuery['relyingParties'][0] | null> => {
   const metricsContext = await request.app.metricsContext;
-  if (metricsContext.clientId && metricsContext.entrypoint && cmsManager) {
+
+  // If an entrypoint is not provided, it is possible that there is
+  // a "default" entrypoint config in cms. We check to see if this exists just in case.
+  const entrypoint = metricsContext.entrypoint || 'default';
+  if (metricsContext.clientId && cmsManager) {
     try {
       const res = await cmsManager.fetchCMSData(
         metricsContext.clientId,
-        metricsContext.entrypoint
+        entrypoint
       );
       return res.relyingParties.length > 0 ? res.relyingParties[0] : null;
     } catch (error) {
