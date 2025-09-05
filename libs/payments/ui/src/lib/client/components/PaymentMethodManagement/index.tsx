@@ -237,7 +237,7 @@ export function PaymentMethodManagement({
         )}
         <Form.Field name="payment">
           <Form.Control asChild>
-            <div className="relative">
+            <div className="relative overflow-hidden">
               <PaymentElement
                 onChange={handlePaymentElementChange}
                 onLoaderStart={handleReady}
