@@ -15,6 +15,7 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useForm } from 'react-hook-form';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { getErrorFtlId } from '../../../lib/error-utils';
+import { MfaGuard } from '../MfaGuard';
 
 type FormData = {
   verificationCode: string;
@@ -96,75 +97,78 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   const buttonDisabled =
     !formState.isDirty || !formState.isValid || account.loading;
   return (
-    <Localized id="verify-secondary-email-page-title" attrs={{ title: true }}>
-      <FlowContainer title="Secondary email" subtitle={subtitleText}>
-        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
-        <form
-          data-testid="secondary-email-verify-form"
-          onSubmit={handleSubmit(({ verificationCode }) => {
-            verifySecondaryEmail(email, verificationCode);
-            logViewEvent('verify-secondary-email.verification', 'clicked');
-          })}
-        >
-          <Localized
-            id="verify-secondary-email-please-enter-code-2"
-            vars={{ email: email }}
-            elems={{ strong: <span className="font-bold"> </span> }}
+    // this should work, it should be cached from the prior page, but need to test.
+    <MfaGuard requiredScope="email">
+      <Localized id="verify-secondary-email-page-title" attrs={{ title: true }}>
+        <FlowContainer title="Secondary email" subtitle={subtitleText}>
+          <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
+          <form
+            data-testid="secondary-email-verify-form"
+            onSubmit={handleSubmit(({ verificationCode }) => {
+              verifySecondaryEmail(email, verificationCode);
+              logViewEvent('verify-secondary-email.verification', 'clicked');
+            })}
           >
-            <p>
-              Please enter the confirmation code that was sent to{' '}
-              <span className="font-bold">{email}</span> within 5 minutes.
-            </p>
-          </Localized>
-
-          <div className="my-6">
             <Localized
-              id="verify-secondary-email-verification-code-2"
-              attrs={{ label: true }}
+              id="verify-secondary-email-please-enter-code-2"
+              vars={{ email: email }}
+              elems={{ strong: <span className="font-bold"> </span> }}
             >
-              <InputText
-                name="verificationCode"
-                label="Enter your confirmation code"
-                onChange={() => {
-                  if (errorText) {
-                    setErrorText(undefined);
-                  }
-                }}
-                inputRef={register({
-                  required: true,
-                  pattern: /^\s*[0-9]{6}\s*$/,
-                })}
-                prefixDataTestId="verification-code"
-                {...{ errorText }}
-              ></InputText>
+              <p>
+                Please enter the confirmation code that was sent to{' '}
+                <span className="font-bold">{email}</span> within 5 minutes.
+              </p>
             </Localized>
-          </div>
 
-          <div className="flex justify-center mx-auto max-w-64">
-            <Localized id="verify-secondary-email-cancel-button">
-              <button
-                type="button"
-                className="cta-neutral cta-base-p mx-2 flex-1"
-                data-testid="secondary-email-verify-cancel"
-                onClick={goHome}
+            <div className="my-6">
+              <Localized
+                id="verify-secondary-email-verification-code-2"
+                attrs={{ label: true }}
               >
-                Cancel
-              </button>
-            </Localized>
-            <Localized id="verify-secondary-email-verify-button-2">
-              <button
-                type="submit"
-                className="cta-primary cta-base-p mx-2 flex-1"
-                data-testid="secondary-email-verify-submit"
-                disabled={buttonDisabled}
-              >
-                Confirm
-              </button>
-            </Localized>
-          </div>
-        </form>
-      </FlowContainer>
-    </Localized>
+                <InputText
+                  name="verificationCode"
+                  label="Enter your confirmation code"
+                  onChange={() => {
+                    if (errorText) {
+                      setErrorText(undefined);
+                    }
+                  }}
+                  inputRef={register({
+                    required: true,
+                    pattern: /^\s*[0-9]{6}\s*$/,
+                  })}
+                  prefixDataTestId="verification-code"
+                  {...{ errorText }}
+                ></InputText>
+              </Localized>
+            </div>
+
+            <div className="flex justify-center mx-auto max-w-64">
+              <Localized id="verify-secondary-email-cancel-button">
+                <button
+                  type="button"
+                  className="cta-neutral cta-base-p mx-2 flex-1"
+                  data-testid="secondary-email-verify-cancel"
+                  onClick={goHome}
+                >
+                  Cancel
+                </button>
+              </Localized>
+              <Localized id="verify-secondary-email-verify-button-2">
+                <button
+                  type="submit"
+                  className="cta-primary cta-base-p mx-2 flex-1"
+                  data-testid="secondary-email-verify-submit"
+                  disabled={buttonDisabled}
+                >
+                  Confirm
+                </button>
+              </Localized>
+            </div>
+          </form>
+        </FlowContainer>
+      </Localized>
+    </MfaGuard>
   );
 };
 

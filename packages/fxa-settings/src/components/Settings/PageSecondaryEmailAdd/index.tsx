@@ -15,6 +15,8 @@ import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
 import { AuthUiErrorNos } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { getErrorFtlId } from '../../../lib/error-utils';
+import { MfaGuard } from '../MfaGuard';
+import { MfaScope } from '../../../lib/types';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');
@@ -83,60 +85,63 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
     },
     [setSaveBtnDisabled, setErrorText, l10n]
   );
+  const scope: MfaScope = 'email';
 
   return (
-    <Localized id="add-secondary-email-page-title" attrs={{ title: true }}>
-      <FlowContainer title="Secondary email" subtitle={subtitleText}>
-        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
-        <form
-          onSubmit={(ev) => {
-            ev.preventDefault();
-            if (inputRefDOM.current) {
-              createSecondaryEmail(email!);
-              logViewEvent('settings.emails', 'submit');
-            }
-          }}
-        >
-          <div className="mt-4 mb-6" data-testid="secondary-email-input">
-            <Localized
-              id="add-secondary-email-enter-address"
-              attrs={{ label: true }}
-            >
-              <InputText
-                label="Enter email address"
-                type="email"
-                onChange={checkEmail}
-                inputRefDOM={inputRefDOM}
-                {...{ errorText }}
-              />
-            </Localized>
-          </div>
+    <MfaGuard requiredScope={scope}>
+      <Localized id="add-secondary-email-page-title" attrs={{ title: true }}>
+        <FlowContainer title="Secondary email" subtitle={subtitleText}>
+          <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
+          <form
+            onSubmit={(ev) => {
+              ev.preventDefault();
+              if (inputRefDOM.current) {
+                createSecondaryEmail(email!);
+                logViewEvent('settings.emails', 'submit');
+              }
+            }}
+          >
+            <div className="mt-4 mb-6" data-testid="secondary-email-input">
+              <Localized
+                id="add-secondary-email-enter-address"
+                attrs={{ label: true }}
+              >
+                <InputText
+                  label="Enter email address"
+                  type="email"
+                  onChange={checkEmail}
+                  inputRefDOM={inputRefDOM}
+                  {...{ errorText }}
+                />
+              </Localized>
+            </div>
 
-          <div className="flex justify-center mx-auto max-w-64">
-            <Localized id="add-secondary-email-cancel-button">
-              <button
-                type="button"
-                className="cta-neutral cta-base-p mx-2 flex-1"
-                data-testid="cancel-button"
-                onClick={goHome}
-              >
-                Cancel
-              </button>
-            </Localized>
-            <Localized id="add-secondary-email-save-button">
-              <button
-                type="submit"
-                className="cta-primary cta-base-p mx-2 flex-1"
-                data-testid="save-button"
-                disabled={saveBtnDisabled || account.loading}
-              >
-                Save
-              </button>
-            </Localized>
-          </div>
-        </form>
-      </FlowContainer>
-    </Localized>
+            <div className="flex justify-center mx-auto max-w-64">
+              <Localized id="add-secondary-email-cancel-button">
+                <button
+                  type="button"
+                  className="cta-neutral cta-base-p mx-2 flex-1"
+                  data-testid="cancel-button"
+                  onClick={goHome}
+                >
+                  Cancel
+                </button>
+              </Localized>
+              <Localized id="add-secondary-email-save-button">
+                <button
+                  type="submit"
+                  className="cta-primary cta-base-p mx-2 flex-1"
+                  data-testid="save-button"
+                  disabled={saveBtnDisabled || account.loading}
+                >
+                  Save
+                </button>
+              </Localized>
+            </div>
+          </form>
+        </FlowContainer>
+      </Localized>
+    </MfaGuard>
   );
 };
 

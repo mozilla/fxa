@@ -336,18 +336,10 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async createSecondaryEmail(
-    @GqlSessionToken() token: string,
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
-    await this.authAPI.recoveryEmailCreate(
-      token,
-      input.email,
-      {
-        verificationMethod: 'email-otp',
-      },
-      headers
-    );
+    await this.authAPI.recoveryEmailCreate(input.jwt, input.email, headers);
     return { clientMutationId: input.clientMutationId };
   }
 

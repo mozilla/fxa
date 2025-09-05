@@ -110,7 +110,7 @@ const RECOVERY_EMAIL_POST = {
   description: '/recovery_email',
   notes: [
     dedent`
-      🔒 Authenticated with session token
+      🔒 Authenticated with MFA JWT (scope: mfa:email)
       Add a secondary email address to the logged-in account. The created address will be unverified and will not replace the primary email address.
     `,
   ],
