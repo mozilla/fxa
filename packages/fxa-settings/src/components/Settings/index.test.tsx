@@ -46,6 +46,15 @@ jest.mock('./ScrollToTop', () => ({
   ),
 }));
 
+// Mock the MFA guard so we can assert guarded pages render it without
+// pulling in the guard's dependencies or child flows
+jest.mock('./MfaGuard', () => ({
+  __esModule: true,
+  MfaGuard: ({ children }: { children: ReactNode }) => (
+    <div data-testid="mfa-guard">MockMfaGuard</div>
+  ),
+}));
+
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
@@ -340,6 +349,51 @@ describe('Settings App', () => {
 
     await navigate(SETTINGS_PATH + '/create_password');
     expect(history.location.pathname).toBe('/settings/change_password');
+  });
+
+  describe('guarded routes render MFA guard', () => {
+    // as new guards are added to pages we just add the page name and route here
+    // hasPassword is used to pass needed context to `mockAppContext`
+    const guardedRoutes = [
+      {
+        pageName: 'PageMfaGuardTestWithAuthClient',
+        route: '/mfa_guard/test/auth_client',
+        hasPassword: false,
+      },
+      {
+        pageName: 'PageMfaGuardTestWithGql',
+        route: '/mfa_guard/test/gql',
+        hasPassword: false,
+      },
+      {
+        pageName: 'Page2faChange',
+        route: '/two_step_authentication/change',
+        hasPassword: true,
+      },
+    ];
+
+    it.each(guardedRoutes)(
+      'renders $pageName with MFA guard',
+      async ({ route, hasPassword }) => {
+        const session = mockSession(true);
+        const account = {
+          ...MOCK_ACCOUNT,
+          hasPassword,
+        } as unknown as Account;
+        const {
+          getByTestId,
+          history: { navigate },
+        } = renderWithRouter(
+          <AppContext.Provider value={mockAppContext({ session, account })}>
+            <Subject />
+          </AppContext.Provider>,
+          { route: SETTINGS_PATH }
+        );
+        await navigate(SETTINGS_PATH + route);
+
+        expect(getByTestId('mfa-guard')).toBeInTheDocument();
+      }
+    );
   });
 
   describe('prevents access to certain routes when account has no password', () => {

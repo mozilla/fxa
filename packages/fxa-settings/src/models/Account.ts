@@ -19,10 +19,11 @@ import {
   getStoredAccountData,
   sessionToken,
 } from '../lib/cache';
+import { JwtTokenCache } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
-import { LinkedAccountProviderIds, MozServices } from '../lib/types';
+import { LinkedAccountProviderIds, MfaScope, MozServices } from '../lib/types';
 import {
   GET_LOCAL_SIGNED_IN_STATUS,
   GET_TOTP_STATUS,
@@ -1275,16 +1276,18 @@ export class Account implements AccountData {
     }
   }
 
-  async replaceTotp() {
+  async startReplaceTotp() {
+    const jwt = this.getCachedJwtByScope('2fa');
     const totp = await this.withLoadingStatus(
-      this.authClient.replaceTotpToken(sessionToken()!, {})
+      this.authClient.startReplaceTotpTokenWithJwt(jwt, {})
     );
     return totp;
   }
 
   async confirmReplaceTotp(code: string) {
+    const jwt = this.getCachedJwtByScope('2fa');
     await this.withLoadingStatus(
-      this.authClient.confirmReplaceTotpToken(sessionToken()!, code)
+      this.authClient.confirmReplaceTotpTokenWithJwt(jwt, code)
     );
   }
 
@@ -1516,5 +1519,23 @@ export class Account implements AccountData {
         },
       },
     });
+  }
+
+  /**
+   * Checks for a JWT token in cache for the given scope.
+   * @param scope MfaScope
+   * @returns JWT token string
+   */
+  private getCachedJwtByScope(scope: MfaScope) {
+    const token = sessionToken();
+    if (!token) {
+      throw AuthUiErrors.INVALID_TOKEN;
+    }
+    const hasJwt = JwtTokenCache.hasToken(token, scope);
+    if (!hasJwt) {
+      throw AuthUiErrors.INVALID_REQUEST_SIGNATURE;
+    }
+
+    return JwtTokenCache.getToken(token, scope);
   }
 }
