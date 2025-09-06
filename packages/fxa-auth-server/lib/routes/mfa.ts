@@ -184,6 +184,7 @@ class MfaHandler {
         scope: [`mfa:${scope}`],
         iat: now,
         jti: uuid.v4(),
+        stid: sessionTokenId,
       };
 
       const key = this.config.mfa.jwt.secretKey;
