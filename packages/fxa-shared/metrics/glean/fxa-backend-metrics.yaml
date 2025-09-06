@@ -631,6 +631,44 @@ login:
     expires: never
     data_sensitivity:
       - interaction
+  from_known_ip:
+    type: event
+    description: |
+      Login from Known IP
+      Event that indicates a user logged in from an IP address they have used before within
+      the allowedRecency configured value.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
+  skip_for_new_accounts:
+    type: event
+    description: |
+      Login Skip 2FA for New Accounts
+      Event that indicates a user skipped 2FA because their account is new and under
+      the maxAge configured value.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-7265
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction
 password_reset:
   create_new_success:
     type: event

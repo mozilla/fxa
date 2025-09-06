@@ -236,6 +236,8 @@ export function gleanMetrics(config: ConfigType) {
       verifyCodeEmailSent: createEventFn('login_email_confirmation_sent'),
       verifyCodeConfirmed: createEventFn('login_email_confirmation_success'),
       complete: createEventFn('login_complete'),
+      fromKnownIp: createEventFn('login_from_known_ip'),
+      skipForNewAccounts: createEventFn('login_skip_for_new_accounts'),
     },
 
     resetPassword: {
