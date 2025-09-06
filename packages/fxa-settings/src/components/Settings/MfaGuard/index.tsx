@@ -5,6 +5,7 @@
 import React, {
   ReactNode,
   useEffect,
+  useRef,
   useState,
   useSyncExternalStore,
 } from 'react';
@@ -37,6 +38,8 @@ export const MfaGuard = ({
   // Let errors be handled by error boundaries in async contexts
   const handleError = useErrorHandler();
 
+  const hasSentConfirmationCode = useRef(false);
+
   // Whether the modal to enter the OTP code is displayed
   const [showModal, setShowModal] = useState(false);
 
@@ -68,12 +71,17 @@ export const MfaGuard = ({
   // Modal Setup
   useEffect(() => {
     (async () => {
+      // To avoid requesting multiple OTPs on mount
+      if (hasSentConfirmationCode.current) {
+        return;
+      }
       // If the JWT doesn't exist, it has either never been set or the error boundary
       // detected an invalid token and deleted it from the cache. Either way, we want
       // to request a new OTP and show the modal so we can obtain a valid JWT again.
       if (!JwtTokenCache.hasToken(sessionToken, requiredScope)) {
         try {
           await authClient.mfaRequestOtp(sessionToken, requiredScope);
+          hasSentConfirmationCode.current = true;
           setShowModal(true);
         } catch (err) {
           // TODO: FXA-12329 - There might be some errors to handle inline like rate-limiting.
