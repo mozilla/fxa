@@ -384,7 +384,8 @@ describe('#integration - AccountResolver', () => {
     describe('createSecondaryEmail', () => {
       it('succeeds', async () => {
         authClient.recoveryEmailCreate = jest.fn().mockResolvedValue(true);
-        const result = await resolver.createSecondaryEmail('token', headers, {
+        const result = await resolver.createSecondaryEmail(headers, {
+          jwt: 'jwtToken',
           clientMutationId: 'testid',
           email: 'test@example.com',
         });
@@ -404,6 +405,7 @@ describe('#integration - AccountResolver', () => {
           'token',
           headers,
           {
+            jwt: 'jwtToken',
             clientMutationId: 'testid',
             email: 'test@example.com',
           }
@@ -420,7 +422,8 @@ describe('#integration - AccountResolver', () => {
         authClient.recoveryEmailSecondaryVerifyCode = jest
           .fn()
           .mockResolvedValue(true);
-        const result = await resolver.verifySecondaryEmail('token', headers, {
+        const result = await resolver.verifySecondaryEmail(headers, {
+          jwt: 'jwtToken',
           clientMutationId: 'testid',
           email: 'test@example.com',
           code: 'ABCD1234',
@@ -436,6 +439,7 @@ describe('#integration - AccountResolver', () => {
       it('succeeds', async () => {
         authClient.recoveryEmailDestroy = jest.fn().mockResolvedValue(true);
         const result = await resolver.deleteSecondaryEmail('token', headers, {
+          jwt: 'jwtToken',
           clientMutationId: 'testid',
           email: 'test@example.com',
         });
@@ -452,6 +456,7 @@ describe('#integration - AccountResolver', () => {
           .fn()
           .mockResolvedValue(true);
         const result = await resolver.updatePrimaryEmail('token', headers, {
+          jwt: 'jwtToken',
           clientMutationId: 'testid',
           email: 'test@example.com',
         });

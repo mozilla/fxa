@@ -17,12 +17,13 @@ import { MetricsContext } from '@fxa/shared/glean';
 import {
   currentAccount,
   getStoredAccountData,
+  JwtTokenCache,
   sessionToken,
 } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
-import { LinkedAccountProviderIds, MozServices } from '../lib/types';
+import { LinkedAccountProviderIds, MfaScope, MozServices } from '../lib/types';
 import {
   GET_LOCAL_SIGNED_IN_STATUS,
   GET_TOTP_STATUS,
@@ -1083,10 +1084,9 @@ export class Account implements AccountData {
   }
 
   async createSecondaryEmail(email: string) {
+    const jwt = this.getCachedJwtByScope('email');
     await this.withLoadingStatus(
-      this.authClient.recoveryEmailCreate(sessionToken()!, email, {
-        verificationMethod: 'email-otp',
-      })
+      this.authClient.recoveryEmailCreate(jwt, email)
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1107,12 +1107,10 @@ export class Account implements AccountData {
   }
 
   async verifySecondaryEmail(email: string, code: string) {
+    const jwt = this.getCachedJwtByScope('email');
+    console.debug('verifySecondaryEmail JWT:', jwt);
     await this.withLoadingStatus(
-      this.authClient.recoveryEmailSecondaryVerifyCode(
-        sessionToken()!,
-        email,
-        code
-      )
+      this.authClient.recoveryEmailSecondaryVerifyCode(jwt, email, code)
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1516,5 +1514,24 @@ export class Account implements AccountData {
         },
       },
     });
+  }
+
+  /**
+   * Checks for a valid JWT token in cache for the given scope. If not found or invalid,
+   * throws an UNVERIFIED_SESSION error.
+   * @param scope MfaScope
+   * @returns JWT token string
+   */
+  private getCachedJwtByScope(scope: MfaScope) {
+    const token = sessionToken();
+    if (!token) {
+      throw AuthUiErrors.UNVERIFIED_SESSION;
+    }
+    const hasValidJwt = JwtTokenCache.hasToken(token, scope);
+    if (!hasValidJwt) {
+      throw AuthUiErrors.UNVERIFIED_SESSION;
+    }
+
+    return JwtTokenCache.getToken(token, scope);
   }
 }

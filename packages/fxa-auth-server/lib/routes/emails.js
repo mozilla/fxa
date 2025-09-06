@@ -550,8 +550,9 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'mfa',
+          scope: ['mfa:email'],
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -566,9 +567,9 @@ module.exports = (
       handler: async function (request) {
         log.begin('Account.RecoveryEmailCreate', request);
 
-        const sessionToken = request.auth.credentials;
-        const uid = sessionToken.uid;
-        const primaryEmail = sessionToken.email;
+        const { uid } = request.auth.credentials;
+        const account = await db.account(uid);
+        const primaryEmail = account.email;
         const { email } = request.payload;
         const emailData = {
           email: email,
@@ -585,7 +586,6 @@ module.exports = (
           'createEmail'
         );
 
-        const account = await db.account(uid);
         const secondaryEmails = account.emails.filter(
           (email) => !email.isPrimary
         );
@@ -595,7 +595,7 @@ module.exports = (
           throw error.maxSecondaryEmailsReached();
         }
 
-        if (emailsMatch(sessionToken.email, email)) {
+        if (emailsMatch(account.email, email)) {
           throw error.yourPrimaryEmailExists();
         }
 
@@ -607,12 +607,8 @@ module.exports = (
           throw error.alreadyOwnsEmail();
         }
 
-        if (!sessionToken.emailVerified) {
+        if (!account.emailVerified) {
           throw error.unverifiedAccount();
-        }
-
-        if (sessionToken.tokenVerificationId) {
-          throw error.unverifiedSession();
         }
 
         await deleteAccountIfUnverified();
@@ -623,19 +619,34 @@ module.exports = (
         await db.createEmail(uid, emailData);
 
         const geoData = request.app.geo;
+
         try {
-          await mailer.sendVerifySecondaryCodeEmail([emailData], sessionToken, {
+          console.debug('🐛 email props', {
             code: otpUtils.generateOtpCode(hex, otpOptions),
-            deviceId: sessionToken.deviceId,
+            deviceId: request.app.ua.deviceId,
             acceptLanguage: request.app.acceptLanguage,
             email: emailData.email,
             primaryEmail,
             location: geoData.location,
             timeZone: geoData.timeZone,
-            uaBrowser: sessionToken.uaBrowser,
-            uaBrowserVersion: sessionToken.uaBrowserVersion,
-            uaOS: sessionToken.uaOS,
-            uaOSVersion: sessionToken.uaOSVersion,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uid,
+          });
+          await mailer.sendVerifySecondaryCodeEmail([emailData], account, {
+            code: otpUtils.generateOtpCode(hex, otpOptions),
+            deviceId: request.app.ua.deviceId,
+            acceptLanguage: request.app.acceptLanguage,
+            email: emailData.email,
+            primaryEmail,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
             uid,
           });
         } catch (err) {
@@ -986,8 +997,9 @@ module.exports = (
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'mfa',
+          scope: ['mfa:email'],
+          payload: false,
         },
         validate: {
           payload: isA.object({

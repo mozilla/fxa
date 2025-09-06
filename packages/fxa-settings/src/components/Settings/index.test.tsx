@@ -46,6 +46,15 @@ jest.mock('./ScrollToTop', () => ({
   ),
 }));
 
+// Mock the MFA guard so we can assert guarded pages render it without
+// pulling in the guard's dependencies or child flows
+jest.mock('./MfaGuard', () => ({
+  __esModule: true,
+  MfaGuard: ({ children }: { children: ReactNode }) => (
+    <div data-testid="mfa-guard">MockMfaGuard</div>
+  ),
+}));
+
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
@@ -200,40 +209,6 @@ describe('Settings App', () => {
     expect(getByTestId('change-password-requirements')).toBeInTheDocument();
   });
 
-  it('routes to PageSecondaryEmailAdd', async () => {
-    const session = mockSession(true);
-    const {
-      getByTestId,
-      history: { navigate },
-    } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ session })}>
-        <Subject />
-      </AppContext.Provider>,
-      { route: SETTINGS_PATH }
-    );
-
-    await navigate(SETTINGS_PATH + '/emails');
-
-    expect(getByTestId('secondary-email-input')).toBeInTheDocument();
-  });
-
-  it('routes to PageSecondaryEmailVerify', async () => {
-    const session = mockSession(true);
-    const {
-      getByTestId,
-      history: { navigate },
-    } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ session })}>
-        <Subject />
-      </AppContext.Provider>,
-      { route: SETTINGS_PATH }
-    );
-
-    await navigate(SETTINGS_PATH + '/emails/verify');
-
-    expect(getByTestId('secondary-email-verify-form')).toBeInTheDocument();
-  });
-
   it('routes to two step authentication page', async () => {
     const session = mockSession(true);
     const account = {
@@ -340,6 +315,33 @@ describe('Settings App', () => {
 
     await navigate(SETTINGS_PATH + '/create_password');
     expect(history.location.pathname).toBe('/settings/change_password');
+  });
+
+  describe('guarded routes render MFA guard', () => {
+    // as new pages are added we just add the page name and route here.
+    // addtlContext can be used to pass needed context to `mockAppContext`
+    // but, it doesn't appear many pages currently utilize that here
+    const guardedRoutes = [
+      {pageName: 'PageSecondaryEmailAdd', route: '/emails', addtlContext: { ...MOCK_ACCOUNT, hasPassword: true } },
+      {pageName: 'PageSecondaryEmailVerify', route: '/emails/verify', addtlContext: {}},
+    ];
+    // pageName is not technically used as far as TS is concerned, but it's used in
+    // the test name and it can't see that.
+    it.each(guardedRoutes)('renders $pageName with MFA guard', async ({pageName, route, addtlContext}) => {
+      const session = mockSession(true);
+      const {
+        getByTestId,
+        history: { navigate },
+      } = renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ session, ...addtlContext })}>
+          <Subject />
+        </AppContext.Provider>,
+        { route: SETTINGS_PATH }
+      );
+      await navigate(SETTINGS_PATH + route);
+
+      expect(getByTestId('mfa-guard')).toBeInTheDocument();
+    });
   });
 
   describe('prevents access to certain routes when account has no password', () => {

@@ -23,7 +23,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
 
       await settings.signOut();
 
@@ -59,7 +59,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
 
       await setNewPassword(
         settings,
@@ -101,7 +101,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail, credentials.email);
 
       await setNewPassword(
         settings,
@@ -150,7 +150,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
 
       // Click delete account
@@ -185,6 +185,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await settings.secondaryEmail.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       await secondaryEmail.fillOutEmail(newEmail);
       const code: string =
         await target.emailClient.getVerifySecondaryCode(newEmail);
@@ -233,13 +234,15 @@ async function signInAccount(
 async function changePrimaryEmail(
   target: BaseTarget,
   settings: SettingsPage,
-  secondaryEmail: SecondaryEmailPage,
-  email: string
+  secondaryEmailPage: SecondaryEmailPage,
+  email: string,
+  primaryEmail: string,
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
-  await secondaryEmail.fillOutEmail(email);
+  await settings.confirmMfaGuard(primaryEmail);
+  await secondaryEmailPage.fillOutEmail(email);
   const code: string = await target.emailClient.getVerifySecondaryCode(email);
-  await secondaryEmail.fillOutVerificationCode(code);
+  await secondaryEmailPage.fillOutVerificationCode(code);
   await settings.secondaryEmail.makePrimaryButton.click();
 
   await expect(settings.settingsHeading).toBeVisible();
