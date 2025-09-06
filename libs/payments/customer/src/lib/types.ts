@@ -15,6 +15,7 @@ export type InvoicePreview = {
   discountType?: string;
   number: string | null; // customer-facing invoice identifier
   paypalTransactionId?: string;
+  invoiceDate: number;
   nextInvoiceDate: number;
   amountDue: number;
   creditApplied: number | null;
@@ -38,11 +39,12 @@ export enum SubPlatPaymentMethodType {
 }
 
 export interface StripePaymentMethod {
-  type: SubPlatPaymentMethodType.Card
+  type:
+    | SubPlatPaymentMethodType.Card
     | SubPlatPaymentMethodType.ApplePay
     | SubPlatPaymentMethodType.GooglePay
     | SubPlatPaymentMethodType.Link
-    | SubPlatPaymentMethodType.Stripe
+    | SubPlatPaymentMethodType.Stripe;
   paymentMethodId: string;
 }
 

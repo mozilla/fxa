@@ -69,6 +69,7 @@ export function stripeInvoiceToInvoicePreviewDTO(
     number: invoice.number,
     paypalTransactionId:
       invoice.metadata?.[STRIPE_INVOICE_METADATA.PaypalTransactionId],
+    invoiceDate: invoice.created,
     nextInvoiceDate: invoice.lines.data[0].period.end,
     amountDue: invoice.amount_due,
     creditApplied: invoice.ending_balance

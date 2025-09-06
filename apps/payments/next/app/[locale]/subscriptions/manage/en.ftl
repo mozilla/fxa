@@ -20,13 +20,13 @@ subscription-management-button-support = Get help
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscription-management-button-support-aria = Get help for { $productName }
 subscription-management-your-apple-iap-subscriptions-aria = Your { -brand-apple } In-App Subscriptions
-subscription-management-apple-in-app-purchase = { -brand-apple }: In-App purchase
+subscription-management-apple-in-app-purchase-1 = { -brand-apple }: in-app purchase
 subscription-management-your-google-iap-subscriptions-aria = Your { -brand-google } In-App Subscriptions
-subscription-management-google-in-app-purchase = { -brand-google }: In-App purchase
+subscription-management-google-in-app-purchase-1 = { -brand-google }: in-app purchase
 # $date (String) - Date of next bill
-subscription-management-iap-sub-next-bill = Next billed on { $date }
+subscription-management-iap-sub-next-bill-due = Next bill is due <b>{ $date }</b>
 # $date (String) - Date of In-App purchase expires
-subscription-management-iap-sub-expires-on = Expires on { $date }
+subscription-management-iap-sub-will-expire = Your subscription will expire on <b>{ $date }</b>
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscription-management-button-manage-subscription-aria = Manage subscription for { $productName }
 subscription-management-button-manage-subscription = Manage
