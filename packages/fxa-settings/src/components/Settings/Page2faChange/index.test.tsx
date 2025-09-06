@@ -65,7 +65,7 @@ describe('Page2faChange', () => {
     renderWithLocalizationProvider(
       <Subject
         account={{
-          replaceTotp: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
+          startReplaceTotp: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
           confirmReplaceTotp: jest
             .fn()
             .mockImplementation((_) => Promise.resolve()),
@@ -102,7 +102,7 @@ describe('Page2faChange', () => {
     renderWithLocalizationProvider(
       <Subject
         account={{
-          replaceTotp: jest.fn().mockRejectedValue(new Error()),
+          startReplaceTotp: jest.fn().mockRejectedValue(new Error()),
         }}
       />
     );
@@ -124,7 +124,7 @@ describe('Page2faChange', () => {
     renderWithLocalizationProvider(
       <Subject
         account={{
-          replaceTotp: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
+          startReplaceTotp: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
           confirmReplaceTotp: jest.fn().mockRejectedValue(new Error()),
         }}
       />

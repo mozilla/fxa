@@ -2476,7 +2476,7 @@ const convictConf = convict({
       env: 'MFA__ENABLED',
     },
     actions: {
-      default: ['test'],
+      default: ['test', '2fa'],
       doc: 'Actions protected by MFA',
       format: Array,
       env: 'MFA__ACTIONS',

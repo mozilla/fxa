@@ -24,7 +24,7 @@ export const useTotpReplace = () => {
     const fetchTotp = async () => {
       setError(null);
       try {
-        const result = await account.replaceTotp();
+        const result = await account.startReplaceTotp();
         if (!cancelled) setTotpInfo(result);
       } catch (err) {
         if (!cancelled) setError(err as Error);

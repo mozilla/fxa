@@ -86,7 +86,7 @@ const TOTP_REPLACE_START_POST = {
   description: '/totp/replace/start',
   notes: [
     dedent`
-      🔒 Authenticated with session token
+      🔒 Authenticated with MFA JWT (scope: mfa:2fa)
 
       Create a new randomly generated TOTP token for a user to replace an existing one. An existing TOTP token must exist for the user to request a replacement.
     `,
@@ -98,7 +98,7 @@ const TOTP_REPLACE_CONFIRM_POST = {
   description: '/totp/replace/confirm',
   notes: [
     dedent`
-      🔒 Authenticated with session token
+      🔒 Authenticated with MFA JWT (scope: mfa:2fa)
 
       Verifies the provided code is valid for TOTP and sets the new TOTP token for the user. This is used when a user is replacing their existing TOTP token.
     `,
