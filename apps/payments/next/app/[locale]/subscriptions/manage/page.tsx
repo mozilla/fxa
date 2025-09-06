@@ -52,8 +52,15 @@ export default async function Manage({
     appleIapSubscriptions,
     googleIapSubscriptions,
   } = await getSubManPageContentAction(session.user?.id);
-  const { billingAgreementId, brand, expMonth, expYear, last4, type, walletType } =
-    defaultPaymentMethod || {};
+  const {
+    billingAgreementId,
+    brand,
+    expMonth,
+    expYear,
+    last4,
+    type,
+    walletType,
+  } = defaultPaymentMethod || {};
   const isPaypalBillingAgreementError =
     type === 'external_paypal' && brand === 'paypal' && !billingAgreementId;
   const expirationDate =
@@ -181,11 +188,24 @@ export default async function Manage({
                 <div className="leading-5 text-sm">
                   <div className="flex items-center gap-3 py-2">
                     <Image
-                      src={getCardIcon(walletType === 'apple_pay' ? 'apple_pay' : 'google_pay', l10n).img}
+                      src={
+                        getCardIcon(
+                          walletType === 'apple_pay'
+                            ? 'apple_pay'
+                            : 'google_pay',
+                          l10n
+                        ).img
+                      }
                       alt={
                         walletType === 'apple_pay'
-                          ? l10n.getString('apple-pay-logo-alt-text', 'Apple Pay logo')
-                          : l10n.getString('google-pay-logo-alt-text', 'Google Pay logo')
+                          ? l10n.getString(
+                              'apple-pay-logo-alt-text',
+                              'Apple Pay logo'
+                            )
+                          : l10n.getString(
+                              'google-pay-logo-alt-text',
+                              'Google Pay logo'
+                            )
                       }
                       width={40}
                       height={24}
@@ -414,7 +434,7 @@ export default async function Manage({
                       </h3>
                       <LinkExternal
                         href={sub.supportUrl}
-                        className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1"
+                        className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
                         aria-label={l10n.getString(
                           'subscription-management-button-support-aria',
                           { productName: sub.productName },
@@ -475,7 +495,7 @@ export default async function Manage({
                   const dateExpired = new Date(purchase.expiresDate);
                   nextBillDate = l10n.getLocalizedDateString(
                     Math.floor(dateExpired.getTime() / 1000),
-                    true,
+                    false,
                     locale
                   );
                 }
@@ -493,7 +513,7 @@ export default async function Manage({
                       </h3>
                       <LinkExternal
                         href={purchase.supportUrl}
-                        className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1"
+                        className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
                         aria-label={l10n.getString(
                           'subscription-management-button-support-aria',
                           { productName: purchase.productName },
@@ -521,18 +541,18 @@ export default async function Manage({
                       <div className="leading-5 text-sm">
                         <p>
                           {l10n.getString(
-                            'subscription-management-apple-in-app-purchase',
-                            'Apple: In-App purchase'
+                            'subscription-management-apple-in-app-purchase-1',
+                            'Apple: in-app purchase'
                           )}
                         </p>
                         {nextBillDate && (
                           <p>
                             {l10n.getString(
-                              'subscription-management-iap-sub-expires-on',
+                              'subscription-management-iap-sub-will-expire-on',
                               {
                                 date: nextBillDate,
                               },
-                              `Expires on ${nextBillDate}`
+                              `Your subscription will expire on ${nextBillDate}`
                             )}
                           </p>
                         )}
@@ -584,7 +604,8 @@ export default async function Manage({
             {googleIapSubscriptions.map((purchase, index: number) => {
               const nextBillDate = l10n.getLocalizedDateString(
                 purchase.expiryTimeMillis / 1000,
-                true
+                false,
+                locale
               );
               return (
                 <li
@@ -600,7 +621,7 @@ export default async function Manage({
                     </h3>
                     <LinkExternal
                       href={purchase.supportUrl}
-                      className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1"
+                      className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
                       aria-label={l10n.getString(
                         'subscription-management-button-support-aria',
                         { productName: purchase.productName },
@@ -628,26 +649,26 @@ export default async function Manage({
                     <div className="leading-5 text-sm">
                       <p>
                         {l10n.getString(
-                          'subscription-management-google-in-app-purchase',
-                          'Google: In-App purchase'
+                          'subscription-management-google-in-app-purchase-1',
+                          'Google: in-app purchase'
                         )}
                       </p>
                       <p>
                         {!!purchase.expiryTimeMillis &&
                           (purchase.autoRenewing
                             ? l10n.getString(
-                                'subscription-management-iap-sub-next-bill',
+                                'subscription-management-iap-sub-next-bill-is-due',
                                 {
                                   date: nextBillDate,
                                 },
-                                `Next billed on ${nextBillDate}`
+                                `Next bill is due ${nextBillDate}`
                               )
                             : l10n.getString(
-                                'subscription-management-iap-sub-expires-on',
+                                'subscription-management-iap-sub-will-expire-on',
                                 {
                                   date: nextBillDate,
                                 },
-                                `Expires on ${nextBillDate}`
+                                `Your subscription will expire on ${nextBillDate}`
                               ))}
                       </p>
                     </div>

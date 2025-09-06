@@ -19,6 +19,7 @@ export const InvoicePreviewFactory = (
     faker.string.alphanumeric({ length: 8 }).toLocaleUpperCase() +
     '-' +
     faker.string.numeric({ length: 4, allowLeadingZeros: true }),
+  invoiceDate: faker.date.past().getDate(),
   nextInvoiceDate: faker.date.future().getDate(),
   amountDue: faker.number.int({ min: 1, max: 1000 }),
   creditApplied: faker.number.int({ min: 0 }),
