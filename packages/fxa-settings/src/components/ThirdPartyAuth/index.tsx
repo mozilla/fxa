@@ -22,6 +22,7 @@ export type ThirdPartyAuthProps = {
   viewName?: string;
   deeplink?: string;
   flowQueryParams?: QueryParams;
+  separatorTextId?: string;
 };
 
 /**
@@ -36,6 +37,7 @@ const ThirdPartyAuth = ({
   viewName = 'unknown',
   deeplink,
   flowQueryParams,
+  separatorTextId
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
 
@@ -53,7 +55,7 @@ const ThirdPartyAuth = ({
           <>
             <div className="text-sm flex items-center justify-center my-6">
               <div className="flex-1 h-px bg-grey-300 divide-x"></div>
-              <FtlMsg id="third-party-auth-options-or">
+              <FtlMsg id={separatorTextId || 'third-party-auth-options-or'}>
                 <div className="mx-4 text-base text-grey-300 font-extralight">
                   or
                 </div>
