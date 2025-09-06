@@ -34,7 +34,7 @@ describe('POST /recoveryKey', () => {
   describe('should create an account recovery key', () => {
     let requestOptions;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       requestOptions = {
         credentials: { uid, email },
         log,
@@ -44,8 +44,11 @@ describe('POST /recoveryKey', () => {
           enabled: true,
         },
       };
-      return setup({ db: { email } }, {}, '/recoveryKey', requestOptions).then(
-        (r) => (response = r)
+      response = await setup(
+        { db: { email } },
+        {},
+        '/recoveryKey',
+        requestOptions
       );
     });
 
@@ -125,7 +128,7 @@ describe('POST /recoveryKey', () => {
   describe('should change account recovery key when an enabled key exists and replaceKey is true', () => {
     let requestOptions;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       requestOptions = {
         credentials: { uid, email },
         log,
@@ -136,12 +139,12 @@ describe('POST /recoveryKey', () => {
           replaceKey: true,
         },
       };
-      return setup(
+      response = await setup(
         { db: { recoveryData, email } },
         {},
         '/recoveryKey',
         requestOptions
-      ).then((r) => (response = r));
+      );
     });
 
     it('returned the correct response', () => {
@@ -237,7 +240,7 @@ describe('POST /recoveryKey', () => {
     let requestOptions;
     let error;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       requestOptions = {
         credentials: { uid, email },
         log,
@@ -248,16 +251,17 @@ describe('POST /recoveryKey', () => {
           replaceKey: false,
         },
       };
-      return setup(
-        { db: { recoveryData, email } },
-        {},
-        '/recoveryKey',
-        requestOptions
-      )
-        .then((r) => (response = r))
-        .catch((e) => {
-          error = e;
-        });
+
+      try {
+        response = await setup(
+          { db: { recoveryData, email } },
+          {},
+          '/recoveryKey',
+          requestOptions
+        );
+      } catch (e) {
+        error = e;
+      }
     });
 
     it('returned the correct response', () => {
@@ -303,14 +307,17 @@ describe('POST /recoveryKey', () => {
   });
 
   describe('should create disabled account recovery key', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       const requestOptions = {
         credentials: { uid, email },
         log,
         payload: { recoveryKeyId, recoveryData, enabled: false },
       };
-      return setup({ db: { email } }, {}, '/recoveryKey', requestOptions).then(
-        (r) => (response = r)
+      response = await setup(
+        { db: { email } },
+        {},
+        '/recoveryKey',
+        requestOptions
       );
     });
 
@@ -330,19 +337,19 @@ describe('POST /recoveryKey', () => {
   });
 
   describe('should verify account recovery key', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       mockAccountEventsManager = mocks.mockAccountEventsManager();
       const requestOptions = {
         credentials: { uid, email },
         log,
         payload: { recoveryKeyId, enabled: false },
       };
-      return setup(
+      response = await setup(
         { db: { email } },
         {},
         '/recoveryKey/verify',
         requestOptions
-      ).then((r) => (response = r));
+      );
     });
     after(() => {
       mocks.unMockAccountEventsManager();
@@ -414,21 +421,23 @@ describe('POST /recoveryKey', () => {
   describe('should not verify invalid account recovery key', () => {
     let error;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       mockAccountEventsManager = mocks.mockAccountEventsManager();
       const requestOptions = {
         credentials: { uid, email, tokenVerificationId: true },
         log,
         payload: { recoveryKeyId: recoveryKeyId, enabled: false },
       };
-      return setup(
-        { db: { email } },
-        {},
-        '/recoveryKey/verify',
-        requestOptions
-      ).catch((e) => {
+      try {
+        await setup(
+          { db: { email } },
+          {},
+          '/recoveryKey/verify',
+          requestOptions
+        );
+      } catch (e) {
         error = e;
-      });
+      }
     });
     after(() => {
       mocks.unMockAccountEventsManager();
@@ -499,18 +508,18 @@ describe('POST /recoveryKey', () => {
 
 describe('GET /recoveryKey/{recoveryKeyId}', () => {
   describe('should get account recovery key', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       const requestOptions = {
         credentials: { uid, email },
         params: { recoveryKeyId },
         log,
       };
-      return setup(
+      response = await setup(
         { db: { recoveryData, recoveryKeyId } },
         {},
         '/recoveryKey/{recoveryKeyId}',
         requestOptions
-      ).then((r) => (response = r));
+      );
     });
 
     it('returned the correct response', () => {

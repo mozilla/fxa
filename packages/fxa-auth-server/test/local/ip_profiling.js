@@ -36,7 +36,7 @@ function makeRoutes(options = {}) {
   };
   const log = mocks.mockLog();
   Container.set(AccountEventsManager, {
-    recordSecurityEvent: () => {},
+    recordSecurityEvent: async () => {},
   });
   Container.set(AccountDeleteManager, { enqueue: () => {} });
   Container.set(AppConfig, config);
