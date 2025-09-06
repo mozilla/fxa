@@ -167,6 +167,7 @@ type BackupCodes {
 }
 
 type RecoveryPhone {
+  phoneNumber: String
   exists: Boolean!
   lastFourDigits: String
 }
@@ -222,7 +223,9 @@ type RelyingParty {
 type Query {
   accountByUid(uid: String!): Account
   accountByEmail(email: String!, autoCompleted: Boolean!): Account
+  accountByRecoveryPhone(phoneNumber: String!, autoCompleted: Boolean!): [Account!]
   getEmailsLike(search: String!): [Email!]
+  getRecoveryPhonesLike(search: String!): [RecoveryPhone!]
   getDeleteStatus(taskNames: [String!]!): [AccountDeleteTaskStatus!]!
   relyingParties: [RelyingParty!]!
 }
