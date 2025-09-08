@@ -129,8 +129,7 @@ export const InlineRecoverySetupContainer = ({
   const verifyTotpHandler = useCallback(async () => {
     try {
       await authClient.completeTotpSetup(
-        signinRecoveryLocationState!.sessionToken,
-        { service: serviceName }
+        signinRecoveryLocationState!.sessionToken
       );
       return true;
     } catch (err) {
@@ -138,7 +137,7 @@ export const InlineRecoverySetupContainer = ({
       // auth-server may return more specific errors (including throttling)
       return false;
     }
-  }, [authClient, signinRecoveryLocationState, serviceName]);
+  }, [authClient, signinRecoveryLocationState]);
 
   const [phoneData, setPhoneData] = useState<{
     phoneNumber: string;

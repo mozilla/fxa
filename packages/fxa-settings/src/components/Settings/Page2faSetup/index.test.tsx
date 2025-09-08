@@ -6,7 +6,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import Page2faSetup from '.';
+import { Page2faSetup } from '.';
 import { Config } from '../../../lib/config';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
@@ -177,8 +177,8 @@ describe('Page2faSetup', () => {
     it('progresses through download & confirm and navigates home', async () => {
       const account = {
         recoveryPhone: { available: false },
-        verifyTotpSetupCode: jest.fn(),
-        completeTotpSetup: jest.fn(),
+        verifyTotpSetupCodeWithJwt: jest.fn(),
+        completeTotpSetupWithJwt: jest.fn(),
         setRecoveryCodes: jest.fn(),
       } as unknown as Account;
       mockUseTotpSetup.mockReturnValue({
@@ -191,6 +191,11 @@ describe('Page2faSetup', () => {
 
       // Step 1 → Step 3 (download)
       fireEvent.click(screen.getByText('verify'));
+      await waitFor(() =>
+        expect(account.verifyTotpSetupCodeWithJwt).toHaveBeenCalledWith(
+          '123456'
+        )
+      );
       await waitFor(() =>
         expect(screen.getByTestId('download-step')).toBeInTheDocument()
       );
@@ -208,7 +213,7 @@ describe('Page2faSetup', () => {
         expect(account.setRecoveryCodes).toHaveBeenCalledWith(
           MOCK_BACKUP_CODES
         );
-        expect(account.completeTotpSetup).toHaveBeenCalled();
+        expect(account.completeTotpSetupWithJwt).toHaveBeenCalled();
         expect(mockNavigateWithQuery).toHaveBeenCalled(); // navigated home
       });
     });
@@ -222,8 +227,8 @@ describe('Page2faSetup', () => {
           .fn()
           .mockResolvedValue({ nationalFormat: '+1 555‑0100' }),
         confirmRecoveryPhone: jest.fn(),
-        verifyTotpSetupCode: jest.fn(),
-        completeTotpSetup: jest.fn(),
+        verifyTotpSetupCodeWithJwt: jest.fn(),
+        completeTotpSetupWithJwt: jest.fn(),
         refresh: jest.fn(),
       } as unknown as Account;
 
@@ -237,6 +242,11 @@ describe('Page2faSetup', () => {
 
       // Step 1 → Step 2 (choice)
       fireEvent.click(screen.getByText('verify'));
+      await waitFor(() =>
+        expect(account.verifyTotpSetupCodeWithJwt).toHaveBeenCalledWith(
+          '123456'
+        )
+      );
       await waitFor(() =>
         expect(screen.getByTestId('choice-step')).toBeInTheDocument()
       );
@@ -253,7 +263,7 @@ describe('Page2faSetup', () => {
         expect(screen.getByTestId('sms-step')).toBeInTheDocument()
       );
 
-      // confirm SMS code – should trigger completeTotpSetup + refresh
+      // confirm SMS code – should trigger completeTotpSetupWithJwt + refresh
       fireEvent.click(screen.getByText('confirm-sms'));
 
       await waitFor(() => {
@@ -262,7 +272,7 @@ describe('Page2faSetup', () => {
           MOCK_FULL_PHONE_NUMBER,
           true
         );
-        expect(account.completeTotpSetup).toHaveBeenCalled();
+        expect(account.completeTotpSetupWithJwt).toHaveBeenCalled();
         expect(account.refresh).toHaveBeenCalledWith('recoveryPhone');
       });
     });

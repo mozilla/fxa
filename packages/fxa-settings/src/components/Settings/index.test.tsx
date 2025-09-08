@@ -30,15 +30,6 @@ jest.mock('../../lib/totp-utils', () => {
   };
 });
 
-// Mocking the component here avoids dealing with all the dependecies required to start the 2fa setup flow
-// Those are tested in Page2faSetup/index.test.tsx
-jest.mock('./Page2faSetup', () => ({
-  __esModule: true,
-  default: () => (
-    <div data-testid="mock-2fa-setup-page">Mock 2FA Setup Page</div>
-  ),
-}));
-
 jest.mock('./ScrollToTop', () => ({
   __esModule: true,
   ScrollToTop: ({ children }: { children: ReactNode }) => (
@@ -216,7 +207,6 @@ describe('Settings App', () => {
       hasPassword: true,
     } as unknown as Account;
     const {
-      getByTestId,
       history,
       history: { navigate },
     } = renderWithRouter(
@@ -229,7 +219,6 @@ describe('Settings App', () => {
     await navigate(SETTINGS_PATH + '/two_step_authentication');
 
     expect(history.location.pathname).toBe('/settings/two_step_authentication');
-    expect(getByTestId('mock-2fa-setup-page')).toBeInTheDocument();
   });
 
   it('routes to Page2faReplaceBackupCodes', async () => {
@@ -345,6 +334,11 @@ describe('Settings App', () => {
         pageName: 'PageSecondaryEmailVerify',
         route: '/emails/verify',
         hasPassword: false,
+      },
+      {
+        pageName: 'Page2faSetup',
+        route: '/two_step_authentication',
+        hasPassword: true,
       },
     ];
 

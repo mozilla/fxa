@@ -20,6 +20,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
       await expect(settings.settingsHeading).toBeVisible();
@@ -52,6 +53,7 @@ test.describe('severity-1 #smoke', () => {
       await signInAccount(target, page, settings, signin, credentials);
       await settings.goto();
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
       await expect(settings.totp.status).toHaveText('Enabled');
       await expect(settings.alertBar).toHaveText(
