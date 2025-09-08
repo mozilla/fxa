@@ -50,6 +50,14 @@ export const ModalMfaProtected = ({
   const { isDirty, isValid } = formState;
   const buttonDisabled = !isDirty || !isValid;
 
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // only accept characters that match the code type (numeric or alphanumeric)
+    // strip out any other characters
+    const filteredCode = e.target.value.replace(/[^0-9]/g, '');
+    e.target.value = filteredCode;
+    clearErrorMessage();
+  };
+
   return (
     <Modal
       data-testid="modal-verify-session"
@@ -109,7 +117,9 @@ export const ModalMfaProtected = ({
               required: true,
               pattern: /^\s*[0-9]{6}\s*$/,
             })}
-            onChange={clearErrorMessage}
+            maxLength={6}
+            inputMode="numeric"
+            onChange={onChange}
             ariaDescribedBy={
               localizedErrorBannerMessage
                 ? 'modal-mfa-protected-error-banner'
