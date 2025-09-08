@@ -289,87 +289,43 @@ module.exports = function (log, config, bounces, statsd) {
     if (typeof cardType !== 'string') {
       return null;
     }
-    return (
-      CARD_TYPE_TO_TEXT[cardType.toLowerCase()] || CARD_TYPE_TO_TEXT.unknown
-    );
+    return CARD_TYPE_TO_TEXT[cardType.toLowerCase()];
   }
 
+  const PAYMENT_METHOD_PROVIDER = {
+    apple_pay: 'Apple Pay',
+    google_pay: 'Google Pay',
+    link: 'Link',
+    paypal: 'PayPal',
+  };
+
+  const validPaymentProviders = Object.keys(PAYMENT_METHOD_PROVIDER);
+  const validCardTypes = Object.keys(CARD_TYPE_TO_TEXT);
+
   const getPaymentMethodContent = (paymentProvider, cardType, lastFour) => {
-    if (paymentProvider === 'paypal') {
+    if (validPaymentProviders.includes(paymentProvider)) {
       return {
-        l10nId: 'payment-method-paypal-1',
-        l10nArgs: null,
-        message: 'Payment Method: PayPal',
-      };
-    } else if (paymentProvider === 'apple_pay') {
-      return {
-        l10nId: 'payment-method-apple-pay',
-        l10nArgs: null,
-        message: 'Payment Method: Apple Pay',
-      };
-    } else if (paymentProvider === 'google_pay') {
-      return {
-        l10nId: 'payment-method-google-pay',
-        l10nArgs: null,
-        message: 'Payment Method: Google Pay',
-      };
-    } else if (paymentProvider === 'link') {
-      return {
-        l10nId: 'payment-method-link',
-        l10nArgs: null,
-        message: 'Payment Method: Link',
+        l10nId: 'payment-method-payment-provider',
+        l10nArgs: JSON.stringify({
+          paymentProviderName: PAYMENT_METHOD_PROVIDER[paymentProvider],
+        }),
+        message: `Payment Method: ${PAYMENT_METHOD_PROVIDER[paymentProvider]}`,
       };
     } else {
       if (cardType && lastFour) {
-        switch (cardType) {
-          case 'amex':
-            return {
-              l10nId: 'payment-provider-card-ending-in-amex',
-              l10nArgs: JSON.stringify({ lastFour }),
-              message: `Payment method: American Express ending in ${lastFour}`,
-            };
-          case 'diners':
-            return {
-              l10nId: 'payment-provider-card-ending-in-diners',
-              l10nArgs: JSON.stringify({ lastFour }),
-              message: `Payment method: Diners Club ending in ${lastFour}`,
-            };
-          case 'discover':
-            return {
-              l10nId: 'payment-provider-card-ending-in-discover',
-              l10nArgs: JSON.stringify({ lastFour }),
-              message: `Payment method: Discover ending in ${lastFour}`,
-            };
-          case 'jcb':
-            return {
-              l10nId: 'payment-provider-card-ending-in-jcb',
-              l10nArgs: JSON.stringify({ lastFour }),
-              message: `Payment method: JCB ending in ${lastFour}`,
-            };
-          case 'mastercard':
-            return {
-              l10nId: 'payment-provider-card-ending-in-mastercard',
-              l10nArgs: JSON.stringify({ lastFour }),
-              message: `Payment method: Mastercard ending in ${lastFour}`,
-            };
-          case 'unionpay':
-            return {
-              l10nId: 'payment-provider-card-ending-in-unionpay',
-              l10nArgs: JSON.stringify({ lastFour }),
-              message: `Payment method: UnionPay ending in ${lastFour}`,
-            };
-          case 'visa':
-            return {
-              l10nId: 'payment-provider-card-ending-in-visa',
-              l10nArgs: JSON.stringify({ lastFour }),
-              message: `Payment method: Visa ending in ${lastFour}`,
-            };
-          default:
-            return {
-              l10nId: 'payment-provider-card-ending-in',
-              l10nArgs: JSON.stringify({ lastFour }),
-              message: `Payment method: Card ending in ${lastFour}`,
-            };
+        if (validCardTypes.includes(cardType)) {
+          const cardName = cardTypeToText(cardType);
+          return {
+            l10nId: 'payment-provider-card-ending-in-card-name',
+            l10nArgs: JSON.stringify({ cardName, lastFour }),
+            message: `Payment method: ${cardName} ending in ${lastFour}`,
+          };
+        } else {
+          return {
+            l10nId: 'payment-provider-card-ending-in',
+            l10nArgs: JSON.stringify({ lastFour }),
+            message: `Payment method: Card ending in ${lastFour}`,
+          };
         }
       }
     }
@@ -3396,6 +3352,9 @@ module.exports = function (log, config, bounces, statsd) {
           l10nArgs: paymentMethodContent.l10nArgs,
           message: paymentMethodContent.message,
         },
+        paymentProviderName: validPaymentProviders.includes(payment_provider)
+          ? PAYMENT_METHOD_PROVIDER[payment_provider]
+          : undefined,
         remainingAmountTotal:
           remainingAmountInCents &&
           this._getLocalizedCurrencyString(
@@ -3463,7 +3422,7 @@ module.exports = function (log, config, bounces, statsd) {
       cardType,
       lastFour
     );
-    const knownCard = Object.keys(CARD_TYPE_TO_TEXT).includes(cardType);
+    const knownCard = validCardTypes.includes(cardType);
 
     return this.send({
       ...message,
@@ -3540,6 +3499,9 @@ module.exports = function (log, config, bounces, statsd) {
         invoiceStartingBalance,
         payment_provider,
         cardName: knownCard ? cardTypeToText(cardType) : undefined,
+        paymentProviderName: validPaymentProviders.includes(payment_provider)
+          ? PAYMENT_METHOD_PROVIDER[payment_provider]
+          : undefined,
         lastFour,
         nextInvoiceDate,
         showProratedAmount: false,

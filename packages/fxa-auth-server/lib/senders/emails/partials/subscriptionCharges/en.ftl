@@ -24,11 +24,39 @@ subscriptionFirstInvoiceDiscount-content-subtotal = Subtotal: { $invoiceSubtotal
 ## $discountDuration - The duration of the discount in number of months, e.g. 3 months
 
 subscription-charges-one-time-discount = One-time discount
-subscription-charges-one-time-discount-plaintext = One-time discount: -{ $invoiceDiscountAmount }
-subscription-charges-repeating-discount = { $discountDuration }-month discount
-subscription-charges-repeating-discount-plaintext = { $discountDuration }-month discount: -{ $invoiceDiscountAmount }
+subscription-charges-one-time-discount-plaintext = One-time discount: { $invoiceDiscountAmount }
+subscription-charges-repeating-discount = { $discountDuration ->
+  [1] 1-month discount
+  [2] 2-month discount
+  [3] 3-month discount
+  [4] 4-month discount
+  [5] 5-month discount
+  [6] 6-month discount
+  [7] 7-month discount
+  [8] 8-month discount
+  [9] 9-month discount
+  [10] 10-month discount
+  [11] 11-month discount
+  [12] 12-month discount
+  *[other] {$discountDuration}-month discount
+}
+subscription-charges-repeating-discount-plaintext = { $discountDuration ->
+  [1] 1-month discount: { $invoiceDiscountAmount }
+  [2] 2-month discount: { $invoiceDiscountAmount }
+  [3] 3-month discount: { $invoiceDiscountAmount }
+  [4] 4-month discount: { $invoiceDiscountAmount }
+  [5] 5-month discount: { $invoiceDiscountAmount }
+  [6] 6-month discount: { $invoiceDiscountAmount }
+  [7] 7-month discount: { $invoiceDiscountAmount }
+  [8] 8-month discount: { $invoiceDiscountAmount }
+  [9] 9-month discount: { $invoiceDiscountAmount }
+  [10] 10-month discount: { $invoiceDiscountAmount }
+  [11] 11-month discount: { $invoiceDiscountAmount }
+  [12] 12-month discount: { $invoiceDiscountAmount }
+  *[other] {$discountDuration}-month discount: { $invoiceDiscountAmount }
+}
 subscription-charges-discount = Discount
-subscription-charges-discount-plaintext = Discount: -{ $invoiceDiscountAmount }
+subscription-charges-discount-plaintext = Discount: { $invoiceDiscountAmount }
 subscription-charges-taxes = Taxes & fees
 # $invoiceTaxAmount (String) - The amount of the tax of the subscription invoice, including currency, e.g. $2.00
 subscriptionCharges-content-tax-plaintext = Taxes & fees: { $invoiceTaxAmount }

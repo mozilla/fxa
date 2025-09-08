@@ -1,12 +1,6 @@
 <% if (invoiceAmountDueInCents > 0) { %>
-  <% if (payment_provider === "paypal") { %>
-    payment-provider-paypal-plaintext = "Payment method: PayPal"
-  <% } else if (payment_provider === "apple_pay") { %>
-    payment-provider-apple-pay-plaintext = "Payment method: Apple Pay"
-  <% } else if (payment_provider === "google_pay") { %>
-    payment-provider-google-pay-plaintext = "Payment method: Google Pay"
-  <% } else if (payment_provider === "link") { %>
-    payment-provider-link-plaintext = "Payment method: Link"
+  <% if (paymentProviderName) { %>
+    payment-method-payment-provider-plaintext = "Payment method: { $paymentProviderName }"
   <% } else { %>
     <% if (cardName && lastFour) {%>
       payment-provider-card-name-ending-in-plaintext = "Payment method: <%- cardName %> ending in <%- lastFour %>"

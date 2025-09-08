@@ -116,7 +116,7 @@
           </td>
           <td style="text-align: end;">
             <span data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount})%>">
-              -<%- invoiceDiscountAmount %>
+              <%- invoiceDiscountAmount %>
             </span>
           </td>
         </tr>

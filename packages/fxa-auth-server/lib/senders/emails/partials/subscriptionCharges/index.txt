@@ -16,13 +16,13 @@ subscriptionFirstInvoiceDiscount-content-subtotal = "Subtotal: <%- invoiceSubtot
 <% } %>
 <% if (discountType && invoiceDiscountAmount) { %>
 <% if (discountType === 'once') { %>
-  subscription-charges-one-time-discount-plaintext = "One-time discount: -<%- invoiceDiscountAmount %>"
+  subscription-charges-one-time-discount-plaintext = "One-time discount: <%- invoiceDiscountAmount %>"
 <% } %>
 <% if (discountType === 'repeating') { %>
-  subscription-charges-repeating-discount-plaintext = "<%discountDuration%>-month discount: -<%- invoiceDiscountAmount %>"
+  subscription-charges-repeating-discount-plaintext = "<%discountDuration%>-month discount: <%- invoiceDiscountAmount %>"
 <% } %>
 <% if (discountType === 'forever') { %>
-  subscriptionFirstInvoiceDiscount-content-discount-plaintext = "Discount: -<%- invoiceDiscountAmount %>"
+  subscription-charges-discount-plaintext = "Discount: <%- invoiceDiscountAmount %>"
 <% } %>
 <% } %>
 <% if (showTaxAmount) { %>

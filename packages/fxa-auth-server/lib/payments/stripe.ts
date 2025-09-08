@@ -2936,7 +2936,8 @@ export class StripeHelper extends StripeHelperBase {
       invoiceTotalInCents,
       invoiceTotalCurrency,
       invoiceSubtotalInCents,
-      invoiceDiscountAmountInCents,
+      invoiceDiscountAmountInCents:
+        invoiceDiscountAmountInCents && -1 & invoiceDiscountAmountInCents,
       invoiceTaxAmountInCents,
       invoiceDate: new Date(invoiceDate * 1000),
       nextInvoiceDate: new Date(nextInvoiceDate * 1000),
