@@ -3330,7 +3330,6 @@ module.exports = function (log, config, bounces, statsd) {
             invoiceTotalCurrency,
             message.acceptLanguage
           ),
-        payment_provider,
         cardName: knownCard ? cardTypeToText(cardType) : undefined,
         lastFour,
         nextInvoiceDate,
@@ -3497,7 +3496,6 @@ module.exports = function (log, config, bounces, statsd) {
             message.acceptLanguage
           ),
         invoiceStartingBalance,
-        payment_provider,
         cardName: knownCard ? cardTypeToText(cardType) : undefined,
         paymentProviderName: validPaymentProviders.includes(payment_provider)
           ? PAYMENT_METHOD_PROVIDER[payment_provider]

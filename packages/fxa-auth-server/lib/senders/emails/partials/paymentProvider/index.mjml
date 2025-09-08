@@ -3,17 +3,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
 
 <% if (paymentMethod && invoiceAmountDueInCents > 0) { %>
-  <% if (paymentMethod.l10nArgs) { %>
-    <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="<%= paymentMethod.l10nId %>" data-l10n-args="<%= paymentMethod.l10nArgs %>">
-        <%= paymentMethod.message %>
-      </span>
-    </mj-text>
-  <% } else { %>
-    <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="<%= paymentMethod.l10nId %>">
-        <%= paymentMethod.message %>
-      </span>
-    </mj-text>
-  <% } %>
+  <mj-text css-class="text-body-no-bottom-margin">
+    <span data-l10n-id="<%= paymentMethod.l10nId %>" data-l10n-args="<%= paymentMethod.l10nArgs %>">
+      <%= paymentMethod.message %>
+    </span>
+  </mj-text>
 <% } %>
