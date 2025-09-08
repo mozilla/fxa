@@ -46,6 +46,9 @@ export interface Config {
     profile: {
       url: string;
     };
+    paymentsNext: {
+      url: string;
+    }
   };
   oauth: {
     clientId: string;
@@ -102,6 +105,7 @@ export interface Config {
     updated2faSetupFlow?: boolean;
     updatedInlineRecoverySetupFlow?: boolean;
     showLocaleToggle?: boolean;
+    paymentsNextSubscriptionManagement?: boolean;
   };
   nimbusPreview: boolean;
   cms: {
@@ -146,6 +150,9 @@ export function getDefault() {
       profile: {
         url: '',
       },
+      paymentsNext: {
+        url: ''
+      }
     },
     oauth: {
       clientId: '',
@@ -194,6 +201,7 @@ export function getDefault() {
       updated2faSetupFlow: false,
       updatedInlineRecoverySetupFlow: false,
       showLocaleToggle: false,
+      paymentsNextSubscriptionManagement: false,
     },
     cms: {
       enabled: false,
