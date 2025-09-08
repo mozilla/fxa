@@ -11,6 +11,7 @@
 — [`LinkExternal`](#linkexternal)\
 — [`AlertBar`](#alertbar-and-alertexternal)\
 — [`VerifiedSessionGuard` and `ModalVerifySession`](#sessions-verifiedsessionguard-and-modalverifysession)\
+— [`MfaGuard` vs `VerifiedSessionGuard`](#mfa-guard-mfaguard-vs-verifiedsessionguard)\
 [Styling Components](#styling-components)\
 — [Tailwind](#tailwind)\
 —— [Component Classes](#component-classes)\
@@ -200,6 +201,90 @@ A user can't do the following in an unverified session, as determined by an `Unv
 This means we'll need to guard around any actions allowing these interactions, links to flows for these actions, and flows themselves. We can do this with by wrapping the component containing the action in question with a `VerifiedSessionGuard` that ensures a user's session is verified before displaying the content.
 
 When a user attempts to perform a guarded action in an unverified session state, the `ModalVerifySession` should be presented instead of following through with the action. This modal is returned by `VerifiedSessionGuard` but depending on the component, it can be used standalone.
+
+### MFA Guard (`MfaGuard`) vs `VerifiedSessionGuard`
+
+Some highly sensitive actions require a fresh, time-bound JWT that is scoped to a specific MFA action (e.g., changing 2FA settings). The `MfaGuard` enforces this by:
+
+- Requesting an OTP for a given MFA scope
+- Displaying an MFA modal to collect the OTP
+- Exchanging the OTP for a short-lived JWT
+- Caching the JWT per `(sessionToken, scope)` via `JwtTokenCache`
+- Wrapping children in an error boundary that clears the cached JWT if it becomes invalid so the modal is shown again
+
+Use cases and guidance:
+
+- **Use `VerifiedSessionGuard`**: When the server only requires a verified session. It ensures the session is verified and shows the verify-session modal if not.
+- **Use `MfaGuard`**: When the APIs you call require MFA/JWT authentication with a specific scope (e.g., 2FA replace/rotate). In this case, a verified session alone isn’t sufficient—you must acquire a scoped JWT first.
+
+Example: Guarding a page at render time with a scoped JWT
+
+```tsx
+import { MfaGuard } from './MfaGuard';
+import PageMfaGuardTestWithAuthClient from './components/Settings/PageMfaGuardTest';
+
+export const Page = () => (
+  <MfaGuard requiredScope="test">
+    <PageMfaGuardTestWithAuthClient path="/mfa_guard/test/auth_client" />
+  </MfaGuard>
+);
+```
+
+Notes:
+
+- Downstream calls to protected endpoints must use the JWT (Authorization: Bearer ...) and not the session token.
+
+For simple examples and integration patterns, see test pages `TestPageMfaGuardWithAuthClient` and `TestPageMfaGuardWithGql` under `src/components/Settings/`. For a real-world usage in a PR, see “Add MFA guard to Change 2FA action” ([github.com/mozilla/fxa/pull/19403](https://github.com/mozilla/fxa/pull/19403)).
+
+#### Best practices
+
+- **Apply `MfaGuard` inside the page component**: Wrap the page's rendered content with `MfaGuard`. Export the wrapped page as default for use in the router, and export the simple page for use in unit tests and storybook without interference from the guard. Do not apply guards directly in the router or at the action/button level (e.g., in unit-row buttons).
+
+- **Add a guard test entry instead of modifying page tests**: In `packages/fxa-settings/src/components/Settings/index.test.tsx`, add your new guarded route to the shared list so it’s covered by the generic guard test. Example pattern:
+
+```tsx
+describe('guarded routes render MFA guard', () => {
+  const guardedRoutes = [
+    {
+      pageName: 'TestPageMfaGuardWithAuthClient',
+      route: '/mfa_guard/test/auth_client',
+      addtlContext: {},
+    },
+  ];
+
+  it.each(guardedRoutes)(
+    'renders $pageName with MFA guard',
+    async ({ route, addtlContext }) => {
+      const session = mockSession(true);
+      const {
+        getByTestId,
+        history: { navigate },
+      } = renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({ session, ...addtlContext })}
+        >
+          <Subject />
+        </AppContext.Provider>,
+        { route: SETTINGS_PATH }
+      );
+      await navigate(SETTINGS_PATH + route);
+      // Guard presence is indicated by the MFA modal when JWT is missing
+      expect(getByTestId('modal-verify-session')).toBeInTheDocument();
+    }
+  );
+});
+```
+
+- **Do not stack `VerifiedSessionGuard` and `MfaGuard` on the same route**: Pick one based on what the server requires.
+  - If endpoints require a verified session, use `VerifiedSessionGuard`.
+  - If endpoints require a scoped MFA JWT, use `MfaGuard`.
+  - Applying both can cause redundant prompts or conflicting modals.
+
+- **Align APIs with the chosen guard**:
+  - For `MfaGuard`, ensure backend routes accept an `Authorization: Bearer <JWT>` with the expected scope and the client uses that JWT, not the session token.
+  - For `VerifiedSessionGuard`, calls can use the session token as usual; no JWT exchange is needed.
+
+- **Storybook and page-level unit tests remain unchanged**: Page-level unit tests, stories and mocks should import the simple page (not the wapped page used by the router) - this allows tests and stories to be unaffected by the guard and continue to test inner content. If you need to demo the guard itself, create a dedicated story that wraps the component with `MfaGuard` and provides mocked providers.
 
 ### Styling components
 
