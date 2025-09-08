@@ -630,5 +630,11 @@ if (require.main === module) {
         .bind(statsd)()
         .then(() => exitCode);
     })
-    .then((exitCode: number) => process.exit(exitCode));
+    .then((exitCode: number) =>
+      // flush the stdout and stderr buffers
+      Promise.allSettled([
+        new Promise((resolve) => process.stdout.write('', resolve)),
+        new Promise((resolve) => process.stderr.write('', resolve)),
+      ]).then(() => process.exit(exitCode))
+    );
 }
