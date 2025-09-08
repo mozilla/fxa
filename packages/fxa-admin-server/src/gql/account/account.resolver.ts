@@ -48,6 +48,7 @@ import { AccountEvent as AccountEventType } from '../../gql/model/account-events
 import { Account as AccountType } from '../../gql/model/account.model';
 import { AttachedClient } from '../../gql/model/attached-clients.model';
 import { Email as EmailType } from '../../gql/model/emails.model';
+import { RecoveryPhone as RecoveryPhoneType } from '../model/recovery-phone.model';
 import { BasketService } from '../../newsletters/basket.service';
 import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
 import {
@@ -183,12 +184,46 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.AccountSearch)
+  @Query((returns) => [AccountType], { nullable: true })
+  @SentryTraced('accountByRecoveryPhone')
+  public async accountByRecoveryPhone(
+    @Args('phoneNumber', { nullable: false }) phoneNumber: string,
+    @Args('autoCompleted', { nullable: false }) autoCompleted: boolean,
+    @CurrentUser() user: string
+  ) {
+    this.eventLogging.onAccountSearch('phoneNumber', autoCompleted);
+    this.log.info('accountByRecoveryPhone', { phoneNumber, user });
+
+    let accounts = await this.db.account
+      .query()
+      .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
+      .innerJoin('recoveryPhones', 'recoveryPhones.uid', 'accounts.uid')
+      .where('recoveryPhones.phoneNumber', phoneNumber)
+      .limit(50);
+
+    return accounts;
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
   @Query((returns) => [EmailType], { nullable: true })
   public getEmailsLike(@Args('search', { nullable: false }) search: string) {
     return this.db.emails
       .query()
       .select(EMAIL_COLUMNS)
       .where('normalizedEmail', 'like', `${search.toLowerCase()}%`)
+      .limit(10);
+  }
+
+  @Features(AdminPanelFeature.AccountSearch)
+  @Query((returns) => [RecoveryPhoneType], { nullable: true })
+  public getRecoveryPhonesLike(
+    @Args('search', { nullable: false }) search: string
+  ) {
+    return this.db.recoveryPhones
+      .query()
+      .select(RECOVERYPHONES_COLUMNS)
+      .where('phoneNumber', 'like', `${search}%`)
+      .distinct('phoneNumber')
       .limit(10);
   }
 

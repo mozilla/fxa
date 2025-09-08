@@ -258,3 +258,140 @@ export const GET_EMAILS_LIKE = gql`
     }
   }
 `;
+
+export const GET_ACCOUNT_BY_RECOVERY_PHONE = gql`
+  query getAccountByRecoveryPhone(
+    $phoneNumber: String!
+    $autoCompleted: Boolean!
+  ) {
+    accountByRecoveryPhone(
+      phoneNumber: $phoneNumber
+      autoCompleted: $autoCompleted
+    ) {
+      uid
+      createdAt
+      clientSalt
+      disabledAt
+      verifierSetAt
+      lockedAt
+      locale
+      email
+      emails {
+        email
+        isVerified
+        isPrimary
+        createdAt
+      }
+      emailBounces {
+        email
+        templateName
+        createdAt
+        bounceType
+        bounceSubType
+        diagnosticCode
+      }
+      securityEvents {
+        uid
+        nameId
+        verified
+        createdAt
+        name
+        ipAddr
+        additionalInfo
+      }
+      totp {
+        verified
+        createdAt
+        enabled
+      }
+      backupCodes {
+        hasBackupCodes
+        count
+      }
+      recoveryPhone {
+        exists
+        lastFourDigits
+      }
+      recoveryKeys {
+        createdAt
+        verifiedAt
+        enabled
+      }
+      linkedAccounts {
+        providerId
+        authAt
+        enabled
+      }
+      accountEvents {
+        name
+        service
+        eventType
+        createdAt
+        template
+      }
+      attachedClients {
+        createdTime
+        createdTimeFormatted
+        lastAccessTime
+        lastAccessTimeFormatted
+        deviceType
+        name
+        clientId
+        userAgent
+        os
+        sessionTokenId
+        location {
+          city
+          state
+          stateCode
+          country
+          countryCode
+        }
+      }
+      subscriptions {
+        created
+        currentPeriodEnd
+        currentPeriodStart
+        cancelAtPeriodEnd
+        endedAt
+        latestInvoice
+        planId
+        productName
+        productId
+        status
+        subscriptionId
+        manageSubscriptionLink
+      }
+      carts {
+        id
+        uid
+        state
+        errorReasonId
+        offeringConfigId
+        interval
+        experiment
+        currency
+        createdAt
+        updatedAt
+        couponCode
+        taxAddress {
+          countryCode
+          postalCode
+        }
+        stripeCustomerId
+        stripeSubscriptionId
+        amount
+        version
+        eligibilityStatus
+      }
+    }
+  }
+`;
+
+export const GET_RECOVERY_PHONES_LIKE = gql`
+  query getRecoveryPhones($search: String!) {
+    getRecoveryPhonesLike(search: $search) {
+      phoneNumber
+    }
+  }
+`;

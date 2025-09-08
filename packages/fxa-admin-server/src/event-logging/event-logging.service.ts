@@ -43,7 +43,10 @@ export class EventLoggingService {
    * Records an AccountSearch event and indicates if the query was the result of an autocompletion.
    * @param autocompleted
    */
-  public onAccountSearch(searchType: 'email' | 'uid', autoCompleted: boolean) {
+  public onAccountSearch(
+    searchType: 'email' | 'uid' | 'phoneNumber',
+    autoCompleted: boolean
+  ) {
     this.log.info(this.logType, {
       event: EventNames.AccountSearch,
       'search-type': searchType,
