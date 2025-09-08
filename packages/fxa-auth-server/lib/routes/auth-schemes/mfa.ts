@@ -7,7 +7,51 @@ import * as AppError from '../../error';
 import { ConfigType } from '../../../config/index';
 import * as jwt from 'jsonwebtoken';
 
-export const strategy = (config: ConfigType) => {
+export type Credentials = {
+  data?: string | null;
+  id?: string | null;
+  authKey?: string | null;
+  bundleKey?: string | null;
+  uid?: string | null;
+  lifetime?: string | null;
+  createdAt?: string | null;
+  uaBrowser?: string | null;
+  uaBrowserVersion?: string | null;
+  uaOS?: string | null;
+  uaOSVersion?: string | null;
+  uaDeviceType?: string | null;
+  uaFormFactor?: string | null;
+  lastAccessTime?: string | null;
+  deviceId?: string | null;
+  deviceName?: string | null;
+  deviceType?: string | null;
+  deviceCreatedAt?: string | null;
+  callbackURL?: string | null;
+  callbackPublicKey?: string | null;
+  callbackAuthKey?: string | null;
+  callbackIsExpired?: string | null;
+  email?: string | null;
+  emailCode?: string | null;
+  emailVerified?: string | null;
+  verifierSetAt?: string | null;
+  profileChangedAt?: string | null;
+  keysChangedAt?: string | null;
+  authAt?: string | null;
+  locale?: string | null;
+  mustVerify?: string | null;
+  tokenVerificationId?: string | null;
+  tokenVerified?: string | null;
+  verificationMethod?: string | null;
+  verificationMethodValue?: string | null;
+  verifiedAt?: string | null;
+  metricsOptOutAt?: string | null;
+  providerId?: string | null;
+};
+
+export const strategy = (
+  config: ConfigType,
+  getCredentialsFunc: (sessionTokenId: string) => Credentials
+) => {
   return () => ({
     async authenticate(req: Request, h: ResponseToolkit) {
       const auth = req.headers.authorization;
@@ -43,13 +87,24 @@ export const strategy = (config: ConfigType) => {
       }
 
       // Ensure required state
-      if (decoded.sub == null || decoded.scope == null) {
+      if (
+        decoded.sub == null ||
+        decoded.scope == null ||
+        decoded.stid == null
+      ) {
         throw AppError.invalidToken();
       }
 
+      const sessionToken = await getCredentialsFunc(decoded.stid);
+      if (!sessionToken) {
+        throw AppError.invalidToken('Parent session token not found!');
+      }
+
+      // Check the underlying session
       // Finalize auth
       return h.authenticated({
         credentials: {
+          ...sessionToken,
           uid: decoded.sub,
           scope: decoded.scope,
         },
