@@ -491,7 +491,10 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
   );
   server.auth.strategy('cloudSchedulerOIDC', 'cloudSchedulerOIDC');
 
-  server.auth.scheme('mfa', mfa.strategy(config));
+  server.auth.scheme(
+    'mfa',
+    mfa.strategy(config, makeCredentialFn(db.sessionToken.bind(db)))
+  );
   server.auth.strategy('mfa', 'mfa');
 
   // register all plugins and Swagger configuration

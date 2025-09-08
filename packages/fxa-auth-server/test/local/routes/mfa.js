@@ -21,10 +21,13 @@ describe('mfa', () => {
     mailer,
     otpUtils,
     statsd,
+    mockGetCredentialsFunc,
     code = '';
 
   const TEST_EMAIL = 'test@email.com';
   const UID = 'uid';
+  const SESSION_TOKEN_ID = 'session-123';
+  const UA_BROWSER = 'Firefox';
   const action = 'test';
   const sandbox = sinon.createSandbox();
 
@@ -60,7 +63,7 @@ describe('mfa', () => {
   }
 
   async function runAuthStrategyTest(token) {
-    const { authenticate } = strategy(config)();
+    const { authenticate } = strategy(config, mockGetCredentialsFunc)();
     const req = {
       headers: {
         authorization: 'Bearer ' + token,
@@ -89,6 +92,12 @@ describe('mfa', () => {
     // TODO: Add and check glean events
     // glean = mocks.mockGlean();
     otpUtils = new OtpUtils(db, statsd);
+    mockGetCredentialsFunc = sandbox.fake.returns({
+      // There's typically much more data returned by this callback, but
+      // for testing purposes this is sufficient.
+      id: SESSION_TOKEN_ID,
+      uaBrowser: UA_BROWSER,
+    });
 
     Container.set(OtpUtils, otpUtils);
     Container.set(AccountEventsManager, mockAccountEventsManager);
@@ -105,12 +114,13 @@ describe('mfa', () => {
     sandbox.reset();
   });
 
-  it('sends otp, verifies otp, and gets a  valid jwt in return', async () => {
+  it('sends otp, verifies otp, and gets a valid jwt in return', async () => {
     const requestResult = await await runTest(
       '/mfa/otp/request',
       {
         credentials: {
-          uid: 'uid',
+          uid: UID,
+          id: SESSION_TOKEN_ID,
           email: TEST_EMAIL,
         },
         payload: {
@@ -124,7 +134,8 @@ describe('mfa', () => {
       '/mfa/otp/verify',
       {
         credentials: {
-          uid: 'uid',
+          uid: UID,
+          id: SESSION_TOKEN_ID,
           email: TEST_EMAIL,
         },
         payload: {
@@ -146,8 +157,14 @@ describe('mfa', () => {
     assert.isDefined(verifyResult.accessToken);
 
     assert.isDefined(authResult);
-    assert.equal(authResult.credentials.uid, 'uid');
+    assert.equal(authResult.credentials.uid, UID);
     assert.equal(authResult.credentials.scope[0], 'mfa:test');
+
+    // The session token id should be extracted from the jwt
+    // and queried so we can get all the meta data about the
+    // session that this token was issued from.
+    assert.equal(authResult.credentials.id, SESSION_TOKEN_ID);
+    assert.equal(authResult.credentials.uaBrowser, UA_BROWSER);
   });
 
   it('will not allow an invalid token', async () => {
