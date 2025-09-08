@@ -162,7 +162,7 @@ export const InlineRecoverySetupContainer = ({
 
   const verifySmsCode = useCallback(
     async (code: string) => {
-      await account.confirmRecoveryPhone(code, phoneData.phoneNumber, true);
+      await account.confirmRecoveryPhone(code, phoneData.phoneNumber);
       await verifyTotpHandler();
     },
     [account, phoneData.phoneNumber, verifyTotpHandler]

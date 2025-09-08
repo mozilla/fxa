@@ -7,7 +7,7 @@ import { action } from '@storybook/addon-actions';
 import { Meta } from '@storybook/react';
 
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import Page2faSetup from '.';
+import { Page2faSetup } from '.';
 import { Subject } from './mocks';
 
 export default {
@@ -20,17 +20,17 @@ export const WithRecoveryPhoneOption = () => (
   <Subject
     account={{
       recoveryPhone: { available: true },
-      verifyTotpSetupCode: async (code: string) => {
+      verifyTotpSetupCodeWithJwt: async (code: string) => {
         action('Verify 2FA code')();
       },
-      completeTotpSetup: async () => {
+      completeTotpSetupWithJwt: async () => {
         action('Complete 2FA setup')();
       },
       addRecoveryPhone: async (phoneNumber: string) => {
         action('Start phone setup')();
         return { nationalFormat: phoneNumber };
       },
-      confirmRecoveryPhone: async () => {
+      confirmRecoveryPhoneWithJwt: async () => {
         action('Confirm SMS code and add phone')();
       },
       refresh: async () => {
@@ -44,10 +44,10 @@ export const WithRecoveryPhoneUnavailable = () => (
   <Subject
     account={{
       recoveryPhone: { available: false },
-      verifyTotpSetupCode: async (code: string) => {
+      verifyTotpSetupCodeWithJwt: async (code: string) => {
         action('Verify 2FA code')();
       },
-      completeTotpSetup: async () => {
+      completeTotpSetupWithJwt: async () => {
         action('Complete 2FA setup')();
       },
       refresh: async () => {

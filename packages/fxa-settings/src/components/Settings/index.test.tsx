@@ -30,15 +30,6 @@ jest.mock('../../lib/totp-utils', () => {
   };
 });
 
-// Mocking the component here avoids dealing with all the dependecies required to start the 2fa setup flow
-// Those are tested in Page2faSetup/index.test.tsx
-jest.mock('./Page2faSetup', () => ({
-  __esModule: true,
-  default: () => (
-    <div data-testid="mock-2fa-setup-page">Mock 2FA Setup Page</div>
-  ),
-}));
-
 jest.mock('./ScrollToTop', () => ({
   __esModule: true,
   ScrollToTop: ({ children }: { children: ReactNode }) => (
@@ -197,9 +188,9 @@ describe('Settings App', () => {
   });
   it('routes to PageChangePassword', async () => {
     // Suppress MFA guard for this test
-    mockMfaGuard.mockImplementationOnce(({ children }: { children: ReactNode }) => (
-      <>{children}</>
-    ));
+    mockMfaGuard.mockImplementationOnce(
+      ({ children }: { children: ReactNode }) => <>{children}</>
+    );
 
     // Mock the JWT token cache to suppress MFA guard
     const mockJwtTokenCache = {
@@ -231,29 +222,6 @@ describe('Settings App', () => {
     await navigate(SETTINGS_PATH + '/change_password');
 
     expect(getByTestId('change-password-requirements')).toBeInTheDocument();
-  });
-
-  it('routes to two step authentication page', async () => {
-    const session = mockSession(true);
-    const account = {
-      ...MOCK_ACCOUNT,
-      hasPassword: true,
-    } as unknown as Account;
-    const {
-      getByTestId,
-      history,
-      history: { navigate },
-    } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account, session })}>
-        <Subject />
-      </AppContext.Provider>,
-      { route: SETTINGS_PATH }
-    );
-
-    await navigate(SETTINGS_PATH + '/two_step_authentication');
-
-    expect(history.location.pathname).toBe('/settings/two_step_authentication');
-    expect(getByTestId('mock-2fa-setup-page')).toBeInTheDocument();
   });
 
   it('routes to PageDeleteAccount', async () => {
@@ -371,6 +339,11 @@ describe('Settings App', () => {
       {
         pageName: 'PageChangePassword',
         route: '/change_password',
+        hasPassword: true,
+      },
+      {
+        pageName: 'Page2faSetup',
+        route: '/two_step_authentication',
         hasPassword: true,
       },
     ];

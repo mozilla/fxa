@@ -150,6 +150,7 @@ test.describe('severity-1 #smoke', () => {
       // Enable 2FA
       await expect(settings.totp.status).toHaveText('Disabled');
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
 
       // Set up 2FA with QR code and backup codes
       const { secret } =
@@ -282,6 +283,7 @@ test.describe('severity-1 #smoke', () => {
       // Enable 2FA
       await expect(settings.totp.status).toHaveText('Disabled');
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
 
       // Set up 2FA with QR code and recovery phone
       await totp.startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice();
@@ -436,6 +438,7 @@ test.describe('severity-1 #smoke', () => {
       // Enable 2FA
       await expect(settings.totp.status).toHaveText('Disabled');
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
 
       // Set up 2FA with QR code and backup codes
       const { recoveryCodes } =
@@ -581,6 +584,7 @@ test.describe('severity-1 #smoke', () => {
       // Enable 2FA
       await expect(settings.totp.status).toHaveText('Disabled');
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
 
       // Set up 2FA with QR code and backup codes
       const { secret } =

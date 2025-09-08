@@ -34,7 +34,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(credentials, settings, totp);
       await settings.signOut();
       await signinWithRecoveryCode(
         credentials,
@@ -68,7 +68,7 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker
       );
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(credentials, settings, totp);
       await settings.signOut();
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -107,10 +107,9 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(credentials, settings, totp);
       await settings.totp.getNewBackupCodesButton.click();
 
-      await settings.confirmMfaGuard(credentials.email);
       const newCodes = await totp.getRecoveryCodes();
       expect(newCodes.some((c) => recoveryCodes.includes(c))).toBe(false);
 
@@ -158,7 +157,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(credentials, settings, totp);
       await settings.signOut();
 
       for (let i = 0; i < recoveryCodes.length - 3; i++) {
@@ -221,6 +220,7 @@ async function signInAccount(
 }
 
 async function addTotp(
+  credentials: Credentials,
   settings: SettingsPage,
   totp: TotpPage
 ): Promise<TotpCredentials> {
@@ -228,6 +228,7 @@ async function addTotp(
   await expect(settings.totp.status).toHaveText('Disabled');
 
   await settings.totp.addButton.click();
+  await settings.confirmMfaGuard(credentials.email);
   const totpCredentials =
     await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 

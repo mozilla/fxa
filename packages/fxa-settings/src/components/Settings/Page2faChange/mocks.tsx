@@ -38,11 +38,11 @@ const createSafeNavigate = (): NavigateFn => {
 export const Subject = ({ account: accountOverrides = {} }) => {
   const account = {
     ...MOCK_ACCOUNT,
-    startReplaceTotp: async () => {
+    startReplaceTotpWithJwt: async () => {
       action('replaceTotp called')();
       return MOCK_TOTP_INFO;
     },
-    confirmReplaceTotp: async (code: string) => {
+    confirmReplaceTotpWithJwt: async (code: string) => {
       action(`confirmReplaceTotp called with code: ${code}`)();
     },
     ...accountOverrides,
