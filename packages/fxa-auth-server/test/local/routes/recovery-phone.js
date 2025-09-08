@@ -12,6 +12,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...chai.assert };
 const mocks = require('../../mocks');
 const { recoveryPhoneRoutes } = require('../../../lib/routes/recovery-phone');
+const { OtpUtils } = require('../../../lib/routes/utils/otp');
 const {
   RecoveryNumberNotSupportedError,
   SmsSendRateLimitExceededError,
@@ -84,19 +85,25 @@ describe('/recovery_phone', () => {
   };
   let routes = [];
   let request;
+  let otpUtils;
+  const mockConfig = { recoveryPhone: { enabled: true } };
 
   beforeEach(() => {
     Container.set(RecoveryPhoneService, mockRecoveryPhoneService);
     Container.set(AccountManager, mockAccountManager);
     Container.set(AccountEventsManager, mockAccountEventsManager);
     mockMailer = mocks.mockMailer();
+    // Ensure RecoveryPhoneHandler resolves OtpUtils with our mocked db/statsd
+    otpUtils = new OtpUtils(mockDb, mockStatsd);
+    Container.set(OtpUtils, otpUtils);
     routes = recoveryPhoneRoutes(
       mockCustoms,
       mockDb,
       mockGlean,
       mockLog,
       mockMailer,
-      mockStatsd
+      mockStatsd,
+      mockConfig
     );
   });
 
@@ -488,7 +495,7 @@ describe('/recovery_phone', () => {
   });
 
   describe('POST /recovery_phone/confirm', async () => {
-    it('confirms a code', async () => {
+    it('confirms a code with TOTP enabled – sends post-add email', async () => {
       mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(true);
       mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
         exists: true,
@@ -496,6 +503,9 @@ describe('/recovery_phone', () => {
         nationalFormat,
       });
       mockRecoveryPhoneService.stripPhoneNumber = sinon.fake.returns('5555');
+
+      // Simulate account having TOTP set up and verified
+      sinon.stub(otpUtils, 'hasTotpToken').resolves(true);
 
       const resp = await makeRequest({
         method: 'POST',
@@ -545,6 +555,41 @@ describe('/recovery_phone', () => {
         mockStatsd.increment,
         'account.recoveryPhone.phoneAdded.success'
       );
+    });
+
+    it('confirms a code without TOTP – does not send post-add email', async () => {
+      mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(true);
+      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
+        exists: true,
+        phoneNumber,
+        nationalFormat,
+      });
+      mockRecoveryPhoneService.stripPhoneNumber = sinon.fake.returns('5555');
+
+      // Simulate account without TOTP configured
+      sinon.stub(otpUtils, 'hasTotpToken').resolves(false);
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/confirm',
+        credentials: { uid, email },
+        payload: { code },
+      });
+
+      assert.isDefined(resp);
+      assert.equal(resp.status, 'success');
+      assert.equal(resp.nationalFormat, nationalFormat);
+      assert.equal(mockRecoveryPhoneService.confirmSetupCode.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[0],
+        uid
+      );
+      assert.equal(
+        mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[1],
+        code
+      );
+      assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 1);
+      assert.notCalled(mockMailer.sendPostAddRecoveryPhoneEmail);
     });
 
     it('indicates a failure confirming code', async () => {

@@ -1087,6 +1087,15 @@ export class Account implements AccountData {
     return result;
   }
 
+  async setRecoveryCodesWithJwt(recoveryCodes: string[]) {
+    const jwt = this.getCachedJwtByScope('2fa');
+    const result = await this.withLoadingStatus(
+      this.authClient.setRecoveryCodesWithJwt(jwt, recoveryCodes)
+    );
+    await this.refresh('backupCodes');
+    return result;
+  }
+
   /**
    * Update recovery codes - replace existing codes with new codes generated client-side.
    * Allows for local code confirmation before updating.
@@ -1303,55 +1312,36 @@ export class Account implements AccountData {
     );
   }
 
-  async createTotp() {
+  async createTotpWithJwt() {
     const totp = await this.withLoadingStatus(
-      this.authClient.createTotpToken(sessionToken()!, {})
+      this.authClient.createTotpTokenWithJwt(
+        this.getCachedJwtByScope('2fa'),
+        {}
+      )
     );
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        totp(currentTotp) {
-          return { ...currentTotp, exists: true };
-        },
-      },
-    });
     return totp;
   }
 
-  async verifyTotpSetupCode(code: string) {
+  async verifyTotpSetupCodeWithJwt(code: string) {
     await this.withLoadingStatus(
-      this.authClient.verifyTotpSetupCode(sessionToken()!, code, {})
+      this.authClient.verifyTotpSetupCodeWithJwt(
+        this.getCachedJwtByScope('2fa'),
+        code,
+        {}
+      )
     );
   }
 
-  async completeTotpSetup(service?: string) {
-    try {
-      await this.withLoadingStatus(
-        this.authClient.completeTotpSetup(
-          sessionToken()!,
-          service ? { service } : {}
-        )
-      );
-      // Only update local cache if the server-side setup completes successfully
-      await this.refresh('recoveryPhone');
-      const cache = this.apolloClient.cache;
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          totp(currentTotp) {
-            return { ...currentTotp, verified: true };
-          },
-        },
-      });
-      await this.refresh('backupCodes');
-    } catch (e) {
-      // Surface to caller; ensures no partial/local updates if follow-up steps fail
-      throw e;
-    }
+  async completeTotpSetupWithJwt() {
+    await this.withLoadingStatus(
+      this.authClient.completeTotpSetupWithJwt(this.getCachedJwtByScope('2fa'))
+    );
+    await this.refresh('totp');
+    await this.refresh('backupCodes');
+    await this.refresh('recoveryPhone');
   }
 
-  async startReplaceTotp() {
+  async startReplaceTotpWithJwt() {
     const jwt = this.getCachedJwtByScope('2fa');
     const totp = await this.withLoadingStatus(
       this.authClient.startReplaceTotpTokenWithJwt(jwt, {})
@@ -1359,7 +1349,7 @@ export class Account implements AccountData {
     return totp;
   }
 
-  async confirmReplaceTotp(code: string) {
+  async confirmReplaceTotpWithJwt(code: string) {
     const jwt = this.getCachedJwtByScope('2fa');
     await this.withLoadingStatus(
       this.authClient.confirmReplaceTotpTokenWithJwt(jwt, code)
@@ -1589,6 +1579,14 @@ export class Account implements AccountData {
     return result;
   }
 
+  async changeRecoveryPhoneWithJwt(code: string) {
+    const jwt = this.getCachedJwtByScope('2fa');
+    const result = await this.withLoadingStatus(
+      this.authClient.recoveryPhoneChangeWithJwt(jwt, code)
+    );
+    return result;
+  }
+
   async changeRecoveryPhone(code: string) {
     const result = await this.withLoadingStatus(
       this.authClient.recoveryPhoneChange(sessionToken()!, code)
@@ -1596,17 +1594,18 @@ export class Account implements AccountData {
     return result;
   }
 
-  async confirmRecoveryPhone(
-    code: string,
-    phoneNumber: string,
-    isInitial2faSetup: boolean
-  ) {
+  async confirmRecoveryPhoneWithJwt(code: string) {
+    const jwt = this.getCachedJwtByScope('2fa');
+    const result = await this.withLoadingStatus(
+      this.authClient.recoveryPhoneConfirmSetupWithJwt(jwt, code)
+    );
+    await this.refresh('recoveryPhone');
+    return result;
+  }
+
+  async confirmRecoveryPhone(code: string, phoneNumber: string) {
     const { nationalFormat } = await this.withLoadingStatus(
-      this.authClient.recoveryPhoneConfirmSetup(
-        sessionToken()!,
-        code,
-        isInitial2faSetup
-      )
+      this.authClient.recoveryPhoneConfirmSetup(sessionToken()!, code)
     );
     const cache = this.apolloClient.cache;
     cache.modify({

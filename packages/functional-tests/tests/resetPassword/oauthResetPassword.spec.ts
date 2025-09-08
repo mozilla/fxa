@@ -104,6 +104,7 @@ test.describe('severity-1 #smoke', () => {
       // Goes to settings and enables totp on user's account.
       await expect(settings.settingsHeading).toBeVisible();
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
       await expect(settings.totp.status).toHaveText('Enabled');

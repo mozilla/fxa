@@ -95,7 +95,13 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     // account for SMS transmission delay. (This will change in FXA-11039)
     // try/catch is in the component that calls this function
     try {
-      await account.addRecoveryPhoneWithJwt(phoneData.phoneNumber);
+      const { nationalFormat } = await account.addRecoveryPhoneWithJwt(
+        phoneData.phoneNumber
+      );
+      setPhoneData({
+        phoneNumber: phoneData.phoneNumber,
+        nationalFormat,
+      });
     } catch (e) {
       if (isInvalidJwtError(e)) {
         // JWT invalid/expired
@@ -108,10 +114,18 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
   };
 
   const verifyRecoveryCode = async (code: string) => {
-    // try/catch is in the component that calls this function
-    reason === RecoveryPhoneSetupReason.change
-      ? await account.changeRecoveryPhone(code)
-      : await account.confirmRecoveryPhone(code, phoneData.phoneNumber, false);
+    try {
+      reason === RecoveryPhoneSetupReason.change
+        ? await account.changeRecoveryPhoneWithJwt(code)
+        : await account.confirmRecoveryPhoneWithJwt(code);
+    } catch (e) {
+      if (isInvalidJwtError(e)) {
+        // JWT invalid/expired
+        errorHandler(e);
+        return;
+      }
+      throw e;
+    }
     // get the latest status of recovery phone info
     // ensure correct data is shown on the settings page
     await account.refresh('recoveryPhone');

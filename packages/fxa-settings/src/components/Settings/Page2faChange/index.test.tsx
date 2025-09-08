@@ -72,8 +72,8 @@ describe('Page2faChange', () => {
     renderWithLocalizationProvider(
       <Subject
         account={{
-          startReplaceTotp: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
-          confirmReplaceTotp: jest
+          startReplaceTotpWithJwt: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
+          confirmReplaceTotpWithJwt: jest
             .fn()
             .mockImplementation((_) => Promise.resolve()),
         }}
@@ -109,7 +109,7 @@ describe('Page2faChange', () => {
     renderWithLocalizationProvider(
       <Subject
         account={{
-          startReplaceTotp: jest.fn().mockRejectedValue(new Error()),
+          startReplaceTotpWithJwt: jest.fn().mockRejectedValue(new Error()),
         }}
       />
     );
@@ -131,8 +131,8 @@ describe('Page2faChange', () => {
     renderWithLocalizationProvider(
       <Subject
         account={{
-          startReplaceTotp: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
-          confirmReplaceTotp: jest.fn().mockRejectedValue(new Error()),
+          startReplaceTotpWithJwt: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
+          confirmReplaceTotpWithJwt: jest.fn().mockRejectedValue(new Error()),
         }}
       />
     );
@@ -157,8 +157,10 @@ describe('Page2faChange', () => {
     renderWithLocalizationProvider(
       <Subject
         account={{
-          startReplaceTotp: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
-          confirmReplaceTotp: jest.fn().mockRejectedValue(missingJwtError),
+          startReplaceTotpWithJwt: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
+          confirmReplaceTotpWithJwt: jest
+            .fn()
+            .mockRejectedValue(missingJwtError),
         }}
       />
     );

@@ -23,7 +23,7 @@ import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import { MfaGuard } from '../MfaGuard';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
-export const PageMfaGuard2faReplaceBackupCodes = (
+export const MfaGuardPage2faReplaceBackupCodes = (
   props: RouteComponentProps
 ) => {
   return (

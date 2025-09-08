@@ -23,7 +23,6 @@ import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import { RecoveryPhoneSetupReason, MfaReason } from '../../../lib/types';
-import ModalVerifySession from '../ModalVerifySession';
 import { MfaGuard } from '../MfaGuard';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
@@ -42,19 +41,12 @@ export const UnitRowTwoStepAuth = () => {
   } = account;
   const [disable2FAModalRevealed, revealDisable2FAModal, hideDisable2FAModal] =
     useBooleanState();
-  const [add2FAModalRevealed, revealAdd2FAModal, hideAdd2FAModal] =
-    useBooleanState();
   const ftlMsgResolver = useFtlMsgResolver();
-
-  const handleAdd2FA = useCallback(() => {
-    hideAdd2FAModal();
-    navigateWithQuery(route);
-  }, [navigateWithQuery, hideAdd2FAModal]);
 
   const handleAdd2FAClick = useCallback(() => {
     GleanMetrics.accountPref.twoStepAuthSubmit();
-    revealAdd2FAModal();
-  }, [revealAdd2FAModal]);
+    navigateWithQuery(route);
+  }, [navigateWithQuery]);
 
   const conditionalUnitRowProps: Partial<UnitRowProps> =
     exists && verified
@@ -194,24 +186,6 @@ export const UnitRowTwoStepAuth = () => {
           </FtlMsg>
         )}
         {howThisProtectsYourAccountLink}
-        {add2FAModalRevealed && (
-          <ModalVerifySession
-            onDismiss={() => {
-              hideAdd2FAModal();
-            }}
-            onError={(error) => {
-              hideAdd2FAModal();
-              alertBar.error(
-                ftlMsgResolver.getMsg(
-                  'tfa-row-cannot-verify-session-4',
-                  'Sorry, there was a problem confirming your session'
-                ),
-                error
-              );
-            }}
-            onCompleted={handleAdd2FA}
-          />
-        )}
         {disable2FAModalRevealed && (
           <MfaGuard
             requiredScope={'2fa'}

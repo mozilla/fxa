@@ -7,13 +7,13 @@ import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import InlineTotpSetup from '.';
-import { MozServices } from '../../lib/types';
+import { MozServices, TotpInfo } from '../../lib/types';
 import { Integration, useSession, useAuthClient } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { useMutation, useQuery } from '@apollo/client';
 import { CREATE_TOTP_MUTATION } from './gql';
 import { getSigninState } from '../Signin/utils';
-import { SigninLocationState, TotpToken } from '../Signin/interfaces';
+import { SigninLocationState } from '../Signin/interfaces';
 import { GET_TOTP_STATUS } from '../../components/App/gql';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
 import { SigninRecoveryLocationState } from '../InlineRecoverySetupFlow/interfaces';
@@ -32,7 +32,7 @@ export const InlineTotpSetupContainer = ({
   serviceName: MozServices;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
-  const [totp, setTotp] = useState<TotpToken>();
+  const [totp, setTotp] = useState<TotpInfo>();
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>(
     undefined
   );
@@ -47,7 +47,7 @@ export const InlineTotpSetupContainer = ({
   );
   const isTotpCreating = useRef(false);
 
-  const [createTotp] = useMutation<{ createTotp: TotpToken }>(
+  const [createTotp] = useMutation<{ createTotp: TotpInfo }>(
     CREATE_TOTP_MUTATION
   );
 

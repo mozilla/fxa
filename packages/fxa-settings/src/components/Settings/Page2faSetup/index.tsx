@@ -12,13 +12,12 @@ import GleanMetrics from '../../../lib/glean';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useTotpSetup } from '../../../lib/hooks/useTotpSetup';
 import { totpUtils } from '../../../lib/totp-utils';
-import { RecoveryPhoneSetupReason } from '../../../lib/types';
+import { MfaReason, RecoveryPhoneSetupReason } from '../../../lib/types';
 import {
   useAccount,
   useAlertBar,
   useConfig,
   useFtlMsgResolver,
-  useSession,
 } from '../../../models';
 
 import { Choice, CHOICES } from '../../FormChoice';
@@ -28,15 +27,25 @@ import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { MfaGuard } from '../MfaGuard';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { useErrorHandler } from 'react-error-boundary';
 
-const Page2faSetup = (_: RouteComponentProps) => {
+export const MfaGuardPage2faSetup = (_: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="2fa" reason={MfaReason.createTotp}>
+      <Page2faSetup />
+    </MfaGuard>
+  );
+};
+
+export const Page2faSetup = () => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const config = useConfig();
+  const errorHandler = useErrorHandler();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
-  const session = useSession();
   const {
     totpInfo,
     loading: totpInfoLoading,
@@ -126,28 +135,23 @@ const Page2faSetup = (_: RouteComponentProps) => {
     }
   }, [totpInfoLoading, totpInfoError, totpInfo, showGenericError, goHome]);
 
-  /* ───── early return states ───── */
-  // without a verified session, we can't set up 2FA
-  // totpInfoLoading would get stuck in a loading state and render as an infinite spinner
-  // adding a verified session guard allows the totpInfoLoading to resolve once session is verified
-  if (!session.verified) {
-    return <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />;
-  }
-
   if (totpInfoLoading) return <LoadingSpinner fullScreen />;
 
   if (totpInfoError || !totpInfo) {
     return <></>;
   }
 
-  /* ───── handlers ───── */
   const handleVerify2faAppCode = async (code: string) => {
     try {
-      await account.verifyTotpSetupCode(code);
+      await account.verifyTotpSetupCodeWithJwt(code);
       GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
       nextStep();
       return {};
     } catch (e) {
+      if (isInvalidJwtError(e)) {
+        errorHandler(e);
+        return {};
+      }
       return { error: true };
     }
   };
@@ -158,7 +162,20 @@ const Page2faSetup = (_: RouteComponentProps) => {
   };
 
   const enable2fa = async () => {
-    await account.completeTotpSetup();
+    try {
+      await account.completeTotpSetupWithJwt();
+      showSuccess();
+      goHome();
+      return;
+    } catch (e) {
+      if (isInvalidJwtError(e)) {
+        errorHandler(e);
+        return;
+      }
+      showGenericError();
+      goHome();
+      return;
+    }
   };
 
   const handleBackupCodeConfirm = async (code: string) => {
@@ -173,45 +190,61 @@ const Page2faSetup = (_: RouteComponentProps) => {
     }
 
     try {
-      await account.setRecoveryCodes(backupCodes);
-      await enable2fa();
+      await account.setRecoveryCodesWithJwt(backupCodes);
     } catch (error) {
-      showGenericError();
-      goHome();
+      if (isInvalidJwtError(error)) {
+        errorHandler(error);
+      } else {
+        showGenericError();
+        goHome();
+      }
       return;
     }
-    showSuccess();
-    goHome();
-    return;
+
+    await enable2fa();
   };
 
   const handleVerifyPhone = async (phoneNumberInput: string) => {
-    // TODO: Switch to addRecoveryPhoneJwt once page is wrapped with MfaGuard
-    const { nationalFormat } = await account.addRecoveryPhone(phoneNumberInput);
-    setPhoneData({
-      phoneNumber: phoneNumberInput,
-      nationalFormat,
-    });
+    try {
+      const { nationalFormat } =
+        await account.addRecoveryPhoneWithJwt(phoneNumberInput);
+      setPhoneData({
+        phoneNumber: phoneNumberInput,
+        nationalFormat,
+      });
+    } catch (error) {
+      if (isInvalidJwtError(error)) {
+        errorHandler(error);
+        return;
+      }
+      throw error;
+    }
   };
 
   const handleResendSms = async () => {
-    // TODO: Switch to addRecoveryPhoneWithJwt once page is wrapped with MfaGuard
-    await account.addRecoveryPhone(phoneData.phoneNumber);
+    try {
+      await account.addRecoveryPhoneWithJwt(phoneData.phoneNumber);
+    } catch (error) {
+      if (isInvalidJwtError(error)) {
+        errorHandler(error);
+        return;
+      }
+      throw error;
+    }
   };
 
   const handleVerifySmsCode = async (code: string) => {
-    // if this errors, error will be handled by try/catch in child component
-    await account.confirmRecoveryPhone(code, phoneData.phoneNumber, true);
-
     try {
-      await enable2fa();
-    } catch (e) {
-      showGenericError();
-      goHome();
-      return;
+      await account.confirmRecoveryPhoneWithJwt(code);
+    } catch (error) {
+      if (isInvalidJwtError(error)) {
+        errorHandler(error);
+        return;
+      }
+      throw error;
     }
-    await account.refresh('recoveryPhone');
-    // success message controlled by child component
+
+    await enable2fa();
   };
 
   return (
@@ -285,4 +318,4 @@ const Page2faSetup = (_: RouteComponentProps) => {
   );
 };
 
-export default Page2faSetup;
+export default MfaGuardPage2faSetup;
