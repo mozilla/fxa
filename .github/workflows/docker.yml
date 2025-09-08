@@ -27,13 +27,16 @@ jobs:
       )
     env:
       CIRCLECI_EXTERNAL_ID: ${{ github.event.check_run.external_id }}
+      GIT_TAG: ${{ inputs.git_tag }}
     steps:
       - id: determine
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.git_tag }}" != "" ]]; then
-            tag="${{ inputs.git_tag }}"
-          elif [[ "${{ github.event_name }}" == "check_run" ]]; then
-            echo ${CIRCLECI_EXTERNAL_ID}
+          tag=""
+
+          # Use the provided git tag
+          if [[ "${GITHUB_EVENT_NAME:-}" == "workflow_dispatch" && "${GIT_TAG:-}" != "" ]]; then
+            tag="${GIT_TAG}"
+          elif [[ "${GITHUB_EVENT_NAME:-}" == "check_run" ]]; then
             CIRCLECI_WORKFLOW_ID=$(echo "${CIRCLECI_EXTERNAL_ID}" | jq -r '."workflow-id"')
             CIRCLECI_WORKFLOW_DATA=$(curl "https://circleci.com/api/v2/workflow/${CIRCLECI_WORKFLOW_ID}")
             CIRCLECI_PIPELINE_ID=$(echo "${CIRCLECI_WORKFLOW_DATA}" | jq -r '.pipeline_id')
@@ -44,13 +47,13 @@ jobs:
             fi
           fi
 
-          if [[ "${tag}" != "" ]]; then
-            echo "tag=${tag}" >> $GITHUB_OUTPUT
-            echo "Trigger docker build & push on ${{ github.event_name }} and found tag ${TAG}" >> $GITHUB_STEP_SUMMARY
+          if [[ "${tag}" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-rc[0-9]+)?$ ]]; then
+            echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+            echo "Trigger docker build & push on ${GITHUB_EVENT_NAME} and found tag ${tag}" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           else
-            echo "Cannot determine tag"
-            echo "Trigger docker build & push on ${{ github.event_name }} and cannot determine tag" >> $GITHUB_STEP_SUMMARY
+            echo "Cannot determine valid tag"
+            echo "Trigger docker build & push on ${GITHUB_EVENT_NAME} and cannot determine tag" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
