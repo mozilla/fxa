@@ -265,6 +265,270 @@ module.exports = (
     }
   }
 
+  function handleTotpCreate() {
+    return async function (request) {
+      log.begin('totp.create', request);
+
+      const { email, tokenVerificationId, uid } = request.auth.credentials;
+      const { skipRecoveryCodes } = request.payload;
+
+      await customs.checkAuthenticated(request, uid, email, 'totpCreate');
+
+      if (tokenVerificationId) {
+        throw errors.unverifiedSession();
+      }
+
+      const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
+      if (hasEnabledToken) {
+        throw errors.totpTokenAlreadyExists();
+      }
+
+      // Default options for TOTP
+      const otpOptions = {
+        encoding: 'hex',
+        step: config.step,
+        window: config.window,
+      };
+
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign(
+        {},
+        otplib.authenticator.options,
+        otpOptions
+      );
+
+      // Clear prior verification state on restart; user must re-verify
+      await authServerCacheRedis.del(toRedisTotpVerifiedKey(uid));
+
+      // Reuse existing secret if present; refresh TTL to give user a full window.
+      // This secret will only be available if the user has previously started
+      // but not completed the setup process during the initial TTL window.
+      let secret = await authServerCacheRedis.get(toRedisTotpSecretKey(uid));
+      if (secret) {
+        await authServerCacheRedis.set(
+          toRedisTotpSecretKey(uid),
+          secret,
+          'EX',
+          TOTP_SECRET_REDIS_TTL
+        );
+      } else {
+        secret = authenticator.generateSecret();
+        await authServerCacheRedis.set(
+          toRedisTotpSecretKey(uid),
+          secret,
+          'EX',
+          TOTP_SECRET_REDIS_TTL
+        );
+      }
+
+      log.info('totpToken.created', { uid });
+      await request.emitMetricsEvent('totpToken.created', { uid });
+
+      const otpauth = authenticator.keyuri(email, service, secret);
+
+      const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
+
+      const recoveryCodes =
+        skipRecoveryCodes !== true
+          ? await db.replaceRecoveryCodes(uid, RECOVERY_CODE_COUNT)
+          : [];
+
+      return {
+        qrCodeUrl,
+        secret,
+        recoveryCodes,
+      };
+    };
+  }
+
+  function handleTotpSetupVerify() {
+    return async function (request) {
+      log.begin('totp.setup.verify', request);
+
+      const { email, tokenVerificationId, uid } = request.auth.credentials;
+      const { code } = request.payload;
+
+      await customs.checkAuthenticated(request, uid, email, 'verifyTotpCode');
+
+      if (tokenVerificationId) {
+        throw errors.unverifiedSession();
+      }
+
+      // Pull shared secret from Redis only (setup state)
+      const sharedSecret = await authServerCacheRedis.get(
+        toRedisTotpSecretKey(uid)
+      );
+
+      if (sharedSecret == null) {
+        throw errors.totpTokenNotFound();
+      }
+
+      const otpOptions = {
+        encoding: 'hex',
+        step: config.step,
+        window: config.window,
+      };
+
+      const { valid: isValidCode, delta } = otpUtils.verifyOtpCode(
+        code,
+        sharedSecret,
+        otpOptions,
+        'totp.setup.verify'
+      );
+
+      if (!isValidCode) {
+        glean.twoFactorAuth.setupInvalidCodeError(request, { uid });
+
+        // Extra logging to diagnose issues similar to FXA-12145
+        log.error('totp.setup.verify.invalidCode', {
+          uid,
+          code,
+          step: config.step,
+          window: config.window,
+          delta,
+        });
+        throw errors.invalidTokenVerficationCode();
+      }
+
+      // Mark setup as verified in Redis with a digest of the secret,
+      // so completion can assert the verified flag matches the current secret value.
+      const verifiedDigest = crypto
+        .createHash('sha256')
+        .update(sharedSecret)
+        .digest('hex');
+      const secretKey = toRedisTotpSecretKey(uid);
+      const verifiedKey = toRedisTotpVerifiedKey(uid);
+      // Ensure both keys have the same TTL; refresh both to the standard TTL window
+      await authServerCacheRedis.set(
+        secretKey,
+        sharedSecret,
+        'EX',
+        TOTP_SECRET_REDIS_TTL
+      );
+      await authServerCacheRedis.set(
+        verifiedKey,
+        verifiedDigest,
+        'EX',
+        TOTP_SECRET_REDIS_TTL
+      );
+
+      // Emit success telemetry for setup verification
+      await glean.twoFactorAuth.setupVerifySuccess(request, { uid });
+
+      return { success: true };
+    };
+  }
+
+  function handleTotpSetupComplete() {
+    return async function (request) {
+      log.begin('totp.setup.complete', request);
+
+      const { email, tokenVerificationId, uid, id } = request.auth.credentials;
+
+      await customs.checkAuthenticated(request, uid, email, 'totpCreate');
+
+      if (tokenVerificationId) {
+        throw errors.unverifiedSession();
+      }
+
+      // Expect a secret in Redis from the setup start step
+      const sharedSecret = await authServerCacheRedis.get(
+        toRedisTotpSecretKey(uid)
+      );
+
+      if (sharedSecret == null) {
+        throw errors.totpTokenNotFound();
+      }
+
+      // Ensure setup was verified in Redis for THIS secret before allowing completion
+      const expectedDigest = crypto
+        .createHash('sha256')
+        .update(sharedSecret)
+        .digest('hex');
+      const verifiedFlag = await authServerCacheRedis.get(
+        toRedisTotpVerifiedKey(uid)
+      );
+      if (!verifiedFlag || verifiedFlag !== expectedDigest) {
+        throw errors.invalidTokenVerficationCode();
+      }
+
+      await db.replaceTotpToken({
+        uid,
+        sharedSecret,
+        verified: true,
+        enabled: true,
+        epoch: 0,
+      });
+
+      // Completing setup after a successful code verification should also
+      // elevate the current session to AAL2 for this login flow.
+      // This allows OAuth to proceed for RPs that require 2FA.
+      try {
+        await db.verifyTokensWithMethod(id, 'totp-2fa');
+      } catch (err) {
+        log.error('totp.setup.complete.verify_session_failed', { uid, err });
+        // Do not abort setup completion if session upgrade fails;
+        // the user has still enabled TOTP.
+      }
+
+      await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
+      await authServerCacheRedis.del(toRedisTotpVerifiedKey(uid));
+
+      recordSecurityEvent('account.two_factor_added', {
+        db,
+        request,
+      });
+
+      glean.twoFactorAuth.codeComplete(request, { uid });
+
+      await profileClient.deleteCache(uid);
+      await log.notifyAttachedServices('profileDataChange', request, { uid });
+
+      await sendEmailNotification();
+
+      return { success: true };
+
+      async function sendEmailNotification() {
+        const account = await db.account(uid);
+        const geoData = request.app.geo;
+        const ip = request.app.clientAddress;
+        const emailOptions = {
+          acceptLanguage: request.app.acceptLanguage,
+          ip,
+          location: geoData.location,
+          timeZone: geoData.timeZone,
+          uaBrowser: request.app.ua.browser,
+          uaBrowserVersion: request.app.ua.browserVersion,
+          uaOS: request.app.ua.os,
+          uaOSVersion: request.app.ua.osVersion,
+          uaDeviceType: request.app.ua.deviceType,
+          uid,
+        };
+
+        // include recovery method context if available
+        const result = await recoveryPhoneService.hasConfirmed(uid);
+        const maskedPhoneNumber = result?.phoneNumber
+          ? recoveryPhoneService.maskPhoneNumber(result.phoneNumber)
+          : undefined;
+
+        try {
+          await mailer.sendPostAddTwoStepAuthenticationEmail(
+            account.emails,
+            account,
+            {
+              ...emailOptions,
+              maskedPhoneNumber,
+            }
+          );
+        } catch (error) {
+          log.error('mailer.sendPostAddTwoStepAuthenticationEmail', {
+            error,
+          });
+        }
+      }
+    };
+  }
+
   return [
     {
       method: 'POST',
@@ -289,94 +553,13 @@ module.exports = (
           }),
         },
       },
-      handler: async function (request) {
-        log.begin('totp.create', request);
-
-        const sessionToken = request.auth.credentials;
-        const uid = sessionToken.uid;
-        const skipRecoveryCodes = request.payload.skipRecoveryCodes;
-
-        await customs.checkAuthenticated(
-          request,
-          uid,
-          sessionToken.email,
-          'totpCreate'
-        );
-
-        if (sessionToken.tokenVerificationId) {
-          throw errors.unverifiedSession();
-        }
-
-        const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
-        if (hasEnabledToken) {
-          throw errors.totpTokenAlreadyExists();
-        }
-
-        // Default options for TOTP
-        const otpOptions = {
-          encoding: 'hex',
-          step: config.step,
-          window: config.window,
-        };
-
-        const authenticator = new otplib.authenticator.Authenticator();
-        authenticator.options = Object.assign(
-          {},
-          otplib.authenticator.options,
-          otpOptions
-        );
-
-        // Clear prior verification state on restart; user must re-verify
-        await authServerCacheRedis.del(toRedisTotpVerifiedKey(uid));
-
-        // Reuse existing secret if present; refresh TTL to give user a full window.
-        // This secret will only be available if the user has previously started
-        // but not completed the setup process during the initial TTL window.
-        let secret = await authServerCacheRedis.get(toRedisTotpSecretKey(uid));
-        if (secret) {
-          await authServerCacheRedis.set(
-            toRedisTotpSecretKey(uid),
-            secret,
-            'EX',
-            TOTP_SECRET_REDIS_TTL
-          );
-        } else {
-          secret = authenticator.generateSecret();
-          await authServerCacheRedis.set(
-            toRedisTotpSecretKey(uid),
-            secret,
-            'EX',
-            TOTP_SECRET_REDIS_TTL
-          );
-        }
-
-        log.info('totpToken.created', { uid });
-        await request.emitMetricsEvent('totpToken.created', { uid });
-
-        const otpauth = authenticator.keyuri(
-          sessionToken.email,
-          service,
-          secret
-        );
-
-        const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
-
-        const recoveryCodes =
-          skipRecoveryCodes !== true
-            ? await db.replaceRecoveryCodes(uid, RECOVERY_CODE_COUNT)
-            : [];
-
-        return {
-          qrCodeUrl,
-          secret,
-          recoveryCodes,
-        };
-      },
+      handler: handleTotpCreate(),
     },
     {
       method: 'POST',
       path: '/totp/setup/verify',
       options: {
+        ...TOTP_DOCS.TOTP_SETUP_VERIFY_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
@@ -398,83 +581,13 @@ module.exports = (
           }),
         },
       },
-      handler: async function (request) {
-        log.begin('totp.setup.verify', request);
-
-        const { uid, email } = request.auth.credentials;
-        const code = request.payload.code;
-
-        await customs.checkAuthenticated(request, uid, email, 'verifyTotpCode');
-
-        // Pull shared secret from Redis only (setup state)
-        const sharedSecret = await authServerCacheRedis.get(
-          toRedisTotpSecretKey(uid)
-        );
-
-        if (sharedSecret == null) {
-          throw errors.totpTokenNotFound();
-        }
-
-        const otpOptions = {
-          encoding: 'hex',
-          step: config.step,
-          window: config.window,
-        };
-
-        const { valid: isValidCode, delta } = otpUtils.verifyOtpCode(
-          code,
-          sharedSecret,
-          otpOptions,
-          'totp.setup.verify'
-        );
-
-        if (!isValidCode) {
-          glean.twoFactorAuth.setupInvalidCodeError(request, { uid });
-
-          // Extra logging to diagnose issues similar to FXA-12145
-          log.error('totp.setup.verify.invalidCode', {
-            uid,
-            code,
-            step: config.step,
-            window: config.window,
-            delta,
-          });
-          throw errors.invalidTokenVerficationCode();
-        }
-
-        // Mark setup as verified in Redis with a digest of the secret,
-        // so completion can assert the verified flag matches the current secret value.
-        const verifiedDigest = crypto
-          .createHash('sha256')
-          .update(sharedSecret)
-          .digest('hex');
-        const secretKey = toRedisTotpSecretKey(uid);
-        const verifiedKey = toRedisTotpVerifiedKey(uid);
-        // Ensure both keys have the same TTL; refresh both to the standard TTL window
-        await authServerCacheRedis.set(
-          secretKey,
-          sharedSecret,
-          'EX',
-          TOTP_SECRET_REDIS_TTL
-        );
-        await authServerCacheRedis.set(
-          verifiedKey,
-          verifiedDigest,
-          'EX',
-          TOTP_SECRET_REDIS_TTL
-        );
-
-        // Emit success telemetry for setup verification
-
-        await glean.twoFactorAuth.setupVerifySuccess(request, { uid });
-
-        return { success: true };
-      },
+      handler: handleTotpSetupVerify(),
     },
     {
       method: 'POST',
       path: '/totp/setup/complete',
       options: {
+        ...TOTP_DOCS.TOTP_SETUP_COMPLETE_POST,
         auth: {
           strategy: 'sessionToken',
         },
@@ -489,116 +602,85 @@ module.exports = (
           }),
         },
       },
-      handler: async function (request) {
-        log.begin('totp.setup.complete', request);
-
-        const sessionToken = request.auth.credentials;
-        const { uid, email } = sessionToken;
-
-        await customs.checkAuthenticated(request, uid, email, 'totpCreate');
-
-        if (sessionToken.tokenVerificationId) {
-          throw errors.unverifiedSession();
-        }
-
-        // Expect a secret in Redis from the setup start step
-        const sharedSecret = await authServerCacheRedis.get(
-          toRedisTotpSecretKey(uid)
-        );
-
-        if (sharedSecret == null) {
-          throw errors.totpTokenNotFound();
-        }
-
-        // Ensure setup was verified in Redis for THIS secret before allowing completion
-        const expectedDigest = crypto
-          .createHash('sha256')
-          .update(sharedSecret)
-          .digest('hex');
-        const verifiedFlag = await authServerCacheRedis.get(
-          toRedisTotpVerifiedKey(uid)
-        );
-        if (!verifiedFlag || verifiedFlag !== expectedDigest) {
-          throw errors.invalidTokenVerficationCode();
-        }
-
-        await db.replaceTotpToken({
-          uid,
-          sharedSecret,
-          verified: true,
-          enabled: true,
-          epoch: 0,
-        });
-
-        // Completing setup after a successful code verification should also
-        // elevate the current session to AAL2 for this login flow.
-        // This allows OAuth to proceed for RPs that require 2FA.
-        try {
-          await db.verifyTokensWithMethod(sessionToken.id, 'totp-2fa');
-        } catch (err) {
-          log.error('totp.setup.complete.verify_session_failed', { uid, err });
-          // Do not abort setup completion if session upgrade fails;
-          // the user has still enabled TOTP.
-        }
-
-        await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
-        await authServerCacheRedis.del(toRedisTotpVerifiedKey(uid));
-
-        recordSecurityEvent('account.two_factor_added', {
-          db,
-          request,
-        });
-
-        glean.twoFactorAuth.codeComplete(request, { uid });
-
-        await profileClient.deleteCache(uid);
-        await log.notifyAttachedServices('profileDataChange', request, { uid });
-
-        await sendEmailNotification();
-
-        return { success: true };
-
-        async function sendEmailNotification() {
-          const account = await db.account(uid);
-          const geoData = request.app.geo;
-          const ip = request.app.clientAddress;
-          const service = request.payload?.service || request.query?.service;
-          const emailOptions = {
-            acceptLanguage: request.app.acceptLanguage,
-            ip,
-            location: geoData.location,
-            service,
-            timeZone: geoData.timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid,
-          };
-
-          // include recovery method context if available
-          const result = await recoveryPhoneService.hasConfirmed(uid);
-          const maskedPhoneNumber = result?.phoneNumber
-            ? recoveryPhoneService.maskPhoneNumber(result.phoneNumber)
-            : undefined;
-
-          try {
-            await mailer.sendPostAddTwoStepAuthenticationEmail(
-              account.emails,
-              account,
-              {
-                ...emailOptions,
-                maskedPhoneNumber,
-              }
-            );
-          } catch (error) {
-            log.error('mailer.sendPostAddTwoStepAuthenticationEmail', {
-              error,
-            });
-          }
-        }
+      handler: handleTotpSetupComplete(),
+    },
+    {
+      method: 'POST',
+      path: '/mfa/totp/create',
+      options: {
+        ...TOTP_DOCS.TOTP_CREATE_JWT_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+            skipRecoveryCodes: isA.boolean().optional(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            qrCodeUrl: isA.string().required(),
+            secret: isA.string().required(),
+            recoveryCodes: isA.array().items(isA.string()).required(),
+          }),
+        },
       },
+      handler: handleTotpCreate(),
+    },
+    {
+      method: 'POST',
+      path: '/mfa/totp/setup/verify',
+      options: {
+        ...TOTP_DOCS.MFA_TOTP_SETUP_VERIFY_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            code: isA
+              .string()
+              .max(32)
+              .regex(validators.DIGITS)
+              .required()
+              .description(DESCRIPTION.codeTotp),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+        response: {
+          schema: isA.object({
+            success: isA.boolean().required(),
+          }),
+        },
+      },
+      handler: handleTotpSetupVerify(),
+    },
+    {
+      method: 'POST',
+      path: '/mfa/totp/setup/complete',
+      options: {
+        ...TOTP_DOCS.MFA_TOTP_SETUP_COMPLETE_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+        response: {
+          schema: isA.object({
+            success: isA.boolean().required(),
+          }),
+        },
+      },
+      handler: handleTotpSetupComplete(),
     },
     {
       method: 'POST',

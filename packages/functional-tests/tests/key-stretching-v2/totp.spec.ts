@@ -49,6 +49,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
 
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(email);
       const totpCredentials =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 

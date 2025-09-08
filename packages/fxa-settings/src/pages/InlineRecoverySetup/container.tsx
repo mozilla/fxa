@@ -75,14 +75,13 @@ export const InlineRecoverySetupContainer = ({
     // Server-side verification only; do not generate codes client-side here
     try {
       await authClient.completeTotpSetup(
-        signinRecoveryLocationState!.sessionToken,
-        { service: serviceName }
+        signinRecoveryLocationState!.sessionToken
       );
       return true;
     } catch (e) {
       throw AuthUiErrors.INVALID_TOTP_CODE;
     }
-  }, [authClient, signinRecoveryLocationState, serviceName]);
+  }, [authClient, signinRecoveryLocationState]);
 
   const successfulSetupHandler = useCallback(async () => {
     // When this is called, we know signinRecoveryLocationState exists.

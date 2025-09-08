@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FinishOAuthFlowHandlerResult } from '../../lib/oauth/hooks';
-import { MozServices } from '../../lib/types';
-import { SigninLocationState, TotpToken } from './../Signin/interfaces';
+import { MozServices, TotpInfo } from '../../lib/types';
+import { SigninLocationState } from './../Signin/interfaces';
 import { Integration } from '../../models';
 
 export type SigninRecoveryLocationState = SigninLocationState & {
-  totp: TotpToken;
+  totp: TotpInfo;
 };
 
 export interface InlineRecoverySetupProps {
