@@ -3,8 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'mutationobserver-shim';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+
+// Mock the MFA guard so we can assert the page renders it without
+// pulling in the guard's dependencies or child flows
+jest.mock('../MfaGuard', () => ({
+  __esModule: true,
+  MfaGuard: ({ children }: { children: ReactNode }) => (
+    <div data-testid="mfa-guard">MockMfaGuard</div>
+  ),
+}));
 import { SETTINGS_PATH } from '../../../constants';
 import {
   mockAppContext,
@@ -151,5 +160,10 @@ describe('PageChangePassword', () => {
     expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_PATH + '#password', {
       replace: true,
     });
+  });
+
+  it('renders MFA guard', async () => {
+    await render();
+    expect(screen.getByTestId('mfa-guard')).toBeInTheDocument();
   });
 });

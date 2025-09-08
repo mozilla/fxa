@@ -21,6 +21,7 @@ import {
   getErrorFtlId,
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
+import { MfaGuard } from '../MfaGuard';
 
 type FormData = {
   oldPassword: string;
@@ -133,4 +134,8 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   );
 };
 
-export default PageChangePassword;
+const MfaGuardedPageChangePassword = (_: RouteComponentProps) => {
+  return <MfaGuard requiredScope="password"><PageChangePassword /></MfaGuard>;
+};
+
+export default MfaGuardedPageChangePassword;

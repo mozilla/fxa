@@ -585,12 +585,13 @@ export class Account implements AccountData {
   }
 
   async changePassword(oldPassword: string, newPassword: string) {
+    const jwt = this.getCachedJwtByScope('password');
     const response = await this.withLoadingStatus(
-      this.authClient.passwordChange(
+      this.authClient.passwordChangeWithJWT(
+        jwt,
         this.primaryEmail.email,
         oldPassword,
         newPassword,
-        sessionToken()!,
         {
           keys: true,
         }

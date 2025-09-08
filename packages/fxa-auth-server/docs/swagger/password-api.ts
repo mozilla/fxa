@@ -13,7 +13,35 @@ const PASSWORD_CHANGE_START_POST = {
   ...TAGS_PASSWORD,
   description: '/password/change/start',
   notes: [
-    'Begin the "change password" process. Returns a single-use `passwordChangeToken`, to be sent to `POST /password/change/finish`. Also returns a single-use `keyFetchToken`.',
+    dedent`
+      🔒 Authenticated with session token
+
+      Begin the "change password" process. Returns a single-use \`passwordChangeToken\`, to be sent to \`POST /password/change/finish\`. Also returns a single-use \`keyFetchToken\`.
+    `,
+  ],
+  plugins: {
+    'hapi-swagger': {
+      responses: {
+        400: {
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 103\` - Incorrect password
+          `,
+        },
+      },
+    },
+  },
+};
+
+const PASSWORD_CHANGE_START_JWT_POST = {
+  ...TAGS_PASSWORD,
+  description: '/password/change/start/jwt',
+  notes: [
+    dedent`
+      🔒 Authenticated with MFA JWT (scope: mfa:password)
+
+      Begin the "change password" process using JWT authentication. Returns a single-use \`passwordChangeToken\`, to be sent to \`POST /password/change/finish\`. Also returns a single-use \`keyFetchToken\`.
+    `,
   ],
   plugins: {
     'hapi-swagger': {
@@ -168,6 +196,7 @@ const PASSWORD_CREATE_POST = {
 const API_DOCS = {
   PASSWORD_CHANGE_FINISH_POST,
   PASSWORD_CHANGE_START_POST,
+  PASSWORD_CHANGE_START_JWT_POST,
   PASSWORD_FORGOT_RESEND_CODE_POST,
   PASSWORD_FORGOT_SEND_CODE_POST,
   PASSWORD_FORGOT_SEND_OTP_POST,

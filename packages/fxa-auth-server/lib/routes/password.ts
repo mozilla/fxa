@@ -75,6 +75,104 @@ module.exports = function (
       : db.updatePasswordForgotToken(passwordForgotToken);
   }
 
+  async function handlePasswordChangeStart(request: AuthRequest, uid: string, account: any) {
+    log.begin('Password.changeStart', request);
+    const form = request.payload as { email: string; oldAuthPW: string };
+    const { oldAuthPW, email } = form;
+
+    // Don't bother creating a password change token if the account hasn't been verified.
+    // The subsequent call to 'getKeys' would fail, ultimately orphaning a passwordChangeToken...
+
+    if (!account.emailVerified) {
+      statsd.increment('passwordChange.start.emailNotVerified');
+      throw error.unverifiedAccount();
+    }
+
+    await customs.checkAuthenticated(
+      request,
+      uid,
+      account.email,
+      customs.v2Enabled() ? 'authenticatedPasswordChange' : 'passwordChange'
+    );
+    statsd.increment('passwordChange.start.authenticated');
+
+    let keyFetchToken: any | undefined = undefined;
+    let keyFetchToken2: any | undefined = undefined;
+    let passwordChangeToken: any | undefined = undefined;
+
+    try {
+      const emailRecord = await db.accountRecord(email);
+
+      if (uid !== emailRecord.uid) {
+        throw error.invalidToken('Invalid token');
+      }
+
+      const password = new Password(
+        oldAuthPW,
+        emailRecord.authSalt,
+        emailRecord.verifierVersion
+      );
+
+      const match = await signinUtils.checkPassword(
+        emailRecord,
+        password,
+        request
+      );
+
+      if (!match) {
+        throw error.incorrectPassword(emailRecord.email, form.email);
+      }
+
+      if (password.clientVersion === 1) {
+        const unwrappedKb = await password.unwrap(emailRecord.wrapWrapKb);
+        keyFetchToken = await db.createKeyFetchToken({
+          uid: emailRecord.uid,
+          kA: emailRecord.kA,
+          wrapKb: unwrappedKb,
+          emailVerified: emailRecord.emailVerified,
+          tokenVerificationId: undefined,
+        });
+      }
+
+      if (password.clientVersion === 2) {
+        const unwrappedKb = await password.unwrap(
+          emailRecord.wrapWrapKbVersion2
+        );
+        keyFetchToken2 = await db.createKeyFetchToken({
+          uid: emailRecord.uid,
+          kA: emailRecord.kA,
+          wrapKb: unwrappedKb,
+          emailVerified: emailRecord.emailVerified,
+          tokenVerificationId: undefined,
+        });
+      }
+
+      passwordChangeToken = await db.createPasswordChangeToken({
+        uid: emailRecord.uid,
+      });
+    } catch (err) {
+      if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+        customs.flag(request.app.clientAddress, {
+          email: form.email,
+          errno: err.errno,
+        });
+
+        if (customs.v2Enabled()) {
+          await customs.check(request, email, 'passwordChangeStartFailed');
+        }
+      }
+      throw err;
+    }
+
+    return {
+      keyFetchToken: keyFetchToken?.data,
+      keyFetchToken2: keyFetchToken2?.data,
+      passwordChangeToken: passwordChangeToken?.data,
+      verified:
+        keyFetchToken?.emailVerified || keyFetchToken2?.emailVerified,
+    };
+  }
+
   const routes = [
     {
       method: 'POST',
@@ -93,13 +191,9 @@ module.exports = function (
         },
       },
       handler: async function (request: AuthRequest) {
-        log.begin('Password.changeStart', request);
-        const form = request.payload as { email: string; oldAuthPW: string };
-        const { oldAuthPW, email } = form;
-
-        // Don't bother creating a password change token if the account/session hasn't been verified.
-        // The subsequent call to 'getKeys' would fail, ultimately orphaning a passwordChangeToken...
         const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid as string;
+        const account = await db.account(uid);
 
         if (!sessionToken.emailVerified) {
           statsd.increment('passwordChange.start.emailNotVerified');
@@ -111,89 +205,31 @@ module.exports = function (
           throw error.unverifiedSession();
         }
 
-        await customs.checkAuthenticated(
-          request,
-          sessionToken.uid,
-          sessionToken.email,
-          customs.v2Enabled() ? 'authenticatedPasswordChange' : 'passwordChange'
-        );
-        statsd.increment('passwordChange.start.authenticated');
+        return await handlePasswordChangeStart(request, uid, account);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/password/change/start/jwt',
+      options: {
+        ...PASSWORD_DOCS.PASSWORD_CHANGE_START_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:password'],
+          payload: 'required',
+        },
+        validate: {
+          payload: isA.object({
+            email: validators.email().required().description(DESCRIPTION.email),
+            oldAuthPW: validators.authPW.description(DESCRIPTION.authPW),
+          }),
+        },
+      },
+      handler: async function (request: AuthRequest) {
+        const { uid } = request.auth.credentials as { uid: string };
+        const account = await db.account(uid);
 
-        let keyFetchToken: any | undefined = undefined;
-        let keyFetchToken2: any | undefined = undefined;
-        let passwordChangeToken: any | undefined = undefined;
-
-        try {
-          const emailRecord = await db.accountRecord(email);
-
-          if (sessionToken.uid !== emailRecord.uid) {
-            throw error.invalidToken('Invalid session token');
-          }
-
-          const password = new Password(
-            oldAuthPW,
-            emailRecord.authSalt,
-            emailRecord.verifierVersion
-          );
-
-          const match = await signinUtils.checkPassword(
-            emailRecord,
-            password,
-            request
-          );
-
-          if (!match) {
-            throw error.incorrectPassword(emailRecord.email, form.email);
-          }
-
-          if (password.clientVersion === 1) {
-            const unwrappedKb = await password.unwrap(emailRecord.wrapWrapKb);
-            keyFetchToken = await db.createKeyFetchToken({
-              uid: emailRecord.uid,
-              kA: emailRecord.kA,
-              wrapKb: unwrappedKb,
-              emailVerified: emailRecord.emailVerified,
-              tokenVerificationId: sessionToken?.tokenVerificationId,
-            });
-          }
-
-          if (password.clientVersion === 2) {
-            const unwrappedKb = await password.unwrap(
-              emailRecord.wrapWrapKbVersion2
-            );
-            keyFetchToken2 = await db.createKeyFetchToken({
-              uid: emailRecord.uid,
-              kA: emailRecord.kA,
-              wrapKb: unwrappedKb,
-              emailVerified: emailRecord.emailVerified,
-              tokenVerificationId: sessionToken?.tokenVerificationId,
-            });
-          }
-
-          passwordChangeToken = await db.createPasswordChangeToken({
-            uid: emailRecord.uid,
-          });
-        } catch (err) {
-          if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-            customs.flag(request.app.clientAddress, {
-              email: form.email,
-              errno: err.errno,
-            });
-
-            if (customs.v2Enabled()) {
-              await customs.check(request, email, 'passwordChangeStartFailed');
-            }
-          }
-          throw err;
-        }
-
-        return {
-          keyFetchToken: keyFetchToken?.data,
-          keyFetchToken2: keyFetchToken2?.data,
-          passwordChangeToken: passwordChangeToken?.data,
-          verified:
-            keyFetchToken?.emailVerified || keyFetchToken2?.emailVerified,
-        };
+        return await handlePasswordChangeStart(request, uid, account);
       },
     },
     {
