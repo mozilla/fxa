@@ -136,7 +136,6 @@ export const Account = ({
 
   return (
     <>
-      <hr />
       <section data-testid="account-section">
         <TableYHeaders header="Account Details">
           <TableRowYHeader

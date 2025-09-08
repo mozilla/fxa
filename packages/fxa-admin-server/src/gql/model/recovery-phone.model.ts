@@ -5,6 +5,9 @@ import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class RecoveryPhone {
+  @Field({ nullable: true })
+  public phoneNumber!: string;
+
   @Field()
   public exists!: boolean;
 

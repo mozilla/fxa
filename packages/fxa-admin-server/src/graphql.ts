@@ -171,6 +171,7 @@ export interface BackupCodes {
 }
 
 export interface RecoveryPhone {
+    phoneNumber?: Nullable<string>;
     exists: boolean;
     lastFourDigits?: Nullable<string>;
 }
@@ -226,7 +227,9 @@ export interface RelyingParty {
 export interface IQuery {
     accountByUid(uid: string): Nullable<Account> | Promise<Nullable<Account>>;
     accountByEmail(email: string, autoCompleted: boolean): Nullable<Account> | Promise<Nullable<Account>>;
+    accountByRecoveryPhone(phoneNumber: string, autoCompleted: boolean): Nullable<Account[]> | Promise<Nullable<Account[]>>;
     getEmailsLike(search: string): Nullable<Email[]> | Promise<Nullable<Email[]>>;
+    getRecoveryPhonesLike(search: string): Nullable<RecoveryPhone[]> | Promise<Nullable<RecoveryPhone[]>>;
     getDeleteStatus(taskNames: string[]): AccountDeleteTaskStatus[] | Promise<AccountDeleteTaskStatus[]>;
     relyingParties(): RelyingParty[] | Promise<RelyingParty[]>;
 }
