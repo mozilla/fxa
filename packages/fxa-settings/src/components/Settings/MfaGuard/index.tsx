@@ -43,6 +43,13 @@ export const MfaGuard = ({
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
     useState<string | undefined>(undefined);
 
+  // Track modal and OTP request state
+  const [modalState, setModalState] = useState({
+    isVisible: false,
+    otpRequested: false,
+    isDismissing: false,
+  });
+
   // Reactive state: if the store state changes, a re-render is triggered
   const jwtState = useSyncExternalStore(
     JwtTokenCache.subscribe,
@@ -67,27 +74,48 @@ export const MfaGuard = ({
 
   // Modal Setup
   useEffect(() => {
-    (async () => {
-      // If the JWT doesn't exist, it has either never been set or the error boundary
-      // detected an invalid token and deleted it from the cache. Either way, we want
-      // to request a new OTP and show the modal so we can obtain a valid JWT again.
-      if (!JwtTokenCache.hasToken(sessionToken, requiredScope)) {
-        try {
-          await authClient.mfaRequestOtp(sessionToken, requiredScope);
-          setShowModal(true);
-        } catch (err) {
-          // TODO: FXA-12329 - There might be some errors to handle inline like rate-limiting.
-          handleError(err);
-        }
-      } else {
-        // We have a token in cache. Assume it's valid and let the
-        // child controls render.
+    const requestOtpIfNeeded = async () => {
+      // If we already have a valid JWT token, hide modal
+      if (JwtTokenCache.hasToken(sessionToken, requiredScope)) {
+        console.log('info2 JWT exists in cache, hiding modal.');
+        setModalState(prev => ({ ...prev, isVisible: false }));
         setShowModal(false);
+        return;
       }
-    })();
-  });
+
+      // If we've already requested OTP or modal is showing/dismissing, don't request again
+      if (modalState.otpRequested || modalState.isVisible || modalState.isDismissing) {
+        console.log('info2 OTP already requested or modal active, skipping.');
+        return;
+      }
+
+      console.log('info2 Requesting OTP for scope:', requiredScope);
+      setModalState(prev => ({
+        ...prev,
+        otpRequested: true,
+        isDismissing: false,
+      }));
+
+      try {
+        await authClient.mfaRequestOtp(sessionToken, requiredScope);
+        setModalState(prev => ({ ...prev, isVisible: true }));
+        setShowModal(true);
+      } catch (err) {
+        // TODO: FXA-12329 - There might be some errors to handle inline like rate-limiting.
+        handleError(err);
+      }
+    };
+
+    requestOtpIfNeeded();
+  }, [jwtState, sessionToken, requiredScope, modalState, authClient, handleError]);
 
   const onSubmitOtp = async (code: string) => {
+    // Prevent submission if modal is being dismissed
+    if (modalState.isDismissing) {
+      console.log('info2 Preventing OTP submission - modal is being dismissed');
+      return;
+    }
+
     try {
       const result = await authClient.mfaOtpVerify(
         sessionToken,
@@ -95,6 +123,12 @@ export const MfaGuard = ({
         requiredScope
       );
       JwtTokenCache.setToken(sessionToken, requiredScope, result.accessToken);
+      // Reset modal state since verification succeeded
+      setModalState(prev => ({
+        ...prev,
+        otpRequested: false,
+        isDismissing: false,
+      }));
     } catch (err) {
       if (err.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno) {
         setLocalizedErrorBannerMessage(
@@ -117,6 +151,13 @@ export const MfaGuard = ({
   };
 
   const onDismiss = () => {
+    // Set dismissing flag to prevent form submission and update modal state
+    setModalState(prev => ({
+      ...prev,
+      isVisible: false,
+      isDismissing: true,
+      otpRequested: false, // Reset so it can be requested again later
+    }));
     setShowModal(false);
     clearErrorMessage();
     // TODO: set showResendSuccessBanner to false

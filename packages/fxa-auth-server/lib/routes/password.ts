@@ -216,7 +216,7 @@ module.exports = function (
         auth: {
           strategy: 'mfa',
           scope: ['mfa:password'],
-          payload: 'required',
+          payload: false,
         },
         validate: {
           payload: isA.object({

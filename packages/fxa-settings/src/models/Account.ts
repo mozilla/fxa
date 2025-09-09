@@ -17,12 +17,13 @@ import { MetricsContext } from '@fxa/shared/glean';
 import {
   currentAccount,
   getStoredAccountData,
+  JwtTokenCache,
   sessionToken,
 } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
-import { LinkedAccountProviderIds, MozServices } from '../lib/types';
+import { LinkedAccountProviderIds, MfaScope, MozServices } from '../lib/types';
 import {
   GET_LOCAL_SIGNED_IN_STATUS,
   GET_TOTP_STATUS,
@@ -584,11 +585,24 @@ export class Account implements AccountData {
     }
   }
 
+  private getCachedJwtByScope(scope: MfaScope) {
+    const token = sessionToken();
+    if (!token) {
+      throw AuthUiErrors.UNVERIFIED_SESSION;
+    }
+    const hasValidJwt = JwtTokenCache.hasToken(token, scope);
+    if (!hasValidJwt) {
+      throw AuthUiErrors.UNVERIFIED_SESSION;
+    }
+    return JwtTokenCache.getToken(token, scope);
+  }
+
   async changePassword(oldPassword: string, newPassword: string) {
     const jwt = this.getCachedJwtByScope('password');
     const response = await this.withLoadingStatus(
       this.authClient.passwordChangeWithJWT(
         jwt,
+        sessionToken()!,
         this.primaryEmail.email,
         oldPassword,
         newPassword,

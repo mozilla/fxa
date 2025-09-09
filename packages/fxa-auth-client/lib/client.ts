@@ -1323,6 +1323,7 @@ export default class AuthClient {
    */
   async passwordChangeWithJWT(
     jwt: string,
+    sessionToken: string,
     email: string,
     oldPassword: string,
     newPassword: string,
@@ -1352,11 +1353,15 @@ export default class AuthClient {
     );
 
     const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
+    const { id: sessionTokenId } = await hawk.deriveHawkCredentials(
+      sessionToken,
+      'sessionToken'
+    );
 
     let payload: PasswordChangePayload = {
       authPW: newCredentials.authPW,
       wrapKb,
-      sessionToken: '', // Not needed for JWT flow
+      sessionToken: sessionTokenId
     };
 
     let unwrapBKeyVersion2: string | undefined;
