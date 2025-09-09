@@ -75,7 +75,8 @@ function makeRoutes(options = {}) {
     null,
     null,
     null,
-    glean
+    glean,
+    mocks.mockStatsd(),
   );
 }
 

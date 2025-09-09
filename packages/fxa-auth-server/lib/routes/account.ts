@@ -1085,6 +1085,8 @@ export class AccountHandler {
         (this.config.securityHistory.ipProfiling
           .allowedRecency as unknown as number) || 0;
       if (securityEventVerified && securityEventRecency < allowedRecency) {
+        this.glean.loginConfirmSkipFor.knownIp(request);
+        this.statsd.increment('account.signin.confirm.bypass.ip');
         this.log.info('Account.ipprofiling.seenAddress', {
           uid: account.uid,
         });
@@ -1099,6 +1101,8 @@ export class AccountHandler {
       if (skipForNewAccounts?.enabled) {
         const accountAge = requestNow - account.createdAt;
         if (accountAge <= (skipForNewAccounts.maxAge as unknown as number)) {
+          this.glean.loginConfirmSkipFor.newAccount(request);
+          this.statsd.increment('account.signin.confirm.bypass.newAccount');
           this.log.info('account.signin.confirm.bypass.age', {
             uid: account.uid,
           });
