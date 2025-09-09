@@ -12,6 +12,7 @@ import {
   useAuthClient,
   useSession,
 } from '../../models';
+
 import { cache } from '../../lib/cache';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { currentAccount } from '../../lib/cache';
@@ -54,7 +55,7 @@ const AuthorizationContainer = ({
     null
   );
   const authClient = useAuthClient();
-  const location = useLocation() as ReturnType<typeof useLocation>;
+  const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
@@ -62,10 +63,6 @@ const AuthorizationContainer = ({
     integration
   );
   const promptNoneCallCount = useRef(0);
-
-  if (oAuthDataError) {
-    setOauthError(oAuthDataError);
-  }
 
   const promptNoneHandler = useCallback(async () => {
     promptNoneCallCount.current += 1;
@@ -186,6 +183,10 @@ const AuthorizationContainer = ({
     navigateWithQuery,
     promptNoneHandler,
   ]);
+
+  if (oAuthDataError) {
+    return <OAuthDataError error={oAuthDataError} />;
+  }
 
   if (oauthError) {
     return <OAuthDataError error={oauthError} />;
