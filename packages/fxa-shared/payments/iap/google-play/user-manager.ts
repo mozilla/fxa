@@ -10,6 +10,7 @@ import {
   PlayStoreSubscriptionPurchase,
 } from './subscription-purchase';
 import { SkuType } from './types/purchases';
+import { PurchaseQueryError } from './types/errors';
 
 export class UserManager {
   constructor(
@@ -63,11 +64,21 @@ export class UserManager {
         this.log.info('queryCurrentSubscriptions.cache.update', {
           purchaseToken: purchase.purchaseToken,
         });
-        purchase = await this.purchaseManager.querySubscriptionPurchase(
-          purchase.packageName,
-          purchase.sku,
-          purchase.purchaseToken
-        );
+        try {
+          purchase = await this.purchaseManager.querySubscriptionPurchase(
+            purchase.packageName,
+            purchase.sku,
+            purchase.purchaseToken
+          );
+        } catch(e) {
+          if (e.name === PurchaseQueryError.INVALID_TOKEN) {
+            this.log.error('queryCurrentSubscriptions.invalidPurchaseToken', {
+              purchaseToken: purchase.purchaseToken,
+            });
+          } else {
+            throw e;
+          }
+        }
       }
 
       // Add the updated purchase to list to returned to clients

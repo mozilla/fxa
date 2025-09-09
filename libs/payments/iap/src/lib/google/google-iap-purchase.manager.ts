@@ -15,7 +15,7 @@ import {
 } from './google-iap-purchase.repository';
 import type { NotificationType } from './types';
 import { GoogleIapClient } from './google-iap.client';
-import { GoogleIapGetFromPlayStoreUnknownError } from './google-iap.error';
+import { GoogleIapGetFromPlayStoreUnknownError, GoogleIapSubscriptionNotFoundError, GoogleIapSubscriptionPurchaseTokenInvalidError } from './google-iap.error';
 import { REPLACED_PURCHASE_USERID_PLACEHOLDER } from './constants';
 
 @Injectable()
@@ -66,11 +66,25 @@ export class GoogleIapPurchaseManager {
         this.log.debug('queryCurrentSubscriptions.cache.update', {
           purchaseToken: purchase.purchaseToken,
         });
-        purchase = await this.getFromPlayStoreApi(
-          purchase.packageName,
-          purchase.sku,
-          purchase.purchaseToken
-        );
+        try {
+          purchase = await this.getFromPlayStoreApi(
+            purchase.packageName,
+            purchase.sku,
+            purchase.purchaseToken
+          );
+        } catch(e) {
+          if (e instanceof GoogleIapSubscriptionNotFoundError) {
+            this.log.error('queryCurrentSubscriptions.purchaseTokenNotFound', {
+              purchaseToken: purchase.purchaseToken,
+            });
+          } else if (e instanceof GoogleIapSubscriptionPurchaseTokenInvalidError) {
+            this.log.error('queryCurrentSubscriptions.invalidPurchaseToken', {
+              purchaseToken: purchase.purchaseToken,
+            });
+          } else {
+            throw e;
+          }
+        }
       }
 
       if (purchase.isAccountHold() || purchase.isPaused()) {
@@ -103,7 +117,7 @@ export class GoogleIapPurchaseManager {
     triggerNotificationType?: NotificationType
   ): Promise<PlayStoreSubscriptionPurchase> {
     // STEP 1. Query Play Developer API to verify the purchase token
-    const apiResponse = await this.googleIapClient.getSubscriptions(
+    const apiResponse = await this.googleIapClient.getSubscription(
       packageName,
       sku,
       purchaseToken
@@ -209,7 +223,7 @@ export class GoogleIapPurchaseManager {
       // Purchase record not found in Firestore. We'll try to fetch purchase detail from Play Developer API to backfill the missing cache
 
       const apiResponse = await this.googleIapClient
-        .getSubscriptions(packageName, sku, purchaseToken)
+        .getSubscription(packageName, sku, purchaseToken)
         .catch((err) => {
           // We only log an warning to as there is chance that backfilling is impossible.
           // For example: after a subscription upgrade, the new token has linkedPurchaseToken to be the token before upgrade.

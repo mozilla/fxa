@@ -13,6 +13,7 @@ import {
   GoogleIapClientUnexpectedTypeError,
   GoogleIapClientUnknownError,
   GoogleIapSubscriptionNotFoundError,
+  GoogleIapSubscriptionPurchaseTokenInvalidError,
 } from './google-iap.error';
 
 @Injectable()
@@ -33,7 +34,7 @@ export class GoogleIapClient {
     });
   }
 
-  async getSubscriptions(
+  async getSubscription(
     packageName: string,
     sku: string,
     purchaseToken: string
@@ -49,7 +50,10 @@ export class GoogleIapClient {
       return apiResponse.data;
     } catch (e) {
       if (e instanceof Error && 'code' in e && e.code === 404) {
-        throw new GoogleIapSubscriptionNotFoundError(packageName, sku, e);
+        throw new GoogleIapSubscriptionNotFoundError(packageName, sku, purchaseToken, e);
+      }
+      if (e instanceof Error && 'code' in e && e.code === 410) {
+        throw new GoogleIapSubscriptionPurchaseTokenInvalidError(packageName, sku, purchaseToken, e);
       }
 
       throw this.convertError(e);

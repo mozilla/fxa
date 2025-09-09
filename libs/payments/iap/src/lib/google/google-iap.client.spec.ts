@@ -32,7 +32,7 @@ describe('GoogleIapClient', () => {
     jest.restoreAllMocks();
   });
 
-  describe('getSubscriptions', () => {
+  describe('getSubscription', () => {
     it('should return subscription data', async () => {
       const mockPackageName = faker.string.uuid();
       const mockSku = faker.string.uuid();
@@ -48,7 +48,7 @@ describe('GoogleIapClient', () => {
         )
         .mockResolvedValue({ data: mockResponseData });
 
-      const result = await googleIapClient.getSubscriptions(
+      const result = await googleIapClient.getSubscription(
         mockPackageName,
         mockSku,
         mockPurchaseToken
@@ -78,7 +78,7 @@ describe('GoogleIapClient', () => {
         .mockRejectedValue(error);
 
       await expect(
-        googleIapClient.getSubscriptions(
+        googleIapClient.getSubscription(
           mockPackageName,
           mockSku,
           mockPurchaseToken
