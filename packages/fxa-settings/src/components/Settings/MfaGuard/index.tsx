@@ -71,30 +71,26 @@ export const MfaGuard = ({
   // Modal Setup
   useEffect(() => {
     (async () => {
-      // To avoid requesting multiple OTPs on mount
+      const hasJwt = JwtTokenCache.hasToken(sessionToken, requiredScope);
+      if (hasJwt) {
+        setShowModal(false);
+        return;
+      }
+      // To avoid requesting multiple OTPs while awaiting user entry
       if (hasSentConfirmationCode.current) {
         return;
       }
-      // If the JWT doesn't exist, it has either never been set or the error boundary
-      // detected an invalid token and deleted it from the cache. Either way, we want
-      // to request a new OTP and show the modal so we can obtain a valid JWT again.
-      if (!JwtTokenCache.hasToken(sessionToken, requiredScope)) {
-        try {
-          hasSentConfirmationCode.current = true;
-          await authClient.mfaRequestOtp(sessionToken, requiredScope);
-          setShowModal(true);
-        } catch (err) {
-          hasSentConfirmationCode.current = false;
-          // TODO: FXA-12329 - There might be some errors to handle inline like rate-limiting.
-          handleError(err);
-        }
-      } else {
-        // We have a token in cache. Assume it's valid and let the
-        // child controls render.
-        setShowModal(false);
+      try {
+        hasSentConfirmationCode.current = true;
+        await authClient.mfaRequestOtp(sessionToken, requiredScope);
+        setShowModal(true);
+      } catch (err) {
+        hasSentConfirmationCode.current = false;
+        // TODO: FXA-12329 - There might be some errors to handle inline like rate-limiting.
+        handleError(err);
       }
     })();
-  });
+  }, [jwtState, sessionToken, requiredScope, authClient, handleError]);
 
   const onSubmitOtp = async (code: string) => {
     try {
@@ -104,6 +100,8 @@ export const MfaGuard = ({
         requiredScope
       );
       JwtTokenCache.setToken(sessionToken, requiredScope, result.accessToken);
+      setShowModal(false);
+      clearErrorMessage();
     } catch (err) {
       if (err.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno) {
         setLocalizedErrorBannerMessage(
