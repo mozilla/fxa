@@ -1560,7 +1560,7 @@ const convictConf = convict({
       maxAge: {
         doc: 'Maximum age at which an account is considered "new".',
         format: 'duration',
-        default: '4 hours',
+        default: '48 hours',
         env: 'SIGNIN_CONFIRMATION_MAX_AGE_OF_NEW_ACCOUNTS',
       },
     },
