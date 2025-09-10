@@ -106,7 +106,7 @@ export class StripeFirestore extends StripeFirestoreBase {
     customer: Partial<Stripe.Customer | Stripe.DeletedCustomer>
   ) {
     try {
-      await this.retrieveCustomer({ uid });
+      return await this.retrieveCustomer({ uid });
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
         if (!customer.id) throw new Error('Customer ID must be provided');
@@ -115,10 +115,11 @@ export class StripeFirestore extends StripeFirestoreBase {
         throw err;
       }
     }
-    return this.insertCustomerRecord(uid, customer);
   }
 
   /**
+   * @deprecated This method does not support transactions
+   *
    * Insert a subscription record into Firestore under the customer's stripe id.
    */
   async insertSubscriptionRecord(subscription: Partial<Stripe.Subscription>) {
@@ -141,6 +142,8 @@ export class StripeFirestore extends StripeFirestoreBase {
   }
 
   /**
+   * @deprecated This method does not support transactions
+   *
    * Insert a subscription record into Firestore under the customer's stripe id.
    * If the customer does not exist, this will backfill the customer with all their
    * subscriptions.
@@ -160,6 +163,8 @@ export class StripeFirestore extends StripeFirestoreBase {
   }
 
   /**
+   * @deprecated This method does not support transactions
+   *
    * Insert a payment method record into Firestore under the customer's stripe id.
    * If the customer does not exist, this will backfill the customer with all their
    * subscriptions.

@@ -831,8 +831,8 @@ describe('#integration - StripeHelper', () => {
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
-      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
-      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+      stripeFirestore.fetchAndInsertPaymentMethod = sandbox.stub().resolves({});
+      stripeFirestore.fetchAndInsertInvoice = sandbox.stub().resolves({});
       const actual = await stripeHelper.retryInvoiceWithPaymentId(
         'customerId',
         'invoiceId',
@@ -6946,18 +6946,13 @@ describe('#integration - StripeHelper', () => {
         .stub()
         .resolves(invoicePaidSubscriptionCreate);
       stripeFirestore.retrieveInvoice = sandbox.stub().resolves({});
-      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
+      stripeFirestore.fetchAndInsertInvoice = sandbox.stub().resolves({});
       const result = await stripeHelper.processWebhookEventToFirestore(event);
       assert.isTrue(result);
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripeFirestore.insertInvoiceRecord,
-        invoicePaidSubscriptionCreate
+        stripeHelper.stripeFirestore.fetchAndInsertInvoice,
+        eventInvoiceCreated.data.object.id
       );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.retrieve,
-        event.data.object.id
-      );
-      sinon.assert.notCalled(stripeFirestore.retrieveInvoice);
     });
 
     it('handles invoice operations with no firestore invoice', async () => {
@@ -6969,7 +6964,7 @@ describe('#integration - StripeHelper', () => {
       stripeHelper.stripe.invoices.retrieve = sandbox
         .stub()
         .resolves(invoicePaidSubscriptionCreate);
-      stripeFirestore.insertInvoiceRecord = insertStub;
+      stripeFirestore.fetchAndInsertInvoice = insertStub;
       insertStub
         .onCall(0)
         .rejects(
@@ -6979,26 +6974,23 @@ describe('#integration - StripeHelper', () => {
           )
         );
       insertStub.onCall(1).resolves({});
+      stripeFirestore.fetchAndInsertCustomer = sandbox.stub().resolves({});
       const result = await stripeHelper.processWebhookEventToFirestore(event);
       assert.isTrue(result);
       sinon.assert.calledTwice(
-        stripeHelper.stripeFirestore.insertInvoiceRecord
+        stripeHelper.stripeFirestore.fetchAndInsertInvoice
       );
       sinon.assert.calledWithExactly(
-        stripeHelper.stripeFirestore.insertInvoiceRecord.getCall(0),
-        invoicePaidSubscriptionCreate
+        stripeHelper.stripeFirestore.fetchAndInsertInvoice.getCall(0),
+        eventInvoiceCreated.data.object.id
       );
       sinon.assert.calledWithExactly(
-        stripeHelper.stripeFirestore.insertInvoiceRecord.getCall(1),
-        invoicePaidSubscriptionCreate
+        stripeHelper.stripeFirestore.fetchAndInsertInvoice.getCall(1),
+        eventInvoiceCreated.data.object.id
       );
       sinon.assert.calledOnceWithExactly(
-        stripeFirestore.retrieveAndFetchSubscription,
-        invoicePaidSubscriptionCreate.subscription
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.invoices.retrieve,
-        event.data.object.id
+        stripeFirestore.fetchAndInsertCustomer,
+        event.data.object.customer
       );
     });
 
@@ -7076,20 +7068,12 @@ describe('#integration - StripeHelper', () => {
         const event = deepCopy(eventPaymentMethodAttached);
         event.type = type;
         delete event.data.previous_attributes;
-        stripeHelper.stripe.paymentMethods.retrieve = sandbox
-          .stub()
-          .resolves(paymentMethodAttach);
-        stripeFirestore.retrievePaymentMethod = sandbox.stub().resolves({});
-        stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox
+        stripeFirestore.fetchAndInsertPaymentMethod = sandbox
           .stub()
           .resolves({});
         await stripeHelper.processWebhookEventToFirestore(event);
         sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripeFirestore.insertPaymentMethodRecordWithBackfill,
-          paymentMethodAttach
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripe.paymentMethods.retrieve,
+          stripeHelper.stripeFirestore.fetchAndInsertPaymentMethod,
           event.data.object.id
         );
       });
@@ -7099,30 +7083,10 @@ describe('#integration - StripeHelper', () => {
         event.type = type;
         event.data.object.customer = null;
         delete event.data.previous_attributes;
-        stripeHelper.stripe.paymentMethods.retrieve = sandbox.stub();
-        stripeFirestore.retrievePaymentMethod = sandbox.stub().resolves({});
-        stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox.stub();
+        stripeFirestore.fetchAndInsertPaymentMethod = sandbox.stub();
         await stripeHelper.processWebhookEventToFirestore(event);
         sinon.assert.notCalled(
-          stripeHelper.stripeFirestore.insertPaymentMethodRecordWithBackfill
-        );
-        sinon.assert.notCalled(stripeHelper.stripe.paymentMethods.retrieve);
-      });
-
-      it(`ignores ${type} operations with no customer attached to stripe payment method`, async () => {
-        const event = deepCopy(eventPaymentMethodAttached);
-        stripeHelper.stripe.paymentMethods.retrieve = sandbox
-          .stub()
-          .resolves({ ...paymentMethodAttach, customer: null });
-        stripeFirestore.retrievePaymentMethod = sandbox.stub().resolves({});
-        stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox.stub();
-        await stripeHelper.processWebhookEventToFirestore(event);
-        sinon.assert.notCalled(
-          stripeHelper.stripeFirestore.insertPaymentMethodRecordWithBackfill
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.stripe.paymentMethods.retrieve,
-          event.data.object.id
+          stripeHelper.stripeFirestore.fetchAndInsertPaymentMethod
         );
       });
     }
@@ -7140,10 +7104,7 @@ describe('#integration - StripeHelper', () => {
     it('ignores the deleted stripe customer error when handling a payment method update event', async () => {
       const event = deepCopy(eventPaymentMethodAttached);
       event.type = 'payment_method.card_automatically_updated';
-      stripeHelper.stripe.paymentMethods.retrieve = sandbox
-        .stub()
-        .resolves(event.data.object);
-      stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox
+      stripeFirestore.fetchAndInsertPaymentMethod = sandbox
         .stub()
         .throws(
           newFirestoreStripeError(
@@ -7153,18 +7114,15 @@ describe('#integration - StripeHelper', () => {
         );
       await stripeHelper.processWebhookEventToFirestore(event);
       sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertPaymentMethodRecordWithBackfill,
-        event.data.object
+        stripeFirestore.fetchAndInsertPaymentMethod,
+        event.data.object.id
       );
     });
 
     it('ignores the firestore record not found error when handling a payment method update event', async () => {
       const event = deepCopy(eventPaymentMethodAttached);
       event.type = 'payment_method.card_automatically_updated';
-      stripeHelper.stripe.paymentMethods.retrieve = sandbox
-        .stub()
-        .resolves(event.data.object);
-      stripeFirestore.insertPaymentMethodRecordWithBackfill = sandbox
+      stripeFirestore.fetchAndInsertPaymentMethod = sandbox
         .stub()
         .throws(
           newFirestoreStripeError(
@@ -7174,8 +7132,8 @@ describe('#integration - StripeHelper', () => {
         );
       await stripeHelper.processWebhookEventToFirestore(event);
       sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertPaymentMethodRecordWithBackfill,
-        event.data.object
+        stripeFirestore.fetchAndInsertPaymentMethod,
+        event.data.object.id
       );
     });
 

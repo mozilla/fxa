@@ -145,34 +145,34 @@ export class StripeFirestore {
     customerId: string,
     ignoreErrors: boolean = false
   ) {
+    const customerWithSubscriptions = await this.stripe.customers.retrieve(customerId, {
+      expand: ["subscriptions"]
+    });
+    if (customerWithSubscriptions.deleted) {
+      if (ignoreErrors) {
+        return customerWithSubscriptions;
+      }
+      throw new FirestoreStripeErrorBuilder(
+        `Customer ${customerId} was deleted`,
+        FirestoreStripeError.STRIPE_CUSTOMER_DELETED,
+        customerId
+      );
+    }
+
+    const customerWithSubscriptionsUid = customerWithSubscriptions.metadata.userid;
+    if (!customerWithSubscriptionsUid) {
+      if (ignoreErrors) {
+        delete customerWithSubscriptions.subscriptions;
+        return customerWithSubscriptions;
+      }
+      throw new FirestoreStripeErrorBuilder(
+        `Customer ${customerId} has no uid`,
+        FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID,
+        customerId
+      );
+    }
+
     return this.firestore.runTransaction(async (tx) => {
-      const customerWithSubscriptions = await this.stripe.customers.retrieve(customerId, {
-        expand: ["subscriptions"]
-      });
-      if (customerWithSubscriptions.deleted) {
-        if (ignoreErrors) {
-          return customerWithSubscriptions;
-        }
-        throw new FirestoreStripeErrorBuilder(
-          `Customer ${customerId} was deleted`,
-          FirestoreStripeError.STRIPE_CUSTOMER_DELETED,
-          customerId
-        );
-      }
-
-      const customerWithSubscriptionsUid = customerWithSubscriptions.metadata.userid;
-      if (!customerWithSubscriptionsUid) {
-        if (ignoreErrors) {
-          delete customerWithSubscriptions.subscriptions;
-          return customerWithSubscriptions;
-        }
-        throw new FirestoreStripeErrorBuilder(
-          `Customer ${customerId} has no uid`,
-          FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID,
-          customerId
-        );
-      }
-
       // We read all of the documents that we plan to write to lock them via a Firestore transaction.
       // If any other transaction runs that reads these documents overlapping with our read+write operation,
       // the transaction will fail and be retried. This ensures serialization of our updates, and no race condition
@@ -236,6 +236,8 @@ export class StripeFirestore {
   }
 
   /**
+   * @deprecated This method does not support transactions.
+   *
    * Insert a Stripe customer into Firestore keyed to the fxa id.
    */
   insertCustomerRecord(
@@ -246,6 +248,8 @@ export class StripeFirestore {
   }
 
   /**
+   * @deprecated This method does not support transactions.
+   *
    * Insert an invoice record into Firestore under the customer's stripe id.
    */
   async insertInvoiceRecord(
@@ -285,6 +289,76 @@ export class StripeFirestore {
   /**
    * Insert an invoice record into Firestore under the customer's stripe id.
    */
+  async fetchAndInsertInvoice(
+    invoiceId: string,
+    ignoreErrors: boolean = false
+  ) {
+    const invoicePre = await this.stripe.invoices.retrieve(invoiceId);
+    const subscriptionId = invoicePre.subscription;
+    if (typeof subscriptionId !== 'string') {
+      // We can only insert invoices with a subscription for caching, but we
+      // shouldn't throw errors just because we can't cache non-subscription invoices.
+      // TODO: Cache non-subscription invoices.
+      return invoicePre;
+    }
+    const customerId = invoicePre.customer as string;
+    const customerSnap = await this.customerCollectionDbRef
+      .where('id', '==', customerId)
+      .get();
+    if (customerSnap.empty) {
+      if (ignoreErrors) {
+        return invoicePre;
+      }
+      throw new FirestoreStripeErrorBuilder(
+        `Customer ${invoicePre.customer} was not found`,
+        FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND,
+        customerId
+      );
+    }
+
+    const customerUid = customerSnap.docs[0].data().metadata.userid;
+    if (!customerUid) {
+      if (ignoreErrors) {
+        return invoicePre;
+      }
+      throw new FirestoreStripeErrorBuilder(
+        `Customer ${customerId} has no uid`,
+        FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID,
+        customerId
+      );
+    }
+
+    return this.firestore.runTransaction(async (tx) => {
+      await tx.get(
+        this.customerCollectionDbRef
+          .doc(customerUid)
+          .collection(this.subscriptionCollection)
+          .doc(subscriptionId)
+          .collection(this.invoiceCollection)
+          .doc(invoiceId)
+      )
+
+      const invoice = await this.stripe.invoices.retrieve(invoiceId);
+
+      await tx.set(
+        this.customerCollectionDbRef
+          .doc(customerUid)
+          .collection(this.subscriptionCollection)
+          .doc(subscriptionId)
+          .collection(this.invoiceCollection)
+          .doc(invoiceId),
+        invoice
+      );
+
+      return invoice;
+    });
+  }
+
+  /**
+   * @deprecated This method does not support transactions.
+   *
+   * Insert an invoice record into Firestore under the customer's stripe id.
+   */
   async insertPaymentMethodRecord(
     paymentMethod: Partial<Stripe.PaymentMethod>,
     ignoreErrors: boolean = false
@@ -308,6 +382,72 @@ export class StripeFirestore {
       .collection(this.paymentMethodCollection)
       .doc(paymentMethod.id!)
       .set(paymentMethod, { merge: true });
+  }
+
+  /**
+   * Insert an invoice record into Firestore under the customer's stripe id.
+   */
+  async fetchAndInsertPaymentMethod(
+    paymentMethodId: string,
+    ignoreErrors: boolean = false
+  ) {
+    const paymentMethodPre = await this.stripe.paymentMethods.retrieve(
+      paymentMethodId
+    );
+    // If this payment method is not attached, we can't store it in firestore as
+    // the customer may not exist. It is possible that a payment_method.detached
+    // event has already been processed, detaching the payment method.
+    if (!paymentMethodPre.customer) {
+      return paymentMethodPre;
+    }
+    const customerId = paymentMethodPre.customer as string;
+    const customerSnap = await this.customerCollectionDbRef
+      .where('id', '==', customerId)
+      .get();
+    if (customerSnap.empty) {
+      if (ignoreErrors) {
+        return paymentMethodPre;
+      }
+      throw new FirestoreStripeErrorBuilder(
+        `Customer ${paymentMethodPre.customer} was not found`,
+        FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND,
+        customerId
+      );
+    }
+    const customerUid = customerSnap.docs[0].data().metadata.userid;
+    if (!customerUid) {
+      if (ignoreErrors) {
+        return paymentMethodPre;
+      }
+      throw new FirestoreStripeErrorBuilder(
+        `Customer ${customerId} has no uid`,
+        FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID,
+        customerId
+      );
+    }
+
+    return await this.firestore.runTransaction(async (tx) => {
+      await tx.get(
+        this.customerCollectionDbRef
+          .doc(customerUid)
+          .collection(this.paymentMethodCollection)
+          .doc(paymentMethodPre.id)
+      );
+      
+      const paymentMethod = await this.stripe.paymentMethods.retrieve(
+        paymentMethodId
+      );
+
+      await tx.set(
+        this.customerCollectionDbRef
+          .doc(customerUid)
+          .collection(this.paymentMethodCollection)
+          .doc(paymentMethodId),
+        paymentMethod,
+      );
+
+      return paymentMethod;
+    });
   }
 
   /**

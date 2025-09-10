@@ -382,15 +382,15 @@ describe('StripeFirestore', () => {
   });
 
   describe('insertCustomerRecordWithBackfill', () => {
-    it('inserts a record', async () => {
+    it('retrieves a record', async () => {
       stripeFirestore.retrieveCustomer = sinon.fake.resolves(customer);
-      stripeFirestore.insertCustomerRecord = sinon.fake.resolves({});
+      stripeFirestore.fetchAndInsertCustomer = sinon.fake.resolves(customer);
       await stripeFirestore.insertCustomerRecordWithBackfill(
         'fxauid',
         customer
       );
       assert.calledOnce(stripeFirestore.retrieveCustomer);
-      assert.calledOnce(stripeFirestore.insertCustomerRecord);
+      assert.notCalled(stripeFirestore.fetchAndInsertCustomer);
     });
 
     it('backfills on customer not found', async () => {
@@ -539,6 +539,208 @@ describe('StripeFirestore', () => {
     });
   });
 
+  describe('fetchAndInsertInvoice', () => {
+    let tx;
+    const invoiceId = 'in_123';
+    const subscriptionId = 'sub_123';
+    const customerId = 'cus_123';
+
+    beforeEach(() => {
+      tx = {
+        get: sinon.stub().resolves({}),
+        set: sinon.stub(),
+      };
+
+      firestore.runTransaction = sinon.stub().callsFake((fn) => fn(tx));
+
+      stripe.invoices = {
+        retrieve: sinon.stub(),
+      };
+
+      stripeFirestore.customerCollectionDbRef = {
+        where: sinon.stub(),
+        doc: sinon.stub().callsFake((uid) => ({
+          collection: sinon.stub().callsFake(() => ({
+            doc: sinon.stub().callsFake(() => ({
+              collection: sinon.stub().callsFake(() => ({
+                doc: sinon.stub().callsFake(() => ({})),
+              })),
+            })),
+          })),
+        })),
+      };
+    });
+
+    it('fetches and inserts an invoice for an existing customer and subscription', async () => {
+      // First call: pre-invoice to find customer + subscription
+      // Second call: fresh invoice inside the transaction
+      stripe.invoices.retrieve
+        .onFirstCall()
+        .resolves({
+          id: invoiceId,
+          customer: customerId,
+          subscription: subscriptionId,
+        })
+        .onSecondCall()
+        .resolves({
+          id: invoiceId,
+          customer: customerId,
+          subscription: subscriptionId,
+          lines: { data: [] },
+        });
+
+      const customerSnap = {
+        empty: false,
+        docs: [
+          {
+            data: () => ({ metadata: { userid: 'uid_1' } }),
+          },
+        ],
+      };
+      stripeFirestore.customerCollectionDbRef.where.returns({
+        get: sinon.stub().resolves(customerSnap),
+      });
+
+      await stripeFirestore.fetchAndInsertInvoice(invoiceId);
+
+      assert.calledTwice(stripe.invoices.retrieve);
+      assert.calledWithExactly(stripe.invoices.retrieve.firstCall, invoiceId);
+      assert.calledWithExactly(stripe.invoices.retrieve.secondCall, invoiceId);
+      assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
+      assert.callCount(tx.get, 1);
+      assert.callCount(tx.set, 1);
+    });
+
+    it('errors on customer not found', async () => {
+      stripe.invoices.retrieve.resolves({
+        id: invoiceId,
+        customer: customerId,
+        subscription: subscriptionId,
+      });
+
+      stripeFirestore.customerCollectionDbRef.where.returns({
+        get: sinon.stub().resolves({ empty: true }),
+      });
+
+      try {
+        await stripeFirestore.fetchAndInsertInvoice(invoiceId);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.name, FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND);
+        assert.calledOnce(stripe.invoices.retrieve);
+        assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
+        assert.equal(tx.get.callCount, 0);
+        assert.equal(tx.set.callCount, 0);
+      }
+    });
+
+    it('ignores customer not found when ignoreErrors is true', async () => {
+      const invoicePre = {
+        id: invoiceId,
+        customer: customerId,
+        subscription: subscriptionId,
+      };
+      stripe.invoices.retrieve.resolves(invoicePre);
+
+      stripeFirestore.customerCollectionDbRef.where.returns({
+        get: sinon.stub().resolves({ empty: true }),
+      });
+
+      const result = await stripeFirestore.fetchAndInsertInvoice(invoiceId, true);
+
+      assert.deepEqual(result, invoicePre);
+      assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
+      assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
+      assert.equal(tx.get.callCount, 0);
+      assert.equal(tx.set.callCount, 0);
+    });
+
+    it('returns invoice as-is when it has no string subscription', async () => {
+      const invoicePre = {
+        id: invoiceId,
+        customer: customerId,
+        subscription: null,
+      };
+      stripe.invoices.retrieve.resolves(invoicePre);
+
+      const result = await stripeFirestore.fetchAndInsertInvoice(invoiceId);
+
+      assert.deepEqual(result, invoicePre);
+      assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
+      assert.equal(stripeFirestore.customerCollectionDbRef.where.callCount, 0);
+      assert.equal(tx.get.callCount, 0);
+      assert.equal(tx.set.callCount, 0);
+    });
+
+    it('errors on missing uid', async () => {
+      stripe.invoices.retrieve
+        .onFirstCall()
+        .resolves({
+          id: invoiceId,
+          customer: customerId,
+          subscription: subscriptionId,
+        })
+        .onSecondCall()
+        .resolves({
+          id: invoiceId,
+          customer: customerId,
+          subscription: subscriptionId,
+        });
+
+      const customerSnap = {
+        empty: false,
+        docs: [
+          {
+            data: () => ({ metadata: {} }),
+          },
+        ],
+      };
+      stripeFirestore.customerCollectionDbRef.where.returns({
+        get: sinon.stub().resolves(customerSnap),
+      });
+
+      try {
+        await stripeFirestore.fetchAndInsertInvoice(invoiceId);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.name, FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID);
+        assert.calledOnce(stripe.invoices.retrieve);
+        assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
+        assert.equal(tx.get.callCount, 0);
+        assert.equal(tx.set.callCount, 0);
+      }
+    });
+
+    it('allows missing uid when ignoreErrors is true', async () => {
+      const invoicePre = {
+        id: invoiceId,
+        customer: customerId,
+        subscription: subscriptionId,
+      };
+      stripe.invoices.retrieve.resolves(invoicePre);
+
+      const customerSnap = {
+        empty: false,
+        docs: [
+          {
+            data: () => ({ metadata: {} }),
+          },
+        ],
+      };
+      stripeFirestore.customerCollectionDbRef.where.returns({
+        get: sinon.stub().resolves(customerSnap),
+      });
+
+      const result = await stripeFirestore.fetchAndInsertInvoice(invoiceId, true);
+
+      assert.deepEqual(result, invoicePre);
+      assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
+      assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
+      assert.equal(tx.get.callCount, 0);
+      assert.equal(tx.set.callCount, 0);
+    });
+  });
+
   describe('insertPaymentMethodRecord', () => {
     it('inserts a record', async () => {
       const customerSnap = {
@@ -589,6 +791,203 @@ describe('StripeFirestore', () => {
         );
         assert.calledOnce(customerCollectionDbRef.where);
       }
+    });
+  });
+
+  describe('fetchAndInsertPaymentMethod', () => {
+    let tx;
+    const paymentMethodId = 'pm_123';
+    const customerId = 'cus_123';
+
+    beforeEach(() => {
+      tx = {
+        get: sinon.stub().resolves({}),
+        set: sinon.stub(),
+      };
+
+      firestore.runTransaction = sinon.stub().callsFake((fn) => fn(tx));
+
+      stripe.paymentMethods = {
+        retrieve: sinon.stub(),
+      };
+
+      stripeFirestore.customerCollectionDbRef = {
+        where: sinon.stub(),
+        doc: sinon.stub().callsFake((uid) => ({
+          collection: sinon.stub().callsFake(() => ({
+            doc: sinon.stub().callsFake(() => ({})),
+          })),
+        })),
+      };
+    });
+
+    it('fetches and inserts an attached payment method when customer exists and has uid', async () => {
+      // First call: pre-fetch for customer
+      // Second call: fresh fetch inside transaction
+      const pre = { id: paymentMethodId, customer: customerId };
+      const full = { ...pre, card: { brand: 'visa' } };
+
+      stripe.paymentMethods.retrieve
+        .onFirstCall()
+        .resolves(pre)
+        .onSecondCall()
+        .resolves(full);
+
+      const customerSnap = {
+        empty: false,
+        docs: [
+          {
+            data: () => ({ metadata: { userid: 'uid_1' } }),
+          },
+        ],
+      };
+      stripeFirestore.customerCollectionDbRef.where.returns({
+        get: sinon.stub().resolves(customerSnap),
+      });
+
+      const result = await stripeFirestore.fetchAndInsertPaymentMethod(
+        paymentMethodId
+      );
+
+      assert.deepEqual(result, full);
+      assert.calledTwice(stripe.paymentMethods.retrieve);
+      assert.calledWithExactly(
+        stripe.paymentMethods.retrieve.firstCall,
+        paymentMethodId
+      );
+      assert.calledWithExactly(
+        stripe.paymentMethods.retrieve.secondCall,
+        paymentMethodId
+      );
+      assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
+      assert.callCount(tx.get, 1);
+      assert.callCount(tx.set, 1);
+    });
+
+    it('returns pre-fetched payment method when it is not attached to a customer', async () => {
+      const pre = { id: paymentMethodId, customer: null };
+      stripe.paymentMethods.retrieve.resolves(pre);
+
+      const result = await stripeFirestore.fetchAndInsertPaymentMethod(
+        paymentMethodId
+      );
+
+      assert.deepEqual(result, pre);
+      assert.calledOnceWithExactly(
+        stripe.paymentMethods.retrieve,
+        paymentMethodId
+      );
+      assert.equal(stripeFirestore.customerCollectionDbRef.where.callCount, 0);
+      assert.equal(tx.get.callCount, 0);
+      assert.equal(tx.set.callCount, 0);
+    });
+
+    it('errors on customer not found', async () => {
+      const pre = { id: paymentMethodId, customer: customerId };
+      stripe.paymentMethods.retrieve.resolves(pre);
+
+      stripeFirestore.customerCollectionDbRef.where.returns({
+        get: sinon.stub().resolves({ empty: true }),
+      });
+
+      try {
+        await stripeFirestore.fetchAndInsertPaymentMethod(paymentMethodId);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.name, FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND);
+        assert.calledOnceWithExactly(
+          stripe.paymentMethods.retrieve,
+          paymentMethodId
+        );
+        assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
+        assert.equal(tx.get.callCount, 0);
+        assert.equal(tx.set.callCount, 0);
+      }
+    });
+
+    it('ignores customer not found when ignoreErrors is true', async () => {
+      const pre = { id: paymentMethodId, customer: customerId };
+      stripe.paymentMethods.retrieve.resolves(pre);
+
+      stripeFirestore.customerCollectionDbRef.where.returns({
+        get: sinon.stub().resolves({ empty: true }),
+      });
+
+      const result = await stripeFirestore.fetchAndInsertPaymentMethod(
+        paymentMethodId,
+        true
+      );
+
+      assert.deepEqual(result, pre);
+      assert.calledOnceWithExactly(
+        stripe.paymentMethods.retrieve,
+        paymentMethodId
+      );
+      assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
+      assert.equal(tx.get.callCount, 0);
+      assert.equal(tx.set.callCount, 0);
+    });
+
+    it('errors on missing uid', async () => {
+      const pre = { id: paymentMethodId, customer: customerId };
+      stripe.paymentMethods.retrieve.resolves(pre);
+
+      const customerSnap = {
+        empty: false,
+        docs: [
+          {
+            data: () => ({ metadata: {} }),
+          },
+        ],
+      };
+      stripeFirestore.customerCollectionDbRef.where.returns({
+        get: sinon.stub().resolves(customerSnap),
+      });
+
+      try {
+        await stripeFirestore.fetchAndInsertPaymentMethod(paymentMethodId);
+        assert.fail('should have thrown');
+      } catch (err) {
+        assert.equal(err.name, FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID);
+        assert.calledOnceWithExactly(
+          stripe.paymentMethods.retrieve,
+          paymentMethodId
+        );
+        assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
+        assert.equal(tx.get.callCount, 0);
+        assert.equal(tx.set.callCount, 0);
+      }
+    });
+
+    it('allows missing uid when ignoreErrors is true', async () => {
+      const pre = { id: paymentMethodId, customer: customerId };
+      stripe.paymentMethods.retrieve.resolves(pre);
+
+      const customerSnap = {
+        empty: false,
+        docs: [
+          {
+            data: () => ({ metadata: {} }),
+          },
+        ],
+      };
+      stripeFirestore.customerCollectionDbRef.where.returns({
+        get: sinon.stub().resolves(customerSnap),
+      });
+
+      const result = await stripeFirestore.fetchAndInsertPaymentMethod(
+        paymentMethodId,
+        true
+      );
+
+      assert.deepEqual(result, pre);
+      assert.calledOnceWithExactly(
+        stripe.paymentMethods.retrieve,
+        paymentMethodId
+      );
+      assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
+      assert.equal(tx.get.callCount, 0);
+      assert.equal(tx.set.callCount, 0);
     });
   });
 
