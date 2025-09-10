@@ -4,6 +4,7 @@
 
 import React, {
   ReactNode,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -11,7 +12,12 @@ import React, {
 } from 'react';
 import { useErrorHandler } from 'react-error-boundary';
 
-import { useAccount, useAuthClient, useFtlMsgResolver } from '../../../models';
+import {
+  useAccount,
+  useAlertBar,
+  useAuthClient,
+  useFtlMsgResolver,
+} from '../../../models';
 import Modal from '../ModalMfaProtected';
 import {
   JwtTokenCache,
@@ -19,8 +25,8 @@ import {
 } from '../../../lib/cache';
 import { MfaScope } from '../../../lib/types';
 import { useNavigate } from '@reach/router';
+import * as Sentry from '@sentry/react';
 import { MfaErrorBoundary } from './error-boundary';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 
 /**
@@ -40,11 +46,17 @@ export const MfaGuard = ({
 
   const hasSentConfirmationCode = useRef(false);
 
-  // Whether the modal to enter the OTP code is displayed
-  const [showModal, setShowModal] = useState(false);
-
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
     useState<string | undefined>(undefined);
+
+  const [resendCodeLoading, setResendCodeLoading] = useState(false);
+  const [showResendSuccessBanner, setShowResendSuccessBanner] = useState(false);
+
+  const resetStates = useCallback(() => {
+    hasSentConfirmationCode.current = false;
+    setLocalizedErrorBannerMessage(undefined);
+    setShowResendSuccessBanner(false);
+  }, []);
 
   // Reactive state: if the store state changes, a re-render is triggered
   const jwtState = useSyncExternalStore(
@@ -57,6 +69,13 @@ export const MfaGuard = ({
   const sessionToken = getSessionToken();
 
   const ftlMsgResolver = useFtlMsgResolver();
+
+  const alertBar = useAlertBar();
+
+  const onDismiss = useCallback(() => {
+    resetStates();
+    navigate('/settings');
+  }, [navigate, resetStates]);
 
   // If no session token exists, kick them to sign-in
   if (!sessionToken) {
@@ -71,26 +90,37 @@ export const MfaGuard = ({
   // Modal Setup
   useEffect(() => {
     (async () => {
-      const hasJwt = JwtTokenCache.hasToken(sessionToken, requiredScope);
-      if (hasJwt) {
-        setShowModal(false);
-        return;
-      }
-      // To avoid requesting multiple OTPs while awaiting user entry
-      if (hasSentConfirmationCode.current) {
+      // To avoid requesting multiple OTPs on mount
+      if (
+        hasSentConfirmationCode.current ||
+        JwtTokenCache.hasToken(sessionToken, requiredScope)
+      ) {
         return;
       }
       try {
         hasSentConfirmationCode.current = true;
         await authClient.mfaRequestOtp(sessionToken, requiredScope);
-        setShowModal(true);
       } catch (err) {
         hasSentConfirmationCode.current = false;
-        // TODO: FXA-12329 - There might be some errors to handle inline like rate-limiting.
-        handleError(err);
+        if (err.code === 401) {
+          handleError(err);
+          return;
+        }
+        Sentry.captureException(err);
+        alertBar.error(getLocalizedErrorMessage(ftlMsgResolver, err));
+        onDismiss();
       }
     })();
-  }, [jwtState, sessionToken, requiredScope, authClient, handleError]);
+  }, [
+    jwtState,
+    sessionToken,
+    requiredScope,
+    authClient,
+    handleError,
+    alertBar,
+    ftlMsgResolver,
+    onDismiss,
+  ]);
 
   const onSubmitOtp = async (code: string) => {
     try {
@@ -100,44 +130,42 @@ export const MfaGuard = ({
         requiredScope
       );
       JwtTokenCache.setToken(sessionToken, requiredScope, result.accessToken);
-      setShowModal(false);
-      clearErrorMessage();
+      resetStates();
     } catch (err) {
-      if (err.errno === AuthUiErrors.INVALID_EXPIRED_OTP_CODE.errno) {
-        setLocalizedErrorBannerMessage(
-          getLocalizedErrorMessage(ftlMsgResolver, err)
-        );
+      if (err.code === 401) {
+        handleError(err);
         return;
       }
-
-      // TODO: FXA-12329 - There might be some errors to handle inline like rate-limiting.
-      handleError(err);
+      setShowResendSuccessBanner(false);
+      setLocalizedErrorBannerMessage(
+        getLocalizedErrorMessage(ftlMsgResolver, err)
+      );
     }
   };
 
   const handleResendCode = async () => {
+    setResendCodeLoading(true);
     try {
       await authClient.mfaRequestOtp(sessionToken, requiredScope);
+      setLocalizedErrorBannerMessage(undefined);
+      setShowResendSuccessBanner(true);
     } catch (err) {
-      handleError(err);
+      setShowResendSuccessBanner(false);
+      if (err.code === 401) {
+        handleError(err);
+        return;
+      }
+      setShowResendSuccessBanner(false);
+      setLocalizedErrorBannerMessage(
+        getLocalizedErrorMessage(ftlMsgResolver, err)
+      );
+    } finally {
+      setResendCodeLoading(false);
     }
-  };
-
-  const onDismiss = () => {
-    setShowModal(false);
-    clearErrorMessage();
-    // TODO: set showResendSuccessBanner to false
-    navigate('/settings');
-  };
-
-  const clearErrorMessage = () => {
-    setLocalizedErrorBannerMessage(undefined);
   };
 
   const email = account.email;
   const expirationTime = 5; // TODO get from config
-  const resendCodeLoading = false; // TODO handle state change while calls are in flight.
-  const showResendSuccessBanner = true; // TODO handle request banner.
 
   const getModal = () => (
     <Modal
@@ -147,7 +175,7 @@ export const MfaGuard = ({
         onSubmit: onSubmitOtp,
         onDismiss,
         handleResendCode,
-        clearErrorMessage,
+        clearErrorMessage: () => setLocalizedErrorBannerMessage(undefined),
         resendCodeLoading,
         showResendSuccessBanner,
         localizedErrorBannerMessage,
@@ -161,7 +189,7 @@ export const MfaGuard = ({
   // Note: I'm torn on whether we should render the child components or not. It seems
   // like a waste since the user can't interact with them anyway.
   const missingJwt = !JwtTokenCache.hasToken(sessionToken, requiredScope);
-  if (showModal || missingJwt) {
+  if (missingJwt) {
     return getModal();
   }
 
@@ -178,7 +206,7 @@ export const MfaGuard = ({
       jwt={jwt}
       fallback={getModal()}
     >
-      {showModal || missingJwt ? getModal() : <>{children}</>}
+      {missingJwt ? getModal() : <>{children}</>}
     </MfaErrorBoundary>
   );
 };
