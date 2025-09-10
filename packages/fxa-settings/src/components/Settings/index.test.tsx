@@ -365,6 +365,11 @@ describe('Settings App', () => {
         route: '/mfa_guard/test/gql',
         hasPassword: false,
       },
+      {
+        pageName: 'Page2faChange',
+        route: '/two_step_authentication/change',
+        hasPassword: true,
+      },
     ];
 
     it.each(guardedRoutes)(

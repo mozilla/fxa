@@ -1276,16 +1276,18 @@ export class Account implements AccountData {
     }
   }
 
-  async replaceTotp() {
+  async startReplaceTotp() {
+    const jwt = this.getCachedJwtByScope('2fa');
     const totp = await this.withLoadingStatus(
-      this.authClient.replaceTotpToken(sessionToken()!, {})
+      this.authClient.startReplaceTotpTokenWithJwt(jwt, {})
     );
     return totp;
   }
 
   async confirmReplaceTotp(code: string) {
+    const jwt = this.getCachedJwtByScope('2fa');
     await this.withLoadingStatus(
-      this.authClient.confirmReplaceTotpToken(sessionToken()!, code)
+      this.authClient.confirmReplaceTotpTokenWithJwt(jwt, code)
     );
   }
 
