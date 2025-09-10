@@ -3333,18 +3333,21 @@ describe('/account/login', () => {
         });
       });
 
-      it("logs metrics when accountAge is under maxAge config threshold", () => {
+      it('logs metrics when accountAge is under maxAge config threshold', () => {
         glean.loginConfirmSkipFor.newAccount.reset();
 
         setup(true, 0);
 
         return runTest(route, mockRequest, () => {
           sinon.assert.calledOnce(glean.loginConfirmSkipFor.newAccount);
-          sinon.assert.calledWith(statsd.increment, 'account.signin.confirm.bypass.newAccount');
+          sinon.assert.calledWith(
+            statsd.increment,
+            'account.signin.confirm.bypass.newAccount'
+          );
         });
       });
 
-      it("logs metrics when sign-in ipProfiling is allowed and a known ip address is used within threshold", () => {
+      it('logs metrics when sign-in ipProfiling is allowed and a known ip address is used within threshold', () => {
         glean.loginConfirmSkipFor.knownIp.reset();
         config.securityHistory.ipProfiling.allowedRecency = 1 * 60 * 1000; // 1 minute
         mockDB.verifiedLoginSecurityEvents = sinon.spy((arg) => {
@@ -3376,6 +3379,13 @@ describe('/account/login', () => {
           'skip@confirmation.com',
           'other@email.com',
         ];
+
+        // Reset the spy to avoid leaking state between tests
+        // Previously, "should not skip sign-in confirmation for specified email" test
+        // was failing intermittently because the spy was not reset between tests.
+        mockDB.verifiedLoginSecurityEvents = sinon.spy(() =>
+          Promise.resolve([])
+        );
 
         mockRequest.payload.email = email;
 
@@ -3410,6 +3420,12 @@ describe('/account/login', () => {
 
         route = getRoute(accountRoutes, '/account/login');
       }
+
+      afterEach(() => {
+        // Restore config to default to avoid leaking into subsequent tests
+        config.securityHistory.ipProfiling.allowedRecency =
+          defaultConfig.securityHistory.ipProfiling.allowedRecency;
+      });
 
       it('should not skip sign-in confirmation for specified email', () => {
         setup('not@skip.com');
