@@ -42,7 +42,7 @@ export class TestAccountTracker {
   private target: BaseTarget;
   private testInfo: TestInfo;
   private page: Page;
-  private jwt: string | undefined = undefined;
+  private jwtCredentials: Credentials & { jwt: string, scope: MfaScope } | undefined = undefined;
 
   constructor(target: BaseTarget, testInfo: TestInfo, page: Page) {
     this.target = target;
@@ -350,6 +350,8 @@ export class TestAccountTracker {
   /**
    * Prime the MFA JWT cache by requesting a new token. If credentials are not
    * provided, the first account in the internal accounts array will be used.
+   *
+   * After completion, a call to register a page on-load hook is
    * @param scope
    * @param credentials
    */
@@ -372,17 +374,29 @@ export class TestAccountTracker {
     }
 
     // store the jwt for clearing it later, debugging, or for page.on('load') hook.
-    this.jwt = accessToken;
+    this.jwtCredentials = { ...credentials, scope, jwt: accessToken };
 
-    await this.page.evaluate(
-      ({ sessionToken, scope, jwt }) => {
-        (window as any).JwtTokenCache.setToken(
-          sessionToken,
-          scope,
-          jwt
-        );
-      },
-      { sessionToken, scope, jwt: this.jwt }
-    );
+    // await this.page.evaluate(({ sessionToken, scope, jwt }) => {
+    //   window.dispatchEvent(new CustomEvent('jwtCache:set', { detail: { sessionToken, scope, jwt } }));
+    // }, { sessionToken, scope, jwt: this.jwtCredentials.jwt });
+
+    this.registerPageLoadJwtCacheHook();
+  }
+
+  /**
+   * Checks for JWT cache on page load and sets it if available.
+   */
+  registerPageLoadJwtCacheHook = () => {
+    if ( !this.jwtCredentials || (!this?.jwtCredentials.jwt && !this?.jwtCredentials?.sessionToken)) {
+      // noop if we don't have jwtCredentials, protects against direct calls without
+      // having called primeMfaJwtCache first.
+      return;
+    }
+    const {sessionToken, jwt, scope } = this.jwtCredentials
+    this.page.on('load', async () => {
+      await this.page.evaluate(() => {
+        window.dispatchEvent(new CustomEvent('jwtCache:set', { detail: {sessionToken, scope, jwt } }));
+      }, {sessionToken, scope, jwt});
+    });
   }
 }

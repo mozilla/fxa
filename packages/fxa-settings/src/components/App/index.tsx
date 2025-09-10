@@ -15,12 +15,12 @@ import {
 
 import { QueryParams } from '../..';
 import { storeAccountData } from '../../lib/storage-utils';
-import { currentAccount, getAccountByUid } from '../../lib/cache';
+import { currentAccount, getAccountByUid, JwtTokenCache } from '../../lib/cache';
 import { firefox } from '../../lib/channels/firefox';
 import * as MetricsFlow from '../../lib/metrics-flow';
 import GleanMetrics from '../../lib/glean';
 import * as Metrics from '../../lib/metrics';
-import { MozServices } from '../../lib/types';
+import { MfaScope, MozServices } from '../../lib/types';
 
 import {
   Integration,
@@ -353,6 +353,16 @@ export const App = ({
     hardNavigate('/');
     return <LoadingSpinner fullScreen />;
   }
+
+  window.addEventListener('jwtCache:set', (e: Event) => {
+    const { sessionToken, scope, jwt } = (e as CustomEvent).detail || {};
+    console.debug(`App: setting jwt for sessionToken ${sessionToken} scope ${scope}`);
+    JwtTokenCache.setToken(sessionToken, scope as MfaScope, jwt);
+  });
+  window.addEventListener('jwtCache:remove', (e: Event) => {
+    const { sessionToken, scope } = (e as CustomEvent).detail || {};
+    JwtTokenCache.removeToken(sessionToken, scope as MfaScope);
+  });
 
   return (
     <Router basepath="/">
