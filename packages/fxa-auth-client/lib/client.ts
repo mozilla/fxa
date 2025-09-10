@@ -1433,6 +1433,131 @@ export default class AuthClient {
     return response;
   }
 
+  /**
+   * Change password using JWT authentication (for MFA-protected operations).
+   * This uses the new /mfa/password/change endpoint that requires JWT authentication.
+   *
+   * @param jwt - The JWT token for authentication.
+   * @param email - The email of the user.
+   * @param oldPassword - The old password of the user.
+   * @param newPassword - The new password of the user.
+   * @param sessionToken - The session token of the user.
+   * @param options - The options for the password change.
+   * @param headers - The headers for the request.
+   */
+  async passwordChangeWithJWT(
+    jwt: string,
+    email: string,
+    oldPassword: string,
+    newPassword: string,
+    sessionToken: string,
+    options: {
+      keys?: boolean;
+      skipCaseError?: boolean;
+      reauthEmail?: string;
+    } = {},
+    headers?: Headers
+  ): Promise<SignedInAccountData> {
+
+    console.log('passwordChangeWithJWT', email, oldPassword, newPassword, sessionToken, options, headers);
+
+    const oldCredentials = await this.sessionReauth(sessionToken, options.reauthEmail || email, oldPassword, {
+      keys: true
+    }, headers);
+    const oldCredentialsAuth = await crypto.getCredentials(
+      email,
+      oldPassword
+    );
+    const oldAuthPW = oldCredentialsAuth.authPW;
+
+    const keys = await this.accountKeys(
+      oldCredentials.keyFetchToken!,
+      oldCredentials.unwrapBKey!,
+      headers
+    );
+
+    const newCredentials = await crypto.getCredentials(
+      email,
+      newPassword
+    );
+
+    const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
+    const authPW = newCredentials.authPW;
+
+    let payload: {
+      email: string;
+      oldAuthPW: string;
+      authPW: string;
+      wrapKb: string;
+      authPWVersion2?: string;
+      wrapKbVersion2?: string;
+      clientSalt?: string;
+    } = {
+      email,
+      oldAuthPW,
+      authPW,
+      wrapKb,
+    };
+    if (this.keyStretchVersion === 2) {
+      const status = await this.getCredentialStatusV2(email, headers);
+      const clientSalt = status.clientSalt || createSaltV2();
+      const newCredentialsV2 = await crypto.getCredentialsV2({
+        password: newPassword,
+        clientSalt: clientSalt,
+      });
+
+      // Passing kB, ensures kB remains constant even after password upgrade.
+      const newKeys = await crypto.getKeysV2({
+        kB: keys.kB,
+        v1: newCredentials,
+        v2: newCredentialsV2,
+      });
+
+      if (newKeys.wrapKb !== wrapKb) {
+        throw new Error('Sanity check failed. wrapKb should not drift!');
+      }
+
+      payload = {
+        ...payload,
+        authPWVersion2: newCredentialsV2.authPW,
+        wrapKbVersion2: newKeys.wrapKbVersion2,
+        clientSalt: clientSalt,
+      };
+    }
+
+    try {
+      const accountData = await this.jwtPost(
+        '/mfa/password/change',
+        jwt,
+        payload,
+        headers
+      );
+
+      return accountData;
+    } catch (error: any) {
+      if (
+        error &&
+        error.email &&
+        error.errno === ERRORS.INCORRECT_EMAIL_CASE
+        && !options.skipCaseError
+      ) {
+        options.skipCaseError = true;
+        options.reauthEmail = email;
+        return await this.passwordChangeWithJWT(
+          jwt,
+          error.email,
+          oldPassword,
+          newPassword,
+          sessionToken,
+          options,
+          headers
+        );
+      } else {
+        throw error;
+      }
+    }
+  }
+
   async createPassword(
     sessionToken: string,
     email: string,

@@ -24,7 +24,11 @@ export class CMSHandler {
     config: ConfigType,
     statsD: StatsD
   ) {
-    this.cmsManager = Container.get(RelyingPartyConfigurationManager);
+    this.cmsManager = Container.has(RelyingPartyConfigurationManager) ? Container.get(RelyingPartyConfigurationManager) : {
+      fetchCMSData: async () => {
+        return {}
+      }
+    } as unknown as RelyingPartyConfigurationManager;
     this.config = config;
     this.statsd = statsD;
     this.log = log;

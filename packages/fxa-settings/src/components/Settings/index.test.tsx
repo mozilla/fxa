@@ -192,23 +192,6 @@ describe('Settings App', () => {
     expect(getAllByTestId('avatar-nondefault')[0]).toBeInTheDocument();
   });
 
-  it('routes to PageChangePassword', async () => {
-    const session = mockSession(true);
-    const {
-      getByTestId,
-      history: { navigate },
-    } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ session })}>
-        <Subject />
-      </AppContext.Provider>,
-      { route: SETTINGS_PATH }
-    );
-
-    await navigate(SETTINGS_PATH + '/change_password');
-
-    expect(getByTestId('change-password-requirements')).toBeInTheDocument();
-  });
-
   it('routes to two step authentication page', async () => {
     const session = mockSession(true);
     const account = {
@@ -345,6 +328,11 @@ describe('Settings App', () => {
         pageName: 'PageSecondaryEmailVerify',
         route: '/emails/verify',
         hasPassword: false,
+      },
+      {
+        pageName: 'PageChangePassword',
+        route: '/change_password',
+        hasPassword: true,
       },
     ];
 
