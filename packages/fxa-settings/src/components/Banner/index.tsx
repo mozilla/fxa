@@ -144,7 +144,7 @@ export const ResendCodeSuccessBanner = ({
 
   const content = {
     localizedHeading: ftlMsgResolver.getMsg(
-      'resend-code-success-heading',
+      'resend-code-success-banner-heading',
       'A new code was sent to your email.'
     ),
     localizedDescription: ftlMsgResolver.getMsg(
