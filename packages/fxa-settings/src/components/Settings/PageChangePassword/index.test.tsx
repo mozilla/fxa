@@ -39,6 +39,35 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Mock the cache module to provide session token and JWT cache
+const mockSessionToken = 'mock-session-token';
+const mockJwtState: Record<string, string> = { [`${mockSessionToken}-password`]: 'mock-jwt-token' };
+jest.mock('../../../lib/cache', () => {
+  const actual = jest.requireActual('../../../lib/cache');
+  return {
+    __esModule: true,
+    ...actual,
+    sessionToken: () => mockSessionToken,
+    JwtTokenCache: {
+      subscribe: jest.fn((callback) => {
+        // Return unsubscribe function
+        return () => {};
+      }),
+      getSnapshot: jest.fn(() => mockJwtState),
+      hasToken: jest.fn((sessionToken: string, scope: string) => {
+        const key = `${sessionToken}-${scope}`;
+        return mockJwtState[key] != null;
+      }),
+      setToken: jest.fn(),
+      getToken: jest.fn((sessionToken: string, scope: string) => {
+        const key = `${sessionToken}-${scope}`;
+        return mockJwtState[key] || 'mock-jwt-token';
+      }),
+      removeToken: jest.fn(),
+    },
+  };
+});
+
 const account = {
   primaryEmail: {
     email: 'test@example.com',

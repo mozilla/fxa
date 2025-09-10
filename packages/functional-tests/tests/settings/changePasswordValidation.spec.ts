@@ -32,7 +32,7 @@ test.describe('severity-1 #smoke', () => {
     for (const { name, error, password, confirmPassword } of testCases) {
       test(`new password validation - ${name}`, async ({
         target,
-        pages: { page, changePassword, settings, signin },
+        pages: { page, changePassword, settings, signin, mfaGuard },
         testAccountTracker,
       }) => {
         const credentials = await testAccountTracker.signUp();
@@ -40,6 +40,10 @@ test.describe('severity-1 #smoke', () => {
 
         await settings.goto();
         await settings.password.changeButton.click();
+
+        await mfaGuard.waitForMfaModal();
+        const mfaCode = await target.emailClient.getVerifyAccountChangeCode(credentials.email);
+        await mfaGuard.submitConfirmationCode(mfaCode);
 
         await expect(changePassword.changePasswordHeading).toBeVisible();
 
@@ -52,7 +56,7 @@ test.describe('severity-1 #smoke', () => {
 
     test(`new password validation - email as password`, async ({
       target,
-      pages: { page, changePassword, settings, signin },
+      pages: { page, changePassword, settings, signin, mfaGuard },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -66,6 +70,10 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await settings.password.changeButton.click();
+
+      await mfaGuard.waitForMfaModal();
+      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(credentials.email);
+      await mfaGuard.submitConfirmationCode(mfaCode);
 
       await expect(changePassword.changePasswordHeading).toBeVisible();
 

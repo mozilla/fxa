@@ -156,7 +156,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('can reset password with recovery key after changing password in settings', async ({
       target,
-      pages: { settings, recoveryKey, resetPassword, signin, changePassword },
+      pages: { settings, recoveryKey, resetPassword, signin, changePassword, mfaGuard },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -177,6 +177,11 @@ test.describe('severity-1 #smoke', () => {
 
       // Change password
       await settings.password.changeButton.click();
+
+      await mfaGuard.waitForMfaModal();
+      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(credentials.email);
+      await mfaGuard.submitConfirmationCode(mfaCode);
+
       await changePassword.fillOutChangePassword(
         credentials.password,
         newPassword

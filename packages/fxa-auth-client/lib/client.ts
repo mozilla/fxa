@@ -1433,6 +1433,87 @@ export default class AuthClient {
     return response;
   }
 
+  /**
+   * Change password using JWT authentication (for MFA-protected operations).
+   * This uses the new /mfa/password/change endpoint that requires JWT authentication.
+   */
+  async passwordChangeWithJWT(
+    jwt: string,
+    email: string,
+    oldPassword: string,
+    newPassword: string,
+    sessionToken: string,
+    options: {
+      keys?: boolean;
+    } = {},
+    headers?: Headers
+  ): Promise<SignedInAccountData> {
+
+    const oldCredentials = await this.sessionReauth(sessionToken, email, oldPassword, {
+      keys: true
+    }, headers);
+
+    const keys = await this.accountKeys(
+      oldCredentials.keyFetchToken!,
+      oldCredentials.unwrapBKey!,
+      headers
+    );
+
+    const newCredentials = await crypto.getCredentials(
+      email,
+      newPassword
+    );
+
+    const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
+    const authPW = newCredentials.authPW;
+
+    let payload: {
+      authPW: string;
+      wrapKb: string;
+      authPWVersion2?: string;
+      wrapKbVersion2?: string;
+      clientSalt?: string;
+    } = {
+      authPW,
+      wrapKb,
+    };
+    if (this.keyStretchVersion === 2) {
+      const status = await this.getCredentialStatusV2(email, headers);
+      const clientSalt = status.clientSalt || createSaltV2();
+      const newCredentialsV2 = await crypto.getCredentialsV2({
+        password: newPassword,
+        clientSalt: clientSalt,
+      });
+
+      // Passing kB, ensures kB remains constant even after password upgrade.
+      const newKeys = await crypto.getKeysV2({
+        kB: keys.kB,
+        v1: newCredentials,
+        v2: newCredentialsV2,
+      });
+
+      if (newKeys.wrapKb !== wrapKb) {
+        throw new Error('Sanity check failed. wrapKb should not drift!');
+      }
+
+      payload = {
+        ...payload,
+        authPWVersion2: newCredentialsV2.authPW,
+        wrapKbVersion2: newKeys.wrapKbVersion2,
+        clientSalt: clientSalt,
+      };
+    }
+
+    const accountData = await this.jwtPost(
+      '/mfa/password/change',
+      jwt,
+      payload,
+      headers
+    );
+
+    return accountData;
+  }
+
   async createPassword(
     sessionToken: string,
     email: string,
