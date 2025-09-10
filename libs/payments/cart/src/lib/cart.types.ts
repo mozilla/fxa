@@ -38,6 +38,7 @@ export interface Invoice {
   discountEnd?: number | null;
   discountType?: string;
   number: string | null; // customer-facing invoice identifier;
+  invoiceDate: number;
   nextInvoiceDate: number;
   amountDue: number;
   creditApplied: number | null;

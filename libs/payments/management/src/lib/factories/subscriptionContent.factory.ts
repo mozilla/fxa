@@ -78,6 +78,8 @@ export const SubscriptionContentFactory = (
   canResubscribe: false,
   currency: faker.finance.currencyCode().toLowerCase(),
   interval: faker.helpers.enumValue(SubplatInterval),
+  creditApplied: faker.number.int({ min: 0 }),
+  currentInvoiceDate: faker.date.past().getDate(),
   currentInvoiceTax: faker.number.int({ min: 1, max: 1000 }),
   currentInvoiceTotal: faker.number.int({ min: 1, max: 1000 }),
   currentPeriodEnd: faker.date.future().getDate(),

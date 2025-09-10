@@ -46,6 +46,8 @@ export interface SubscriptionContent {
   canResubscribe: boolean;
   currency: string;
   interval?: SubplatInterval;
+  creditApplied: number | null;
+  currentInvoiceDate: number;
   currentInvoiceTax: number;
   currentInvoiceTotal: number;
   currentPeriodEnd: number;

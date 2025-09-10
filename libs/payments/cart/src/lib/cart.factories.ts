@@ -55,6 +55,7 @@ export const InvoiceFactory = (override?: Partial<Invoice>): Invoice => ({
   discountAmount: null,
   subtotal: faker.number.int({ min: 1, max: 10000 }),
   number: null,
+  invoiceDate: faker.date.past().getTime(),
   nextInvoiceDate: faker.date.past().getTime(),
   amountDue: faker.number.int({ min: 1, max: 10000 }),
   creditApplied: null,

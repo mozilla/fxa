@@ -418,6 +418,7 @@ export class SubscriptionManagementService {
     const {
       amountDue,
       creditApplied,
+      invoiceDate: currentInvoiceDate,
       promotionName,
       taxAmounts,
       totalAmount,
@@ -448,6 +449,7 @@ export class SubscriptionManagementService {
       webIcon,
       canResubscribe:
         subscription.status === 'active' && subscription.cancel_at_period_end,
+      creditApplied,
       currency: subscription.currency,
       interval: subplatInterval,
       currentInvoiceTax: creditApplied ? 0 : Math.max(0, totalExclusiveTax),
@@ -458,6 +460,7 @@ export class SubscriptionManagementService {
             ? (totalExcludingTax ?? totalAmount)
             : totalAmount,
       currentPeriodEnd: subscription.current_period_end,
+      currentInvoiceDate,
       nextInvoiceDate,
       nextInvoiceTax: nextInvoiceTotalExclusiveTax,
       nextInvoiceTotal:
@@ -678,9 +681,7 @@ export class SubscriptionManagementService {
     let recentActivePaypalCustomer: ResultPaypalCustomer | undefined;
     try {
       if (await this.paypalBillingAgreementManager.retrieveActiveId(uid)) {
-        throw new CreateBillingAgreementActiveBillingAgreement(
-          uid
-        );
+        throw new CreateBillingAgreementActiveBillingAgreement(uid);
       }
 
       accountCustomer =
@@ -696,7 +697,8 @@ export class SubscriptionManagementService {
         .sort(
           (recordA, recordB) =>
             (recordB.endedAt as number) - (recordA.endedAt as number)
-        ).at(0);
+        )
+        .at(0);
 
       const currency = await this.getCurrencyForCustomer(uid);
 
