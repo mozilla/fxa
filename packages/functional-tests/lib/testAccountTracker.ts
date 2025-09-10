@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
-import { TestInfo } from '@playwright/test';
+import { Page, TestInfo } from '@playwright/test';
 import { Credentials } from './targets';
 import { BaseTarget } from './targets/base';
+import { MfaScope } from 'fxa-settings/src/lib/types';
 
 enum EmailPrefix {
   BLOCKED = 'blocked',
@@ -39,11 +40,13 @@ export class TestAccountTracker {
   accounts: (AccountDetails | Credentials)[];
   private target: BaseTarget;
   private testInfo: TestInfo;
+  private page: Page;
 
-  constructor(target: BaseTarget, testInfo: TestInfo) {
+  constructor(target: BaseTarget, testInfo: TestInfo, page: Page) {
     this.target = target;
     this.testInfo = testInfo;
     this.accounts = [];
+    this.page = page;
   }
 
   /**
@@ -195,6 +198,32 @@ export class TestAccountTracker {
   }
 
   /**
+   * Signs up an account with the AuthClient and primes the MFA JWT cache.
+   *
+   * Use this if you need to prime the MFA JWT cache immediately after signup.
+   *
+   * Ensure that you have a hard navigation _after_ signing in with the new credentials.
+   * A page on-load hook is registered but will require there to be a current account UID
+   * and session token in localStorage to populate the MFA JWT cache.
+   * @param param0 - Sign up options, email prefix, and MFA scope
+   * @returns Credentials
+   */
+  async signUpAndPrimeMfa({
+    options,
+    prefix,
+    scopes,
+  }: {
+    options?: any;
+    prefix?: EmailPrefix;
+    scopes: MfaScope[] | MfaScope;
+  }): Promise<Credentials> {
+    scopes = Array.isArray(scopes) ? scopes : [scopes];
+    const credentials = await this.signUp(options, prefix);
+    await this.primeMfaJwtCache(scopes, credentials);
+    return credentials;
+  }
+
+  /**
    * Destroys all accounts tracked by this TestAccountTracker.
    * Fails fast if any account cleanup fails.
    */
@@ -322,5 +351,157 @@ export class TestAccountTracker {
         );
       }
     }
+  }
+
+  /**
+   * Clears the MFA JWT cache of tokens for the given scopes.
+   *
+   * If no scopes are provided, all tokens are cleared.
+   * @param scope
+   */
+  async clearJwtCache(scopes?: MfaScope[] | MfaScope): Promise<void> {
+    if (scopes) {
+      scopes = Array.isArray(scopes) ? scopes : [scopes];
+      // Clear specific scope
+      await this.page.evaluate((scopes) => {
+        const fxaStorageKey = '__fxa_storage';
+        const mfaStorageKey = `${fxaStorageKey}.mfa_token_cache`;
+        const mfaStorage = JSON.parse(
+          localStorage.getItem(mfaStorageKey) || '{}'
+        );
+
+        scopes.forEach((scope) => {
+          Object.keys(mfaStorage).forEach((key) => {
+            if (key.endsWith(`-${scope}`)) {
+              delete mfaStorage[key];
+            }
+          });
+        });
+
+        localStorage.setItem(mfaStorageKey, JSON.stringify(mfaStorage));
+      }, scopes);
+    } else {
+      await this.page.evaluate(() => {
+        localStorage.setItem(
+          '__fxa_storage.mfa_token_cache',
+          JSON.stringify({})
+        );
+      });
+    }
+  }
+  /**
+   * Prime the MFA JWT cache by requesting tokens. If credentials are not
+   * provided, the first account in the internal accounts array will be used.
+   *
+   * To keep this as easy to use, an onLoad hook is registered that will
+   * check if the localStorage cache is populated for the given scope, and if not,
+   * it will populate it.
+   * @param scope
+   * @param credentials
+   */
+  async primeMfaJwtCache(scopes: MfaScope[], credentials?: Credentials) {
+    credentials = credentials || (this.accounts[0] as Credentials);
+    const { sessionToken, email } = credentials;
+    const { authClient, emailClient } = this.target;
+    const scopeTokenKvp: { scope: MfaScope; token: string }[] = [];
+
+    async function getTokenByScope(scope: MfaScope) {
+      // steps to fetch token by scope
+      const { status } = await authClient.mfaRequestOtp(sessionToken, scope);
+      if (status !== 'success') {
+        throw new Error(`Failed to request MFA OTP for ${scope}`);
+      }
+
+      const code = await emailClient.getVerifyAccountChangeCode(email);
+
+      const { accessToken } = await authClient.mfaOtpVerify(
+        sessionToken,
+        code,
+        scope
+      );
+      if (!accessToken) {
+        throw new Error(
+          `Failed to fetch MFA JWT for scope: ${scope}. No accessToken returned`
+        );
+      }
+      return accessToken;
+    }
+
+    for (const scope of scopes) {
+      // eslint-disable-next-line no-await-in-loop
+      scopeTokenKvp.push({ scope, token: await getTokenByScope(scope) });
+    }
+
+    this.registerMfaJwtOnLoadHook(scopeTokenKvp);
+  }
+
+  /**
+   * This creates an `on-load` hook with Playwright that will check and populate
+   * the localStorage for the MFA JWT on each page load.
+   *
+   * The `TestAccountTracker` will create accounts and populate the credentials
+   * object with _a_ session token, but the token used by the browser session
+   * will be different. So, this does the work to fetch the current account UID,
+   * matching session token, and finally populate the MFA JWT cache.
+   *
+   * We use a page load event because the browser session token may not be available
+   * at the time that the JWT is fetched. The overhead is minimal and ensures that
+   * the cache is always populated when needed.
+   * @param scope
+   * @param accessToken
+   */
+  private registerMfaJwtOnLoadHook(
+    scopeTokenKvp: { scope: MfaScope; token: string }[]
+  ) {
+    this.page.on('load', async () => {
+      await this.page.evaluate(
+        ({ scopeTokenKvp }) => {
+          try {
+            const fxaStorageKey = '__fxa_storage';
+            const mfaStorageKey = `${fxaStorageKey}.mfa_token_cache`;
+            let accountUid = localStorage.getItem(
+              `${fxaStorageKey}.currentAccountUid`
+            );
+
+            if (!accountUid) {
+              return;
+            }
+
+            accountUid = accountUid.replace(/^"(.*)"$/, '$1');
+            const accounts = JSON.parse(
+              localStorage.getItem(`${fxaStorageKey}.accounts`) || '{}'
+            );
+
+            const sessionToken = accounts[accountUid].sessionToken;
+            if (!sessionToken) {
+              // noop - can't proceed without session token
+              return;
+            }
+            for (const { scope, token } of scopeTokenKvp) {
+              const jwtKey = `${sessionToken}-${scope}`;
+              const mfaStorage = JSON.parse(
+                localStorage.getItem(mfaStorageKey) || '{}'
+              );
+              if (mfaStorage[jwtKey]) {
+                continue; // noop - jwt already present
+              }
+              const tokenToStore = { [jwtKey]: token };
+              localStorage.setItem(
+                mfaStorageKey,
+                JSON.stringify({ ...mfaStorage, ...tokenToStore })
+              );
+            }
+          } catch (e) {
+            // page hooks that fail are ignored by Playwright, so log to console
+            // to troubleshoot if needed
+            // eslint-disable-next-line no-console
+            console.error('Error in onLoad hook', e);
+          }
+        },
+        {
+          scopeTokenKvp,
+        }
+      );
+    });
   }
 }
