@@ -466,13 +466,13 @@ export class StripeHelper extends StripeHelperBase {
         customer.metadata.userid,
         customer
       );
-      await this.stripeFirestore.insertPaymentMethodRecord(paymentMethod);
+      await this.stripeFirestore.fetchAndInsertPaymentMethod(paymentMethod.id);
       // Try paying now instead of waiting for Stripe since this could block a
       // customer from finishing a payment
       const invoice = await this.stripe.invoices.pay(invoiceId, {
         expand: ['payment_intent'],
       });
-      await this.stripeFirestore.insertInvoiceRecord(invoice);
+      await this.stripeFirestore.fetchAndInsertInvoice(invoice.id);
       return invoice;
     } catch (err) {
       if (err.type === 'StripeCardError') {
@@ -3518,19 +3518,20 @@ export class StripeHelper extends StripeHelperBase {
    * Process a invoice event that needs to be saved to Firestore.
    */
   async processInvoiceEventToFirestore(event: Stripe.Event) {
-    const invoiceId = (event.data.object as Stripe.Invoice).id;
+    const eventData = event.data.object as Stripe.Invoice;
+    const invoiceId = eventData.id;
     if (!invoiceId) throw new Error('Invoice ID must be specified');
-
-    const invoice = await this.stripe.invoices.retrieve(invoiceId);
+    const customerId = eventData.customer;
+    if (typeof customerId !== "string") throw new Error('Customer ID must be a string');
 
     try {
-      await this.stripeFirestore.insertInvoiceRecord(invoice);
+      await this.stripeFirestore.fetchAndInsertInvoice(invoiceId);
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
-        await this.stripeFirestore.retrieveAndFetchSubscription(
-          invoice.subscription as string
+        await this.stripeFirestore.fetchAndInsertCustomer(
+          customerId,
         );
-        return this.stripeFirestore.insertInvoiceRecord(invoice);
+        return this.stripeFirestore.fetchAndInsertInvoice(invoiceId);
       }
       throw err;
     }
@@ -3550,20 +3551,11 @@ export class StripeHelper extends StripeHelperBase {
       return;
     }
 
-    const paymentMethod = await this.stripe.paymentMethods.retrieve(
-      (event.data.object as Stripe.PaymentMethod).id
-    );
-
-    // If this payment method is not attached, we can't store it in firestore as
-    // the customer may not exist. It is possible that a payment_method.detached
-    // event has already been processed, detaching the payment method.
-    if (!paymentMethod.customer) {
-      return;
-    }
+    const paymentMethodId = (event.data.object as Stripe.PaymentMethod).id;
 
     try {
-      await this.stripeFirestore.insertPaymentMethodRecordWithBackfill(
-        paymentMethod
+      await this.stripeFirestore.fetchAndInsertPaymentMethod(
+        paymentMethodId
       );
     } catch (err) {
       if (
