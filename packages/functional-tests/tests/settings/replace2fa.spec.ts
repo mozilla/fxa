@@ -27,7 +27,7 @@ test.describe('severity-2 #smoke', () => {
       testAccountTracker,
       pages: { settings, signin, totp, signinTotpCode },
     }) => {
-      const credentials = await testAccountTracker.signUp();
+      const credentials = await testAccountTracker.signUpAndPrimeMfa({ scope: 'test' });
 
       await signin.emailFirstSignin(credentials);
 

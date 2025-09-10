@@ -365,6 +365,8 @@ export class JwtTokenCache {
   }
 }
 
+(window as any).JwtTokenCache = JwtTokenCache;
+
 /**
  * Special error state that arises if jwt is not found in cache.
  */

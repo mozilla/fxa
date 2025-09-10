@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import crypto from 'crypto';
-import { TestInfo } from '@playwright/test';
+import { Page, TestInfo } from '@playwright/test';
 import { Credentials } from './targets';
 import { BaseTarget } from './targets/base';
+import { MfaScope } from 'fxa-settings/src/lib/types';
+
 
 enum EmailPrefix {
   BLOCKED = 'blocked',
@@ -39,11 +41,14 @@ export class TestAccountTracker {
   accounts: (AccountDetails | Credentials)[];
   private target: BaseTarget;
   private testInfo: TestInfo;
+  private page: Page;
+  private jwt: string | undefined = undefined;
 
-  constructor(target: BaseTarget, testInfo: TestInfo) {
+  constructor(target: BaseTarget, testInfo: TestInfo, page: Page) {
     this.target = target;
     this.testInfo = testInfo;
     this.accounts = [];
+    this.page = page;
   }
 
   /**
@@ -195,6 +200,23 @@ export class TestAccountTracker {
   }
 
   /**
+   * Signs up an account with the AuthClient and primes the MFA JWT cache.
+   *
+   * Use this if you need to prime the MFA JWT cache immediately after signup.
+   * @param param0 - Sign up options, email prefix, and MFA scope
+   * @returns Credentials
+   */
+  async signUpAndPrimeMfa({ options, prefix, scope }: {
+    options?: any;
+    prefix?: EmailPrefix;
+    scope: MfaScope;
+  }): Promise<Credentials> {
+    const credentials = await this.signUp(options, prefix);
+    await this.primeMfaJwtCache(scope, credentials);
+    return credentials;
+  }
+
+  /**
    * Destroys all accounts tracked by this TestAccountTracker.
    * Fails fast if any account cleanup fails.
    */
@@ -322,5 +344,45 @@ export class TestAccountTracker {
         );
       }
     }
+  }
+
+
+  /**
+   * Prime the MFA JWT cache by requesting a new token. If credentials are not
+   * provided, the first account in the internal accounts array will be used.
+   * @param scope
+   * @param credentials
+   */
+  async primeMfaJwtCache(scope: MfaScope, credentials?: Credentials) {
+    credentials = credentials || this.accounts[0] as Credentials;
+
+    const { sessionToken, email } = credentials;
+    const { authClient, emailClient } = this.target;
+
+    const { status } = await authClient.mfaRequestOtp(sessionToken, scope);
+    if (status !== 'success') {
+      throw new Error(`Failed to request MFA OTP for ${scope}`);
+    }
+
+    const code = await emailClient.getVerifyAccountChangeCode(email);
+
+    const { accessToken } = await authClient.mfaOtpVerify(sessionToken, code, scope);
+    if ( !accessToken ) {
+      throw new Error('Failed to prime mfa jwt cache, no accessToken returned');
+    }
+
+    // store the jwt for clearing it later, debugging, or for page.on('load') hook.
+    this.jwt = accessToken;
+
+    await this.page.evaluate(
+      ({ sessionToken, scope, jwt }) => {
+        (window as any).JwtTokenCache.setToken(
+          sessionToken,
+          scope,
+          jwt
+        );
+      },
+      { sessionToken, scope, jwt: this.jwt }
+    );
   }
 }
