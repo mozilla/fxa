@@ -99,11 +99,21 @@ export class UserManager extends UserManagerBase {
           this.log.info('queryCurrentSubscriptions.cache.update', {
             purchaseToken: purchase.purchaseToken,
           });
-          purchase = await this.purchaseManager.querySubscriptionPurchase(
-            purchase.packageName,
-            purchase.sku,
-            purchase.purchaseToken
-          );
+          try {
+            purchase = await this.purchaseManager.querySubscriptionPurchase(
+              purchase.packageName,
+              purchase.sku,
+              purchase.purchaseToken
+            );
+          } catch(e) {
+            if (e.name === PurchaseQueryError.INVALID_TOKEN) {
+              this.log.error('queryCurrentSubscriptions.invalidPurchaseToken', {
+                purchaseToken: purchase.purchaseToken,
+              });
+            } else {
+              throw e;
+            }
+          }
         }
 
         // Add the updated purchase to list to returned to clients

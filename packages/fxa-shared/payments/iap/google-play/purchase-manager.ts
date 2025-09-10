@@ -223,7 +223,7 @@ export class PurchaseManager {
 
   private convertPlayAPIErrorToLibraryError(playError: any): Error {
     const libraryError = new Error(playError.message);
-    if (playError.code === 404) {
+    if (playError.code === 404 || playError.code === 410) {
       libraryError.name = PurchaseQueryError.INVALID_TOKEN;
     } else {
       // Unexpected error occurred. It's likely an issue with Service Account

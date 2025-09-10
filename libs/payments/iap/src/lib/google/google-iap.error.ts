@@ -16,9 +16,16 @@ export class GoogleIapError extends BaseError {
 }
 
 export class GoogleIapSubscriptionNotFoundError extends GoogleIapError {
-  constructor(packageName: string, sku: string, cause: Error) {
-    super('Google IAP subscription not found', { packageName, sku }, cause);
+  constructor(packageName: string, sku: string, purchaseToken: string, cause: Error) {
+    super('Google IAP subscription not found', { packageName, sku, purchaseToken }, cause);
     this.name = 'GoogleIapSubscriptionNotFoundError';
+  }
+}
+
+export class GoogleIapSubscriptionPurchaseTokenInvalidError extends GoogleIapError {
+  constructor(packageName: string, sku: string, purchaseToken: string, cause: Error) {
+    super('Google IAP subscription purchase token invalid', { packageName, sku, purchaseToken }, cause);
+    this.name = 'GoogleIapSubscriptionPurchaseTokenInvalidError';
   }
 }
 

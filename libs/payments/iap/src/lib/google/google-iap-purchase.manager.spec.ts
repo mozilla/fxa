@@ -103,7 +103,7 @@ describe('GoogleIapPurchaseManager', () => {
       };
 
       jest
-        .spyOn(googleIapClient, 'getSubscriptions')
+        .spyOn(googleIapClient, 'getSubscription')
         .mockResolvedValue(mockApiResponse);
 
       jest.spyOn(repository, 'getPurchase').mockResolvedValue(undefined);
@@ -114,7 +114,7 @@ describe('GoogleIapPurchaseManager', () => {
 
       const result = await manager.getFromPlayStoreApi(packageName, sku, token);
 
-      expect(googleIapClient.getSubscriptions).toHaveBeenCalledWith(
+      expect(googleIapClient.getSubscription).toHaveBeenCalledWith(
         packageName,
         sku,
         token
@@ -124,7 +124,7 @@ describe('GoogleIapPurchaseManager', () => {
 
     it('throws wrapped error when Firestore fails', async () => {
       const token = faker.string.uuid();
-      jest.spyOn(googleIapClient, 'getSubscriptions').mockResolvedValue({});
+      jest.spyOn(googleIapClient, 'getSubscription').mockResolvedValue({});
       jest.spyOn(repository, 'getPurchase').mockImplementation(() => {
         throw new Error('Firestore failure');
       });
