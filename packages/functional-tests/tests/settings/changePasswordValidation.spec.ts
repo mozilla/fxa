@@ -41,6 +41,8 @@ test.describe('severity-1 #smoke', () => {
         await settings.goto();
         await settings.password.changeButton.click();
 
+        await settings.confirmMfaGuard(credentials.email);
+
         await expect(changePassword.changePasswordHeading).toBeVisible();
 
         await changePassword.newPasswordTextbox.fill(password);
@@ -66,6 +68,8 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await settings.password.changeButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
 
       await expect(changePassword.changePasswordHeading).toBeVisible();
 

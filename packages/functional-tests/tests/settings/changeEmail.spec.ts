@@ -69,8 +69,12 @@ test.describe('severity-1 #smoke', () => {
         settings,
         changePassword,
         initialPassword,
-        newPassword
+        newPassword,
+        target,
+        credentials.email
       );
+
+      credentials.password = newPassword;
 
       await settings.signOut();
 
@@ -113,8 +117,12 @@ test.describe('severity-1 #smoke', () => {
         settings,
         changePassword,
         initialPassword,
-        newPassword
+        newPassword,
+        target,
+        credentials.email
       );
+
+      credentials.password = newPassword;
 
       await settings.signOut();
 
@@ -124,7 +132,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Change back the primary email again
       await settings.secondaryEmail.makePrimaryButton.click();
-      await settings.confirmMfaGuard(secondEmail);
+      await settings.confirmMfaGuard(credentials.email);
       await settings.signOut();
 
       // Login with primary email and new password
@@ -133,6 +141,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
 
+      console.log('credentials.password', credentials.password);
       // Update which password to use the account cleanup
       credentials.password = newPassword;
     });
@@ -263,9 +272,14 @@ async function setNewPassword(
   settings: SettingsPage,
   changePassword: ChangePasswordPage,
   oldPassword: string,
-  newPassword: string
+  newPassword: string,
+  target: BaseTarget,
+  email: string,
 ): Promise<void> {
   await settings.password.changeButton.click();
+
+  await settings.confirmMfaGuard(email);
+
   await changePassword.fillOutChangePassword(oldPassword, newPassword);
 
   await expect(settings.settingsHeading).toBeVisible();

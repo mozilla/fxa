@@ -18,8 +18,8 @@ import {
   currentAccount,
   getStoredAccountData,
   sessionToken,
+  JwtTokenCache,
 } from '../lib/cache';
-import { JwtTokenCache } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
@@ -586,15 +586,30 @@ export class Account implements AccountData {
   }
 
   async changePassword(oldPassword: string, newPassword: string) {
+    const currentSessionToken = sessionToken();
+
+    if (!currentSessionToken) {
+      throw AuthUiErrors.INVALID_TOKEN;
+    }
+
+    // Check if we have a JWT for MFA-protected password changes
+    const hasMfaJwt = JwtTokenCache.hasToken(currentSessionToken, 'password');
+
+    if (!hasMfaJwt) {
+      throw AuthUiErrors.INVALID_TOKEN;
+    }
+
+    // Use the new MFA-protected endpoint
+    const jwt = JwtTokenCache.getToken(currentSessionToken, 'password');
+
     const response = await this.withLoadingStatus(
-      this.authClient.passwordChange(
-        this.primaryEmail.email,
+      this.authClient.passwordChangeWithJWT(
+        jwt,
+        this.email,
         oldPassword,
         newPassword,
-        sessionToken()!,
-        {
-          keys: true,
-        }
+        currentSessionToken,
+        { keys: true }
       )
     );
 

@@ -1287,30 +1287,21 @@ export default class AuthClient {
 
     let unwrapBKeyVersion2: string | undefined;
     if (this.keyStretchVersion === 2) {
-      const status = await this.getCredentialStatusV2(email, headers);
-      const clientSalt = status.clientSalt || createSaltV2();
-      const newCredentialsV2 = await crypto.getCredentialsV2({
-        password: newPassword,
-        clientSalt: clientSalt,
-      });
+      const v2Payload = await this.createPasswordChangeV2Payload(
+        email,
+        newPassword,
+        keys,
+        newCredentials,
+        wrapKb,
+        headers
+      );
 
-      // Important! Passing kB, ensures kB remains constant even after password upgrade.
-      const newKeys = await crypto.getKeysV2({
-        kB: keys.kB,
-        v1: newCredentials,
-        v2: newCredentialsV2,
-      });
-
-      if (newKeys.wrapKb !== wrapKb) {
-        throw new Error('Sanity check failed. wrapKb should not drift!');
-      }
-
-      unwrapBKeyVersion2 = newCredentialsV2.unwrapBKey;
+      unwrapBKeyVersion2 = v2Payload.unwrapBKeyVersion2;
       payload = {
         ...payload,
-        authPWVersion2: newCredentialsV2.authPW,
-        wrapKbVersion2: newKeys.wrapKbVersion2,
-        clientSalt: clientSalt,
+        authPWVersion2: v2Payload.authPWVersion2,
+        wrapKbVersion2: v2Payload.wrapKbVersion2,
+        clientSalt: v2Payload.clientSalt,
       };
     }
     const accountData = await this.passwordChangeFinish(
@@ -1446,6 +1437,172 @@ export default class AuthClient {
       headers
     );
     return response;
+  }
+
+  /**
+   * Creates the v2 extension payload for password change operations.
+   * Handles the common logic for v2 credential creation and validation.
+   *
+   * @private
+   * @param email - The email of the user
+   * @param newPassword - The new password for v2 credential generation
+   * @param keys - The account keys containing kB
+   * @param newCredentials - The new v1 credentials
+   * @param wrapKb - The wrapped key bundle to validate against
+   * @param headers - Optional headers
+   * @returns Object containing v2 payload fields and unwrapBKeyVersion2
+   */
+  private async createPasswordChangeV2Payload(
+    email: string,
+    newPassword: string,
+    keys: { kB: string },
+    newCredentials: { authPW: string; unwrapBKey: string },
+    wrapKb: string,
+    headers?: Headers
+  ): Promise<{
+    authPWVersion2: string;
+    wrapKbVersion2: string;
+    clientSalt: string;
+    unwrapBKeyVersion2: string;
+  }> {
+    const status = await this.getCredentialStatusV2(email, headers);
+    const clientSalt = status.clientSalt || createSaltV2();
+    const newCredentialsV2 = await crypto.getCredentialsV2({
+      password: newPassword,
+      clientSalt: clientSalt,
+    });
+
+    // Important! Passing kB, ensures kB remains constant even after password upgrade.
+    const newKeys = await crypto.getKeysV2({
+      kB: keys.kB,
+      v1: newCredentials,
+      v2: newCredentialsV2,
+    });
+
+    if (newKeys.wrapKb !== wrapKb) {
+      throw new Error('Sanity check failed. wrapKb should not drift!');
+    }
+
+    return {
+      authPWVersion2: newCredentialsV2.authPW,
+      wrapKbVersion2: newKeys.wrapKbVersion2,
+      clientSalt: clientSalt,
+      unwrapBKeyVersion2: newCredentialsV2.unwrapBKey,
+    };
+  }
+
+  /**
+   * Change password using JWT authentication (for MFA-protected operations).
+   * This uses the new /mfa/password/change endpoint that requires JWT authentication.
+   *
+   * @param jwt - The JWT token for authentication.
+   * @param email - The email of the user.
+   * @param oldPassword - The old password of the user.
+   * @param newPassword - The new password of the user.
+   * @param sessionToken - The session token of the user.
+   * @param options - The options for the password change.
+   * @param headers - The headers for the request.
+   */
+  async passwordChangeWithJWT(
+    jwt: string,
+    email: string,
+    oldPassword: string,
+    newPassword: string,
+    sessionToken: string,
+    options: {
+      keys?: boolean;
+      skipCaseError?: boolean;
+      reauthEmail?: string;
+    } = {},
+    headers?: Headers
+  ): Promise<SignedInAccountData> {
+
+    const oldCredentials = await this.sessionReauth(sessionToken, options.reauthEmail || email, oldPassword, {
+      keys: true
+    }, headers);
+    const oldCredentialsAuth = await crypto.getCredentials(
+      email,
+      oldPassword
+    );
+    const oldAuthPW = oldCredentialsAuth.authPW;
+
+    const keys = await this.accountKeys(
+      oldCredentials.keyFetchToken!,
+      oldCredentials.unwrapBKey!,
+      headers
+    );
+
+    const newCredentials = await crypto.getCredentials(
+      email,
+      newPassword
+    );
+
+    const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
+    const authPW = newCredentials.authPW;
+
+    let payload: {
+      email: string;
+      oldAuthPW: string;
+      authPW: string;
+      wrapKb: string;
+      authPWVersion2?: string;
+      wrapKbVersion2?: string;
+      clientSalt?: string;
+    } = {
+      email,
+      oldAuthPW,
+      authPW,
+      wrapKb,
+    };
+
+    if (this.keyStretchVersion === 2) {
+      const v2Payload = await this.createPasswordChangeV2Payload(
+        email,
+        newPassword,
+        keys,
+        newCredentials,
+        wrapKb,
+        headers
+      );
+      payload = {
+        ...payload,
+        authPWVersion2: v2Payload.authPWVersion2,
+        wrapKbVersion2: v2Payload.wrapKbVersion2,
+        clientSalt: v2Payload.clientSalt,
+      };
+    }
+
+    try {
+      const accountData = await this.jwtPost(
+        '/mfa/password/change',
+        jwt,
+        payload,
+        headers
+      );
+
+      return accountData;
+    } catch (error: any) {
+      if (
+        error &&
+        error.email &&
+        error.errno === ERRORS.INCORRECT_EMAIL_CASE
+        && !options.skipCaseError
+      ) {
+        options.skipCaseError = true;
+        options.reauthEmail = email;
+        return await this.passwordChangeWithJWT(
+          jwt,
+          error.email,
+          oldPassword,
+          newPassword,
+          sessionToken,
+          options,
+          headers
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 
   async createPassword(

@@ -596,6 +596,394 @@ module.exports = function (
       },
     },
     {
+      method: 'POST',
+      path: '/mfa/password/change',
+      options: {
+        ...PASSWORD_DOCS.PASSWORD_CHANGE_JWT_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:password'],
+          payload: false,
+        },
+        validate: {
+          query: isA.object({
+            keys: isA.boolean().optional().description(DESCRIPTION.queryKeys),
+          }),
+          payload: isA
+            .object({
+              email: validators.email().description(DESCRIPTION.email),
+              oldAuthPW: validators.authPW.description(DESCRIPTION.authPW),
+              authPW: validators.authPW.description(DESCRIPTION.authPW),
+              authPWVersion2: validators.authPW
+                .optional()
+                .description(DESCRIPTION.authPW),
+              wrapKb: validators.wrapKb
+                .optional()
+                .description(DESCRIPTION.wrapKb),
+              wrapKbVersion2: validators.wrapKb
+                .optional()
+                .description(DESCRIPTION.wrapKbVersion2),
+              clientSalt: validators.clientSalt
+                .optional()
+                .description(DESCRIPTION.clientSalt),
+            })
+            .and('authPWVersion2', 'wrapKbVersion2', 'clientSalt'),
+        },
+      },
+      handler: async function (request: AuthRequest) {
+        log.begin('Password.changeJWT', request);
+        const sessionToken = request.auth.credentials as any;
+        const uid = sessionToken.uid;
+
+        // MFA strategy already fetched and validated the session token
+        // The credential object contains the session token data
+        const {
+          email,
+          oldAuthPW,
+          authPW,
+          authPWVersion2,
+          wrapKb,
+          wrapKbVersion2,
+          clientSalt,
+        } = request.payload as {
+          email: string;
+          oldAuthPW: string;
+          authPW: string;
+          authPWVersion2?: string;
+          wrapKb?: string;
+          wrapKbVersion2?: string;
+          clientSalt?: string;
+        };
+
+        const emailRecord = await db.accountRecord(email);
+
+        const password = new Password(
+          oldAuthPW,
+          emailRecord.authSalt,
+          emailRecord.verifierVersion
+        );
+
+        const match = await signinUtils.checkPassword(
+          emailRecord,
+          password,
+          request
+        );
+
+        if (!match) {
+          throw error.incorrectPassword(emailRecord.email, email);
+        }
+
+        const wantsKeys = requestHelper.wantsKeys(request);
+        const ip = request.app.clientAddress;
+
+        const hasTotp = await otpUtils.hasTotpToken({ uid });
+
+        const { verifiedStatus, previousSessionToken, originatingDeviceId } =
+          await getSessionVerificationStatus();
+
+        const devicesToNotify = await fetchDevicesToNotify();
+
+        const { account, isPasswordUpgrade } = await changePassword();
+
+        await notifyAccount();
+        const newSessionToken = await createSessionToken();
+
+        await verifySessionToken();
+
+        const { keyFetchToken, keyFetchToken2 } = await createKeyFetchToken();
+        return createResponse();
+
+        async function getSessionVerificationStatus() {
+          const result: {
+            verifiedStatus: boolean;
+            previousSessionToken?: any;
+            originatingDeviceId?: any;
+          } = { verifiedStatus: false };
+
+          result.previousSessionToken = sessionToken;
+          result.verifiedStatus = sessionToken.tokenVerified ?? false;
+          if (sessionToken.deviceId) {
+            result.originatingDeviceId = sessionToken.deviceId;
+          }
+
+          if (hasTotp && (sessionToken.authenticatorAssuranceLevel ?? 0) <= 1) {
+            throw error.unverifiedSession();
+          }
+          return result;
+        }
+
+        async function fetchDevicesToNotify() {
+          // We fetch the devices to notify before changePassword() because
+          // db.resetAccount() deletes all the devices saved in the account.
+          const devices = await request.app.devices;
+
+          // If the originating sessionToken belongs to a device,
+          // do not send the notification to that device. It will
+          // get informed about the change via WebChannel message.
+          if (originatingDeviceId) {
+            return devices.filter((d: any) => d.id !== originatingDeviceId);
+          }
+          return devices;
+        }
+
+        async function changePassword() {
+          const authSalt = await random.hex(32);
+          const password = new Password(authPW, authSalt, verifierVersion);
+          const verifyHash = await password.verifyHash();
+          const account = await db.account(uid);
+          const wrapWrapKb = await password.wrap(wrapKb);
+
+          let isPasswordUpgrade = false;
+          if (
+            authPWVersion2 &&
+            !/quickStretchV2/.test(account.clientSalt || '')
+          ) {
+            const v1Password = new Password(
+              authPW,
+              account.authSalt,
+              account.verifierVersion
+            );
+            isPasswordUpgrade = await signinUtils.checkPassword(
+              account,
+              v1Password,
+              request
+            );
+          }
+
+          // For the time being we store both passwords in the DB. authPW is created
+          // with the old quickStretch and authPWVersion2 is created with improved 'quick' stretch.
+          let password2: any | undefined = undefined;
+          let verifyHashVersion2 = undefined;
+          let wrapWrapKbVersion2 = undefined;
+          if (authPWVersion2) {
+            password2 = new Password(
+              authPWVersion2,
+              authSalt,
+              verifierVersion,
+              2
+            );
+            verifyHashVersion2 = await password2?.verifyHash();
+            wrapWrapKbVersion2 = await password2?.wrap(wrapKbVersion2);
+          }
+
+          if (isPasswordUpgrade) {
+            const result = await db.resetAccount(
+              { uid },
+              {
+                authSalt: authSalt,
+                clientSalt: clientSalt,
+                verifierVersion: password.version,
+                verifyHash: verifyHash,
+                verifyHashVersion2: verifyHashVersion2,
+                wrapWrapKb: wrapWrapKb,
+                wrapWrapKbVersion2: wrapWrapKbVersion2,
+                keysHaveChanged: false,
+                isPasswordUpgrade: true,
+              },
+              true
+            );
+
+            await request.emitMetricsEvent('account.upgradedPassword', {
+              uid,
+            });
+
+            await recordSecurityEvent('account.password_upgrade_success', {
+              db,
+              request,
+              account: { uid },
+            });
+
+            await recordSecurityEvent('account.password_upgraded', {
+              db,
+              request,
+              account: { uid },
+            });
+
+            return { result, account, isPasswordUpgrade };
+          }
+
+          const result = await db.resetAccount({ uid }, {
+            authSalt: authSalt,
+            clientSalt: clientSalt,
+            verifierVersion: password.version,
+            verifyHash: verifyHash,
+            verifyHashVersion2: verifyHashVersion2,
+            wrapWrapKb: wrapWrapKb,
+            wrapWrapKbVersion2: wrapWrapKbVersion2,
+            keysHaveChanged: false,
+          });
+
+          await request.emitMetricsEvent('account.changedPassword', {
+            uid: uid,
+          });
+
+          await recordSecurityEvent('account.password_reset_success', {
+            db,
+            request,
+            account: { uid },
+          });
+
+          await recordSecurityEvent('account.password_changed', {
+            db,
+            request,
+            account: { uid },
+          });
+
+          return { result, account, isPasswordUpgrade };
+        }
+
+        async function notifyAccount() {
+          // When upgrading passwords, the previous password is still
+          // valid, and therefore we can short circuit the notification
+          // processes.
+          if (isPasswordUpgrade) {
+            return;
+          }
+
+          if (devicesToNotify) {
+            // Notify the devices that the account has changed.
+            push.notifyPasswordChanged(
+              uid,
+              devicesToNotify
+            );
+          }
+
+          log.notifyAttachedServices('passwordChange', request, {
+            uid: uid,
+            generation: account.verifierSetAt,
+          });
+          await oauth.removePublicAndCanGrantTokens(uid);
+          const emails = await db.accountEmails(uid);
+          const geoData = request.app.geo;
+          const {
+            browser: uaBrowser,
+            browserVersion: uaBrowserVersion,
+            os: uaOS,
+            osVersion: uaOSVersion,
+            deviceType: uaDeviceType,
+          } = request.app.ua;
+
+          try {
+            await mailer.sendPasswordChangedEmail(emails, account, {
+              acceptLanguage: request.app.acceptLanguage,
+              ip,
+              location: geoData.location,
+              timeZone: geoData.timeZone,
+              uaBrowser,
+              uaBrowserVersion,
+              uaOS,
+              uaOSVersion,
+              uaDeviceType,
+              uid: uid,
+            });
+          } catch (error) {
+            // If we couldn't email them, no big deal. Log
+            // and pretend everything worked.
+            log.trace(
+              'Password.changeJWT.sendPasswordChangedNotification.error',
+              {
+                error,
+              }
+            );
+          }
+        }
+
+        async function createSessionToken() {
+          const maybeToken = !verifiedStatus ? await random.hex(16) : undefined;
+          const {
+            browser: uaBrowser,
+            browserVersion: uaBrowserVersion,
+            os: uaOS,
+            osVersion: uaOSVersion,
+            deviceType: uaDeviceType,
+            formFactor: uaFormFactor,
+          } = request.app.ua;
+
+          // Create a sessionToken with the verification status of the current session
+          const sessionTokenOptions = {
+            uid: account.uid,
+            email: account.email,
+            emailCode: account.emailCode,
+            emailVerified: account.emailVerified,
+            verifierSetAt: account.verifierSetAt,
+            mustVerify: wantsKeys,
+            tokenVerificationId: maybeToken,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uaFormFactor,
+          };
+
+          return db.createSessionToken(sessionTokenOptions);
+        }
+
+        function verifySessionToken() {
+          if (
+            newSessionToken &&
+            previousSessionToken &&
+            previousSessionToken.verificationMethodValue
+          ) {
+            return db.verifyTokensWithMethod(
+              newSessionToken.id,
+              previousSessionToken.verificationMethodValue
+            );
+          }
+        }
+
+        async function createKeyFetchToken() {
+          const result: {
+            keyFetchToken?: any;
+            keyFetchToken2?: any;
+          } = {};
+          if (wantsKeys) {
+            // Create a verified keyFetchToken. This is deliberately verified because we don't
+            // want to perform an email confirmation loop.
+            if (authPW) {
+              result.keyFetchToken = await db.createKeyFetchToken({
+                uid: account.uid,
+                kA: account.kA,
+                wrapKb: wrapKb,
+                emailVerified: account.emailVerified,
+              });
+            }
+
+            if (authPWVersion2) {
+              result.keyFetchToken2 = await db.createKeyFetchToken({
+                uid: account.uid,
+                kA: account.kA,
+                wrapKb: wrapKbVersion2,
+                emailVerified: account.emailVerified,
+              });
+            }
+          }
+          return result;
+        }
+
+        function createResponse() {
+          const response: any = {
+            uid: newSessionToken.uid,
+            sessionToken: newSessionToken.data,
+            verified: newSessionToken.emailVerified && newSessionToken.tokenVerified,
+            authAt: newSessionToken.lastAuthAt(),
+          };
+
+          if (wantsKeys) {
+            if (keyFetchToken) {
+              response.keyFetchToken = keyFetchToken.data;
+            }
+
+            if (keyFetchToken2) {
+              response.keyFetchToken2 = keyFetchToken2.data;
+            }
+          }
+
+          return response;
+        }
+      },
+    },
+    {
       // This endpoint will eventually replace '/password/forgot/send_code'
       // below.  That is also the reason for the similarity between them.
       method: 'POST',

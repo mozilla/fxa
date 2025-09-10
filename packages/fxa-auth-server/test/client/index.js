@@ -555,6 +555,10 @@ module.exports = (config) => {
     });
   };
 
+  Client.prototype.changePasswordJWT = function (jwt, options = {}) {
+    return this.api.changePasswordJWT(jwt, options);
+  }
+
   Client.prototype.changePassword = function (
     newPassword,
     headers,

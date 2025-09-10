@@ -165,6 +165,18 @@ const PASSWORD_CREATE_POST = {
   ],
 };
 
+const PASSWORD_CHANGE_JWT_POST = {
+  ...TAGS_PASSWORD,
+  description: '/password/change/jwt',
+  notes: [
+    dedent`
+    🔒 Authenticated with MFA JWT (scope: mfa:password)
+
+    Perform the "change password" process using JWT authentication. Returns a session token and a key fetch token.
+    `,
+  ],
+};
+
 const API_DOCS = {
   PASSWORD_CHANGE_FINISH_POST,
   PASSWORD_CHANGE_START_POST,
@@ -175,6 +187,7 @@ const API_DOCS = {
   PASSWORD_FORGOT_STATUS_GET,
   PASSWORD_FORGOT_VERIFY_CODE_POST,
   PASSWORD_CREATE_POST,
+  PASSWORD_CHANGE_JWT_POST,
 };
 
 export default API_DOCS;
