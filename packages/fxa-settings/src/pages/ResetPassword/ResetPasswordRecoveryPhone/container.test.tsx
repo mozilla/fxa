@@ -19,13 +19,11 @@ jest.mock('../../../models', () => ({
   useAuthClient: () => ({
     recoveryPhoneResetPasswordConfirm: mockRecoveryPhoneResetPasswordConfirm,
     recoveryPhonePasswordResetSendCode: mockRecoveryPhonePasswordResetSendCode,
-    recoveryPhoneGetWithPasswordForgotToken: mockRecoveryPhoneGetWithPasswordForgotToken,
+    recoveryPhoneGetWithPasswordForgotToken:
+      mockRecoveryPhoneGetWithPasswordForgotToken,
   }),
   useFtlMsgResolver: () => ({
     getMsg: (_id: string, fallback: string) => fallback,
-  }),
-  useConfig: () => ({
-    featureFlags: { recoveryPhonePasswordReset2fa: true },
   }),
 }));
 
@@ -77,7 +75,9 @@ describe('ResetPasswordRecoveryPhoneContainer', () => {
   });
 
   it('calls authClient then navigates on success', async () => {
-    mockRecoveryPhoneResetPasswordConfirm.mockResolvedValueOnce({ success: true });
+    mockRecoveryPhoneResetPasswordConfirm.mockResolvedValueOnce({
+      success: true,
+    });
 
     await renderComponent();
 
