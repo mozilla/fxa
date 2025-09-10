@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ApolloClientModule from '@apollo/client';
-import * as InlineRecoverySetupFlowModule from '.';
+import * as InlineRecoverySetupModule from '.';
 import * as utils from 'fxa-react/lib/utils';
 
 import { ApolloClient } from '@apollo/client';
@@ -22,7 +22,7 @@ import {
   MOCK_SIGNIN_LOCATION_STATE,
   MOCK_SIGNIN_RECOVERY_LOCATION_STATE,
 } from '../InlineTotpSetup/mocks';
-import InlineRecoverySetupFlowContainer from './container';
+import InlineRecoverySetupContainer from './container';
 import AuthClient from 'fxa-auth-client/browser';
 import { waitFor } from '@testing-library/react';
 import {
@@ -162,7 +162,7 @@ function setMocks() {
   jest
     .spyOn(ApolloClientModule, 'useQuery')
     .mockReturnValue(mockTotpStatusQuery());
-  (InlineRecoverySetupFlowModule.default as jest.Mock).mockReset();
+  (InlineRecoverySetupModule.default as jest.Mock).mockReset();
   mockNavigateHook.mockReset();
   mockCompleteTotpSetup.mockClear();
   (mockAuthClient as any).completeTotpSetup = mockCompleteTotpSetup;
@@ -197,12 +197,12 @@ const defaultProps = {
 function render(props = {}) {
   renderWithLocalizationProvider(
     <LocationProvider>
-      <InlineRecoverySetupFlowContainer {...{ ...defaultProps, ...props }} />
+      <InlineRecoverySetupContainer {...{ ...defaultProps, ...props }} />
     </LocationProvider>
   );
 }
 
-describe('InlineRecoverySetupFlowContainer', () => {
+describe('InlineRecoverySetupContainer', () => {
   beforeEach(() => {
     setMocks();
   });
@@ -261,11 +261,11 @@ describe('InlineRecoverySetupFlowContainer', () => {
       };
     });
 
-    it('invokes InlineRecoverySetupFlow with the correct props', async () => {
+    it('invokes InlineRecoverySetup with the correct props', async () => {
       render();
       await waitFor(() => {
-        expect(InlineRecoverySetupFlowModule.default).toHaveBeenCalled();
-        const args = (InlineRecoverySetupFlowModule.default as jest.Mock).mock
+        expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
+        const args = (InlineRecoverySetupModule.default as jest.Mock).mock
           .calls[0][0];
         expect(args.backupCodes).toEqual([]);
         expect(args.serviceName).toBe(defaultProps.serviceName);
@@ -287,8 +287,8 @@ describe('InlineRecoverySetupFlowContainer', () => {
 
       render();
       await waitFor(() => {
-        expect(InlineRecoverySetupFlowModule.default).toHaveBeenCalled();
-        const args = (InlineRecoverySetupFlowModule.default as jest.Mock).mock
+        expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
+        const args = (InlineRecoverySetupModule.default as jest.Mock).mock
           .calls[0][0];
         expect(args.flowHasPhoneChoice).toBe(false);
       });
@@ -301,9 +301,9 @@ describe('InlineRecoverySetupFlowContainer', () => {
 
       // Initial render after effect starts generation
       await waitFor(() => {
-        expect(InlineRecoverySetupFlowModule.default).toHaveBeenCalled();
+        expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
         const args = (
-          InlineRecoverySetupFlowModule.default as jest.Mock
+          InlineRecoverySetupModule.default as jest.Mock
         ).mock.calls.slice(-1)[0][0];
         expect(args.flowHasPhoneChoice).toBe(false);
         expect(args.generatingCodes).toBe(true);
@@ -314,7 +314,7 @@ describe('InlineRecoverySetupFlowContainer', () => {
       await waitFor(() => {
         expect(mockGenerateCodes).toHaveBeenCalled();
         const args = (
-          InlineRecoverySetupFlowModule.default as jest.Mock
+          InlineRecoverySetupModule.default as jest.Mock
         ).mock.calls.slice(-1)[0][0];
         expect(args.generatingCodes).toBe(false);
         expect(args.backupCodes).toEqual(['wibble', 'quux']);
@@ -334,9 +334,9 @@ describe('InlineRecoverySetupFlowContainer', () => {
       beforeEach(async () => {
         render();
         await waitFor(() => {
-          expect(InlineRecoverySetupFlowModule.default).toHaveBeenCalled();
+          expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
         });
-        args = (InlineRecoverySetupFlowModule.default as jest.Mock).mock
+        args = (InlineRecoverySetupModule.default as jest.Mock).mock
           .calls[0][0];
       });
 
@@ -354,10 +354,9 @@ describe('InlineRecoverySetupFlowContainer', () => {
           await waitFor(async () => {
             await args.verifyPhoneNumber('12345678900');
           });
-          args = (InlineRecoverySetupFlowModule.default as jest.Mock).mock
-            .calls[
-            (InlineRecoverySetupFlowModule.default as jest.Mock).mock.calls
-              .length - 1
+          args = (InlineRecoverySetupModule.default as jest.Mock).mock.calls[
+            (InlineRecoverySetupModule.default as jest.Mock).mock.calls.length -
+              1
           ][0];
           await waitFor(async () => {
             await args.sendSmsCode();
@@ -383,10 +382,9 @@ describe('InlineRecoverySetupFlowContainer', () => {
           await waitFor(async () => {
             await args.backupChoiceCb('code');
           });
-          args = (InlineRecoverySetupFlowModule.default as jest.Mock).mock
-            .calls[
-            (InlineRecoverySetupFlowModule.default as jest.Mock).mock.calls
-              .length - 1
+          args = (InlineRecoverySetupModule.default as jest.Mock).mock.calls[
+            (InlineRecoverySetupModule.default as jest.Mock).mock.calls.length -
+              1
           ][0];
           await waitFor(async () => {
             await args.completeBackupCodeSetup('wibble');

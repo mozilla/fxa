@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ApolloClientModule from '@apollo/client';
-import * as InlineTotpSetupModule from './old';
-import * as utils from 'fxa-react/lib/utils';
+import * as InlineTotpSetupModule from '.';
 import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 
 import { ApolloClient } from '@apollo/client';
@@ -280,50 +279,6 @@ describe('InlineTotpSetupContainer', () => {
     });
 
     describe('callbacks', () => {
-      describe('cancelSetupHandler', () => {
-        it('redirects when returnOnError is true', async () => {
-          const hardNavigateSpy = jest
-            .spyOn(utils, 'hardNavigate')
-            .mockImplementation(() => {});
-          render();
-          await waitFor(() => {
-            expect(InlineTotpSetupModule.default).toHaveBeenCalled();
-          });
-          const args = (InlineTotpSetupModule.default as jest.Mock).mock
-            .calls[0][0];
-          const cancelSetupHandler = args.cancelSetupHandler;
-          cancelSetupHandler();
-          expect(hardNavigateSpy).toHaveBeenCalledWith(
-            'https://localhost:8080/?error=160'
-          );
-        });
-
-        it('throws an error when returnOnError is false', async () => {
-          render({
-            integration: {
-              ...defaultProps.integration,
-              returnOnError: () => false,
-            },
-          });
-          await waitFor(() => {
-            expect(InlineTotpSetupModule.default).toHaveBeenCalled();
-          });
-          const args = (InlineTotpSetupModule.default as jest.Mock).mock
-            .calls[0][0];
-          const cancelSetupHandler = args.cancelSetupHandler;
-
-          // jest didn't like some syntax in AuthUiErrors when I tried to use
-          // expect().toThrow()
-          try {
-            cancelSetupHandler();
-            expect(true).toBe(false); // an error should've been thrown
-          } catch (err) {
-            // eslint-disable-next-line jest/no-conditional-expect
-            expect(err).toBe(AuthUiErrors.TOTP_REQUIRED);
-          }
-        });
-      });
-
       describe('verifyCodeHandler', () => {
         it('throws an error when the server rejects the code', async () => {
           mockVerifyTotpSetupCode.mockRejectedValue(new Error('bad'));

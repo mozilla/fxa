@@ -6,16 +6,9 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState, useRef } from 'react';
-import InlineTotpSetupOld from './old';
-import InlineTotpSetupNew from '.';
+import InlineTotpSetup from '.';
 import { MozServices } from '../../lib/types';
-import {
-  Integration,
-  isOAuthIntegration,
-  useConfig,
-  useSession,
-  useAuthClient,
-} from '../../models';
+import { Integration, useSession, useAuthClient } from '../../models';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { useMutation, useQuery } from '@apollo/client';
 import { CREATE_TOTP_MUTATION } from './gql';
@@ -23,8 +16,7 @@ import { getSigninState } from '../Signin/utils';
 import { SigninLocationState, TotpToken } from '../Signin/interfaces';
 import { GET_TOTP_STATUS } from '../../components/App/gql';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
-import { SigninRecoveryLocationState } from '../InlineRecoverySetup/interfaces';
-import { hardNavigate } from 'fxa-react/lib/utils';
+import { SigninRecoveryLocationState } from '../InlineRecoverySetupFlow/interfaces';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import GleanMetrics from '../../lib/glean';
@@ -40,7 +32,6 @@ export const InlineTotpSetupContainer = ({
   serviceName: MozServices;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
-  const config = useConfig();
   const [totp, setTotp] = useState<TotpToken>();
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>(
     undefined
@@ -111,21 +102,12 @@ export const InlineTotpSetupContainer = ({
         variables: {
           input: {
             metricsContext,
-            skipRecoveryCodes:
-              !!config.featureFlags?.updatedInlineRecoverySetupFlow,
           },
         },
       });
       setTotp(totpResp.data?.createTotp);
     })();
-  }, [
-    createTotp,
-    metricsContext,
-    totpStatus,
-    totpStatusLoading,
-    totp,
-    config.featureFlags?.updatedInlineRecoverySetupFlow,
-  ]);
+  }, [createTotp, metricsContext, totpStatus, totpStatusLoading, totp]);
 
   // Once state has settled, determine if user should be directed to another page
   useEffect(() => {
@@ -156,18 +138,6 @@ export const InlineTotpSetupContainer = ({
     navTo,
     navigateWithQuery,
   ]);
-
-  const cancelSetupHandler = useCallback(() => {
-    const error = AuthUiErrors.TOTP_REQUIRED;
-
-    if (isOAuthIntegration(integration) && integration.returnOnError()) {
-      const url = integration.getRedirectWithErrorUrl(error);
-      hardNavigate(url);
-      return;
-    }
-
-    throw error;
-  }, [integration]);
 
   const verifyCodeHandler = useCallback(
     async (code: string) => {
@@ -208,22 +178,9 @@ export const InlineTotpSetupContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  const isUpdatedInlineTotpSetupFlow =
-    config.featureFlags?.updatedInlineTotpSetupFlow || false;
-
-  return isUpdatedInlineTotpSetupFlow ? (
-    <InlineTotpSetupNew
+  return (
+    <InlineTotpSetup
       {...{ totp, serviceName, verifyCodeHandler, integration }}
-    />
-  ) : (
-    <InlineTotpSetupOld
-      {...{
-        totp,
-        serviceName,
-        cancelSetupHandler,
-        verifyCodeHandler,
-        integration,
-      }}
     />
   );
 };

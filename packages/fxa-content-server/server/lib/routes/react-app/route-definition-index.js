@@ -58,12 +58,6 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_RECOVERY_PHONE_PASSWORD_RESET_2FA = config.get(
     'featureFlags.recoveryPhonePasswordReset2fa'
   );
-  const FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW = config.get(
-    'featureFlags.updated2faSetupFlow'
-  );
-  const FEATURE_FLAGS_UPDATED_INLINE_RECOVERY_SETUP_FLOW = config.get(
-    'featureFlags.updatedInlineRecoverySetupFlow'
-  );
   const FEATURE_FLAGS_SHOW_LOCALE_TOGGLE = config.get(
     'featureFlags.showLocaleToggle'
   );
@@ -131,9 +125,6 @@ function getIndexRouteDefinition(config) {
         FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
       recoveryPhonePasswordReset2fa:
         FEATURE_FLAGS_RECOVERY_PHONE_PASSWORD_RESET_2FA,
-      updated2faSetupFlow: FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW,
-      updatedInlineRecoverySetupFlow:
-        FEATURE_FLAGS_UPDATED_INLINE_RECOVERY_SETUP_FLOW,
       showLocaleToggle: FEATURE_FLAGS_SHOW_LOCALE_TOGGLE,
     },
     cms: {

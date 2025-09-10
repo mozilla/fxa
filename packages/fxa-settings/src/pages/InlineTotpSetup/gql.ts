@@ -9,7 +9,6 @@ export const CREATE_TOTP_MUTATION = gql`
     createTotp(input: $input) {
       qrCodeUrl
       secret
-      recoveryCodes
     }
   }
 `;

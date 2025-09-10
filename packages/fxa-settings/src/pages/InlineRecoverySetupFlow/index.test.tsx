@@ -4,7 +4,7 @@
 
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent, UserEvent } from '@testing-library/user-event';
-import InlineRecoverySetupFlow from '.';
+import InlineRecoverySetup from '.';
 import { GleanClickEventType2FA, MozServices } from '../../lib/types';
 import { renderWithRouter } from '../../models/mocks';
 import { MOCK_BACKUP_CODES, MOCK_EMAIL } from '../mocks';
@@ -74,7 +74,7 @@ const props = {
   successfulSetupHandler: successSetupHandler,
 };
 
-describe('InlineRecoverySetupFlow', () => {
+describe('InlineRecoverySetup', () => {
   let user: UserEvent;
 
   beforeAll(async () => {
@@ -90,7 +90,7 @@ describe('InlineRecoverySetupFlow', () => {
   });
 
   it('renders the choice screen', () => {
-    renderWithRouter(<InlineRecoverySetupFlow {...props} />);
+    renderWithRouter(<InlineRecoverySetup {...props} />);
     screen.getByRole('heading', {
       name: 'Two-step authentication',
     });
@@ -109,7 +109,7 @@ describe('InlineRecoverySetupFlow', () => {
   it('does not render the choice screen when recovery phone option is N/A', async () => {
     // also the test for backup codes copy/download screen
     renderWithRouter(
-      <InlineRecoverySetupFlow
+      <InlineRecoverySetup
         {...{
           ...props,
           flowHasPhoneChoice: false,
@@ -135,7 +135,7 @@ describe('InlineRecoverySetupFlow', () => {
   it('renders the backup code confirmation screen', async () => {
     verifyTotpHandler.mockResolvedValueOnce(true);
     renderWithRouter(
-      <InlineRecoverySetupFlow
+      <InlineRecoverySetup
         {...{
           ...props,
           flowHasPhoneChoice: false,
@@ -165,7 +165,7 @@ describe('InlineRecoverySetupFlow', () => {
 
   it('when phone is unavailable, renders the code download screen with provided codes', async () => {
     renderWithRouter(
-      <InlineRecoverySetupFlow
+      <InlineRecoverySetup
         {...{
           ...props,
           flowHasPhoneChoice: false,
@@ -180,7 +180,7 @@ describe('InlineRecoverySetupFlow', () => {
 
   it('renders the recovery phone number screen', async () => {
     renderWithRouter(
-      <InlineRecoverySetupFlow
+      <InlineRecoverySetup
         {...{ ...props, currentStep: 2, backupMethod: 'phone' }}
       />
     );
@@ -200,7 +200,7 @@ describe('InlineRecoverySetupFlow', () => {
 
   it('renders the recovery phone confirmation screen', async () => {
     renderWithRouter(
-      <InlineRecoverySetupFlow
+      <InlineRecoverySetup
         {...{ ...props, currentStep: 3, backupMethod: 'phone' }}
       />
     );
@@ -219,7 +219,7 @@ describe('InlineRecoverySetupFlow', () => {
 
   it('renders the flow complete screen for backup codes', async () => {
     renderWithRouter(
-      <InlineRecoverySetupFlow
+      <InlineRecoverySetup
         {...{
           ...props,
           currentStep: 4,
@@ -244,7 +244,7 @@ describe('InlineRecoverySetupFlow', () => {
 
   it('renders the flow complete screen for recovery phone', async () => {
     renderWithRouter(
-      <InlineRecoverySetupFlow
+      <InlineRecoverySetup
         {...{ ...props, currentStep: 4, backupMethod: 'phone' }}
       />
     );
@@ -266,7 +266,7 @@ describe('InlineRecoverySetupFlow', () => {
 
   it('renders the flow complete screen for backup codes when phone not available', async () => {
     renderWithRouter(
-      <InlineRecoverySetupFlow
+      <InlineRecoverySetup
         {...{
           ...props,
           flowHasPhoneChoice: false,

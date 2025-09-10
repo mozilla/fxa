@@ -73,7 +73,6 @@ export type UnlinkAccountLocationState = {
 export type TotpInfo = {
   qrCodeUrl: string;
   secret: string;
-  recoveryCodes?: string[];
 };
 
 export type MfaScope = 'test' | '2fa' | 'email';

@@ -1223,10 +1223,9 @@ export class Account implements AccountData {
     );
   }
 
-  async createTotp(skipRecoveryCodes = false) {
-    const opts = skipRecoveryCodes ? { skipRecoveryCodes } : {};
+  async createTotp() {
     const totp = await this.withLoadingStatus(
-      this.authClient.createTotpToken(sessionToken()!, opts)
+      this.authClient.createTotpToken(sessionToken()!, {})
     );
     const cache = this.apolloClient.cache;
     cache.modify({

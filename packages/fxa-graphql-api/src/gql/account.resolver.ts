@@ -180,7 +180,6 @@ export class AccountResolver {
       token,
       {
         metricsContext: input.metricsContext,
-        skipRecoveryCodes: input.skipRecoveryCodes,
       },
       headers
     );
