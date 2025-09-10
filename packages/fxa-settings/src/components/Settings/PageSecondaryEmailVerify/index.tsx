@@ -11,10 +11,10 @@ import { logViewEvent } from '../../../lib/metrics';
 import { useAccount, useAlertBar } from '../../../models';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useForm } from 'react-hook-form';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { getErrorFtlId } from '../../../lib/error-utils';
+import { MfaGuard } from '../MfaGuard';
 
 type FormData = {
   verificationCode: string;
@@ -98,7 +98,6 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   return (
     <Localized id="verify-secondary-email-page-title" attrs={{ title: true }}>
       <FlowContainer title="Secondary email" subtitle={subtitleText}>
-        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
           data-testid="secondary-email-verify-form"
           onSubmit={handleSubmit(({ verificationCode }) => {
@@ -168,4 +167,10 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   );
 };
 
-export default PageSecondaryEmailVerify;
+export const MfaGuardPageSecondaryEmailVerify = ( { location }: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="email">
+      <PageSecondaryEmailVerify location={location} />
+    </MfaGuard>
+  );
+};

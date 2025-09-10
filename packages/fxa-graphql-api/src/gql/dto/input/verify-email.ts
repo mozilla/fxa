@@ -16,6 +16,12 @@ export class VerifyEmailInput {
 
   @Field({ description: 'The code to check' })
   public code!: string;
+
+  @Field({
+    description: 'A jwt to provide access to auth server endpoints.',
+    nullable: false,
+  })
+  public jwt!: string;
 }
 
 @InputType()

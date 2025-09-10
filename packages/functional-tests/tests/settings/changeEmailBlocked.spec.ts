@@ -28,7 +28,7 @@ test.describe('severity-1 #smoke', () => {
       const invalidPassword = testAccountTracker.generatePassword();
 
       await settings.goto();
-      await changePrimaryEmail(target, settings, secondaryEmail, blockedEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, blockedEmail, credentials.email);
       await settings.signOut();
       await signin.fillOutEmailFirstForm(blockedEmail);
       await signin.fillOutPasswordForm(invalidPassword);
@@ -67,7 +67,7 @@ test.describe('severity-1 #smoke', () => {
       const blockedEmail = testAccountTracker.generateBlockedEmail();
 
       await settings.goto();
-      await changePrimaryEmail(target, settings, secondaryEmail, blockedEmail);
+      await changePrimaryEmail(target, settings, secondaryEmail, blockedEmail, credentials.email);
       await settings.signOut();
 
       await signin.fillOutEmailFirstForm(blockedEmail);
@@ -110,9 +110,11 @@ async function changePrimaryEmail(
   target: BaseTarget,
   settings: SettingsPage,
   secondaryEmail: SecondaryEmailPage,
-  email: string
+  email: string,
+  primaryEmail: string,
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
+  await settings.confirmMfaGuard(primaryEmail);
   await secondaryEmail.fillOutEmail(email);
   const code: string = await target.emailClient.getVerifySecondaryCode(email);
   await secondaryEmail.fillOutVerificationCode(code);

@@ -10,11 +10,11 @@ import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { SETTINGS_PATH } from '../../../constants';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
 import { AuthUiErrorNos } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { getErrorFtlId } from '../../../lib/error-utils';
+import { MfaGuard } from '../MfaGuard';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');
@@ -32,6 +32,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const alertBar = useAlertBar();
   const account = useAccount();
+
   const goHome = () =>
     navigateWithQuery(SETTINGS_PATH + '#secondary-email', { replace: true });
 
@@ -87,7 +88,6 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   return (
     <Localized id="add-secondary-email-page-title" attrs={{ title: true }}>
       <FlowContainer title="Secondary email" subtitle={subtitleText}>
-        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
           onSubmit={(ev) => {
             ev.preventDefault();
@@ -140,4 +140,10 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   );
 };
 
-export default PageSecondaryEmailAdd;
+export const MfaGuardPageSecondaryEmailAdd = (_: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="email">
+      <PageSecondaryEmailAdd />
+    </MfaGuard>
+  );
+};
