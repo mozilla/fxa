@@ -55,12 +55,6 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN = config.get(
     'featureFlags.recoveryCodeSetupOnSyncSignIn'
   );
-  const FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW = config.get(
-    'featureFlags.updated2faSetupFlow'
-  );
-  const FEATURE_FLAGS_UPDATED_INLINE_RECOVERY_SETUP_FLOW = config.get(
-    'featureFlags.updatedInlineRecoverySetupFlow'
-  );
   const FEATURE_FLAGS_SHOW_LOCALE_TOGGLE = config.get(
     'featureFlags.showLocaleToggle'
   );
@@ -126,9 +120,6 @@ function getIndexRouteDefinition(config) {
       sendFxAStatusOnSettings: FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS,
       recoveryCodeSetupOnSyncSignIn:
         FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
-      updated2faSetupFlow: FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW,
-      updatedInlineRecoverySetupFlow:
-        FEATURE_FLAGS_UPDATED_INLINE_RECOVERY_SETUP_FLOW,
       showLocaleToggle: FEATURE_FLAGS_SHOW_LOCALE_TOGGLE,
     },
     cms: {

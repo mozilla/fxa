@@ -16,7 +16,4 @@ export class CreateTotpPayload {
 
   @Field()
   public secret!: string;
-
-  @Field((returns) => [String])
-  public recoveryCodes!: string[];
 }

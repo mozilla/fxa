@@ -61,11 +61,6 @@ const {
             { secret: result.secret }
           );
           totpToken = result;
-          assert.equal(
-            result.recoveryCodes.length > 1,
-            true,
-            'backup authentication codes returned'
-          );
 
           // Verify TOTP token
           const code = authenticator.generate();

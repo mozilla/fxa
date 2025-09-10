@@ -24,7 +24,7 @@ export const useTotpSetup = () => {
     const fetchTotp = async () => {
       setError(null);
       try {
-        const result = await account.createTotp(true);
+        const result = await account.createTotp();
         if (!cancelled) setTotpInfo(result);
       } catch (err) {
         if (!cancelled) setError(err as Error);

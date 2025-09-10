@@ -100,9 +100,6 @@ export interface Config {
   featureFlags?: {
     keyStretchV2?: boolean;
     recoveryCodeSetupOnSyncSignIn?: boolean;
-    updatedInlineTotpSetupFlow?: boolean;
-    updated2faSetupFlow?: boolean;
-    updatedInlineRecoverySetupFlow?: boolean;
     showLocaleToggle?: boolean;
     paymentsNextSubscriptionManagement?: boolean;
   };
@@ -195,9 +192,6 @@ export function getDefault() {
     },
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,
-      updatedInlineTotpSetupFlow: false,
-      updated2faSetupFlow: false,
-      updatedInlineRecoverySetupFlow: false,
       showLocaleToggle: false,
       paymentsNextSubscriptionManagement: false,
     },

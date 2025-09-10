@@ -44,7 +44,6 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
-import { InlineRecoverySetupFlowContainer } from '../../pages/InlineRecoverySetupFlow/container';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
@@ -52,11 +51,12 @@ const CannotCreateAccount = lazy(
   () => import('../../pages/CannotCreateAccount')
 );
 const Clear = lazy(() => import('../../pages/Clear'));
-const InlineRecoverySetupContainer = lazy(
-  () => import('../../pages/InlineRecoverySetup/container')
-);
+
 const InlineTotpSetupContainer = lazy(
   () => import('../../pages/InlineTotpSetup/container')
+);
+const InlineRecoverySetupContainer = lazy(
+  () => import('../../pages/InlineRecoverySetupFlow/container')
 );
 
 const Legal = lazy(() => import('../../pages/Legal'));
@@ -416,7 +416,6 @@ const AuthAndAccountSetupRoutes = ({
   integration: Integration;
   flowQueryParams: QueryParams;
 } & RouteComponentProps) => {
-  const config = useConfig();
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
@@ -562,7 +561,10 @@ const AuthAndAccountSetupRoutes = ({
           path="/signin_unblock/*"
           {...{ integration, flowQueryParams }}
         />
-        <InlineRecoveryKeySetupContainer path="/inline_recovery_key_setup/*" cmsInfo={integration.getCmsInfo()} />
+        <InlineRecoveryKeySetupContainer
+          path="/inline_recovery_key_setup/*"
+          cmsInfo={integration.getCmsInfo()}
+        />
 
         {/* Signup */}
         <CannotCreateAccount path="/cannot_create_account/*" />
@@ -611,19 +613,11 @@ const AuthAndAccountSetupRoutes = ({
           {...{ isSignedIn, serviceName, flowQueryParams }}
         />
 
-        {config.featureFlags?.updatedInlineRecoverySetupFlow ? (
-          <InlineRecoverySetupFlowContainer
-            path="/inline_recovery_setup/*"
-            integration={integration}
-            {...{ isSignedIn, serviceName }}
-          />
-        ) : (
-          <InlineRecoverySetupContainer
-            path="/inline_recovery_setup/*"
-            integration={integration}
-            {...{ isSignedIn, serviceName }}
-          />
-        )}
+        <InlineRecoverySetupContainer
+          path="/inline_recovery_setup/*"
+          integration={integration}
+          {...{ isSignedIn, serviceName }}
+        />
       </Router>
     </Suspense>
   );

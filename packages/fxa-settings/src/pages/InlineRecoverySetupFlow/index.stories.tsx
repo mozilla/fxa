@@ -3,17 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import InlineRecoverySetupFlow from '.';
+import InlineRecoverySetup from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { InlineRecoverySetupFlowProps } from './interfaces';
+import { InlineRecoverySetupProps } from './interfaces';
 import { MOCK_BACKUP_CODES, MOCK_EMAIL } from '../mocks';
 import { MozServices } from '../../lib/types';
 
 export default {
-  title: 'Pages/InlineRecoverySetupFlow',
-  component: InlineRecoverySetupFlow,
+  title: 'Pages/InlineRecoverySetup',
+  component: InlineRecoverySetup,
   decorators: [withLocalization],
 } as Meta;
 
@@ -31,9 +31,9 @@ const verifySmsCode = async () => {};
 const completeBackupCodeSetup = async () => {};
 const successfulSetupHandler = () => {};
 
-const ComponentWithRouter = (props: InlineRecoverySetupFlowProps) => (
+const ComponentWithRouter = (props: InlineRecoverySetupProps) => (
   <LocationProvider>
-    <InlineRecoverySetupFlow {...props} />
+    <InlineRecoverySetup {...props} />
   </LocationProvider>
 );
 

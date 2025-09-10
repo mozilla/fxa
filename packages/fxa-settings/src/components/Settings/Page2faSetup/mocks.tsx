@@ -19,14 +19,12 @@ import {
 import { action } from '@storybook/addon-actions';
 import {
   MOCK_2FA_SECRET_KEY_RAW,
-  MOCK_BACKUP_CODES,
   PLACEHOLDER_QR_CODE,
 } from '../../../pages/mocks';
 
 export const MOCK_TOTP_INFO = {
   qrCodeUrl: PLACEHOLDER_QR_CODE,
   secret: MOCK_2FA_SECRET_KEY_RAW,
-  recoveryCodes: MOCK_BACKUP_CODES,
 };
 
 // Create a safe navigate function for Storybook that matches NavigateFn type
