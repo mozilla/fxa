@@ -16,6 +16,7 @@ import {
   useAccount,
   useAlertBar,
   useAuthClient,
+  useConfig,
   useFtlMsgResolver,
 } from '../../../models';
 import Modal from '../ModalMfaProtected';
@@ -43,6 +44,8 @@ export const MfaGuard = ({
 }) => {
   // Let errors be handled by error boundaries in async contexts
   const handleError = useErrorHandler();
+
+  const config = useConfig();
 
   const hasSentConfirmationCode = useRef(false);
 
@@ -165,7 +168,7 @@ export const MfaGuard = ({
   };
 
   const email = account.email;
-  const expirationTime = 5; // TODO get from config
+  const expirationTime = config.mfa.otp.expiresInMinutes;
 
   const getModal = () => (
     <Modal
