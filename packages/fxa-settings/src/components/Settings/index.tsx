@@ -20,7 +20,8 @@ import PageCreatePassword from './PageCreatePassword';
 import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
 import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
-import Page2faSetup from './Page2faSetup';
+import MfaGuardedPage2faSetup from './Page2faSetup';
+import MfaGuardPage2faChange from './Page2faChange';
 import { Page2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
 import { PageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
 import { PageDeleteAccount } from './PageDeleteAccount';
@@ -36,7 +37,7 @@ import Head from 'fxa-react/components/Head';
 import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
 import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import MfaGuardPage2faChange from './Page2faChange';
+
 import PageMfaGuardTestWithAuthClient from './PageMfaGuardTest';
 import PageMfaGuardTestWithGql from './PageMfaGuardWithGqlTest';
 
@@ -163,7 +164,7 @@ export const Settings = ({
                 to="/settings/change_password"
                 noThrow
               />
-              <Page2faSetup path="/two_step_authentication" />
+              <MfaGuardedPage2faSetup path="/two_step_authentication" />
               <MfaGuardPage2faChange path="/two_step_authentication/change" />
               <Page2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
             </>
