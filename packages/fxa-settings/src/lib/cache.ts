@@ -277,7 +277,35 @@ export function isInReactExperiment() {
  */
 export class JwtTokenCache {
   /** The following works with React.useSyncExternalStore. */
-  private static state: Record<string, string> = {};
+
+  /** Key where data is held in persistent storage */
+  private static readonly storageKey = 'mfa_token_cache';
+
+  /** Internal state, access is protected by getters / setters below. */
+  private static _state?: Record<string, string>;
+
+  /** Gets the current state with backing in persistent storage */
+  private static get state(): Record<string, string> {
+    if (this._state != null) {
+      return this._state;
+    }
+
+    // Fallback to stored state, if stored state is invalid, then
+    // assume fresh slate, and create new state object
+    this._state = storage.get(this.storageKey);
+    if (this._state == null) {
+      this._state = {};
+    }
+
+    return this._state;
+  }
+
+  /** Writes the current state to persistent storage */
+  private static set state(val: Record<string, string>) {
+    storage.set(this.storageKey, val);
+    this._state = val;
+  }
+
   private static listeners = new Set<() => void>();
   static subscribe(listener: () => void) {
     JwtTokenCache.listeners.add(listener);
