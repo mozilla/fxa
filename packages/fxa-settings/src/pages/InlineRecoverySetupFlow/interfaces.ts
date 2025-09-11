@@ -11,7 +11,7 @@ export type SigninRecoveryLocationState = SigninLocationState & {
   totp: TotpToken;
 };
 
-export interface InlineRecoverySetupFlowProps {
+export interface InlineRecoverySetupProps {
   flowHasPhoneChoice: boolean;
   serviceName: MozServices;
   email: string;

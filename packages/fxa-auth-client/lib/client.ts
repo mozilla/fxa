@@ -1744,13 +1744,11 @@ export default class AuthClient {
     sessionToken: hexstring,
     options: {
       metricsContext?: MetricsContext;
-      skipRecoveryCodes?: boolean;
     },
     headers?: Headers
   ): Promise<{
     qrCodeUrl: string;
     secret: string;
-    recoveryCodes: string[];
   }> {
     return this.sessionPost('/totp/create', sessionToken, options, headers);
   }
@@ -1790,7 +1788,7 @@ export default class AuthClient {
    * @param sessionToken - required, must be a verified session token
    * @param options - Optional request options such as metrics context
    * @param headers - Optional additional headers for the request
-   * @returns A promise resolving to the QR code URL, secret, and optional recovery codes
+   * @returns A promise resolving to the QR code URL and secret
    */
   async startReplaceTotpToken(
     sessionToken: hexstring,
@@ -1801,7 +1799,6 @@ export default class AuthClient {
   ): Promise<{
     qrCodeUrl: string;
     secret: string;
-    recoveryCodes: string[];
   }> {
     return this.sessionPost(
       '/totp/replace/start',
@@ -1842,7 +1839,7 @@ export default class AuthClient {
    * @param jwt - MFA access token (must include the `mfa:2fa` scope)
    * @param options - Optional request options such as metrics context
    * @param headers - Optional additional headers for the request
-   * @returns A promise resolving to the QR code URL, secret, and optional recovery codes
+   * @returns A promise resolving to the QR code URL and secret
    */
   async startReplaceTotpTokenWithJwt(
     jwt: string,
@@ -1853,7 +1850,6 @@ export default class AuthClient {
   ): Promise<{
     qrCodeUrl: string;
     secret: string;
-    recoveryCodes: string[];
   }> {
     return this.jwtPost('/mfa/totp/replace/start', jwt, options, headers);
   }

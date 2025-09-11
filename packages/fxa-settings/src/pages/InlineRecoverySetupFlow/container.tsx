@@ -20,7 +20,7 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
-import InlineRecoverySetupFlow from './index';
+import InlineRecoverySetup from './index';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { SigninRecoveryLocationState } from './interfaces';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
@@ -32,7 +32,7 @@ import { totpUtils } from '../../lib/totp-utils';
 import { getErrorFtlId, getHandledError } from '../../lib/error-utils';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
-export const InlineRecoverySetupFlowContainer = ({
+export const InlineRecoverySetupContainer = ({
   isSignedIn,
   integration,
   serviceName,
@@ -277,7 +277,7 @@ export const InlineRecoverySetupFlowContainer = ({
   }
 
   return (
-    <InlineRecoverySetupFlow
+    <InlineRecoverySetup
       {...{
         flowHasPhoneChoice: account.recoveryPhone.available,
         serviceName,
@@ -302,4 +302,4 @@ export const InlineRecoverySetupFlowContainer = ({
   );
 };
 
-export default InlineRecoverySetupFlowContainer;
+export default InlineRecoverySetupContainer;

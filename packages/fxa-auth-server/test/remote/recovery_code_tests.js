@@ -9,7 +9,7 @@ const config = require('../../config').default.getProperties();
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const otplib = require('otplib');
-const BASE_36 = require('../../lib/routes/validators').BASE_36;
+const random = require('../../lib/crypto/random');
 
 [{ version: '' }, { version: 'V2' }].forEach((testOptions) => {
   describe(`#integration${testOptions.version} - remote backup authentication codes`, function () {
@@ -29,10 +29,23 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
       window: 10,
     };
 
+    async function generateRecoveryCodes() {
+      const recoveryCodes = [];
+      const gen = random.base32(config.totp.recoveryCodes.length);
+      while (recoveryCodes.length < recoveryCodeCount) {
+        const rc = (await gen()).toLowerCase();
+        if (recoveryCodes.indexOf(rc) === -1) {
+          recoveryCodes.push(rc);
+        }
+      }
+      return recoveryCodes;
+    }
+
     before(async () => {
       config.totp.recoveryCodes.count = recoveryCodeCount;
       config.totp.recoveryCodes.notifyLowCount = recoveryCodeCount - 2;
       server = await TestServer.start(config);
+      recoveryCodes = await generateRecoveryCodes();
     });
 
     after(async () => {
@@ -56,42 +69,29 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
             otplib.authenticator.options,
             { secret: result.secret }
           );
-          recoveryCodes = result.recoveryCodes;
-          assert.equal(
-            result.recoveryCodes.length,
-            recoveryCodeCount,
-            'backup authentication codes returned'
-          );
 
-          // Verify TOTP setup and then complete setup so that initial backup authentication codes are generated
           const code = otplib.authenticator.generate();
-          return client
-            .verifyTotpSetupCode(code, { metricsContext })
-            .then((response) => {
-              assert.equal(response.success, true, 'totp setup code valid');
-              return client.completeTotpSetup({ metricsContext });
-            })
-            .then(() => server.mailbox.waitForEmail(email))
-            .then((emailData) => {
-              assert.equal(
-                emailData.headers['x-template-name'],
-                'postAddTwoStepAuthentication'
-              );
-            });
+          return (
+            client
+              .verifyTotpSetupCode(code, { metricsContext })
+              .then((response) => {
+                assert.equal(response.success, true, 'totp setup code valid');
+              })
+              // Recovery codes are configured separately from TOTP setup
+              .then(() => client.setRecoveryCodes(recoveryCodes))
+              .then((response) => {
+                assert.equal(response.success, true, 'recovery codes set');
+              })
+              .then(() => client.completeTotpSetup({ metricsContext }))
+              .then(() => server.mailbox.waitForEmail(email))
+              .then((emailData) => {
+                assert.equal(
+                  emailData.headers['x-template-name'],
+                  'postAddTwoStepAuthentication'
+                );
+              })
+          );
         });
-      });
-    });
-
-    it('should create backup authentication codes', () => {
-      assert.ok(recoveryCodes);
-      assert.equal(
-        recoveryCodes.length,
-        recoveryCodeCount,
-        'backup authentication codes returned'
-      );
-      recoveryCodes.forEach((code) => {
-        assert.equal(code.length > 1, true, 'correct length');
-        assert.equal(BASE_36.test(code), true, 'code is hex');
       });
     });
 
@@ -99,13 +99,13 @@ const BASE_36 = require('../../lib/routes/validators').BASE_36;
       return client
         .replaceRecoveryCodes()
         .then((result) => {
-          assert.ok(
+          assert.equal(
             result.recoveryCodes.length,
             recoveryCodeCount,
             'backup authentication codes returned'
           );
           assert.notDeepEqual(
-            result,
+            result.recoveryCodes,
             recoveryCodes,
             'backup authentication codes should not match'
           );

@@ -60,9 +60,6 @@ module.exports = (
   // Ref: https://github.com/soldair/node-qrcode#error-correction-level
   const qrCodeOptions = { errorCorrectionLevel: 'H' };
 
-  const RECOVERY_CODE_COUNT =
-    (config.recoveryCodes && config.recoveryCodes.count) || 8;
-
   const codeConfig = config.recoveryCodes;
 
   promisify(qrcode.toDataURL);
@@ -278,14 +275,12 @@ module.exports = (
         validate: {
           payload: isA.object({
             metricsContext: METRICS_CONTEXT_SCHEMA,
-            skipRecoveryCodes: isA.boolean().optional(),
           }),
         },
         response: {
           schema: isA.object({
             qrCodeUrl: isA.string().required(),
             secret: isA.string().required(),
-            recoveryCodes: isA.array().items(isA.string()).required(),
           }),
         },
       },
@@ -294,7 +289,6 @@ module.exports = (
 
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
-        const skipRecoveryCodes = request.payload.skipRecoveryCodes;
 
         await customs.checkAuthenticated(
           request,
@@ -361,15 +355,9 @@ module.exports = (
 
         const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
 
-        const recoveryCodes =
-          skipRecoveryCodes !== true
-            ? await db.replaceRecoveryCodes(uid, RECOVERY_CODE_COUNT)
-            : [];
-
         return {
           qrCodeUrl,
           secret,
-          recoveryCodes,
         };
       },
     },
@@ -1070,11 +1058,6 @@ module.exports = (
       },
     },
     {
-      /**
-       * This endpoint explicitly does not modify the recoveryCodes
-       * in the same way that `/totp/create` does. We want to allow
-       * changing the recovery method without changing the backup codes.
-       */
       method: 'POST',
       path: '/totp/replace/start',
       options: {

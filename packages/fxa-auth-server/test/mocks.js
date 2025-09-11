@@ -95,6 +95,7 @@ const DB_METHOD_NAMES = [
   'sessions',
   'sessionToken',
   'setPrimaryEmail',
+  'setRecoveryCodes',
   'touchSessionToken',
   'totpToken',
   'updateDevice',
@@ -694,11 +695,14 @@ function mockDB(data, errors) {
     replaceRecoveryCodes: sinon.spy(() => {
       return Promise.resolve(['12312312', '12312312']);
     }),
+    setRecoveryCodes: sinon.spy(() => {
+      return Promise.resolve({ success: true });
+    }),
     createRecoveryCodes: sinon.spy(() => {
       return Promise.resolve(['12312312', '12312312']);
     }),
     updateRecoveryCodes: sinon.spy(() => {
-      return Promise.resolve({ succes: true });
+      return Promise.resolve({ success: true });
     }),
     createPassword: sinon.spy(() => {
       return Promise.resolve(1584397692000);

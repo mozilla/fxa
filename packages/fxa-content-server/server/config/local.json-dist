@@ -75,8 +75,6 @@
     "sendFxAStatusOnSettings": true,
     "recoveryCodeSetupOnSyncSignIn": true,
     "recoveryPhonePasswordReset2fa": true,
-    "updatedInlineTotpSetupFlow": true,
-    "updatedInlineRecoverySetupFlow": true,
     "showLocaleToggle": true,
     "paymentsNextSubscriptionManagement": true
   },

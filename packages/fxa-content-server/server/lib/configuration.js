@@ -247,24 +247,6 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_RECOVERY_PHONE_PASSWORD_RESET_2FA',
     },
-    updatedInlineTotpSetupFlow: {
-      default: false,
-      doc: 'Enables a redesign of the inline TOTP setup',
-      format: Boolean,
-      env: 'FEATURE_FLAGS_UPDATED_INLINE_TOTP_SETUP_FLOW',
-    },
-    updated2faSetupFlow: {
-      default: false,
-      doc: 'Enables a redesign of the 2fa setup flow from settings with recovery phone option',
-      format: Boolean,
-      env: 'FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW',
-    },
-    updatedInlineRecoverySetupFlow: {
-      default: false,
-      doc: 'Enables a redesign of the 2fa setup flow from settings with recovery phone option',
-      format: Boolean,
-      env: 'FEATURE_FLAGS_UPDATED_INLINE_RECOVERY_SETUP_FLOW',
-    },
     showLocaleToggle: {
       default: false,
       doc: 'Enables the locale toggle in the footer',

@@ -15,7 +15,4 @@ export class CreateTotpInput {
 
   @Field((type) => MetricsContext, { nullable: true })
   public metricsContext!: MetricsContext;
-
-  @Field((type) => Boolean, { nullable: true })
-  public skipRecoveryCodes?: boolean;
 }
