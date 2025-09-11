@@ -8,6 +8,7 @@ third-party-auth-options-or = or
 
 # For the sign-in page, when 3rd-party auth is the only option, this string appears with a divider line between the user's avatar on top and 3rd-party authentication buttons (continue-with-google continue-with-apple buttons) on bottom.
 # This could also be translated as "Sign in with the following" or "Sign in with the below".
+third-party-auth-options-sign-in-with = Sign in with
 
 continue-with-google-button = Continue with { -brand-google }
 continue-with-apple-button = Continue with { -brand-apple }
