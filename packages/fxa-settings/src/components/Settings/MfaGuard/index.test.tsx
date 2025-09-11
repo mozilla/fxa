@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { MfaGuard } from './index';
-import { JwtTokenCache } from '../../../lib/cache';
+import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { AppContext } from '../../../models';
 
@@ -56,9 +56,8 @@ async function submitCode(otp: string = mockOtp) {
 
 describe('MfaGuard', () => {
   beforeEach(() => {
-    if (JwtTokenCache.hasToken(mockSessionToken, mockScope)) {
-      JwtTokenCache.removeToken(mockSessionToken, mockScope);
-    }
+    JwtTokenCache.removeToken(mockSessionToken, mockScope);
+    MfaOtpRequestCache.remove(mockSessionToken, mockScope);
     jest.clearAllMocks();
   });
 
@@ -127,7 +126,7 @@ describe('MfaGuard', () => {
   it('clears error banner on input change', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope}>
+        <MfaGuard requiredScope={mockScope} debounceIntervalMs={0}>
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -149,7 +148,7 @@ describe('MfaGuard', () => {
   it('shows resend success banner and hides error banner on resend success', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope}>
+        <MfaGuard requiredScope={mockScope} debounceIntervalMs={0}>
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -179,7 +178,7 @@ describe('MfaGuard', () => {
   it('shows error banner and hide success banner on resend error', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope}>
+        <MfaGuard requiredScope={mockScope} debounceIntervalMs={0}>
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -209,7 +208,7 @@ describe('MfaGuard', () => {
 
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope}>
+        <MfaGuard requiredScope={mockScope} debounceIntervalMs={0}>
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -219,5 +218,40 @@ describe('MfaGuard', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/settings');
       expect(mockAlertBar.error).toHaveBeenCalledWith('Unexpected error');
     });
+  });
+
+  it('debounces OPT resend requests', async () => {
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <MfaGuard requiredScope={mockScope} debounceIntervalMs={100}>
+          <div>secured</div>
+        </MfaGuard>
+      </AppContext.Provider>
+    );
+    // Should be debounced! The dialog just rendered and a code went out...
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Email new code.' })
+    );
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 101));
+    });
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Email new code.' })
+    );
+    // Should be debounced! The resend request above was just clicked...
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Email new code.' })
+    );
+
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 101));
+    });
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Email new code.' })
+    );
+
+    expect(mockAuthClient.mfaRequestOtp).toHaveBeenCalledTimes(3);
   });
 });

@@ -6,7 +6,6 @@ import React, {
   ReactNode,
   useCallback,
   useEffect,
-  useRef,
   useState,
   useSyncExternalStore,
 } from 'react';
@@ -22,6 +21,7 @@ import {
 import Modal from '../ModalMfaProtected';
 import {
   JwtTokenCache,
+  MfaOtpRequestCache,
   sessionToken as getSessionToken,
 } from '../../../lib/cache';
 import { MfaScope } from '../../../lib/types';
@@ -38,17 +38,15 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 export const MfaGuard = ({
   children,
   requiredScope,
+  debounceIntervalMs = 1000,
 }: {
   children: ReactNode;
   requiredScope: MfaScope;
+  debounceIntervalMs?: number;
 }) => {
   // Let errors be handled by error boundaries in async contexts
   const handleError = useErrorHandler();
-
   const config = useConfig();
-
-  const hasSentConfirmationCode = useRef(false);
-
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
     useState<string | undefined>(undefined);
 
@@ -56,7 +54,6 @@ export const MfaGuard = ({
   const [showResendSuccessBanner, setShowResendSuccessBanner] = useState(false);
 
   const resetStates = useCallback(() => {
-    hasSentConfirmationCode.current = false;
     setLocalizedErrorBannerMessage(undefined);
     setShowResendSuccessBanner(false);
   }, []);
@@ -90,21 +87,31 @@ export const MfaGuard = ({
     throw new Error('Invalid state. Missing jwt cache.');
   }
 
+  const debounce = (limitInMs: number) => {
+    const lastRequest = MfaOtpRequestCache.get(sessionToken, requiredScope);
+    return lastRequest != null && Date.now() - lastRequest < limitInMs;
+  };
+
   // Modal Setup
   useEffect(() => {
     (async () => {
       // To avoid requesting multiple OTPs on mount
-      if (
-        hasSentConfirmationCode.current ||
-        JwtTokenCache.hasToken(sessionToken, requiredScope)
-      ) {
+      if (JwtTokenCache.hasToken(sessionToken, requiredScope)) {
         return;
       }
+
+      // Avoid bombarding the user with emails just because they open
+      // the dialog
+      const limitInMs = config.mfa.otp.expiresInMinutes * 60 * 1000;
+      if (debounce(limitInMs)) {
+        return;
+      }
+
       try {
-        hasSentConfirmationCode.current = true;
+        MfaOtpRequestCache.set(sessionToken, requiredScope);
         await authClient.mfaRequestOtp(sessionToken, requiredScope);
       } catch (err) {
-        hasSentConfirmationCode.current = false;
+        MfaOtpRequestCache.remove(sessionToken, requiredScope);
         if (err.code === 401) {
           handleError(err);
           return;
@@ -123,6 +130,7 @@ export const MfaGuard = ({
     alertBar,
     ftlMsgResolver,
     onDismiss,
+    config.mfa.otp.expiresInMinutes,
   ]);
 
   const onSubmitOtp = async (code: string) => {
@@ -147,12 +155,19 @@ export const MfaGuard = ({
   };
 
   const handleResendCode = async () => {
+    // Stop users from hammering the resend button...
+    if (debounce(debounceIntervalMs)) {
+      return;
+    }
+
     setResendCodeLoading(true);
     try {
+      MfaOtpRequestCache.set(sessionToken, requiredScope);
       await authClient.mfaRequestOtp(sessionToken, requiredScope);
       setLocalizedErrorBannerMessage(undefined);
       setShowResendSuccessBanner(true);
     } catch (err) {
+      MfaOtpRequestCache.remove(sessionToken, requiredScope);
       setShowResendSuccessBanner(false);
       if (err.code === 401) {
         handleError(err);
