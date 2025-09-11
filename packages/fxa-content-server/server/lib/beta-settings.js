@@ -118,9 +118,6 @@ const settingsConfig = {
     recoveryCodeSetupOnSyncSignIn: config.get(
       'featureFlags.recoveryCodeSetupOnSyncSignIn'
     ),
-    recoveryPhonePasswordReset2fa: config.get(
-      'featureFlags.recoveryPhonePasswordReset2fa'
-    ),
     updatedInlineTotpSetupFlow: config.get(
       'featureFlags.updatedInlineTotpSetupFlow'
     ),

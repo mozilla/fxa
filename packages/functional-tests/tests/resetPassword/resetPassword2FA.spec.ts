@@ -313,12 +313,6 @@ test.describe('reset password with recovery phone', () => {
     target.smsClient.guardTestPhoneNumber();
   });
 
-  test.beforeEach(async ({ pages: { configPage } }) => {
-    // Ensure that the feature flag is enabled
-    const config = await configPage.getConfig();
-    test.skip(config.featureFlags.recoveryPhonePasswordReset2fa !== true);
-  });
-
   test('can reset password with 2FA enabled using recovery phone', async ({
     page,
     target,
