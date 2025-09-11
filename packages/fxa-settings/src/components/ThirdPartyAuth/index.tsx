@@ -37,7 +37,7 @@ const ThirdPartyAuth = ({
   viewName = 'unknown',
   deeplink,
   flowQueryParams,
-  separatorTextId
+  separatorTextId,
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
 
@@ -78,7 +78,7 @@ const ThirdPartyAuth = ({
               onSubmit: onContinueWithGoogle,
               buttonText: (
                 <>
-                  <GoogleLogo />
+                  <GoogleLogo className="w-full h-auto" />
                 </>
               ),
               deeplink,
@@ -98,7 +98,7 @@ const ThirdPartyAuth = ({
               onSubmit: onContinueWithApple,
               buttonText: (
                 <>
-                  <AppleLogo />
+                  <AppleLogo className="w-full h-auto" />
                 </>
               ),
               deeplink,

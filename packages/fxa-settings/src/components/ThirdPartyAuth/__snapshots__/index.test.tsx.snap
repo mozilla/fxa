@@ -8,7 +8,9 @@ exports[`ThirdPartyAuthComponent buttons match snapshot: apple 1`] = `
           "
   type="submit"
 >
-  <svg>
+  <svg
+    class="w-full h-auto"
+  >
     apple-logo-viewbox-white.svg
   </svg>
 </button>
@@ -22,7 +24,9 @@ exports[`ThirdPartyAuthComponent buttons match snapshot: google 1`] = `
           "
   type="submit"
 >
-  <svg>
+  <svg
+    class="w-full h-auto"
+  >
     google-logo-viewbox.svg
   </svg>
 </button>
