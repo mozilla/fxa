@@ -15,12 +15,14 @@ import { useForm } from 'react-hook-form';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { getErrorFtlId } from '../../../lib/error-utils';
 import { MfaGuard } from '../MfaGuard';
+import { useErrorHandler } from 'react-error-boundary';
 
 type FormData = {
   verificationCode: string;
 };
 
 export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
+  const errorHandler = useErrorHandler();
   const [errorText, setErrorText] = useState<string>();
   const { handleSubmit, register, formState } = useForm<FormData>({
     mode: 'all',
@@ -65,6 +67,11 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         logViewEvent('verify-secondary-email.verification', 'success');
         alertSuccessAndGoHome(email);
       } catch (e) {
+        if (e && e.code === 401 && e.errno === 110) {
+          // JWT invalid/expired
+          errorHandler(e);
+          return;
+        }
         if (e.errno) {
           const errorText = l10n.getString(
             getErrorFtlId(e),
@@ -84,7 +91,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         logViewEvent('verify-secondary-email.verification', 'fail');
       }
     },
-    [account, alertSuccessAndGoHome, setErrorText, alertBar, l10n]
+    [account, alertSuccessAndGoHome, setErrorText, alertBar, l10n, errorHandler]
   );
 
   useEffect(() => {
