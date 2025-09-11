@@ -1443,7 +1443,7 @@ export class AccountHandler {
           result.invalidDomain = invalidDomain;
         }
         if (this.customs.v2Enabled()) {
-          await this.customs.checkIpOnly(request, 'accountStatusCheckFailed');
+          await this.customs.check(request, email, 'accountStatusCheckFailed');
         }
         return result;
       }
