@@ -38,9 +38,11 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 export const MfaGuard = ({
   children,
   requiredScope,
+  onDismissCallback = async () => {},
 }: {
   children: ReactNode;
   requiredScope: MfaScope;
+  onDismissCallback?: () => Promise<void>;
 }) => {
   // Let errors be handled by error boundaries in async contexts
   const handleError = useErrorHandler();
@@ -76,9 +78,11 @@ export const MfaGuard = ({
   const alertBar = useAlertBar();
 
   const onDismiss = useCallback(() => {
-    resetStates();
-    navigate('/settings');
-  }, [navigate, resetStates]);
+    onDismissCallback().then(() => {
+      resetStates();
+      navigate('/settings');
+    });
+  }, [navigate, resetStates, onDismissCallback]);
 
   // If no session token exists, kick them to sign-in
   if (!sessionToken) {
