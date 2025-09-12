@@ -5,21 +5,23 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MfaErrorBoundary } from './error-boundary';
-import { JwtTokenCache } from '../../../lib/cache';
+import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
 
 const mockScope = 'test';
 const mockSessionToken = 'session-xyz';
 const mockJwt = 'jwt-123';
 
 describe('MfaErrorBoundary', () => {
-  let removeSpy: jest.SpyInstance;
+  let removeJwtSpy: jest.SpyInstance;
+  let removeOtpSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    removeSpy = jest.spyOn(JwtTokenCache, 'removeToken');
+    removeJwtSpy = jest.spyOn(JwtTokenCache, 'removeToken');
+    removeOtpSpy = jest.spyOn(MfaOtpRequestCache, 'remove');
   });
 
   afterEach(() => {
-    removeSpy.mockReset();
+    removeJwtSpy.mockReset();
   });
 
   it('renders children when no error occurs', () => {
@@ -72,6 +74,7 @@ describe('MfaErrorBoundary', () => {
     );
 
     expect(screen.getByText('fallback')).toBeInTheDocument();
-    expect(removeSpy).toHaveBeenCalledWith(mockSessionToken, mockScope);
+    expect(removeJwtSpy).toHaveBeenCalledWith(mockSessionToken, mockScope);
+    expect(removeOtpSpy).toHaveBeenCalledWith(mockSessionToken, mockScope);
   });
 });
