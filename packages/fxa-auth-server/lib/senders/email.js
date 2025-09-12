@@ -283,17 +283,54 @@ module.exports = function (log, config, bounces, statsd) {
     mastercard: 'Mastercard',
     unionpay: 'UnionPay',
     visa: 'Visa',
-    unknown: 'Unknown',
   };
 
   function cardTypeToText(cardType) {
     if (typeof cardType !== 'string') {
       return null;
     }
-    return (
-      CARD_TYPE_TO_TEXT[cardType.toLowerCase()] || CARD_TYPE_TO_TEXT.unknown
-    );
+    return CARD_TYPE_TO_TEXT[cardType.toLowerCase()];
   }
+
+  const PAYMENT_METHOD_PROVIDER = {
+    apple_pay: 'Apple Pay',
+    google_pay: 'Google Pay',
+    link: 'Link',
+    paypal: 'PayPal',
+  };
+
+  const validPaymentProviders = Object.keys(PAYMENT_METHOD_PROVIDER);
+  const validCardTypes = Object.keys(CARD_TYPE_TO_TEXT);
+
+  const getPaymentMethodContent = (paymentProvider, cardType, lastFour) => {
+    if (validPaymentProviders.includes(paymentProvider)) {
+      return {
+        l10nId: 'payment-method-payment-provider',
+        l10nArgs: JSON.stringify({
+          paymentProviderName: PAYMENT_METHOD_PROVIDER[paymentProvider],
+        }),
+        message: `Payment Method: ${PAYMENT_METHOD_PROVIDER[paymentProvider]}`,
+      };
+    } else {
+      if (cardType && lastFour) {
+        if (validCardTypes.includes(cardType)) {
+          const cardName = cardTypeToText(cardType);
+          return {
+            l10nId: 'payment-provider-card-ending-in-card-name',
+            l10nArgs: JSON.stringify({ cardName, lastFour }),
+            message: `Payment method: ${cardName} ending in ${lastFour}`,
+          };
+        } else {
+          return {
+            l10nId: 'payment-provider-card-ending-in',
+            l10nArgs: JSON.stringify({ lastFour }),
+            message: `Payment method: Card ending in ${lastFour}`,
+          };
+        }
+      }
+    }
+    return null;
+  };
 
   function Mailer(mailerConfig, sender) {
     let options = {
@@ -2619,6 +2656,7 @@ module.exports = function (log, config, bounces, statsd) {
         ...links,
         uid,
         email,
+        invoiceAmountDueInCents,
         invoiceAmountDue: this._getLocalizedCurrencyString(
           invoiceAmountDueInCents,
           paymentAmountNewCurrency,
@@ -3158,23 +3196,27 @@ module.exports = function (log, config, bounces, statsd) {
       planId,
       planEmailIconURL,
       productName,
+      creditAppliedInCents,
       invoiceLink,
       invoiceAmountDueInCents,
       invoiceNumber,
       invoiceDate,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      invoiceStartingBalance,
       invoiceSubtotalInCents,
       invoiceDiscountAmountInCents,
       invoiceTaxAmountInCents,
+      offeringPriceInCents,
       cardType,
       lastFour,
       nextInvoiceDate,
       payment_provider,
       paymentProratedInCents,
       paymentProratedCurrency,
-      showPaymentMethod,
+      remainingAmountInCents,
       showTaxAmount,
+      unusedAmountTotalInCents,
       discountType,
       discountDuration,
     } = message;
@@ -3205,6 +3247,13 @@ module.exports = function (log, config, bounces, statsd) {
         message.acceptLanguage
       );
     }
+    const paymentMethodContent = getPaymentMethodContent(
+      payment_provider,
+      cardType,
+      lastFour
+    );
+
+    const knownCard = Object.keys(CARD_TYPE_TO_TEXT).includes(cardType);
 
     return this.send({
       ...message,
@@ -3213,8 +3262,22 @@ module.exports = function (log, config, bounces, statsd) {
       template,
       templateValues: {
         ...links,
+        manageSubscriptionUrl: links.manageSubscriptionUrl,
         uid,
         email,
+        creditApplied: this._getLocalizedCurrencyString(
+          creditAppliedInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        creditAppliedInCents,
+        creditReceived:
+          invoiceTotalInCents < 0 &&
+          this._getLocalizedCurrencyString(
+            -1 * invoiceTotalInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
         invoiceAmountDue: this._getLocalizedCurrencyString(
           invoiceAmountDueInCents,
           invoiceTotalCurrency,
@@ -3224,24 +3287,28 @@ module.exports = function (log, config, bounces, statsd) {
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          invoiceDate
+          invoiceDate,
+          'LL'
         ),
         nextInvoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          nextInvoiceDate
+          nextInvoiceDate,
+          'LL'
         ),
         icon: planEmailIconURL,
         productName,
         invoiceLink,
         invoiceNumber,
         invoiceDate,
+        invoiceStartingBalance,
         invoiceTotalInCents,
         invoiceTotal: this._getLocalizedCurrencyString(
-          Math.abs(invoiceTotalInCents),
+          invoiceTotalInCents,
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        invoiceSubtotalInCents,
         invoiceSubtotal:
           invoiceSubtotalInCents &&
           this._getLocalizedCurrencyString(
@@ -3263,17 +3330,42 @@ module.exports = function (log, config, bounces, statsd) {
             invoiceTotalCurrency,
             message.acceptLanguage
           ),
-        payment_provider,
-        cardType,
-        cardName: cardTypeToText(cardType),
+        cardName: knownCard ? cardTypeToText(cardType) : undefined,
         lastFour,
         nextInvoiceDate,
         paymentProrated,
         showProratedAmount,
-        showPaymentMethod,
         showTaxAmount,
         discountType,
         discountDuration,
+        offeringPrice:
+          offeringPriceInCents &&
+          this._getLocalizedCurrencyString(
+            offeringPriceInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        offeringPriceInCents,
+        paymentMethod: paymentMethodContent && {
+          l10nId: paymentMethodContent.l10nId,
+          l10nArgs: paymentMethodContent.l10nArgs,
+          message: paymentMethodContent.message,
+        },
+        paymentProviderName: validPaymentProviders.includes(payment_provider)
+          ? PAYMENT_METHOD_PROVIDER[payment_provider]
+          : undefined,
+        remainingAmountTotal:
+          remainingAmountInCents &&
+          this._getLocalizedCurrencyString(
+            remainingAmountInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        unusedAmountTotal: this._getLocalizedCurrencyString(
+          unusedAmountTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
       },
     });
   };
@@ -3286,21 +3378,25 @@ module.exports = function (log, config, bounces, statsd) {
       planId,
       planEmailIconURL,
       productName,
+      creditAppliedInCents,
       invoiceAmountDueInCents,
       invoiceNumber,
       invoiceDate,
       invoiceLink,
       invoiceTotalInCents,
       invoiceTotalCurrency,
+      invoiceStartingBalance,
       invoiceSubtotalInCents,
       invoiceDiscountAmountInCents,
       invoiceTaxAmountInCents,
+      offeringPriceInCents,
       payment_provider,
       cardType,
       lastFour,
       nextInvoiceDate,
-      showPaymentMethod,
+      remainingAmountInCents,
       showTaxAmount,
+      unusedAmountTotalInCents,
       discountType,
       discountDuration,
     } = message;
@@ -3320,6 +3416,13 @@ module.exports = function (log, config, bounces, statsd) {
     const template = 'subscriptionFirstInvoice';
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
+    const paymentMethodContent = getPaymentMethodContent(
+      payment_provider,
+      cardType,
+      lastFour
+    );
+    const knownCard = validCardTypes.includes(cardType);
+
     return this.send({
       ...message,
       headers,
@@ -3327,8 +3430,22 @@ module.exports = function (log, config, bounces, statsd) {
       template,
       templateValues: {
         ...links,
+        manageSubscriptionUrl: links.manageSubscriptionUrl,
         uid,
         email,
+        creditApplied: this._getLocalizedCurrencyString(
+          creditAppliedInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
+        creditAppliedInCents,
+        creditReceived:
+          invoiceTotalInCents < 0 &&
+          this._getLocalizedCurrencyString(
+            -1 * invoiceTotalInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
         invoiceAmountDue: this._getLocalizedCurrencyString(
           invoiceAmountDueInCents,
           invoiceTotalCurrency,
@@ -3337,12 +3454,14 @@ module.exports = function (log, config, bounces, statsd) {
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          invoiceDate
+          invoiceDate,
+          'LL'
         ),
         nextInvoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
-          nextInvoiceDate
+          nextInvoiceDate,
+          'LL'
         ),
         icon: planEmailIconURL,
         productName,
@@ -3354,6 +3473,7 @@ module.exports = function (log, config, bounces, statsd) {
           invoiceTotalCurrency,
           message.acceptLanguage
         ),
+        invoiceSubtotalInCents,
         invoiceSubtotal:
           invoiceSubtotalInCents &&
           this._getLocalizedCurrencyString(
@@ -3375,16 +3495,42 @@ module.exports = function (log, config, bounces, statsd) {
             invoiceTotalCurrency,
             message.acceptLanguage
           ),
-        payment_provider,
-        cardType,
-        cardName: cardTypeToText(cardType),
+        invoiceStartingBalance,
+        cardName: knownCard ? cardTypeToText(cardType) : undefined,
+        paymentProviderName: validPaymentProviders.includes(payment_provider)
+          ? PAYMENT_METHOD_PROVIDER[payment_provider]
+          : undefined,
         lastFour,
         nextInvoiceDate,
-        showPaymentMethod,
-        showTaxAmount,
         showProratedAmount: false,
+        showTaxAmount,
         discountType,
         discountDuration,
+        offeringPrice:
+          offeringPriceInCents &&
+          this._getLocalizedCurrencyString(
+            offeringPriceInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        offeringPriceInCents,
+        paymentMethod: paymentMethodContent && {
+          l10nId: paymentMethodContent.l10nId,
+          l10nArgs: paymentMethodContent.l10nArgs,
+          message: paymentMethodContent.message,
+        },
+        remainingAmountTotal:
+          remainingAmountInCents &&
+          this._getLocalizedCurrencyString(
+            remainingAmountInCents,
+            invoiceTotalCurrency,
+            message.acceptLanguage
+          ),
+        unusedAmountTotal: this._getLocalizedCurrencyString(
+          unusedAmountTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
       },
     });
   };
@@ -3809,6 +3955,12 @@ module.exports = function (log, config, bounces, statsd) {
       { ...query, email, uid },
       templateName,
       'cancel-subscription'
+    );
+    links.manageSubscriptionUrl = this._generateUTMLink(
+      this.subscriptionSettingsUrl,
+      { ...query, email, uid },
+      templateName,
+      'manage-subscription'
     );
     links.reactivateSubscriptionUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,

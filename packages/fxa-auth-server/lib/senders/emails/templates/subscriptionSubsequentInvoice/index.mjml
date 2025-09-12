@@ -4,14 +4,13 @@
 
 <%- include ('/partials/icon/index.mjml') %>
 
-
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
       <span data-l10n-id="subscriptionSubsequentInvoice-title">Thank you for being a subscriber!</span>
     </mj-text>
 
-    <mj-text css-class="text-body">
+    <mj-text css-class="text-body-no-bottom-margin">
       <span data-l10n-id="subscriptionSubsequentInvoice-content-received" data-l10n-args="<%= JSON.stringify({productName}) %>">
         We received your latest payment for <%- productName %>.
       </span>
@@ -19,14 +18,13 @@
 
     <%- include ('/partials/subscriptionCharges/index.mjml') %>
     <%- include ('/partials/viewInvoice/index.mjml') %>
-    <%- include ('/partials/paymentProvider/index.mjml') %>
 
-    <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionSubsequentInvoice-content-next-invoice" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">
-        Next Invoice: <%- nextInvoiceDateOnly %>
+    <mj-text align="center" css-class="text-body-top-margin text-body-no-bottom-margin">
+      <span data-l10n-id="subscriptionSubsequentInvoice-content-your-next-invoice" data-l10n-args="<%= JSON.stringify({nextInvoiceDateOnly}) %>">
+        Your next invoice will be issued on <%- nextInvoiceDateOnly %>.
       </span>
     </mj-text>
   </mj-column>
 </mj-section>
 
-<%- include ('/partials/subscriptionSupport/index.mjml') %>
+<%- include ('/partials/subscriptionSupportGetHelp/index.mjml') %>

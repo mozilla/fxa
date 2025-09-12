@@ -1,69 +1,207 @@
-<mj-text css-class="text-body-no-bottom-margin">
-  <span data-l10n-id="subscriptionFirstInvoice-content-invoice-number" data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>">
-    Invoice Number: <b><%- invoiceNumber %></b>
+<mj-text css-class="text-title-table">
+  <span data-l10n-id="subscription-charges-invoice-summary">
+    Invoice Summary
   </span>
 </mj-text>
 
-<% if (showProratedAmount) { %>
-  <mj-text css-class="text-body-no-bottom-margin">
-    <span data-l10n-id="subscriptionSubsequentInvoice-content-plan-change" data-l10n-args="<%= JSON.stringify({paymentProrated}) %>">
-      Plan change: <%- paymentProrated %>
-    </span>
+<mj-text css-class="text-body-no-bottom-margin">
+  <span data-l10n-id="subscription-charges-invoice-number"
+    data-l10n-args="<%= JSON.stringify({invoiceNumber}) %>">
+    <b>Invoice number:</b> <%- invoiceNumber %>
+  </span>
+</mj-text>
+
+<mj-text css-class="text-body-no-bottom-margin">
+  <span data-l10n-id="subscription-charges-invoice-date"
+    data-l10n-args="<%= JSON.stringify({invoiceDateOnly}) %>">
+    <b>Date:</b> <%- invoiceDateOnly %>
+  </span>
+</mj-text>
+
+<%- include ('/partials/paymentProvider/index.mjml') %>
+
+<% if (remainingAmountTotalInCents && offeringPriceInCents !== remainingAmountTotalInCents) { %>
+  <mj-text css-class="text-body-top-margin">
+    <table width="100%">
+      <tr style="line-height: 24px;">
+        <td style="text-align: start;">
+          <span data-l10n-id="subscription-charges-prorated-price">
+            Prorated price
+          </span>
+        </td>
+        <td style="text-align: end;">
+          <span data-l10n-args="<%= JSON.stringify({remainingAmountTotal}) %>">
+            <%- remainingAmountTotal %>
+          </span>
+        </td>
+      </tr>
+    </table>
+  </mj-text>
+<% } else { %>
+  <mj-text css-class="text-body-top-margin">
+    <table width="100%">
+      <tr style="line-height: 24px;">
+        <td style="text-align: start;">
+          <span data-l10n-id="subscription-charges-list-price">
+            List price
+          </span>
+        </td>
+        <td style="text-align: end;">
+          <span data-l10n-args="<%= JSON.stringify({offeringPrice}) %>">
+            <%- offeringPrice %>
+          </span>
+        </td>
+      </tr>
+    </table>
   </mj-text>
 <% } %>
 
-<% if (invoiceSubtotal) { %>
-  <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionFirstInvoiceDiscount-content-subtotal" data-l10n-args="<%= JSON.stringify({invoiceSubtotal}) %>">
-        Subtotal: <%- invoiceSubtotal %>
-      </span>
-    </mj-text>
-<% } %>
+<% if (!!unusedAmountTotalInCents) { %>
+  <mj-text css-class="text-body-table-no-bottom-margin">
+    <table width="100%">
+      <tr style="line-height: 24px; border-top: 1px solid #E0E0E6;">
+        <td style="text-align: start;">
+          <span data-l10n-id="subscription-charges-credit-from-unused-time">
+            Credit from unused time
+          </span>
+        </td>
+        <td style="text-align: end;">
+          <span data-l10n-args="<%= JSON.stringify({unusedAmountTotal}) %>">
+            <%- unusedAmountTotal %>
+          </span>
+        </td>
+      </tr>
+    </table>
+  </mj-text>
 
-<% if (showTaxAmount) { %>
-  <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionCharges-content-tax" data-l10n-args="<%= JSON.stringify({invoiceTaxAmount}) %>">
-        Taxes & fees: <%- invoiceTaxAmount %>
-      </span>
+  <% if (invoiceSubtotalInCents !== invoiceTotalInCents) { %>
+    <mj-text css-class="text-body-table-no-bottom-margin">
+      <table width="100%">
+        <tr style="line-height: 24px; border-top: 1px solid #E0E0E6;">
+          <td style="text-align: start;">
+            <span data-l10n-id="subscription-charges-subtotal">
+              <b>Subtotal</b>
+            </span>
+          </td>
+          <td style="text-align: end;">
+            <span data-l10n-args="<%= JSON.stringify({invoiceSubtotal}) %>">
+              <b><%- invoiceSubtotal %></b>
+            </span>
+          </td>
+        </tr>
+      </table>
     </mj-text>
+  <% } %>
 <% } %>
 
 <% if (discountType && invoiceDiscountAmount) { %>
-    <% if (discountType === 'once') { %>
-    <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionFirstInvoiceDiscount-content-discount-one-time" data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount}) %>">
-        One time Discount: -<%- invoiceDiscountAmount %>
-      </span>
-    </mj-text>
-    <% } %>
-
-    <% if (discountType === 'repeating') { %>
-    <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionFirstInvoiceDiscount-content-discount-repeating" data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount, discountDuration}) %>">
-        <%discountDuration%>-month Discount: -<%- invoiceDiscountAmount %>
-      </span>
-    </mj-text>
-    <% } %>
-
-    <% if (discountType === 'forever') { %>
-    <mj-text css-class="text-body-no-bottom-margin">
-      <span data-l10n-id="subscriptionFirstInvoiceDiscount-content-discount" data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount}) %>">
-        Discount: -<%- invoiceDiscountAmount %>
-      </span>
-    </mj-text>
-    <% } %>
+  <mj-text css-class="text-body-table-no-bottom-margin">
+      <table width="100%">
+        <tr style="line-height: 24px; border-top: 1px solid #E0E0E6;">
+          <td style="text-align: start;">
+            <% if (discountType==='once' ) { %>
+              <span data-l10n-id="subscription-charges-one-time-discount">
+                One-time discount
+              </span>
+            <% } else if (discountType==='repeating' ) { %>
+              <span data-l10n-id="subscription-charges-repeating-discount"
+                data-l10n-args="<%= JSON.stringify({discountDuration}) %>">
+                <%discountDuration%>-month discount
+              </span>
+            <% } else { %>
+              <span data-l10n-id="subscription-charges-discount">
+                Discount
+              </span>
+            <% } %>
+          </td>
+          <td style="text-align: end;">
+            <span data-l10n-args="<%= JSON.stringify({invoiceDiscountAmount})%>">
+              <%- invoiceDiscountAmount %>
+            </span>
+          </td>
+        </tr>
+      </table>
+  </mj-text>
 <% } %>
 
-<mj-text css-class="text-body-no-bottom-margin">
-  <span data-l10n-id="subscriptionFirstInvoice-content-total-due" data-l10n-args="<%= JSON.stringify({invoiceAmountDue, invoiceDateOnly}) %>">
-    Charged <%- invoiceAmountDue %> on <%- invoiceDateOnly %>
-  </span>
+<% if (showTaxAmount) { %>
+  <mj-text css-class="text-body-table-no-bottom-margin">
+    <table width="100%">
+      <tr style="line-height: 24px; border-top: 1px solid #E0E0E6;">
+        <td style="text-align: start;">
+          <span data-l10n-id="subscription-charges-taxes">
+            Taxes & fees
+          </span>
+        </td>
+        <td style="text-align: end;">
+          <span data-l10n-args="<%= JSON.stringify({invoiceTaxAmount}) %>">
+            <%- invoiceTaxAmount %>
+          </span>
+        </td>
+      </tr>
+    </table>
+  </mj-text>
+<% } %>
+
+<% if (invoiceTotalInCents !== invoiceAmountDueInCents) { %>
+  <mj-text css-class="text-body-table-no-bottom-margin">
+    <table width="100%">
+      <tr style="line-height: 24px; border-top: 1px solid grey;">
+        <td style="text-align: start;">
+          <span data-l10n-id="subscription-charges-total">
+            <b>Total</b>
+          </span>
+        </td>
+        <td style="text-align: end;">
+          <span data-l10n-args="<%= JSON.stringify({invoiceTotal}) %>">
+            <b><%- invoiceTotal %></b>
+          </span>
+        </td>
+      </tr>
+    </table>
+  </mj-text>
+<% } %>
+
+<% if (!!creditAppliedInCents && invoiceStartingBalance < 0) { %>
+  <mj-text css-class="text-body-table-no-bottom-margin">
+    <table width="100%">
+      <tr style="line-height: 24px; border-top: 1px solid #E0E0E6;">
+        <td style="text-align: start;">
+          <span data-l10n-id="subscription-charges-credit-applied">
+            Credit applied
+          </span>
+        </td>
+        <td style="text-align: end;">
+          <span data-l10n-args="<%= JSON.stringify({creditApplied}) %>">
+            <%- creditApplied %>
+          </span>
+        </td>
+      </tr>
+    </table>
+  </mj-text>
+<% } %>
+
+<mj-text css-class="text-body">
+  <table width="100%">
+    <tr style="line-height: 24px; border-top: 1px solid grey">
+      <td style="text-align: start; padding: 4px 0;">
+        <span data-l10n-id="subscription-charges-amount-paid">
+          <b>Amount paid</b>
+        </span>
+      </td>
+      <td style="text-align: end; padding: 4px 0; ">
+        <span data-l10n-args="<%= JSON.stringify({invoiceAmountDue}) %>">
+          <b><%- invoiceAmountDue %></b>
+        </span>
+      </td>
+    </tr>
+  </table>
 </mj-text>
 
-<mj-text css-class="text-body-no-bottom-margin">
-  <% if (locals.invoiceTotalInCents < 0) { %>
-    <span data-l10n-id="subscriptionFirstInvoice-content-credit" data-l10n-args="<%= JSON.stringify({invoiceTotal}) %>">
-      You have received an account credit of <%- invoiceTotal %>, which will be applied to your future invoices.
-    </span>
-  <% } %>
-</mj-text>
+<% if (locals.invoiceTotalInCents < 0) { %>
+  <mj-text css-class="text-body">
+    <p data-l10n-id="subscription-charges-credit-received" data-l10n-args="<%= JSON.stringify({creditReceived}) %>">
+      You have received an account credit of <%- creditReceived %>, which will be applied to your future invoices.
+    </p>
+  </mj-text>
+<% } %>
