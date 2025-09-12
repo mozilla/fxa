@@ -1863,7 +1863,6 @@ export default class AuthClient {
    * Requires a valid MFA JWT scoped to the action (e.g. `mfa:2fa`).
    *
    * @param jwt - MFA access token (must include the `mfa:2fa` scope)
-   * @param code - 6-digit authenticator app code to validate the new secret
    * @param headers - Optional additional headers for the request
    * @returns A promise that resolves when the replacement has been accepted
    */
@@ -1875,8 +1874,28 @@ export default class AuthClient {
     return this.jwtPost('/mfa/totp/replace/confirm', jwt, { code }, headers);
   }
 
+  /**
+   * @deprecated Use deleteTotpTokenWithJwt instead
+   *
+   * Disables 2FA Protection on the account.
+   *
+   * @param sessionToken - required, must be a verified session token
+   * @param headers - Optional additional headers for the request
+   * @returns A promise that resolves when the 2FA has been removed
+   */
   async deleteTotpToken(sessionToken: hexstring, headers?: Headers) {
     return this.sessionPost('/totp/destroy', sessionToken, {}, headers);
+  }
+
+  /**
+   * Disables 2FA Protection on the account.
+   *
+   * @param jwt - required, must be a verified session token
+   * @param headers - Optional additional headers for the request
+   * @returns A promise that resolves when the 2FA has been removed
+   */
+  async deleteTotpTokenWithJwt(jwt: string, headers?: Headers) {
+    return this.jwtPost('/mfa/totp/destroy', jwt, {}, headers);
   }
 
   async checkTotpTokenExists(

@@ -220,4 +220,20 @@ describe('MfaGuard', () => {
       expect(mockAlertBar.error).toHaveBeenCalledWith('Unexpected error');
     });
   });
+
+  it('invokes onDismiss when dialog is dismissed', async () => {
+    const mockOnDismiss = jest.fn().mockResolvedValue(undefined);
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <MfaGuard requiredScope={mockScope} onDismissCallback={mockOnDismiss}>
+          <div>secured</div>
+        </MfaGuard>
+      </AppContext.Provider>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(mockOnDismiss).toHaveBeenCalledTimes(1);
+  });
 });
