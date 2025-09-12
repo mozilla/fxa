@@ -4,7 +4,7 @@
 
 import { Component, ReactNode } from 'react';
 import { MfaScope } from '../../../lib/types';
-import { JwtTokenCache } from '../../../lib/cache';
+import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
 
 /**
  * Error Boundary Implementation.
@@ -55,6 +55,10 @@ export class MfaErrorBoundary extends Component<
       });
 
       JwtTokenCache.removeToken(
+        this.props.sessionToken,
+        this.props.requiredScope
+      );
+      MfaOtpRequestCache.remove(
         this.props.sessionToken,
         this.props.requiredScope
       );

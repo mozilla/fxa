@@ -404,3 +404,60 @@ export class JwtNotFoundError extends Error {
     super(message);
   }
 }
+
+/**
+ * Manages OTP request cache
+ *
+ * The main purpose of this cache is to track when we email users
+ * MFA OTP codes. This info can then be used to debounce sends.
+ */
+export class MfaOtpRequestCache {
+  /** Key where data is held in persistent storage */
+  private static readonly storageKey = 'mfa_otp_requests';
+
+  /** Internal state, access is protected by getters / setters below. */
+  private static _state?: Record<string, number>;
+
+  /** Gets the current state with backing in persistent storage */
+  private static get state(): Record<string, number> {
+    if (this._state != null) {
+      return this._state;
+    }
+
+    // Fallback to stored state, if stored state is invalid, then
+    // assume fresh slate, and create new state object
+    this._state = storage.get(this.storageKey);
+    if (this._state == null) {
+      this._state = {};
+    }
+
+    return this._state;
+  }
+
+  private static set state(val: Record<string, number>) {
+    this._state = val;
+    this.store();
+  }
+
+  static getKey(sessionToken: string, scope: MfaScope) {
+    return `${sessionToken}-${scope}`;
+  }
+
+  private static store() {
+    storage.set(this.storageKey, this._state);
+  }
+
+  static set(sessionToken: string, requiredScope: MfaScope) {
+    this.state[this.getKey(sessionToken, requiredScope)] = Date.now();
+    this.store();
+  }
+
+  static remove(sessionToken: string, requiredScope: MfaScope) {
+    delete this.state[this.getKey(sessionToken, requiredScope)];
+    this.store();
+  }
+
+  static get(sessionToken: string, requiredScope: MfaScope) {
+    return this.state[this.getKey(sessionToken, requiredScope)];
+  }
+}
