@@ -97,6 +97,7 @@ describe('mfa', () => {
       // for testing purposes this is sufficient.
       id: SESSION_TOKEN_ID,
       uaBrowser: UA_BROWSER,
+      uid: UID,
     });
 
     Container.set(OtpUtils, otpUtils);

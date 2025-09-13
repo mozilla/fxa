@@ -37,6 +37,7 @@ import { TotpPage } from './settings/totp';
 import { InlineRecoveryKey } from './inlineRecoveryKey';
 import { SignupConfirmedSyncPage } from './signupConfirmedSync';
 import { InlineTotpSetupPage } from './inlineTotpSetup';
+import { MfaGuardPage } from './settings/mfaGuard';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -74,5 +75,6 @@ export function create(page: Page, target: BaseTarget) {
     signupConfirmedSync: new SignupConfirmedSyncPage(page, target),
     termsOfService: new TermsOfService(page, target),
     totp: new TotpPage(page, target),
+    mfaGuard: new MfaGuardPage(page, target),
   };
 }

@@ -47,7 +47,7 @@ test.describe('severity-2 #smoke', () => {
     test(`signs up as v${signupVersion.version} changes password from settings as v${changeVersion.version} for backbone`, async ({
       page,
       target,
-      pages: { settings, changePassword, signup, signin, confirmSignupCode },
+      pages: { settings, changePassword, signup, signin, confirmSignupCode, mfaGuard },
       testAccountTracker,
     }) => {
       const { email, password } = testAccountTracker.generateAccountDetails();
@@ -80,6 +80,10 @@ test.describe('severity-2 #smoke', () => {
       await settings.goto(changeVersion.query);
       await settings.clickChangePassword();
 
+      await mfaGuard.waitForMfaModal();
+      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(email);
+      await mfaGuard.submitConfirmationCode(mfaCode);
+
       await expect(changePassword.changePasswordHeading).toBeVisible();
 
       await changePassword.currentPasswordTextbox.fill(password);
@@ -100,7 +104,7 @@ test.describe('severity-2 #smoke', () => {
     test(`signs up as v${signupVersion.version} changes password from settings as v${changeVersion.version} for react`, async ({
       page,
       target,
-      pages: { settings, changePassword, signin, signup, confirmSignupCode },
+      pages: { settings, changePassword, signin, signup, confirmSignupCode, mfaGuard },
       testAccountTracker,
     }) => {
       const { email, password } = testAccountTracker.generateAccountDetails();
@@ -133,6 +137,10 @@ test.describe('severity-2 #smoke', () => {
       );
       await settings.goto(changeVersion.query);
       await settings.clickChangePassword();
+
+      await mfaGuard.waitForMfaModal();
+      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(email);
+      await mfaGuard.submitConfirmationCode(mfaCode);
 
       await expect(changePassword.changePasswordHeading).toBeVisible();
 

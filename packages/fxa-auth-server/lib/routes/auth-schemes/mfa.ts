@@ -100,6 +100,10 @@ export const strategy = (
         throw AppError.invalidToken('Parent session token not found!');
       }
 
+      if (sessionToken.uid !== decoded.sub) {
+        throw AppError.invalidToken('Parent session token user mismatch!');
+      }
+
       // Check the underlying session
       // Finalize auth
       return h.authenticated({

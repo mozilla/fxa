@@ -18,8 +18,8 @@ import {
   currentAccount,
   getStoredAccountData,
   sessionToken,
+  JwtTokenCache,
 } from '../lib/cache';
-import { JwtTokenCache } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
@@ -586,17 +586,40 @@ export class Account implements AccountData {
   }
 
   async changePassword(oldPassword: string, newPassword: string) {
-    const response = await this.withLoadingStatus(
-      this.authClient.passwordChange(
-        this.primaryEmail.email,
-        oldPassword,
-        newPassword,
-        sessionToken()!,
-        {
-          keys: true,
-        }
-      )
-    );
+    const currentSessionToken = sessionToken()!;
+
+    // Check if we have a JWT for MFA-protected password changes
+    const hasMfaJwt = JwtTokenCache.hasToken(currentSessionToken, 'password');
+
+    let response;
+    if (hasMfaJwt) {
+      // Use the new MFA-protected endpoint
+      const jwt = JwtTokenCache.getToken(currentSessionToken, 'password');
+
+      response = await this.withLoadingStatus(
+        this.authClient.passwordChangeWithJWT(
+          jwt,
+          this.email,
+          oldPassword,
+          newPassword,
+          currentSessionToken,
+          { keys: true }
+        )
+      );
+    } else {
+      // Use the regular password change endpoint
+      response = await this.withLoadingStatus(
+        this.authClient.passwordChange(
+          this.primaryEmail.email,
+          oldPassword,
+          newPassword,
+          currentSessionToken,
+          {
+            keys: true,
+          }
+        )
+      );
+    }
 
     firefox.passwordChanged(
       this.primaryEmail.email,

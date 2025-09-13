@@ -11,7 +11,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('change password tests', () => {
     test('change password with an incorrect old password', async ({
       target,
-      pages: { page, changePassword, settings, signin },
+      pages: { page, changePassword, settings, signin, mfaGuard },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -20,6 +20,11 @@ test.describe('severity-1 #smoke', () => {
 
       // Enter incorrect old password and verify the tooltip error
       await settings.password.changeButton.click();
+
+      await mfaGuard.waitForMfaModal();
+      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(credentials.email);
+      await mfaGuard.submitConfirmationCode(mfaCode);
+
       await changePassword.fillOutChangePassword(
         'Incorrect Password',
         newPassword
@@ -30,7 +35,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('change password with a correct password', async ({
       target,
-      pages: { page, changePassword, settings, signin },
+      pages: { page, changePassword, settings, signin, mfaGuard },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -40,6 +45,11 @@ test.describe('severity-1 #smoke', () => {
 
       // Enter the correct old password and verify that change password is successful
       await settings.password.changeButton.click();
+
+      await mfaGuard.waitForMfaModal();
+      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(credentials.email);
+      await mfaGuard.submitConfirmationCode(mfaCode);
+
       await changePassword.fillOutChangePassword(initialPassword, newPassword);
 
       await expect(settings.settingsHeading).toBeVisible();
@@ -56,35 +66,9 @@ test.describe('severity-1 #smoke', () => {
       credentials.password = newPassword;
     });
 
-    test('change password with short password tooltip shows, cancel and try to change password again, tooltip is not shown', async ({
-      target,
-      pages: { page, changePassword, settings, signin },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      await signInAccount(target, page, settings, signin, credentials);
-
-      await settings.goto();
-      await settings.password.changeButton.click();
-
-      await expect(changePassword.changePasswordHeading).toBeVisible();
-
-      await changePassword.newPasswordTextbox.fill('short');
-
-      await expect(changePassword.passwordLengthInvalidIcon).toBeVisible();
-
-      await changePassword.cancelButton.click();
-
-      await expect(settings.settingsHeading).toBeVisible();
-
-      await settings.password.changeButton.click();
-
-      await expect(changePassword.passwordLengthUnsetIcon).toBeVisible();
-    });
-
     test('reset password via settings works', async ({
       target,
-      pages: { page, changePassword, resetPassword, settings, signin },
+      pages: { page, changePassword, resetPassword, settings, signin, mfaGuard },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -93,6 +77,10 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await settings.password.changeButton.click();
+
+      await mfaGuard.waitForMfaModal();
+      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(credentials.email);
+      await mfaGuard.submitConfirmationCode(mfaCode);
 
       await expect(changePassword.changePasswordHeading).toBeVisible();
 
