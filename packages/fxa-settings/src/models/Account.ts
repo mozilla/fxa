@@ -20,7 +20,6 @@ import {
   sessionToken,
   JwtTokenCache,
 } from '../lib/cache';
-import { JwtTokenCache } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
