@@ -47,7 +47,11 @@ import {
 } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
-import { IntegrationType, RelierCmsInfo } from '../../models';
+import {
+  IntegrationType,
+  OAuthNativeServices,
+  RelierCmsInfo,
+} from '../../models';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import * as SigninUtils from './utils';
@@ -737,6 +741,7 @@ describe('Signin component', () => {
               );
               const integration = createMockSigninOAuthNativeIntegration({
                 isSync: false,
+                service: OAuthNativeServices.Relay,
               });
               render({
                 beginSigninHandler,

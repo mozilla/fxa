@@ -6,6 +6,7 @@ import { ModelDataStore, GenericData } from '../../lib/model-data';
 import {
   OAuthNativeClients,
   OAuthNativeIntegration,
+  OAuthNativeServices,
 } from './oauth-native-integration';
 import { OAuthWebIntegration } from './oauth-web-integration';
 
@@ -27,7 +28,7 @@ describe('OAuthNativeIntegration', function () {
   beforeEach(function () {
     data = new GenericData({
       clientId: OAuthNativeClients.FirefoxIOS,
-      service: 'sync',
+      service: OAuthNativeServices.Sync,
     });
     oauthData = new GenericData({
       scope: 'profile',
@@ -38,7 +39,7 @@ describe('OAuthNativeIntegration', function () {
       isPromptNoneEnabled: true,
       isPromptNoneEnabledClientIds: [],
     });
-    model.data.service = 'sync';
+    model.data.service = OAuthNativeServices.Sync;
     model.data.state = 'aaaa';
     model.data.clientId = '123abc';
   });
@@ -51,7 +52,7 @@ describe('OAuthNativeIntegration', function () {
   describe('isSync', () => {
     it('returns true for Firefox desktop client when service is sync', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = 'sync';
+      model.data.service = OAuthNativeServices.Sync;
       expect(model.isSync()).toBe(true);
     });
 
@@ -77,7 +78,7 @@ describe('OAuthNativeIntegration', function () {
 
     it('returns false for non-Sync services', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = 'relay';
+      model.data.service = OAuthNativeServices.Relay;
       expect(model.isSync()).toBe(false);
     });
   });
@@ -85,13 +86,13 @@ describe('OAuthNativeIntegration', function () {
   describe('isDesktopSync', () => {
     it('returns true when client is Firefox desktop and service is sync', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = 'sync';
+      model.data.service = OAuthNativeServices.Sync;
       expect(model.isDesktopSync()).toBe(true);
     });
 
     it('returns false for non-sync service', () => {
       model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
-      model.data.service = 'relay';
+      model.data.service = OAuthNativeServices.Relay;
       expect(model.isDesktopSync()).toBe(false);
     });
   });
@@ -135,15 +136,96 @@ describe('OAuthNativeIntegration', function () {
     });
   });
 
-  describe('serviceName', () => {
+  describe('getServiceName', () => {
     it('returns "Firefox" for non-sync services', () => {
       model.data.service = 'non-sync-service';
-      expect(model.serviceName).toBe('Firefox');
+      expect(model.getServiceName()).toBe('Firefox');
     });
 
     it('returns Sync service name for sync service', () => {
-      model.data.service = 'sync';
-      expect(model.serviceName).toBe('Firefox Sync');
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.getServiceName()).toBe('Firefox Sync');
+    });
+
+    it('returns Relay service name for relay service', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      expect(model.getServiceName()).toBe('Firefox Relay');
+    });
+
+    it('returns AI Mode service name for aimode service', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.AiMode;
+      expect(model.getServiceName()).toBe('Firefox AI Mode');
+    });
+  });
+
+  describe('isFirefoxClientServiceRelay', () => {
+    it('returns true when service is relay', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      expect(model.isFirefoxClientServiceRelay()).toBe(true);
+    });
+
+    it('returns false when service is sync', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.isFirefoxClientServiceRelay()).toBe(false);
+    });
+
+    it('returns false when service is aimode', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.AiMode;
+      expect(model.isFirefoxClientServiceRelay()).toBe(false);
+    });
+  });
+
+  describe('isFirefoxClientServiceAiMode', () => {
+    it('returns true when service is aimode', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.AiMode;
+      expect(model.isFirefoxClientServiceAiMode()).toBe(true);
+    });
+
+    it('returns false when service is sync', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.isFirefoxClientServiceAiMode()).toBe(false);
+    });
+
+    it('returns false when service is relay', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      expect(model.isFirefoxClientServiceAiMode()).toBe(false);
+    });
+  });
+
+  describe('getWebChannelServices', () => {
+    it('returns relay services when service is relay', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Relay;
+      expect(model.getWebChannelServices()).toEqual({ relay: {} });
+    });
+
+    it('returns aimode services when service is aimode', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.AiMode;
+      expect(model.getWebChannelServices()).toEqual({ aimode: {} });
+    });
+
+    it('returns sync services when service is sync', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      const syncEngines = { offeredEngines: ['tabs'], declinedEngines: [] };
+      expect(model.getWebChannelServices(syncEngines)).toEqual({
+        sync: syncEngines,
+      });
+    });
+
+    it('returns sync services with empty object when no sync engines provided', () => {
+      model.clientInfo = mockClientInfo(OAuthNativeClients.FirefoxDesktop);
+      model.data.service = OAuthNativeServices.Sync;
+      expect(model.getWebChannelServices()).toEqual({ sync: {} });
     });
   });
 });

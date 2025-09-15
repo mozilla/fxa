@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { SyncEngines } from '../../lib/channels/firefox';
 import { Constants } from '../../lib/constants';
 import { ModelDataStore } from '../../lib/model-data';
 import { Integration, IntegrationType } from './integration';
@@ -47,6 +48,7 @@ export enum OAuthNativeClients {
 export enum OAuthNativeServices {
   Sync = 'sync',
   Relay = 'relay',
+  AiMode = 'aimode',
 }
 
 /**
@@ -79,19 +81,31 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
   }
 
   isDesktopSync() {
+    return this.isFirefoxDesktopClient() && this.isDefaultSyncService();
+  }
+
+  private isFirefoxClient() {
+    return this.isFirefoxDesktopClient() || this.isFirefoxMobileClient();
+  }
+
+  // Sync should always provide a `service=sync` parameter for all Fx Desktop versions
+  // and newer mobile versions. We'll default to Sync if it's missing.
+  private isDefaultSyncService() {
     return (
-      this.isFirefoxDesktopClient() &&
-      // Sync oauth desktop should always provide a `service=sync` parameter but
-      // we'll also default to Sync if it's missing.
-      (this.data.service === undefined ||
-        this.data.service === OAuthNativeServices.Sync)
+      this.data.service === undefined ||
+      this.data.service === OAuthNativeServices.Sync
     );
   }
 
   isFirefoxClientServiceRelay() {
     return (
-      (this.isFirefoxDesktopClient() || this.isFirefoxMobileClient()) &&
-      this.data.service === OAuthNativeServices.Relay
+      this.isFirefoxClient() && this.data.service === OAuthNativeServices.Relay
+    );
+  }
+
+  isFirefoxClientServiceAiMode() {
+    return (
+      this.isFirefoxClient() && this.data.service === OAuthNativeServices.AiMode
     );
   }
 
@@ -113,15 +127,34 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
   }
 
   wantsKeys() {
+    // TODO: this will not always be true when working on FXA-12374
     return true;
   }
 
-  // TODO in FXA-10313, check for "Relay" or whatever makes sense at implementation
-  get serviceName() {
-    if (this.data.service === 'sync') {
-      return Constants.RELIER_SYNC_SERVICE_NAME;
-    } else {
-      return 'Firefox';
+  getWebChannelServices(syncEngines?: SyncEngines) {
+    if (this.isFirefoxClientServiceRelay()) {
+      return { relay: {} };
     }
+    if (this.isFirefoxClientServiceAiMode()) {
+      return { aimode: {} };
+    }
+    if (this.isDefaultSyncService()) {
+      return { sync: syncEngines || {} };
+    }
+    return undefined;
+  }
+
+  getServiceName() {
+    if (this.isDefaultSyncService()) {
+      return Constants.RELIER_SYNC_SERVICE_NAME;
+    }
+    if (this.isFirefoxClientServiceRelay()) {
+      return Constants.RELIER_FF_CLIENT_RELAY_SERVICE_NAME;
+    }
+    if (this.isFirefoxClientServiceAiMode()) {
+      return Constants.RELIER_FF_CLIENT_AI_MODE_SERVICE_NAME;
+    }
+    // TODO: handle Thunderbird case better? FXA-10848
+    return 'Firefox';
   }
 }

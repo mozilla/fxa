@@ -12,6 +12,7 @@ import {
   IntegrationData,
   IntegrationType,
   RelierCmsInfo,
+  OAuthNativeServices,
 } from '../../models';
 import {
   MOCK_AUTH_AT,
@@ -32,6 +33,7 @@ import {
   MOCK_KA,
   MOCK_KEY_FETCH_TOKEN_2,
   MOCK_FLOW_ID,
+  mockGetWebChannelServices,
 } from '../mocks';
 import {
   BeginSigninHandler,
@@ -116,6 +118,8 @@ export function createMockSigninWebIntegration({
     data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => false,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiMode: () => false,
+    getWebChannelServices: mockGetWebChannelServices(),
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     getCmsInfo: () => cmsInfo,
@@ -141,6 +145,8 @@ export function createMockSigninOAuthNativeSyncIntegration({
     data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => isSync && !isMobile,
     isFirefoxClientServiceRelay: () => !isSync && !isMobile,
+    isFirefoxClientServiceAiMode: () => false,
+    getWebChannelServices: mockGetWebChannelServices({ isSync }),
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
     getCmsInfo: () => undefined,
@@ -172,6 +178,8 @@ export function createMockSigninOAuthIntegration({
     isDesktopSync: () => isSync,
     data: new IntegrationData(new GenericData({})),
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiMode: () => false,
+    getWebChannelServices: mockGetWebChannelServices({ isSync }),
     getCmsInfo: () => cmsInfo,
     isFirefoxMobileClient: () => false,
   };
@@ -186,6 +194,8 @@ export function createMockSigninOAuthNativeIntegration({
   isSync?: boolean;
   isMobile?: boolean;
 } = {}): SigninOAuthIntegration {
+  const isRelay = service === OAuthNativeServices.Relay;
+  const isAiMode = service === OAuthNativeServices.AiMode;
   return {
     type: IntegrationType.OAuthNative,
     getService: () => service,
@@ -195,7 +205,13 @@ export function createMockSigninOAuthNativeIntegration({
     wantsTwoStepAuthentication: () => false,
     isDesktopSync: () => isSync && !isMobile,
     data: new IntegrationData(new GenericData({})),
-    isFirefoxClientServiceRelay: () => !isSync && !isMobile,
+    isFirefoxClientServiceRelay: () => isRelay,
+    isFirefoxClientServiceAiMode: () => isAiMode,
+    getWebChannelServices: mockGetWebChannelServices({
+      isSync,
+      isRelay,
+      isAiMode,
+    }),
     getClientId: () => MOCK_CLIENT_ID,
     getCmsInfo: () => undefined,
     isFirefoxMobileClient: () => isSync && isMobile,
