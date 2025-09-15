@@ -118,6 +118,7 @@ export const SubscriptionContent = ({
     if (result.ok) {
       setOpenCancellationDialog(true);
       setShowCancel(false);
+      setCheckedState(false);
       setShowCancelActionError(false);
     } else {
       setShowCancelActionError(true);
@@ -463,7 +464,10 @@ export const SubscriptionContent = ({
               <SubmitButton
                 className="h-10 w-full tablet:w-1/2"
                 variant={ButtonVariant.Primary}
-                onClick={() => setShowCancel(false)}
+                onClick={() => {
+                  setCheckedState(false);
+                  setShowCancel(false);
+                }}
                 aria-label={`Stay subscribed to ${productName}`}
                 showLoadingSpinner={false}
               >
@@ -637,7 +641,10 @@ export const SubscriptionContent = ({
                 <SubmitButton
                   className="h-10"
                   variant={ButtonVariant.Secondary}
-                  onClick={() => setShowCancel(true)}
+                  onClick={() => {
+                    setCheckedState(false);
+                    setShowCancel(true);
+                  }}
                   aria-label={`Cancel your subscription for ${productName}`}
                 >
                   Cancel
