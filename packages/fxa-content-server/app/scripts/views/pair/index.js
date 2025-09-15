@@ -134,6 +134,7 @@ class PairIndexView extends FormView {
     if (
       this.cmsConfig &&
       this.cmsConfig.shared &&
+      this.cmsConfig.shared.backgrounds &&
       this.cmsConfig.shared.backgrounds.defaultLayout
     ) {
       // Not ideal, but the pairing page will be going away
@@ -169,6 +170,7 @@ class PairIndexView extends FormView {
     if (
       this.cmsConfig &&
       this.cmsConfig.shared &&
+      this.cmsConfig.shared.backgrounds &&
       this.cmsConfig.shared.backgrounds.defaultLayout
     ) {
       const textColorClass = getTextColorClassName(
