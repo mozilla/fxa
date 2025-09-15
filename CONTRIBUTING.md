@@ -14,20 +14,9 @@ problem, thank you for your help and please read below for guidelines.
 
 If you want to write code, and you are not an experienced programmer you will
 probably be more successful [looking for other projects at
-Mozilla](https://whatcanidoformozilla.org) to contribute to. The Firefox
+Mozilla](https://codetribute.mozilla.org/) to contribute to. The Firefox
 Accounts team is happy to support open source contributions but we have limited
 time to assist in getting the FxA codebase up and running on other platforms.
-
-We use the standard `help wanted` and `good first issue` labels on GitHub to
-help identify bugs for contributors to work on.
-
-To get in touch with us and other community members:
-
-- Matrix: [#fxa:mozilla.org](https://chat.mozilla.org/#/room/#fxa:mozilla.org)
-- Mailing list: <https://mail.mozilla.org/listinfo/dev-fxacct>
-- and of course, [the issues list](https://github.com/mozilla/fxa/issues)
-
-UPDATE: On March 2020, Mozilla moved from IRC to Matrix. For more information on Matrix, check out the following wiki article: <https://wiki.mozilla.org/Matrix>.
 
 ## Code of Conduct
 
