@@ -15,6 +15,7 @@ import {
   useAccount,
   useAlertBar,
   useAuthClient,
+  useConfig,
   useFtlMsgResolver,
 } from '../../../models';
 import Modal from '../ModalMfaProtected';
@@ -74,9 +75,11 @@ export const MfaGuard = ({
   const alertBar = useAlertBar();
 
   const onDismiss = useCallback(() => {
-    resetStates();
-    navigate('/settings');
-  }, [navigate, resetStates]);
+    onDismissCallback().then(() => {
+      resetStates();
+      navigate('/settings');
+    });
+  }, [navigate, resetStates, onDismissCallback]);
 
   // If no session token exists, kick them to sign-in
   if (!sessionToken) {
