@@ -22,7 +22,7 @@ export type ThirdPartyAuthProps = {
   viewName?: string;
   deeplink?: string;
   flowQueryParams?: QueryParams;
-  separatorTextId?: string;
+  separatorType?: 'or' | 'signInWith';
 };
 
 /**
@@ -37,7 +37,7 @@ const ThirdPartyAuth = ({
   viewName = 'unknown',
   deeplink,
   flowQueryParams,
-  separatorTextId,
+  separatorType = 'or',
 }: ThirdPartyAuthProps) => {
   const config = useConfig();
 
@@ -55,11 +55,21 @@ const ThirdPartyAuth = ({
           <>
             <div className="text-sm flex items-center justify-center my-6">
               <div className="flex-1 h-px bg-grey-300 divide-x"></div>
-              <FtlMsg id={separatorTextId || 'third-party-auth-options-or'}>
-                <div className="mx-4 text-base text-grey-300 font-extralight">
-                  or
-                </div>
-              </FtlMsg>
+              {(() => {
+                const id =
+                  separatorType === 'signInWith'
+                    ? 'third-party-auth-options-sign-in-with'
+                    : 'third-party-auth-options-or';
+                const defaultText =
+                  separatorType === 'signInWith' ? 'Sign in with' : 'or';
+                return (
+                  <FtlMsg id={id}>
+                    <div className="mx-4 text-base text-grey-300 font-extralight">
+                      {defaultText}
+                    </div>
+                  </FtlMsg>
+                );
+              })()}
               <div className="flex-1 h-px bg-grey-300 divide-x"></div>
             </div>
           </>

@@ -509,11 +509,7 @@ const Signin = ({
       {!hideThirdPartyAuth && (
         <ThirdPartyAuth
           showSeparator={true}
-          separatorTextId={
-            hasLinkedAccountAndNoPassword
-              ? 'third-party-auth-options-sign-in-with'
-              : undefined
-          }
+          separatorType={hasLinkedAccountAndNoPassword ? 'signInWith' : undefined}
           {...{ viewName, flowQueryParams }}
         />
       )}
