@@ -17,13 +17,11 @@ jest.mock('../../../models', () => ({
   __esModule: true,
   useAuthClient: () => ({
     checkTotpTokenCodeWithPasswordForgotToken: mockCheckTotp,
-    recoveryPhoneGetWithPasswordForgotToken: mockRecoveryPhoneGetWithPasswordForgotToken,
+    recoveryPhoneGetWithPasswordForgotToken:
+      mockRecoveryPhoneGetWithPasswordForgotToken,
   }),
   useFtlMsgResolver: () => ({
     getMsg: (_id: string, fallback: string) => fallback,
-  }),
-  useConfig: () => ({
-    featureFlags: { recoveryPhonePasswordReset2fa: true },
   }),
 }));
 
@@ -77,7 +75,9 @@ describe('ConfirmTotpResetPasswordContainer', () => {
 
   it('calls authClient then navigates on success', async () => {
     mockCheckTotp.mockResolvedValueOnce({ success: true });
-    mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({ exists: false });
+    mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({
+      exists: false,
+    });
 
     await renderComponent();
 
@@ -102,7 +102,9 @@ describe('ConfirmTotpResetPasswordContainer', () => {
 
   it('sets localized error message when authClient returns success: false', async () => {
     mockCheckTotp.mockResolvedValueOnce({ success: false });
-    mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({ exists: false });
+    mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({
+      exists: false,
+    });
 
     await renderComponent();
 
@@ -115,7 +117,9 @@ describe('ConfirmTotpResetPasswordContainer', () => {
 
   it('forwards location.state when onTroubleWithCode is invoked', async () => {
     mockCheckTotp.mockResolvedValueOnce({ success: true });
-    mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({ exists: true });
+    mockRecoveryPhoneGetWithPasswordForgotToken.mockResolvedValueOnce({
+      exists: true,
+    });
 
     await renderComponent();
 

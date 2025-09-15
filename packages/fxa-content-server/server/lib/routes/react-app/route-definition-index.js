@@ -55,9 +55,6 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN = config.get(
     'featureFlags.recoveryCodeSetupOnSyncSignIn'
   );
-  const FEATURE_FLAGS_RECOVERY_PHONE_PASSWORD_RESET_2FA = config.get(
-    'featureFlags.recoveryPhonePasswordReset2fa'
-  );
   const FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW = config.get(
     'featureFlags.updated2faSetupFlow'
   );
@@ -129,8 +126,6 @@ function getIndexRouteDefinition(config) {
       sendFxAStatusOnSettings: FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS,
       recoveryCodeSetupOnSyncSignIn:
         FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
-      recoveryPhonePasswordReset2fa:
-        FEATURE_FLAGS_RECOVERY_PHONE_PASSWORD_RESET_2FA,
       updated2faSetupFlow: FEATURE_FLAGS_UPDATED_2FA_SETUP_FLOW,
       updatedInlineRecoverySetupFlow:
         FEATURE_FLAGS_UPDATED_INLINE_RECOVERY_SETUP_FLOW,

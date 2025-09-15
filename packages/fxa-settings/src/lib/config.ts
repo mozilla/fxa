@@ -48,7 +48,7 @@ export interface Config {
     };
     paymentsNext: {
       url: string;
-    }
+    };
   };
   oauth: {
     clientId: string;
@@ -100,7 +100,6 @@ export interface Config {
   featureFlags?: {
     keyStretchV2?: boolean;
     recoveryCodeSetupOnSyncSignIn?: boolean;
-    recoveryPhonePasswordReset2fa?: boolean;
     updatedInlineTotpSetupFlow?: boolean;
     updated2faSetupFlow?: boolean;
     updatedInlineRecoverySetupFlow?: boolean;
@@ -151,8 +150,8 @@ export function getDefault() {
         url: '',
       },
       paymentsNext: {
-        url: ''
-      }
+        url: '',
+      },
     },
     oauth: {
       clientId: '',
@@ -196,7 +195,6 @@ export function getDefault() {
     },
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,
-      recoveryPhonePasswordReset2fa: false,
       updatedInlineTotpSetupFlow: false,
       updated2faSetupFlow: false,
       updatedInlineRecoverySetupFlow: false,
