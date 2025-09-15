@@ -6,7 +6,7 @@ import React, { useCallback, useMemo } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { useFtlMsgResolver } from '../../models';
 import AppLayout from '../../components/AppLayout';
-import { InlineRecoverySetupFlowProps } from './interfaces';
+import { InlineRecoverySetupProps } from './interfaces';
 import {
   GleanClickEventType2FA,
   RecoveryPhoneSetupReason,
@@ -19,7 +19,7 @@ import FlowSetupRecoveryPhoneConfirmCode from '../../components/Settings/FlowSet
 import FlowSetup2faComplete from '../../components/Settings/FlowSetup2faComplete';
 import { CHOICES } from '../../components/FormChoice';
 
-const InlineRecoverySetupFlow = ({
+const InlineRecoverySetup = ({
   flowHasPhoneChoice,
   serviceName,
   email,
@@ -38,7 +38,7 @@ const InlineRecoverySetupFlow = ({
   verifySmsCode,
   completeBackupCodeSetup,
   successfulSetupHandler,
-}: InlineRecoverySetupFlowProps & RouteComponentProps) => {
+}: InlineRecoverySetupProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'page-2fa-setup-title',
@@ -217,4 +217,4 @@ const InlineRecoverySetupFlow = ({
   return <AppLayout wrapInCard={false}>{steps[currentStep - 1]()}</AppLayout>;
 };
 
-export default InlineRecoverySetupFlow;
+export default InlineRecoverySetup;

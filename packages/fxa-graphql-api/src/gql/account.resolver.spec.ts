@@ -273,7 +273,6 @@ describe('#integration - AccountResolver', () => {
       it('succeeds', async () => {
         authClient.createTotpToken = jest.fn().mockResolvedValue({
           qrCodeUrl: 'testurl',
-          recoveryCodes: ['test1', 'test2'],
           secret: 'secretData',
         });
         const result = await resolver.createTotp('token', headers, {
@@ -283,7 +282,6 @@ describe('#integration - AccountResolver', () => {
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
           qrCodeUrl: 'testurl',
-          recoveryCodes: ['test1', 'test2'],
           secret: 'secretData',
         });
       });

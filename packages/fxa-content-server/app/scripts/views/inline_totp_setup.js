@@ -49,7 +49,6 @@ var View = FormView.extend({
     const account = this.getSignedInAccount();
     return account.createTotpToken().then((result) => {
       this._totpToken = result;
-      this._recoveryCodes = result.recoveryCodes;
       this.model.set('secret', this._getFormattedCode(result.secret));
       return this._totpToken;
     });

@@ -74,8 +74,6 @@
   "featureFlags": {
     "sendFxAStatusOnSettings": true,
     "recoveryCodeSetupOnSyncSignIn": true,
-    "updatedInlineTotpSetupFlow": true,
-    "updatedInlineRecoverySetupFlow": true,
     "showLocaleToggle": true,
     "paymentsNextSubscriptionManagement": true
   },

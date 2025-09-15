@@ -118,13 +118,6 @@ const settingsConfig = {
     recoveryCodeSetupOnSyncSignIn: config.get(
       'featureFlags.recoveryCodeSetupOnSyncSignIn'
     ),
-    updatedInlineTotpSetupFlow: config.get(
-      'featureFlags.updatedInlineTotpSetupFlow'
-    ),
-    updated2faSetupFlow: config.get('featureFlags.updated2faSetupFlow'),
-    updatedInlineRecoverySetupFlow: config.get(
-      'featureFlags.updatedInlineRecoverySetupFlow'
-    ),
     showLocaleToggle: config.get('featureFlags.showLocaleToggle'),
     paymentsNextSubscriptionManagement: config.get(
       'featureFlags.paymentsNextSubscriptionManagement'
