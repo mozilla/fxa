@@ -93,18 +93,25 @@ export type FxALoginRequest = {
   keyFetchToken?: hexstring;
   unwrapBKey?: string;
   verifiedCanLinkAccount?: boolean;
-  services?:
-    | {
-        sync: {
-          offeredEngines?: string[];
-          declinedEngines?: string[];
-        };
-      }
-    // For sync optional flows (currently only Relay)
-    | {
-        relay: {};
-      };
+  services?: WebChannelServices;
 };
+
+export type SyncEngines = {
+  offeredEngines?: string[];
+  declinedEngines?: string[];
+};
+
+export type WebChannelServices =
+  | {
+      sync: SyncEngines;
+    }
+  // For sync optional flows (currently Relay and AiMode)
+  | {
+      relay: {};
+    }
+  | {
+      aimode: {};
+    };
 
 // ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
 export type FxALoginSignedInUserRequest = FxALoginRequest & {

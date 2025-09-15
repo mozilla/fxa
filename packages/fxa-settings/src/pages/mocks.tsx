@@ -5,6 +5,7 @@
 import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 
 import { MozServices } from '../lib/types';
+import { SyncEngines, WebChannelServices } from '../lib/channels/firefox';
 import { MOCK_ACCOUNT } from '../models/mocks';
 import { Integration, IntegrationType } from '../models';
 import PLACEHOLDER_IMAGE_URL from './cat.jpg';
@@ -192,3 +193,26 @@ export const createMockIntegrationWithCms = () =>
       validate: () => {},
     },
   }) as Integration;
+
+export function mockGetWebChannelServices({
+  isSync = false,
+  isRelay = false,
+  isAiMode = false,
+}: {
+  isSync?: boolean;
+  isRelay?: boolean;
+  isAiMode?: boolean;
+} = {}) {
+  return (syncEngines?: SyncEngines): WebChannelServices | undefined => {
+    if (isRelay) {
+      return { relay: {} };
+    }
+    if (isAiMode) {
+      return { aimode: {} };
+    }
+    if (isSync) {
+      return { sync: syncEngines || {} };
+    }
+    return undefined;
+  };
+}
