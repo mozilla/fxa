@@ -37,6 +37,9 @@ describe('mfa', () => {
       actions: ['test'],
       otp: {
         digits: 6,
+        // Code would be valid for 30 seconds
+        step: 1,
+        window: 30,
       },
       jwt: {
         secretKey: 'foxes',

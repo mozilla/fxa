@@ -75,13 +75,20 @@ class MfaHandler {
       const options = this.config.mfa.otp;
       const code = await this.otpUtils.generateOtpCode(secret, options);
 
+      // Convert seconds to minutes. The step is a time interval in seconds, and
+      // the window is the the number of intervals the code is valid for.
+      // For example if the step is 1 second, and the interval is 30, the code
+      // is valid for 30s.
+      // For specifics see: https://www.npmjs.com/package/otplib
+      const expirationTime = (options.step * options.window) / 60;
+
       await this.mailer.sendVerifyAccountChangeEmail(
         account.emails?.map((x) => x.email) || [account.email],
         account,
         {
           code,
           uid,
-          expirationTime: this.config.mfa.otp.window || 5,
+          expirationTime,
         }
       );
 
