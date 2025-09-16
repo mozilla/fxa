@@ -101,6 +101,8 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.alertBar).toHaveText('Recovery phone added');
 
       await settings.totp.removeRecoveryPhoneButton.click();
+      await settings.confirmMfaGuard(credentials.email);
+
       await page.waitForURL(/recovery_phone\/remove/);
       await page.getByRole('button', { name: 'Remove phone number' }).click();
 

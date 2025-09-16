@@ -15,6 +15,7 @@ import FlowContainer from '../FlowContainer';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { MfaGuard } from '../MfaGuard';
 
 // TODO, update this link with #section-heading once the SUMO article is updated (FXA-10918)
 const sumoTwoStepLink = (
@@ -26,7 +27,7 @@ const sumoTwoStepLink = (
   </LinkExternal>
 );
 
-const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
+export const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();
   const alertBar = useAlertBar();
@@ -140,4 +141,10 @@ const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   );
 };
 
-export default PageRecoveryPhoneRemove;
+export const PageMfaGuardRecoveryPhoneRemove = (props: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="2fa">
+      <PageRecoveryPhoneRemove {...props} />
+    </MfaGuard>
+  );
+};

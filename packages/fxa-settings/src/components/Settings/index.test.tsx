@@ -346,6 +346,11 @@ describe('Settings App', () => {
         route: '/emails/verify',
         hasPassword: false,
       },
+      {
+        pageName: 'PageRecoveryPhoneRemove',
+        route: '/recovery_phone/remove',
+        hasPassword: true,
+      },
     ];
 
     it.each(guardedRoutes)(

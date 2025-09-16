@@ -1468,8 +1468,9 @@ export class Account implements AccountData {
   }
 
   async removeRecoveryPhone() {
+    const jwt = this.getCachedJwtByScope('2fa');
     const result = await this.withLoadingStatus(
-      this.authClient.recoveryPhoneDelete(sessionToken()!)
+      this.authClient.recoveryPhoneDeleteWithJwt(jwt)
     );
     return result;
   }
