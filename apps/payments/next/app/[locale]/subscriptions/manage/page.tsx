@@ -547,12 +547,20 @@ export default async function Manage({
                         </p>
                         {nextBillDate && (
                           <p>
-                            {l10n.getString(
+                            {l10n.getFragmentWithSource(
                               'subscription-management-iap-sub-will-expire-on',
                               {
-                                date: nextBillDate,
+                                vars: {
+                                  date: nextBillDate,
+                                },
+                                elems: {
+                                  strong: <strong />
+                                },
                               },
-                              `Your subscription will expire on ${nextBillDate}`
+                              <>
+                                Your subscription will expire on <strong>${nextBillDate}</strong>
+                              </>
+
                             )}
                           </p>
                         )}
@@ -656,19 +664,33 @@ export default async function Manage({
                       <p>
                         {!!purchase.expiryTimeMillis &&
                           (purchase.autoRenewing
-                            ? l10n.getString(
+                            ? l10n.getFragmentWithSource(
                                 'subscription-management-iap-sub-next-bill-is-due',
                                 {
-                                  date: nextBillDate,
+                                  vars: {
+                                    date: nextBillDate,
+                                  },
+                                  elems: {
+                                    strong: <strong />
+                                  },
                                 },
-                                `Next bill is due ${nextBillDate}`
+                                <>
+                                  Next bill is due <strong>{nextBillDate}</strong>
+                                </>
                               )
-                            : l10n.getString(
+                            : l10n.getFragmentWithSource(
                                 'subscription-management-iap-sub-will-expire-on',
                                 {
-                                  date: nextBillDate,
+                                  vars: {
+                                    date: nextBillDate,
+                                  },
+                                  elems: {
+                                    strong: <strong />
+                                  },
                                 },
-                                `Your subscription will expire on ${nextBillDate}`
+                                <>
+                                  Your subscription will expire on <strong>{nextBillDate}</strong>
+                                </>
                               ))}
                       </p>
                     </div>
