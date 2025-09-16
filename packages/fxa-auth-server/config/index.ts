@@ -2515,13 +2515,16 @@ const convictConf = convict({
         env: 'MFA__OTP__EPOCH',
       },
       step: {
+        // The time interval to use. In this case 1 second
         default: 1,
         doc: 'Overrides step otp options',
         format: Number,
         env: 'MFA__OTP__STEP',
       },
       window: {
-        default: 60 * 5,
+        // Number of steps contained in the window. In this case
+        // 5 minutes worth of steps
+        default: 5 * 60,
         doc: 'Overrides window otp options',
         format: Number,
         env: 'MFA__OTP__WINDOW',
