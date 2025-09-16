@@ -16,6 +16,7 @@ import { AuthUiErrorNos } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { getErrorFtlId } from '../../../lib/error-utils';
 import { MfaGuard } from '../MfaGuard';
 import { useErrorHandler } from 'react-error-boundary';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');
@@ -95,6 +96,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   return (
     <Localized id="add-secondary-email-page-title" attrs={{ title: true }}>
       <FlowContainer title="Secondary email" subtitle={subtitleText}>
+        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <form
           onSubmit={(ev) => {
             ev.preventDefault();
