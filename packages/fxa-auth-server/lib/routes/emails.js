@@ -299,7 +299,7 @@ module.exports = (
     },
   };
 
-  return [
+  const routes = [
     {
       method: 'GET',
       path: '/recovery_email/status',
@@ -862,6 +862,35 @@ module.exports = (
     },
     {
       method: 'POST',
+      path: '/mfa/recovery_email/destroy',
+      options: {
+        ...EMAILS_DOCS.MFA_RECOVERY_EMAIL_DESTROY_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:email'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            email: validators
+              .email()
+              .required()
+              .description(DESCRIPTION.emailDelete),
+          }),
+        },
+        response: {},
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (r) =>
+              r.path === '/v1/recovery_email/destroy' && r.method === 'POST'
+          )
+          .handler(request);
+      },
+    },
+    {
+      method: 'POST',
       path: '/recovery_email/set_primary',
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_SET_PRIMARY_POST,
@@ -1152,6 +1181,8 @@ module.exports = (
       },
     },
   ];
+
+  return routes;
 };
 
 // Exported for testing purposes.
