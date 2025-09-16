@@ -238,6 +238,24 @@ const init = async () => {
     return 0;
   }
 
+  (() => {
+    let deathInProgress = false;
+    const bail = async (signal) => {
+      if (deathInProgress) return;
+      deathInProgress = true;
+      console.error(`Received ${signal}, shutting down...?`);
+
+      // flush buffers if we can
+      await Promise.allSettled([
+        new Promise((resolve) => process.stdout.write('', resolve)),
+        new Promise((resolve) => process.stderr.write('', resolve)),
+      ]);
+    };
+
+    process.once('SIGTERM', async () => await bail('SIGTERM'));
+    process.once('SIGINT', async () => await bail('SIGINT'));
+  })();
+
   const debugLog = (message: string) => {
     if (!program.debug) return;
     console.log(message);
