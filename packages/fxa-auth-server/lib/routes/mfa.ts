@@ -8,7 +8,7 @@ import { StatsD } from 'hot-shots';
 import * as jwt from 'jsonwebtoken';
 import * as uuid from 'uuid';
 import { SecurityEvent } from 'fxa-shared/db/models/auth/security-event';
-import { Account } from 'fxa-shared/db/models/auth';
+import { Account, Email } from 'fxa-shared/db/models/auth';
 import { AuthRequest, SessionTokenAuthCredential } from '../types';
 import { recordSecurityEvent } from './utils/security-event';
 import { ConfigType } from '../../config';
@@ -29,7 +29,7 @@ interface Customs {
 /** Mailer interface for mfa specific operations  */
 interface Mailer {
   sendVerifyAccountChangeEmail(
-    emails: string[],
+    emails: Email[] | undefined,
     account: Account,
     emailOptions: {
       uid: string;
@@ -82,15 +82,11 @@ class MfaHandler {
       // For specifics see: https://www.npmjs.com/package/otplib
       const expirationTime = (options.step * options.window) / 60;
 
-      await this.mailer.sendVerifyAccountChangeEmail(
-        account.emails?.map((x) => x.email) || [account.email],
-        account,
-        {
-          code,
-          uid,
-          expirationTime,
-        }
-      );
+      await this.mailer.sendVerifyAccountChangeEmail(account.emails, account, {
+        code,
+        uid,
+        expirationTime,
+      });
 
       success = true;
     } catch (error) {
