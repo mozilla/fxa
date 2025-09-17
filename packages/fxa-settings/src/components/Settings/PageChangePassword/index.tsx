@@ -21,6 +21,7 @@ import {
   getErrorFtlId,
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 type FormData = {
   oldPassword: string;
@@ -57,12 +58,20 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
     useState<string>();
   const [newPasswordErrorText, setNewPasswordErrorText] = useState<string>();
 
+  const goHome = useCallback(
+    () =>
+      navigateWithQuery(SETTINGS_PATH + '#password', {
+        replace: true,
+      }),
+    [navigateWithQuery]
+  );
+
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
       ftlMsgResolver.getMsg('pw-change-success-alert-2', 'Password updated')
     );
-    navigateWithQuery(SETTINGS_PATH + '#password', { replace: true });
-  }, [alertBar, ftlMsgResolver, navigateWithQuery]);
+    goHome();
+  }, [alertBar, ftlMsgResolver, goHome]);
 
   const onFormSubmit = useCallback(
     async ({ oldPassword, newPassword }: FormData) => {
@@ -102,6 +111,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   return (
     <Localized id="pw-change-header" attrs={{ title: true }}>
       <FlowContainer title="Change password">
+        <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         <FormPassword
           {...{
             formState,
