@@ -1782,17 +1782,7 @@ export default class AuthClient {
     );
   }
 
-  /**
-   * @deprecated Use startReplaceTotpTokenWithJwt instead
-   * Initiates the TOTP replacement flow using a session token
-   * and returns data to complete the replace flow (QR code URL and shared secret).
-   *
-   * @param sessionToken - required, must be a verified session token
-   * @param options - Optional request options such as metrics context
-   * @param headers - Optional additional headers for the request
-   * @returns A promise resolving to the QR code URL, secret, and optional recovery codes
-   */
-  async startReplaceTotpToken(
+  async replaceTotpToken(
     sessionToken: hexstring,
     options: {
       metricsContext?: MetricsContext;
@@ -1811,16 +1801,6 @@ export default class AuthClient {
     );
   }
 
-  /**
-   * @deprecated Use confirmReplaceTotpTokenWithJwt instead
-   * Confirms TOTP replacement by verifying the code for the in-progress secret.
-   * Requires a verified session token.
-   *
-   * @param sessionToken - required, must be a verified session token
-   * @param code - 6-digit authenticator app code to validate the new secret
-   * @param headers - Optional additional headers for the request
-   * @returns A promise that resolves when the replacement has been accepted
-   */
   async confirmReplaceTotpToken(
     sessionToken: hexstring,
     code: string,
@@ -1832,47 +1812,6 @@ export default class AuthClient {
       { code },
       headers
     );
-  }
-
-  /**
-   * Initiates the TOTP replacement flow using an MFA JWT.
-   * Requires a JWT with scope `mfa:2fa` and returns data to
-   * complete the replace flow (QR code URL and shared secret).
-   *
-   * @param jwt - MFA access token (must include the `mfa:2fa` scope)
-   * @param options - Optional request options such as metrics context
-   * @param headers - Optional additional headers for the request
-   * @returns A promise resolving to the QR code URL, secret, and optional recovery codes
-   */
-  async startReplaceTotpTokenWithJwt(
-    jwt: string,
-    options: {
-      metricsContext?: MetricsContext;
-    } = {},
-    headers?: Headers
-  ): Promise<{
-    qrCodeUrl: string;
-    secret: string;
-    recoveryCodes: string[];
-  }> {
-    return this.jwtPost('/mfa/totp/replace/start', jwt, options, headers);
-  }
-
-  /**
-   * Confirms TOTP replacement by verifying the code for the in-progress secret.
-   * Requires a valid MFA JWT scoped to the action (e.g. `mfa:2fa`).
-   *
-   * @param jwt - MFA access token (must include the `mfa:2fa` scope)
-   * @param code - 6-digit authenticator app code to validate the new secret
-   * @param headers - Optional additional headers for the request
-   * @returns A promise that resolves when the replacement has been accepted
-   */
-  async confirmReplaceTotpTokenWithJwt(
-    jwt: string,
-    code: string,
-    headers?: Headers
-  ): Promise<void> {
-    return this.jwtPost('/mfa/totp/replace/confirm', jwt, { code }, headers);
   }
 
   async deleteTotpToken(sessionToken: hexstring, headers?: Headers) {

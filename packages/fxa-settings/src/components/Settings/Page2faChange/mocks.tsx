@@ -9,7 +9,7 @@ import {
   mockSession,
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
-import { Page2faChange } from '.';
+import Page2faChange from '.';
 import {
   LocationProvider,
   createHistory,
@@ -38,7 +38,7 @@ const createSafeNavigate = (): NavigateFn => {
 export const Subject = ({ account: accountOverrides = {} }) => {
   const account = {
     ...MOCK_ACCOUNT,
-    startReplaceTotp: async () => {
+    replaceTotp: async () => {
       action('replaceTotp called')();
       return MOCK_TOTP_INFO;
     },
