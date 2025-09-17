@@ -16,11 +16,22 @@ import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import firefox from '../../../lib/channels/firefox';
 import { PLACEHOLDER_IMAGE_URL } from '../../../pages/mocks';
+import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
 
 jest.mock('../../../models/AlertBarInfo');
 jest.mock('fxa-settings/src/lib/metrics', () => ({
   logViewEvent: jest.fn(),
   settingsViewName: 'quuz',
+}));
+
+jest.mock('../../../lib/cache', () => ({
+  ...jest.requireActual('../../../lib/cache'),
+  JwtTokenCache: {
+    clearTokens: jest.fn(),
+  },
+  MfaOtpRequestCache: {
+    clear: jest.fn(),
+  },
 }));
 
 const account = {
@@ -37,6 +48,10 @@ const account = {
 
 describe('DropDownAvatarMenu', () => {
   const dropDownId = 'drop-down-avatar-menu';
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
 
   it('renders and toggles as expected with default values', () => {
     const account = {
@@ -141,6 +156,12 @@ describe('DropDownAvatarMenu', () => {
       );
       expect(window.location.assign).toHaveBeenCalledWith(
         window.location.origin
+      );
+      expect(JwtTokenCache.clearTokens).toHaveBeenCalledWith(
+        mockSession().token
+      );
+      expect(MfaOtpRequestCache.clear).toHaveBeenCalledWith(
+        mockSession().token
       );
     });
 
