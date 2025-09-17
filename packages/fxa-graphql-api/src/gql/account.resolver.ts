@@ -293,6 +293,29 @@ export class AccountResolver {
     };
   }
 
+  // UpdateAvatar is disabled while uploads go directly to profile server.
+  // We need further testing of this implementation at scale before
+  // we enable it in production.
+
+  // @Mutation((returns) => UpdateAvatarPayload, {
+  //   description: 'Update the avatar in use.',
+  // })
+  // @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  // @CatchGatewayError
+  // public async updateAvatar(
+  //   @GqlSessionToken() token: string,
+  //   @Args('input', { type: () => UpdateAvatarInput }) input: UpdateAvatarInput
+  // ): Promise<UpdateAvatarPayload> {
+  //   const file = await input.file;
+  //   const fileData = await getStream.buffer(file.createReadStream());
+  //   const avatar = await this.profileAPI.avatarUpload(
+  //     token,
+  //     file.mimetype,
+  //     fileData
+  //   );
+  //   return { clientMutationId: input.clientMutationId, avatar };
+  // }
+
   @Mutation((returns) => BasicPayload, {
     description: 'Delete the avatar.',
   })
@@ -313,10 +336,18 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async createSecondaryEmail(
+    @GqlSessionToken() token: string,
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
-    await this.authAPI.recoveryEmailCreate(input.jwt, input.email, headers);
+    await this.authAPI.recoveryEmailCreate(
+      token,
+      input.email,
+      {
+        verificationMethod: 'email-otp',
+      },
+      headers
+    );
     return { clientMutationId: input.clientMutationId };
   }
 
@@ -344,11 +375,12 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async verifySecondaryEmail(
+    @GqlSessionToken() token: string,
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => VerifyEmailInput }) input: VerifyEmailInput
   ) {
     await this.authAPI.recoveryEmailSecondaryVerifyCode(
-      input.jwt,
+      token,
       input.email,
       input.code,
       headers

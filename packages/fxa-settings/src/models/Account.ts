@@ -1084,9 +1084,10 @@ export class Account implements AccountData {
   }
 
   async createSecondaryEmail(email: string) {
-    const jwt = this.getCachedJwtByScope('email');
     await this.withLoadingStatus(
-      this.authClient.recoveryEmailCreate(jwt, email)
+      this.authClient.recoveryEmailCreate(sessionToken()!, email, {
+        verificationMethod: 'email-otp',
+      })
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1107,9 +1108,12 @@ export class Account implements AccountData {
   }
 
   async verifySecondaryEmail(email: string, code: string) {
-    const jwt = this.getCachedJwtByScope('email');
     await this.withLoadingStatus(
-      this.authClient.recoveryEmailSecondaryVerifyCode(jwt, email, code)
+      this.authClient.recoveryEmailSecondaryVerifyCode(
+        sessionToken()!,
+        email,
+        code
+      )
     );
     const cache = this.apolloClient.cache;
     cache.modify({

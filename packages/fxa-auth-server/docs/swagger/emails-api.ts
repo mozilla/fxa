@@ -110,7 +110,7 @@ const RECOVERY_EMAIL_POST = {
   description: '/recovery_email',
   notes: [
     dedent`
-      🔒 Authenticated with MFA JWT (scope: mfa:email)
+      🔒 Authenticated with session token
       Add a secondary email address to the logged-in account. The created address will be unverified and will not replace the primary email address.
     `,
   ],
@@ -212,7 +212,7 @@ const RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST = {
   description: '/recovery_email/secondary/verify_code',
   notes: [
     dedent`
-      🔒 Authenticated with session MFA JWT (scope: mfa:email)
+      🔒 Authenticated with session token
 
       This endpoint verifies a secondary email using a time based (otp) code.
     `,
