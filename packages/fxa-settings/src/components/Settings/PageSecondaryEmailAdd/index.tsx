@@ -10,17 +10,14 @@ import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { SETTINGS_PATH } from '../../../constants';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
 import { AuthUiErrorNos } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { getErrorFtlId } from '../../../lib/error-utils';
-import { MfaGuard } from '../MfaGuard';
-import { useErrorHandler } from 'react-error-boundary';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');
-  const errorHandler = useErrorHandler();
   const [saveBtnDisabled, setSaveBtnDisabled] = useState(true);
   const [errorText, setErrorText] = useState<string>();
   const [email, setEmail] = useState<string>();
@@ -35,7 +32,6 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const alertBar = useAlertBar();
   const account = useAccount();
-
   const goHome = () =>
     navigateWithQuery(SETTINGS_PATH + '#secondary-email', { replace: true });
 
@@ -45,11 +41,6 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
         await account.createSecondaryEmail(email);
         navigateWithQuery('emails/verify', { state: { email }, replace: true });
       } catch (e) {
-        if (e && e.code === 401 && e.errno === 110) {
-          // JWT invalid/expired
-          errorHandler(e);
-          return;
-        }
         if (e.errno) {
           const errorText = l10n.getString(
             getErrorFtlId(e),
@@ -68,7 +59,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
         }
       }
     },
-    [account, navigateWithQuery, setErrorText, alertBar, l10n, errorHandler]
+    [account, navigateWithQuery, setErrorText, alertBar, l10n]
   );
 
   const checkEmail = useCallback(
@@ -149,10 +140,4 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   );
 };
 
-export const MfaGuardPageSecondaryEmailAdd = (_: RouteComponentProps) => {
-  return (
-    <MfaGuard requiredScope="email">
-      <PageSecondaryEmailAdd />
-    </MfaGuard>
-  );
-};
+export default PageSecondaryEmailAdd;

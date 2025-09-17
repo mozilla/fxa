@@ -13,10 +13,4 @@ export class EmailInput {
 
   @Field({ description: 'The email address to apply this operation to.' })
   public email!: string;
-
-  @Field({
-    description: 'A jwt to provide access to auth server endpoints.',
-    nullable: false,
-  })
-  public jwt!: string;
 }

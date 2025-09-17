@@ -17,17 +17,8 @@ import FlowSetup2faApp from '../FlowSetup2faApp';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { GleanClickEventType2FA } from '../../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { MfaGuard } from '../MfaGuard';
 
-export const MfaGuardedPage2faChange = (_: RouteComponentProps) => {
-  return (
-    <MfaGuard requiredScope="2fa">
-      <Page2faChange />
-    </MfaGuard>
-  );
-};
-
-export const Page2faChange = () => {
+const Page2faChange = (_: RouteComponentProps) => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -125,4 +116,4 @@ export const Page2faChange = () => {
   );
 };
 
-export default MfaGuardedPage2faChange;
+export default Page2faChange;

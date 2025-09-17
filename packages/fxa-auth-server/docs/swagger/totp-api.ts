@@ -105,31 +105,6 @@ const TOTP_REPLACE_CONFIRM_POST = {
   ],
 };
 
-// MFA-prefixed versions (JWT based)
-const MFA_TOTP_REPLACE_START_POST = {
-  ...TAGS_TOTP,
-  description: '/mfa/totp/replace/start',
-  notes: [
-    dedent`
-      🔒 Authenticated with MFA JWT (scope: mfa:2fa)
-
-      Create a new randomly generated TOTP token for a user to replace an existing one. An existing TOTP token must exist for the user to request a replacement.
-    `,
-  ],
-};
-
-const MFA_TOTP_REPLACE_CONFIRM_POST = {
-  ...TAGS_TOTP,
-  description: '/mfa/totp/replace/confirm',
-  notes: [
-    dedent`
-      🔒 Authenticated with MFA JWT (scope: mfa:2fa)
-
-      Verifies the provided code is valid for TOTP and sets the new TOTP token for the user. This is used when a user is replacing their existing TOTP token.
-    `,
-  ],
-};
-
 const TOTP_SETUP_VERIFY_POST = {
   ...TAGS_TOTP,
   description: '/totp/setup/verify',
@@ -163,8 +138,6 @@ const API_DOCS = {
   TOTP_VERIFY_RECOVERY_CODE_POST,
   TOTP_REPLACE_START_POST,
   TOTP_REPLACE_CONFIRM_POST,
-  MFA_TOTP_REPLACE_START_POST,
-  MFA_TOTP_REPLACE_CONFIRM_POST,
   TOTP_SETUP_VERIFY_POST,
   TOTP_SETUP_COMPLETE_POST,
 };

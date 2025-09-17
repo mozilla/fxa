@@ -24,7 +24,6 @@ test.describe('severity-2 #smoke', () => {
     // happy path
     test('can change 2FA and signin with new 2FA', async ({
       page,
-      target,
       testAccountTracker,
       pages: { settings, signin, totp, signinTotpCode },
     }) => {
@@ -34,7 +33,7 @@ test.describe('severity-2 #smoke', () => {
 
       const {
         new: { secret: newSecret },
-      } = await addThenChange2FA({ settings, totp, target, credentials });
+      } = await addThenChange2FA({ settings, totp });
 
       await settings.signOut();
 
@@ -51,7 +50,6 @@ test.describe('severity-2 #smoke', () => {
 
     test('can change 2FA and old 2FA should not work', async ({
       page,
-      target,
       testAccountTracker,
       pages: { settings, signin, totp, signinTotpCode },
     }) => {
@@ -61,7 +59,7 @@ test.describe('severity-2 #smoke', () => {
 
       const {
         initial: { secret: oldSecret },
-      } = await addThenChange2FA({ settings, totp, target, credentials });
+      } = await addThenChange2FA({ settings, totp });
 
       await settings.signOut();
 
@@ -78,7 +76,6 @@ test.describe('severity-2 #smoke', () => {
 
     test('can change 2fa and use existing backup codes to sign in', async ({
       page,
-      target,
       testAccountTracker,
       pages: { settings, signin, totp, signinRecoveryCode, signinTotpCode },
     }) => {
@@ -88,7 +85,7 @@ test.describe('severity-2 #smoke', () => {
 
       const {
         initial: { recoveryCodes },
-      } = await addThenChange2FA({ settings, totp, target, credentials });
+      } = await addThenChange2FA({ settings, totp });
 
       await settings.signOut();
 
@@ -125,7 +122,7 @@ test.describe('severity-2 #smoke', () => {
       const credentials = await testAccountTracker.signUp();
       await signin.emailFirstSignin(credentials);
 
-      await addThenChange2FA({ settings, totp, target, credentials });
+      await addThenChange2FA({ settings, totp });
 
       // connect phone
       await addPhoneRecovery({
@@ -166,13 +163,9 @@ test.describe('severity-2 #smoke', () => {
 const addThenChange2FA = async ({
   settings,
   totp,
-  target,
-  credentials,
 }: {
   settings: SettingsPage;
   totp: TotpPage;
-  target: BaseTarget;
-  credentials: Credentials;
 }): Promise<{ initial: TotpCredentials; new: TotpCredentials }> => {
   async function assertEnabled(isSetup: boolean) {
     await expect(settings.settingsHeading).toBeVisible();
@@ -192,10 +185,6 @@ const addThenChange2FA = async ({
   await assertEnabled(true);
 
   await settings.totp.changeButton.click();
-
-  // Change 2FA action is guarded by MFA code modal
-  await settings.confirmMfaGuard(credentials.email);
-
   // changing doesn't do anything special or require saving backup codes
   // just call straight to the setup method
   const newSecret = await totp.setUp2faAppWithQrCode();

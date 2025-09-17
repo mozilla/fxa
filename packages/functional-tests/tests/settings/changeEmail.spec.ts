@@ -23,7 +23,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
 
       await settings.signOut();
 
@@ -59,7 +59,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
 
       await setNewPassword(
         settings,
@@ -101,7 +101,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail, credentials.email);
+      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail);
 
       await setNewPassword(
         settings,
@@ -150,7 +150,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
+      await changePrimaryEmail(target, settings, secondaryEmail, newEmail);
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
 
       // Click delete account
@@ -185,7 +185,6 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await settings.secondaryEmail.addButton.click();
-      await settings.confirmMfaGuard(credentials.email);
       await secondaryEmail.fillOutEmail(newEmail);
       const code: string =
         await target.emailClient.getVerifySecondaryCode(newEmail);
@@ -235,11 +234,9 @@ async function changePrimaryEmail(
   target: BaseTarget,
   settings: SettingsPage,
   secondaryEmail: SecondaryEmailPage,
-  email: string,
-  primaryEmail: string,
+  email: string
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
-  await settings.confirmMfaGuard(primaryEmail);
   await secondaryEmail.fillOutEmail(email);
   const code: string = await target.emailClient.getVerifySecondaryCode(email);
   await secondaryEmail.fillOutVerificationCode(code);

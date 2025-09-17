@@ -17,8 +17,8 @@ import {
 import PageSettings from './PageSettings';
 import PageChangePassword from './PageChangePassword';
 import PageCreatePassword from './PageCreatePassword';
-import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
-import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
+import PageSecondaryEmailAdd from './PageSecondaryEmailAdd';
+import PageSecondaryEmailVerify from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
 import Page2faSetup from './Page2faSetup';
 import { Page2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
@@ -36,7 +36,7 @@ import Head from 'fxa-react/components/Head';
 import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
 import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import MfaGuardPage2faChange from './Page2faChange';
+import Page2faChange from './Page2faChange';
 import PageMfaGuardTestWithAuthClient from './PageMfaGuardTest';
 import PageMfaGuardTestWithGql from './PageMfaGuardWithGqlTest';
 
@@ -164,7 +164,7 @@ export const Settings = ({
                 noThrow
               />
               <Page2faSetup path="/two_step_authentication" />
-              <MfaGuardPage2faChange path="/two_step_authentication/change" />
+              <Page2faChange path="/two_step_authentication/change" />
               <Page2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
             </>
           ) : (
@@ -188,8 +188,8 @@ export const Settings = ({
               />
             </>
           )}
-          <MfaGuardPageSecondaryEmailAdd path="/emails" />
-          <MfaGuardPageSecondaryEmailVerify path="/emails/verify" />
+          <PageSecondaryEmailAdd path="/emails" />
+          <PageSecondaryEmailVerify path="/emails/verify" />
           <PageRecentActivity path="/recent_activity" />
           <PageDeleteAccount path="/delete_account" />
           <Redirect from="/clients" to="/settings#connected-services" noThrow />
