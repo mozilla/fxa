@@ -590,6 +590,7 @@ describe('PayPalNotificationHandler', () => {
       stripeHelper.fetchCustomer = sinon.fake.resolves(fetchCustomer);
       handler.removeBillingAgreement = sinon.stub().resolves();
       stripeHelper.getPaymentProvider = sinon.fake.resolves('paypal');
+      stripeHelper.formatSubscriptionsForEmails = sinon.fake.returns([]);
 
       const result = await handler.handleMpCancel(
         billingAgreementCancelNotification
@@ -740,7 +741,7 @@ describe('PayPalNotificationHandler', () => {
         account
       );
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.getPaymentProvider,
+        await stripeHelper.getPaymentProvider,
         fetchCustomer
       );
     });

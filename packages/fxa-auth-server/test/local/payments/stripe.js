@@ -554,7 +554,7 @@ describe('#integration - StripeHelper', () => {
           subscription2.collection_method = 'send_invoice';
           customerExpanded.subscriptions.data[0] = subscription2;
           assert.strictEqual(
-            stripeHelper.getPaymentProvider(customerExpanded),
+            await stripeHelper.getPaymentProvider(customerExpanded),
             'paypal'
           );
         });
@@ -564,7 +564,7 @@ describe('#integration - StripeHelper', () => {
         it('payment_provider is "not_chosen"', async () => {
           customerExpanded.subscriptions.data[0] = cancelledSubscription;
           assert.strictEqual(
-            stripeHelper.getPaymentProvider(customerExpanded),
+            await stripeHelper.getPaymentProvider(customerExpanded),
             'not_chosen'
           );
         });
@@ -574,7 +574,7 @@ describe('#integration - StripeHelper', () => {
         it('payment_provider is "not_chosen"', async () => {
           customerExpanded.subscriptions.data = [];
           assert.strictEqual(
-            stripeHelper.getPaymentProvider(customerExpanded),
+            await stripeHelper.getPaymentProvider(customerExpanded),
             'not_chosen'
           );
         });
@@ -584,10 +584,122 @@ describe('#integration - StripeHelper', () => {
         it('payment_provider is "stripe"', async () => {
           subscription2.collection_method = 'instant';
           customerExpanded.subscriptions.data[0] = subscription2;
+
+          stripeHelper.stripe = {
+            invoices: {
+              retrieve: sinon.stub().resolves({ payment_intent: 'pi_mock' }),
+            },
+            paymentIntents: {
+              retrieve: sinon.stub().resolves({ payment_method: null }),
+            },
+          };
+
+          sandbox.stub(stripeHelper, 'getPaymentMethod').resolves(null);
+
+          const result =
+            await stripeHelper.getPaymentProvider(customerExpanded);
+          assert.strictEqual(result, 'stripe');
+        });
+
+        it('payment_provider is "card"', async () => {
+          subscription2.collection_method = 'instant';
+          customerExpanded.subscriptions.data[0] = subscription2;
+
+          stripeHelper.stripe = {
+            paymentIntents: {
+              retrieve: sinon.stub().resolves({ payment_method: 'pm_mock' }),
+            },
+            invoices: {
+              retrieve: sinon.stub().resolves({ payment_intent: 'pi_mock' }),
+            },
+          };
+          sandbox
+            .stub(stripeHelper, 'getPaymentMethod')
+            .resolves({ type: 'card', card: {} });
+
           assert.strictEqual(
-            stripeHelper.getPaymentProvider(customerExpanded),
-            'stripe'
+            await stripeHelper.getPaymentProvider(customerExpanded),
+            'card'
           );
+        });
+      });
+
+      describe('when payment method is "link"', () => {
+        it('returns "link" as the payment_provider', async () => {
+          customerExpanded.subscriptions.data[0] = subscription2;
+
+          stripeHelper.stripe = {
+            invoices: {
+              retrieve: sinon.stub().resolves({ payment_intent: 'pi_mock' }),
+            },
+            paymentIntents: {
+              retrieve: sinon.stub().resolves({ payment_method: 'pm_mock' }),
+            },
+          };
+
+          sandbox.stub(stripeHelper, 'getPaymentMethod').resolves({
+            type: 'link',
+          });
+
+          const result =
+            await stripeHelper.getPaymentProvider(customerExpanded);
+          assert.strictEqual(result, 'link');
+        });
+      });
+
+      describe('when payment method is Apple Pay', () => {
+        it('returns "apple_pay" as the payment_provider', async () => {
+          customerExpanded.subscriptions.data[0] = subscription2;
+
+          stripeHelper.stripe = {
+            invoices: {
+              retrieve: sinon.stub().resolves({ payment_intent: 'pi_mock' }),
+            },
+            paymentIntents: {
+              retrieve: sinon.stub().resolves({ payment_method: 'pm_mock' }),
+            },
+          };
+
+          sandbox.stub(stripeHelper, 'getPaymentMethod').resolves({
+            type: 'card',
+            card: {
+              wallet: {
+                type: 'apple_pay',
+              },
+            },
+          });
+
+          const result =
+            await stripeHelper.getPaymentProvider(customerExpanded);
+          assert.strictEqual(result, 'apple_pay');
+        });
+      });
+
+      describe('when payment method is Google Pay', () => {
+        it('returns "google_pay" as the payment_provider', async () => {
+          customerExpanded.subscriptions.data[0] = subscription2;
+
+          stripeHelper.stripe = {
+            invoices: {
+              retrieve: sinon.stub().resolves({ payment_intent: 'pi_mock' }),
+            },
+            paymentIntents: {
+              retrieve: sinon.stub().resolves({ payment_method: 'pm_mock' }),
+            },
+          };
+
+          sandbox.stub(stripeHelper, 'getPaymentMethod').resolves({
+            type: 'card',
+            card: {
+              wallet: {
+                type: 'google_pay',
+              },
+            },
+          });
+
+          const result =
+            await stripeHelper.getPaymentProvider(customerExpanded);
+          assert.strictEqual(result, 'google_pay');
         });
       });
     });
@@ -5527,19 +5639,22 @@ describe('#integration - StripeHelper', () => {
         uid,
         email,
         cardType: 'visa',
+        creditAppliedInCents: 0,
         lastFour: '5309',
         invoiceAmountDueInCents: 500,
         invoiceLink:
           'https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GyHjTyIXBg8jj5yjt7Z0T4CCG3hfGtp',
         invoiceNumber: 'AAF2CECC-0001',
+        invoiceStartingBalance: 0,
         invoiceStatus: 'paid',
         invoiceTotalCurrency: 'usd',
         invoiceTotalInCents: 500,
-        invoiceSubtotalInCents: null,
+        invoiceSubtotalInCents: 500,
         invoiceDiscountAmountInCents: null,
         invoiceTaxAmountInCents: null,
         invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
         nextInvoiceDate: new Date('2020-04-24T22:23:40.000Z'),
+        offeringPriceInCents: 500,
         payment_provider: 'stripe',
         productId,
         productName,
@@ -5555,8 +5670,9 @@ describe('#integration - StripeHelper', () => {
           'product:termsOfServiceURL': termsOfServiceURL,
           productOrder: '0',
         },
-        showPaymentMethod: true,
+        remainingAmountTotalInCents: undefined,
         showTaxAmount: false,
+        unusedAmountTotalInCents: 0,
         discountType: null,
         discountDuration: null,
       };
@@ -5572,7 +5688,36 @@ describe('#integration - StripeHelper', () => {
         discountDuration: null,
       };
 
+      const mockInvoice = {
+        id: 'inv_0000000000',
+        number: '1234567',
+        charge: chargeId,
+        default_source: { id: sourceId },
+        total: 1234,
+        currency: 'usd',
+        period_end: 1587426018,
+        lines: {
+          data: [
+            {
+              period: { end: 1590018018 },
+            },
+          ],
+        },
+      };
+
       beforeEach(() => {
+        stripeHelper.stripe = {
+          ...(stripeHelper.stripe || {}),
+          paymentIntents: {
+            ...(stripeHelper.stripe?.paymentIntents || {}),
+            retrieve: sinon.stub().resolves(successfulPaymentIntent),
+          },
+          invoices: {
+            ...(stripeHelper.stripe?.invoices || {}),
+            retrieve: sinon.stub().resolves(mockInvoice),
+          },
+        };
+
         expandMock.onCall(0).resolves(mockCustomer);
         expandMock.onCall(1).resolves(mockCharge);
       });
@@ -5582,7 +5727,7 @@ describe('#integration - StripeHelper', () => {
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, expected);
       });
 
@@ -5592,7 +5737,7 @@ describe('#integration - StripeHelper', () => {
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isTrue(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, expected);
       });
 
@@ -5610,7 +5755,7 @@ describe('#integration - StripeHelper', () => {
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, expected);
       });
 
@@ -5629,7 +5774,7 @@ describe('#integration - StripeHelper', () => {
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, {
           ...expected,
           lastFour: null,
@@ -5650,7 +5795,7 @@ describe('#integration - StripeHelper', () => {
 
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, {
           ...expected,
           nextInvoiceDate: new Date(subscriptionPeriodEnd * 1000),
@@ -5662,7 +5807,7 @@ describe('#integration - StripeHelper', () => {
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureProrated);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, expected);
       });
 
@@ -5671,7 +5816,7 @@ describe('#integration - StripeHelper', () => {
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureDiscount);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, expectedDiscount_foreverCoupon);
       });
 
@@ -5683,13 +5828,12 @@ describe('#integration - StripeHelper', () => {
           ...expectedDiscount_foreverCoupon,
           invoiceDiscountAmountInCents: 500,
           invoiceTotalInCents: 0,
-          showPaymentMethod: false,
         };
         const result =
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureDiscount100);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, expectedDiscount100);
       });
 
@@ -5710,7 +5854,7 @@ describe('#integration - StripeHelper', () => {
           await stripeHelper.extractInvoiceDetailsForEmail(fixture);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, {
           ...expected,
           productMetadata: {
@@ -5725,7 +5869,7 @@ describe('#integration - StripeHelper', () => {
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureTax);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, {
           ...expected,
           invoiceTaxAmountInCents: 54,
@@ -5737,7 +5881,7 @@ describe('#integration - StripeHelper', () => {
           await stripeHelper.extractInvoiceDetailsForEmail(fixtureTaxDiscount);
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
-        sinon.assert.calledTwice(expandMock);
+        sinon.assert.calledThrice(expandMock);
         assert.deepEqual(result, {
           ...expectedDiscount_foreverCoupon,
           invoiceTaxAmountInCents: 48,
@@ -5751,7 +5895,13 @@ describe('#integration - StripeHelper', () => {
         assert.isTrue(stripeHelper.allAbbrevProducts.called);
         assert.isFalse(mockStripe.products.retrieve.called);
         sinon.assert.calledTwice(expandMock);
-        assert.deepEqual(result, { ...expected, invoiceStatus: 'draft' });
+        assert.deepEqual(result, {
+          ...expected,
+          invoiceStatus: 'draft',
+          offeringPriceInCents: 1200,
+          remainingAmountTotalInCents: 1200,
+          unusedAmountTotalInCents: -700,
+        });
       });
 
       it('throws an exception for deleted customer', async () => {
@@ -7149,39 +7299,47 @@ describe('#integration - StripeHelper', () => {
     const currency = 'USD';
 
     it('successfully returns priceInfo', async () => {
-      const actual = await stripeHelper.getSubscriptionManagementPriceInfo(price1.id, currency);
+      const actual = await stripeHelper.getSubscriptionManagementPriceInfo(
+        price1.id,
+        currency
+      );
       assert.deepEqual(actual, {
         amount: 499,
         currency: 'usd',
         interval: 'month',
         interval_count: 1,
       });
-    })
+    });
 
     it('throws if price not found', async () => {
       try {
-        await stripeHelper.getSubscriptionManagementPriceInfo('invalid', currency);
+        await stripeHelper.getSubscriptionManagementPriceInfo(
+          'invalid',
+          currency
+        );
         assert.fail('Expected method to throw an error');
       } catch (error) {
         assert.instanceOf(error, Error);
         assert.equal(error.message, 'Price not found');
       }
-    })
+    });
 
     it('throws if not a recurring price', async () => {
       const newPrice1 = deepCopy(price1);
       newPrice1.recurring = null;
       sandbox.stub(stripeHelper, 'allPrices').resolves([newPrice1]);
-      
+
       try {
-        await stripeHelper.getSubscriptionManagementPriceInfo(newPrice1.id, currency);
+        await stripeHelper.getSubscriptionManagementPriceInfo(
+          newPrice1.id,
+          currency
+        );
         assert.fail('Expected method to throw an error');
       } catch (error) {
         assert.instanceOf(error, Error);
         assert.equal(error.message, 'Only support recurring prices');
       }
-
-    })
+    });
 
     it('throws if price does not support customer currency', async () => {
       try {
@@ -7191,30 +7349,32 @@ describe('#integration - StripeHelper', () => {
         assert.instanceOf(error, Error);
         assert.equal(error.message, 'Price does not support this currency');
       }
-
-    })
+    });
 
     it('throws if price amount could not be determined', async () => {
       const newPrice1 = deepCopy(price1);
       newPrice1.currency_options = {
         usd: {
           custom_unit_amount: null,
-          tax_behavior: "exclusive",
+          tax_behavior: 'exclusive',
           unit_amount: null,
-          unit_amount_decimal: null
-        }
+          unit_amount_decimal: null,
+        },
       };
       sandbox.stub(stripeHelper, 'allPrices').resolves([newPrice1]);
 
       try {
-        await stripeHelper.getSubscriptionManagementPriceInfo(newPrice1.id, currency);
+        await stripeHelper.getSubscriptionManagementPriceInfo(
+          newPrice1.id,
+          currency
+        );
         assert.fail('Expected method to throw an error');
       } catch (error) {
         assert.instanceOf(error, Error);
         assert.equal(error.message, 'Price amount is required');
       }
-    })
-  })
+    });
+  });
 
   describe('getBillingDetailsAndSubscriptions', () => {
     const customer = { id: 'cus_xyz', currency: 'usd' };
@@ -7456,7 +7616,7 @@ describe('#integration - StripeHelper', () => {
 
       assert.deepEqual(actual, paymentProvider);
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.getPaymentProvider,
+        await stripeHelper.getPaymentProvider,
         customer
       );
     });
@@ -7483,7 +7643,7 @@ describe('#integration - StripeHelper', () => {
         brand: customer.invoice_settings.default_payment_method.card.brand,
       });
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.getPaymentProvider,
+        await stripeHelper.getPaymentProvider,
         customer
       );
     });
@@ -7510,7 +7670,7 @@ describe('#integration - StripeHelper', () => {
         brand: mockPaymentMethod.card.brand,
       });
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.getPaymentProvider,
+        await stripeHelper.getPaymentProvider,
         customer
       );
     });

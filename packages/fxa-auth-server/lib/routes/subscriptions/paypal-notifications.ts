@@ -224,10 +224,9 @@ export class PayPalNotificationHandler extends PayPalHandler {
       (sub) =>
         !sub.cancel_at_period_end && ['active', 'past_due'].includes(sub.status)
     );
-    if (
-      this.stripeHelper.getPaymentProvider(customer) === 'paypal' &&
-      nextPeriodValidSubscription
-    ) {
+    const paymentProvider =
+      await this.stripeHelper.getPaymentProvider(customer);
+    if (paymentProvider === 'paypal' && nextPeriodValidSubscription) {
       const { uid, email } = account;
       const subscriptions =
         await this.stripeHelper.formatSubscriptionsForEmails(customer);
