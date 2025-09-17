@@ -77,8 +77,8 @@ describe('totp', () => {
   describe('/totp/create', () => {
     it('should create TOTP token', () => {
       return setup(
-        { db: { email: TEST_EMAIL } },
-        { totpToken: true },
+        { db: { email: TEST_EMAIL, emailVerified: true } },
+        {},
         '/totp/create',
         requestOptions
       ).then((response) => {
@@ -113,12 +113,27 @@ describe('totp', () => {
     it('should be disabled in unverified session', () => {
       requestOptions.credentials.tokenVerificationId = 'notverified';
       return setup(
-        { db: { email: TEST_EMAIL } },
+        { db: { email: TEST_EMAIL, emailVerified: true } },
         {},
         '/totp/create',
         requestOptions
       ).then(assert.fail, (err) => {
         assert.deepEqual(err.errno, 138, 'unverified session error');
+      });
+    });
+
+    it('should be disabled for unverified email', () => {
+      return setup(
+        { db: { email: TEST_EMAIL, emailVerified: false } },
+        {},
+        '/totp/create',
+        requestOptions
+      ).then(assert.fail, (err) => {
+        assert.equal(
+          err.errno,
+          authErrors.ERRNO.ACCOUNT_UNVERIFIED,
+          'unverified email error'
+        );
       });
     });
   });
@@ -404,7 +419,11 @@ describe('totp', () => {
         code: 'NOTVALID',
       };
       return setup(
-        { db: { email: TEST_EMAIL } },
+        {
+          db: { email: TEST_EMAIL },
+          totpTokenVerified: true,
+          totpTokenEnabled: true,
+        },
         {},
         '/session/verify/totp',
         requestOptions
@@ -477,7 +496,7 @@ describe('totp', () => {
       };
 
       const response = await setup(
-        { db: { email: TEST_EMAIL }, redis: { secret } },
+        { db: { email: TEST_EMAIL, emailVerified: true }, redis: { secret } },
         {},
         '/totp/setup/verify',
         requestOptions
@@ -502,7 +521,7 @@ describe('totp', () => {
 
       try {
         await setup(
-          { db: { email: TEST_EMAIL }, redis: { secret } },
+          { db: { email: TEST_EMAIL, emailVerified: true }, redis: { secret } },
           {},
           '/totp/setup/verify',
           requestOptions
@@ -523,7 +542,7 @@ describe('totp', () => {
       requestOptions.payload = { code: '123123' };
       try {
         await setup(
-          { db: { email: TEST_EMAIL }, redis: { secret } },
+          { db: { email: TEST_EMAIL, emailVerified: true }, redis: { secret } },
           {},
           '/totp/setup/verify',
           requestOptions
@@ -543,7 +562,7 @@ describe('totp', () => {
       requestOptions.payload = { code: '123123' };
       try {
         await setup(
-          { db: { email: TEST_EMAIL } },
+          { db: { email: TEST_EMAIL, emailVerified: true } },
           {},
           '/totp/setup/verify',
           requestOptions
@@ -551,6 +570,31 @@ describe('totp', () => {
         assert.fail('Expected missing secret error');
       } catch (err) {
         assert.equal(err.errno, authErrors.ERRNO.TOTP_TOKEN_NOT_FOUND);
+      }
+    });
+
+    it('should fail for an unverified email', async () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+      };
+
+      try {
+        await setup(
+          {
+            db: { email: TEST_EMAIL, emailVerified: false },
+            redis: { secret },
+          },
+          {},
+          '/totp/setup/verify',
+          requestOptions
+        );
+        assert.fail('Expected unverified email error');
+      } catch (err) {
+        assert.equal(err.errno, authErrors.ERRNO.ACCOUNT_UNVERIFIED);
       }
     });
   });
@@ -567,7 +611,10 @@ describe('totp', () => {
         .update(secret)
         .digest('hex');
       const response = await setup(
-        { db: { email: TEST_EMAIL }, redis: { secret, verifiedDigest } },
+        {
+          db: { email: TEST_EMAIL, emailVerified: true },
+          redis: { secret, verifiedDigest },
+        },
         {},
         '/totp/setup/complete',
         requestOptions
@@ -586,7 +633,7 @@ describe('totp', () => {
       requestOptions.credentials.tokenVerificationId = 'notverified';
       try {
         await setup(
-          { db: { email: TEST_EMAIL } },
+          { db: { email: TEST_EMAIL, emailVerified: true } },
           {},
           '/totp/setup/complete',
           requestOptions
@@ -601,7 +648,7 @@ describe('totp', () => {
       requestOptions.credentials.tokenVerified = true;
       try {
         await setup(
-          { db: { email: TEST_EMAIL } },
+          { db: { email: TEST_EMAIL, emailVerified: true } },
           {},
           '/totp/setup/complete',
           requestOptions
@@ -616,7 +663,7 @@ describe('totp', () => {
       requestOptions.credentials.tokenVerified = true;
       const responsePromise = setup(
         {
-          db: { email: TEST_EMAIL },
+          db: { email: TEST_EMAIL, emailVerified: true },
           redis: { secret, verifiedDigest: 'mismatch' },
         },
         {},
@@ -627,6 +674,28 @@ describe('totp', () => {
         responsePromise,
         authErrors.invalidTokenVerficationCode().message
       );
+    });
+
+    it('should fail for an unverified email', async () => {
+      requestOptions.credentials.tokenVerified = true;
+      const verifiedDigest = crypto
+        .createHash('sha256')
+        .update(secret)
+        .digest('hex');
+      try {
+        await setup(
+          {
+            db: { email: TEST_EMAIL, emailVerified: false },
+            redis: { secret, verifiedDigest },
+          },
+          {},
+          '/totp/setup/complete',
+          requestOptions
+        );
+        assert.fail('Expected error');
+      } catch (err) {
+        assert.equal(err.errno, authErrors.ERRNO.ACCOUNT_UNVERIFIED);
+      }
     });
   });
 
@@ -641,7 +710,11 @@ describe('totp', () => {
         code: authenticator.generate(secret),
       };
       const response = await setup(
-        { db: { email: TEST_EMAIL } },
+        {
+          db: { email: TEST_EMAIL },
+          totpTokenVerified: true,
+          totpTokenEnabled: true,
+        },
         {},
         '/totp/verify',
         requestOptions
@@ -664,7 +737,11 @@ describe('totp', () => {
         code: '123123',
       };
       const response = await setup(
-        { db: { email: TEST_EMAIL } },
+        {
+          db: { email: TEST_EMAIL },
+          totpTokenVerified: true,
+          totpTokenEnabled: true,
+        },
         {},
         '/totp/verify',
         requestOptions
@@ -753,7 +830,11 @@ describe('totp', () => {
     it('should create a new TOTP token if user has an existing token', async () => {
       requestOptions.credentials.tokenVerified = true;
       const response = await setup(
-        { db: { email: TEST_EMAIL } },
+        {
+          db: { email: TEST_EMAIL },
+          totpTokenVerified: true,
+          totpTokenEnabled: true,
+        },
         {},
         '/totp/replace/start',
         requestOptions
@@ -921,10 +1002,162 @@ describe('totp', () => {
   });
 
   // MFA-prefixed routes
+  describe('/mfa/totp/create', () => {
+    it('should create TOTP token', async () => {
+      const response = await setup(
+        { db: { email: TEST_EMAIL, emailVerified: true } },
+        {},
+        '/mfa/totp/create',
+        requestOptions
+      );
+      assert.ok(response.qrCodeUrl);
+      assert.ok(response.secret);
+      assert.equal(authServerCacheRedis.set.callCount, 1);
+    });
+
+    it('should fail for unverified email', async () => {
+      await setup(
+        { db: { email: TEST_EMAIL, emailVerified: false } },
+        {},
+        '/mfa/totp/create',
+        requestOptions
+      ).then(assert.fail, (err) => {
+        assert.equal(err.errno, authErrors.ERRNO.ACCOUNT_UNVERIFIED);
+      });
+    });
+  });
+
+  describe('/mfa/totp/setup/verify', () => {
+    beforeEach(() => {
+      glean.twoFactorAuth.setupVerifySuccess.reset();
+      glean.twoFactorAuth.setupInvalidCodeError.reset();
+    });
+
+    it('should verify a valid totp code', async () => {
+      const authenticator = new otplib.authenticator.Authenticator();
+      authenticator.options = Object.assign({}, otplib.authenticator.options, {
+        secret,
+      });
+      requestOptions.payload = {
+        code: authenticator.generate(secret),
+      };
+      const response = await setup(
+        { db: { email: TEST_EMAIL, emailVerified: true }, redis: { secret } },
+        {},
+        '/mfa/totp/setup/verify',
+        requestOptions
+      );
+      assert.isTrue(response.success);
+      assert.equal(authServerCacheRedis.set.callCount, 2);
+      assert.calledOnce(glean.twoFactorAuth.setupVerifySuccess);
+    });
+
+    it('should fail for unverified email', async () => {
+      requestOptions.payload = { code: '123123' };
+      try {
+        await setup(
+          {
+            db: { email: TEST_EMAIL, emailVerified: false },
+            redis: { secret },
+          },
+          {},
+          '/mfa/totp/setup/verify',
+          requestOptions
+        );
+        assert.fail('Expected unverified email error');
+      } catch (err) {
+        assert.equal(err.errno, authErrors.ERRNO.ACCOUNT_UNVERIFIED);
+      }
+    });
+  });
+
+  describe('/mfa/totp/setup/complete', () => {
+    beforeEach(() => {
+      glean.twoFactorAuth.codeComplete.reset();
+    });
+
+    it('should complete setup', async () => {
+      const verifiedDigest = crypto
+        .createHash('sha256')
+        .update(secret)
+        .digest('hex');
+      const response = await setup(
+        {
+          db: { email: TEST_EMAIL, emailVerified: true },
+          redis: { secret, verifiedDigest },
+        },
+        {},
+        '/mfa/totp/setup/complete',
+        requestOptions
+      );
+      assert.isTrue(response.success);
+      assert.calledOnce(db.replaceTotpToken);
+      assert.equal(authServerCacheRedis.del.callCount, 2);
+      assert.calledOnce(glean.twoFactorAuth.codeComplete);
+    });
+
+    it('should fail for unverified email', async () => {
+      await setup(
+        { db: { email: TEST_EMAIL, emailVerified: false } },
+        {},
+        '/mfa/totp/setup/complete',
+        requestOptions
+      ).then(assert.fail, (err) => {
+        assert.equal(err.errno, authErrors.ERRNO.ACCOUNT_UNVERIFIED);
+      });
+    });
+
+    it('should fail for unverified email', async () => {
+      const verifiedDigest = crypto
+        .createHash('sha256')
+        .update(secret)
+        .digest('hex');
+      try {
+        await setup(
+          {
+            db: { email: TEST_EMAIL, emailVerified: false },
+            redis: { secret, verifiedDigest },
+          },
+          {},
+          '/mfa/totp/setup/complete',
+          requestOptions
+        );
+        assert.fail('Expected unverified email error');
+      } catch (err) {
+        assert.equal(err.errno, authErrors.ERRNO.ACCOUNT_UNVERIFIED);
+      }
+    });
+
+    it('should error for unverified session', async () => {
+      requestOptions.credentials.tokenVerificationId = 'notverified';
+      const verifiedDigest = crypto
+        .createHash('sha256')
+        .update(secret)
+        .digest('hex');
+      await setup(
+        {
+          db: { email: TEST_EMAIL, emailVerified: true },
+          redis: { secret, verifiedDigest },
+        },
+        {},
+        '/mfa/totp/setup/complete',
+        requestOptions
+      ).then(assert.fail, (err) => {
+        assert.equal(err.errno, authErrors.ERRNO.SESSION_UNVERIFIED);
+        // cleanup for other tests
+        delete requestOptions.credentials.tokenVerificationId;
+      });
+    });
+  });
+
   describe('/mfa/totp/replace/start', () => {
     it('should create a new TOTP token if user has an existing token', async () => {
       const response = await setup(
-        { db: { email: TEST_EMAIL } },
+        {
+          db: { email: TEST_EMAIL },
+          totpTokenVerified: true,
+          totpTokenEnabled: true,
+        },
         {},
         '/mfa/totp/replace/start',
         requestOptions
@@ -1102,19 +1335,13 @@ function setup(results, errors, routePath, requestOptions) {
     return Promise.resolve();
   });
   db.totpToken = sinon.spy(() => {
-    if (errors.totpToken) {
-      return Promise.reject(authErrors.totpTokenNotFound());
-    }
     return Promise.resolve({
-      verified:
-        typeof results.totpTokenVerified === 'undefined'
-          ? true
-          : results.totpTokenVerified,
-      enabled:
-        typeof results.totpTokenEnabled === 'undefined'
-          ? true
-          : results.totpTokenEnabled,
-      sharedSecret: secret,
+      verified: results?.totpTokenVerified || false,
+      enabled: results?.totpTokenEnabled || false,
+      sharedSecret:
+        results.totpTokenVerified && results.totpTokenEnabled
+          ? secret
+          : undefined,
     });
   });
   db.replaceTotpToken = sinon.spy(() => {
