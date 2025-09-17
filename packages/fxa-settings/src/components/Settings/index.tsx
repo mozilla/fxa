@@ -17,8 +17,8 @@ import {
 import PageSettings from './PageSettings';
 import PageChangePassword from './PageChangePassword';
 import PageCreatePassword from './PageCreatePassword';
-import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
-import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
+import PageSecondaryEmailAdd from './PageSecondaryEmailAdd';
+import PageSecondaryEmailVerify from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
 import Page2faSetup from './Page2faSetup';
 import { Page2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
@@ -188,8 +188,8 @@ export const Settings = ({
               />
             </>
           )}
-          <MfaGuardPageSecondaryEmailAdd path="/emails" />
-          <MfaGuardPageSecondaryEmailVerify path="/emails/verify" />
+          <PageSecondaryEmailAdd path="/emails" />
+          <PageSecondaryEmailVerify path="/emails/verify" />
           <PageRecentActivity path="/recent_activity" />
           <PageDeleteAccount path="/delete_account" />
           <Redirect from="/clients" to="/settings#connected-services" noThrow />

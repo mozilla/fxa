@@ -209,6 +209,40 @@ describe('Settings App', () => {
     expect(getByTestId('change-password-requirements')).toBeInTheDocument();
   });
 
+  it('routes to PageSecondaryEmailAdd', async () => {
+    const session = mockSession(true);
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await navigate(SETTINGS_PATH + '/emails');
+
+    expect(getByTestId('secondary-email-input')).toBeInTheDocument();
+  });
+
+  it('routes to PageSecondaryEmailVerify', async () => {
+    const session = mockSession(true);
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await navigate(SETTINGS_PATH + '/emails/verify');
+
+    expect(getByTestId('secondary-email-verify-form')).toBeInTheDocument();
+  });
+
   it('routes to two step authentication page', async () => {
     const session = mockSession(true);
     const account = {
@@ -335,16 +369,6 @@ describe('Settings App', () => {
         pageName: 'Page2faChange',
         route: '/two_step_authentication/change',
         hasPassword: true,
-      },
-      {
-        pageName: 'PageSecondaryEmailAdd',
-        route: '/emails',
-        hasPassword: true,
-      },
-      {
-        pageName: 'PageSecondaryEmailVerify',
-        route: '/emails/verify',
-        hasPassword: false,
       },
     ];
 
