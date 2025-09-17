@@ -18,6 +18,9 @@ export const iapOfferingsByStoreIDsQuery = graphql(`
           }
         }
         defaultPurchase {
+          stripePlanChoices {
+            stripePlanChoice
+          }
           purchaseDetails {
             productName
             localizations(filters: { locale: { eq: $locale } }) {
