@@ -67,4 +67,8 @@ export class IapOfferingsByStoreIDsResultUtil {
 
     return result;
   }
+
+  getIapPageContentByStoreId(storeId: string) {
+    return this.iaps.find((iap) => iap.storeID === storeId);
+  }
 }

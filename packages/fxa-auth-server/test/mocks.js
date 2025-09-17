@@ -18,6 +18,8 @@ const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../lib/account-events');
 const { gleanMetrics } = require('../lib/metrics/glean');
+const { PriceManager } = require('@fxa/payments/customer');
+const { ProductConfigurationManager } = require('@fxa/shared/cms');
 
 const proxyquire = require('proxyquire');
 const amplitudeModule = proxyquire('../lib/metrics/amplitude', {
@@ -350,6 +352,8 @@ module.exports = {
   mockAppStoreSubscriptions,
   mockAccountEventsManager,
   unMockAccountEventsManager,
+  mockPriceManager,
+  mockProductConfigurationManager,
 };
 
 function mockCustoms(errors) {
@@ -1063,4 +1067,20 @@ function mockGlean() {
   }
 
   return glean;
+}
+
+function mockPriceManager() {
+  const priceManager = {
+    retrieve: sinon.stub(),
+  };
+  Container.set(PriceManager, priceManager);
+  return priceManager;
+}
+
+function mockProductConfigurationManager() {
+  const productConfigurationManager = {
+    getIapOfferings: sinon.stub(),
+  };
+  Container.set(ProductConfigurationManager, productConfigurationManager);
+  return productConfigurationManager;
 }

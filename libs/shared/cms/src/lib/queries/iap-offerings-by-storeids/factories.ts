@@ -12,6 +12,7 @@ import {
   type IapOfferingSubGroupResult,
   type IapWithOfferingResult,
   type IapOfferingDefaultPurchase,
+  type IapOfferingPurchaseStripePlanChoiceResult,
 } from '.';
 
 export const IapOfferingByStoreIDResultFactory = (
@@ -49,9 +50,17 @@ export const IapOfferingResultFactory = (
   ...override,
 });
 
+export const IapOfferingPurchaseStripePlanChoiceResultFactory = (
+  override?: Partial<IapOfferingPurchaseStripePlanChoiceResult>
+): IapOfferingPurchaseStripePlanChoiceResult => ({
+  stripePlanChoice: `price_${faker.string.alphanumeric({ length: 24 })}`,
+  ...override,
+});
+
 export const IapOfferingDefaultPurchaseFactory = (
   override?: Partial<IapOfferingDefaultPurchase>
 ): IapOfferingDefaultPurchase => ({
+  stripePlanChoices: [IapOfferingPurchaseStripePlanChoiceResultFactory()],
   purchaseDetails: {
     productName: faker.string.sample(),
     localizations: [{ productName: faker.string.sample() }],

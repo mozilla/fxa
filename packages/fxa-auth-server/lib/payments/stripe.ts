@@ -84,19 +84,6 @@ import { generateIdempotencyKey, roundTime } from './utils';
 import { ProductConfigurationManager } from '@fxa/shared/cms';
 import { reportSentryError, reportSentryMessage } from '../sentry';
 import { StripeMapperService } from '@fxa/payments/legacy';
-import { VError } from 'verror';
-
-export class SubscriptionManagementPriceInfoError extends VError {
-  constructor(message: string, priceId: string, currency: string) {
-    super(
-      {
-        name: 'SubscriptionManagementPriceInfoError',
-        info: { priceId, currency },
-      },
-      message
-    );
-  }
-}
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -302,9 +289,7 @@ export class StripeHelper extends StripeHelperBase {
    * @param plan
    * @returns true if plan is valid
    */
-  protected override async validatePlan(
-    plan: Stripe.Plan | Stripe.Price
-  ): Promise<boolean> {
+  protected override async validatePlan(plan: Stripe.Plan): Promise<boolean> {
     const { error } = await subscriptionProductMetadataValidator.validateAsync({
       ...plan.metadata,
       ...(plan.product as Stripe.Product)?.metadata,
@@ -2320,59 +2305,6 @@ export class StripeHelper extends StripeHelperBase {
       });
     }
     return null;
-  }
-
-  async getSubscriptionManagementPriceInfo(priceId: string, currency: string) {
-    const prices = await this.allPrices();
-    const price = prices.find((p) => p.id === priceId);
-
-    if (!price) {
-      throw new SubscriptionManagementPriceInfoError(
-        'Price not found',
-        priceId,
-        currency
-      );
-    }
-
-    const normalizedCurrency = currency.toLowerCase();
-    const currencyOption = price.currency_options?.[normalizedCurrency];
-
-    if (!price.recurring) {
-      throw new SubscriptionManagementPriceInfoError(
-        'Only support recurring prices',
-        priceId,
-        currency
-      );
-    }
-
-    if (!currencyOption) {
-      throw new SubscriptionManagementPriceInfoError(
-        'Price does not support this currency',
-        priceId,
-        currency
-      );
-    }
-
-    const { unit_amount, unit_amount_decimal } = currencyOption;
-    const amount =
-      unit_amount ??
-      (unit_amount_decimal != null
-        ? Math.round(parseFloat(unit_amount_decimal))
-        : null);
-    if (!amount) {
-      throw new SubscriptionManagementPriceInfoError(
-        'Price amount is required',
-        priceId,
-        currency
-      );
-    }
-
-    return {
-      amount,
-      currency: normalizedCurrency,
-      interval: price.recurring.interval,
-      interval_count: price.recurring.interval_count,
-    };
   }
 
   async getBillingDetailsAndSubscriptions(uid: string) {
