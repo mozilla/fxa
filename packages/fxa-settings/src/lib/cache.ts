@@ -391,6 +391,20 @@ export class JwtTokenCache {
     this.state = { ...this.state };
     JwtTokenCache.listeners.forEach((l) => l());
   }
+
+  /**
+   * Remove all cached tokens associated with the provided session.
+   * @param sessionToken
+   */
+  static clearTokens(sessionToken: string) {
+    for (const key of Object.keys(this.state)) {
+      if (key.startsWith(sessionToken)) {
+        delete this.state[key];
+      }
+    }
+    this.state = { ...this.state };
+    JwtTokenCache.listeners.forEach((l) => l());
+  }
 }
 
 /**
@@ -459,5 +473,15 @@ export class MfaOtpRequestCache {
 
   static get(sessionToken: string, requiredScope: MfaScope) {
     return this.state[this.getKey(sessionToken, requiredScope)];
+  }
+
+  static clear(sessionToken: string) {
+    for (const key of Object.keys(this.state)) {
+      console.log('!!! checking', key);
+      if (key.startsWith(sessionToken)) {
+        console.log('!!! deleting', key);
+        delete this.state[key];
+      }
+    }
   }
 }
