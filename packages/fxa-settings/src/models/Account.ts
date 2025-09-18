@@ -1181,8 +1181,14 @@ export class Account implements AccountData {
   }
 
   async makeEmailPrimary(email: string) {
+    let jwt;
+    try {
+      jwt = this.getCachedJwtByScope('email');
+    } catch (error) {
+      throw AuthUiErrors.INVALID_TOKEN;
+    }
     await this.withLoadingStatus(
-      this.authClient.recoveryEmailSetPrimaryEmail(sessionToken()!, email)
+      this.authClient.recoveryEmailSetPrimaryEmailWithJwt(jwt, email)
     );
     const cache = this.apolloClient.cache;
     cache.modify({

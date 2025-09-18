@@ -137,9 +137,7 @@ module.exports = (
       }
 
       if (
-        account.emails
-          .map((accountEmail) => accountEmail.email)
-          .includes(email)
+        account.emails.map((accountEmail) => accountEmail.email).includes(email)
       ) {
         throw error.alreadyOwnsEmail();
       }
@@ -197,8 +195,7 @@ module.exports = (
               throw error.verifiedPrimaryEmailAlreadyExists();
             }
 
-            const msSinceCreated =
-              Date.now() - secondaryEmailRecord.createdAt;
+            const msSinceCreated = Date.now() - secondaryEmailRecord.createdAt;
             const minUnverifiedAccountTime =
               config.secondaryEmail.minUnverifiedAccountTime;
             const exceedsMinUnverifiedAccountTime =
@@ -299,8 +296,107 @@ module.exports = (
       });
 
       return {};
-    }
-  }
+    },
+    setPrimaryEmailPost: async (request) => {
+      const sessionToken = request.auth.credentials;
+      const { uid, verifierSetAt } = sessionToken;
+      const currentEmail = sessionToken.email;
+      const newEmail = request.payload.email;
+
+      log.begin('Account.RecoveryEmailSetPrimary', request);
+
+      await customs.checkAuthenticated(
+        request,
+        uid,
+        currentEmail,
+        'setPrimaryEmail'
+      );
+
+      if (sessionToken.tokenVerificationId) {
+        throw error.unverifiedSession();
+      }
+
+      if (verifierSetAt <= 0) {
+        throw error.unverifiedAccount();
+      }
+
+      const newEmailRecord = await db.getSecondaryEmail(newEmail);
+      if (newEmailRecord.uid !== uid) {
+        throw error.cannotChangeEmailToUnownedEmail();
+      }
+
+      if (!newEmailRecord.isVerified) {
+        throw error.cannotChangeEmailToUnverifiedEmail();
+      }
+
+      if (!newEmailRecord.isPrimary) {
+        await db.setPrimaryEmail(uid, newEmailRecord.normalizedEmail);
+
+        const devices = await request.app.devices;
+        push.notifyProfileUpdated(uid, devices);
+
+        log.notifyAttachedServices('primaryEmailChanged', request, {
+          uid,
+          email: newEmail,
+        });
+
+        // While we typically do not want to capture PII in Sentry, in this
+        // case we must record enough data for us to file a bug with Support
+        // to update Zendesk so that this users' email matches their new primary.
+        const handleCriticalError = (err, source) => {
+          Sentry.withScope((scope) => {
+            scope.setContext('primaryEmailChange', {
+              originalEmail: currentEmail,
+              newEmail: newEmailRecord.email,
+              system: source,
+            });
+            reportSentryError(err);
+          });
+        };
+
+        // Fire off intentionally without waiting for all the network requests
+        // required to update Zendesk/Stripe. Capture enough to manually update
+        // Zendesk/Stripe if needed.
+        updateZendeskPrimaryEmail(
+          zendeskClient,
+          uid,
+          currentEmail,
+          newEmailRecord.email
+        ).catch((err) => handleCriticalError(err, 'zendesk'));
+
+        if (stripeHelper) {
+          // Wait here to update stripe and our local cache to avoid loss of
+          // valid subscription status.
+          try {
+            await updateStripeEmail(
+              stripeHelper,
+              uid,
+              currentEmail,
+              newEmailRecord.email
+            );
+          } catch (err) {
+            // Due to the work involved by this point, we cannot abort the
+            // request. We instead report it for manual fixing with sufficient
+            // context to locate the user and update Stripe and our cache.
+            handleCriticalError(err, 'stripe');
+          }
+        }
+
+        const account = await db.account(uid);
+        await mailer.sendPostChangePrimaryEmail(account.emails, account, {
+          acceptLanguage: request.app.acceptLanguage,
+          uid,
+        });
+
+        await recordSecurityEvent('account.primary_secondary_swapped', {
+          db,
+          request,
+        });
+      }
+
+      return {};
+    },
+  };
 
   return [
     {
@@ -748,9 +844,9 @@ module.exports = (
       },
     },
     {
-    method: 'POST',
-    path: '/mfa/recovery_email',
-    options: {
+      method: 'POST',
+      path: '/mfa/recovery_email',
+      options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_POST,
         auth: {
           strategy: 'mfa',
@@ -767,7 +863,7 @@ module.exports = (
         },
         response: {},
       },
-      handler: handlers.recoveryEmailPost
+      handler: handlers.recoveryEmailPost,
     },
     {
       method: 'POST',
@@ -788,7 +884,7 @@ module.exports = (
         },
         response: {},
       },
-      handler: handlers.recoveryEmailPost
+      handler: handlers.recoveryEmailPost,
     },
     {
       method: 'POST',
@@ -984,6 +1080,28 @@ module.exports = (
     },
     {
       method: 'POST',
+      path: '/mfa/recovery_email/set_primary',
+      options: {
+        ...EMAILS_DOCS.RECOVERY_EMAIL_SET_PRIMARY_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:email'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            email: validators
+              .email()
+              .required()
+              .description(DESCRIPTION.emailNewPrimary),
+          }),
+        },
+        response: {},
+      },
+      handler: handlers.setPrimaryEmailPost,
+    },
+    {
+      method: 'POST',
       path: '/recovery_email/secondary/resend_code',
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST,
@@ -1091,7 +1209,7 @@ module.exports = (
           }),
         },
       },
-      handler: handlers.recoveryEmailSecondaryVerifyCodePost
+      handler: handlers.recoveryEmailSecondaryVerifyCodePost,
     },
     {
       method: 'POST',
@@ -1117,7 +1235,7 @@ module.exports = (
           }),
         },
       },
-      handler: handlers.recoveryEmailSecondaryVerifyCodePost
+      handler: handlers.recoveryEmailSecondaryVerifyCodePost,
     },
     {
       method: 'POST',

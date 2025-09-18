@@ -48,6 +48,7 @@ export class MfaErrorBoundary extends Component<
   }
 
   componentDidCatch(error: any, info: any) {
+    console.warn('mingyuan componentDidCatch:', error);
     if (error && error.code === 401 && error.errno === 110) {
       this.setState({
         hasError: true,
@@ -69,6 +70,11 @@ export class MfaErrorBoundary extends Component<
   }
 
   componentDidUpdate(prevProps: MfaErrorBoundaryProps) {
+    console.warn(
+      'mingyuan componentDidUpdate\nprev jwt: %s\ncurr jwt: %s\n',
+      prevProps.jwt || '[empty]',
+      this.props.jwt || '[empty]'
+    );
     // Until a new code is provided, consider the error to still be valid.
     if (prevProps.jwt !== this.props.jwt) {
       this.setState({

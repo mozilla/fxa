@@ -46,6 +46,13 @@ export const MfaGuard = ({
   onDismissCallback?: () => Promise<void>;
   debounceIntervalMs?: number;
 }) => {
+  useEffect(() => {
+    console.warn('mingyuan MfaGuard mounted');
+    return () => {
+      console.warn('mingyuan MfaGuard unmounted');
+    };
+  }, []);
+
   // Let errors be handled by error boundaries in async contexts
   const handleError = useErrorHandler();
   const config = useConfig();
@@ -215,9 +222,6 @@ export const MfaGuard = ({
   // Note: I'm torn on whether we should render the child components or not. It seems
   // like a waste since the user can't interact with them anyway.
   const missingJwt = !JwtTokenCache.hasToken(sessionToken, requiredScope);
-  if (missingJwt) {
-    return getModal();
-  }
 
   // Otherwise, wrap the children in our error boundary and render them.
   // If an invalid JWT error is encountered, the MfaErrorBoundary will

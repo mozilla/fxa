@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Modal from '../Modal';
 import InputText from '../../InputText';
@@ -38,6 +38,13 @@ export const ModalMfaProtected = ({
   resendCodeLoading,
   showResendSuccessBanner,
 }: ModalProps) => {
+  useEffect(() => {
+    console.warn('mingyuan Modal mounted');
+    return () => {
+      console.warn('mingyuan Modal unmounted');
+    };
+  }, []);
+
   const ftlMsgResolver = useFtlMsgResolver();
 
   const { handleSubmit, register, formState } = useForm<FormData>({
