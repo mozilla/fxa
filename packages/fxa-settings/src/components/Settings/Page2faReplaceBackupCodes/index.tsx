@@ -5,6 +5,7 @@
 import { RouteComponentProps } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useErrorHandler } from 'react-error-boundary';
 import { SETTINGS_PATH } from '../../../constants';
 import {
   useAccount,
@@ -19,6 +20,17 @@ import { totpUtils } from '../../../lib/totp-utils';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
+import { MfaGuard } from '../MfaGuard';
+
+export const PageMfaGuard2faReplaceBackupCodes = (
+  props: RouteComponentProps
+) => {
+  return (
+    <MfaGuard requiredScope="2fa">
+      <Page2faReplaceBackupCodes {...props} />
+    </MfaGuard>
+  );
+};
 
 export const Page2faReplaceBackupCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
@@ -27,6 +39,7 @@ export const Page2faReplaceBackupCodes = (_: RouteComponentProps) => {
   const account = useAccount();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
+  const errorHandler = useErrorHandler();
 
   const goHome = () =>
     navigateWithQuery(SETTINGS_PATH + '#two-step-authentication', {
@@ -83,6 +96,12 @@ export const Page2faReplaceBackupCodes = (_: RouteComponentProps) => {
 
       alertSuccessAndGoHome();
     } catch (e) {
+      if (e && e.code === 401 && e.errno === 110) {
+        // JWT invalid/expired
+        errorHandler(e);
+        return;
+      }
+
       const errorMessage = isReplacingCodes
         ? ftlMsgResolver.getMsg(
             'tfa-replace-code-error-3',

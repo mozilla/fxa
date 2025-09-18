@@ -1076,8 +1076,9 @@ export class Account implements AccountData {
    * Allows for local code confirmation before updating.
    */
   async updateRecoveryCodes(recoveryCodes: string[]) {
+    const jwt = this.getCachedJwtByScope('2fa');
     const result = await this.withLoadingStatus(
-      this.authClient.updateRecoveryCodes(sessionToken()!, recoveryCodes)
+      this.authClient.updateRecoveryCodesWithJwt(jwt, recoveryCodes)
     );
     await this.refresh('backupCodes');
     return result;
