@@ -147,7 +147,7 @@ export const AppLayout = ({
               }
             />
             <main className="mobileLandscape:items-center tablet:flex-1 tablet:bg-white py-8 px-6 tablet:px-10 mobileLandscape:py-9 tablet:ml-auto flex justify-center flex-1">
-              <section>{children}</section>
+              <section className="max-w-120">{children}</section>
             </main>
           </div>
         )}
@@ -157,7 +157,7 @@ export const AppLayout = ({
           <div className="fixed bottom-6 left-6 z-10">
             <LocaleToggle />
           </div>
-      </footer>
+        </footer>
       )}
       <div id="body-bottom" className="w-full block mobileLandscape:hidden" />
     </>

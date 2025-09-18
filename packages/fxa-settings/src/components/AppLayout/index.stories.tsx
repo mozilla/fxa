@@ -195,7 +195,21 @@ export const WithCmsSplitLayoutBackgroundImageHeaderBackground = () => {
   return (
     <AppLayout cmsInfo={mockCmsInfo} splitLayout>
       <h1 className="card-header">Header content</h1>
-      <p className="mt-2">Paragraph content here</p>
+      <p className="mt-2">
+        Lots of text so we can see the max-width! Croissant cookie sesame snaps
+        cake muffin chupa chups jelly-o candy. Chocolate bar chocolate sesame
+        snaps fruitcake pudding danish. Donut marzipan shortbread jelly-o
+        shortbread danish. Topping biscuit macaroon donut sugar plum candy
+        dragée. Tart chupa chups jelly-o gummies oat cake dessert chocolate
+        sweet roll. Danish pie cookie candy candy canes cotton candy gummi
+        bears. Cake jelly-o cake cotton candy powder tart. Pastry tiramisu candy
+        canes pie shortbread. Bear claw carrot cake fruitcake donut icing cotton
+        candy. Donut ice cream chocolate bar pie halvah cake lemon drops muffin.
+        Bonbon brownie biscuit cake cake jujubes.
+      </p>
+      <div className="flex mt-5">
+        <button className="cta-primary cta-xl">I am a button</button>
+      </div>
     </AppLayout>
   );
 };
