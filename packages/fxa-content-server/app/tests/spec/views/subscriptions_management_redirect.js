@@ -36,7 +36,9 @@ describe('views/subscriptions_management_redirect', function () {
         managementScopes: 'MOCK_SCOPES',
         managementTokenTTL: 900,
         managementUrl: 'http://example.com',
+        usePaymentsNextSubscriptionManagement: true,
       },
+      paymentsNextHostedUrl: 'http://payments-next.example.com',
     };
 
     sinon.stub(user, 'sessionStatus').callsFake(() => Promise.resolve(account));
@@ -68,8 +70,16 @@ describe('views/subscriptions_management_redirect', function () {
     it('renders correctly, initializes flow events, navigates to payments server', () => {
       assert.lengthOf(view.$('.redirect-loading'), 1);
       assert.isTrue(view.initializeFlowEvents.calledOnce);
-      assert.deepEqual(PaymentServer.navigateToPaymentServer.args, [
-        [view, config.subscriptions, 'subscriptions'],
+      assert.deepEqual(
+        PaymentServer.navigateToPaymentServer.args, [
+        [
+          view,
+          config.subscriptions,
+          'subscriptions/landing',
+          {},
+          config.paymentsNextHostedUrl,
+          true,
+        ],
       ]);
     });
   });
