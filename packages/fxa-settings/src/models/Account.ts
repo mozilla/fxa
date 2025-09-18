@@ -1540,7 +1540,7 @@ export class Account implements AccountData {
    * @param scope MfaScope
    * @returns JWT token string
    */
-  private getCachedJwtByScope(scope: MfaScope) {
+  getCachedJwtByScope(scope: MfaScope) {
     const token = sessionToken();
     if (!token) {
       throw AuthUiErrors.INVALID_TOKEN;
