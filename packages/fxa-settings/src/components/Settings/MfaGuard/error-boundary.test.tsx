@@ -53,7 +53,7 @@ describe('MfaErrorBoundary', () => {
       </MfaErrorBoundary>
     );
 
-    const authError: any = new Error('invalid jwt');
+    const authError: any = new Error('Unauthorized for route');
     authError.code = 401;
     authError.errno = 110;
 

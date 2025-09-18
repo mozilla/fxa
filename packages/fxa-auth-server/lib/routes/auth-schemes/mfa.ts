@@ -46,6 +46,7 @@ export type Credentials = {
   verifiedAt?: string | null;
   metricsOptOutAt?: string | null;
   providerId?: string | null;
+  scope?: string[];
 };
 
 export const strategy = (
@@ -58,7 +59,7 @@ export const strategy = (
 
       // Make sure auth header is at least semi valid.
       if (!auth || auth.indexOf('Bearer') !== 0) {
-        throw AppError.unauthorized('Bearer token not provided');
+        throw AppError.unauthorized('Token not found');
       }
 
       // Extract jwt value
@@ -83,7 +84,7 @@ export const strategy = (
           scope?: string[];
         };
       } catch (err) {
-        throw AppError.invalidToken(err.message);
+        throw AppError.unauthorized('Token invalid');
       }
 
       // Ensure required state
@@ -97,17 +98,20 @@ export const strategy = (
 
       const sessionToken = await getCredentialsFunc(decoded.stid);
       if (!sessionToken) {
-        throw AppError.invalidToken('Parent session token not found!');
+        throw AppError.unauthorized('Token not found');
       }
 
-      // Check the underlying session
+      if (sessionToken.uid !== decoded.sub) {
+        throw AppError.unauthorized('Token invalid');
+      }
+
+      // Decorate session token with scope
+      sessionToken.scope = decoded.scope;
+
       // Finalize auth
       return h.authenticated({
-        credentials: {
-          ...sessionToken,
-          uid: decoded.sub,
-          scope: decoded.scope,
-        },
+        // Return actual session token instance!
+        credentials: sessionToken,
       });
     },
   });
