@@ -44,6 +44,8 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.totp.addRecoveryPhoneButton.click();
 
+      await settings.confirmMfaGuard(credentials.email);
+
       await expect(recoveryPhone.addHeader()).toBeVisible();
 
       await recoveryPhone.enterPhoneNumber('1234567890');
@@ -71,6 +73,8 @@ test.describe('severity-1 #smoke', () => {
       );
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.totp.addRecoveryPhoneButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
 
       await expect(recoveryPhone.addHeader()).toBeVisible();
 
@@ -134,6 +138,8 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.totp.changeRecoveryPhoneButton.click();
       await page.waitForURL(/recovery_phone\/setup/);
+
+      await settings.confirmMfaGuard(credentials.email);
 
       await expect(page.getByText('Change recovery phone')).toBeVisible();
 
@@ -743,6 +749,8 @@ async function addRecoveryPhone(
   await settings.goto();
   await settings.totp.addRecoveryPhoneButton.click();
   await page.waitForURL(/recovery_phone\/setup/);
+
+  await settings.confirmMfaGuard(credentials.email);
 
   await expect(recoveryPhone.addHeader()).toBeVisible();
 
