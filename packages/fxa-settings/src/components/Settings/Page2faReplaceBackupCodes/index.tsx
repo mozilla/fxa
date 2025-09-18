@@ -21,6 +21,7 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import { MfaGuard } from '../MfaGuard';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
 export const PageMfaGuard2faReplaceBackupCodes = (
   props: RouteComponentProps
@@ -96,7 +97,7 @@ export const Page2faReplaceBackupCodes = (_: RouteComponentProps) => {
 
       alertSuccessAndGoHome();
     } catch (e) {
-      if (e && e.code === 401 && e.errno === 110) {
+      if (isInvalidJwtError(e)) {
         // JWT invalid/expired
         errorHandler(e);
         return;

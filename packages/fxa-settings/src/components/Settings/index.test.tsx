@@ -334,6 +334,11 @@ describe('Settings App', () => {
         route: '/two_step_authentication/replace_codes',
         hasPassword: true,
       },
+      {
+        pageName: 'PageRecoveryPhoneSetup',
+        route: '/recovery_phone/setup',
+        hasPassword: false,
+      },
     ];
 
     it.each(guardedRoutes)(

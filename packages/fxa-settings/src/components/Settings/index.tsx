@@ -22,7 +22,7 @@ import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
 import Page2faSetup from './Page2faSetup';
 import { PageMfaGuard2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
-import { PageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
+import { MfaGuardPageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
 import { PageDeleteAccount } from './PageDeleteAccount';
 import { ScrollToTop } from './ScrollToTop';
 import { SETTINGS_PATH } from '../../constants';
@@ -196,7 +196,7 @@ export const Settings = ({
           {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
           <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
 
-          <PageRecoveryPhoneSetup path="/recovery_phone/setup" />
+          <MfaGuardPageRecoveryPhoneSetup path="/recovery_phone/setup" />
           <PageRecoveryPhoneRemove path="/recovery_phone/remove" />
 
           <PageMfaGuardTestWithAuthClient path="/mfa_guard/test/auth_client" />

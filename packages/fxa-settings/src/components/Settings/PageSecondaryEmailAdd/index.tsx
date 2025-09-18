@@ -17,6 +17,7 @@ import { getErrorFtlId } from '../../../lib/error-utils';
 import { MfaGuard } from '../MfaGuard';
 import { useErrorHandler } from 'react-error-boundary';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');
@@ -45,7 +46,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
         await account.createSecondaryEmail(email);
         navigateWithQuery('emails/verify', { state: { email }, replace: true });
       } catch (e) {
-        if (e && e.code === 401 && e.errno === 110) {
+        if (isInvalidJwtError(e)) {
           // JWT invalid/expired
           errorHandler(e);
           return;

@@ -2392,7 +2392,7 @@ export default class AuthClient {
   }
 
   /**
-   * Tries to register a recovery phone number
+   * Tries to register a recovery phone number. Important, this must be used for inline_recovery flow!
    *
    * @param sessionToken The user's current session token
    * @param phoneNumber The phone number to register. Should be E.164 format
@@ -2406,6 +2406,26 @@ export default class AuthClient {
     return this.sessionPost(
       '/recovery_phone/create',
       sessionToken,
+      { phoneNumber },
+      headers
+    );
+  }
+
+  /**
+   * Tries to register a recovery phone number
+   *
+   * @param jwt The users MFA jwt
+   * @param phoneNumber The phone number to register. Should be E.164 format
+   * @param headers
+   */
+  async recoveryPhoneCreateWithJwt(
+    jwt: string,
+    phoneNumber: string,
+    headers?: Headers
+  ): Promise<{ nationalFormat?: string; success: boolean }> {
+    return this.jwtPost(
+      '/mfa/recovery_phone/create',
+      jwt,
       { phoneNumber },
       headers
     );
