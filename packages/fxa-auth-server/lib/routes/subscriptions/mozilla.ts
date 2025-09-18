@@ -26,6 +26,7 @@ import type { AppendedPlayStoreSubscriptionPurchase } from 'fxa-shared/payments/
 import type { AppendedAppStoreSubscriptionPurchase } from 'fxa-shared/payments/iap/apple-app-store/types';
 import { VError } from 'verror';
 import type { ConfigType } from '../../../config';
+import { sanitizePlans } from './stripe';
 
 const DEFAULT_CURRENCY = 'usd';
 
@@ -227,7 +228,9 @@ export class MozillaSubscriptionHandler {
 
     return {
       eligibility: result.subscriptionEligibilityResult,
-      currentPlan: result.eligibleSourcePlan,
+      currentPlan:
+        result.eligibleSourcePlan &&
+        sanitizePlans([result.eligibleSourcePlan]).at(0),
     };
   }
 }
