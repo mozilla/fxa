@@ -2200,11 +2200,31 @@ export default class AuthClient {
     return accountData;
   }
 
+  /**
+   * @deprecated Use deleteRecoveryKeyWithJwt instead
+   */
   async deleteRecoveryKey(sessionToken: hexstring, headers?: Headers) {
     return this.hawkRequest(
       'DELETE',
       '/recoveryKey',
       sessionToken,
+      tokenType.sessionToken,
+      {},
+      headers
+    );
+  }
+
+  /**
+   * Removes the recovery key from the account
+   * @param jwt The MFA jwt for auth
+   * @param headers
+   * @returns
+   */
+  async deleteRecoveryKeyWithJwt(jwt: string, headers?: Headers) {
+    return this.hawkRequest(
+      'DELETE',
+      '/mfa/recoveryKey',
+      jwt,
       tokenType.sessionToken,
       {},
       headers
