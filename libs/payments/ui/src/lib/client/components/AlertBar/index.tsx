@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 'use client';
 
-import { Localized } from '@fluent/react';
+import { useLocalization } from '@fluent/react';
 import classNames from 'classnames';
 import * as Dialog from '@radix-ui/react-dialog';
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import Image from 'next/image';
 import checkLogo from '@fxa/shared/assets/images/check.svg';
 import closeIcon from '@fxa/shared/assets/images/close.svg';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export enum AlertBarVariant {
   ERROR,
@@ -19,9 +20,7 @@ export enum AlertBarVariant {
 export type AlertBarProps = {
   checked?: boolean;
   children: React.ReactNode;
-  ariaId?: string;
   variant?: AlertBarVariant;
-  onClick?: () => any;
   containerRef?: HTMLElement | null;
 };
 
@@ -29,48 +28,44 @@ export const AlertBar = ({
   checked,
   children,
   variant = AlertBarVariant.ERROR,
-  ariaId,
-  onClick,
   containerRef = null,
 }: AlertBarProps) => {
-  const [container, setContainer] = useState<HTMLElement | null>(null);
+  const [openDialog, setOpenDialog] = useState(true);
 
-  useEffect(() => {
-    if (!containerRef) {
-      setContainer(document.getElementById('header'));
-    }
-  }, []);
+  const { l10n } = useLocalization();
 
   let alertTypeStyle;
   switch (variant) {
     case AlertBarVariant.ERROR:
-      alertTypeStyle = 'bg-red-600 text-white';
+      alertTypeStyle = 'bg-red-100 error';
       break;
 
     case AlertBarVariant.SUCCESS:
-      alertTypeStyle = 'bg-grey-700 text-white';
+      alertTypeStyle = 'bg-green-200 success';
       break;
   }
 
   return (
     <>
-      <Dialog.Root open={true} modal={false}>
-        <Dialog.Portal container={container}>
+      <Dialog.Root open={openDialog} modal={false}>
+        <Dialog.Portal container={containerRef}>
           <Dialog.Content
-            className={
-              'left-0 w-full  absolute flex font-medium items-center justify-center pt-32 tablet:pt-40'
-            }
+            className="flex absolute justify-center mx-2 mt-2 right-0 left-0 top-16 tablet:top-20 z-10"
           >
+            <VisuallyHidden.Root asChild>
+              <Dialog.Title
+              >
+                {l10n.getString('alert-dialog-title', null, 'Alert dialog')}
+              </Dialog.Title>
+            </VisuallyHidden.Root>
             <div
-              aria-labelledby={ariaId}
               className={classNames(
-                'w-2/3 tablet:w-[640px] flex font-medium items-center justify-center min-h-[32px] my-1 mx-auto p-2 relative rounded-md text-sm tablet:max-w-[640px]',
+                'max-w-full tablet:max-w-2xl w-full desktop:min-w-sm flex shadow-md rounded-sm text-sm font-medium text-grey-700 border border-transparent outline-none',
                 alertTypeStyle
               )}
               data-testid="alert-container"
-              role="dialog"
             >
-              <div className="text-center w-[80%]">
+              <div className="flex-1 py-2 px-8 text-center outline-none">
                 {checked && (
                   <Image
                     src={checkLogo}
@@ -80,19 +75,22 @@ export const AlertBar = ({
                 )}
                 {children}
               </div>
-              {onClick && (
-                <Localized id="close-aria">
-                  <span
-                    data-testid="clear-success-alert"
-                    className="grid"
-                    aria-label="Close modal"
-                    onClick={() => onClick()}
-                    role="button"
-                  >
-                    <Image src={closeIcon} alt="" className="w-4 h-4" />
-                  </span>
-                </Localized>
-              )}
+              <Dialog.Close asChild>
+                <button
+                  className={
+                    classNames(
+                      'shrink-0 items-stretch justify-center py-2 px-3 focus-visible:rounded-sm focus-visible-default outline-none',
+                      alertTypeStyle
+                    )
+                  }
+                  onClick={() => setOpenDialog(false)}
+                >
+                  <Image
+                    src={closeIcon}
+                    alt={l10n.getString('dialog-close', null, 'Close dialog')}
+                  />
+                </button>
+              </Dialog.Close>
             </div>
           </Dialog.Content>
         </Dialog.Portal>

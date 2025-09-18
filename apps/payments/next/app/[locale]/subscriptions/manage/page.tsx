@@ -99,7 +99,7 @@ export default async function Manage({
               'Invalid payment information; there is an error with your account.'
             )}
 
-            <Link
+            <LinkExternal
               className={'underline hover:text-grey-100 pl-1'}
               href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`}
             >
@@ -107,7 +107,7 @@ export default async function Manage({
                 'subscription-management-page-paypal-error-banner-link',
                 'Manage'
               )}
-            </Link>
+            </LinkExternal>
           </span>
         </AlertBar>
       )}
@@ -199,13 +199,13 @@ export default async function Manage({
                       alt={
                         walletType === 'apple_pay'
                           ? l10n.getString(
-                              'apple-pay-logo-alt-text',
-                              'Apple Pay logo'
-                            )
+                            'apple-pay-logo-alt-text',
+                            'Apple Pay logo'
+                          )
                           : l10n.getString(
-                              'google-pay-logo-alt-text',
-                              'Google Pay logo'
-                            )
+                            'google-pay-logo-alt-text',
+                            'Google Pay logo'
+                          )
                       }
                       width={40}
                       height={24}
@@ -426,10 +426,10 @@ export default async function Manage({
                       >
                         {sub.interval
                           ? l10n.getString(
-                              getSubscriptionIntervalFtlId(sub.interval),
-                              { productName: sub.productName },
-                              `${sub.productName} (${formatPlanInterval(sub.interval)})`
-                            )
+                            getSubscriptionIntervalFtlId(sub.interval),
+                            { productName: sub.productName },
+                            `${sub.productName} (${formatPlanInterval(sub.interval)})`
+                          )
                           : sub.productName}
                       </h3>
                       <LinkExternal
@@ -476,8 +476,8 @@ export default async function Manage({
             </ul>
             {(appleIapSubscriptions.length > 0 ||
               googleIapSubscriptions.length > 0) && (
-              <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
-            )}
+                <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+              )}
           </>
         )}
 
@@ -665,33 +665,33 @@ export default async function Manage({
                         {!!purchase.expiryTimeMillis &&
                           (purchase.autoRenewing
                             ? l10n.getFragmentWithSource(
-                                'subscription-management-iap-sub-next-bill-is-due',
-                                {
-                                  vars: {
-                                    date: nextBillDate,
-                                  },
-                                  elems: {
-                                    strong: <strong />
-                                  },
+                              'subscription-management-iap-sub-next-bill-is-due',
+                              {
+                                vars: {
+                                  date: nextBillDate,
                                 },
-                                <>
-                                  Next bill is due <strong>{nextBillDate}</strong>
-                                </>
-                              )
+                                elems: {
+                                  strong: <strong />
+                                },
+                              },
+                              <>
+                                Next bill is due <strong>{nextBillDate}</strong>
+                              </>
+                            )
                             : l10n.getFragmentWithSource(
-                                'subscription-management-iap-sub-will-expire-on',
-                                {
-                                  vars: {
-                                    date: nextBillDate,
-                                  },
-                                  elems: {
-                                    strong: <strong />
-                                  },
+                              'subscription-management-iap-sub-will-expire-on',
+                              {
+                                vars: {
+                                  date: nextBillDate,
                                 },
-                                <>
-                                  Your subscription will expire on <strong>{nextBillDate}</strong>
-                                </>
-                              ))}
+                                elems: {
+                                  strong: <strong />
+                                },
+                              },
+                              <>
+                                Your subscription will expire on <strong>{nextBillDate}</strong>
+                              </>
+                            ))}
                       </p>
                     </div>
                     <div>
