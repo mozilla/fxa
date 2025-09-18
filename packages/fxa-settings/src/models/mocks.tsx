@@ -190,10 +190,6 @@ export function mockAppContext(context?: AppContextValue) {
       sensitiveDataClient: mockSensitiveDataClient(),
       uniqueUserId: '4a9512ac-3110-43df-aa8a-958A3d210b9c3',
       experiments: mockExperiment(),
-      authClient: {
-        mfaRequestOtp: jest.fn().mockResolvedValue(true),
-        mfaOtpVerify: jest.fn().mockResolvedValue({ accessToken: 'mock-jwt-token' }),
-      },
     },
     context
   ) as AppContextValue;

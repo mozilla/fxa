@@ -595,8 +595,6 @@ export class Account implements AccountData {
     // Check if we have a JWT for MFA-protected password changes
     const hasMfaJwt = JwtTokenCache.hasToken(currentSessionToken, 'password');
 
-    let response;
-
     if (!hasMfaJwt) {
       throw AuthUiErrors.INVALID_TOKEN;
     }
@@ -604,7 +602,7 @@ export class Account implements AccountData {
     // Use the new MFA-protected endpoint
     const jwt = JwtTokenCache.getToken(currentSessionToken, 'password');
 
-    response = await this.withLoadingStatus(
+    const response = await this.withLoadingStatus(
       this.authClient.passwordChangeWithJWT(
         jwt,
         this.email,

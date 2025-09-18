@@ -19,7 +19,6 @@ import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import { gleanMetrics } from '../metrics/glean';
 import * as requestHelper from '../routes/utils/request_helper';
 import { AuthLogger, AuthRequest } from '../types';
-
 import { recordSecurityEvent } from './utils/security-event';
 import * as validators from './validators';
 

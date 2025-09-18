@@ -48,12 +48,16 @@ jest.mock('./ScrollToTop', () => ({
 
 // Mock the MFA guard so we can assert guarded pages render it without
 // pulling in the guard's dependencies or child flows
+const mockMfaGuard = jest.fn();
 jest.mock('./MfaGuard', () => ({
   __esModule: true,
-  MfaGuard: ({ children }: { children: ReactNode }) => (
-    <div data-testid="mfa-guard">MockMfaGuard</div>
-  ),
+  MfaGuard: (props: any) => mockMfaGuard(props),
 }));
+
+// Default behavior: render mock guard element
+mockMfaGuard.mockImplementation(({ children }: { children: ReactNode }) => (
+  <div data-testid="mfa-guard">MockMfaGuard</div>
+));
 
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
@@ -190,6 +194,43 @@ describe('Settings App', () => {
     await navigate(SETTINGS_PATH + '/avatar');
 
     expect(getAllByTestId('avatar-nondefault')[0]).toBeInTheDocument();
+  });
+  it('routes to PageChangePassword', async () => {
+    // Suppress MFA guard for this test
+    mockMfaGuard.mockImplementationOnce(({ children }: { children: ReactNode }) => (
+      <>{children}</>
+    ));
+
+    // Mock the JWT token cache to suppress MFA guard
+    const mockJwtTokenCache = {
+      hasToken: jest.fn().mockReturnValue(true),
+      getToken: jest.fn().mockReturnValue('mock-jwt-token'),
+      setToken: jest.fn(),
+      removeToken: jest.fn(),
+      subscribe: jest.fn(),
+      getSnapshot: jest.fn(),
+      getKey: jest.fn(),
+    };
+
+    jest.mock('../../lib/cache', () => ({
+      ...jest.requireActual('../../lib/cache'),
+      JwtTokenCache: mockJwtTokenCache,
+    }));
+
+    const session = mockSession(true);
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await navigate(SETTINGS_PATH + '/change_password');
+
+    expect(getByTestId('change-password-requirements')).toBeInTheDocument();
   });
 
   it('routes to two step authentication page', async () => {
