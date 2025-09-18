@@ -21,7 +21,7 @@ import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
 import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
 import Page2faSetup from './Page2faSetup';
-import { Page2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
+import { PageMfaGuard2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
 import { PageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
 import { PageDeleteAccount } from './PageDeleteAccount';
 import { ScrollToTop } from './ScrollToTop';
@@ -165,7 +165,7 @@ export const Settings = ({
               />
               <Page2faSetup path="/two_step_authentication" />
               <MfaGuardPage2faChange path="/two_step_authentication/change" />
-              <Page2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
+              <PageMfaGuard2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
             </>
           ) : (
             <>

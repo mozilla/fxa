@@ -27,7 +27,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
     RECOVERY_CODE_SANE_MAX_LENGTH
   );
 
-  return [
+  const routes = [
     {
       method: 'GET',
       path: '/recoveryCodes',
@@ -198,6 +198,34 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       },
     },
     {
+      method: 'PUT',
+      path: '/mfa/recoveryCodes',
+      options: {
+        ...RECOVERY_CODES_DOCS.MFA_RECOVERY_CODES_PUT,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: recoveryCodesSchema,
+        },
+        response: {
+          schema: isA.object({
+            success: isA.boolean(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/recoveryCodes' && route.method === 'PUT'
+          )
+          .handler(request);
+      },
+    },
+    {
       method: 'GET',
       path: '/recoveryCodes/exists',
       options: {
@@ -331,4 +359,6 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       },
     },
   ];
+
+  return routes;
 };
