@@ -1690,6 +1690,9 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * @deprecated Use recoveryEmailSetPrimaryEmailWithJwt instead
+   */
   async recoveryEmailSetPrimaryEmail(
     sessionToken: hexstring,
     email: string,
@@ -1698,9 +1701,27 @@ export default class AuthClient {
     return this.sessionPost(
       '/recovery_email/set_primary',
       sessionToken,
-      {
-        email,
-      },
+      { email },
+      headers
+    );
+  }
+
+  /**
+   * Sets a secondary email as the primary email for the account.
+   * @param jwt Required scope 'mfa:email'
+   * @param email a secondary email to set as primary
+   * @param headers
+   * @returns Response
+   */
+  async recoveryEmailSetPrimaryEmailWithJwt(
+    jwt: string,
+    email: string,
+    headers?: Headers
+  ) {
+    return this.jwtPost(
+      '/mfa/recovery_email/set_primary',
+      jwt,
+      { email },
       headers
     );
   }

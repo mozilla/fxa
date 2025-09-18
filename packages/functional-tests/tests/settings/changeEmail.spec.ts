@@ -23,7 +23,13 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
+      await changePrimaryEmail(
+        target,
+        settings,
+        secondaryEmail,
+        newEmail,
+        credentials.email
+      );
 
       await settings.signOut();
 
@@ -59,7 +65,13 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
+      await changePrimaryEmail(
+        target,
+        settings,
+        secondaryEmail,
+        newEmail,
+        credentials.email
+      );
 
       await setNewPassword(
         settings,
@@ -101,7 +113,13 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, secondEmail, credentials.email);
+      await changePrimaryEmail(
+        target,
+        settings,
+        secondaryEmail,
+        secondEmail,
+        credentials.email
+      );
 
       await setNewPassword(
         settings,
@@ -118,6 +136,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Change back the primary email again
       await settings.secondaryEmail.makePrimaryButton.click();
+      await settings.confirmMfaGuard(secondEmail);
       await settings.signOut();
 
       // Login with primary email and new password
@@ -150,7 +169,13 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
 
-      await changePrimaryEmail(target, settings, secondaryEmail, newEmail, credentials.email);
+      await changePrimaryEmail(
+        target,
+        settings,
+        secondaryEmail,
+        newEmail,
+        credentials.email
+      );
       await expect(settings.primaryEmail.status).toHaveText(newEmail);
 
       // Click delete account
@@ -236,7 +261,7 @@ async function changePrimaryEmail(
   settings: SettingsPage,
   secondaryEmail: SecondaryEmailPage,
   email: string,
-  primaryEmail: string,
+  primaryEmail: string
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
   await settings.confirmMfaGuard(primaryEmail);
