@@ -1090,6 +1090,11 @@ export class AccountHandler {
         this.log.info('Account.ipprofiling.seenAddress', {
           uid: account.uid,
         });
+        recordSecurityEvent('account.signin.confirm.bypass.ip', {
+          db: this.db,
+          request,
+          account,
+        });
         return true;
       }
 
