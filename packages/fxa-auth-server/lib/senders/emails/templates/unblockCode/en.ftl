@@ -1,4 +1,7 @@
-unblockCode-subject = Account authorization code
+# Variables:
+#  $unblockCode (String) - The authorization code for sign-in
+unblockCode-subject-2 = Use { $unblockCode } to sign in
+unblockCode-preview = This code expires in one hour
 unblockCode-title = Is this you signing in?
 unblockCode-prompt = If yes, here is the authorization code you need:
 # Variables:
