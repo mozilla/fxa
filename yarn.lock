@@ -13847,7 +13847,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@radix-ui/react-visually-hidden@npm:1.2.3":
+"@radix-ui/react-visually-hidden@npm:1.2.3, @radix-ui/react-visually-hidden@npm:^1.2.3":
   version: 1.2.3
   resolution: "@radix-ui/react-visually-hidden@npm:1.2.3"
   dependencies:
@@ -35199,6 +35199,7 @@ __metadata:
     "@radix-ui/react-dialog": "npm:^1.1.14"
     "@radix-ui/react-form": "npm:^0.1.0"
     "@radix-ui/react-tooltip": "npm:^1.1.2"
+    "@radix-ui/react-visually-hidden": "npm:^1.2.3"
     "@sentry/browser": "npm:8.42.0"
     "@sentry/nestjs": "npm:8.42.0"
     "@sentry/nextjs": "npm:8.42.0"
