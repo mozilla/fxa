@@ -104,12 +104,6 @@ export const SubscriptionContent = ({
     locale
   );
 
-  const spanElementBilledOnCurrentInvoiceDate = (
-    <span className="font-normal text-grey-600 text-sm">
-      billed on {currentInvoiceDateLongFallback}
-    </span>
-  );
-
   async function cancelSubscriptionAtPeriodEnd() {
     const result = await cancelSubscriptionAtPeriodEndAction(
       userId,
@@ -530,109 +524,130 @@ export const SubscriptionContent = ({
             </>
           ) : (
             <>
-              <div className="leading-5">
-                {currentInvoiceTax ? (
-                  <Localized
-                    id="subscription-content-current-invoice-billed-on-with-tax"
-                    vars={{
-                      billedOnDate: currentInvoiceDateLongFallback,
-                      invoiceTotal:
-                        getCurrencyFallbackText(currentInvoiceTotal),
-                      taxDue: getCurrencyFallbackText(currentInvoiceTax),
-                    }}
-                    elems={{ span: spanElementBilledOnCurrentInvoiceDate }}
-                  >
-                    <p className="text-base font-semibold">
-                      {getCurrencyFallbackText(currentInvoiceTotal)} +{' '}
-                      {getCurrencyFallbackText(currentInvoiceTax)} tax{' '}
-                      {spanElementBilledOnCurrentInvoiceDate}
-                    </p>
-                  </Localized>
-                ) : (
-                  <Localized
-                    id="subscription-content-current-invoice-billed-on-no-tax"
-                    vars={{
-                      billedOnDate: currentInvoiceDateLongFallback,
-                      invoiceTotal:
-                        getCurrencyFallbackText(currentInvoiceTotal),
-                    }}
-                    elems={{ span: spanElementBilledOnCurrentInvoiceDate }}
-                  >
-                    <p className="text-base font-semibold">
-                      {getCurrencyFallbackText(currentInvoiceTotal)}{' '}
-                      {spanElementBilledOnCurrentInvoiceDate}
-                    </p>
-                  </Localized>
-                )}
-                {creditApplied && creditApplied > 0 ? (
-                  <Localized
-                    id="subscription-content-credit-issued-to-your-account"
-                    vars={{
-                      creditApplied: getCurrencyFallbackText(creditApplied),
-                    }}
-                  >
-                    <p className="text-green-900 text-sm">
-                      <strong>{getCurrencyFallbackText(creditApplied)}</strong>{' '}
-                      credit issued to your account
-                    </p>
-                  </Localized>
-                ) : null}
-                {promotionName && (
-                  <Localized
-                    id="subscription-content-coupon-applied"
-                    vars={{
-                      promotionName,
-                    }}
-                  >
-                    <p className="font-bold text-sm text-violet-700">
-                      {promotionName} applied
-                    </p>
-                  </Localized>
-                )}
-                {nextInvoiceTotal !== undefined && nextInvoiceTotal >= 0 ? (
-                  <div className="text-sm">
-                    {nextInvoiceTax ? (
-                      <Localized
-                        id="subscription-content-next-bill-excl-discount-with-tax"
-                        vars={{
-                          nextBillDate: currentPeriodEndLongFallback,
-                          nextInvoiceTotal:
-                            getCurrencyFallbackText(nextInvoiceTotal),
-                          taxDue: getCurrencyFallbackText(nextInvoiceTax),
-                        }}
-                      >
-                        <p>
-                          Next bill of{' '}
-                          <strong>
-                            {getCurrencyFallbackText(nextInvoiceTotal)} +{' '}
-                            {getCurrencyFallbackText(nextInvoiceTax)} tax
-                          </strong>
-                          , excluding discounts, is due{' '}
-                          <strong>{currentPeriodEndLongFallback}</strong>
-                        </p>
-                      </Localized>
-                    ) : (
-                      <Localized
-                        id="subscription-content-next-bill-excl-discount-no-tax"
-                        vars={{
-                          nextBillDate: currentPeriodEndLongFallback,
-                          nextInvoiceTotal:
-                            getCurrencyFallbackText(nextInvoiceTotal),
-                        }}
-                      >
-                        <p>
-                          Next bill of{' '}
-                          <strong>
-                            {getCurrencyFallbackText(nextInvoiceTotal)}
-                          </strong>
-                          , excluding discounts, is due{' '}
-                          <strong>{currentPeriodEndLongFallback}</strong>
-                        </p>
-                      </Localized>
-                    )}
-                  </div>
-                ) : null}
-              </div>
+              {isClient && (
+                <div className="leading-5">
+                  {currentInvoiceTax ? (
+                    <Localized
+                      id="subscription-content-current-billed-on-tax"
+                      vars={{
+                        billedOnDate: currentInvoiceDateLongFallback,
+                        invoiceTotal:
+                          getCurrencyFallbackText(currentInvoiceTotal),
+                        taxDue: getCurrencyFallbackText(currentInvoiceTax),
+                      }}
+                      elems={{
+                        strong: <strong></strong>,
+                        span: <span className="text-grey-600 text-sm"></span>,
+                      }}
+                    >
+                      <p>
+                        <strong>
+                          {getCurrencyFallbackText(currentInvoiceTotal)} +{' '}
+                          {getCurrencyFallbackText(currentInvoiceTax)} tax{' '}
+                        </strong>
+                        <span className="text-grey-600 text-sm">
+                          billed on {currentInvoiceDateLongFallback}
+                        </span>
+                      </p>
+                    </Localized>
+                  ) : (
+                    <Localized
+                      id="subscription-content-current-billed-on-no-tax"
+                      vars={{
+                        billedOnDate: currentInvoiceDateLongFallback,
+                        invoiceTotal:
+                          getCurrencyFallbackText(currentInvoiceTotal),
+                      }}
+                      elems={{
+                        strong: <strong></strong>,
+                        span: <span className="text-grey-600 text-sm"></span>,
+                      }}
+                    >
+                      <p>
+                        <strong>
+                          {getCurrencyFallbackText(currentInvoiceTotal)}
+                        </strong>
+                        <span className="text-grey-600 text-sm">
+                          billed on {currentInvoiceDateLongFallback}
+                        </span>
+                      </p>
+                    </Localized>
+                  )}
+                  {creditApplied && creditApplied > 0 ? (
+                    <Localized
+                      id="subscription-content-credit-issued-to-your-account"
+                      vars={{
+                        creditApplied: getCurrencyFallbackText(creditApplied),
+                      }}
+                      elems={{ strong: <strong></strong> }}
+                    >
+                      <p className="text-green-900 text-sm">
+                        <strong>
+                          {getCurrencyFallbackText(creditApplied)}
+                        </strong>{' '}
+                        credit issued to your account
+                      </p>
+                    </Localized>
+                  ) : null}
+                  {promotionName && (
+                    <Localized
+                      id="subscription-content-coupon-applied"
+                      vars={{
+                        promotionName,
+                      }}
+                    >
+                      <p className="font-bold text-sm text-violet-700">
+                        {promotionName} applied
+                      </p>
+                    </Localized>
+                  )}
+                  {nextInvoiceTotal !== undefined && nextInvoiceTotal >= 0 ? (
+                    <div className="text-sm">
+                      {nextInvoiceTax ? (
+                        <Localized
+                          id="subscription-content-next-bill-excl-disc-with-tax"
+                          vars={{
+                            nextBillDate: currentPeriodEndLongFallback,
+                            nextInvoiceTotal:
+                              getCurrencyFallbackText(nextInvoiceTotal),
+                            taxDue: getCurrencyFallbackText(nextInvoiceTax),
+                          }}
+                          elems={{ strong: <strong></strong> }}
+                        >
+                          <p>
+                            Next bill of{' '}
+                            <strong>
+                              {getCurrencyFallbackText(nextInvoiceTotal)} +{' '}
+                              {getCurrencyFallbackText(nextInvoiceTax)} tax
+                            </strong>
+                            , excluding discounts, is due{' '}
+                            <strong>{currentPeriodEndLongFallback}</strong>
+                          </p>
+                        </Localized>
+                      ) : (
+                        <Localized
+                          id="subscription-content-next-bill-excl-no-tax"
+                          vars={{
+                            nextBillDate: currentPeriodEndLongFallback,
+                            nextInvoiceTotal:
+                              getCurrencyFallbackText(nextInvoiceTotal),
+                          }}
+                          elems={{ strong: <strong></strong> }}
+                        >
+                          <p>
+                            Next bill of{' '}
+                            <strong>
+                              {getCurrencyFallbackText(nextInvoiceTotal)}
+                            </strong>
+                            , excluding discounts, is due{' '}
+                            <strong>{currentPeriodEndLongFallback}</strong>
+                          </p>
+                        </Localized>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+              )}
               <Localized
                 id="subscription-content-button-cancel"
                 vars={{ productName }}
