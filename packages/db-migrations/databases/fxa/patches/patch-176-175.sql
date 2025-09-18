@@ -1,5 +1,6 @@
 -- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
 --
--- DELETE FROM securityEventNames WHERE name = 'account.signin.confirm.bypass.ip';
+-- DELETE FROM securityEventNames WHERE name = 'account.signin_confirm_bypass_known_ip';
+-- DELETE FROM securityEventNames WHERE name = 'account.signin_confirm_bypass_new_account';
 --
 -- UPDATE dbMetadata SET value = '175' WHERE name = 'schema-patch-level';
