@@ -1,6 +1,10 @@
 {
   "subject": {
-    "id": "verifyLoginCode-subject-line-2",
-    "message": "Approve sign-in to <%- serviceName %>"
+    "id": "verifyLoginCode-subject-line-3",
+    "message": "Use <%- code %> to sign in"
+  },
+  "preview": {
+    "id": "verifyLoginCode-preview",
+    "message": "This code expires in 5 minutes."
   }
 }

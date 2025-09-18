@@ -1,10 +1,10 @@
 {
   "subject": {
-    "id": "verifyShortCode-subject-3",
-    "message": "Confirm your account"
+    "id": "verifyShortCode-subject-4",
+    "message": "Use <%- code %> to confirm your account"
   },
   "preview": {
-    "id": "verifyShortCode-preview",
-    "message": "Use the included code to confirm your Mozilla account."
+    "id": "verifyShortCode-preview-2",
+    "message": "This code expires in 5 minutes"
   }
 }
