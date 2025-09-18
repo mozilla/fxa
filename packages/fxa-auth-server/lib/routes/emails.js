@@ -137,9 +137,7 @@ module.exports = (
       }
 
       if (
-        account.emails
-          .map((accountEmail) => accountEmail.email)
-          .includes(email)
+        account.emails.map((accountEmail) => accountEmail.email).includes(email)
       ) {
         throw error.alreadyOwnsEmail();
       }
@@ -197,8 +195,7 @@ module.exports = (
               throw error.verifiedPrimaryEmailAlreadyExists();
             }
 
-            const msSinceCreated =
-              Date.now() - secondaryEmailRecord.createdAt;
+            const msSinceCreated = Date.now() - secondaryEmailRecord.createdAt;
             const minUnverifiedAccountTime =
               config.secondaryEmail.minUnverifiedAccountTime;
             const exceedsMinUnverifiedAccountTime =
@@ -299,8 +296,8 @@ module.exports = (
       });
 
       return {};
-    }
-  }
+    },
+  };
 
   return [
     {
@@ -748,9 +745,9 @@ module.exports = (
       },
     },
     {
-    method: 'POST',
-    path: '/mfa/recovery_email',
-    options: {
+      method: 'POST',
+      path: '/mfa/recovery_email',
+      options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_POST,
         auth: {
           strategy: 'mfa',
@@ -767,7 +764,7 @@ module.exports = (
         },
         response: {},
       },
-      handler: handlers.recoveryEmailPost
+      handler: handlers.recoveryEmailPost,
     },
     {
       method: 'POST',
@@ -788,7 +785,7 @@ module.exports = (
         },
         response: {},
       },
-      handler: handlers.recoveryEmailPost
+      handler: handlers.recoveryEmailPost,
     },
     {
       method: 'POST',
@@ -1091,7 +1088,7 @@ module.exports = (
           }),
         },
       },
-      handler: handlers.recoveryEmailSecondaryVerifyCodePost
+      handler: handlers.recoveryEmailSecondaryVerifyCodePost,
     },
     {
       method: 'POST',
@@ -1117,7 +1114,7 @@ module.exports = (
           }),
         },
       },
-      handler: handlers.recoveryEmailSecondaryVerifyCodePost
+      handler: handlers.recoveryEmailSecondaryVerifyCodePost,
     },
     {
       method: 'POST',

@@ -116,6 +116,76 @@ test('totp test with proper cleanup', async ({
 });
 ```
 
+### MFA Guard
+
+To support increased security, there are multiple locations that have an MFA Guard wrapping them within settings. If your test needs to interact with or bypass this, there are two options.
+
+Option 1: `settings.confirmMfaGuard()`
+
+- This will perform the manual actions to fetch the sent code from the mail client, input the code, and click confirm.
+
+Use this option when you want or need to test that the guard is at the right point, and can continue onto the next page or action after confirmation. This is similar to the user performing the actual action with the guard.
+
+Example:
+
+```ts
+test('My test 2', async ({
+  target,
+  pages: { page, settings },
+  testAccountTracker,
+}) => {
+  const credentials = await testAccountTracker.signUp();
+  // perform other actions to the point where a guard is expected, then call confirmMfaGuard
+  await settings.confirmMfaGuard();
+});
+```
+
+Option 2: `testAccountTracker.signUpAndPrimeMfa({...})`
+
+- This performs a few actions, setting up the test account and getting MFA tokens ready. Use this in place of the standard `testAccountTracker.signUp()`. By using this, you can fetch multiple MFA tokens with different scopes, which are then set in the MFA localStorage cache.
+
+Use this if you want to have the tokens taken care of and not worry about the MFA Guard. This is similar to a user having already confirmed the guard and then returning to perform an action.
+
+Example:
+
+```ts
+test('My test 1', async ({
+  target,
+  pages: { page, settings },
+  testAccountTracker,
+}) => {
+  const credentials = await testAccountTracker.signUpAndPrimeMfa({
+    scopes: 'email', // scopes can be single or array
+  });
+  // Rest of test can proceed as normal without the guard showing
+});
+```
+
+### Clearing JWT Cache
+
+If you have a need to clear the cache mid-test, you can use this:
+
+```typescript
+test('My test 1', async ({
+  target,
+  pages: { page, settings },
+  testAccountTracker,
+}) => {
+  // setup, other steps of test
+  // now, clear JWT cache for specific token
+  await testAccountTracker.clearJwtCache('email');
+  /*
+  alternatively, clear for multiple tokens...
+  await testAccountTracker.clearJwtCache(['email', '2fa']);
+
+  or clear all tokens...
+  await testAccountTracker.clearJwtCache();
+
+  Rest of test can proceed as normal without the guard showing
+  */
+});
+```
+
 ## Page Object Models (POMs)
 
 To keep the tests readable and high-level we use the [page object model](https://playwright.dev/docs/test-pom) pattern. Pages are organized by url "route" when possible in the `pages` directory, and made available to tests in the fixture as `pages`.
