@@ -437,8 +437,8 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
     .description(DESCRIPTIONS.productId),
   product_name: isA.string().required().description(DESCRIPTIONS.productName),
   priceInfo: isA.object({
-    amount: isA.number().required(),
-    currency: isA.string().required(),
+    amount: isA.number().required().allow(null),
+    currency: isA.string().required().allow(null),
     interval: isA.string().required(),
     interval_count: isA.number().required(),
   }),
@@ -905,7 +905,8 @@ module.exports.entrypoint = isA
   .max(256)
   .required();
 
-module.exports.locale = isA.string()
+module.exports.locale = isA
+  .string()
   .regex(/^[a-z]{2}(-[A-Z]{2})?$/) // ISO 639-1 language codes (e.g., 'en', 'es', 'en-US', 'es-MX')
   .max(10)
   .optional();

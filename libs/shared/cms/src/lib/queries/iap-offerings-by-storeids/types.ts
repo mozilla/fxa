@@ -16,7 +16,13 @@ export interface IapOfferingSubGroupResult {
 export interface IapOfferingDefaultPurchaseDetails {
   productName: string;
 }
+
+export interface IapOfferingPurchaseStripePlanChoiceResult {
+  stripePlanChoice: string;
+}
+
 export interface IapOfferingDefaultPurchase {
+  stripePlanChoices: IapOfferingPurchaseStripePlanChoiceResult[];
   purchaseDetails: IapOfferingDefaultPurchaseDetails & {
     localizations: IapOfferingDefaultPurchaseDetails[];
   };

@@ -20,8 +20,8 @@ export const iapExtraStripeInfoSchema = joi.object({
   product_id: joi.string().required(),
   product_name: joi.string().required(),
   priceInfo: joi.object({
-    amount: joi.number().required(),
-    currency: joi.string().required(),
+    amount: joi.number().required().allow(null),
+    currency: joi.string().required().allow(null),
     interval: joi.string().required(),
     interval_count: joi.number().required(),
   }),

@@ -22,6 +22,10 @@ const {
   appStoreSubscriptionPurchaseToAppStoreSubscriptionDTO,
   playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO,
 } = require('../../../../lib/payments/iap/iap-formatter');
+const {
+  MozillaSubscriptionHandler,
+  SubscriptionManagementPriceMappingError,
+} = require('../../../../lib/routes/subscriptions/mozilla');
 
 // We want to track the call count of these methods without
 // stubbing them (i.e. we want to use their real implementation),
@@ -63,11 +67,22 @@ const mockSubsAndBillingDetails = {
   customerCurrency: 'usd',
   subscriptions: [mockSubscription],
 };
+const mockPrice = {
+  currency_options: {
+    usd: {
+      unit_amount: 400,
+    },
+  },
+  recurring: {
+    interval: 'month',
+    interval_count: 1,
+  },
+};
 const mockSubscriptionManagementPriceInfo = {
-  amount: 400,
+  amount: mockPrice.currency_options.usd.unit_amount,
   currency: 'usd',
-  interval: 'month',
-  interval_count: 1,
+  interval: mockPrice.recurring.interval,
+  interval_count: mockPrice.recurring.interval_count,
 };
 const mockFormattedWebSubscription = {
   created: 1588972390,
@@ -88,9 +103,9 @@ const mockPlayStoreSubscriptionPurchase = {
   startTimeMillis: startTime,
   expiryTimeMillis: endTime,
   autoRenewing: true,
-  priceCurrencyCode: 'JPY',
+  priceCurrencyCode: 'usd',
   priceAmountMicros: '99000000',
-  countryCode: 'JP',
+  countryCode: 'US',
   developerPayload: '',
   paymentState: 1,
   orderId: 'GPA.3313-5503-3858-32549',
@@ -124,6 +139,7 @@ const mockAppStoreSubscriptionPurchase = {
   autoRenewStatus: 1,
   productId: 'wow',
   bundleId: 'hmm',
+  currency: 'usd',
   isEntitlementActive: sinon.fake.returns(true),
 };
 
@@ -144,6 +160,15 @@ const mockAppStoreSubscription = {
   product_id: 'prod_123',
   product_name: 'Cooking with Foxkeh',
 };
+
+const mockIapOffering = {
+  offering: {
+    defaultPurchase: {
+      stripePlanChoices: [],
+    },
+  },
+};
+
 const mocks = require('../../../mocks');
 const log = mocks.mockLog();
 const db = mocks.mockDB({
@@ -159,6 +184,11 @@ const mockConfig = {
 };
 let stripeHelper;
 let capabilityService;
+const iapOfferingUtil = {
+  getIapPageContentByStoreId: sandbox.stub(),
+};
+let priceManager;
+let productConfigurationManager;
 
 async function runTest(routePath, routeDependencies = {}) {
   const playSubscriptions = {
@@ -194,9 +224,6 @@ describe('mozilla-subscriptions', () => {
       getBillingDetailsAndSubscriptions: sandbox
         .stub()
         .resolves(mockSubsAndBillingDetails),
-      getSubscriptionManagementPriceInfo: sandbox
-        .stub()
-        .resolves(mockSubscriptionManagementPriceInfo),
       fetchCustomer: sandbox.stub().resolves(mockCustomer),
       formatSubscriptionsForSupport: sandbox
         .stub()
@@ -210,6 +237,16 @@ describe('mozilla-subscriptions', () => {
       iapFormatterSpy,
       'playStoreSubscriptionPurchaseToPlayStoreSubscriptionDTO'
     );
+    priceManager = mocks.mockPriceManager();
+    productConfigurationManager = mocks.mockProductConfigurationManager();
+    productConfigurationManager.getIapOfferings = sandbox
+      .stub()
+      .resolves(iapOfferingUtil);
+    iapOfferingUtil.getIapPageContentByStoreId = sandbox
+      .stub()
+      .returns(mockIapOffering);
+    priceManager.retrieve = sandbox.stub().resolves(mockPrice);
+    priceManager.retrieveByInterval = sandbox.stub().resolves(mockPrice);
   });
 
   afterEach(() => {
@@ -316,9 +353,6 @@ describe('mozilla-subscriptions', () => {
     it('gets customer billing details and only Google Play subscriptions', async () => {
       const stripeHelper = {
         getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        getSubscriptionManagementPriceInfo: sandbox
-          .stub()
-          .resolves(mockSubscriptionManagementPriceInfo),
         addPriceInfoToIapPurchases: sandbox
           .stub()
           .resolves([mockGooglePlaySubscription]),
@@ -346,9 +380,6 @@ describe('mozilla-subscriptions', () => {
     it('gets customer billing details and only App Store subscriptions', async () => {
       const stripeHelper = {
         getBillingDetailsAndSubscriptions: sandbox.stub().resolves(null),
-        getSubscriptionManagementPriceInfo: sandbox
-          .stub()
-          .resolves(mockSubscriptionManagementPriceInfo),
         addPriceInfoToIapPurchases: sandbox
           .stub()
           .resolves([mockAppStoreSubscription]),
@@ -403,6 +434,8 @@ describe('mozilla-subscriptions', () => {
 
 describe('plan-eligibility', () => {
   beforeEach(() => {
+    priceManager = mocks.mockPriceManager();
+    productConfigurationManager = mocks.mockProductConfigurationManager();
     capabilityService = {
       getPlanEligibility: sandbox.stub().resolves({
         subscriptionEligibilityResult: 'eligibility',
@@ -423,6 +456,188 @@ describe('plan-eligibility', () => {
         eligibility: 'eligibility',
         currentPlan: undefined,
       });
+    });
+  });
+});
+
+describe('MozillaSubscriptionHandler', () => {
+  let mozillaSubscriptionsHandler;
+  const playSubscriptions = {
+    getSubscriptions: sandbox.stub(),
+  };
+  const appStoreSubscriptions = {
+    getSubscriptions: sandbox.stub(),
+  };
+
+  const mockSubId = 'sub_123';
+  const mockSkuId = 'sku';
+  const mockAppleProductId = 'product_ios';
+  const mockPriceInfo1 = {
+    amount: 400,
+    currency: 'usd',
+    interval: 'month',
+    interval_count: 1,
+  };
+  const mockPriceInfo2 = {
+    amount: 400,
+    currency: 'usd',
+    interval: 'year',
+    interval_count: 1,
+  };
+  const mockPriceInfo3 = {
+    amount: null,
+    currency: null,
+    interval: 'month',
+    interval_count: 1,
+  };
+  const mockPriceInfoMap = [
+    { uniqueId: mockSubId, priceInfo: mockPriceInfo1 },
+    { uniqueId: mockSkuId, priceInfo: mockPriceInfo2 },
+    { uniqueId: mockAppleProductId, priceInfo: mockPriceInfo3 },
+  ];
+
+  beforeEach(() => {
+    priceManager = mocks.mockPriceManager();
+    productConfigurationManager = mocks.mockProductConfigurationManager();
+    mozillaSubscriptionsHandler = new MozillaSubscriptionHandler(
+      log,
+      db,
+      mockConfig,
+      customs,
+      stripeHelper,
+      playSubscriptions,
+      appStoreSubscriptions,
+      capabilityService
+    );
+    productConfigurationManager.getIapOfferings = sandbox
+      .stub()
+      .resolves(iapOfferingUtil);
+    iapOfferingUtil.getIapPageContentByStoreId = sandbox
+      .stub()
+      .returns(mockIapOffering);
+    priceManager.retrieve = sandbox.stub().resolves(mockPrice);
+    priceManager.retrieveByInterval = sandbox.stub().resolves(mockPrice);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  describe('fetchIapPriceInfo', () => {
+    it('successfully fetches price info for google play store', async () => {
+      const result = await mozillaSubscriptionsHandler.fetchIapPriceInfo(
+        [{ sku: mockSkuId, priceCurrencyCode: 'usd' }],
+        []
+      );
+      assert.deepEqual(result, [
+        { uniqueId: mockSkuId, priceInfo: mockPriceInfo1 },
+      ]);
+    });
+
+    it('successfully fetches price info for app store', async () => {
+      const result = await mozillaSubscriptionsHandler.fetchIapPriceInfo(
+        [],
+        [{ productId: mockAppleProductId, currency: 'usd' }]
+      );
+      assert.deepEqual(result, [
+        { uniqueId: mockAppleProductId, priceInfo: mockPriceInfo1 },
+      ]);
+    });
+
+    it('throws if IAP CMS config could not be found', async () => {
+      iapOfferingUtil.getIapPageContentByStoreId = sandbox
+        .stub()
+        .returns(undefined);
+      try {
+        await mozillaSubscriptionsHandler.fetchIapPriceInfo([], []);
+      } catch (error) {
+        assert.instanceOf(error, SubscriptionManagementPriceMappingError);
+        assert.equal(error.message, 'IAP offering CMS config not found');
+      }
+    });
+
+    it('throws if Price not found for IAP', async () => {
+      priceManager.retrieveByInterval = sandbox.stub().resolves(undefined);
+      try {
+        await mozillaSubscriptionsHandler.fetchIapPriceInfo([], []);
+      } catch (error) {
+        assert.instanceOf(error, SubscriptionManagementPriceMappingError);
+        assert.equal(error.message, 'Price not found for IAP');
+      }
+    });
+  });
+
+  describe('findPriceInfo', () => {
+    it('successfully returns the correct Price', () => {
+      const result = mozillaSubscriptionsHandler.findPriceInfo(
+        mockSubId,
+        mockPriceInfoMap
+      );
+      assert.equal(result, mockPriceInfo1);
+    });
+
+    it('successfully returns undefined if feature is disabled', () => {
+      const mozillaSubscriptionsHandler = new MozillaSubscriptionHandler(
+        log,
+        db,
+        {
+          subscriptions: {
+            billingPriceInfoFeature: false,
+          },
+        },
+        customs,
+        stripeHelper,
+        playSubscriptions,
+        appStoreSubscriptions,
+        capabilityService
+      );
+      const result = mozillaSubscriptionsHandler.findPriceInfo(
+        mockSubId,
+        mockPriceInfoMap
+      );
+      assert.equal(result, undefined);
+    });
+
+    it('throws if price is not found', () => {
+      try {
+        mozillaSubscriptionsHandler.findPriceInfo(
+          'doesnotexist',
+          mockPriceInfoMap
+        );
+        assert.fail('an error should have been thrown');
+      } catch (error) {
+        assert.instanceOf(error, SubscriptionManagementPriceMappingError);
+      }
+    });
+  });
+
+  describe('mapPriceInfo', () => {
+    it('successfully maps a price and with currency', () => {
+      const result = mozillaSubscriptionsHandler.mapPriceInfo(mockPrice, 'usd');
+      assert.deepEqual(result, mockPriceInfo1);
+    });
+    it('successfully maps a price and with invalid currency', () => {
+      const result = mozillaSubscriptionsHandler.mapPriceInfo(
+        mockPrice,
+        'invalid'
+      );
+      assert.deepEqual(result, {
+        ...mockPriceInfo3,
+        currency: 'invalid',
+      });
+    });
+    it('successfully maps a price and without currency', () => {
+      const result = mozillaSubscriptionsHandler.mapPriceInfo(mockPrice);
+      assert.deepEqual(result, mockPriceInfo3);
+    });
+    it('throws if price does not have recurring', () => {
+      try {
+        mozillaSubscriptionsHandler.mapPriceInfo({});
+        assert.fail('an error should have been thrown');
+      } catch (error) {
+        assert.instanceOf(error, SubscriptionManagementPriceMappingError);
+        assert.equal(error.message, 'Only support recurring prices');
+      }
     });
   });
 });

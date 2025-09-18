@@ -160,6 +160,7 @@ async function run(config) {
       statsd
     );
     const priceManager = new PriceManager(stripeClient);
+    Container.set(PriceManager, priceManager);
     const promotionCodeManager = new PromotionCodeManager(stripeClient);
     Container.set(PromotionCodeManager, promotionCodeManager);
 
@@ -194,7 +195,12 @@ async function run(config) {
       Container.set(CapabilityManager, capabilityManager);
       Container.set(EligibilityManager, eligibilityManager);
 
-      const cmsAccounts = new RelyingPartyConfigurationManager(strapiClient, statsd, firestore, log);
+      const cmsAccounts = new RelyingPartyConfigurationManager(
+        strapiClient,
+        statsd,
+        firestore,
+        log
+      );
       Container.set(RelyingPartyConfigurationManager, cmsAccounts);
     }
 

@@ -152,6 +152,8 @@ describe('subscriptions payPalRoutes', () => {
     push = {};
     Container.set(PlaySubscriptions, {});
     Container.set(AppStoreSubscriptions, {});
+    mocks.mockPriceManager();
+    mocks.mockProductConfigurationManager();
   });
 
   afterEach(() => {
