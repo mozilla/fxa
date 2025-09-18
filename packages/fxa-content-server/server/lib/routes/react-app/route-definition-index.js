@@ -58,6 +58,9 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_SHOW_LOCALE_TOGGLE = config.get(
     'featureFlags.showLocaleToggle'
   );
+ const FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT = config.get(
+    'featureFlags.paymentsNextSubscriptionManagement'
+  );
   const NIMBUS_PREVIEW = config.get('nimbusPreview');
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
@@ -82,9 +85,11 @@ function getIndexRouteDefinition(config) {
   const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get(
     'jsResourcePath'
   )}/`;
+  const PAYMENTS_NEXT_HOSTED_URL = config.get('payments_next_hosted_url');
 
   const configForFrontEnd = {
     authServerUrl: AUTH_SERVER_URL,
+    paymentsNextHostedUrl: PAYMENTS_NEXT_HOSTED_URL,
     maxEventOffset: MAX_EVENT_OFFSET,
     env: ENV,
     isCoppaEnabled: COPPA_ENABLED,
@@ -121,6 +126,7 @@ function getIndexRouteDefinition(config) {
       recoveryCodeSetupOnSyncSignIn:
         FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
       showLocaleToggle: FEATURE_FLAGS_SHOW_LOCALE_TOGGLE,
+      paymentsNextSubscriptionManagement: FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT,
     },
     cms: {
       enabled: CMS_ENABLED,
@@ -164,6 +170,11 @@ function getIndexRouteDefinition(config) {
         logger.error('featureFlags.error', err);
         flags = {};
       }
+
+      const staticFlags = Object.fromEntries(
+        Object.entries(featureFlagConfig).filter(([_, v]) => typeof v === 'boolean')
+      );
+      flags = { ...staticFlags, ...flags };
 
       const isPromptNoneEnabledForClient =
         req.query.client_id &&
