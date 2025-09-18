@@ -99,6 +99,7 @@ describe('mfa', () => {
       // There's typically much more data returned by this callback, but
       // for testing purposes this is sufficient.
       id: SESSION_TOKEN_ID,
+      uid: UID,
       uaBrowser: UA_BROWSER,
     });
 
@@ -118,7 +119,7 @@ describe('mfa', () => {
   });
 
   it('sends otp, verifies otp, and gets a valid jwt in return', async () => {
-    const requestResult = await await runTest(
+    const requestResult = await runTest(
       '/mfa/otp/request',
       {
         credentials: {
@@ -179,7 +180,7 @@ describe('mfa', () => {
     }
     assert.isDefined(error);
     assert.equal(error.errno, 110);
-    assert.equal(error.message, 'jwt malformed');
+    assert.equal(error.message, 'Unauthorized for route');
   });
 
   it('will not allow an expired token', async () => {
@@ -194,6 +195,6 @@ describe('mfa', () => {
     }
     assert.isDefined(error);
     assert.equal(error.errno, 110);
-    assert.equal(error.message, 'jwt expired');
+    assert.equal(error.message, 'Unauthorized for route');
   });
 });
