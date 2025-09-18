@@ -143,6 +143,9 @@ test.describe('severity-1 #smoke', () => {
 
     // Create recovery key
     await settings.recoveryKey.createButton.click();
+
+    await settings.confirmMfaGuard(credentials.email);
+
     const key = await recoveryKey.createRecoveryKey(
       credentials.password,
       'hint'
@@ -211,6 +214,9 @@ test.describe('severity-1 #smoke', () => {
 
     // Create recovery key
     await settings.recoveryKey.createButton.click();
+
+    await settings.confirmMfaGuard(credentials.email);
+
     await recoveryKey.createRecoveryKey(credentials.password, 'hint');
 
     // Verify status as 'enabled'
@@ -281,6 +287,9 @@ test.describe('severity-1 #smoke', () => {
 
     // Create recovery key
     await settings.recoveryKey.createButton.click();
+
+    await settings.confirmMfaGuard(credentials.email);
+
     await recoveryKey.createRecoveryKey(credentials.password, 'hint');
 
     // Verify status as 'enabled'

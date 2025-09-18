@@ -305,7 +305,11 @@ const CompleteResetPasswordContainer = ({
           // we cannot create a new recovery key if the session is not verified
           if (accountResetData.verified) {
             await account.refresh('account');
-            const recoveryKey = await account.createRecoveryKey(newPassword);
+            const recoveryKey = await account.createRecoveryKey(
+              newPassword,
+              false,
+              false
+            );
             sensitiveDataClient.setDataType(SensitiveData.Key.NewRecoveryKey, {
               recoveryKey,
             });

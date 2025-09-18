@@ -75,4 +75,4 @@ export type TotpInfo = {
   secret: string;
 };
 
-export type MfaScope = 'test' | '2fa' | 'email';
+export type MfaScope = 'test' | '2fa' | 'email' | 'recovery_key';

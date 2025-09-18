@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { useErrorHandler } from 'react-error-boundary';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -42,6 +43,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
 }: FlowRecoveryKeyConfirmPwdProps) => {
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
+  const errorHandler = useErrorHandler();
 
   const [errorText, setErrorText] = useState<string>();
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
@@ -71,11 +73,21 @@ export const FlowRecoveryKeyConfirmPwd = ({
     setLocalizedErrorBannerMessage('');
     try {
       const replaceKey = actionType === RecoveryKeyAction.Change;
-      const recoveryKey = await account.createRecoveryKey(password, replaceKey);
+      const recoveryKey = await account.createRecoveryKey(
+        password,
+        replaceKey,
+        true
+      );
       setFormattedRecoveryKey(formatRecoveryKey(recoveryKey.buffer));
       logViewEvent(`flow.${viewName}`, 'confirm-password.success');
       navigateForward();
     } catch (err) {
+      if (err && err.code === 401 && err.errno === 110) {
+        // JWT invalid/expired
+        errorHandler(err);
+        return;
+      }
+
       const localizedErrorMessage = getLocalizedErrorMessage(
         ftlMsgResolver,
         err
@@ -103,6 +115,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
     setIsLoading,
     setFormattedRecoveryKey,
     viewName,
+    errorHandler,
   ]);
 
   return (
