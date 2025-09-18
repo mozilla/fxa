@@ -14,8 +14,15 @@ class SubscriptionsManagementRedirectView extends FormView {
 
   initialize(options) {
     this._subscriptionsConfig = {};
-    if (options && options.config && options.config.subscriptions) {
-      this._subscriptionsConfig = options.config.subscriptions;
+    this._paymentsNextUrl = undefined;
+    if (options && options.config) {
+      if (options.config.subscriptions) {
+        this._subscriptionsConfig = options.config.subscriptions;
+        this._usePaymentsNext = !!options.config.subscriptions.usePaymentsNextSubscriptionManagement;
+      }
+      if (options.config.paymentsNextHostedUrl) {
+        this._paymentsNextUrl = options.config.paymentsNextHostedUrl;
+      }
     }
 
     // Flow events need to be initialized before the navigation
@@ -27,7 +34,10 @@ class SubscriptionsManagementRedirectView extends FormView {
     return PaymentServer.navigateToPaymentServer(
       this,
       this._subscriptionsConfig,
-      'subscriptions'
+      this._usePaymentsNext ? 'subscriptions/landing' : 'subscriptions',
+      {},
+      this._paymentsNextUrl,
+      this._usePaymentsNext,
     );
   }
 }
