@@ -21,7 +21,7 @@ import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
 import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
 import Page2faSetup from './Page2faSetup';
-import { Page2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
+import { PageMfaGuard2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
 import { PageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
 import { PageDeleteAccount } from './PageDeleteAccount';
 import { ScrollToTop } from './ScrollToTop';
@@ -33,7 +33,7 @@ import { currentAccount } from '../../lib/cache';
 import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
-import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
+import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
 import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import MfaGuardPage2faChange from './Page2faChange';
@@ -165,7 +165,7 @@ export const Settings = ({
               />
               <Page2faSetup path="/two_step_authentication" />
               <MfaGuardPage2faChange path="/two_step_authentication/change" />
-              <Page2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
+              <PageMfaGuard2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
             </>
           ) : (
             <>
@@ -197,7 +197,7 @@ export const Settings = ({
           <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
 
           <PageRecoveryPhoneSetup path="/recovery_phone/setup" />
-          <PageRecoveryPhoneRemove path="/recovery_phone/remove" />
+          <PageMfaGuardRecoveryPhoneRemove path="/recovery_phone/remove" />
 
           <PageMfaGuardTestWithAuthClient path="/mfa_guard/test/auth_client" />
           <PageMfaGuardTestWithGql path="/mfa_guard/test/gql" />
