@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode, useCallback, useState } from 'react';
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useAccount, Email, useAlertBar } from '../../../models';
 import UnitRow from '../UnitRow';
@@ -11,6 +17,13 @@ import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
+import { MfaGuard } from '../MfaGuard';
+// import { useErrorHandler } from 'react-error-boundary';
+import {
+  JwtTokenCache,
+  MfaOtpRequestCache,
+  sessionToken,
+} from '../../../lib/cache';
 
 type UnitRowSecondaryEmailContentAndActionsProps = {
   secondary: Email;
@@ -22,6 +35,8 @@ export const UnitRowSecondaryEmail = () => {
   const navigateWithQuery = useNavigateWithQuery();
   const alertBar = useAlertBar();
   const [queuedAction, setQueuedAction] = useState<() => void>();
+  const [attemptChangePrimary, setAttemptChangePrimary] =
+    useState<boolean>(false);
   const { l10n } = useLocalization();
 
   const secondaryEmails = account.emails.filter((email) => !email.isPrimary);
@@ -48,30 +63,6 @@ export const UnitRowSecondaryEmail = () => {
       }
     },
     [account, navigateWithQuery, alertBar, l10n]
-  );
-
-  const makeEmailPrimary = useCallback(
-    async (email: string) => {
-      try {
-        await account.makeEmailPrimary(email);
-        alertBar.success(
-          l10n.getString(
-            'se-set-primary-successful-2',
-            { email },
-            `${email} is now your primary email`
-          )
-        );
-      } catch (e) {
-        alertBar.error(
-          l10n.getString(
-            'se-set-primary-error-2',
-            null,
-            'Sorry, there was a problem changing your primary email'
-          )
-        );
-      }
-    },
-    [account, alertBar, l10n]
   );
 
   const deleteEmail = useCallback(
@@ -146,6 +137,57 @@ export const UnitRowSecondaryEmail = () => {
         <SecondaryEmailDefaultContent />
       </UnitRow>
     );
+  };
+
+  const ChangePrimaryOnMount = ({ email }: { email: string }) => {
+    const called = useRef(false);
+    // const handleError = useErrorHandler();
+    const account = useAccount();
+    const alertBar = useAlertBar();
+    const { l10n } = useLocalization();
+    const makeEmailPrimary = useCallback(
+      async (email: string) => {
+        try {
+          await account.makeEmailPrimary(email);
+          alertBar.success(
+            l10n.getString(
+              'se-set-primary-successful-2',
+              { email },
+              `${email} is now your primary email`
+            )
+          );
+          setAttemptChangePrimary(false);
+        } catch (e) {
+          if (e.code === 401 && e.errno === 110) {
+            // Delegate to MfaErrorBoundary via MfaGuard
+            MfaOtpRequestCache.remove(sessionToken()!, 'email');
+            JwtTokenCache.removeToken(sessionToken()!, 'email');
+            // handleError(e);
+            return;
+          }
+          alertBar.error(
+            l10n.getString(
+              'se-set-primary-error-2',
+              null,
+              'Sorry, there was a problem changing your primary email'
+            )
+          );
+          setAttemptChangePrimary(false);
+        }
+      },
+      [account, alertBar, l10n]
+      // [account, alertBar, l10n, handleError]
+    );
+    useEffect(() => {
+      (async () => {
+        if (called.current) {
+          return;
+        }
+        called.current = true;
+        await makeEmailPrimary(email);
+      })();
+    }, [makeEmailPrimary, email]);
+    return <></>;
   };
 
   const UnitRowSecondaryEmailContentAndActions = ({
@@ -249,14 +291,25 @@ export const UnitRowSecondaryEmail = () => {
                   <button
                     disabled={account.loading}
                     className="cta-neutral cta-base-common cta-base-p disabled:cursor-wait whitespace-nowrap w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
-                    onClick={() => {
-                      queueEmailAction(() => makeEmailPrimary(email));
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAttemptChangePrimary(true);
                     }}
                     data-testid="secondary-email-make-primary"
                   >
                     Make primary
                   </button>
                 </Localized>
+              )}
+              {attemptChangePrimary && (
+                <MfaGuard
+                  requiredScope="email"
+                  onDismissCallback={async () => {
+                    setAttemptChangePrimary(false);
+                  }}
+                >
+                  <ChangePrimaryOnMount email={email} />
+                </MfaGuard>
               )}
               <Localized id="se-remove-email" attrs={{ title: true }}>
                 <ButtonIconTrash

@@ -2483,7 +2483,7 @@ const convictConf = convict({
     },
     jwt: {
       expiresInSec: {
-        default: 60 * 10,
+        default: 15, //FIXME: change back to 60 * 10 when done testing
         doc: 'Duration that JWT tokens guarding mfa last for.',
         format: Number,
         env: 'MFA__JWT__EXPIRES_IN_SEC',
