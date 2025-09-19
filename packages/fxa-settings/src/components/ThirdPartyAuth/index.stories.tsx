@@ -16,9 +16,18 @@ export default {
 } as Meta;
 
 export const Default = () => {
+  // Default separator type is 'or'
   return (
     <AppLayout>
       <Subject showSeparator />
+    </AppLayout>
+  );
+};
+
+export const SignInWithSeparator = () => {
+  return (
+    <AppLayout>
+      <Subject showSeparator separatorType="signInWith" />
     </AppLayout>
   );
 };

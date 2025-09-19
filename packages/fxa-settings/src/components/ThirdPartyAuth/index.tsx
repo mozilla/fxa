@@ -64,7 +64,7 @@ const ThirdPartyAuth = ({
                   separatorType === 'signInWith' ? 'Sign in with' : 'or';
                 return (
                   <FtlMsg id={id}>
-                    <div className="mx-4 text-base text-grey-300 font-extralight">
+                    <div className="mx-4 text-base text-grey-500 font-extralight">
                       {defaultText}
                     </div>
                   </FtlMsg>
