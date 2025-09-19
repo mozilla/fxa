@@ -17,7 +17,6 @@ import {
 } from '@fxa/payments/ui/server';
 import {
   getCartOrRedirectAction,
-  recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
 import { config } from 'apps/payments/next/config';
 import type { Metadata } from 'next';
@@ -62,13 +61,6 @@ export default async function CheckoutError({
   const l10n = getApp().getL10n(acceptLanguage, locale);
   const [cart] = await Promise.all([cartPromise]);
 
-  recordEmitterEventAction(
-    'checkoutFail',
-    { ...params },
-    searchParams,
-    cart.paymentInfo?.type
-  );
-
   const errorReason = getErrorFtlInfo(cart.errorReasonId, params, config, searchParams);
 
   return (
@@ -80,7 +72,7 @@ export default async function CheckoutError({
         {
           // Once more conditionals are added, move this to a separate component
           cart.errorReasonId ===
-          CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
+            CartErrorReasonId.CART_ELIGIBILITY_STATUS_SAME ? (
             <Image
               src={checkIcon}
               alt=""

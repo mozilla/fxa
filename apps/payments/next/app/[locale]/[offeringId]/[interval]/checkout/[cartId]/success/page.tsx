@@ -10,7 +10,6 @@ import { getCardIcon } from '@fxa/payments/ui';
 import {
   fetchCMSData,
   getCartOrRedirectAction,
-  recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
 import {
   getApp,
@@ -66,13 +65,6 @@ export default async function CheckoutSuccess({
     cartDataPromise,
     sessionPromise,
   ]);
-
-  recordEmitterEventAction(
-    'checkoutSuccess',
-    { ...params },
-    searchParams,
-    cart.paymentInfo.type
-  );
 
   const { successActionButtonUrl, successActionButtonLabel } =
     cms.commonContent.localizations.at(0) || cms.commonContent;

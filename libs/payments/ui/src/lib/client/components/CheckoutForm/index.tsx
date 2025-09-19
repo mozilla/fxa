@@ -75,10 +75,10 @@ interface CheckoutFormProps {
     };
     paymentInfo?: {
       type:
-        | Stripe.PaymentMethod.Type
-        | 'google_iap'
-        | 'apple_iap'
-        | 'external_paypal';
+      | Stripe.PaymentMethod.Type
+      | 'google_iap'
+      | 'apple_iap'
+      | 'external_paypal';
       last4?: string;
       brand?: string;
       customerSessionClientSecret?: string;
@@ -240,13 +240,13 @@ export function CheckoutForm({
     const confirmationTokenParams: ConfirmationTokenCreateParams | undefined =
       !isSavedPaymentMethod
         ? {
-            payment_method_data: {
-              billing_details: {
-                name: fullName,
-                email: sessionEmail || undefined,
-              },
+          payment_method_data: {
+            billing_details: {
+              name: fullName,
+              email: sessionEmail || undefined,
             },
-          }
+          },
+        }
         : undefined;
 
     // Create the ConfirmationToken using the details collected by the Payment Element

@@ -6,16 +6,19 @@
 
 import {
   getNeedsInputAction,
+  recordEmitterEventAction,
   submitNeedsInputAndRedirectAction,
   validateCartStateAndRedirectAction,
 } from '@fxa/payments/ui/actions';
 import { useEffect } from 'react';
 import { useStripe } from '@stripe/react-stripe-js';
 import { SupportedPages } from '@fxa/payments/ui';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 export function PaymentInputHandler({ cartId }: { cartId: string }) {
   const stripe = useStripe();
+  const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const searchParamsRecord: Record<string, string> = {};
   for (const [key, value] of searchParams.entries()) {
     searchParamsRecord[key] = value;
@@ -32,14 +35,34 @@ export function PaymentInputHandler({ cartId }: { cartId: string }) {
             await stripe.handleNextAction({
               clientSecret: inputRequest.data.clientSecret,
             });
-            await submitNeedsInputAndRedirectAction(cartId, searchParamsRecord);
+            await submitNeedsInputAndRedirectAction(cartId, params, searchParamsRecord);
             break;
           case 'notRequired':
-            await validateCartStateAndRedirectAction(
+            const redirectResponse = await validateCartStateAndRedirectAction(
               cartId,
               SupportedPages.NEEDS_INPUT,
               searchParamsRecord
             );
+
+            if (redirectResponse?.state && redirectResponse?.redirectToUrl) {
+              if (redirectResponse.state === 'success') {
+                await recordEmitterEventAction(
+                  'checkoutSuccess',
+                  { ...params },
+                  searchParamsRecord
+                );
+              }
+
+              if (redirectResponse.state === 'fail') {
+                await recordEmitterEventAction(
+                  'checkoutFail',
+                  { ...params },
+                  searchParamsRecord
+                );
+              }
+
+              router.push(redirectResponse.redirectToUrl);
+            }
             break;
         }
       }
