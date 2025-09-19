@@ -19,12 +19,16 @@ const PaymentServer = {
    * @param {Object} subscriptionsConfig
    * @param {String} redirectPath
    * @param {Object} [rpQueryParams={}]
+   * @param {String} [paymentsNextUrl]
+   * @param {Boolean} [usePaymentsNext]
    */
   async navigateToPaymentServer(
     view,
     subscriptionsConfig,
     redirectPath,
-    rpQueryParams = {}
+    rpQueryParams = {},
+    paymentsNextUrl,
+    usePaymentsNext,
   ) {
     const {
       managementClientId,
@@ -63,7 +67,8 @@ const PaymentServer = {
             flow_id: flowId,
             ...rpQueryParams,
           });
-    const url = `${managementUrl}/${redirectPath}${queryString}`;
+    const baseUrl = usePaymentsNext ? paymentsNextUrl : managementUrl;
+    const url = `${baseUrl}/${redirectPath}${queryString}`;
 
     const unauthenticatedRedirect = () => {
       if (isAllowedUnauthenticatedRoute(redirectPath)) {
