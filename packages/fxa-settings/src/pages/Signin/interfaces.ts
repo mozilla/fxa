@@ -9,7 +9,7 @@ import { BeginSigninError } from '../../lib/error-utils';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { MozServices } from '../../lib/types';
-import { Account, Integration } from '../../models';
+import { Integration } from '../../models';
 import { QueryParams } from '../..';
 
 export interface AvatarResponse {
@@ -242,5 +242,3 @@ export interface SigninLocationState {
   origin?: NavigationOptions['origin'];
   showInlineRecoveryKeySetup?: boolean;
 }
-
-export type TotpToken = Awaited<ReturnType<Account['createTotp']>>;

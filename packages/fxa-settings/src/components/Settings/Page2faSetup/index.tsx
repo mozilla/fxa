@@ -18,7 +18,6 @@ import {
   useAlertBar,
   useConfig,
   useFtlMsgResolver,
-  useSession,
 } from '../../../models';
 
 import { Choice, CHOICES } from '../../FormChoice';
@@ -28,15 +27,22 @@ import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { MfaGuard } from '../MfaGuard';
 
-const Page2faSetup = (_: RouteComponentProps) => {
+export const MfaGuardedPage2faSetup = (_: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="2fa">
+      <Page2faSetup />
+    </MfaGuard>
+  );
+};
+
+export const Page2faSetup = () => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const config = useConfig();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
-  const session = useSession();
   const {
     totpInfo,
     loading: totpInfoLoading,
@@ -126,24 +132,15 @@ const Page2faSetup = (_: RouteComponentProps) => {
     }
   }, [totpInfoLoading, totpInfoError, totpInfo, showGenericError, goHome]);
 
-  /* ───── early return states ───── */
-  // without a verified session, we can't set up 2FA
-  // totpInfoLoading would get stuck in a loading state and render as an infinite spinner
-  // adding a verified session guard allows the totpInfoLoading to resolve once session is verified
-  if (!session.verified) {
-    return <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />;
-  }
-
   if (totpInfoLoading) return <LoadingSpinner fullScreen />;
 
   if (totpInfoError || !totpInfo) {
     return <></>;
   }
 
-  /* ───── handlers ───── */
   const handleVerify2faAppCode = async (code: string) => {
     try {
-      await account.verifyTotpSetupCode(code);
+      await account.verifyTotpSetupCodeWithJwt(code);
       GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
       nextStep();
       return {};
@@ -158,7 +155,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
   };
 
   const enable2fa = async () => {
-    await account.completeTotpSetup();
+    await account.completeTotpSetupWithJwt();
   };
 
   const handleBackupCodeConfirm = async (code: string) => {
@@ -283,4 +280,4 @@ const Page2faSetup = (_: RouteComponentProps) => {
   );
 };
 
-export default Page2faSetup;
+export default MfaGuardedPage2faSetup;
