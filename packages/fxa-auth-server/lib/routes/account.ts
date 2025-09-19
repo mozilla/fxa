@@ -1044,7 +1044,7 @@ export class AccountHandler {
       // they have to verify the token.
       const hasTotpToken = await this.otpUtils.hasTotpToken(accountRecord);
       if (hasTotpToken) {
-        // User has enabled TOTP, no way around it, they must verify TOTP token
+        // User has enabled TOTP, they must verify TOTP token unless they are using recovery key
         verificationMethod = 'totp-2fa';
       } else if (!hasTotpToken && verificationMethod === 'totp-2fa') {
         // Error if requesting TOTP verification with TOTP not setup
@@ -1766,6 +1766,12 @@ export class AccountHandler {
             sessionToken.id,
             accountResetToken.verificationMethod
           );
+        } else if (recoveryKeyId && hasTotpToken) {
+          // If account has TOTP but recovery key is used,
+          // we elevate to AAL2 to match account AAL.
+          // Recovery key is considered a 2FA method.
+          // Only elevate if account has TOTP, otherwise session AAL > account AAL.
+          await this.db.verifyTokensWithMethod(sessionToken.id, 'totp-2fa');
         }
 
         return await request.propagateMetricsContext(
