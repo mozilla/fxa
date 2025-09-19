@@ -12,18 +12,31 @@ import {
   MOCK_UID,
 } from '../mocks';
 import { NavigationOptions } from './interfaces';
-import { createMockSigninOAuthNativeSyncIntegration } from './mocks';
+import {
+  createMockSigninOAuthNativeSyncIntegration,
+  createMockSigninOAuthNativeIntegration,
+} from './mocks';
 import { handleNavigation } from './utils';
 import * as ReachRouter from '@reach/router';
 import * as ReactUtils from 'fxa-react/lib/utils';
+import firefox from '../../lib/channels/firefox';
 
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   navigate: jest.fn(),
 }));
 
+jest.mock('../../lib/channels/firefox', () => ({
+  __esModule: true,
+  default: {
+    fxaLogin: jest.fn(),
+    fxaOAuthLogin: jest.fn(),
+  },
+}));
+
 const navigateSpy = jest.spyOn(ReachRouter, 'navigate');
 const hardNavigateSpy = jest.spyOn(ReactUtils, 'hardNavigate');
+const fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
 
 describe('Signin utils', () => {
   beforeEach(() => {
@@ -31,8 +44,10 @@ describe('Signin utils', () => {
   });
 
   describe('handleNavigation', () => {
-    it('does not navigate if performNavigation is false', async () => {
-      const navigationOptions = {
+    const createBaseNavigationOptions = (
+      overrides: Partial<NavigationOptions> = {}
+    ): NavigationOptions =>
+      ({
         email: MOCK_EMAIL,
         signinData: {
           uid: MOCK_UID,
@@ -42,21 +57,48 @@ describe('Signin utils', () => {
           verificationReason: VerificationReasons.SIGN_IN,
           keyFetchToken: MOCK_KEY_FETCH_TOKEN,
         },
-        integration: createMockSigninOAuthNativeSyncIntegration({
-          isMobile: true,
-        }),
         redirectTo: '',
         finishOAuthFlowHandler: jest
           .fn()
           .mockReturnValue(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
         queryParams: '',
+        ...overrides,
+      }) as NavigationOptions;
+
+    it('does not navigate if performNavigation is false', async () => {
+      const navigationOptions = createBaseNavigationOptions({
+        integration: createMockSigninOAuthNativeSyncIntegration({
+          isMobile: true,
+        }),
         performNavigation: false,
-      } as NavigationOptions;
+      });
       const { error } = await handleNavigation(navigationOptions);
 
       expect(error).toBeUndefined();
       expect(navigateSpy).not.toHaveBeenCalled();
       expect(hardNavigateSpy).not.toHaveBeenCalled();
+    });
+
+    it('sends fxaLogin with aimode services and navigates to settings for OAuthNative service=aimode', async () => {
+      const navigationOptions = createBaseNavigationOptions({
+        integration: createMockSigninOAuthNativeIntegration({
+          isSync: false,
+          service: 'aimode',
+        }),
+        performNavigation: true,
+        handleFxaLogin: true,
+      });
+      const result = await handleNavigation(navigationOptions);
+
+      expect(fxaLoginSpy).toHaveBeenCalledWith({
+        email: MOCK_EMAIL,
+        sessionToken: MOCK_SESSION_TOKEN,
+        uid: MOCK_UID,
+        verified: true,
+        services: { aimode: {} },
+      });
+      expect(result.error).toBeUndefined();
+      expect(navigateSpy).toHaveBeenCalledWith('/settings', { replace: true });
     });
   });
 });

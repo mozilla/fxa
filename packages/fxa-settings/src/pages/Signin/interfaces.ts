@@ -30,6 +30,8 @@ export type SigninUnblockIntegration = Pick<
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
+  | 'isFirefoxClientServiceAiMode'
+  | 'getWebChannelServices'
   | 'wantsLogin'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
@@ -46,6 +48,8 @@ export type SigninIntegration =
       | 'data'
       | 'isDesktopSync'
       | 'isFirefoxClientServiceRelay'
+      | 'isFirefoxClientServiceAiMode'
+      | 'getWebChannelServices'
       | 'getCmsInfo'
       | 'isFirefoxMobileClient'
     >
@@ -63,6 +67,8 @@ export type SigninOAuthIntegration = Pick<
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
+  | 'isFirefoxClientServiceAiMode'
+  | 'getWebChannelServices'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
 >;

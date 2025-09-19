@@ -75,6 +75,13 @@ export const Constants = {
 
   RELIER_DEFAULT_SERVICE_NAME: 'Account Settings',
   RELIER_SYNC_SERVICE_NAME: 'Firefox Sync',
+  // Most of the time we rely on checking the `client_id` against the name we
+  // have in our DB, but these services are for Firefox Client oauth native flows
+  // flows that use the Firefox `client_id`. These may be placeholders/defaults
+  // we move some of these into the CMS in FXA-12378, based on entrypoint.
+  RELIER_FF_CLIENT_RELAY_SERVICE_NAME: 'Firefox Relay',
+  RELIER_FF_CLIENT_AI_MODE_SERVICE_NAME: 'Firefox AI Mode',
+
   RELIER_KEYS_LENGTH: 32,
   RELIER_KEYS_CONTEXT_INFO_PREFIX: 'identity.mozilla.com/picl/v1/oauth/',
 
