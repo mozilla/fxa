@@ -12,6 +12,7 @@ import {
   MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
 } from '../../../pages/mocks';
 import GleanMetrics from '../../../lib/glean';
+import { JwtTokenCache } from '../../../lib/cache';
 
 jest.mock('../../../models/AlertBarInfo');
 
@@ -21,7 +22,32 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
+jest.mock('../../../models', () => ({
+  ...jest.requireActual('../../../models'),
+  useAuthClient: () => ({
+    mfaRequestOtp: jest.fn(),
+  }),
+}));
+
+// Mocks to suppress MFA Guard
+jest.mock('../../../lib/cache', () => ({
+  ...jest.requireActual('../../../lib/cache'),
+  JwtTokenCache: {
+    hasToken: jest.fn(),
+    getToken: jest.fn(),
+    getSnapshot: jest.fn(),
+    subscribe: jest.fn(),
+  },
+  sessionToken: () => 'session-123',
+}));
+
 describe('UnitRowTwoStepAuth', () => {
+  beforeEach(() => {
+    (JwtTokenCache.hasToken as jest.Mock).mockReturnValue(true);
+    (JwtTokenCache.getToken as jest.Mock).mockReturnValue('jwt-123');
+    (JwtTokenCache.getSnapshot as jest.Mock).mockReturnValue(true);
+  });
+
   it('renders when two-step authentication is enabled', async () => {
     renderWithRouter(createSubject());
 
@@ -127,6 +153,17 @@ describe('UnitRowTwoStepAuth', () => {
         GleanMetrics.accountPref.twoStepAuthDisableModalView
       ).toHaveBeenCalled()
     );
+  });
+
+  it('renders MFAGuard when the disable totp modal is rendered and jwt is missing', async () => {
+    (JwtTokenCache.hasToken as jest.Mock).mockReturnValue(false);
+    const user = userEvent.setup();
+
+    renderWithRouter(createSubject());
+
+    await user.click(screen.getByRole('button', { name: 'Disable' }));
+
+    expect(screen.getByText('Enter confirmation code')).toBeInTheDocument();
   });
 
   it('renders with no backup codes and no recovery phone', () => {

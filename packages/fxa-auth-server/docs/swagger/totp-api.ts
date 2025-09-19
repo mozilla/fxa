@@ -32,6 +32,17 @@ const TOTP_DESTROY_POST = {
     `,
   ],
 };
+const MFA_TOTP_DESTROY_POST = {
+  ...TAGS_TOTP,
+  description: '/mfa/totp/destroy',
+  notes: [
+    dedent`
+      🔒 Authenticated with MFA JWT (scope: mfa:2fa)
+
+      Deletes the current TOTP token for the user. The underlying session needs to have been verified by TOTP to remove it. It does not bypass that requirement.
+    `,
+  ],
+};
 
 const TOTP_EXISTS_GET = {
   ...TAGS_TOTP,
@@ -158,6 +169,7 @@ const API_DOCS = {
   SESSION_VERIFY_TOTP_POST,
   TOTP_CREATE_POST,
   TOTP_DESTROY_POST,
+  MFA_TOTP_DESTROY_POST,
   TOTP_EXISTS_GET,
   TOTP_VERIFY_POST,
   TOTP_VERIFY_RECOVERY_CODE_POST,

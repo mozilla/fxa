@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect } from 'react';
+import * as Sentry from '@sentry/browser';
+import { useErrorHandler } from 'react-error-boundary';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import Modal from '../Modal';
@@ -22,6 +24,8 @@ import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import { RecoveryPhoneSetupReason } from '../../../lib/types';
 import ModalVerifySession from '../ModalVerifySession';
+import { MfaGuard } from '../MfaGuard';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
@@ -209,7 +213,14 @@ export const UnitRowTwoStepAuth = () => {
           />
         )}
         {disable2FAModalRevealed && (
-          <DisableTwoStepAuthModal {...{ hideDisable2FAModal }} />
+          <MfaGuard
+            requiredScope={'2fa'}
+            onDismissCallback={async () => {
+              hideDisable2FAModal();
+            }}
+          >
+            <DisableTwoStepAuthModal {...{ hideDisable2FAModal }} />
+          </MfaGuard>
         )}
       </UnitRow>
     </>
@@ -221,6 +232,7 @@ const DisableTwoStepAuthModal = ({
 }: {
   hideDisable2FAModal: () => void;
 }) => {
+  const errorHandler = useErrorHandler();
   const alertBar = useAlertBar();
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -243,6 +255,12 @@ const DisableTwoStepAuthModal = ({
         () => GleanMetrics.accountPref.twoStepAuthDisableSuccessView()
       );
     } catch (e) {
+      if (isInvalidJwtError(e)) {
+        // JWT invalid/expired.
+        errorHandler(e);
+        return;
+      }
+
       hideDisable2FAModal();
       alertBar.error(
         ftlMsgResolver.getMsg(
@@ -250,8 +268,10 @@ const DisableTwoStepAuthModal = ({
           'Two-step authentication could not be disabled'
         )
       );
+
+      Sentry.captureException(e);
     }
-  }, [account, hideDisable2FAModal, alertBar, ftlMsgResolver]);
+  }, [account, hideDisable2FAModal, alertBar, ftlMsgResolver, errorHandler]);
 
   return (
     <VerifiedSessionGuard
