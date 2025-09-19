@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState } from 'react';
+import { useErrorHandler } from 'react-error-boundary';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
@@ -16,6 +17,7 @@ import GleanMetrics from '../../../lib/glean';
 
 export const UnitRowRecoveryKey = () => {
   const account = useAccount();
+  const errorHandler = useErrorHandler();
 
   const recoveryKey = account.recoveryKey.exists;
   const alertBar = useAlertBar();
@@ -36,6 +38,13 @@ export const UnitRowRecoveryKey = () => {
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     } catch (e) {
       hideModal();
+
+      if (e && e.code === 401 && e.errno === 110) {
+        // JWT invalid/expired
+        errorHandler(e);
+        return;
+      }
+
       alertBar.error(
         ftlMsgResolver.getMsg(
           'rk-remove-error-2',

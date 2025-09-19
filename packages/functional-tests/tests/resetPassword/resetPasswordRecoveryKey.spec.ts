@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { emit } from 'node:process';
 import { expect, test } from '../../lib/fixtures/standard';
 import { SettingsPage } from '../../pages/settings';
 import { RecoveryKeyPage } from '../../pages/settings/recoveryKey';
@@ -26,6 +27,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       const key = await enableRecoveryKey(
+        credentials.email,
         credentials.password,
         recoveryKey,
         settings
@@ -127,7 +129,12 @@ test.describe('severity-1 #smoke', () => {
         signin
       );
 
-      await enableRecoveryKey(credentials.password, recoveryKey, settings);
+      await enableRecoveryKey(
+        credentials.email,
+        credentials.password,
+        recoveryKey,
+        settings
+      );
 
       await settings.signOut();
 
@@ -170,6 +177,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       const key = await enableRecoveryKey(
+        credentials.email,
         credentials.password,
         recoveryKey,
         settings
@@ -223,6 +231,7 @@ test.describe('severity-1 #smoke', () => {
   }
 
   async function enableRecoveryKey(
+    email: string,
     password: string,
     recoveryKey: RecoveryKeyPage,
     settings: SettingsPage
@@ -230,6 +239,9 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
     await settings.recoveryKey.createButton.click();
+
+    await settings.confirmMfaGuard(email);
+
     const key = await recoveryKey.createRecoveryKey(password, 'hint');
 
     await expect(settings.settingsHeading).toBeVisible();

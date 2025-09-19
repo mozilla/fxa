@@ -21,6 +21,18 @@ const RECOVERYKEY_POST = {
   ],
 };
 
+const MFA_RECOVERY_KEY_POST = {
+  ...TAGS_RECOVERY_KEY,
+  description: '/recoveryKey',
+  notes: [
+    dedent`
+      🔒 Authenticated with MFA jwt
+
+      Creates a new account recovery key for a user. Account recovery keys are one-time-use tokens that can be used to recover the user's kB if they forget their password. For more details, see the [account recovery keys](https://mozilla.github.io/ecosystem-platform/reference/tokens#account-recovery-tokens) docs.
+    `,
+  ],
+};
+
 const RECOVERYKEY_RECOVERYKEYID_GET = {
   ...TAGS_RECOVERY_KEY,
   description: '/recoveryKey/{recoveryKeyId}',
@@ -44,6 +56,15 @@ const RECOVERYKEY_DELETE = {
   description: '/recoveryKey',
   notes: [
     '🔒 Authenticated with session token',
+    "This route remove an account's account recovery key. When the key is removed, it can no longer be used to restore an account's kB.",
+  ],
+};
+
+const MFA_RECOVERY_KEY_DELETE = {
+  ...TAGS_RECOVERY_KEY,
+  description: '/recoveryKey',
+  notes: [
+    '🔒 Authenticated with MFA jwt',
     "This route remove an account's account recovery key. When the key is removed, it can no longer be used to restore an account's kB.",
   ],
 };
@@ -80,8 +101,10 @@ const RECOVERYKEY_HINT_POST = {
 
 const API_DOCS = {
   RECOVERYKEY_DELETE,
+  MFA_RECOVERY_KEY_DELETE,
   RECOVERYKEY_EXISTS_POST,
   RECOVERYKEY_POST,
+  MFA_RECOVERY_KEY_POST,
   RECOVERYKEY_RECOVERYKEYID_GET,
   RECOVERYKEY_VERIFY_POST,
   // RECOVERYKEY_HINT_GET,
