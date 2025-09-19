@@ -7,7 +7,6 @@ import { BaseTarget, Credentials } from '../../lib/targets/base';
 import { SettingsPage } from '../../pages/settings';
 import { ChangePasswordPage } from '../../pages/settings/changePassword';
 import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
-import { MfaGuardPage } from '../../pages/settings/mfaGuard';
 import { SigninPage } from '../../pages/signin';
 
 test.describe('severity-1 #smoke', () => {
@@ -49,7 +48,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('change primary email, password and login', async ({
       target,
-      pages: { page, changePassword, secondaryEmail, settings, signin, mfaGuard },
+      pages: { page, changePassword, secondaryEmail, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -67,7 +66,6 @@ test.describe('severity-1 #smoke', () => {
         changePassword,
         initialPassword,
         newPassword,
-        mfaGuard,
         target,
         credentials.email
       );
@@ -95,7 +93,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('change primary email, change password, login, change email and login', async ({
       target,
-      pages: { page, changePassword, secondaryEmail, settings, signin, mfaGuard },
+      pages: { page, changePassword, secondaryEmail, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -114,7 +112,6 @@ test.describe('severity-1 #smoke', () => {
         changePassword,
         initialPassword,
         newPassword,
-        mfaGuard,
         target,
         credentials.email
       );
@@ -267,15 +264,12 @@ async function setNewPassword(
   changePassword: ChangePasswordPage,
   oldPassword: string,
   newPassword: string,
-  mfaGuard: MfaGuardPage,
   target: BaseTarget,
   email: string,
 ): Promise<void> {
   await settings.password.changeButton.click();
 
-  await mfaGuard.waitForMfaModal();
-  const mfaCode = await target.emailClient.getVerifyAccountChangeCode(email);
-  await mfaGuard.submitConfirmationCode(mfaCode);
+  await settings.confirmMfaGuard(email);
 
   await changePassword.fillOutChangePassword(oldPassword, newPassword);
 

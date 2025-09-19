@@ -63,7 +63,7 @@ test.describe('severity-2 #smoke', () => {
 
     test('allows valid redirect_to parameter', async ({
       target,
-      pages: { page, changePassword, signin, mfaGuard },
+      pages: { page, changePassword, signin, settings },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -77,10 +77,7 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(page).toHaveURL(redirectTo);
 
-
-      await mfaGuard.waitForMfaModal();
-      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(credentials.email);
-      await mfaGuard.submitConfirmationCode(mfaCode);
+      await settings.confirmMfaGuard(credentials.email);
 
       await expect(changePassword.changePasswordHeading).toBeVisible();
     });

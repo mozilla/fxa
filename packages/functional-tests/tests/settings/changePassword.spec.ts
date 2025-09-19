@@ -11,7 +11,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('change password tests', () => {
     test('change password with an incorrect old password', async ({
       target,
-      pages: { page, changePassword, settings, signin, mfaGuard },
+      pages: { page, changePassword, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -21,9 +21,7 @@ test.describe('severity-1 #smoke', () => {
       // Enter incorrect old password and verify the tooltip error
       await settings.password.changeButton.click();
 
-      await mfaGuard.waitForMfaModal();
-      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(credentials.email);
-      await mfaGuard.submitConfirmationCode(mfaCode);
+      await settings.confirmMfaGuard(credentials.email);
 
       await changePassword.fillOutChangePassword(
         'Incorrect Password',
@@ -35,7 +33,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('change password with a correct password', async ({
       target,
-      pages: { page, changePassword, settings, signin, mfaGuard },
+      pages: { page, changePassword, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -46,9 +44,7 @@ test.describe('severity-1 #smoke', () => {
       // Enter the correct old password and verify that change password is successful
       await settings.password.changeButton.click();
 
-      await mfaGuard.waitForMfaModal();
-      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(credentials.email);
-      await mfaGuard.submitConfirmationCode(mfaCode);
+      await settings.confirmMfaGuard(credentials.email);
 
       await changePassword.fillOutChangePassword(initialPassword, newPassword);
 
@@ -68,7 +64,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('reset password via settings works', async ({
       target,
-      pages: { page, changePassword, resetPassword, settings, signin, mfaGuard },
+      pages: { page, changePassword, resetPassword, settings, signin },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -78,9 +74,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.password.changeButton.click();
 
-      await mfaGuard.waitForMfaModal();
-      const mfaCode = await target.emailClient.getVerifyAccountChangeCode(credentials.email);
-      await mfaGuard.submitConfirmationCode(mfaCode);
+      await settings.confirmMfaGuard(credentials.email);
 
       await expect(changePassword.changePasswordHeading).toBeVisible();
 
