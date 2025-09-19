@@ -101,13 +101,36 @@ export class SettingsPage extends SettingsLayout {
     }, creds.uid);
   }
 
+  /**
+   * Removes 2FA from the account by clicking the 'disable' button on the 2FA row.
+   */
   async disconnectTotp() {
     await this.totp.disableButton.click();
+
+    // Obtain the MFA JWT if necessary
+    if (await this.isMfaGuardVisible()) {
+      const email = await this.primaryEmail.status.textContent();
+      if (!email) {
+        throw new Error('Could not determine primary email!');
+      }
+      await this.confirmMfaGuard(email);
+    }
+
     await this.modalConfirmButton.click();
 
     await expect(this.settingsHeading).toBeVisible();
     await expect(this.alertBar).toHaveText('Two-step authentication disabled');
     await expect(this.totp.status).toHaveText('Disabled');
+  }
+
+  /**
+   * Indicates that the MFA guard's modal dialog is currently displayed.
+   * @returns true if the MFA modal is open
+   */
+  async isMfaGuardVisible() {
+    return await this.page
+      .getByRole('heading', { name: 'Enter confirmation code' })
+      .isVisible();
   }
 
   /**

@@ -262,7 +262,7 @@ module.exports = (
     }
   }
 
-  return [
+  const routes = [
     {
       method: 'POST',
       path: '/totp/create',
@@ -586,6 +586,27 @@ module.exports = (
             });
           }
         }
+      },
+    },
+    {
+      method: 'POST',
+      path: '/mfa/totp/destroy',
+      options: {
+        ...TOTP_DOCS.MFA_TOTP_DESTROY_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        response: {},
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/totp/destroy' && route.method === 'POST'
+          )
+          .handler(request);
       },
     },
     {
@@ -1163,4 +1184,6 @@ module.exports = (
       handler: handleTotpReplaceConfirm,
     },
   ];
+
+  return routes;
 };

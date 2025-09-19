@@ -1126,7 +1126,7 @@ export class Account implements AccountData {
 
   async disableTwoStepAuth() {
     await this.withLoadingStatus(
-      this.authClient.deleteTotpToken(sessionToken()!)
+      this.authClient.deleteTotpTokenWithJwt(this.getCachedJwtByScope('2fa'))
     );
 
     const cache = this.apolloClient.cache;

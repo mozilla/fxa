@@ -57,14 +57,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication has been enabled'
       );
-      await settings.totp.disableButton.click();
-      await settings.clickModalConfirm();
-
-      await expect(settings.modalConfirmButton).toBeHidden();
-      await expect(settings.totp.status).toHaveText('Disabled');
-      await expect(settings.alertBar).toHaveText(
-        'Two-step authentication disabled'
-      );
+      await settings.disconnectTotp();
 
       await relier.goto();
       await relier.clickEmailFirst();
