@@ -44,7 +44,7 @@ export function Breadcrumbs(args: {
   };
   const STRIPE_PAYMENT_METHODS = {
     label: l10n.getString(
-      'subscription-management-breadcrumb-payment',
+      'subscription-management-breadcrumb-payment-2',
       {},
       'Manage Payment Methods'
     ),
