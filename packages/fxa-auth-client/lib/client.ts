@@ -2047,6 +2047,16 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Creates an account recovery key that can be used to restore account data in the password is lost.
+   * @param sessionToken
+   * @param recoveryKeyId
+   * @param recoveryData
+   * @param enabled
+   * @param replaceKey
+   * @param headers
+   * @returns
+   */
   async createRecoveryKey(
     sessionToken: hexstring,
     recoveryKeyId: string,
@@ -2058,6 +2068,37 @@ export default class AuthClient {
     return this.sessionPost(
       '/recoveryKey',
       sessionToken,
+      {
+        recoveryKeyId,
+        recoveryData,
+        enabled,
+        replaceKey,
+      },
+      headers
+    );
+  }
+
+  /**
+   * Creates an account recovery key that can be used to restore account data in the password is lost.
+   * @param sessionToken
+   * @param recoveryKeyId
+   * @param recoveryData
+   * @param enabled
+   * @param replaceKey
+   * @param headers
+   * @returns
+   */
+  async createRecoveryKeyWithJwt(
+    jwt: string,
+    recoveryKeyId: string,
+    recoveryData: any,
+    enabled: boolean = true,
+    replaceKey: boolean = false,
+    headers?: Headers
+  ): Promise<{}> {
+    return this.jwtPost(
+      '/mfa/recoveryKey',
+      jwt,
       {
         recoveryKeyId,
         recoveryData,
