@@ -27,11 +27,11 @@ subscription-charges-one-time-discount = One-time discount
 subscription-charges-one-time-discount-plaintext = One-time discount: { $invoiceDiscountAmount }
 subscription-charges-repeating-discount =
   { $discountDuration ->
-    *[other] {$discountDuration}-month discount
+    *[other] { $discountDuration }-month discount
   }
 subscription-charges-repeating-discount-plaintext =
   { $discountDuration ->
-    *[other] {$discountDuration}-month discount: { $invoiceDiscountAmount }
+    *[other] { $discountDuration }-month discount: { $invoiceDiscountAmount }
   }
 subscription-charges-discount = Discount
 subscription-charges-discount-plaintext = Discount: { $invoiceDiscountAmount }
