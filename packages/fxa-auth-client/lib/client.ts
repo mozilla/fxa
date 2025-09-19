@@ -348,6 +348,21 @@ export default class AuthClient {
     return this.request('POST', path, payload, headers);
   }
 
+  private async jwtPut(
+    path: string,
+    jwt: string,
+    payload: any,
+    headers?: Headers
+  ) {
+    const authorization = 'Bearer ' + jwt;
+    if (!headers) {
+      headers = new Headers({ authorization });
+    } else {
+      headers.set('authorization', authorization);
+    }
+    return this.request('PUT', path, payload, headers);
+  }
+
   private async sessionPost(
     path: string,
     sessionToken: hexstring,
@@ -1997,7 +2012,9 @@ export default class AuthClient {
     return this.sessionGet('/recoveryCodes', sessionToken, headers);
   }
 
-  // update recovery codes with codes created and confirmed client-side
+  /**
+   * @deprecated Use updateRecoveryCodesWithJwt instead!
+   */
   async updateRecoveryCodes(
     sessionToken: hexstring,
     recoveryCodes: string[],
@@ -2009,6 +2026,21 @@ export default class AuthClient {
       { recoveryCodes },
       headers
     );
+  }
+
+  /**
+   * Update recovery codes with codes created and confirmed client-side
+   * @param jwt auth token
+   * @param recoveryCodes new codes
+   * @param headers optional headers
+   * @returns
+   */
+  async updateRecoveryCodesWithJwt(
+    jwt: hexstring,
+    recoveryCodes: string[],
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.jwtPut('/mfa/recoveryCodes', jwt, { recoveryCodes }, headers);
   }
 
   async getRecoveryCodesExist(

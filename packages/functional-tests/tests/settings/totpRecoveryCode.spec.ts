@@ -110,6 +110,7 @@ test.describe('severity-1 #smoke', () => {
       const { recoveryCodes } = await addTotp(settings, totp);
       await settings.totp.getNewBackupCodesButton.click();
 
+      await settings.confirmMfaGuard(credentials.email);
       const newCodes = await totp.getRecoveryCodes();
       expect(newCodes.some((c) => recoveryCodes.includes(c))).toBe(false);
 
@@ -187,6 +188,7 @@ test.describe('severity-1 #smoke', () => {
         credentials.email
       );
       await page.goto(link);
+      await settings.confirmMfaGuard(credentials.email);
       const newCodes = await totp.getRecoveryCodes();
       expect(newCodes.length).toEqual(recoveryCodes.length);
 

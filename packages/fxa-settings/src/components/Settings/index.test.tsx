@@ -232,23 +232,6 @@ describe('Settings App', () => {
     expect(getByTestId('mock-2fa-setup-page')).toBeInTheDocument();
   });
 
-  it('routes to Page2faReplaceBackupCodes', async () => {
-    const session = mockSession(true);
-    const {
-      getByTestId,
-      history: { navigate },
-    } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ session })}>
-        <Subject />
-      </AppContext.Provider>,
-      { route: SETTINGS_PATH }
-    );
-
-    await navigate(SETTINGS_PATH + '/two_step_authentication/replace_codes');
-
-    expect(getByTestId('2fa-backup-codes')).toBeInTheDocument();
-  });
-
   it('routes to PageDeleteAccount', async () => {
     const session = mockSession(true);
     const {
@@ -345,6 +328,11 @@ describe('Settings App', () => {
         pageName: 'PageSecondaryEmailVerify',
         route: '/emails/verify',
         hasPassword: false,
+      },
+      {
+        pageName: 'Page2faReplaceBackupCodes',
+        route: '/two_step_authentication/replace_codes',
+        hasPassword: true,
       },
     ];
 
