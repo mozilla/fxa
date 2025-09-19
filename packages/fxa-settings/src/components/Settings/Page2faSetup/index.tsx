@@ -186,6 +186,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
   };
 
   const handleVerifyPhone = async (phoneNumberInput: string) => {
+    // TODO: Switch to addRecoveryPhoneJwt once page is wrapped with MfaGuard
     const { nationalFormat } = await account.addRecoveryPhone(phoneNumberInput);
     setPhoneData({
       phoneNumber: phoneNumberInput,
@@ -194,6 +195,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
   };
 
   const handleResendSms = async () => {
+    // TODO: Switch to addRecoveryPhoneWithJwt once page is wrapped with MfaGuard
     await account.addRecoveryPhone(phoneData.phoneNumber);
   };
 

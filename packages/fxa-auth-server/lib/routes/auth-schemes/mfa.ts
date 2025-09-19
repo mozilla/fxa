@@ -108,6 +108,8 @@ export const strategy = (
       // Decorate session token with scope
       sessionToken.scope = decoded.scope;
 
+      console.log('!!! ', sessionToken);
+
       // Finalize auth
       return h.authenticated({
         // Return actual session token instance!
