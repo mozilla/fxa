@@ -576,7 +576,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['verifyShortCodeEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Confirm your account' }],
+    ['subject', { test: 'equal', expected: `Use ${MESSAGE.code} to confirm your account` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verify') }],
       ['X-Template-Name', { test: 'equal', expected: 'verifyShortCode' }],
@@ -584,7 +584,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Verify-Short-Code', { test: 'equal', expected: MESSAGE.code }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Use the included code to confirm your Mozilla account.'},
+      { test: 'include', expected: 'This code expires in 5 minutes'},
       { test: 'include', expected: 'Confirm your account' },
       { test: 'include', expected: 'Open the internet with Mozilla' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome', 'privacy')) },
@@ -656,13 +656,14 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ],
 
   ['verifySecondaryCodeEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Confirm secondary email' }],
+    ['subject', { test: 'equal', expected: `Use ${MESSAGE.code} to confirm your secondary email` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifySecondaryCode') }],
       ['X-Template-Name', { test: 'equal', expected: 'verifySecondaryCode' }],
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySecondaryCode }],
     ])],
     ['html', [
+      { test: 'include', expected: 'This code expires in 5 minutes.' },
       { test: 'include', expected: 'Confirm secondary email' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'welcome-secondary', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('supportUrl', 'welcome-secondary', 'support')) },
@@ -929,7 +930,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['unblockCodeEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Account authorization code' }],
+    ['subject', { test: 'equal', expected: `Use ${MESSAGE.unblockCode} to sign in` }],
     ['headers', new Map([
       ['X-Report-SignIn-Link', { test: 'equal', expected: configUrl('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('unblockCode') }],
@@ -938,7 +939,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Unblock-Code', { test: 'equal', expected: MESSAGE.unblockCode }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Account authorization code' },
+      { test: 'include', expected: 'This code expires in one hour' },
       { test: 'include', expected: 'Is this you signing in?' },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-unblock', 'privacy')) },
       { test: 'include', expected: decodeUrl(configHref('reportSignInUrl', 'new-unblock', 'report', 'uid', 'unblockCode')) },
@@ -1029,7 +1030,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['verifyLoginCodeEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Approve sign-in to Mock Relier' }],
+    ['subject', { test: 'equal', expected: `Use ${MESSAGE.code} to sign in` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifyLoginCode') }],
       ['X-Signin-Verify-Code', { test: 'equal', expected: MESSAGE.code }],
@@ -1037,7 +1038,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifyLoginCode }],
     ])],
     ['html', [
-      { test: 'include', expected: 'Approve sign-in to Mock Relier' },
+      { test: 'include', expected: 'This code expires in 5 minutes.' },
       { test: 'include', expected: 'Did you sign in to Mock Relier?' },
       { test: 'include', expected: decodeUrl(configHref('initiatePasswordChangeUrl', 'new-signin-verify-code', 'change-password', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('privacyUrl', 'new-signin-verify-code', 'privacy')) },
@@ -1171,7 +1172,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
   ])],
 
   ['passwordForgotOtpEmail', new Map<string, Test | any>([
-    ['subject', { test: 'equal', expected: 'Forgot your password?' }],
+    ['subject', { test: 'equal', expected: `Use ${MESSAGE.code} to change your password` }],
     ['headers', new Map([
       ['X-Password-Forgot-Otp', { test: 'equal', expected: MESSAGE.code}],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordForgotOtp') }],
@@ -1179,6 +1180,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordForgotOtp }],
     ])],
     ['html', [
+      { test: 'include', expected: 'This code expires in 10 minutes' },
       { test: 'include', expected: 'Forgot your password?' },
       { test: 'include', expected: 'We received a request for a password change on your Mozilla account from:' },
       { test: 'include', expected: MESSAGE.code },
