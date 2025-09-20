@@ -19,6 +19,7 @@ const { recordSecurityEvent } = require('./utils/security-event');
 const { getOptionalCmsEmailConfig } = require('./utils/account');
 const { Container } = require('typedi');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
+const authMethods = require('../authMethods');
 
 module.exports = function (
   log,
@@ -284,6 +285,59 @@ module.exports = function (
         return {
           state: sessionToken.state,
           uid: sessionToken.uid,
+        };
+      },
+    },
+    {
+      method: 'GET',
+      path: '/session/status/detailed',
+      options: {
+        ...SESSION_DOCS.SESSION_STATUS_DETAILED_GET,
+        auth: {
+          strategy: 'sessionToken',
+        },
+        response: {
+          schema: isA.object({
+            uid: isA.string().regex(HEX_STRING).required(),
+            accountEmailVerified: isA.boolean(),
+            sessionVerificationMethod: isA.string(),
+            sessionVerificationProvided: isA.boolean(),
+            sessionVerificationMeetsMinimumAAL: isA.boolean(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        log.begin('Session.status', request);
+        const session = request.auth.credentials;
+        const account = await db.account(session.uid);
+
+        // Make sure the account still exists
+        if (!account) {
+          throw error.unknownAccount();
+        }
+
+        // Check account assurance level
+        const accountAmr = await authMethods.availableAuthenticationMethods(
+          db,
+          account
+        );
+        const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
+        const sessionAal = session.authenticatorAssuranceLevel;
+
+        // Build response
+        const uid = session.uid;
+        const accountEmailVerified =
+          account.emails?.primaryEmail?.isVerified || false;
+        const sessionVerificationMethod = session.verificationMethod;
+        const sessionVerificationSuccessful = session.verified;
+        const sessionVerificationMeetsMinimumAAL = accountAal <= sessionAal;
+
+        return {
+          uid,
+          accountEmailVerified,
+          sessionVerificationMethod,
+          sessionVerificationSuccessful,
+          sessionVerificationMeetsMinimumAAL,
         };
       },
     },

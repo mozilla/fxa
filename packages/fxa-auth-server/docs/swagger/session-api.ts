@@ -75,6 +75,18 @@ const SESSION_STATUS_GET = {
   ],
 };
 
+const SESSION_STATUS_DETAILED_GET = {
+  ...TAGS_SESSION,
+  description: '/session/status/detailed',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token
+
+      Returns detailed info about the sessions current verification status. This is a more expensive call that /session/status since it also has to do an account look up!
+    `,
+  ],
+};
+
 const SESSION_DUPLICATE_POST = {
   ...TAGS_SESSION,
   description: '/session/duplicate',
@@ -117,7 +129,7 @@ const SESSION_VERIFY_PUSH_POST = {
   notes: [
     dedent`
     🔒 Authenticated with session token
-    
+
     Endpoint that accepts a code and tokenVerificationId to verify a session.
     `,
   ],
@@ -128,6 +140,7 @@ const API_DOCS = {
   SESSION_DUPLICATE_POST,
   SESSION_REAUTH_POST,
   SESSION_STATUS_GET,
+  SESSION_STATUS_DETAILED_GET,
   SESSION_RESEND_CODE_POST,
   SESSION_VERIFY_CODE_POST,
   SESSION_SEND_PUSH_POST,
