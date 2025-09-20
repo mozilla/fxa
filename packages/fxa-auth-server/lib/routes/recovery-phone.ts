@@ -631,7 +631,7 @@ class RecoveryPhoneHandler {
     if (!replacedSuccess) {
       await this.glean.twoStepAuthPhoneReplace.failure(request);
       this.statsd.increment('account.recoveryPhone.changePhoneNumber.failure');
-      await recordSecurityEvent('account.recovery_phone_replace_failed', {
+      await recordSecurityEvent('account.recovery_phone_replace_failure', {
         db: this.db,
         request,
       });
