@@ -2,15 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode, useCallback, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useState } from 'react';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useAccount, Email, useAlertBar } from '../../../models';
 import UnitRow from '../UnitRow';
-import ModalVerifySession from '../ModalVerifySession';
 import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
+import { MfaGuard } from '../MfaGuard';
+import ModalVerifySession from '../ModalVerifySession';
+import {
+  clearMfaAndJwtCacheOnInvalidJwt,
+  isInvalidJwtError,
+} from '../../../lib/mfa-guard-utils';
 
 type UnitRowSecondaryEmailContentAndActionsProps = {
   secondary: Email;
@@ -22,6 +27,9 @@ export const UnitRowSecondaryEmail = () => {
   const navigateWithQuery = useNavigateWithQuery();
   const alertBar = useAlertBar();
   const [queuedAction, setQueuedAction] = useState<() => void>();
+  const [pendingSecondaryDelete, setPendingSecondaryDelete] = useState<
+    string | undefined
+  >();
   const { l10n } = useLocalization();
 
   const secondaryEmails = account.emails.filter((email) => !email.isPrimary);
@@ -74,29 +82,43 @@ export const UnitRowSecondaryEmail = () => {
     [account, alertBar, l10n]
   );
 
-  const deleteEmail = useCallback(
-    async (email: string) => {
-      try {
-        await account.deleteSecondaryEmail(email);
-        alertBar.success(
-          l10n.getString(
-            'se-delete-email-successful-2',
-            { email },
-            `${email} successfully deleted`
-          )
-        );
-      } catch (e) {
-        alertBar.error(
-          l10n.getString(
-            'se-delete-email-error-2',
-            null,
-            `Sorry, there was a problem deleting this email`
-          )
-        );
-      }
-    },
-    [account, alertBar, l10n]
-  );
+  const DeleteEmailOnMount = ({ email }: { email: string }) => {
+    const account = useAccount();
+    const alertBar = useAlertBar();
+    const { l10n } = useLocalization();
+
+    useEffect(() => {
+      const deleteEmail = async () => {
+        try {
+          await account.deleteSecondaryEmailWithJwt(email);
+          alertBar.success(
+            l10n.getString(
+              'se-delete-email-successful-2',
+              { email },
+              `${email} successfully deleted`
+            )
+          );
+        } catch (e) {
+          if (isInvalidJwtError(e)) {
+            clearMfaAndJwtCacheOnInvalidJwt(e, 'email');
+            return;
+          }
+          alertBar.error(
+            l10n.getString(
+              'se-delete-email-error-2',
+              null,
+              `Sorry, there was a problem deleting this email`
+            )
+          );
+        }
+        // This will only run when MfaGuard renders this component
+        // which means MFA has been completed successfully
+      };
+      deleteEmail();
+    }, [account, alertBar, l10n, email]);
+
+    return <></>;
+  };
 
   const SecondaryEmailUtilities = ({ children }: { children: ReactNode }) => (
     <>
@@ -181,7 +203,7 @@ export const UnitRowSecondaryEmail = () => {
                       classNames="@mobileLandscape/unitRow:hidden ms-1"
                       disabled={account.loading}
                       onClick={() => {
-                        queueEmailAction(() => deleteEmail(email));
+                        setPendingSecondaryDelete(email);
                       }}
                     />
                   </Localized>
@@ -265,7 +287,7 @@ export const UnitRowSecondaryEmail = () => {
                   disabled={account.loading}
                   testId="secondary-email-delete"
                   onClick={() => {
-                    queueEmailAction(() => deleteEmail(email));
+                    setPendingSecondaryDelete(email);
                   }}
                 />
               </Localized>
@@ -285,6 +307,16 @@ export const UnitRowSecondaryEmail = () => {
         </div>
         {verified && isLastVerifiedSecondaryEmail && (
           <SecondaryEmailDefaultContent />
+        )}
+        {pendingSecondaryDelete && (
+          <MfaGuard
+            requiredScope="email"
+            onDismissCallback={async () => {
+              setPendingSecondaryDelete(undefined);
+            }}
+          >
+            <DeleteEmailOnMount email={email} />
+          </MfaGuard>
         )}
       </>
     );

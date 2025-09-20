@@ -1690,6 +1690,14 @@ export default class AuthClient {
     );
   }
 
+  async recoveryEmailDestroyWithJwt(
+    jwt: string,
+    email: string,
+    headers?: Headers
+  ) {
+    return this.jwtPost('/mfa/recovery_email/destroy', jwt, { email }, headers);
+  }
+
   async recoveryEmailSetPrimaryEmail(
     sessionToken: hexstring,
     email: string,

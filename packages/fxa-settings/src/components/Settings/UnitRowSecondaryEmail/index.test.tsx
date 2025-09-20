@@ -4,16 +4,29 @@
 
 import 'mutationobserver-shim';
 import React from 'react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import {
   renderWithRouter,
   mockEmail,
   mockAppContext,
   mockSettingsContext,
 } from '../../../models/mocks';
+import { createMockAccount } from './mocks';
 import { UnitRowSecondaryEmail } from '.';
 import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { JwtTokenCache } from '../../../lib/cache';
+import AuthClient from 'fxa-auth-client/lib/client';
+import userEvent, { UserEvent } from '@testing-library/user-event';
+
+const mockSessionToken = 'you-get-a-session-token';
+const mockJwt = 'and-you-get-a-jwt';
+
+jest.mock('../../../lib/cache', () => ({
+  __esModule: true,
+  ...jest.requireActual('../../../lib/cache'),
+  sessionToken: () => mockSessionToken,
+}));
 
 const account = {
   emails: [mockEmail(), mockEmail('johndope2@example.com', false, false)],
@@ -308,46 +321,81 @@ describe('UnitRowSecondaryEmail', () => {
   });
 
   describe('deleteSecondaryEmail', () => {
+    let user: UserEvent;
+    const mockAuthClient = new AuthClient('http://localhost:9000');
+
+    const setupMockAuthClient = () => {
+      mockAuthClient.mfaRequestOtp = jest
+        .fn()
+        .mockResolvedValue({ code: 200, errno: 0 });
+      mockAuthClient.mfaOtpVerify = jest
+        .fn()
+        .mockResolvedValue({ accessToken: mockJwt });
+    };
+
+    const resetJwtCache = () => {
+      if (JwtTokenCache.hasToken(mockSessionToken, 'email')) {
+        JwtTokenCache.removeToken(mockSessionToken, 'email');
+      }
+    };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      resetJwtCache();
+      setupMockAuthClient();
+      user = userEvent.setup();
+    });
+    /**
+     * This test case also implicitly covers that the MfaGuard is not displayed
+     * on success, so no need for a separate test for that specific case.
+     */
     it('displays a success message in the AlertBar', async () => {
-      const primaryEmail = mockEmail('somethingdifferent@example.com');
+      JwtTokenCache.setToken(mockSessionToken, 'email', mockJwt);
+
       const emails = [
-        { ...primaryEmail },
+        mockEmail('somethingdifferent@example.com'),
         mockEmail('johndope2@example.com', false, false),
       ];
-      const account = {
+      const account = createMockAccount({
+        deleteSecondaryEmailWithJwt: jest.fn().mockResolvedValue(true),
         emails,
-        deleteSecondaryEmail: jest.fn().mockResolvedValue(true),
-      } as unknown as Account;
-      const context = mockAppContext({ account });
+      });
+
+      const appCtx = mockAppContext({
+        authClient: mockAuthClient as any,
+        account,
+      });
       const settingsContext = mockSettingsContext();
       renderWithRouter(
-        <AppContext.Provider value={context}>
+        <AppContext.Provider value={appCtx}>
           <SettingsContext.Provider value={settingsContext}>
             <UnitRowSecondaryEmail />
           </SettingsContext.Provider>
         </AppContext.Provider>
       );
 
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('secondary-email-delete'));
-      });
+      await user.click(screen.getByTestId('secondary-email-delete'));
 
-      expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledTimes(1);
-      expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledWith(
-        'johndope2@example.com successfully deleted'
+      await waitFor(() =>
+        expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledTimes(1)
+      );
+      await waitFor(() =>
+        expect(settingsContext.alertBarInfo?.success).toHaveBeenCalledWith(
+          'johndope2@example.com successfully deleted'
+        )
       );
     });
 
     it('displays an error message in the AlertBar', async () => {
-      const emails = [
-        mockEmail(),
-        mockEmail('johndope2@example.com', false, false),
-      ];
-      const account = {
-        emails,
-        deleteSecondaryEmail: jest.fn().mockRejectedValue(new Error()),
-      } as unknown as Account;
-      const context = mockAppContext({ account });
+      JwtTokenCache.setToken(mockSessionToken, 'email', mockJwt);
+
+      const account = createMockAccount({
+        deleteSecondaryEmailWithJwt: jest.fn().mockRejectedValue(new Error()),
+      });
+      const context = mockAppContext({
+        authClient: mockAuthClient as any,
+        account,
+      });
       const settingsContext = mockSettingsContext();
       renderWithRouter(
         <AppContext.Provider value={context}>
@@ -361,6 +409,37 @@ describe('UnitRowSecondaryEmail', () => {
         fireEvent.click(screen.getByTestId('secondary-email-delete'));
       });
       expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledTimes(1);
+    });
+
+    it('displays the MFA guard if the JWT is invalid', async () => {
+      JwtTokenCache.setToken(mockSessionToken, 'email', 'invalid-jwt');
+
+      const account = createMockAccount({
+        deleteSecondaryEmailWithJwt: jest
+          .fn()
+          .mockRejectedValue({ code: 401, errno: 110 }),
+      });
+
+      const context = mockAppContext({
+        authClient: mockAuthClient as any,
+        account,
+      });
+      const settingsContext = mockSettingsContext();
+      renderWithRouter(
+        <AppContext.Provider value={context}>
+          <SettingsContext.Provider value={settingsContext}>
+            <UnitRowSecondaryEmail />
+          </SettingsContext.Provider>
+        </AppContext.Provider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('secondary-email-delete'));
+      });
+
+      expect(
+        await screen.findByText('Enter confirmation code')
+      ).toBeInTheDocument();
     });
   });
 });
