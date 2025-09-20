@@ -7,6 +7,7 @@ import { Page, TestInfo } from '@playwright/test';
 import { Credentials } from './targets';
 import { BaseTarget } from './targets/base';
 import { MfaScope } from 'fxa-settings/src/lib/types';
+import { getTotpCode } from './totp';
 
 enum EmailPrefix {
   BLOCKED = 'blocked',
@@ -251,16 +252,31 @@ export class TestAccountTracker {
           sessionToken = credentials.sessionToken;
         }
 
-        // Helper function to verify session if needed
-        const verifySessionIfNeeded = async () => {
+        // Helper function to verify account or session if needed
+        const verifyIfNeeded = async () => {
           try {
             await this.target.authClient.sessionResendVerifyCode(sessionToken);
-            const code = await this.target.emailClient.getVerifyLoginCode(
+            // Prefer short (signup) code to confirm account when unverified
+            try {
+              const shortCode =
+                await this.target.emailClient.getVerifyShortCode(account.email);
+              await this.target.authClient.sessionVerifyCode(
+                sessionToken,
+                shortCode
+              );
+              return;
+            } catch (_) {
+              // Fallback to login verification code for unverified session
+            }
+            const loginCode = await this.target.emailClient.getVerifyLoginCode(
               account.email
             );
-            await this.target.authClient.sessionVerifyCode(sessionToken, code);
+            await this.target.authClient.sessionVerifyCode(
+              sessionToken,
+              loginCode
+            );
           } catch {
-            // Ignore verification errors - session might already be verified
+            // Ignore verification errors - account/session might already be verified
           }
         };
 
@@ -275,10 +291,15 @@ export class TestAccountTracker {
               account.password
             );
             sessionToken = credentials.sessionToken;
-            await verifySessionIfNeeded();
+            await verifyIfNeeded();
             return true;
           }
           return false;
+        };
+
+        const elevateToAal2 = async (secret: string) => {
+          const code = await getTotpCode(secret);
+          await this.target.authClient.verifyTotpCode(sessionToken, code);
         };
 
         // Check if account has 2FA enabled before attempting to delete TOTP
@@ -288,11 +309,14 @@ export class TestAccountTracker {
           const has2FA = profile.authenticationMethods?.includes('otp');
 
           if (has2FA) {
+            if ('secret' in account && account.secret) {
+              await elevateToAal2(account.secret);
+            }
             try {
               await this.target.authClient.deleteTotpToken(sessionToken);
             } catch (totpError) {
               if (totpError.message.includes('Unconfirmed session')) {
-                await verifySessionIfNeeded();
+                await verifyIfNeeded();
                 await this.target.authClient.deleteTotpToken(sessionToken);
               } else if (await getFreshSessionIfNeeded(totpError)) {
                 await this.target.authClient.deleteTotpToken(sessionToken);
@@ -308,7 +332,7 @@ export class TestAccountTracker {
             await this.target.authClient.deleteTotpToken(sessionToken);
           } catch (totpError) {
             if (totpError.message.includes('Unconfirmed session')) {
-              await verifySessionIfNeeded();
+              await verifyIfNeeded();
               await this.target.authClient.deleteTotpToken(sessionToken);
             } else if (await getFreshSessionIfNeeded(totpError)) {
               await this.target.authClient.deleteTotpToken(sessionToken);
@@ -327,7 +351,7 @@ export class TestAccountTracker {
           );
         } catch (destroyError) {
           if (destroyError.message.includes('Unconfirmed session')) {
-            await verifySessionIfNeeded();
+            await verifyIfNeeded();
             await this.target.authClient.accountDestroy(
               account.email,
               account.password,
