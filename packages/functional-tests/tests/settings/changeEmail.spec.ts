@@ -69,8 +69,12 @@ test.describe('severity-1 #smoke', () => {
         settings,
         changePassword,
         initialPassword,
-        newPassword
+        newPassword,
+        target,
+        credentials.email
       );
+
+      credentials.password = newPassword;
 
       await settings.signOut();
 
@@ -113,8 +117,12 @@ test.describe('severity-1 #smoke', () => {
         settings,
         changePassword,
         initialPassword,
-        newPassword
+        newPassword,
+        target,
+        credentials.email
       );
+
+      credentials.password = newPassword;
 
       await settings.signOut();
 
@@ -262,9 +270,14 @@ async function setNewPassword(
   settings: SettingsPage,
   changePassword: ChangePasswordPage,
   oldPassword: string,
-  newPassword: string
+  newPassword: string,
+  target: BaseTarget,
+  email: string,
 ): Promise<void> {
   await settings.password.changeButton.click();
+
+  await settings.confirmMfaGuard(email);
+
   await changePassword.fillOutChangePassword(oldPassword, newPassword);
 
   await expect(settings.settingsHeading).toBeVisible();
