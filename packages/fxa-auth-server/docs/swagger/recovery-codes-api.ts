@@ -45,6 +45,18 @@ const RECOVERY_CODES_PUT = {
   ],
 };
 
+const MFA_RECOVERY_CODES_PUT = {
+  ...TAGS_RECOVERY_CODE,
+  description: '/mfa/recoveryCodes',
+  notes: [
+    dedent`
+      🔒 Authenticated with MFA jwt
+
+      Return new backup authentication codes while removing old ones.
+    `,
+  ],
+};
+
 const SESSION_VERIFY_RECOVERYCODE_POST = {
   description: '/session/verify/recoveryCode',
   notes: [
@@ -60,6 +72,7 @@ const API_DOCS = {
   RECOVERYCODES_GET,
   RECOVERY_CODES_POST,
   RECOVERY_CODES_PUT,
+  MFA_RECOVERY_CODES_PUT,
   SESSION_VERIFY_RECOVERYCODE_POST,
 };
 
