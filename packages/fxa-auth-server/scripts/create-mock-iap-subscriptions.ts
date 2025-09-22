@@ -37,7 +37,7 @@ export async function init() {
   const appStoreSubs = mockIapSubscriptions.appStore.map((mockEntry) => ({
     ...mockEntry,
     userId: options.uid,
-    expiresDate: expiry.getTime().toString(),
+    expiresDate: expiry.getTime(),
     productId: options.appStoreProductId || mockEntry.productId,
   }));
 
