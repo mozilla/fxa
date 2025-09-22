@@ -54,5 +54,6 @@ export interface SubscriptionContent {
   nextInvoiceDate: number;
   nextInvoiceTax?: number;
   nextInvoiceTotal?: number;
+  nextPromotionName?: string | null;
   promotionName?: string | null;
 }

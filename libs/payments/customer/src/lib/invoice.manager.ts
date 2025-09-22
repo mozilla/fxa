@@ -10,6 +10,7 @@ import {
   StripeCustomer,
   StripeInvoice,
   StripePromotionCode,
+  StripeSubscription,
   StripeSubscriptionItem,
 } from '@fxa/payments/stripe';
 import {
@@ -175,6 +176,21 @@ export class InvoiceManager {
       customer,
       fromSubscriptionItem,
     });
+  }
+
+  async previewUpcomingSubscription({
+    customer,
+    subscription,
+  }: {
+    customer: StripeCustomer;
+    subscription: StripeSubscription;
+  }): Promise<InvoicePreview> {
+    const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming({
+      customer: customer.id,
+      subscription: subscription.id,
+    });
+
+    return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
   }
 
   /**

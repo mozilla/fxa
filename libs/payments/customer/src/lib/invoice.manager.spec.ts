@@ -14,6 +14,7 @@ import {
   StripePriceFactory,
   StripePromotionCodeFactory,
   StripeResponseFactory,
+  StripeSubscriptionFactory,
   StripeUpcomingInvoiceFactory,
   StripeAddressFactory,
   StripeSubscriptionItemFactory,
@@ -292,6 +293,31 @@ describe('InvoiceManager', () => {
           fromSubscriptionItem: mockSubscriptionItem,
         })
       ).rejects.toThrowError(UpgradeCustomerMissingCurrencyInvoiceError);
+    });
+  });
+
+  describe('previewUpcomingSubscription', () => {
+    it('returns upcoming invoice for a subscription', async () => {
+      const mockCustomer = StripeCustomerFactory({ currency: 'usd' });
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockUpcomingInvoice = StripeResponseFactory(
+        StripeUpcomingInvoiceFactory()
+      );
+      const mockPreviewUpcomingInvoice = InvoicePreviewFactory();
+
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieveUpcoming')
+        .mockResolvedValue(mockUpcomingInvoice);
+
+      mockedStripeInvoiceToFirstInvoicePreviewDTO.mockReturnValue(
+        mockPreviewUpcomingInvoice
+      );
+
+      const result = await invoiceManager.previewUpcomingSubscription({
+        customer: mockCustomer,
+        subscription: mockSubscription,
+      });
+      expect(result).toEqual(mockPreviewUpcomingInvoice);
     });
   });
 
