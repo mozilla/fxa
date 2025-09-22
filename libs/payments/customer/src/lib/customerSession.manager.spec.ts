@@ -52,6 +52,7 @@ describe('CustomerSessionManager', () => {
               enabled: true,
               features: {
                 payment_method_redisplay: 'enabled',
+                payment_method_redisplay_limit: 10,
                 payment_method_save: 'disabled',
                 payment_method_remove: 'disabled',
                 payment_method_allow_redisplay_filters: [
@@ -89,6 +90,7 @@ describe('CustomerSessionManager', () => {
               enabled: true,
               features: {
                 payment_method_redisplay: 'enabled',
+                payment_method_redisplay_limit: 10,
                 payment_method_remove: 'disabled',
                 payment_method_allow_redisplay_filters: [
                   'always',
