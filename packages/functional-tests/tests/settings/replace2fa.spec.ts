@@ -61,7 +61,10 @@ test.describe('severity-2 #smoke', () => {
 
       const {
         initial: { secret: oldSecret },
+        new: { secret: newSecret },
       } = await addThenChange2FA({ settings, totp, target, credentials });
+      // persist new secret for cleanup
+      (credentials as any).secret = newSecret;
 
       await settings.signOut();
 

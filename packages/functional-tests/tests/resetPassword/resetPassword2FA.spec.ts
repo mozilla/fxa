@@ -116,7 +116,7 @@ test.describe('severity-1 #smoke', () => {
     credentials.password = newPassword;
   });
 
-  test('can reset password with recovery key and 2FA enabled but not prompted', async ({
+  test('can reset password with recovery key without 2FA prompt', async ({
     target,
     pages: { signin, resetPassword, settings, totp, recoveryKey },
     testAccountTracker,
@@ -181,6 +181,82 @@ test.describe('severity-1 #smoke', () => {
     await settings.disconnectTotp();
     // Cleanup requires setting this value to correct password
     credentials.password = newPassword;
+  });
+
+  test('can reset password with recovery key then delete account', async ({
+    target,
+    pages: {
+      page,
+      signin,
+      resetPassword,
+      settings,
+      totp,
+      recoveryKey,
+      deleteAccount,
+    },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+    const newPassword = testAccountTracker.generatePassword();
+
+    await signin.goto();
+    await signin.fillOutEmailFirstForm(credentials.email);
+    await signin.fillOutPasswordForm(credentials.password);
+
+    // Enable 2FA
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.totp.status).toHaveText('Disabled');
+
+    await settings.totp.addButton.click();
+    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.alertBar).toHaveText(
+      'Two-step authentication has been enabled'
+    );
+    await expect(settings.totp.status).toHaveText('Enabled');
+
+    // Create recovery key
+    await settings.recoveryKey.createButton.click();
+    const key = await recoveryKey.createRecoveryKey(
+      credentials.password,
+      'hint'
+    );
+
+    // Verify status as 'enabled'
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
+
+    await settings.signOut();
+
+    await resetPassword.goto();
+
+    await resetPassword.fillOutEmailForm(credentials.email);
+
+    const code = await target.emailClient.getResetPasswordCode(
+      credentials.email
+    );
+    await resetPassword.fillOutResetPasswordCodeForm(code);
+
+    // Not prompted for 2FA during reset password
+    await resetPassword.fillOutRecoveryKeyForm(key);
+    await resetPassword.fillOutNewPasswordForm(newPassword);
+
+    await expect(resetPassword.passwordResetPasswordSaved).toBeVisible();
+
+    await resetPassword.continueWithoutDownloadingRecoveryKey();
+    await resetPassword.recoveryKeyFinishButton.click();
+
+    await expect(settings.settingsHeading).toBeVisible();
+
+    // Recovery key has been consumed and a new one created
+    await expect(settings.recoveryKey.status).toHaveText('Enabled');
+
+    // Account deletion requires AAL match
+    // If AAL does not match, account deletion fails with 'unconfirmed session' error
+    await settings.deleteAccountButton.click();
+    await deleteAccount.deleteAccount(newPassword);
+    await expect(page.getByText('Account deleted successfully')).toBeVisible();
   });
 
   test('can reset password with 2FA and forgot recovery key', async ({

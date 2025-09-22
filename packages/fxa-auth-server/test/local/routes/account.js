@@ -439,6 +439,43 @@ describe('/account/reset', () => {
         null,
         'db.createSessionToken was passed correct form factor'
       );
+
+      // Token is not verified with TOTP-2FA method (AAL2) if account does not have TOTP
+      assert.equal(
+        mockDB.verifyTokensWithMethod.callCount,
+        0,
+        'db.verifyTokensWithMethod was not called'
+      );
+    });
+  });
+
+  describe('reset account with account recovery key, TOTP enabled', () => {
+    let res;
+    beforeEach(() => {
+      mockDB.totpToken = sinon.spy(() => {
+        return Promise.resolve({
+          verified: true,
+          enabled: true,
+        });
+      });
+      mockRequest.payload.wrapKb = hexString(32);
+      mockRequest.payload.recoveryKeyId = hexString(16);
+      return runTest(route, mockRequest, (result) => (res = result));
+    });
+
+    it('should return response', () => {
+      assert.ok(res.sessionToken, 'return sessionToken');
+      assert.ok(res.keyFetchToken, 'return keyFetchToken');
+    });
+
+    it('should verify token with TOTP-2FA method (AAL2) if account has TOTP', () => {
+      assert.equal(
+        mockDB.verifyTokensWithMethod.callCount,
+        1,
+        'db.verifyTokensWithMethod was called once'
+      );
+      const verifyArgs = mockDB.verifyTokensWithMethod.args[0];
+      assert.equal(verifyArgs[1], 'totp-2fa');
     });
   });
 
