@@ -34,7 +34,8 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       options: {
         ...RECOVERY_CODES_DOCS.RECOVERYCODES_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         response: {
           schema: recoveryCodesSchema,
@@ -88,7 +89,8 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       options: {
         ...RECOVERY_CODES_DOCS.RECOVERY_CODES_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: recoveryCodesSchema,
@@ -108,13 +110,11 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         // no previous backup codes should be in the database
         // the session should not yet have a higher assurance level
         const account = await db.account(uid);
-        const { hasBackupCodes } =
-          await backupCodeManager.getCountForUserId(uid);
         const hasTotpToken = await otpUtils.hasTotpToken({ uid });
         // for initial setup, only fail if totp is already enabled
         // if totp is not enabled/verified, it is safe to replace the recovery codes
-        if (hasBackupCodes && hasTotpToken) {
-          throw errors.recoveryCodesAlreadyExist();
+        if (hasTotpToken) {
+          throw errors.totpTokenAlreadyExists();
         }
 
         const { recoveryCodes } = request.payload;
@@ -143,7 +143,8 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       options: {
         ...RECOVERY_CODES_DOCS.RECOVERY_CODES_PUT,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: recoveryCodesSchema,

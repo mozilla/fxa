@@ -82,8 +82,8 @@ module.exports = function (
       options: {
         ...PASSWORD_DOCS.PASSWORD_CHANGE_START_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({
