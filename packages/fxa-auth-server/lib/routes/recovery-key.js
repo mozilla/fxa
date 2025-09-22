@@ -32,8 +32,8 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -395,7 +395,8 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_DELETE,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
       },
       async handler(request) {

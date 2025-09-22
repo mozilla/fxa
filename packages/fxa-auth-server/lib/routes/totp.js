@@ -83,8 +83,8 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_CREATE_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -417,7 +417,8 @@ module.exports = (
       options: {
         ...TOTP_DOCS.TOTP_DESTROY_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         response: {},
       },
