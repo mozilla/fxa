@@ -31,6 +31,28 @@ const convictConf = convict({
     default: 1,
     env: 'AUTH_API_VERSION',
   },
+  authStrategies: {
+    verifiedSessionToken: {
+      skipEmailVerifiedCheckForRoutes: {
+        default: '',
+        doc: 'A regex that defines the routes that should skip the email verification check.',
+        env: 'AUTH_STRATEGIES__VERIFIED_SESSION_TOKEN__SKIP_EMAIL_CHECK_FOR_ROUTES',
+        format: String,
+      },
+      skipTokenVerifiedCheckForRoutes: {
+        default: '',
+        doc: 'A regex that defines the routes that should skip the token verified check.',
+        env: 'AUTH_STRATEGIES__VERIFIED_SESSION_TOKEN__SKIP_TOKEN_VERIFIED_CHECK_FOR_ROUTES',
+        format: String,
+      },
+      skipAalCheckForRoutes: {
+        default: '',
+        doc: 'A regex that defines the routes that should skip the account assurance level check.',
+        env: 'AUTH_STRATEGIES__VERIFIED_SESSION_TOKEN__SKIP_AAL_CHECK_FOR_ROUTES',
+        format: String,
+      },
+    },
+  },
   // TODO: Remove this after we have synchronized login records to Firestore
   firestore: {
     credentials: {

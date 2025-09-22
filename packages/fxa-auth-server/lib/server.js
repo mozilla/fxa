@@ -25,6 +25,7 @@ const {
 } = require('fxa-shared/sentry/report-validation-error');
 const { logErrorWithGlean } = require('./metrics/glean');
 const mfa = require('./routes/auth-schemes/mfa');
+const verifiedSessionToken = require('./routes/auth-schemes/verified-session-token');
 
 function trimLocale(header) {
   if (!header) {
@@ -496,6 +497,17 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
     mfa.strategy(config, makeCredentialFn(db.sessionToken.bind(db)))
   );
   server.auth.strategy('mfa', 'mfa');
+
+  server.auth.scheme(
+    'verified-session-token',
+    verifiedSessionToken.strategy(
+      makeCredentialFn(db.sessionToken.bind(db)),
+      db,
+      config,
+      statsd
+    )
+  );
+  server.auth.strategy('verifiedSessionToken', 'verified-session-token');
 
   // register all plugins and Swagger configuration
   await server.register([
