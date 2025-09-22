@@ -41,7 +41,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-manage-subscription-button',
         buttonLabel: 'Manage my subscription',
-        buttonUrl: `${config.contentServerUrl}/subscriptions${queryParamString}`,
+        buttonUrl: `/subscriptions/landing${queryParamString}`,
         message: 'You’ve already subscribed to this product.',
         messageFtl: 'checkout-error-already-subscribed',
       };
@@ -49,7 +49,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-manage-subscription-button',
         buttonLabel: 'Manage my subscription',
-        buttonUrl: `${config.contentServerUrl}/subscriptions${queryParamString}`,
+        buttonUrl: `/subscriptions/landing${queryParamString}`,
         message:
           'You have a mobile in-app subscription that conflicts with this product — please contact support so we can help you.',
         messageFtl: 'next-iap-blocked-contact-support',
@@ -138,7 +138,7 @@ export function getErrorFtlInfo(
       return {
         buttonFtl: 'next-payment-error-manage-subscription-button',
         buttonLabel: 'Manage my subscription',
-        buttonUrl: `${config.contentServerUrl}/subscriptions${queryParamString}`,
+        buttonUrl: `/subscriptions/landing${queryParamString}`,
         message:
           'It looks like there was a problem billing your PayPal account. Please re-enable automatic payments for your subscription.',
         messageFtl: 'paypal-active-subscription-no-billing-agreement-error',
