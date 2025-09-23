@@ -99,7 +99,10 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
   Container.set(AuthLogger, log);
 
   Container.set(AppConfig, config);
-  Container.set(AccountEventsManager, new AccountEventsManager());
+  Container.set(
+    AccountEventsManager,
+    options.mockAccountEventsManager || new AccountEventsManager()
+  );
   Container.set(RelyingPartyConfigurationManager, rpConfigManager);
 
   const mailer = options.mailer || {};
@@ -3153,7 +3156,7 @@ describe('/account/login', () => {
     });
 
     describe('skip for new accounts', () => {
-      function setup(enabled, accountCreatedSince) {
+      function setup(enabled, accountCreatedSince, makeRoutesOptions = {}) {
         config.signinConfirmation.skipForNewAccounts = {
           enabled: enabled,
           maxAge: 5,
@@ -3184,6 +3187,7 @@ describe('/account/login', () => {
         };
 
         const accountRoutes = makeRoutes({
+          ...makeRoutesOptions,
           checkPassword: function () {
             return Promise.resolve(true);
           },
@@ -3373,13 +3377,29 @@ describe('/account/login', () => {
       it('logs metrics when accountAge is under maxAge config threshold', () => {
         glean.loginConfirmSkipFor.newAccount.reset();
 
-        setup(true, 0);
+        const mockAccountEventsManager = {
+          recordSecurityEvent: sinon.fake(),
+        };
+        setup(true, 0, { mockAccountEventsManager });
 
         return runTest(route, mockRequest, () => {
           sinon.assert.calledOnce(glean.loginConfirmSkipFor.newAccount);
           sinon.assert.calledWith(
             statsd.increment,
             'account.signin.confirm.bypass.newAccount'
+          );
+          sinon.assert.calledWithMatch(
+            mockAccountEventsManager.recordSecurityEvent,
+            mockDB,
+            sinon.match({
+              name: 'account.signin_confirm_bypass_new_account',
+              uid,
+              ipAddr: mockRequest.app.clientAddress,
+              additionalInfo: {
+                userAgent: mockRequest.headers['user-agent'],
+                location: mockRequest.app.geo.location,
+              },
+            })
           );
         });
       });
@@ -3396,6 +3416,11 @@ describe('/account/login', () => {
             },
           ]);
         });
+        const mockAccountEventsManager = {
+          recordSecurityEvent: sinon.fake(),
+        };
+        setup(true, 0, { mockAccountEventsManager });
+
         return runTest(route, mockRequest, (response) => {
           assert.equal(
             mockDB.verifiedLoginSecurityEvents.callCount,
@@ -3404,6 +3429,19 @@ describe('/account/login', () => {
           );
 
           sinon.assert.called(glean.loginConfirmSkipFor.knownIp);
+          sinon.assert.calledWithMatch(
+            mockAccountEventsManager.recordSecurityEvent,
+            mockDB,
+            sinon.match({
+              name: 'account.signin_confirm_bypass_known_ip',
+              uid,
+              ipAddr: mockRequest.app.clientAddress,
+              additionalInfo: {
+                userAgent: mockRequest.headers['user-agent'],
+                location: mockRequest.app.geo.location,
+              },
+            })
+          );
         });
       });
     });

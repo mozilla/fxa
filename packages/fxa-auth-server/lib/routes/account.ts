@@ -1090,6 +1090,11 @@ export class AccountHandler {
         this.log.info('Account.ipprofiling.seenAddress', {
           uid: account.uid,
         });
+        recordSecurityEvent('account.signin_confirm_bypass_known_ip', {
+          db: this.db,
+          request,
+          account,
+        });
         return true;
       }
 
@@ -1105,6 +1110,11 @@ export class AccountHandler {
           this.statsd.increment('account.signin.confirm.bypass.newAccount');
           this.log.info('account.signin.confirm.bypass.age', {
             uid: account.uid,
+          });
+          recordSecurityEvent('account.signin_confirm_bypass_new_account', {
+            db: this.db,
+            request,
+            account,
           });
           return true;
         }

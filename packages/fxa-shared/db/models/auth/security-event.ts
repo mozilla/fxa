@@ -59,6 +59,8 @@ export const EVENT_NAMES: Record<string, number> = {
   'account.mfa_send_otp_code': 45,
   'account.mfa_verify_otp_code_success': 46,
   'account.mfa_verify_otp_code_failed': 47,
+  'account.signin_confirm_bypass_known_ip': 48,
+  'account.signin_confirm_bypass_new_account': 49,
 } as const;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
