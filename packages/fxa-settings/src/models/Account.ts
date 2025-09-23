@@ -1320,7 +1320,11 @@ export class Account implements AccountData {
     firefox.profileChanged({ uid: this.uid });
   }
 
-  async createRecoveryKey(password: string, replaceKey: boolean = false) {
+  async createRecoveryKey(
+    password: string,
+    replaceKey: boolean,
+    useMfaJwt: boolean
+  ) {
     const reauth = await this.withLoadingStatus(
       this.authClient.sessionReauth(
         sessionToken()!,
@@ -1337,15 +1341,30 @@ export class Account implements AccountData {
     );
     const { recoveryKey, recoveryKeyId, recoveryData } =
       await generateRecoveryKey(this.uid, keys);
-    await this.withLoadingStatus(
-      this.authClient.createRecoveryKey(
-        sessionToken()!,
-        recoveryKeyId,
-        recoveryData,
-        true,
-        replaceKey
-      )
-    );
+
+    if (useMfaJwt) {
+      const jwt = this.getCachedJwtByScope('recovery_key');
+      await this.withLoadingStatus(
+        this.authClient.createRecoveryKeyWithJwt(
+          jwt,
+          recoveryKeyId,
+          recoveryData,
+          true,
+          replaceKey
+        )
+      );
+    } else {
+      await this.withLoadingStatus(
+        this.authClient.createRecoveryKey(
+          sessionToken()!,
+          recoveryKeyId,
+          recoveryData,
+          true,
+          replaceKey
+        )
+      );
+    }
+
     const cache = this.apolloClient.cache;
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
