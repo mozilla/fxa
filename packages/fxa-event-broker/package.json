@@ -36,7 +36,7 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.758.0",
     "@types/sinon": "10.0.1",
-    "axios": "1.8.4",
+    "axios": "1.12.0",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
@@ -76,7 +76,7 @@
     "jest": "27.5.1",
     "nock": "^13.5.1",
     "p-event": "^6.0.0",
-    "pm2": "^5.4.2",
+    "pm2": "^6.0.9",
     "prettier": "^3.5.3",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.3",
