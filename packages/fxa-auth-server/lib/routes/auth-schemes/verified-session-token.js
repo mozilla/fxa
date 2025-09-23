@@ -30,16 +30,19 @@ function strategy(getCredentialsFunc, db, config, statsd) {
     config?.authStrategies?.verifiedSessionToken;
 
   const skipEmailVerifiedCheckForRoutes =
-    verifiedSessionTokenConfig?.skipEmailVerifiedCheckForRoutes &&
-    new RegExp(verifiedSessionTokenConfig.skipEmailVerifiedCheckForRoutes);
+    verifiedSessionTokenConfig?.skipEmailVerifiedCheckForRoutes
+      ? new RegExp(verifiedSessionTokenConfig.skipEmailVerifiedCheckForRoutes)
+      : null;
 
   const skipTokenVerifiedCheckForRoutes =
-    verifiedSessionTokenConfig?.skipTokenVerifiedCheckForRoutes &&
-    new RegExp(verifiedSessionTokenConfig.skipTokenVerifiedCheckForRoutes);
+    verifiedSessionTokenConfig?.skipTokenVerifiedCheckForRoutes
+      ? new RegExp(verifiedSessionTokenConfig.skipTokenVerifiedCheckForRoutes)
+      : null;
 
   const skipAalCheckForRoutes =
-    verifiedSessionTokenConfig?.skipAalCheckForRoutes &&
-    new RegExp(verifiedSessionTokenConfig.skipAalCheckForRoutes);
+    verifiedSessionTokenConfig?.skipAalCheckForRoutes
+      ? new RegExp(verifiedSessionTokenConfig.skipAalCheckForRoutes)
+      : null;
 
   return function (server, options) {
     return {
@@ -68,9 +71,6 @@ function strategy(getCredentialsFunc, db, config, statsd) {
         // 1) account email is verified
         if (!account?.primaryEmail?.isVerified) {
           if (skipEmailVerifiedCheckForRoutes?.test(req.route.path)) {
-            console.log(
-              '!!! verified_session_token.primary_email_not_verified.skipped'
-            );
             statsd?.increment(
               'verified_session_token.primary_email_not_verified.skipped',
               [
