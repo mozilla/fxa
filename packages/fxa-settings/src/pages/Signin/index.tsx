@@ -19,7 +19,6 @@ import { REACT_ENTRYPOINT } from '../../constants';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../lib/glean';
 import { usePageViewEvent } from '../../lib/metrics';
-import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import {
   useSensitiveDataClient,
   useFtlMsgResolver,
@@ -146,7 +145,9 @@ const Signin = ({
         const navigationOptions = {
           email,
           signinData: {
-            verified: data.verified,
+            // TODO, address signIn.verified vs session.verified discrepancy
+            // we're currently using 'sessionVerified' from recovery_email/status
+            verified: data.sessionVerified,
             verificationMethod: data.verificationMethod,
             verificationReason: data.verificationReason,
             uid: data.uid,
@@ -200,17 +201,6 @@ const Signin = ({
 
       if (data) {
         GleanMetrics.login.success();
-
-        const accountData: StoredAccountData = {
-          email,
-          uid: data.signIn.uid,
-          lastLogin: Date.now(),
-          sessionToken: data.signIn.sessionToken,
-          verified: data.signIn.verified,
-          metricsEnabled: data.signIn.metricsEnabled,
-        };
-
-        storeAccountData(accountData);
 
         const navigationOptions = {
           email,
@@ -509,7 +499,9 @@ const Signin = ({
       {!hideThirdPartyAuth && (
         <ThirdPartyAuth
           showSeparator={true}
-          separatorType={hasLinkedAccountAndNoPassword ? 'signInWith' : undefined}
+          separatorType={
+            hasLinkedAccountAndNoPassword ? 'signInWith' : undefined
+          }
           {...{ viewName, flowQueryParams }}
         />
       )}

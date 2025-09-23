@@ -36,7 +36,6 @@ import {
 } from '../mocks';
 import { MozServices } from '../../lib/types';
 import * as utils from 'fxa-react/lib/utils';
-import { storeAccountData } from '../../lib/storage-utils';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { SigninProps } from './interfaces';
@@ -367,7 +366,6 @@ describe('Signin component', () => {
             });
             expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
             expect(GleanMetrics.login.success).toHaveBeenCalledTimes(1);
-            expect(storeAccountData).toHaveBeenCalled();
           });
 
           it('navigates to /signin_totp_code when TOTP verification requested', async () => {
