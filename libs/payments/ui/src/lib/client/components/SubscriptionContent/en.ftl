@@ -13,6 +13,7 @@ subscription-content-current-billed-on-tax = <strong>{ $invoiceTotal } + { $taxD
 subscription-content-current-billed-on-no-tax = <strong>{ $invoiceTotal }</strong><span> billed on { $billedOnDate }</span>
 subscription-content-credit-issued-to-your-account = <strong>{ $creditApplied }</strong> credit issued to your account
 subscription-content-coupon-applied = { $promotionName } applied
+subscription-content-coupon-will-be-applied = { $promotionName } discount will be applied
 subscription-content-next-bill-excl-disc-with-tax = Next bill of <strong>{ $nextInvoiceTotal } + { $taxDue } tax</strong>, excluding discounts, is due on <strong>{ $nextBillDate }</strong>
 subscription-content-next-bill-excl-no-tax = Next bill of <strong>{ $nextInvoiceTotal }</strong>, excluding discounts, is due on <strong>{ $nextBillDate }</strong>
 subscription-content-heading-cancel-subscription = Cancel Subscription

@@ -36,6 +36,7 @@ interface Subscription {
   nextInvoiceDate: number;
   nextInvoiceTax?: number;
   nextInvoiceTotal?: number;
+  nextPromotionName?: string | null;
   promotionName?: string | null;
 }
 
@@ -62,6 +63,7 @@ export const SubscriptionContent = ({
     currentPeriodEnd,
     nextInvoiceTax,
     nextInvoiceTotal,
+    nextPromotionName,
     productName,
     webIcon,
     promotionName,
@@ -602,7 +604,7 @@ export const SubscriptionContent = ({
                     </Localized>
                   )}
                   {nextInvoiceTotal !== undefined && nextInvoiceTotal >= 0 ? (
-                    <div className="text-sm">
+                    <div className="mt-2 text-sm">
                       {nextInvoiceTax ? (
                         <Localized
                           id="subscription-content-next-bill-excl-disc-with-tax"
@@ -646,6 +648,18 @@ export const SubscriptionContent = ({
                       )}
                     </div>
                   ) : null}
+                  {nextPromotionName && (
+                    <Localized
+                      id="subscription-content-coupon-will-be-applied"
+                      vars={{
+                        promotionName: nextPromotionName,
+                      }}
+                    >
+                      <p className="font-bold text-sm text-violet-700">
+                        {nextPromotionName} discount will be applied
+                      </p>
+                    </Localized>
+                  )}
                 </div>
               )}
               <Localized
