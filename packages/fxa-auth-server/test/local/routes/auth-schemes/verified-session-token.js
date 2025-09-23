@@ -139,7 +139,7 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
       assert.isTrue(
         statsd.increment.calledWithExactly(
           'verified_session_token.primary_email_not_verified.error',
-          ['/foo/{id}']
+          ['path:/foo/{id}']
         )
       );
     }
@@ -162,7 +162,7 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     assert.isTrue(
       statsd.increment.calledOnceWithExactly(
         'verified_session_token.primary_email_not_verified.skipped',
-        ['/foo/{id}']
+        ['path:/foo/{id}']
       )
     );
   });
@@ -182,7 +182,7 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
       assert.isTrue(
         statsd.increment.calledWithExactly(
           'verified_session_token.token_verified.error',
-          ['/foo/{id}']
+          ['path:/foo/{id}']
         )
       );
     }
@@ -202,7 +202,7 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     assert.isTrue(
       statsd.increment.calledOnceWithExactly(
         'verified_session_token.token_verified.skipped',
-        ['/foo/{id}']
+        ['path:/foo/{id}']
       )
     );
   });
@@ -223,7 +223,7 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
       assert.equal(payload.errno, AppError.ERRNO.INVALID_TOKEN);
       assert.isTrue(
         statsd.increment.calledWithExactly('verified_session_token.aal.error', [
-          '/foo/{id}',
+          'path:/foo/{id}',
         ])
       );
     }
@@ -245,7 +245,7 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     assert.isTrue(
       statsd.increment.calledOnceWithExactly(
         'verified_session_token.aal.skipped',
-        ['/foo/{id}']
+        ['path:/foo/{id}']
       )
     );
   });

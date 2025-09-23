@@ -71,17 +71,15 @@ function strategy(getCredentialsFunc, db, config, statsd) {
         // 1) account email is verified
         if (!account?.primaryEmail?.isVerified) {
           if (skipEmailVerifiedCheckForRoutes?.test(req.route.path)) {
+            // Important! Using req.route.path which has much lower cardinality than req.path
             statsd?.increment(
               'verified_session_token.primary_email_not_verified.skipped',
-              [
-                // Important! Using req.route.path which has much lower cardinality than req.path
-                req.route.path,
-              ]
+              [`path:${req.route.path}`]
             );
           } else {
             statsd?.increment(
               'verified_session_token.primary_email_not_verified.error',
-              [req.route.path]
+              [`path:${req.route.path}`]
             );
             throw AppError.unverifiedAccount();
           }
@@ -90,13 +88,12 @@ function strategy(getCredentialsFunc, db, config, statsd) {
         // 2) session token is verified
         if (token.tokenVerificationId || token.tokenVerified === false) {
           if (skipTokenVerifiedCheckForRoutes?.test(req.route.path)) {
-            console.log('!!! verified_session_token.token_verified.skipped');
             statsd?.increment('verified_session_token.token_verified.skipped', [
-              req.route.path,
+              `path:${req.route.path}`,
             ]);
           } else {
             statsd?.increment('verified_session_token.token_verified.error', [
-              req.route.path,
+              `path:${req.route.path}`,
             ]);
             throw AppError.unverifiedSession();
           }
@@ -112,13 +109,12 @@ function strategy(getCredentialsFunc, db, config, statsd) {
 
         if (accountAal !== sessionAal) {
           if (skipAalCheckForRoutes?.test(req.route.path)) {
-            console.log('!!! verified_session_token.aal.skipped');
             statsd?.increment('verified_session_token.aal.skipped', [
-              req.route.path,
+              `path:${req.route.path}`,
             ]);
           } else {
             statsd?.increment('verified_session_token.aal.error', [
-              req.route.path,
+              `path:${req.route.path}`,
             ]);
             throw AppError.unauthorized('AAL mismatch');
           }
