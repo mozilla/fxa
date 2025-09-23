@@ -27,15 +27,17 @@ function strategy(getCredentialsFunc, db, config, statsd) {
 
   // Extract regular expressions to allow for optional skipping of certain routes for certain checks.
   const skipEmailVerifiedCheckForRoutes =
-    config?.authStrategies?.skipEmailVerifiedCheckForRoutes &&
+    config?.authStrategies?.verifiedSessionToken
+      ?.skipEmailVerifiedCheckForRoutes &&
     new RegExp(config.authStrategies.skipEmailVerifiedCheckForRoutes);
 
   const skipTokenVerifiedCheckForRoutes =
-    config?.authStrategies?.skipTokenVerifiedCheckForRoutes &&
+    config?.authStrategies?.verifiedSessionToken
+      ?.skipTokenVerifiedCheckForRoutes &&
     new RegExp(config.authStrategies.skipTokenVerifiedCheckForRoutes);
 
   const skipAalCheckForRoutes =
-    config?.authStrategies?.skipAalCheckForRoutes &&
+    config?.authStrategies?.verifiedSessionToken?.skipAalCheckForRoutes &&
     new RegExp(config.authStrategies.skipAalCheckForRoutes);
 
   return function (server, options) {
@@ -65,6 +67,9 @@ function strategy(getCredentialsFunc, db, config, statsd) {
         // 1) account email is verified
         if (!account?.primaryEmail?.isVerified) {
           if (skipEmailVerifiedCheckForRoutes?.test(req.route.path)) {
+            console.log(
+              '!!! verified_session_token.primary_email_not_verified.skipped'
+            );
             statsd?.increment(
               'verified_session_token.primary_email_not_verified.skipped',
               [
@@ -84,6 +89,7 @@ function strategy(getCredentialsFunc, db, config, statsd) {
         // 2) session token is verified
         if (token.tokenVerificationId || token.tokenVerified === false) {
           if (skipTokenVerifiedCheckForRoutes?.test(req.route.path)) {
+            console.log('!!! verified_session_token.token_verified.skipped');
             statsd?.increment('verified_session_token.token_verified.skipped', [
               req.route.path,
             ]);
@@ -105,6 +111,7 @@ function strategy(getCredentialsFunc, db, config, statsd) {
 
         if (accountAal !== sessionAal) {
           if (skipAalCheckForRoutes?.test(req.route.path)) {
+            console.log('!!! verified_session_token.aal.skipped');
             statsd?.increment('verified_session_token.aal.skipped', [
               req.route.path,
             ]);

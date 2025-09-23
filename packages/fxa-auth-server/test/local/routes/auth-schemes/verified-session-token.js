@@ -29,7 +29,9 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     // Default valid state. This state should pass email verified check, session token verified check,
     // and account assurance level check.
     config = {
-      authStrategies: {},
+      authStrategies: {
+        verifiedSessionToken: {},
+      },
     };
 
     db = {
@@ -151,7 +153,8 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     });
 
     // Configure path to skip email check
-    config.authStrategies.skipEmailVerifiedCheckForRoutes = '/foo.*';
+    config.authStrategies.verifiedSessionToken.skipEmailVerifiedCheckForRoutes =
+      '/foo.*';
 
     const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
     await authStrategy.authenticate(request, h);
@@ -190,7 +193,8 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     token.tokenVerificationId = 'abc';
 
     // Skip token verification check for path
-    config.authStrategies.skipTokenVerifiedCheckForRoutes = '/foo.*';
+    config.authStrategies.verifiedSessionToken.skipTokenVerifiedCheckForRoutes =
+      '/foo.*';
 
     const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
     await authStrategy.authenticate(request, h);
@@ -232,7 +236,7 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     );
 
     // Skip AAL check for path
-    config.authStrategies.skipAalCheckForRoutes = '/foo.*';
+    config.authStrategies.verifiedSessionToken.skipAalCheckForRoutes = '/foo.*';
 
     const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
 
