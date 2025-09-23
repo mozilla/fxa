@@ -156,6 +156,36 @@ const RECOVERY_EMAIL_DESTROY_POST = {
   },
 };
 
+const MFA_RECOVERY_EMAIL_DESTROY_POST = {
+  ...TAGS_EMAILS,
+  description: '/mfa/recovery_email/destroy',
+  notes: [
+    dedent`
+      🔒 Authenticated with session MFA JWT (scope: mfa:email)
+
+      Delete an email address associated with the logged-in user.
+    `,
+  ],
+  plugins: {
+    'hapi-swagger': {
+      responses: {
+        400: {
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 138\` - Unverified session
+          `,
+        },
+        401: {
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 110\` - Invalid authentication token in request signature
+          `,
+        },
+      },
+    },
+  },
+};
+
 const RECOVERY_EMAIL_SET_PRIMARY_POST = {
   ...TAGS_EMAILS,
   description: '/recovery_email/set_primary',
@@ -235,6 +265,7 @@ const RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST = {
 const API_DOCS = {
   EMAILS_REMINDERS_CAD_POST,
   RECOVERY_EMAIL_DESTROY_POST,
+  MFA_RECOVERY_EMAIL_DESTROY_POST,
   RECOVERY_EMAIL_POST,
   RECOVERY_EMAIL_RESEND_CODE_POST,
   RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST,

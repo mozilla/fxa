@@ -1181,6 +1181,27 @@ export class Account implements AccountData {
     });
   }
 
+  async deleteSecondaryEmailWithJwt(email: string) {
+    const jwt = this.getCachedJwtByScope('email');
+    await this.withLoadingStatus(
+      this.authClient.recoveryEmailDestroyWithJwt(jwt, email)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        emails(existingEmails) {
+          const emails = [...existingEmails];
+          emails.splice(
+            emails.findIndex((x) => x.email === email),
+            1
+          );
+          return emails;
+        },
+      },
+    });
+  }
+
   async makeEmailPrimary(email: string) {
     await this.withLoadingStatus(
       this.authClient.recoveryEmailSetPrimaryEmail(sessionToken()!, email)
