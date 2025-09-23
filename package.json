@@ -286,6 +286,7 @@
     "minimist": "^1.2.6",
     "nest-typed-config/class-validator": "0.14.1",
     "plist": "^3.0.6",
+    "sha.js": "^2.4.12",
     "underscore": ">=1.13.2"
   },
   "packageManager": "yarn@4.9.2",
