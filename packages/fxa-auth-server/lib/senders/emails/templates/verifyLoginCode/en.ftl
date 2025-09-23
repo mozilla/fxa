@@ -1,6 +1,7 @@
 # Variables:
-#  $serviceName (String) - A service the user hasn't signed into before (e.g. Firefox)
-verifyLoginCode-subject-line-2 = Approve sign-in to { $serviceName }
+#  $code (String) - The confirmation code for sign-in
+verifyLoginCode-subject-line-3 = Use { $code } to sign in
+verifyLoginCode-preview = This code expires in 5 minutes.
 # Variables:
 #  $serviceName (String) - A service the user hasn't signed into before (e.g. Firefox)
 verifyLoginCode-title-2 = Did you sign in to { $serviceName }?
