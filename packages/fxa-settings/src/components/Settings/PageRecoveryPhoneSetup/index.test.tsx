@@ -48,15 +48,20 @@ describe('PageRecoveryPhoneSetup', () => {
 
   it('add recovery phone with successful submission renders step 2', async () => {
     const user = userEvent.setup();
-    const addRecoveryPhone = jest
+    const addRecoveryPhoneWithJwt = jest
       .fn()
       .mockResolvedValueOnce(mockSuccessResponse);
-    renderWithRouter(<Subject account={{ addRecoveryPhone }} />);
+
+    renderWithRouter(<Subject account={{ addRecoveryPhoneWithJwt }} />);
 
     await completeStepOne(user);
-    await waitFor(() => expect(addRecoveryPhone).toHaveBeenCalledTimes(1));
     await waitFor(() =>
-      expect(addRecoveryPhone).toHaveBeenCalledWith(MOCK_FULL_PHONE_NUMBER)
+      expect(addRecoveryPhoneWithJwt).toHaveBeenCalledTimes(1)
+    );
+    await waitFor(() =>
+      expect(addRecoveryPhoneWithJwt).toHaveBeenCalledWith(
+        MOCK_FULL_PHONE_NUMBER
+      )
     );
     expect(
       screen.queryByText(/You’ll get a text message from Mozilla/i)
@@ -69,12 +74,12 @@ describe('PageRecoveryPhoneSetup', () => {
     const confirmRecoveryPhone = jest
       .fn()
       .mockResolvedValueOnce(mockSuccessResponse);
-    const addRecoveryPhone = jest
+    const addRecoveryPhoneWithJwt = jest
       .fn()
       .mockResolvedValueOnce(mockSuccessResponse)
       .mockResolvedValueOnce(mockSuccessResponse);
     renderWithRouter(
-      <Subject account={{ confirmRecoveryPhone, addRecoveryPhone }} />
+      <Subject account={{ confirmRecoveryPhone, addRecoveryPhoneWithJwt }} />
     );
 
     await completeStepOne(user);
@@ -88,9 +93,17 @@ describe('PageRecoveryPhoneSetup', () => {
       })
     );
 
-    await waitFor(() => expect(addRecoveryPhone).toHaveBeenCalledTimes(2));
-    expect(addRecoveryPhone).toHaveBeenNthCalledWith(1, MOCK_FULL_PHONE_NUMBER);
-    expect(addRecoveryPhone).toHaveBeenNthCalledWith(2, MOCK_FULL_PHONE_NUMBER);
+    await waitFor(() =>
+      expect(addRecoveryPhoneWithJwt).toHaveBeenCalledTimes(2)
+    );
+    expect(addRecoveryPhoneWithJwt).toHaveBeenNthCalledWith(
+      1,
+      MOCK_FULL_PHONE_NUMBER
+    );
+    expect(addRecoveryPhoneWithJwt).toHaveBeenNthCalledWith(
+      2,
+      MOCK_FULL_PHONE_NUMBER
+    );
   });
 
   it('at step 2, allows code confirm', async () => {
@@ -98,11 +111,11 @@ describe('PageRecoveryPhoneSetup', () => {
     const confirmRecoveryPhone = jest
       .fn()
       .mockResolvedValueOnce(mockSuccessResponse);
-    const addRecoveryPhone = jest
+    const addRecoveryPhoneWithJwt = jest
       .fn()
       .mockResolvedValueOnce(mockSuccessResponse);
     renderWithRouter(
-      <Subject account={{ confirmRecoveryPhone, addRecoveryPhone }} />
+      <Subject account={{ confirmRecoveryPhone, addRecoveryPhoneWithJwt }} />
     );
 
     await completeStepOne(user);
@@ -127,11 +140,11 @@ describe('PageRecoveryPhoneSetup', () => {
     const confirmRecoveryPhone = jest
       .fn()
       .mockResolvedValueOnce(mockSuccessResponse);
-    const addRecoveryPhone = jest
+    const addRecoveryPhoneWithJwt = jest
       .fn()
       .mockResolvedValueOnce(mockSuccessResponse);
     renderWithRouter(
-      <Subject account={{ confirmRecoveryPhone, addRecoveryPhone }} />
+      <Subject account={{ confirmRecoveryPhone, addRecoveryPhoneWithJwt }} />
     );
 
     await waitFor(() =>
@@ -152,11 +165,11 @@ describe('PageRecoveryPhoneSetup', () => {
     const confirmRecoveryPhone = jest
       .fn()
       .mockResolvedValueOnce(mockSuccessResponse);
-    const addRecoveryPhone = jest
+    const addRecoveryPhoneWithJwt = jest
       .fn()
       .mockResolvedValueOnce(mockSuccessResponse);
     renderWithRouter(
-      <Subject account={{ confirmRecoveryPhone, addRecoveryPhone }} />
+      <Subject account={{ confirmRecoveryPhone, addRecoveryPhoneWithJwt }} />
     );
 
     await completeStepOne(user);

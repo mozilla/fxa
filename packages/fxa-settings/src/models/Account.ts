@@ -1475,6 +1475,14 @@ export class Account implements AccountData {
     return result;
   }
 
+  async addRecoveryPhoneWithJwt(phoneNumber: string) {
+    const jwt = this.getCachedJwtByScope('2fa');
+    const result = await this.withLoadingStatus(
+      this.authClient.recoveryPhoneCreateWithJwt(jwt, phoneNumber)
+    );
+    return result;
+  }
+
   async addRecoveryPhone(phoneNumber: string) {
     const result = await this.withLoadingStatus(
       this.authClient.recoveryPhoneCreate(sessionToken()!, phoneNumber)

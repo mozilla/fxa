@@ -1039,6 +1039,32 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'POST',
+      path: '/mfa/recovery_phone/create',
+      options: {
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            phoneNumber: isA.string().regex(E164_NUMBER).required(),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/recovery_phone/create' &&
+              route.method === 'POST'
+          )
+          ?.handler(request);
+      },
+    },
+    {
+      method: 'POST',
       path: '/recovery_phone/available',
       options: {
         auth: {

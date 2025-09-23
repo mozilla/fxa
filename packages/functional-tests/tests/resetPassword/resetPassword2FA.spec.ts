@@ -418,6 +418,8 @@ test.describe('reset password with recovery phone', () => {
     await settings.totp.addRecoveryPhoneButton.click();
     await page.waitForURL(/recovery_phone\/setup/);
 
+    await settings.confirmMfaGuard(credentials.email);
+
     await expect(recoveryPhone.addHeader()).toBeVisible();
 
     await recoveryPhone.enterPhoneNumber(testNumber);
@@ -503,6 +505,8 @@ test.describe('reset password with recovery phone', () => {
 
     await settings.totp.addRecoveryPhoneButton.click();
     await page.waitForURL(/recovery_phone\/setup/);
+
+    await settings.confirmMfaGuard(credentials.email);
 
     await expect(recoveryPhone.addHeader()).toBeVisible();
 
