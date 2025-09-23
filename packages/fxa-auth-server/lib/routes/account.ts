@@ -1075,6 +1075,10 @@ export class AccountHandler {
     };
 
     const skipTokenVerification = (request: AuthRequest, account: any) => {
+      // Skip all checks to simulate an unverified session token state
+      if (this.config.signinConfirmation.tokenVerification === false) {
+        return false;
+      }
       // If they're logging in from an IP address on which they recently did
       // another, successfully-verified login, then we can consider this one
       // verified as well without going through the loop again.

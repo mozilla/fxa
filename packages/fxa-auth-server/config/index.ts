@@ -1600,10 +1600,16 @@ const convictConf = convict({
       },
     },
     forceGlobally: {
-      doc: 'Force sign-in confirmation for all accounts',
+      doc: 'Force sign-in confirmation for all accounts. Sets "mustVerify: 1" on created session tokens and creates an entry in unverifiedTokens, simulating a suspicious request or requesting scoped keys',
       format: Boolean,
       default: false,
       env: 'SIGNIN_CONFIRMATION_FORCE_GLOBALLY',
+    },
+    tokenVerification: {
+      doc: 'If set to false, force sign-in confirmation for logins that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating an unverified session state',
+      format: Boolean,
+      default: true,
+      env: 'SIGNIN_CONFIRMATION_TOKEN_VERIFICATION',
     },
   },
   forcePasswordChange: {

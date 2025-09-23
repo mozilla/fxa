@@ -165,7 +165,9 @@ export const cachedSignIn = async (
         verified,
         // Because the cached signin was a success, we know 'uid' exists
         uid: storedLocalAccount!.uid,
-        sessionVerified, // might not need
+        // TODO, address signIn.verified vs session.verified discrepancy
+        // we're using sessionVerified now
+        sessionVerified,
         emailVerified, // might not need
       },
     };
@@ -211,7 +213,14 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     navigationOptions.syncHidePromoAfterLogin = true;
   }
 
-  if (!navigationOptions.signinData.verified) {
+  if (
+    !navigationOptions.signinData.verified ||
+    // TODO, address signIn.verified vs session.verified discrepancy
+    // currently 'verified' only checks session status, but 'verificationReason'
+    // can tell us if it's a sign up. This will be cleaned up in FXA-12454
+    navigationOptions.signinData.verificationReason ===
+      VerificationReasons.SIGN_UP
+  ) {
     const { to, locationState } =
       getUnverifiedNavigationTarget(navigationOptions);
     if (
