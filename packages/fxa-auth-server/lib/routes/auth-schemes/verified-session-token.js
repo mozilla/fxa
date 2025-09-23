@@ -26,19 +26,20 @@ function strategy(getCredentialsFunc, db, config, statsd) {
   };
 
   // Extract regular expressions to allow for optional skipping of certain routes for certain checks.
+  const verifiedSessionTokenConfig =
+    config?.authStrategies?.verifiedSessionToken;
+
   const skipEmailVerifiedCheckForRoutes =
-    config?.authStrategies?.verifiedSessionToken
-      ?.skipEmailVerifiedCheckForRoutes &&
-    new RegExp(config.authStrategies.skipEmailVerifiedCheckForRoutes);
+    verifiedSessionTokenConfig?.skipEmailVerifiedCheckForRoutes &&
+    new RegExp(verifiedSessionTokenConfig.skipEmailVerifiedCheckForRoutes);
 
   const skipTokenVerifiedCheckForRoutes =
-    config?.authStrategies?.verifiedSessionToken
-      ?.skipTokenVerifiedCheckForRoutes &&
-    new RegExp(config.authStrategies.skipTokenVerifiedCheckForRoutes);
+    verifiedSessionTokenConfig?.skipTokenVerifiedCheckForRoutes &&
+    new RegExp(verifiedSessionTokenConfig.skipTokenVerifiedCheckForRoutes);
 
   const skipAalCheckForRoutes =
-    config?.authStrategies?.verifiedSessionToken?.skipAalCheckForRoutes &&
-    new RegExp(config.authStrategies.skipAalCheckForRoutes);
+    verifiedSessionTokenConfig?.skipAalCheckForRoutes &&
+    new RegExp(verifiedSessionTokenConfig.skipAalCheckForRoutes);
 
   return function (server, options) {
     return {
