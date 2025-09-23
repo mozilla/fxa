@@ -236,7 +236,6 @@ type Mutation {
   disableAccount(uid: String!): Boolean!
   editLocale(uid: String!, locale: String!): Boolean!
   enableAccount(uid: String!): Boolean!
-  sendPasswordResetEmail(email: String!): Boolean!
   recordAdminSecurityEvent(uid: String!, name: String!): Boolean!
   unlinkAccount(uid: String!): Boolean!
   unsubscribeFromMailingLists(uid: String!): Boolean!

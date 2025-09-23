@@ -13,7 +13,6 @@ import {
   DISABLE_ACCOUNT,
   ENABLE_ACCOUNT,
   REMOVE_2FA,
-  SEND_PASSWORD_RESET_EMAIL,
   UNSUBSCRIBE_FROM_MAILING_LISTS,
   UNVERIFY_EMAIL,
 } from './index.gql';
@@ -143,16 +142,6 @@ export const DangerZone = ({
     },
   });
 
-  const [sendPasswordResetEmail] = useMutation(SEND_PASSWORD_RESET_EMAIL, {
-    onCompleted: () => {
-      window.alert(`Password reset email sent to ${email.email}`);
-      onCleared();
-    },
-    onError: () => {
-      window.alert('Error sending password reset email.');
-    },
-  });
-
   const [recordAdminSecurityEvent] = useMutation(RECORD_ADMIN_SECURITY_EVENT);
 
   const handleDisable = () => {
@@ -179,13 +168,6 @@ export const DangerZone = ({
     recordAdminSecurityEvent({
       variables: { uid, name: 'account.two_factor_removed' },
     });
-  };
-
-  const handleSendPasswordReset = () => {
-    if (!window.confirm('Are you sure?')) {
-      return;
-    }
-    sendPasswordResetEmail({ variables: { email: email.email } });
   };
 
   // define loading messages
@@ -254,17 +236,6 @@ export const DangerZone = ({
           />
         </Guard>
       )}
-      <Guard features={[AdminPanelFeature.SendPasswordResetEmail]}>
-        <DangerZoneAction
-          header="Send Password Reset Email"
-          description="Send the user a password reset email to all verified emails. For
-          Sync users this will also reset their encryption key so make sure
-          they have a backup of Sync data."
-          buttonHandler={handleSendPasswordReset}
-          buttonText="Password Reset"
-          buttonTestId="password-reset-button"
-        />
-      </Guard>
       <Guard features={[AdminPanelFeature.UnsubscribeFromMailingLists]}>
         <DangerZoneAction
           header="Unsubscribe From Mailing Lists"
