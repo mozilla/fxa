@@ -348,13 +348,6 @@ export class AccountResolver {
     return !!result;
   }
 
-  @Features(AdminPanelFeature.SendPasswordResetEmail)
-  @Mutation((returns) => Boolean)
-  public async sendPasswordResetEmail(@Args('email') email: string) {
-    const result = await this.authAPI.passwordForgotSendCode(email);
-    return !!result;
-  }
-
   @Features(AdminPanelFeature.AccountSearch)
   @Mutation((returns) => Boolean)
   public async recordAdminSecurityEvent(

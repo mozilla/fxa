@@ -43,7 +43,6 @@ export enum AdminPanelFeature {
   DeleteAccount = 'DeleteAccount',
   RelyingParties = 'RelyingParties',
   RelyingPartiesEditNotes = 'RelyingPartiesEditNotes',
-  SendPasswordResetEmail = 'SendPasswordResetEmail',
   UnsubscribeFromMailingLists = 'UnsubscribeFromMailingLists',
 }
 
@@ -180,10 +179,6 @@ const defaultAdminPanelPermissions: Permissions = {
   [AdminPanelFeature.RelyingPartiesEditNotes]: {
     name: 'Edit Relying Parties Notes',
     level: PermissionLevel.Admin,
-  },
-  [AdminPanelFeature.SendPasswordResetEmail]: {
-    name: 'Send Password Reset Email',
-    level: PermissionLevel.Support,
   },
   [AdminPanelFeature.UnsubscribeFromMailingLists]: {
     name: 'Unsubscribe User From Mozilla Mailing Lists',

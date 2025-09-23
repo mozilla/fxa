@@ -508,13 +508,6 @@ describe('#integration - AccountResolver', () => {
     });
   });
 
-  it('sends password reset email', async () => {
-    authClient.passwordForgotSendCode = jest.fn().mockResolvedValue(true);
-    const result = await resolver.sendPasswordResetEmail(USER_1.email);
-    expect(authClient.passwordForgotSendCode).toBeCalledTimes(1);
-    expect(result).toBe(true);
-  });
-
   describe('unsubscribes from mailing lists', () => {
     const fakeToken = '123';
     const uid = USER_1.uid;
