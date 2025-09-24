@@ -1239,6 +1239,49 @@ export class Account implements AccountData {
     firefox.profileChanged({ uid: this.uid });
   }
 
+  async makeEmailPrimaryWithJwt(email: string) {
+    let jwt;
+    try {
+      jwt = this.getCachedJwtByScope('email');
+    } catch (error) {
+      throw AuthUiErrors.INVALID_TOKEN;
+    }
+    await this.withLoadingStatus(
+      this.authClient.recoveryEmailSetPrimaryEmailWithJwt(jwt, email)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        emails(existingEmails) {
+          return existingEmails.map((x: Email) => {
+            const e = { ...x };
+            if (e.email === email) {
+              e.isPrimary = true;
+            } else if (e.isPrimary) {
+              e.isPrimary = false;
+            }
+            return e;
+          });
+        },
+        primaryEmail() {
+          return { email, isPrimary: true, verified: true };
+        },
+        avatar: (existing, { readField }) => {
+          const id = readField<string>('id', existing);
+          const oldUrl = readField<string>('url', existing);
+          return getNextAvatar(id, oldUrl, email, this.displayName);
+        },
+      },
+    });
+
+    const legacyLocalStorageAccount = currentAccount()!;
+    legacyLocalStorageAccount.email = email;
+    currentAccount(legacyLocalStorageAccount);
+
+    firefox.profileChanged({ uid: this.uid });
+  }
+
   async resendEmailCode(email: string) {
     return this.withLoadingStatus(
       this.authClient.recoveryEmailSecondaryResendCode(sessionToken()!, email)

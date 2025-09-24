@@ -124,6 +124,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Change back the primary email again
       await settings.secondaryEmail.makePrimaryButton.click();
+      await settings.confirmMfaGuard(secondEmail);
       await settings.signOut();
 
       // Login with primary email and new password

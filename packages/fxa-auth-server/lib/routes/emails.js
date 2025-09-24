@@ -1010,6 +1010,35 @@ module.exports = (
     },
     {
       method: 'POST',
+      path: '/mfa/recovery_email/set_primary',
+      options: {
+        ...EMAILS_DOCS.MFA_RECOVERY_EMAIL_SET_PRIMARY_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:email'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            email: validators
+              .email()
+              .required()
+              .description(DESCRIPTION.emailNewPrimary),
+          }),
+        },
+        response: {},
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (r) =>
+              r.path === '/v1/recovery_email/set_primary' && r.method === 'POST'
+          )
+          .handler(request);
+      },
+    },
+    {
+      method: 'POST',
       path: '/recovery_email/secondary/resend_code',
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST,
