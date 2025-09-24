@@ -8,6 +8,7 @@ import {
   IntegrationData,
   IntegrationType,
   RelierCmsInfo,
+  OAuthNativeServices,
 } from '../../../models';
 import { SigninTotpCode, SigninTotpCodeProps } from '.';
 import {
@@ -15,6 +16,7 @@ import {
   MOCK_SESSION_TOKEN,
   MOCK_UID,
   mockFinishOAuthFlowHandler,
+  mockGetWebChannelServices,
 } from '../../mocks';
 import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
@@ -27,6 +29,8 @@ export const mockWebSigninIntegration = {
   isSync: () => false,
   wantsKeys: () => false,
   isFirefoxClientServiceRelay: () => false,
+  isFirefoxClientServiceAiMode: () => false,
+  getWebChannelServices: mockGetWebChannelServices(),
   getCmsInfo: () => undefined,
   isFirefoxMobileClient: () => false,
 } as SigninIntegration;
@@ -34,13 +38,17 @@ export const mockWebSigninIntegration = {
 export const mockOAuthNativeSigninIntegration = (
   isSync = true,
   cmsInfo?: RelierCmsInfo
-) =>
-  ({
+) => {
+  const service = isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay;
+  const isRelay = service === OAuthNativeServices.Relay;
+  return ({
     type: IntegrationType.OAuthNative,
     getService: () => (isSync ? MozServices.FirefoxSync : MozServices.Relay),
     isSync: () => isSync,
     wantsKeys: () => false,
-    isFirefoxClientServiceRelay: () => !isSync,
+    isFirefoxClientServiceRelay: () => isRelay,
+    isFirefoxClientServiceAiMode: () => false,
+    getWebChannelServices: mockGetWebChannelServices({ isSync, isRelay }),
     data: new IntegrationData(
       new GenericData({
         redirectTo: 'http://localhost/',
@@ -49,6 +57,7 @@ export const mockOAuthNativeSigninIntegration = (
     getCmsInfo: () => cmsInfo,
     isFirefoxMobileClient: () => false,
   }) as SigninIntegration;
+};
 
 export const MOCK_TOTP_LOCATION_STATE = {
   email: MOCK_EMAIL,

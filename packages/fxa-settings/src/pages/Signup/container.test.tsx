@@ -47,7 +47,7 @@ import { ApolloClient } from '@apollo/client';
 import { ModelDataProvider } from '../../lib/model-data';
 import AuthClient from 'fxa-auth-client/browser';
 import { LocationProvider } from '@reach/router';
-import { mockLoadingSpinnerModule, MOCK_FLOW_ID } from '../mocks';
+import { mockLoadingSpinnerModule, MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
 // often times a mocking util isn't even necessary. Note that using the Dependency Inversion
@@ -63,6 +63,8 @@ function mockIntegration() {
     isSync: () => true,
     wantsKeys: () => true,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiMode: () => false,
+    getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     getCmsInfo: () => undefined,
   };
 }

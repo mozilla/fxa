@@ -5,7 +5,11 @@
 import { LocationProvider } from '@reach/router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
-import { IntegrationType, RelierCmsInfo } from '../../models/integrations';
+import {
+  IntegrationType,
+  RelierCmsInfo,
+  OAuthNativeServices,
+} from '../../models/integrations';
 import {
   MOCK_REDIRECT_URI,
   MOCK_UID,
@@ -15,6 +19,7 @@ import {
   MOCK_SESSION_TOKEN,
   MOCK_EMAIL,
   MOCK_CLIENT_ID,
+  mockGetWebChannelServices,
 } from '../mocks';
 import {
   BeginSignupHandler,
@@ -31,6 +36,8 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
     getClientId: () => undefined,
     isSync: () => false,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiMode: () => false,
+    getWebChannelServices: mockGetWebChannelServices(),
     wantsKeys: () => false,
     getCmsInfo: () => undefined,
   };
@@ -43,6 +50,8 @@ export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegratio
     getClientId: () => undefined,
     isSync: () => true,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiMode: () => false,
+    getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     wantsKeys: () => false,
     getCmsInfo: () => undefined,
   };
@@ -61,6 +70,8 @@ export function createMockSignupOAuthWebIntegration(
     getClientId: () => clientId || MOCK_CLIENT_ID,
     isSync: () => false,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiMode: () => false,
+    getWebChannelServices: mockGetWebChannelServices(),
     wantsKeys: () => false,
     getCmsInfo: () => cmsInfo,
   };
@@ -71,6 +82,8 @@ export function createMockSignupOAuthNativeIntegration(
   isSync = true,
   cmsInfo?: RelierCmsInfo
 ): SignupOAuthIntegration {
+  const isRelay = service === OAuthNativeServices.Relay;
+  const isAiMode = service === OAuthNativeServices.AiMode;
   return {
     type: IntegrationType.OAuthNative,
     getRedirectUri: () => MOCK_REDIRECT_URI,
@@ -78,7 +91,13 @@ export function createMockSignupOAuthNativeIntegration(
     getService: () => service,
     getClientId: () => MOCK_CLIENT_ID,
     isSync: () => isSync,
-    isFirefoxClientServiceRelay: () => !isSync,
+    isFirefoxClientServiceRelay: () => isRelay,
+    isFirefoxClientServiceAiMode: () => isAiMode,
+    getWebChannelServices: mockGetWebChannelServices({
+      isSync,
+      isRelay,
+      isAiMode,
+    }),
     wantsKeys: () => true,
     getCmsInfo: () => cmsInfo,
   };
