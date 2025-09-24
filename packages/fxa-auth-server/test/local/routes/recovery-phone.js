@@ -481,9 +481,9 @@ describe('/recovery_phone', () => {
       );
     });
 
-    it('requires session authorization', () => {
+    it('requires verified session authorization', () => {
       const route = getRoute(routes, '/recovery_phone/create', 'POST');
-      assert.equal(route.options.auth.strategy, 'sessionToken');
+      assert.equal(route.options.auth.strategy, 'verifiedSessionToken');
     });
   });
 

@@ -1024,7 +1024,8 @@ export const recoveryPhoneRoutes = (
       options: {
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -1082,7 +1083,8 @@ export const recoveryPhoneRoutes = (
       options: {
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -1102,7 +1104,8 @@ export const recoveryPhoneRoutes = (
       options: {
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -1181,7 +1184,8 @@ export const recoveryPhoneRoutes = (
       path: '/recovery_phone',
       options: {
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
       },
       handler: function (request: AuthRequest) {

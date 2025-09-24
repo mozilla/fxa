@@ -253,7 +253,8 @@ export const mfaRoutes = (
       options: {
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -274,7 +275,8 @@ export const mfaRoutes = (
       path: '/mfa/otp/verify',
       options: {
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({
