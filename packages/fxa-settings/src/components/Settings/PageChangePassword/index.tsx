@@ -5,6 +5,7 @@
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from '@reach/router';
+import { MfaGuard } from '../MfaGuard';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import {
@@ -143,4 +144,8 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   );
 };
 
-export default PageChangePassword;
+const MfaGuardedPageChangePassword = (_: RouteComponentProps) => {
+  return <MfaGuard requiredScope="password"><PageChangePassword /></MfaGuard>;
+};
+
+export default MfaGuardedPageChangePassword;

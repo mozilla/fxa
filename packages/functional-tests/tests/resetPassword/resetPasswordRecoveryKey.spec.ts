@@ -185,6 +185,9 @@ test.describe('severity-1 #smoke', () => {
 
       // Change password
       await settings.password.changeButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
+
       await changePassword.fillOutChangePassword(
         credentials.password,
         newPassword

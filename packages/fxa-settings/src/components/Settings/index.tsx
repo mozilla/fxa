@@ -15,7 +15,7 @@ import {
   useLocation,
 } from '@reach/router';
 import PageSettings from './PageSettings';
-import PageChangePassword from './PageChangePassword';
+import MfaGuardedPageChangePassword from './PageChangePassword';
 import PageCreatePassword from './PageCreatePassword';
 import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
 import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
@@ -157,7 +157,7 @@ export const Settings = ({
           )}
           {account.hasPassword ? (
             <>
-              <PageChangePassword path="/change_password" />
+              <MfaGuardedPageChangePassword path="/change_password" />
               <Redirect
                 from="/create_password"
                 to="/settings/change_password"

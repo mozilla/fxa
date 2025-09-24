@@ -181,6 +181,7 @@ class MfaHandler {
       const scope = action;
 
       // Issue jwt
+      // TODO: Use `/mfa/otp/request` and `/mfa/otp/verify` to issue the jwt
       const now = Math.floor(Date.now() / 1000);
       const claims = {
         sub: account.uid,
