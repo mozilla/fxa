@@ -376,12 +376,11 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard)
   @CatchGatewayError
   public async updatePrimaryEmail(
-    @GqlSessionToken() token: string,
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
-    await this.authAPI.recoveryEmailSetPrimaryEmail(
-      token,
+    await this.authAPI.recoveryEmailSetPrimaryEmailWithJwt(
+      input.jwt,
       input.email,
       headers
     );
