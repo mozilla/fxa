@@ -21,6 +21,18 @@ const TOTP_CREATE_POST = {
   ],
 };
 
+const MFA_TOTP_CREATE_POST = {
+  ...TAGS_TOTP,
+  description: '/mfa/totp/create',
+  notes: [
+    dedent`
+      🔒 Authenticated with MFA JWT (scope: mfa:2fa)
+
+      Create a new randomly generated TOTP token for a user if they do not currently have one. This variant requires an MFA JWT and is intended for flows that have already passed MFA requirements.
+    `,
+  ],
+};
+
 const TOTP_DESTROY_POST = {
   ...TAGS_TOTP,
   description: '/totp/destroy',
@@ -153,6 +165,18 @@ const TOTP_SETUP_VERIFY_POST = {
   ],
 };
 
+const MFA_TOTP_SETUP_VERIFY_POST = {
+  ...TAGS_TOTP,
+  description: '/mfa/totp/setup/verify',
+  notes: [
+    dedent`
+      🔒 Authenticated with MFA JWT (scope: mfa:2fa)
+
+      Verifies an authenticator app code against the in-progress TOTP secret stored in Redis during setup, using an MFA JWT. On success, marks the setup as verified in Redis and aligns TTLs.
+    `,
+  ],
+};
+
 const TOTP_SETUP_COMPLETE_POST = {
   ...TAGS_TOTP,
   description: '/totp/setup/complete',
@@ -165,9 +189,22 @@ const TOTP_SETUP_COMPLETE_POST = {
   ],
 };
 
+const MFA_TOTP_SETUP_COMPLETE_POST = {
+  ...TAGS_TOTP,
+  description: '/mfa/totp/setup/complete',
+  notes: [
+    dedent`
+      🔒 Authenticated with MFA JWT (scope: mfa:2fa)
+
+      Completes TOTP setup (JWT variant) by validating the Redis verification flag for the current secret, then persisting the secret to the database as enabled and verified. Cleans up temporary Redis entries.
+    `,
+  ],
+};
+
 const API_DOCS = {
   SESSION_VERIFY_TOTP_POST,
   TOTP_CREATE_POST,
+  MFA_TOTP_CREATE_POST,
   TOTP_DESTROY_POST,
   MFA_TOTP_DESTROY_POST,
   TOTP_EXISTS_GET,
@@ -178,7 +215,9 @@ const API_DOCS = {
   MFA_TOTP_REPLACE_START_POST,
   MFA_TOTP_REPLACE_CONFIRM_POST,
   TOTP_SETUP_VERIFY_POST,
+  MFA_TOTP_SETUP_VERIFY_POST,
   TOTP_SETUP_COMPLETE_POST,
+  MFA_TOTP_SETUP_COMPLETE_POST,
 };
 
 export default API_DOCS;

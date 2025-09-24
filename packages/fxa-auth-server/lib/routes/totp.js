@@ -73,195 +73,6 @@ module.exports = (
     ? `${config.serviceName} - ${environment}`
     : `${config.serviceName}`;
 
-  // Shared handlers for TOTP replace flows (used by legacy and /mfa routes)
-  async function handleTotpReplaceStart(request) {
-    log.begin('totp.replace.create', request);
-
-    const { uid } = request.auth.credentials;
-    const account = await db.account(uid);
-
-    const { tokenVerified, tokenVerificationId } =
-      request.auth.credentials || {};
-    if (tokenVerificationId || tokenVerified === false) {
-      throw errors.unverifiedSession();
-    }
-
-    await customs.checkAuthenticated(request, uid, account.email, 'totpCreate');
-
-    // the opposite of `/totp/create` this requires that the user already has
-    // a verified TOTP token to be replaced.
-    const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
-    if (!hasEnabledToken) {
-      throw errors.totpTokenDoesNotExist();
-    }
-
-    // Default options for TOTP
-    const otpOptions = {
-      encoding: 'hex',
-      step: config.step,
-      window: config.window,
-    };
-
-    const authenticator = new otplib.authenticator.Authenticator();
-    authenticator.options = Object.assign(
-      {},
-      otplib.authenticator.options,
-      otpOptions
-    );
-
-    // Reuse existing in-progress secret if present; refresh TTL to give user a full window
-    let secret = await authServerCacheRedis.get(toRedisTotpSecretKey(uid));
-    if (secret) {
-      await authServerCacheRedis.set(
-        toRedisTotpSecretKey(uid),
-        secret,
-        'EX',
-        TOTP_SECRET_REDIS_TTL
-      );
-    } else {
-      secret = authenticator.generateSecret();
-      await authServerCacheRedis.set(
-        toRedisTotpSecretKey(uid),
-        secret,
-        'EX',
-        TOTP_SECRET_REDIS_TTL
-      );
-    }
-
-    log.info('totpToken.replace.created', { uid });
-    await request.emitMetricsEvent('totpToken.replace.created', { uid });
-
-    const otpauth = authenticator.keyuri(account.email, service, secret);
-
-    const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
-
-    return {
-      qrCodeUrl,
-      secret,
-    };
-  }
-
-  async function handleTotpReplaceConfirm(request) {
-    log.begin('totp.replace.confirm', request);
-
-    const code = request.payload.code;
-    const { uid } = request.auth.credentials;
-    const account = await db.account(uid);
-
-    const { tokenVerified, tokenVerificationId } =
-      request.auth.credentials || {};
-    if (tokenVerificationId || tokenVerified === false) {
-      throw errors.unverifiedSession();
-    }
-
-    await customs.checkAuthenticated(
-      request,
-      uid,
-      account.email,
-      'totpReplace'
-    );
-    // check the redis cache for the NEW secret. Since the existing code
-    // is verified and stored in the db we must use the redis cache
-    const newSharedSecret = await authServerCacheRedis.get(
-      toRedisTotpSecretKey(uid)
-    );
-
-    if (!newSharedSecret) {
-      throw errors.totpTokenNotFound();
-    }
-
-    // Default options for TOTP
-    const otpOptions = {
-      encoding: 'hex',
-      step: config.step,
-      window: config.window,
-    };
-
-    // validate the incoming code
-    const { valid: isValidCode } = otpUtils.verifyOtpCode(
-      code,
-      newSharedSecret,
-      otpOptions,
-      'totp.verify'
-    );
-
-    if (!isValidCode) {
-      glean.twoFactorAuth.setupInvalidCodeError(request, { uid });
-      throw errors.invalidTokenVerficationCode();
-    }
-
-    try {
-      // new code is valid so we can replace the
-      // existing TOTP token with the new one
-      await db.replaceTotpToken({
-        uid,
-        sharedSecret: newSharedSecret,
-        verified: true,
-        enabled: true,
-        epoch: 0,
-      });
-
-      await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
-
-      await recordSecurityEvent('account.two_factor_replace_success', {
-        db,
-        request,
-      });
-      glean.twoFactorAuth.replaceSuccess(request, { uid });
-
-      sendEmailNotification();
-
-      await profileClient.deleteCache(uid);
-      await log.notifyAttachedServices('profileDataChange', request, {
-        uid,
-      });
-
-      return {
-        success: true,
-      };
-    } catch (error) {
-      await recordSecurityEvent('account.two_factor_replace_failure', {
-        db,
-        request,
-      });
-      glean.twoFactorAuth.replaceFailure(request, { uid });
-      return {
-        success: false,
-      };
-    }
-
-    async function sendEmailNotification() {
-      const account = await db.account(uid);
-      const geoData = request.app.geo;
-      const ip = request.app.clientAddress;
-      const service = request.payload.service || request.query.service;
-      const emailOptions = {
-        acceptLanguage: request.app.acceptLanguage,
-        ip: ip,
-        location: geoData.location,
-        service: service,
-        timeZone: geoData.timeZone,
-        uaBrowser: request.app.ua.browser,
-        uaBrowserVersion: request.app.ua.browserVersion,
-        uaOS: request.app.ua.os,
-        uaOSVersion: request.app.ua.osVersion,
-        uaDeviceType: request.app.ua.deviceType,
-        uid: uid,
-      };
-      try {
-        await mailer.sendPostChangeTwoStepAuthenticationEmail(
-          account.emails,
-          account,
-          emailOptions
-        );
-      } catch (error) {
-        log.error('mailer.sendPostChangeTwoStepAuthenticationEmail', {
-          error,
-        });
-      }
-    }
-  }
-
   const routes = [
     {
       method: 'POST',
@@ -287,19 +98,18 @@ module.exports = (
       handler: async function (request) {
         log.begin('totp.create', request);
 
-        const sessionToken = request.auth.credentials;
-        const uid = sessionToken.uid;
+        const { email, uid, tokenVerificationId } = request.auth.credentials;
 
-        await customs.checkAuthenticated(
-          request,
-          uid,
-          sessionToken.email,
-          'totpCreate'
-        );
+        const account = await db.account(uid);
+        if (!account.emailVerified) {
+          throw errors.unverifiedAccount();
+        }
 
-        if (sessionToken.tokenVerificationId) {
+        if (tokenVerificationId) {
           throw errors.unverifiedSession();
         }
+
+        await customs.checkAuthenticated(request, uid, email, 'totpCreate');
 
         const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
         if (hasEnabledToken) {
@@ -347,11 +157,7 @@ module.exports = (
         log.info('totpToken.created', { uid });
         await request.emitMetricsEvent('totpToken.created', { uid });
 
-        const otpauth = authenticator.keyuri(
-          sessionToken.email,
-          service,
-          secret
-        );
+        const otpauth = authenticator.keyuri(email, service, secret);
 
         const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
 
@@ -363,8 +169,40 @@ module.exports = (
     },
     {
       method: 'POST',
+      path: '/mfa/totp/create',
+      options: {
+        ...TOTP_DOCS.TOTP_CREATE_JWT_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+        response: {
+          schema: isA.object({
+            qrCodeUrl: isA.string().required(),
+            secret: isA.string().required(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/totp/create' && route.method === 'POST'
+          )
+          .handler(request);
+      },
+    },
+    {
+      method: 'POST',
       path: '/totp/setup/verify',
       options: {
+        ...TOTP_DOCS.TOTP_SETUP_VERIFY_POST,
         auth: {
           strategy: 'sessionToken',
           payload: 'required',
@@ -389,10 +227,19 @@ module.exports = (
       handler: async function (request) {
         log.begin('totp.setup.verify', request);
 
-        const { uid, email } = request.auth.credentials;
+        const { uid, email, tokenVerificationId } = request.auth.credentials;
         const code = request.payload.code;
 
         await customs.checkAuthenticated(request, uid, email, 'verifyTotpCode');
+
+        const account = await db.account(uid);
+        if (account.emailVerified === false) {
+          throw errors.unverifiedAccount();
+        }
+
+        if (tokenVerificationId) {
+          throw errors.unverifiedSession();
+        }
 
         // Pull shared secret from Redis only (setup state)
         const sharedSecret = await authServerCacheRedis.get(
@@ -461,8 +308,45 @@ module.exports = (
     },
     {
       method: 'POST',
+      path: '/mfa/totp/setup/verify',
+      options: {
+        ...TOTP_DOCS.MFA_TOTP_SETUP_VERIFY_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            code: isA
+              .string()
+              .max(32)
+              .regex(validators.DIGITS)
+              .required()
+              .description(DESCRIPTION.codeTotp),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+        response: {
+          schema: isA.object({
+            success: isA.boolean().required(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/totp/setup/verify' && route.method === 'POST'
+          )
+          .handler(request);
+      },
+    },
+    {
+      method: 'POST',
       path: '/totp/setup/complete',
       options: {
+        ...TOTP_DOCS.TOTP_SETUP_COMPLETE_POST,
         auth: {
           strategy: 'sessionToken',
         },
@@ -484,6 +368,11 @@ module.exports = (
         const { uid, email } = sessionToken;
 
         await customs.checkAuthenticated(request, uid, email, 'totpCreate');
+
+        const account = await db.account(uid);
+        if (account.emailVerified === false) {
+          throw errors.unverifiedAccount();
+        }
 
         if (sessionToken.tokenVerificationId) {
           throw errors.unverifiedSession();
@@ -586,6 +475,37 @@ module.exports = (
             });
           }
         }
+      },
+    },
+    {
+      method: 'POST',
+      path: '/mfa/totp/setup/complete',
+      options: {
+        ...TOTP_DOCS.MFA_TOTP_SETUP_COMPLETE_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+        response: {
+          schema: isA.object({
+            success: isA.boolean().required(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/totp/setup/complete' &&
+              route.method === 'POST'
+          )
+          .handler(request);
       },
     },
     {
@@ -1100,7 +1020,108 @@ module.exports = (
           }),
         },
       },
-      handler: handleTotpReplaceStart,
+      handler: async function (request) {
+        log.begin('totp.replace.create', request);
+
+        const { uid } = request.auth.credentials;
+        const account = await db.account(uid);
+
+        const { tokenVerified, tokenVerificationId } =
+          request.auth.credentials || {};
+        if (tokenVerificationId || tokenVerified === false) {
+          throw errors.unverifiedSession();
+        }
+
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          account.email,
+          'totpCreate'
+        );
+
+        // the opposite of `/totp/create` this requires that the user already has
+        // a verified TOTP token to be replaced.
+        const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
+        if (!hasEnabledToken) {
+          throw errors.totpTokenDoesNotExist();
+        }
+
+        // Default options for TOTP
+        const otpOptions = {
+          encoding: 'hex',
+          step: config.step,
+          window: config.window,
+        };
+
+        const authenticator = new otplib.authenticator.Authenticator();
+        authenticator.options = Object.assign(
+          {},
+          otplib.authenticator.options,
+          otpOptions
+        );
+
+        // Reuse existing in-progress secret if present; refresh TTL to give user a full window
+        let secret = await authServerCacheRedis.get(toRedisTotpSecretKey(uid));
+        if (secret) {
+          await authServerCacheRedis.set(
+            toRedisTotpSecretKey(uid),
+            secret,
+            'EX',
+            TOTP_SECRET_REDIS_TTL
+          );
+        } else {
+          secret = authenticator.generateSecret();
+          await authServerCacheRedis.set(
+            toRedisTotpSecretKey(uid),
+            secret,
+            'EX',
+            TOTP_SECRET_REDIS_TTL
+          );
+        }
+
+        log.info('totpToken.replace.created', { uid });
+        await request.emitMetricsEvent('totpToken.replace.created', { uid });
+
+        const otpauth = authenticator.keyuri(account.email, service, secret);
+
+        const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
+
+        return {
+          qrCodeUrl,
+          secret,
+        };
+      },
+    },
+    {
+      method: 'POST',
+      path: '/mfa/totp/replace/start',
+      options: {
+        ...TOTP_DOCS.MFA_TOTP_REPLACE_START_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+        response: {
+          schema: isA.object({
+            qrCodeUrl: isA.string().required(),
+            secret: isA.string().required(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/totp/replace/start' && route.method === 'POST'
+          )
+          .handler(request);
+      },
     },
     {
       method: 'POST',
@@ -1127,34 +1148,126 @@ module.exports = (
           }),
         },
       },
-      handler: handleTotpReplaceConfirm,
-    },
-    {
-      /**
-       * MFA-prefixed routes using JWT-based mfa auth
-       */
-      method: 'POST',
-      path: '/mfa/totp/replace/start',
-      options: {
-        ...TOTP_DOCS.MFA_TOTP_REPLACE_START_POST,
-        auth: {
-          strategy: 'mfa',
-          scope: ['mfa:2fa'],
-          payload: false,
-        },
-        validate: {
-          payload: isA.object({
-            metricsContext: METRICS_CONTEXT_SCHEMA,
-          }),
-        },
-        response: {
-          schema: isA.object({
-            qrCodeUrl: isA.string().required(),
-            secret: isA.string().required(),
-          }),
-        },
+      handler: async function (request) {
+        log.begin('totp.replace.confirm', request);
+
+        const code = request.payload.code;
+        const { uid } = request.auth.credentials;
+        const account = await db.account(uid);
+
+        const { tokenVerified, tokenVerificationId } =
+          request.auth.credentials || {};
+        if (tokenVerificationId || tokenVerified === false) {
+          throw errors.unverifiedSession();
+        }
+
+        await customs.checkAuthenticated(
+          request,
+          uid,
+          account.email,
+          'totpReplace'
+        );
+        // check the redis cache for the NEW secret. Since the existing code
+        // is verified and stored in the db we must use the redis cache
+        const newSharedSecret = await authServerCacheRedis.get(
+          toRedisTotpSecretKey(uid)
+        );
+
+        if (!newSharedSecret) {
+          throw errors.totpTokenNotFound();
+        }
+
+        // Default options for TOTP
+        const otpOptions = {
+          encoding: 'hex',
+          step: config.step,
+          window: config.window,
+        };
+
+        // validate the incoming code
+        const { valid: isValidCode } = otpUtils.verifyOtpCode(
+          code,
+          newSharedSecret,
+          otpOptions,
+          'totp.verify'
+        );
+
+        if (!isValidCode) {
+          glean.twoFactorAuth.setupInvalidCodeError(request, { uid });
+          throw errors.invalidTokenVerficationCode();
+        }
+
+        try {
+          // new code is valid so we can replace the
+          // existing TOTP token with the new one
+          await db.replaceTotpToken({
+            uid,
+            sharedSecret: newSharedSecret,
+            verified: true,
+            enabled: true,
+            epoch: 0,
+          });
+
+          await authServerCacheRedis.del(toRedisTotpSecretKey(uid));
+
+          await recordSecurityEvent('account.two_factor_replace_success', {
+            db,
+            request,
+          });
+          glean.twoFactorAuth.replaceSuccess(request, { uid });
+
+          await sendEmailNotification();
+
+          await profileClient.deleteCache(uid);
+          await log.notifyAttachedServices('profileDataChange', request, {
+            uid,
+          });
+
+          return {
+            success: true,
+          };
+        } catch (error) {
+          await recordSecurityEvent('account.two_factor_replace_failure', {
+            db,
+            request,
+          });
+          glean.twoFactorAuth.replaceFailure(request, { uid });
+          return {
+            success: false,
+          };
+        }
+
+        async function sendEmailNotification() {
+          const account = await db.account(uid);
+          const geoData = request.app.geo;
+          const ip = request.app.clientAddress;
+          const service = request.payload.service || request.query.service;
+          const emailOptions = {
+            acceptLanguage: request.app.acceptLanguage,
+            ip: ip,
+            location: geoData.location,
+            service: service,
+            timeZone: geoData.timeZone,
+            uaBrowser: request.app.ua.browser,
+            uaBrowserVersion: request.app.ua.browserVersion,
+            uaOS: request.app.ua.os,
+            uaOSVersion: request.app.ua.osVersion,
+            uaDeviceType: request.app.ua.deviceType,
+            uid: uid,
+          };
+          try {
+            await mailer.sendPostChangeTwoStepAuthenticationEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
+          } catch (error) {
+            log.error('mailer.sendPostChangeTwoStepAuthenticationEmail', {
+              error,
+            });
+          }
+        }
       },
-      handler: handleTotpReplaceStart,
     },
     {
       method: 'POST',
@@ -1182,7 +1295,15 @@ module.exports = (
           }),
         },
       },
-      handler: handleTotpReplaceConfirm,
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/totp/replace/confirm' &&
+              route.method === 'POST'
+          )
+          .handler(request);
+      },
     },
   ];
 
