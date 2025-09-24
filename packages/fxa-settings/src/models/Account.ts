@@ -1143,10 +1143,9 @@ export class Account implements AccountData {
     await this.refresh('backupCodes');
   }
 
-  async deleteRecoveryKey() {
-    await this.withLoadingStatus(
-      this.authClient.deleteRecoveryKey(sessionToken()!)
-    );
+  async deleteRecoveryKeyWithJwt() {
+    const jwt = this.getCachedJwtByScope('recovery_key');
+    await this.withLoadingStatus(this.authClient.deleteRecoveryKeyWithJwt(jwt));
     const cache = this.apolloClient.cache;
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
@@ -1613,7 +1612,7 @@ export class Account implements AccountData {
    * @param scope MfaScope
    * @returns JWT token string
    */
-  private getCachedJwtByScope(scope: MfaScope) {
+  getCachedJwtByScope(scope: MfaScope) {
     const token = sessionToken();
     if (!token) {
       throw AuthUiErrors.INVALID_TOKEN;

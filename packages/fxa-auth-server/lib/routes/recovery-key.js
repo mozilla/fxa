@@ -470,6 +470,26 @@ module.exports = (
         return {};
       },
     },
+    {
+      method: 'DELETE',
+      path: '/mfa/recoveryKey',
+      options: {
+        ...RECOVERY_KEY_DOCS.MFA_RECOVERY_KEY_DELETE,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:recovery_key'],
+          payload: false,
+        },
+      },
+      async handler(request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/recoveryKey' && route.method === 'DELETE'
+          )
+          .handler(request);
+      },
+    },
   ];
 
   return routes;

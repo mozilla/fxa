@@ -348,6 +348,21 @@ export default class AuthClient {
     return this.request('POST', path, payload, headers);
   }
 
+  private async jwtDelete(
+    path: string,
+    jwt: string,
+    payload: any,
+    headers?: Headers
+  ) {
+    const authorization = 'Bearer ' + jwt;
+    if (!headers) {
+      headers = new Headers({ authorization });
+    } else {
+      headers.set('authorization', authorization);
+    }
+    return this.request('DELETE', path, payload, headers);
+  }
+
   private async jwtPut(
     path: string,
     jwt: string,
@@ -2410,6 +2425,9 @@ export default class AuthClient {
     return accountData;
   }
 
+  /**
+   * @deprecated Use deleteRecoveryKeyWithJwt instead
+   */
   async deleteRecoveryKey(sessionToken: hexstring, headers?: Headers) {
     return this.hawkRequest(
       'DELETE',
@@ -2419,6 +2437,16 @@ export default class AuthClient {
       {},
       headers
     );
+  }
+
+  /**
+   * Removes the recovery key from the account
+   * @param jwt The MFA jwt for auth
+   * @param headers
+   * @returns
+   */
+  async deleteRecoveryKeyWithJwt(jwt: string, headers?: Headers) {
+    return this.jwtDelete('/mfa/recoveryKey', jwt, {}, headers);
   }
 
   async recoveryKeyExists(
