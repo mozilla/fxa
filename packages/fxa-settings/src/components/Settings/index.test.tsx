@@ -339,6 +339,11 @@ describe('Settings App', () => {
         route: '/recovery_phone/setup',
         hasPassword: false,
       },
+      {
+        pageName: 'PageRecoveryKeyCreate',
+        route: '/account_recovery',
+        hasPassword: true,
+      },
     ];
 
     it.each(guardedRoutes)(

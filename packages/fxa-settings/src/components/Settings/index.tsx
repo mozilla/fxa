@@ -28,7 +28,7 @@ import { ScrollToTop } from './ScrollToTop';
 import { SETTINGS_PATH } from '../../constants';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
-import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
+import { MfaGuardPageRecoveryKeyCreate } from './PageRecoveryKeyCreate';
 import { currentAccount } from '../../lib/cache';
 import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
@@ -151,7 +151,7 @@ export const Settings = ({
           <PageDisplayName path="/display_name" />
           <PageAvatar path="/avatar" />
           {account.hasPassword ? (
-            <PageRecoveryKeyCreate path="/account_recovery" />
+            <MfaGuardPageRecoveryKeyCreate path="/account_recovery" />
           ) : (
             <Redirect from="/account_recovery" to="/settings" noThrow />
           )}

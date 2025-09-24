@@ -25,7 +25,7 @@ module.exports = (
   mailer,
   glean
 ) => {
-  return [
+  const routes = [
     {
       method: 'POST',
       path: '/recoveryKey',
@@ -184,6 +184,38 @@ module.exports = (
           }
         }
         return {};
+      },
+    },
+    {
+      method: 'POST',
+      path: '/mfa/recoveryKey',
+      options: {
+        ...RECOVERY_KEY_DOCS.MFA_RECOVERY_KEY_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:recovery_key'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            recoveryKeyId: validators.recoveryKeyId.description(
+              DESCRIPTION.recoveryKeyId
+            ),
+            recoveryData: validators.recoveryData.description(
+              DESCRIPTION.recoveryData
+            ),
+            enabled: isA.boolean().default(true),
+            replaceKey: isA.boolean().default(false),
+          }),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/recoveryKey' && route.method === 'POST'
+          )
+          .handler(request);
       },
     },
     {
@@ -439,4 +471,6 @@ module.exports = (
       },
     },
   ];
+
+  return routes;
 };

@@ -114,6 +114,9 @@ test.describe('severity-2 #smoke', () => {
       await settings.goto(`${resetVersion.query}`);
       await page.waitForURL(/settings/);
       await settings.recoveryKey.createButton.click();
+
+      await settings.confirmMfaGuard(accountDetails.email);
+
       const key = await recoveryKey.createRecoveryKey(
         accountDetails.password,
         HINT
