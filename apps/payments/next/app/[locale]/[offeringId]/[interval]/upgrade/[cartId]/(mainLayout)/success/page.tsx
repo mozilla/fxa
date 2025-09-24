@@ -13,7 +13,6 @@ import {
 import {
   fetchCMSData,
   getCartOrRedirectAction,
-  recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
 import { CheckoutParams } from '@fxa/payments/ui/server';
 import Image from 'next/image';
@@ -66,13 +65,6 @@ export default async function UpgradeSuccess({
     cartDataPromise,
     sessionPromise,
   ]);
-
-  recordEmitterEventAction(
-    'checkoutSuccess',
-    { ...params },
-    searchParams,
-    cart.paymentInfo.type
-  );
 
   const { successActionButtonUrl, successActionButtonLabel } =
     cms.commonContent.localizations.at(0) || cms.commonContent;
@@ -211,7 +203,7 @@ export default async function UpgradeSuccess({
                 width={70}
                 height={24}
               />
-            ) :(
+            ) : (
               <span className="flex items-center gap-2">
                 {cart.paymentInfo.brand && (
                   <Image

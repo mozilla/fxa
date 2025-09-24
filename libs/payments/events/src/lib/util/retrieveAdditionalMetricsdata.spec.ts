@@ -30,6 +30,7 @@ const expectedCartMetricsData = {
   errorReasonId: mockCart.errorReasonId,
   couponCode: mockCart.couponCode,
   currency: mockCart.currency,
+  stripeCustomerId: mockCart.stripeCustomerId,
 };
 
 const emptyCmsMetricsData = {
@@ -41,6 +42,7 @@ const emptyCartMetricsData = {
   errorReasonId: null,
   couponCode: '',
   currency: '',
+  stripeCustomerId: '',
 };
 
 describe('retrieveAdditionalMetricsData', () => {

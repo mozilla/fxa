@@ -51,6 +51,7 @@ export const CartMetricsFactory = (
     errorReasonId: resultCart.errorReasonId,
     couponCode: resultCart.couponCode,
     currency: faker.finance.currencyCode().toLowerCase(),
+    stripeCustomerId: `cus_${faker.string.alphanumeric({ length: 14 })}`,
     ...override,
   };
 };

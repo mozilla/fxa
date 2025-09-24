@@ -20,6 +20,7 @@ import { mapRelyingParty } from './utils/mapRelyingParty';
 import { normalizeGleanFalsyValues } from './utils/normalizeGleanFalsyValues';
 import { PaymentsGleanConfig } from './glean.config';
 import { mapSubscriptionCancellation } from './utils/mapSubscriptionCancellation';
+import type { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 
 @Injectable()
 export class PaymentsGleanManager {
@@ -76,7 +77,7 @@ export class PaymentsGleanManager {
       cartMetricsData: CartMetrics;
       cmsMetricsData: CmsMetricsData;
     },
-    paymentProvider?: PaymentProvidersType
+    paymentProvider?: SubPlatPaymentMethodType
   ) {
     const commonMetrics = this.populateCommonMetrics(metrics);
 
@@ -140,6 +141,7 @@ export class PaymentsGleanManager {
       searchParams: {},
     };
     const emptyCartMetricsData: CartMetrics = {
+      stripeCustomerId: '',
       uid: '',
       errorReasonId: null,
       couponCode: '',
