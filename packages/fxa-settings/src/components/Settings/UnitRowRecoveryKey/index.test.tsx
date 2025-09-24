@@ -9,10 +9,21 @@ import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import * as Metrics from '../../../lib/metrics';
 import { Config } from '../../../lib/config';
+import AuthClient from 'fxa-auth-client/browser';
+import * as cache from '../../../lib/cache';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
 }));
+
+jest.mock('../../../lib/cache', () => ({
+  ...jest.requireActual('../../../lib/cache'),
+  sessionToken: jest.fn(),
+  currentAccount: jest.fn(),
+}));
+
+const sessionToken = 'session-123';
+const jwt = 'jwt-123';
 
 const accountHasRecoveryKey = {
   hasPassword: true,
@@ -29,11 +40,22 @@ const accountWithoutPassword = {
   recoveryKey: { exists: false },
 } as unknown as Account;
 
+const authClient = {} as unknown as AuthClient;
+
 const renderWithContext = (
   account: Partial<Account>,
   config?: Partial<Config>
 ) => {
-  const context = { account: account as Account, config: config as Config };
+  const context = {
+    authClient,
+    account: account as Account,
+    config: config as Config,
+  };
+
+  (cache.currentAccount as jest.Mock).mockReturnValue(account);
+  (cache.sessionToken as jest.Mock).mockReturnValue(sessionToken);
+  cache.JwtTokenCache.getToken = jest.fn().mockReturnValue(jwt);
+  cache.JwtTokenCache.hasToken = jest.fn().mockReturnValue(true);
 
   renderWithRouter(
     <AppContext.Provider value={mockAppContext(context)}>
@@ -103,7 +125,7 @@ describe('UnitRowRecoveryKey', () => {
       const accountHasRecoveryKeyWithDeleteSuccess = {
         hasPassword: true,
         recoveryKey: { exists: true },
-        deleteRecoveryKey: jest.fn().mockResolvedValue(true),
+        deleteRecoveryKeyWithJwt: jest.fn().mockResolvedValue(true),
       } as unknown as Account;
 
       renderWithContext(accountHasRecoveryKeyWithDeleteSuccess);
@@ -124,7 +146,7 @@ describe('UnitRowRecoveryKey', () => {
       const accountHasRecoveryKeyWithDeleteFailure = {
         hasPassword: true,
         recoveryKey: { exists: true },
-        deleteRecoveryKey: jest.fn().mockRejectedValue(false),
+        deleteRecoveryKeyWithJwt: jest.fn().mockRejectedValue(false),
       } as unknown as Account;
 
       renderWithContext(accountHasRecoveryKeyWithDeleteFailure);

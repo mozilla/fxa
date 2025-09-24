@@ -60,6 +60,15 @@ const RECOVERYKEY_DELETE = {
   ],
 };
 
+const MFA_RECOVERY_KEY_DELETE = {
+  ...TAGS_RECOVERY_KEY,
+  description: '/recoveryKey',
+  notes: [
+    '🔒 Authenticated with MFA JWT (scope: mfa:recovery_key)',
+    "This route remove an account's account recovery key. When the key is removed, it can no longer be used to restore an account's kB.",
+  ],
+};
+
 const RECOVERYKEY_VERIFY_POST = {
   ...TAGS_RECOVERY_KEY,
   description: '/recoveryKey/verify',
@@ -92,6 +101,7 @@ const RECOVERYKEY_HINT_POST = {
 
 const API_DOCS = {
   RECOVERYKEY_DELETE,
+  MFA_RECOVERY_KEY_DELETE,
   RECOVERYKEY_EXISTS_POST,
   RECOVERYKEY_POST,
   MFA_RECOVERY_KEY_POST,
