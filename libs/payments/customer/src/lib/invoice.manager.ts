@@ -188,6 +188,9 @@ export class InvoiceManager {
     const upcomingInvoice = await this.stripeClient.invoicesRetrieveUpcoming({
       customer: customer.id,
       subscription: subscription.id,
+      subscription_details: {
+        cancel_at_period_end: false,
+      },
     });
 
     return stripeInvoiceToInvoicePreviewDTO(upcomingInvoice);
