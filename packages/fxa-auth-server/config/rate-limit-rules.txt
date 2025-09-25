@@ -136,3 +136,18 @@ recoveryPhoneSendSetupCode            : ip                : 100         : 24 hou
 #
 recoveryPhoneSendSigninCode           : ip_uid            : 6           : 24 hours        : 24 hours    : block
 recoveryPhoneSendSigninCode           : ip                : 100         : 24 hours        : 15 minutes  : ban
+
+#
+# MFA Dialogs
+# This controls the otp code sending and verification for the MfaGuard. Note that we define these per valid mfa type/action
+# so that dialogs don't interfere with each other. ie The counts that unblock email functionality are kept separate from
+# the counts that effect 2FA activity.
+#
+mfaOtpCodeRequestForEmail              : uid              : 10          : 5 minutes       : 15 minutes   : block
+mfaVerifyOtpCodeForEmail               : uid              : 5           : 5 minutes       : 15 minutes   : block
+mfaOtpCodeRequestFor2fa                : uid              : 10          : 5 minutes       : 15 minutes   : block
+mfaVerifyOtpCodeFor2fa                 : uid              : 5           : 5 minutes       : 15 minutes   : block
+mfaOtpCodeRequestForPassword           : uid              : 10          : 5 minutes       : 15 minutes   : block
+mfaVerifyOtpCodeForPassword            : uid              : 5           : 5 minutes       : 15 minutes   : block
+mfaOtpCodeRequestForRecoveryKey        : uid              : 10          : 5 minutes       : 15 minutes   : block
+mfaVerifyOtpCodeForRecoveryKey         : uid              : 5           : 5 minutes       : 15 minutes   : block

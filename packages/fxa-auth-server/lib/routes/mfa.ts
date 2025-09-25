@@ -45,6 +45,9 @@ interface DB {
   securityEvent: (arg: SecurityEvent) => Promise<void>;
 }
 
+const toPascal = (str) =>
+  str.replace(/(^|_)(\w)/g, (_, __, c) => c.toUpperCase());
+
 class MfaHandler {
   constructor(
     private readonly config: ConfigType,
@@ -66,7 +69,7 @@ class MfaHandler {
       request,
       uid,
       account.email,
-      'mfaOtpCodeRequest'
+      `mfaOtpCodeRequestFor${toPascal(action)}` // turns mfaOtpCodeRequest_recovery_key into mfaOtpCodeRequestRecoveryKey
     );
 
     let success = false;
@@ -133,7 +136,7 @@ class MfaHandler {
       request,
       uid,
       account.email,
-      'mfaVerifyOtpCode'
+      `mfaOtpCodeVerifyFor${toPascal(action)}` // turns mfaOtpCodeRequest_recovery_key into mfaOtpCodeRequestRecoveryKey
     );
 
     let success = false;
