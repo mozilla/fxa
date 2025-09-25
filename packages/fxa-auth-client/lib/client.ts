@@ -1531,14 +1531,16 @@ export default class AuthClient {
     } = {},
     headers?: Headers
   ): Promise<SignedInAccountData> {
-
-    const oldCredentials = await this.sessionReauth(sessionToken, options.reauthEmail || email, oldPassword, {
-      keys: true
-    }, headers);
-    const oldCredentialsAuth = await crypto.getCredentials(
-      email,
-      oldPassword
+    const oldCredentials = await this.sessionReauth(
+      sessionToken,
+      options.reauthEmail || email,
+      oldPassword,
+      {
+        keys: true,
+      },
+      headers
     );
+    const oldCredentialsAuth = await crypto.getCredentials(email, oldPassword);
     const oldAuthPW = oldCredentialsAuth.authPW;
 
     const keys = await this.accountKeys(
@@ -1547,10 +1549,7 @@ export default class AuthClient {
       headers
     );
 
-    const newCredentials = await crypto.getCredentials(
-      email,
-      newPassword
-    );
+    const newCredentials = await crypto.getCredentials(email, newPassword);
 
     const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
     const authPW = newCredentials.authPW;
@@ -1600,8 +1599,8 @@ export default class AuthClient {
       if (
         error &&
         error.email &&
-        error.errno === ERRORS.INCORRECT_EMAIL_CASE
-        && !options.skipCaseError
+        error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
+        !options.skipCaseError
       ) {
         options.skipCaseError = true;
         options.reauthEmail = email;
@@ -2340,7 +2339,14 @@ export default class AuthClient {
     );
   }
 
-  // create recovery codes for initial 2FA setup
+  /**
+   * @deprecated Prefer setRecoveryCodesWithJwt where possible
+   * Set recovery codes for initial 2FA setup
+   * @param sessionToken session token
+   * @param recoveryCodes new codes
+   * @param headers optional headers
+   * @returns
+   */
   async setRecoveryCodes(
     sessionToken: hexstring,
     recoveryCodes: string[],
@@ -2352,6 +2358,21 @@ export default class AuthClient {
       { recoveryCodes },
       headers
     );
+  }
+
+  /**
+   * Set recovery codes for initial 2FA setup
+   * @param jwt auth token
+   * @param recoveryCodes new codes
+   * @param headers optional headers
+   * @returns
+   */
+  async setRecoveryCodesWithJwt(
+    jwt: string,
+    recoveryCodes: string[],
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.jwtPost('/mfa/recoveryCodes', jwt, { recoveryCodes }, headers);
   }
 
   // create and update recovery codes without code confirmation
