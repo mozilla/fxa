@@ -79,9 +79,9 @@ export function parseConfigRules(
     } satisfies Rule;
 
     // A couple sanity checks to catch bad rule configuration
-    if (!/^[a-zA-Z]*$/.test(action)) {
+    if (!/^[a-zA-Z0-9]*$/.test(action)) {
       throw new InvalidRule(
-        `Actions can only contain characters a-zA-Z.`,
+        `Actions can only contain characters a-zA-Z0-9.`,
         line
       );
     }

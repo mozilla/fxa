@@ -123,6 +123,14 @@ export const MfaGuard = ({
           handleError(err);
           return;
         }
+        if (err.code === 429) {
+          setShowResendSuccessBanner(false);
+          setLocalizedErrorBannerMessage(
+            getLocalizedErrorMessage(ftlMsgResolver, err)
+          );
+          return;
+        }
+
         Sentry.captureException(err);
         alertBar.error(getLocalizedErrorMessage(ftlMsgResolver, err));
         onDismiss();
