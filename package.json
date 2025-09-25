@@ -74,7 +74,7 @@
     "@opentelemetry/sdk-trace-base": "^2.0.0",
     "@opentelemetry/sdk-trace-node": "^2.0.0",
     "@opentelemetry/sdk-trace-web": "^2.0.0",
-    "@paypal/react-paypal-js": "^8.7.0",
+    "@paypal/react-paypal-js": "^8.9.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-form": "^0.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
