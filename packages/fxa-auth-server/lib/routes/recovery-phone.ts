@@ -32,10 +32,12 @@ import Localizer from '../l10n';
 import NodeRendererBindings from '../senders/renderer/bindings-node';
 import { AccountEventsManager } from '../account-events';
 import { recordSecurityEvent } from './utils/security-event';
+import RECOVERY_PHONE_DOCS from '../../docs/swagger/recovery-phone-api';
 
 import { Container } from 'typedi';
 import { ConfigType } from '../../config';
 import { PasswordForgotToken } from 'fxa-shared/db/models/auth';
+import { OtpUtils } from './utils/otp';
 
 enum RecoveryPhoneStatus {
   SUCCESS = 'success',
@@ -87,6 +89,7 @@ class RecoveryPhoneHandler {
   private readonly accountManager: AccountManager;
   private readonly accountEventsManager: AccountEventsManager;
   private readonly localizer: Localizer;
+  private readonly otpUtils: OtpUtils;
 
   constructor(
     private readonly customs: Customs,
@@ -100,6 +103,7 @@ class RecoveryPhoneHandler {
     this.accountManager = Container.get(AccountManager);
     this.accountEventsManager = Container.get(AccountEventsManager);
     this.localizer = new Localizer(new NodeRendererBindings());
+    this.otpUtils = require('./utils/otp').default(db, statsd);
   }
 
   getLocalizedMessage = async (
@@ -474,9 +478,8 @@ class RecoveryPhoneHandler {
     const { uid, email } = request.auth
       .credentials as SessionTokenAuthCredential;
 
-    const { code, isInitial2faSetup } = request.payload as {
+    const { code } = request.payload as {
       code: string;
-      isInitial2faSetup?: boolean;
     };
 
     if (!email) {
@@ -527,9 +530,12 @@ class RecoveryPhoneHandler {
         // full nationalFormat (don't strip it).
         await this.recoveryPhoneService.hasConfirmed(uid);
 
-      // If recovery phone is added during initial 2FA setup
-      // do not send this notification - the user will instead receive a 2FA setup success email
-      if (!isInitial2faSetup) {
+      const hasTotpToken = await this.otpUtils.hasTotpToken({ uid });
+
+      // Only send postAddRecoveryPhone email if 2FA is already enabled
+      // otherwise the user will instead receive a 2FA setup success email
+      // when 2fa setup is complete
+      if (hasTotpToken) {
         try {
           await this.mailer.sendPostAddRecoveryPhoneEmail(
             account.emails,
@@ -1022,6 +1028,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/create',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_CREATE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'verifiedSessionToken',
@@ -1042,6 +1049,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/mfa/recovery_phone/create',
       options: {
+        ...RECOVERY_PHONE_DOCS.MFA_RECOVERY_PHONE_CREATE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'mfa',
@@ -1068,6 +1076,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/available',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_AVAILABLE_POST,
         auth: {
           strategy: 'sessionToken',
         },
@@ -1081,6 +1090,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/confirm',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_CONFIRM_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'verifiedSessionToken',
@@ -1089,7 +1099,6 @@ export const recoveryPhoneRoutes = (
         validate: {
           payload: isA.object({
             code: isA.string().min(6).max(8),
-            isInitial2faSetup: isA.boolean().optional(),
           }),
         },
       },
@@ -1100,8 +1109,36 @@ export const recoveryPhoneRoutes = (
     },
     {
       method: 'POST',
+      path: '/mfa/recovery_phone/confirm',
+      options: {
+        ...RECOVERY_PHONE_DOCS.MFA_RECOVERY_PHONE_CONFIRM_POST,
+        pre: [{ method: featureEnabledCheck }],
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            code: isA.string().min(6).max(8),
+          }),
+        },
+      },
+      handler: function (request: AuthRequest) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/recovery_phone/confirm' &&
+              route.method === 'POST'
+          )
+          ?.handler(request);
+      },
+    },
+    {
+      method: 'POST',
       path: '/recovery_phone/change',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_CHANGE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'verifiedSessionToken',
@@ -1122,6 +1159,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/signin/send_code',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_SIGNIN_SEND_CODE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'sessionToken',
@@ -1136,6 +1174,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/signin/confirm',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_SIGNIN_CONFIRM_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'sessionToken',
@@ -1155,6 +1194,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/reset_password/send_code',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_RESET_PASSWORD_SEND_CODE_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'passwordForgotToken',
@@ -1169,6 +1209,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/reset_password/confirm',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_RESET_PASSWORD_CONFIRM_POST,
         pre: [{ method: featureEnabledCheck }],
         auth: {
           strategy: 'passwordForgotToken',
@@ -1183,6 +1224,7 @@ export const recoveryPhoneRoutes = (
       method: 'DELETE',
       path: '/recovery_phone',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_DELETE,
         auth: {
           strategy: 'verifiedSessionToken',
           payload: false,
@@ -1197,6 +1239,7 @@ export const recoveryPhoneRoutes = (
       method: 'GET',
       path: '/recovery_phone',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_GET,
         auth: {
           strategies: [
             'multiStrategySessionToken',
@@ -1213,6 +1256,7 @@ export const recoveryPhoneRoutes = (
       method: 'POST',
       path: '/recovery_phone/message_status',
       options: {
+        ...RECOVERY_PHONE_DOCS.RECOVERY_PHONE_MESSAGE_STATUS_POST,
         payload: {
           parse: true,
           allow: 'application/x-www-form-urlencoded',

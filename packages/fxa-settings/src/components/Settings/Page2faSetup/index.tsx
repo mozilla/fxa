@@ -201,7 +201,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
 
   const handleVerifySmsCode = async (code: string) => {
     // if this errors, error will be handled by try/catch in child component
-    await account.confirmRecoveryPhone(code, phoneData.phoneNumber, true);
+    await account.confirmRecoveryPhone(code, phoneData.phoneNumber);
 
     try {
       await enable2fa();

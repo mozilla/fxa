@@ -488,7 +488,7 @@ describe('/recovery_phone', () => {
   });
 
   describe('POST /recovery_phone/confirm', async () => {
-    it('confirms a code', async () => {
+    it('confirms a code with TOTP enabled – sends post-add email', async () => {
       mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(true);
       mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
         exists: true,
@@ -496,6 +496,11 @@ describe('/recovery_phone', () => {
         nationalFormat,
       });
       mockRecoveryPhoneService.stripPhoneNumber = sinon.fake.returns('5555');
+
+      // Simulate account having TOTP set up and verified
+      mockDb.totpToken = sinon.spy(() =>
+        Promise.resolve({ verified: true, enabled: true })
+      );
 
       const resp = await makeRequest({
         method: 'POST',
@@ -545,6 +550,43 @@ describe('/recovery_phone', () => {
         mockStatsd.increment,
         'account.recoveryPhone.phoneAdded.success'
       );
+    });
+
+    it('confirms a code without TOTP – does not send post-add email', async () => {
+      mockRecoveryPhoneService.confirmSetupCode = sinon.fake.returns(true);
+      mockRecoveryPhoneService.hasConfirmed = sinon.fake.returns({
+        exists: true,
+        phoneNumber,
+        nationalFormat,
+      });
+      mockRecoveryPhoneService.stripPhoneNumber = sinon.fake.returns('5555');
+
+      // Simulate account without TOTP configured
+      mockDb.totpToken = sinon.spy(() =>
+        Promise.resolve({ verified: false, enabled: false })
+      );
+
+      const resp = await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/confirm',
+        credentials: { uid, email },
+        payload: { code },
+      });
+
+      assert.isDefined(resp);
+      assert.equal(resp.status, 'success');
+      assert.equal(resp.nationalFormat, nationalFormat);
+      assert.equal(mockRecoveryPhoneService.confirmSetupCode.callCount, 1);
+      assert.equal(
+        mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[0],
+        uid
+      );
+      assert.equal(
+        mockRecoveryPhoneService.confirmSetupCode.getCall(0).args[1],
+        code
+      );
+      assert.equal(mockGlean.twoStepAuthPhoneCode.complete.callCount, 1);
+      assert.notCalled(mockMailer.sendPostAddRecoveryPhoneEmail);
     });
 
     it('indicates a failure confirming code', async () => {

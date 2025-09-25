@@ -1594,17 +1594,9 @@ export class Account implements AccountData {
     return result;
   }
 
-  async confirmRecoveryPhone(
-    code: string,
-    phoneNumber: string,
-    isInitial2faSetup: boolean
-  ) {
+  async confirmRecoveryPhone(code: string, phoneNumber: string) {
     const { nationalFormat } = await this.withLoadingStatus(
-      this.authClient.recoveryPhoneConfirmSetup(
-        sessionToken()!,
-        code,
-        isInitial2faSetup
-      )
+      this.authClient.recoveryPhoneConfirmSetup(sessionToken()!, code)
     );
     const cache = this.apolloClient.cache;
     cache.modify({

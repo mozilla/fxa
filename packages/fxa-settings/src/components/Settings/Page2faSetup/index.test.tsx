@@ -259,8 +259,7 @@ describe('Page2faSetup', () => {
       await waitFor(() => {
         expect(account.confirmRecoveryPhone).toHaveBeenCalledWith(
           '000000',
-          MOCK_FULL_PHONE_NUMBER,
-          true
+          MOCK_FULL_PHONE_NUMBER
         );
         expect(account.completeTotpSetup).toHaveBeenCalled();
         expect(account.refresh).toHaveBeenCalledWith('recoveryPhone');

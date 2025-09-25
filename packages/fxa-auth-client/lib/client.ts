@@ -1531,14 +1531,16 @@ export default class AuthClient {
     } = {},
     headers?: Headers
   ): Promise<SignedInAccountData> {
-
-    const oldCredentials = await this.sessionReauth(sessionToken, options.reauthEmail || email, oldPassword, {
-      keys: true
-    }, headers);
-    const oldCredentialsAuth = await crypto.getCredentials(
-      email,
-      oldPassword
+    const oldCredentials = await this.sessionReauth(
+      sessionToken,
+      options.reauthEmail || email,
+      oldPassword,
+      {
+        keys: true,
+      },
+      headers
     );
+    const oldCredentialsAuth = await crypto.getCredentials(email, oldPassword);
     const oldAuthPW = oldCredentialsAuth.authPW;
 
     const keys = await this.accountKeys(
@@ -1547,10 +1549,7 @@ export default class AuthClient {
       headers
     );
 
-    const newCredentials = await crypto.getCredentials(
-      email,
-      newPassword
-    );
+    const newCredentials = await crypto.getCredentials(email, newPassword);
 
     const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
     const authPW = newCredentials.authPW;
@@ -1600,8 +1599,8 @@ export default class AuthClient {
       if (
         error &&
         error.email &&
-        error.errno === ERRORS.INCORRECT_EMAIL_CASE
-        && !options.skipCaseError
+        error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
+        !options.skipCaseError
       ) {
         options.skipCaseError = true;
         options.reauthEmail = email;
@@ -2850,17 +2849,16 @@ export default class AuthClient {
   }
 
   /**
+   * @deprecated Prefer recoveryPhoneConfirmSetupWithJwt where possible
    * Confirms the code sent to the recovery phone when recoveryPhoneCreate was called.
    *
    * @param sessionToken The user's current session token
    * @param code The otp code sent to the user's phone
-   * @param isInitial2faSetup Whether recovery phone is added during initial 2FA setup or separately
    * @param headers
    */
   async recoveryPhoneConfirmSetup(
     sessionToken: string,
     code: string,
-    isInitial2faSetup: boolean,
     headers?: Headers
   ): Promise<{ nationalFormat?: string }> {
     return this.sessionPost(
@@ -2868,10 +2866,24 @@ export default class AuthClient {
       sessionToken,
       {
         code,
-        isInitial2faSetup,
       },
       headers
     );
+  }
+
+  /**
+   * Confirms the code sent to the recovery phone when recoveryPhoneCreate was called.
+   * @param jwt auth token
+   * @param code the otp code sent to the user's phone
+   * @param headers optional headers
+   * @returns
+   */
+  async recoveryPhoneConfirmSetupWithJwt(
+    jwt: string,
+    code: string,
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.jwtPost('/mfa/recovery_phone/confirm', jwt, { code }, headers);
   }
 
   /**
