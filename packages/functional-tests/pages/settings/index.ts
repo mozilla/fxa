@@ -105,14 +105,22 @@ export class SettingsPage extends SettingsLayout {
    * Removes 2FA from the account by clicking the 'disable' button on the 2FA row.
    */
   async disconnectTotp() {
+    // on occasion, there can be a race condition where there are multiple
+    // emails with the expected x-headers are present. This will cause
+    // the email client to get the wrong code and fail the test.
+    //
+    // To mitigate this, we clear the inbox immediately before the
+    // action that triggers the MfaGuard email.
+    const email = await this.primaryEmail.status.textContent();
+    if (!email) {
+      throw new Error('Could not determine primary email!');
+    }
+    await this.target.emailClient.clear(email);
+
     await this.totp.disableButton.click();
 
     // Obtain the MFA JWT if necessary
     if (await this.isMfaGuardVisible()) {
-      const email = await this.primaryEmail.status.textContent();
-      if (!email) {
-        throw new Error('Could not determine primary email!');
-      }
       await this.confirmMfaGuard(email);
     }
 
