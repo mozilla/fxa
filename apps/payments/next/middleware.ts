@@ -53,7 +53,7 @@ export function middleware(request: NextRequest) {
     font-src 'self';
     object-src 'none';
     base-uri 'self';
-    form-action 'self';
+    form-action 'self' ${PAYPAL_API_URL};
     frame-ancestors 'none';
     upgrade-insecure-requests;
 `;
