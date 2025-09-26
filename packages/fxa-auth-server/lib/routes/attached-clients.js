@@ -122,8 +122,8 @@ module.exports = (log, db, devices, clientUtils) => {
       options: {
         ...DEVICES_AND_SESSIONS_DOC.ACCOUNT_ATTACHED_CLIENT_DESTROY_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'verifiedSessionToken',
+          payload: 'false',
         },
         validate: {
           payload: isA
