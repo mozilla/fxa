@@ -16,12 +16,6 @@ import { JwtTokenCache } from '../../../lib/cache';
 
 jest.mock('../../../models/AlertBarInfo');
 
-jest.mock('../../../lib/glean', () => ({
-  accountPref: {
-    twoStepAuthDisableModalView: jest.fn(),
-  },
-}));
-
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
   useAuthClient: () => ({
@@ -137,6 +131,10 @@ describe('UnitRowTwoStepAuth', () => {
   });
 
   it('emits expected event when the disable totp modal is rendered', async () => {
+    const spy = jest.spyOn(
+      GleanMetrics.accountPref,
+      'twoStepAuthDisableModalView'
+    );
     const user = userEvent.setup();
     renderWithRouter(createSubject());
 
@@ -148,11 +146,7 @@ describe('UnitRowTwoStepAuth', () => {
       ).toBeInTheDocument()
     );
 
-    await waitFor(() =>
-      expect(
-        GleanMetrics.accountPref.twoStepAuthDisableModalView
-      ).toHaveBeenCalled()
-    );
+    await waitFor(() => expect(spy).toHaveBeenCalled());
   });
 
   it('renders MFAGuard when the disable totp modal is rendered and jwt is missing', async () => {

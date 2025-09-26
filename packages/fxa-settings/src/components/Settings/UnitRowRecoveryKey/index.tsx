@@ -16,6 +16,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 import { MfaGuard } from '../MfaGuard';
+import { MfaReason } from '../../../lib/types';
 
 export const UnitRowRecoveryKey = () => {
   const account = useAccount();
@@ -131,7 +132,10 @@ export const UnitRowRecoveryKey = () => {
             );
           }}
         >
-          <MfaGuard requiredScope="recovery_key">
+          <MfaGuard
+            requiredScope="recovery_key"
+            reason={MfaReason.removeRecoveryKey}
+          >
             <Modal
               onDismiss={() => {
                 hideModal();

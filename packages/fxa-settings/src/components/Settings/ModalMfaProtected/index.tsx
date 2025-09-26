@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Modal from '../Modal';
 import InputText from '../../InputText';
@@ -10,6 +10,8 @@ import { useFtlMsgResolver } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { EmailCodeImage } from '../../images';
 import Banner, { ResendCodeSuccessBanner } from '../../Banner';
+import { MfaReason } from '../../../lib/types';
+import GleanMetrics from '../../../lib/glean';
 
 type ModalProps = {
   email: string;
@@ -21,6 +23,7 @@ type ModalProps = {
   localizedErrorBannerMessage?: string;
   resendCodeLoading: boolean;
   showResendSuccessBanner: boolean;
+  reason: MfaReason;
 };
 
 type FormData = {
@@ -37,7 +40,13 @@ export const ModalMfaProtected = ({
   localizedErrorBannerMessage,
   resendCodeLoading,
   showResendSuccessBanner,
+  reason,
 }: ModalProps) => {
+  useEffect(() => {
+    GleanMetrics.accountPref.mfaGuardView({
+      event: { reason },
+    });
+  }, [reason]);
   const ftlMsgResolver = useFtlMsgResolver();
 
   const { handleSubmit, register, formState } = useForm<FormData>({
@@ -144,6 +153,8 @@ export const ModalMfaProtected = ({
               type="submit"
               className="cta-primary cta-xl flex-1 w-1/2"
               disabled={buttonDisabled}
+              data-glean-id="account_pref_mfa_guard_submit"
+              data-glean-type={reason}
             >
               Confirm
             </button>
