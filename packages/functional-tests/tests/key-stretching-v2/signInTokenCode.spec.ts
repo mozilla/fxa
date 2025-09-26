@@ -44,7 +44,7 @@ test.describe('severity-2 #smoke', () => {
       const code = await target.emailClient.getVerifyLoginCode(email);
       await signinTokenCode.fillOutCodeForm(code);
 
-      await expect(page).toHaveURL(/pair/);
+      await page.waitForURL(/pair/);
       await connectAnotherDevice.clickNotNowPair();
 
       await expect(page).toHaveURL(/settings/);
