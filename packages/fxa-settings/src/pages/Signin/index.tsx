@@ -24,6 +24,7 @@ import {
   useFtlMsgResolver,
   isWebIntegration,
   isOAuthIntegration,
+  useSession,
 } from '../../models';
 import {
   isClientMonitor,
@@ -38,6 +39,7 @@ import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
+import VerificationReasons from '../../constants/verification-reasons';
 
 export const viewName = 'signin';
 
@@ -68,6 +70,7 @@ const Signin = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const sensitiveDataClient = useSensitiveDataClient();
+  const session = useSession();
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -227,6 +230,16 @@ const Signin = ({
           setLocalizedBannerError(
             getLocalizedErrorMessage(ftlMsgResolver, navError)
           );
+        } else {
+          // TODO, address signIn.verified vs session.verified discrepancy
+          // currently 'verified' only checks session status, but 'verificationReason'
+          // can tell us if it's a sign up. This will be cleaned up in FXA-12454
+          if (
+            !data.signIn.verified &&
+            data.signIn.verificationReason !== VerificationReasons.SIGN_UP
+          ) {
+            session.sendVerificationCode();
+          }
         }
       }
       if (error) {
@@ -321,6 +334,7 @@ const Signin = ({
       setLocalizedBannerError,
       finishOAuthFlowHandler,
       integration,
+      session,
       location.search,
       webRedirectCheck,
       sensitiveDataClient,
