@@ -570,6 +570,8 @@ test.describe('severity-1 #smoke', () => {
       submitButton = page.getByRole('button', { name: 'Sign in', exact: true });
       await submitButton.click();
 
+      await page.waitForURL(/pair/);
+
       await page.getByRole('link', { name: 'Not now' }).click();
 
       // Verify successful login and go to settings
@@ -646,6 +648,8 @@ test.describe('severity-1 #smoke', () => {
       // Enter TOTP code
       const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
+
+      await page.waitForURL(/pair/);
 
       await page.getByRole('link', { name: 'Not now' }).click();
 

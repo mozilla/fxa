@@ -90,7 +90,7 @@ test.describe('severity-1 #smoke', () => {
       const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
-      await expect(page).toHaveURL(/pair/);
+      await page.waitForURL(/pair/);
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
