@@ -20,6 +20,7 @@
     "secure": false,
     "redirectDomain": "localhost",
     "subscriptionTermsUrl": "https://www.mozilla.org/about/legal/terms/firefox-private-network/",
+    "subscriptionSettingsUrl": "http://localhost:3035/",
     "user": "local",
     "password": "local"
   },
