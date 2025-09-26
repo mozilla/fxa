@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import PageRecoveryPhoneRemove from '.';
+import { PageRecoveryPhoneRemove } from '.';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Account, AppContext } from '../../../models';

@@ -197,9 +197,9 @@ describe('Settings App', () => {
   });
   it('routes to PageChangePassword', async () => {
     // Suppress MFA guard for this test
-    mockMfaGuard.mockImplementationOnce(({ children }: { children: ReactNode }) => (
-      <>{children}</>
-    ));
+    mockMfaGuard.mockImplementationOnce(
+      ({ children }: { children: ReactNode }) => <>{children}</>
+    );
 
     // Mock the JWT token cache to suppress MFA guard
     const mockJwtTokenCache = {
@@ -371,6 +371,11 @@ describe('Settings App', () => {
       {
         pageName: 'PageChangePassword',
         route: '/change_password',
+        hasPassword: true,
+      },
+      {
+        pageName: 'PageRecoveryPhoneRemove',
+        route: '/recovery_phone/remove',
         hasPassword: true,
       },
     ];

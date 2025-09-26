@@ -33,7 +33,7 @@ import { currentAccount } from '../../lib/cache';
 import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
-import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
+import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
 import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import MfaGuardPage2faChange from './Page2faChange';
@@ -197,7 +197,7 @@ export const Settings = ({
           <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
 
           <MfaGuardPageRecoveryPhoneSetup path="/recovery_phone/setup" />
-          <PageRecoveryPhoneRemove path="/recovery_phone/remove" />
+          <PageMfaGuardRecoveryPhoneRemove path="/recovery_phone/remove" />
 
           <PageMfaGuardTestWithAuthClient path="/mfa_guard/test/auth_client" />
           <PageMfaGuardTestWithGql path="/mfa_guard/test/gql" />

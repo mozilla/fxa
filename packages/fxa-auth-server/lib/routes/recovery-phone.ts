@@ -1194,6 +1194,26 @@ export const recoveryPhoneRoutes = (
       },
     },
     {
+      method: 'DELETE',
+      path: '/mfa/recovery_phone',
+      options: {
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        response: {},
+      },
+      handler: async function (request: AuthRequest) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/recovery_phone' && route.method === 'DELETE'
+          )
+          ?.handler(request);
+      },
+    },
+    {
       method: 'GET',
       path: '/recovery_phone',
       options: {
