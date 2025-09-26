@@ -91,6 +91,9 @@ module.exports = () => {
       profile: {
         url: config.get('servers.profile.url'),
       },
+      paymentsNext: {
+        url: config.get('servers.paymentsNext.url'),
+      }
     },
     paypal: {
       apiUrl: config.get('paypal.apiUrl'),
@@ -235,6 +238,33 @@ module.exports = () => {
       __GA_CSP_NONCE__: gaCspNonce,
     });
   }
+
+  app.use((req, res, next) => {
+    if (!FEATURE_FLAGS.paymentsNextSubscriptionManagement) {
+      return next();
+    }
+
+    let nextUrl;
+    try {
+      nextUrl = config.get('servers.paymentsNext.url');
+    } catch {
+      return next();
+    }
+    if (!nextUrl) {
+      return next();
+    }
+
+    if (req.path === '/subscriptions' || req.path.startsWith('/subscriptions/')) {
+      const queryBeginIndex = req.originalUrl.indexOf('?');
+      const queryString = queryBeginIndex >= 0 ? req.originalUrl.slice(queryBeginIndex) : '';
+
+      const redirectTo = `${nextUrl}/subscriptions/landing${queryString}`;
+
+      return res.redirect(redirectTo);
+    }
+
+    return next();
+  });
 
   // Note - the static route handlers must come last
   // because the proxyUrl handler's app.use('/') captures
