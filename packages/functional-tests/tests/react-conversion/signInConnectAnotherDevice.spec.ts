@@ -20,7 +20,7 @@ test.describe('severity-2 #smoke', () => {
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
-      await expect(page).toHaveURL(/pair/);
+      await page.waitForURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
   });
