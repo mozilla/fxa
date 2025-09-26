@@ -189,6 +189,7 @@ const addThenChange2FA = async ({
 
   // setup 2fa with backup codes
   await settings.totp.addButton.click();
+  await settings.confirmMfaGuard(credentials.email);
   const { recoveryCodes, secret } =
     await totp.setUpTwoStepAuthWithManualCodeAndBackupCodesChoice();
 
@@ -196,8 +197,7 @@ const addThenChange2FA = async ({
 
   await settings.totp.changeButton.click();
 
-  // Change 2FA action is guarded by MFA code modal
-  await settings.confirmMfaGuard(credentials.email);
+  // JWT token was created to add 2FA and can be re-used - there should be no need to confirm MFA again
 
   // changing doesn't do anything special or require saving backup codes
   // just call straight to the setup method
@@ -302,7 +302,11 @@ const addPhoneRecovery = async ({
 
   await recoveryPhone.submitPhoneNumber();
 
+  await expect(recoveryPhone.confirmHeader).toBeVisible();
+
   const code = await target.smsClient.getCode({ ...credentials });
 
   await recoveryPhone.submitCode(code);
+
+  await expect(settings.alertBar).toHaveText('Recovery phone added');
 };

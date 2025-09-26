@@ -105,6 +105,7 @@ test.describe('relay integration', () => {
 
     await expect(settings.settingsHeading).toBeVisible();
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(email);
     const { secret } = await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
     await expect(settings.totp.status).toHaveText('Enabled');
     await settings.signOut();

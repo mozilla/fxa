@@ -22,8 +22,8 @@ export const Default = () => <Subject />;
 export const WithError = () => (
   <Subject
     account={{
-      confirmReplaceTotp: async (code: string) => {
-        action(`confirmReplaceTotp called with code: ${code}`)();
+      confirmReplaceTotpWithJwt: async (code: string) => {
+        action(`confirmReplaceTotpWithJwt called with code: ${code}`)();
         throw AuthUiErrors.INVALID_TOTP_CODE;
       },
     }}
