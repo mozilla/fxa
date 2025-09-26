@@ -100,7 +100,7 @@ describe('mfa', () => {
       // for testing purposes this is sufficient.
       id: SESSION_TOKEN_ID,
       uid: UID,
-      uaBrowser: UA_BROWSER
+      uaBrowser: UA_BROWSER,
     });
 
     Container.set(OtpUtils, otpUtils);
@@ -169,6 +169,22 @@ describe('mfa', () => {
     // session that this token was issued from.
     assert.equal(authResult.credentials.id, SESSION_TOKEN_ID);
     assert.equal(authResult.credentials.uaBrowser, UA_BROWSER);
+
+    // Make sure customs was invoked
+    assert.calledWith(
+      customs.checkAuthenticated,
+      sinon.match.any,
+      UID,
+      TEST_EMAIL,
+      'mfaOtpCodeRequestForTest'
+    );
+    assert.calledWith(
+      customs.checkAuthenticated,
+      sinon.match.any,
+      UID,
+      TEST_EMAIL,
+      'mfaOtpCodeVerifyForTest'
+    );
   });
 
   it('will not allow an invalid token', async () => {
