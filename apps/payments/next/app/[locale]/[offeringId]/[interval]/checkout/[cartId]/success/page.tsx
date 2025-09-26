@@ -148,21 +148,6 @@ export default async function CheckoutSuccess({
                 width={40}
                 height={24}
               />
-              <span className="flex items-center gap-2">
-                {cart.paymentInfo.brand && (
-                  <Image
-                    src={getCardIcon(cart.paymentInfo.brand, l10n).img}
-                    alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
-                    width={40}
-                    height={24}
-                  />
-                )}
-                {l10n.getString(
-                  'next-payment-confirmation-cc-card-ending-in',
-                  { last4: cart.paymentInfo.last4 ?? '' },
-                  `Card ending in ${cart.paymentInfo.last4}`
-                )}
-              </span>
             </div>
           ) : cart.paymentInfo.walletType === 'google_pay' ? (
             <div className="flex items-center gap-3">
@@ -172,21 +157,6 @@ export default async function CheckoutSuccess({
                 width={40}
                 height={24}
               />
-              <span className="flex items-center gap-2">
-                {cart.paymentInfo.brand && (
-                  <Image
-                    src={getCardIcon(cart.paymentInfo.brand, l10n).img}
-                    alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
-                    width={40}
-                    height={24}
-                  />
-                )}
-                {l10n.getString(
-                  'next-payment-confirmation-cc-card-ending-in',
-                  { last4: cart.paymentInfo.last4 ?? '' },
-                  `Card ending in ${cart.paymentInfo.last4}`
-                )}
-              </span>
             </div>
           ) : cart.paymentInfo.type === 'external_paypal' ? (
             <Image

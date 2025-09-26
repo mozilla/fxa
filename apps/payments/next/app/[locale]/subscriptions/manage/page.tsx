@@ -199,44 +199,18 @@ export default async function Manage({
                       alt={
                         walletType === 'apple_pay'
                           ? l10n.getString(
-                            'apple-pay-logo-alt-text',
-                            'Apple Pay logo'
-                          )
+                              'apple-pay-logo-alt-text',
+                              'Apple Pay logo'
+                            )
                           : l10n.getString(
-                            'google-pay-logo-alt-text',
-                            'Google Pay logo'
-                          )
+                              'google-pay-logo-alt-text',
+                              'Google Pay logo'
+                            )
                       }
                       width={40}
                       height={24}
                     />
-                    {brand && (
-                      <Image
-                        src={getCardIcon(brand, l10n).img}
-                        alt={getCardIcon(brand, l10n).altText}
-                        width={40}
-                        height={24}
-                      />
-                    )}
-                    {last4 && (
-                      <div>
-                        {l10n.getString(
-                          'subscription-management-card-ending-in',
-                          { last4 },
-                          `Card ending in ${last4}`
-                        )}
-                      </div>
-                    )}
                   </div>
-                  {expirationDate && (
-                    <div>
-                      {l10n.getString(
-                        'subscription-management-card-expires-date',
-                        { expirationDate },
-                        `Expires ${expirationDate}`
-                      )}
-                    </div>
-                  )}
                 </div>
                 <Link
                   className={CSS_SECONDARY_LINK}
@@ -426,10 +400,10 @@ export default async function Manage({
                       >
                         {sub.interval
                           ? l10n.getString(
-                            getSubscriptionIntervalFtlId(sub.interval),
-                            { productName: sub.productName },
-                            `${sub.productName} (${formatPlanInterval(sub.interval)})`
-                          )
+                              getSubscriptionIntervalFtlId(sub.interval),
+                              { productName: sub.productName },
+                              `${sub.productName} (${formatPlanInterval(sub.interval)})`
+                            )
                           : sub.productName}
                       </h3>
                       <LinkExternal
@@ -476,8 +450,8 @@ export default async function Manage({
             </ul>
             {(appleIapSubscriptions.length > 0 ||
               googleIapSubscriptions.length > 0) && (
-                <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
-              )}
+              <hr className="border-b border-grey-50 my-6" aria-hidden="true" />
+            )}
           </>
         )}
 
@@ -554,13 +528,13 @@ export default async function Manage({
                                   date: nextBillDate,
                                 },
                                 elems: {
-                                  strong: <strong />
+                                  strong: <strong />,
                                 },
                               },
                               <>
-                                Your subscription will expire on <strong>${nextBillDate}</strong>
+                                Your subscription will expire on{' '}
+                                <strong>${nextBillDate}</strong>
                               </>
-
                             )}
                           </p>
                         )}
@@ -665,33 +639,35 @@ export default async function Manage({
                         {!!purchase.expiryTimeMillis &&
                           (purchase.autoRenewing
                             ? l10n.getFragmentWithSource(
-                              'subscription-management-iap-sub-next-bill-is-due',
-                              {
-                                vars: {
-                                  date: nextBillDate,
+                                'subscription-management-iap-sub-next-bill-is-due',
+                                {
+                                  vars: {
+                                    date: nextBillDate,
+                                  },
+                                  elems: {
+                                    strong: <strong />,
+                                  },
                                 },
-                                elems: {
-                                  strong: <strong />
-                                },
-                              },
-                              <>
-                                Next bill is due <strong>{nextBillDate}</strong>
-                              </>
-                            )
+                                <>
+                                  Next bill is due{' '}
+                                  <strong>{nextBillDate}</strong>
+                                </>
+                              )
                             : l10n.getFragmentWithSource(
-                              'subscription-management-iap-sub-will-expire-on',
-                              {
-                                vars: {
-                                  date: nextBillDate,
+                                'subscription-management-iap-sub-will-expire-on',
+                                {
+                                  vars: {
+                                    date: nextBillDate,
+                                  },
+                                  elems: {
+                                    strong: <strong />,
+                                  },
                                 },
-                                elems: {
-                                  strong: <strong />
-                                },
-                              },
-                              <>
-                                Your subscription will expire on <strong>{nextBillDate}</strong>
-                              </>
-                            ))}
+                                <>
+                                  Your subscription will expire on{' '}
+                                  <strong>{nextBillDate}</strong>
+                                </>
+                              ))}
                       </p>
                     </div>
                     <div>
