@@ -102,6 +102,7 @@ jest.mock('../../lib/storage-utils', () => ({
 }));
 
 const mockSetData = jest.fn();
+const mockSendVerificationCode = jest.fn();
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
@@ -110,6 +111,9 @@ jest.mock('../../models', () => {
         setDataType: mockSetData,
       };
     },
+    useSession: () => ({
+      sendVerificationCode: mockSendVerificationCode,
+    }),
   };
 });
 
@@ -444,6 +448,39 @@ describe('Signin component', () => {
                 },
               });
             });
+          });
+
+          it('calls sendVerificationCode with successful signin, but unverified session', async () => {
+            const beginSigninHandler = jest.fn().mockReturnValueOnce(
+              createBeginSigninResponse({
+                verified: false,
+                verificationReason: undefined,
+              })
+            );
+
+            render({ beginSigninHandler });
+
+            await enterPasswordAndSubmit();
+            await waitFor(() => {
+              expect(mockSendVerificationCode).toHaveBeenCalledTimes(1);
+            });
+          });
+
+          it('does not call sendVerificationCode when reason is signup, on successful signin unverified session', async () => {
+            const beginSigninHandler = jest.fn().mockReturnValueOnce(
+              createBeginSigninResponse({
+                verified: false,
+                verificationReason: VerificationReasons.SIGN_UP,
+              })
+            );
+
+            render({ beginSigninHandler });
+
+            await enterPasswordAndSubmit();
+            await waitFor(() => {
+              expect(navigate).toHaveBeenCalled();
+            });
+            expect(mockSendVerificationCode).not.toHaveBeenCalled();
           });
 
           it('OAuth forced 2FA without TOTP navigates to /signin_token_code (email OTP first)', async () => {
