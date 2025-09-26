@@ -34,11 +34,6 @@ export const DropDownAvatarMenu = () => {
   const signOut = async () => {
     if (session.destroy) {
       try {
-        // Clear JWTs associated with the current session and clear any
-        // record of cached OTP requests.
-        JwtTokenCache.clearTokens(session.token);
-        MfaOtpRequestCache.clear(session.token);
-
         // Destroy the current session
         await session.destroy();
 
@@ -48,6 +43,21 @@ export const DropDownAvatarMenu = () => {
         firefox.fxaLogout({ uid });
 
         logViewEvent(settingsViewName, 'signout.success');
+
+        // Clear JWTs associated with the current session and clear any
+        // record of cached OTP requests.
+        // !!Do not move this up above session.destroy()!!
+        // There's an edge case with the MfaGuard that users aren't likely
+        // to see, but our automated tests can.
+        // If the guard is open/present in the tree and we sign out,
+        // this causes a change to the cache which in turn causes the guard
+        // to re-render and send another OTP code. This results in another email
+        // in the inbox after we've cleared the first. A test can then log back in,
+        // get to the point where it needs another code, see the existing
+        // email, grab it as the first code, and fail to verify the guard.
+        JwtTokenCache.clearTokens(session.token);
+        MfaOtpRequestCache.clear(session.token);
+
         window.location.assign(window.location.origin);
       } catch (e) {
         alertBar.error(
