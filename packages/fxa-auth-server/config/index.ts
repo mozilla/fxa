@@ -525,6 +525,12 @@ const convictConf = convict({
       env: 'SUBSCRIPTION_TERMS_URL',
       format: String,
     },
+    subscriptionSettingsUrl: {
+      default: 'https://payments.firefox.com/',
+      doc: 'Subscriptions management URL',
+      env: 'PAYMENTS_NEXT_HOSTED_URL',
+      format: String,
+    },
     unsubscribeUrl: {
       doc: 'URL to unsubscribe from MoCo and MoFo emails',
       format: String,
@@ -2621,7 +2627,6 @@ convictConf.set(
   'smtp.verifySecondaryEmailUrl',
   `${baseUri}/verify_secondary_email`
 );
-convictConf.set('smtp.subscriptionSettingsUrl', `${baseUri}/subscriptions`);
 convictConf.set('smtp.subscriptionSupportUrl', `${baseUri}/support`);
 convictConf.set('smtp.syncUrl', `${baseUri}/connect_another_device`);
 

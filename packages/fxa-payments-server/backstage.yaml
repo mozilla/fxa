@@ -12,10 +12,10 @@ metadata:
     - node
     - react
   links:
-    - url: https://subscriptions.firefox.com/
+    - url: https://payments.firefox.com/
       title: Production Subscription Platform
       type: website
-    - url: https://payments-server.allizom.org/
+    - url: https://payments-next.allizom.org/
       title: Stage Subscription Platform
       type: website
 spec:
