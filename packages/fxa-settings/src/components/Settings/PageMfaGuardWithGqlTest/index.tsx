@@ -13,10 +13,11 @@ import { MfaGuard } from '../MfaGuard';
 import { RouteComponentProps } from '@reach/router';
 import { useErrorHandler } from 'react-error-boundary';
 import { ApolloError, gql, useMutation } from '@apollo/client';
+import { MfaReason } from '../../../lib/types';
 
 export const PageMfaGuardTestWithGql = (props: RouteComponentProps) => {
   return (
-    <MfaGuard requiredScope="test">
+    <MfaGuard requiredScope="test" reason={MfaReason.test}>
       <TestWithGql {...{ props }} />
     </MfaGuard>
   );

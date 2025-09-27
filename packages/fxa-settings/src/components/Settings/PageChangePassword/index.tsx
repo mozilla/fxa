@@ -23,6 +23,7 @@ import {
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { MfaReason } from '../../../lib/types';
 
 type FormData = {
   oldPassword: string;
@@ -145,7 +146,11 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
 };
 
 const MfaGuardedPageChangePassword = (_: RouteComponentProps) => {
-  return <MfaGuard requiredScope="password"><PageChangePassword /></MfaGuard>;
+  return (
+    <MfaGuard requiredScope="password" reason={MfaReason.changePassword}>
+      <PageChangePassword />
+    </MfaGuard>
+  );
 };
 
 export default MfaGuardedPageChangePassword;

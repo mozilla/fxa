@@ -14,7 +14,7 @@ import {
   useFtlMsgResolver,
   useSession,
 } from '../../../models';
-import { GleanClickEventType2FA } from '../../../lib/types';
+import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
 import { totpUtils } from '../../../lib/totp-utils';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
@@ -27,7 +27,7 @@ export const PageMfaGuard2faReplaceBackupCodes = (
   props: RouteComponentProps
 ) => {
   return (
-    <MfaGuard requiredScope="2fa">
+    <MfaGuard requiredScope="2fa" reason={MfaReason.createBackupCodes}>
       <Page2faReplaceBackupCodes {...props} />
     </MfaGuard>
   );

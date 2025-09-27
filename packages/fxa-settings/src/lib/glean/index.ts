@@ -33,7 +33,10 @@ import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
-import { appFramework, cmsCustomizationEnrollment } from 'fxa-shared/metrics/glean/web/event';
+import {
+  appFramework,
+  cmsCustomizationEnrollment,
+} from 'fxa-shared/metrics/glean/web/event';
 import {
   oauthClientId,
   service,
@@ -626,6 +629,16 @@ const recordEventMetric = (
       break;
     case 'account_pref_promo_monitor_submit':
       accountPref.promoMonitorSubmit.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_mfa_guard_view':
+      accountPref.mfaGuardView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_mfa_guard_submit_success':
+      accountPref.mfaGuardSubmitSuccess.record({
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;

@@ -24,11 +24,12 @@ import {
   MfaOtpRequestCache,
   sessionToken as getSessionToken,
 } from '../../../lib/cache';
-import { MfaScope } from '../../../lib/types';
+import { MfaReason, MfaScope } from '../../../lib/types';
 import { useNavigate } from '@reach/router';
 import * as Sentry from '@sentry/react';
 import { MfaErrorBoundary } from './error-boundary';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
 
 /**
  * This is a guard component designed to wrap around components that perform
@@ -40,11 +41,13 @@ export const MfaGuard = ({
   requiredScope,
   onDismissCallback = async () => {},
   debounceIntervalMs = 3000,
+  reason,
 }: {
   children: ReactNode;
   requiredScope: MfaScope;
   onDismissCallback?: () => Promise<void>;
   debounceIntervalMs?: number;
+  reason: MfaReason;
 }) => {
   // Let errors be handled by error boundaries in async contexts
   const handleError = useErrorHandler();
@@ -156,6 +159,9 @@ export const MfaGuard = ({
         code,
         requiredScope
       );
+      GleanMetrics.accountPref.mfaGuardSubmitSuccess({
+        event: { reason },
+      });
       JwtTokenCache.setToken(sessionToken, requiredScope, result.accessToken);
       resetStates();
     } catch (err) {
@@ -213,6 +219,7 @@ export const MfaGuard = ({
         resendCodeLoading,
         showResendSuccessBanner,
         localizedErrorBannerMessage,
+        reason,
       }}
     >
       <p>Re-verify Account!</p>

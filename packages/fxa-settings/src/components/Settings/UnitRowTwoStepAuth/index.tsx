@@ -22,7 +22,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
-import { RecoveryPhoneSetupReason } from '../../../lib/types';
+import { RecoveryPhoneSetupReason, MfaReason } from '../../../lib/types';
 import ModalVerifySession from '../ModalVerifySession';
 import { MfaGuard } from '../MfaGuard';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
@@ -215,6 +215,7 @@ export const UnitRowTwoStepAuth = () => {
         {disable2FAModalRevealed && (
           <MfaGuard
             requiredScope={'2fa'}
+            reason={MfaReason.removeTotp}
             onDismissCallback={async () => {
               hideDisable2FAModal();
             }}
