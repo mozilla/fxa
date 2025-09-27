@@ -442,7 +442,6 @@ const SigninContainer = ({
         // but we should update 'verified' once we know the real status
         // this will be taken care of in the clean up ticket FXA-12454
         isVerified = await session.isSessionVerified();
-        console.log('HELLO isVerified', isVerified);
         storeAccountData({
           ...accountData,
           verified: isVerified,
