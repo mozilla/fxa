@@ -1634,7 +1634,7 @@ export class Account implements AccountData {
     }
     const hasJwt = JwtTokenCache.hasToken(token, scope);
     if (!hasJwt) {
-      throw AuthUiErrors.INVALID_REQUEST_SIGNATURE;
+      throw AuthUiErrors.INVALID_TOKEN;
     }
 
     return JwtTokenCache.getToken(token, scope);

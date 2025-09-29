@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState } from 'react';
-import { useErrorHandler } from 'react-error-boundary';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
@@ -14,12 +13,14 @@ import { ButtonIconTrash } from '../ButtonIcon';
 import { SETTINGS_PATH } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../../lib/glean';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import {
+  clearMfaAndJwtCacheOnInvalidJwt,
+  isInvalidJwtError,
+} from '../../../lib/mfa-guard-utils';
 import { MfaGuard } from '../MfaGuard';
 
 export const UnitRowRecoveryKey = () => {
   const account = useAccount();
-  const errorHandler = useErrorHandler();
 
   const recoveryKey = account.recoveryKey.exists;
   const alertBar = useAlertBar();
@@ -39,14 +40,17 @@ export const UnitRowRecoveryKey = () => {
       );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     } catch (e) {
-      hideModal();
-
       if (isInvalidJwtError(e)) {
         // JWT invalid/expired
-        errorHandler(e);
+        // We cannot route invalid-JWT errors from here through useErrorHandler,
+        // because it throws above MfaErrorBoundary
+        // so we clear the MFA and JWT cache manually
+        // this will cause the MfaGuard to re-render and show the MfaModalDialog
+        clearMfaAndJwtCacheOnInvalidJwt(e, 'recovery_key');
         return;
       }
-
+      // we only want to hide the modal if the error is not an invalid JWT error
+      hideModal();
       alertBar.error(
         ftlMsgResolver.getMsg(
           'rk-remove-error-2',
@@ -57,7 +61,7 @@ export const UnitRowRecoveryKey = () => {
     } finally {
       setIsDeleting(false);
     }
-  }, [account, hideModal, alertBar, ftlMsgResolver, errorHandler]);
+  }, [account, hideModal, alertBar, ftlMsgResolver]);
 
   const localizedDeleteRKIconButton = ftlMsgResolver.getMsg(
     'unit-row-recovery-key-delete-icon-button-title',
