@@ -201,4 +201,32 @@ export class SecurityEvent extends BaseAuthModel {
       .orderBy('securityEvents.createdAt', 'DESC')
       .limit(20);
   }
+
+  static async findByUidAndVerifiedLogin(
+    uid: string,
+    timeframeMs: number
+  ) {
+    const id = uuidTransformer.to(uid);
+    const cutoffDate = Date.now() - timeframeMs;
+
+    return SecurityEvent.query()
+      .select(
+        'securityEventNames.name as name',
+        'securityEvents.verified as verified',
+        'securityEvents.createdAt as createdAt',
+        'securityEvents.ipAddr as ipAddr',
+        'securityEvents.additionalInfo as additionalInfo'
+      )
+      .leftJoin(
+        'securityEventNames',
+        'securityEvents.nameId',
+        'securityEventNames.id'
+      )
+      .where('securityEvents.uid', id)
+      .where('securityEvents.verified', 1)
+      .where('securityEvents.nameId', EVENT_NAMES['account.login'])
+      .where('securityEvents.createdAt', '>=', cutoffDate)
+      .orderBy('securityEvents.createdAt', 'DESC')
+      .limit(20);
+  }
 }

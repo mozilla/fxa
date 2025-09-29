@@ -30,6 +30,13 @@
       "allowedRecency": 0
     }
   },
+  "signinConfirmation": {
+    "deviceFingerprinting": {
+      "enabled": true,
+      "reportOnlyMode": true,
+      "duration": "7 days"
+    }
+  },
   "lastAccessTimeUpdates": {
     "enabled": true,
     "sampleRate": 1

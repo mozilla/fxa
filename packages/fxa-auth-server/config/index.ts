@@ -1605,6 +1605,26 @@ const convictConf = convict({
       default: false,
       env: 'SIGNIN_CONFIRMATION_FORCE_GLOBALLY',
     },
+    deviceFingerprinting: {
+      enabled: {
+        doc: 'Enable device fingerprinting based verification skip',
+        format: Boolean,
+        default: false,
+        env: 'SIGNIN_CONFIRMATION_DEVICE_FINGERPRINTING_ENABLED',
+      },
+      reportOnlyMode: {
+        doc: 'When true, logs device matches but does not skip verification',
+        format: Boolean,
+        default: true,
+        env: 'SIGNIN_CONFIRMATION_DEVICE_FINGERPRINTING_REPORT_ONLY',
+      },
+      duration: {
+        doc: 'How long a recognized device can skip verification',
+        default: '7 days',
+        format: 'duration',
+        env: 'SIGNIN_CONFIRMATION_DEVICE_FINGERPRINTING_DURATION',
+      },
+    },
     tokenVerification: {
       doc: 'If set to false, force sign-in confirmation for logins that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating an unverified session state',
       format: Boolean,

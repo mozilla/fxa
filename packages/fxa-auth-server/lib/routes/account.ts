@@ -47,7 +47,7 @@ import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
 import { StatsD } from 'hot-shots';
-import { recordSecurityEvent } from './utils/security-event';
+import { recordSecurityEvent, isRecognizedDevice } from './utils/security-event';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { OtpUtils } from './utils/otp';
 
@@ -1074,10 +1074,48 @@ export class AccountHandler {
       return false;
     };
 
-    const skipTokenVerification = (request: AuthRequest, account: any) => {
+    const skipTokenVerification = async (request: AuthRequest, account: any) => {
       // Skip all checks to simulate an unverified session token state
       if (this.config.signinConfirmation.tokenVerification === false) {
         return false;
+      }
+
+      // Check to see if there has been a recent, successfully-verified login from
+      // the same device (as indicated by User-Agent string)
+      if (this.config.signinConfirmation.deviceFingerprinting?.enabled) {
+        try {
+          const currentUserAgent = request.headers['user-agent'] || '';
+          const skipTimeframeMs = this.config.signinConfirmation.deviceFingerprinting.duration as unknown as number;
+
+          const isRecognized = await isRecognizedDevice(this.db, account.uid, currentUserAgent, skipTimeframeMs);
+
+          if (isRecognized) {
+            if (this.config.signinConfirmation.deviceFingerprinting.reportOnlyMode) {
+              this.statsd.increment('account.signin.confirm.device.match.reportOnly');
+              this.log.info('account.signin.confirm.device.match.reportOnly', {
+                uid: account.uid,
+              });
+              // Continue to existing logic instead of returning
+            } else {
+              this.statsd.increment('account.signin.confirm.device.skip');
+              this.log.info('account.signin.confirm.device.skip', {
+                uid: account.uid,
+              });
+              return true;
+            }
+          } else {
+            this.statsd.increment('account.signin.confirm.device.notfound');
+            this.log.info('account.signin.confirm.device.notfound', {
+              uid: account.uid,
+            });
+          }
+        } catch (error) {
+          this.log.error('account.signin.confirm.device.error', {
+            uid: account.uid,
+            error: error.message
+          });
+          // Fall through to existing logic on error
+        }
       }
       // If they're logging in from an IP address on which they recently did
       // another, successfully-verified login, then we can consider this one
@@ -1165,7 +1203,7 @@ export class AccountHandler {
       // to know for sure what flow they're going to see.
       const verificationForced = forceTokenVerification(request, accountRecord);
       if (!verificationForced) {
-        if (skipTokenVerification(request, accountRecord)) {
+        if (await skipTokenVerification(request, accountRecord)) {
           needsVerificationId = false;
         }
       }
