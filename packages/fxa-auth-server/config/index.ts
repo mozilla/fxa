@@ -185,7 +185,7 @@ const convictConf = convict({
     rules: {
       doc: 'Mapping of features to country codes that are allowed to see the feature',
       format: Object,
-      default: {}, // ex. { "MONITORPLUSPROMO": ["US"] }
+      default: {}, // ex. { "FEATURE_NAME": ["US"] }
       env: 'GEO_ELIGIBILITY_RULES',
     },
   },

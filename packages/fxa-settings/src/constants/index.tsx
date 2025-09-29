@@ -31,8 +31,6 @@ export const LINK = {
   MDN: 'https://developer.mozilla.org/',
   MONITOR: 'https://monitor.mozilla.org/',
   MONITOR_STAGE: 'https://monitor-stage.allizom.org/',
-  MONITOR_PLUS: 'https://monitor.mozilla.org/subscription-plans',
-  MONITOR_PLUS_STAGE: 'https://monitor-stage.allizom.org/subscription-plans',
   RELAY: 'https://relay.firefox.com/',
   VPN: 'https://vpn.mozilla.org/',
 };

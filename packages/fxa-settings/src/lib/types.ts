@@ -57,7 +57,6 @@ export enum MozServices {
   MozillaVPN = 'Mozilla VPN',
   Relay = 'Mozilla Relay',
   TestService = '123Done',
-  MonitorPlus = 'Mozilla Monitor Plus',
   MonitorStage = 'Mozilla Monitor Stage',
   Addons = 'Add-ons',
 }

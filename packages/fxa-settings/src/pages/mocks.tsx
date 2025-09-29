@@ -73,10 +73,6 @@ export const MOCK_RECOVERY_KEY_WITH_SPACES =
   'ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F';
 export const MOCK_RECOVERY_KEY_INVALID = 'ANMD1S097Y2Y4EES02CWBJ6ZPYKPH69L';
 export const MOCK_REMOTE_METADATA = JSON.stringify({});
-export const ALL_PRODUCT_PROMO_SERVICES = [{ name: MozServices.Monitor }];
-export const ALL_PRODUCT_PROMO_SUBSCRIPTIONS = [
-  { productName: MozServices.MonitorPlus },
-];
 export const MOCK_FULL_PHONE_NUMBER = '+15555551234';
 export const MOCK_NATIONAL_FORMAT_PHONE_NUMBER = '(555) 555-1234';
 export const MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER = '(•••) •••-1234';

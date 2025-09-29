@@ -97,13 +97,6 @@ jest.mock('../../lib/glean', () => ({
   },
 }));
 
-const mockUseGeoEligibilityCheck = jest
-  .fn()
-  .mockReturnValue({ eligible: false });
-jest.mock('../../lib/hooks/useGeoEligibilityCheck', () => ({
-  useGeoEligibilityCheck: () => mockUseGeoEligibilityCheck(),
-}));
-
 const mockMetricsQueryAccountAmplitude = {
   recoveryKey: true,
   totpActive: true,
@@ -548,7 +541,6 @@ describe('SettingsRoutes', () => {
             ...mockAppContext({
               account: {
                 ...MOCK_ACCOUNT,
-                getMonitorPlusPromoEligibility: () => Promise.resolve(false),
               } as unknown as Account,
             }),
             ...createAppContext(),
@@ -583,7 +575,6 @@ describe('SettingsRoutes', () => {
           value={mockAppContext({
             account: {
               ...MOCK_ACCOUNT,
-              getMonitorPlusPromoEligibility: () => Promise.resolve(false),
             } as unknown as Account,
           })}
         >
