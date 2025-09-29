@@ -37,7 +37,6 @@ export enum MozServices {
   Monitor = 'Mozilla Monitor',
   FirefoxSync = 'Firefox Sync',
   MozillaVPN = 'Mozilla VPN',
-  Pocket = 'Pocket',
   Relay = 'Mozilla Relay',
   TestService = '123Done',
   MonitorPlus = 'Mozilla Monitor Plus',
