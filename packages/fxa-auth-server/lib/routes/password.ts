@@ -101,16 +101,6 @@ module.exports = function (
         // The subsequent call to 'getKeys' would fail, ultimately orphaning a passwordChangeToken...
         const sessionToken = request.auth.credentials;
 
-        if (!sessionToken.emailVerified) {
-          statsd.increment('passwordChange.start.emailNotVerified');
-          throw error.unverifiedAccount();
-        }
-
-        if (sessionToken.tokenVerificationId) {
-          statsd.increment('passwordChange.start.sessionNotVerified');
-          throw error.unverifiedSession();
-        }
-
         await customs.checkAuthenticated(
           request,
           sessionToken.uid,

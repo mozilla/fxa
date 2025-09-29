@@ -44,13 +44,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       async handler(request) {
         log.begin('replaceRecoveryCodes', request);
 
-        const { authenticatorAssuranceLevel, uid } = request.auth.credentials;
-
-        // Since TOTP and backup authentication codes go hand in hand, you should only be
-        // able to replace backup authentication codes in a TOTP verified session.
-        if (!authenticatorAssuranceLevel || authenticatorAssuranceLevel <= 1) {
-          throw errors.unverifiedSession();
-        }
+        const { uid } = request.auth.credentials;
 
         const recoveryCodes = await db.replaceRecoveryCodes(
           uid,
@@ -158,13 +152,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       async handler(request) {
         log.begin('updateRecoveryCodes', request);
 
-        const { authenticatorAssuranceLevel, uid } = request.auth.credentials;
-
-        // Since TOTP and backup authentication codes go hand in hand, you should only be
-        // able to replace backup authentication codes in a TOTP verified session.
-        if (!authenticatorAssuranceLevel || authenticatorAssuranceLevel <= 1) {
-          throw errors.unverifiedSession();
-        }
+        const { uid } = request.auth.credentials;
 
         const { recoveryCodes } = request.payload;
         await db.updateRecoveryCodes(uid, recoveryCodes);
