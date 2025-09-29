@@ -96,13 +96,6 @@ const getEmailBounceDescription = (
 ) => {
   let description: string[] | string = HIDE_ROW;
   switch (bounceType) {
-    case BounceType.Undetermined: {
-      if (bounceSubType === BounceSubType.Undetermined) {
-        description = BOUNCE_DESCRIPTIONS.undetermined;
-      }
-      break;
-    }
-
     case BounceType.Permanent: {
       if (bounceSubType === BounceSubType.General) {
         description = BOUNCE_DESCRIPTIONS.permanentGeneral;
@@ -148,7 +141,11 @@ const getEmailBounceDescription = (
       break;
     }
 
+    case BounceType.Undetermined:
     default: {
+      if (bounceSubType === BounceSubType.Undetermined) {
+        description = BOUNCE_DESCRIPTIONS.undetermined;
+      }
     }
   }
 
