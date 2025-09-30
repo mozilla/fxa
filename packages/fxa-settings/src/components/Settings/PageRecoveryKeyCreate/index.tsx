@@ -14,6 +14,7 @@ import FlowRecoveryKeyInfo from '../FlowRecoveryKeyInfo';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import FlowRecoveryKeyHint from '../FlowRecoveryKeyHint';
 import { MfaGuard } from '../MfaGuard';
+import { MfaReason } from '../../../lib/types';
 
 export const viewName = 'settings.account-recovery';
 const numberOfSteps = 4;
@@ -25,7 +26,7 @@ export enum RecoveryKeyAction {
 
 export const MfaGuardPageRecoveryKeyCreate = (props: RouteComponentProps) => {
   return (
-    <MfaGuard requiredScope="recovery_key">
+    <MfaGuard requiredScope="recovery_key" reason={MfaReason.createRecoveryKey}>
       <PageRecoveryKeyCreate {...props} />
     </MfaGuard>
   );

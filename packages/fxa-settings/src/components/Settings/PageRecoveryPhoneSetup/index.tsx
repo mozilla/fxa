@@ -11,7 +11,7 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { RecoveryPhoneSetupReason } from '../../../lib/types';
+import { RecoveryPhoneSetupReason, MfaReason } from '../../../lib/types';
 import { MfaGuard } from '../MfaGuard';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
@@ -19,7 +19,7 @@ const numberOfSteps = 2;
 
 export const MfaGuardPageRecoveryPhoneSetup = (props: RouteComponentProps) => {
   return (
-    <MfaGuard requiredScope="2fa">
+    <MfaGuard requiredScope="2fa" reason={MfaReason.createRecoveryPhone}>
       <PageRecoveryPhoneSetup {...props} />
     </MfaGuard>
   );

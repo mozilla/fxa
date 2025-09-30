@@ -16,6 +16,7 @@ import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { MfaGuard } from '../MfaGuard';
+import { MfaReason } from '../../../lib/types';
 
 // TODO, update this link with #section-heading once the SUMO article is updated (FXA-10918)
 const sumoTwoStepLink = (
@@ -143,7 +144,7 @@ export const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
 
 export const PageMfaGuardRecoveryPhoneRemove = (props: RouteComponentProps) => {
   return (
-    <MfaGuard requiredScope="2fa">
+    <MfaGuard requiredScope="2fa" reason={MfaReason.removeRecoveryPhone}>
       <PageRecoveryPhoneRemove {...props} />
     </MfaGuard>
   );

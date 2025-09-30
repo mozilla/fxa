@@ -281,6 +281,42 @@ export const help = new EventMetricType(
 );
 
 /**
+ * User sees the MFA Guard promotion in settings page.
+ *
+ * Generated from `account_pref.mfa_guard_submit_success`.
+ */
+export const mfaGuardSubmitSuccess = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'mfa_guard_submit_success',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
+ * User sees the MFA Guard promotion in settings page.
+ *
+ * Generated from `account_pref.mfa_guard_view`.
+ */
+export const mfaGuardView = new EventMetricType<{
+  reason?: string;
+}>(
+  {
+    category: 'account_pref',
+    name: 'mfa_guard_view',
+    sendInPings: ['events'],
+    lifetime: 'ping',
+    disabled: false,
+  },
+  ['reason']
+);
+
+/**
  * User clicks on the Get free scan link on the new Monitor promotion in the
  * account settings side panel
  *
