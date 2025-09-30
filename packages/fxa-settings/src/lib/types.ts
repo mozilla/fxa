@@ -20,6 +20,24 @@ export enum RecoveryPhoneSetupReason {
   change = 'change',
 }
 
+export enum MfaReason {
+  createSecondaryEmail = 'create secondary email',
+  verifySecondaryEmail = 'verify secondary email',
+  removeSecondaryEmail = 'remove secondary email',
+  changePrimaryEmail = 'change primary email',
+  changePassword = 'change password',
+  createRecoveryPhone = 'create recovery phone',
+  changeRecoveryPhone = 'change recovery phone',
+  removeRecoveryPhone = 'remove recovery phone',
+  createTotp = 'create totp',
+  changeTotp = 'change totp',
+  removeTotp = 'remove totp',
+  createBackupCodes = 'create backup codes',
+  createRecoveryKey = 'create recovery key',
+  removeRecoveryKey = 'remove recovery key',
+  test = 'test',
+}
+
 export enum LinkType {
   'reset-password',
   'signin',

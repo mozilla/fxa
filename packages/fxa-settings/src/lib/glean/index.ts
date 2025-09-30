@@ -629,6 +629,16 @@ const recordEventMetric = (
         reason: gleanPingMetrics?.event?.['reason'] || '',
       });
       break;
+    case 'account_pref_mfa_guard_view':
+      accountPref.mfaGuardView.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
+    case 'account_pref_mfa_guard_submit_success':
+      accountPref.mfaGuardSubmitSuccess.record({
+        reason: gleanPingMetrics?.event?.['reason'] || '',
+      });
+      break;
     case 'account_banner_create_recovery_key_view':
       accountBanner.createRecoveryKeyView.record();
       break;
