@@ -40,10 +40,7 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { SigninProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import {
-  MONITOR_CLIENTIDS,
-  POCKET_CLIENTIDS,
-} from '../../models/integrations/client-matching';
+import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
 import {
@@ -1326,53 +1323,6 @@ describe('Signin component', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/?', {
         state: { prefillEmail: MOCK_EMAIL },
       });
-    });
-  });
-
-  describe('when client is Pocket', () => {
-    it('shows Pocket in header', () => {
-      renderWithLocalizationProvider(
-        <Subject
-          sessionToken={MOCK_SESSION_TOKEN}
-          serviceName={MozServices.Pocket}
-          integration={createMockSigninOAuthIntegration({
-            clientId: POCKET_CLIENTIDS[0],
-            service: MozServices.Pocket,
-            wantsKeys: false,
-          })}
-        />
-      );
-
-      const pocketLogo = screen.getByAltText('Pocket');
-      expect(pocketLogo).toBeInTheDocument();
-    });
-
-    it('shows Pocket-specific TOS', () => {
-      renderWithLocalizationProvider(
-        <Subject
-          integration={createMockSigninOAuthIntegration({
-            clientId: POCKET_CLIENTIDS[0],
-            service: MozServices.Pocket,
-          })}
-        />
-      );
-
-      // Pocket links should always open in a new window (announced by screen readers)
-      const pocketTermsLink = screen.getByRole('link', {
-        name: 'Terms of Service Opens in new window',
-      });
-      const pocketPrivacyLink = screen.getByRole('link', {
-        name: 'Privacy Notice Opens in new window',
-      });
-
-      expect(pocketTermsLink).toHaveAttribute(
-        'href',
-        'https://getpocket.com/tos/'
-      );
-      expect(pocketPrivacyLink).toHaveAttribute(
-        'href',
-        'https://getpocket.com/privacy/'
-      );
     });
   });
 
