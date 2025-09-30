@@ -18,6 +18,8 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { GleanClickEventType2FA } from '../../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MfaGuard } from '../MfaGuard';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { useErrorHandler } from 'react-error-boundary';
 
 export const MfaGuardedPage2faChange = (_: RouteComponentProps) => {
   return (
@@ -37,6 +39,7 @@ export const Page2faChange = () => {
     loading: totpInfoLoading,
     error: totpInfoError,
   } = useTotpReplace();
+  const errorHandler = useErrorHandler();
 
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'page-2fa-change-title',
@@ -103,6 +106,10 @@ export const Page2faChange = () => {
     try {
       await account.confirmReplaceTotp(code);
     } catch (error) {
+      if (isInvalidJwtError(error)) {
+        errorHandler(error);
+        return { error: true };
+      }
       return { error: true };
     }
 
