@@ -135,11 +135,12 @@ export const UnitRowRecoveryKey = () => {
             );
           }}
         >
-          <MfaGuard requiredScope="recovery_key">
+          <MfaGuard
+            requiredScope="recovery_key"
+            onDismissCallback={async () => hideModal()}
+          >
             <Modal
-              onDismiss={() => {
-                hideModal();
-              }}
+              onDismiss={hideModal}
               onConfirm={() => {
                 setIsDeleting(true);
                 deleteRecoveryKey();
