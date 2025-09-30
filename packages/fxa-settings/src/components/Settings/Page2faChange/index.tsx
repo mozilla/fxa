@@ -15,7 +15,7 @@ import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 
 import FlowSetup2faApp from '../FlowSetup2faApp';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { GleanClickEventType2FA } from '../../../lib/types';
+import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MfaGuard } from '../MfaGuard';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
@@ -23,7 +23,7 @@ import { useErrorHandler } from 'react-error-boundary';
 
 export const MfaGuardedPage2faChange = (_: RouteComponentProps) => {
   return (
-    <MfaGuard requiredScope="2fa">
+    <MfaGuard requiredScope="2fa" reason={MfaReason.changeTotp}>
       <Page2faChange />
     </MfaGuard>
   );

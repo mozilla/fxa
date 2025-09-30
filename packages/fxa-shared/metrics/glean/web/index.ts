@@ -225,6 +225,8 @@ export const eventsMap = {
     bentoPocket: 'account_pref_bento_pocket',
     bentoRelay: 'account_pref_bento_relay',
     bentoVpn: 'account_pref_bento_vpn',
+    mfaGuardView: 'account_pref_mfa_guard_view',
+    mfaGuardSubmitSuccess: 'account_pref_mfa_guard_submit_success',
   },
 
   accountBanner: {

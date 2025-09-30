@@ -3,11 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithRouter } from '../../../models/mocks';
 import { ModalMfaProtected } from '.';
 import { MOCK_EMAIL } from '../../../pages/mocks';
+import { MfaReason } from '../../../lib/types';
+import GleanMetrics from '../../../lib/glean';
 
 const defaultProps = {
   email: MOCK_EMAIL,
@@ -18,6 +20,7 @@ const defaultProps = {
   clearErrorMessage: () => {},
   resendCodeLoading: false,
   showResendSuccessBanner: false,
+  reason: MfaReason.test,
 };
 
 describe('ModalMfaProtected', () => {
@@ -43,6 +46,24 @@ describe('ModalMfaProtected', () => {
     expect(
       screen.getByRole('button', { name: 'Email new code.' })
     ).toBeInTheDocument();
+  });
+
+  it('has correct metrics', async () => {
+    const viewSpy = jest.spyOn(GleanMetrics.accountPref, 'mfaGuardView');
+    renderWithRouter(<ModalMfaProtected {...defaultProps} />);
+    await waitFor(() => {
+      expect(viewSpy).toHaveBeenCalledWith({
+        event: { reason: MfaReason.test },
+      });
+    });
+    expect(screen.getByRole('button', { name: 'Confirm' })).toHaveAttribute(
+      'data-glean-id',
+      'account_pref_mfa_guard_submit'
+    );
+    expect(screen.getByRole('button', { name: 'Confirm' })).toHaveAttribute(
+      'data-glean-type',
+      MfaReason.test
+    );
   });
 
   it('handles form submission', async () => {

@@ -9,6 +9,7 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { ModalMfaProtected } from '.';
 import { action } from '@storybook/addon-actions';
 import { MOCK_EMAIL } from '../../../pages/mocks';
+import { MfaReason } from '../../../lib/types';
 
 export default {
   title: 'Components/Settings/ModalMfaProtected',
@@ -44,6 +45,7 @@ export const DefaultWithValidCode123456 = () => {
         <ModalMfaProtected
           email={MOCK_EMAIL}
           expirationTime={5}
+          reason={MfaReason.test}
           onSubmit={(code) => {
             action('Submitted')(code);
             if (code === '123456') {

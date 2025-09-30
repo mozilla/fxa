@@ -17,6 +17,7 @@ import { getErrorFtlId } from '../../../lib/error-utils';
 import { MfaGuard } from '../MfaGuard';
 import { useErrorHandler } from 'react-error-boundary';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { MfaReason } from '../../../lib/types';
 
 type FormData = {
   verificationCode: string;
@@ -179,7 +180,7 @@ export const MfaGuardPageSecondaryEmailVerify = ({
   location,
 }: RouteComponentProps) => {
   return (
-    <MfaGuard requiredScope="email">
+    <MfaGuard requiredScope="email" reason={MfaReason.verifySecondaryEmail}>
       <PageSecondaryEmailVerify location={location} />
     </MfaGuard>
   );

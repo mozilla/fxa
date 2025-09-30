@@ -18,6 +18,7 @@ import {
   isInvalidJwtError,
 } from '../../../lib/mfa-guard-utils';
 import { MfaGuard } from '../MfaGuard';
+import { MfaReason } from '../../../lib/types';
 
 export const UnitRowRecoveryKey = () => {
   const account = useAccount();
@@ -138,6 +139,7 @@ export const UnitRowRecoveryKey = () => {
           <MfaGuard
             requiredScope="recovery_key"
             onDismissCallback={async () => hideModal()}
+            reason={MfaReason.removeRecoveryKey}
           >
             <Modal
               onDismiss={hideModal}

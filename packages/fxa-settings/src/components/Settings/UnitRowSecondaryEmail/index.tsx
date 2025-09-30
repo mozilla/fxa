@@ -22,6 +22,7 @@ import {
   clearMfaAndJwtCacheOnInvalidJwt,
   isInvalidJwtError,
 } from '../../../lib/mfa-guard-utils';
+import { MfaReason } from '../../../lib/types';
 
 type UnitRowSecondaryEmailContentAndActionsProps = {
   secondary: Email;
@@ -336,6 +337,7 @@ export const UnitRowSecondaryEmail = () => {
         {pendingChangePrimary && (
           <MfaGuard
             requiredScope="email"
+            reason={MfaReason.changePrimaryEmail}
             onDismissCallback={async () => {
               setPendingChangePrimary(undefined);
             }}
@@ -346,6 +348,7 @@ export const UnitRowSecondaryEmail = () => {
         {pendingSecondaryDelete && (
           <MfaGuard
             requiredScope="email"
+            reason={MfaReason.removeSecondaryEmail}
             onDismissCallback={async () => {
               setPendingSecondaryDelete(undefined);
             }}
