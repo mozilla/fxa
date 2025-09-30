@@ -19,6 +19,7 @@ import {
   getStoredAccountData,
   sessionToken,
   JwtTokenCache,
+  JwtNotFoundError,
 } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
@@ -1631,11 +1632,11 @@ export class Account implements AccountData {
   getCachedJwtByScope(scope: MfaScope) {
     const token = sessionToken();
     if (!token) {
-      throw AuthUiErrors.INVALID_TOKEN;
+      throw new JwtNotFoundError('Missing parent session token.');
     }
     const hasJwt = JwtTokenCache.hasToken(token, scope);
     if (!hasJwt) {
-      throw AuthUiErrors.INVALID_TOKEN;
+      throw new JwtNotFoundError('Missing or expired jwt.');
     }
 
     return JwtTokenCache.getToken(token, scope);

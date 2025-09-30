@@ -106,6 +106,29 @@ describe('MfaGuard', () => {
     expect(mockAuthClient.mfaRequestOtp).not.toHaveBeenCalled();
   });
 
+  it('renders dialog when JWT has expired', async () => {
+    // Set an expired token...
+    JwtTokenCache.setToken(
+      mockSessionToken,
+      mockScope,
+      // The middle part of the string is the payload. The other parts don't matter for this test.
+      '__.eyJzdWIiOiI4YjMzNmZlNGE5MmM0ZTk5YmMyNGIyMjFmOTUzMzk0MiIsInNjb3BlIjpbIm1mYTpyZWNvdmVyeV9rZXkiXSwiaWF0IjoxNzU5MjQ3MTE3LCJqdGkiOiJjYmY1N2M2MC1hYzcwLTRhNGEtYTdkMy0wN2U0NTdlM2E4MWYiLCJzdGlkIjoiMzI5ZjQzNTFiMDUwN2QwNDVmNDYxZWQxNWY4MzZmNDM3MDBhMmM0YTk5NmVlMWM1ODMxZTQzNGIxZjc4ZjFhNCIsImV4cCI6MTc1OTI0NzE0NywiYXVkIjoiZnhhIiwiaXNzIjoiYWNjb3VudHMuZmlyZWZveC5jb20ifQ.__'
+    );
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <MfaGuard requiredScope={mockScope}>
+          <div>secured</div>
+        </MfaGuard>
+      </AppContext.Provider>
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('Enter confirmation code')).toBeInTheDocument();
+      expect(mockAuthClient.mfaRequestOtp).toHaveBeenCalled();
+    });
+  });
+
   it('shows error banner on invalid OTP', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
