@@ -496,10 +496,16 @@ const convictConf = convict({
         'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8&utm_source=email',
     },
     supportUrl: {
-      doc: 'url to Mozilla Support product page',
+      doc: 'url to Mozilla account support page',
       format: String,
       default:
         'https://support.mozilla.org/kb/im-having-problems-my-firefox-account',
+    },
+    subscriptionSupportUrl: {
+      doc: 'url to Mozilla subscription support page',
+      format: String,
+      default:
+        'https://support.mozilla.org/products',
     },
     redirectDomain: {
       doc: 'Domain that mail urls are allowed to redirect to',
@@ -523,6 +529,12 @@ const convictConf = convict({
         'https://www.mozilla.org/about/legal/terms/firefox-private-network/',
       doc: 'Subscription terms and cancellation policy URL',
       env: 'SUBSCRIPTION_TERMS_URL',
+      format: String,
+    },
+    subscriptionSettingsUrl: {
+      default: 'https://payments.firefox.com/',
+      doc: 'Subscriptions management URL',
+      env: 'PAYMENTS_NEXT_HOSTED_URL',
       format: String,
     },
     unsubscribeUrl: {
@@ -2621,8 +2633,6 @@ convictConf.set(
   'smtp.verifySecondaryEmailUrl',
   `${baseUri}/verify_secondary_email`
 );
-convictConf.set('smtp.subscriptionSettingsUrl', `${baseUri}/subscriptions`);
-convictConf.set('smtp.subscriptionSupportUrl', `${baseUri}/support`);
 convictConf.set('smtp.syncUrl', `${baseUri}/connect_another_device`);
 
 convictConf.set('isProduction', convictConf.get('env') === 'prod');
