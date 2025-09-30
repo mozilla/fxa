@@ -256,27 +256,24 @@ export class TestAccountTracker {
         const verifyIfNeeded = async () => {
           try {
             await this.target.authClient.sessionResendVerifyCode(sessionToken);
-            // Prefer short (signup) code to confirm account when unverified
-            try {
-              const shortCode =
-                await this.target.emailClient.getVerifyShortCode(account.email);
-              await this.target.authClient.sessionVerifyCode(
-                sessionToken,
-                shortCode
-              );
-              return;
-            } catch (_) {
-              // Fallback to login verification code for unverified session
-            }
-            const loginCode = await this.target.emailClient.getVerifyLoginCode(
-              account.email
+
+            // Start checking for codes in parallel, whichever is available first will be used
+            const [shortCodePromise, loginCodePromise] = [
+              this.target.emailClient.getVerifyShortCode(account.email),
+              this.target.emailClient.getVerifyLoginCode(account.email),
+            ];
+            const code = await Promise.any([
+              shortCodePromise,
+              loginCodePromise,
+            ]);
+            await this.target.authClient.sessionVerifyCode(sessionToken, code);
+          } catch (err) {
+            // allow console.error so we can capture this message in the trace.
+            // eslint-disable-next-line no-console
+            console.error(
+              `Session verification skipped (might already be verified):`,
+              err
             );
-            await this.target.authClient.sessionVerifyCode(
-              sessionToken,
-              loginCode
-            );
-          } catch {
-            // Ignore verification errors - account/session might already be verified
           }
         };
 
