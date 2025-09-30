@@ -268,6 +268,18 @@ export function isInReactExperiment() {
   }
 }
 
+/** Decoded JWT payload state */
+export type JwtPayload = {
+  aud: string;
+  exp: number;
+  iat: number;
+  iss: string;
+  jti: string;
+  stid: string;
+  sub: string;
+  scope: Array<string>;
+};
+
 /**
  * External Container for holding JWTs.
  *
@@ -335,7 +347,63 @@ export class JwtTokenCache {
    */
   static hasToken(sessionToken: string, scope: MfaScope) {
     const key = JwtTokenCache.getKey(sessionToken, scope);
-    return this.state[key] != null;
+    const jwt = this.state[key];
+    return jwt != null && !this.isExpired(jwt);
+  }
+
+  /**
+   * Checks if a token is expired. If the token cannot be decoded or the exp
+   * claim cannot be found in the payload, then we will also return false.
+   * @param token A valid JWT
+   * @returns True if the token's exp claim is greater than now.
+   */
+  static isExpired(token: string) {
+    const decodedJwt = this.decodeTokenPayload(token);
+
+    // Under real use this shouldn't happen. If a token could be decode
+    // we can't tell if it expired so return false. We get a little fast
+    // and loose with some our mocks, and this helps keep them simple...
+    if (!decodedJwt) {
+      return false;
+    }
+
+    return decodedJwt.exp * 1000 < Date.now();
+  }
+
+  /**
+   * Decodes a jwt's payload
+   * @param token
+   * @returns
+   */
+  static decodeTokenPayload(token: string) {
+    try {
+      const [, payload] = token.split('.');
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const decoded = JSON.parse(jsonPayload);
+
+      // Type guard for JwtPayload
+      if (
+        decoded &&
+        typeof decoded.aud === 'string' &&
+        typeof decoded.exp === 'number' &&
+        typeof decoded.iat === 'number' &&
+        typeof decoded.iss === 'string' &&
+        typeof decoded.jti === 'string' &&
+        typeof decoded.stid === 'string' &&
+        typeof decoded.sub === 'string' &&
+        decoded.scope instanceof Array
+      ) {
+        return decoded as JwtPayload;
+      }
+    } catch {}
+
+    return null;
   }
 
   /**
