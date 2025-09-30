@@ -46,8 +46,15 @@ const SupportView = BaseView.extend({
     this.productSupportApps = {};
 
     this._subscriptionsConfig = {};
-    if (options && options.config && options.config.subscriptions) {
-      this._subscriptionsConfig = options.config.subscriptions;
+    this._paymentsNextUrl = undefined;
+    if (options && options.config) {
+      if (options.config.subscriptions) {
+        this._subscriptionsConfig = options.config.subscriptions;
+        this._usePaymentsNext = !!options.config.subscriptions.usePaymentsNextSubscriptionManagement;
+      }
+      if (options.config.paymentsNextHostedUrl) {
+        this._paymentsNextUrl = options.config.paymentsNextHostedUrl;
+      }
     }
   },
 
@@ -334,8 +341,10 @@ const SupportView = BaseView.extend({
     PaymentServer.navigateToPaymentServer(
       this,
       this._subscriptionsConfig,
-      'subscriptions',
-      queryParams
+      this._usePaymentsNext ? 'subscriptions/landing' : 'subscriptions',
+      queryParams,
+      this._paymentsNextUrl,
+      this._usePaymentsNext,
     );
   },
 });

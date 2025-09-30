@@ -82,9 +82,11 @@ function getIndexRouteDefinition(config) {
   const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get(
     'jsResourcePath'
   )}/`;
+  const PAYMENTS_NEXT_HOSTED_URL = config.get('payments_next_hosted_url');
 
   const configForFrontEnd = {
     authServerUrl: AUTH_SERVER_URL,
+    paymentsNextHostedUrl: PAYMENTS_NEXT_HOSTED_URL,
     maxEventOffset: MAX_EVENT_OFFSET,
     env: ENV,
     isCoppaEnabled: COPPA_ENABLED,
