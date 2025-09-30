@@ -9,6 +9,7 @@ import { MOCK_TOTP_INFO, Subject } from './mocks';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';
+import { JwtNotFoundError } from '../../../lib/cache';
 
 const mockNavigate = jest.fn();
 jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
@@ -32,6 +33,12 @@ jest.mock('../../../lib/glean', () => ({
       twoStepAuthQrCodeSuccess: jest.fn(),
     },
   },
+}));
+
+const mockErrorHandler = jest.fn();
+jest.mock('react-error-boundary', () => ({
+  ...jest.requireActual('react-error-boundary'),
+  useErrorHandler: () => mockErrorHandler,
 }));
 
 describe('Page2faChange', () => {
@@ -143,5 +150,27 @@ describe('Page2faChange', () => {
         'Invalid or expired code. Check your authenticator app and try again.'
       )
     ).toBeInTheDocument();
+  });
+
+  it('invokes the MFA errorHandler if the error is due to an expired jwt', async () => {
+    const missingJwtError = new JwtNotFoundError();
+    renderWithLocalizationProvider(
+      <Subject
+        account={{
+          startReplaceTotp: jest.fn().mockResolvedValue(MOCK_TOTP_INFO),
+          confirmReplaceTotp: jest.fn().mockRejectedValue(missingJwtError),
+        }}
+      />
+    );
+    const codeInput = await screen.findByRole('textbox', {
+      name: 'Enter 6-digit code',
+    });
+    const continueButton = await screen.findByRole('button', {
+      name: 'Continue',
+    });
+    await userEvent.type(codeInput, '000000');
+    await userEvent.click(continueButton);
+
+    expect(mockErrorHandler).toHaveBeenCalledWith(missingJwtError);
   });
 });
