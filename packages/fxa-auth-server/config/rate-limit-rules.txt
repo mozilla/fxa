@@ -144,10 +144,11 @@ recoveryPhoneSendSigninCode           : ip                : 100         : 24 hou
 # the counts that effect 2FA activity.
 #
 mfaOtpCodeRequestForEmail              : uid              : 10          : 5 minutes       : 15 minutes   : block
-mfaVerifyOtpCodeForEmail               : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeRequestFor2fa                : uid              : 10          : 5 minutes       : 15 minutes   : block
-mfaVerifyOtpCodeFor2fa                 : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeRequestForPassword           : uid              : 10          : 5 minutes       : 15 minutes   : block
-mfaVerifyOtpCodeForPassword            : uid              : 5           : 5 minutes       : 15 minutes   : block
 mfaOtpCodeRequestForRecoveryKey        : uid              : 10          : 5 minutes       : 15 minutes   : block
-mfaVerifyOtpCodeForRecoveryKey         : uid              : 5           : 5 minutes       : 15 minutes   : block
+# Verify Code rate limits
+mfaOtpCodeVerifyForEmail               : uid              : 5           : 5 minutes       : 15 minutes   : block
+mfaOtpCodeVerifyFor2fa                 : uid              : 5           : 5 minutes       : 15 minutes   : block
+mfaOtpCodeVerifyForPassword            : uid              : 5           : 5 minutes       : 15 minutes   : block
+mfaOtpCodeVerifyForRecoveryKey         : uid              : 5           : 5 minutes       : 15 minutes   : block
