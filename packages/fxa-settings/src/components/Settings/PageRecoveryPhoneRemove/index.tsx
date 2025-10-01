@@ -28,7 +28,7 @@ const sumoTwoStepLink = (
   </LinkExternal>
 );
 
-const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
+export const PageRecoveryPhoneRemove = (props: RouteComponentProps) => {
   const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();
   const alertBar = useAlertBar();

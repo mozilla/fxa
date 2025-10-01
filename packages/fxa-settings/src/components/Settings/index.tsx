@@ -33,7 +33,7 @@ import { currentAccount } from '../../lib/cache';
 import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
-import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
+import { PageRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
 import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import MfaGuardPage2faChange from './Page2faChange';
