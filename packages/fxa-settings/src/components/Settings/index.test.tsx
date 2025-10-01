@@ -65,13 +65,6 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const mockUseGeoEligibilityCheck = jest
-  .fn()
-  .mockReturnValue({ eligible: false });
-jest.mock('../../lib/hooks/useGeoEligibilityCheck', () => ({
-  useGeoEligibilityCheck: () => mockUseGeoEligibilityCheck(),
-}));
-
 const mockNavigateWithQuery = jest.fn();
 jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
   useNavigateWithQuery: () => mockNavigateWithQuery,
@@ -411,7 +404,6 @@ describe('Settings App', () => {
       const account = {
         ...MOCK_ACCOUNT,
         hasPassword: false,
-        getMonitorPlusPromoEligibility: () => Promise.resolve(false),
       } as unknown as Account;
 
       const config = {
