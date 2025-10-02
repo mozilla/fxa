@@ -278,6 +278,7 @@ function _checkPattern(
  */
 function _clean(msg: string) {
   return msg.replace(
+    // eslint-disable-next-line
     /[\u0000-\u001F\u007F-\u009F\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/g,
     ''
   );
