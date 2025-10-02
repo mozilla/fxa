@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as Sentry from '@sentry/browser';
 import { ModelDataStore } from '../../lib/model-data';
 import { Constants } from '../../lib/constants';
 import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
@@ -132,10 +133,6 @@ export class OAuthWebIntegration extends GenericIntegration<
   }
 
   getServiceName() {
-    // TODO: Currently we try to get the `serviceName` in `AuthAndSetupRoutes`. If the
-    // 'scope' param isn't provided and the user lands on /oauth, there's an
-    // `Uncaught OAuthError: Invalid OAuth parameter: scope`, and we should be
-    // showing `<OAuthDataError>`.
     const permissions = this.getPermissions();
     // As a special case for UX purposes, any client requesting access to
     // the user's sync data must have a display name of "Firefox Sync".
@@ -242,9 +239,18 @@ export class OAuthWebIntegration extends GenericIntegration<
     }
 
     if (!permissions.length) {
-      throw new OAuthError(OAUTH_ERRORS.INVALID_PARAMETER.errno, {
+      const err = new OAuthError(OAUTH_ERRORS.INVALID_PARAMETER.errno, {
         param: 'scope',
       });
+      Sentry.captureException(err, {
+        tags: { area: 'OAuthWebIntegration.getPermissions' },
+        extra: {
+          scope: this.data.scope,
+          clientId: this.data.clientId,
+          service: this.data.service,
+        },
+      });
+      throw err;
     }
 
     return permissions;
