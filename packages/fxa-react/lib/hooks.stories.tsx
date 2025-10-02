@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import React, { useCallback } from 'react';
 import { storiesOf } from '@storybook/react';
 import { useAwait, PromiseState } from './hooks';
@@ -43,10 +46,10 @@ const UseAwaitExample = ({
     executeImmediately,
     initialState,
   });
-  const executeWithApiUrl = useCallback(() => apiExecute(apiUrl), [
-    apiUrl,
-    apiExecute,
-  ]);
+  const executeWithApiUrl = useCallback(
+    () => apiExecute(apiUrl),
+    [apiUrl, apiExecute]
+  );
 
   const buttonClassNames = 'mr-1 py-1 px-2 bg-grey-100 border-grey-600';
   return (
