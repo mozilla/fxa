@@ -4,6 +4,7 @@ auth-error-102 = Unknown account
 auth-error-103 = Incorrect password
 auth-error-105-2 = Invalid confirmation code
 auth-error-110 = Invalid token
+auth-error-110-2 = Invalid session. Please sign out and sign in again.
 # Error shown to users when they have attempted a request (e.g., requesting a password reset) too many times
 # and their requests have been throttled, but the specific amount of time before they can retry is unknown.
 auth-error-114-generic = You’ve tried too many times. Please try again later.
@@ -16,6 +17,7 @@ auth-error-114 = You’ve tried too many times. Please try again { $retryAfter }
 auth-error-125 = The request was blocked for security reasons
 auth-error-129-2 = You entered an invalid phone number. Please check it and try again.
 auth-error-138-2 = Unconfirmed session
+auth-error-138-3 = Unconfirmed Session. Please sign out and sign in again.
 auth-error-139 = Secondary email must be different than your account email
 auth-error-155 = TOTP token not found
 # Error shown when the user submits an invalid backup authentication code
