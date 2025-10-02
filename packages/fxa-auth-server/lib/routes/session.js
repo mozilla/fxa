@@ -19,6 +19,7 @@ const { recordSecurityEvent } = require('./utils/security-event');
 const { getOptionalCmsEmailConfig } = require('./utils/account');
 const { Container } = require('typedi');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
+const authMethods = require('../authMethods');
 
 module.exports = function (
   log,
@@ -275,15 +276,56 @@ module.exports = function (
           schema: isA.object({
             state: isA.string().required(),
             uid: isA.string().regex(HEX_STRING).required(),
+            details: isA.object({
+              accountEmailVerified: isA.boolean(),
+              sessionVerificationMethod: isA.string().allow(null),
+              sessionVerificationSuccessful: isA.boolean(),
+              sessionVerificationMeetsMinimumAAL: isA.boolean(),
+            }),
           }),
         },
       },
       handler: async function (request) {
         log.begin('Session.status', request);
         const sessionToken = request.auth.credentials;
+        const account = await db.account(sessionToken.uid);
+
+        // Make sure the account still exists
+        if (!account) {
+          throw error.unknownAccount();
+        }
+
+        // Check account assurance level
+        const accountAmr = await authMethods.availableAuthenticationMethods(
+          db,
+          account
+        );
+        const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
+        const sessionAal = sessionToken.authenticatorAssuranceLevel;
+
+        // Build response
+        const accountEmailVerified =
+          account.emails?.primaryEmail?.isVerified || false;
+
+        const sessionVerificationMethod = sessionToken.verificationMethod;
+
+        // See verified-session-token auth strategy
+        const sessionVerificationSuccessful =
+          sessionToken.tokenVerificationId == null &&
+          sessionToken.tokenVerified !== false;
+
+        // Account Assurance Level
+        const sessionVerificationMeetsMinimumAAL = sessionAal >= accountAal;
+
         return {
           state: sessionToken.state,
           uid: sessionToken.uid,
+          details: {
+            accountEmailVerified,
+            sessionVerificationMethod,
+            sessionVerificationSuccessful,
+            sessionVerificationMeetsMinimumAAL,
+          },
         };
       },
     },
