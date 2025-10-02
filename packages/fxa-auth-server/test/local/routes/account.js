@@ -3573,6 +3573,219 @@ describe('/account/login', () => {
         }
       );
     });
+
+    describe('skip for seen user agent', () => {
+      beforeEach(() => {
+        config.securityHistory.ipProfiling = {};
+        config.signinConfirmation.skipForNewAccounts = { enabled: false };
+        config.signinConfirmation.deviceFingerprinting = {
+          enabled: true,
+          reportOnlyMode: false,
+          duration: 604800000 // 7 days
+        };
+
+        const email = mockRequest.payload.email;
+
+        mockDB.accountRecord = function () {
+          return Promise.resolve({
+            authSalt: hexString(32),
+            createdAt: Date.now(),
+            data: hexString(32),
+            email: email,
+            emailVerified: true,
+            primaryEmail: {
+              normalizedEmail: normalizeEmail(email),
+              email: email,
+              isVerified: true,
+              isPrimary: true,
+            },
+            kA: hexString(32),
+            lastAuthAt: function () {
+              return Date.now();
+            },
+            uid: uid,
+            wrapWrapKb: hexString(32),
+          });
+        };
+
+        const accountRoutes = makeRoutes({
+          checkPassword: function () {
+            return Promise.resolve(true);
+          },
+          config: config,
+          customs: mockCustoms,
+          db: mockDB,
+          log: mockLog,
+          mailer: mockMailer,
+          push: mockPush,
+          cadReminders: mockCadReminders,
+        });
+
+        route = getRoute(accountRoutes, '/account/login');
+      })
+
+      it('should skip verification when device is recognized and not in report-only mode', () => {
+        mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() =>
+          Promise.resolve([
+            {
+              name: 'account.login',
+              verified: true,
+              createdAt: Date.now() - 3600000, // 1 hour ago
+              additionalInfo: JSON.stringify({
+                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                location: { country: 'US', state: 'CA' }
+              })
+            }
+          ])
+        );
+
+        const requestWithUserAgent = {
+          ...mockRequest,
+          headers: {
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        };
+
+        return runTest(route, requestWithUserAgent, (response) => {
+          assert.equal(
+            mockDB.createSessionToken.callCount,
+            1,
+            'db.createSessionToken was called'
+          );
+          const tokenData = mockDB.createSessionToken.getCall(0).args[0];
+          assert.ok(
+            !tokenData.mustVerify,
+            'sessionToken does not require verification'
+          );
+          assert.ok(
+            response.verified,
+            'response indicates session is verified'
+          );
+
+          assert.calledWith(
+            statsd.increment,
+            'account.signin.confirm.device.skip'
+          );
+        });
+      });
+
+      it('should not skip verification when device is not recognized', () => {
+        mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() =>
+          Promise.resolve([])
+        );
+
+        const requestWithDifferentUserAgent = {
+          ...mockRequest,
+          headers: {
+            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+          }
+        };
+
+        return runTest(route, requestWithDifferentUserAgent, (response) => {
+          assert.equal(
+            mockDB.createSessionToken.callCount,
+            1,
+            'db.createSessionToken was called'
+          );
+          const tokenData = mockDB.createSessionToken.getCall(0).args[0];
+          assert.ok(
+            tokenData.mustVerify,
+            'sessionToken requires verification'
+          );
+          assert.ok(
+            !response.verified,
+            'response indicates session is not verified'
+          );
+
+          assert.calledWith(
+            statsd.increment,
+            'account.signin.confirm.device.notfound'
+          );
+        });
+      });
+
+      it('should not skip verification when in report-only mode', () => {
+        config.signinConfirmation.deviceFingerprinting.reportOnlyMode = true;
+
+        mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() =>
+          Promise.resolve([
+            {
+              name: 'account.login',
+              verified: true,
+              createdAt: Date.now() - 3600000, // 1 hour ago
+              additionalInfo: JSON.stringify({
+                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                location: { country: 'US', state: 'CA' }
+              })
+            }
+          ])
+        );
+
+        const requestWithUserAgent = {
+          ...mockRequest,
+          headers: {
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        };
+
+        return runTest(route, requestWithUserAgent, (response) => {
+          assert.equal(
+            mockDB.createSessionToken.callCount,
+            1,
+            'db.createSessionToken was called'
+          );
+          const tokenData = mockDB.createSessionToken.getCall(0).args[0];
+          assert.ok(
+            tokenData.mustVerify,
+            'sessionToken requires verification in report-only mode'
+          );
+          assert.ok(
+            !response.verified,
+            'response indicates session is not verified'
+          );
+
+          // Assert StatsD metric is emitted for report-only mode
+          sinon.assert.calledWith(
+            statsd.increment,
+            'account.signin.confirm.device.match.reportOnly'
+          );
+        });
+      });
+
+      it('should handle errors gracefully and continue to existing logic', () => {
+        mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() =>
+          Promise.reject(new Error('Database connection failed'))
+        );
+
+        return runTest(route, mockRequest, (response) => {
+          assert.equal(
+            mockDB.createSessionToken.callCount,
+            1,
+            'db.createSessionToken was called'
+          );
+          // Should continue to existing verification logic
+          const tokenData = mockDB.createSessionToken.getCall(0).args[0];
+          assert.ok(
+            tokenData.mustVerify,
+            'sessionToken requires verification when error occurs'
+          );
+        });
+      });
+
+      it('should not call device fingerprinting when disabled', () => {
+        config.signinConfirmation.deviceFingerprinting.enabled = false;
+
+        const originalSpy = mockDB.verifiedLoginSecurityEventsByUid;
+        mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() => Promise.resolve([]));
+
+        return runTest(route, mockRequest, (response) => {
+          // Should not call the device fingerprinting database method
+          assert.equal(mockDB.verifiedLoginSecurityEventsByUid.callCount, 0, 'device fingerprinting was not called');
+          // Restore original spy
+          mockDB.verifiedLoginSecurityEventsByUid = originalSpy;
+        });
+      });
+    });
   });
 
   it('#integration - creating too many sessions causes an error to be logged', () => {

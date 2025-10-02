@@ -1064,6 +1064,17 @@ export const createDB = (
       );
     }
 
+    async verifiedLoginSecurityEventsByUid(params: { uid: string; skipTimeframeMs: number}) {
+      log.trace('DB.verifiedLoginSecurityEventsByUid', {
+        params: params,
+      });
+      const { uid, skipTimeframeMs } = params;
+      return SecurityEvent.findByUidAndVerifiedLogin(
+        uid,
+        skipTimeframeMs
+      );
+    }
+
     async securityEventsByUid(params: { uid: string }) {
       log.trace('DB.securityEventsByUid', {
         params: params,

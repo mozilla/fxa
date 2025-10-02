@@ -670,6 +670,9 @@ function mockDB(data, errors) {
     verifiedLoginSecurityEvents: sinon.spy(() => {
       return Promise.resolve([]);
     }),
+    verifiedLoginSecurityEventsByUid: sinon.spy(() => {
+      return Promise.resolve([]);
+    }),
     sessionToken: sinon.spy(() => {
       const res = {
         id: data.sessionTokenId || 'fake session token id',
