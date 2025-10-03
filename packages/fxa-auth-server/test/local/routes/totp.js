@@ -110,18 +110,6 @@ describe('totp', () => {
       });
     });
 
-    it('should be disabled in unverified session', () => {
-      requestOptions.credentials.tokenVerificationId = 'notverified';
-      return setup(
-        { db: { email: TEST_EMAIL, emailVerified: true } },
-        {},
-        '/totp/create',
-        requestOptions
-      ).then(assert.fail, (err) => {
-        assert.deepEqual(err.errno, 138, 'unverified session error');
-      });
-    });
-
     it('should be disabled for unverified email', () => {
       return setup(
         { db: { email: TEST_EMAIL, emailVerified: false } },

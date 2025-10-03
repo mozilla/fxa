@@ -53,10 +53,6 @@ module.exports = (
 
         const sessionToken = request.auth.credentials;
 
-        if (sessionToken.tokenVerificationId) {
-          throw errors.unverifiedSession();
-        }
-
         const { uid } = sessionToken;
         const { recoveryKeyId, recoveryData, enabled, replaceKey } =
           request.payload;
@@ -434,11 +430,7 @@ module.exports = (
       async handler(request) {
         log.begin('recoveryKeyDelete', request);
 
-        const { tokenVerificationId, uid } = request.auth.credentials;
-
-        if (tokenVerificationId) {
-          throw errors.unverifiedSession();
-        }
+        const { uid } = request.auth.credentials;
 
         await db.deleteRecoveryKey(uid);
         await recordSecurityEvent('account.recovery_key_removed', {
