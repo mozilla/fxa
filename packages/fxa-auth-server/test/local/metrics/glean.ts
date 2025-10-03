@@ -80,6 +80,7 @@ const recordTwoStepAuthPhoneReplaceSuccess = sinon.stub();
 const recordTwoStepAuthPhoneReplaceFailure = sinon.stub();
 const recordLoginConfirmSkipForKnownIp = sinon.stub();
 const recordLoginConfirmSkipForNewAccount = sinon.stub();
+const recordLoginConfirmSkipForKnownDevice = sinon.stub();
 
 const gleanProxy = proxyquire('../../../lib/metrics/glean', {
   './server_events': {
@@ -195,6 +196,8 @@ const gleanProxy = proxyquire('../../../lib/metrics/glean', {
         recordLoginConfirmSkipForKnownIp,
       recordLoginConfirmSkipForNewAccount:
         recordLoginConfirmSkipForNewAccount,
+      recordLoginConfirmSkipForKnownDevice:
+      recordLoginConfirmSkipForKnownDevice,
     }),
   },
 });

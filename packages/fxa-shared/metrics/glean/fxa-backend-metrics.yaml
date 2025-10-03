@@ -1655,3 +1655,22 @@ login_confirm_skip_for:
     expires: never
     data_sensitivity:
       - interaction
+  known_device:
+    type: event
+    description: |
+      Login Skip 2FA for seen device
+      Event that indicates a user skipped the login confirmation by
+      logging into a device (user-agent) they have used before within the duration configured value.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-12477
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1844121
+    expires: never
+    data_sensitivity:
+      - interaction

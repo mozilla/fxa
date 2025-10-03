@@ -3574,7 +3574,9 @@ describe('/account/login', () => {
       );
     });
 
-    describe('skip for seen user agent', () => {
+    describe('skip for known device', () => {
+      let mockAccountEventsManager;
+
       beforeEach(() => {
         config.securityHistory.ipProfiling = {};
         config.signinConfirmation.skipForNewAccounts = { enabled: false };
@@ -3608,17 +3610,30 @@ describe('/account/login', () => {
           });
         };
 
+        mockAccountEventsManager = {
+          recordSecurityEvent: sinon.fake(),
+        };
+
         const accountRoutes = makeRoutes({
           checkPassword: function () {
             return Promise.resolve(true);
           },
-          config: config,
+          config: {
+            ...config,
+            oauth: {
+              ...config.oauth,
+              openid: {
+                key: 'test-key'
+              }
+            }
+          },
           customs: mockCustoms,
           db: mockDB,
           log: mockLog,
           mailer: mockMailer,
           push: mockPush,
           cadReminders: mockCadReminders,
+          mockAccountEventsManager: mockAccountEventsManager,
         });
 
         route = getRoute(accountRoutes, '/account/login');
@@ -3664,7 +3679,22 @@ describe('/account/login', () => {
 
           assert.calledWith(
             statsd.increment,
-            'account.signin.confirm.device.skip'
+            'account.signin.confirm.bypass.knownDevice'
+          );
+
+          sinon.assert.calledWithMatch(
+            mockAccountEventsManager.recordSecurityEvent,
+            mockDB,
+            sinon.match({
+              name: 'account.signin_confirm_bypass_known_device',
+              uid: uid,
+              ipAddr: requestWithUserAgent.app.clientAddress,
+              tokenId: undefined,
+              additionalInfo: {
+                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                location: requestWithUserAgent.app.geo.location
+              }
+            })
           );
         });
       });
@@ -3747,7 +3777,7 @@ describe('/account/login', () => {
           // Assert StatsD metric is emitted for report-only mode
           sinon.assert.calledWith(
             statsd.increment,
-            'account.signin.confirm.device.match.reportOnly'
+            'account.signin.confirm.bypass.knownDevice.reportOnly'
           );
         });
       });
