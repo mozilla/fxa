@@ -21,6 +21,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Disabled');
 
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
@@ -67,6 +68,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Disabled');
 
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
@@ -112,6 +114,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Disabled');
 
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 

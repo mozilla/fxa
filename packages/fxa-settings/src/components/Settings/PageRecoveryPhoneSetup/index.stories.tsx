@@ -31,7 +31,7 @@ export const AddWithSuccess = () => (
           account: {
             ...MOCK_ACCOUNT,
             addRecoveryPhone: () => {},
-            confirmRecoveryPhone: () => {},
+            confirmRecoveryPhoneWithJwt: () => {},
           } as unknown as Account,
         })}
       >
@@ -66,7 +66,7 @@ export const ChangeWithSuccess = () => {
             account: {
               ...MOCK_ACCOUNT,
               addRecoveryPhone: () => {},
-              confirmRecoveryPhone: () => {},
+              confirmRecoveryPhoneWithJwt: () => {},
             } as unknown as Account,
           })}
         >
@@ -87,7 +87,7 @@ export const WithErrorOnAdd = () => (
             addRecoveryPhone: () => {
               throw AuthUiErrors.BACKEND_SERVICE_FAILURE;
             },
-            confirmRecoveryPhone: () => {},
+            confirmRecoveryPhoneWithJwt: () => {},
           } as unknown as Account,
         })}
       >
@@ -105,7 +105,7 @@ export const WithErrorOnConfirmSetup = () => (
           account: {
             ...MOCK_ACCOUNT,
             addRecoveryPhone: () => {},
-            confirmRecoveryPhone: () => {
+            confirmRecoveryPhoneWithJwt: () => {
               throw AuthUiErrors.INVALID_OTP_CODE;
             },
           } as unknown as Account,
@@ -125,7 +125,7 @@ export const WithErrorOnConfirmChange = () => (
           account: {
             ...MOCK_ACCOUNT,
             addRecoveryPhone: () => {},
-            confirmRecoveryPhone: () => {
+            confirmRecoveryPhoneWithJwt: () => {
               throw AuthUiErrors.INVALID_OTP_CODE;
             },
           } as unknown as Account,

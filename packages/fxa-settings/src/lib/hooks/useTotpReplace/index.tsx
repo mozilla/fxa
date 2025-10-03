@@ -27,7 +27,7 @@ export const useTotpReplace = () => {
     const fetchTotp = async () => {
       setError(null);
       try {
-        const result = await account.startReplaceTotp();
+        const result = await account.startReplaceTotpWithJwt();
         if (!cancelled) setTotpInfo(result);
       } catch (err) {
         if (isInvalidJwtError(err)) {

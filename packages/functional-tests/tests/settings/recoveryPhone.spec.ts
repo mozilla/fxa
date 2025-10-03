@@ -37,11 +37,9 @@ test.describe('severity-1 #smoke', () => {
       await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
-      await setup2faWithBackupCodeChoice(settings, totp);
+      await setup2faWithBackupCodeChoice(credentials, settings, totp);
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.totp.addRecoveryPhoneButton.click();
-
-      await settings.confirmMfaGuard(credentials.email);
 
       await expect(recoveryPhone.addHeader()).toBeVisible();
 
@@ -64,11 +62,9 @@ test.describe('severity-1 #smoke', () => {
       await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
-      await setup2faWithBackupCodeChoice(settings, totp);
+      await setup2faWithBackupCodeChoice(credentials, settings, totp);
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.totp.addRecoveryPhoneButton.click();
-
-      await settings.confirmMfaGuard(credentials.email);
 
       await expect(recoveryPhone.addHeader()).toBeVisible();
 
@@ -118,7 +114,7 @@ test.describe('severity-1 #smoke', () => {
       await signInAccount(target, page, settings, signin, credentials);
 
       await settings.goto();
-      await setup2faWithBackupCodeChoice(settings, totp);
+      await setup2faWithBackupCodeChoice(credentials, settings, totp);
       await expect(settings.totp.status).toHaveText('Enabled');
       await addRecoveryPhone(
         settings,
@@ -167,10 +163,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
-      const totpCredentials = await setup2faWithBackupCodeChoice(
-        settings,
-        totp
-      );
+      await setup2faWithBackupCodeChoice(credentials, settings, totp);
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -219,10 +212,7 @@ test.describe('severity-1 #smoke', () => {
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
-      const totpCredentials = await setup2faWithBackupCodeChoice(
-        settings,
-        totp
-      );
+      await setup2faWithBackupCodeChoice(credentials, settings, totp);
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -280,10 +270,7 @@ test.describe('severity-1 #smoke', () => {
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
-      const totpCredentials = await setup2faWithBackupCodeChoice(
-        settings,
-        totp
-      );
+      await setup2faWithBackupCodeChoice(credentials, settings, totp);
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -339,10 +326,7 @@ test.describe('severity-1 #smoke', () => {
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
-      const totpCredentials = await setup2faWithBackupCodeChoice(
-        settings,
-        totp
-      );
+      await setup2faWithBackupCodeChoice(credentials, settings, totp);
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -417,10 +401,7 @@ test.describe('severity-1 #smoke', () => {
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, settings, signin, credentials);
 
-      const totpCredentials = await setup2faWithBackupCodeChoice(
-        settings,
-        totp
-      );
+      await setup2faWithBackupCodeChoice(credentials, settings, totp);
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -471,10 +452,10 @@ test.describe('severity-1 #smoke', () => {
       await signInAccount(target, page, settings, signin, credentials);
 
       const totpCredentials = await setup2faWithBackupCodeChoice(
+        credentials,
         settings,
         totp
       );
-      expect;
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await addRecoveryPhone(
@@ -534,6 +515,7 @@ test.describe('severity-1 #smoke', () => {
       await signInAccount(target, page, settings, signin, credentials);
 
       const totpCredentials = await setup2faWithBackupCodeChoice(
+        credentials,
         settings,
         totp
       );
@@ -675,6 +657,7 @@ async function signInAccount(
 }
 
 async function setup2faWithBackupCodeChoice(
+  credentials: Credentials,
   settings: SettingsPage,
   totp: TotpPage
 ): Promise<TotpCredentials> {
@@ -682,6 +665,7 @@ async function setup2faWithBackupCodeChoice(
   await expect(settings.totp.status).toHaveText('Disabled');
 
   await settings.totp.addButton.click();
+  await settings.confirmMfaGuard(credentials.email);
   const totpCredentials =
     await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
@@ -704,6 +688,7 @@ async function setup2faWithRecoveryPhoneChoice(
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.totp.status).toHaveText('Disabled');
   await settings.totp.addButton.click();
+  await settings.confirmMfaGuard(credentials.email);
 
   const secret = await totp.startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice();
 
@@ -739,8 +724,6 @@ async function addRecoveryPhone(
   await settings.goto();
   await settings.totp.addRecoveryPhoneButton.click();
   await page.waitForURL(/recovery_phone\/setup/);
-
-  await settings.confirmMfaGuard(credentials.email);
 
   await expect(recoveryPhone.addHeader()).toBeVisible();
 

@@ -21,7 +21,7 @@ import { MfaGuard } from '../MfaGuard';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 import { useErrorHandler } from 'react-error-boundary';
 
-export const MfaGuardedPage2faChange = (_: RouteComponentProps) => {
+export const MfaGuardPage2faChange = (_: RouteComponentProps) => {
   return (
     <MfaGuard requiredScope="2fa" reason={MfaReason.changeTotp}>
       <Page2faChange />
@@ -32,6 +32,7 @@ export const MfaGuardedPage2faChange = (_: RouteComponentProps) => {
 export const Page2faChange = () => {
   const account = useAccount();
   const alertBar = useAlertBar();
+  const errorHandler = useErrorHandler();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const {
@@ -39,7 +40,6 @@ export const Page2faChange = () => {
     loading: totpInfoLoading,
     error: totpInfoError,
   } = useTotpReplace();
-  const errorHandler = useErrorHandler();
 
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'page-2fa-change-title',
@@ -104,11 +104,12 @@ export const Page2faChange = () => {
   /* ───── handlers ───── */
   const handleVerify2faAppCode = async (code: string) => {
     try {
-      await account.confirmReplaceTotp(code);
+      await account.confirmReplaceTotpWithJwt(code);
     } catch (error) {
       if (isInvalidJwtError(error)) {
+        // JWT invalid/expired
         errorHandler(error);
-        return { error: true };
+        return {};
       }
       return { error: true };
     }
@@ -132,4 +133,4 @@ export const Page2faChange = () => {
   );
 };
 
-export default MfaGuardedPage2faChange;
+export default MfaGuardPage2faChange;

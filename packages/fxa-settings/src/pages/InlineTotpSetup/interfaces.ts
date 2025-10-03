@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MozServices } from '../../lib/types';
-import { TotpToken } from '../Signin/interfaces';
+import { MozServices, TotpInfo } from '../../lib/types';
 import { Integration } from '../../models';
 
 export interface InlineTotpSetupProps {
-  totp: TotpToken;
+  totp: TotpInfo;
   serviceName: MozServices;
   verifyCodeHandler: (code: string) => void;
   integration?: Integration;
 }
 
 export interface InlineTotpSetupPropsOld {
-  totp: TotpToken;
+  totp: TotpInfo;
   serviceName?: MozServices;
   cancelSetupHandler: () => void;
   verifyCodeHandler: (code: string) => void;

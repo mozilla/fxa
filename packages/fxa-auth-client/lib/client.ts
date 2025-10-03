@@ -2339,7 +2339,14 @@ export default class AuthClient {
     );
   }
 
-  // create recovery codes for initial 2FA setup
+  /**
+   * @deprecated Prefer setRecoveryCodesWithJwt where possible
+   * Set recovery codes for initial 2FA setup
+   * @param sessionToken session token
+   * @param recoveryCodes new codes
+   * @param headers optional headers
+   * @returns
+   */
   async setRecoveryCodes(
     sessionToken: hexstring,
     recoveryCodes: string[],
@@ -2351,6 +2358,21 @@ export default class AuthClient {
       { recoveryCodes },
       headers
     );
+  }
+
+  /**
+   * Set recovery codes for initial 2FA setup
+   * @param jwt auth token
+   * @param recoveryCodes new codes
+   * @param headers optional headers
+   * @returns
+   */
+  async setRecoveryCodesWithJwt(
+    jwt: string,
+    recoveryCodes: string[],
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.jwtPost('/mfa/recoveryCodes', jwt, { recoveryCodes }, headers);
   }
 
   // create and update recovery codes without code confirmation
@@ -2849,17 +2871,16 @@ export default class AuthClient {
   }
 
   /**
+   * @deprecated Prefer recoveryPhoneConfirmSetupWithJwt where possible
    * Confirms the code sent to the recovery phone when recoveryPhoneCreate was called.
    *
    * @param sessionToken The user's current session token
    * @param code The otp code sent to the user's phone
-   * @param isInitial2faSetup Whether recovery phone is added during initial 2FA setup or separately
    * @param headers
    */
   async recoveryPhoneConfirmSetup(
     sessionToken: string,
     code: string,
-    isInitial2faSetup: boolean,
     headers?: Headers
   ): Promise<{ nationalFormat?: string }> {
     return this.sessionPost(
@@ -2867,13 +2888,28 @@ export default class AuthClient {
       sessionToken,
       {
         code,
-        isInitial2faSetup,
       },
       headers
     );
   }
 
   /**
+   * Confirms the code sent to the recovery phone when recoveryPhoneCreate was called.
+   * @param jwt auth token
+   * @param code the otp code sent to the user's phone
+   * @param headers optional headers
+   * @returns
+   */
+  async recoveryPhoneConfirmSetupWithJwt(
+    jwt: string,
+    code: string,
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.jwtPost('/mfa/recovery_phone/confirm', jwt, { code }, headers);
+  }
+
+  /**
+   * @deprecated Prefer recoveryPhoneChangeWithJwt where possible
    * Confirms the code sent to the new recovery phone and replaces the phone.
    *
    * @param sessionToken The user's current session token
@@ -2893,6 +2929,22 @@ export default class AuthClient {
       },
       headers
     );
+  }
+
+  /**
+   * Confirms the code sent to the new recovery phone and replaces the phone.
+   *
+   * @param jwt auth token
+   * @param code The otp code sent to the user's phone
+   * @param headers optional headers
+   * @returns
+   */
+  async recoveryPhoneChangeWithJwt(
+    jwt: string,
+    code: string,
+    headers?: Headers
+  ): Promise<{ nationalFormat?: string }> {
+    return this.jwtPost('/mfa/recovery_phone/change', jwt, { code }, headers);
   }
 
   /**

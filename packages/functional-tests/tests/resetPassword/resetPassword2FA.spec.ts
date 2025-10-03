@@ -22,6 +22,7 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     const { secret } = await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
@@ -80,6 +81,7 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     const { recoveryCodes } =
       await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
@@ -133,6 +135,7 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
@@ -211,6 +214,7 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
@@ -285,6 +289,7 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     const { secret } = await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
@@ -360,6 +365,7 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     await totp.setUp2faAppWithQrCode();
     await page.goto(`${target.contentServerUrl}/settings`);
 
@@ -420,6 +426,7 @@ test.describe('reset password with recovery phone', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
@@ -430,8 +437,6 @@ test.describe('reset password with recovery phone', () => {
 
     await settings.totp.addRecoveryPhoneButton.click();
     await page.waitForURL(/recovery_phone\/setup/);
-
-    await settings.confirmMfaGuard(credentials.email);
 
     await expect(recoveryPhone.addHeader()).toBeVisible();
 
@@ -507,6 +512,7 @@ test.describe('reset password with recovery phone', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     const { recoveryCodes } =
       await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
@@ -518,8 +524,6 @@ test.describe('reset password with recovery phone', () => {
 
     await settings.totp.addRecoveryPhoneButton.click();
     await page.waitForURL(/recovery_phone\/setup/);
-
-    await settings.confirmMfaGuard(credentials.email);
 
     await expect(recoveryPhone.addHeader()).toBeVisible();
 
