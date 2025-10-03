@@ -63,7 +63,10 @@ export const IapOfferingDefaultPurchaseFactory = (
   stripePlanChoices: [IapOfferingPurchaseStripePlanChoiceResultFactory()],
   purchaseDetails: {
     productName: faker.string.sample(),
-    localizations: [{ productName: faker.string.sample() }],
+    webIcon: faker.internet.url(),
+    localizations: [
+      { productName: faker.string.sample(), webIcon: faker.internet.url() },
+    ],
   },
   ...override,
 });
