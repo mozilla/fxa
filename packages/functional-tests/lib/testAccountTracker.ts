@@ -147,6 +147,22 @@ export class TestAccountTracker {
   }
 
   /**
+   * Updates the password for an account in the TestAccountTracker instance.
+   * Useful for when password changes happen to ensure `destroyAllAccounts` uses
+   * the updated password.
+   * If the account is not found, an error is thrown.
+   * @param email email address of the account to update
+   * @param password new password for the account
+   */
+  updateAccountPassword(email: string, password: string) {
+    const account = this.accounts.find((account) => account.email === email);
+    if (!account) {
+      throw new Error(`Account ${email} not found`);
+    }
+    account.password = password;
+  }
+
+  /**
    * Signs up an account with the AuthClient with a new email address created
    * with the 'blocked' prefix and a new randomized password
    * @param options AuthClient signup options
