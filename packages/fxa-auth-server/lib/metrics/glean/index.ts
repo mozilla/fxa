@@ -422,6 +422,7 @@ export function gleanMetrics(config: ConfigType) {
     loginConfirmSkipFor: {
       knownIp: createEventFn('login_confirm_skip_for_known_ip'),
       newAccount: createEventFn('login_confirm_skip_for_new_account'),
+      knownDevice: createEventFn('login_confirm_skip_for_known_device'),
     }
   };
 }

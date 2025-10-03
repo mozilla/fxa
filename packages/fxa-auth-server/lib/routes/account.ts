@@ -1091,15 +1091,20 @@ export class AccountHandler {
 
           if (isRecognized) {
             if (this.config.signinConfirmation.deviceFingerprinting.reportOnlyMode) {
-              this.statsd.increment('account.signin.confirm.device.match.reportOnly');
+              this.statsd.increment('account.signin.confirm.bypass.knownDevice.reportOnly');
               this.log.info('account.signin.confirm.device.match.reportOnly', {
                 uid: account.uid,
               });
-              // Continue to existing logic instead of returning
             } else {
-              this.statsd.increment('account.signin.confirm.device.skip');
+              this.statsd.increment('account.signin.confirm.bypass.knownDevice');
+              this.glean.loginConfirmSkipFor.knownDevice(request);
               this.log.info('account.signin.confirm.device.skip', {
                 uid: account.uid,
+              });
+              recordSecurityEvent('account.signin_confirm_bypass_known_device', {
+                db: this.db,
+                request,
+                account,
               });
               return true;
             }
@@ -1117,6 +1122,7 @@ export class AccountHandler {
           // Fall through to existing logic on error
         }
       }
+
       // If they're logging in from an IP address on which they recently did
       // another, successfully-verified login, then we can consider this one
       // verified as well without going through the loop again.
@@ -1169,12 +1175,14 @@ export class AccountHandler {
       const alwaysSkip =
         this.skipConfirmationForEmailAddresses?.includes(lowerCaseEmail);
       if (alwaysSkip) {
-        this.log.info('account.signin.confirm.bypass.always', {
+        this.log.info('account.signin.confirm.bypass.emailAlways', {
           uid: account.uid,
         });
+        this.statsd.increment('account.signin.confirm.bypass.emailAlways');
         return true;
       }
 
+      this.statsd.increment('account.signin.confirm.bypass.noBypass');
       return false;
     };
 
