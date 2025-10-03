@@ -53,7 +53,7 @@ import {
   ServicesWithCapabilitiesResultUtil,
   servicesWithCapabilitiesQuery,
 } from './queries/services-with-capabilities';
-import { StrapiClient, StrapiClientEventResponse } from './strapi.client';
+import { StrapiClient, type StrapiClientEventResponse } from './strapi.client';
 import { DeepNonNullable } from './types';
 import {
   iapOfferingsByStoreIDsQuery,
