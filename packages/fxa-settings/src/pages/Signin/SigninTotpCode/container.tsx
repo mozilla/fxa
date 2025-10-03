@@ -23,6 +23,7 @@ import {
   isWebIntegration,
   useAuthClient,
   useSensitiveDataClient,
+  useSession,
 } from '../../../models';
 import {
   useFinishOAuthFlowHandler,
@@ -54,6 +55,8 @@ export const SigninTotpCodeContainer = ({
   serviceName,
 }: SigninTotpCodeContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
+  const session = useSession();
+
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
     integration
@@ -133,7 +136,7 @@ export const SigninTotpCodeContainer = ({
       // can only be finished after the account has been verified on accounts that
       // require totp.
       const sessionToken = signinState?.sessionToken;
-      if (sessionToken) {
+      if (sessionToken && (await session.isSessionVerified())) {
         await tryFinalizeUpgrade(
           sessionToken,
           sensitiveDataClient,

@@ -20,7 +20,11 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import SigninTotpCodeContainer from './container';
 import { MozServices } from '../../../lib/types';
 import { createMockWebIntegration } from '../SigninTokenCode/mocks';
-import { Integration, useSensitiveDataClient } from '../../../models';
+import {
+  Integration,
+  useSensitiveDataClient,
+  useSession,
+} from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 
 import {
@@ -72,6 +76,7 @@ jest.mock('../../../models', () => {
     ...jest.requireActual('../../../models'),
     useAuthClient: jest.fn(),
     useSensitiveDataClient: jest.fn(),
+    useSession: jest.fn(),
   };
 });
 
@@ -146,6 +151,16 @@ function resetMockSensitiveDataClient() {
   );
 }
 
+function mockSession() {
+  (useSession as jest.Mock).mockImplementation(() => {
+    return {
+      isSessionVerified: () => {
+        return Promise.resolve(true);
+      },
+    };
+  });
+}
+
 function applyDefaultMocks() {
   jest.resetAllMocks();
   jest.restoreAllMocks();
@@ -158,6 +173,7 @@ function applyDefaultMocks() {
   mockVerifyTotp();
   mockWebIntegration();
   resetMockSensitiveDataClient();
+  mockSession();
 }
 
 describe('signin totp code container', () => {
