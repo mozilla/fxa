@@ -8,9 +8,6 @@ const AppError = require('../../../../lib/error');
 const {
   strategy,
 } = require('../../../../lib/routes/auth-schemes/verified-session-token');
-const authMethods = require('../../../../lib/authMethods');
-
-const HAWK_HEADER = 'Hawk id="123", ts="123", nonce="123", mac="123"';
 
 describe('lib/routes/auth-schemes/verified-session-token', () => {
   let config;
@@ -20,10 +17,6 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
   let token;
   let request;
   let getCredentialsFunc;
-
-  before(() => {
-    sinon.stub(authMethods, 'availableAuthenticationMethods');
-  });
 
   beforeEach(() => {
     // Default valid state. This state should pass email verified check, session token verified check,
@@ -53,12 +46,10 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
       authenticatorAssuranceLevel: 1,
     };
 
-    authMethods.availableAuthenticationMethods = sinon.fake.resolves(
-      new Set(['pwd', 'email'])
-    );
-
     request = {
-      headers: { authorization: HAWK_HEADER },
+      headers: {
+        authorization: 'Hawk id="123", ts="123", nonce="123", mac="123"',
+      },
       auth: { mode: 'required' },
       route: { path: '/foo/{id}' },
     };
@@ -209,9 +200,10 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
 
   it('fails when AAL mismatch', async () => {
     // Force account AAL=2 by returning otp along with pwd/email
-    authMethods.availableAuthenticationMethods = sinon.fake.resolves(
-      new Set(['pwd', 'email', 'otp'])
-    );
+    db.totpToken = sinon.fake.resolves({
+      verified: true,
+      enabled: true,
+    });
 
     const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
     try {
@@ -231,9 +223,10 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
 
   it('skips AAL check when configured', async () => {
     // Force account AAL=2 by returning otp along with pwd/email
-    authMethods.availableAuthenticationMethods = sinon.fake.resolves(
-      new Set(['pwd', 'email', 'otp'])
-    );
+    db.totpToken = sinon.fake.resolves({
+      enabled: true,
+      verified: true,
+    });
 
     // Skip AAL check for path
     config.authStrategies.verifiedSessionToken.skipAalCheckForRoutes = '/foo.*';
