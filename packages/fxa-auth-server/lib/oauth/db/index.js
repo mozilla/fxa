@@ -24,16 +24,6 @@ const REFRESH_LAST_USED_AT_UPDATE_AFTER_MS = config.get(
   'oauthServer.refreshToken.updateAfter'
 );
 
-function getPocketIds(idNameMap) {
-  return Object.entries(idNameMap)
-    .filter(([_, name]) => name.startsWith('pocket'))
-    .map(([id, _]) => id);
-}
-
-const POCKET_IDS = getPocketIds(
-  config.get('oauthServer.clientIdToServiceNames')
-);
-
 class OauthDB extends ConnectedServicesDb {
   get mysql() {
     return this.db;
@@ -92,12 +82,6 @@ class OauthDB extends ConnectedServicesDb {
       // We avoid revocation concerns with short-lived
       // tokens, so we do not store them.
       return token;
-    } else if (POCKET_IDS.includes(hex(vals.clientId))) {
-      // Pocket tokens are persisted past their expiration for legacy
-      // reasons: https://bugzilla.mozilla.org/show_bug.cgi?id=1547902
-      // since they are long lived we continue to store them in mysql
-      // so that redis can be exclusively ephemeral
-      await this.mysql._generateAccessToken(token);
     } else {
       await this.redis.setAccessToken(token);
     }
@@ -215,10 +199,6 @@ class OauthDB extends ConnectedServicesDb {
     await this.redis.removeAccessTokensForUser(uid);
     await this.redis.removeRefreshTokensForUser(uid);
     await this.mysql._removeTokensAndCodes(uid);
-  }
-
-  getPocketIds() {
-    return POCKET_IDS;
   }
 
   async pruneAuthorizationCodes(ttlInMs) {

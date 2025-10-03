@@ -69,12 +69,7 @@ exports.verify = async function verify(accessToken) {
     +token.expiresAt >=
       config.get('oauthServer.expiration.accessTokenExpiryEpoch');
 
-  // Pocket was one of FxA first clients and does not currently support refresh tokens.
-  // We currently can't expire any pocket tokens.
-  // Ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1547902
-  const isPocket = db.getPocketIds().includes(token.clientId.toString('hex'));
-
-  if (expired && !isPocket) {
+  if (expired) {
     throw OauthError.expiredToken(token.expiresAt);
   }
 

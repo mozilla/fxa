@@ -13,7 +13,6 @@ export type ServiceNotification =
   | dto.passwordSchema
   | dto.profileSchema
   | dto.subscriptionUpdateSchema
-  | dto.appleUserMigrationSchema
   | undefined;
 
 interface SchemaTable {
@@ -29,7 +28,6 @@ const eventSchemas = {
   [dto.PRIMARY_EMAIL_EVENT]: dto.PROFILE_CHANGE_SCHEMA,
   [dto.PASSWORD_CHANGE_EVENT]: dto.PASSWORD_CHANGE_SCHEMA,
   [dto.PASSWORD_RESET_EVENT]: dto.PASSWORD_CHANGE_SCHEMA,
-  [dto.APPLE_USER_MIGRATION_EVENT]: dto.APPLE_USER_MIGRATION_SCHEMA,
 };
 
 /**

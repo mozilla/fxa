@@ -123,23 +123,4 @@ export class JwtsetService {
       uid: delEvent.uid,
     });
   }
-
-  public generateAppleMigrationSET(
-    appleMigrationEvent: set.appleMigrationEvent
-  ): Promise<string> {
-    return this.generateSET({
-      uid: appleMigrationEvent.uid,
-      clientId: appleMigrationEvent.clientId,
-      events: {
-        [set.APPLE_USER_MIGRATION_ID]: {
-          fxaEmail: appleMigrationEvent.fxaEmail,
-          appleEmail: appleMigrationEvent.appleEmail,
-          transferSub: appleMigrationEvent.transferSub,
-          success: appleMigrationEvent.success,
-          err: appleMigrationEvent.err,
-          uid: appleMigrationEvent.uid,
-        },
-      },
-    });
-  }
 }
