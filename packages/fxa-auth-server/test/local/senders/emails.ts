@@ -2355,6 +2355,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `<b>Date:</b> March 20, 2020` },
       { test: 'include', expected: `Your next invoice will be issued on April 19, 2020` },
       { test: 'include', expected: `View invoice` },
+      { test: 'notInclude', expected: `Taxes &amp; fees` },
       { test: 'notInclude', expected: 'utm_source=email' },
       { test: 'notInclude', expected: 'PayPal' },
     ]],
@@ -2368,11 +2369,12 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Date: March 20, 2020` },
       { test: 'include', expected: `Your next invoice will be issued on April 19, 2020` },
       { test: 'include', expected: `View Invoice: ${MESSAGE.invoiceLink}` },
+      { test: 'notInclude', expected: `Taxes &amp; fees` },
       { test: 'notInclude', expected: 'utm_source=email' },
       { test: 'notInclude', expected: 'PayPal' },
     ]]]),
     {updateTemplateValues: x => (
-      {...x, cardType: 'Unknown'})}
+      {...x, cardType: 'Unknown', invoiceTaxAmountInCents: 0})}
   ],
 
 

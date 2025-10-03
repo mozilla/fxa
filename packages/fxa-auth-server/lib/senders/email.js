@@ -302,7 +302,6 @@ module.exports = function (log, config, bounces, statsd) {
   const validPaymentProviders = Object.keys(PAYMENT_METHOD_PROVIDER);
   const validCardTypes = Object.keys(CARD_TYPE_TO_TEXT);
 
-
   function Mailer(mailerConfig, sender) {
     let options = {
       host: mailerConfig.host,
@@ -3280,6 +3279,7 @@ module.exports = function (log, config, bounces, statsd) {
             invoiceTotalCurrency,
             message.acceptLanguage
           ),
+        invoiceTaxAmountInCents,
         invoiceTaxAmount:
           invoiceTaxAmountInCents &&
           this._getLocalizedCurrencyString(
@@ -3294,7 +3294,9 @@ module.exports = function (log, config, bounces, statsd) {
             invoiceTotalCurrency,
             message.acceptLanguage
           ),
-        cardName: validCardTypes.includes(cardType) ? cardTypeToText(cardType) : undefined,
+        cardName: validCardTypes.includes(cardType)
+          ? cardTypeToText(cardType)
+          : undefined,
         lastFour,
         nextInvoiceDate,
         paymentProrated,
