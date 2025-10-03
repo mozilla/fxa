@@ -10,10 +10,10 @@
 
 export enum BounceType {
     unmapped = "unmapped",
-    Undetermined = "Undetermined",
     Permanent = "Permanent",
     Transient = "Transient",
-    Complaint = "Complaint"
+    Complaint = "Complaint",
+    Undetermined = "Undetermined"
 }
 
 export enum BounceSubType {
@@ -21,7 +21,6 @@ export enum BounceSubType {
     Undetermined = "Undetermined",
     General = "General",
     NoEmail = "NoEmail",
-    OnAccountSuppressionList = "OnAccountSuppressionList",
     Suppressed = "Suppressed",
     MailboxFull = "MailboxFull",
     MessageTooLarge = "MessageTooLarge",
@@ -32,7 +31,8 @@ export enum BounceSubType {
     Fraud = "Fraud",
     NotSpam = "NotSpam",
     Other = "Other",
-    Virus = "Virus"
+    Virus = "Virus",
+    OnAccountSuppressionList = "OnAccountSuppressionList"
 }
 
 export enum ProviderId {
