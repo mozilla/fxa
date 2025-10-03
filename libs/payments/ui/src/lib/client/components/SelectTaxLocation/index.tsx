@@ -421,6 +421,16 @@ const Expanded = ({
                   invalidPostalCode: false,
                 }));
               }}
+              onInvalid={(event) => {
+                if (event.currentTarget.validity.patternMismatch) {
+                  setServerErrors((prev) => ({
+                    ...prev,
+                    invalidPostalCode: true
+                  }));
+                }
+              }}
+              pattern="^[\p{L}\p{N}\s\-\.\,]{1,15}$"
+              maxLength={15}
               defaultValue={initialPostalCode}
               required
               aria-required
