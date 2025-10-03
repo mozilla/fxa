@@ -178,6 +178,27 @@ module.exports = function (
           sessionToken.uid
         );
 
+        // Start temporary metrics section
+        if (!account?.primaryEmail?.isVerified) {
+          statsd.increment('session_reauth.primary_email_not_verified');
+        }
+        if (
+          sessionToken.tokenVerificationId ||
+          sessionToken.tokenVerified === false
+        ) {
+          statsd.increment('session_reauth.token_not_verified');
+        }
+        const accountAmr = await authMethods.availableAuthenticationMethods(
+          db,
+          account
+        );
+        const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
+        const sessionAal = sessionToken.authenticatorAssuranceLevel;
+        if (accountAal !== sessionAal) {
+          statsd.increment('session_reauth.all_not_met');
+        }
+        // End temporary metrics section
+
         await signinUtils.checkEmailAddress(
           accountRecord,
           email,
