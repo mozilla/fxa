@@ -494,7 +494,7 @@ async function create(log, error, config, routes, db, statsd, glean, customs) {
 
   server.auth.scheme(
     'mfa',
-    mfa.strategy(config, makeCredentialFn(db.sessionToken.bind(db)))
+    mfa.strategy(config, makeCredentialFn(db.sessionToken.bind(db)), db, statsd)
   );
   server.auth.strategy('mfa', 'mfa');
 
