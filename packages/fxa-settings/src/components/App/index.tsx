@@ -24,6 +24,7 @@ import { MozServices } from '../../lib/types';
 
 import {
   Integration,
+  isOAuthIntegration,
   useConfig,
   useInitialMetricsQueryState,
   useIntegration,
@@ -152,6 +153,7 @@ const AuthorizationContainer = lazy(
   () => import('../../pages/Authorization/container')
 );
 const CookiesDisabled = lazy(() => import('../../pages/CookiesDisabled'));
+const OAuthDataError = lazy(() => import('../OAuthDataError'));
 const ResetPasswordRecoveryChoiceContainer = lazy(
   () =>
     import('../../pages/ResetPassword/ResetPasswordRecoveryChoice/container')
@@ -418,7 +420,7 @@ const AuthAndAccountSetupRoutes = ({
 } & RouteComponentProps) => {
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
-  const serviceName = integration.getServiceName() as MozServices;
+  let serviceName: MozServices;
   const location = useLocation();
   const { enabled: gleanEnabled } = GleanMetrics.useGlean();
 
@@ -427,6 +429,21 @@ const AuthAndAccountSetupRoutes = ({
   }, [location.pathname, gleanEnabled]);
 
   const useSyncEnginesResult = useSyncEngines(integration);
+  try {
+    serviceName = integration.getServiceName() as MozServices;
+  } catch (err: any) {
+    sentryMetrics.captureException(err);
+    if (isOAuthIntegration(integration)) {
+      // only return OAuthDataError if the integration is an OAuth integration
+      return (
+        <Suspense fallback={<LoadingSpinner fullScreen />}>
+          <OAuthDataError error={err} />
+        </Suspense>
+      );
+    }
+    // otherwise, let the error still bubble up as it would have before.
+    throw err;
+  }
 
   return (
     <Suspense fallback={<LoadingSpinner fullScreen />}>
