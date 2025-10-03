@@ -724,6 +724,12 @@ function mockDB(data, errors) {
         email: data.email,
       });
     }),
+    totpToken: sinon.spy((uid) => {
+      assert.ok(typeof uid === 'string');
+      return Promise.resolve({
+        enabled: false,
+      });
+    }),
   });
 }
 
