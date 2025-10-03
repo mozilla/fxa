@@ -14,4 +14,15 @@ describe('AppErrorDialog', () => {
 
     expect(queryByTestId('error-loading-app')).toBeInTheDocument();
   });
+
+  it('can trigger another signin attempt in invalid-session case', async () => {
+    const { queryByText } = renderWithLocalizationProvider(
+      <AppErrorDialog errorType="invalid-session" />
+    );
+
+    expect(queryByText('Invalid Session')).toBeInTheDocument();
+    expect(
+      queryByText('Please sign out and sign in again.')
+    ).toBeInTheDocument();
+  });
 });

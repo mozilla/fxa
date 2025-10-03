@@ -56,7 +56,8 @@ const ERRORS = {
   },
   INVALID_TOKEN: {
     errno: 110,
-    message: 'Invalid token',
+    message: 'Invalid session. Please sign out and sign in again.',
+    version: 2,
   },
   INVALID_TIMESTAMP: {
     errno: 111,
@@ -139,8 +140,8 @@ const ERRORS = {
   },
   UNVERIFIED_SESSION: {
     errno: 138,
-    message: 'Unconfirmed session',
-    version: 2,
+    message: 'Unconfirmed session. Please sign out and sign in again.',
+    version: 3,
   },
   EMAIL_PRIMARY_EXISTS: {
     errno: 139,
@@ -690,3 +691,14 @@ export const AuthUiErrorNos: {
     errnos.push(x.errno);
   }
 })();
+
+/**
+ * TypeGuard for AuthUiErrors
+ */
+export function isAuthUiError(error: any): error is AuthUiError {
+  return (
+    typeof error === 'object' &&
+    typeof error?.errno === 'number' &&
+    typeof error?.message === 'string'
+  );
+}

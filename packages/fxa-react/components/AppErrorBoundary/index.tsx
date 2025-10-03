@@ -6,13 +6,13 @@ import React from 'react';
 import AppErrorDialog from '../AppErrorDialog';
 import * as Sentry from '@sentry/browser';
 
-interface AppErrorBoundaryProps {
+type AppErrorBoundaryProps = {
   children?: React.ReactNode;
-}
+};
 
-interface AppErrorBoundaryState {
+type AppErrorBoundaryState = {
   error: Error | undefined;
-}
+};
 
 class AppErrorBoundary extends React.Component<
   AppErrorBoundaryProps,
@@ -22,7 +22,7 @@ class AppErrorBoundary extends React.Component<
     error: undefined | Error;
   };
 
-  constructor(props: {}) {
+  constructor(props: AppErrorBoundaryProps) {
     super(props);
     this.state = { error: undefined };
   }
@@ -38,7 +38,7 @@ class AppErrorBoundary extends React.Component<
 
   render() {
     const { error } = this.state;
-    return error ? <AppErrorDialog /> : (this.props as any).children;
+    return error ? <AppErrorDialog /> : this.props.children;
   }
 }
 
