@@ -4,6 +4,7 @@
 
 import React, { ReactNode } from 'react';
 import { History } from '@reach/router';
+import { waitFor } from '@testing-library/react';
 import { Account, AppContext, useInitialSettingsState } from '../../models';
 import {
   mockAppContext,
@@ -91,8 +92,8 @@ describe('Settings App', () => {
     expect(getByLabelText('Loading…')).toBeInTheDocument();
   });
 
-  it('renders `AppErrorDialog` component when settings query errors', () => {
-    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
+  it('renders `AppErrorDialog` component when settings query errors', async () => {
+    (useInitialSettingsState as jest.Mock).mockReturnValue({
       error: { message: 'Error' },
     });
     const { getByRole } = renderWithRouter(
@@ -101,15 +102,19 @@ describe('Settings App', () => {
       </AppContext.Provider>
     );
 
-    expect(getByRole('heading', { level: 2 })).toHaveTextContent(
-      'General application error'
-    );
+    await waitFor(() => {
+      expect(getByRole('heading', { level: 2 })).toHaveTextContent(
+        'General application error'
+      );
+    });
   });
 
   it('redirects to root if account is not verified', async () => {
     // this warning is expected, so we don't want to see it in the test output
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
-      if (msg === 'Account verification is require to access /settings!')
+      if (
+        msg === 'Account or email verification is require to access /settings!'
+      )
         return;
     });
     const unverifiedAccount = {
@@ -132,8 +137,34 @@ describe('Settings App', () => {
       { route: SETTINGS_PATH }
     );
 
-    await Promise.resolve();
-    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    });
+    warnSpy.mockRestore();
+  });
+
+  it('redirects to root if session is not verified', async () => {
+    // this warning is expected, so we don't want to see it in the test output
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
+      if (
+        msg === 'Account or email verification is require to access /settings!'
+      )
+        return;
+    });
+    const unverifiedSession = mockSession(false);
+
+    renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({ session: unverifiedSession })}
+      >
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    });
     warnSpy.mockRestore();
   });
 

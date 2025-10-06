@@ -5,6 +5,7 @@
 import React, { ReactNode } from 'react';
 import { act, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { navigate } from '@reach/router';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
 import {
@@ -29,11 +30,17 @@ import { firefox } from '../../lib/channels/firefox';
 
 import GleanMetrics from '../../lib/glean';
 import config from '../../lib/config';
-import * as utils from 'fxa-react/lib/utils';
 import { currentAccount } from '../../lib/cache';
 import { MozServices } from '../../lib/types';
 import mockUseSyncEngines from '../../lib/hooks/useSyncEngines/mocks';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
+
+jest.mock('@reach/router', () => {
+  return {
+    ...jest.requireActual('@reach/router'),
+    navigate: jest.fn(),
+  };
+});
 
 jest.mock('../../lib/hooks/useSyncEngines', () => ({
   __esModule: true,
@@ -269,6 +276,7 @@ describe('loading spinner states', () => {
     });
     (useSession as jest.Mock).mockReturnValue({
       isValid: () => true,
+      isSessionVerified: () => Promise.resolve(true),
     });
     (currentAccount as jest.Mock).mockReturnValueOnce({
       uid: 123,
@@ -368,21 +376,10 @@ describe('AuthAndAccountSetupRoutes', () => {
 });
 
 describe('SettingsRoutes', () => {
-  let hardNavigateSpy: jest.SpyInstance;
   const settingsPath = '/settings';
-  jest.mock('@reach/router', () => ({
-    ...jest.requireActual('@reach/router'),
-    useLocation: () => {
-      return {
-        pathname: settingsPath,
-      };
-    },
-  }));
 
   beforeEach(() => {
-    hardNavigateSpy = jest
-      .spyOn(utils, 'hardNavigate')
-      .mockImplementation(() => {});
+    (navigate as jest.Mock).mockClear();
     (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       loading: false,
     });
@@ -396,6 +393,7 @@ describe('SettingsRoutes', () => {
     });
     (useSession as jest.Mock).mockReturnValue({
       isValid: () => false,
+      isSessionVerified: () => Promise.resolve(true),
     });
     (useProductInfoState as jest.Mock).mockReturnValue({
       loading: false,
@@ -409,7 +407,7 @@ describe('SettingsRoutes', () => {
   });
 
   afterEach(() => {
-    hardNavigateSpy.mockRestore();
+    (navigate as jest.Mock).mockRestore();
     (useIntegration as jest.Mock).mockRestore();
     (useInitialMetricsQueryState as jest.Mock).mockRestore();
     (useLocalSignedInQueryState as jest.Mock).mockRestore();
@@ -449,7 +447,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(hardNavigateSpy).toHaveBeenCalledWith(
+      expect(navigate).toHaveBeenCalledWith(
         `/?redirect_to=${encodeURIComponent(settingsPath)}`
       );
     });
@@ -493,7 +491,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(hardNavigateSpy).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
     });
 
     expect(screen.getByText('Session Expired')).toBeInTheDocument();
@@ -529,6 +527,7 @@ describe('SettingsRoutes', () => {
 
     (useSession as jest.Mock).mockReturnValue({
       isValid: () => true,
+      isSessionVerified: () => Promise.resolve(true),
     });
 
     let navigateResult: Promise<void>;
@@ -556,7 +555,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(hardNavigateSpy).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });
@@ -588,7 +587,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(hardNavigateSpy).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });

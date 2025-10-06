@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, Router, useLocation } from '@reach/router';
+import {
+  navigate,
+  RouteComponentProps,
+  Router,
+  useLocation,
+} from '@reach/router';
 import {
   lazy,
   Suspense,
@@ -34,8 +39,6 @@ import {
   initializeSettingsContext,
   SettingsContext,
 } from '../../models/contexts/SettingsContext';
-
-import { hardNavigate } from 'fxa-react/lib/utils';
 
 import sentryMetrics from 'fxa-shared/sentry/browser';
 
@@ -348,12 +351,6 @@ export const App = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  // If we're on settings route but user is not signed in, redirect immediately
-  if (window.location.pathname?.includes('/settings') && !isSignedIn) {
-    hardNavigate('/');
-    return <LoadingSpinner fullScreen />;
-  }
-
   return (
     <Router basepath="/">
       <AuthAndAccountSetupRoutes
@@ -389,7 +386,7 @@ const SettingsRoutes = ({
       // For regular RP / web logins, maybe the session token expired. In this
       // case we just send them to the root.
       params.set('redirect_to', location.pathname);
-      hardNavigate(`/?${params.toString()}`);
+      navigate(`/?${params.toString()}`);
     }
 
     return <LoadingSpinner fullScreen />;
