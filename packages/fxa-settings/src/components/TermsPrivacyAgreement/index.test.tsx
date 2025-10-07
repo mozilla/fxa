@@ -45,6 +45,25 @@ describe('TermsPrivacyAgreement', () => {
     expect(linkElements[0]).toHaveAttribute('href', '/legal/terms');
     expect(linkElements[1]).toHaveAttribute('href', '/legal/privacy');
   });
+
+  it('renders component as expected for Pocket clients', () => {
+    renderWithLocalizationProvider(<TermsPrivacyAgreement isPocketClient />);
+    // testAllL10n(screen, bundle);
+
+    const linkElements: HTMLElement[] = screen.getAllByRole('link');
+
+    expect(linkElements).toHaveLength(4);
+    expect(linkElements[0]).toHaveAttribute(
+      'href',
+      'https://getpocket.com/tos/'
+    );
+    expect(linkElements[1]).toHaveAttribute(
+      'href',
+      'https://getpocket.com/privacy/'
+    );
+    expect(linkElements[2]).toHaveAttribute('href', '/legal/terms');
+    expect(linkElements[3]).toHaveAttribute('href', '/legal/privacy');
+  });
 });
 
 it('renders component as expected for Monitor clients', () => {

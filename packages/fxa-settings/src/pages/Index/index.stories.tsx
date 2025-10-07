@@ -14,6 +14,7 @@ import {
 } from './mocks';
 import {
   MONITOR_CLIENTIDS,
+  POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { MozServices } from '../../lib/types';
 import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
@@ -58,6 +59,13 @@ export const Monitor = storyWithProps({
     clientId: MONITOR_CLIENTIDS[0],
   }),
   serviceName: MozServices.Monitor,
+});
+
+export const Pocket = storyWithProps({
+  integration: createMockIndexOAuthIntegration({
+    clientId: POCKET_CLIENTIDS[0],
+  }),
+  serviceName: MozServices.Pocket,
 });
 
 export const WithCms = storyWithProps({

@@ -132,6 +132,13 @@ describe('Connected Services', () => {
     expect(groupedByName['Mozilla Monitor'].length).toEqual(2);
   });
 
+  it('should show the pocket icon and link', async () => {
+    await getIconAndServiceLink('Pocket', 'pocket-icon').then((result) => {
+      expect(result.icon).toBeTruthy();
+      expect(result.link).toHaveAttribute('href', 'https://getpocket.com/');
+    });
+  });
+
   it('should show the monitor icon and link', async () => {
     await getIconAndServiceLink('Mozilla Monitor', 'monitor-icon').then(
       (result) => {

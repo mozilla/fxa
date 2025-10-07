@@ -11,8 +11,8 @@ import {
   Subject,
 } from './mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { POCKET_CLIENTIDS } from '../../models/integrations/client-matching';
 import { MozServices } from '../../lib/types';
-import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import GleanMetrics from '../../lib/glean';
 import { MOCK_CMS_INFO } from '../mocks';
 
@@ -221,7 +221,7 @@ describe('Index page', () => {
       renderWithLocalizationProvider(
         <Subject
           integration={createMockIndexOAuthIntegration({
-            clientId: MONITOR_CLIENTIDS[0],
+            clientId: POCKET_CLIENTIDS[0],
           })}
           deeplink="appleLogin"
         />
@@ -229,6 +229,29 @@ describe('Index page', () => {
 
       thirdPartyAuthNotRendered();
     });
+  });
+
+  it('renders as expected when client is Pocket', () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockIndexOAuthIntegration({
+          clientId: POCKET_CLIENTIDS[0],
+        })}
+        serviceName={MozServices.Pocket}
+      />
+    );
+
+    screen.getByRole('heading', { name: 'Enter your email' });
+    screen.getByAltText('Pocket');
+
+    thirdPartyAuthWithSeparatorRendered();
+
+    const tosLinks = screen.getAllByRole('link', {
+      name: /Terms of Service/,
+    });
+
+    expect(tosLinks[0]).toHaveAttribute('href', 'https://getpocket.com/tos/');
+    expect(tosLinks[1]).toHaveAttribute('href', '/legal/terms');
   });
 
   describe('glean metrics', () => {

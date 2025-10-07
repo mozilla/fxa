@@ -26,7 +26,10 @@ import { MOCK_CMS_INFO, MOCK_EMAIL, MOCK_PASSWORD } from '../mocks';
 import firefox from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import * as utils from 'fxa-react/lib/utils';
-import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
+import {
+  MONITOR_CLIENTIDS,
+  POCKET_CLIENTIDS,
+} from '../../models/integrations/client-matching';
 import { getSyncEngineIds } from '../../lib/sync-engines';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { SensitiveData } from '../../lib/sensitive-data-client';
@@ -156,6 +159,47 @@ describe('Signup page', () => {
     // Checkboxes have their own test
     expect(firefoxTermsLink).toHaveAttribute('href', '/legal/terms');
     expect(firefoxPrivacyLink).toHaveAttribute('href', '/legal/privacy');
+  });
+
+  it('shows an info banner and Pocket-specific TOS when client is Pocket', async () => {
+    renderWithLocalizationProvider(
+      <Subject
+        integration={createMockSignupOAuthWebIntegration(POCKET_CLIENTIDS[0])}
+      />
+    );
+
+    const infoBannerLink = screen.getByRole('link', {
+      name: /Find out here/,
+    });
+    await waitFor(() => {
+      expect(infoBannerLink).toBeInTheDocument();
+    });
+
+    // info banner is dismissible
+    const infoBannerDismissButton = screen.getByRole('button', {
+      name: 'Close banner',
+    });
+    fireEvent.click(infoBannerDismissButton);
+    await waitFor(() => {
+      expect(infoBannerLink).not.toBeInTheDocument();
+    });
+
+    // Pocket links should always open in a new window (announced by screen readers)
+    const pocketTermsLink = screen.getByRole('link', {
+      name: 'Terms of Service Opens in new window',
+    });
+    const pocketPrivacyLink = screen.getByRole('link', {
+      name: 'Privacy Notice Opens in new window',
+    });
+
+    expect(pocketTermsLink).toHaveAttribute(
+      'href',
+      'https://getpocket.com/tos/'
+    );
+    expect(pocketPrivacyLink).toHaveAttribute(
+      'href',
+      'https://getpocket.com/privacy/'
+    );
   });
 
   it('renders as expected when integration is sync', async () => {

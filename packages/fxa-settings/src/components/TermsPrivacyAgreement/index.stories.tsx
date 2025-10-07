@@ -20,6 +20,12 @@ export const FirefoxOnly = () => (
   </AppLayout>
 );
 
+export const PocketClient = () => (
+  <AppLayout>
+    <TermsPrivacyAgreement isPocketClient />
+  </AppLayout>
+);
+
 export const MonitorClient = () => (
   <AppLayout>
     <TermsPrivacyAgreement isMonitorClient />

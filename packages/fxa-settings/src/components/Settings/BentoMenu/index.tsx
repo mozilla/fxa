@@ -9,6 +9,7 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useEscKeydownEffect } from '../../../lib/hooks';
 
 import monitorIcon from './monitor.svg';
+import pocketIcon from '@fxa/shared/assets/images/pocket.svg';
 import desktopIcon from './desktop.svg';
 import mobileIcon from './mobile.svg';
 import relayIcon from './relay.svg';
@@ -217,6 +218,19 @@ export const BentoMenu = () => {
                         <img src={vpnIcon} alt="" />
                       </div>
                       <FtlMsg id="bento-menu-vpn-2">Mozilla VPN</FtlMsg>
+                    </LinkExternal>
+                  </li>
+                  <li>
+                    <LinkExternal
+                      data-testid="pocket-link"
+                      href="https://app.adjust.com/hr2n0yz?redirect_macos=https%3A%2F%2Fgetpocket.com%2Fpocket-and-firefox&redirect_windows=https%3A%2F%2Fgetpocket.com%2Fpocket-and-firefox&engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447"
+                      className="block p-2 ps-6 hover:bg-grey-100 focus-visible:rounded-sm focus-visible-default"
+                      onClick={() => GleanMetrics.accountPref.bentoPocket()}
+                    >
+                      <div className={iconClassNames}>
+                        <img src={pocketIcon} alt="" />
+                      </div>
+                      <FtlMsg id="bento-menu-pocket-2">Pocket</FtlMsg>
                     </LinkExternal>
                   </li>
                 </ul>

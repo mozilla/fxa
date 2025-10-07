@@ -8,12 +8,14 @@ import { Link } from '@reach/router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 
 export type TermsPrivacyAgreementProps = {
+  isPocketClient?: boolean;
   isMonitorClient?: boolean;
   isRelayClient?: boolean; // Relay is oauth RP
   isFirefoxClientServiceRelay?: boolean; // `service=relay` on Fx desktop or mobile client ID
 };
 
 const TermsPrivacyAgreement = ({
+  isPocketClient = false,
   isMonitorClient = false,
   isRelayClient = false,
   isFirefoxClientServiceRelay = false,
@@ -22,12 +24,55 @@ const TermsPrivacyAgreement = ({
     <div
       className={`text-grey-500 text-xs ${isFirefoxClientServiceRelay ? 'mt-8' : 'mt-5'}`}
     >
-      {isMonitorClient || isFirefoxClientServiceRelay || isRelayClient ? (
+      {isPocketClient ||
+      isMonitorClient ||
+      isFirefoxClientServiceRelay ||
+      isRelayClient ? (
         <>
           <FtlMsg id="terms-privacy-agreement-intro-2">
             <p>By proceeding, you agree to the:</p>
           </FtlMsg>
           <ul>
+            {isPocketClient && (
+              <FtlMsg
+                id="terms-privacy-agreement-pocket-2"
+                elems={{
+                  pocketTos: (
+                    <LinkExternal
+                      className="link-grey"
+                      href="https://getpocket.com/tos/"
+                    >
+                      Terms of Service
+                    </LinkExternal>
+                  ),
+                  pocketPrivacy: (
+                    <LinkExternal
+                      className="link-grey"
+                      href="https://getpocket.com/privacy/"
+                    >
+                      Privacy Notice
+                    </LinkExternal>
+                  ),
+                }}
+              >
+                <li>
+                  Pocket{' '}
+                  <LinkExternal
+                    className="link-grey"
+                    href="https://getpocket.com/tos/"
+                  >
+                    Terms of Service
+                  </LinkExternal>{' '}
+                  and{' '}
+                  <LinkExternal
+                    className="link-grey"
+                    href="https://getpocket.com/privacy/"
+                  >
+                    Privacy Notice
+                  </LinkExternal>
+                </li>
+              </FtlMsg>
+            )}
             {(isMonitorClient ||
               isFirefoxClientServiceRelay ||
               isRelayClient) && (

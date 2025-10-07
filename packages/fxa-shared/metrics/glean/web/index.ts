@@ -222,6 +222,7 @@ export const eventsMap = {
     bentoFirefoxDesktop: 'account_pref_bento_firefox_desktop',
     bentoFirefoxMobile: 'account_pref_bento_firefox_mobile',
     bentoMonitor: 'account_pref_bento_monitor',
+    bentoPocket: 'account_pref_bento_pocket',
     bentoRelay: 'account_pref_bento_relay',
     bentoVpn: 'account_pref_bento_vpn',
     mfaGuardView: 'account_pref_mfa_guard_view',

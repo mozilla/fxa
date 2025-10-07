@@ -28,6 +28,7 @@ import {
 } from '../../models';
 import {
   isClientMonitor,
+  isClientPocket,
   isClientRelay,
 } from '../../models/integrations/client-matching';
 import { SigninFormData, SigninProps } from './interfaces';
@@ -87,6 +88,7 @@ const Signin = ({
   const isOAuth = isOAuthIntegration(integration);
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const clientId = integration.getClientId();
+  const isPocketClient = isOAuth && isClientPocket(clientId);
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
   const isRelayClient = isOAuth && isClientRelay(clientId);
   const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
@@ -402,6 +404,7 @@ const Signin = ({
           headingTextFtlId="signin-header"
           subheadingWithDefaultServiceFtlId="signin-subheader-without-logo-default"
           subheadingWithCustomServiceFtlId="signin-subheader-without-logo-with-servicename"
+          subheadingWithLogoFtlId="signin-subheader-with-logo"
           {...{
             clientId,
             serviceName,
@@ -519,6 +522,7 @@ const Signin = ({
 
       <TermsPrivacyAgreement
         {...{
+          isPocketClient,
           isMonitorClient,
           isFirefoxClientServiceRelay,
           isRelayClient,

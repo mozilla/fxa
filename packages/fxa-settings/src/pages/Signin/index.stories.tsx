@@ -4,6 +4,7 @@
 
 import React from 'react';
 import Signin from '.';
+import { MozServices } from '../../lib/types';
 import { Meta } from '@storybook/react';
 import {
   Subject,
@@ -16,7 +17,6 @@ import { SigninProps } from './interfaces';
 import { MOCK_SERVICE, MOCK_SESSION_TOKEN } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
-import { MozServices } from '../../lib/types';
 
 export default {
   title: 'Pages/Signin',
@@ -44,12 +44,23 @@ export const SignInToRelyingPartyWithPassword = storyWithProps({
   serviceName: MOCK_SERVICE,
 });
 
+export const SignInToPocketWithPassword = storyWithProps({
+  serviceName: MozServices.Pocket,
+  integration: createMockSigninOAuthIntegration(),
+});
+
 export const SignInToSettingsWithCachedCredentials = storyWithProps({
   sessionToken: MOCK_SESSION_TOKEN,
 });
 export const SignInToRelyingPartyWithCachedCredentials = storyWithProps({
   sessionToken: MOCK_SESSION_TOKEN,
   serviceName: MOCK_SERVICE,
+});
+
+export const SignInToPocketWithCachedCredentials = storyWithProps({
+  sessionToken: MOCK_SESSION_TOKEN,
+  serviceName: MozServices.Pocket,
+  integration: createMockSigninOAuthIntegration({ wantsKeys: false }),
 });
 
 export const SignInToSyncWithCachedCredentials = storyWithProps({

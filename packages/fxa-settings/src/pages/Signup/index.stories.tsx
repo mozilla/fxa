@@ -17,6 +17,7 @@ import { SignupIntegration } from './interfaces';
 import { mockAppContext } from '../../models/mocks';
 import {
   MONITOR_CLIENTIDS,
+  POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { AppContext } from '../../models';
 import { mockUseSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
@@ -59,6 +60,11 @@ const StoryWithProps = ({
 
 export const Default = () => <StoryWithProps />;
 export const CantChangeEmail = () => <StoryWithProps />;
+export const ClientIsPocket = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthWebIntegration(POCKET_CLIENTIDS[0])}
+  />
+);
 export const ClientIsMonitor = () => (
   <StoryWithProps
     integration={createMockSignupOAuthWebIntegration(MONITOR_CLIENTIDS[0])}
