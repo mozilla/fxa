@@ -179,7 +179,11 @@ export class QueueworkerService
    * @param eventType Event type to use for metrics
    */
   private async handleMessageFanout(
-    message: dto.deleteSchema | dto.profileSchema | dto.passwordSchema,
+    message:
+      | dto.deleteSchema
+      | dto.profileSchema
+      | dto.passwordSchema
+      | dto.appleUserMigrationSchema,
     eventType: string
   ) {
     this.metrics.increment('message.type', { eventType });
@@ -291,6 +295,24 @@ export class QueueworkerService
   }
 
   /**
+   * Notify Pocket that a user's Apple account has been migrated.
+   *
+   * @param message Incoming SQS Message
+   */
+  private async handleAppleUserMigrationEvent(
+    message: dto.appleUserMigrationSchema
+  ) {
+    // Note the hardcoded Pocket clientId, this value should not change in production
+    const clientId = '749818d3f2e7857f';
+    this.metrics.increment('message.type', { eventType: 'appleMigration' });
+    const rpMessage = {
+      timestamp: Date.now(),
+      ...message,
+    };
+    await this.publishMessage(clientId, rpMessage);
+  }
+
+  /**
    * Process a SQS message, dispatch based on message event type.
    *
    * @param sqsMessage Incoming SQS Message
@@ -333,6 +355,10 @@ export class QueueworkerService
       case dto.PASSWORD_CHANGE_EVENT:
       case dto.PASSWORD_RESET_EVENT: {
         await this.handleMessageFanout(message, 'password');
+        break;
+      }
+      case dto.APPLE_USER_MIGRATION_EVENT: {
+        await this.handleAppleUserMigrationEvent(message);
         break;
       }
       default:
