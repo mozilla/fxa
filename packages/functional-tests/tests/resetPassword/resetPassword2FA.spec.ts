@@ -440,15 +440,17 @@ test.describe('reset password with recovery phone', () => {
 
     await expect(recoveryPhone.addHeader()).toBeVisible();
 
-    await recoveryPhone.enterPhoneNumber(testNumber);
-    await recoveryPhone.clickSendCode();
+    await target.smsClient.withPhoneLock(async () => {
+      await recoveryPhone.enterPhoneNumber(testNumber);
+      await recoveryPhone.clickSendCode();
 
-    await expect(recoveryPhone.confirmHeader).toBeVisible();
+      await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-    let smsCode = await target.smsClient.getCode({ ...credentials });
+      const smsCode = await target.smsClient.getCode({ ...credentials });
 
-    await recoveryPhone.enterCode(smsCode);
-    await recoveryPhone.clickConfirm();
+      await recoveryPhone.enterCode(smsCode);
+      await recoveryPhone.clickConfirm();
+    });
 
     await page.waitForURL(/settings/);
     await expect(settings.alertBar).toHaveText('Recovery phone added');
@@ -475,9 +477,10 @@ test.describe('reset password with recovery phone', () => {
 
     await page.waitForURL(/reset_password_recovery_phone/);
 
-    smsCode = await target.smsClient.getCode({ ...credentials });
-
-    await resetPassword.fillRecoveryPhoneCodeForm(smsCode);
+    await target.smsClient.withPhoneLock(async () => {
+      const smsCode = await target.smsClient.getCode({ ...credentials });
+      await resetPassword.fillRecoveryPhoneCodeForm(smsCode);
+    });
 
     await resetPassword.clickConfirmButton();
 
@@ -527,15 +530,17 @@ test.describe('reset password with recovery phone', () => {
 
     await expect(recoveryPhone.addHeader()).toBeVisible();
 
-    await recoveryPhone.enterPhoneNumber(testNumber);
-    await recoveryPhone.clickSendCode();
+    await target.smsClient.withPhoneLock(async () => {
+      await recoveryPhone.enterPhoneNumber(testNumber);
+      await recoveryPhone.clickSendCode();
 
-    await expect(recoveryPhone.confirmHeader).toBeVisible();
+      await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-    let smsCode = await target.smsClient.getCode({ ...credentials });
+      const smsCode = await target.smsClient.getCode({ ...credentials });
 
-    await recoveryPhone.enterCode(smsCode);
-    await recoveryPhone.clickConfirm();
+      await recoveryPhone.enterCode(smsCode);
+      await recoveryPhone.clickConfirm();
+    });
 
     await page.waitForURL(/settings/);
     await expect(settings.alertBar).toHaveText('Recovery phone added');
@@ -562,11 +567,12 @@ test.describe('reset password with recovery phone', () => {
 
     await page.waitForURL(/reset_password_recovery_phone/);
 
-    smsCode = await target.smsClient.getCode({ ...credentials });
-
-    await resetPassword.fillRecoveryPhoneCodeForm(
-      `${Number(smsCode) + 1}`.padStart(smsCode.length, '0')
-    );
+    await target.smsClient.withPhoneLock(async () => {
+      const smsCode = await target.smsClient.getCode({ ...credentials });
+      await resetPassword.fillRecoveryPhoneCodeForm(
+        `${Number(smsCode) + 1}`.padStart(smsCode.length, '0')
+      );
+    });
 
     await resetPassword.clickConfirmButton();
 

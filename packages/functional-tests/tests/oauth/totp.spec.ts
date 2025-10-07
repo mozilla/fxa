@@ -144,15 +144,17 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/inline_recovery_setup/);
 
       await totp.chooseRecoveryPhoneOption();
-      await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
-      await recoveryPhone.clickSendCode();
+      await target.smsClient.withPhoneLock(async () => {
+        await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
+        await recoveryPhone.clickSendCode();
 
-      await expect(recoveryPhone.confirmHeader).toBeVisible();
+        await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-      const smsCode = await target.smsClient.getCode({ ...credentials });
+        const smsCode = await target.smsClient.getCode({ ...credentials });
 
-      await recoveryPhone.enterCode(smsCode);
-      await recoveryPhone.clickConfirm();
+        await recoveryPhone.enterCode(smsCode);
+        await recoveryPhone.clickConfirm();
+      });
 
       await page.getByRole('button', { name: 'Continue' }).click();
 

@@ -290,15 +290,17 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(recoveryPhone.addHeader()).toBeVisible();
 
-      await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
-      await recoveryPhone.clickSendCode();
+      await target.smsClient.withPhoneLock(async () => {
+        await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
+        await recoveryPhone.clickSendCode();
 
-      await expect(recoveryPhone.confirmHeader).toBeVisible();
+        await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-      const code = await target.smsClient.getCode({ ...credentials });
+        const code = await target.smsClient.getCode({ ...credentials });
 
-      await recoveryPhone.enterCode(code);
-      await recoveryPhone.clickConfirm();
+        await recoveryPhone.enterCode(code);
+        await recoveryPhone.clickConfirm();
+      });
 
       await page.waitForURL(/settings/);
 
@@ -375,10 +377,11 @@ test.describe('severity-1 #smoke', () => {
       });
 
       // Get SMS code and enter it
-      const smsCode = await target.smsClient.getCode({ ...credentials });
-
-      await signinRecoveryPhone.enterCode(smsCode);
-      await signinRecoveryPhone.clickConfirm();
+      await target.smsClient.withPhoneLock(async () => {
+        const smsCode = await target.smsClient.getCode({ ...credentials });
+        await signinRecoveryPhone.enterCode(smsCode);
+        await signinRecoveryPhone.clickConfirm();
+      });
 
       // Verify successful login
       expect(await relier.isLoggedIn()).toBe(true);
