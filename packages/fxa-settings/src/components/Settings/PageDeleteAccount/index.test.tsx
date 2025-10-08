@@ -100,6 +100,7 @@ describe('PageDeleteAccount', () => {
         "Mozilla Monitor",
         "MDN Plus",
         "Mozilla Hubs",
+        "Pocket",
       ]
     `);
   });

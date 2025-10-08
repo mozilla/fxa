@@ -909,6 +909,15 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(spy);
       });
 
+      it('submits a ping with the account_pref_bento_pocket event name', async () => {
+        GleanMetrics.accountPref.bentoPocket();
+        const spy = sandbox.spy(accountPref.bentoPocket, 'record');
+        await GleanMetrics.isDone();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'account_pref_bento_pocket');
+        sinon.assert.calledOnce(spy);
+      });
+
       it('submits a ping with the account_pref_bento_relay event name', async () => {
         GleanMetrics.accountPref.bentoRelay();
         const spy = sandbox.spy(accountPref.bentoRelay, 'record');

@@ -19,6 +19,7 @@ jest.mock('../../../lib/glean', () => ({
       bentoFirefoxDesktop: jest.fn(),
       bentoFirefoxMobile: jest.fn(),
       bentoMonitor: jest.fn(),
+      bentoPocket: jest.fn(),
       bentoRelay: jest.fn(),
       bentoVpn: jest.fn(),
     },
@@ -81,6 +82,10 @@ describe('BentoMenu', () => {
     ).toHaveAttribute(
       'href',
       'https://monitor.mozilla.org/?utm_source=moz-account&utm_medium=mozilla-websites&utm_term=bento&utm_content=monitor&utm_campaign=permanent'
+    );
+    expect(screen.getByRole('link', { name: /Pocket/ })).toHaveAttribute(
+      'href',
+      'https://app.adjust.com/hr2n0yz?redirect_macos=https%3A%2F%2Fgetpocket.com%2Fpocket-and-firefox&redirect_windows=https%3A%2F%2Fgetpocket.com%2Fpocket-and-firefox&engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447'
     );
     expect(screen.getByRole('link', { name: /Firefox Relay/ })).toHaveAttribute(
       'href',
@@ -179,6 +184,19 @@ describe('BentoMenu', () => {
       userEvent.click(screen.getByRole('link', { name: /Mozilla Monitor/ }));
       await waitFor(() => {
         expect(GleanMetrics.accountPref.bentoMonitor).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('logs metrics event for Pocket link click', async () => {
+      renderWithLocalizationProvider(<BentoMenu />);
+
+      userEvent.click(screen.getByRole('button', { name: /Mozilla products/ }));
+      await waitFor(() => {
+        expect(screen.getByRole('link', { name: /Pocket/ })).toBeVisible();
+      });
+      userEvent.click(screen.getByRole('link', { name: /Pocket/ }));
+      await waitFor(() => {
+        expect(GleanMetrics.accountPref.bentoPocket).toHaveBeenCalledTimes(1);
       });
     });
 
