@@ -1023,8 +1023,7 @@ module.exports = (
       handler: async function (request) {
         log.begin('totp.replace.create', request);
 
-        const { uid } = request.auth.credentials;
-        const account = await db.account(uid);
+        const { uid, email } = request.auth.credentials;
 
         const { tokenVerified, tokenVerificationId } =
           request.auth.credentials || {};
@@ -1032,12 +1031,7 @@ module.exports = (
           throw errors.unverifiedSession();
         }
 
-        await customs.checkAuthenticated(
-          request,
-          uid,
-          account.email,
-          'totpCreate'
-        );
+        await customs.checkAuthenticated(request, uid, email, 'totpCreate');
 
         // the opposite of `/totp/create` this requires that the user already has
         // a verified TOTP token to be replaced.
@@ -1082,7 +1076,7 @@ module.exports = (
         log.info('totpToken.replace.created', { uid });
         await request.emitMetricsEvent('totpToken.replace.created', { uid });
 
-        const otpauth = authenticator.keyuri(account.email, service, secret);
+        const otpauth = authenticator.keyuri(email, service, secret);
 
         const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
 
@@ -1152,8 +1146,7 @@ module.exports = (
         log.begin('totp.replace.confirm', request);
 
         const code = request.payload.code;
-        const { uid } = request.auth.credentials;
-        const account = await db.account(uid);
+        const { uid, email } = request.auth.credentials;
 
         const { tokenVerified, tokenVerificationId } =
           request.auth.credentials || {};
@@ -1161,12 +1154,7 @@ module.exports = (
           throw errors.unverifiedSession();
         }
 
-        await customs.checkAuthenticated(
-          request,
-          uid,
-          account.email,
-          'totpReplace'
-        );
+        await customs.checkAuthenticated(request, uid, email, 'totpReplace');
         // check the redis cache for the NEW secret. Since the existing code
         // is verified and stored in the db we must use the redis cache
         const newSharedSecret = await authServerCacheRedis.get(
