@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -48,6 +48,7 @@ export const Settings = ({
   const account = useAccount();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
+  const [sessionVerified, setSessionVerified] = useState<boolean | undefined>();
 
   useEffect(() => {
     /**
@@ -121,7 +122,13 @@ export const Settings = ({
     gleanEnabled && GleanMetrics.pageLoad(location.pathname);
   }, [location.pathname, gleanEnabled]);
 
-  if (loading) {
+  useEffect(() => {
+    (async () => {
+      setSessionVerified(await session.isSessionVerified());
+    })();
+  }, [session]);
+
+  if (loading || sessionVerified === undefined) {
     return <LoadingSpinner fullScreen />;
   }
 
@@ -132,13 +139,14 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" />;
   }
 
-  // If the account email isn't verified, kick back to root to prompt for verification.
-  // This should only happen if the user tries to access /settings directly
-  // without entering a confirmation code on confirm_signup_code page.
-  // Session verification requirement and redirect is handled on initial app load
-  // (look for isUnverifiedSessionError in lib/gql.ts for that handling)
-  if (account.primaryEmail.verified === false) {
-    console.warn('Account verification is require to access /settings!');
+  // If the account email isn't verified or the user is an unverified session state,
+  // kick back to root to prompt for verification. This should only happen if the user
+  // tries to access /settings directly without entering a confirmation code on
+  // confirm_signup_code page or signin_token_code page.
+  if (account.primaryEmail.verified === false || sessionVerified === false) {
+    console.warn(
+      'Account or email verification is require to access /settings!'
+    );
     navigateWithQuery('/');
     return <LoadingSpinner fullScreen />;
   }

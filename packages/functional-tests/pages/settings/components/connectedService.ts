@@ -2,31 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ElementHandle, Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 
 export class ConnectedService {
   name = '';
   constructor(
-    readonly element: ElementHandle<Node>,
+    readonly element: Locator,
     readonly page: Page
   ) {}
 
-  static async create(
-    element: ElementHandle<Node>,
-    page: Page
-  ) {
+  static async create(element: Locator, page: Page) {
     const service = new ConnectedService(element, page);
     service.name = await service.getName();
     return service;
   }
 
   async getName() {
-    const p = await this.element.waitForSelector('[data-testid=service-name]');
+    const p = this.element.locator('[data-testid=service-name]');
     return p.innerText();
   }
 
   async signout() {
-    const button = await this.element.waitForSelector(
+    const button = this.element.locator(
       '[data-testid=connected-service-sign-out]'
     );
     return button.click();
