@@ -94,7 +94,6 @@ describe('productConfigurationManager', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
-        { provide: StatsDService, useValue: mockStatsd },
         MockStrapiClientConfigProvider,
         MockFirestoreProvider,
         MockStatsDProvider,

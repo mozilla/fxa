@@ -41,7 +41,7 @@ export interface StrapiClientEventResponse {
   requestEndTime: number;
   elapsed: number;
   cache: boolean;
-  cacheType: 'method' | 'memory' | 'stale' | 'fallback';
+  cacheType: 'method' | 'memory' | 'stale' | 'fallback' | 'fallbackFailed';
   query?: TypedDocumentNode;
   variables?: string;
   error?: Error;
@@ -141,6 +141,7 @@ export class StrapiClient {
             requestStartTime: startTime,
             requestEndTime: endTime,
             elapsed: endTime - startTime,
+            error: result === 'fallback' || result === 'fallbackFailed',
             cache: result === 'stale' || result === 'fallback',
             cacheType: result,
           });
@@ -155,26 +156,12 @@ export class StrapiClient {
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
   ): Promise<Result> {
-    const requestStartTime = Date.now();
-
     try {
       return await this.client.request<Result, any>({
         document: query,
         variables,
       });
     } catch (e) {
-      const requestEndTime = Date.now();
-      this.emitter.emit('response', {
-        method: 'query',
-        query,
-        variables: JSON.stringify(variables),
-        requestStartTime,
-        requestEndTime,
-        elapsed: requestEndTime - requestStartTime,
-        error: e,
-        cache: false,
-      });
-
       throw new StrapiQueryError(query, variables, e);
     }
   }
