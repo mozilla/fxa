@@ -47,9 +47,14 @@ export function PaymentMethodManagement({
   const [isNonDefaultCardSelected, setIsNonDefaultCardSelected] =
     useState(false);
   const [isNonCardSelected, setIsNonCardSelected] = useState(false);
+  const [hideOverflow, setHideOverflow] = useState(true);
 
   const handleReady = () => {
     setIsReady(true);
+  };
+  const handleElementReady = () => {
+    setIsReady(true);
+    setTimeout(() => setHideOverflow(false), 300);
   };
 
   const handlePaymentElementChange = (
@@ -238,10 +243,11 @@ export function PaymentMethodManagement({
         )}
         <Form.Field name="payment">
           <Form.Control asChild>
-            <div className="relative overflow-hidden">
+            <div className={`relative ${hideOverflow ? 'overflow-hidden' : ''}`}>
               <PaymentElement
                 onChange={handlePaymentElementChange}
                 onLoaderStart={handleReady}
+                onReady={handleElementReady}
                 options={{
                   layout: {
                     type: 'accordion',
