@@ -56,6 +56,7 @@ export function PaymentMethodManagement({
     event: StripePaymentElementChangeEvent
   ) => {
     setIsComplete(event.complete);
+    setError(null);
 
     if (event.value.type !== 'card') {
       setIsNonCardSelected(true);
