@@ -124,7 +124,7 @@
   </mj-text>
 <% } %>
 
-<% if (showTaxAmount) { %>
+<% if (showTaxAmount && invoiceTaxAmountInCents > 0 ) { %>
   <mj-text css-class="text-body-table-no-bottom-margin">
     <table width="100%">
       <tr style="line-height: 24px; border-top: 1px solid #E0E0E6;">

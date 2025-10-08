@@ -25,7 +25,7 @@ subscriptionFirstInvoiceDiscount-content-subtotal = "Subtotal: <%- invoiceSubtot
   subscription-charges-discount-plaintext = "Discount: <%- invoiceDiscountAmount %>"
 <% } %>
 <% } %>
-<% if (showTaxAmount) { %>
+<% if (showTaxAmount && invoiceTaxAmountInCents > 0) { %>
   subscriptionCharges-content-tax = "Taxes & fees: <%- invoiceTaxAmount %>"
 <% } %>
 <% if (invoiceTotalInCents !== invoiceAmountDueInCents) { %>
