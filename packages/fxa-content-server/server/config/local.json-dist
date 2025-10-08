@@ -5,6 +5,7 @@
   "profile_url": "http://localhost:1111",
   "profile_images_url": "http://localhost:1112",
   "payments_next_hosted_url": "http://localhost:3035",
+  "fxaccount_url": "http://localhost:9000",
   "client_sessions": {
     "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",
