@@ -98,15 +98,11 @@ module.exports = (
       handler: async function (request) {
         log.begin('totp.create', request);
 
-        const { email, uid, tokenVerificationId } = request.auth.credentials;
+        const { email, uid } = request.auth.credentials;
 
         const account = await db.account(uid);
         if (!account.emailVerified) {
           throw errors.unverifiedAccount();
-        }
-
-        if (tokenVerificationId) {
-          throw errors.unverifiedSession();
         }
 
         await customs.checkAuthenticated(request, uid, email, 'totpCreate');
