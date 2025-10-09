@@ -29,7 +29,7 @@ let maxFailures = 0;
 
 if (CI) {
   // Overall maxFailures is dependent on the number of workers
-  workers = 2;
+  workers = 3;
   maxFailures = FAIL_FAST ? workers * 2 : 0;
 }
 
