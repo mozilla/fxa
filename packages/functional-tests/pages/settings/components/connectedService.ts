@@ -23,9 +23,24 @@ export class ConnectedService {
   }
 
   async signout() {
+    /**
+     * This is _not_ an ideal solution. Something about this page and how we build these
+     * page objects is behaving oddly. We can see the button click as the trace shows the
+     * button change color, but it doesn't actually click. This is a workaround until we
+     * can figure out the underlying issue.
+     *
+     * TODO: https://mozilla-hub.atlassian.net/browse/FXA-12517
+     */
+    // eslint-disable-next-line playwright/no-wait-for-timeout
+    await this.page.waitForTimeout(1500);
+    await this.page
+      .locator('[data-testid=nav-link-connected-services]')
+      .click();
+    await this.page.waitForURL(/#connected-services/);
     const button = this.element.locator(
       '[data-testid=connected-service-sign-out]'
     );
-    return button.click();
+
+    await button.click();
   }
 }
