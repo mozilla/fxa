@@ -17,10 +17,6 @@ import { getTotpCode } from '../../lib/totp';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('recovery phone', () => {
-    // Run these tests sequentially. This must be done when using the Twilio API, because they rely on
-    // the same test phone number, and we cannot determine the order in which the messages were received.
-    test.describe.configure({ mode: 'serial' });
-
     let testNumber: string;
 
     test.beforeAll(async ({ target }) => {
@@ -131,15 +127,17 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(recoveryPhone.addHeader()).toBeVisible();
 
-      await recoveryPhone.enterPhoneNumber(testNumber);
-      await recoveryPhone.clickSendCode();
+      await target.smsClient.withPhoneLock(async () => {
+        await recoveryPhone.enterPhoneNumber(testNumber);
+        await recoveryPhone.clickSendCode();
 
-      await expect(recoveryPhone.confirmHeader).toBeVisible();
+        await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-      const code = await target.smsClient.getCode({ ...credentials });
+        const code = await target.smsClient.getCode({ ...credentials });
 
-      await recoveryPhone.enterCode(code);
-      await recoveryPhone.clickConfirm();
+        await recoveryPhone.enterCode(code);
+        await recoveryPhone.clickConfirm();
+      });
 
       await page.waitForURL(/settings/);
       await expect(settings.alertBar).toHaveText('Recovery phone changed');
@@ -354,28 +352,30 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/signin_recovery_phone/);
 
-      // Invalid code
-      await signinRecoveryPhone.enterCode('123456');
-      await signinRecoveryPhone.clickConfirm();
+      await target.smsClient.withPhoneLock(async () => {
+        // Invalid code
+        await signinRecoveryPhone.enterCode('123456');
+        await signinRecoveryPhone.clickConfirm();
 
-      await expect(
-        page.getByText(/The code is invalid or expired./)
-      ).toBeVisible();
+        await expect(
+          page.getByText(/The code is invalid or expired./)
+        ).toBeVisible();
 
-      const originalCode = await target.smsClient.getCode({ ...credentials });
+        const originalCode = await target.smsClient.getCode({ ...credentials });
 
-      // Sends a new code
-      await signinRecoveryPhone.clickResendCode();
-      await expect(page.getByText('Code sent')).toBeVisible();
+        // Sends a new code
+        await signinRecoveryPhone.clickResendCode();
+        await expect(page.getByText('Code sent')).toBeVisible();
 
-      const nextCode = await target.smsClient.getCode({ ...credentials });
+        const nextCode = await target.smsClient.getCode({ ...credentials });
 
-      expect(originalCode).not.toEqual(nextCode);
+        expect(originalCode).not.toEqual(nextCode);
 
-      // Enter the new code and login
-      await signinRecoveryPhone.enterCode(nextCode);
+        // Enter the new code and login
+        await signinRecoveryPhone.enterCode(nextCode);
 
-      await signinRecoveryPhone.clickConfirm();
+        await signinRecoveryPhone.clickConfirm();
+      });
 
       await page.waitForURL(/settings/);
 
@@ -631,9 +631,11 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/signin_recovery_phone/);
       await expect(signinRecoveryPhone.codeInput).toBeVisible();
 
-      const signInCode = await target.smsClient.getCode({ ...credentials });
-      await signinRecoveryPhone.enterCode(signInCode);
-      await signinRecoveryPhone.clickConfirm();
+      await target.smsClient.withPhoneLock(async () => {
+        const signInCode = await target.smsClient.getCode({ ...credentials });
+        await signinRecoveryPhone.enterCode(signInCode);
+        await signinRecoveryPhone.clickConfirm();
+      });
       await page.waitForURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
       await settings.disconnectTotp();
@@ -694,15 +696,17 @@ async function setup2faWithRecoveryPhoneChoice(
 
   await expect(recoveryPhone.addHeader()).toBeVisible();
 
-  await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
-  await recoveryPhone.clickSendCode();
+  await target.smsClient.withPhoneLock(async () => {
+    await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
+    await recoveryPhone.clickSendCode();
 
-  await expect(recoveryPhone.confirmHeader).toBeVisible();
+    await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-  const code = await target.smsClient.getCode({ ...credentials });
+    const code = await target.smsClient.getCode({ ...credentials });
 
-  await recoveryPhone.enterCode(code);
-  await recoveryPhone.clickConfirm();
+    await recoveryPhone.enterCode(code);
+    await recoveryPhone.clickConfirm();
+  });
 
   await page.waitForURL(/settings/);
 
@@ -726,16 +730,17 @@ async function addRecoveryPhone(
   await page.waitForURL(/recovery_phone\/setup/);
 
   await expect(recoveryPhone.addHeader()).toBeVisible();
+  await target.smsClient.withPhoneLock(async () => {
+    await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
+    await recoveryPhone.clickSendCode();
 
-  await recoveryPhone.enterPhoneNumber(target.smsClient.getPhoneNumber());
-  await recoveryPhone.clickSendCode();
+    await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-  await expect(recoveryPhone.confirmHeader).toBeVisible();
+    const code = await target.smsClient.getCode({ ...credentials });
 
-  const code = await target.smsClient.getCode({ ...credentials });
-
-  await recoveryPhone.enterCode(code);
-  await recoveryPhone.clickConfirm();
+    await recoveryPhone.enterCode(code);
+    await recoveryPhone.clickConfirm();
+  });
 
   await page.waitForURL(/settings/);
   await expect(settings.alertBar).toHaveText('Recovery phone added');

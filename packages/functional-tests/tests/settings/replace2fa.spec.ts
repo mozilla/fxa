@@ -299,14 +299,15 @@ const addPhoneRecovery = async ({
   target: BaseTarget;
 }) => {
   await settings.totp.addRecoveryPhoneButton.click();
+  await target.smsClient.withPhoneLock(async () => {
+    await recoveryPhone.submitPhoneNumber();
 
-  await recoveryPhone.submitPhoneNumber();
+    await expect(recoveryPhone.confirmHeader).toBeVisible();
 
-  await expect(recoveryPhone.confirmHeader).toBeVisible();
+    const code = await target.smsClient.getCode({ ...credentials });
 
-  const code = await target.smsClient.getCode({ ...credentials });
-
-  await recoveryPhone.submitCode(code);
+    await recoveryPhone.submitCode(code);
+  });
 
   await expect(settings.alertBar).toHaveText('Recovery phone added');
 };

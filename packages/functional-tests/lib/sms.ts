@@ -23,6 +23,8 @@ export class SmsClient {
   private redisClientConnected = false;
   private hasLoggedRedisConnectionError = false;
   private _connecting = false;
+  private phoneLockKey: string | undefined;
+  private phoneLockToken: string | undefined;
 
   constructor(public readonly targetName: TargetName) {
     const accountSid = getFromEnv(
@@ -81,6 +83,14 @@ export class SmsClient {
     return !!this.redisClient;
   }
 
+  /**
+   * Checks if phone number locking is available, based on Redis availability.
+   * @returns
+   */
+  isPhoneLockingAvailable() {
+    return this.isRedisEnabled();
+  }
+
   usingRealTestPhoneNumber() {
     return this.getPhoneNumber() !== TEST_NUMBER;
   }
@@ -100,6 +110,14 @@ export class SmsClient {
     timeout?: number;
   }) {
     if (this.isTwilioEnabled()) {
+      // When using a real phone number with Twilio, different workers may
+      // race to read the latest message for the same number. If Redis is
+      // available, take a short-lived distributed lock to serialize access.
+      if (this.isRedisEnabled()) {
+        return await this.withPhoneLock(async () => {
+          return this._getCodeTwilio(phoneNumber);
+        }, phoneNumber);
+      }
       return this._getCodeTwilio(phoneNumber);
     } else {
       return this._getCodeLocal(uid, timeout);
@@ -142,6 +160,132 @@ export class SmsClient {
     }
     if (!usingRealNumber && !isRedisEnabled) {
       throw new Error('Redis must be enabled when using a test number.');
+    }
+
+    // Optional enforcement to check if phone number locking is available.
+    // Unsure if we need this, but it could be valuable to troubleshoot should
+    // we encounter issues with phone number locking.
+    if (
+      process.env.FUNCTIONAL_TESTS__PHONE_LOCK_REQUIRED === 'true' &&
+      !this.isPhoneLockingAvailable()
+    ) {
+      throw new Error(
+        'Redis must be enabled to use phone-number locking across workers.'
+      );
+    }
+  }
+
+  /**
+   * Acquire an exclusive lock for the configured phone number so a test can
+   * perform multiple steps (send code, sign out/in, read code) without other
+   * workers interfering. Returns a release function to be called in finally.
+   *
+   * It's preferred to use the `withPhoneLock` method instead, as it wraps this
+   * and handles the release of the lock.
+   *
+   * Example:
+   *   const release = await target.smsClient.acquirePhoneLock();
+   *   try {
+   *     // do steps that cause SMS to be sent and then read it
+   *   } finally {
+   *     await release();
+   *   }
+   *
+   * @param phoneNumber - The phone number to lock.
+   * @param lockTtlMs - The time to live for the lock.
+   * @param acquireTimeoutMs - The timeout for acquiring the lock.
+   * @param autoRenew - Whether to auto-renew the lock.
+   * @returns A release function to be called in finally.
+   */
+  async acquirePhoneLock(
+    phoneNumber = this.getPhoneNumber(),
+    lockTtlMs = 30000,
+    acquireTimeoutMs = 15000,
+    autoRenew = false
+  ): Promise<() => Promise<void>> {
+    if (!this.redisClient) {
+      return async () => {};
+    }
+    const lockKey = `recovery-phone:lock:${phoneNumber}`;
+    const lockToken = `${process.pid}-${Date.now()}-${Math.random()}`;
+    const acquireBy = Date.now() + acquireTimeoutMs;
+
+    while (Date.now() < acquireBy) {
+      try {
+        const result = await this.redisClient.set(
+          lockKey,
+          lockToken,
+          'PX',
+          lockTtlMs,
+          'NX'
+        );
+        if (result === 'OK') {
+          this.phoneLockKey = lockKey;
+          this.phoneLockToken = lockToken;
+          let renewTimer: ReturnType<typeof setInterval> | undefined;
+          if (autoRenew) {
+            renewTimer = setInterval(
+              async () => {
+                try {
+                  const redisClientRef = this.redisClient;
+                  if (!redisClientRef) {
+                    return;
+                  }
+                  const current = await redisClientRef.get(lockKey);
+                  if (current === lockToken) {
+                    await redisClientRef.pexpire(lockKey, lockTtlMs);
+                  }
+                } catch (_err) {
+                  void 0;
+                }
+              },
+              Math.max(1000, Math.floor(lockTtlMs / 2))
+            );
+          }
+
+          const release = async () => {
+            if (renewTimer) clearInterval(renewTimer);
+            await this._releasePhoneLock(lockKey, lockToken);
+            if (this.phoneLockKey === lockKey) this.phoneLockKey = undefined;
+            if (this.phoneLockToken === lockToken)
+              this.phoneLockToken = undefined;
+          };
+          return release;
+        }
+      } catch (_err) {
+        void 0;
+      }
+      await wait();
+    }
+
+    // Could not acquire; return no-op releaser
+    return async () => {};
+  }
+
+  /**
+   * Manages performing operations with a phone number while holding a lock on
+   * the phone number. Allows for parallelization on functional tests that require
+   * sharing the same phone number.
+   *
+   * Please note, if a large number of tests are running in parallel that use the same
+   * phone number, it's possible for a deadlock and tests will start to timeout
+   * while waiting for an available unlock.
+   *
+   * An additional pitfall is how tests run in CI...
+   * Today, tests run in parallel CI containers, which means they don't share the Redis instance.
+   * FxA also has a limit of 5 accounts with the same phone number. So, it's possible for
+   * parallel containers with parallel tests to "consume" all 5 accounts with the same phone number.
+   */
+  async withPhoneLock<T>(
+    fn: () => Promise<T>,
+    phoneNumber = this.getPhoneNumber(),
+    lockTtlMs = 30000
+  ): Promise<T> {
+    const release = await this.acquirePhoneLock(phoneNumber, lockTtlMs);
+    try {
+      return await fn();
+    } finally {
+      await release();
     }
   }
 
@@ -285,5 +429,21 @@ export class SmsClient {
     }
 
     throw new Error('KeyTimeout');
+  }
+
+  /**
+   * Release the phone lock using a basic check-and-del pattern to avoid
+   * releasing someone else's lock.
+   */
+  private async _releasePhoneLock(lockKey: string, token: string) {
+    if (!this.redisClient) return;
+    try {
+      const current = await this.redisClient.get(lockKey);
+      if (current === token) {
+        await this.redisClient.del(lockKey);
+      }
+    } catch (_err) {
+      // Best effort; ignore
+    }
   }
 }
