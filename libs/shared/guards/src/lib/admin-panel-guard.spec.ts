@@ -133,6 +133,12 @@ describe('support agents', () => {
           AdminPanelGroup.ReadOnlyStage
         )
       ).true;
+      expect(
+        stageGuard.allow(
+          AdminPanelFeature.DeleteRecoveryPhone,
+          AdminPanelGroup.AdminStage
+        )
+      ).true;
     });
 
     it('looks up group', () => {
@@ -222,6 +228,12 @@ describe('support agents', () => {
       expect(
         guard.allow(
           AdminPanelFeature.DisableAccount,
+          AdminPanelGroup.SupportAgentStage
+        )
+      ).false;
+      expect(
+        guard.allow(
+          AdminPanelFeature.DeleteRecoveryPhone,
           AdminPanelGroup.SupportAgentStage
         )
       ).false;
