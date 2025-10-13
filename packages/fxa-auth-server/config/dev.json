@@ -287,7 +287,8 @@
         "redirectUri": "https://example2.domain/return?foo=bar",
         "trusted": true,
         "canGrant": true,
-        "publicClient": true
+        "publicClient": true,
+        "allowedScopes": "profile:write profile:locale:write"
       },
       {
         "name": "FxA OAuth Console",
@@ -371,7 +372,7 @@
         "termsUri": "",
         "privacyUri": "",
         "trusted": true,
-        "allowedScopes": "https://identity.mozilla.com/account/subscriptions https://identity.mozilla.com/account/newsletters",
+        "allowedScopes": "https://identity.mozilla.com/account/subscriptions https://identity.mozilla.com/account/newsletters profile:subscriptions",
         "publicClient": true
       },
       {
@@ -392,7 +393,7 @@
         "hashedSecret": "4cc7c40ddc178fd4337a804ded2abfa9a9db89fc257a71afeabb1561e2b14bbc",
         "imageUri": "",
         "redirectUri": "urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel",
-        "allowedScopes": "https://identity.thunderbird.net/apps/sync",
+        "allowedScopes": "https://identity.thunderbird.net/apps/sync profile:subscriptions https://identity.mozilla.com/account/subscriptions",
         "trusted": true,
         "canGrant": true,
         "publicClient": true
