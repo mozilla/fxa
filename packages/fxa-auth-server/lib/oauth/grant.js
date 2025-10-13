@@ -41,6 +41,14 @@ const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
   'profile:display_name',
 ]);
 
+const TRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
+  'openid',
+  'profile',
+  'email',
+  'profile:subscriptions',
+]);
+
+
 /** @type {CapabilityService} */
 let capabilityService = undefined;
 
@@ -89,10 +97,11 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
     }
   }
 
-  // For custom scopes (besides the UNTRUSTED_CLIENT_ALLOWED_SCOPES list), is the client allowed to request them?
+  // For custom scopes, is the client allowed to request them?
   let requiresVerifiedToken = false;
   const scopeConfig = {};
   const customScopes = ScopeSet.fromArray([]);
+  const notFoundCustomScopes = ScopeSet.fromArray([]);
   for (const scope of requestedGrant.scope.getScopeValues()) {
     const s = (scopeConfig[scope] = await db.getScope(scope));
     if (s) {
@@ -101,8 +110,26 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
         requiresVerifiedToken = true;
       }
       customScopes.add(scope);
+    } else {
+      notFoundCustomScopes.add(scope);
     }
   }
+
+  // For trusted clients, validate scopes against clients trusted scopes
+  if (client.trusted) {
+    const clientScopeSet = ScopeSet.fromString(client.allowedScopes || '');
+    const trustedClientAllowedScopes = clientScopeSet.union(TRUSTED_CLIENT_ALLOWED_SCOPES);
+
+    const invalidScopes = notFoundCustomScopes.difference(trustedClientAllowedScopes);
+    if (!invalidScopes.isEmpty()) {
+      // Instead of failing the entire request, just remove the invalid scopes
+      requestedGrant.scope = requestedGrant.scope.difference(
+        invalidScopes
+      );
+    }
+  }
+
+  // For custom scopes (starts with https), validate against client's allowedScopes
   if (!customScopes.isEmpty()) {
     const invalidScopes = customScopes.difference(
       ScopeSet.fromString(client.allowedScopes || '')
