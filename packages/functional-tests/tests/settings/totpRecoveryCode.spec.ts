@@ -148,7 +148,6 @@ test.describe('severity-1 #smoke', () => {
       },
       testAccountTracker,
     }) => {
-      test.setTimeout(90000); // 1.5 minutes, seeing flakes in CI runs against stage. See FXA-12497.
       const credentials = await signInAccount(
         target,
         page,
@@ -158,22 +157,34 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
+
       const { recoveryCodes } = await addTotp(credentials, settings, totp);
-      await settings.signOut();
+      const authClient = target.createAuthClient(2);
 
       for (let i = 0; i < recoveryCodes.length - 3; i++) {
-        await signinWithRecoveryCode(
-          credentials,
-          recoveryCodes[i],
-          page,
-          signin,
-          signinRecoveryCode,
-          signinTotpCode
-        );
-        await expect(settings.settingsHeading).toBeVisible();
-        await settings.signOut();
+        // We directly use the API here. Different environments will
+        // use a different number of recovery codes. In Stage & Prod, this results
+        // in having to consume through ~6 codes before the final code to trigger
+        // the email. This can be very slow going through the UI, and since
+        // we are only interested in the fact that the email is sent and has a valid link,
+        // this lets us get there faster.
+        try {
+          await authClient.consumeRecoveryCode(
+            credentials.sessionToken,
+            recoveryCodes[i]
+          );
+        } catch (error) {
+          // capture any errors so they're available in the trace.
+          // eslint-disable-next-line no-console
+          console.error(
+            `Error consuming recovery code ${recoveryCodes[i]}:`,
+            error
+          );
+          break;
+        }
       }
 
+      await settings.signOut();
       await signinWithRecoveryCode(
         credentials,
         recoveryCodes[recoveryCodes.length - 1],
