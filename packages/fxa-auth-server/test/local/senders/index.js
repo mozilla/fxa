@@ -12,6 +12,10 @@ const crypto = require('crypto');
 const mocks = require(`${ROOT_DIR}/test/mocks`);
 const senders = require(`${ROOT_DIR}/lib/senders`);
 const sinon = require('sinon');
+const { Container } = require('typedi');
+const {
+  ProductConfigurationManager,
+} = require('../../../../../libs/shared/cms/src');
 
 const nullLog = mocks.mockLog();
 
@@ -467,10 +471,17 @@ describe('lib/senders/index', () => {
 
     describe('subscriptionAccountReminder Emails', () => {
       it('should send an email if the account is unverified', async () => {
+        mocks.mockProductConfigurationManager();
+        Container.set(
+          ProductConfigurationManager,
+          mocks.mockProductConfigurationManager()
+        );
         const mailer = await createSender(config);
         await mailer.sendSubscriptionAccountReminderFirstEmail(EMAILS, acct, {
           email: 'test@test.com',
           uid: '123',
+          planId: '456',
+          acceptLanguage: 'en-US',
           productId: 'abc',
           productName: 'testProduct',
           token: 'token',
@@ -484,10 +495,16 @@ describe('lib/senders/index', () => {
       });
 
       it('should not send an email if the account is verified', async () => {
+        Container.set(
+          ProductConfigurationManager,
+          mocks.mockProductConfigurationManager()
+        );
         const mailer = await createSender(config);
         await mailer.sendSubscriptionAccountReminderFirstEmail(EMAILS, acct, {
           email: 'test@test.com',
           uid: '123',
+          planId: '456',
+          acceptLanguage: 'en-US',
           productId: 'abc',
           productName: 'testProduct',
           token: 'token',

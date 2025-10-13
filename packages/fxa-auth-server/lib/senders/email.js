@@ -20,6 +20,8 @@ const { NodeRendererBindings } = require('./renderer/bindings-node');
 const { determineLocale } = require('../../../../libs/shared/l10n/src');
 
 const TEMPLATE_VERSIONS = require('./emails/templates/_versions.json');
+const { ProductConfigurationManager } = require('@fxa/shared/cms');
+const { Container } = require('typedi');
 
 const DEFAULT_LOCALE = 'en';
 const DEFAULT_TIMEZONE = 'Etc/UTC';
@@ -373,6 +375,12 @@ module.exports = function (log, config, bounces, statsd) {
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
     this.renderer = new Renderer(new NodeRendererBindings());
     this.metricsEnabled = true;
+
+    this.productConfigurationManager = Container.has(
+      ProductConfigurationManager
+    )
+      ? Container.get(ProductConfigurationManager)
+      : null;
   }
 
   Mailer.prototype.stop = function () {
@@ -770,6 +778,8 @@ module.exports = function (log, config, bounces, statsd) {
         email,
         uid,
         productId,
+        planId,
+        acceptLanguage,
         productName,
         token,
         flowId,
@@ -796,6 +806,12 @@ module.exports = function (log, config, bounces, statsd) {
         query,
         template
       );
+      const cmsLinks = await this._generateCmsLinks(
+        planId,
+        acceptLanguage,
+        template
+      );
+      Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
       const headers = {
         'X-Link': links.link,
       };
@@ -2205,6 +2221,8 @@ module.exports = function (log, config, bounces, statsd) {
       email,
       uid,
       productId,
+      planId,
+      acceptLanguage,
       productName,
       invoiceNumber,
       invoiceTotalInCents,
@@ -2247,6 +2265,12 @@ module.exports = function (log, config, bounces, statsd) {
       query,
       template
     );
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
     const headers = {
       'X-Link': links.link,
     };
@@ -2285,7 +2309,8 @@ module.exports = function (log, config, bounces, statsd) {
   };
 
   Mailer.prototype.subscriptionReplacedEmail = async function (message) {
-    const { email, uid, productId, planId, productName } = message;
+    const { email, uid, productId, planId, acceptLanguage, productName } =
+      message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionReplaced', {
@@ -2301,6 +2326,12 @@ module.exports = function (log, config, bounces, statsd) {
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionReplaced';
     const links = this._generateLinks(null, message, query, template);
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
     const headers = {};
 
     return this.send({
@@ -2324,6 +2355,7 @@ module.exports = function (log, config, bounces, statsd) {
       invoiceAmountDueInCents,
       productId,
       planId,
+      acceptLanguage,
       productIconURLNew,
       productNameOld,
       productNameNew,
@@ -2348,6 +2380,12 @@ module.exports = function (log, config, bounces, statsd) {
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionUpgrade';
     const links = this._generateLinks(null, message, query, template);
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
     const headers = {};
 
     const getPreviousRateContent = (tax, interval) => {
@@ -2684,6 +2722,7 @@ module.exports = function (log, config, bounces, statsd) {
       uid,
       productId,
       planId,
+      acceptLanguage,
       productIconURLNew,
       productIconURLOld,
       productNameOld,
@@ -2712,6 +2751,12 @@ module.exports = function (log, config, bounces, statsd) {
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionDowngrade';
     const links = this._generateLinks(null, message, query, template);
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
     const headers = {};
 
     return this.send({
@@ -2750,7 +2795,7 @@ module.exports = function (log, config, bounces, statsd) {
   };
 
   Mailer.prototype.subscriptionPaymentExpiredEmail = async function (message) {
-    const { email, uid, subscriptions } = message;
+    const { email, uid, planId, acceptLanguage, subscriptions } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentExpired', {
@@ -2784,6 +2829,13 @@ module.exports = function (log, config, bounces, statsd) {
       links = this._generateLinks(null, message, {}, template);
     }
 
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
+
     return this.send({
       ...message,
       headers,
@@ -2802,7 +2854,7 @@ module.exports = function (log, config, bounces, statsd) {
   Mailer.prototype.subscriptionPaymentProviderCancelledEmail = async function (
     message
   ) {
-    const { email, uid, subscriptions } = message;
+    const { email, uid, planId, acceptLanguage, subscriptions } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentProviderCancelled', {
@@ -2836,6 +2888,13 @@ module.exports = function (log, config, bounces, statsd) {
       links = this._generateLinks(null, message, {}, template);
     }
 
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
+
     return this.send({
       ...message,
       headers,
@@ -2852,8 +2911,15 @@ module.exports = function (log, config, bounces, statsd) {
   };
 
   Mailer.prototype.subscriptionPaymentFailedEmail = async function (message) {
-    const { email, uid, productId, planId, planEmailIconURL, productName } =
-      message;
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      acceptLanguage,
+      planEmailIconURL,
+      productName,
+    } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentFailed', {
@@ -2869,6 +2935,12 @@ module.exports = function (log, config, bounces, statsd) {
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionPaymentFailed';
     const links = this._generateLinks(null, message, query, template);
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
     const headers = {};
 
     return this.send({
@@ -2893,6 +2965,7 @@ module.exports = function (log, config, bounces, statsd) {
       uid,
       productId,
       planId,
+      acceptLanguage,
       planEmailIconURL,
       productName,
       invoiceDate,
@@ -2914,6 +2987,12 @@ module.exports = function (log, config, bounces, statsd) {
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionAccountDeletion';
     const links = this._generateLinks(null, message, query, template);
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
     const headers = {};
 
     return this.send({
@@ -2948,6 +3027,7 @@ module.exports = function (log, config, bounces, statsd) {
       uid,
       productId,
       planId,
+      acceptLanguage,
       planEmailIconURL,
       productName,
       invoiceDate,
@@ -2973,6 +3053,12 @@ module.exports = function (log, config, bounces, statsd) {
     const template = 'subscriptionCancellation';
 
     const links = this._generateLinks(null, message, query, template);
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
     const headers = {};
 
     return this.send({
@@ -3010,8 +3096,15 @@ module.exports = function (log, config, bounces, statsd) {
 
   Mailer.prototype.subscriptionFailedPaymentsCancellationEmail =
     async function (message) {
-      const { email, uid, productId, planId, planEmailIconURL, productName } =
-        message;
+      const {
+        email,
+        uid,
+        productId,
+        planId,
+        acceptLanguage,
+        planEmailIconURL,
+        productName,
+      } = message;
 
       const enabled = config.subscriptions.transactionalEmails.enabled;
       log.trace('mailer.subscriptionFailedPaymentsCancellation', {
@@ -3027,6 +3120,12 @@ module.exports = function (log, config, bounces, statsd) {
       const query = { plan_id: planId, product_id: productId, uid };
       const template = 'subscriptionFailedPaymentsCancellation';
       const links = this._generateLinks(null, message, query, template);
+      const cmsLinks = await this._generateCmsLinks(
+        planId,
+        acceptLanguage,
+        template
+      );
+      Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
       const headers = {};
 
       return this.send({
@@ -3051,6 +3150,7 @@ module.exports = function (log, config, bounces, statsd) {
       uid,
       productId,
       planId,
+      acceptLanguage,
       planEmailIconURL,
       productName,
       invoiceTotalInCents,
@@ -3075,6 +3175,12 @@ module.exports = function (log, config, bounces, statsd) {
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionReactivation';
     const links = this._generateLinks(null, message, query, template);
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
     const headers = {};
 
     return this.send({
@@ -3108,7 +3214,7 @@ module.exports = function (log, config, bounces, statsd) {
   };
 
   Mailer.prototype.subscriptionRenewalReminderEmail = async function (message) {
-    const { email, uid, subscription } = message;
+    const { email, uid, planId, acceptLanguage, subscription } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionRenewalReminderEmail', {
@@ -3133,6 +3239,12 @@ module.exports = function (log, config, bounces, statsd) {
       },
       template
     );
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
 
     return this.send({
       ...message,
@@ -3164,6 +3276,7 @@ module.exports = function (log, config, bounces, statsd) {
       uid,
       productId,
       planId,
+      acceptLanguage,
       planEmailIconURL,
       productName,
       creditAppliedInCents,
@@ -3205,6 +3318,15 @@ module.exports = function (log, config, bounces, statsd) {
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionSubsequentInvoice';
     const links = this._generateLinks(null, message, query, template);
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
+    log.trace('mailer.subscriptionSubsequentInvoice.links', {
+      links,
+    });
     const headers = {};
 
     let paymentProrated;
@@ -3337,6 +3459,7 @@ module.exports = function (log, config, bounces, statsd) {
       uid,
       productId,
       planId,
+      acceptLanguage,
       planEmailIconURL,
       productName,
       creditAppliedInCents,
@@ -3376,6 +3499,15 @@ module.exports = function (log, config, bounces, statsd) {
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionFirstInvoice';
     const links = this._generateLinks(null, message, query, template);
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
+    log.trace('mailer.subscriptionFirstInvoice.links', {
+      links,
+    });
     const headers = {};
 
     return this.send({
@@ -3491,6 +3623,7 @@ module.exports = function (log, config, bounces, statsd) {
       email,
       productId,
       planId,
+      acceptLanguage,
       productName,
       planEmailIconURL,
       planSuccessActionButtonURL,
@@ -3511,6 +3644,12 @@ module.exports = function (log, config, bounces, statsd) {
       appStoreLink,
       playStoreLink
     );
+    const cmsLinks = await this._generateCmsLinks(
+      planId,
+      acceptLanguage,
+      template
+    );
+    Object.keys(cmsLinks).forEach((key) => (links[key] = cmsLinks[key]));
 
     const headers = {
       'X-Link': links.link,
@@ -3656,6 +3795,48 @@ module.exports = function (log, config, bounces, statsd) {
     return `${paymentsServerURL.origin}/legal-docs?url=${encodeURIComponent(
       url
     )}`;
+  };
+
+  Mailer.prototype._generateCmsLinks = async function (
+    planId,
+    acceptLanguage,
+    templateName
+  ) {
+    if (
+      !(planId && acceptLanguage && Container.has(ProductConfigurationManager))
+    ) {
+      return {};
+    }
+
+    const productConfigurationManager = Container.get(
+      ProductConfigurationManager
+    );
+
+    const purchaseDetails =
+      await productConfigurationManager.getPurchaseWithDetailsOfferingContentByPlanIds(
+        [planId],
+        acceptLanguage
+      );
+    const transformedPurchaseDetails =
+      purchaseDetails.transformedPurchaseWithCommonContentForPlanId(planId);
+    const commonContent =
+      transformedPurchaseDetails.offering.commonContent.localizations.at(0) ??
+      transformedPurchaseDetails.offering.commonContent;
+
+    return {
+      subscriptionPrivacyUrl: this._generateUTMLink(
+        commonContent.privacyNoticeDownloadUrl,
+        {},
+        templateName,
+        'subscription-privacy'
+      ),
+      subscriptionTermsUrl: this._generateUTMLink(
+        commonContent.termsOfServiceDownloadUrl,
+        {},
+        templateName,
+        'subscription-terms'
+      ),
+    };
   };
 
   Mailer.prototype._generateUTMLink = function (
