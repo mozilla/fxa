@@ -7,7 +7,7 @@ import { setupAuthDatabase } from 'fxa-shared/db';
 import { Account } from 'fxa-shared/db/models/auth/account';
 import { knex, Knex } from 'knex';
 import path from 'path';
-import { deriveHawkCredentials } from 'fxa-auth-client';
+import { deriveHawkCredentials } from '@fxa/accounts/auth-client';
 
 export type AccountIsh = Pick<
   Account,

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BoolString } from '../../../fxa-auth-client/lib/client';
+import { BoolString } from '@fxa/accounts/auth-client';
 import { TargetName } from '.';
 import { BaseTarget, Credentials } from './base';
 import { RateLimitClient } from '../ratelimit';

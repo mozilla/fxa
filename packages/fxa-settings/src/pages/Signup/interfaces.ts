@@ -19,7 +19,7 @@ export interface BeginSignupResponse {
   unwrapBKey?: hexstring;
 }
 
-// full list @ fxa-auth-client/lib/client.ts, probably port over?
+// full list @ @fxa/accounts/auth-clientuth-client/lib/client.ts, probably port over?
 export interface BeginSignUpOptions {
   service?: string;
   verificationMethod?: string;

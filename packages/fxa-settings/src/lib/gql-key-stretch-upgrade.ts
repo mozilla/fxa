@@ -16,9 +16,9 @@ import {
   getCredentialsV2,
   getKeysV2,
   unwrapKB,
-} from 'fxa-auth-client/lib/crypto';
-import { createSaltV2 } from 'fxa-auth-client/lib/salt';
-import { deriveHawkCredentials } from 'fxa-auth-client/lib/hawk';
+} from '@fxa/accounts/auth-client';
+import { createSaltV2 } from '@fxa/accounts/auth-client';
+import { deriveHawkCredentials } from '@fxa/accounts/auth-client';
 import { getHandledError } from './error-utils';
 import { SensitiveDataClient } from './sensitive-data-client';
 

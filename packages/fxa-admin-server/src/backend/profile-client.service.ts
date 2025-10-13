@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import AuthClient from 'fxa-auth-client';
+import AuthClient from '@fxa/accounts/auth-client';
 import superagent from 'superagent';
 
 import { AppConfig } from '../config';

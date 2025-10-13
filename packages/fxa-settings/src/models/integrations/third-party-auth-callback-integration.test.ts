@@ -4,7 +4,7 @@
 
 import { ModelDataStore, GenericData } from '../../lib/model-data';
 import { ThirdPartyAuthCallbackIntegration } from './third-party-auth-callback-integration';
-import { AUTH_PROVIDER } from 'fxa-auth-client/browser';
+import { AUTH_PROVIDER } from '@fxa/accounts/auth-client';
 
 describe('models/integrations/third-party-auth-callback-integration', function () {
   let data: ModelDataStore;

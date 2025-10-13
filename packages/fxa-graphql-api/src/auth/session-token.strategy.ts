@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { deriveHawkCredentials } from 'fxa-auth-client';
+import { deriveHawkCredentials } from '@fxa/accounts/auth-client';
 import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
 import { Strategy } from 'passport-http-bearer';

@@ -107,6 +107,7 @@ export class TotpPage extends SettingsLayout {
     await expect(this.setup2faAppHeading).toBeVisible();
 
     const png = await this.step1QRCode.screenshot();
+    // @ts-ignore
     const img = UPNG.decode(png);
     const { data } = jsQR(
       new Uint8ClampedArray(UPNG.toRGBA8(img)[0]),

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
 
-export function hexToUint8(str: hexstring) {
+export function hexToUint8(str: string) {
   if (!HEX_STRING.test(str)) {
     throw new Error(`invalid hex string: ${str}`);
   }
@@ -11,7 +11,7 @@ export function hexToUint8(str: hexstring) {
   return new Uint8Array(bytes.map((byte) => parseInt(byte, 16)));
 }
 
-export function uint8ToHex(array: Uint8Array): hexstring {
+export function uint8ToHex(array: Uint8Array): string {
   return array.reduce(
     (str, byte) => str + ('00' + byte.toString(16)).slice(-2),
     ''

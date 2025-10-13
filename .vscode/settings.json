@@ -36,6 +36,8 @@
     "**/tmp": true,
     "**/temp": true,
     "*.sass-cache": true,
+    "node_modules": true,
+    "dist": true
   },
   "cSpell.words": ["Frontends"]
 }

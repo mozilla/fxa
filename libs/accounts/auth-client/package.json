@@ -1,0 +1,9 @@
+{
+  "name": "@fxa/accounts/auth-client",
+  "version": "0.0.1",
+  "dependencies": {},
+  "type": "commonjs",
+  "main": "./index.cjs",
+  "types": "./index.d.ts",
+  "private": true
+}

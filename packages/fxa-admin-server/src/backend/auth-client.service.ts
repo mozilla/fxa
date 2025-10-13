@@ -1,12 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import AuthClient from 'fxa-auth-client';
-
+import { AuthClient, SaltVersion } from '@fxa/accounts/auth-client';
 import { AppConfig } from '../config';
-import { SaltVersion } from 'fxa-auth-client/dist/server/cjs/packages/fxa-auth-client/lib/salt';
 
 export const AuthClientService = Symbol('AUTH_SERVER_CLIENT');
 

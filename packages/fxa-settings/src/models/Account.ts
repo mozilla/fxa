@@ -12,7 +12,7 @@ import AuthClient, {
   getCredentials,
   getCredentialsV2,
   getKeysV2,
-} from 'fxa-auth-client/browser';
+} from '@fxa/accounts/auth-client';
 import { MetricsContext } from '@fxa/shared/glean';
 import {
   currentAccount,
@@ -36,7 +36,7 @@ import {
   AccountBackupCodes,
   AccountTotp,
 } from '../lib/interfaces';
-import { createSaltV2 } from 'fxa-auth-client/lib/salt';
+import { createSaltV2 } from '@fxa/accounts/auth-client';
 import { getHandledError } from '../lib/error-utils';
 
 export interface DeviceLocation {

@@ -2,7 +2,7 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
     "build": {
-      "dependsOn": ["prebuild", "^build"],
+      "dependsOn": ["^build"],
       "inputs": ["production", "^production"],
       "outputs": [
         "{projectRoot}/*.tsbuildinfo",

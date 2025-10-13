@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Inject, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import AuthClient from 'fxa-auth-client';
+import AuthClient from '@fxa/accounts/auth-client';
 import { SessionVerifiedState } from 'fxa-shared/db/models/auth/session-token';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 

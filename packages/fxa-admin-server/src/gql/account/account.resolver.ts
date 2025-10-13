@@ -15,7 +15,7 @@ import {
   Root,
 } from '@nestjs/graphql';
 import { SentryTraced } from '@sentry/nestjs';
-import AuthClient from 'fxa-auth-client';
+import AuthClient from '@fxa/accounts/auth-client';
 import {
   ClientFormatter,
   ConnectedServicesFactory,

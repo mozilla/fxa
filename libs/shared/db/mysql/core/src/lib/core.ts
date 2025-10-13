@@ -172,13 +172,13 @@ export async function createDialect(
   }
 
   const dialect = new MysqlDialect({
-    pool,
+    pool: pool as unknown as MysqlPool,
   });
 
   // Important! Exposing the underlying pool, because
   // Kysely is not automatically disposing it.
   return {
     dialect,
-    pool,
+    pool: pool as unknown as MysqlPool,
   };
 }

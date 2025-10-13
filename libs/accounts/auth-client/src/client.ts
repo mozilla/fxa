@@ -60,12 +60,12 @@ export type SignUpOptions = {
 };
 
 export type SignedUpAccountData = {
-  uid: hexstring;
-  sessionToken: hexstring;
-  keyFetchToken?: hexstring;
+  uid: string;
+  sessionToken: string;
+  keyFetchToken?: string;
   authAt: number;
   verificationMethod?: string;
-  unwrapBKey?: hexstring;
+  unwrapBKey?: string;
 };
 
 export type SignInOptions = {
@@ -84,15 +84,15 @@ export type SignInOptions = {
 };
 
 export type SignedInAccountData = {
-  uid: hexstring;
-  sessionToken: hexstring;
+  uid: string;
+  sessionToken: string;
   verified: boolean;
   authAt: number;
   metricsEnabled: boolean;
-  keyFetchToken?: hexstring;
+  keyFetchToken?: string;
   verificationMethod?: string;
   verificationReason?: string;
-  unwrapBKey?: hexstring;
+  unwrapBKey?: string;
 };
 
 export type PasswordChangePayload = {
@@ -187,7 +187,7 @@ export type AuthClientOptions = {
   keyStretchVersion?: SaltVersion;
 };
 
-export default class AuthClient {
+export class AuthClient {
   static VERSION = 'v1';
   private uri: string;
   private localtimeOffsetMsec: number;
@@ -217,7 +217,6 @@ export default class AuthClient {
   static async create(authServerUri: string, options?: AuthClientOptions) {
     if (typeof TextEncoder === 'undefined') {
       await import(
-        // @ts-ignore
         /* webpackChunkName: "fast-text-encoding" */ 'fast-text-encoding'
       );
     }
@@ -270,7 +269,7 @@ export default class AuthClient {
   private async hawkRequest(
     method: string,
     path: string,
-    token: hexstring,
+    token: string,
     kind: tokenType,
     payload: object | null,
     extraHeaders: Headers | undefined
@@ -310,7 +309,7 @@ export default class AuthClient {
 
   private async sessionGet(
     path: string,
-    sessionToken: hexstring,
+    sessionToken: string,
     headers?: Headers
   ) {
     return this.hawkRequest(
@@ -380,7 +379,7 @@ export default class AuthClient {
 
   private async sessionPost(
     path: string,
-    sessionToken: hexstring,
+    sessionToken: string,
     payload: object,
     headers?: Headers
   ) {
@@ -396,7 +395,7 @@ export default class AuthClient {
 
   private async sessionPut(
     path: string,
-    sessionToken: hexstring,
+    sessionToken: string,
     payload: object,
     headers?: Headers
   ) {
@@ -412,7 +411,7 @@ export default class AuthClient {
 
   private async sessionDelete(
     path: string,
-    sessionToken: hexstring,
+    sessionToken: string,
     payload: object,
     headers?: Headers
   ) {
@@ -488,7 +487,7 @@ export default class AuthClient {
           wrapKbVersion2: string;
           clientSalt: string;
         }
-      | {},
+      | undefined,
     options: SignUpOptions,
     headers?: Headers
   ): Promise<Omit<SignedUpAccountData, 'unwrapBKey'>> {
@@ -526,7 +525,10 @@ export default class AuthClient {
     options: SignInOptions = {},
     headers?: Headers
   ): Promise<SignedInAccountData> {
-    let credentials = await this.getCredentialSet({ email, password }, headers);
+    const credentials = await this.getCredentialSet(
+      { email, password },
+      headers
+    );
     try {
       let accountData: SignedInAccountData;
       if (this.keyStretchVersion === 2) {
@@ -647,7 +649,7 @@ export default class AuthClient {
   }
 
   async verifyCode(
-    uid: hexstring,
+    uid: string,
     code: string,
     options: {
       service?: string;
@@ -671,12 +673,12 @@ export default class AuthClient {
     );
   }
 
-  async recoveryEmailStatus(sessionToken: hexstring, headers?: Headers) {
+  async recoveryEmailStatus(sessionToken: string, headers?: Headers) {
     return this.sessionGet('/recovery_email/status', sessionToken, headers);
   }
 
   async recoveryEmailResendCode(
-    sessionToken: hexstring,
+    sessionToken: string,
     options: {
       email?: string;
       service?: string;
@@ -763,7 +765,7 @@ export default class AuthClient {
 
   async passwordForgotResendCode(
     email: string,
-    passwordForgotToken: hexstring,
+    passwordForgotToken: string,
     options: {
       service?: string;
       redirectTo?: string;
@@ -789,7 +791,7 @@ export default class AuthClient {
 
   async passwordForgotVerifyCode(
     code: string,
-    passwordForgotToken: hexstring,
+    passwordForgotToken: string,
     options: {
       accountResetWithRecoveryKey?: boolean;
       includeRecoveryKeyPrompt?: boolean;
@@ -822,7 +824,7 @@ export default class AuthClient {
   }
 
   async passwordForgotRecoveryKeyStatus(
-    passwordForgotToken: hexstring,
+    passwordForgotToken: string,
     headers?: Headers
   ) {
     return this.hawkRequest(
@@ -840,7 +842,7 @@ export default class AuthClient {
   async accountReset(
     email: string,
     newPassword: string,
-    accountResetToken: hexstring,
+    accountResetToken: string,
     options: {
       keys?: boolean;
       sessionToken?: boolean;
@@ -857,7 +859,7 @@ export default class AuthClient {
 
     // Important! This does not take kB, so the encrypted data will become
     // inaccessible after this operation. A new kB will be created!
-    let v2Payload = await this.getPayloadV2(credentials);
+    const v2Payload = await this.getPayloadV2(credentials);
 
     const payloadOptions = ({ keys, ...rest }: any) => rest;
     const payload = {
@@ -882,7 +884,7 @@ export default class AuthClient {
 
   async accountResetAuthPW(
     authPW: string,
-    accountResetToken: hexstring,
+    accountResetToken: string,
     v2Payload:
       | {
           wrapKb: string;
@@ -890,7 +892,7 @@ export default class AuthClient {
           wrapKbVersion2: string;
           clientSalt: string;
         }
-      | {},
+      | undefined,
     options: {
       // This option won't work in gql
       keys?: boolean;
@@ -920,8 +922,8 @@ export default class AuthClient {
     newPassword: string,
     headers?: Headers
   ): Promise<{
-    uid: hexstring;
-    sessionToken: hexstring;
+    uid: string;
+    sessionToken: string;
     verified: boolean;
   }> {
     const credentials = await this.getCredentialSet(
@@ -956,7 +958,7 @@ export default class AuthClient {
           wrapKbVersion2: string;
           clientSalt: string;
         }
-      | {},
+      | undefined,
     headers?: Headers
   ) {
     const payload = {
@@ -979,9 +981,9 @@ export default class AuthClient {
     metricsContext: MetricsContext | undefined,
     headers?: Headers
   ): Promise<{
-    uid: hexstring;
-    sessionToken: hexstring;
-    providerUid: hexstring;
+    uid: string;
+    sessionToken: string;
+    providerUid: string;
     email: string;
     verificationMethod?: string;
   }> {
@@ -1001,7 +1003,7 @@ export default class AuthClient {
   }
 
   async unlinkThirdParty(
-    sessionToken: hexstring,
+    sessionToken: string,
     providerId: number,
     headers?: Headers
   ): Promise<{ success: boolean }> {
@@ -1027,12 +1029,12 @@ export default class AuthClient {
   }
 
   async accountKeys(
-    keyFetchToken: hexstring,
-    unwrapBKey: hexstring,
+    keyFetchToken: string,
+    unwrapBKey: string,
     headers?: Headers
   ): Promise<{
-    kA: hexstring;
-    kB: hexstring;
+    kA: string;
+    kB: string;
   }> {
     const credentials = await hawk.deriveHawkCredentials(
       keyFetchToken,
@@ -1056,7 +1058,7 @@ export default class AuthClient {
     };
   }
 
-  async wrappedAccountKeys(keyFetchToken: hexstring, headers?: Headers) {
+  async wrappedAccountKeys(keyFetchToken: string, headers?: Headers) {
     const credentials = await hawk.deriveHawkCredentials(
       keyFetchToken,
       'keyFetchToken'
@@ -1086,7 +1088,7 @@ export default class AuthClient {
     options: {
       skipCaseError?: boolean;
     } = {},
-    sessionToken: hexstring,
+    sessionToken: string,
     headers?: Headers
   ): Promise<any> {
     const credentials = await crypto.getCredentials(email, password);
@@ -1123,7 +1125,7 @@ export default class AuthClient {
     }
   }
 
-  async accountStatus(uid: hexstring, headers?: Headers) {
+  async accountStatus(uid: string, headers?: Headers) {
     return this.request('GET', `/account/status?uid=${uid}`, null, headers);
   }
 
@@ -1140,16 +1142,16 @@ export default class AuthClient {
     );
   }
 
-  async accountProfile(sessionToken: hexstring, headers?: Headers) {
+  async accountProfile(sessionToken: string, headers?: Headers) {
     return this.sessionGet('/account/profile', sessionToken, headers);
   }
 
-  async account(sessionToken: hexstring, headers?: Headers) {
+  async account(sessionToken: string, headers?: Headers) {
     return this.sessionGet('/account', sessionToken, headers);
   }
 
   async sessionDestroy(
-    sessionToken: hexstring,
+    sessionToken: string,
     options: {
       customSessionToken?: string;
     } = {},
@@ -1159,14 +1161,14 @@ export default class AuthClient {
   }
 
   async sessionStatus(
-    sessionToken: hexstring,
+    sessionToken: string,
     headers?: Headers
   ): Promise<{ state: 'verified' | 'unverified'; uid: string }> {
     return this.sessionGet('/session/status', sessionToken, headers);
   }
 
   async sessionVerifyCode(
-    sessionToken: hexstring,
+    sessionToken: string,
     code: string,
     options: {
       service?: string;
@@ -1175,8 +1177,8 @@ export default class AuthClient {
       newsletters?: string[];
     } = {},
     headers?: Headers
-  ): Promise<{}> {
-    return this.sessionPost(
+  ): Promise<void> {
+    await this.sessionPost(
       '/session/verify_code',
       sessionToken,
       {
@@ -1188,14 +1190,14 @@ export default class AuthClient {
   }
 
   async sessionResendVerifyCode(
-    sessionToken: hexstring,
+    sessionToken: string,
     headers?: Headers
-  ): Promise<{}> {
+  ): Promise<Record<string, never>> {
     return this.sessionPost('/session/resend_code', sessionToken, {}, headers);
   }
 
   async sessionReauth(
-    sessionToken: hexstring,
+    sessionToken: string,
     email: string,
     password: string,
     options: SessionReauthOptions = {},
@@ -1238,7 +1240,7 @@ export default class AuthClient {
   }
 
   async sessionReauthWithAuthPW(
-    sessionToken: hexstring,
+    sessionToken: string,
     email: string,
     authPW: string,
     options: Omit<SessionReauthOptions, 'skipCaseError'> = {},
@@ -1342,8 +1344,8 @@ export default class AuthClient {
     headers?: Headers
   ): Promise<{
     email: string;
-    keyFetchToken: hexstring;
-    passwordChangeToken: hexstring;
+    keyFetchToken: string;
+    passwordChangeToken: string;
   }> {
     try {
       const passwordData = await this.sessionPost(
@@ -1392,11 +1394,11 @@ export default class AuthClient {
     } = {},
     headers?: Headers
   ): Promise<{
-    authPW: hexstring;
-    unwrapBKey: hexstring;
+    authPW: string;
+    unwrapBKey: string;
     email: string;
-    keyFetchToken: hexstring;
-    passwordChangeToken: hexstring;
+    keyFetchToken: string;
+    passwordChangeToken: string;
   }> {
     const oldCredentials = await crypto.getCredentials(email, oldPassword);
     try {
@@ -1540,12 +1542,21 @@ export default class AuthClient {
       },
       headers
     );
+
     const oldCredentialsAuth = await crypto.getCredentials(email, oldPassword);
     const oldAuthPW = oldCredentialsAuth.authPW;
 
+    if (oldCredentials.keyFetchToken == null) {
+      throw new Error('keyFetchToken unavailable!');
+    }
+
+    if (oldCredentials.unwrapBKey == null) {
+      throw new Error('unwrapBKey unavailable!');
+    }
+
     const keys = await this.accountKeys(
-      oldCredentials.keyFetchToken!,
-      oldCredentials.unwrapBKey!,
+      oldCredentials.keyFetchToken,
+      oldCredentials.unwrapBKey,
       headers
     );
 
@@ -1653,7 +1664,7 @@ export default class AuthClient {
   }
 
   async deviceRegister(
-    sessionToken: hexstring,
+    sessionToken: string,
     name: string,
     type: string,
     options: {
@@ -1672,7 +1683,7 @@ export default class AuthClient {
   }
 
   async deviceUpdate(
-    sessionToken: hexstring,
+    sessionToken: string,
     id: string,
     name: string,
     options: {
@@ -1690,7 +1701,7 @@ export default class AuthClient {
     return this.sessionPost('/account/device', sessionToken, payload, headers);
   }
 
-  async deviceDestroy(sessionToken: hexstring, id: string, headers?: Headers) {
+  async deviceDestroy(sessionToken: string, id: string, headers?: Headers) {
     return this.sessionPost(
       '/account/device/destroy',
       sessionToken,
@@ -1700,7 +1711,7 @@ export default class AuthClient {
   }
 
   async mfaRequestOtp(
-    sessionToken: hexstring,
+    sessionToken: string,
     action: string,
     headers?: Headers
   ): Promise<{ status: string }> {
@@ -1715,7 +1726,7 @@ export default class AuthClient {
   }
 
   async mfaOtpVerify(
-    sessionToken: hexstring,
+    sessionToken: string,
     code: string,
     action: string,
     headers?: Headers
@@ -1750,24 +1761,24 @@ export default class AuthClient {
     return this.jwtPost('/mfa/test2', jwt, {}, headers);
   }
 
-  async deviceList(sessionToken: hexstring, headers?: Headers) {
+  async deviceList(sessionToken: string, headers?: Headers) {
     return this.sessionGet('/account/devices', sessionToken, headers);
   }
 
-  async sessions(sessionToken: hexstring, headers?: Headers) {
+  async sessions(sessionToken: string, headers?: Headers) {
     return this.sessionGet('/account/sessions', sessionToken, headers);
   }
 
-  async securityEvents(sessionToken: hexstring, headers?: Headers) {
+  async securityEvents(sessionToken: string, headers?: Headers) {
     return this.sessionGet('/securityEvents', sessionToken, headers);
   }
 
-  async attachedClients(sessionToken: hexstring, headers?: Headers) {
+  async attachedClients(sessionToken: string, headers?: Headers) {
     return this.sessionGet('/account/attached_clients', sessionToken, headers);
   }
 
   async attachedClientDestroy(
-    sessionToken: hexstring,
+    sessionToken: string,
     clientInfo: any,
     headers?: Headers
   ) {
@@ -1802,11 +1813,7 @@ export default class AuthClient {
     );
   }
 
-  async rejectUnblockCode(
-    uid: hexstring,
-    unblockCode: string,
-    headers?: Headers
-  ) {
+  async rejectUnblockCode(uid: string, unblockCode: string, headers?: Headers) {
     return this.request(
       'POST',
       '/account/login/reject_unblock_code',
@@ -1840,15 +1847,15 @@ export default class AuthClient {
     );
   }
 
-  async createSigninCode(sessionToken: hexstring, headers?: Headers) {
+  async createSigninCode(sessionToken: string, headers?: Headers) {
     return this.sessionPost('/signinCodes', sessionToken, {}, headers);
   }
 
-  async createCadReminder(sessionToken: hexstring, headers?: Headers) {
+  async createCadReminder(sessionToken: string, headers?: Headers) {
     return this.sessionPost('/emails/reminders/cad', sessionToken, {}, headers);
   }
 
-  async recoveryEmails(sessionToken: hexstring, headers?: Headers) {
+  async recoveryEmails(sessionToken: string, headers?: Headers) {
     return this.sessionGet('/recovery_emails', sessionToken, headers);
   }
 
@@ -1864,7 +1871,7 @@ export default class AuthClient {
   }
 
   async recoveryEmailDestroy(
-    sessionToken: hexstring,
+    sessionToken: string,
     email: string,
     headers?: Headers
   ) {
@@ -1888,7 +1895,7 @@ export default class AuthClient {
    * @deprecated Use recoveryEmailSetPrimaryEmailWithJwt instead
    */
   async recoveryEmailSetPrimaryEmail(
-    sessionToken: hexstring,
+    sessionToken: string,
     email: string,
     headers?: Headers
   ) {
@@ -1933,8 +1940,8 @@ export default class AuthClient {
     email: string,
     code: string,
     headers?: Headers
-  ): Promise<{}> {
-    return this.jwtPost(
+  ): Promise<void> {
+    await this.jwtPost(
       '/mfa/recovery_email/secondary/verify_code',
       jwt,
       { email, code },
@@ -1943,7 +1950,7 @@ export default class AuthClient {
   }
 
   async recoveryEmailSecondaryResendCode(
-    sessionToken: hexstring,
+    sessionToken: string,
     email: string,
     headers?: Headers
   ) {
@@ -1974,7 +1981,7 @@ export default class AuthClient {
    * @returns Promise resolving to `{ qrCodeUrl, secret }`
    */
   async createTotpToken(
-    sessionToken: hexstring,
+    sessionToken: string,
     options: {
       metricsContext?: MetricsContext;
     },
@@ -2030,7 +2037,7 @@ export default class AuthClient {
    * @returns Promise resolving to `{ success: boolean }`
    */
   async verifyTotpSetupCode(
-    sessionToken: hexstring,
+    sessionToken: string,
     code: string,
     options: { metricsContext?: MetricsContext } = {},
     headers?: Headers
@@ -2087,7 +2094,7 @@ export default class AuthClient {
    * @returns Promise resolving to `{ success: boolean }`
    */
   async completeTotpSetup(
-    sessionToken: hexstring,
+    sessionToken: string,
     options: { service?: string; metricsContext?: MetricsContext } = {},
     headers?: Headers
   ): Promise<{ success: boolean }> {
@@ -2135,7 +2142,7 @@ export default class AuthClient {
    * @returns A promise resolving to the QR code URL and secret
    */
   async startReplaceTotpToken(
-    sessionToken: hexstring,
+    sessionToken: string,
     options: {
       metricsContext?: MetricsContext;
     },
@@ -2186,7 +2193,7 @@ export default class AuthClient {
    * @returns A promise that resolves when the replacement has been accepted
    */
   async confirmReplaceTotpToken(
-    sessionToken: hexstring,
+    sessionToken: string,
     code: string,
     headers?: Headers
   ): Promise<void> {
@@ -2224,7 +2231,7 @@ export default class AuthClient {
    * @param headers - Optional additional headers for the request
    * @returns A promise that resolves when the 2FA has been removed
    */
-  async deleteTotpToken(sessionToken: hexstring, headers?: Headers) {
+  async deleteTotpToken(sessionToken: string, headers?: Headers) {
     return this.sessionPost('/totp/destroy', sessionToken, {}, headers);
   }
 
@@ -2240,14 +2247,14 @@ export default class AuthClient {
   }
 
   async checkTotpTokenExists(
-    sessionToken: hexstring,
+    sessionToken: string,
     headers?: Headers
   ): Promise<{ exists: boolean; verified: boolean }> {
     return this.sessionGet('/totp/exists', sessionToken, headers);
   }
 
   async checkTotpTokenExistsWithPasswordForgotToken(
-    token: hexstring,
+    token: string,
     headers?: Headers
   ): Promise<{ exists: boolean; verified: boolean }> {
     return this.hawkRequest(
@@ -2261,7 +2268,7 @@ export default class AuthClient {
   }
 
   async checkTotpTokenCodeWithPasswordForgotToken(
-    token: hexstring,
+    token: string,
     code: string,
     headers?: Headers
   ): Promise<{ success: boolean }> {
@@ -2276,7 +2283,7 @@ export default class AuthClient {
   }
 
   async consumeRecoveryCodeWithPasswordForgotToken(
-    token: hexstring,
+    token: string,
     code: string,
     headers?: Headers
   ): Promise<{ success: boolean }> {
@@ -2291,7 +2298,7 @@ export default class AuthClient {
   }
 
   async sendLoginPushRequest(
-    sessionToken: hexstring,
+    sessionToken: string,
     headers?: Headers
   ): Promise<void> {
     return this.sessionPost(
@@ -2303,7 +2310,7 @@ export default class AuthClient {
   }
 
   async verifyLoginPushRequest(
-    sessionToken: hexstring,
+    sessionToken: string,
     tokenVerificationId: string,
     code: string,
     headers?: Headers
@@ -2320,7 +2327,7 @@ export default class AuthClient {
   }
 
   async verifyTotpCode(
-    sessionToken: hexstring,
+    sessionToken: string,
     code: string,
     options: {
       service?: string;
@@ -2348,7 +2355,7 @@ export default class AuthClient {
    * @returns
    */
   async setRecoveryCodes(
-    sessionToken: hexstring,
+    sessionToken: string,
     recoveryCodes: string[],
     headers?: Headers
   ): Promise<{ success: boolean }> {
@@ -2377,7 +2384,7 @@ export default class AuthClient {
 
   // create and update recovery codes without code confirmation
   async replaceRecoveryCodes(
-    sessionToken: hexstring,
+    sessionToken: string,
     headers?: Headers
   ): Promise<{ recoveryCodes: string[] }> {
     return this.sessionGet('/recoveryCodes', sessionToken, headers);
@@ -2387,7 +2394,7 @@ export default class AuthClient {
    * @deprecated Use updateRecoveryCodesWithJwt instead!
    */
   async updateRecoveryCodes(
-    sessionToken: hexstring,
+    sessionToken: string,
     recoveryCodes: string[],
     headers?: Headers
   ): Promise<{ success: boolean }> {
@@ -2407,7 +2414,7 @@ export default class AuthClient {
    * @returns
    */
   async updateRecoveryCodesWithJwt(
-    jwt: hexstring,
+    jwt: string,
     recoveryCodes: string[],
     headers?: Headers
   ): Promise<{ success: boolean }> {
@@ -2415,14 +2422,14 @@ export default class AuthClient {
   }
 
   async getRecoveryCodesExist(
-    sessionToken: hexstring,
+    sessionToken: string,
     headers?: Headers
   ): Promise<{ hasBackupCodes?: boolean; count?: number }> {
     return this.sessionGet('/recoveryCodes/exists', sessionToken, headers);
   }
 
   async getRecoveryCodesExistWithPasswordForgotToken(
-    passwordForgotToken: hexstring,
+    passwordForgotToken: string,
     headers?: Headers
   ): Promise<{ hasBackupCodes?: boolean; count?: number }> {
     return this.hawkRequest(
@@ -2436,7 +2443,7 @@ export default class AuthClient {
   }
 
   async consumeRecoveryCode(
-    sessionToken: hexstring,
+    sessionToken: string,
     code: string,
     headers?: Headers
   ) {
@@ -2461,14 +2468,14 @@ export default class AuthClient {
    * @returns
    */
   async createRecoveryKey(
-    sessionToken: hexstring,
+    sessionToken: string,
     recoveryKeyId: string,
     recoveryData: any,
-    enabled: boolean = true,
-    replaceKey: boolean = false,
+    enabled = true,
+    replaceKey = false,
     headers?: Headers
-  ): Promise<{}> {
-    return this.sessionPost(
+  ): Promise<void> {
+    await this.sessionPost(
       '/recoveryKey',
       sessionToken,
       {
@@ -2495,11 +2502,11 @@ export default class AuthClient {
     jwt: string,
     recoveryKeyId: string,
     recoveryData: any,
-    enabled: boolean = true,
-    replaceKey: boolean = false,
+    enabled: true,
+    replaceKey: false,
     headers?: Headers
-  ): Promise<{}> {
-    return this.jwtPost(
+  ): Promise<void> {
+    await this.jwtPost(
       '/mfa/recoveryKey',
       jwt,
       {
@@ -2513,7 +2520,7 @@ export default class AuthClient {
   }
 
   async getRecoveryKey(
-    accountResetToken: hexstring,
+    accountResetToken: string,
     recoveryKeyId: string,
     headers?: Headers
   ) {
@@ -2528,11 +2535,11 @@ export default class AuthClient {
   }
 
   async updateRecoveryKeyHint(
-    sessionToken: hexstring,
+    sessionToken: string,
     hint: string,
     headers?: Headers
-  ): Promise<{}> {
-    return this.sessionPost(
+  ): Promise<void> {
+    await this.sessionPost(
       '/recoveryKey/hint',
       sessionToken,
       {
@@ -2543,7 +2550,7 @@ export default class AuthClient {
   }
 
   async resetPasswordWithRecoveryKey(
-    accountResetToken: hexstring,
+    accountResetToken: string,
     email: string,
     newPassword: string,
     recoveryKeyId: string,
@@ -2576,7 +2583,7 @@ export default class AuthClient {
       });
     }
 
-    let v2Payload = await this.getPayloadV2({
+    const v2Payload = await this.getPayloadV2({
       ...keys,
       ...credentials,
     });
@@ -2606,7 +2613,7 @@ export default class AuthClient {
   /**
    * @deprecated Use deleteRecoveryKeyWithJwt instead
    */
-  async deleteRecoveryKey(sessionToken: hexstring, headers?: Headers) {
+  async deleteRecoveryKey(sessionToken: string, headers?: Headers) {
     return this.hawkRequest(
       'DELETE',
       '/recoveryKey',
@@ -2628,7 +2635,7 @@ export default class AuthClient {
   }
 
   async recoveryKeyExists(
-    sessionToken: hexstring | undefined,
+    sessionToken: string | undefined,
     email: string | undefined,
     headers?: Headers
   ) {
@@ -2644,7 +2651,7 @@ export default class AuthClient {
   }
 
   async verifyRecoveryKey(
-    sessionToken: hexstring,
+    sessionToken: string,
     recoveryKeyId: string,
     headers?: Headers
   ) {
@@ -2659,7 +2666,7 @@ export default class AuthClient {
   }
 
   async createOAuthCode(
-    sessionToken: hexstring,
+    sessionToken: string,
     clientId: string,
     state: string,
     options: {
@@ -2694,7 +2701,7 @@ export default class AuthClient {
   }
 
   async createOAuthToken(
-    sessionToken: hexstring,
+    sessionToken: string,
     clientId: string,
     options: {
       access_type?: string;
@@ -2718,7 +2725,7 @@ export default class AuthClient {
   }
 
   async getOAuthScopedKeyData(
-    sessionToken: hexstring,
+    sessionToken: string,
     clientId: string,
     scope: string,
     headers?: Headers
@@ -2768,7 +2775,7 @@ export default class AuthClient {
   }
 
   async updateNewsletters(
-    sessionToken: hexstring,
+    sessionToken: string,
     newsletters: string[],
     headers?: Headers
   ) {

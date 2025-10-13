@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthClient, {
-  CredentialStatus,
   getCredentials,
   getCredentialsV2,
-} from '../../../fxa-auth-client/browser';
+} from '@fxa/accounts/auth-client';
 import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('auth-client-tests', () => {
@@ -92,7 +91,10 @@ test.describe('auth-client-tests', () => {
 
     // Check unwrapKB. It should match our V2 credential unwrapBKey.
     const status2 = await client.getCredentialStatusV2(email);
-    const clientSalt = status2.clientSalt || '';
+    if (!status2.clientSalt) {
+      throw new Error('No client salt provided.');
+    }
+    const clientSalt = status2.clientSalt;
     const credentialsV2 = await getCredentialsV2({
       password,
       clientSalt,
