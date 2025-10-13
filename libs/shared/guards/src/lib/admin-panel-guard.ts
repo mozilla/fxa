@@ -44,6 +44,7 @@ export enum AdminPanelFeature {
   RelyingParties = 'RelyingParties',
   RelyingPartiesEditNotes = 'RelyingPartiesEditNotes',
   UnsubscribeFromMailingLists = 'UnsubscribeFromMailingLists',
+  DeleteRecoveryPhone = 'DeleteRecoveryPhone',
 }
 
 /** Enum of known user groups */
@@ -182,6 +183,10 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.UnsubscribeFromMailingLists]: {
     name: 'Unsubscribe User From Mozilla Mailing Lists',
+    level: PermissionLevel.Support,
+  },
+  [AdminPanelFeature.DeleteRecoveryPhone]: {
+    name: 'Delete Recovery Phone',
     level: PermissionLevel.Support,
   },
 };

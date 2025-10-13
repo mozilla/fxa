@@ -327,6 +327,37 @@ export class AccountResolver {
     return !!result;
   }
 
+  @Features(AdminPanelFeature.DeleteRecoveryPhone)
+  @Mutation((returns) => Boolean)
+  public async deleteRecoveryPhone(@Args('uid') uid: string) {
+    this.eventLogging.onEvent(EventNames.DeleteRecoveryPhone);
+
+    const uidBuffer = uuidTransformer.to(uid);
+
+    const existing = await this.db.recoveryPhones
+      .query()
+      .where('uid', uidBuffer)
+      .first();
+    if (!existing) {
+      return false;
+    }
+
+    const result = await this.db.recoveryPhones
+      .query()
+      .delete()
+      .where('uid', uidBuffer);
+
+    await this.profileClient.deleteCache(uid);
+    await this.notifier.send({
+      event: 'profileDataChange',
+      data: {
+        ts: Date.now() / 1000,
+        uid,
+      },
+    });
+    return !!result;
+  }
+
   @Features(AdminPanelFeature.EnableAccount)
   @Mutation((returns) => Boolean)
   public async enableAccount(@Args('uid') uid: string) {
