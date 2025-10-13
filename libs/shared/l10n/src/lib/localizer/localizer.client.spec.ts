@@ -41,9 +41,8 @@ describe('LocalizerClient', () => {
   describe('setupReactLocalization', () => {
     it('should successfully create instance of ReactLocalization', async () => {
       const acceptLanguage = 'en,fr';
-      const { l10n, selectedLocale } = await localizer.setupReactLocalization(
-        acceptLanguage
-      );
+      const { l10n, selectedLocale } =
+        await localizer.setupReactLocalization(acceptLanguage);
 
       expect(selectedLocale).toBe('en');
       // Check that bundles exist for supported locales
@@ -60,6 +59,12 @@ describe('LocalizerClient', () => {
       );
       l10n.getString('invalid_id');
       expect(reportError).toHaveBeenCalled();
+    });
+  });
+
+  describe('setupDomLocalization', () => {
+    it('should have tests', async () => {
+      expect(false).toBe(true);
     });
   });
 });
