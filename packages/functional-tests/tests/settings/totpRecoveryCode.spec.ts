@@ -148,6 +148,7 @@ test.describe('severity-1 #smoke', () => {
       },
       testAccountTracker,
     }) => {
+      test.setTimeout(90000); // 1.5 minutes, seeing flakes in CI runs against stage. See FXA-12497.
       const credentials = await signInAccount(
         target,
         page,
