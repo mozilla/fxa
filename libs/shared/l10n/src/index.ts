@@ -8,3 +8,5 @@ export * from './lib/l10n.formatters';
 export * from './lib/l10n.constants';
 export * from './lib/l10n.utils';
 export * from './lib/l10n.types';
+export * from './lib/localizer/localizer.client';
+export * from './lib/localizer/localizer.dom'

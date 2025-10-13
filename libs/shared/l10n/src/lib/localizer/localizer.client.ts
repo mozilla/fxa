@@ -5,6 +5,7 @@ import { ReactLocalization } from '@fluent/react';
 import { LocalizerBase } from './localizer.base';
 import { ILocalizerBindings } from './localizer.interfaces';
 import { determineLocale, parseAcceptLanguage } from '../l10n.utils';
+import { LocalizerDom } from './localizer.dom';
 
 export class LocalizerClient extends LocalizerBase {
   constructor(bindings: ILocalizerBindings) {
@@ -24,6 +25,15 @@ export class LocalizerClient extends LocalizerBase {
       undefined,
       reportError
     );
+    return { l10n, selectedLocale };
+  }
+
+  async setupDomLocalization(acceptLanguage: string) {
+    const currentLocales = parseAcceptLanguage(acceptLanguage);
+    const selectedLocale = determineLocale(acceptLanguage);
+    const messages = await this.fetchMessages(currentLocales);
+    const generateBundles = this.createBundleGenerator(messages);
+    const l10n = new LocalizerDom(currentLocales, generateBundles);
     return { l10n, selectedLocale };
   }
 }
