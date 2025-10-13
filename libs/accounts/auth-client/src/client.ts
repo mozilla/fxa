@@ -215,11 +215,14 @@ export class AuthClient {
   }
 
   static async create(authServerUri: string, options?: AuthClientOptions) {
-    if (typeof TextEncoder === 'undefined') {
-      await import(
-        /* webpackChunkName: "fast-text-encoding" */ 'fast-text-encoding'
-      );
-    }
+    // Can we drop support for browsers that don't have webcrypto? This is now considered
+    // widely available. https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API#browser_compatibility
+    // if (typeof TextEncoder === 'undefined') {
+    //   await import(
+    //     /* webpackChunkName: "fast-text-encoding" */ 'fast-text-encoding'
+    //   );
+    // }
+
     await crypto.checkWebCrypto();
     return new AuthClient(authServerUri, options);
   }
@@ -933,7 +936,10 @@ export class AuthClient {
       },
       headers
     );
-    const v2Payload = await this.getPayloadV2(credentials);
+    let v2Payload = undefined;
+    if (this.keyStretchVersion === 2) {
+      v2Payload = await this.getPayloadV2(credentials);
+    }
     return this.finishSetupWithAuthPW(
       token,
       credentials.v1.authPW,
@@ -3151,7 +3157,7 @@ export class AuthClient {
         clientSalt: v2.clientSalt,
       };
     }
-    return {};
+    throw new Error('No using key stretch version 2');
   }
 
   protected async getCredentialSet(

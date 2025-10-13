@@ -220,14 +220,18 @@ export async function hkdf(
   info: Uint8Array,
   bytes: number
 ) {
-  const key = await crypto.subtle.importKey('raw', keyMaterial, 'HKDF', false, [
-    'deriveBits',
-  ]);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyMaterial as BufferSource,
+    'HKDF',
+    false,
+    ['deriveBits']
+  );
   const result = await crypto.subtle.deriveBits(
     {
       name: 'HKDF',
-      salt,
-      info,
+      salt: salt as BufferSource,
+      info: info as BufferSource,
       hash: 'SHA-256',
     },
     key,
@@ -244,7 +248,7 @@ export async function jweEncrypt(
 ) {
   const key = await crypto.subtle.importKey(
     'raw',
-    keyMaterial,
+    keyMaterial as BufferSource,
     {
       name: 'AES-GCM',
     },
@@ -265,12 +269,12 @@ export async function jweEncrypt(
   const encrypted = await crypto.subtle.encrypt(
     {
       name: 'AES-GCM',
-      iv,
+      iv: iv as BufferSource,
       additionalData: encoder().encode(jweHeader),
       tagLength: 128,
     },
     key,
-    data
+    data as BufferSource
   );
   const ciphertext = new Uint8Array(
     encrypted.slice(0, encrypted.byteLength - 16)
@@ -299,7 +303,7 @@ export async function jweDecrypt(
   const [header, , iv, ciphertext, authenticationTag] = jwe.split('.');
   const key = await crypto.subtle.importKey(
     'raw',
-    keyMaterial,
+    keyMaterial as BufferSource,
     {
       name: 'AES-GCM',
     },
@@ -312,7 +316,7 @@ export async function jweDecrypt(
   const decrypted = await crypto.subtle.decrypt(
     {
       name: 'AES-GCM',
-      iv: base64UrlToUint8(iv),
+      iv: base64UrlToUint8(iv) as BufferSource,
       additionalData: encoder.encode(header),
       tagLength: 128,
     },
