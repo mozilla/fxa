@@ -223,6 +223,7 @@ export interface NavigationOptions {
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
   syncHidePromoAfterLogin?: boolean;
+  isSessionAALUpgrade?: boolean;
   handleFxaLogin?: boolean;
   handleFxaOAuthLogin?: boolean;
   syncEngines?: {
@@ -247,4 +248,5 @@ export interface SigninLocationState {
   verificationReason?: VerificationReasons;
   origin?: NavigationOptions['origin'];
   showInlineRecoveryKeySetup?: boolean;
+  isSessionAALUpgrade?: boolean;
 }

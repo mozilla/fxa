@@ -539,10 +539,10 @@ const config = require('../../config').default.getProperties();
               state: 'unverified',
               uid: uid,
               details: {
-                accountEmailVerified: false,
+                accountEmailVerified: true,
                 sessionVerificationMeetsMinimumAAL: true,
                 sessionVerificationMethod: null,
-                sessionVerificationSuccessful: false,
+                sessionVerified: false,
               },
             });
           });

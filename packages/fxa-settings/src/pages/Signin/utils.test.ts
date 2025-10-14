@@ -100,5 +100,19 @@ describe('Signin utils', () => {
       expect(result.error).toBeUndefined();
       expect(navigateSpy).toHaveBeenCalledWith('/settings', { replace: true });
     });
+
+    it('navigates to settings when isSessionAALUpgrade is true, even when performNavigation: false', async () => {
+      const navigationOptions = createBaseNavigationOptions({
+        integration: createMockSigninOAuthNativeSyncIntegration(),
+        isSessionAALUpgrade: true,
+        performNavigation: false,
+      });
+      const result = await handleNavigation(navigationOptions);
+
+      expect(result.error).toBeUndefined();
+      expect(navigateSpy).toHaveBeenCalledWith('/settings');
+      expect(hardNavigateSpy).not.toHaveBeenCalled();
+      expect(fxaLoginSpy).not.toHaveBeenCalled();
+    });
   });
 });

@@ -182,7 +182,9 @@ describe('/session/status', () => {
   it('returns status correctly', () => {
     db.account = sinon.fake.resolves({
       uid: 'account-123',
-      emails: {},
+      primaryEmail: {
+        isVerified: false,
+      },
     });
     db.totpToken = sinon.fake.resolves({
       verified: false,
@@ -192,7 +194,7 @@ describe('/session/status', () => {
       credentials: {
         email: 'foo@example.org',
         state: 'unverified',
-        verificationMethod: 'totp-2fa',
+        verificationMethodValue: 'totp-2fa',
         verified: false,
         tokenVerified: false,
         tokenVerificationId: 'token-123',
@@ -207,7 +209,7 @@ describe('/session/status', () => {
           accountEmailVerified: false,
           sessionVerificationMeetsMinimumAAL: false,
           sessionVerificationMethod: 'totp-2fa',
-          sessionVerificationSuccessful: false,
+          sessionVerified: false,
         },
       });
     });
@@ -216,7 +218,9 @@ describe('/session/status', () => {
   it('has unverified primary email', async () => {
     db.account = sinon.fake.resolves({
       uid: 'account-123',
-      emails: {},
+      primaryEmail: {
+        isVerified: false,
+      },
     });
     db.totpToken = sinon.fake.resolves({
       verified: false,
@@ -229,7 +233,7 @@ describe('/session/status', () => {
         state: 'unverified',
         verified: false,
         tokenVerified: false,
-        verificationMethod: 'email',
+        verificationMethodValue: 'email',
         authenticatorAssuranceLevel: 1,
       },
     });
@@ -241,7 +245,7 @@ describe('/session/status', () => {
       details: {
         accountEmailVerified: false,
         sessionVerificationMethod: 'email',
-        sessionVerificationSuccessful: false,
+        sessionVerified: false,
         sessionVerificationMeetsMinimumAAL: true,
       },
     });
@@ -250,7 +254,9 @@ describe('/session/status', () => {
   it('has unverified session because of defined tokenVerificationId', async () => {
     db.account = sinon.fake.resolves({
       uid: 'account-123',
-      emails: {},
+      primaryEmail: {
+        isVerified: false,
+      },
     });
     db.totpToken = sinon.fake.resolves({
       verified: false,
@@ -263,7 +269,7 @@ describe('/session/status', () => {
         state: 'unverified',
         verified: false,
         tokenVerificationId: 'token-123',
-        verificationMethod: 'email',
+        verificationMethodValue: 'email',
         authenticatorAssuranceLevel: 1,
       },
     });
@@ -275,7 +281,7 @@ describe('/session/status', () => {
       details: {
         accountEmailVerified: false,
         sessionVerificationMethod: 'email',
-        sessionVerificationSuccessful: false,
+        sessionVerified: false,
         sessionVerificationMeetsMinimumAAL: true,
       },
     });
@@ -284,10 +290,8 @@ describe('/session/status', () => {
   it('has unverified AAL 1', async () => {
     db.account = sinon.fake.resolves({
       uid: 'account-123',
-      emails: {
-        primaryEmail: {
-          isVerified: true,
-        },
+      primaryEmail: {
+        isVerified: true,
       },
     });
     db.totpToken = sinon.fake.resolves({
@@ -301,7 +305,7 @@ describe('/session/status', () => {
         state: 'unverified',
         verified: false,
         tokenVerified: false,
-        verificationMethod: 'email',
+        verificationMethodValue: 'email',
         authenticatorAssuranceLevel: 1,
       },
     });
@@ -313,7 +317,7 @@ describe('/session/status', () => {
       details: {
         accountEmailVerified: true,
         sessionVerificationMethod: 'email',
-        sessionVerificationSuccessful: false,
+        sessionVerified: false,
         sessionVerificationMeetsMinimumAAL: false,
       },
     });
@@ -322,10 +326,8 @@ describe('/session/status', () => {
   it('has unverified AAL 2', async () => {
     db.account = sinon.fake.resolves({
       uid: 'account-123',
-      emails: {
-        primaryEmail: {
-          isVerified: true,
-        },
+      primaryEmail: {
+        isVerified: true,
       },
     });
     db.totpToken = sinon.fake.resolves({
@@ -338,7 +340,7 @@ describe('/session/status', () => {
         uid: 'account-123',
         state: 'verified',
         verified: true,
-        verificationMethod: 'totp-2fa',
+        verificationMethodValue: 'totp-2fa',
         authenticatorAssuranceLevel: 1,
       },
     });
@@ -350,7 +352,7 @@ describe('/session/status', () => {
       details: {
         accountEmailVerified: true,
         sessionVerificationMethod: 'totp-2fa',
-        sessionVerificationSuccessful: true,
+        sessionVerified: true,
         sessionVerificationMeetsMinimumAAL: false,
       },
     });
@@ -359,10 +361,8 @@ describe('/session/status', () => {
   it('has verified AAL 1 state', async () => {
     db.account = sinon.fake.resolves({
       uid: 'account-123',
-      emails: {
-        primaryEmail: {
-          isVerified: true,
-        },
+      primaryEmail: {
+        isVerified: true,
       },
     });
     db.totpToken = sinon.fake.resolves({
@@ -374,7 +374,7 @@ describe('/session/status', () => {
         uid: 'account-123',
         state: 'verified',
         verified: true,
-        verificationMethod: 'email',
+        verificationMethodValue: 'email',
         authenticatorAssuranceLevel: 1,
       },
     });
@@ -386,7 +386,7 @@ describe('/session/status', () => {
       details: {
         accountEmailVerified: true,
         sessionVerificationMethod: 'email',
-        sessionVerificationSuccessful: true,
+        sessionVerified: true,
         sessionVerificationMeetsMinimumAAL: true,
       },
     });
@@ -395,10 +395,8 @@ describe('/session/status', () => {
   it('has verified AAL 2', async () => {
     db.account = sinon.fake.resolves({
       uid: 'account-123',
-      emails: {
-        primaryEmail: {
-          isVerified: true,
-        },
+      primaryEmail: {
+        isVerified: true,
       },
     });
     db.totpToken = sinon.fake.resolves({
@@ -411,7 +409,7 @@ describe('/session/status', () => {
         uid: 'account-123',
         state: 'verified',
         verified: true,
-        verificationMethod: 'totp-2fa',
+        verificationMethodValue: 'totp-2fa',
         authenticatorAssuranceLevel: 2,
       },
     });
@@ -423,7 +421,7 @@ describe('/session/status', () => {
       details: {
         accountEmailVerified: true,
         sessionVerificationMethod: 'totp-2fa',
-        sessionVerificationSuccessful: true,
+        sessionVerified: true,
         sessionVerificationMeetsMinimumAAL: true,
       },
     });

@@ -76,8 +76,14 @@ const SigninRecoveryCode = ({
     submitButtonText: 'Confirm',
   };
 
-  const { email, sessionToken, uid, verificationMethod, verificationReason } =
-    signinState;
+  const {
+    email,
+    sessionToken,
+    uid,
+    verificationMethod,
+    verificationReason,
+    isSessionAALUpgrade,
+  } = signinState;
 
   const clearBanners = () => {
     setBannerErrorMessage('');
@@ -101,6 +107,7 @@ const SigninRecoveryCode = ({
       finishOAuthFlowHandler,
       redirectTo,
       queryParams: location.search,
+      isSessionAALUpgrade,
       handleFxaLogin: true,
       handleFxaOAuthLogin: true,
       performNavigation: !integration.isFirefoxMobileClient(),
@@ -111,6 +118,7 @@ const SigninRecoveryCode = ({
       setBannerErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
     }
   }, [
+    isSessionAALUpgrade,
     email,
     integration,
     finishOAuthFlowHandler,

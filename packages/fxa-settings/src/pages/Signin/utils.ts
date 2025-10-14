@@ -201,6 +201,17 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     integration.isFirefoxClientServiceRelay() ||
     integration.isFirefoxClientServiceAiMode();
 
+  // If this is an AAL upgrade, the user was redirected from Settings to enter TOTP.
+  // RP redirects won't get into this state since they'll be taken to the RP and
+  // never Settings. This flow doesn't need Sync web channel messages or care about
+  // skipping navigating either because if a Sync user is inside Settings, we probably
+  // don't have the oauth query parameters required to begin a sign-in flow
+  // anyway. Just take all users back to /settings.
+  if (navigationOptions.isSessionAALUpgrade) {
+    navigate('/settings');
+    return { error: undefined };
+  }
+
   // Check CMS fleature flags to determine if we should hide promos, the
   // default is to navigate to settings
   const cmsInfo = integration?.getCmsInfo();
@@ -493,7 +504,11 @@ const getOAuthNavigationTarget = async (
 export function getSigninState(
   locationState?: SigninLocationState
 ): SigninLocationState | null {
-  return locationState && Object.keys(locationState).length > 0
+  // When location state isn't passed, reach-router still gives us an object
+  // that contains a 'key', e.g. { key: 123456 }
+  // So check for a required key in signin state and if it exists then use it.
+  // Otherwise, pull from local storage.
+  return locationState && locationState.sessionToken
     ? locationState
     : getStoredAccountInfo();
 }

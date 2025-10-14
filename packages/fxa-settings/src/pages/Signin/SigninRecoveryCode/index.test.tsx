@@ -25,6 +25,11 @@ import { OAUTH_ERRORS } from '../../../lib/oauth';
 import { tryAgainError } from '../../../lib/oauth/hooks';
 import { mockOAuthNativeSigninIntegration } from '../SigninTotpCode/mocks';
 
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
   default: {
@@ -48,6 +53,11 @@ const serviceRelayText =
 describe('PageSigninRecoveryCode', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    mockNavigateWithQuery.mockClear();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('renders as expected', () => {
@@ -230,7 +240,39 @@ describe('PageSigninRecoveryCode', () => {
           })
         );
       });
-      handleNavigationSpy.mockRestore();
+    });
+
+    it('passes isSessionAALUpgrade as a navigation option to handleNavigation', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest.spyOn(SigninUtils, 'handleNavigation');
+      const mockSubmitRecoveryCode = jest
+        .fn()
+        .mockResolvedValue({ data: { consumeRecoveryCode: { remaining: 3 } } });
+
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <SigninRecoveryCode
+            finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+            integration={createMockSigninWebIntegration()}
+            navigateToRecoveryPhone={jest.fn()}
+            signinState={{
+              ...mockSigninLocationState,
+              isSessionAALUpgrade: true,
+            }}
+            submitRecoveryCode={mockSubmitRecoveryCode}
+          />
+        </LocationProvider>
+      );
+      await user.type(screen.getByRole('textbox'), MOCK_BACKUP_CODE);
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            isSessionAALUpgrade: true,
+          })
+        );
+      });
     });
   });
 

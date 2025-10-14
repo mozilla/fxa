@@ -31,12 +31,4 @@ storiesOf('Components/AppErrorDialog', module)
     >
       <AppErrorDialog errorType="query-parameter-violation" />
     </AppLocalizationProvider>
-  ))
-  .add('invalid session', () => (
-    <AppLocalizationProvider
-      baseDir="./locales"
-      userLocales={navigator.languages}
-    >
-      <AppErrorDialog errorType="invalid-session" />
-    </AppLocalizationProvider>
   ));

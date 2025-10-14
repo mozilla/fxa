@@ -5,10 +5,7 @@
 import React from 'react';
 import { Localized } from '@fluent/react';
 
-export type ErrorType =
-  | 'general'
-  | 'query-parameter-violation'
-  | 'invalid-session';
+export type ErrorType = 'general' | 'query-parameter-violation';
 
 const AppErrorDialog = ({ errorType }: { errorType?: ErrorType }) => {
   if (errorType == null) {
@@ -45,24 +42,6 @@ const AppErrorDialog = ({ errorType }: { errorType?: ErrorType }) => {
               Something went wrong. Please try again later.
             </p>
           </Localized>
-        )}
-
-        {errorType === 'invalid-session' && (
-          <>
-            <Localized id="app-invalid-session-err-heading">
-              <h2
-                className="text-grey-900 font-header text-lg font-bold mb-3"
-                data-testid="error-invalid-session"
-              >
-                Invalid Session
-              </h2>
-            </Localized>
-            <Localized id="app-invalid-session-err-message">
-              <p className="text-grey-400">
-                Please sign out and sign in again.
-              </p>
-            </Localized>
-          </>
         )}
       </div>
     </div>
