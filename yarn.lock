@@ -34308,7 +34308,6 @@ __metadata:
     jws: "npm:4.0.0"
     keypair: "npm:1.0.4"
     keyv: "npm:5.2.1"
-    leftpad: "npm:0.0.1"
     load-grunt-tasks: "npm:^5.1.0"
     lodash: "npm:^4.17.21"
     luxon: "npm:^3.5.0"
@@ -41729,13 +41728,6 @@ __metadata:
   dependencies:
     invert-kv: "npm:^1.0.0"
   checksum: 10c0/87fb32196c3c80458778f34f71c042e114f3134a3c86c0d60ee9c94f0750e467d7ca0c005a5224ffd9d49a6e449b5e5c31e1544f1827765a0ba8747298f5980e
-  languageName: node
-  linkType: hard
-
-"leftpad@npm:0.0.1":
-  version: 0.0.1
-  resolution: "leftpad@npm:0.0.1"
-  checksum: 10c0/610aa10ae6ea09f038b5f3c5048948a0e62579ed56daa854217bbe7b04d29aa33d8e3b1f0eff5a4a7455e5c8699c1b23f44e2f35fec77bc900aff12421f50d56
   languageName: node
   linkType: hard
 
