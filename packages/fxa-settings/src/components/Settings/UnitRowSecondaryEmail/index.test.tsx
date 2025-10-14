@@ -484,5 +484,40 @@ describe('UnitRowSecondaryEmail', () => {
         await screen.findByText('Enter confirmation code')
       ).toBeInTheDocument();
     });
+
+    it('shows only one MFA modal when deleting with multiple secondary emails and invalid jwt', async () => {
+      JwtTokenCache.setToken(mockSessionToken, 'email', 'invalid-jwt');
+
+      const emails = [
+        mockEmail('primary@example.com'),
+        mockEmail('sec1@example.com', false, true),
+        mockEmail('sec2@example.com', false, true),
+      ];
+      const account = createMockAccount({
+        emails,
+        deleteSecondaryEmailWithJwt: jest
+          .fn()
+          .mockRejectedValue({ code: 401, errno: 110 }),
+      });
+
+      const context = mockAppContext({
+        authClient: mockAuthClient as any,
+        account,
+      });
+      const settingsContext = mockSettingsContext();
+      renderWithRouter(
+        <AppContext.Provider value={context}>
+          <SettingsContext.Provider value={settingsContext}>
+            <UnitRowSecondaryEmail />
+          </SettingsContext.Provider>
+        </AppContext.Provider>
+      );
+
+      const deleteButtons = screen.getAllByTestId('secondary-email-delete');
+      await user.click(deleteButtons[0]);
+
+      const modals = await screen.findAllByText('Enter confirmation code');
+      expect(modals).toHaveLength(1);
+    });
   });
 });
