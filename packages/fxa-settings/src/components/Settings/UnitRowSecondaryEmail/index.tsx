@@ -334,7 +334,7 @@ export const UnitRowSecondaryEmail = () => {
         {verified && isLastVerifiedSecondaryEmail && (
           <SecondaryEmailDefaultContent />
         )}
-        {pendingChangePrimary && (
+        {pendingChangePrimary === email && (
           <MfaGuard
             requiredScope="email"
             reason={MfaReason.changePrimaryEmail}
@@ -345,7 +345,7 @@ export const UnitRowSecondaryEmail = () => {
             <ChangePrimaryOnMount email={email} />
           </MfaGuard>
         )}
-        {pendingSecondaryDelete && (
+        {pendingSecondaryDelete === email && (
           <MfaGuard
             requiredScope="email"
             reason={MfaReason.removeSecondaryEmail}
