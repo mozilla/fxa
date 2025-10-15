@@ -13,14 +13,5 @@
     "url": "https://github.com/vladikoff/fxa-dev-launcher"
   },
   "author": "Mozilla (https://mozilla.org/)",
-  "license": "MPL-2.0",
-  "dependencies": {
-    "chalk": "^5.4.1",
-    "foxfire": "^2.0.0"
-  },
-  "devDependencies": {
-    "@types/eslint": "^8",
-    "eslint": "^8.38.0",
-    "eslint-config-react-app": "^7.0.1"
-  }
+  "license": "MPL-2.0"
 }

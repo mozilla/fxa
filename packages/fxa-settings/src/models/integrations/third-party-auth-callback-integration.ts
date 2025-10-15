@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ModelDataStore } from '../../lib/model-data';
-import { AUTH_PROVIDER } from 'fxa-auth-client/browser';
+import { AUTH_PROVIDER } from '@fxa/accounts/auth-client';
 import { ThirdPartyAuthCallbackIntegrationData } from './data/data';
 import { IntegrationFeatures } from './features';
 import {

@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { deriveHawkCredentials } from 'fxa-auth-client';
+import { deriveHawkCredentials } from '@fxa/accounts/auth-client';
 import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
 import { IncomingHttpHeaders } from 'http';
 import { SESSION_TOKEN_REGEX } from './session-token.strategy';

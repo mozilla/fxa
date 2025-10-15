@@ -24,6 +24,7 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
+      "@fxa/accounts/auth-client": ["libs/accounts/auth-client/src/index.ts"],
       "@fxa/accounts/rate-limit": ["libs/accounts/rate-limit/src/index.ts"],
       "@fxa/accounts/recovery-phone": [
         "libs/accounts/recovery-phone/src/index.ts"
@@ -117,5 +118,13 @@
     ],
     "jsx": "react-jsx"
   },
-  "exclude": ["packages/*/node_modules", "node_modules", "tmp"]
+  "exclude": [
+    "packages/*/node_modules",
+    "**/packages/*/node_modules",
+    "node_modules",
+    "**/node_modules",
+    "tmp",
+    "dist",
+    "**/dist"
+  ]
 }

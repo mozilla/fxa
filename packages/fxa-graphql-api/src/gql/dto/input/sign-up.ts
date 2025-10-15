@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Field, InputType } from '@nestjs/graphql';
-import { BoolString } from 'fxa-auth-client';
+import { BoolString } from '@fxa/accounts/auth-client';
 import { MetricsContext } from './metrics-context';
 
 @InputType()

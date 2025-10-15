@@ -6,7 +6,7 @@ import dedent from 'dedent';
 
 export const AUTH_SERVER_API_DESCRIPTION = {
   description: dedent`
-    This document provides protocol-level details of the Firefox Accounts auth server API. For a prose description of the client/server protocol and details on how each parameter is derived, see the [API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol). For a reference client implementation, see [fxa-auth-client](https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-client).
+    This document provides protocol-level details of the Firefox Accounts auth server API. For a prose description of the client/server protocol and details on how each parameter is derived, see the [API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol). For a reference client implementation, see [@fxa/accounts/auth-clientuth-client](https://github.com/mozilla/fxa/tree/main/packages/@fxa/accounts/auth-client).
 
     ## URL Structure for Auth Server
     All requests use URLs of the form:

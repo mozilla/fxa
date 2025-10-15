@@ -11,7 +11,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import AuthClient, { deriveHawkCredentials } from 'fxa-auth-client';
+import AuthClient, { deriveHawkCredentials } from '@fxa/accounts/auth-client';
 import {
   Account,
   AccountOptions,

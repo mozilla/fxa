@@ -7,14 +7,6 @@
     "test": "mocha",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
-  "dependencies": {
-    "eslint": "6.6.0",
-    "eslint-config-prettier": "9.1.0",
-    "ramda": "^0.30.0"
-  },
-  "devDependencies": {
-    "mocha": "^10.4.0"
-  },
   "peerDependencies": {
     "eslint": ">=6.6.0"
   },

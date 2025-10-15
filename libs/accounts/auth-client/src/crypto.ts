@@ -62,7 +62,6 @@ export async function getCredentials(email: string, password: string) {
       salt: new Uint8Array(0),
       // The builtin ts type definition for HKDF was wrong
       // at the time this was written, hence the ignore
-      // @ts-ignore
       info: encoder().encode(`${NAMESPACE}authPW`),
       hash: 'SHA-256',
     },
@@ -73,7 +72,6 @@ export async function getCredentials(email: string, password: string) {
     {
       name: 'HKDF',
       salt: new Uint8Array(0),
-      // @ts-ignore
       info: encoder().encode(`${NAMESPACE}unwrapBkey`),
       hash: 'SHA-256',
     },
@@ -128,7 +126,6 @@ export async function getCredentialsV2({
       salt: new Uint8Array(0),
       // The builtin ts type definition for HKDF was wrong
       // at the time this was written, hence the ignore
-      // @ts-ignore
       info: encoder().encode(`${NAMESPACE}authPW`),
       hash: 'SHA-256',
     },
@@ -139,7 +136,6 @@ export async function getCredentialsV2({
     {
       name: 'HKDF',
       salt: new Uint8Array(0),
-      // @ts-ignore
       info: encoder().encode(`${NAMESPACE}unwrapBkey`),
       hash: 'SHA-256',
     },
@@ -154,9 +150,9 @@ export async function getCredentialsV2({
 }
 
 export async function deriveBundleKeys(
-  key: hexstring,
+  key: string,
   keyInfo: string,
-  payloadBytes: number = 64
+  payloadBytes = 64
 ) {
   const baseKey = await crypto.subtle.importKey(
     'raw',
@@ -169,7 +165,6 @@ export async function deriveBundleKeys(
     {
       name: 'HKDF',
       salt: new Uint8Array(0),
-      // @ts-ignore
       info: encoder().encode(`${NAMESPACE}${keyInfo}`),
       hash: 'SHA-256',
     },
@@ -194,10 +189,7 @@ export async function deriveBundleKeys(
   };
 }
 
-export async function unbundleKeyFetchResponse(
-  key: hexstring,
-  bundle: hexstring
-) {
+export async function unbundleKeyFetchResponse(key: string, bundle: string) {
   const b = hexToUint8(bundle);
   const keys = await deriveBundleKeys(key, 'account/keys');
   const ciphertext = b.subarray(0, 64);
@@ -218,7 +210,7 @@ export async function unbundleKeyFetchResponse(
   };
 }
 
-export function unwrapKB(wrapKB: hexstring, unwrapBKey: hexstring) {
+export function unwrapKB(wrapKB: string, unwrapBKey: string) {
   return uint8ToHex(xor(hexToUint8(wrapKB), hexToUint8(unwrapBKey)));
 }
 
@@ -228,15 +220,18 @@ export async function hkdf(
   info: Uint8Array,
   bytes: number
 ) {
-  const key = await crypto.subtle.importKey('raw', keyMaterial, 'HKDF', false, [
-    'deriveBits',
-  ]);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyMaterial as BufferSource,
+    'HKDF',
+    false,
+    ['deriveBits']
+  );
   const result = await crypto.subtle.deriveBits(
     {
       name: 'HKDF',
-      salt,
-      // @ts-ignore
-      info,
+      salt: salt as BufferSource,
+      info: info as BufferSource,
       hash: 'SHA-256',
     },
     key,
@@ -247,13 +242,13 @@ export async function hkdf(
 
 export async function jweEncrypt(
   keyMaterial: Uint8Array,
-  kid: hexstring,
+  kid: string,
   data: Uint8Array,
   forTestingOnly?: { testIV: Uint8Array }
 ) {
   const key = await crypto.subtle.importKey(
     'raw',
-    keyMaterial,
+    keyMaterial as BufferSource,
     {
       name: 'AES-GCM',
     },
@@ -274,12 +269,12 @@ export async function jweEncrypt(
   const encrypted = await crypto.subtle.encrypt(
     {
       name: 'AES-GCM',
-      iv,
+      iv: iv as BufferSource,
       additionalData: encoder().encode(jweHeader),
       tagLength: 128,
     },
     key,
-    data
+    data as BufferSource
   );
   const ciphertext = new Uint8Array(
     encrypted.slice(0, encrypted.byteLength - 16)
@@ -308,7 +303,7 @@ export async function jweDecrypt(
   const [header, , iv, ciphertext, authenticationTag] = jwe.split('.');
   const key = await crypto.subtle.importKey(
     'raw',
-    keyMaterial,
+    keyMaterial as BufferSource,
     {
       name: 'AES-GCM',
     },
@@ -321,7 +316,7 @@ export async function jweDecrypt(
   const decrypted = await crypto.subtle.decrypt(
     {
       name: 'AES-GCM',
-      iv: base64UrlToUint8(iv),
+      iv: base64UrlToUint8(iv) as BufferSource,
       additionalData: encoder.encode(header),
       tagLength: 128,
     },

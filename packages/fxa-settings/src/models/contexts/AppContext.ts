@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ApolloClient } from '@apollo/client';
-import AuthClient from 'fxa-auth-client/browser';
+import AuthClient from '@fxa/accounts/auth-client';
 import React from 'react';
 import config, { Config, readConfigMeta, getDefault } from '../../lib/config';
 import { createApolloClient } from '../../lib/gql';
@@ -158,6 +158,5 @@ export function defaultAppContext(context?: AppContextValue) {
   ) as AppContextValue;
 }
 
-export const AppContext = React.createContext<AppContextValue>(
-  defaultAppContext()
-);
+export const AppContext =
+  React.createContext<AppContextValue>(defaultAppContext());

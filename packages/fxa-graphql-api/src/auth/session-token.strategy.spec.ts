@@ -13,7 +13,7 @@ const mockAuthClient = {
   deriveHawkCredentials: jest.fn(),
 };
 
-jest.mock('fxa-auth-client', () => mockAuthClient);
+jest.mock('@fxa/accounts/auth-clientuth-client', () => mockAuthClient);
 jest.mock('fxa-shared/db/models/auth/session-token', () => mockSession);
 
 // eslint-disable-next-line import/first

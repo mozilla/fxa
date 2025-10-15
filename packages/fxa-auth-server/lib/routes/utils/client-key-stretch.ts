@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// Note should be aligned with fxa-auth-client/lib/crypt variables!
+// Note should be aligned with @fxa/accounts/auth-clientuth-client/lib/crypt variables!
 // Deciding not to create a dependency just for this. Also deciding not
-// move to fxa-shared since fxa-auth-client does not currently depend on
+// move to fxa-shared since @fxa/accounts/auth-clientuth-client does not currently depend on
 // fxa-shared
 
-// TBD - Should we move this to a nx lib, and use same routine for fxa-auth-client and fxa-auth-server?
+// TBD - Should we move this to a nx lib, and use same routine for @fxa/accounts/auth-clientuth-client and fxa-auth-server?
 //       Perhaps this better for a follow up.
 
 export const V1_PBKDF2_ITERATIONS = 1000;

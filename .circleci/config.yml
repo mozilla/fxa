@@ -360,7 +360,6 @@ commands:
               GREP=""
             fi
             echo "targeting project << parameters.project >> $GREP"
-            npx nx build fxa-auth-client
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..

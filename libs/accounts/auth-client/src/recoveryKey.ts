@@ -37,7 +37,7 @@ async function getRecoveryKeyId(
 
 export async function getRecoveryKeyIdByUid(
   recoveryKey: Uint8Array,
-  uid: hexstring
+  uid: string
 ) {
   const encoder = new TextEncoder();
   const salt = hexToUint8(uid);
@@ -45,8 +45,8 @@ export async function getRecoveryKeyIdByUid(
 }
 
 export async function generateRecoveryKey(
-  uid: hexstring,
-  keys: { kA?: hexstring; kB?: hexstring },
+  uid: string,
+  keys: { kA?: string; kB?: string },
   forTestingOnly?: {
     testRecoveryKey: Uint8Array;
     testIV: Uint8Array;
@@ -90,7 +90,7 @@ export async function generateRecoveryKey(
 export async function decryptRecoveryKeyData(
   recoveryKey: Uint8Array,
   recoveryData: string,
-  uid: hexstring
+  uid: string
 ): Promise<DecryptedRecoveryKeyData> {
   const encoder = new TextEncoder();
   const salt = hexToUint8(uid);

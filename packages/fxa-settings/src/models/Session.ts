@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
-import AuthClient from 'fxa-auth-client/browser';
+import AuthClient from '@fxa/accounts/auth-client';
 import {
   sessionToken,
   clearSignedInAccountUid,

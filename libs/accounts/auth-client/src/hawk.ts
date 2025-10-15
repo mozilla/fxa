@@ -6,7 +6,7 @@ import { NAMESPACE } from './salt';
 
 const encoder = () => new TextEncoder();
 
-export async function deriveHawkCredentials(token: hexstring, context: string) {
+export async function deriveHawkCredentials(token: string, context: string) {
   const baseKey = await crypto.subtle.importKey(
     'raw',
     hexToUint8(token),
@@ -18,7 +18,6 @@ export async function deriveHawkCredentials(token: hexstring, context: string) {
     {
       name: 'HKDF',
       salt: new Uint8Array(0),
-      // @ts-ignore
       info: encoder().encode(`${NAMESPACE}${context}`),
       hash: 'SHA-256',
     },
@@ -109,10 +108,7 @@ function generateNormalizedString(type: string, options: any) {
   return normalized;
 }
 
-async function calculatePayloadHash(
-  payload: string = '',
-  contentType: string = ''
-) {
+async function calculatePayloadHash(payload = '', contentType = '') {
   const data = encoder().encode(`hawk.1.payload\n${contentType}\n${payload}\n`);
   const hash = await crypto.subtle.digest('SHA-256', data);
   return uint8ToBase64(new Uint8Array(hash));
