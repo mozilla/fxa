@@ -35,7 +35,9 @@ export class RelyingPartyConfigurationManager {
     @Inject(FirestoreService) private firestore: Firestore,
     @Inject(LOGGER_PROVIDER) private readonly log: Logger,
   ) {
-    this.strapiClient.on('response', this.onStrapiClientResponse.bind(this));
+    if (this.strapiClient.on) {
+      this.strapiClient.on('response', this.onStrapiClientResponse.bind(this));
+    }
 
     // Initialize cache adapters
     this.memoryCacheAdapter = new MemoryAdapter();
