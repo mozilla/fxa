@@ -34,6 +34,8 @@ import { currentAccount } from '../../lib/cache';
 import { MozServices } from '../../lib/types';
 import mockUseSyncEngines from '../../lib/hooks/useSyncEngines/mocks';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import sentryMetrics from 'fxa-shared/sentry/browser';
+import { OAuthError } from '../../lib/oauth';
 
 jest.mock('@reach/router', () => {
   return {
@@ -45,6 +47,15 @@ jest.mock('@reach/router', () => {
 jest.mock('../../lib/hooks/useSyncEngines', () => ({
   __esModule: true,
   default: jest.fn(),
+}));
+
+jest.mock('fxa-shared/sentry/browser', () => ({
+  __esModule: true,
+  default: {
+    enable: jest.fn(),
+    disable: jest.fn(),
+    captureException: jest.fn(),
+  },
 }));
 
 jest.mock('../../models/contexts/SettingsContext', () => ({
@@ -590,5 +601,132 @@ describe('SettingsRoutes', () => {
       expect(navigate).not.toHaveBeenCalled();
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
+  });
+});
+
+describe('Integration serviceName error handling', () => {
+  beforeEach(() => {
+    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: false,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: true },
+    });
+    (useSession as jest.Mock).mockReturnValue({
+      isValid: () => true,
+    });
+    (currentAccount as jest.Mock).mockReturnValue({
+      uid: '123',
+      sessionToken: '123',
+    });
+  });
+
+  afterEach(() => {
+    (useSyncEngines as jest.Mock).mockRestore();
+    (useInitialMetricsQueryState as jest.Mock).mockRestore();
+    (useLocalSignedInQueryState as jest.Mock).mockRestore();
+    (useSession as jest.Mock).mockRestore();
+    (currentAccount as jest.Mock).mockRestore();
+    (sentryMetrics.captureException as jest.Mock).mockClear();
+  });
+
+  it('shows OAuthDataError component when OAuth integration throws', async () => {
+    const mockError = new OAuthError(109, { param: 'scope' });
+    const mockOAuthIntegration = {
+      type: IntegrationType.OAuthWeb,
+      isSync: jest.fn().mockReturnValue(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
+      getServiceName: jest.fn().mockImplementation(() => {
+        throw mockError;
+      }),
+      getClientId: jest.fn(),
+      data: {},
+      getCmsInfo: jest.fn(),
+    };
+
+    (useIntegration as jest.Mock).mockReturnValue(mockOAuthIntegration);
+
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>
+      );
+    });
+
+    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
+    expect(screen.getByText('Bad Request')).toBeInTheDocument();
+    expect(screen.getByText(mockError.message)).toBeInTheDocument();
+  });
+
+  it('throws error when non-OAuth integration', async () => {
+    const mockError = new Error('Non-OAuth integration error');
+    const mockNonOAuthIntegration = {
+      type: IntegrationType.Web,
+      isSync: jest.fn().mockReturnValue(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
+      getServiceName: jest.fn().mockImplementation(() => {
+        throw mockError;
+      }),
+      getClientId: jest.fn(),
+      data: {},
+      getCmsInfo: jest.fn(),
+    };
+
+    (useIntegration as jest.Mock).mockReturnValue(mockNonOAuthIntegration);
+
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    await expect(
+      act(async () => {
+        renderWithLocalizationProvider(
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        );
+      })
+    ).rejects.toThrow('Non-OAuth integration error');
+
+    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
+
+    consoleSpy.mockRestore();
+  });
+
+  it('handles OAuthNative integration error correctly', async () => {
+    const mockError = new OAuthError(109, { param: 'scope' });
+    const mockOAuthNativeIntegration = {
+      type: IntegrationType.OAuthNative,
+      isSync: jest.fn().mockReturnValue(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
+      getServiceName: jest.fn().mockImplementation(() => {
+        throw mockError;
+      }),
+      getClientId: jest.fn(),
+      data: {},
+      getCmsInfo: jest.fn(),
+    };
+
+    (useIntegration as jest.Mock).mockReturnValue(mockOAuthNativeIntegration);
+
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>
+      );
+    });
+
+    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
+    expect(screen.getByText('Bad Request')).toBeInTheDocument();
+    expect(screen.getByText(mockError.message)).toBeInTheDocument();
   });
 });

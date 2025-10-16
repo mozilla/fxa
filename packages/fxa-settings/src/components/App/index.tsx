@@ -29,6 +29,7 @@ import { MozServices } from '../../lib/types';
 
 import {
   Integration,
+  isOAuthIntegration,
   useConfig,
   useInitialMetricsQueryState,
   useIntegration,
@@ -155,6 +156,7 @@ const AuthorizationContainer = lazy(
   () => import('../../pages/Authorization/container')
 );
 const CookiesDisabled = lazy(() => import('../../pages/CookiesDisabled'));
+const OAuthDataError = lazy(() => import('../OAuthDataError'));
 const ResetPasswordRecoveryChoiceContainer = lazy(
   () =>
     import('../../pages/ResetPassword/ResetPasswordRecoveryChoice/container')
@@ -415,7 +417,7 @@ const AuthAndAccountSetupRoutes = ({
 } & RouteComponentProps) => {
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
-  const serviceName = integration.getServiceName() as MozServices;
+  let serviceName: MozServices;
   const location = useLocation();
   const { enabled: gleanEnabled } = GleanMetrics.useGlean();
 
@@ -424,6 +426,23 @@ const AuthAndAccountSetupRoutes = ({
   }, [location.pathname, gleanEnabled]);
 
   const useSyncEnginesResult = useSyncEngines(integration);
+  try {
+    // Handle getServiceName() errors that occur when OAuth scope validation fails.
+    // This can happen when scopes are missing, invalid, or filtered out during
+    // trusted/untrusted client validation. For OAuth integrations, show a user-friendly
+    // error page instead of letting it bubble up to the general error boundary.
+    serviceName = integration.getServiceName() as MozServices;
+  } catch (err: any) {
+    sentryMetrics.captureException(err);
+    if (isOAuthIntegration(integration)) {
+      return (
+        <Suspense fallback={<LoadingSpinner fullScreen />}>
+          <OAuthDataError error={err} />
+        </Suspense>
+      );
+    }
+    throw err;
+  }
 
   return (
     <Suspense fallback={<LoadingSpinner fullScreen />}>
