@@ -28,7 +28,7 @@ const PaymentServer = {
     redirectPath,
     rpQueryParams = {},
     paymentsNextUrl,
-    usePaymentsNext,
+    usePaymentsNext
   ) {
     const {
       managementClientId,
@@ -71,7 +71,7 @@ const PaymentServer = {
     const url = `${baseUrl}/${redirectPath}${queryString}`;
 
     const unauthenticatedRedirect = () => {
-      if (isAllowedUnauthenticatedRoute(redirectPath)) {
+      if (usePaymentsNext || isAllowedUnauthenticatedRoute(redirectPath)) {
         return view.navigateAway(url);
       }
 

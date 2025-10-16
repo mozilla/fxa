@@ -116,7 +116,11 @@ Cocktail.mixin(Router, ReactExperimentMixin);
 Router = Router.extend({
   routes: {
     '(/)': function () {
-      this.createReactOrBackboneViewHandler('/', IndexView);
+      this.createReactOrBackboneViewHandler('/', IndexView, {
+        ...(this.relier.get('redirectTo') && {
+          redirect_to: this.relier.get('redirectTo'),
+        }),
+      });
     },
     'account_recovery_confirm_key(/)': function () {
       this.createReactOrBackboneViewHandler(
@@ -711,7 +715,10 @@ Router = Router.extend({
       const rawSearch = window.location.search.substring(1);
       const paramsObject = Url.searchParams(rawSearch);
       paramsObject.showReactApp = 'true';
-      const newSearchString = Url.objToSearchString(paramsObject);
+      const newSearchString = Url.objToSearchString({
+        ...paramsObject,
+        ...additionalParams,
+      });
       this.navigateAway(`/${newSearchString}`);
     } else {
       const { deviceId, flowBeginTime, flowId } =
