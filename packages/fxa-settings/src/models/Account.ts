@@ -1039,14 +1039,6 @@ export class Account implements AccountData {
       )
     );
 
-    currentAccount(getStoredAccountData(linkedAccount));
-    sessionToken(linkedAccount.sessionToken);
-
-    this.apolloClient.cache.writeQuery({
-      query: GET_LOCAL_SIGNED_IN_STATUS,
-      data: { isSignedIn: true },
-    });
-
     return linkedAccount;
   }
 
