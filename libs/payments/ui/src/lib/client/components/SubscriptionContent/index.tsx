@@ -10,6 +10,8 @@ import { Localized, useLocalization } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 
 import { ActionButton, ButtonVariant, SubmitButton } from '@fxa/payments/ui';
+import alertIcon from '@fxa/shared/assets/images/alert-yellow.svg';
+import newWindowIcon from '@fxa/shared/assets/images/new-window.svg';
 import {
   getLocalizedCurrencyString,
   getLocalizedDateString,
@@ -32,6 +34,7 @@ interface Subscription {
   currentInvoiceDate: number;
   currentInvoiceTax: number;
   currentInvoiceTotal: number;
+  currentInvoiceUrl?: string | null;
   currentPeriodEnd: number;
   nextInvoiceDate: number;
   nextInvoiceTax?: number;
@@ -55,18 +58,17 @@ export const SubscriptionContent = ({
 }: SubscriptionContentProps) => {
   const {
     canResubscribe,
-    creditApplied,
     currency,
     currentInvoiceDate,
     currentInvoiceTax,
     currentInvoiceTotal,
+    currentInvoiceUrl,
     currentPeriodEnd,
     nextInvoiceTax,
     nextInvoiceTotal,
     nextPromotionName,
     productName,
     webIcon,
-    promotionName,
   } = subscription;
 
   const [checkedState, setCheckedState] = useState(false);
@@ -489,164 +491,148 @@ export const SubscriptionContent = ({
           </div>
         </Form.Root>
       ) : (
-        <section className="flex items-center justify-between gap-4 my-4">
-          {canResubscribe ? (
-            <>
-              {isClient && (
+        <>
+          {isClient && (
+            <div className="bg-grey-10 leading-6 p-4 rounded-lg">
+              <div className="text-grey-500">
                 <Localized
-                  id="subscription-content-resubscribe"
-                  vars={{
-                    name: productName,
-                    date: currentPeriodEndLongFallback,
-                  }}
-                  elems={{
-                    strong: <strong></strong>,
-                  }}
+                  id="subscription-content-last-bill"
+                  vars={{ billedOnDate: currentInvoiceDateLongFallback }}
                 >
-                  <p className="text-sm leading-4 text-grey-400">
-                    You will lose access to {productName} on{' '}
-                    <strong>{currentPeriodEndLongFallback}</strong>.
-                  </p>
+                  <p>Last bill &bull; {currentInvoiceDateLongFallback}</p>
                 </Localized>
-              )}
-              <Localized
-                id="subscription-content-button-resubscribe"
-                vars={{ productName }}
-                attrs={{ 'aria-label': true }}
-              >
-                <SubmitButton
-                  className="h-10"
-                  variant={ButtonVariant.Secondary}
-                  onClick={() => setOpenResubscribeDialog(true)}
-                  aria-label={`Resubscribe to ${productName}`}
-                >
-                  Resubscribe
-                </SubmitButton>
-              </Localized>
-            </>
-          ) : (
-            <>
-              {isClient && (
-                <div className="leading-5">
-                  {currentInvoiceTax ? (
+              </div>
+              <div className="flex items-center justify-between">
+                {currentInvoiceTax ? (
+                  <Localized
+                    id="subscription-content-last-bill-with-tax"
+                    vars={{
+                      invoiceTotal:
+                        getCurrencyFallbackText(currentInvoiceTotal),
+                      taxDue: getCurrencyFallbackText(currentInvoiceTax),
+                    }}
+                  >
+                    <p>
+                      {getCurrencyFallbackText(currentInvoiceTotal)} +{' '}
+                      {getCurrencyFallbackText(currentInvoiceTax)} tax
+                    </p>
+                  </Localized>
+                ) : (
+                  <Localized
+                    id="subscription-content-last-bill-no-tax"
+                    vars={{
+                      invoiceTotal:
+                        getCurrencyFallbackText(currentInvoiceTotal),
+                    }}
+                  >
+                    <p>{getCurrencyFallbackText(currentInvoiceTotal)}</p>
+                  </Localized>
+                )}
+                {currentInvoiceUrl && (
+                  <Localized
+                    id="subscription-content-view-invoice"
+                    elems={{
+                      viewInvoiceLink: (
+                        <LinkExternal
+                          href={currentInvoiceUrl}
+                          className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                          data-testid="link-external-view-invoice"
+                        >
+                          <span className="underline">View invoice</span>
+                          <Image
+                            src={newWindowIcon}
+                            alt=""
+                            width={16}
+                            height={16}
+                            aria-hidden="true"
+                          />
+                        </LinkExternal>
+                      ),
+                    }}
+                  >
+                    <LinkExternal
+                      href={currentInvoiceUrl}
+                      className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                      data-testid="link-external-view-invoice"
+                    >
+                      <span className="underline">View invoice</span>
+                      <Image src={newWindowIcon} alt="" />
+                    </LinkExternal>
+                  </Localized>
+                )}
+              </div>
+              {canResubscribe ? (
+                <>
+                  <hr
+                    className="border-none h-px bg-grey-200 my-2"
+                    aria-hidden="true"
+                  />
+                  {isClient && (
                     <Localized
-                      id="subscription-content-current-billed-on-tax"
+                      id="subscription-content-expires-on-expiry-date"
                       vars={{
-                        billedOnDate: currentInvoiceDateLongFallback,
-                        invoiceTotal:
-                          getCurrencyFallbackText(currentInvoiceTotal),
-                        taxDue: getCurrencyFallbackText(currentInvoiceTax),
-                      }}
-                      elems={{
-                        strong: <strong></strong>,
-                        span: <span className="text-grey-600 text-sm"></span>,
+                        date: currentPeriodEndLongFallback,
                       }}
                     >
-                      <p>
-                        <strong>
-                          {getCurrencyFallbackText(currentInvoiceTotal)} +{' '}
-                          {getCurrencyFallbackText(currentInvoiceTax)} tax{' '}
-                        </strong>
-                        <span className="text-grey-600 text-sm">
-                          billed on {currentInvoiceDateLongFallback}
-                        </span>
-                      </p>
-                    </Localized>
-                  ) : (
-                    <Localized
-                      id="subscription-content-current-billed-on-no-tax"
-                      vars={{
-                        billedOnDate: currentInvoiceDateLongFallback,
-                        invoiceTotal:
-                          getCurrencyFallbackText(currentInvoiceTotal),
-                      }}
-                      elems={{
-                        strong: <strong></strong>,
-                        span: <span className="text-grey-600 text-sm"></span>,
-                      }}
-                    >
-                      <p>
-                        <strong>
-                          {getCurrencyFallbackText(currentInvoiceTotal)}
-                        </strong>
-                        <span className="text-grey-600 text-sm">
-                          billed on {currentInvoiceDateLongFallback}
-                        </span>
-                      </p>
-                    </Localized>
-                  )}
-                  {creditApplied && creditApplied > 0 ? (
-                    <Localized
-                      id="subscription-content-credit-issued-to-your-account"
-                      vars={{
-                        creditApplied: getCurrencyFallbackText(creditApplied),
-                      }}
-                      elems={{ strong: <strong></strong> }}
-                    >
-                      <p className="text-green-900 text-sm">
-                        <strong>
-                          {getCurrencyFallbackText(creditApplied)}
-                        </strong>{' '}
-                        credit issued to your account
-                      </p>
-                    </Localized>
-                  ) : null}
-                  {promotionName && (
-                    <Localized
-                      id="subscription-content-coupon-applied"
-                      vars={{
-                        promotionName,
-                      }}
-                    >
-                      <p className="font-bold text-sm text-violet-700">
-                        {promotionName} applied
-                      </p>
+                      <div className="flex items-center gap-1">
+                        <Image
+                          src={alertIcon}
+                          alt=""
+                          width={20}
+                          height={20}
+                          aria-hidden="true"
+                        />
+                        <p className="text-sm text-yellow-800">
+                          Expires on {currentPeriodEndLongFallback}
+                        </p>
+                      </div>
                     </Localized>
                   )}
+                </>
+              ) : (
+                <>
                   {nextInvoiceTotal !== undefined && nextInvoiceTotal >= 0 ? (
-                    <div className="mt-2 text-sm">
+                    <>
+                      <hr
+                        className="border-none h-px bg-grey-200 my-2"
+                        aria-hidden="true"
+                      />
+                      <div className="text-grey-500">
+                        <Localized
+                          id="subscription-content-next-bill"
+                          vars={{
+                            billedOnDate: currentPeriodEndLongFallback,
+                          }}
+                        >
+                          <p>Next bill &bull; {currentPeriodEndLongFallback}</p>
+                        </Localized>
+                      </div>
                       {nextInvoiceTax ? (
                         <Localized
-                          id="subscription-content-next-bill-excl-disc-with-tax"
+                          id="subscription-content-next-bill-with-tax-1"
                           vars={{
-                            nextBillDate: currentPeriodEndLongFallback,
                             nextInvoiceTotal:
                               getCurrencyFallbackText(nextInvoiceTotal),
                             taxDue: getCurrencyFallbackText(nextInvoiceTax),
                           }}
-                          elems={{ strong: <strong></strong> }}
                         >
                           <p>
-                            Next bill of{' '}
-                            <strong>
-                              {getCurrencyFallbackText(nextInvoiceTotal)} +{' '}
-                              {getCurrencyFallbackText(nextInvoiceTax)} tax
-                            </strong>
-                            , excluding discounts, is due{' '}
-                            <strong>{currentPeriodEndLongFallback}</strong>
+                            {getCurrencyFallbackText(nextInvoiceTotal)} +{' '}
+                            {getCurrencyFallbackText(nextInvoiceTax)} tax
                           </p>
                         </Localized>
                       ) : (
                         <Localized
-                          id="subscription-content-next-bill-excl-no-tax"
+                          id="subscription-content-next-bill-no-tax-1"
                           vars={{
-                            nextBillDate: currentPeriodEndLongFallback,
                             nextInvoiceTotal:
                               getCurrencyFallbackText(nextInvoiceTotal),
                           }}
-                          elems={{ strong: <strong></strong> }}
                         >
-                          <p>
-                            Next bill of{' '}
-                            <strong>
-                              {getCurrencyFallbackText(nextInvoiceTotal)}
-                            </strong>
-                            , excluding discounts, is due{' '}
-                            <strong>{currentPeriodEndLongFallback}</strong>
-                          </p>
+                          <p>{getCurrencyFallbackText(nextInvoiceTotal)}</p>
                         </Localized>
                       )}
-                    </div>
+                    </>
                   ) : null}
                   {nextPromotionName && (
                     <Localized
@@ -660,28 +646,49 @@ export const SubscriptionContent = ({
                       </p>
                     </Localized>
                   )}
-                </div>
+                </>
               )}
+            </div>
+          )}
+          {canResubscribe ? (
+            <div className="flex justify-end w-full tablet:w-auto">
               <Localized
-                id="subscription-content-button-cancel"
+                id="subscription-content-button-stay-subscribed"
                 vars={{ productName }}
                 attrs={{ 'aria-label': true }}
               >
                 <SubmitButton
-                  className="h-10"
-                  variant={ButtonVariant.Secondary}
+                  className="font-bold h-10"
+                  variant={ButtonVariant.SubscriptionManagementPrimary}
+                  onClick={() => setOpenResubscribeDialog(true)}
+                  aria-label={`Stay subscribed to ${productName}`}
+                >
+                  Stay subscribed
+                </SubmitButton>
+              </Localized>
+            </div>
+          ) : (
+            <div className="flex justify-end w-full tablet:w-auto">
+              <Localized
+                id="subscription-content-button-cancel-sub"
+                vars={{ productName }}
+                attrs={{ 'aria-label': true }}
+              >
+                <SubmitButton
+                  className="font-bold h-10"
+                  variant={ButtonVariant.SubscriptionManagementSecondary}
                   onClick={() => {
                     setCheckedState(false);
                     setShowCancel(true);
                   }}
                   aria-label={`Cancel your subscription for ${productName}`}
                 >
-                  Cancel
+                  Cancel subscription
                 </SubmitButton>
               </Localized>
-            </>
+            </div>
           )}
-        </section>
+        </>
       )}
     </>
   );

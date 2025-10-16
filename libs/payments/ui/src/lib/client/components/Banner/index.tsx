@@ -38,7 +38,7 @@ export function Banner({
       bannerAriaLive = 'assertive';
       bannerIcon = errorIcon;
       bannerRole = 'alert';
-      bannerStyle = 'bg-red-100 my-4 rounded-md';
+      bannerStyle = 'bg-red-50 my-4 rounded-md';
       closeStyle = 'hover:bg-red-200 focus:bg-red-300';
       break;
     case BannerVariant.SignedIn:

@@ -23,8 +23,10 @@ export const iapOfferingsByStoreIDsQuery = graphql(`
           }
           purchaseDetails {
             productName
+            webIcon
             localizations(filters: { locale: { eq: $locale } }) {
               productName
+              webIcon
             }
           }
         }
