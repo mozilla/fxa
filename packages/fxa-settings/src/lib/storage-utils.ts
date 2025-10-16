@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { sessionToken } from './cache';
 import Storage from './storage';
 
 const ORIGINAL_TAB_KEY = 'originalTab';
@@ -99,7 +98,6 @@ export function setCurrentAccount(uid: string) {
 export function storeAccountData(accountData: StoredAccountData) {
   persistAccount(accountData);
   setCurrentAccount(accountData.uid);
-  sessionToken(accountData.sessionToken); // Can we remove this? It seems unnecessary...
 }
 
 export function getCurrentAccountData(): StoredAccountData {
