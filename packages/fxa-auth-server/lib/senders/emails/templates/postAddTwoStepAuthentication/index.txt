@@ -13,6 +13,8 @@ postAddTwoStepAuthentication-recovery-method-phone = "You also added <%- maskedP
 postAddTwoStepAuthentication-how-protects-plaintext = "How this protects your account:"
 <%- twoFactorSupportLink %>
 
+postAddTwoStepAuthentication-device-sign-out-message = "To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using two-step authentication."
+
 postAddTwoStepAuthentication-from-device-v2 = "You requested this from:"
 <%- include('/partials/userInfo/index.txt') %>
 

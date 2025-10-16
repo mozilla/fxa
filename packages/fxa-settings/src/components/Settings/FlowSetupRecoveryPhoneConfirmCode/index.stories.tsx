@@ -58,6 +58,7 @@ export const Success = () => (
         navigateForward,
       }}
       sendCode={resendCodeSuccess}
+      showRecoveryPhoneSuccessMessage={true}
       verifyRecoveryCode={verifyRecoveryCodeSuccess}
     />
   </SettingsLayout>
@@ -73,6 +74,7 @@ export const Error = () => (
         navigateForward,
       }}
       sendCode={resendCodeFailure}
+      showRecoveryPhoneSuccessMessage={false}
       verifyRecoveryCode={verifyRecoveryCodeFailure}
     />
   </SettingsLayout>

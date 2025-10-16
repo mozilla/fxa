@@ -45,7 +45,7 @@ export const UnitRowTwoStepAuth = () => {
 
   const handleAdd2FAClick = useCallback(() => {
     GleanMetrics.accountPref.twoStepAuthSubmit();
-    navigateWithQuery(route);
+    navigateWithQuery(route, { replace: true }, false);
   }, [navigateWithQuery]);
 
   const conditionalUnitRowProps: Partial<UnitRowProps> =
@@ -117,7 +117,7 @@ export const UnitRowTwoStepAuth = () => {
                   alertBar.hide();
                   navigateWithQuery(
                     `${SETTINGS_PATH}/recovery_phone/remove`,
-                    undefined,
+                    {},
                     false
                   );
                 },
@@ -211,6 +211,7 @@ const DisableTwoStepAuthModal = ({
   const alertBar = useAlertBar();
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
+  const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
 
   useEffect(() => {
@@ -229,6 +230,13 @@ const DisableTwoStepAuthModal = ({
         ),
         () => GleanMetrics.accountPref.twoStepAuthDisableSuccessView()
       );
+      navigateWithQuery(
+        `${SETTINGS_PATH}#two-step-authentication`,
+        {
+          replace: true,
+        },
+        false
+      );
     } catch (e) {
       if (isInvalidJwtError(e)) {
         // JWT invalid/expired.
@@ -246,7 +254,14 @@ const DisableTwoStepAuthModal = ({
 
       Sentry.captureException(e);
     }
-  }, [account, hideDisable2FAModal, alertBar, ftlMsgResolver, errorHandler]);
+  }, [
+    account,
+    alertBar,
+    errorHandler,
+    ftlMsgResolver,
+    hideDisable2FAModal,
+    navigateWithQuery,
+  ]);
 
   return (
     <VerifiedSessionGuard

@@ -5,6 +5,8 @@ postChangeTwoStepAuthentication-use-new-account = "You now need to use the new M
 postChangeTwoStepAuthentication-how-protects-plaintext = "How this protects your account:"
 <%- twoFactorSupportLink %>
 
+postChangeTwoStepAuthentication-device-sign-out-message = "To protect all your connected devices, you should sign out everywhere youʼre using this account, and then sign back in using your new two-step authentication."
+
 postChangeTwoStepAuthentication-from-device-v2 = "You requested this from:"
 <%- include('/partials/userInfo/index.txt') %>
 

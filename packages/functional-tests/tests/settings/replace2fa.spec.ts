@@ -179,7 +179,7 @@ const addThenChange2FA = async ({
 }): Promise<{ initial: TotpCredentials; new: TotpCredentials }> => {
   async function assertEnabled(isSetup: boolean) {
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.alertBar).toHaveText(
+    await expect(settings.alertBar).toContainText(
       `Two-step authentication has been ${isSetup ? 'enabled' : 'updated'}`
     );
     await expect(settings.totp.status).toHaveText('Enabled');
