@@ -183,10 +183,13 @@
     "@nx/eslint-plugin": "21.1.2",
     "@nx/jest": "21.1.2",
     "@nx/js": "21.1.2",
+    "@nx/nest": "21.1.2",
     "@nx/node": "21.1.2",
     "@nx/react": "21.1.2",
     "@nx/s3-cache": "^2.1.0",
     "@nx/storybook": "21.1.2",
+    "@nx/web": "21.1.2",
+    "@nx/webpack": "21.1.2",
     "@nx/workspace": "21.1.2",
     "@opentelemetry/semantic-conventions": "^1.32.0",
     "@storybook/addon-essentials": "7.6.15",
@@ -268,7 +271,8 @@
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.8",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
-    "typescript": "5.5.3"
+    "typescript": "5.5.3",
+    "webpack-cli": "^6.0.1"
   },
   "workspaces": [
     "packages/*"

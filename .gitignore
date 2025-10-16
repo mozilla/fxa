@@ -163,6 +163,9 @@ packages/fxa-settings/test/
 apps/payments/next/public/locales
 !apps/payments/next/.env
 
+# payments-api
+!apps/payments/api/.env
+
 # payments-metrics
 libs/payments/metrics/src/lib/glean/__generated__/
 
