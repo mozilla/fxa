@@ -255,7 +255,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.confirmMfaGuard(credentials.email);
 
       await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
-      await expect(settings.alertBar).toHaveText(
+      await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
 

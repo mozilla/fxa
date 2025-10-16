@@ -72,14 +72,37 @@ export const Page2faSetup = () => {
   // when recovery phone is available, an extra choice step is added
   const numberOfSteps = flowHasPhoneChoice ? 4 : 3;
 
-  const showSuccess = useCallback(() => {
-    alertBar.success(
-      ftlMsgResolver.getMsg(
-        'page-2fa-setup-success',
-        'Two-step authentication has been enabled'
-      )
+  const alertBarSuccessMessage = useCallback(() => {
+    return (
+      <div>
+        <p>
+          <strong>
+            {ftlMsgResolver.getMsg(
+              'page-2fa-setup-success',
+              'Two-step authentication has been enabled'
+            )}
+          </strong>
+        </p>
+        <p>
+          {ftlMsgResolver.getMsg(
+            'page-2fa-setup-success-additional-message',
+            'To protect all your connected devices, you should sign out everywhere you’re using this account, and then sign back in using two-step authentication.'
+          )}
+        </p>
+      </div>
     );
-  }, [alertBar, ftlMsgResolver]);
+  }, [ftlMsgResolver]);
+
+  const handle2faSetupSuccess = useCallback(() => {
+    alertBar.success(alertBarSuccessMessage());
+    navigateWithQuery(
+      SETTINGS_PATH + '#connected-services',
+      {
+        replace: true,
+      },
+      false
+    );
+  }, [alertBar, alertBarSuccessMessage, navigateWithQuery]);
 
   const showGenericError = useCallback(() => {
     alertBar.error(
@@ -90,7 +113,7 @@ export const Page2faSetup = () => {
     );
   }, [alertBar, ftlMsgResolver]);
 
-  const goHome = useCallback(
+  const goBackToSettings = useCallback(
     () =>
       navigateWithQuery(SETTINGS_PATH + '#two-step-authentication', {
         replace: true,
@@ -101,8 +124,8 @@ export const Page2faSetup = () => {
   const prevStep = useCallback(() => {
     if (currentStep > 1) {
       setCurrentStep((step) => step - 1);
-    } else goHome();
-  }, [currentStep, goHome]);
+    } else goBackToSettings();
+  }, [currentStep, goBackToSettings]);
 
   // generate & persist backup codes when users pick that route
   const createRecoveryCodes = useCallback(async () => {
@@ -131,9 +154,15 @@ export const Page2faSetup = () => {
   useEffect(() => {
     if (!totpInfoLoading && (totpInfoError || !totpInfo)) {
       showGenericError();
-      goHome();
+      goBackToSettings();
     }
-  }, [totpInfoLoading, totpInfoError, totpInfo, showGenericError, goHome]);
+  }, [
+    totpInfoLoading,
+    totpInfoError,
+    totpInfo,
+    showGenericError,
+    goBackToSettings,
+  ]);
 
   if (totpInfoLoading) return <LoadingSpinner fullScreen />;
 
@@ -164,8 +193,7 @@ export const Page2faSetup = () => {
   const enable2fa = async () => {
     try {
       await account.completeTotpSetupWithJwt();
-      showSuccess();
-      goHome();
+      handle2faSetupSuccess();
       return;
     } catch (e) {
       if (isInvalidJwtError(e)) {
@@ -173,7 +201,7 @@ export const Page2faSetup = () => {
         return;
       }
       showGenericError();
-      goHome();
+      goBackToSettings();
       return;
     }
   };
@@ -196,7 +224,7 @@ export const Page2faSetup = () => {
         errorHandler(error);
       } else {
         showGenericError();
-        goHome();
+        goBackToSettings();
       }
       return;
     }
@@ -252,7 +280,7 @@ export const Page2faSetup = () => {
       {currentStep === 1 && (
         <FlowSetup2faApp
           verifyCode={handleVerify2faAppCode}
-          onBackButtonClick={goHome}
+          onBackButtonClick={goBackToSettings}
           {...{ currentStep, numberOfSteps, localizedPageTitle, totpInfo }}
         />
       )}
@@ -299,16 +327,12 @@ export const Page2faSetup = () => {
 
       {backupMethod === CHOICES.phone && currentStep === 4 && (
         <FlowSetupRecoveryPhoneConfirmCode
-          localizedSuccessMessage={ftlMsgResolver.getMsg(
-            'page-2fa-setup-success',
-            'Two-step authentication has been enabled'
-          )}
           nationalFormatPhoneNumber={
             phoneData.nationalFormat || phoneData.phoneNumber
           }
           navigateBackward={prevStep}
-          navigateForward={goHome}
           sendCode={handleResendSms}
+          showRecoveryPhoneSuccessMessage={false} // we'll instead show a success message for 2fa setup
           verifyRecoveryCode={handleVerifySmsCode}
           reason={RecoveryPhoneSetupReason.setup}
           {...{ currentStep, numberOfSteps, localizedPageTitle }}

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import { MOCK_TOTP_INFO, Subject } from './mocks';
 import userEvent from '@testing-library/user-event';
@@ -88,15 +88,20 @@ describe('Page2faChange', () => {
     });
     await userEvent.type(codeInput, '000000');
     await userEvent.click(continueButton);
-    await waitFor(() =>
-      expect(mockAlertBar.success).toHaveBeenCalledWith(
-        'Two-step authentication has been updated'
-      )
-    );
+    await waitFor(() => {
+      // the success message is a React node, so we need to render it to test the text
+      const node = mockAlertBar.success.mock.calls[0][0] as React.ReactNode;
+      const { getByText, unmount } = render(<>{node}</>);
+      expect(
+        getByText(/Two-step authentication has been updated/i)
+      ).toBeInTheDocument();
+      unmount();
+    });
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(
-        '/settings#two-step-authentication',
-        { replace: true }
+        '/settings#connected-services',
+        { replace: true },
+        false
       );
     });
 
@@ -122,7 +127,8 @@ describe('Page2faChange', () => {
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(
         '/settings#two-step-authentication',
-        { replace: true }
+        { replace: true },
+        false
       );
     });
   });
