@@ -200,8 +200,12 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     integration.isSync() ||
     integration.isFirefoxClientServiceRelay() ||
     integration.isFirefoxClientServiceAiMode();
+  const wantsTwoStepAuthentication = isOAuth && 'wantsTwoStepAuthentication' in integration
+    ? integration.wantsTwoStepAuthentication()
+    : false;
+  const wantsKeys = integration?.wantsKeys?.() ?? false;
 
-  // Check CMS fleature flags to determine if we should hide promos, the
+  // Check CMS feature flags to determine if we should hide promos, the
   // default is to navigate to settings
   const cmsInfo = integration?.getCmsInfo();
   if (
@@ -213,16 +217,28 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     navigationOptions.syncHidePromoAfterLogin = true;
   }
 
+  // When a session is unverified, we need to redirect to the appropriate page depending on status of
+  // the account and the integration being used.
+  // The following cases are handled:
+  // 1. Users that don't have a verified email always get redirected to confirm signup
+  // 2. Users that have a TOTP always get redirected to confirm TOTP
+  // 3. OAuthNative integrations always get redirected to confirm email
+  // 4. Integrations that want two-step authentication always get redirected to confirm email, before
+  //    setting up TOTP
+  // 5. OAuthWeb (ie Relay, Monitor) are redirected to RP
+  // 6. WebIntegrations (ie Settings) are always redirected to confirm email
+  // 7. Integrations that want keys always get redirected to confirm email
+  // 8. Users that are forced to change their password always get redirected to confirm email
   if (
     !navigationOptions.signinData.verified ||
     // TODO, address signIn.verified vs session.verified discrepancy
     // currently 'verified' only checks session status, but 'verificationReason'
     // can tell us if it's a sign up. This will be cleaned up in FXA-12454
-    navigationOptions.signinData.verificationReason ===
-      VerificationReasons.SIGN_UP
+    navigationOptions.signinData.verificationReason === VerificationReasons.SIGN_UP
   ) {
     const { to, locationState } =
       getUnverifiedNavigationTarget(navigationOptions);
+
     if (
       isWebChannelIntegration &&
       navigationOptions.handleFxaLogin === true &&
@@ -232,6 +248,34 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       !to?.includes('signin_totp_code')
     ) {
       sendFxaLogin(navigationOptions);
+    }
+
+    if (navigationOptions.signinData.verificationReason === VerificationReasons.SIGN_UP ||
+      navigationOptions.signinData.verificationMethod === VerificationMethods.TOTP_2FA ||
+      navigationOptions.signinData.verificationReason === VerificationReasons.CHANGE_PASSWORD ||
+      wantsTwoStepAuthentication || wantsKeys
+    ) {
+      performNavigation({ to, locationState });
+      return { error: undefined };
+    }
+
+    // Check if this is a standard OAuth web flow, not a NativeOAuth flow or settings flow
+    // if so return to RP, they don't need to have a verified session
+    if ((isOAuth && !isOAuthNativeIntegration(integration))) {
+      const { to, locationState, shouldHardNavigate, error } =
+      await getOAuthNavigationTarget(navigationOptions);
+      if (error) {
+        return { error };
+      }
+      if (to) {
+        performNavigation({
+          to,
+          locationState,
+          shouldHardNavigate,
+          replace: true,
+        });
+      }
+      return { error: undefined };
     }
 
     if (navigationOptions.performNavigation !== false) {
