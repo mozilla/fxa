@@ -3,211 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { ApolloError, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { RelyingParty } from 'fxa-admin-server/src/graphql';
+import {
+  RelyingPartyDto,
+  RelyingPartyUpdateDto,
+} from 'fxa-admin-server/src/graphql';
 import ErrorAlert from '../ErrorAlert';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { Guard } from '../Guard';
 import { getFormattedDate } from '../../lib/utils';
 import { TableRowYHeader, TableYHeaders } from '../TableYHeaders';
-import { GET_RELYING_PARTIES, UPDATE_NOTE } from './index.gql';
+import {
+  CREATE_RELYING_PARTY,
+  GET_RELYING_PARTIES,
+  UPDATE_RELYING_PARTY,
+  DELETE_RELYING_PARTY,
+} from './index.gql';
 
 interface RelyingPartiesData {
-  relyingParties: RelyingParty[];
+  relyingParties: RelyingPartyDto[];
 }
 
-const Notes = ({ id, notes }: { id: string; notes: string }) => {
-  const [saveAllowed, setSaveAllowed] = useState<boolean>(true);
-  const [status, setStatus] = useState<string>('');
-  const [error, setError] = useState<string>('');
-  const [newNotes, setNewNotes] = useState<string>(notes);
-
-  const resetState = () => {
-    setSaveAllowed(true);
-    setStatus('');
-    setError('');
-  };
-
-  const handleNotesChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (event.target.value === notes) {
-      return;
-    }
-    resetState();
-    setNewNotes(event.target.value);
-  };
-
-  const handleSaveNotes = () => {
-    setSaveAllowed(false);
-    setStatus('Updating...');
-    updateNote({
-      variables: {
-        id,
-        notes: newNotes,
-      },
-    });
-  };
-
-  const [updateNote] = useMutation(UPDATE_NOTE, {
-    onCompleted: (data) => {
-      setStatus('Success!');
-      setTimeout(resetState, 1000);
-    },
-
-    onError: (err) => {
-      let error = 'Error: Unexpected Error.';
-      if (/ER_DATA_TOO_LONG/.test(err.message)) {
-        error = 'Error: Changes not saved. Notes too long!';
-      }
-      setError(error);
-    },
-  });
-
-  const saveButtonClass = () => {
-    const base =
-      'bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded';
-    const active =
-      'text-red-700 hover:text-red-700 hover:border-2 hover:border-grey-10 hover:bg-grey-50';
-    const inactive = 'text-grey-700 cursor-not-allowed';
-    return `${base} ${saveAllowed ? active : inactive}`;
-  };
-  const saveButtonDisabled = () => {
-    return !saveAllowed || error !== '';
-  };
-  const statusClass = () => {
-    if (error) {
-      return `text-red-700 visible`;
-    }
-    if (status) {
-      return `text-gray-800 visible`;
-    }
-    return `collapsed`;
-  };
-
-  const statusText = () => {
-    if (error) {
-      return error;
-    }
-    return status;
-  };
-
-  return (
-    <>
-      <textarea
-        data-testid={`notes-${id}`}
-        className="w-96 mb-2 border border-grey-100 block"
-        onChange={handleNotesChange}
-        defaultValue={notes}
-      />
-      <Guard features={[AdminPanelFeature.RelyingPartiesEditNotes]}>
-        <button
-          data-testid={`notes-save-btn-${id}`}
-          className={saveButtonClass()}
-          disabled={saveButtonDisabled()}
-          onClick={handleSaveNotes}
-        >
-          Save
-        </button>
-        <p
-          className={`pl-3 inline-block ${statusClass()}`}
-          data-testid={`notes-status-${id}`}
-        >
-          {statusText()}
-        </p>
-      </Guard>
-    </>
-  );
-};
-
-const Result = ({
-  loading,
-  error,
-  data,
-}: {
-  loading?: boolean;
-  error?: ApolloError;
-  data?: RelyingPartiesData;
-}) => {
-  if (loading) {
-    return <p className="mt-2">Loading...</p>;
-  }
-  if (error) {
-    return <ErrorAlert {...{ error }}></ErrorAlert>;
-  }
-  if (data && data.relyingParties.length > 0) {
-    return (
-      <section>
-        {data.relyingParties.map(
-          ({
-            id,
-            name,
-            imageUri,
-            redirectUri,
-            canGrant,
-            publicClient,
-            createdAt,
-            trusted,
-            allowedScopes,
-            notes,
-          }) => (
-            <TableYHeaders key={id} header={name} className="table-y-headers">
-              <TableRowYHeader header="ID" children={id} />
-              <TableRowYHeader
-                header="Created At"
-                children={getFormattedDate(createdAt)}
-              />
-              <TableRowYHeader
-                header="Redirect URI"
-                children={
-                  redirectUri ? (
-                    redirectUri
-                  ) : (
-                    <span className="result-grey">(empty string)</span>
-                  )
-                }
-              />
-              <TableRowYHeader
-                header="Allowed Scopes"
-                children={<AllowedScopes {...{ allowedScopes }} />}
-              />
-              <TableRowYHeader header="Trusted" children={trusted.toString()} />
-              <TableRowYHeader
-                header="Can Grant"
-                children={canGrant.toString()}
-              />
-              <TableRowYHeader
-                header="Public Client"
-                children={publicClient.toString()}
-              />
-              <TableRowYHeader
-                header="Image URI"
-                children={
-                  imageUri ? (
-                    imageUri
-                  ) : (
-                    <span className="result-grey">(empty string)</span>
-                  )
-                }
-              />
-              <TableRowYHeader
-                header="Notes"
-                children={<Notes {...{ id, notes: notes || '' }} />}
-              />
-            </TableYHeaders>
-          )
-        )}
-      </section>
-    );
-  }
-
-  return (
-    <p>
-      No relying parties were found. If you're seeing this locally, try creating
-      an account to seed the database.
-    </p>
-  );
-};
-
+/** Parses and formats a relying party's list of scopes. */
 const AllowedScopes = ({
   allowedScopes,
 }: {
@@ -231,16 +49,490 @@ const AllowedScopes = ({
   );
 };
 
+/** Form that allows editing or creating a relying party. */
+const RelyingPartyForm = ({
+  handleSubmit,
+  resetState,
+  onExit,
+  data,
+  status,
+}: {
+  handleSubmit: (data: RelyingPartyUpdateDto) => void;
+  resetState: () => void;
+  onExit: () => void;
+  data?: RelyingPartyDto;
+  status?: string;
+}) => {
+  const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    const formData = new FormData(e.currentTarget);
+    const state = {
+      name: formData.get('name')?.toString() || '',
+      imageUri: formData.get('imageUri')?.toString() || '',
+      redirectUri: formData.get('redirectUri')?.toString() || '',
+      canGrant: formData.get('canGrant') === 'true',
+      publicClient: formData.get('publicClient') === 'true',
+      trusted: formData.get('trusted') === 'true',
+      allowedScopes: formData.get('allowedScopes')?.toString() || '',
+      notes: formData.get('notes')?.toString() || '',
+    };
+    handleSubmit(state);
+  };
+
+  return (
+    <>
+      <form onSubmit={onSubmit} onChange={resetState} className="mt-5 relative">
+        <label>Name:</label>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="name"
+          type="text"
+          name="name"
+          defaultValue={data?.name || ''}
+        ></input>
+
+        <label>Image URL:</label>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="http://mozilla.com/rp/logo.png"
+          type="text"
+          name="imageUri"
+          defaultValue={data?.imageUri || ''}
+        ></input>
+
+        <label>Redirect URL:</label>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="http://mozilla.com/rp/login"
+          type="text"
+          name="redirectUri"
+          defaultValue={data?.redirectUri || ''}
+        ></input>
+
+        <label>Can Grant:</label>
+        <select
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          name="canGrant"
+          defaultValue={data?.canGrant?.toString() || 'true'}
+        >
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <label>Public Client: </label>
+        <select
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          name="publicClient"
+          defaultValue={data?.publicClient?.toString() || 'true'}
+        >
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <label>Trusted: </label>
+        <select
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          name="trusted"
+          defaultValue={data?.trusted?.toString() || 'true'}
+        >
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+
+        <label>Allowed Scopes:</label>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="profile"
+          type="text"
+          name="allowedScopes"
+          defaultValue={data?.allowedScopes || ''}
+        ></input>
+
+        <label>Notes:</label>
+        <textarea
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="Enter notes about RP."
+          name="notes"
+          defaultValue={data?.notes || ''}
+        ></textarea>
+
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          type="submit"
+          data-testid="rp-update"
+          hidden={status === 'pending'}
+        >
+          Submit
+        </button>
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          hidden={status === 'pending'}
+          onClick={() => {
+            onExit();
+          }}
+        >
+          Cancel
+        </button>
+      </form>
+      {status && <p className="mt-2">{status}</p>}
+    </>
+  );
+};
+
+/** UI for creating a new relying party. */
+const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
+  const [status, setStatus] = useState<string>('');
+
+  const resetState = () => {
+    setStatus('');
+  };
+
+  const [createRelyingParty] = useMutation<{ create: string }>(
+    CREATE_RELYING_PARTY,
+    {
+      onCompleted: (data) => {
+        if (data.create) {
+          setStatus('Success!');
+          setTimeout(onExit, 500);
+        } else {
+          setStatus(`Could not create relying party! Try again.`);
+        }
+      },
+      onError: (err) => {
+        setStatus(`Error Encountered: ${err.message}`);
+      },
+    }
+  );
+
+  const handleSubmit = async (data: RelyingPartyUpdateDto) => {
+    setStatus('Pending');
+    const payload = {
+      variables: {
+        relyingParty: data,
+      },
+    };
+    createRelyingParty(payload);
+  };
+
+  return (
+    <div>
+      <RelyingPartyForm
+        {...{
+          onExit,
+          handleSubmit,
+          resetState,
+          status,
+        }}
+      />
+    </div>
+  );
+};
+
+/** UI for updating a relying party. */
+const UpdateRelyingParty = ({
+  data,
+  onExit,
+}: {
+  data: RelyingPartyDto;
+  onExit: () => void;
+}) => {
+  const [status, setStatus] = useState<string>('');
+
+  const resetState = () => {
+    setStatus('');
+  };
+
+  const [updateRelyingParty] = useMutation<{ update: boolean }>(
+    UPDATE_RELYING_PARTY,
+    {
+      onCompleted: (data) => {
+        if (data.update === true) {
+          setStatus('Success!');
+          setTimeout(onExit, 500);
+        } else {
+          setStatus(`Could not update relying party! Try again.`);
+        }
+      },
+      onError: (err) => {
+        setStatus(`Error Encountered: ${err.message}`);
+      },
+    }
+  );
+
+  const handleSubmit = (formData: RelyingPartyUpdateDto) => {
+    setStatus('pending');
+    const payload = {
+      variables: {
+        id: data.id,
+        relyingParty: formData,
+      },
+    };
+    updateRelyingParty(payload);
+  };
+
+  return (
+    <div>
+      <h3 className="header-lg font-bold">
+        Editing Relying Party: {data?.name} <i>(id:{data?.id})</i>
+      </h3>
+      <RelyingPartyForm
+        {...{
+          onExit,
+          handleSubmit,
+          resetState,
+          data,
+          status,
+        }}
+      />
+    </div>
+  );
+};
+
+/** UI for deleting an existing relying party. */
+const DeleteRelyingParty = ({
+  data,
+  onExit,
+}: {
+  data: RelyingPartyDto;
+  onExit: () => void;
+}) => {
+  const [status, setStatus] = useState('');
+
+  const [deleteRelyingParty] = useMutation<{ delete: boolean }>(
+    DELETE_RELYING_PARTY,
+    {
+      onCompleted: (data) => {
+        if (data.delete === true) {
+          setStatus('Success!');
+          setTimeout(onExit, 500);
+        } else {
+          setStatus('Could not delete RP. Try again!');
+        }
+      },
+      onError: (err) => {
+        setStatus(`Error Encountered Deleting RP: ${err.message}`);
+      },
+    }
+  );
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('confirmName')?.toString()?.trim();
+    if (name === data.name) {
+      await deleteRelyingParty({
+        variables: {
+          id: data.id,
+        },
+      });
+    } else {
+      setStatus(`You must confirm the relying party's name!`);
+    }
+  };
+
+  return (
+    <>
+      <h3 className="header-lg font-bold">
+        Deleting Relying Party: {data.name}
+      </h3>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Are you sure you want to proceed? This cannot be undone! To continue
+          type name below:
+        </label>
+        <input
+          className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+          placeholder="Enter Relying Party Name"
+          type="text"
+          name="confirmName"
+        ></input>
+        <button
+          type="submit"
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          data-testid="rp-delete"
+        >
+          Submit
+        </button>
+
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded m-1"
+          onClick={onExit}
+        >
+          Cancel
+        </button>
+      </form>
+      {status && <p className="mt-2">{status}</p>}
+    </>
+  );
+};
+
+/** UI for viewing relying party's current state. */
+const RelyingPartyRow = ({
+  data,
+  onExit,
+}: {
+  data: RelyingPartyDto;
+  onDelete: (id: string) => Promise<void>;
+  onExit: () => void;
+}) => {
+  const [mode, setMode] = useState<'view' | 'update' | 'delete'>('view');
+
+  const {
+    id,
+    name,
+    createdAt,
+    redirectUri,
+    allowedScopes,
+    trusted,
+    canGrant,
+    publicClient,
+    notes,
+    imageUri,
+  } = data;
+
+  if (mode === 'view') {
+    return (
+      <div className="mt-12 mb-12">
+        <h3 className="header-lg float-left">{name}</h3>
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+          onClick={() => {
+            setMode('delete');
+          }}
+        >
+          🗑️ Delete
+        </button>
+        <button
+          className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded float-right m-1 mt-5"
+          onClick={() => setMode('update')}
+        >
+          🖊️ Edit
+        </button>
+
+        <TableYHeaders key={id} className="table-y-headers w-full">
+          <TableRowYHeader header="ID" children={id} />
+          <TableRowYHeader
+            header="Created At"
+            children={getFormattedDate(createdAt)}
+          />
+          <TableRowYHeader
+            header="Redirect URI"
+            children={
+              redirectUri ? (
+                redirectUri
+              ) : (
+                <span className="result-grey">(empty string)</span>
+              )
+            }
+          />
+          <TableRowYHeader
+            header="Allowed Scopes"
+            children={<AllowedScopes {...{ allowedScopes }} />}
+          />
+          <TableRowYHeader header="Trusted" children={trusted.toString()} />
+          <TableRowYHeader header="Can Grant" children={canGrant.toString()} />
+          <TableRowYHeader
+            header="Public Client"
+            children={publicClient.toString()}
+          />
+          <TableRowYHeader
+            header="Image URI"
+            children={
+              imageUri ? (
+                imageUri
+              ) : (
+                <span className="result-grey">(empty string)</span>
+              )
+            }
+          />
+          <TableRowYHeader header="Notes" children={<span>{notes}</span>} />
+        </TableYHeaders>
+        <hr />
+      </div>
+    );
+  } else if (mode === 'update') {
+    return (
+      <UpdateRelyingParty
+        {...{
+          mode: 'update',
+          data,
+          onExit: () => {
+            setMode('view');
+            onExit();
+          },
+        }}
+      />
+    );
+  } else if (mode === 'delete') {
+    return (
+      <DeleteRelyingParty
+        {...{
+          data,
+          onExit: () => {
+            setMode('view');
+            onExit();
+          },
+        }}
+      />
+    );
+  }
+  return <>?</>;
+};
+
+/** Page displaying all relying parties and allows for basic CRUD type operations. */
 export const PageRelyingParties = () => {
-  const { loading, error, data } =
-    useQuery<RelyingPartiesData>(GET_RELYING_PARTIES);
+  const [showAddRp, setShowAddRp] = useState(false);
+
+  const { loading, error, data, refetch } = useQuery<RelyingPartiesData>(
+    GET_RELYING_PARTIES,
+    {
+      fetchPolicy: 'network-only',
+    }
+  );
+  const [deleteRelyingParty] = useMutation<boolean>(DELETE_RELYING_PARTY);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteRelyingParty({
+        variables: {
+          id: id,
+        },
+      });
+    } catch (error) {}
+  };
+
+  // Let's us find a specific RP quickly.
+  const [filter, setFilter] = useState('');
+  const filterRelyingParties = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    const formData = new FormData(e.currentTarget);
+    const rpFilter = formData.get('rpFilter');
+    try {
+      if (typeof rpFilter === 'string') {
+        setFilter(rpFilter || '');
+      }
+    } catch {}
+  };
+
+  const getFilteredRps = () => {
+    if (!error && !loading && data) {
+      if (!filter.trim()) {
+        return data.relyingParties;
+      }
+
+      return data.relyingParties.filter(
+        (x) => x.name.indexOf(filter) >= 0 || x.id.indexOf(filter) >= 0
+      );
+    }
+
+    return [];
+  };
 
   return (
     <>
       <h2 className="header-page">Relying Parties</h2>
 
       <p className="mb-2">
-        This page displays all FxA and SubPlat relying parties (RPs).
+        This page displays all FxA and SubPlat relying parties (RPs). With
+        adequate permissions you may also be able to edit the RPs properties,
+        delete RPs, and/or create new RPs.
       </p>
 
       <p>
@@ -259,7 +551,82 @@ export const PageRelyingParties = () => {
 
       <hr />
 
-      <Result {...{ loading, error, data }} />
+      {showAddRp && (
+        <>
+          <Guard features={[AdminPanelFeature.CreateRelyingParty]}>
+            <h3 className="header-page font-bold">Add New RP</h3>
+            <p>Fill out the form below to add a new Relying Party.</p>
+            <CreateRelyingParty
+              {...{
+                onExit: () => {
+                  refetch();
+                  setShowAddRp(false);
+                },
+              }}
+            />
+          </Guard>
+        </>
+      )}
+
+      {!showAddRp && (
+        <>
+          <Guard features={[AdminPanelFeature.CreateRelyingParty]}>
+            <h3 className="header-page font-bold">Add New RP</h3>
+            <p>Create an configure an new relying party.</p>
+            <button
+              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded mt-4"
+              onClick={() => {
+                setShowAddRp(true);
+              }}
+            >
+              Create!
+            </button>
+          </Guard>
+          <hr />
+
+          <form onSubmit={filterRelyingParties} className="mt-5 relative">
+            <input
+              type="text"
+              name="rpFilter"
+              placeholder="Filter by relying party name or ID."
+              className="bg-grey-50 rounded-l w-full py-2 px-3 placeholder-grey-500 mb-4 mt-1"
+              defaultValue={filter}
+            ></input>
+            <button
+              type="submit"
+              data-testid="rp-filter"
+              className="bg-grey-10 border-2 p-1 border-grey-100 font-small leading-6 rounded"
+            >
+              Filter
+            </button>
+          </form>
+
+          {loading && <p className="mt-2">Loading...</p>}
+          {!loading && error && <ErrorAlert {...{ error }}></ErrorAlert>}
+          {getFilteredRps().length > 0 && (
+            <section>
+              {getFilteredRps().map((data) => (
+                <RelyingPartyRow
+                  data={data}
+                  onExit={() => {
+                    refetch();
+                  }}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </section>
+          )}
+          {!loading && !error && !(data && data.relyingParties.length > 0) && (
+            <p>
+              No relying parties were found. Check double check your filter.{' '}
+              <i>
+                Or if you're seeing this locally, try creating an account to
+                seed the database.
+              </i>
+            </p>
+          )}
+        </>
+      )}
     </>
   );
 };

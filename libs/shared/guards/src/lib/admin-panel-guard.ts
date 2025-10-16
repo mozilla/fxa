@@ -42,7 +42,9 @@ export enum AdminPanelFeature {
   UnlinkAccount = 'UnlinkAccount',
   DeleteAccount = 'DeleteAccount',
   RelyingParties = 'RelyingParties',
-  RelyingPartiesEditNotes = 'RelyingPartiesEditNotes',
+  CreateRelyingParty = 'CreateRelyingParty',
+  UpdateRelyingParty = 'UpdateRelyingParty',
+  DeleteRelyingParty = 'DeleteRelyingParty',
   UnsubscribeFromMailingLists = 'UnsubscribeFromMailingLists',
 }
 
@@ -176,7 +178,15 @@ const defaultAdminPanelPermissions: Permissions = {
     name: 'View Relying Parties',
     level: PermissionLevel.Support,
   },
-  [AdminPanelFeature.RelyingPartiesEditNotes]: {
+  [AdminPanelFeature.CreateRelyingParty]: {
+    name: 'Edit Relying Parties Notes',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.DeleteRelyingParty]: {
+    name: 'Edit Relying Parties Notes',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.UpdateRelyingParty]: {
     name: 'Edit Relying Parties Notes',
     level: PermissionLevel.Admin,
   },
