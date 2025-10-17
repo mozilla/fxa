@@ -207,18 +207,23 @@ type AccountDeleteTaskStatus {
   status: String!
 }
 
-type RelyingParty {
+type RelyingPartyDto {
   id: ID!
+  createdAt: DateTime!
   name: String!
   imageUri: String!
   redirectUri: String!
   canGrant: Boolean!
   publicClient: Boolean!
-  createdAt: Float!
   trusted: Boolean!
   allowedScopes: String
   notes: String
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Query {
   accountByUid(uid: String!): Account
@@ -227,7 +232,7 @@ type Query {
   getEmailsLike(search: String!): [Email!]
   getRecoveryPhonesLike(search: String!): [RecoveryPhone!]
   getDeleteStatus(taskNames: [String!]!): [AccountDeleteTaskStatus!]!
-  relyingParties: [RelyingParty!]!
+  relyingParties: [RelyingPartyDto!]!
 }
 
 type Mutation {
@@ -241,5 +246,18 @@ type Mutation {
   unsubscribeFromMailingLists(uid: String!): Boolean!
   deleteAccounts(locators: [String!]!): [AccountDeleteResponse!]!
   clearEmailBounce(email: String!): Boolean!
-  updateNotes(id: String!, notes: String!): Boolean!
+  create(relyingParty: RelyingPartyUpdateDto!): String!
+  update(id: String!, relyingParty: RelyingPartyUpdateDto!): Boolean!
+  delete(id: String!): Boolean!
+}
+
+input RelyingPartyUpdateDto {
+  name: String!
+  imageUri: String!
+  redirectUri: String!
+  canGrant: Boolean!
+  publicClient: Boolean!
+  trusted: Boolean!
+  allowedScopes: String
+  notes: String
 }

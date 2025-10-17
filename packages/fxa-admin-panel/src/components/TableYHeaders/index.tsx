@@ -6,7 +6,7 @@ import { ReactElement } from 'react';
 import { HIDE_ROW } from '../../../constants';
 
 interface TableYHeadersProps {
-  header?: string;
+  header?: string | ReactElement | ReactElement[];
   testId?: string;
   className?: string;
   children:
@@ -46,11 +46,25 @@ export const TableYHeaders = ({
   children,
   testId,
   className = 'table-y-headers border-l-thick',
-}: TableYHeadersProps) => (
-  <>
-    {header && <h3 className="header-lg">{header}</h3>}
-    <table {...{ className }} data-testid={testId}>
-      <tbody>{children}</tbody>
-    </table>
-  </>
-);
+}: TableYHeadersProps) => {
+  const Header = () => {
+    return typeof header === 'string' ? (
+      <h3 className="header-lg">{header}</h3>
+    ) : (
+      <>{header || ''}</>
+    );
+  };
+
+  return (
+    <>
+      <table {...{ className }} data-testid={testId}>
+        <thead>
+          <td colSpan={100}>
+            <Header />
+          </td>
+        </thead>
+        <tbody>{children}</tbody>
+      </table>
+    </>
+  );
+};

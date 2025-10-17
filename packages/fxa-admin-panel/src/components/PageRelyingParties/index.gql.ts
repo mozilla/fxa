@@ -21,8 +21,20 @@ export const GET_RELYING_PARTIES = gql`
   }
 `;
 
-export const UPDATE_NOTE = gql`
-  mutation updateNotes($id: String!, $notes: String!) {
-    updateNotes(id: $id, notes: $notes)
+export const CREATE_RELYING_PARTY = gql`
+  mutation create($relyingParty: RelyingPartyUpdateDto!) {
+    create(relyingParty: $relyingParty)
+  }
+`;
+
+export const UPDATE_RELYING_PARTY = gql`
+  mutation update($id: String!, $relyingParty: RelyingPartyUpdateDto!) {
+    update(id: $id, relyingParty: $relyingParty)
+  }
+`;
+
+export const DELETE_RELYING_PARTY = gql`
+  mutation delete($id: String!) {
+    delete(id: $id)
   }
 `;

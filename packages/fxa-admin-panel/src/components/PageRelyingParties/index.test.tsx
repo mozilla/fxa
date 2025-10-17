@@ -3,16 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import PageRelyingParties from '.';
 import {
   mockGetRelyingParties,
-  mockUpdateNotes,
-  mockUpdateNotesError,
   MOCK_RP_ALL_FIELDS,
   MOCK_RP_FALSY_FIELDS,
 } from './mocks';
+import {
+  CREATE_RELYING_PARTY,
+  UPDATE_RELYING_PARTY,
+  DELETE_RELYING_PARTY,
+} from './index.gql';
 import { IClientConfig } from '../../../interfaces';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
@@ -77,60 +80,211 @@ it('renders as expected with a relying party containing all fields', async () =>
   expect(screen.getAllByText('true')).toHaveLength(3);
 });
 
-it('updates notes', async () => {
-  renderWithLocalizationProvider(
-    <MockedProvider
-      mocks={[
-        mockGetRelyingParties([MOCK_RP_ALL_FIELDS]),
-        mockUpdateNotes(MOCK_RP_ALL_FIELDS.id, 'test123'),
-      ]}
-      addTypename={false}
-    >
+it('creates a new relying party via UI', async () => {
+  jest.useFakeTimers();
+  const mocks = [
+    mockGetRelyingParties([]),
+    {
+      request: {
+        query: CREATE_RELYING_PARTY,
+        variables: {
+          relyingParty: {
+            name: 'New RP',
+            imageUri: 'http://mozilla.com/rp/logo.png',
+            redirectUri: 'http://mozilla.com/rp/login',
+            canGrant: false,
+            publicClient: false,
+            trusted: false,
+            allowedScopes: 'profile email',
+            notes: 'Brand new',
+          },
+        },
+      },
+      result: { data: { create: 'new-id' } },
+    },
+    // refetch after success
+    mockGetRelyingParties([]),
+  ];
+
+  const { container } = renderWithLocalizationProvider(
+    <MockedProvider mocks={mocks} addTypename={false}>
       <PageRelyingParties />
     </MockedProvider>
   );
-
-  await screen.findByText(MOCK_RP_ALL_FIELDS.id);
-  fireEvent.change(screen.getByTestId(`notes-${MOCK_RP_ALL_FIELDS.id}`), {
-    target: { value: 'test123' },
+  fireEvent.click(screen.getByText('Create!'));
+  fireEvent.change(screen.getByPlaceholderText('name'), {
+    target: { value: 'New RP' },
   });
-  fireEvent.click(
-    screen.getByTestId(`notes-save-btn-${MOCK_RP_ALL_FIELDS.id}`)
+  fireEvent.change(
+    screen.getByPlaceholderText('http://mozilla.com/rp/logo.png'),
+    { target: { value: 'http://mozilla.com/rp/logo.png' } }
   );
-  await waitFor(() => {
-    screen.getByText('Updating...');
+  fireEvent.change(screen.getByPlaceholderText('http://mozilla.com/rp/login'), {
+    target: { value: 'http://mozilla.com/rp/login' },
   });
-  await waitFor(() => {
-    screen.getByText('Save');
+
+  const canGrant = container.querySelector(
+    'select[name="canGrant"]'
+  ) as HTMLSelectElement;
+  const publicClient = container.querySelector(
+    'select[name="publicClient"]'
+  ) as HTMLSelectElement;
+  const trusted = container.querySelector(
+    'select[name="trusted"]'
+  ) as HTMLSelectElement;
+  fireEvent.change(canGrant, { target: { value: 'false' } });
+  fireEvent.change(publicClient, { target: { value: 'false' } });
+  fireEvent.change(trusted, { target: { value: 'false' } });
+
+  fireEvent.change(screen.getByPlaceholderText('profile'), {
+    target: { value: 'profile email' },
   });
+  fireEvent.change(screen.getByPlaceholderText('Enter notes about RP.'), {
+    target: { value: 'Brand new' },
+  });
+
+  // Submit
+  fireEvent.click(screen.getByTestId('rp-update'));
+
+  // Status transitions
+  await screen.findByText('Pending');
+  await screen.findByText('Success!');
+
+  // Exit after success
+  await act(async () => {
+    jest.advanceTimersByTime(600);
+  });
+  // Back to the collapsed Add section
+  await screen.findByText('Create!');
+  jest.useRealTimers();
 });
 
-it('shows error if notes fail to update', async () => {
+it('updates an existing relying party via UI', async () => {
+  jest.useFakeTimers();
+  const rp = { ...MOCK_RP_ALL_FIELDS };
+  const mocks = [
+    mockGetRelyingParties([rp]),
+    {
+      request: {
+        query: UPDATE_RELYING_PARTY,
+        variables: {
+          id: rp.id,
+          relyingParty: {
+            name: rp.name,
+            imageUri: rp.imageUri,
+            redirectUri: rp.redirectUri,
+            canGrant: rp.canGrant,
+            publicClient: rp.publicClient,
+            trusted: rp.trusted,
+            allowedScopes: rp.allowedScopes,
+            notes: 'updated-notes',
+          },
+        },
+      },
+      result: { data: { update: true } },
+    },
+    // refetch after success
+    mockGetRelyingParties([rp]),
+  ];
+
+  renderWithLocalizationProvider(
+    <MockedProvider mocks={mocks} addTypename={false}>
+      <PageRelyingParties />
+    </MockedProvider>
+  );
+
+  await screen.findByText(rp.name);
+  fireEvent.click(screen.getByText('🖊️ Edit'));
+  // Change notes only
+  fireEvent.change(screen.getByPlaceholderText('Enter notes about RP.'), {
+    target: { value: 'updated-notes' },
+  });
+  fireEvent.click(screen.getByTestId('rp-update'));
+
+  await screen.findByText('pending');
+  await screen.findByText('Success!');
+  await act(async () => {
+    jest.advanceTimersByTime(600);
+  });
+  // Back to view mode
+  await screen.findByText(rp.name);
+  jest.useRealTimers();
+});
+
+it('deletes an existing relying party via UI', async () => {
+  jest.useFakeTimers();
+  const rp = { ...MOCK_RP_ALL_FIELDS };
+  const mocks = [
+    mockGetRelyingParties([rp]),
+    {
+      request: {
+        query: DELETE_RELYING_PARTY,
+        variables: { id: rp.id },
+      },
+      result: { data: { delete: true } },
+    },
+    // refetch after success
+    mockGetRelyingParties([rp]),
+  ];
+
+  renderWithLocalizationProvider(
+    <MockedProvider mocks={mocks} addTypename={false}>
+      <PageRelyingParties />
+    </MockedProvider>
+  );
+
+  await screen.findByText(rp.name);
+  fireEvent.click(screen.getByText('🗑️ Delete'));
+
+  fireEvent.change(screen.getByPlaceholderText('Enter Relying Party Name'), {
+    target: { value: rp.name },
+  });
+  fireEvent.click(screen.getByTestId('rp-delete'));
+
+  await screen.findByText('Success!');
+  await act(async () => {
+    jest.advanceTimersByTime(600);
+  });
+  await screen.findByText(rp.name);
+  jest.useRealTimers();
+});
+
+it('filters relying parties by name and id', async () => {
+  const rp1 = { ...MOCK_RP_ALL_FIELDS };
+  const rp2 = { ...MOCK_RP_FALSY_FIELDS };
   renderWithLocalizationProvider(
     <MockedProvider
-      mocks={[
-        mockGetRelyingParties([MOCK_RP_ALL_FIELDS]),
-        mockUpdateNotesError(MOCK_RP_ALL_FIELDS.id, 'FAKE_OVERFLOW'),
-      ]}
+      mocks={[mockGetRelyingParties([rp1, rp2])]}
       addTypename={false}
     >
       <PageRelyingParties />
     </MockedProvider>
   );
 
-  await screen.findByText(MOCK_RP_ALL_FIELDS.id);
-  fireEvent.change(screen.getByTestId(`notes-${MOCK_RP_ALL_FIELDS.id}`), {
-    target: { value: 'FAKE_OVERFLOW' },
-  });
-  fireEvent.click(
-    screen.getByTestId(`notes-save-btn-${MOCK_RP_ALL_FIELDS.id}`)
+  // Both are visible initially
+  await screen.findByText(rp1.name);
+  await screen.findByText(rp2.name);
+
+  // Filter by name substring (case-sensitive includes)
+  fireEvent.change(
+    screen.getByPlaceholderText('Filter by relying party name or ID.'),
+    { target: { value: 'Send' } }
   );
-  await waitFor(() => {
-    screen.getByText('Updating...');
-  });
-  await waitFor(() => {
-    screen.getByText('Error: Changes not saved. Notes too long!');
-  });
+  fireEvent.click(screen.getByTestId('rp-filter'));
+
+  // rp1 matches, rp2 should be filtered out
+  await screen.findByText(rp1.name);
+  expect(screen.queryByText(rp2.name)).toBeNull();
+
+  // Filter by id substring
+  fireEvent.change(
+    screen.getByPlaceholderText('Filter by relying party name or ID.'),
+    { target: { value: rp2.id.slice(0, 6) } }
+  );
+  fireEvent.click(screen.getByTestId('rp-filter'));
+
+  await screen.findByText(rp2.name);
+  expect(screen.queryByText(rp1.name)).toBeNull();
 });
 
 it('renders as expected with a relying party containing falsy fields', async () => {
