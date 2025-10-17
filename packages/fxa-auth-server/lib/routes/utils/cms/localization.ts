@@ -105,7 +105,9 @@ export class CMSLocalization {
   }
 
   /**
-   * Convert Strapi JSON to FTL format
+   * Convert Strapi JSON to FTL format using hash-only IDs
+   * Each string field gets a unique hash ID based on its content.
+   * Identical English strings will share the same translation across all contexts.
    */
   strapiToFtl(strapiData: any[]): string {
     const ftlLines: string[] = [];
@@ -138,7 +140,8 @@ export class CMSLocalization {
       // Convert each string to FTL format
       for (const [fieldPath, value] of Object.entries(strings)) {
         const sanitizedValue = this.sanitizeContent(value);
-        const ftlId = this.generateFtlIdWithL10nId(l10nId, fieldPath, sanitizedValue);
+        const componentName = fieldPath.replace(/\./g, '-');
+        const ftlId = this.generateFtlId(sanitizedValue, componentName);
 
         allEntries.push({
           l10nId,
@@ -188,35 +191,92 @@ export class CMSLocalization {
       ftlLines.push(`${entry.ftlId} = ${entry.value}`);
     }
 
-    return ftlLines.join('\n');
+    const ftlContent = ftlLines.join('\n');
+    return this.sanitizeFtlContent(ftlContent);
+  }
+
+  /**
+   * Sanitize FTL content
+   */
+  private sanitizeFtlContent(ftlContent: string): string {
+    return this.sanitizeContent(ftlContent, {
+      normalizeUnicode: false,
+      removeControlChars: false,
+      trimWhitespace: false,
+      normalizeLineEndings: true,
+      ensureFileTermination: true
+    });
   }
 
   /**
    * Sanitize content for FTL format
+   * @param content - The content to sanitize
+   * @param options - Sanitization options
    */
-  private sanitizeContent(content: string): string {
+  private sanitizeContent(content: string, options: {
+    normalizeUnicode?: boolean;
+    removeControlChars?: boolean;
+    trimWhitespace?: boolean;
+    normalizeLineEndings?: boolean;
+    ensureFileTermination?: boolean;
+  } = {}): string {
     if (!content || typeof content !== 'string') {
       return '';
     }
 
-    return content
-      // Normalize Unicode characters and remove problematic ones
-      .normalize('NFD') // Decompose Unicode characters
+    const {
+      normalizeUnicode = true,
+      removeControlChars = true,
+      trimWhitespace = true,
+      normalizeLineEndings = false,
+      ensureFileTermination = false
+    } = options;
+
+    let sanitized = content
+      .replace(/^\uFEFF/, '')
+      .replace(/[\u202A-\u202E\u2066-\u2069]/g, '')
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      .replace(/[\u2028\u2029]/g, normalizeLineEndings ? '\n' : '')
+      .replace(/[\u2060]/g, '');
+
+    // Apply optional sanitizations
+    if (normalizeUnicode) {
+      sanitized = sanitized.normalize('NFC');
+    }
+
+    if (removeControlChars) {
       // eslint-disable-next-line no-control-regex
-      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '') // Remove control characters (preserve tab, newline, carriage return)
-      .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width spaces and BOM
-      .trim(); // Remove leading/trailing whitespace
+      sanitized = sanitized.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '');
+    }
+
+    if (normalizeLineEndings) {
+      sanitized = sanitized
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n');
+    }
+
+    if (trimWhitespace) {
+      sanitized = sanitized.trim();
+    }
+
+    if (ensureFileTermination) {
+      sanitized = sanitized.replace(/\n*$/, '\n');
+    }
+
+    return sanitized;
   }
 
   /**
-   * Generate FTL ID with l10nId prefix, component name, field name, and hash
+   * Generate FTL ID using only the hash of the string content
+   * Identical English strings will share the same translation for a given component
+   *
+   * Note: Uses 8-character MD5 substring. Hash collisions are extremely unlikely
+   * but if they become an issue, the hash length can be increased.
    */
-  private generateFtlIdWithL10nId(l10nId: string, fieldPath: string, value: string): string {
-    // Create a hash of the value for versioning
+  private generateFtlId(value: string, componentName: string): string {
+    // Create a hash of the value and prefix with "fxa-<component>-"
     const hash = crypto.createHash('md5').update(value).digest('hex').substring(0, 8);
-    // Replace dots with dashes in the field path to create proper FTL ID format
-    const fieldPathWithDashes = fieldPath.replace(/\./g, '-');
-    return `${l10nId}-${fieldPathWithDashes}-${hash}`;
+    return `fxa-${componentName}-${hash}`;
   }
 
   /**
@@ -242,106 +302,6 @@ export class CMSLocalization {
     return `${readableFieldName} for ${readableComponentName}`;
   }
 
-  /**
-   * Parse FTL ID back to field path
-   */
-  parseFtlIdToFieldPath(ftlId: string): string | null {
-    // Handle format: l10nId-componentName-fieldName-hash
-    const parts = ftlId.split('-');
-
-    if (parts.length >= 4) {
-      // Remove the l10nId (first part) and hash (last part)
-      const fieldParts = parts.slice(1, -1);
-      return fieldParts.join('.');
-    }
-
-    return null;
-  }
-
-  /**
-   * Convert FTL content to Strapi format
-   */
-  convertFtlToStrapiFormat(
-    l10nId: string,
-    ftlContent: string,
-    baseData: any
-  ): any {
-    const strapiFormat: any = {
-      clientId: baseData.clientId,
-      entrypoint: baseData.entrypoint,
-      name: baseData.name,
-      l10nId: baseData.l10nId,
-    };
-
-    const lines = ftlContent.split('\n');
-
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-
-      if (!trimmedLine || trimmedLine.startsWith('#')) {
-        continue;
-      }
-
-      const match = trimmedLine.match(/^([a-zA-Z0-9_-]+)\s*=\s*(.*)$/);
-      if (match) {
-        const [, ftlId, value] = match;
-
-        // Extract l10nId from the FTL ID (format: l10nId-componentName-fieldName-hash)
-        const ftlIdParts = ftlId.split('-');
-        if (ftlIdParts.length >= 3) {
-          const ftlL10nId = ftlIdParts[0];
-          if (ftlL10nId === l10nId) {
-            const fieldPath = this.parseFtlIdToFieldPath(ftlId);
-
-            if (fieldPath) {
-              const parts = fieldPath.split('.');
-              if (parts.length >= 2) {
-                const componentName = parts[0];
-                const fieldName = parts[1];
-
-                // Initialize component if it doesn't exist
-                if (!strapiFormat[componentName]) {
-                  strapiFormat[componentName] = {};
-                }
-
-                // Set the localized value (unescape quotes and newlines)
-                const unescapedValue = value
-                  .replace(/\\"/g, '"')
-                  .replace(/\\n/g, '\n')
-                  .replace(/\\r/g, '\r');
-
-                strapiFormat[componentName][fieldName] = unescapedValue;
-
-                this.log.debug('cms.localization.convert.ftlToStrapi', {
-                  ftlId,
-                  ftlL10nId,
-                  targetL10nId: l10nId,
-                  fieldPath,
-                  componentName,
-                  fieldName,
-                  value: unescapedValue,
-                });
-              }
-            }
-          } else {
-            this.log.debug('cms.localization.convert.ftlToStrapi.skipped', {
-              ftlId,
-              ftlL10nId,
-              targetL10nId: l10nId,
-            });
-          }
-        }
-      }
-    }
-
-    this.log.info('cms.localization.convert.ftlToStrapi.complete', {
-      l10nId,
-      totalLines: lines.length,
-      processedComponents: Object.keys(strapiFormat).filter(key => key !== 'clientId' && key !== 'entrypoint' && key !== 'name' && key !== 'l10nId').length,
-    });
-
-    return strapiFormat;
-  }
 
   /**
    * Validate GitHub configuration
@@ -727,7 +687,100 @@ export class CMSLocalization {
   }
 
   /**
-   * Merge base config with localized FTL content
+   * Build a translation map from FTL content
+   * Parses FTL content and creates a hash -> translation mapping
+   */
+  private buildTranslationMap(ftlContent: string): Record<string, string> {
+    const translationMap: Record<string, string> = {};
+    const lines = ftlContent.split('\n');
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+
+      // Skip empty lines and comments
+      if (!trimmedLine || trimmedLine.startsWith('#')) {
+        continue;
+      }
+
+      // Match FTL format: hash = translation (including hyphens and dots in hash)
+      const match = trimmedLine.match(/^([a-zA-Z0-9.-]+)\s*=\s*(.*)$/);
+      if (match) {
+        const [, hash, translation] = match;
+
+        // Unescape quotes and newlines in the translation
+        const unescapedTranslation = translation
+          .replace(/\\"/g, '"')
+          .replace(/\\n/g, '\n')
+          .replace(/\\r/g, '\r');
+
+        translationMap[hash] = unescapedTranslation;
+      }
+    }
+
+    this.log.debug('cms.localization.buildTranslationMap', {
+      totalTranslations: Object.keys(translationMap).length,
+      hashes: Object.keys(translationMap)
+    });
+
+    return translationMap;
+  }
+
+  /**
+   * Apply translations to a config object recursively
+   * Walks through the config and replaces English strings with translations where available
+   */
+  private applyTranslations(config: Record<string, unknown>, translationMap: Record<string, string>, fieldPath = ''): void {
+    for (const [key, value] of Object.entries(config)) {
+      if (value === null || value === undefined) {
+        continue;
+      }
+
+      const currentFieldPath = fieldPath ? `${fieldPath}.${key}` : key;
+
+      if (typeof value === 'object' && !Array.isArray(value)) {
+        // Recursively apply translations to nested objects
+        this.applyTranslations(value as Record<string, unknown>, translationMap, currentFieldPath);
+      } else if (this.shouldIncludeField(key, value)) {
+        // This is a localizable string field
+        const englishValue = value as string;
+        const componentName = currentFieldPath.replace(/\./g, '-');
+        const hash = this.generateFtlId(englishValue, componentName);
+
+
+        if (translationMap[hash]) {
+          // Replace with translation if available
+          config[key] = translationMap[hash];
+
+          this.log.debug('cms.localization.applyTranslations.replaced', {
+            key,
+            fieldPath: currentFieldPath,
+            hash,
+            englishValue,
+            translatedValue: translationMap[hash]
+          });
+        } else {
+          // Keep English value if no translation exists
+          this.log.debug('cms.localization.applyTranslations.keptEnglish', {
+            key,
+            fieldPath: currentFieldPath,
+            hash,
+            englishValue
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Merge base config with localized FTL content using translation lookup
+   *
+   * This method implements a new hash-based translation system:
+   * 1. Parses FTL content to build a hash -> translation mapping
+   * 2. Walks through the base config recursively
+   * 3. For each localizable string field, computes its content hash
+   * 4. If a translation exists for that hash, replaces the English text
+   * 5. Otherwise, keeps the original English text as fallback
+   *
    */
   public async mergeConfigs(baseConfig: Record<string, unknown>, ftlContent: string, clientId: string, entrypoint: string): Promise<Record<string, unknown>> {
     if (!ftlContent || !baseConfig) {
@@ -735,18 +788,25 @@ export class CMSLocalization {
     }
 
     try {
-      // Generate l10nId for this client/entrypoint combination
-      const l10nId = baseConfig.l10nId as string;
+      // 1. Parse FTL content into hash -> translation map
+      const translationMap = this.buildTranslationMap(ftlContent);
 
-      // Convert FTL to Strapi format using existing utility
-      const localizedData = this.convertFtlToStrapiFormat(
-        l10nId,
-        ftlContent,
-        baseConfig
-      );
+      // 2. Clone base config to avoid mutations
+      const result = JSON.parse(JSON.stringify(baseConfig));
 
-      // Deep merge with base config (localized data takes precedence)
-      return this.deepMerge(baseConfig, localizedData);
+      // 3. Walk config and apply translations where they exist
+      this.applyTranslations(result, translationMap);
+
+      this.log.info('cms.getLocalizedConfig.merge.success', {
+        clientId,
+        entrypoint,
+        totalTranslations: Object.keys(translationMap).length,
+        appliedTranslations: Object.keys(translationMap).filter(hash =>
+          JSON.stringify(result).includes(translationMap[hash])
+        ).length
+      });
+
+      return result;
     } catch (error) {
       this.log.error('cms.getLocalizedConfig.merge.error', {
         error: error.message,
@@ -758,22 +818,6 @@ export class CMSLocalization {
     }
   }
 
-  /**
-   * Deep merge utility for combining base and localized configs
-   */
-  private deepMerge(base: Record<string, unknown>, localized: Record<string, unknown>): Record<string, unknown> {
-    const result = { ...base };
-
-    for (const [key, value] of Object.entries(localized)) {
-      if (value && typeof value === 'object' && !Array.isArray(value)) {
-        result[key] = this.deepMerge((result[key] as Record<string, unknown>) || {}, value as Record<string, unknown>);
-      } else {
-        result[key] = value;
-      }
-    }
-
-    return result;
-  }
 
   /**
    * Generate FTL content from Strapi entries
