@@ -3,7 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Redis } from 'ioredis';
-import { BlockStatus, Rule, BlockOn, BlockOnOpts } from './models';
+import {
+  BlockStatus,
+  Rule,
+  BlockOn,
+  BlockOnOpts,
+  BLOCK_ON_ATTRIBUTES,
+} from './models';
 import { ActionNotFound, MissingOption } from './error';
 import {
   createBlockRecord,
@@ -222,13 +228,12 @@ export class RateLimit {
    * @param blocks set of applicable rules
    * @returns Block with policy of type 'block' and the largest retryAfter value.
    */
-  private determineBlockStatus(
-    action: string,
-    blocks: BlockStatus[]
-  ) {
+  private determineBlockStatus(action: string, blocks: BlockStatus[]) {
     // Blocks with a 'report' policy, are only reported. Don't return this block, but still emit
     // metrics indicating it may have resulted in block.
-    const reportOnlyBlock = getLargestRetryAfter(blocks.filter((x) => x.policy === 'report'));
+    const reportOnlyBlock = getLargestRetryAfter(
+      blocks.filter((x) => x.policy === 'report')
+    );
     if (reportOnlyBlock) {
       this.statsd?.increment(`rate_limit.${reportOnlyBlock.policy}`, [
         `on:${reportOnlyBlock.blockingOn}`,
@@ -238,7 +243,9 @@ export class RateLimit {
 
     // Next the block with the longest retry after. This is what we actually return in order
     // to initiate a block.
-    const block = getLargestRetryAfter(blocks.filter(x => x.policy !== 'report'));
+    const block = getLargestRetryAfter(
+      blocks.filter((x) => x.policy !== 'report')
+    );
     if (block) {
       this.statsd?.increment(`rate_limit.${block.policy}`, [
         `on:${block.blockingOn}`,
@@ -342,5 +349,61 @@ export class RateLimit {
       check('uid', opts.uid),
     ]);
     return bans;
+  }
+
+  /** search for rate limit statuses in redis by ip, uid, and email */
+  async search(
+    ip?: string,
+    email?: string,
+    uid?: string
+  ): Promise<BlockStatus[]> {
+    const identifiers: BlockOnOpts = {
+      ip,
+      email,
+      uid,
+      ip_email: ip || email ? `${ip || '*'}_${email || '*'}` : undefined,
+      ip_uid: ip || uid ? `${ip || '*'}_${uid || '*'}` : undefined,
+    };
+
+    return (
+      await Promise.all(
+        BLOCK_ON_ATTRIBUTES.map((attr) => identifiers[attr])
+          .filter((id) => id !== undefined)
+          .map((id) => this.scanByIdentifier(id))
+      )
+    )
+      .flat()
+      .filter((x) => x !== null);
+  }
+
+  /** Finds keys for for an identifier. Valid identifiers can be ip, email, uid, ip_email, ip_uid */
+  private async scanByIdentifier(identifier: string): Promise<BlockStatus[]> {
+    const keys: string[] = [];
+    if (!identifier) {
+      return [];
+    }
+    let cursor = '0';
+    do {
+      const [next, batch] = await this.redis.scan(
+        cursor,
+        'MATCH',
+        `rate-limit:*:*=${identifier}:*`,
+        'COUNT',
+        1000
+      );
+      keys.push(...batch);
+      cursor = next;
+    } while (cursor !== '0' && keys.length <= 1000);
+    return (
+      await Promise.all(
+        keys.map(async (key) => {
+          const json = await this.redis.get(key);
+          const blockRecord = parseBlockRecord(json);
+          return blockRecord
+            ? createBlockStatus(Date.now(), blockRecord)
+            : null;
+        })
+      )
+    ).filter((x) => x !== null);
   }
 }

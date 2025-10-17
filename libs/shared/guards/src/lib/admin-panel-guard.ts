@@ -44,6 +44,7 @@ export enum AdminPanelFeature {
   RelyingParties = 'RelyingParties',
   RelyingPartiesEditNotes = 'RelyingPartiesEditNotes',
   UnsubscribeFromMailingLists = 'UnsubscribeFromMailingLists',
+  RateLimiting = 'RateLimiting',
 }
 
 /** Enum of known user groups */
@@ -183,6 +184,10 @@ const defaultAdminPanelPermissions: Permissions = {
   [AdminPanelFeature.UnsubscribeFromMailingLists]: {
     name: 'Unsubscribe User From Mozilla Mailing Lists',
     level: PermissionLevel.Support,
+  },
+  [AdminPanelFeature.RateLimiting]: {
+    name: 'View Rate Limiting Blocks and Bans',
+    level: PermissionLevel.Admin,
   },
 };
 

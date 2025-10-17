@@ -13,6 +13,7 @@ import { IClientConfig, IUserInfo } from '../interfaces';
 import { AdminPanelFeature, AdminPanelGuard } from '@fxa/shared/guards';
 import PageRelyingParties from './components/PageRelyingParties';
 import PageAccountDelete from './components/PageAccountDelete';
+import PageRateLimiting from './components/PageRateLimiting';
 
 const App = ({ config }: { config: IClientConfig }) => {
   const [guard, setGuard] = useState<AdminPanelGuard>(config.guard);
@@ -37,6 +38,9 @@ const App = ({ config }: { config: IClientConfig }) => {
               )}
               {guard.allow(AdminPanelFeature.AccountDelete, user.group) && (
                 <Route path="/account-delete" element={<PageAccountDelete />} />
+              )}
+              {guard.allow(AdminPanelFeature.RateLimiting, user.group) && (
+                <Route path="/rate-limiting" element={<PageRateLimiting />} />
               )}
               <Route path="/permissions" element={<PagePermissions />} />
             </Routes>

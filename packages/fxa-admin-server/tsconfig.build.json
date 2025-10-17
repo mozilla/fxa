@@ -37,7 +37,8 @@
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index"],
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index"],
       "@fxa/shared/sentry-nest": ["libs/shared/sentry-nest/src/index"],
-      "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index"]
+      "@fxa/shared/sentry-utils": ["libs/shared/sentry-utils/src/index"],
+      "@fxa/accounts/rate-limit": ["libs/accounts/rate-limit/src/index"]
     }
   }
 }
