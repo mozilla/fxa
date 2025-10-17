@@ -329,7 +329,7 @@ export class AccountResolver {
 
   @Features(AdminPanelFeature.DeleteRecoveryPhone)
   @Mutation((returns) => Boolean)
-  public async deleteRecoveryPhone(@Args('uid') uid: string) {
+  public async deleteRecoveryPhone(@Args('uid') uid: string): Promise<Boolean> {
     this.eventLogging.onEvent(EventNames.DeleteRecoveryPhone);
 
     const uidBuffer = uuidTransformer.to(uid);
