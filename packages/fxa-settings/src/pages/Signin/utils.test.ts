@@ -156,6 +156,9 @@ describe('Signin utils', () => {
       });
 
       it('navigates to OAuth redirect for successful OAuth flow', async () => {
+        const mockOAuthIntegration = createMockSigninOAuthIntegration();
+        (mockOAuthIntegration as any).wantsKeys = jest.fn().mockReturnValue(false);
+
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
@@ -163,7 +166,7 @@ describe('Signin utils', () => {
             verificationMethod: VerificationMethods.EMAIL,
             verificationReason: VerificationReasons.SIGN_IN,
           },
-          integration: createMockSigninOAuthIntegration(),
+          integration: mockOAuthIntegration,
           finishOAuthFlowHandler: jest.fn().mockReturnValue({
             redirect: 'https://example.com/callback',
             code: 'test-code',
@@ -180,6 +183,26 @@ describe('Signin utils', () => {
           undefined,
           true
         );
+      });
+
+      it('returns early for OAuth integration with wantsKeys', async () => {
+        const mockOAuthIntegration = createMockSigninOAuthIntegration();
+        (mockOAuthIntegration as any).wantsKeys = jest.fn().mockReturnValue(true);
+
+        const navigationOptions = createBaseNavigationOptions({
+          signinData: {
+            ...createBaseNavigationOptions().signinData,
+            verified: false,
+            verificationMethod: VerificationMethods.EMAIL,
+            verificationReason: VerificationReasons.SIGN_IN,
+          },
+          integration: mockOAuthIntegration,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(navigateSpy).toHaveBeenCalledWith('/signin_token_code', expect.any(Object));
       });
 
       it('does not send fxaLogin for TOTP verification', async () => {

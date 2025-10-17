@@ -203,6 +203,9 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   const wantsTwoStepAuthentication = isOAuth && 'wantsTwoStepAuthentication' in integration
     ? integration.wantsTwoStepAuthentication()
     : false;
+  const wantsKeys = isOAuth && 'wantsKeys' in integration
+    ? integration.wantsKeys()
+    : false;
 
   // Check CMS fleature flags to determine if we should hide promos, the
   // default is to navigate to settings
@@ -226,6 +229,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   //    setting up TOTP
   // 5. Non OAuthNative (ie Relay, Monitor) are redirected to RP
   // 6. WebIntegrations (ie Settings) are always redirected to confirm email
+  // 7. Integrations that want keys always get redirected to confirm email
+  // 8. Users that are forced to change their password always get redirected to confirm email
   if (
     !navigationOptions.signinData.verified ||
     // TODO, address signIn.verified vs session.verified discrepancy
@@ -249,7 +254,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
 
     if (navigationOptions.signinData.verificationReason === VerificationReasons.SIGN_UP ||
       navigationOptions.signinData.verificationMethod === VerificationMethods.TOTP_2FA ||
-      wantsTwoStepAuthentication
+      navigationOptions.signinData.verificationReason === VerificationReasons.CHANGE_PASSWORD ||
+      wantsTwoStepAuthentication || wantsKeys
     ) {
       performNavigation({ to, locationState });
       return { error: undefined };
