@@ -12,6 +12,11 @@
         "include": "config/gql/allowlist/",
         "outDir": "dist/packages/fxa-admin-server/src",
         "watchAssets": true
+      },
+      {
+        "include": "config/*.txt",
+        "outDir": "dist/packages/fxa-admin-server/src",
+        "watchAssets": true
       }
     ]
   },

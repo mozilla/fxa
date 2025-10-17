@@ -3,23 +3,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /** The attributes we can count and block on. */
-export type BlockOn = 'ip' | 'email' | 'uid' | 'ip_email' | 'ip_uid';
+export const BLOCK_ON_ATTRIBUTES = [
+  'ip',
+  'email',
+  'uid',
+  'ip_email',
+  'ip_uid',
+] as const;
+export type BlockOn = (typeof BLOCK_ON_ATTRIBUTES)[number];
+
+export function isBlockOn(value: string): value is BlockOn {
+  return BLOCK_ON_ATTRIBUTES.includes(value as BlockOn);
+}
 
 /** Standard set of fields that can be blocked on. */
-export type BlockOnOpts = {
-  email?: string;
-  ip?: string;
-  ip_email?: string;
-  uid?: string;
-  ip_uid?: string;
-};
+export type BlockOnOpts = Partial<Record<BlockOn, string>>;
 
 /**
  * Controls how the block is applied.
  *  - block - only applies to the current action being checked, and is done in isolation.
  *  - ban - will apply to the current action and all other actions being checked for the given rules ip, email, or uid.
  **/
-export type BlockPolicy = 'block' | 'ban' | 'report';
+export const BLOCK_POLICIES = ['block', 'ban', 'report'] as const;
+export type BlockPolicy = (typeof BLOCK_POLICIES)[number];
+
+export function isBlockPolicy(value: string): value is BlockPolicy {
+  return BLOCK_POLICIES.includes(value as BlockPolicy);
+}
 
 /** Constant for the common error message, too-many-attempts. */
 export const TOO_MANY_ATTEMPTS = 'too-many-attempts';
