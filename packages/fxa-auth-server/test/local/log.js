@@ -718,7 +718,7 @@ describe('log', () => {
     );
   });
 
-  it('.summary should log an info message and call request.emitRouteFlowEvent', () => {
+  it('.summary should not log an info message and should still call request.emitRouteFlowEvent', () => {
     const emitRouteFlowEvent = sinon.spy();
     log.summary(
       {
@@ -762,36 +762,7 @@ describe('log', () => {
       }
     );
 
-    assert.equal(logger.info.callCount, 1);
-    assert.equal(logger.info.args[0][0], 'request.summary');
-    const line = logger.info.args[0][1];
-
-    // Because t is generated using Date.now and subtracting info.received,
-    // it should be >= 0, but we don't know the exact value.
-    assert.isNumber(line.t);
-    assert.isTrue(line.t >= 0);
-
-    // Compare only known values.
-    delete line.t;
-
-    assert.deepEqual(line, {
-      status: 201,
-      errno: 109,
-      rid: 'quuz',
-      path: '/v1/frobnicate',
-      lang: 'en',
-      agent: 'Firefox Fenix',
-      remoteAddressChain: ['95.85.19.180', '78.144.14.50'],
-      accountRecreated: false,
-      uid: 'quid',
-      service: 'corge',
-      reason: 'grault',
-      redirectTo: 'garply',
-      keys: true,
-      method: 'get',
-      email: 'quix',
-      phoneNumber: 'garply',
-    });
+    assert.equal(logger.info.callCount, 0);
 
     assert.equal(emitRouteFlowEvent.callCount, 1);
     assert.equal(emitRouteFlowEvent.args[0].length, 1);
@@ -804,64 +775,6 @@ describe('log', () => {
       },
     });
     assert.equal(logger.error.callCount, 0);
-  });
-
-  it('.summary with email in payload', () => {
-    log.summary(
-      {
-        app: {},
-        auth: {
-          credentials: {
-            uid: 'quid',
-          },
-        },
-        emitRouteFlowEvent: () => {},
-        headers: {},
-        info: {
-          received: Date.now(),
-        },
-        method: 'get',
-        path: '/v1/frobnicate',
-        payload: {
-          email: 'quix',
-        },
-      },
-      {
-        code: 200,
-        statusCode: 201,
-      }
-    );
-
-    assert.equal(logger.info.args[0][1].email, 'quix');
-  });
-
-  it('.summary with email in query', () => {
-    log.summary(
-      {
-        app: {},
-        auth: {
-          credentials: {
-            uid: 'quid',
-          },
-        },
-        emitRouteFlowEvent: () => {},
-        headers: {},
-        info: {
-          received: Date.now(),
-        },
-        method: 'get',
-        path: '/v1/frobnicate',
-        query: {
-          email: 'quix',
-        },
-      },
-      {
-        code: 200,
-        statusCode: 201,
-      }
-    );
-
-    assert.equal(logger.info.args[0][1].email, 'quix');
   });
 
   describe('traceId', () => {
