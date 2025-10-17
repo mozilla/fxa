@@ -19,3 +19,9 @@ export interface CustomerSubscriptionDeletedResponse {
 export type StripeWebhookEventResponse =
   | DefaultResponse
   | CustomerSubscriptionDeletedResponse;
+
+export interface StripeWebhookEvent {
+  eventId: string;
+  processedAt: Date;
+  eventDetails: Stripe.Event;
+}
