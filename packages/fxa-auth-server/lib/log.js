@@ -194,9 +194,9 @@ Lug.prototype.summary = function (request, response) {
     }
   }
 
-
   // TODO: Remove after debugging email confirmations issues
-  if (line.status === 400 &&
+  if (
+    line.status === 400 &&
     line.path === '/v1/session/verify_code' &&
     // Only log for invalid code and invalid parameter errors
     (line.errno === 107 || line.errno === 183)
@@ -228,8 +228,6 @@ Lug.prototype.summary = function (request, response) {
     line.trace = request.app.traced;
     line.stack = response.stack;
     this.error('request.summary', line);
-  } else {
-    this.info('request.summary', line);
   }
 };
 
