@@ -33,3 +33,9 @@ export const UNSUBSCRIBE_FROM_MAILING_LISTS = gql`
     unsubscribeFromMailingLists(uid: $uid)
   }
 `;
+
+export const DELETE_RECOVERY_PHONE = gql`
+  mutation deleteRecoveryPhone($uid: String!) {
+    deleteRecoveryPhone(uid: $uid)
+  }
+`;
