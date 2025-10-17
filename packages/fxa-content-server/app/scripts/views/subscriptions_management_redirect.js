@@ -9,7 +9,6 @@ import Template from 'templates/redirect_loading.mustache';
 import PaymentServer from '../lib/payment-server';
 
 class SubscriptionsManagementRedirectView extends FormView {
-  mustAuth = true;
   template = Template;
 
   initialize(options) {
@@ -18,7 +17,8 @@ class SubscriptionsManagementRedirectView extends FormView {
     if (options && options.config) {
       if (options.config.subscriptions) {
         this._subscriptionsConfig = options.config.subscriptions;
-        this._usePaymentsNext = !!options.config.subscriptions.usePaymentsNextSubscriptionManagement;
+        this._usePaymentsNext =
+          !!options.config.subscriptions.usePaymentsNextSubscriptionManagement;
       }
       if (options.config.paymentsNextHostedUrl) {
         this._paymentsNextUrl = options.config.paymentsNextHostedUrl;
@@ -37,7 +37,7 @@ class SubscriptionsManagementRedirectView extends FormView {
       this._usePaymentsNext ? 'subscriptions/landing' : 'subscriptions',
       {},
       this._paymentsNextUrl,
-      this._usePaymentsNext,
+      this._usePaymentsNext
     );
   }
 }
