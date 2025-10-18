@@ -137,9 +137,6 @@ Router = Router.extend({
     'authorization(/)': function () {
       this.createReactOrBackboneViewHandler('authorization', RedirectAuthView);
     },
-    'cannot_create_account(/)': function () {
-      this.createReactViewHandler('cannot_create_account');
-    },
     'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
     'clear(/)': function () {
       this.createReactViewHandler('clear');

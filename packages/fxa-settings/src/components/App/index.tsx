@@ -51,9 +51,6 @@ import useSyncEngines from '../../lib/hooks/useSyncEngines';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
-const CannotCreateAccount = lazy(
-  () => import('../../pages/CannotCreateAccount')
-);
 const Clear = lazy(() => import('../../pages/Clear'));
 
 const InlineTotpSetupContainer = lazy(
@@ -583,7 +580,6 @@ const AuthAndAccountSetupRoutes = ({
         />
 
         {/* Signup */}
-        <CannotCreateAccount path="/cannot_create_account/*" />
         <ConfirmSignupCodeContainer
           path="/confirm_signup_code/*"
           {...{ integration, flowQueryParams }}

@@ -13,8 +13,6 @@ const AGE_ELEMENT = '#age';
 const AGE_SIZE_LIMIT = 3;
 const CUTOFF_AGE = 13;
 
-const CANNOT_CREATE_ACCOUNT_PATHNAME = 'cannot_create_account';
-
 /**
  * Creates the CoppaMixin.
  *
@@ -35,15 +33,6 @@ export default function (config = {}) {
       [`input ${AGE_ELEMENT}`]: 'onCoppaInput',
       [`keydown ${AGE_ELEMENT}`]: 'onCoppaKeyDown',
       [`keyup ${AGE_ELEMENT}`]: 'onCoppaInput',
-    },
-
-    beforeRender() {
-      if (
-        this.isCoppaEnabled() &&
-        this.window.document.cookie.indexOf('tooyoung') > -1
-      ) {
-        this.navigate(CANNOT_CREATE_ACCOUNT_PATHNAME);
-      }
     },
 
     setInitialContext(context) {
@@ -101,8 +90,6 @@ export default function (config = {}) {
       // Both of these have to happen or else the cookie
       // hangs around like a bad smell.
       this.window.document.cookie = 'tooyoung=1;';
-
-      this.navigate(CANNOT_CREATE_ACCOUNT_PATHNAME);
     },
 
     onCoppaInput() {
