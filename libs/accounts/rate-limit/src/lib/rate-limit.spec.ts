@@ -185,6 +185,341 @@ describe('rate-limit', () => {
     expect(statsd.increment).toBeCalledWith('rate_limit.ignore.uid');
   });
 
+  describe('rate limit search', () => {
+    let mockScan: jest.Mock;
+    let mockGet: jest.Mock;
+
+    beforeEach(() => {
+      mockScan = jest.fn();
+      mockGet = jest.fn();
+      redis.scan = mockScan;
+      redis.get = mockGet;
+    });
+
+    afterEach(() => {
+      mockScan.mockReset();
+      mockGet.mockReset();
+    });
+
+    it('should return empty array when no identifiers provided', async () => {
+      rateLimit = new RateLimit({ rules: {} }, redis, statsd);
+      const result = await rateLimit.search();
+      expect(result).toEqual([]);
+      expect(mockScan).not.toHaveBeenCalled();
+    });
+
+    it('should search by IP address', async () => {
+      const testIp = '192.168.1.1';
+      const mockBlockRecord = {
+        action: 'login',
+        usedDefaultRule: false,
+        blockingOn: 'ip',
+        blockedValue: testIp,
+        startTime: Date.now() - 5000,
+        duration: 3600,
+        attempts: 3,
+        reason: 'too-many-attempts',
+        policy: 'block',
+      };
+
+      mockScan
+        .mockResolvedValueOnce([
+          '0',
+          [`rate-limit:block:ip=${testIp}:login:1-60-3600`],
+        ]) // for ip
+        .mockResolvedValueOnce(['0', []]) // for ip_email
+        .mockResolvedValueOnce(['0', []]); // for ip_uid
+
+      mockGet.mockResolvedValue(JSON.stringify(mockBlockRecord));
+
+      rateLimit = new RateLimit({ rules: {} }, redis, statsd);
+      const result = await rateLimit.search(testIp);
+
+      expect(mockScan).toHaveBeenCalledTimes(3); // ip, ip_email, ip_uid
+      expect(mockScan).toHaveBeenNthCalledWith(
+        1,
+        '0',
+        'MATCH',
+        `rate-limit:*:ip=${testIp}:*`,
+        'COUNT',
+        1000
+      );
+      expect(mockScan).toHaveBeenNthCalledWith(
+        2,
+        '0',
+        'MATCH',
+        `rate-limit:*:ip_email=${testIp}_*:*`,
+        'COUNT',
+        1000
+      );
+      expect(mockScan).toHaveBeenNthCalledWith(
+        3,
+        '0',
+        'MATCH',
+        `rate-limit:*:ip_uid=${testIp}_*:*`,
+        'COUNT',
+        1000
+      );
+      expect(mockGet).toHaveBeenCalledWith(
+        `rate-limit:block:ip=${testIp}:login:1-60-3600`
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].action).toBe('login');
+      expect(result[0].blockingOn).toBe('ip');
+      expect(result[0].policy).toBe('block');
+    });
+
+    it('should search by email', async () => {
+      const testEmail = 'test@example.com';
+      const mockBanRecord = {
+        action: 'passwordReset',
+        usedDefaultRule: false,
+        blockingOn: 'email',
+        blockedValue: testEmail,
+        startTime: Date.now() - 10000,
+        duration: 7200,
+        attempts: 5,
+        reason: 'too-many-attempts',
+        policy: 'ban',
+      };
+
+      mockScan
+        .mockResolvedValueOnce([
+          '0',
+          [`rate-limit:ban:email=${testEmail}:passwordReset:5-60-7200`],
+        ]) // for email
+        .mockResolvedValueOnce(['0', []]); // for ip_email
+
+      mockGet.mockResolvedValue(JSON.stringify(mockBanRecord));
+
+      rateLimit = new RateLimit({ rules: {} }, redis, statsd);
+      const result = await rateLimit.search(undefined, testEmail);
+
+      expect(mockScan).toHaveBeenCalledTimes(2); // email, ip_email
+      expect(mockScan).toHaveBeenNthCalledWith(
+        1,
+        '0',
+        'MATCH',
+        `rate-limit:*:email=${testEmail}:*`,
+        'COUNT',
+        1000
+      );
+      expect(mockScan).toHaveBeenNthCalledWith(
+        2,
+        '0',
+        'MATCH',
+        `rate-limit:*:ip_email=*_${testEmail}:*`,
+        'COUNT',
+        1000
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].action).toBe('passwordReset');
+      expect(result[0].blockingOn).toBe('email');
+      expect(result[0].policy).toBe('ban');
+    });
+
+    it('should search by UID', async () => {
+      const testUid = 'user-123';
+
+      mockScan
+        .mockResolvedValueOnce(['0', []]) // for uid
+        .mockResolvedValueOnce(['0', []]); // for ip_uid
+
+      rateLimit = new RateLimit({ rules: {} }, redis, statsd);
+      const result = await rateLimit.search(undefined, undefined, testUid);
+
+      expect(mockScan).toHaveBeenCalledTimes(2); // uid, ip_uid
+      expect(mockScan).toHaveBeenNthCalledWith(
+        1,
+        '0',
+        'MATCH',
+        `rate-limit:*:uid=${testUid}:*`,
+        'COUNT',
+        1000
+      );
+      expect(mockScan).toHaveBeenNthCalledWith(
+        2,
+        '0',
+        'MATCH',
+        `rate-limit:*:ip_uid=*_${testUid}:*`,
+        'COUNT',
+        1000
+      );
+      expect(result).toHaveLength(0);
+    });
+
+    it('should search by multiple identifiers including composite keys', async () => {
+      const testIp = '10.0.0.1';
+      const testEmail = 'user@test.com';
+      const testUid = 'uid-456';
+
+      mockScan
+        .mockResolvedValueOnce([
+          '0',
+          [`rate-limit:block:ip=${testIp}:login:1-60-3600`],
+        ])
+        .mockResolvedValueOnce([
+          '0',
+          [`rate-limit:ban:email=${testEmail}:signup:3-120-7200`],
+        ])
+        .mockResolvedValueOnce(['0', []])
+        .mockResolvedValueOnce([
+          '0',
+          [
+            `rate-limit:block:ip_email=${testIp}_${testEmail}:transfer:2-30-1800`,
+          ],
+        ])
+        .mockResolvedValueOnce(['0', []]);
+
+      const mockRecord1 = {
+        action: 'login',
+        usedDefaultRule: false,
+        blockingOn: 'ip',
+        blockedValue: testIp,
+        startTime: Date.now(),
+        duration: 3600,
+        attempts: 1,
+        reason: 'too-many-attempts',
+        policy: 'block',
+      };
+
+      const mockRecord2 = {
+        action: 'signup',
+        usedDefaultRule: false,
+        blockingOn: 'email',
+        blockedValue: testEmail,
+        startTime: Date.now(),
+        duration: 7200,
+        attempts: 3,
+        reason: 'too-many-attempts',
+        policy: 'ban',
+      };
+
+      const mockRecord3 = {
+        action: 'transfer',
+        usedDefaultRule: false,
+        blockingOn: 'ip_email',
+        blockedValue: `${testIp}_${testEmail}`,
+        startTime: Date.now(),
+        duration: 1800,
+        attempts: 2,
+        reason: 'too-many-attempts',
+        policy: 'block',
+      };
+
+      mockGet
+        .mockResolvedValueOnce(JSON.stringify(mockRecord1))
+        .mockResolvedValueOnce(JSON.stringify(mockRecord2))
+        .mockResolvedValueOnce(JSON.stringify(mockRecord3));
+
+      rateLimit = new RateLimit({ rules: {} }, redis, statsd);
+      const result = await rateLimit.search(testIp, testEmail, testUid);
+
+      expect(mockScan).toHaveBeenCalledTimes(5);
+      expect(result).toHaveLength(3);
+      expect(result.map((r) => r.action)).toEqual([
+        'login',
+        'signup',
+        'transfer',
+      ]);
+      expect(result.map((r) => r.policy)).toEqual(['block', 'ban', 'block']);
+    });
+
+    it('should handle Redis scan pagination', async () => {
+      const testIp = '127.0.0.1';
+
+      // Since the search method processes identifiers in parallel,
+      // we need to handle the scan calls in the order they're processed
+      mockScan
+        .mockResolvedValueOnce([
+          '123',
+          [`rate-limit:block:ip=${testIp}:action1:1-60-3600`],
+        ]) // First call for IP identifier
+        .mockResolvedValueOnce(['0', []]) // ip_email scan
+        .mockResolvedValueOnce(['0', []]) // ip_uid scan
+        .mockResolvedValueOnce([
+          '0',
+          [`rate-limit:block:ip=${testIp}:action2:1-60-3600`],
+        ]); // Second call for IP pagination
+
+      const mockRecord1 = {
+        action: 'action1',
+        usedDefaultRule: false,
+        blockingOn: 'ip',
+        blockedValue: testIp,
+        startTime: Date.now(),
+        duration: 3600,
+        attempts: 1,
+        reason: 'too-many-attempts',
+        policy: 'block',
+      };
+
+      const mockRecord2 = {
+        action: 'action2',
+        usedDefaultRule: false,
+        blockingOn: 'ip',
+        blockedValue: testIp,
+        startTime: Date.now(),
+        duration: 3600,
+        attempts: 1,
+        reason: 'too-many-attempts',
+        policy: 'block',
+      };
+
+      mockGet
+        .mockResolvedValueOnce(JSON.stringify(mockRecord1))
+        .mockResolvedValueOnce(JSON.stringify(mockRecord2));
+
+      rateLimit = new RateLimit({ rules: {} }, redis, statsd);
+      const result = await rateLimit.search(testIp);
+
+      expect(mockScan).toHaveBeenCalledTimes(4); // 2 for ip pagination + ip_email + ip_uid
+      expect(result).toHaveLength(2);
+    });
+
+    it('should filter out null results from invalid block records', async () => {
+      const testEmail = 'test@example.com';
+
+      // Mock scan calls for email and ip_email patterns
+      mockScan
+        .mockResolvedValueOnce([
+          '0',
+          [
+            `rate-limit:block:email=${testEmail}:valid:1-60-3600`,
+            `rate-limit:attempt:email=${testEmail}:invalid:1-60-3600`,
+          ],
+        ]) // for email
+        .mockResolvedValueOnce(['0', []]); // for ip_email
+
+      const validRecord = {
+        action: 'valid',
+        usedDefaultRule: false,
+        blockingOn: 'email',
+        blockedValue: testEmail,
+        startTime: Date.now(),
+        duration: 3600,
+        attempts: 1,
+        reason: 'too-many-attempts',
+        policy: 'block',
+      };
+      const invalidRecord = {
+        ...validRecord,
+        action: 'invalid',
+        policy: 'attempt', // not a policy type
+      };
+
+      mockGet
+        .mockResolvedValueOnce(JSON.stringify(validRecord))
+        .mockResolvedValueOnce(JSON.stringify(invalidRecord));
+
+      rateLimit = new RateLimit({ rules: {} }, redis, statsd);
+      const result = await rateLimit.search(undefined, testEmail);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].action).toBe('valid');
+    });
+  });
+
   describe('configuration rules', () => {
     it('parses rule set', () => {
       const ruleSet = parseConfigRules(`

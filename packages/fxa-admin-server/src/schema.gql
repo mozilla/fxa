@@ -220,6 +220,17 @@ type RelyingParty {
   notes: String
 }
 
+type BlockStatus {
+  retryAfter: Float!
+  reason: String!
+  action: String!
+  blockingOn: String!
+  startTime: Float!
+  duration: Int!
+  attempt: Int!
+  policy: String!
+}
+
 type Query {
   accountByUid(uid: String!): Account
   accountByEmail(email: String!, autoCompleted: Boolean!): Account
@@ -227,6 +238,7 @@ type Query {
   getEmailsLike(search: String!): [Email!]
   getRecoveryPhonesLike(search: String!): [RecoveryPhone!]
   getDeleteStatus(taskNames: [String!]!): [AccountDeleteTaskStatus!]!
+  rateLimits(ip: String, email: String, uid: String): [BlockStatus!]!
   relyingParties: [RelyingParty!]!
 }
 

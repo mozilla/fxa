@@ -17,6 +17,11 @@ import { SubscriptionModule } from '../subscriptions/subscriptions.module';
 import { AccountResolver } from './account/account.resolver';
 import { EmailBounceResolver } from './email-bounce/email-bounce.resolver';
 import { RelyingPartyResolver } from './relying-party/relying-party.resolver';
+import { RateLimitingResolver } from './rate-limiting/rate-limiting.resolver';
+import {
+  RateLimitProvider,
+  RateLimitRedisProvider,
+} from '@fxa/accounts/rate-limit';
 import { APP_FILTER } from '@nestjs/core';
 import { SentryGlobalFilter } from '@sentry/nestjs/setup';
 import { LOGGER_PROVIDER } from '@fxa/shared/log';
@@ -34,6 +39,9 @@ import { CartModule } from './cart.module';
   providers: [
     AccountResolver,
     EmailBounceResolver,
+    RateLimitingResolver,
+    RateLimitProvider,
+    RateLimitRedisProvider,
     LegacyStatsDProvider,
     LegacyNotifierServiceProvider,
     LegacyNotifierSnsFactory,

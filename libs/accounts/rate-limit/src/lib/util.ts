@@ -6,6 +6,8 @@ import {
   BlockOn,
   BlockRecord,
   BlockStatus,
+  isBlockOn,
+  isBlockPolicy,
   Rule,
   TOO_MANY_ATTEMPTS,
 } from './models';
@@ -57,13 +59,13 @@ export function getLargestRetryAfter(blocks: BlockStatus[]) {
 export function isBlockRecord(obj: any): obj is BlockRecord {
   const result =
     typeof obj.action === 'string' &&
-    typeof obj.blockingOn === 'string' &&
+    isBlockOn(obj.blockingOn) &&
     typeof obj.blockedValue === 'string' &&
     typeof obj.startTime === 'number' &&
     typeof obj.duration === 'number' &&
     typeof obj.reason === 'string' &&
     typeof obj.attempts === 'number' &&
-    typeof obj.policy === 'string';
+    isBlockPolicy(obj.policy);
   return result;
 }
 
@@ -73,7 +75,9 @@ export function parseBlockRecord(value: string | null): BlockRecord | null {
   }
   const json = JSON.parse(value);
 
-  if (!json) {
+  // If the type is "attempt", then the value will be a string of integer
+  // instead of a BlockRecord
+  if (typeof json !== 'object' || json === null) {
     return null;
   }
 
