@@ -670,7 +670,7 @@ async function setup2faWithBackupCodeChoice(
     await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
   await expect(settings.settingsHeading).toBeVisible();
-  await expect(settings.alertBar).toHaveText(
+  await expect(settings.alertBar).toContainText(
     'Two-step authentication has been enabled'
   );
 
@@ -707,7 +707,7 @@ async function setup2faWithRecoveryPhoneChoice(
   await page.waitForURL(/settings/);
 
   await expect(settings.settingsHeading).toBeVisible();
-  await expect(settings.alertBar).toHaveText(
+  await expect(settings.alertBar).toContainText(
     'Two-step authentication has been enabled'
   );
 

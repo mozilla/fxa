@@ -272,8 +272,9 @@ describe('Page2faSetup', () => {
         );
         expect(account.completeTotpSetupWithJwt).toHaveBeenCalled();
         expect(mockNavigateWithQuery).toHaveBeenCalledWith(
-          '/settings#two-step-authentication',
-          { replace: true }
+          '/settings#connected-services',
+          { replace: true },
+          false
         );
       });
     });

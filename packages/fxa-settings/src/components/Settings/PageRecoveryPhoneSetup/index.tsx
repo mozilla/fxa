@@ -85,7 +85,9 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     if (currentStep + 1 <= numberOfSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      navigateWithQuery(SETTINGS_PATH);
+      navigateWithQuery(`${SETTINGS_PATH}#two-step-authentication`, {
+        replace: true,
+      });
     }
   };
 
@@ -177,6 +179,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
           nationalFormatPhoneNumber={
             phoneData.nationalFormat || phoneData.phoneNumber
           }
+          showRecoveryPhoneSuccessMessage={true}
           {...{
             localizedBackButtonTitle,
             localizedPageTitle,

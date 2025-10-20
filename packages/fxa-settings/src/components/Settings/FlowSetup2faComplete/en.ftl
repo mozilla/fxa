@@ -1,4 +1,5 @@
 flow-setup-2fa-inline-complete-success-banner = Two-step authentication enabled
+flow-setup-2fa-inline-complete-success-banner-description = To protect all your connected devices, you should sign out everywhere you’re using this account, and then sign back in using your new two-step authentication.
 
 flow-setup-2fa-inline-complete-backup-code = Backup authentication codes
 flow-setup-2fa-inline-complete-backup-phone = Recovery phone

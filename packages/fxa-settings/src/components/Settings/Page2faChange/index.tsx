@@ -59,14 +59,30 @@ export const Page2faChange = () => {
     </FtlMsg>
   );
 
-  const showSuccess = useCallback(() => {
-    alertBar.success(
-      ftlMsgResolver.getMsg(
-        'page-2fa-change-success',
-        'Two-step authentication has been updated'
-      )
+  const alertBarSuccessMessage = useCallback(() => {
+    return (
+      <div>
+        <p>
+          <strong>
+            {ftlMsgResolver.getMsg(
+              'page-2fa-change-success',
+              'Two-step authentication has been updated'
+            )}
+          </strong>
+        </p>
+        <p>
+          {ftlMsgResolver.getMsg(
+            'page-2fa-change-success-additional-message',
+            'To protect all your connected devices, you should sign out everywhere you’re using this account, and then sign back in using your new two-step authentication.'
+          )}
+        </p>
+      </div>
     );
-  }, [alertBar, ftlMsgResolver]);
+  }, [ftlMsgResolver]);
+
+  const showSuccess = useCallback(() => {
+    alertBar.success(alertBarSuccessMessage());
+  }, [alertBar, alertBarSuccessMessage]);
 
   const showGenericError = useCallback(() => {
     alertBar.error(
@@ -77,11 +93,15 @@ export const Page2faChange = () => {
     );
   }, [alertBar, ftlMsgResolver]);
 
-  const goHome = useCallback(
+  const goBackToSettings = useCallback(
     () =>
-      navigateWithQuery(SETTINGS_PATH + '#two-step-authentication', {
-        replace: true,
-      }),
+      navigateWithQuery(
+        SETTINGS_PATH + '#two-step-authentication',
+        {
+          replace: true,
+        },
+        false
+      ),
     [navigateWithQuery]
   );
 
@@ -90,9 +110,15 @@ export const Page2faChange = () => {
   useEffect(() => {
     if (!totpInfoLoading && (totpInfoError || !totpInfo)) {
       showGenericError();
-      goHome();
+      goBackToSettings();
     }
-  }, [totpInfoLoading, totpInfoError, totpInfo, showGenericError, goHome]);
+  }, [
+    totpInfoLoading,
+    totpInfoError,
+    totpInfo,
+    showGenericError,
+    goBackToSettings,
+  ]);
 
   /* ───── early return states ───── */
   if (totpInfoLoading) return <LoadingSpinner fullScreen />;
@@ -117,15 +143,27 @@ export const Page2faChange = () => {
     GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
 
     showSuccess();
-    goHome();
+    // We want to show the connected services page after success,
+    // to make it easier for the user to disconnect other devices or services
+    // that are not verified with the new 2FA connection..
+    navigateWithQuery(
+      `${SETTINGS_PATH}#connected-services`,
+      {
+        replace: true,
+      },
+      false
+    );
     return {};
   };
 
   return (
-    <VerifiedSessionGuard onDismiss={goHome} onError={goHome}>
+    <VerifiedSessionGuard
+      onDismiss={goBackToSettings}
+      onError={goBackToSettings}
+    >
       <FlowSetup2faApp
         verifyCode={handleVerify2faAppCode}
-        onBackButtonClick={goHome}
+        onBackButtonClick={goBackToSettings}
         {...{ localizedPageTitle, customQrInstructionEl, totpInfo }}
         reason={GleanClickEventType2FA.replace}
       />
