@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Stripe from 'stripe';
+import { Timestamp } from '@google-cloud/firestore';
 
 export interface DefaultResponse {
   type: Exclude<Stripe.Event.Type, 'customer.subscription.deleted'>;
@@ -19,3 +20,15 @@ export interface CustomerSubscriptionDeletedResponse {
 export type StripeWebhookEventResponse =
   | DefaultResponse
   | CustomerSubscriptionDeletedResponse;
+
+export interface StripeEventStoreEntry {
+  eventId: string;
+  processedAt: Date;
+  eventDetails: Stripe.Event;
+}
+
+export interface StripeEventStoreEntryFirestoreRecord {
+  eventId: string;
+  processedAt: Timestamp;
+  eventDetails: Stripe.Event;
+}
