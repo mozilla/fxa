@@ -41,6 +41,17 @@ export enum ProviderId {
     APPLE = "APPLE"
 }
 
+export interface RelyingPartyUpdateDto {
+    name: string;
+    imageUri: string;
+    redirectUri: string;
+    canGrant: boolean;
+    publicClient: boolean;
+    trusted: boolean;
+    allowedScopes?: Nullable<string>;
+    notes?: Nullable<string>;
+}
+
 export interface Location {
     city?: Nullable<string>;
     country?: Nullable<string>;
@@ -211,14 +222,14 @@ export interface AccountDeleteTaskStatus {
     status: string;
 }
 
-export interface RelyingParty {
+export interface RelyingPartyDto {
     id: string;
+    createdAt: DateTime;
     name: string;
     imageUri: string;
     redirectUri: string;
     canGrant: boolean;
     publicClient: boolean;
-    createdAt: number;
     trusted: boolean;
     allowedScopes?: Nullable<string>;
     notes?: Nullable<string>;
@@ -231,7 +242,7 @@ export interface IQuery {
     getEmailsLike(search: string): Nullable<Email[]> | Promise<Nullable<Email[]>>;
     getRecoveryPhonesLike(search: string): Nullable<RecoveryPhone[]> | Promise<Nullable<RecoveryPhone[]>>;
     getDeleteStatus(taskNames: string[]): AccountDeleteTaskStatus[] | Promise<AccountDeleteTaskStatus[]>;
-    relyingParties(): RelyingParty[] | Promise<RelyingParty[]>;
+    relyingParties(): RelyingPartyDto[] | Promise<RelyingPartyDto[]>;
 }
 
 export interface IMutation {
@@ -245,7 +256,10 @@ export interface IMutation {
     unsubscribeFromMailingLists(uid: string): boolean | Promise<boolean>;
     deleteAccounts(locators: string[]): AccountDeleteResponse[] | Promise<AccountDeleteResponse[]>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
-    updateNotes(id: string, notes: string): boolean | Promise<boolean>;
+    create(relyingParty: RelyingPartyUpdateDto): string | Promise<string>;
+    update(id: string, relyingParty: RelyingPartyUpdateDto): boolean | Promise<boolean>;
+    delete(id: string): boolean | Promise<boolean>;
 }
 
+export type DateTime = any;
 type Nullable<T> = T | null;

@@ -10,7 +10,11 @@ import { AdminPanelFeature } from '@fxa/shared/guards';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
 import { Features } from '../../auth/user-group-header.decorator';
 import { DatabaseService } from '../../database/database.service';
-import { RelyingParty } from '../../gql/model/relying-party.model';
+import {
+  RelyingPartyDto,
+  RelyingPartyUpdateDto,
+} from '../../gql/model/relying-party.model';
+import crypto from 'node:crypto';
 
 const RELYING_PARTY_COLUMNS = [
   'id',
@@ -26,12 +30,12 @@ const RELYING_PARTY_COLUMNS = [
 ];
 
 @UseGuards(GqlAuthHeaderGuard)
-@Resolver((of: any) => [RelyingParty])
+@Resolver((of: any) => [RelyingPartyDto])
 export class RelyingPartyResolver {
   constructor(private db: DatabaseService) {}
 
   @Features(AdminPanelFeature.RelyingParties)
-  @Query((returns) => [RelyingParty])
+  @Query(() => [RelyingPartyDto])
   public async relyingParties() {
     const relyingParties = await this.db.relyingParty
       .query()
@@ -43,17 +47,52 @@ export class RelyingPartyResolver {
     });
   }
 
-  @Features(AdminPanelFeature.RelyingPartiesEditNotes)
-  @Mutation((returns) => Boolean)
-  public async updateNotes(
-    @Args('id') id: string,
-    @Args('notes') notes: string
+  @Features(AdminPanelFeature.CreateRelyingParty)
+  @Mutation(() => String)
+  public async create(
+    @Args('relyingParty') relyingParty: RelyingPartyUpdateDto
   ) {
-    const updated = await this.db.relyingParty
-      .query()
-      .update({ notes })
-      .where({ id: uuidTransformer.to(id) });
+    const id = crypto.randomBytes(8).toString('hex');
+    const createdAt = new Date();
+    const result = await this.db.relyingParty.query().insert({
+      id,
+      createdAt,
+      ...relyingParty,
+    });
 
-    return updated === 1;
+
+    if (result.id) {
+      // Ping FxA channel, so devs know to setup a new queue
+      // TODO: Create the event broker queue
+    }
+
+    return result.id;
+  }
+
+  @Features(AdminPanelFeature.UpdateRelyingParty)
+  @Mutation(() => Boolean)
+  public async update(
+    @Args('id') id: string,
+    @Args('relyingParty') relyingParty: RelyingPartyUpdateDto
+  ) {
+    const result = await this.db.relyingParty
+      .query()
+      .update({
+        ...relyingParty,
+      })
+      .where({
+        id: uuidTransformer.to(id),
+      });
+
+    return result === 1;
+  }
+
+  @Features(AdminPanelFeature.DeleteRelyingParty)
+  @Mutation(() => Boolean)
+  public async delete(@Args('id') id: string) {
+    const result = await this.db.relyingParty
+      .query()
+      .deleteById(uuidTransformer.to(id));
+    return result === 1;
   }
 }

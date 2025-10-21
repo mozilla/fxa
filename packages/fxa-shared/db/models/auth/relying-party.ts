@@ -14,7 +14,7 @@ export class RelyingParty extends BaseAuthModel {
   redirectUri!: string;
   canGrant!: boolean;
   publicClient!: boolean;
-  createdAt!: number;
+  createdAt!: Date;
   trusted!: boolean;
   allowedScopes!: string | null;
   notes!: string | null;
