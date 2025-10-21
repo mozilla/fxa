@@ -113,16 +113,6 @@ describe('views/mixins/coppa-mixin', () => {
         assert.ok($ageEl.prop('required'));
       });
     });
-
-    it('redirects to `cannot_create_account` if the user is too young', () => {
-      view.tooYoung();
-
-      sinon.stub(view, 'navigate').callsFake(() => {});
-      return view.render().then(() => {
-        assert.isTrue(view.navigate.calledOnce);
-        assert.isTrue(view.navigate.calledWith('cannot_create_account'));
-      });
-    });
   });
 
   describe('onCoppaInput', () => {
@@ -234,7 +224,7 @@ describe('views/mixins/coppa-mixin', () => {
   });
 
   describe('tooYoung', () => {
-    it('triggers the `signup.tooyoung` notification, sets a cookie, navigates', () => {
+    it('triggers the `signup.tooyoung` notification and sets a cookie', () => {
       sinon.spy(notifier, 'trigger');
       sinon.stub(view, 'navigate').callsFake(() => {});
 
@@ -244,9 +234,6 @@ describe('views/mixins/coppa-mixin', () => {
       assert.isTrue(notifier.trigger.calledWith('signup.tooyoung'));
 
       assert.equal(windowMock.document.cookie, 'tooyoung=1;');
-
-      assert.isTrue(view.navigate.calledOnce);
-      assert.isTrue(view.navigate.calledWith('cannot_create_account'));
     });
   });
 });

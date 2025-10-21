@@ -134,18 +134,6 @@ describe('views/index', () => {
       });
     });
 
-    describe('user is too young', () => {
-      it('redirects to `/cannot_create_account`', () => {
-        windowMock.document.cookie = 'tooyoung; 1';
-
-        return view.render().then(() => {
-          assert.isTrue(view.navigate.calledOnce);
-          assert.isTrue(view.navigate.calledWith('cannot_create_account'));
-          assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
-        });
-      });
-    });
-
     describe('current account', () => {
       it('replaces current page with `/settings`', () => {
         const signedInAccount = user.initAccount({

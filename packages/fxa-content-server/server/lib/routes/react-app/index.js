@@ -40,7 +40,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
     simpleRoutes: {
       featureFlagOn: showReactApp.simpleRoutes,
       routes: reactRoute.getRoutes([
-        'cannot_create_account',
         'clear',
         'cookies_disabled',
         'legal',
