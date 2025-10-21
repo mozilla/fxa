@@ -452,13 +452,13 @@ export class StripeHelper extends StripeHelperBase {
         customer.metadata.userid,
         customer
       );
-      await this.stripeFirestore.fetchAndInsertPaymentMethod(paymentMethod.id);
+      await this.stripeFirestore.insertPaymentMethodRecord(paymentMethod);
       // Try paying now instead of waiting for Stripe since this could block a
       // customer from finishing a payment
       const invoice = await this.stripe.invoices.pay(invoiceId, {
         expand: ['payment_intent'],
       });
-      await this.stripeFirestore.fetchAndInsertInvoice(invoice.id);
+      await this.stripeFirestore.insertInvoiceRecord(invoice);
       return invoice;
     } catch (err) {
       if (err.type === 'StripeCardError') {
@@ -3545,19 +3545,29 @@ export class StripeHelper extends StripeHelperBase {
    * Process a invoice event that needs to be saved to Firestore.
    */
   async processInvoiceEventToFirestore(event: Stripe.Event) {
-    const eventData = event.data.object as Stripe.Invoice;
+    if (event.data.object.object !== "invoice") {
+      throw new Error("processInvoiceEventToFirestore must receive only invoice types");
+    }
+    const eventData = event.data.object;
+
     const invoiceId = eventData.id;
     if (!invoiceId) throw new Error('Invoice ID must be specified');
     const customerId = eventData.customer;
-    if (typeof customerId !== 'string')
-      throw new Error('Customer ID must be a string');
+    if (typeof customerId !== 'string') {
+      throw new Error("customerId must be a string");
+    }
+    const subscriptionId = eventData.subscription;
+    if (typeof subscriptionId !== 'string') {
+      throw new Error("subscriptionId must be a string");
+    }
 
     try {
-      await this.stripeFirestore.fetchAndInsertInvoice(invoiceId);
+      await this.stripeFirestore.fetchAndInsertInvoice(invoiceId, event.created);
     } catch (err) {
       if (err.name === FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND) {
         await this.stripeFirestore.fetchAndInsertCustomer(customerId);
-        return this.stripeFirestore.fetchAndInsertInvoice(invoiceId);
+        await this.stripeFirestore.fetchAndInsertInvoice(invoiceId, event.created);
+        return;
       }
       throw err;
     }
@@ -3580,7 +3590,7 @@ export class StripeHelper extends StripeHelperBase {
     const paymentMethodId = (event.data.object as Stripe.PaymentMethod).id;
 
     try {
-      await this.stripeFirestore.fetchAndInsertPaymentMethod(paymentMethodId);
+      await this.stripeFirestore.fetchAndInsertPaymentMethod(paymentMethodId, event.created);
     } catch (err) {
       if (
         !(
