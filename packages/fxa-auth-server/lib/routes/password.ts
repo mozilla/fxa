@@ -389,12 +389,6 @@ module.exports = function (
               account: passwordChangeToken,
             });
 
-            await recordSecurityEvent('account.password_upgraded', {
-              db,
-              request,
-              account: passwordChangeToken,
-            });
-
             return { result, account, isPasswordUpgrade };
           }
 
@@ -783,25 +777,22 @@ module.exports = function (
               account: { uid },
             });
 
-            await recordSecurityEvent('account.password_upgraded', {
-              db,
-              request,
-              account: { uid },
-            });
-
             return { result, account, isPasswordUpgrade };
           }
 
-          const result = await db.resetAccount({ uid }, {
-            authSalt: authSalt,
-            clientSalt: clientSalt,
-            verifierVersion: password.version,
-            verifyHash: verifyHash,
-            verifyHashVersion2: verifyHashVersion2,
-            wrapWrapKb: wrapWrapKb,
-            wrapWrapKbVersion2: wrapWrapKbVersion2,
-            keysHaveChanged: false,
-          });
+          const result = await db.resetAccount(
+            { uid },
+            {
+              authSalt: authSalt,
+              clientSalt: clientSalt,
+              verifierVersion: password.version,
+              verifyHash: verifyHash,
+              verifyHashVersion2: verifyHashVersion2,
+              wrapWrapKb: wrapWrapKb,
+              wrapWrapKbVersion2: wrapWrapKbVersion2,
+              keysHaveChanged: false,
+            }
+          );
 
           await request.emitMetricsEvent('account.changedPassword', {
             uid: uid,
@@ -832,10 +823,7 @@ module.exports = function (
 
           if (devicesToNotify) {
             // Notify the devices that the account has changed.
-            push.notifyPasswordChanged(
-              uid,
-              devicesToNotify
-            );
+            push.notifyPasswordChanged(uid, devicesToNotify);
           }
 
           log.notifyAttachedServices('passwordChange', request, {
@@ -955,7 +943,8 @@ module.exports = function (
           const response: any = {
             uid: newSessionToken.uid,
             sessionToken: newSessionToken.data,
-            verified: newSessionToken.emailVerified && newSessionToken.tokenVerified,
+            verified:
+              newSessionToken.emailVerified && newSessionToken.tokenVerified,
             authAt: newSessionToken.lastAuthAt(),
           };
 
