@@ -54,7 +54,12 @@ export const EVENT_NAMES: Record<string, number> = {
   'account.two_factor_replace_success': 40,
   'account.two_factor_replace_failure': 41,
   'account.password_upgrade_success': 42,
-  'account.password_upgraded': 43,
+  /*
+   * This was added as a duplicate, however to avoid having breaking changes
+   * with migrations, removing security event records, etc., we're leaving it here
+   * for reference.
+   */
+  //'account.password_upgraded': 43,
   'account.recovery_phone_setup_failed': 44,
   'account.mfa_send_otp_code': 45,
   'account.mfa_verify_otp_code_success': 46,
@@ -203,10 +208,7 @@ export class SecurityEvent extends BaseAuthModel {
       .limit(20);
   }
 
-  static async findByUidAndVerifiedLogin(
-    uid: string,
-    timeframeMs: number
-  ) {
+  static async findByUidAndVerifiedLogin(uid: string, timeframeMs: number) {
     const id = uuidTransformer.to(uid);
     const cutoffDate = Date.now() - timeframeMs;
 
