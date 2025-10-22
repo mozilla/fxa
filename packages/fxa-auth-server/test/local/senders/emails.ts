@@ -20,6 +20,8 @@ import {
 } from '../../../lib/senders/emails/partials/userDevice/mocks';
 import AppError from '../../../lib/error';
 import { AUTH_SERVER_ERRNOS } from 'fxa-shared/lib/errors';
+import { Container } from 'typedi';
+import { ProductConfigurationManager } from '../../../../../libs/shared/cms/src';
 
 const moment = require('moment-timezone');
 const config = require(`${ROOT_DIR}/config`).default.getProperties();
@@ -145,18 +147,9 @@ const MESSAGE_WITH_PLAN_CONFIG = {
   ...MESSAGE,
   planConfig: {
     urls: {
-      termsOfServiceDownload: 'https://subplat.example.com/tos',
-      privacyNoticeDownload: 'https://subplat.example.com/privacy',
+      termsOfServiceDownload: 'https://payments-next.example.com/tos',
+      privacyNoticeDownload: 'https://payments-next.example.com/privacy',
       cancellationSurvey: 'https://subplat.example.com/survey',
-    },
-    locales: {
-      fr: {
-        urls: {
-          termsOfServiceDownload: 'https://subplat.example.co.fr/tos',
-          privacyNoticeDownload: 'https://subplat.example.co.fr/privacy',
-          cancellationSurvey: 'https://subplat.example.co.fr/survey',
-        },
-      },
     },
   },
 };
@@ -1937,9 +1930,9 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountDeletion }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms')) },
       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
       { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
@@ -2063,7 +2056,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ['html', [
       { test: 'include', expected: `You have switched to ${MESSAGE.productNameNew}` },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-downgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-downgrade', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-downgrade', 'subscription-terms')) },
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
       { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycleOld} to ${MESSAGE_FORMATTED.paymentAmountNew} per ${MESSAGE.productPaymentCycleNew}.` },
       { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycleOld}.` },
@@ -2229,7 +2222,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ['html', [
       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
       { test: 'include', expected: 'Your subscription has been cancelled' },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-failed-payments-cancellation', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-failed-payments-cancellation', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-failed-payments-cancellation', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: SUBSCRIPTION_CANCELLATION_SURVEY_URL },
       { test: 'include', expected: `We’ve cancelled your ${MESSAGE.productName} subscription because multiple payment attempts failed. To get access again, start a new subscription with an updated payment method.` },
@@ -2267,7 +2260,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ['html', [
       { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2301,7 +2294,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2342,7 +2335,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2387,7 +2380,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2429,7 +2422,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2471,7 +2464,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2515,7 +2508,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2560,7 +2553,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2606,7 +2599,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2652,7 +2645,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2698,7 +2691,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms'))},
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support')) },
       { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
@@ -2769,7 +2762,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionPrivacyUrl', 'subscriptions-payment-expired', 'subscription-privacy')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'update-billing', 'email', 'uid')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-expired', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscriptions-payment-expired', 'subscription-terms')) },
       { test: 'include', expected: 'using to make payments for the following subscriptions is expired or about to expire.' },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -2790,7 +2783,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-failed', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-failed', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-failed', 'subscription-terms')) },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: 'We’ll try your payment again over the next few days, but you may need to help us fix it' },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -2811,7 +2804,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentProviderCancelled }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-provider-cancelled', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-payment-provider-cancelled', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-payment-provider-cancelled', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: 'Sorry, we’re having trouble with your payment method' },
       { test: 'include', expected: `We have detected a problem with your payment method for ${MESSAGE.productName}.` },
@@ -2843,7 +2836,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: 'Firefox Fortress' },
       { test: 'include', expected: 'Cooking with Foxkeh' },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscriptions-payment-provider-cancelled', 'update-billing', 'email', 'uid')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscriptions-payment-provider-cancelled', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscriptions-payment-provider-cancelled', 'subscription-terms')) },
       { test: 'include', expected: 'We have detected a problem with your payment method for the following subscriptions.' },
       { test: 'include', expected: 'It may be that your payment method has expired, or your current payment method is out-of-date.' },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -2869,7 +2862,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       { test: 'include', expected: `Thank you for reactivating your ${MESSAGE.productName} subscription!` },
       { test: 'include', expected: `will be ${MESSAGE_FORMATTED.invoiceTotal} on 04/19/2020` },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-reactivation', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-reactivation', 'subscription-terms')) },
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -2889,7 +2882,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionRenewalReminder }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-renewal-reminder', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-renewal-reminder', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-renewal-reminder', 'update-billing', 'plan_id', 'product_id', 'uid', 'email')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-renewal-reminder', 'subscription-support')) },
       { test: 'include', expected: `Dear ${MESSAGE.subscription.productName} customer` },
@@ -2918,7 +2911,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ['html', [
       { test: 'include', expected: 'Thank you for being a subscriber!' },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `<b>Invoice number:</b> ${MESSAGE.invoiceNumber}` },
@@ -2956,7 +2949,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ['html', [
       { test: 'include', expected: 'Thank you for being a subscriber!' },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `<b>Invoice number:</b> ${MESSAGE.invoiceNumber}` },
@@ -2990,7 +2983,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `<b>Invoice number:</b> ${MESSAGE.invoiceNumber}` },
@@ -3028,7 +3021,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
       ])],
       ['html', [
         { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-        { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+        { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms')) },
         { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
         { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
         { test: 'include', expected: `<b>Invoice number:</b> ${MESSAGE.invoiceNumber}` },
@@ -3068,7 +3061,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `<b>Invoice number:</b> ${MESSAGE.invoiceNumber}` },
@@ -3108,7 +3101,7 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ])],
     ['html', [
       { test: 'include', expected: decodeUrl(configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email')) },
-      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: decodeUrl(configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms')) },
       { test: 'include', expected: decodeUrl(configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support')) },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `<b>Invoice number:</b> ${MESSAGE.invoiceNumber}` },
@@ -3306,15 +3299,13 @@ const TESTS_WITH_PLAN_CONFIG: [string, any, Record<string, any>?][] = [
         [
           {
             test: 'include',
-            expected: encodeURIComponent(
-              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.privacyNoticeDownload
-            ),
+            expected:
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.privacyNoticeDownload,
           },
           {
             test: 'include',
-            expected: encodeURIComponent(
-              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.termsOfServiceDownload
-            ),
+            expected:
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.termsOfServiceDownload,
           },
         ],
       ],
@@ -3323,15 +3314,13 @@ const TESTS_WITH_PLAN_CONFIG: [string, any, Record<string, any>?][] = [
         [
           {
             test: 'include',
-            expected: encodeURIComponent(
-              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.privacyNoticeDownload
-            ),
+            expected:
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.privacyNoticeDownload,
           },
           {
             test: 'include',
-            expected: encodeURIComponent(
-              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.termsOfServiceDownload
-            ),
+            expected:
+              MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.termsOfServiceDownload,
           },
         ],
       ],
@@ -3361,39 +3350,6 @@ const TESTS_WITH_PLAN_CONFIG: [string, any, Record<string, any>?][] = [
         ],
       ],
     ]),
-  ],
-  [
-    'subscriptionCancellationEmail',
-    new Map<string, Test | any>([
-      [
-        'html',
-        [
-          {
-            test: 'include',
-            expected:
-              MESSAGE_WITH_PLAN_CONFIG.planConfig.locales.fr.urls
-                .cancellationSurvey,
-          },
-        ],
-      ],
-      [
-        'text',
-        [
-          {
-            test: 'include',
-            expected:
-              MESSAGE_WITH_PLAN_CONFIG.planConfig.locales.fr.urls
-                .cancellationSurvey,
-          },
-        ],
-      ],
-    ]),
-    {
-      updateTemplateValues: (values) => ({
-        ...values,
-        acceptLanguage: 'fr',
-      }),
-    },
   ],
 ];
 
@@ -3517,6 +3473,10 @@ describe('lib/senders/emails:', () => {
     sendMail: Record<any, any>;
 
   before(async () => {
+    Container.set(
+      ProductConfigurationManager,
+      mocks.mockProductConfigurationManager()
+    );
     mockLog = mocks.mockLog();
     mailer = await setup(mockLog, config, {
       './oauth_client_info': () => ({
@@ -3534,7 +3494,10 @@ describe('lib/senders/emails:', () => {
     };
   });
 
-  after(() => mailer.stop());
+  after(() => {
+    mailer.stop();
+    Container.reset();
+  });
 
   afterEach(() => {
     Object.values(mockLog).forEach((fn) => {
@@ -4045,9 +4008,9 @@ function configUrl(
 ) {
   let baseUri: string;
   if (key === 'subscriptionTermsUrl') {
-    baseUri = SUBSCRIPTION_TERMS_URL;
+    baseUri = MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.termsOfServiceDownload;
   } else if (key === 'subscriptionPrivacyUrl') {
-    baseUri = SUBSCRIPTION_PRIVACY_URL;
+    baseUri = MESSAGE_WITH_PLAN_CONFIG.planConfig.urls.privacyNoticeDownload;
   } else {
     baseUri = config.smtp[key];
   }
@@ -4075,13 +4038,7 @@ function configUrl(
     ['utm_content', `fx-${content}`],
   ].forEach(([key, value]) => out.searchParams.append(key, value));
 
-  const url = out.toString();
-  if (['subscriptionTermsUrl', 'subscriptionPrivacyUrl'].includes(key)) {
-    const parsedUrl = new URL(config.subscriptions.paymentsServer.url);
-    return `${parsedUrl.origin}/legal-docs?url=${encodeURIComponent(url)}`;
-  }
-
-  return url;
+  return out.toString();
 }
 
 function decodeUrl(encodedUrl: string) {

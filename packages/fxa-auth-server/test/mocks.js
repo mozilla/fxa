@@ -1093,6 +1093,30 @@ function mockPriceManager() {
 function mockProductConfigurationManager() {
   const productConfigurationManager = {
     getIapOfferings: sinon.stub(),
+    getPurchaseWithDetailsOfferingContentByPlanIds: sinon.spy(async () => {
+      return {
+        transformedPurchaseWithCommonContentForPlanId: sinon.spy(() => {
+          return {
+            offering: {
+              commonContent: {
+                privacyNoticeDownloadUrl:
+                  'https://payments-next.example.com/privacy',
+                termsOfServiceDownloadUrl:
+                  'https://payments-next.example.com/tos',
+                localizations: [
+                  {
+                    privacyNoticeDownloadUrl:
+                      'https://payments-next.example.com/privacy',
+                    termsOfServiceDownloadUrl:
+                      'https://payments-next.example.com/tos',
+                  },
+                ],
+              },
+            },
+          };
+        }),
+      };
+    }),
   };
   Container.set(ProductConfigurationManager, productConfigurationManager);
   return productConfigurationManager;
