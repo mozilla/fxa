@@ -1501,6 +1501,12 @@ const convictConf = convict({
       format: 'String',
       default: 'private, no-cache, no-store, must-revalidate',
     },
+    strictScopeValidation: {
+      doc: 'If true, removes OAuth scopes that are invalid',
+      env: 'OAUTH_STRICT_SCOPE_VALIDATION',
+      format: 'Boolean',
+      default: false,
+    },
   },
   metrics: {
     flow_id_key: {

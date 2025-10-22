@@ -120,12 +120,12 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
     const clientScopeSet = ScopeSet.fromString(client.allowedScopes || '');
     const trustedClientAllowedScopes = clientScopeSet.union(TRUSTED_CLIENT_ALLOWED_SCOPES);
 
-    const invalidScopes = notFoundCustomScopes.difference(trustedClientAllowedScopes);
+    const invalidScopes = requestedGrant.scope.difference(trustedClientAllowedScopes);
     if (!invalidScopes.isEmpty()) {
-      // Instead of failing the entire request, just remove the invalid scopes
-      requestedGrant.scope = requestedGrant.scope.difference(
-        invalidScopes
-      );
+      if (config.get('oauthServer.strictScopeValidation')) {
+        // Strict mode: remove invalid scopes
+        requestedGrant.scope = requestedGrant.scope.difference(invalidScopes);
+      }
     }
   }
 
