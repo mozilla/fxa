@@ -48,10 +48,10 @@ export const UnitRowSecondaryEmail = () => {
     .map((email) => email.verified)
     .lastIndexOf(true);
 
-  const resendEmailCode = useCallback(
+  const resendSecondaryEmailCode = useCallback(
     async (email: string) => {
       try {
-        await account.resendEmailCode(email);
+        await account.resendSecondaryEmailCode(email);
         navigateWithQuery(`${SETTINGS_PATH}/emails/verify`, {
           state: { email },
         });
@@ -264,7 +264,7 @@ export const UnitRowSecondaryEmail = () => {
                       className="link-blue"
                       data-testid="secondary-email-resend-code-button"
                       onClick={() => {
-                        resendEmailCode(email);
+                        resendSecondaryEmailCode(email);
                       }}
                     />
                   ),
@@ -276,7 +276,7 @@ export const UnitRowSecondaryEmail = () => {
                     className="link-blue"
                     data-testid="secondary-email-resend-code-button"
                     onClick={() => {
-                      resendEmailCode(email);
+                      resendSecondaryEmailCode(email);
                     }}
                   >
                     Resend confirmation code

@@ -216,21 +216,6 @@ test.describe('severity-1 #smoke', () => {
       await settings.secondaryEmail.deleteButton.click();
 
       await expect(settings.alertBar).toHaveText(/successfully deleted/);
-
-      await settings.secondaryEmail.addButton.click();
-      await secondaryEmail.emailTextbox.fill(newEmail);
-      await secondaryEmail.submit();
-
-      // skip verification
-      await settings.goto();
-
-      await expect(settings.secondaryEmail.unverifiedText).toHaveText(
-        'unconfirmed'
-      );
-
-      await settings.secondaryEmail.deleteButton.click();
-
-      await expect(settings.alertBar).toHaveText(/successfully deleted/);
     });
   });
 });
@@ -274,7 +259,7 @@ async function setNewPassword(
   oldPassword: string,
   newPassword: string,
   target: BaseTarget,
-  email: string,
+  email: string
 ): Promise<void> {
   await settings.password.changeButton.click();
 

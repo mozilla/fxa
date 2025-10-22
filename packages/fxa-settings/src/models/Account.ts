@@ -263,6 +263,18 @@ export const GET_ACCOUNT = gql`
   }
 `;
 
+export const GET_EMAILS = gql`
+  query GetEmails {
+    account {
+      emails {
+        email
+        isPrimary
+        verified
+      }
+    }
+  }
+`;
+
 export const GET_CONNECTED_CLIENTS = gql`
   query GetConnectedClients {
     account {
@@ -492,6 +504,7 @@ export class Account implements AccountData {
       | 'securityEvents'
       | 'backupCodes'
       | 'recoveryPhone'
+      | 'emails'
   ) {
     let query = GET_ACCOUNT;
     switch (field) {
@@ -509,6 +522,9 @@ export class Account implements AccountData {
         break;
       case 'recoveryPhone':
         query = GET_RECOVERY_PHONE;
+        break;
+      case 'emails':
+        query = GET_EMAILS;
         break;
     }
     await this.withLoadingStatus(
@@ -1106,22 +1122,7 @@ export class Account implements AccountData {
     await this.withLoadingStatus(
       this.authClient.recoveryEmailCreate(jwt, email)
     );
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        emails(existingEmails) {
-          return [
-            ...existingEmails,
-            {
-              email,
-              isPrimary: false,
-              verified: false,
-            },
-          ];
-        },
-      },
-    });
+    await this.refresh('emails');
   }
 
   async verifySecondaryEmail(email: string, code: string) {
@@ -1129,17 +1130,7 @@ export class Account implements AccountData {
     await this.withLoadingStatus(
       this.authClient.recoveryEmailSecondaryVerifyCode(jwt, email, code)
     );
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        emails(existingEmails) {
-          return existingEmails.map((x: Email) =>
-            x.email === email ? { ...x, verified: true } : { ...x }
-          );
-        },
-      },
-    });
+    await this.refresh('emails');
   }
 
   async disableTwoStepAuth() {
@@ -1181,20 +1172,7 @@ export class Account implements AccountData {
     await this.withLoadingStatus(
       this.authClient.recoveryEmailDestroy(sessionToken()!, email)
     );
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        emails(existingEmails) {
-          const emails = [...existingEmails];
-          emails.splice(
-            emails.findIndex((x) => x.email === email),
-            1
-          );
-          return emails;
-        },
-      },
-    });
+    await this.refresh('emails');
   }
 
   async deleteSecondaryEmailWithJwt(email: string) {
@@ -1202,41 +1180,18 @@ export class Account implements AccountData {
     await this.withLoadingStatus(
       this.authClient.recoveryEmailDestroyWithJwt(jwt, email)
     );
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        emails(existingEmails) {
-          const emails = [...existingEmails];
-          emails.splice(
-            emails.findIndex((x) => x.email === email),
-            1
-          );
-          return emails;
-        },
-      },
-    });
+    await this.refresh('emails');
   }
 
   async makeEmailPrimary(email: string) {
     await this.withLoadingStatus(
       this.authClient.recoveryEmailSetPrimaryEmail(sessionToken()!, email)
     );
+    await this.refresh('emails');
     const cache = this.apolloClient.cache;
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
       fields: {
-        emails(existingEmails) {
-          return existingEmails.map((x: Email) => {
-            const e = { ...x };
-            if (e.email === email) {
-              e.isPrimary = true;
-            } else if (e.isPrimary) {
-              e.isPrimary = false;
-            }
-            return e;
-          });
-        },
         primaryEmail() {
           return { email, isPrimary: true, verified: true };
         },
@@ -1265,21 +1220,11 @@ export class Account implements AccountData {
     await this.withLoadingStatus(
       this.authClient.recoveryEmailSetPrimaryEmailWithJwt(jwt, email)
     );
+    await this.refresh('emails');
     const cache = this.apolloClient.cache;
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
       fields: {
-        emails(existingEmails) {
-          return existingEmails.map((x: Email) => {
-            const e = { ...x };
-            if (e.email === email) {
-              e.isPrimary = true;
-            } else if (e.isPrimary) {
-              e.isPrimary = false;
-            }
-            return e;
-          });
-        },
         primaryEmail() {
           return { email, isPrimary: true, verified: true };
         },
@@ -1298,7 +1243,7 @@ export class Account implements AccountData {
     firefox.profileChanged({ uid: this.uid });
   }
 
-  async resendEmailCode(email: string) {
+  async resendSecondaryEmailCode(email: string) {
     return this.withLoadingStatus(
       this.authClient.recoveryEmailSecondaryResendCode(sessionToken()!, email)
     );

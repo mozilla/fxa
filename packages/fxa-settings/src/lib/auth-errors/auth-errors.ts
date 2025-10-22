@@ -195,7 +195,8 @@ const ERRORS = {
   RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL: {
     errno: 150,
     message:
-      'Can not change primary email to an email that does not belong to this account',
+      'Can not resend email code to an email that does not belong to this account',
+    version: 2,
   },
   FAILED_TO_SEND_EMAIL: {
     errno: 151,
@@ -322,6 +323,10 @@ const ERRORS = {
     errno: 219,
     message:
       'This phone number has been registered with too many accounts. Please try a different number.',
+  },
+  TOTP_SECRET_DOES_NOT_EXIST: {
+    errno: 220,
+    message: 'TOTP secret does not exist',
   },
   SERVICE_UNAVAILABLE: {
     errno: 998,
