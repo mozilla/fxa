@@ -2248,6 +2248,57 @@ describe('#integration - /v1', function () {
         assert.equal(res.statusCode, 400);
         assert.equal(res.result.message, 'Requested scopes are not allowed');
       });
+
+      describe('strict scope validation', function () {
+        const originalConfig = config.get('oauthServer.strictScopeValidation');
+
+        afterEach(function () {
+          // Restore original config
+          config.set('oauthServer.strictScopeValidation', originalConfig);
+        });
+
+        it('should strip invalid scopes when strictScopeValidation is enabled', async () => {
+          // Enable strict scope validation
+          config.set('oauthServer.strictScopeValidation', true);
+
+          const res = await Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              grant_type: 'fxa-credentials',
+              scope: 'profile email invalid:scope another:invalid',
+              assertion: AN_ASSERTION,
+            },
+          });
+
+          assertSecurityHeaders(res);
+          assert.equal(res.statusCode, 200);
+          assert.ok(res.result.access_token);
+          // Should only contain valid scopes
+          assert.equal(res.result.scope, 'profile email');
+        });
+
+        it('should keep all scopes when strictScopeValidation is disabled', async () => {
+          // Disable strict scope validation
+          config.set('oauthServer.strictScopeValidation', false);
+
+          const res = await Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              grant_type: 'fxa-credentials',
+              scope: 'profile email invalid:scope another:invalid',
+              assertion: AN_ASSERTION,
+            },
+          });
+
+          assertSecurityHeaders(res);
+          assert.equal(res.statusCode, 200);
+          assert.ok(res.result.access_token);
+          // Should contain all requested scopes (including invalid ones)
+          assert.equal(res.result.scope, 'profile email invalid:scope another:invalid');
+        });
+      });
     });
 
     describe('?scope=openid', function () {
