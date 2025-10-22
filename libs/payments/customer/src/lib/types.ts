@@ -16,6 +16,7 @@ export type InvoicePreview = {
   number: string | null; // customer-facing invoice identifier
   paypalTransactionId?: string;
   invoiceDate: number;
+  invoiceUrl?: string | null;
   nextInvoiceDate: number;
   amountDue: number;
   creditApplied: number | null;
