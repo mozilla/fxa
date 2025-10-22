@@ -67,6 +67,21 @@ export const Nav = () => (
             </NavLink>
           </li>
         </Guard>
+        <Guard features={[AdminPanelFeature.RateLimiting]}>
+          <li>
+            <NavLink
+              to="/rate-limiting"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={logsIcon}
+                alt="rate limit icon"
+              />
+              Rate Limiting
+            </NavLink>
+          </li>
+        </Guard>
         <li>
           <NavLink
             to="/permissions"

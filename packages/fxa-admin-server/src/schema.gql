@@ -225,6 +225,17 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type BlockStatus {
+  retryAfter: Float!
+  reason: String!
+  action: String!
+  blockingOn: String!
+  startTime: Float!
+  duration: Int!
+  attempt: Int!
+  policy: String!
+}
+
 type Query {
   accountByUid(uid: String!): Account
   accountByEmail(email: String!, autoCompleted: Boolean!): Account
@@ -232,6 +243,7 @@ type Query {
   getEmailsLike(search: String!): [Email!]
   getRecoveryPhonesLike(search: String!): [RecoveryPhone!]
   getDeleteStatus(taskNames: [String!]!): [AccountDeleteTaskStatus!]!
+  rateLimits(ip: String, email: String, uid: String): [BlockStatus!]!
   relyingParties: [RelyingPartyDto!]!
 }
 
@@ -246,6 +258,7 @@ type Mutation {
   unsubscribeFromMailingLists(uid: String!): Boolean!
   deleteAccounts(locators: [String!]!): [AccountDeleteResponse!]!
   clearEmailBounce(email: String!): Boolean!
+  clearRateLimits(ip: String, email: String, uid: String): Float!
   create(relyingParty: RelyingPartyUpdateDto!): String!
   update(id: String!, relyingParty: RelyingPartyUpdateDto!): Boolean!
   delete(id: String!): Boolean!

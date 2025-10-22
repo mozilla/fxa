@@ -235,6 +235,17 @@ export interface RelyingPartyDto {
     notes?: Nullable<string>;
 }
 
+export interface BlockStatus {
+    retryAfter: number;
+    reason: string;
+    action: string;
+    blockingOn: string;
+    startTime: number;
+    duration: number;
+    attempt: number;
+    policy: string;
+}
+
 export interface IQuery {
     accountByUid(uid: string): Nullable<Account> | Promise<Nullable<Account>>;
     accountByEmail(email: string, autoCompleted: boolean): Nullable<Account> | Promise<Nullable<Account>>;
@@ -242,6 +253,7 @@ export interface IQuery {
     getEmailsLike(search: string): Nullable<Email[]> | Promise<Nullable<Email[]>>;
     getRecoveryPhonesLike(search: string): Nullable<RecoveryPhone[]> | Promise<Nullable<RecoveryPhone[]>>;
     getDeleteStatus(taskNames: string[]): AccountDeleteTaskStatus[] | Promise<AccountDeleteTaskStatus[]>;
+    rateLimits(ip?: Nullable<string>, email?: Nullable<string>, uid?: Nullable<string>): BlockStatus[] | Promise<BlockStatus[]>;
     relyingParties(): RelyingPartyDto[] | Promise<RelyingPartyDto[]>;
 }
 
@@ -256,6 +268,7 @@ export interface IMutation {
     unsubscribeFromMailingLists(uid: string): boolean | Promise<boolean>;
     deleteAccounts(locators: string[]): AccountDeleteResponse[] | Promise<AccountDeleteResponse[]>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
+    clearRateLimits(ip?: Nullable<string>, email?: Nullable<string>, uid?: Nullable<string>): number | Promise<number>;
     create(relyingParty: RelyingPartyUpdateDto): string | Promise<string>;
     update(id: string, relyingParty: RelyingPartyUpdateDto): boolean | Promise<boolean>;
     delete(id: string): boolean | Promise<boolean>;
