@@ -261,6 +261,12 @@ const conf = (module.exports = convict({
       env: 'CMS_ENABLED',
       format: Boolean,
     },
+    l10nEnabled: {
+      default: false,
+      doc: 'Enables serving localization content of the CMS',
+      env: 'CMS_L10N_ENABLED',
+      format: Boolean,
+    },
   },
   showReactApp: {
     emailFirstRoutes: {
