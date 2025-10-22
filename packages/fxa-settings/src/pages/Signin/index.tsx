@@ -236,7 +236,8 @@ const Signin = ({
           // can tell us if it's a sign up. This will be cleaned up in FXA-12454
           if (
             !data.signIn.verified &&
-            data.signIn.verificationReason !== VerificationReasons.SIGN_UP
+            data.signIn.verificationReason !== VerificationReasons.SIGN_UP &&
+            isWebIntegration(integration)
           ) {
             session.sendVerificationCode();
           }
