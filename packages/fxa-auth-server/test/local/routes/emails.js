@@ -192,7 +192,14 @@ const makeRoutes = function (options = {}, requireMocks) {
       verificationReminders,
       glean
     );
-  return proxyquire('../../../lib/routes/emails', requireMocks || {})(
+
+  const authServerCacheRedis = options.authServerCacheRedis || {
+    get: sinon.stub(),
+    set: sinon.stub().resolves('OK'),
+    del: sinon.stub().resolves(1),
+  };
+
+  const routes = proxyquire('../../../lib/routes/emails', requireMocks || {})(
     log,
     db,
     mailer,
@@ -204,8 +211,11 @@ const makeRoutes = function (options = {}, requireMocks) {
     signupUtils,
     undefined,
     options.stripeHelper,
+    authServerCacheRedis,
     statsd
   );
+  routes.__redis = authServerCacheRedis;
+  return routes;
 };
 
 function runTest(route, request, assertions) {
@@ -1175,15 +1185,32 @@ describe('/recovery_email', () => {
       mockMailer.sendPostChangePrimaryEmail.resetHistory();
     });
 
-    it('should create email on account', () => {
+    it('should store reservation in redis and send verification email', () => {
       route = getRoute(accountRoutes, '/recovery_email');
       return runTest(route, mockRequest, (response) => {
         assert.ok(response);
-        assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail');
+        // grab the injected redis and route key helper
+        const injectedRedis = accountRoutes.__redis;
+        // Reconstruct expected key format locally to avoid importing the route factory
+        const toRedisSecondaryEmailReservationKey = (email) =>
+          `secondary_email:reservation:${normalizeEmail(email)}`;
+
+        assert.equal(injectedRedis.set.callCount, 1, 'call redis.set');
+        const args = injectedRedis.set.args[0];
+        assert.equal(
+          args[0],
+          toRedisSecondaryEmailReservationKey(TEST_EMAIL_ADDITIONAL)
+        );
+        // uid string in route is stringified; use string here
+        assert.include(args[1], '"uid"');
+        assert.include(args[1], '"secret"');
+        assert.equal(args[2], 'EX');
+        assert.equal(args[4], 'NX');
+
         assert.equal(
           mockMailer.sendVerifySecondaryCodeEmail.callCount,
           1,
-          'call db.sendVerifySecondaryCodeEmail'
+          'call mailer.sendVerifySecondaryCodeEmail'
         );
         assert.equal(
           mockMailer.sendVerifySecondaryCodeEmail.args[0][2].deviceId,
@@ -1194,15 +1221,12 @@ describe('/recovery_email', () => {
           mockRequest.auth.credentials.uid
         );
 
-        sinon.assert.calledWith(
-          mockAccountEventManager.recordSecurityEvent,
-          sinon.match.defined,
-          sinon.match({
-            name: 'account.secondary_email_added',
-            ipAddr: '63.245.221.32',
-            uid: uid,
-            tokenId: undefined,
-          })
+        // TODO: Should we create a new security event for the reservation?
+        // Should we actually record the add event here even if not added to db, and 'confirm' event later?
+        assert.equal(
+          mockAccountEventManager.recordSecurityEvent.callCount,
+          0,
+          'no security event recorded'
         );
       });
     });
@@ -1300,6 +1324,12 @@ describe('/recovery_email', () => {
       });
       route = getRoute(accountRoutes, '/recovery_email');
       mockRequest.payload.email = TEST_EMAIL_ADDITIONAL;
+      // grab the injected redis and route key helper
+      const injectedRedis = accountRoutes.__redis;
+      // Reconstruct expected key format locally to avoid importing the route factory
+      const toRedisSecondaryEmailReservationKey = (email) =>
+        `secondary_email:reservation:${normalizeEmail(email)}`;
+
       return runTest(route, mockRequest, (response) => {
         assert.ok(response);
         assert.equal(
@@ -1307,13 +1337,17 @@ describe('/recovery_email', () => {
           1,
           'call db.deleteAccount'
         );
-        assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail');
-        const args = mockDB.createEmail.getCall(0).args;
+        assert.equal(injectedRedis.set.callCount, 1, 'call redis.set');
+        const args = injectedRedis.set.args[0];
         assert.equal(
-          args[1].email,
-          TEST_EMAIL_ADDITIONAL,
-          'call db.createEmail with correct email'
+          args[0],
+          toRedisSecondaryEmailReservationKey(TEST_EMAIL_ADDITIONAL)
         );
+        // uid string in route is stringified; use string here
+        assert.include(args[1], '"uid"');
+        assert.include(args[1], '"secret"');
+        assert.equal(args[2], 'EX');
+        assert.equal(args[4], 'NX');
         assert.equal(
           mockMailer.sendVerifySecondaryCodeEmail.callCount,
           1,
@@ -1371,8 +1405,9 @@ describe('/recovery_email', () => {
       );
     });
 
-    it('deletes secondary email if there was an error sending verification email', () => {
+    it('clears reservation if there was an error sending verification email', () => {
       route = getRoute(accountRoutes, '/recovery_email');
+      const injectedRedis = accountRoutes.__redis;
       mockMailer.sendVerifySecondaryCodeEmail = sinon.spy(() => {
         return Promise.reject(new Error('failed to send'));
       });
@@ -1382,33 +1417,17 @@ describe('/recovery_email', () => {
       }).catch((err) => {
         assert.equal(err.errno, 151, 'failed to send email error');
         assert.equal(err.output.payload.code, 422);
-        assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail');
-        assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail');
         assert.equal(
-          mockDB.deleteEmail.args[0][0],
-          mockRequest.auth.credentials.uid,
-          'correct uid passed'
-        );
-        assert.equal(
-          mockDB.deleteEmail.args[0][1],
-          TEST_EMAIL_ADDITIONAL,
-          'correct email passed'
-        );
-        assert.equal(
-          mockMailer.sendVerifySecondaryCodeEmail.callCount,
+          injectedRedis.del.callCount,
           1,
-          'call db.sendVerifySecondaryCodeEmail'
+          'call authServerCacheRedis.del'
         );
+        const args = injectedRedis.del.args[0];
+        const toRedisSecondaryEmailReservationKey = (email) =>
+          `secondary_email:reservation:${normalizeEmail(email)}`;
         assert.equal(
-          mockMailer.sendVerifySecondaryCodeEmail.args[0][2].deviceId,
-          mockRequest.auth.credentials.deviceId
-        );
-        assert.equal(
-          mockMailer.sendVerifySecondaryCodeEmail.args[0][2].uid,
-          mockRequest.auth.credentials.uid
-        );
-        mockMailer.sendVerifySecondaryCodeEmail = sinon.spy(() =>
-          Promise.resolve()
+          args[0],
+          toRedisSecondaryEmailReservationKey(TEST_EMAIL_ADDITIONAL)
         );
       });
     });
@@ -1712,8 +1731,8 @@ describe('/recovery_email', () => {
       mockRequest.payload.email = 'notcorrectemail@a.com';
 
       await assert.failsAsync(runTest(route, mockRequest), {
-        errno: 105,
-        message: 'Invalid confirmation code',
+        errno: 143,
+        message: 'Unknown email',
       });
     });
 
@@ -1732,11 +1751,23 @@ describe('/recovery_email', () => {
     it('should resend otp code', async () => {
       route = getRoute(accountRoutes, '/recovery_email/secondary/resend_code');
 
+      // For the legacy resend flow, ensure there is an unconfirmed DB record
+      mockDB.getSecondaryEmail = sinon.spy(() => {
+        return Promise.resolve({
+          isVerified: false,
+          emailCode: dbData.secondEmailCode,
+          uid: mockRequest.auth.credentials.uid,
+        });
+      });
+
+      mockMailer.sendVerifySecondaryCodeEmail = sinon.spy(() =>
+        Promise.resolve()
+      );
+
       const response = await runTest(route, mockRequest);
 
       assert.ok(response);
       assert.calledOnce(mockDB.account);
-      assert.calledOnce(mockDB.accountEmails);
       assert.calledOnce(mockMailer.sendVerifySecondaryCodeEmail);
 
       const expectedCode = otpUtils.generateOtpCode(
