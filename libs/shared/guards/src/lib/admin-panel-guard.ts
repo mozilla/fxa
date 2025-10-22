@@ -47,6 +47,7 @@ export enum AdminPanelFeature {
   DeleteRelyingParty = 'DeleteRelyingParty',
   UnsubscribeFromMailingLists = 'UnsubscribeFromMailingLists',
   RateLimiting = 'RateLimiting',
+  DeleteRecoveryPhone = 'DeleteRecoveryPhone',
 }
 
 /** Enum of known user groups */
@@ -198,6 +199,10 @@ const defaultAdminPanelPermissions: Permissions = {
   [AdminPanelFeature.RateLimiting]: {
     name: 'View Rate Limiting Blocks and Bans',
     level: PermissionLevel.Support,
+  },
+  [AdminPanelFeature.DeleteRecoveryPhone]: {
+    name: 'Delete Recovery Phone',
+    level: PermissionLevel.Admin,
   },
 };
 

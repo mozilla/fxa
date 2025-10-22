@@ -327,6 +327,29 @@ export class AccountResolver {
     return !!result;
   }
 
+  @Features(AdminPanelFeature.DeleteRecoveryPhone)
+  @Mutation((returns) => Boolean)
+  public async deleteRecoveryPhone(@Args('uid') uid: string): Promise<Boolean> {
+    this.eventLogging.onEvent(EventNames.DeleteRecoveryPhone);
+
+    const uidBuffer = uuidTransformer.to(uid);
+
+    const existing = await this.db.recoveryPhones
+      .query()
+      .where('uid', uidBuffer)
+      .first();
+    if (!existing) {
+      return false;
+    }
+
+    const result = await this.db.recoveryPhones
+      .query()
+      .delete()
+      .where('uid', uidBuffer);
+
+    return !!result;
+  }
+
   @Features(AdminPanelFeature.EnableAccount)
   @Mutation((returns) => Boolean)
   public async enableAccount(@Args('uid') uid: string) {

@@ -252,6 +252,7 @@ type Mutation {
   unverifyEmail(email: String!): Boolean!
   disableAccount(uid: String!): Boolean!
   editLocale(uid: String!, locale: String!): Boolean!
+  deleteRecoveryPhone(uid: String!): Boolean!
   enableAccount(uid: String!): Boolean!
   recordAdminSecurityEvent(uid: String!, name: String!): Boolean!
   unlinkAccount(uid: String!): Boolean!

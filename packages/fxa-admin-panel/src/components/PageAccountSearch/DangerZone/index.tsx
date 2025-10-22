@@ -15,6 +15,7 @@ import {
   REMOVE_2FA,
   UNSUBSCRIBE_FROM_MAILING_LISTS,
   UNVERIFY_EMAIL,
+  DELETE_RECOVERY_PHONE,
 } from './index.gql';
 
 type DangerZoneProps = {
@@ -23,6 +24,7 @@ type DangerZoneProps = {
   disabledAt: number | null;
   onCleared: Function;
   has2FA?: boolean | null;
+  hasRecoveryPhone?: boolean | null;
 };
 
 const DangerZoneAction = ({
@@ -70,6 +72,7 @@ export const DangerZone = ({
   disabledAt,
   onCleared,
   has2FA,
+  hasRecoveryPhone,
 }: DangerZoneProps) => {
   const [unverify, { loading: unverifyLoading }] = useMutation(UNVERIFY_EMAIL, {
     onCompleted: () => {
@@ -142,6 +145,16 @@ export const DangerZone = ({
     },
   });
 
+  const [deleteRecoveryPhone] = useMutation(DELETE_RECOVERY_PHONE, {
+    onCompleted: () => {
+      window.alert('Recovery phone has been deleted.');
+      onCleared();
+    },
+    onError: () => {
+      window.alert('Error deleting recovery phone.');
+    },
+  });
+
   const [recordAdminSecurityEvent] = useMutation(RECORD_ADMIN_SECURITY_EVENT);
 
   const handleDisable = () => {
@@ -170,6 +183,13 @@ export const DangerZone = ({
     });
   };
 
+  const handleDeleteRecoveryPhone = () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+    deleteRecoveryPhone({ variables: { uid } });
+  };
+
   // define loading messages
   const loadingMessage = 'Please wait a moment...';
   let unverifyMessage = '';
@@ -177,7 +197,7 @@ export const DangerZone = ({
   if (unverifyLoading) unverifyMessage = loadingMessage;
 
   return (
-    <section className="mt-8">
+    <section className="mt-8" data-testid="danger-zone-section">
       <Guard
         features={[
           AdminPanelFeature.UnverifyEmail,
@@ -185,6 +205,7 @@ export const DangerZone = ({
           AdminPanelFeature.EnableAccount,
           AdminPanelFeature.UnsubscribeFromMailingLists,
           AdminPanelFeature.Remove2FA,
+          AdminPanelFeature.DeleteRecoveryPhone,
         ]}
       >
         <h3 className="mt-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-2 pt-1 rounded-sm text-lg text-white">
@@ -201,6 +222,7 @@ export const DangerZone = ({
           description="Reset email confirmation. User needs to re-confirm on next login."
           buttonHandler={handleUnverify}
           buttonText="Unconfirm Email"
+          buttonTestId="unverify-email"
           {...{ unverifyMessage }}
         />
       </Guard>
@@ -214,6 +236,7 @@ export const DangerZone = ({
             disabledAt
           )}`}
           buttonHandler={handleDisable}
+          buttonTestId="disable-account"
         />
       </Guard>
       {disabledAt && (
@@ -223,6 +246,7 @@ export const DangerZone = ({
             description="Allows this account to log in."
             buttonHandler={handleEnable}
             buttonText="Enable"
+            buttonTestId="enable-account"
           />
         </Guard>
       )}
@@ -233,6 +257,18 @@ export const DangerZone = ({
             description="Delete the account's 2FA."
             buttonHandler={handleRemove2FA}
             buttonText="Remove 2FA"
+            buttonTestId="remove-2fa"
+          />
+        </Guard>
+      )}
+      {has2FA && hasRecoveryPhone && (
+        <Guard features={[AdminPanelFeature.DeleteRecoveryPhone]}>
+          <DangerZoneAction
+            header="Delete Recovery Phone"
+            description="Delete the account's recovery phone number."
+            buttonHandler={handleDeleteRecoveryPhone}
+            buttonText="Delete"
+            buttonTestId="delete-recovery-phone"
           />
         </Guard>
       )}
