@@ -291,26 +291,35 @@ export class StripeFirestore {
    */
   async fetchAndInsertInvoice(
     invoiceId: string,
-    ignoreErrors: boolean = false
+    eventTime: number,
+    ignoreErrors: boolean = false,
   ) {
-    const invoicePre = await this.stripe.invoices.retrieve(invoiceId);
-    const subscriptionId = invoicePre.subscription;
-    if (typeof subscriptionId !== 'string') {
+    const invoice = await this.stripe.invoices.retrieve(invoiceId);
+    if (invoice.subscription === null) {
       // We can only insert invoices with a subscription for caching, but we
       // shouldn't throw errors just because we can't cache non-subscription invoices.
       // TODO: Cache non-subscription invoices.
-      return invoicePre;
+      return invoice;
     }
-    const customerId = invoicePre.customer as string;
+    const subscriptionId = invoice.subscription;
+    if (typeof subscriptionId !== 'string') {
+      throw new Error("subscriptionId must be of type string");
+    }
+
+    const customerId = invoice.customer;
+    if (typeof customerId !== 'string') {
+      throw new Error("customerId must be of type string");
+    }
+
     const customerSnap = await this.customerCollectionDbRef
       .where('id', '==', customerId)
       .get();
     if (customerSnap.empty) {
       if (ignoreErrors) {
-        return invoicePre;
+        return invoice;
       }
       throw new FirestoreStripeErrorBuilder(
-        `Customer ${invoicePre.customer} was not found`,
+        `Customer ${customerId} was not found`,
         FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND,
         customerId
       );
@@ -319,7 +328,7 @@ export class StripeFirestore {
     const customerUid = customerSnap.docs[0].data().metadata.userid;
     if (!customerUid) {
       if (ignoreErrors) {
-        return invoicePre;
+        return invoice;
       }
       throw new FirestoreStripeErrorBuilder(
         `Customer ${customerId} has no uid`,
@@ -329,7 +338,7 @@ export class StripeFirestore {
     }
 
     return this.firestore.runTransaction(async (tx) => {
-      await tx.get(
+      const storedInvoice = await tx.get(
         this.customerCollectionDbRef
           .doc(customerUid)
           .collection(this.subscriptionCollection)
@@ -338,16 +347,29 @@ export class StripeFirestore {
           .doc(invoiceId)
       )
 
-      const invoice = await this.stripe.invoices.retrieve(invoiceId);
+      const storedEventTime: number | undefined = storedInvoice.data()?.stripeEventCreatedTime;
+      // stripeEventCreatedTime can be missing since we didn't previously write this value
+      if (storedEventTime && storedEventTime >= eventTime) {
+        // We've already stored a newer record from a more recent Stripe
+        // webhook event.
+        // In the event of a collision, Firestore transactions are re-run multiple times
+        // with random gaps. We don't need to re-run this event if we already have processed
+        // an event newer.
+        return invoice;
+      }
 
-      await tx.set(
+      const record = {
+        ...invoice,
+        stripeEventCreatedTime: eventTime
+      }
+      tx.set(
         this.customerCollectionDbRef
           .doc(customerUid)
           .collection(this.subscriptionCollection)
           .doc(subscriptionId)
           .collection(this.invoiceCollection)
           .doc(invoiceId),
-        invoice
+        record
       );
 
       return invoice;
@@ -389,27 +411,28 @@ export class StripeFirestore {
    */
   async fetchAndInsertPaymentMethod(
     paymentMethodId: string,
+    eventTime: number,
     ignoreErrors: boolean = false
   ) {
-    const paymentMethodPre = await this.stripe.paymentMethods.retrieve(
+    const paymentMethod = await this.stripe.paymentMethods.retrieve(
       paymentMethodId
     );
     // If this payment method is not attached, we can't store it in firestore as
     // the customer may not exist. It is possible that a payment_method.detached
     // event has already been processed, detaching the payment method.
-    if (!paymentMethodPre.customer) {
-      return paymentMethodPre;
+    if (!paymentMethod.customer) {
+      return paymentMethod;
     }
-    const customerId = paymentMethodPre.customer as string;
+    const customerId = paymentMethod.customer as string;
     const customerSnap = await this.customerCollectionDbRef
       .where('id', '==', customerId)
       .get();
     if (customerSnap.empty) {
       if (ignoreErrors) {
-        return paymentMethodPre;
+        return paymentMethod;
       }
       throw new FirestoreStripeErrorBuilder(
-        `Customer ${paymentMethodPre.customer} was not found`,
+        `Customer ${paymentMethod.customer} was not found`,
         FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND,
         customerId
       );
@@ -417,7 +440,7 @@ export class StripeFirestore {
     const customerUid = customerSnap.docs[0].data().metadata.userid;
     if (!customerUid) {
       if (ignoreErrors) {
-        return paymentMethodPre;
+        return paymentMethod;
       }
       throw new FirestoreStripeErrorBuilder(
         `Customer ${customerId} has no uid`,
@@ -427,23 +450,35 @@ export class StripeFirestore {
     }
 
     return await this.firestore.runTransaction(async (tx) => {
-      await tx.get(
+      const storedPaymentMethod = await tx.get(
         this.customerCollectionDbRef
           .doc(customerUid)
           .collection(this.paymentMethodCollection)
-          .doc(paymentMethodPre.id)
+          .doc(paymentMethod.id)
       );
       
-      const paymentMethod = await this.stripe.paymentMethods.retrieve(
-        paymentMethodId
-      );
+      const storedEventTime: number | undefined = storedPaymentMethod.data()?.stripeEventCreatedTime;
+      // stripeEventCreatedTime can be missing since we didn't previously write this value
+      if (eventTime && storedEventTime && storedEventTime >= eventTime) {
+        // We've already stored a newer record from a more recent Stripe
+        // webhook event.
+        // In the event of a collision, Firestore transactions are re-run multiple times
+        // with random gaps. We don't need to re-run this event if we already have processed
+        // an event newer.
+        return;
+      }
 
-      await tx.set(
+      const record = {
+        ...paymentMethod,
+        stripeEventCreatedTime: eventTime
+      }
+
+      tx.set(
         this.customerCollectionDbRef
           .doc(customerUid)
           .collection(this.paymentMethodCollection)
           .doc(paymentMethodId),
-        paymentMethod,
+        record,
       );
 
       return paymentMethod;
