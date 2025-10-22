@@ -533,9 +533,9 @@ export default async function Manage({
                     aria-labelledby={`${sub.productName}-information`}
                     className="leading-6 pb-4"
                   >
-                    <div className="w-full py-1 text-grey-600 rounded-lg border-2 border-[#E0E0E6] bg-white">
-                      <div className="flex flex-col p-4 tablet:flex-row tablet:items-start tablet:px-6">
-                        <div className="tablet:min-w-[140px]">
+                    <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
+                      <div className="flex flex-col px-4 tablet:px-0 tablet:flex-row tablet:items-start">
+                        <div className="tablet:min-w-[160px]">
                           <Image
                             src={sub.webIcon}
                             alt={sub.productName}
@@ -612,9 +612,9 @@ export default async function Manage({
                       aria-labelledby={`${purchase.productName}-heading`}
                       className="leading-6 pb-4"
                     >
-                      <div className="w-full py-1 text-grey-600 rounded-lg border-2 border-[#E0E0E6] bg-white">
-                        <div className="flex flex-col p-4 tablet:flex-row tablet:items-start tablet:px-6">
-                          <div className="tablet:min-w-[140px]">
+                      <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
+                        <div className="flex flex-col px-4 tablet:px-0 tablet:flex-row tablet:items-start">
+                          <div className="tablet:min-w-[160px]">
                             <Image
                               src={purchase.webIcon}
                               alt={purchase.productName}
@@ -667,7 +667,7 @@ export default async function Manage({
                               {nextBillDate && (
                                 <>
                                   <div
-                                    className="border-none h-px bg-grey-200 my-2"
+                                    className="border-none h-px bg-grey-100 my-2"
                                     role="separator"
                                     aria-hidden="true"
                                   ></div>
@@ -747,9 +747,9 @@ export default async function Manage({
                       aria-labelledby={`${purchase.productName}-heading`}
                       className="leading-6 pb-4"
                     >
-                      <div className="w-full py-1 text-grey-600 rounded-lg border-2 border-[#E0E0E6] bg-white">
-                        <div className="flex flex-col p-4 tablet:flex-row tablet:items-start tablet:px-6">
-                          <div className="tablet:min-w-[140px]">
+                      <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
+                        <div className="flex flex-col px-4 tablet:px-0 tablet:flex-row tablet:items-start">
+                          <div className="tablet:min-w-[160px]">
                             <Image
                               src={purchase.webIcon}
                               alt={purchase.productName}
@@ -802,7 +802,7 @@ export default async function Manage({
                               {!!purchase.expiryTimeMillis && (
                                 <>
                                   <div
-                                    className="border-none h-px bg-grey-200 my-2"
+                                    className="border-none h-px bg-grey-100 my-2"
                                     role="separator"
                                     aria-hidden="true"
                                   ></div>
