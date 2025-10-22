@@ -28,7 +28,7 @@
         "redirectUri": "https://example.domain/return?foo=bar",
         "trusted": true,
         "canGrant": false,
-        "allowedScopes": "https://identity.mozilla.com/apps/notes https://identity.mozilla.com/apps/lockbox"
+        "allowedScopes": "https://identity.mozilla.com/apps/notes https://identity.mozilla.com/apps/lockbox profile:write"
       },
       {
         "id": "98e6508e88680e1a",

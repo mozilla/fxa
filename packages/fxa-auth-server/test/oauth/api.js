@@ -105,7 +105,7 @@ function authParams(params, options) {
     assertion: AN_ASSERTION,
     client_id: options.clientId || clientId,
     state: '1',
-    scope: 'a',
+    scope: 'profile',
     acr_values: options.acr_values || undefined,
   };
 
@@ -344,7 +344,7 @@ describe('#integration - /v1', function () {
             url: '/authorization',
             payload: authParams({
               client_id: client.id,
-              scope: 'profile profile:write profile:uid',
+              scope: 'profile',
             }),
           })
           .then(function (res) {
@@ -363,7 +363,7 @@ describe('#integration - /v1', function () {
             payload: authParams({
               client_id: client.id,
               response_type: 'token',
-              scope: 'profile profile:write profile:uid',
+              scope: 'profile',
             }),
           })
           .then(function (res) {
@@ -379,7 +379,7 @@ describe('#integration - /v1', function () {
             url: '/authorization',
             payload: authParams({
               client_id: client.id,
-              scope: 'profile profile:write profile:uid',
+              scope: 'profile',
               response_type: 'code',
               code_challenge_method: 'S256',
               code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
@@ -1182,7 +1182,7 @@ describe('#integration - /v1', function () {
               assert.equal(res.result.token_type, 'bearer');
               assert.ok(res.result.auth_at);
               assert.ok(res.result.expires_in);
-              assert.equal(res.result.scope, 'a');
+              assert.equal(res.result.scope, 'profile');
               assert.equal(res.result.keys_jwe, undefined);
             });
         });
@@ -1239,7 +1239,7 @@ describe('#integration - /v1', function () {
             assert.equal(res.result.token_type, 'bearer');
             assert.ok(res.result.auth_at);
             assert.ok(res.result.expires_in);
-            assert.equal(res.result.scope, 'a');
+            assert.equal(res.result.scope, 'profile');
             assert.equal(res.result.keys_jwe, undefined);
           });
       });
@@ -1643,7 +1643,7 @@ describe('#integration - /v1', function () {
               .post({
                 url: '/authorization',
                 payload: authParams({
-                  scope: 'foo bar bar',
+                  scope: 'email profile profile',
                 }),
               })
               .then(function (res) {
@@ -1669,7 +1669,7 @@ describe('#integration - /v1', function () {
                   res.result.access_token.length,
                   config.get('oauthServer.unique.token') * 2
                 );
-                assert.equal(res.result.scope, 'foo bar');
+                assert.equal(res.result.scope, 'email profile');
                 assert.equal(res.result.auth_at, AUTH_AT);
               });
           });
@@ -1681,7 +1681,7 @@ describe('#integration - /v1', function () {
               .post({
                 url: '/authorization',
                 payload: authParams({
-                  scope: 'foo bar bar',
+                  scope: 'email profile profile',
                   access_type: 'offline',
                 }),
               })
@@ -1711,7 +1711,7 @@ describe('#integration - /v1', function () {
                   res.result.refresh_token.length,
                   config.get('oauthServer.unique.token') * 2
                 );
-                assert.equal(res.result.scope, 'foo bar');
+                assert.equal(res.result.scope, 'email profile');
                 assert.equal(res.result.auth_at, AUTH_AT);
               });
           });
@@ -1909,12 +1909,12 @@ describe('#integration - /v1', function () {
         it('should default to returning the scopes that were originally requested', function () {
           return newToken({
             access_type: 'offline',
-            scope: 'foo bar:baz',
+            scope: 'email profile',
           })
             .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
-              assert.equal(res.result.scope, 'foo bar:baz');
+              assert.equal(res.result.scope, 'email profile');
               return Server.api.post({
                 url: '/token',
                 payload: {
@@ -1928,19 +1928,19 @@ describe('#integration - /v1', function () {
             .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
-              assert.equal(res.result.scope, 'foo bar:baz');
+              assert.equal(res.result.scope, 'email profile');
             });
         });
 
         it('should be able to reduce scopes', function () {
           return newToken({
             access_type: 'offline',
-            scope: 'foo bar:baz',
+            scope: 'email profile:write',
           })
             .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
-              assert.equal(res.result.scope, 'foo bar:baz');
+              assert.equal(res.result.scope, 'email profile:write');
               return Server.api.post({
                 url: '/token',
                 payload: {
@@ -1948,14 +1948,14 @@ describe('#integration - /v1', function () {
                   client_secret: secret,
                   grant_type: 'refresh_token',
                   refresh_token: res.result.refresh_token,
-                  scope: 'foo',
+                  scope: 'email',
                 },
               });
             })
             .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
-              assert.equal(res.result.scope, 'foo');
+              assert.equal(res.result.scope, 'email');
             });
         });
 
@@ -1963,12 +1963,12 @@ describe('#integration - /v1', function () {
           it('should not expand scopes not in allowedScopes', async function () {
             let res = await newToken({
               access_type: 'offline',
-              scope: 'foo bar:baz',
+              scope: 'email profile:write',
             });
 
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
-            assert.equal(res.result.scope, 'foo bar:baz');
+            assert.equal(res.result.scope, 'email profile:write');
             res = await Server.api.post({
               url: '/token',
               payload: {
@@ -1976,7 +1976,7 @@ describe('#integration - /v1', function () {
                 client_secret: secret,
                 grant_type: 'refresh_token',
                 refresh_token: res.result.refresh_token,
-                scope: 'foo quux',
+                scope: 'email badscope',
               },
             });
 
@@ -1988,12 +1988,12 @@ describe('#integration - /v1', function () {
           it('should not expand read scope to write scope', async function () {
             let res = await newToken({
               access_type: 'offline',
-              scope: 'foo',
+              scope: 'email',
             });
 
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
-            assert.equal(res.result.scope, 'foo');
+            assert.equal(res.result.scope, 'email');
             res = await Server.api.post({
               url: '/token',
               payload: {
@@ -2001,7 +2001,7 @@ describe('#integration - /v1', function () {
                 client_secret: secret,
                 grant_type: 'refresh_token',
                 refresh_token: res.result.refresh_token,
-                scope: 'foo:write',
+                scope: 'email:write',
               },
             });
 
@@ -2044,12 +2044,12 @@ describe('#integration - /v1', function () {
           it('should allow trusted clients to expand scopes in allowedScopes', async function () {
             let res = await newToken({
               access_type: 'offline',
-              scope: 'foo bar:baz',
+              scope: 'email profile:write',
             });
 
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
-            assert.equal(res.result.scope, 'foo bar:baz');
+            assert.equal(res.result.scope, 'email profile:write');
 
             res = await Server.api.post({
               url: '/token',
@@ -2058,12 +2058,13 @@ describe('#integration - /v1', function () {
                 client_secret: secret,
                 grant_type: 'refresh_token',
                 refresh_token: res.result.refresh_token,
-                scope: 'foo https://identity.mozilla.com/apps/notes',
+                scope: 'email https://identity.mozilla.com/apps/notes',
               },
             });
 
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
+            assert.equal(res.result.scope, 'email https://identity.mozilla.com/apps/notes');
           });
         });
       });
@@ -2126,7 +2127,7 @@ describe('#integration - /v1', function () {
           payload: {
             client_id: clientId,
             grant_type: 'fxa-credentials',
-            scope: 'profile testme',
+            scope: 'profile email',
           },
         });
         assertInvalidRequestParam(res.result, 'assertion');
@@ -2139,14 +2140,14 @@ describe('#integration - /v1', function () {
           payload: {
             client_id: clientId,
             grant_type: 'fxa-credentials',
-            scope: 'profile testme',
+            scope: 'profile email',
             assertion: AN_ASSERTION,
           },
         });
         assert.equal(res.statusCode, 200);
         assert.ok(res.result.expires_in);
         assert.ok(res.result.access_token);
-        assert.equal(res.result.scope, 'profile testme');
+        assert.equal(res.result.scope, 'profile email');
         assert.equal(res.result.refresh_token, undefined);
       });
 
@@ -2156,7 +2157,7 @@ describe('#integration - /v1', function () {
           payload: {
             client_id: clientId,
             grant_type: 'fxa-credentials',
-            scope: 'profile testme',
+            scope: 'profile email',
             access_type: 'offline',
             assertion: AN_ASSERTION,
           },
@@ -2165,7 +2166,7 @@ describe('#integration - /v1', function () {
         assert.equal(res.statusCode, 200);
         assert.ok(res.result.expires_in);
         assert.ok(res.result.access_token);
-        assert.equal(res.result.scope, 'profile testme');
+        assert.equal(res.result.scope, 'profile email');
         assert.ok(res.result.refresh_token);
       });
 
@@ -2177,7 +2178,7 @@ describe('#integration - /v1', function () {
             grant_type: 'fxa-credentials',
             ttl: 42,
             assertion: AN_ASSERTION,
-            scope: 'profile testme',
+            scope: 'profile email',
           },
         });
         assertSecurityHeaders(res);
@@ -2193,7 +2194,7 @@ describe('#integration - /v1', function () {
             grant_type: 'fxa-credentials',
             ttl: MAX_TTL_S * 100,
             assertion: AN_ASSERTION,
-            scope: 'profile testme',
+            scope: 'profile email',
           },
         });
         assertSecurityHeaders(res);
@@ -2246,6 +2247,57 @@ describe('#integration - /v1', function () {
         assertSecurityHeaders(res);
         assert.equal(res.statusCode, 400);
         assert.equal(res.result.message, 'Requested scopes are not allowed');
+      });
+
+      describe('strict scope validation', function () {
+        const originalConfig = config.get('oauthServer.strictScopeValidation');
+
+        afterEach(function () {
+          // Restore original config
+          config.set('oauthServer.strictScopeValidation', originalConfig);
+        });
+
+        it('should strip invalid scopes when strictScopeValidation is enabled', async () => {
+          // Enable strict scope validation
+          config.set('oauthServer.strictScopeValidation', true);
+
+          const res = await Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              grant_type: 'fxa-credentials',
+              scope: 'profile email invalid:scope another:invalid',
+              assertion: AN_ASSERTION,
+            },
+          });
+
+          assertSecurityHeaders(res);
+          assert.equal(res.statusCode, 200);
+          assert.ok(res.result.access_token);
+          // Should only contain valid scopes
+          assert.equal(res.result.scope, 'profile email');
+        });
+
+        it('should keep all scopes when strictScopeValidation is disabled', async () => {
+          // Disable strict scope validation
+          config.set('oauthServer.strictScopeValidation', false);
+
+          const res = await Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              grant_type: 'fxa-credentials',
+              scope: 'profile email invalid:scope another:invalid',
+              assertion: AN_ASSERTION,
+            },
+          });
+
+          assertSecurityHeaders(res);
+          assert.equal(res.statusCode, 200);
+          assert.ok(res.result.access_token);
+          // Should contain all requested scopes (including invalid ones)
+          assert.equal(res.result.scope, 'profile email invalid:scope another:invalid');
+        });
       });
     });
 
@@ -3623,7 +3675,7 @@ describe('#integration - /v1', function () {
       assert.strictEqual(res.statusCode, 200);
       const { result } = res;
       assert.isTrue(result.active);
-      assert.strictEqual(result.scope, 'a');
+      assert.strictEqual(result.scope, 'profile');
       assert.strictEqual(result.client_id, 'dcdb5ae7add825d2');
       assert.strictEqual(result.token_type, 'access_token');
       assert.isNumber(result.exp);
@@ -3687,7 +3739,7 @@ describe('#integration - /v1', function () {
       const { result } = res;
 
       assert.isTrue(result.active);
-      assert.strictEqual(result.scope, 'a');
+      assert.strictEqual(result.scope, 'profile');
       assert.strictEqual(result.client_id, '38a6b9b3a65a1872');
       assert.strictEqual(result.token_type, 'refresh_token');
       assert.isUndefined(result.exp);
@@ -3753,7 +3805,7 @@ describe('#integration - /v1', function () {
       assert.strictEqual(tokenResult.result.token_type, 'bearer');
       assert.ok(tokenResult.result.auth_at);
       assert.ok(tokenResult.result.expires_in);
-      assert.strictEqual(tokenResult.result.scope, 'a');
+      assert.strictEqual(tokenResult.result.scope, 'profile');
       assert.isUndefined(tokenResult.result.keys_jwe);
       assert.ok(tokenResult.result.refresh_token);
 
@@ -3766,7 +3818,7 @@ describe('#integration - /v1', function () {
       assert.ok(tokenResultJWT.claims.exp);
       assert.ok(tokenResultJWT.claims.iat);
       assert.ok(tokenResultJWT.claims.jti);
-      assert.strictEqual(tokenResultJWT.claims.scope, 'a');
+      assert.strictEqual(tokenResultJWT.claims.scope, 'profile');
       assert.strictEqual(tokenResultJWT.claims.sub, USERID);
 
       const verifyResult = await Server.api.post({
@@ -3827,7 +3879,7 @@ describe('#integration - /v1', function () {
           grant_type: 'refresh_token',
           refresh_token: tokenResult.result.refresh_token,
           resource: 'https://resource.server2.com',
-          scope: 'a',
+          scope: 'profile',
         },
       });
 
@@ -3839,7 +3891,7 @@ describe('#integration - /v1', function () {
       );
       assert.strictEqual(refreshTokenResult.result.token_type, 'bearer');
       assert.ok(refreshTokenResult.result.expires_in);
-      assert.equal(refreshTokenResult.result.scope, 'a');
+      assert.equal(refreshTokenResult.result.scope, 'profile');
       assert.isUndefined(refreshTokenResult.result.keys_jwe);
       assert.isUndefined(refreshTokenResult.result.refresh_token);
 
@@ -3854,7 +3906,7 @@ describe('#integration - /v1', function () {
       assert.ok(refreshTokenResultJWT.claims.exp);
       assert.ok(refreshTokenResultJWT.claims.iat);
       assert.ok(refreshTokenResultJWT.claims.jti);
-      assert.strictEqual(refreshTokenResultJWT.claims.scope, 'a');
+      assert.strictEqual(refreshTokenResultJWT.claims.scope, 'profile');
       // No ppid or rotation.
       assert.strictEqual(refreshTokenResultJWT.claims.sub, USERID);
 
@@ -3865,7 +3917,7 @@ describe('#integration - /v1', function () {
           client_secret: secret,
           grant_type: 'refresh_token',
           refresh_token: tokenResult.result.refresh_token,
-          scope: 'a',
+          scope: 'profile',
         },
       });
       assert.equal(noResourceRefreshTokenResult.statusCode, 200);
