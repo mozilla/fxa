@@ -467,4 +467,227 @@ describe('rate-limit', () => {
     expect(check4).toBeNull();
     expect(check4b).toBeNull();
   });
+
+  describe('search method', () => {
+    beforeEach(async () => {
+      rateLimit = new RateLimit(
+        {
+          rules: parseConfigRules([
+            'testBlock:ip:1:1s:10s:block',
+            'testBan:email:1:1s:10s:ban',
+            'testMultiple:uid:1:1s:10s:block',
+          ]),
+        },
+        redis,
+        statsd
+      );
+    });
+
+    it('can search for blocks by IP', async () => {
+      await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+      await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+
+      const results = await rateLimit.search({ ip: '192.168.1.1' });
+
+      expect(results).toHaveLength(1);
+      expect(results[0].action).toBe('testBlock');
+      expect(results[0].blockingOn).toBe('ip');
+      expect(results[0].policy).toBe('block');
+      expect(results[0].retryAfter).toBeGreaterThan(0);
+    });
+
+    it('can search for bans by email', async () => {
+      await rateLimit.check('testBan', { email: 'test@example.com' });
+      await rateLimit.check('testBan', { email: 'test@example.com' });
+
+      const results = await rateLimit.search({ email: 'test@example.com' });
+
+      expect(results).toHaveLength(1);
+      expect(results[0].action).toBe('testBan');
+      expect(results[0].blockingOn).toBe('email');
+      expect(results[0].policy).toBe('ban');
+      expect(results[0].retryAfter).toBeGreaterThan(0);
+    });
+
+    it('can search by multiple criteria', async () => {
+      await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+      await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+
+      await rateLimit.check('testBan', { email: 'test@example.com' });
+      await rateLimit.check('testBan', { email: 'test@example.com' });
+
+      await rateLimit.check('testMultiple', { uid: 'user123' });
+      await rateLimit.check('testMultiple', { uid: 'user123' });
+
+      const results = await rateLimit.search({
+        ip: '192.168.1.1',
+        email: 'test@example.com',
+        uid: 'user123',
+      });
+
+      expect(results).toHaveLength(3);
+      const actions = results.map((r) => r.action).sort();
+      expect(actions).toEqual(['testBan', 'testBlock', 'testMultiple']);
+    });
+
+    it('returns empty array when no blocks/bans found', async () => {
+      const results = await rateLimit.search({ ip: '192.168.1.100' });
+      expect(results).toHaveLength(0);
+    });
+
+    it('can search with composite keys (ip_email)', async () => {
+      rateLimit = new RateLimit(
+        {
+          rules: parseConfigRules(['testComposite:ip_email:1:1s:10s:block']),
+        },
+        redis,
+        statsd
+      );
+
+      await rateLimit.check('testComposite', {
+        ip: '192.168.1.1',
+        email: 'test@example.com',
+        ip_email: '192.168.1.1_test@example.com',
+      });
+      await rateLimit.check('testComposite', {
+        ip: '192.168.1.1',
+        email: 'test@example.com',
+        ip_email: '192.168.1.1_test@example.com',
+      });
+
+      const results = await rateLimit.search({
+        ip: '192.168.1.1',
+        email: 'test@example.com',
+      });
+
+      expect(results).toHaveLength(1);
+      expect(results[0].action).toBe('testComposite');
+      expect(results[0].blockingOn).toBe('ip_email');
+      expect(results[0].policy).toBe('block');
+    });
+  });
+
+  describe('searchAndClear method', () => {
+    beforeEach(async () => {
+      rateLimit = new RateLimit(
+        {
+          rules: parseConfigRules([
+            'testBlock:ip:1:1s:10s:block',
+            'testBan:email:1:1s:10s:ban',
+            'testMultiple:uid:1:1s:10s:block',
+          ]),
+        },
+        redis,
+        statsd
+      );
+    });
+
+    it('can clear blocks by IP and return count', async () => {
+      await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+      await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+
+      let results = await rateLimit.search({ ip: '192.168.1.1' });
+      expect(results).toHaveLength(1);
+
+      const clearedCount = await rateLimit.searchAndClear({
+        ip: '192.168.1.1',
+      });
+      expect(clearedCount).toBe(1);
+
+      results = await rateLimit.search({ ip: '192.168.1.1' });
+      expect(results).toHaveLength(0);
+
+      const check = await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+      expect(check).toBeNull();
+    });
+
+    it('can clear bans by email and return count', async () => {
+      await rateLimit.check('testBan', { email: 'test@example.com' });
+      await rateLimit.check('testBan', { email: 'test@example.com' });
+
+      let results = await rateLimit.search({ email: 'test@example.com' });
+      expect(results).toHaveLength(1);
+
+      const clearedCount = await rateLimit.searchAndClear({
+        email: 'test@example.com',
+      });
+      expect(clearedCount).toBe(1);
+
+      results = await rateLimit.search({ email: 'test@example.com' });
+      expect(results).toHaveLength(0);
+
+      const check = await rateLimit.check('testBan', {
+        email: 'test@example.com',
+      });
+      expect(check).toBeNull();
+    });
+
+    it('can clear multiple blocks/bans and return total count', async () => {
+      await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+      await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+
+      await rateLimit.check('testBan', { email: 'test@example.com' });
+      await rateLimit.check('testBan', { email: 'test@example.com' });
+
+      await rateLimit.check('testMultiple', { uid: 'user123' });
+      await rateLimit.check('testMultiple', { uid: 'user123' });
+
+      let results = await rateLimit.search({
+        ip: '192.168.1.1',
+        email: 'test@example.com',
+        uid: 'user123',
+      });
+      expect(results).toHaveLength(3);
+
+      const clearedCount = await rateLimit.searchAndClear({
+        ip: '192.168.1.1',
+        email: 'test@example.com',
+        uid: 'user123',
+      });
+      expect(clearedCount).toBe(3);
+
+      results = await rateLimit.search({
+        ip: '192.168.1.1',
+        email: 'test@example.com',
+        uid: 'user123',
+      });
+      expect(results).toHaveLength(0);
+    });
+
+    it('returns 0 when no blocks/bans to clear', async () => {
+      const clearedCount = await rateLimit.searchAndClear({
+        ip: '192.168.1.100',
+      });
+      expect(clearedCount).toBe(0);
+    });
+
+    it('ignores attempt and report keys when clearing', async () => {
+      rateLimit = new RateLimit(
+        {
+          rules: parseConfigRules([
+            'testBlock:ip:1:1s:10s:block',
+            'testReport:ip:1:1s:10s:report',
+          ]),
+        },
+        redis,
+        statsd
+      );
+
+      await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+      await rateLimit.check('testBlock', { ip: '192.168.1.1' });
+      await rateLimit.check('testReport', { ip: '192.168.1.1' });
+      await rateLimit.check('testReport', { ip: '192.168.1.1' });
+
+      const clearedCount = await rateLimit.searchAndClear({
+        ip: '192.168.1.1',
+      });
+      expect(clearedCount).toBe(1);
+
+      const results = await rateLimit.search({ ip: '192.168.1.1' });
+      expect(results).toHaveLength(0);
+
+      const check = await rateLimit.check('testReport', { ip: '192.168.1.1' });
+      expect(check).toBeNull();
+    });
+  });
 });
