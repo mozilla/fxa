@@ -9,25 +9,19 @@
 ## $promotionName (String) - The name of the promotion.
 ## $taxDue (Number) - The tax added on, not included in amount. It will be formatted as currency.
 
+subscription-content-current-billed-on-tax = <strong>{ $invoiceTotal } + { $taxDue } tax</strong><span> billed on { $billedOnDate }</span>
+subscription-content-current-billed-on-no-tax = <strong>{ $invoiceTotal }</strong><span> billed on { $billedOnDate }</span>
+subscription-content-credit-issued-to-your-account = <strong>{ $creditApplied }</strong> credit issued to your account
+subscription-content-coupon-applied = { $promotionName } applied
 subscription-content-coupon-will-be-applied = { $promotionName } discount will be applied
+subscription-content-next-bill-excl-disc-with-tax = Next bill of <strong>{ $nextInvoiceTotal } + { $taxDue } tax</strong>, excluding discounts, is due on <strong>{ $nextBillDate }</strong>
+subscription-content-next-bill-excl-no-tax = Next bill of <strong>{ $nextInvoiceTotal }</strong>, excluding discounts, is due on <strong>{ $nextBillDate }</strong>
 subscription-content-heading-cancel-subscription = Cancel Subscription
 subscription-content-no-longer-use-message = You will no longer be able to use { $productName } after { $currentPeriodEnd }, the last day of your billing cycle.
 subscription-content-cancel-access-message = Cancel my access and my saved information within { $productName } on { $currentPeriodEnd }
-# • is acting as a separator between "Last bill" and the billing date.
-subscription-content-last-bill = Last bill • { $billedOnDate }
-subscription-content-last-bill-with-tax = { $invoiceTotal } + { $taxDue } tax
-subscription-content-last-bill-no-tax = { $invoiceTotal }
-subscription-content-view-invoice = View invoice
-subscription-management-link-view-invoice-aria = View invoice for { $productName }
-subscription-content-expires-on-expiry-date = Expires on { $date }
-# • is acting as a separator between "Next bill" and the next billing date.
-subscription-content-next-bill = Next bill • { $billedOnDate}
-subscription-content-next-bill-with-tax-1 = { $nextInvoiceTotal } + { $taxDue } tax
-subscription-content-next-bill-no-tax-1 = { $nextInvoiceTotal }
 subscription-content-button-stay-subscribed =
   Stay Subscribed
   .aria-label = Stay subscribed to { $productName }
-subscription-content-button-cancel-subscription-1 = Cancel subscription
 subscription-content-button-cancel-subscription =
   Cancel Subscription
   .aria-label = Cancel your subscription to { $productName }

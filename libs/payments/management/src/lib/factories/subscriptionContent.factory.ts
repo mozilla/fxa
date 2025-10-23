@@ -28,7 +28,6 @@ export const AppleIapSubscriptionContentFactory = (
   ...AppleIapPurchaseFactory(),
   productName: faker.string.sample(),
   supportUrl: faker.internet.url(),
-  webIcon: faker.internet.url(),
   ...override,
 });
 
@@ -57,7 +56,6 @@ export const GoogleIapSubscriptionContentFactory = (
   ...GoogleIapPurchaseFactory(),
   productName: faker.string.sample(),
   supportUrl: faker.internet.url(),
-  webIcon: faker.internet.url(),
   ...override,
 });
 

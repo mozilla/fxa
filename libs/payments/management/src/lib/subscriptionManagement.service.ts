@@ -288,14 +288,11 @@ export class SubscriptionManagementService {
               ?.productName ||
             cmsContent.offering.defaultPurchase.purchaseDetails.productName;
           const supportUrl = cmsContent.offering.commonContent.supportUrl;
-          const webIcon =
-            cmsContent.offering.defaultPurchase.purchaseDetails.webIcon;
 
           appleIapSubscriptions.push({
             ...purchase,
             productName,
             supportUrl,
-            webIcon,
           });
         }
       }
@@ -308,14 +305,11 @@ export class SubscriptionManagementService {
               ?.productName ||
             cmsContent.offering.defaultPurchase.purchaseDetails.productName;
           const supportUrl = cmsContent.offering.commonContent.supportUrl;
-          const webIcon =
-            cmsContent.offering.defaultPurchase.purchaseDetails.webIcon;
 
           googleIapSubscriptions.push({
             ...purchase,
             productName,
             supportUrl,
-            webIcon,
           });
         }
       }
@@ -424,7 +418,6 @@ export class SubscriptionManagementService {
       amountDue,
       creditApplied,
       invoiceDate: currentInvoiceDate,
-      invoiceUrl: currentInvoiceUrl,
       promotionName,
       taxAmounts,
       totalAmount,
@@ -468,7 +461,6 @@ export class SubscriptionManagementService {
             : totalAmount,
       currentPeriodEnd: subscription.current_period_end,
       currentInvoiceDate,
-      currentInvoiceUrl,
       nextInvoiceDate,
       nextInvoiceTax: nextInvoiceTotalExclusiveTax,
       nextInvoiceTotal:
