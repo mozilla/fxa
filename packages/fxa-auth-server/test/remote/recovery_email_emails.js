@@ -699,7 +699,7 @@ const password = 'allyourbasearebelongtous';
       });
     });
 
-    describe("shouldn't be able to initiate account reset from secondary email", () => {
+    describe('should be able to initiate account reset from verified secondary email', () => {
       let secondEmail;
       beforeEach(() => {
         secondEmail = server.uniqueEmail();
@@ -716,7 +716,28 @@ const password = 'allyourbasearebelongtous';
           });
       });
 
-      it('fails to initiate account reset with known secondary email', () => {
+      it('can initiate account reset with verified secondary email', () => {
+        client.email = secondEmail;
+        return client.forgotPassword().then(() => {
+          assert.ok(
+            client.passwordForgotToken,
+            'was able to initiate reset password'
+          );
+        });
+      });
+    });
+
+    describe("shouldn't be able to initiate account reset from secondary email", () => {
+      let secondEmail;
+      beforeEach(() => {
+        secondEmail = server.uniqueEmail();
+        return client.createEmail(secondEmail).then((res) => {
+          assert.ok(res, 'ok response');
+          return server.mailbox.waitForEmail(secondEmail);
+        });
+      });
+
+      it('fails to initiate account reset with unverified secondary email', () => {
         client.email = secondEmail;
         return client
           .forgotPassword()
@@ -727,7 +748,7 @@ const password = 'allyourbasearebelongtous';
           })
           .catch((err) => {
             assert.equal(err.code, 400, 'correct error code');
-            assert.equal(err.errno, 145, 'correct errno code');
+            assert.equal(err.errno, 102, 'correct errno code');
           });
       });
 
