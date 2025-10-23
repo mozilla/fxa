@@ -2,22 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-
 import { Localized } from '@fluent/react';
-import { ReactComponent as GoogleIcon } from './google.svg';
-import { ReactComponent as AppleIcon } from './apple.svg';
-import { Modal } from '../Modal';
-import { useAccount, useFtlMsgResolver } from '../../../models';
-import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useLocation } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useBooleanState } from 'fxa-react/lib/hooks';
 import { SETTINGS_PATH } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import {
   LinkedAccountProviderIds,
   UnlinkAccountLocationState,
 } from '../../../lib/types';
-import GleanMetrics from '../../../lib/glean';
+import { useAccount, useFtlMsgResolver } from '../../../models';
+import { Modal } from '../Modal';
+import { ReactComponent as AppleIcon } from './apple.svg';
+import { ReactComponent as GoogleIcon } from './google.svg';
 
 export function LinkedAccount({
   providerId,

@@ -3,29 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ApolloClientModule from '@apollo/client';
-import * as InlineTotpSetupModule from '.';
 import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
+import * as InlineTotpSetupModule from '.';
 
 import { ApolloClient } from '@apollo/client';
 import { LocationProvider } from '@reach/router';
+import { screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../lib/glean';
 import { MozServices } from '../../lib/types';
 import { IntegrationType, OAuthIntegration } from '../../models';
-import InlineTotpSetupContainer from './container';
-import GleanMetrics from '../../lib/glean';
-import {
-  MOCK_TOTP_TOKEN,
-  MOCK_QUERY_PARAMS,
-  MOCK_SIGNIN_LOCATION_STATE,
-  MOCK_SIGNIN_RECOVERY_LOCATION_STATE,
-} from './mocks';
-import { screen, waitFor } from '@testing-library/react';
-import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
   MOCK_FLOW_ID,
   MOCK_NO_TOTP,
   MOCK_TOTP_STATUS_VERIFIED,
 } from '../Signin/mocks';
+import InlineTotpSetupContainer from './container';
+import {
+  MOCK_QUERY_PARAMS,
+  MOCK_SIGNIN_LOCATION_STATE,
+  MOCK_SIGNIN_RECOVERY_LOCATION_STATE,
+  MOCK_TOTP_TOKEN,
+} from './mocks';
 
 const mockLocationHook = jest.fn();
 const mockNavigateHook = jest.fn();

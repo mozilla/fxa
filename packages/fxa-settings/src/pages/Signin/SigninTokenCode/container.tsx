@@ -2,19 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useMutation } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import SigninTokenCode from '.';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useEffect, useState } from 'react';
+import SigninTokenCode from '.';
+import OAuthDataError from '../../../components/OAuthDataError';
+import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import {
   Integration,
   useAuthClient,
   useSensitiveDataClient,
 } from '../../../models';
 import {
-  useFinishOAuthFlowHandler,
-  useOAuthKeysCheck,
-} from '../../../lib/oauth/hooks';
+  CREDENTIAL_STATUS_MUTATION,
+  GET_ACCOUNT_KEYS_MUTATION,
+  PASSWORD_CHANGE_FINISH_MUTATION,
+  PASSWORD_CHANGE_START_MUTATION,
+} from '../gql';
 import {
   CredentialStatusResponse,
   GetAccountKeysResponse,
@@ -23,17 +34,6 @@ import {
   SigninLocationState,
 } from '../interfaces';
 import { getSigninState } from '../utils';
-import OAuthDataError from '../../../components/OAuthDataError';
-import { useEffect, useState } from 'react';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
-import { useMutation } from '@apollo/client';
-import {
-  CREDENTIAL_STATUS_MUTATION,
-  GET_ACCOUNT_KEYS_MUTATION,
-  PASSWORD_CHANGE_FINISH_MUTATION,
-  PASSWORD_CHANGE_START_MUTATION,
-} from '../gql';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.

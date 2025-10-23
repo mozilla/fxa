@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
+import FlowRecoveryKeyHint from '.';
 import { logViewEvent } from '../../../lib/metrics';
 import { Account, AppContext } from '../../../models';
-import FlowRecoveryKeyHint from '.';
-import { viewName } from '../PageRecoveryKeyCreate';
 import {
-  renderWithRouter,
   MOCK_ACCOUNT,
   mockAppContext,
+  renderWithRouter,
 } from '../../../models/mocks';
+import { viewName } from '../PageRecoveryKeyCreate';
 
 const accountWithSuccess = {
   ...MOCK_ACCOUNT,

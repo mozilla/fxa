@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import RecoveryKeySetupHint, { MAX_HINT_LENGTH } from '.';
+import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
 import { logViewEvent } from '../../lib/metrics';
 import { Account } from '../../models';
-import RecoveryKeySetupHint, { MAX_HINT_LENGTH } from '.';
+import { MOCK_ACCOUNT, renderWithRouter } from '../../models/mocks';
 import { viewName } from '../Settings/PageRecoveryKeyCreate';
-import { renderWithRouter, MOCK_ACCOUNT } from '../../models/mocks';
-import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
-import userEvent from '@testing-library/user-event';
 
 const gqlUnexpectedError: any = AuthUiErrorNos[999];
 

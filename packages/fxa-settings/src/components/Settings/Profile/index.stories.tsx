@@ -2,18 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { LocationProvider } from '@reach/router';
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Profile } from '.';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import {
+  MOCK_PROFILE_ALL,
   MOCK_PROFILE_EMPTY,
   MOCK_PROFILE_UNCONFIRMED_FEATURES,
-  MOCK_PROFILE_ALL,
 } from './mocks';
-import { Meta } from '@storybook/react';
-import { LocationProvider } from '@reach/router';
-import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/Settings/Profile',

@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import ResetPasswordWarning from '.';
 import AppLayout from '../AppLayout';
 import { createMockLocationState } from './mocks';
-import { LocationProvider } from '@reach/router';
 
 export default {
   title: 'Components/ResetPasswordWarning',

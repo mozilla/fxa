@@ -2,25 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { LocationProvider } from '@reach/router';
 import { render } from '@testing-library/react';
-import React from 'react';
-import InlineRecoveryKeySetupContainer from './container';
-import * as InlineRecoveryKeySetupModule from '.';
-import * as ModelsModule from '../../models';
-import * as utils from 'fxa-react/lib/utils';
-import * as CacheModule from '../../lib/cache';
 import AuthClient from 'fxa-auth-client/browser';
+import * as utils from 'fxa-react/lib/utils';
+import * as InlineRecoveryKeySetupModule from '.';
+import * as CacheModule from '../../lib/cache';
+import { SensitiveData } from '../../lib/sensitive-data-client';
+import * as ModelsModule from '../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import {
-  MOCK_SESSION_TOKEN,
-  MOCK_UNWRAP_BKEY,
   MOCK_AUTH_PW,
+  MOCK_SESSION_TOKEN,
   MOCK_STORED_ACCOUNT,
+  MOCK_UNWRAP_BKEY,
 } from '../../pages/mocks';
-import { SensitiveData } from '../../lib/sensitive-data-client';
-import { InlineRecoveryKeySetupProps } from './interfaces';
 import { MOCK_EMAIL } from '../InlineTotpSetup/mocks';
-import { LocationProvider } from '@reach/router';
+import InlineRecoveryKeySetupContainer from './container';
+import { InlineRecoveryKeySetupProps } from './interfaces';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),

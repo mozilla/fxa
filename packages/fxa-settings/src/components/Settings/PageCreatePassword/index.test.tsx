@@ -2,14 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { act, fireEvent, screen } from '@testing-library/react';
+import { PageCreatePassword } from '.';
+import { SETTINGS_PATH } from '../../../constants';
 import {
   logViewEvent,
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { PageCreatePassword } from '.';
+import { LinkedAccountProviderIds } from '../../../lib/types';
 import { Account, AlertBarInfo, AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import {
   mockAppContext,
   mockSettingsContext,
@@ -19,10 +22,6 @@ import {
   inputNewPassword,
   inputVerifyPassword,
 } from '../../FormPassword/index.test';
-import { act, fireEvent, screen } from '@testing-library/react';
-import { SETTINGS_PATH } from '../../../constants';
-import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import { LinkedAccountProviderIds } from '../../../lib/types';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

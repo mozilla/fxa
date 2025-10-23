@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import Avatar from '../Avatar';
-import { useAccount, useAlertBar, useSession } from '../../../models';
-import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
-import { useEscKeydownEffect } from '../../../lib/hooks';
-import { ReactComponent as SignOut } from './sign-out.svg';
-import { logViewEvent, settingsViewName } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
-import firefox from '../../../lib/channels/firefox';
+import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useState } from 'react';
 import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
+import firefox from '../../../lib/channels/firefox';
+import { useEscKeydownEffect } from '../../../lib/hooks';
+import { logViewEvent, settingsViewName } from '../../../lib/metrics';
+import { useAccount, useAlertBar, useSession } from '../../../models';
+import Avatar from '../Avatar';
+import { ReactComponent as SignOut } from './sign-out.svg';
 
 export const DropDownAvatarMenu = () => {
   const { displayName, primaryEmail, avatar, uid } = useAccount();

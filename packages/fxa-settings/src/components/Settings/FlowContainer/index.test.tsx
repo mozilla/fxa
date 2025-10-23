@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
-import FlowContainer from './index';
 import { renderWithRouter } from '../../../models/mocks';
+import FlowContainer from './index';
 
 it('renders', async () => {
   renderWithRouter(<FlowContainer />);

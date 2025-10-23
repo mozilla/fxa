@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
-import { FlowContainer } from '../FlowContainer';
-import { ProgressBar } from '../ProgressBar';
-import { RecoveryKeyImage } from '../../images';
-import { ShieldIconListItem, KeyIconListItem } from '../../IconListItem';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { logViewEvent } from '../../../lib/metrics';
-import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 import { Link } from '@reach/router';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useEffect } from 'react';
 import { SETTINGS_PATH } from '../../../constants';
+import { logViewEvent } from '../../../lib/metrics';
+import { KeyIconListItem, ShieldIconListItem } from '../../IconListItem';
+import { RecoveryKeyImage } from '../../images';
+import { FlowContainer } from '../FlowContainer';
+import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
+import { ProgressBar } from '../ProgressBar';
 
 export type FlowRecoveryKeyInfoProps = {
   action?: RecoveryKeyAction;

@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { useAuthClient } from '../../../models';
-import SigninPushCodeConfirm from './index';
-import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
-import { PushSigninQueryParams } from '../../../models/pages/signin/push-signin-query-params';
+import { useState } from 'react';
 import { FtlMsg } from '../../../../../fxa-react/lib/utils';
 import { sessionToken } from '../../../lib/cache';
+import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
+import { useAuthClient } from '../../../models';
+import { PushSigninQueryParams } from '../../../models/pages/signin/push-signin-query-params';
+import SigninPushCodeConfirm from './index';
 
 export const SigninPushCodeConfirmContainer = (props: RouteComponentProps) => {
   const authClient = useAuthClient();

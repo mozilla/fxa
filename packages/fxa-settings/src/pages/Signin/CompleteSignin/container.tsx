@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
-import { CompleteSigninQueryParams } from '../../../models/pages/signin';
+import { useEffect, useState } from 'react';
+import CompleteSignin from '.';
 import { SigninLinkDamaged } from '../../../components/LinkDamaged';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { LinkExpired } from '../../../components/LinkExpired';
 import {
   AuthUiErrorNos,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
-import { LinkExpired } from '../../../components/LinkExpired';
-import CompleteSignin from '.';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
+import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { CompleteSigninQueryParams } from '../../../models/pages/signin';
 
 export const viewName = 'complete-signin';
 

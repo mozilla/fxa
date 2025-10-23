@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen } from '@testing-library/react';
 import { MOCK_ACCOUNT, renderWithRouter } from '../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import ConnectAnotherDevice, { Devices, viewName } from '.';
+import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
 import { usePageViewEvent } from '../../lib/metrics';
 import {
   MOCK_BASIC_PROPS,
-  MOCK_DEVICE_BASIC_PROPS,
   MOCK_DEFAULTS,
+  MOCK_DEVICE_BASIC_PROPS,
 } from './mocks';
-import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

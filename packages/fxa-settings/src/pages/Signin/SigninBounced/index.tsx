@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
 import { RouteComponentProps /*useNavigate*/ } from '@reach/router';
-import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
-import { ReactComponent as EmailBounced } from './graphic_email_bounced.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models/hooks';
+import React, { useEffect } from 'react';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { useFtlMsgResolver } from '../../../models/hooks';
+import { ReactComponent as EmailBounced } from './graphic_email_bounced.svg';
 
-import AppLayout from '../../../components/AppLayout';
-import { REACT_ENTRYPOINT } from '../../../constants';
-import CardHeader from '../../../components/CardHeader';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import AppLayout from '../../../components/AppLayout';
+import CardHeader from '../../../components/CardHeader';
+import { REACT_ENTRYPOINT } from '../../../constants';
 
 export type SigninBouncedProps = {
   email?: string;

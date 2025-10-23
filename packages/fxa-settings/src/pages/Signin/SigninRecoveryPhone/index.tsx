@@ -2,27 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
-import AppLayout from '../../../components/AppLayout';
-import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { RouteComponentProps } from '@reach/router';
-import { useFtlMsgResolver } from '../../../models';
-import { FtlMsg, FtlMsgResolver } from 'fxa-react/lib/utils';
-import { BackupRecoveryPhoneCodeImage } from '../../../components/images';
-import Banner from '../../../components/Banner';
-import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { FtlMsg, FtlMsgResolver } from 'fxa-react/lib/utils';
+import { useEffect, useState } from 'react';
+import AppLayout from '../../../components/AppLayout';
+import Banner from '../../../components/Banner';
+import { BannerLinkProps } from '../../../components/Banner/interfaces';
 import ButtonBack from '../../../components/ButtonBack';
-import {
-  getLocalizedErrorMessage,
-  HandledError,
-} from '../../../lib/error-utils';
+import FormVerifyTotp from '../../../components/FormVerifyTotp';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import { BackupRecoveryPhoneCodeImage } from '../../../components/images';
 import {
   AuthUiError,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
+import {
+  getLocalizedErrorMessage,
+  HandledError,
+} from '../../../lib/error-utils';
+import { useFtlMsgResolver } from '../../../models';
 import { SigninRecoveryPhoneProps } from './interfaces';
-import { BannerLinkProps } from '../../../components/Banner/interfaces';
 
 // Reusable function for error banner heading/description
 function getSendCodeErrorBanner(

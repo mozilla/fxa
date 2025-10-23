@@ -2,34 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useRef, useState } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
-import Security from '../Security';
-import { Profile } from '../Profile';
+import { useEffect, useRef, useState } from 'react';
 import ConnectedServices from '../ConnectedServices';
 import LinkedAccounts from '../LinkedAccounts';
+import { Profile } from '../Profile';
+import Security from '../Security';
 
-import * as Metrics from '../../../lib/metrics';
-import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
-import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import { Localized } from '@fluent/react';
-import DataCollection from '../DataCollection';
+import Head from 'fxa-react/components/Head';
+import { SETTINGS_PATH } from 'fxa-settings/src/constants';
 import GleanMetrics from '../../../lib/glean';
+import * as Metrics from '../../../lib/metrics';
+import {
+  isRecoveryKeyPromoDismissed,
+  isRecoveryPhonePromoDismissed,
+} from '../../../lib/promo-dismissal';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
+import {
+  AccountRecoveryKeyPromoBanner,
+  RecoveryPhonePromoBanner,
+} from '../../PromotionBanner';
+import DataCollection from '../DataCollection';
+import { SettingsIntegration } from '../interfaces';
 import ProductPromo, {
   getProductPromoData,
   MonitorPromoData,
 } from '../ProductPromo';
 import SideBar from '../Sidebar';
-import Head from 'fxa-react/components/Head';
-import { SettingsIntegration } from '../interfaces';
-import {
-  AccountRecoveryKeyPromoBanner,
-  RecoveryPhonePromoBanner,
-} from '../../PromotionBanner';
-import {
-  isRecoveryKeyPromoDismissed,
-  isRecoveryPhonePromoDismissed,
-} from '../../../lib/promo-dismissal';
 
 export const PageSettings = ({
   integration,

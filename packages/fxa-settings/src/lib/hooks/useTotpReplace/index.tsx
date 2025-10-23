@@ -5,8 +5,8 @@
 import { useEffect, useState } from 'react';
 import { useErrorHandler } from 'react-error-boundary';
 import { useAccount, useSession } from '../../../models';
-import { TotpInfo } from '../../types';
 import { isInvalidJwtError } from '../../mfa-guard-utils';
+import { TotpInfo } from '../../types';
 
 export const useTotpReplace = () => {
   const account = useAccount();

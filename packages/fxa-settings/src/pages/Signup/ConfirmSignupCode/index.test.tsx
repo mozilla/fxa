@@ -2,42 +2,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import userEvent from '@testing-library/user-event';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { Session, AppContext } from '../../../models';
-import { mockAppContext, mockSession } from '../../../models/mocks';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import firefox from '../../../lib/channels/firefox';
+import GleanMetrics from '../../../lib/glean';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { OAUTH_ERRORS } from '../../../lib/oauth';
 import {
-  MOCK_AUTH_ERROR,
-  MOCK_SIGNUP_CODE,
-  Subject,
-  createMockOAuthNativeIntegration,
-  createMockOAuthWebIntegration,
-  createMockWebIntegration,
-  MOCK_AUTH_ERROR_INVALID_CODE,
-  MOCK_AUTH_ERROR_RATE_LIMIT,
-} from './mocks';
+  FinishOAuthFlowHandler,
+  tryAgainError,
+} from '../../../lib/oauth/hooks';
+import { AppContext, Session } from '../../../models';
+import { mockAppContext, mockSession } from '../../../models/mocks';
 import {
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
   MOCK_STORED_ACCOUNT,
   mockFinishOAuthFlowHandler,
 } from '../../mocks';
-import GleanMetrics from '../../../lib/glean';
-import { ConfirmSignupCodeIntegration } from './interfaces';
-import * as ReactUtils from 'fxa-react/lib/utils';
-import {
-  FinishOAuthFlowHandler,
-  tryAgainError,
-} from '../../../lib/oauth/hooks';
-import { OAUTH_ERRORS } from '../../../lib/oauth';
-import firefox from '../../../lib/channels/firefox';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { mockWebIntegration } from '../../Signin/SigninRecoveryCode/mocks';
-import userEvent from '@testing-library/user-event';
+import { ConfirmSignupCodeIntegration } from './interfaces';
+import {
+  createMockOAuthNativeIntegration,
+  createMockOAuthWebIntegration,
+  createMockWebIntegration,
+  MOCK_AUTH_ERROR,
+  MOCK_AUTH_ERROR_INVALID_CODE,
+  MOCK_AUTH_ERROR_RATE_LIMIT,
+  MOCK_SIGNUP_CODE,
+  Subject,
+} from './mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

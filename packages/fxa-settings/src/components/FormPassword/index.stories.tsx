@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { Subject } from './mocks';
 import { LocationProvider } from '@reach/router';
-import FormPassword from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
+import FormPassword from '.';
 import SettingsLayout from '../Settings/SettingsLayout';
+import { Subject } from './mocks';
 
 export default {
   title: 'Components/FormPassword',

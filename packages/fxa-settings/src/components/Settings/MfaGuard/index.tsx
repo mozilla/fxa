@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, {
+import {
   ReactNode,
   useCallback,
   useEffect,
@@ -11,6 +11,16 @@ import React, {
 } from 'react';
 import { useErrorHandler } from 'react-error-boundary';
 
+import { useNavigate } from '@reach/router';
+import * as Sentry from '@sentry/react';
+import {
+  JwtTokenCache,
+  MfaOtpRequestCache,
+  sessionToken as getSessionToken,
+} from '../../../lib/cache';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { MfaReason, MfaScope } from '../../../lib/types';
 import {
   useAccount,
   useAlertBar,
@@ -19,17 +29,7 @@ import {
   useFtlMsgResolver,
 } from '../../../models';
 import Modal from '../ModalMfaProtected';
-import {
-  JwtTokenCache,
-  MfaOtpRequestCache,
-  sessionToken as getSessionToken,
-} from '../../../lib/cache';
-import { MfaReason, MfaScope } from '../../../lib/types';
-import { useNavigate } from '@reach/router';
-import * as Sentry from '@sentry/react';
 import { MfaErrorBoundary } from './error-boundary';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import GleanMetrics from '../../../lib/glean';
 
 /**
  * This is a guard component designed to wrap around components that perform

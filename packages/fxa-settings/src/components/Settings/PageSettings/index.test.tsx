@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import PageSettings from '.';
+import { Constants } from '../../../lib/constants';
+import GleanMetrics from '../../../lib/glean';
+import * as Metrics from '../../../lib/metrics';
+import { AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import {
   mockAppContext,
   mockSettingsContext,
   renderWithRouter,
 } from '../../../models/mocks';
-import * as Metrics from '../../../lib/metrics';
-import GleanMetrics from '../../../lib/glean';
-import { AppContext } from '../../../models';
 import { mockWebIntegration } from '../../../pages/Signin/SigninRecoveryCode/mocks';
-import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import { Constants } from '../../../lib/constants';
 import {
   accountEligibleForRecoveryKey,
   accountEligibleForRecoveryPhoneAndKey,

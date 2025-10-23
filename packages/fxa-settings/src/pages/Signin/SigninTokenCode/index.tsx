@@ -2,29 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useCallback, useEffect, useState } from 'react';
+import AppLayout from '../../../components/AppLayout';
+import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+import CardHeader from '../../../components/CardHeader';
+import FormVerifyCode, {
+  FormAttributes,
+} from '../../../components/FormVerifyCode';
+import { EmailCodeImage } from '../../../components/images';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { usePageViewEvent } from '../../../lib/metrics';
 import {
   isWebIntegration,
   useFtlMsgResolver,
   useSession,
 } from '../../../models';
-import { usePageViewEvent } from '../../../lib/metrics';
-import { EmailCodeImage } from '../../../components/images';
-import FormVerifyCode, {
-  FormAttributes,
-} from '../../../components/FormVerifyCode';
-import { REACT_ENTRYPOINT } from '../../../constants';
-import CardHeader from '../../../components/CardHeader';
-import GleanMetrics from '../../../lib/glean';
-import AppLayout from '../../../components/AppLayout';
-import { SigninTokenCodeProps } from './interfaces';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { handleNavigation } from '../utils';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
-import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+import { SigninTokenCodeProps } from './interfaces';
 
 export const viewName = 'signin-token-code';
 

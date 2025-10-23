@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useRef } from 'react';
+import { Localized } from '@fluent/react';
 import classNames from 'classnames';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import { ReactComponent as OpenExternal } from './open-external.svg';
+import React, { useEffect, useRef } from 'react';
 import { useAccount, useConfig } from '../../../models';
-import { Localized } from '@fluent/react';
+import { ReactComponent as OpenExternal } from './open-external.svg';
 
 export interface NavRefProps {
   profileRef?: React.MutableRefObject<HTMLDivElement | null>;

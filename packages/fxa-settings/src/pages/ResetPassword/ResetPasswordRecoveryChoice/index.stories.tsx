@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { Meta } from '@storybook/react';
-import ResetPasswordRecoveryChoice from '.';
-import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
+import ResetPasswordRecoveryChoice from '.';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { MOCK_MASKED_PHONE_NUMBER_WITH_COPY } from '../../mocks';
 

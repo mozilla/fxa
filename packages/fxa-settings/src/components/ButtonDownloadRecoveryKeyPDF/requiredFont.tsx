@@ -2,33 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import notoSansBold from './fonts/NotoSans-Bold.ttf';
 import notoSansRegular from './fonts/NotoSans-Regular.ttf';
 import notoSansSemibold from './fonts/NotoSans-SemiBold.ttf';
-import notoSansBold from './fonts/NotoSans-Bold.ttf';
+import notoSansGeorgianBold from './fonts/NotoSansGeorgian-Bold.ttf';
 import notoSansGeorgianRegular from './fonts/NotoSansGeorgian-Regular.ttf';
 import notoSansGeorgianSemibold from './fonts/NotoSansGeorgian-SemiBold.ttf';
-import notoSansGeorgianBold from './fonts/NotoSansGeorgian-Bold.ttf';
-import notoSerifGurmukhiRegular from './fonts/NotoSerifGurmukhi-Regular.ttf';
-import notoSerifGurmukhiSemibold from './fonts/NotoSerifGurmukhi-SemiBold.ttf';
-import notoSerifGurmukhiBold from './fonts/NotoSerifGurmukhi-Bold.ttf';
+import notoSansHebrewBold from './fonts/NotoSansHebrew-Bold.ttf';
 import notoSansHebrewRegular from './fonts/NotoSansHebrew-Regular.ttf';
 import notoSansHebrewSemibold from './fonts/NotoSansHebrew-SemiBold.ttf';
-import notoSansHebrewBold from './fonts/NotoSansHebrew-Bold.ttf';
+import notoSansJPBold from './fonts/NotoSansJP-Bold.ttf';
 import notoSansJPRegular from './fonts/NotoSansJP-Regular.ttf';
 import notoSansJPSemibold from './fonts/NotoSansJP-SemiBold.ttf';
-import notoSansJPBold from './fonts/NotoSansJP-Bold.ttf';
-import notoSansKRRegular from './fonts/NotoSansKR-Regular.otf';
-import notoSansKRSemibold from './fonts/NotoSansKR-Medium.otf';
 import notoSansKRBold from './fonts/NotoSansKR-Bold.otf';
-import notoSansSCRegular from './fonts/NotoSansSC-Regular.otf';
-import notoSansSCMedium from './fonts/NotoSansSC-Medium.otf';
+import notoSansKRSemibold from './fonts/NotoSansKR-Medium.otf';
+import notoSansKRRegular from './fonts/NotoSansKR-Regular.otf';
 import notoSansSCBold from './fonts/NotoSansSC-Bold.otf';
+import notoSansSCMedium from './fonts/NotoSansSC-Medium.otf';
+import notoSansSCRegular from './fonts/NotoSansSC-Regular.otf';
+import notoSansTCBold from './fonts/NotoSansTC-Bold.otf';
+import notoSansTCMedium from './fonts/NotoSansTC-Medium.otf';
+import notoSansTCRegular from './fonts/NotoSansTC-Regular.otf';
+import notoSansThaiBold from './fonts/NotoSansThai-Bold.ttf';
 import notoSansThaiRegular from './fonts/NotoSansThai-Regular.ttf';
 import notoSansThaiSemibold from './fonts/NotoSansThai-SemiBold.ttf';
-import notoSansThaiBold from './fonts/NotoSansThai-Bold.ttf';
-import notoSansTCRegular from './fonts/NotoSansTC-Regular.otf';
-import notoSansTCMedium from './fonts/NotoSansTC-Medium.otf';
-import notoSansTCBold from './fonts/NotoSansTC-Bold.otf';
+import notoSerifGurmukhiBold from './fonts/NotoSerifGurmukhi-Bold.ttf';
+import notoSerifGurmukhiRegular from './fonts/NotoSerifGurmukhi-Regular.ttf';
+import notoSerifGurmukhiSemibold from './fonts/NotoSerifGurmukhi-SemiBold.ttf';
 
 export interface FontSource {
   src: string;

@@ -4,21 +4,22 @@
 
 import { LocationProvider } from '@reach/router';
 import Signup from '.';
+import { mockUseSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
 import { MozServices } from '../../lib/types';
 import {
   IntegrationType,
-  RelierCmsInfo,
   OAuthNativeServices,
+  RelierCmsInfo,
 } from '../../models/integrations';
 import {
+  MOCK_AUTH_AT,
+  MOCK_CLIENT_ID,
+  MOCK_EMAIL,
+  MOCK_KEY_FETCH_TOKEN,
   MOCK_REDIRECT_URI,
+  MOCK_SESSION_TOKEN,
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
-  MOCK_AUTH_AT,
-  MOCK_KEY_FETCH_TOKEN,
-  MOCK_SESSION_TOKEN,
-  MOCK_EMAIL,
-  MOCK_CLIENT_ID,
   mockGetWebChannelServices,
 } from '../mocks';
 import {
@@ -27,7 +28,6 @@ import {
   SignupIntegration,
   SignupOAuthIntegration,
 } from './interfaces';
-import { mockUseSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
 
 export function createMockSignupWebIntegration(): SignupBaseIntegration {
   return {

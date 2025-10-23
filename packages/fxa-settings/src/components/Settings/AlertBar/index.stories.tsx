@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
-import { AlertBar } from './index';
-import { alertContent, alertType, alertVisible } from '../../../models';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { alertContent, alertType, alertVisible } from '../../../models';
+import { AlertBar } from './index';
 
 export default {
   title: 'Components/AlertBar',

@@ -4,9 +4,9 @@
 
 import { act, fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { Subject } from './mocks';
-import { Constants } from '../../lib/constants';
 import * as ReactUtils from '../../../../fxa-react/lib/utils';
+import { Constants } from '../../lib/constants';
+import { Subject } from './mocks';
 
 function mockReactUtilsModule() {
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});

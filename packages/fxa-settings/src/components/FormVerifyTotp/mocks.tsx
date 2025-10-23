@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
-import AppLayout from '../AppLayout';
+import { useCallback, useState } from 'react';
 import FormVerifyTotp from '.';
+import AppLayout from '../AppLayout';
 import { FormVerifyTotpProps } from './interfaces';
 
 export const Subject = ({

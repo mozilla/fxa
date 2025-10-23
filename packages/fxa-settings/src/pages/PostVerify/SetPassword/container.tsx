@@ -3,27 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation } from '@reach/router';
-import SetPassword from '.';
-import { currentAccount } from '../../../lib/cache';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { Integration, useAuthClient } from '../../../models';
-import { cache } from '../../../lib/cache';
 import { useCallback } from 'react';
-import { CreatePasswordHandler } from './interfaces';
-import { HandledError } from '../../../lib/error-utils';
+import SetPassword from '.';
+import { QueryParams } from '../../..';
+import OAuthDataError from '../../../components/OAuthDataError';
 import {
   AuthUiErrorNos,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
+import { cache, currentAccount } from '../../../lib/cache';
+import { HandledError } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import useSyncEngines from '../../../lib/hooks/useSyncEngines';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import OAuthDataError from '../../../components/OAuthDataError';
+import { Integration, useAuthClient } from '../../../models';
 import { NavigationOptions } from '../../Signin/interfaces';
 import { handleNavigation } from '../../Signin/utils';
-import GleanMetrics from '../../../lib/glean';
-import { QueryParams } from '../../..';
-import { queryParamsToMetricsContext } from '../../../lib/metrics';
-import useSyncEngines from '../../../lib/hooks/useSyncEngines';
+import { CreatePasswordHandler } from './interfaces';
 
 const SetPasswordContainer = ({
   integration,

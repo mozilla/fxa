@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { InMemoryCache, gql } from '@apollo/client';
-import Storage from './storage';
-import { Email } from '../models';
-import { searchParam } from '../lib/utilities';
-import config from './config';
-import { StoredAccountData } from './storage-utils';
-import { v4 as uuid } from 'uuid';
 import * as Sentry from '@sentry/browser';
+import { v4 as uuid } from 'uuid';
+import { searchParam } from '../lib/utilities';
+import { Email } from '../models';
+import config from './config';
 import { Constants } from './constants';
+import Storage from './storage';
+import { StoredAccountData } from './storage-utils';
 import { MfaScope } from './types';
 
 const storage = Storage.factory('localStorage');

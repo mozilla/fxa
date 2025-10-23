@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import GleanMetrics from '../../../lib/glean';
 
@@ -10,16 +10,16 @@ import AppLayout from '../../../components/AppLayout';
 import FormPasswordWithInlineCriteria from '../../../components/FormPasswordWithInlineCriteria';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 
+import { Link, useLocation } from '@reach/router';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import Banner from '../../../components/Banner';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import ResetPasswordWarning from '../../../components/ResetPasswordWarning';
+import { useFtlMsgResolver } from '../../../models';
 import {
   CompleteResetPasswordFormData,
   CompleteResetPasswordProps,
 } from './interfaces';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import ResetPasswordWarning from '../../../components/ResetPasswordWarning';
-import { Link, useLocation } from '@reach/router';
-import Banner from '../../../components/Banner';
-import { HeadingPrimary } from '../../../components/HeadingPrimary';
-import { useFtlMsgResolver } from '../../../models';
 
 const CompleteResetPassword = ({
   email,

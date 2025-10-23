@@ -2,25 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { ImageProps, PreparedImage } from '../PreparedImage';
+import { ReactComponent as BackupAuthenticationCodes } from './graphic_authentication_codes.min.svg';
+import { ReactComponent as BackupCodes } from './graphic_backup_codes.min.svg';
+import { ReactComponent as BackupRecoveryPhone } from './graphic_backup_recovery_phone.min.svg';
+import { ReactComponent as FallingConfetti } from './graphic_celebrate_confetti.svg';
+import { ReactComponent as EmailCode } from './graphic_email_code.min.svg';
 import { ReactComponent as HeartsBroken } from './graphic_hearts_broken.svg';
 import { ReactComponent as HeartsVerified } from './graphic_hearts_verified.svg';
-import { ReactComponent as BackupCodes } from './graphic_backup_codes.min.svg';
-import { ReactComponent as TwoFactorAuth } from './graphic_two_factor_auth.svg';
-import { ReactComponent as PushFactorAuth } from './graphic_push_factor_auth.svg';
 import { ReactComponent as Mail } from './graphic_mail.svg';
-import { ReactComponent as Key } from './graphic_recovery_key.min.svg';
 import { ReactComponent as Password } from './graphic_password.min.svg';
-import { ReactComponent as Lightbulb } from './graphic_recovery_key_hint.min.svg';
-import { ReactComponent as EmailCode } from './graphic_email_code.min.svg';
 import { ReactComponent as PasswordSuccess } from './graphic_password_success.min.svg';
-import { ReactComponent as BackupRecoveryPhone } from './graphic_backup_recovery_phone.min.svg';
 import { ReactComponent as BackupRecoveryPhoneCode } from './graphic_phone_code.min.svg';
 import { ReactComponent as BackupRecoveryPhoneSms } from './graphic_phone_sms.min.svg';
-import { ReactComponent as BackupAuthenticationCodes } from './graphic_authentication_codes.min.svg';
+import { ReactComponent as PushFactorAuth } from './graphic_push_factor_auth.svg';
+import { ReactComponent as Key } from './graphic_recovery_key.min.svg';
+import { ReactComponent as Lightbulb } from './graphic_recovery_key_hint.min.svg';
 import { ReactComponent as SyncClouds } from './graphic_sync_clouds.min.svg';
-import { ReactComponent as FallingConfetti } from './graphic_celebrate_confetti.svg';
+import { ReactComponent as TwoFactorAuth } from './graphic_two_factor_auth.svg';
 
 export const HeartsBrokenImage = ({ className, ariaHidden }: ImageProps) => (
   <PreparedImage
@@ -178,9 +177,7 @@ export const SyncCloudsImage = ({ className, ariaHidden }: ImageProps) => (
   />
 );
 
-export const FallingConfettiImage = ({
-  ariaHidden,
-}: ImageProps) => (
+export const FallingConfettiImage = ({ ariaHidden }: ImageProps) => (
   <PreparedImage
     className="h-screen w-screen absolute top-0 left-0 pointer-events-none"
     ariaLabel="Animated falling confetti"

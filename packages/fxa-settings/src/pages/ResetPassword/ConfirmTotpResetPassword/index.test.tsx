@@ -4,11 +4,10 @@
 
 // TODO in FXA-7890 import tests from previous design and update
 
-import React from 'react';
-import { Subject } from './mocks';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { Subject } from './mocks';
 
 jest.mock('fxa-react/lib/utils', () => ({
   ...jest.requireActual('fxa-react/lib/utils'),

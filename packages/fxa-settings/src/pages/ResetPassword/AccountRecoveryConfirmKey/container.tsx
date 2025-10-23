@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import base32Decode from 'base32-decode';
+import { useState } from 'react';
 
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
 import { useAccount } from '../../../models';
@@ -16,8 +16,8 @@ import {
 import { AccountRecoveryConfirmKeyLocationState } from './interfaces';
 
 import AccountRecoveryConfirmKey from '.';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 const AccountRecoveryConfirmKeyContainer = (_: RouteComponentProps) => {

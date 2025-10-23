@@ -4,7 +4,7 @@
 
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { interpolate, getLocalizedErrorMessage } from '../../lib/error-utils';
+import { getLocalizedErrorMessage, interpolate } from '../../lib/error-utils';
 import { AuthError } from '../../lib/oauth';
 
 export function getLocalizedEmailValidationErrorMessage(

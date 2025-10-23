@@ -2,26 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as SigninTokenCodeModule from '.';
 import * as ReactUtils from 'fxa-react/lib/utils';
+import * as SigninTokenCodeModule from '.';
 import * as CacheModule from '../../../lib/cache';
 
-import { SigninTokenCodeProps } from './interfaces';
-import { Integration, useSensitiveDataClient } from '../../../models';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import { LocationProvider } from '@reach/router';
-import SigninTokenCodeContainer from './container';
 import { screen, waitFor } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { createMockWebIntegration } from '../../../lib/integrations/mocks';
+import { Integration, useSensitiveDataClient } from '../../../models';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import {
   MOCK_EMAIL,
   MOCK_KEY_FETCH_TOKEN,
   MOCK_STORED_ACCOUNT,
   MOCK_UNWRAP_BKEY,
 } from '../../mocks';
-import { createMockWebIntegration } from '../../../lib/integrations/mocks';
+import SigninTokenCodeContainer from './container';
+import { SigninTokenCodeProps } from './interfaces';
 import { createMockSigninLocationState } from './mocks';
-import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
-import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 
 let integration: Integration;
 const mockSensitiveDataClient = createMockSensitiveDataClient();

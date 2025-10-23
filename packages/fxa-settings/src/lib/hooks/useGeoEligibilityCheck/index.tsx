@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useState, useEffect, useRef } from 'react';
-import { sessionToken } from '../../cache';
+import { useEffect, useRef, useState } from 'react';
 import { useAuthClient } from '../../../models';
+import { sessionToken } from '../../cache';
 
 const featureEligibilityCache = new Map<string, boolean>();
 

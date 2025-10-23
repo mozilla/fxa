@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
-import { RouteComponentProps, Link, navigate } from '@reach/router';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
-import { HeartsVerifiedImage } from '../../components/images';
+import { Link, navigate, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useEffect } from 'react';
 import Banner from '../../components/Banner';
+import { HeartsVerifiedImage } from '../../components/images';
+import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../constants';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { useFtlMsgResolver } from '../../models';
 
 export type ConnectAnotherDeviceProps = {

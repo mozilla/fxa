@@ -2,34 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
+import classNames from 'classnames';
+import LinkExternal from 'fxa-react/components/LinkExternal';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import AppLayout from '../../../components/AppLayout';
+import Banner from '../../../components/Banner';
+import ButtonBack from '../../../components/ButtonBack';
+import FormVerifyCode, {
+  FormAttributes,
+  InputModeEnum,
+} from '../../../components/FormVerifyCode';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import { BackupCodesImage } from '../../../components/images';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { storeAccountData } from '../../../lib/storage-utils';
+import { isBase32Crockford } from '../../../lib/utilities';
 import {
   AppContext,
   isWebIntegration,
   useFtlMsgResolver,
 } from '../../../models';
-import { BackupCodesImage } from '../../../components/images';
-import LinkExternal from 'fxa-react/components/LinkExternal';
-import FormVerifyCode, {
-  FormAttributes,
-  InputModeEnum,
-} from '../../../components/FormVerifyCode';
-import GleanMetrics from '../../../lib/glean';
-import AppLayout from '../../../components/AppLayout';
-import { SigninRecoveryCodeProps } from './interfaces';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { storeAccountData } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
-import { isBase32Crockford } from '../../../lib/utilities';
-import Banner from '../../../components/Banner';
-import { HeadingPrimary } from '../../../components/HeadingPrimary';
-import ButtonBack from '../../../components/ButtonBack';
-import classNames from 'classnames';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import { SigninRecoveryCodeProps } from './interfaces';
 
 export const viewName = 'signin-recovery-code';
 

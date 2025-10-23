@@ -2,29 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect } from 'react';
 import * as Sentry from '@sentry/browser';
-import { useErrorHandler } from 'react-error-boundary';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import Modal from '../Modal';
-import UnitRow, { UnitRowProps } from '../UnitRow';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useCallback, useEffect } from 'react';
+import { useErrorHandler } from 'react-error-boundary';
+import { SETTINGS_PATH } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
+import { MfaReason, RecoveryPhoneSetupReason } from '../../../lib/types';
 import {
   useAccount,
   useAlertBar,
   useFtlMsgResolver,
   useSession,
 } from '../../../models';
-import { SETTINGS_PATH } from '../../../constants';
-import GleanMetrics from '../../../lib/glean';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
-import { RecoveryPhoneSetupReason, MfaReason } from '../../../lib/types';
 import { MfaGuard } from '../MfaGuard';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import Modal from '../Modal';
+import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
+import UnitRow, { UnitRowProps } from '../UnitRow';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;

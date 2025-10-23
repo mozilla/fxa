@@ -5,16 +5,16 @@
 import AuthClient from 'fxa-auth-client/browser';
 import { useCallback } from 'react';
 import {
-  OAuthIntegration,
-  isOAuthNativeIntegrationSync,
-  isOAuthIntegration,
-  isSyncDesktopV3Integration,
   Integration,
+  OAuthIntegration,
+  isOAuthIntegration,
+  isOAuthNativeIntegrationSync,
+  isSyncDesktopV3Integration,
 } from '../../models';
-import { createEncryptedBundle } from '../crypto/scoped-keys';
-import { Constants } from '../constants';
-import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
 import { AuthUiErrors } from '../auth-errors/auth-errors';
+import { Constants } from '../constants';
+import { createEncryptedBundle } from '../crypto/scoped-keys';
+import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
 
 export type OAuthData = {
   code: string;

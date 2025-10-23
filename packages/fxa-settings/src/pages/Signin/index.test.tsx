@@ -2,28 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import {
+  act,
   fireEvent,
   screen,
   waitFor,
-  act,
   within,
 } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
+import { navigate } from '@reach/router';
+import userEvent, { UserEvent } from '@testing-library/user-event';
+import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
+import * as utils from 'fxa-react/lib/utils';
+import VerificationMethods from '../../constants/verification-methods';
+import VerificationReasons from '../../constants/verification-reasons';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import firefox from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
+import { SensitiveData } from '../../lib/sensitive-data-client';
+import { MozServices } from '../../lib/types';
 import {
-  CACHED_SIGNIN_HANDLER_RESPONSE,
-  createBeginSigninResponse,
-  createBeginSigninResponseError,
-  createCachedSigninResponseError,
-  createMockSigninWebIntegration,
-  createMockSigninOAuthIntegration,
-  createMockSigninOAuthNativeIntegration,
-  createMockSigninOAuthNativeSyncIntegration,
-  Subject,
-} from './mocks';
+  IntegrationType,
+  OAuthNativeServices,
+  RelierCmsInfo,
+} from '../../models';
+import {
+  MONITOR_CLIENTIDS,
+  POCKET_CLIENTIDS,
+} from '../../models/integrations/client-matching';
 import {
   MOCK_CMS_INFO,
   MOCK_EMAIL,
@@ -34,27 +41,19 @@ import {
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
 } from '../mocks';
-import { MozServices } from '../../lib/types';
-import * as utils from 'fxa-react/lib/utils';
-import VerificationMethods from '../../constants/verification-methods';
-import VerificationReasons from '../../constants/verification-reasons';
 import { SigninProps } from './interfaces';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
-  MONITOR_CLIENTIDS,
-  POCKET_CLIENTIDS,
-} from '../../models/integrations/client-matching';
-import firefox from '../../lib/channels/firefox';
-import { navigate } from '@reach/router';
-import {
-  IntegrationType,
-  OAuthNativeServices,
-  RelierCmsInfo,
-} from '../../models';
-import { SensitiveData } from '../../lib/sensitive-data-client';
-import userEvent, { UserEvent } from '@testing-library/user-event';
+  CACHED_SIGNIN_HANDLER_RESPONSE,
+  createBeginSigninResponse,
+  createBeginSigninResponseError,
+  createCachedSigninResponseError,
+  createMockSigninOAuthIntegration,
+  createMockSigninOAuthNativeIntegration,
+  createMockSigninOAuthNativeSyncIntegration,
+  createMockSigninWebIntegration,
+  Subject,
+} from './mocks';
 import * as SigninUtils from './utils';
-import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';

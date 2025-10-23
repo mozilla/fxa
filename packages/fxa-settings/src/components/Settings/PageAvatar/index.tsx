@@ -2,27 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Localized, useLocalization } from '@fluent/react';
-import Webcam from 'react-webcam';
-import Cropper, { Area } from 'react-easy-crop';
 import { Slider } from '@material-ui/core';
+import { RouteComponentProps } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
+import Cropper, { Area } from 'react-easy-crop';
+import Webcam from 'react-webcam';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 import 'react-easy-crop/react-easy-crop.css';
 
-import { isMobileDevice } from '../../../lib/utilities';
-import { useAccount, useAlertBar } from '../../../models';
 import { SETTINGS_PATH } from '../../../constants';
-import { onFileChange } from '../../../lib/file-utils';
 import { getCroppedImg } from '../../../lib/canvas-utils';
+import { onFileChange } from '../../../lib/file-utils';
 import {
   logViewEvent,
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
+import { isMobileDevice } from '../../../lib/utilities';
+import { useAccount, useAlertBar } from '../../../models';
 
 import Avatar from '../Avatar';
 import FlowContainer from '../FlowContainer';

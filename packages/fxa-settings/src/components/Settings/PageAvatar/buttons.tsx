@@ -4,18 +4,18 @@
 
 import React, { useCallback, useRef } from 'react';
 
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Localized, useLocalization } from '@fluent/react';
-import { useAccount, useAlertBar } from '../../../models';
 import { SETTINGS_PATH } from '../../../constants';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useAccount, useAlertBar } from '../../../models';
 import ButtonIcon from '../ButtonIcon';
 
 import { ReactComponent as AddIcon } from './add.svg';
 import { ReactComponent as CameraIcon } from './camera.svg';
 import { ReactComponent as RemoveIcon } from './remove.svg';
-import { ReactComponent as ZoomOutIcon } from './zoom-out.svg';
-import { ReactComponent as ZoomInIcon } from './zoom-in.svg';
 import { ReactComponent as RotateIcon } from './rotate.svg';
+import { ReactComponent as ZoomInIcon } from './zoom-in.svg';
+import { ReactComponent as ZoomOutIcon } from './zoom-out.svg';
 
 const buttonClass = `mx-2 text-grey-500
 hover:text-grey-900

@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { Subject } from './mocks';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { navigate } from '@reach/router';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { fetchLegalMd } from '../../lib/file-utils-legal';
-import { navigate } from '@reach/router';
+import { Subject } from './mocks';
 
 jest.mock('../../lib/file-utils-legal');
 jest.mock('../../lib/metrics', () => ({

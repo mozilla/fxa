@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { LocationProvider } from '@reach/router';
+import SigninTokenCode from '.';
+import VerificationReasons from '../../../constants/verification-reasons';
+import { GenericData } from '../../../lib/model-data';
+import { MozServices } from '../../../lib/types';
 import {
   IntegrationType,
   OAuthIntegrationData,
@@ -12,8 +15,6 @@ import {
   WebIntegration,
   WebIntegrationData,
 } from '../../../models';
-import { SigninTokenCodeProps } from './interfaces';
-import SigninTokenCode from '.';
 import {
   MOCK_EMAIL,
   MOCK_KEY_FETCH_TOKEN,
@@ -22,9 +23,7 @@ import {
   MOCK_UNWRAP_BKEY,
   mockFinishOAuthFlowHandler,
 } from '../../mocks';
-import { MozServices } from '../../../lib/types';
-import VerificationReasons from '../../../constants/verification-reasons';
-import { GenericData } from '../../../lib/model-data';
+import { SigninTokenCodeProps } from './interfaces';
 
 export function createMockWebIntegration(): WebIntegration {
   return {

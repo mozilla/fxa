@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../components/AppLayout';
-import CardHeader from '../../../components/CardHeader';
 import Banner from '../../../components/Banner';
+import CardHeader from '../../../components/CardHeader';
 
 export type CompleteSigninProps = { errorMessage?: string };
 

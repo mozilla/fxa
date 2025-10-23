@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models';
+import { useState } from 'react';
 import { usePageViewEvent } from '../../../lib/metrics';
+import { useFtlMsgResolver } from '../../../models';
 // import { useAlertBar } from '../../models';
-import { TwoFactorAuthImage } from '../../../components/images';
 import CardHeader from '../../../components/CardHeader';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
-import { MozServices } from '../../../lib/types';
+import { TwoFactorAuthImage } from '../../../components/images';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { MozServices } from '../../../lib/types';
 
 // --serviceName-- is the relying party
 

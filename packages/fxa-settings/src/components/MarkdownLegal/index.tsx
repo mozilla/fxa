@@ -5,7 +5,6 @@
 /* eslint-disable jsx-a11y/heading-has-content */
 
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 

@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { AccountData, ProfileInfo, Session } from '.';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { AccountData, ProfileInfo, Session } from '.';
 import {
   AppContext,
   AppContextValue,
@@ -18,10 +17,10 @@ import {
   LocationProvider,
 } from '@reach/router';
 import { getDefault } from '../lib/config';
-import { AlertBarInfo } from './AlertBarInfo';
-import { ReachRouterWindow } from '../lib/window';
 import { UrlQueryData } from '../lib/model-data';
 import { SensitiveDataClient } from '../lib/sensitive-data-client';
+import { ReachRouterWindow } from '../lib/window';
+import { AlertBarInfo } from './AlertBarInfo';
 
 const DEFAULT_APP_CONTEXT = defaultAppContext();
 export const MOCK_ACCOUNT: AccountData =

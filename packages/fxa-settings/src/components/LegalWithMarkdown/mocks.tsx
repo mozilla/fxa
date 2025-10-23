@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import LegalWithMarkdown from '.';
-import { viewName as termsViewName } from '../../pages/Legal/Terms';
 import { LegalDocFile } from '../../lib/file-utils-legal';
+import { viewName as termsViewName } from '../../pages/Legal/Terms';
 
 // defaults are set to LegalTerms
 export const Subject = ({

@@ -4,8 +4,8 @@
 import { ModelDataStore } from '../../lib/model-data';
 import { IntegrationType } from './integration';
 import {
-  OAuthWebIntegration,
   OAuthIntegrationOptions,
+  OAuthWebIntegration,
 } from './oauth-web-integration';
 
 export class PairingSupplicantIntegration extends OAuthWebIntegration {

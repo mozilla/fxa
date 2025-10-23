@@ -5,8 +5,8 @@
 import { createSandbox, SinonSandbox } from 'sinon';
 import { Constants } from '../constants';
 import { StorageData, UrlQueryData } from '../model-data';
-import { DefaultIntegrationFlags } from './integration-factory-flags';
 import { ReachRouterWindow } from '../window';
+import { DefaultIntegrationFlags } from './integration-factory-flags';
 
 describe('lib/integrations/integration-factory-flags', function () {
   const window = new ReachRouterWindow();

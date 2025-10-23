@@ -2,18 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import 'mutationobserver-shim';
-import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
+import 'mutationobserver-shim';
 import PageDisplayName from '.';
+import { SETTINGS_PATH } from '../../../constants';
+import { Account, AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import {
   mockAppContext,
   mockSettingsContext,
   renderWithRouter,
 } from '../../../models/mocks';
-import { SETTINGS_PATH } from '../../../constants';
-import { Account, AppContext } from '../../../models';
-import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 let mockLocationState = {};
 const mockLocation = () => {

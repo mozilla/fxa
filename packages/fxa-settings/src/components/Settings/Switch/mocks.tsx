@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useState } from 'react';
 import Switch from '.';
 
 export const Subject = ({ isOn = true, isSubmitting = false }) => {

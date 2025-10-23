@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useCallback } from 'react';
 import { copy } from '../../lib/clipboard';
-import { ReactComponent as CopyIcon } from './copy.min.svg';
+import { GleanClickEventType2FA } from '../../lib/types';
+import { useFtlMsgResolver } from '../../models';
 import { ReactComponent as InlineCopyIcon } from './copy-inline.svg';
+import { ReactComponent as CopyIcon } from './copy.min.svg';
 import { ReactComponent as DownloadIcon } from './download.min.svg';
 import { ReactComponent as PrintIcon } from './print.min.svg';
-import { useFtlMsgResolver } from '../../models';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { GleanClickEventType2FA } from '../../lib/types';
 
 export type DownloadContentType =
   | 'Firefox account recovery key'

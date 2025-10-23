@@ -2,27 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { useAccount, Email, useAlertBar } from '../../../models';
-import UnitRow from '../UnitRow';
-import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
-import { MfaGuard } from '../MfaGuard';
-import ModalVerifySession from '../ModalVerifySession';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import {
   clearMfaAndJwtCacheOnInvalidJwt,
   isInvalidJwtError,
 } from '../../../lib/mfa-guard-utils';
 import { MfaReason } from '../../../lib/types';
+import { Email, useAccount, useAlertBar } from '../../../models';
+import { ButtonIconReload, ButtonIconTrash } from '../ButtonIcon';
+import { MfaGuard } from '../MfaGuard';
+import ModalVerifySession from '../ModalVerifySession';
+import UnitRow from '../UnitRow';
 
 type UnitRowSecondaryEmailContentAndActionsProps = {
   secondary: Email;

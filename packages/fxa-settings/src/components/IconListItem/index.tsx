@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { ReactComponent as IconFolder } from './icon-folder.svg';
 import { ReactComponent as IconGlobe } from './icon-globe.svg';
 import { ReactComponent as IconKey } from './icon-key.svg';
 import { ReactComponent as IconLock } from './icon-lock.svg';
 import { ReactComponent as IconPrinter } from './icon-printer.svg';
 import { ReactComponent as IconShield } from './icon-shield.svg';
-import { ReactElement } from 'react-markdown/lib/react-markdown';
 
 interface IconListItemProps {
   icon: ReactElement;

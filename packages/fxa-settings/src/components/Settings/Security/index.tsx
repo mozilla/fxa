@@ -3,18 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Localized, useLocalization } from '@fluent/react';
-import React, { forwardRef } from 'react';
-import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
-import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
-import { UnitRow } from '../UnitRow';
-import { useAccount } from '../../../models';
+import { Link } from '@reach/router';
 import {
   FtlMsg,
   getLocalizedDate,
   LocalizedDateOptions,
 } from 'fxa-react/lib/utils';
-import { Link } from '@reach/router';
+import { forwardRef } from 'react';
 import GleanMetrics from '../../../lib/glean';
+import { useAccount } from '../../../models';
+import { UnitRow } from '../UnitRow';
+import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
+import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 
 const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
   const pwdDateText = Intl.DateTimeFormat('default', {

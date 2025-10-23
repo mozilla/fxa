@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from '@reach/router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 
-import { ResetPasswordContainerProps } from './interfaces';
-import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import ResetPassword from '.';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
+import { ResetPasswordContainerProps } from './interfaces';
 
 const ResetPasswordContainer = ({
   flowQueryParams = {},

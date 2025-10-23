@@ -2,25 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { IndexFormData, IndexProps } from './interfaces';
-import AppLayout from '../../components/AppLayout';
-import CardHeader from '../../components/CardHeader';
-import InputText from '../../components/InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import ThirdPartyAuth from '../../components/ThirdPartyAuth';
+import { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import AppLayout from '../../components/AppLayout';
+import Banner from '../../components/Banner';
+import CardHeader from '../../components/CardHeader';
+import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
+import CmsLogo from '../../components/CmsLogo';
+import InputText from '../../components/InputText';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
+import ThirdPartyAuth from '../../components/ThirdPartyAuth';
+import GleanMetrics from '../../lib/glean';
+import { isOAuthIntegration } from '../../models';
 import {
   isClientMonitor,
   isClientPocket,
   isClientRelay,
 } from '../../models/integrations/client-matching';
-import { isOAuthIntegration } from '../../models';
-import GleanMetrics from '../../lib/glean';
-import Banner from '../../components/Banner';
-import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
-import CmsLogo from '../../components/CmsLogo';
+import { IndexFormData, IndexProps } from './interfaces';
 
 export const Index = ({
   integration,

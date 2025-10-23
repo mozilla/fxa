@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useMemo } from 'react';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useMemo } from 'react';
+import { PasswordFormType } from '../FormPasswordWithInlineCriteria';
 import { ReactComponent as PassedIcon } from './icon-check.svg';
 import { ReactComponent as Failed } from './icon-x.svg';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { PasswordFormType } from '../FormPasswordWithInlineCriteria';
 
 export type PasswordStrengthInlineProps = {
   isPasswordEmpty: boolean;

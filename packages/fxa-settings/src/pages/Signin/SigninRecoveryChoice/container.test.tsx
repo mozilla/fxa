@@ -2,14 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ModelsModule from '../../../models';
 import * as ReachRouterModule from '@reach/router';
 import * as CacheModule from '../../../lib/cache';
+import * as ModelsModule from '../../../models';
 import * as SigninRecoveryChoiceModule from './index';
 
-import { waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
+import { waitFor } from '@testing-library/react';
+import AuthClient from 'fxa-auth-client/lib/client';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { createMockWebIntegration } from '../../../lib/integrations/mocks';
+import { Integration } from '../../../models';
 import {
   MOCK_MASKED_NUMBER_ENDING_IN_1234,
   MOCK_STORED_ACCOUNT,
@@ -17,10 +21,6 @@ import {
 } from '../../mocks';
 import { mockSigninLocationState } from '../mocks';
 import SigninRecoveryChoiceContainer from './container';
-import AuthClient from 'fxa-auth-client/lib/client';
-import { Integration } from '../../../models';
-import { createMockWebIntegration } from '../../../lib/integrations/mocks';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 let integration: Integration;
 function mockWebIntegration() {

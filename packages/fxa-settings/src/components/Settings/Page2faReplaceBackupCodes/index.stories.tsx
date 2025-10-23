@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { LocationProvider } from '@reach/router';
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AppContext } from 'fxa-settings/src/models';
 import {
-  mockAppContext,
   MOCK_ACCOUNT,
+  mockAppContext,
   mockSession,
 } from 'fxa-settings/src/models/mocks';
-import React from 'react';
 import { Page2faReplaceBackupCodes } from '.';
-import { Meta } from '@storybook/react';
-import { LocationProvider } from '@reach/router';
-import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 
 const session = mockSession(true);

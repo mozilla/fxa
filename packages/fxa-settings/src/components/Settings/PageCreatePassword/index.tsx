@@ -4,19 +4,19 @@
 
 import { Localized } from '@fluent/react';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SETTINGS_PATH } from '../../../constants';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import {
   logViewEvent,
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
-import FlowContainer from '../FlowContainer';
-import FormPassword from '../../FormPassword';
 import { UnlinkAccountLocationState } from '../../../lib/types';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
+import FormPassword from '../../FormPassword';
+import FlowContainer from '../FlowContainer';
 
 type FormData = {
   newPassword: string;

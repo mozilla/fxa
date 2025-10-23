@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { FunctionComponent, SVGProps } from 'react';
+import { FunctionComponent, SVGProps } from 'react';
+import { GleanClickEventDataAttrs } from '../../../lib/types';
 import { ReactComponent as TrashIcon } from './minimal-trash-icon.svg';
 import { ReactComponent as RefreshIcon } from './refresh-icon.svg';
-import { GleanClickEventDataAttrs } from '../../../lib/types';
 
 type ButtonIconProps = {
   title: string;
   icon: [
     FunctionComponent<SVGProps<SVGSVGElement & { title?: string }>>,
     number,
-    number
+    number,
   ];
   classNames?: string;
   disabled?: boolean;

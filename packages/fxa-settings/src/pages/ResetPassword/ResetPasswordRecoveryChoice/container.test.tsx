@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ModelsModule from '../../../models';
 import * as ReachRouterModule from '@reach/router';
+import * as ModelsModule from '../../../models';
 import * as ResetPasswordRecoveryChoiceModule from './index';
 
-import { waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
+import { waitFor } from '@testing-library/react';
+import AuthClient from 'fxa-auth-client/lib/client';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
   MOCK_MASKED_NUMBER_ENDING_IN_1234,
   mockLoadingSpinnerModule,
 } from '../../mocks';
 import ResetPasswordRecoveryChoiceContainer from './container';
-import AuthClient from 'fxa-auth-client/lib/client';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 jest.mock('../../../models', () => {
   return {

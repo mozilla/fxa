@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import AppLayout from '../../components/AppLayout';
 import { RouteComponentProps } from '@reach/router';
+import AppLayout from '../../components/AppLayout';
 
 /* This page is only used for manual and Playwright tests and does not need l10n */
 const Clear = (_: RouteComponentProps) => {

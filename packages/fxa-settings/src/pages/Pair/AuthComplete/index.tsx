@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import CardHeader from '../../../components/CardHeader';
-import { usePageViewEvent } from '../../../lib/metrics';
-import { HeartsVerifiedImage } from '../../../components/images';
-import { RemoteMetadata } from '../../../lib/types';
+import React from 'react';
 import AppLayout from '../../../components/AppLayout';
-import { REACT_ENTRYPOINT } from '../../../constants';
 import Banner from '../../../components/Banner';
+import CardHeader from '../../../components/CardHeader';
+import { HeartsVerifiedImage } from '../../../components/images';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import { usePageViewEvent } from '../../../lib/metrics';
+import { RemoteMetadata } from '../../../lib/types';
 
 export const viewName = 'pair.auth.complete';
 

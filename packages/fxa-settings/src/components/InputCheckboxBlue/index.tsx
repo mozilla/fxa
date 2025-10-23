@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ChangeEvent, useState, useCallback } from 'react';
 import classNames from 'classnames';
+import { ChangeEvent, useCallback, useState } from 'react';
 import { ReactComponent as CheckWhite } from './icon-check-white.svg';
 
 export type InputCheckboxBlueProps = {

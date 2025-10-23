@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { act, screen, waitFor } from '@testing-library/react';
-import FlowSetupRecoveryPhoneSubmitNumber from '.';
 import '@testing-library/jest-dom';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import FlowSetupRecoveryPhoneSubmitNumber from '.';
 
 jest.mock('../../../lib/error-utils', () => ({
   getLocalizedErrorMessage: jest.fn(() => 'Localized error message'),
@@ -90,7 +89,7 @@ describe('FlowSetupRecoveryPhoneSubmitNumber', () => {
     await waitFor(() => expect(mockVerifyPhoneNumber).toHaveBeenCalledTimes(1));
     expect(mockNavigateForward).toHaveBeenCalledTimes(1);
   });
-   test('handles error during number verification', async () => {
+  test('handles error during number verification', async () => {
     mockVerifyPhoneNumber.mockRejectedValueOnce(new Error('error'));
     const user = userEvent.setup();
     await renderWith();

@@ -31,27 +31,27 @@ import {
   SigninUnblockIntegration,
 } from '../interfaces';
 
+import { SignInOptions } from 'fxa-auth-client/browser';
+import { getCredentials, getCredentialsV2 } from 'fxa-auth-client/lib/crypto';
 import SigninUnblock from '.';
+import { QueryParams } from '../../..';
+import OAuthDataError from '../../../components/OAuthDataError';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import {
+  getHandledError,
+  getLocalizedErrorMessage,
+} from '../../../lib/error-utils';
+import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { isFirefoxService } from '../../../models/integrations/utils';
 import {
   BeginSigninWithUnblockCodeHandler,
   ResendUnblockCodeHandler,
   SigninUnblockLocationState,
 } from './interfaces';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { QueryParams } from '../../..';
-import { queryParamsToMetricsContext } from '../../../lib/metrics';
-import OAuthDataError from '../../../components/OAuthDataError';
-import {
-  getHandledError,
-  getLocalizedErrorMessage,
-} from '../../../lib/error-utils';
-import { getCredentials, getCredentialsV2 } from 'fxa-auth-client/lib/crypto';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { SignInOptions } from 'fxa-auth-client/browser';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { isFirefoxService } from '../../../models/integrations/utils';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 export const SigninUnblockContainer = ({
   integration,

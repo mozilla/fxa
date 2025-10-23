@@ -4,21 +4,21 @@
 
 import { MOCK_ACCOUNT } from '../models/mocks';
 import {
-  init,
-  reset,
-  setProperties,
-  setViewNamePrefix,
-  logEvents,
-  logViewEvent,
-  logExperiment,
   addExperiment,
-  setUserPreference,
-  setNewsletters,
-  useViewEvent,
-  usePageViewEvent,
-  logErrorEvent,
+  init,
   initUserPreferences,
+  logErrorEvent,
+  logEvents,
+  logExperiment,
+  logViewEvent,
   queryParamsToMetricsContext,
+  reset,
+  setNewsletters,
+  setProperties,
+  setUserPreference,
+  setViewNamePrefix,
+  usePageViewEvent,
+  useViewEvent,
 } from './metrics';
 
 import { window } from './window';

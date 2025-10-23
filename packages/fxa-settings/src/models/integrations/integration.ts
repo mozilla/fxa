@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { SyncEngines, WebChannelServices } from '../../lib/channels/firefox';
 import { MozServices } from '../../lib/types';
-import { WebChannelServices, SyncEngines } from '../../lib/channels/firefox';
 import { IntegrationData } from './data/data';
 import { IntegrationFeatures } from './features';
 import {

@@ -13,20 +13,19 @@ import {
   useSession,
 } from '../../models';
 
-import { cache } from '../../lib/cache';
-import { useCallback, useEffect, useState, useRef } from 'react';
-import { currentAccount } from '../../lib/cache';
-import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
+import { hardNavigate } from 'fxa-react/lib/utils';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import OAuthDataError from '../../components/OAuthDataError';
-import { cachedSignIn, handleNavigation } from '../Signin/utils';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { cache, currentAccount } from '../../lib/cache';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import {
   AuthError,
   OAUTH_ERRORS,
   OAuthError,
 } from '../../lib/oauth/oauth-errors';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { hardNavigate } from 'fxa-react/lib/utils';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { cachedSignIn, handleNavigation } from '../Signin/utils';
 
 const convertToRelierAccount = (
   account: ReturnType<typeof currentAccount>,

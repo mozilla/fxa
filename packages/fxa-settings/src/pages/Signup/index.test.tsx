@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import {
   act,
   cleanup,
@@ -10,32 +9,32 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { usePageViewEvent } from '../../lib/metrics';
+import * as utils from 'fxa-react/lib/utils';
 import { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../constants';
-import {
-  BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE,
-  BEGIN_SIGNUP_HANDLER_RESPONSE,
-  Subject,
-  createMockSignupOAuthWebIntegration,
-  createMockSignupOAuthNativeIntegration,
-  createMockSignupSyncDesktopV3Integration,
-} from './mocks';
-import { MOCK_CMS_INFO, MOCK_EMAIL, MOCK_PASSWORD } from '../mocks';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import firefox from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
-import * as utils from 'fxa-react/lib/utils';
+import { usePageViewEvent } from '../../lib/metrics';
+import { SensitiveData } from '../../lib/sensitive-data-client';
+import { getSyncEngineIds } from '../../lib/sync-engines';
+import { useSensitiveDataClient } from '../../models';
 import {
   MONITOR_CLIENTIDS,
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
-import { getSyncEngineIds } from '../../lib/sync-engines';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
-import { useSensitiveDataClient } from '../../models';
-import { userEvent } from '@testing-library/user-event';
+import { MOCK_CMS_INFO, MOCK_EMAIL, MOCK_PASSWORD } from '../mocks';
+import {
+  BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE,
+  BEGIN_SIGNUP_HANDLER_RESPONSE,
+  Subject,
+  createMockSignupOAuthNativeIntegration,
+  createMockSignupOAuthWebIntegration,
+  createMockSignupSyncDesktopV3Integration,
+} from './mocks';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

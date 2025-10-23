@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { logViewEvent } from '../../../lib/metrics';
-import FlowRecoveryKeyDownload from './';
 import { renderWithRouter } from '../../../models/mocks';
-import { MOCK_RECOVERY_KEY_VALUE } from './mocks';
 import { MOCK_EMAIL } from '../../../pages/mocks';
+import FlowRecoveryKeyDownload from './';
+import { MOCK_RECOVERY_KEY_VALUE } from './mocks';
 
 const localizedBackButtonTitle = 'Back to settings';
 const localizedPageTitle = 'Account Recovery Key';

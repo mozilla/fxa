@@ -3,23 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation } from '@reach/router';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useEffect, useState } from 'react';
 import SigninPushCode from '.';
+import OAuthDataError from '../../../components/OAuthDataError';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { MozServices } from '../../../lib/types';
-import { getSigninState, handleNavigation } from '../utils';
-import { SigninLocationState } from '../interfaces';
 import {
   Integration,
   isWebIntegration,
   useAuthClient,
   useSensitiveDataClient,
 } from '../../../models';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import OAuthDataError from '../../../components/OAuthDataError';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
-import { useEffect, useState } from 'react';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { SigninLocationState } from '../interfaces';
+import { getSigninState, handleNavigation } from '../utils';
 
 export type SigninPushCodeContainerProps = {
   integration: Integration;

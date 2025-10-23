@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useState } from 'react';
-import { useAccount, useSession } from '../../../models';
-import { TotpInfo } from '../../types';
 import { useErrorHandler } from 'react-error-boundary';
+import { useAccount, useSession } from '../../../models';
 import { isInvalidJwtError } from '../../mfa-guard-utils';
+import { TotpInfo } from '../../types';
 
 export const useTotpSetup = () => {
   const account = useAccount();

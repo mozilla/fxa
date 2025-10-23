@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { checkEmailDomain } from './email-domain-validator';
-import { AuthUiErrors } from './auth-errors/auth-errors';
 import topEmailDomains from 'fxa-shared/email/topEmailDomains';
+import { AuthUiErrors } from './auth-errors/auth-errors';
+import { checkEmailDomain } from './email-domain-validator';
 import { resolveDomain } from './email-domain-validator-resolve-domain';
 
 jest.mock('./email-domain-validator-resolve-domain', () => ({

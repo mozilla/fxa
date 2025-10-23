@@ -3,17 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  Matches,
   IsBoolean,
   IsHexadecimal,
   IsIn,
+  IsNumber,
   IsOptional,
   IsString,
   IsUrl,
+  Matches,
   MaxLength,
-  MinLength,
-  IsNumber,
   Min,
+  MinLength,
   Validate,
 } from 'class-validator';
 import {
@@ -21,7 +21,7 @@ import {
   ModelDataProvider,
   KeyTransforms as T,
 } from '../../../lib/model-data';
-import { IsFxaRedirectUri, IsEmailOrEmpty } from '../../../lib/validation';
+import { IsEmailOrEmpty, IsFxaRedirectUri } from '../../../lib/validation';
 
 /**
  *  Note: class-validator logic was ported from Vat rules in content-server.

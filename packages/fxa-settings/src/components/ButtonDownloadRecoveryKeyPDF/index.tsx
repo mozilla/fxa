@@ -2,20 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { RelierCmsInfo, useAlertBar, useFtlMsgResolver } from '../../models';
+import { determineLocale } from '@fxa/shared/l10n';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
-import { RecoveryKeyPDF } from '../ButtonDownloadRecoveryKeyPDF/RecoveryKeyPDF';
 import {
   FtlMsg,
   LocalizedDateOptions,
   getLocalizedDate,
 } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../lib/metrics';
-import { FontData, getRequiredFont } from './requiredFont';
-import { determineLocale } from '@fxa/shared/l10n';
+import { RelierCmsInfo, useAlertBar, useFtlMsgResolver } from '../../models';
+import { RecoveryKeyPDF } from '../ButtonDownloadRecoveryKeyPDF/RecoveryKeyPDF';
 import CmsButtonWithFallback from '../CmsButtonWithFallback';
+import { FontData, getRequiredFont } from './requiredFont';
 
 export interface LocalizedRecoveryKeyPdfContent {
   heading: string;

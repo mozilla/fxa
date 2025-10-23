@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { Dispatch, SetStateAction } from 'react';
-import AppLayout from '../../../components/AppLayout';
-import { useFtlMsgResolver } from '../../../models';
-import { FtlMsg } from 'fxa-react/lib/utils';
 import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
-import { HeadingPrimary } from '../../../components/HeadingPrimary';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { Dispatch, SetStateAction } from 'react';
+import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useFtlMsgResolver } from '../../../models';
 
 export type ConfirmTotpResetPasswordProps = {
   verifyCode: (code: string) => Promise<void>;

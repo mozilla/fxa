@@ -5,11 +5,11 @@
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent, UserEvent } from '@testing-library/user-event';
 import InlineRecoverySetup from '.';
+import { CHOICES } from '../../components/FormChoice';
+import GleanMetrics from '../../lib/glean';
 import { GleanClickEventType2FA, MozServices } from '../../lib/types';
 import { renderWithRouter } from '../../models/mocks';
 import { MOCK_BACKUP_CODES, MOCK_EMAIL } from '../mocks';
-import GleanMetrics from '../../lib/glean';
-import { CHOICES } from '../../components/FormChoice';
 
 const setRecoveryCodesFn = jest.fn();
 const addRecoveryPhoneFn = jest.fn().mockResolvedValue('');

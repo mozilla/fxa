@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MfaErrorBoundary } from './error-boundary';
+import React from 'react';
 import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
+import { MfaErrorBoundary } from './error-boundary';
 
 const mockScope = 'test';
 const mockSessionToken = 'session-xyz';

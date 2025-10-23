@@ -3,6 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './complete-signin-query-params';
-export * from './report-signin-query-params';
-export * from './query-params';
 export * from './oauth-query-params';
+export * from './query-params';
+export * from './report-signin-query-params';

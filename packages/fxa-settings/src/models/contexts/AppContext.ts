@@ -5,19 +5,19 @@
 import { ApolloClient } from '@apollo/client';
 import AuthClient from 'fxa-auth-client/browser';
 import React from 'react';
-import config, { Config, readConfigMeta, getDefault } from '../../lib/config';
-import { createApolloClient } from '../../lib/gql';
-import { Account } from '../Account';
-import { Session } from '../Session';
-import { AlertBarInfo } from '../AlertBarInfo';
-import { KeyStretchExperiment } from '../experiments/key-stretch-experiment';
-import { UrlQueryData } from '../../lib/model-data';
-import { ReachRouterWindow } from '../../lib/window';
-import { SensitiveDataClient } from '../../lib/sensitive-data-client';
-import { initializeNimbus, NimbusContextT } from '../../lib/nimbus';
 import { parseAcceptLanguage } from '../../../../../libs/shared/l10n/src';
 import { getUniqueUserId } from '../../lib/cache';
+import config, { Config, getDefault, readConfigMeta } from '../../lib/config';
+import { createApolloClient } from '../../lib/gql';
+import { UrlQueryData } from '../../lib/model-data';
+import { initializeNimbus, NimbusContextT } from '../../lib/nimbus';
+import { SensitiveDataClient } from '../../lib/sensitive-data-client';
 import { searchParams } from '../../lib/utilities';
+import { ReachRouterWindow } from '../../lib/window';
+import { Account } from '../Account';
+import { AlertBarInfo } from '../AlertBarInfo';
+import { KeyStretchExperiment } from '../experiments/key-stretch-experiment';
+import { Session } from '../Session';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -158,6 +158,5 @@ export function defaultAppContext(context?: AppContextValue) {
   ) as AppContextValue;
 }
 
-export const AppContext = React.createContext<AppContextValue>(
-  defaultAppContext()
-);
+export const AppContext =
+  React.createContext<AppContextValue>(defaultAppContext());

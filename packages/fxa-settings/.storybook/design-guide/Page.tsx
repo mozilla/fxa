@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import Header from './Header';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+import Header from './Header';
 
 const Page = ({ title, children }) => (
   <AppLocalizationProvider>

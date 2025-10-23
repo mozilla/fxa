@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import SignupConfirmed from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import SignupConfirmed from '.';
 import { MozServices } from '../../../lib/types';
 import { createMockIntegrationWithCms } from '../../mocks';
 
@@ -36,9 +35,10 @@ export const IsSync = () => (
 
 export const IsSyncWithCms = () => (
   <LocationProvider>
-    <SignupConfirmed isSignedIn={false}
-                     serviceName={MozServices.FirefoxSync}
-                     integration={createMockIntegrationWithCms()}
+    <SignupConfirmed
+      isSignedIn={false}
+      serviceName={MozServices.FirefoxSync}
+      integration={createMockIntegrationWithCms()}
     />
   </LocationProvider>
 );

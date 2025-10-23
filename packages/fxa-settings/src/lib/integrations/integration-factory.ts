@@ -2,21 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { DefaultIntegrationFlags } from '.';
 import {
-  OAuthWebIntegration,
+  Integration,
+  OAuthIntegration,
   OAuthNativeIntegration,
+  OAuthWebIntegration,
   PairingAuthorityIntegration,
   PairingSupplicantIntegration,
-  Integration,
+  RelierClientInfo,
+  RelierCmsInfo,
+  RelierSubscriptionInfo,
   SyncBasicIntegration,
   SyncDesktopV3Integration,
-  WebIntegration,
-  RelierClientInfo,
-  RelierSubscriptionInfo,
-  RelierCmsInfo,
-  OAuthIntegration,
   ThirdPartyAuthCallbackIntegration,
+  WebIntegration,
 } from '../../models/integrations';
+import config from '../config';
 import {
   ModelDataStore,
   StorageData,
@@ -26,8 +28,6 @@ import {
 import { OAuthError } from '../oauth';
 import { ReachRouterWindow } from '../window';
 import { IntegrationFlags } from './interfaces';
-import { DefaultIntegrationFlags } from '.';
-import config from '../config';
 
 /**
  * We store a whitelist of allowed `redirectUri`s in `clientInfo.redirectUri` which

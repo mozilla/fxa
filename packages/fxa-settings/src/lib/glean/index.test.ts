@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import Glean from '@mozilla/glean/web';
 import * as GleanMetricsAPI from '@mozilla/glean/metrics';
 import { testResetGlean } from '@mozilla/glean/testing';
+import Glean from '@mozilla/glean/web';
 import sinon, { SinonStub } from 'sinon';
 
-import GleanMetrics, { GleanMetricsContext } from './index';
-import * as pings from 'fxa-shared/metrics/glean/web/pings';
-import * as event from 'fxa-shared/metrics/glean/web/event';
-import * as reg from 'fxa-shared/metrics/glean/web/reg';
-import * as login from 'fxa-shared/metrics/glean/web/login';
-import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
+import { userId, userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
 import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
+import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
-import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
-import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
+import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
+import * as event from 'fxa-shared/metrics/glean/web/event';
+import * as login from 'fxa-shared/metrics/glean/web/login';
+import * as pings from 'fxa-shared/metrics/glean/web/pings';
+import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import {
   oauthClientId,
   service,
@@ -26,13 +25,14 @@ import {
   entrypoint,
   flowId,
 } from 'fxa-shared/metrics/glean/web/session';
+import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
-import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
+import GleanMetrics, { GleanMetricsContext } from './index';
 
-import { Config } from '../config';
-import { WebIntegration, useAccount, WebIntegrationData } from '../../models';
-import { MetricsFlow } from '../metrics-flow';
+import { useAccount, WebIntegration, WebIntegrationData } from '../../models';
 import { currentAccount } from '../cache';
+import { Config } from '../config';
+import { MetricsFlow } from '../metrics-flow';
 
 jest.mock('../../lib/cache', () => ({
   currentAccount: jest.fn(),

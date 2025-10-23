@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import ConfirmResetPassword from '.';
-import { MOCK_EMAIL } from '../../mocks';
 import { LocationProvider } from '@reach/router';
+import { useState } from 'react';
+import ConfirmResetPassword from '.';
 import { ResendStatus } from '../../../lib/types';
+import { MOCK_EMAIL } from '../../mocks';
 import { ConfirmResetPasswordProps } from './interfaces';
 
 const mockVerifyCode = (code: string) => Promise.resolve();

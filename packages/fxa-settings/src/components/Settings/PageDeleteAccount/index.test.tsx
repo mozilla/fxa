@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import 'mutationobserver-shim';
-import { screen, fireEvent, act, within } from '@testing-library/react';
+import { act, fireEvent, screen, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import 'mutationobserver-shim';
+import { PageDeleteAccount } from '.';
+import GleanMetrics from '../../../lib/glean';
+import { logViewEvent } from '../../../lib/metrics';
+import { typeByTestIdFn } from '../../../lib/test-utils';
+import { Account, AppContext } from '../../../models';
 import {
   mockAppContext,
   mockSession,
   renderWithRouter,
 } from '../../../models/mocks';
-import { PageDeleteAccount } from '.';
-import { typeByTestIdFn } from '../../../lib/test-utils';
-import { Account, AppContext } from '../../../models';
-import { logViewEvent } from '../../../lib/metrics';
 import { MOCK_EMAIL } from '../../../pages/mocks';
-import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),

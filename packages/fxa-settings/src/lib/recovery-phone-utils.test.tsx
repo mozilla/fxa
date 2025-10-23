@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import {
   MOCK_FULL_PHONE_NUMBER,
   MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
 } from '../pages/mocks';
-import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { formatPhoneNumber } from './recovery-phone-utils';
 
 describe('formatPhoneNumber', () => {

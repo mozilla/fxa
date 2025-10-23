@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import SigninUnblock from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import SigninUnblock from '.';
+import VerificationMethods from '../../../constants/verification-methods';
+import VerificationReasons from '../../../constants/verification-reasons';
 import {
-  MOCK_AUTH_AT, MOCK_CMS_INFO,
+  MOCK_AUTH_AT,
+  MOCK_CMS_INFO,
   MOCK_EMAIL,
   MOCK_SESSION_TOKEN,
   MOCK_UID,
   mockFinishOAuthFlowHandler,
 } from '../../mocks';
-import VerificationMethods from '../../../constants/verification-methods';
-import VerificationReasons from '../../../constants/verification-reasons';
 import {
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeSyncIntegration,
@@ -71,7 +71,7 @@ export const DefaultWithCms = () => (
       hasPassword={true}
       finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
       integration={createMockSigninOAuthIntegration({
-        cmsInfo: MOCK_CMS_INFO
+        cmsInfo: MOCK_CMS_INFO,
       })}
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendSuccessResponse}

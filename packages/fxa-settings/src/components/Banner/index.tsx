@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { BannerProps } from './interfaces';
+import { Link } from '@reach/router';
+import classNames from 'classnames';
+import LinkExternal from 'fxa-react/components/LinkExternal';
+import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
+import { useFtlMsgResolver } from '../../models';
 import {
   CheckmarkCircleOutlineCurrentIcon,
   CloseIcon,
-  InformationOutlineCurrentIcon as InfoIcon,
-  AlertOutlineCurrentIcon as WarningIcon,
   ErrorOutlineCurrentIcon as ErrorIcon,
+  InformationOutlineCurrentIcon as InfoIcon,
   InformationOutlineBlueIcon,
+  AlertOutlineCurrentIcon as WarningIcon,
 } from '../Icons';
-import classNames from 'classnames';
-import { useFtlMsgResolver } from '../../models';
-import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
-import LinkExternal from 'fxa-react/components/LinkExternal';
-import { Link } from '@reach/router';
+import { BannerProps } from './interfaces';
 
 export const Banner = ({
   type,

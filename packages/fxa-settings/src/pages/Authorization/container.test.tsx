@@ -2,26 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor } from '@testing-library/react';
-import AuthorizationContainer from './container';
-import { OAUTH_ERRORS } from '../../lib/oauth/oauth-errors';
-import { Integration } from '../../models';
 import AuthClient from 'fxa-auth-client/browser';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
+import { OAUTH_ERRORS } from '../../lib/oauth/oauth-errors';
+import { Integration } from '../../models';
+import AuthorizationContainer from './container';
 
 // Mocked Modules
-import * as CacheModule from '../../lib/cache';
-import * as SigninUtilsModule from '../Signin/utils';
-import * as ModelsModule from '../../models';
-import * as ReactUtilsModule from 'fxa-react/lib/utils';
-import * as OAuthHooksModule from '../../lib/oauth/hooks';
-import * as HooksModule from '../../lib/hooks/useNavigateWithQuery';
 import * as ReachRouterModule from '@reach/router';
+import * as ReactUtilsModule from 'fxa-react/lib/utils';
+import * as CacheModule from '../../lib/cache';
+import * as HooksModule from '../../lib/hooks/useNavigateWithQuery';
+import * as OAuthHooksModule from '../../lib/oauth/hooks';
+import * as ModelsModule from '../../models';
 import * as ModelsHooksModule from '../../models/hooks';
 import * as OAuthWebIntegrationModule from '../../models/integrations/oauth-web-integration';
+import * as SigninUtilsModule from '../Signin/utils';
 
 describe('AuthorizationContainer', () => {
   const mockAccount = {

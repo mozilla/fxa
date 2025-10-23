@@ -5,8 +5,8 @@
 import { ModelDataStore } from '../../lib/model-data';
 import { IntegrationType } from './integration';
 import {
-  OAuthWebIntegration,
   OAuthIntegrationOptions,
+  OAuthWebIntegration,
 } from './oauth-web-integration';
 
 // TODO in the 'Pairing' React epic. This shouldn't have any `feature` overrides but feel

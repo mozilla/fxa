@@ -194,8 +194,8 @@ export class OAuthError extends Error {
       typeof error === 'string'
         ? OAUTH_ERRORS[error]
         : typeof error === 'number'
-        ? Object.values(OAUTH_ERRORS).find((x) => x.errno === error)
-        : null;
+          ? Object.values(OAUTH_ERRORS).find((x) => x.errno === error)
+          : null;
     let msg = err != null ? err.message : UNEXPECTED_ERROR;
     if (err?.interpolate) {
       msg = interpolate(msg, params || {});

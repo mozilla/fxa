@@ -2,13 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { isEmailMask } from 'fxa-shared/email/helpers';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
+import Banner from '../../components/Banner';
 import CardHeader from '../../components/CardHeader';
+import CmsLogo from '../../components/CmsLogo';
+import FormPasswordWithInlineCriteria from '../../components/FormPasswordWithInlineCriteria';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import { REACT_ENTRYPOINT } from '../../constants';
@@ -22,7 +24,9 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../lib/metrics';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
+import { checkPaymentMethodsWillSync } from '../../lib/sync-engines';
 import { MozServices } from '../../lib/types';
 import {
   isOAuthIntegration,
@@ -36,11 +40,6 @@ import {
   isClientRelay,
 } from '../../models/integrations/client-matching';
 import { SignupFormData, SignupProps } from './interfaces';
-import Banner from '../../components/Banner';
-import { SensitiveData } from '../../lib/sensitive-data-client';
-import { checkPaymentMethodsWillSync } from '../../lib/sync-engines';
-import FormPasswordWithInlineCriteria from '../../components/FormPasswordWithInlineCriteria';
-import CmsLogo from '../../components/CmsLogo';
 
 export const viewName = 'signup';
 

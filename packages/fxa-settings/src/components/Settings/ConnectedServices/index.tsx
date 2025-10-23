@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { ApolloError } from '@apollo/client';
 import { Localized, useLocalization } from '@fluent/react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
@@ -10,6 +9,7 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import groupBy from 'lodash.groupby';
 import { forwardRef, useCallback, useState } from 'react';
 import { clearSignedInAccountUid } from '../../../lib/cache';
+import GleanMetrics from '../../../lib/glean';
 import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';
 import { AttachedClient, useAccount, useAlertBar } from '../../../models';
@@ -18,7 +18,6 @@ import { ConnectAnotherDevicePromo } from '../ConnectAnotherDevicePromo';
 import { Modal } from '../Modal';
 import { VerifiedSessionGuard } from '../VerifiedSessionGuard';
 import { Service } from './Service';
-import GleanMetrics from '../../../lib/glean';
 
 const UTM_PARAMS =
   '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';

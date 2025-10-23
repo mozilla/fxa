@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { MozServices } from '../../../lib/types';
-import React, { useState } from 'react';
-import ResetPassword from '.';
 import { LocationProvider } from '@reach/router';
+import { useState } from 'react';
+import ResetPassword from '.';
+import { MozServices } from '../../../lib/types';
 import { ResetPasswordProps } from './interfaces';
 
 const defaultServiceName = MozServices.Default;

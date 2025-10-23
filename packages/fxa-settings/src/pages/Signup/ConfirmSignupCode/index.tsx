@@ -2,42 +2,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState, useRef } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { REACT_ENTRYPOINT } from '../../../constants';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
-import {
-  useAlertBar,
-  useFtlMsgResolver,
-  useSession,
-} from '../../../models/hooks';
+import { ResendStatus } from 'fxa-settings/src/lib/types';
+import { useEffect, useRef, useState } from 'react';
 import AppLayout from '../../../components/AppLayout';
+import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
 import CardHeader from '../../../components/CardHeader';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { EmailCodeImage } from '../../../components/images';
-import { ResendStatus } from 'fxa-settings/src/lib/types';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import firefox from '../../../lib/channels/firefox';
+import {
+  getErrorFtlId,
+  getLocalizedErrorMessage,
+} from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { storeAccountData } from '../../../lib/storage-utils';
 import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
   isWebIntegration,
 } from '../../../models';
-import { ConfirmSignupCodeProps } from './interfaces';
-import firefox from '../../../lib/channels/firefox';
-import GleanMetrics from '../../../lib/glean';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
-import { storeAccountData } from '../../../lib/storage-utils';
 import {
-  getErrorFtlId,
-  getLocalizedErrorMessage,
-} from '../../../lib/error-utils';
-import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+  useAlertBar,
+  useFtlMsgResolver,
+  useSession,
+} from '../../../models/hooks';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { getSyncNavigate } from '../../Signin/utils';
+import { ConfirmSignupCodeProps } from './interfaces';
 
 export const viewName = 'confirm-signup-code';
 

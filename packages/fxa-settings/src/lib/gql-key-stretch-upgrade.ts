@@ -3,13 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MutationFunction } from '@apollo/client';
-import {
-  CredentialStatus,
-  CredentialStatusResponse,
-  GetAccountKeysResponse,
-  PasswordChangeFinishResponse,
-  PasswordChangeStartResponse,
-} from '../pages/Signin/interfaces';
 import * as Sentry from '@sentry/browser';
 import {
   getCredentials,
@@ -17,8 +10,15 @@ import {
   getKeysV2,
   unwrapKB,
 } from 'fxa-auth-client/lib/crypto';
-import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { deriveHawkCredentials } from 'fxa-auth-client/lib/hawk';
+import { createSaltV2 } from 'fxa-auth-client/lib/salt';
+import {
+  CredentialStatus,
+  CredentialStatusResponse,
+  GetAccountKeysResponse,
+  PasswordChangeFinishResponse,
+  PasswordChangeStartResponse,
+} from '../pages/Signin/interfaces';
 import { getHandledError } from './error-utils';
 import { SensitiveDataClient } from './sensitive-data-client';
 

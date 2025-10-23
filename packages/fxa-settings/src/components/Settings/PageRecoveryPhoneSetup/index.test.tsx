@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
-import { renderWithRouter } from '../../../models/mocks';
-import { Subject } from './mocks';
 import userEvent, { UserEvent } from '@testing-library/user-event';
+import { renderWithRouter } from '../../../models/mocks';
 import {
   MOCK_FULL_PHONE_NUMBER,
   MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
 } from '../../../pages/mocks';
+import { Subject } from './mocks';
 
 jest.mock('../../../models/AlertBarInfo');
 

@@ -2,17 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import SigninTotpCode from '.';
-import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
-import { MozServices } from '../../../lib/types';
+import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import SigninTotpCode from '.';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { mockOAuthNativeSigninIntegration, mockWebSigninIntegration, Subject } from './mocks';
 import { BeginSigninError } from '../../../lib/error-utils';
-import { SigninIntegration } from '../interfaces';
+import { MozServices } from '../../../lib/types';
 import { MOCK_CMS_INFO } from '../../mocks';
+import { SigninIntegration } from '../interfaces';
+import {
+  mockOAuthNativeSigninIntegration,
+  mockWebSigninIntegration,
+  Subject,
+} from './mocks';
 
 export default {
   title: 'Pages/Signin/SigninTotpCode',

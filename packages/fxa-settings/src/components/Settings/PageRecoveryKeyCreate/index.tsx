@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import React, { useState } from 'react';
 import { SETTINGS_PATH } from '../../../constants';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { usePageViewEvent } from '../../../lib/metrics';
+import { MfaReason } from '../../../lib/types';
 import { useAccount, useFtlMsgResolver } from '../../../models';
 import FlowRecoveryKeyConfirmPwd from '../FlowRecoveryKeyConfirmPwd';
 import FlowRecoveryKeyDownload from '../FlowRecoveryKeyDownload';
-import FlowRecoveryKeyInfo from '../FlowRecoveryKeyInfo';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import FlowRecoveryKeyHint from '../FlowRecoveryKeyHint';
+import FlowRecoveryKeyInfo from '../FlowRecoveryKeyInfo';
 import { MfaGuard } from '../MfaGuard';
-import { MfaReason } from '../../../lib/types';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 export const viewName = 'settings.account-recovery';
 const numberOfSteps = 4;

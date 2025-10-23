@@ -4,12 +4,12 @@
 
 import { ApolloClient, gql, NormalizedCacheObject } from '@apollo/client';
 import AuthClient from 'fxa-auth-client/browser';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 import {
-  sessionToken,
   clearSignedInAccountUid,
   currentAccount,
+  sessionToken,
 } from '../lib/cache';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 
 export interface SessionData {
   verified: boolean | null;

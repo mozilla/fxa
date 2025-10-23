@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import { Subject } from './mocks';
 import userEvent from '@testing-library/user-event';
+import { Subject } from './mocks';
 
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -75,15 +74,21 @@ describe('FormVerifyCode component', () => {
   describe('Submit button state management', () => {
     it('should disable submit button initially', () => {
       renderWithLocalizationProvider(<Subject />);
-      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+      const submitButton = screen.getByRole('button', {
+        name: 'Check that code',
+      });
       expect(submitButton).toBeDisabled();
     });
 
     it('should enable submit button when valid code is entered', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject />);
-      const input = screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
-      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+      const input = screen.getByRole('textbox', {
+        name: 'Enter your 4-digit code',
+      });
+      const submitButton = screen.getByRole('button', {
+        name: 'Check that code',
+      });
 
       // Initially disabled
       expect(submitButton).toBeDisabled();
@@ -98,8 +103,12 @@ describe('FormVerifyCode component', () => {
     it('should disable submit button when invalid code is entered', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject />);
-      const input = screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
-      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+      const input = screen.getByRole('textbox', {
+        name: 'Enter your 4-digit code',
+      });
+      const submitButton = screen.getByRole('button', {
+        name: 'Check that code',
+      });
 
       // Type invalid code (less than 4 digits)
       await user.type(input, '123');
@@ -111,8 +120,12 @@ describe('FormVerifyCode component', () => {
     it('should disable submit button when code becomes invalid', async () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject />);
-      const input = screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
-      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+      const input = screen.getByRole('textbox', {
+        name: 'Enter your 4-digit code',
+      });
+      const submitButton = screen.getByRole('button', {
+        name: 'Check that code',
+      });
 
       // Type valid code first
       await user.type(input, '1234');
@@ -137,12 +150,18 @@ describe('FormVerifyCode component', () => {
       renderWithLocalizationProvider(
         <Subject
           formAttributes={customFormAttributes}
-          verifyCode={jest.fn().mockImplementation((code: string) => Promise.resolve())}
+          verifyCode={jest
+            .fn()
+            .mockImplementation((code: string) => Promise.resolve())}
         />
       );
 
-      const input = screen.getByRole('textbox', { name: 'Enter your 6-digit code' });
-      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+      const input = screen.getByRole('textbox', {
+        name: 'Enter your 6-digit code',
+      });
+      const submitButton = screen.getByRole('button', {
+        name: 'Check that code',
+      });
 
       // Initially disabled
       expect(submitButton).toBeDisabled();
@@ -162,8 +181,12 @@ describe('FormVerifyCode component', () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject />);
 
-      const input = screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
-      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+      const input = screen.getByRole('textbox', {
+        name: 'Enter your 4-digit code',
+      });
+      const submitButton = screen.getByRole('button', {
+        name: 'Check that code',
+      });
 
       // Type character by character
       await user.type(input, '1');
@@ -183,8 +206,12 @@ describe('FormVerifyCode component', () => {
       const user = userEvent.setup();
       renderWithLocalizationProvider(<Subject />);
 
-      const input = screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
-      const submitButton = screen.getByRole('button', { name: 'Check that code' });
+      const input = screen.getByRole('textbox', {
+        name: 'Enter your 4-digit code',
+      });
+      const submitButton = screen.getByRole('button', {
+        name: 'Check that code',
+      });
 
       // Type valid code
       await user.type(input, '1234');

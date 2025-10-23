@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithRouter } from '../../../models/mocks';
 import { ModalMfaProtected } from '.';
-import { MOCK_EMAIL } from '../../../pages/mocks';
-import { MfaReason } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
+import { MfaReason } from '../../../lib/types';
+import { renderWithRouter } from '../../../models/mocks';
+import { MOCK_EMAIL } from '../../../pages/mocks';
 
 const defaultProps = {
   email: MOCK_EMAIL,

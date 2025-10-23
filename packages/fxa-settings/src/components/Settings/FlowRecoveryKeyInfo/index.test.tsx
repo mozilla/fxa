@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 import { logViewEvent } from '../../../lib/metrics';
-import FlowRecoveryKeyInfo from './';
 import { renderWithRouter } from '../../../models/mocks';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
+import FlowRecoveryKeyInfo from './';
 
 const navigateForward = jest.fn();
 const navigateBackward = jest.fn();

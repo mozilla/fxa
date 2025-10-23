@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { RouteComponentProps } from '@reach/router';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
+import AppLayout from '../../components/AppLayout';
+import Banner from '../../components/Banner';
+import { HeadingPrimary } from '../../components/HeadingPrimary';
+import { RecoveryKeyImage } from '../../components/images';
 import InlineRecoveryKeySetupCreate from '../../components/InlineRecoveryKeySetupCreate';
 import RecoveryKeySetupDownload from '../../components/RecoveryKeySetupDownload';
-import AppLayout from '../../components/AppLayout';
-import { RecoveryKeyImage } from '../../components/images';
-import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
-import { Constants } from '../../lib/constants';
-import { InlineRecoveryKeySetupProps } from './interfaces';
 import RecoveryKeySetupHint from '../../components/RecoveryKeySetupHint';
-import Banner from '../../components/Banner';
+import { Constants } from '../../lib/constants';
 import { useFtlMsgResolver } from '../../models';
-import { HeadingPrimary } from '../../components/HeadingPrimary';
+import { InlineRecoveryKeySetupProps } from './interfaces';
 
 const viewName = 'inline-recovery-key-setup';
 

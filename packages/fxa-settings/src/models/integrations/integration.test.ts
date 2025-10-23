@@ -4,13 +4,13 @@
 
 import { UrlQueryData } from '../../lib/model-data';
 import { ReachRouterWindow } from '../../lib/window';
+import { IntegrationData } from './data/data';
+import { IntegrationFeatures } from './features';
 import {
   GenericIntegration,
   Integration,
   IntegrationType,
 } from './integration';
-import { IntegrationData } from './data/data';
-import { IntegrationFeatures } from './features';
 
 describe('Integration Model', function () {
   const window = new ReachRouterWindow();

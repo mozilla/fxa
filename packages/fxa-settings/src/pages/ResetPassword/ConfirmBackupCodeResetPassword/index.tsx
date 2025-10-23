@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../components/AppLayout';
-import { BackupCodesImage } from '../../../components/images';
 import Banner from '../../../components/Banner';
 import ButtonBack from '../../../components/ButtonBack';
-import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import FormVerifyTotp from '../../../components/FormVerifyTotp';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import { BackupCodesImage } from '../../../components/images';
 import { useFtlMsgResolver } from '../../../models';
 
 export type ConfirmBackupCodeResetPasswordProps = {

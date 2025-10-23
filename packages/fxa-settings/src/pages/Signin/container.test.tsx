@@ -2,40 +2,47 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as UseValidateModule from '../../lib/hooks/useValidate';
-import * as SigninModule from './index';
-import * as ModelsModule from '../../models';
+import * as SentryModule from '@sentry/browser';
+import * as CryptoModule from 'fxa-auth-client/lib/crypto';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../lib/cache';
-import * as CryptoModule from 'fxa-auth-client/lib/crypto';
-import * as SentryModule from '@sentry/browser';
+import * as UseValidateModule from '../../lib/hooks/useValidate';
+import * as ModelsModule from '../../models';
+import * as SigninModule from './index';
 
+import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev';
 import { LocationProvider } from '@reach/router';
+import { act, screen, waitFor } from '@testing-library/react';
+import AuthClient from 'fxa-auth-client/browser';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import VerificationMethods from '../../constants/verification-methods';
+import VerificationReasons from '../../constants/verification-reasons';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { GenericData, ModelDataProvider } from '../../lib/model-data';
+import { MozServices } from '../../lib/types';
+import { Integration, IntegrationType, WebIntegration } from '../../models';
 import SigninContainer from './container';
 import { BeginSigninResult, SigninProps } from './interfaces';
-import { MozServices } from '../../lib/types';
-import { act, screen, waitFor } from '@testing-library/react';
-import { Integration, IntegrationType, WebIntegration } from '../../models';
-import { GenericData, ModelDataProvider } from '../../lib/model-data';
 import {
-  MOCK_STORED_ACCOUNT,
-  MOCK_EMAIL,
-  MOCK_PASSWORD,
-  MOCK_AUTH_PW,
-  MOCK_UID,
-  MOCK_SESSION_TOKEN,
   MOCK_AUTH_AT,
-  MOCK_UNWRAP_BKEY,
-  MOCK_CLIENT_SALT,
+  MOCK_AUTH_PW,
   MOCK_AUTH_PW_V2,
-  MOCK_WRAP_KB,
-  MOCK_WRAP_KB_V2,
+  MOCK_CLIENT_ID,
+  MOCK_CLIENT_SALT,
+  MOCK_EMAIL,
+  MOCK_FLOW_ID,
+  MOCK_KB,
+  MOCK_KEY_FETCH_TOKEN,
+  MOCK_PASSWORD,
+  MOCK_SESSION_TOKEN,
+  MOCK_STORED_ACCOUNT,
+  MOCK_UID,
+  MOCK_UNWRAP_BKEY,
   MOCK_UNWRAP_BKEY_V2,
   MOCK_VERIFICATION,
-  MOCK_KB,
+  MOCK_WRAP_KB,
+  MOCK_WRAP_KB_V2,
   mockBeginSigninMutationWithV2Password,
   mockGqlAvatarUseQuery,
   mockGqlBeginSigninMutation,
@@ -44,25 +51,18 @@ import {
   mockGqlGetAccountKeysMutation,
   mockGqlPasswordChangeFinishMutation,
   mockGqlPasswordChangeStartMutation,
-  MOCK_FLOW_ID,
-  MOCK_CLIENT_ID,
-  MOCK_KEY_FETCH_TOKEN,
 } from './mocks';
-import AuthClient from 'fxa-auth-client/browser';
-import VerificationMethods from '../../constants/verification-methods';
-import VerificationReasons from '../../constants/verification-reasons';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 import { firefox } from '../../lib/channels/firefox';
-import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
+import { SensitiveData } from '../../lib/sensitive-data-client';
+import { storeAccountData } from '../../lib/storage-utils';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import {
   OAuthNativeSyncQueryParameters,
   OAuthQueryParams,
   SigninQueryParams,
 } from '../../models/pages/signin';
-import { storeAccountData } from '../../lib/storage-utils';
 
 jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),

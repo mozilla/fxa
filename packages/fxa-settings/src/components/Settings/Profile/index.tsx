@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { forwardRef } from 'react';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { forwardRef } from 'react';
+import { SETTINGS_PATH } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
 import { useAccount } from '../../../models';
 import { UnitRow } from '../UnitRow';
 import { UnitRowSecondaryEmail } from '../UnitRowSecondaryEmail';
-import { SETTINGS_PATH } from '../../../constants';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import GleanMetrics from '../../../lib/glean';
 
 export const Profile = forwardRef<HTMLDivElement>((_, ref) => {
   const { avatar, primaryEmail, displayName } = useAccount();

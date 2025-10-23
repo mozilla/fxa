@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor, within } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import {
+  MOCK_CMS_INFO,
+  MOCK_RECOVERY_KEY_WITH_SPACES,
+} from '../../pages/mocks';
 import { Subject } from './mocks';
-import { MOCK_CMS_INFO, MOCK_RECOVERY_KEY_WITH_SPACES } from '../../pages/mocks';
 
 describe('RecoveryKeySetupDownload', () => {
   it('renders as expected', async () => {
@@ -42,10 +44,10 @@ describe('RecoveryKeySetupDownload', () => {
   // so we have a separate test that targets just the thing that
   // cms is passed through to, the `Download and continue` button.
   it('renders button with CMS passthrough', () => {
-    renderWithLocalizationProvider(
-      <Subject cmsInfo={MOCK_CMS_INFO} />
-    );
-    const cmsButton = screen.getByRole('button', { name: 'Download and continue' });
+    renderWithLocalizationProvider(<Subject cmsInfo={MOCK_CMS_INFO} />);
+    const cmsButton = screen.getByRole('button', {
+      name: 'Download and continue',
+    });
     expect(cmsButton).toMatchSnapshot();
   });
 });

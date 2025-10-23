@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
+import DropDownAvatarMenu from '.';
+import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
+import firefox from '../../../lib/channels/firefox';
+import { Account, AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import {
   mockAppContext,
   mockSession,
   mockSettingsContext,
 } from '../../../models/mocks';
-import DropDownAvatarMenu from '.';
-import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
-import { Account, AppContext } from '../../../models';
-import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import firefox from '../../../lib/channels/firefox';
 import { PLACEHOLDER_IMAGE_URL } from '../../../pages/mocks';
-import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
 
 jest.mock('../../../models/AlertBarInfo');
 jest.mock('fxa-settings/src/lib/metrics', () => ({

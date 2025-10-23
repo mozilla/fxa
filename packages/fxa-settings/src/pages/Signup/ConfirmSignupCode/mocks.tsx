@@ -2,9 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { LocationProvider } from '@reach/router';
 import ConfirmSignupCode from '.';
+import { Constants } from '../../../lib/constants';
+import { GenericData } from '../../../lib/model-data';
+import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { MozServices } from '../../../lib/types';
 import {
   IntegrationType,
   OAuthNativeClients,
@@ -16,6 +19,7 @@ import {
 } from '../../../models';
 import {
   MOCK_CLIENT_ID,
+  MOCK_CMS_INFO,
   MOCK_EMAIL,
   MOCK_FLOW_ID,
   MOCK_KEY_FETCH_TOKEN,
@@ -24,7 +28,6 @@ import {
   MOCK_SESSION_TOKEN,
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
-  MOCK_CMS_INFO,
   mockFinishOAuthFlowHandler,
 } from '../../mocks';
 import {
@@ -32,10 +35,6 @@ import {
   ConfirmSignupCodeIntegration,
   ConfirmSignupCodeOAuthIntegration,
 } from './interfaces';
-import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { MozServices } from '../../../lib/types';
-import { GenericData } from '../../../lib/model-data';
-import { Constants } from '../../../lib/constants';
 
 export const MOCK_AUTH_ERROR = {
   errno: 999,

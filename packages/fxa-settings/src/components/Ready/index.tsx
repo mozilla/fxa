@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
 import { navigate, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import { useEffect } from 'react';
 import { REACT_ENTRYPOINT } from '../../constants';
-import { HeartsVerifiedImage } from '../images';
-import CardHeader from '../CardHeader';
-import { MozServices } from '../../lib/types';
 import GleanMetrics from '../../lib/glean';
-import Banner from '../Banner';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
+import Banner from '../Banner';
+import CardHeader from '../CardHeader';
 import CmsButtonWithFallback from '../CmsButtonWithFallback';
+import { HeartsVerifiedImage } from '../images';
 
 export type ReadyProps = {
   continueHandler?: Function;

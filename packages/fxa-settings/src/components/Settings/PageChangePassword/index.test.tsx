@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import 'mutationobserver-shim';
-import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import 'mutationobserver-shim';
 import { SETTINGS_PATH } from '../../../constants';
 import {
   mockAppContext,
@@ -13,19 +12,19 @@ import {
 } from '../../../models/mocks';
 
 import PageChangePassword from '.';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
   logViewEvent,
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { AppContext, Account } from '../../../models';
+import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import {
   inputCurrentPassword,
   inputNewPassword,
   inputVerifyPassword,
 } from '../../FormPassword/index.test';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 jest.mock('../../../models/AlertBarInfo');
 jest.mock('../../../lib/metrics', () => ({
@@ -63,7 +62,9 @@ const mockAuthClient = {
 
 // Mock the cache module to provide session token and JWT cache
 const mockSessionToken = 'mock-session-token';
-const mockJwtState: Record<string, string> = { [`${mockSessionToken}-password`]: 'mock-jwt-token' };
+const mockJwtState: Record<string, string> = {
+  [`${mockSessionToken}-password`]: 'mock-jwt-token',
+};
 jest.mock('../../../lib/cache', () => {
   const actual = jest.requireActual('../../../lib/cache');
   return {
@@ -102,7 +103,12 @@ const settingsContext = mockSettingsContext();
 
 const render = async (mockAccount = account) => {
   renderWithRouter(
-    <AppContext.Provider value={mockAppContext({ account: mockAccount, authClient: mockAuthClient })}>
+    <AppContext.Provider
+      value={mockAppContext({
+        account: mockAccount,
+        authClient: mockAuthClient,
+      })}
+    >
       <SettingsContext.Provider value={settingsContext}>
         <PageChangePassword />
       </SettingsContext.Provider>

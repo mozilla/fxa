@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback } from 'react';
-import { Meta } from '@storybook/react';
-import { withLocalization } from 'fxa-react/lib/storybooks';
-import { useBooleanState } from 'fxa-react/lib/hooks';
-import { Modal } from '.';
 import { LocationProvider } from '@reach/router';
+import { Meta } from '@storybook/react';
+import { useBooleanState } from 'fxa-react/lib/hooks';
+import { withLocalization } from 'fxa-react/lib/storybooks';
+import React, { useCallback } from 'react';
+import { Modal } from '.';
 
 // ModalToggle only included for Storybook functionality
 type ModalToggleChildrenProps = {

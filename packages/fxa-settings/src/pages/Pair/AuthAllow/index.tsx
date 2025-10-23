@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
-import { RemoteMetadata } from '../../../lib/types';
-import { usePageViewEvent } from '../../../lib/metrics';
-import AppLayout from '../../../components/AppLayout';
-import { REACT_ENTRYPOINT } from '../../../constants';
-import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { ReactComponent as LocationBalloonImage } from './confirm-pairing.svg';
-import GleanMetrics from '../../../lib/glean';
+import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
+import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
+import { usePageViewEvent } from '../../../lib/metrics';
+import { RemoteMetadata } from '../../../lib/types';
+import { ReactComponent as LocationBalloonImage } from './confirm-pairing.svg';
 
 export type AuthAllowProps = {
   suppDeviceInfo: RemoteMetadata;

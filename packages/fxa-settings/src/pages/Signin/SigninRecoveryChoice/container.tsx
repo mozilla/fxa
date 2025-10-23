@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import SigninRecoveryChoice from '.';
-import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getHandledError, HandledError } from '../../../lib/error-utils';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
+import { Integration, useAuthClient, useFtlMsgResolver } from '../../../models';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
-import { getHandledError, HandledError } from '../../../lib/error-utils';
 
 export const SigninRecoveryChoiceContainer = ({
   integration,

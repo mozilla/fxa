@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { IsBoolean, IsEmail, IsIn, IsOptional } from 'class-validator';
-import { bind, KeyTransforms as T, ModelDataProvider } from '../../../lib/model-data';
+import {
+  bind,
+  ModelDataProvider,
+  KeyTransforms as T,
+} from '../../../lib/model-data';
 
 export class SignupQueryParams extends ModelDataProvider {
   // 'email' will be optional once the index page is converted to React

@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { screen, fireEvent } from '@testing-library/react';
-import FlowSetup2faComplete from './index';
+import { fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';
+import FlowSetup2faComplete from './index';
 
 describe('FlowSetup2faComplete', () => {
   const serviceName = '123Done';

@@ -7,8 +7,8 @@ import { UserEvent, userEvent } from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import InlineTotpSetup from '.';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { MOCK_TOTP_TOKEN } from './mocks';
 import { MozServices } from '../../lib/types';
+import { MOCK_TOTP_TOKEN } from './mocks';
 
 const cancelSetupHandler = jest.fn();
 const verifyCodeHandler = jest.fn();

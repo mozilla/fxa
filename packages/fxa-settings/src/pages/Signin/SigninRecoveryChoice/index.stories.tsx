@@ -2,18 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { Meta } from '@storybook/react';
-import SigninRecoveryChoice from '.';
-import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MOCK_SIGNIN_LOCATION_STATE } from './mocks';
 import { LocationProvider } from '@reach/router';
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
+import SigninRecoveryChoice from '.';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
   createMockSigninOAuthIntegration,
   MOCK_CMS_INFO,
   MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
 } from '../mocks';
+import { MOCK_SIGNIN_LOCATION_STATE } from './mocks';
 
 export default {
   title: 'Pages/Signin/SigninRecoveryChoice',
@@ -41,7 +40,7 @@ export const DefaultWithCms = () => (
       lastFourPhoneDigits="1234"
       numBackupCodes={4}
       signinState={MOCK_SIGNIN_LOCATION_STATE}
-      integration={createMockSigninOAuthIntegration({ cmsInfo: MOCK_CMS_INFO})}
+      integration={createMockSigninOAuthIntegration({ cmsInfo: MOCK_CMS_INFO })}
     />
   </LocationProvider>
 );

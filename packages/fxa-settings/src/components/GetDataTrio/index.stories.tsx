@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
 import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
+import { useState } from 'react';
+import { MOCK_EMAIL } from '../../pages/mocks';
 import GetDataTrio, {
   GetDataCopySingleton,
   GetDataCopySingletonInline,
 } from './index';
-import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MOCK_EMAIL } from '../../pages/mocks';
 
 export default {
   title: 'Components/GetDataTrio',

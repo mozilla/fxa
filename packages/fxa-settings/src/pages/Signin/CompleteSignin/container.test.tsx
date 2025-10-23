@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as ReactUtils from 'fxa-react/lib/utils';
 import * as UseValidateModule from '../../../lib/hooks/useValidate';
 import * as ModelsModule from '../../../models';
-import * as ReactUtils from 'fxa-react/lib/utils';
 
-import React from 'react';
+import { LocationProvider } from '@reach/router';
 import { screen, waitFor } from '@testing-library/react';
 import AuthClient from 'fxa-auth-client/browser';
-import CompleteSigninContainer from './container';
-import { MOCK_HEXSTRING_32 } from '../../mocks';
-import { ModelDataProvider } from '../../../lib/model-data';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { LocationProvider } from '@reach/router';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { ModelDataProvider } from '../../../lib/model-data';
+import { MOCK_HEXSTRING_32 } from '../../mocks';
+import CompleteSigninContainer from './container';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),

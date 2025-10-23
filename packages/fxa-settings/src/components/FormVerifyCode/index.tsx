@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import InputText from '../../components/InputText';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { logViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
-import { useFtlMsgResolver } from '../../models';
+import { logViewEvent } from '../../lib/metrics';
 import { GleanClickEventDataAttrs } from '../../lib/types';
+import { useFtlMsgResolver } from '../../models';
 import CmsButtonWithFallback, { CmsButtonType } from '../CmsButtonWithFallback';
 
 export enum InputModeEnum {

@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import { Meta } from '@storybook/react';
-import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
-import { useBooleanState } from 'fxa-react/lib/hooks';
-import { ModalMfaProtected } from '.';
 import { action } from '@storybook/addon-actions';
-import { MOCK_EMAIL } from '../../../pages/mocks';
+import { Meta } from '@storybook/react';
+import { useBooleanState } from 'fxa-react/lib/hooks';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
+import { useState } from 'react';
+import { ModalMfaProtected } from '.';
 import { MfaReason } from '../../../lib/types';
+import { MOCK_EMAIL } from '../../../pages/mocks';
 
 export default {
   title: 'Components/Settings/ModalMfaProtected',

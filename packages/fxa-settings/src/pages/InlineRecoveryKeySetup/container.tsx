@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { generateRecoveryKey } from 'fxa-auth-client/browser';
+import { hardNavigate } from 'fxa-react/lib/utils';
+import { useCallback, useState } from 'react';
+import InlineRecoveryKeySetup from '.';
+import { cache, currentAccount } from '../../lib/cache';
+import { SensitiveData } from '../../lib/sensitive-data-client';
+import { formatRecoveryKey } from '../../lib/utilities';
 import {
   RelierCmsInfo,
   useAuthClient,
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
-import { RouteComponentProps, useLocation } from '@reach/router';
-import InlineRecoveryKeySetup from '.';
-import { cache, currentAccount } from '../../lib/cache';
-import { generateRecoveryKey } from 'fxa-auth-client/browser';
-import { CreateRecoveryKeyHandler } from './interfaces';
-import { SensitiveData } from '../../lib/sensitive-data-client';
 import { getSyncNavigate } from '../Signin/utils';
-import { hardNavigate } from 'fxa-react/lib/utils';
-import { formatRecoveryKey } from '../../lib/utilities';
+import { CreateRecoveryKeyHandler } from './interfaces';
 
 const InlineRecoveryKeySetupContainer = ({
   cmsInfo,
@@ -143,7 +143,7 @@ const InlineRecoveryKeySetupContainer = ({
         email,
         formattedRecoveryKey,
         navigateForward,
-        cmsInfo
+        cmsInfo,
       }}
     />
   );

@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { GraphQLError } from 'graphql';
 import * as Sentry from '@sentry/browser';
+import { FtlMsgResolver } from 'fxa-react/lib/utils';
+import { GraphQLError } from 'graphql';
+import VerificationMethods from '../constants/verification-methods';
+import VerificationReasons from '../constants/verification-reasons';
 import {
   AuthUiError,
   AuthUiErrorNos,
   AuthUiErrors,
 } from './auth-errors/auth-errors';
-import VerificationMethods from '../constants/verification-methods';
-import VerificationReasons from '../constants/verification-reasons';
-import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { OAUTH_ERRORS } from './oauth';
 
 // TODO: Consolidate with AuthUiError type

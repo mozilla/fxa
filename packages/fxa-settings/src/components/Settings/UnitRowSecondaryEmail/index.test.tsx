@@ -2,22 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import userEvent, { UserEvent } from '@testing-library/user-event';
+import AuthClient from 'fxa-auth-client/lib/client';
 import 'mutationobserver-shim';
-import React from 'react';
-import { screen, fireEvent, act, waitFor } from '@testing-library/react';
-import {
-  renderWithRouter,
-  mockEmail,
-  mockAppContext,
-  mockSettingsContext,
-} from '../../../models/mocks';
-import { createMockAccount } from './mocks';
 import { UnitRowSecondaryEmail } from '.';
+import { JwtTokenCache } from '../../../lib/cache';
 import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import { JwtTokenCache } from '../../../lib/cache';
-import AuthClient from 'fxa-auth-client/lib/client';
-import userEvent, { UserEvent } from '@testing-library/user-event';
+import {
+  mockAppContext,
+  mockEmail,
+  mockSettingsContext,
+  renderWithRouter,
+} from '../../../models/mocks';
+import { createMockAccount } from './mocks';
 
 const mockSessionToken = 'you-get-a-session-token';
 const mockJwt = 'and-you-get-a-jwt';

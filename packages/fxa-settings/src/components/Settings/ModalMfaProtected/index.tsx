@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import Modal from '../Modal';
-import InputText from '../../InputText';
-import { useFtlMsgResolver } from '../../../models';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { EmailCodeImage } from '../../images';
-import Banner, { ResendCodeSuccessBanner } from '../../Banner';
-import { MfaReason } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
+import { MfaReason } from '../../../lib/types';
+import { useFtlMsgResolver } from '../../../models';
+import Banner, { ResendCodeSuccessBanner } from '../../Banner';
+import { EmailCodeImage } from '../../images';
+import InputText from '../../InputText';
+import Modal from '../Modal';
 
 type ModalProps = {
   email: string;

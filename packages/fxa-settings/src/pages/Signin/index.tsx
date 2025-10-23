@@ -3,27 +3,34 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import classNames from 'classnames';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import AppLayout from '../../components/AppLayout';
+import Banner from '../../components/Banner';
+import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CardHeader from '../../components/CardHeader';
+import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
 import InputPassword from '../../components/InputPassword';
 import Avatar from '../../components/Settings/Avatar';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import { REACT_ENTRYPOINT } from '../../constants';
+import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import GleanMetrics from '../../lib/glean';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { usePageViewEvent } from '../../lib/metrics';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 import {
-  useSensitiveDataClient,
-  useFtlMsgResolver,
-  isWebIntegration,
   isOAuthIntegration,
+  isWebIntegration,
+  useFtlMsgResolver,
+  useSensitiveDataClient,
   useSession,
 } from '../../models';
 import {
@@ -33,13 +40,6 @@ import {
 } from '../../models/integrations/client-matching';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
-import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
-import { getLocalizedErrorMessage } from '../../lib/error-utils';
-import Banner from '../../components/Banner';
-import { SensitiveData } from '../../lib/sensitive-data-client';
-import { BannerLinkProps } from '../../components/Banner/interfaces';
-import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
-import VerificationReasons from '../../constants/verification-reasons';
 
 export const viewName = 'signin';
 

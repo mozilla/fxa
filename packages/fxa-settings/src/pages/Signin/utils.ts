@@ -2,29 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { InMemoryCache } from '@apollo/client';
+import { navigate } from '@reach/router';
+import { hardNavigate } from 'fxa-react/lib/utils';
+import AuthenticationMethods from '../../constants/authentication-methods';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
+import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { currentAccount, discardSessionToken } from '../../lib/cache';
+import firefox from '../../lib/channels/firefox';
+import GleanMetrics from '../../lib/glean';
+import { AuthError } from '../../lib/oauth';
+import { OAuthData } from '../../lib/oauth/hooks';
+import {
+  isOAuthIntegration,
+  isOAuthNativeIntegration,
+  useAuthClient,
+  useSession,
+} from '../../models';
 import {
   NavigationOptions,
   RecoveryEmailStatusResponse,
   SigninLocationState,
 } from './interfaces';
-import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import {
-  useSession,
-  isOAuthIntegration,
-  isOAuthNativeIntegration,
-  useAuthClient,
-} from '../../models';
-import { navigate } from '@reach/router';
-import { hardNavigate } from 'fxa-react/lib/utils';
-import { currentAccount, discardSessionToken } from '../../lib/cache';
-import firefox from '../../lib/channels/firefox';
-import { AuthError } from '../../lib/oauth';
-import GleanMetrics from '../../lib/glean';
-import { OAuthData } from '../../lib/oauth/hooks';
-import { InMemoryCache } from '@apollo/client';
-import AuthenticationMethods from '../../constants/authentication-methods';
 
 interface NavigationTarget {
   to: string;

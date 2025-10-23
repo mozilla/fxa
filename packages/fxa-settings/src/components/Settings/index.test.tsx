@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode } from 'react';
 import { History } from '@reach/router';
 import { waitFor } from '@testing-library/react';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+import { ReactNode } from 'react';
+import { SETTINGS_PATH } from '../../constants';
+import { Config } from '../../lib/config';
 import { Account, AppContext, useInitialSettingsState } from '../../models';
 import {
-  mockAppContext,
   MOCK_ACCOUNT,
-  renderWithRouter,
+  mockAppContext,
   mockSession,
+  renderWithRouter,
 } from '../../models/mocks';
-import { Config } from '../../lib/config';
-import { SETTINGS_PATH } from '../../constants';
-import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject } from './mocks';
 
 jest.mock('../../models', () => ({

@@ -2,39 +2,57 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { ApolloError } from '@apollo/client';
+import { LocationProvider } from '@reach/router';
+import { GraphQLError } from 'graphql';
 import Signin from '.';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
+import {
+  AuthUiError,
+  AuthUiErrorNos,
+  AuthUiErrors,
+} from '../../lib/auth-errors/auth-errors';
+import { BeginSigninError } from '../../lib/error-utils';
+import { GenericData } from '../../lib/model-data';
 import { MozServices } from '../../lib/types';
 import {
   AppContext,
   IntegrationData,
   IntegrationType,
-  RelierCmsInfo,
   OAuthNativeServices,
+  RelierCmsInfo,
 } from '../../models';
+import { mockAppContext } from '../../models/mocks';
 import {
   MOCK_AUTH_AT,
+  MOCK_AUTH_PW,
+  MOCK_AUTH_PW_V2,
+  MOCK_AVATAR_DEFAULT,
+  MOCK_AVATAR_NON_DEFAULT,
+  MOCK_CLIENT_ID,
+  MOCK_CLIENT_SALT,
   MOCK_EMAIL,
+  MOCK_FLOW_ID,
+  MOCK_KA,
+  MOCK_KEY_FETCH_TOKEN,
+  MOCK_KEY_FETCH_TOKEN_2,
+  MOCK_PASSWORD_CHANGE_TOKEN,
   MOCK_SESSION_TOKEN,
   MOCK_UID,
-  MOCK_AVATAR_NON_DEFAULT,
-  mockFinishOAuthFlowHandler,
-  MOCK_CLIENT_ID,
-  MOCK_AVATAR_DEFAULT,
-  MOCK_AUTH_PW,
-  MOCK_CLIENT_SALT,
-  MOCK_KEY_FETCH_TOKEN,
-  MOCK_PASSWORD_CHANGE_TOKEN,
   MOCK_WRAP_KB,
-  MOCK_AUTH_PW_V2,
   MOCK_WRAP_KB_V2,
-  MOCK_KA,
-  MOCK_KEY_FETCH_TOKEN_2,
-  MOCK_FLOW_ID,
+  mockFinishOAuthFlowHandler,
   mockGetWebChannelServices,
 } from '../mocks';
+import {
+  AVATAR_QUERY,
+  BEGIN_SIGNIN_MUTATION,
+  CREDENTIAL_STATUS_MUTATION,
+  GET_ACCOUNT_KEYS_MUTATION,
+  PASSWORD_CHANGE_FINISH_MUTATION,
+  PASSWORD_CHANGE_START_MUTATION,
+} from './gql';
 import {
   BeginSigninHandler,
   BeginSigninResponse,
@@ -45,25 +63,6 @@ import {
   SigninOAuthIntegration,
   SigninProps,
 } from './interfaces';
-import { LocationProvider } from '@reach/router';
-import {
-  AuthUiError,
-  AuthUiErrorNos,
-  AuthUiErrors,
-} from '../../lib/auth-errors/auth-errors';
-import {
-  AVATAR_QUERY,
-  BEGIN_SIGNIN_MUTATION,
-  CREDENTIAL_STATUS_MUTATION,
-  GET_ACCOUNT_KEYS_MUTATION,
-  PASSWORD_CHANGE_FINISH_MUTATION,
-  PASSWORD_CHANGE_START_MUTATION,
-} from './gql';
-import { ApolloError } from '@apollo/client';
-import { GraphQLError } from 'graphql';
-import { BeginSigninError } from '../../lib/error-utils';
-import { mockAppContext } from '../../models/mocks';
-import { GenericData } from '../../lib/model-data';
 
 // Extend base mocks
 export * from '../mocks';

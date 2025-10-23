@@ -3,17 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Localized } from '@fluent/react';
-import React, { useCallback, useState } from 'react';
-import { ReactComponent as ValidIcon } from './valid.svg';
-import { ReactComponent as InvalidIcon } from './invalid.svg';
-import { ReactComponent as UnsetIcon } from './unset.svg';
-import { UseFormMethods, ValidateResult } from 'react-hook-form';
+import { useNavigate } from '@reach/router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import InputPassword from '../InputPassword';
-import PasswordValidator from '../../lib/password-validator';
+import React, { useCallback, useState } from 'react';
+import { UseFormMethods, ValidateResult } from 'react-hook-form';
 import { SETTINGS_PATH } from '../../constants';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
-import { useNavigate } from '@reach/router';
+import PasswordValidator from '../../lib/password-validator';
+import InputPassword from '../InputPassword';
+import { ReactComponent as InvalidIcon } from './invalid.svg';
+import { ReactComponent as UnsetIcon } from './unset.svg';
+import { ReactComponent as ValidIcon } from './valid.svg';
 
 type FormPasswordProps = {
   formState: UseFormMethods['formState'];

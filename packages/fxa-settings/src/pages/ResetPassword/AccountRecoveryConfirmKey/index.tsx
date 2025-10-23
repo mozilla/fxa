@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Link, useLocation } from '@reach/router';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useEffect } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
-import { FtlMsg } from 'fxa-react/lib/utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
 import { isBase32Crockford } from '../../../lib/utilities';
@@ -14,15 +14,15 @@ import { useFtlMsgResolver } from '../../../models/hooks';
 import AppLayout from '../../../components/AppLayout';
 import InputText from '../../../components/InputText';
 
+import Banner from '../../../components/Banner';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import { RecoveryKeyImage } from '../../../components/images';
+import { Constants } from '../../../lib/constants';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import {
   AccountRecoveryConfirmKeyFormData,
   AccountRecoveryConfirmKeyProps,
 } from './interfaces';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { RecoveryKeyImage } from '../../../components/images';
-import { Constants } from '../../../lib/constants';
-import Banner from '../../../components/Banner';
-import { HeadingPrimary } from '../../../components/HeadingPrimary';
 
 // TODO in FXA-7894 use sensitive data client to pass sensitive data
 // Depends on FXA-7400

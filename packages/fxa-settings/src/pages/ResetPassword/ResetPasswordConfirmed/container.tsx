@@ -4,8 +4,17 @@
 
 import { RouteComponentProps } from '@reach/router';
 
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { hardNavigate } from 'fxa-react/lib/utils';
+import { useState } from 'react';
 import ResetPasswordConfirmed from '.';
+import OAuthDataError from '../../../components/OAuthDataError';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { currentAccount } from '../../../lib/cache';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { AuthError } from '../../../lib/oauth';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { MozServices } from '../../../lib/types';
 import {
   Integration,
@@ -13,15 +22,6 @@ import {
   useAuthClient,
   useSensitiveDataClient,
 } from '../../../models';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import OAuthDataError from '../../../components/OAuthDataError';
-import { hardNavigate } from 'fxa-react/lib/utils';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { AuthError } from '../../../lib/oauth';
-import { useState } from 'react';
-import GleanMetrics from '../../../lib/glean';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { currentAccount } from '../../../lib/cache';
 
 const ResetPasswordConfirmedContainer = ({
   integration,

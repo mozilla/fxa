@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { Meta, StoryFn } from '@storybook/react';
-import SubRow, { BackupCodesSubRow, BackupPhoneSubRow } from './index';
 import { action } from '@storybook/addon-actions';
+import { Meta, StoryFn } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { CodeIcon } from '../../Icons';
 import { MOCK_NATIONAL_FORMAT_PHONE_NUMBER } from '../../../pages/mocks';
+import { CodeIcon } from '../../Icons';
+import SubRow, { BackupCodesSubRow, BackupPhoneSubRow } from './index';
 
 export default {
   title: 'Components/Settings/SubRow',

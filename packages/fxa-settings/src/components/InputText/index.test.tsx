@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { screen, cleanup } from '@testing-library/react';
+import { cleanup, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import InputText from '.';
 
 const label = 'Eveything to Nothing';
 
 it('renders as expected', () => {
-  const { container } = renderWithLocalizationProvider(<InputText {...{ label }} />);
+  const { container } = renderWithLocalizationProvider(
+    <InputText {...{ label }} />
+  );
   expect(screen.getByTestId('input-container')).toBeInTheDocument();
   expect(screen.getByTestId('input-label')).toBeInTheDocument();
   expect(screen.getByTestId('input-field')).toBeInTheDocument();

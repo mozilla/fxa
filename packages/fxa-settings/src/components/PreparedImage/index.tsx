@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import React from 'react';
 
 interface PreparedImageBaseProps {
   className?: string;
@@ -38,7 +38,7 @@ export const PreparedImage = (props: PreparedImageProps) => {
   return (
     <>
       {showAriaLabel ? (
-        <FtlMsg id={props.ariaLabelFtlId} attrs={{ "aria-label": true }}>
+        <FtlMsg id={props.ariaLabelFtlId} attrs={{ 'aria-label': true }}>
           <Image role="img" aria-label={props.ariaLabel} {...{ className }} />
         </FtlMsg>
       ) : (

@@ -2,24 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { useCallback, useEffect, useState, useRef } from 'react';
-import InlineTotpSetup from '.';
-import { MozServices, TotpInfo } from '../../lib/types';
-import { Integration, useSession, useAuthClient } from '../../models';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { useMutation, useQuery } from '@apollo/client';
-import { CREATE_TOTP_MUTATION } from './gql';
-import { getSigninState } from '../Signin/utils';
-import { SigninLocationState } from '../Signin/interfaces';
-import { GET_TOTP_STATUS } from '../../components/App/gql';
-import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
-import { SigninRecoveryLocationState } from '../InlineRecoverySetupFlow/interfaces';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import InlineTotpSetup from '.';
 import { QueryParams } from '../..';
-import { queryParamsToMetricsContext } from '../../lib/metrics';
+import { GET_TOTP_STATUS } from '../../components/App/gql';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../lib/glean';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { queryParamsToMetricsContext } from '../../lib/metrics';
+import { MozServices, TotpInfo } from '../../lib/types';
+import { Integration, useAuthClient, useSession } from '../../models';
+import { SigninRecoveryLocationState } from '../InlineRecoverySetupFlow/interfaces';
+import { SigninLocationState } from '../Signin/interfaces';
+import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
+import { getSigninState } from '../Signin/utils';
+import { CREATE_TOTP_MUTATION } from './gql';
 
 export const InlineTotpSetupContainer = ({
   isSignedIn,

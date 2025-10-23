@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
-import AppLayout from '../../../components/AppLayout';
-import FormVerifyTotp from '../../../components/FormVerifyTotp';
-import { ConfirmResetPasswordProps } from './interfaces';
 import { RouteComponentProps } from '@reach/router';
-import { useFtlMsgResolver } from '../../../models';
-import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { ResendStatus } from '../../../lib/types';
-import { EmailCodeImage } from '../../../components/images';
-import GleanMetrics from '../../../lib/glean';
+import { useEffect } from 'react';
+import AppLayout from '../../../components/AppLayout';
 import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import { EmailCodeImage } from '../../../components/images';
+import LinkRememberPassword from '../../../components/LinkRememberPassword';
+import GleanMetrics from '../../../lib/glean';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { ResendStatus } from '../../../lib/types';
+import { useFtlMsgResolver } from '../../../models';
+import { ConfirmResetPasswordProps } from './interfaces';
 
 const ConfirmResetPassword = ({
   clearBanners,

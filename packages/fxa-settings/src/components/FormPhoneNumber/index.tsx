@@ -4,10 +4,10 @@
 
 import React from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import InputPhoneNumber from '../InputPhoneNumber';
+import { GleanClickEventDataAttrs } from '../../lib/types';
 import Banner from '../Banner';
 import { BannerContentProps, BannerLinkProps } from '../Banner/interfaces';
-import { GleanClickEventDataAttrs } from '../../lib/types';
+import InputPhoneNumber from '../InputPhoneNumber';
 
 export interface InputPhoneNumberData {
   phoneNumber: string;

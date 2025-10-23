@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import CardHeader from '.';
 import {
-  MOCK_DEFAULT_HEADING_FTL_ID,
+  MOCK_CMS_DESCRIPTION,
+  MOCK_CMS_HEADLINE,
+  MOCK_CMS_LOGO_ALT_TEXT,
+  MOCK_CMS_LOGO_URL,
   MOCK_CUSTOM_HEADING_FTL_ID,
+  MOCK_DEFAULT_HEADING_FTL_ID,
   MOCK_HEADING,
   MOCK_SERVICE_NAME,
-  MOCK_CMS_LOGO_URL,
-  MOCK_CMS_LOGO_ALT_TEXT,
-  MOCK_CMS_HEADLINE,
-  MOCK_CMS_DESCRIPTION,
 } from './mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -72,18 +71,19 @@ describe('CardHeader', () => {
       />
     );
     expect(screen.getByAltText(MOCK_CMS_LOGO_ALT_TEXT)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })
+    ).toBeInTheDocument();
     expect(screen.getByText(MOCK_CMS_DESCRIPTION)).toBeInTheDocument();
   });
 
   it('renders CMS header with only headline', () => {
     renderWithLocalizationProvider(
-      <CardHeader
-        headingText={MOCK_HEADING}
-        cmsHeadline={MOCK_CMS_HEADLINE}
-      />
+      <CardHeader headingText={MOCK_HEADING} cmsHeadline={MOCK_CMS_HEADLINE} />
     );
-    expect(screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: MOCK_CMS_HEADLINE })
+    ).toBeInTheDocument();
   });
 
   it('renders CMS header with only description', () => {

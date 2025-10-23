@@ -4,6 +4,7 @@
 
 import sinon, { createSandbox } from 'sinon';
 import {
+  GenericIntegration,
   Integration,
   IntegrationType,
   OAuthIntegration,
@@ -15,12 +16,11 @@ import {
   RelierClientInfo,
   RelierSubscriptionInfo,
   SyncDesktopV3Integration,
-  GenericIntegration,
 } from '../../models/integrations';
-import { StorageData, UrlHashData, UrlQueryData } from '../model-data';
-import { IntegrationFactory, DefaultIntegrationFlags } from '../integrations';
-import { ReachRouterWindow } from '../window';
 import { Constants } from '../constants';
+import { DefaultIntegrationFlags, IntegrationFactory } from '../integrations';
+import { StorageData, UrlHashData, UrlQueryData } from '../model-data';
+import { ReachRouterWindow } from '../window';
 
 type IntegrationFlagOverrides = {
   isDevicePairingAsAuthority?: boolean;

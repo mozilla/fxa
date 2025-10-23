@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { UseFormMethods } from 'react-hook-form';
+import { syncEngineConfigs } from '../../lib/sync-engines';
 import { SetPasswordFormData } from '../../pages/PostVerify/SetPassword/interfaces';
 import { SignupFormData } from '../../pages/Signup/interfaces';
-import { syncEngineConfigs } from '../../lib/sync-engines';
 import { CmsButtonType } from '../CmsButtonWithFallback';
 
 export type FormSetupAccountData = SignupFormData | SetPasswordFormData;

@@ -2,42 +2,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ApolloClient, ApolloError, gql } from '@apollo/client';
+import { MetricsContext } from '@fxa/shared/glean';
 import base32Decode from 'base32-decode';
-import { gql, ApolloClient, ApolloError } from '@apollo/client';
-import config from '../lib/config';
 import AuthClient, {
   AUTH_PROVIDER,
   generateRecoveryKey,
-  getRecoveryKeyIdByUid,
   getCredentials,
   getCredentialsV2,
   getKeysV2,
+  getRecoveryKeyIdByUid,
 } from 'fxa-auth-client/browser';
-import { MetricsContext } from '@fxa/shared/glean';
+import { createSaltV2 } from 'fxa-auth-client/lib/salt';
+import {
+  GET_BACKUP_CODES_STATUS,
+  GET_LOCAL_SIGNED_IN_STATUS,
+  GET_RECOVERY_PHONE,
+  GET_TOTP_STATUS,
+} from '../components/App/gql';
+import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 import {
   currentAccount,
   getStoredAccountData,
-  sessionToken,
-  JwtTokenCache,
   JwtNotFoundError,
+  JwtTokenCache,
+  sessionToken,
 } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
-import Storage from '../lib/storage';
-import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
-import { LinkedAccountProviderIds, MfaScope, MozServices } from '../lib/types';
-import {
-  GET_LOCAL_SIGNED_IN_STATUS,
-  GET_TOTP_STATUS,
-  GET_BACKUP_CODES_STATUS,
-  GET_RECOVERY_PHONE,
-} from '../components/App/gql';
+import config from '../lib/config';
+import { getHandledError } from '../lib/error-utils';
 import {
   AccountAvatar,
   AccountBackupCodes,
   AccountTotp,
 } from '../lib/interfaces';
-import { createSaltV2 } from 'fxa-auth-client/lib/salt';
-import { getHandledError } from '../lib/error-utils';
+import Storage from '../lib/storage';
+import { LinkedAccountProviderIds, MfaScope, MozServices } from '../lib/types';
 
 export interface DeviceLocation {
   city: string | null;

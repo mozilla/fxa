@@ -2,28 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Localized } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
-import { MfaGuard } from '../MfaGuard';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { SETTINGS_PATH } from '../../../constants';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import {
+  getErrorFtlId,
+  getLocalizedErrorMessage,
+} from '../../../lib/error-utils';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import {
   logViewEvent,
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
-import FlowContainer from '../FlowContainer';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { Localized } from '@fluent/react';
-import FormPassword from '../../FormPassword';
-import {
-  getErrorFtlId,
-  getLocalizedErrorMessage,
-} from '../../../lib/error-utils';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { MfaReason } from '../../../lib/types';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
+import FormPassword from '../../FormPassword';
+import FlowContainer from '../FlowContainer';
+import { MfaGuard } from '../MfaGuard';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 type FormData = {
   oldPassword: string;

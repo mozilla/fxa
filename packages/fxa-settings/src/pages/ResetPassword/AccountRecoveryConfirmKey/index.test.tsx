@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { Subject } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import GleanMetrics from '../../../lib/glean';
 import {
   MOCK_RECOVERY_KEY,
   MOCK_RECOVERY_KEY_INVALID,
   MOCK_RECOVERY_KEY_WITH_SPACES,
 } from '../../mocks';
-import GleanMetrics from '../../../lib/glean';
+import { Subject } from './mocks';
 
 const mockVerifyRecoveryKey = jest.fn((_recoveryKey: string) =>
   Promise.resolve()

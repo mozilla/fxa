@@ -2,12 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { ResetPasswordWithRecoveryKeyVerifiedProps } from './interfaces';
-import { formatRecoveryKey } from '../../../lib/utilities';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
+import { useCallback, useEffect, useState } from 'react';
+import { SETTINGS_PATH } from '../../../constants';
+import { currentAccount } from '../../../lib/cache';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import {
+  FinishOAuthFlowHandlerResult,
+  useFinishOAuthFlowHandler,
+} from '../../../lib/oauth/hooks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { formatRecoveryKey } from '../../../lib/utilities';
 import {
   Integration,
   isOAuthIntegration,
@@ -17,14 +23,8 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
-import {
-  FinishOAuthFlowHandlerResult,
-  useFinishOAuthFlowHandler,
-} from '../../../lib/oauth/hooks';
 import ResetPasswordWithRecoveryKeyVerified from './index';
-import { SETTINGS_PATH } from '../../../constants';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { currentAccount } from '../../../lib/cache';
+import { ResetPasswordWithRecoveryKeyVerifiedProps } from './interfaces';
 
 const ResetPasswordWithRecoveryKeyVerifiedContainer = ({
   integration,

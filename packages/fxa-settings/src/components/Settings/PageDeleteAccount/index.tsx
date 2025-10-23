@@ -2,24 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { useAccount, useAlertBar } from '../../../models';
-import InputPassword from '../../InputPassword';
-import FlowContainer from '../FlowContainer';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { LINK, SETTINGS_PATH } from '../../../constants';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import { Checkbox } from '../Checkbox';
-import { useLocalization } from '@fluent/react';
-import { Localized } from '@fluent/react';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { LINK, SETTINGS_PATH } from '../../../constants';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { useAccount, useAlertBar } from '../../../models';
 import { useFtlMsgResolver } from '../../../models/hooks';
+import InputPassword from '../../InputPassword';
+import { Checkbox } from '../Checkbox';
+import FlowContainer from '../FlowContainer';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 type FormData = {
   password: string;

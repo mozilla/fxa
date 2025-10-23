@@ -2,20 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { PageRecoveryPhoneRemove } from '.';
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Account, AppContext } from '../../../models';
+import { PageRecoveryPhoneRemove } from '.';
+import GleanMetrics from '../../../lib/glean';
+import { Account, AppContext, useAlertBar } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import {
   mockAppContext,
   mockSettingsContext,
   renderWithRouter,
 } from '../../../models/mocks';
-import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import { useAlertBar } from '../../../models';
 import { MOCK_FULL_PHONE_NUMBER } from '../../../pages/mocks';
-import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,

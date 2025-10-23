@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ResetPasswordWithRecoveryKeyVerified, { viewName } from '.';
-import { logViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
+import { logViewEvent } from '../../../lib/metrics';
 import {
   createHistoryWithQuery,
   renderWithRouter,
 } from '../../../models/mocks';
-import GleanMetrics from '../../../lib/glean';
-import userEvent from '@testing-library/user-event';
 
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),

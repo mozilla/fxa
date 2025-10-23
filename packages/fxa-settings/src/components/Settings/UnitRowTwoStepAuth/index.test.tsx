@@ -4,15 +4,15 @@
 
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { JwtTokenCache } from '../../../lib/cache';
+import GleanMetrics from '../../../lib/glean';
 import { renderWithRouter } from '../../../models/mocks';
-import { createSubject } from './mocks';
 import {
   MOCK_FULL_PHONE_NUMBER,
   MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER,
   MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
 } from '../../../pages/mocks';
-import GleanMetrics from '../../../lib/glean';
-import { JwtTokenCache } from '../../../lib/cache';
+import { createSubject } from './mocks';
 
 jest.mock('../../../models/AlertBarInfo');
 

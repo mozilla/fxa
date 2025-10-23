@@ -2,15 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import * as utils from 'fxa-react/lib/utils';
+import { LocationProvider, navigate } from '@reach/router';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import * as utils from 'fxa-react/lib/utils';
 import SigninUnblock, { viewName } from '.';
-import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { LocationProvider } from '@reach/router';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../../lib/glean';
+import { usePageViewEvent } from '../../../lib/metrics';
+import { OAUTH_ERRORS } from '../../../lib/oauth';
+import { tryAgainError } from '../../../lib/oauth/hooks';
 import { MOCK_EMAIL, mockFinishOAuthFlowHandler } from '../../mocks';
 import {
   createBeginSigninResponse,
@@ -19,13 +22,8 @@ import {
   createMockSigninOAuthNativeSyncIntegration,
   createMockSigninWebIntegration,
 } from '../mocks';
-import GleanMetrics from '../../../lib/glean';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { navigate } from '@reach/router';
-import { tryAgainError } from '../../../lib/oauth/hooks';
-import { OAUTH_ERRORS } from '../../../lib/oauth';
-import { createMockWebIntegration } from './mocks';
 import * as SigninUtils from '../utils';
+import { createMockWebIntegration } from './mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

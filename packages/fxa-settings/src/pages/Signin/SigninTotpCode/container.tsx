@@ -2,22 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
-import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
-import { SigninQueryParams } from '../../../models/pages/signin';
-import { SigninTotpCode } from './index';
 import { useMutation } from '@apollo/client';
-import { MozServices } from '../../../lib/types';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import OAuthDataError from '../../../components/OAuthDataError';
 import VerificationMethods from '../../../constants/verification-methods';
-import { VERIFY_TOTP_CODE_MUTATION } from './gql';
-import { getSigninState } from '../utils';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getHandledError, HandledError } from '../../../lib/error-utils';
+import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import {
-  CredentialStatusResponse,
-  GetAccountKeysResponse,
-  PasswordChangeFinishResponse,
-  PasswordChangeStartResponse,
-  SigninLocationState,
-} from '../interfaces';
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { MozServices } from '../../../lib/types';
 import {
   Integration,
   isWebIntegration,
@@ -25,25 +27,23 @@ import {
   useSensitiveDataClient,
   useSession,
 } from '../../../models';
-import {
-  useFinishOAuthFlowHandler,
-  useOAuthKeysCheck,
-} from '../../../lib/oauth/hooks';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import OAuthDataError from '../../../components/OAuthDataError';
-import { getHandledError, HandledError } from '../../../lib/error-utils';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import { SigninQueryParams } from '../../../models/pages/signin';
 import {
   CREDENTIAL_STATUS_MUTATION,
   GET_ACCOUNT_KEYS_MUTATION,
   PASSWORD_CHANGE_FINISH_MUTATION,
   PASSWORD_CHANGE_START_MUTATION,
 } from '../gql';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import {
+  CredentialStatusResponse,
+  GetAccountKeysResponse,
+  PasswordChangeFinishResponse,
+  PasswordChangeStartResponse,
+  SigninLocationState,
+} from '../interfaces';
+import { getSigninState } from '../utils';
+import { VERIFY_TOTP_CODE_MUTATION } from './gql';
+import { SigninTotpCode } from './index';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;

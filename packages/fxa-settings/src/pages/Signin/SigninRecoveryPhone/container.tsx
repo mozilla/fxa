@@ -2,11 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useContext, useEffect } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
+import { useContext, useEffect } from 'react';
 import SigninRecoveryPhone from '.';
-import { SigninLocationState } from '../interfaces';
-import { getSigninState, handleNavigation } from '../utils';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
+import OAuthDataError from '../../../components/OAuthDataError';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getHandledError } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { storeAccountData } from '../../../lib/storage-utils';
 import {
   AppContext,
   isWebIntegration,
@@ -15,23 +26,12 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { getHandledError } from '../../../lib/error-utils';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import {
-  useFinishOAuthFlowHandler,
-  useOAuthKeysCheck,
-} from '../../../lib/oauth/hooks';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
-import OAuthDataError from '../../../components/OAuthDataError';
-import { storeAccountData } from '../../../lib/storage-utils';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { SigninLocationState } from '../interfaces';
+import { getSigninState, handleNavigation } from '../utils';
 import {
   SigninRecoveryPhoneContainerProps,
   SigninRecoveryPhoneLocationState,
 } from './interfaces';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
-import GleanMetrics from '../../../lib/glean';
 
 const SigninRecoveryPhoneContainer = ({
   integration,

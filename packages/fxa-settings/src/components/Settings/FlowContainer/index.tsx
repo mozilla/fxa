@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { RouteComponentProps } from '@reach/router';
+import classNames from 'classnames';
+import Head from 'fxa-react/components/Head';
 import React from 'react';
 import { useFtlMsgResolver } from '../../../models';
-import { RouteComponentProps } from '@reach/router';
-import Head from 'fxa-react/components/Head';
 import ButtonBack from '../../ButtonBack';
-import classNames from 'classnames';
 
 type FlowContainerProps = {
   title?: string;

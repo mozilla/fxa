@@ -4,9 +4,9 @@
 
 import { renderHook } from '@testing-library/react-hooks';
 import { useSyncEngines } from '.';
-import { Constants } from '../../constants';
-import firefox from '../../channels/firefox';
 import { IntegrationType } from '../../../models';
+import firefox from '../../channels/firefox';
+import { Constants } from '../../constants';
 
 jest.mock('../../channels/firefox', () => ({
   __esModule: true,

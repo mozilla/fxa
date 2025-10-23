@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import Page from '../Page';
 import Copiable from '../Copiable';
+import Page from '../Page';
 import Snippet from '../Snippet';
 
 const nonIntMap = {

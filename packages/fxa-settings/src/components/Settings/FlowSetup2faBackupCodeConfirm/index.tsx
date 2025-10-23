@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import FlowContainer from '../FlowContainer';
-import ProgressBar from '../ProgressBar';
-import { GleanClickEventType2FA } from '../../../lib/types';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import GleanMetrics from '../../../lib/glean';
-import { BackupCodesImage } from '../../images';
-import FormVerifyTotp from '../../FormVerifyTotp';
+import { GleanClickEventType2FA } from '../../../lib/types';
 import { useFtlMsgResolver } from '../../../models';
 import Banner from '../../Banner';
+import FormVerifyTotp from '../../FormVerifyTotp';
+import { BackupCodesImage } from '../../images';
+import FlowContainer from '../FlowContainer';
+import ProgressBar from '../ProgressBar';
 
 type FlowSetup2faBackupCodeConfirmProps = {
   currentStep?: number;

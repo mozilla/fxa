@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import { MOCK_EMAIL, MOCK_HEXSTRING_32, MOCK_UID } from '../../mocks';
-import AccountRecoveryConfirmKey from '.';
 import { LocationProvider } from '@reach/router';
-import { AccountRecoveryConfirmKeyProps } from './interfaces';
+import { useState } from 'react';
+import AccountRecoveryConfirmKey from '.';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { MOCK_EMAIL, MOCK_HEXSTRING_32, MOCK_UID } from '../../mocks';
+import { AccountRecoveryConfirmKeyProps } from './interfaces';
 
 export const Subject = ({
   recoveryKeyHint = '',

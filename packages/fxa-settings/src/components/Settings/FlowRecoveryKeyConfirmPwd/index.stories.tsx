@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import { FlowRecoveryKeyConfirmPwd } from '.';
 import { Meta } from '@storybook/react';
+import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
+import { useState } from 'react';
+import { FlowRecoveryKeyConfirmPwd } from '.';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { Account, AppContext, useFtlMsgResolver } from '../../../models';
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 
 export default {

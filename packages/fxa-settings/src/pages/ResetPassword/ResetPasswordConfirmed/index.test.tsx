@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import ResetPasswordConfirmed from '.';
 import { MozServices } from '../../../lib/types';
-import userEvent from '@testing-library/user-event';
 
 const mockContinueHandler = jest.fn();
 
@@ -22,7 +21,9 @@ describe('ResetPasswordConfirmed', () => {
     expect(
       screen.getByText('Your password has been reset')
     ).toBeInTheDocument();
-    const submitButton = screen.getByRole('button', { name: 'Continue to Mozilla Monitor' });
+    const submitButton = screen.getByRole('button', {
+      name: 'Continue to Mozilla Monitor',
+    });
     expect(submitButton).toHaveTextContent('Continue to Mozilla Monitor');
     expect(submitButton).toHaveAttribute(
       'data-glean-id',
@@ -50,7 +51,9 @@ describe('ResetPasswordConfirmed', () => {
         serviceName={MozServices.Monitor}
       />
     );
-    user.click(screen.getByRole('button', { name: 'Continue to Mozilla Monitor' }));
+    user.click(
+      screen.getByRole('button', { name: 'Continue to Mozilla Monitor' })
+    );
     await waitFor(() => expect(mockContinueHandler).toHaveBeenCalledTimes(1));
   });
 });

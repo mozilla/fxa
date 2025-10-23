@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import DeviceInfoBlock from '.';
 import { RemoteMetadata } from '../../lib/types';
 import AppLayout from '../AppLayout';
-import { Meta } from '@storybook/react';
 import {
-  MOCK_METADATA_UNKNOWN_LOCATION,
-  MOCK_DEVICE_NAME,
   MOCK_CITY,
-  MOCK_REGION,
   MOCK_COUNTRY,
+  MOCK_DEVICE_NAME,
+  MOCK_METADATA_UNKNOWN_LOCATION,
+  MOCK_REGION,
 } from './mocks';
-import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/DeviceInfoBlock',

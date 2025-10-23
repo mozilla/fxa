@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useState, useEffect, useSyncExternalStore } from 'react';
-import { useAuthClient } from '../../../models';
+import { RouteComponentProps } from '@reach/router';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useErrorHandler } from 'react-error-boundary';
 import {
   JwtNotFoundError,
   JwtTokenCache,
   sessionToken as getSessionToken,
 } from '../../../lib/cache';
-import { MfaGuard } from '../MfaGuard';
-import { RouteComponentProps } from '@reach/router';
-import { useErrorHandler } from 'react-error-boundary';
 import { MfaReason } from '../../../lib/types';
+import { useAuthClient } from '../../../models';
+import { MfaGuard } from '../MfaGuard';
 
 export const PageMfaGuardTestWithAuthClient = (props: RouteComponentProps) => {
   return (

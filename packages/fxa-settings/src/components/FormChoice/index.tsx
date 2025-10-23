@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import classNames from 'classnames';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import CmsButtonWithFallback, { CmsButtonType } from '../CmsButtonWithFallback';
 
@@ -44,7 +44,7 @@ const FormChoice = ({
   formChoices,
   onSubmit,
   isSubmitting,
-                      cmsButton
+  cmsButton,
 }: FormChoiceProps) => {
   const { register, handleSubmit, watch } = useForm<FormChoiceData>();
   const selectedOption = watch('choice');

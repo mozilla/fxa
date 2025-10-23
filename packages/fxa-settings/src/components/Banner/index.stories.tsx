@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
-import AppLayout from '../AppLayout';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import Banner, { ResendCodeSuccessBanner, ResendLinkSuccessBanner } from '.';
-import { sampleDescription, sampleHeading, sampleCtaText } from './mocks';
+import AppLayout from '../AppLayout';
+import { sampleCtaText, sampleDescription, sampleHeading } from './mocks';
 
 // TODO in FXA-10621 - This component is a good candidate for using the controls panel once enabled
 

@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import { RecoveryKeyImage } from '../images';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useState } from 'react';
+import { RelierCmsInfo, useFtlMsgResolver } from '../../models';
 import { CreateRecoveryKeyHandler } from '../../pages/InlineRecoveryKeySetup/interfaces';
 import Banner from '../Banner';
-import { RelierCmsInfo, useFtlMsgResolver } from '../../models';
-import { HeadingPrimary } from '../HeadingPrimary';
 import CmsButtonWithFallback from '../CmsButtonWithFallback';
+import { HeadingPrimary } from '../HeadingPrimary';
+import { RecoveryKeyImage } from '../images';
 
 export interface InlineRecoveryKeySetupCreateProps {
   createRecoveryKeyHandler: () => Promise<CreateRecoveryKeyHandler>;
@@ -20,7 +20,7 @@ export interface InlineRecoveryKeySetupCreateProps {
 export const InlineRecoveryKeySetupCreate = ({
   createRecoveryKeyHandler,
   doLaterHandler,
-  cmsInfo
+  cmsInfo,
 }: InlineRecoveryKeySetupCreateProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =

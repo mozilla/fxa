@@ -2,23 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Link } from '@reach/router';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useErrorHandler } from 'react-error-boundary';
-import FlowContainer from '../FlowContainer';
-import ProgressBar from '../ProgressBar';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { useAccount, useFtlMsgResolver } from '../../../models';
 import { useForm } from 'react-hook-form';
-import { logViewEvent } from '../../../lib/metrics';
+import { SETTINGS_PATH } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { logViewEvent } from '../../../lib/metrics';
+import { formatRecoveryKey } from '../../../lib/utilities';
+import { useAccount, useFtlMsgResolver } from '../../../models';
+import Banner from '../../Banner';
 import InputPassword from '../../InputPassword';
 import { PasswordImage } from '../../images';
+import FlowContainer from '../FlowContainer';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
-import { Link } from '@reach/router';
-import { SETTINGS_PATH } from '../../../constants';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { formatRecoveryKey } from '../../../lib/utilities';
-import Banner from '../../Banner';
+import ProgressBar from '../ProgressBar';
 
 type FormData = {
   password: string;

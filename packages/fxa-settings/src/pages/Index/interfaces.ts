@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { QueryParams } from '../../index';
 import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
-import { QueryParams } from '../../index';
 
 export type IndexIntegration = Pick<
   Integration,

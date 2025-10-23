@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
-import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
-import { alertContent, alertType, alertVisible } from '../../../models';
 import { useReactiveVar } from '@apollo/client';
-import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useLocalization } from '@fluent/react';
+import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import classNames from 'classnames';
+import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
+import { useEffect, useRef, useState } from 'react';
+import { useChangeFocusEffect, useEscKeydownEffect } from '../../../lib/hooks';
+import { alertContent, alertType, alertVisible } from '../../../models';
 
 /**
  * AlertBar component displays an alert message at the top of the screen.

@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import classNames from 'classnames';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useState } from 'react';
+import { useFtlMsgResolver } from '../../models';
 import GetDataTrio, {
   DownloadContentType,
   GetDataCopySingleton,
   GetDataTrioGleanData,
 } from '../GetDataTrio';
 import { Tooltip } from '../Tooltip';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import classNames from 'classnames';
 import { ReactComponent as CodeIcon } from './code.min.svg';
-import { useFtlMsgResolver } from '../../models';
 const actionTypeToNotification = {
   download: 'Downloaded',
   copy: 'Copied',

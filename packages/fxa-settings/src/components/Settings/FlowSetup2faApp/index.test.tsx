@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import React from 'react';
 
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { formatSecret } from '../../../lib/utilities';
@@ -16,8 +16,8 @@ import {
 import { FlowSetup2faApp } from '.';
 import { TwoStepSetupMethod } from './types';
 
-import { GleanClickEventType2FA } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
+import { GleanClickEventType2FA } from '../../../lib/types';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,

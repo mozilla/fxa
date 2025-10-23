@@ -3,13 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ApolloClientModule from '@apollo/client';
-import * as InlineRecoverySetupModule from '.';
 import * as utils from 'fxa-react/lib/utils';
+import * as InlineRecoverySetupModule from '.';
 
 import { ApolloClient } from '@apollo/client';
 import { LocationProvider } from '@reach/router';
+import { waitFor } from '@testing-library/react';
+import AuthClient from 'fxa-auth-client/browser';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
 import { AuthUiError } from '../../lib/auth-errors/auth-errors';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../lib/oauth/hooks';
+import { SensitiveData } from '../../lib/sensitive-data-client';
 import { MozServices } from '../../lib/types';
 import {
   IntegrationType,
@@ -22,21 +30,13 @@ import {
   MOCK_SIGNIN_LOCATION_STATE,
   MOCK_SIGNIN_RECOVERY_LOCATION_STATE,
 } from '../InlineTotpSetup/mocks';
-import InlineRecoverySetupContainer from './container';
-import AuthClient from 'fxa-auth-client/browser';
-import { waitFor } from '@testing-library/react';
 import {
   MOCK_CLIENT_ID,
   MOCK_NO_TOTP,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
   MOCK_TOTP_STATUS_VERIFIED,
 } from '../Signin/mocks';
-import {
-  useFinishOAuthFlowHandler,
-  useOAuthKeysCheck,
-} from '../../lib/oauth/hooks';
-import { SensitiveData } from '../../lib/sensitive-data-client';
-import { mockWindowLocation } from 'fxa-react/lib/test-utils/mockWindowLocation';
+import InlineRecoverySetupContainer from './container';
 
 let mockLocationState = {};
 const search = '?' + new URLSearchParams(MOCK_QUERY_PARAMS);

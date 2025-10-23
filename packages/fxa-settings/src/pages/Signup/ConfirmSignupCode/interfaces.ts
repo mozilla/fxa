@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from '@reach/router';
-import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { Integration, OAuthWebIntegration } from '../../../models';
 import { QueryParams } from '../../..';
+import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { Integration, OAuthWebIntegration } from '../../../models';
 
 export type LocationState = {
   origin: 'signup' | undefined;

@@ -23,31 +23,33 @@
  *  5. Assert on mocked functions and spies.
  */
 
-import React from 'react';
-
 // TIP - Import modules for mocking. Not that `* as` lend themselves to using jest.spyOn.
-import * as SignupModule from './index';
-import * as ModelsModule from '../../models';
 import * as ApolloModule from '@apollo/client';
-import * as UseValidateModule from '../../lib/hooks/useValidate';
-import * as FirefoxModule from '../../lib/channels/firefox';
-import * as CryptoModule from 'fxa-auth-client/lib/crypto';
 import * as ReachRouterModule from '@reach/router';
+import * as CryptoModule from 'fxa-auth-client/lib/crypto';
+import * as FirefoxModule from '../../lib/channels/firefox';
+import * as UseValidateModule from '../../lib/hooks/useValidate';
+import * as ModelsModule from '../../models';
+import * as SignupModule from './index';
 
 // Typical imports
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { screen, waitFor } from '@testing-library/react';
-import SignupContainer from './container';
-import { IntegrationType } from '../../models';
-import { MozServices } from '../../lib/types';
-import { SignupIntegration, SignupProps } from './interfaces';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { GraphQLError } from 'graphql';
 import { ApolloClient } from '@apollo/client';
-import { ModelDataProvider } from '../../lib/model-data';
-import AuthClient from 'fxa-auth-client/browser';
 import { LocationProvider } from '@reach/router';
-import { mockLoadingSpinnerModule, MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
+import { screen, waitFor } from '@testing-library/react';
+import AuthClient from 'fxa-auth-client/browser';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { GraphQLError } from 'graphql';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { ModelDataProvider } from '../../lib/model-data';
+import { MozServices } from '../../lib/types';
+import { IntegrationType } from '../../models';
+import {
+  MOCK_FLOW_ID,
+  mockGetWebChannelServices,
+  mockLoadingSpinnerModule,
+} from '../mocks';
+import SignupContainer from './container';
+import { SignupIntegration, SignupProps } from './interfaces';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
 // often times a mocking util isn't even necessary. Note that using the Dependency Inversion

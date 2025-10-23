@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import SigninRecoveryCode from '.';
-import { Meta } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
-import { withLocalization } from 'fxa-react/lib/storybooks';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { LocationProvider } from '@reach/router';
-import { MOCK_CMS_INFO, mockSigninLocationState } from '../mocks';
-import { mockFinishOAuthFlowHandler } from '../../mocks';
-import { createMockOAuthNativeIntegration, mockWebIntegration } from './mocks';
+import { action } from '@storybook/addon-actions';
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
+import SigninRecoveryCode from '.';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { BeginSigninError, HandledError } from '../../../lib/error-utils';
+import { mockFinishOAuthFlowHandler } from '../../mocks';
+import { MOCK_CMS_INFO, mockSigninLocationState } from '../mocks';
+import { createMockOAuthNativeIntegration, mockWebIntegration } from './mocks';
 
 export default {
   title: 'Pages/Signin/SigninRecoveryCode',

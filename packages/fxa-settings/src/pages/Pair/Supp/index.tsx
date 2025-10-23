@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { usePageViewEvent } from '../../../lib/metrics';
-import AppLayout from '../../../components/AppLayout';
-import { REACT_ENTRYPOINT } from '../../../constants';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import { usePageViewEvent } from '../../../lib/metrics';
 
 // pair/supp is the gateway to the supplicant pairing flow
 // see pairing-architecture.md for functionality to be implemented in FXA-6502

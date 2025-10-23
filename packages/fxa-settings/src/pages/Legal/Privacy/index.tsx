@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { lazy, Suspense } from 'react';
 import { RouteComponentProps } from '@reach/router';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { lazy, Suspense } from 'react';
 import { FetchLegalDoc } from '../../../components/LegalWithMarkdown';
 import { LegalDocFile } from '../../../lib/file-utils-legal';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 const LegalWithMarkdown = lazy(
   () => import('../../../components/LegalWithMarkdown')

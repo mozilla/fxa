@@ -2,28 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { LocationProvider } from '@reach/router';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninRecoveryCode from '.';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
+import { OAUTH_ERRORS } from '../../../lib/oauth';
+import { tryAgainError } from '../../../lib/oauth/hooks';
+import {
+  MOCK_BACKUP_CODE,
+  MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+} from '../../mocks';
 import {
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeSyncIntegration,
   createMockSigninWebIntegration,
   mockSigninLocationState,
 } from '../mocks';
-import { LocationProvider } from '@reach/router';
-import {
-  MOCK_BACKUP_CODE,
-  MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
-} from '../../mocks';
-import * as SigninUtils from '../utils';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { OAUTH_ERRORS } from '../../../lib/oauth';
-import { tryAgainError } from '../../../lib/oauth/hooks';
 import { mockOAuthNativeSigninIntegration } from '../SigninTotpCode/mocks';
+import * as SigninUtils from '../utils';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,

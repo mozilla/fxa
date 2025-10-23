@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect } from 'react';
 import { RouteComponentProps } from '@reach/router';
+import { useCallback, useEffect } from 'react';
 
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
@@ -13,13 +13,13 @@ import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useTotpReplace } from '../../../lib/hooks/useTotpReplace';
 import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 
-import FlowSetup2faApp from '../FlowSetup2faApp';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { MfaGuard } from '../MfaGuard';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 import { useErrorHandler } from 'react-error-boundary';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
+import FlowSetup2faApp from '../FlowSetup2faApp';
+import { MfaGuard } from '../MfaGuard';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 export const MfaGuardPage2faChange = (_: RouteComponentProps) => {
   return (

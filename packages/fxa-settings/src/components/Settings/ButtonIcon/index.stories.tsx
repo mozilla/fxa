@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import ButtonIcon, { ButtonIconTrash, ButtonIconReload } from '.';
 import { StoryFn } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import ButtonIcon, { ButtonIconReload, ButtonIconTrash } from '.';
 
 const meta = {
   title: 'Components/Settings/ButtonIcon',

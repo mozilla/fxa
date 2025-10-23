@@ -2,29 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
-import { useState } from 'react';
-import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
+import { useEffect, useState } from 'react';
 import { useEscKeydownEffect } from '../../../lib/hooks';
 
-import monitorIcon from './monitor.svg';
-import pocketIcon from '@fxa/shared/assets/images/pocket.svg';
-import desktopIcon from './desktop.svg';
-import mobileIcon from './mobile.svg';
-import relayIcon from './relay.svg';
-import vpnIcon from './vpn-logo.svg';
-import { ReactComponent as BentoIcon } from './bento.svg';
 import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
+import pocketIcon from '@fxa/shared/assets/images/pocket.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { LINK } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
+import { constructHrefWithUtm } from '../../../lib/utilities';
 import {
   useConfig,
   useExperiments,
   useFtlMsgResolver,
 } from '../../../models/hooks';
-import { LINK } from '../../../constants';
-import { constructHrefWithUtm } from '../../../lib/utilities';
-import GleanMetrics from '../../../lib/glean';
+import { ReactComponent as BentoIcon } from './bento.svg';
+import desktopIcon from './desktop.svg';
+import mobileIcon from './mobile.svg';
+import monitorIcon from './monitor.svg';
+import relayIcon from './relay.svg';
+import vpnIcon from './vpn-logo.svg';
 
 export const BentoMenu = () => {
   const [isRevealed, setRevealed] = useState(false);

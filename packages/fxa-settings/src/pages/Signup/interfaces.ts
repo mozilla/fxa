@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { MetricsContext } from '@fxa/shared/glean';
+import { QueryParams } from '../..';
 import { HandledError } from '../../lib/error-utils';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
 import { Integration, OAuthIntegration } from '../../models';
-import { MetricsContext } from '@fxa/shared/glean';
-import { QueryParams } from '../..';
 
 export interface BeginSignupResponse {
   signUp: {

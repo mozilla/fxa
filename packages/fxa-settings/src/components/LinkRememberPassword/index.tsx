@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { Link, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { isEmailValid } from 'fxa-shared/email/helpers';
-import { Link, useLocation } from '@reach/router';
+import React from 'react';
 
 export type LinkRememberPasswordProps = {
   email?: string;

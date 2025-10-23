@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import 'reflect-metadata';
+import * as Sentry from '@sentry/browser';
 import { renderHook, waitFor } from '@testing-library/react';
 import { ReactNode, createElement } from 'react';
-import * as Sentry from '@sentry/browser';
+import 'reflect-metadata';
 
-import {
-  useCmsInfoState
-} from './hooks';
 import { AppContext } from './contexts/AppContext';
+import { useCmsInfoState } from './hooks';
 
 // Mock all external dependencies before importing the hook
 jest.mock('@sentry/browser', () => ({
@@ -78,9 +76,17 @@ const mockConfig = {
 };
 
 const MockAppProvider = ({ children }: { children: ReactNode }) =>
-  createElement(AppContext.Provider, {
-    value: { config: mockConfig as any, account: undefined, apolloClient: undefined }
-  }, children);
+  createElement(
+    AppContext.Provider,
+    {
+      value: {
+        config: mockConfig as any,
+        account: undefined,
+        apolloClient: undefined,
+      },
+    },
+    children
+  );
 
 describe('useCmsInfoState', () => {
   let mockUrlQueryData: any;
@@ -109,7 +115,9 @@ describe('useCmsInfoState', () => {
       writable: true,
       value: ['en-US', 'en'],
     });
-    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'en-US' });
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue(
+      { currentLocale: 'en-US' }
+    );
   });
 
   it('should use default entrypoint when entrypoint is not provided in URL', async () => {
@@ -177,9 +185,17 @@ describe('useCmsInfoState', () => {
     };
 
     const DisabledCmsProvider = ({ children }: { children: ReactNode }) =>
-      createElement(AppContext.Provider, {
-        value: { config: disabledConfig as any, account: undefined, apolloClient: undefined }
-      }, children);
+      createElement(
+        AppContext.Provider,
+        {
+          value: {
+            config: disabledConfig as any,
+            account: undefined,
+            apolloClient: undefined,
+          },
+        },
+        children
+      );
 
     mockUrlQueryData.get.mockImplementation((key: string) => {
       if (key === 'client_id') return '1234567890abcdef';
@@ -257,7 +273,9 @@ describe('useCmsInfoState', () => {
     });
 
     // Mock useDynamicLocalization to return non-English locale
-    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'fr-FR' });
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue(
+      { currentLocale: 'fr-FR' }
+    );
 
     mockUrlQueryData.get.mockImplementation((key: string) => {
       if (key === 'client_id') return '1234567890abcdef';
@@ -375,12 +393,22 @@ describe('useCmsInfoState', () => {
     };
 
     const L10nEnabledProvider = ({ children }: { children: ReactNode }) =>
-      createElement(AppContext.Provider, {
-        value: { config: l10nEnabledConfig as any, account: undefined, apolloClient: undefined }
-      }, children);
+      createElement(
+        AppContext.Provider,
+        {
+          value: {
+            config: l10nEnabledConfig as any,
+            account: undefined,
+            apolloClient: undefined,
+          },
+        },
+        children
+      );
 
     // Mock non-English locale
-    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'fr-FR' });
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue(
+      { currentLocale: 'fr-FR' }
+    );
     Object.defineProperty(navigator, 'language', {
       writable: true,
       value: 'fr-FR',
@@ -406,7 +434,9 @@ describe('useCmsInfoState', () => {
     });
 
     expect(mockFetch).toHaveBeenCalled();
-    expect(result.current.data?.cmsInfo).toEqual({ customization: 'french-test' });
+    expect(result.current.data?.cmsInfo).toEqual({
+      customization: 'french-test',
+    });
   });
 
   it('should fetch when l10nEnabled is false but browser language is English', async () => {
@@ -415,7 +445,9 @@ describe('useCmsInfoState', () => {
       writable: true,
       value: 'en-GB',
     });
-    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'en-US' });
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue(
+      { currentLocale: 'en-US' }
+    );
 
     mockUrlQueryData.get.mockImplementation((key: string) => {
       if (key === 'client_id') return '1234567890abcdef';
@@ -425,7 +457,9 @@ describe('useCmsInfoState', () => {
 
     mockFetch.mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({ customization: 'english-browser-test' }),
+      json: jest
+        .fn()
+        .mockResolvedValue({ customization: 'english-browser-test' }),
     });
 
     const { result } = renderHook(() => useCmsInfoState(), {
@@ -437,7 +471,9 @@ describe('useCmsInfoState', () => {
     });
 
     expect(mockFetch).toHaveBeenCalled();
-    expect(result.current.data?.cmsInfo).toEqual({ customization: 'english-browser-test' });
+    expect(result.current.data?.cmsInfo).toEqual({
+      customization: 'english-browser-test',
+    });
   });
 
   it('should fetch when l10nEnabled is false but selected locale is English', async () => {
@@ -446,7 +482,9 @@ describe('useCmsInfoState', () => {
       writable: true,
       value: 'fr-FR',
     });
-    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue({ currentLocale: 'en-US' });
+    require('../contexts/DynamicLocalizationContext').useDynamicLocalization.mockReturnValue(
+      { currentLocale: 'en-US' }
+    );
 
     mockUrlQueryData.get.mockImplementation((key: string) => {
       if (key === 'client_id') return '1234567890abcdef';
@@ -456,7 +494,9 @@ describe('useCmsInfoState', () => {
 
     mockFetch.mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({ customization: 'english-selected-test' }),
+      json: jest
+        .fn()
+        .mockResolvedValue({ customization: 'english-selected-test' }),
     });
 
     const { result } = renderHook(() => useCmsInfoState(), {
@@ -468,6 +508,8 @@ describe('useCmsInfoState', () => {
     });
 
     expect(mockFetch).toHaveBeenCalled();
-    expect(result.current.data?.cmsInfo).toEqual({ customization: 'english-selected-test' });
+    expect(result.current.data?.cmsInfo).toEqual({
+      customization: 'english-selected-test',
+    });
   });
 });

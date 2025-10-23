@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
-import { useConfig } from '../../models';
-import { useMetrics } from '../../lib/metrics';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import { Localized } from '@fluent/react';
-import { createPortal } from 'react-dom';
+import { ReactComponent as CloseIcon } from '@fxa/shared/assets/images/close.svg';
 import logo from '@fxa/shared/assets/images/moz-m-logo.svg';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useMetrics } from '../../lib/metrics';
+import { useConfig } from '../../models';
 
 export const bannerClosedLocalStorageKey =
   '__fxa_storage.fxa_disable_brand_banner';

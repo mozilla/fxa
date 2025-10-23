@@ -2,29 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useMutation } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useCallback } from 'react';
 import SigninRecoveryCode from '.';
+import OAuthDataError from '../../../components/OAuthDataError';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getHandledError } from '../../../lib/error-utils';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import {
   Integration,
   useAuthClient,
   useSensitiveDataClient,
 } from '../../../models';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { useMutation } from '@apollo/client';
-import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
-import { useCallback } from 'react';
-import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
-import {
-  useFinishOAuthFlowHandler,
-  useOAuthKeysCheck,
-} from '../../../lib/oauth/hooks';
+import { getSigninState } from '../utils';
+import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
 import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
-import OAuthDataError from '../../../components/OAuthDataError';
-import { getHandledError } from '../../../lib/error-utils';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 
 type SigninRecoveryCodeLocationState = {
   signinState: SigninLocationState;

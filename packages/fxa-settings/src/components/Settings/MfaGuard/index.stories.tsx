@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { action } from '@storybook/addon-actions';
 import { Meta } from '@storybook/react';
 import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
-import { action } from '@storybook/addon-actions';
+import { JwtTokenCache } from '../../../lib/cache';
+import { MfaReason } from '../../../lib/types';
 import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 import { MfaGuard } from './index';
-import { JwtTokenCache } from '../../../lib/cache';
-import { MfaReason } from '../../../lib/types';
 
 const scope: 'test' = 'test';
 const session = 'session-xyz';

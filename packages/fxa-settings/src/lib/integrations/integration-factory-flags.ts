@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Constants } from '../constants';
-import { ModelDataStore, UrlQueryData } from '../model-data';
 import { IntegrationFlags } from '../integrations/interfaces';
+import { ModelDataStore, UrlQueryData } from '../model-data';
 
 const DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP = /^\/pair\/supp/;
 

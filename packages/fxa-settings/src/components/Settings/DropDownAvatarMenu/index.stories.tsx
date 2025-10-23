@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import DropDownAvatarMenu from '.';
 import { Account, AppContext } from 'fxa-settings/src/models';
-import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
+import { MOCK_ACCOUNT, mockAppContext } from 'fxa-settings/src/models/mocks';
+import DropDownAvatarMenu from '.';
 
 export default {
   title: 'Components/Settings/DropDownAvatarMenu',

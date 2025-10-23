@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ModelDataStore, GenericData } from '../../lib/model-data';
+import { GenericData, ModelDataStore } from '../../lib/model-data';
 import { PairingSupplicantIntegration } from './pairing-supplicant-integration';
 
 describe('models/integration/pairing-supplicant-integration', function () {

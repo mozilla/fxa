@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import InputPhoneNumber, { defaultCountries, phoneNorthAmerica } from '.';
 import { useForm } from 'react-hook-form';
+import InputPhoneNumber, { defaultCountries, phoneNorthAmerica } from '.';
 import AppLayout from '../AppLayout';
 import { InputPhoneNumberData } from '../FormPhoneNumber';
 

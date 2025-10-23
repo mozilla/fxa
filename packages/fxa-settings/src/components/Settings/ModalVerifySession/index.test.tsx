@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import 'mutationobserver-shim';
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mockSession, renderWithRouter } from '../../../models/mocks';
-import { Account, AppContext, Session } from '../../../models';
-import { ModalVerifySession } from '.';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import 'mutationobserver-shim';
+import { ModalVerifySession } from '.';
+import { Account, AppContext, Session } from '../../../models';
+import { mockSession, renderWithRouter } from '../../../models/mocks';
 
 const account = {
   primaryEmail: {

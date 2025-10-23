@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { Svg, Path, Rect, Circle } from '@react-pdf/renderer';
+import { Circle, Path, Rect, Svg } from '@react-pdf/renderer';
 
 /*
     To include SVG in PDFs with react-pdf/renderer, SVGs must to be added directly in the format explained in docs.

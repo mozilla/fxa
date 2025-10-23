@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import { MOCK_EMAIL, MOCK_HEXSTRING_32, MOCK_UID } from '../../mocks';
-import CompleteResetPassword from '.';
 import { LocationProvider } from '@reach/router';
+import { useState } from 'react';
+import CompleteResetPassword from '.';
+import { MOCK_EMAIL, MOCK_HEXSTRING_32, MOCK_UID } from '../../mocks';
 import {
   CompleteResetPasswordLocationState,
   CompleteResetPasswordProps,

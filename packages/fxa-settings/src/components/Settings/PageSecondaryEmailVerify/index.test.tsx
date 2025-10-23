@@ -2,22 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { WindowLocation } from '@reach/router';
+import { act, fireEvent, screen } from '@testing-library/react';
+import userEvent, { UserEvent } from '@testing-library/user-event';
+import AuthClient from 'fxa-auth-client/lib/client';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import 'mutationobserver-shim';
-import React from 'react';
-import { screen, fireEvent, act } from '@testing-library/react';
+import { MfaGuardPageSecondaryEmailVerify, PageSecondaryEmailVerify } from '.';
+import { JwtTokenCache } from '../../../lib/cache';
+import { Account, AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 import {
   mockAppContext,
   mockSettingsContext,
   renderWithRouter,
 } from '../../../models/mocks';
-import { Account, AppContext } from '../../../models';
-import { PageSecondaryEmailVerify, MfaGuardPageSecondaryEmailVerify } from '.';
-import { WindowLocation } from '@reach/router';
-import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
-import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import { JwtTokenCache } from '../../../lib/cache';
-import AuthClient from 'fxa-auth-client/lib/client';
-import userEvent, { UserEvent } from '@testing-library/user-event';
 
 const mockLocation = {
   state: { email: 'johndope@example.com' },
@@ -122,15 +121,19 @@ describe('PageSecondaryEmailVerify', () => {
     let user: UserEvent;
 
     const setupMockAuthClient = () => {
-      mockAuthClient.mfaRequestOtp = jest.fn().mockResolvedValueOnce({ code: 200, errno: 0 });
-      mockAuthClient.mfaOtpVerify = jest.fn().mockResolvedValueOnce({ accessToken: mockJwt });
-    }
+      mockAuthClient.mfaRequestOtp = jest
+        .fn()
+        .mockResolvedValueOnce({ code: 200, errno: 0 });
+      mockAuthClient.mfaOtpVerify = jest
+        .fn()
+        .mockResolvedValueOnce({ accessToken: mockJwt });
+    };
 
     const resetJwtCache = () => {
       if (JwtTokenCache.hasToken(mockSessionToken, requiredScope)) {
         JwtTokenCache.removeToken(mockSessionToken, requiredScope);
       }
-    }
+    };
 
     beforeEach(() => {
       jest.clearAllMocks();
@@ -148,12 +151,18 @@ describe('PageSecondaryEmailVerify', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailVerify location={{ state: { email: mockEmail } } as any} />
+          <MfaGuardPageSecondaryEmailVerify
+            location={{ state: { email: mockEmail } } as any}
+          />
         </AppContext.Provider>
       );
 
-      expect(screen.getByTestId('secondary-email-verify-form')).toBeInTheDocument();
-      expect(screen.queryByText('Enter confirmation code')).not.toBeInTheDocument();
+      expect(
+        screen.getByTestId('secondary-email-verify-form')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('Enter confirmation code')
+      ).not.toBeInTheDocument();
       expect(mockAuthClient.mfaRequestOtp).not.toHaveBeenCalled();
     });
 
@@ -165,7 +174,9 @@ describe('PageSecondaryEmailVerify', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailVerify location={{ state: { email: mockEmail } } as any} />
+          <MfaGuardPageSecondaryEmailVerify
+            location={{ state: { email: mockEmail } } as any}
+          />
         </AppContext.Provider>
       );
 
@@ -176,7 +187,9 @@ describe('PageSecondaryEmailVerify', () => {
       // an invalid token should be picked up by the guard which will
       // "send" a new one and display the modal again.
       JwtTokenCache.setToken(mockSessionToken, requiredScope, 'invalid-jwt');
-      account.verifySecondaryEmail = jest.fn().mockRejectedValue({ code: 401, errno: 110 });
+      account.verifySecondaryEmail = jest
+        .fn()
+        .mockRejectedValue({ code: 401, errno: 110 });
       const appCtx = mockAppContext({
         authClient: mockAuthClient as any,
         account: { ...(account as any), email: mockEmail },
@@ -184,17 +197,27 @@ describe('PageSecondaryEmailVerify', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailVerify location={{ state: { email: mockEmail } } as any} />
+          <MfaGuardPageSecondaryEmailVerify
+            location={{ state: { email: mockEmail } } as any}
+          />
         </AppContext.Provider>
       );
 
       // mock the submit for the verification code, which should trigger the MFA guard
       // because the JWT is considered invalid server-side.
-      await user.type(screen.getByTestId('verification-code-input-field'), '123456');
+      await user.type(
+        screen.getByTestId('verification-code-input-field'),
+        '123456'
+      );
       await user.click(screen.getByTestId('secondary-email-verify-submit'));
 
-      expect(account.verifySecondaryEmail).toHaveBeenCalledWith(mockEmail, '123456');
-      expect(await screen.findByText('Enter confirmation code')).toBeInTheDocument();
+      expect(account.verifySecondaryEmail).toHaveBeenCalledWith(
+        mockEmail,
+        '123456'
+      );
+      expect(
+        await screen.findByText('Enter confirmation code')
+      ).toBeInTheDocument();
     });
   });
 });

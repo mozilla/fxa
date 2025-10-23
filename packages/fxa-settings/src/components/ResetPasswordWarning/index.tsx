@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-import { ReactComponent as WarnIcon } from './icon-warn.svg';
+import { ReactComponent as Chevron } from './chevron.svg';
 import { ReactComponent as IconNonSyncDevice } from './icon-non-sync-device.svg';
 import { ReactComponent as IconSyncDevice } from './icon-sync-device.svg';
-import { ReactComponent as Chevron } from './chevron.svg';
+import { ReactComponent as WarnIcon } from './icon-warn.svg';
 
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models';
 import { Link } from '@reach/router';
-import { CompleteResetPasswordLocationState } from '../../pages/ResetPassword/CompleteResetPassword/interfaces';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import GleanMetrics from '../../lib/glean';
+import { useFtlMsgResolver } from '../../models';
+import { CompleteResetPasswordLocationState } from '../../pages/ResetPassword/CompleteResetPassword/interfaces';
 
 const ResetPasswordWarning = ({
   locationState,

@@ -17,22 +17,22 @@ import {
 } from '../../../models';
 import { KeyStretchExperiment } from '../../../models/experiments';
 
+import { useState } from 'react';
 import CompleteResetPassword from '.';
+import OAuthDataError from '../../../components/OAuthDataError';
+import { SETTINGS_PATH } from '../../../constants';
+import firefox from '../../../lib/channels/firefox';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
+import { storeAccountData } from '../../../lib/storage-utils';
+import { LocationState } from '../../Signin/interfaces';
 import {
   AccountResetData,
   CompleteResetPasswordLocationState,
 } from './interfaces';
-import GleanMetrics from '../../../lib/glean';
-import firefox from '../../../lib/channels/firefox';
-import { useState } from 'react';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { storeAccountData } from '../../../lib/storage-utils';
-import { SETTINGS_PATH } from '../../../constants';
-import { LocationState } from '../../Signin/interfaces';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import OAuthDataError from '../../../components/OAuthDataError';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 // This component is used for both /complete_reset_password and /account_recovery_reset_password routes
 // for easier maintenance

@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { ReactComponent as BackArrow } from './back-arrow.svg';
-import { useFtlMsgResolver } from '../../models';
 import { getTextColorClassName } from 'fxa-react/lib/calculate-contrast';
+import React from 'react';
+import { useFtlMsgResolver } from '../../models';
+import { ReactComponent as BackArrow } from './back-arrow.svg';
 
 interface ButtonBackProps {
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;

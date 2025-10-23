@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import CookiesDisabled, { viewName } from '.';
-import { screen, fireEvent } from '@testing-library/react';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { FluentBundle } from '@fluent/bundle';
+import { fireEvent, screen } from '@testing-library/react';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import CookiesDisabled, { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../constants';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

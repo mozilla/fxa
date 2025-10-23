@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import ConnectAnotherDevicePromo from '.';
 import { renderWithRouter } from '../../../models/mocks';
 import { getStoreImageByLanguages, StoreType } from './storeImageLoader';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 describe('Connect another device Promo', () => {
   it('renders "fresh load" <ConnectAnotherDevicePromo/> with correct content', async () => {

@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import FormChoice, { FormChoiceProps } from '.';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { commonFormChoiceProps } from './mocks';
 import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import FormChoice, { FormChoiceProps } from '.';
+import { commonFormChoiceProps } from './mocks';
 
 function render({
   imagePosition = 'start',

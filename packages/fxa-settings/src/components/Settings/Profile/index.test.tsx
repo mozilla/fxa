@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { Profile } from '.';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
-import { AppContext } from '../../../models';
-import { MOCK_PROFILE_EMPTY } from './mocks';
-import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
-import { screen } from '@testing-library/react';
 import { FluentBundle } from '@fluent/bundle';
+import { screen } from '@testing-library/react';
+import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { Profile } from '.';
+import { AppContext } from '../../../models';
+import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import { MOCK_PROFILE_EMPTY } from './mocks';
 
 describe('Profile', () => {
   let bundle: FluentBundle;

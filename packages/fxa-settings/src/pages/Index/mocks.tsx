@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { LocationProvider } from '@reach/router';
+import React from 'react';
+import Index from '.';
+import { Constants } from '../../lib/constants';
+import { GenericData } from '../../lib/model-data';
 import { MozServices } from '../../lib/types';
 import {
   IntegrationData,
@@ -12,11 +15,8 @@ import {
   OAuthWebIntegration,
   RelierCmsInfo,
 } from '../../models';
-import { IndexIntegration } from './interfaces';
-import Index from '.';
 import { MOCK_CLIENT_ID } from '../mocks';
-import { Constants } from '../../lib/constants';
-import { GenericData } from '../../lib/model-data';
+import { IndexIntegration } from './interfaces';
 
 export function createMockIndexOAuthIntegration({
   clientId = MOCK_CLIENT_ID,

@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { ModelDataStore } from '../../lib/model-data';
 import { Constants } from '../../lib/constants';
+import { ModelDataStore } from '../../lib/model-data';
 import { WebIntegrationData } from './data/data';
 
 import { IntegrationFeatures } from './features';

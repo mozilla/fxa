@@ -2,37 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import { usePageViewEvent } from '../../../lib/metrics';
-import { FtlMsg } from 'fxa-react/lib/utils';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { REACT_ENTRYPOINT } from '../../../constants';
-import CardHeader from '../../../components/CardHeader';
+import LinkExternal from 'fxa-react/components/LinkExternal';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useState } from 'react';
 import AppLayout from '../../../components/AppLayout';
+import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
+import CardHeader from '../../../components/CardHeader';
 import FormVerifyCode, {
   FormAttributes,
   InputModeEnum,
 } from '../../../components/FormVerifyCode';
+import { EmailCodeImage } from '../../../components/images';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { usePageViewEvent } from '../../../lib/metrics';
+import {
+  StoredAccountData,
+  storeAccountData,
+} from '../../../lib/storage-utils';
+import { ResendStatus } from '../../../lib/types';
 import {
   isWebIntegration,
   useAlertBar,
   useFtlMsgResolver,
 } from '../../../models';
-import LinkExternal from 'fxa-react/components/LinkExternal';
-import { SigninUnblockProps } from './interfaces';
-import { EmailCodeImage } from '../../../components/images';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import GleanMetrics from '../../../lib/glean';
-import {
-  StoredAccountData,
-  storeAccountData,
-} from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
-import { ResendStatus } from '../../../lib/types';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import Banner, { ResendCodeSuccessBanner } from '../../../components/Banner';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { SigninUnblockProps } from './interfaces';
 
 export const viewName = 'signin-unblock';
 

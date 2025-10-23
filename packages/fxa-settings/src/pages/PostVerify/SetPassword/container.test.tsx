@@ -2,11 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ModelsModule from '../../../models';
-import * as CacheModule from '../../../lib/cache';
 import * as SetPasswordModule from '.';
+import * as CacheModule from '../../../lib/cache';
+import * as ModelsModule from '../../../models';
 
+import { LocationProvider } from '@reach/router';
+import { act } from '@testing-library/react';
 import AuthClient from 'fxa-auth-client/browser';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import firefox from '../../../lib/channels/firefox';
+import GleanMetrics from '../../../lib/glean';
+import { mockUseSyncEngines } from '../../../lib/hooks/useSyncEngines/mocks';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
+import { getSyncEngineIds, syncEngineConfigs } from '../../../lib/sync-engines';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import {
   MOCK_AUTH_PW,
   MOCK_EMAIL,
@@ -19,21 +31,9 @@ import {
   MOCK_UNWRAP_BKEY,
   mockGetWebChannelServices,
 } from '../../mocks';
-import { SetPasswordProps } from './interfaces';
-import { LocationProvider } from '@reach/router';
-import SetPasswordContainer from './container';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
-import { act } from '@testing-library/react';
-import { getSyncEngineIds, syncEngineConfigs } from '../../../lib/sync-engines';
-import {
-  useFinishOAuthFlowHandler,
-  useOAuthKeysCheck,
-} from '../../../lib/oauth/hooks';
-import firefox from '../../../lib/channels/firefox';
-import GleanMetrics from '../../../lib/glean';
-import { mockUseSyncEngines } from '../../../lib/hooks/useSyncEngines/mocks';
 import * as SigninUtils from '../../Signin/utils';
+import SetPasswordContainer from './container';
+import { SetPasswordProps } from './interfaces';
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),

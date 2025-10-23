@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import AppLayout from '.';
+import { MOCK_CMS_INFO } from '../../pages/mocks';
 import {
-  MOCK_CMS_INFO_VALID_LINEAR_BG,
-  MOCK_CMS_INFO_VALID_RADIAL_BG,
-  MOCK_CMS_INFO_NO_BG,
-  MOCK_CMS_INFO_WITH_PAGE_TITLE,
+  MOCK_CMS_INFO_DEFAULT_LOGO,
   MOCK_CMS_INFO_HEADER_LOGO,
   MOCK_CMS_INFO_HEADER_LOGO_NO_ALT,
-  MOCK_CMS_INFO_DEFAULT_LOGO,
   MOCK_CMS_INFO_HEADER_LOGO_WITH_OTHER_PROPS,
+  MOCK_CMS_INFO_NO_BG,
+  MOCK_CMS_INFO_VALID_LINEAR_BG,
+  MOCK_CMS_INFO_VALID_RADIAL_BG,
+  MOCK_CMS_INFO_WITH_PAGE_TITLE,
 } from './mocks';
-import { MOCK_CMS_INFO } from '../../pages/mocks';
 
 // Mock the useConfig hook
 jest.mock('../../models/hooks', () => ({

@@ -19,10 +19,14 @@ import {
 } from 'class-validator';
 import {
   bind,
-  KeyTransforms as T,
   ModelDataProvider,
+  KeyTransforms as T,
 } from '../../../lib/model-data';
-import { IsEmailOrEmpty, IsFxaRedirectToUrl, IsFxaRedirectUri } from '../../../lib/validation';
+import {
+  IsEmailOrEmpty,
+  IsFxaRedirectToUrl,
+  IsFxaRedirectUri,
+} from '../../../lib/validation';
 
 /**
  * Base integration class. Fields in this class represents data commonly accessed across many pages and is useful for various flows.

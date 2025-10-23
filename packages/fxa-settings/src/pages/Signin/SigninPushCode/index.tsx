@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { PushAuthImage } from '../../../components/images';
-import CardHeader from '../../../components/CardHeader';
+import { useEffect } from 'react';
 import AppLayout from '../../../components/AppLayout';
+import CardHeader from '../../../components/CardHeader';
+import { PushAuthImage } from '../../../components/images';
 
 import { SigninPushCodeProps } from './interfaces';
 

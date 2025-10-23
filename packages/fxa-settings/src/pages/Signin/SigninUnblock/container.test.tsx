@@ -3,17 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Mocked Module Imports
+import * as ReachRouterModule from '@reach/router';
 import * as ModelsModule from '../../../models';
 import * as SigninUnblockModule from './index';
-import * as ReachRouterModule from '@reach/router';
 
 // Regular imports
-import { act, screen } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { act, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import SigninUnblockContainer from './container';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { MozServices } from '../../../lib/types';
+import SigninUnblockContainer from './container';
 
 import {
   MOCK_AUTH_PW,
@@ -36,15 +36,15 @@ import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../
 
 import { SigninUnblockLocationState, SigninUnblockProps } from './interfaces';
 
-import { QueryParams } from '../../..';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
+import { QueryParams } from '../../..';
 
+import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { BeginSigninResult, SigninUnblockIntegration } from '../interfaces';
 import {
   createMockSigninWebSyncIntegration,
   MOCK_SIGNIN_UNBLOCK_LOCATION_STATE,
 } from './mocks';
-import { BeginSigninResult, SigninUnblockIntegration } from '../interfaces';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 
 let integration: SigninUnblockIntegration;
 function mockWebIntegration() {

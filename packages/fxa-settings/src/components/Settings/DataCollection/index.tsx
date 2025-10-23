@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import Switch from '../Switch';
-import React, { forwardRef, useCallback, useState } from 'react';
-import { useAlertBar, useFtlMsgResolver } from '../../../models';
-import { useAccount } from '../../../models';
-import { setEnabled } from '../../../lib/metrics';
-import UnitRow from '../UnitRow';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { forwardRef, useCallback, useState } from 'react';
+import { setEnabled } from '../../../lib/metrics';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
+import Switch from '../Switch';
+import UnitRow from '../UnitRow';
 
 export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
   const account = useAccount();

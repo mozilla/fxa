@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { useLocation } from '@reach/router';
 import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
 import { useConfig, useFtlMsgResolver } from '../../../models';
-import { useLocation } from '@reach/router';
 import { AuthUiErrors } from '../../auth-errors/auth-errors';
 import { getErrorFtlId } from '../../error-utils';
 

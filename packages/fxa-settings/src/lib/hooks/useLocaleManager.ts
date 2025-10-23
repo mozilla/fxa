@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useState } from 'react';
+import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
 import {
-  LocaleOption,
   getAvailableLocales,
   isRTLLocale,
   isUsingBrowserDefault,
-  LOCALE_MAPPINGS
+  LOCALE_MAPPINGS,
+  LocaleOption,
 } from '../locales';
-import { useDynamicLocalization } from '../../contexts/DynamicLocalizationContext';
 
 export interface LocaleManager {
   currentLocale: string;
@@ -24,8 +24,11 @@ export interface LocaleManager {
 }
 
 export const useLocaleManager = (): LocaleManager => {
-  const { currentLocale, switchLanguage, clearLanguagePreference, isLoading } = useDynamicLocalization();
-  const [availableLocales] = useState<LocaleOption[]>(() => getAvailableLocales());
+  const { currentLocale, switchLanguage, clearLanguagePreference, isLoading } =
+    useDynamicLocalization();
+  const [availableLocales] = useState<LocaleOption[]>(() =>
+    getAvailableLocales()
+  );
 
   const currentLanguage = LOCALE_MAPPINGS[currentLocale];
   const isRTL = isRTLLocale(currentLocale);
@@ -39,6 +42,6 @@ export const useLocaleManager = (): LocaleManager => {
     clearLocalePreference: clearLanguagePreference,
     isUsingBrowserDefault: browserDefault,
     isRTL,
-    isLoading
+    isLoading,
   };
 };

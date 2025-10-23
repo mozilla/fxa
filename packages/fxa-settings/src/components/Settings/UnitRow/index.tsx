@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef } from 'react';
-import Avatar from '../Avatar';
-import { Account } from '../../../models/Account';
-import classNames from 'classnames';
-import { useFocusOnTriggeringElementOnClose } from '../../../lib/hooks';
-import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { useLocalization } from '@fluent/react';
-import { AlertFullIcon, CheckmarkGreenIcon } from '../../Icons';
+import { Link, RouteComponentProps, useLocation } from '@reach/router';
+import classNames from 'classnames';
+import React, { useRef } from 'react';
+import { useFocusOnTriggeringElementOnClose } from '../../../lib/hooks';
 import { GleanClickEventDataAttrs } from '../../../lib/types';
+import { Account } from '../../../models/Account';
+import { AlertFullIcon, CheckmarkGreenIcon } from '../../Icons';
+import Avatar from '../Avatar';
 
 type ModalButtonProps = {
   ctaText: string;

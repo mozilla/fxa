@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useContext, useEffect, useState } from 'react';
-import AppLayout from '../AppLayout';
 import { navigate } from '@reach/router';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import CardHeader from '../CardHeader';
-import MarkdownLegal from '../MarkdownLegal';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useContext, useEffect, useState } from 'react';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { fetchLegalMd, LegalDocFile } from '../../lib/file-utils-legal';
-import { AppContext, useFtlMsgResolver } from '../../models';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { searchParams } from '../../lib/utilities';
+import { AppContext, useFtlMsgResolver } from '../../models';
+import AppLayout from '../AppLayout';
 import Banner from '../Banner';
+import CardHeader from '../CardHeader';
+import MarkdownLegal from '../MarkdownLegal';
 
 export type FetchLegalDoc = (
   locale: string,

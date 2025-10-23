@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
-import GleanMetrics from '../../../lib/glean';
-import { Subject } from './mocks';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import userEvent from '@testing-library/user-event';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import GleanMetrics from '../../../lib/glean';
 import { MOCK_EMAIL } from '../../mocks';
+import { Subject } from './mocks';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -59,7 +58,9 @@ describe('ResetPassword', () => {
         user.type(screen.getByRole('textbox'), `${MOCK_EMAIL} `)
       );
 
-      await waitFor(() => user.click(screen.getByRole('button', { name: 'Continue' })));
+      await waitFor(() =>
+        user.click(screen.getByRole('button', { name: 'Continue' }))
+      );
 
       expect(mockRequestResetPasswordCode).toHaveBeenCalledWith(MOCK_EMAIL);
 
@@ -79,7 +80,9 @@ describe('ResetPassword', () => {
         user.type(screen.getByRole('textbox'), ` ${MOCK_EMAIL}`)
       );
 
-      await waitFor(() => user.click(screen.getByRole('button', { name: 'Continue' })));
+      await waitFor(() =>
+        user.click(screen.getByRole('button', { name: 'Continue' }))
+      );
 
       expect(mockRequestResetPasswordCode).toHaveBeenCalledWith(MOCK_EMAIL);
       expect(GleanMetrics.passwordReset.view).toHaveBeenCalledTimes(1);
@@ -94,7 +97,9 @@ describe('ResetPassword', () => {
         );
 
         await expect(screen.getByRole('heading', { level: 1 })).toBeVisible();
-        await waitFor(() => user.click(screen.getByRole('button', { name: 'Continue' })));
+        await waitFor(() =>
+          user.click(screen.getByRole('button', { name: 'Continue' }))
+        );
 
         expect(screen.getByText('Valid email required')).toBeVisible();
         expect(mockRequestResetPasswordCode).not.toHaveBeenCalled();
@@ -111,7 +116,9 @@ describe('ResetPassword', () => {
         await expect(screen.getByRole('heading', { level: 1 })).toBeVisible();
         await waitFor(() => user.type(screen.getByRole('textbox'), 'boop'));
 
-        await waitFor(() => user.click(screen.getByRole('button', { name: 'Continue' })));
+        await waitFor(() =>
+          user.click(screen.getByRole('button', { name: 'Continue' }))
+        );
 
         expect(screen.getByText('Valid email required')).toBeVisible();
         expect(mockRequestResetPasswordCode).not.toHaveBeenCalled();

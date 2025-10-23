@@ -4,32 +4,31 @@
 
 import * as ReactUtils from 'fxa-react/lib/utils';
 
-import React from 'react';
+import { navigate } from '@reach/router';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import GleanMetrics from '../../../lib/glean';
-import { MozServices } from '../../../lib/types';
+import * as utils from 'fxa-react/lib/utils';
 import {
   AuthUiError,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
-import { mockOAuthNativeSigninIntegration, Subject } from './mocks';
-import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
-import {
-  createMockSigninOAuthIntegration,
-  createMockSigninOAuthNativeSyncIntegration,
-} from '../mocks';
-import { SigninIntegration } from '../interfaces';
+import firefox from '../../../lib/channels/firefox';
+import GleanMetrics from '../../../lib/glean';
+import { OAUTH_ERRORS } from '../../../lib/oauth';
 import {
   FinishOAuthFlowHandler,
   tryAgainError,
 } from '../../../lib/oauth/hooks';
-import firefox from '../../../lib/channels/firefox';
-import * as utils from 'fxa-react/lib/utils';
-import { navigate } from '@reach/router';
-import { OAUTH_ERRORS } from '../../../lib/oauth';
-import userEvent from '@testing-library/user-event';
+import { MozServices } from '../../../lib/types';
+import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
+import { SigninIntegration } from '../interfaces';
+import {
+  createMockSigninOAuthIntegration,
+  createMockSigninOAuthNativeSyncIntegration,
+} from '../mocks';
 import * as SigninUtils from '../utils';
+import { mockOAuthNativeSigninIntegration, Subject } from './mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

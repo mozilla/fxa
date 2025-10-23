@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import 'mutationobserver-shim';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import 'mutationobserver-shim';
 import { SETTINGS_PATH } from '../../../constants';
 import { Config } from '../../../lib/config';
-import { totpUtils } from '../../../lib/totp-utils';
 import { typeByTestIdFn } from '../../../lib/test-utils';
+import { totpUtils } from '../../../lib/totp-utils';
 import { Account, AppContext } from '../../../models';
 import {
   MOCK_ACCOUNT,

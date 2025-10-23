@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-
 const CmsLogo = (opts: {
   isMobile: boolean;
   logoPosition: 'left' | 'center';
@@ -21,12 +19,16 @@ const CmsLogo = (opts: {
   return (
     <>
       {!opts.isMobile && logo && (
-        <div className={`mb-4 ${opts.logoPosition === 'center' ? 'text-center' : 'text-left'}`}>
+        <div
+          className={`mb-4 ${opts.logoPosition === 'center' ? 'text-center' : 'text-left'}`}
+        >
           <img
             src={logo.logoUrl}
             alt={logo.logoAltText}
             className={`${
-              opts.logoPosition === 'center' ? 'max-h-[160px] mx-auto' : 'max-h-[40px]'
+              opts.logoPosition === 'center'
+                ? 'max-h-[160px] mx-auto'
+                : 'max-h-[40px]'
             }`}
           />
         </div>

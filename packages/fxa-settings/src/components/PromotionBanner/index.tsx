@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from '@reach/router';
 import { ReactComponent as IconClose } from '@fxa/shared/assets/images/close.svg';
+import { Link, useLocation } from '@reach/router';
+import LinkExternal from 'fxa-react/components/LinkExternal';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import GleanMetrics from '../../lib/glean';
+import { useEffect, useRef, useState } from 'react';
 import { Constants } from '../../lib/constants';
+import GleanMetrics from '../../lib/glean';
+import { useFtlMsgResolver } from '../../models';
 import keyImage from './key.svg';
 import phoneImage from './phone-star-icon.svg';
-import { useFtlMsgResolver } from '../../models';
-import LinkExternal from 'fxa-react/components/LinkExternal';
 
 const PromoKeys: { [key: string]: string } = {
   'account-recovery-dismissed':

@@ -2,31 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useRef, useCallback } from 'react';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import {
-  useAccount,
-  useAuthClient,
-  Integration,
-  isWebIntegration,
-} from '../../../models';
-import { handleNavigation } from '../../Signin/utils';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import {
-  StoredAccountData,
-  storeAccountData,
-  setCurrentAccount,
-} from '../../../lib/storage-utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
+import { useCallback, useEffect, useRef } from 'react';
 import { QueryParams } from '../../..';
-import { queryParamsToMetricsContext } from '../../../lib/metrics';
-import { isThirdPartyAuthCallbackIntegration } from '../../../models/integrations/third-party-auth-callback-integration';
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
 import { currentAccount } from '../../../lib/cache';
-import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import {
+  StoredAccountData,
+  setCurrentAccount,
+  storeAccountData,
+} from '../../../lib/storage-utils';
+import {
+  Integration,
+  isWebIntegration,
+  useAccount,
+  useAuthClient,
+} from '../../../models';
+import { isThirdPartyAuthCallbackIntegration } from '../../../models/integrations/third-party-auth-callback-integration';
+import { handleNavigation } from '../../Signin/utils';
 
 type LinkedAccountData = {
   uid: hexstring;
@@ -137,7 +137,10 @@ const ThirdPartyAuthCallback = ({
       // Extract relayed fxa parameters
       const params = new URLSearchParams(fxaParams || '');
       const flowId = params.get('flowId') || params.get('flow_id') || undefined;
-      const flowBeginTime = params.get('flowBeginTime') || params.get('flow_begin_time') || undefined;
+      const flowBeginTime =
+        params.get('flowBeginTime') ||
+        params.get('flow_begin_time') ||
+        undefined;
       const originalService =
         params.get('service') || params.get('client_id') || undefined;
       const linkedAccount: LinkedAccountData =

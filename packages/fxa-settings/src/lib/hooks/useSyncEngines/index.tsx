@@ -8,14 +8,14 @@ import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
 } from '../../../models';
+import firefox from '../../channels/firefox';
+import { Constants } from '../../constants';
 import {
   defaultDesktopV3SyncEngineConfigs,
   getSyncEngineIds,
   syncEngineConfigs,
   webChannelDesktopV3EngineConfigs,
 } from '../../sync-engines';
-import firefox from '../../channels/firefox';
-import { Constants } from '../../constants';
 
 type SyncEnginesIntegration = Pick<Integration, 'type' | 'isSync'>;
 

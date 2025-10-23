@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
-import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useLocalization } from '@fluent/react';
-import Head from 'fxa-react/components/Head';
+import mozLogo from '@fxa/shared/assets/images/moz-logo-bw-rgb.svg';
 import classNames from 'classnames';
+import Head from 'fxa-react/components/Head';
+import LinkExternal from 'fxa-react/components/LinkExternal';
+import React from 'react';
+import { useConfig } from '../../models/hooks';
 import { RelierCmsInfo } from '../../models/integrations';
 import { LocaleToggle } from '../LocaleToggle';
-import { useConfig } from '../../models/hooks';
 
 type AppLayoutProps = {
   // TODO: FXA-6803 - the title prop should be made mandatory

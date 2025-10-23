@@ -2,29 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
+import { useQuery } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useEffect } from 'react';
+import ConfirmSignupCode from '.';
+import { QueryParams } from '../../..';
+import OAuthDataError from '../../../components/OAuthDataError';
 import { currentAccount } from '../../../lib/cache';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import {
   Integration,
   useAuthClient,
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../../models';
-import ConfirmSignupCode from '.';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
-import { useQuery } from '@apollo/client';
 import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
-import OAuthDataError from '../../../components/OAuthDataError';
-import { QueryParams } from '../../..';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
-import GleanMetrics from '../../../lib/glean';
+import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
 
 export const POLL_INTERVAL = 5000;
 
@@ -134,22 +134,32 @@ const SignupConfirmCodeContainer = ({
   }
 
   if (oAuthDataError) {
-    return <OAuthDataError error={oAuthDataError} gleanMetric={GleanMetrics.signupConfirmation.error} />;
+    return (
+      <OAuthDataError
+        error={oAuthDataError}
+        gleanMetric={GleanMetrics.signupConfirmation.error}
+      />
+    );
   }
   if (oAuthKeysCheckError) {
     if (!keyFetchToken || !unwrapBKey) {
       const localizedErrorMessage = ftlMsg.getMsg(
         'signin-code-expired-error',
         'Code expired. Please sign in again.'
-      )
+      );
       navigateWithQuery('/signin', {
         state: {
-          localizedErrorMessage
-        }
+          localizedErrorMessage,
+        },
       });
       return <LoadingSpinner fullScreen />;
     }
-    return <OAuthDataError error={oAuthKeysCheckError} gleanMetric={GleanMetrics.signupConfirmation.error}/>;
+    return (
+      <OAuthDataError
+        error={oAuthKeysCheckError}
+        gleanMetric={GleanMetrics.signupConfirmation.error}
+      />
+    );
   }
 
   return (
@@ -166,7 +176,7 @@ const SignupConfirmCodeContainer = ({
         keyFetchToken,
         unwrapBKey,
         flowQueryParams,
-        origin
+        origin,
       }}
     />
   );

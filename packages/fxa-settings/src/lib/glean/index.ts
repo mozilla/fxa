@@ -2,38 +2,38 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import Glean from '@mozilla/glean/web';
 import GleanMetricsAPI from '@mozilla/glean/metrics';
-import UAParser from 'ua-parser-js';
-import { Entries } from 'type-fest';
-import {
-  GleanMetricsConfig,
-  eventsMap,
-  EventMapKeys,
-  EventsMap,
-  GleanPingMetrics,
-  booleanEventPropertyNames,
-  stringEventPropertyNames,
-} from 'fxa-shared/metrics/glean/web/index';
-import { accountsEvents } from 'fxa-shared/metrics/glean/web/pings';
-import * as event from 'fxa-shared/metrics/glean/web/event';
-import * as email from 'fxa-shared/metrics/glean/web/email';
-import * as error from 'fxa-shared/metrics/glean/web/error';
-import * as reg from 'fxa-shared/metrics/glean/web/reg';
-import * as login from 'fxa-shared/metrics/glean/web/login';
+import Glean from '@mozilla/glean/web';
+import { userId, userIdSha256 } from 'fxa-shared/metrics/glean/web/account';
+import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
+import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
 import * as cachedLogin from 'fxa-shared/metrics/glean/web/cachedLogin';
-import * as passwordReset from 'fxa-shared/metrics/glean/web/passwordReset';
-import * as cadFirefox from 'fxa-shared/metrics/glean/web/cadFirefox';
 import * as cadApproveDevice from 'fxa-shared/metrics/glean/web/cadApproveDevice';
+import * as cadFirefox from 'fxa-shared/metrics/glean/web/cadFirefox';
 import * as cadMobilePair from 'fxa-shared/metrics/glean/web/cadMobilePair';
 import * as cadMobilePairUseApp from 'fxa-shared/metrics/glean/web/cadMobilePairUseApp';
-import * as accountPref from 'fxa-shared/metrics/glean/web/accountPref';
-import * as accountBanner from 'fxa-shared/metrics/glean/web/accountBanner';
 import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
-import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
-import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
-import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
-import { appFramework, cmsCustomizationEnrollment } from 'fxa-shared/metrics/glean/web/event';
+import * as email from 'fxa-shared/metrics/glean/web/email';
+import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
+import * as error from 'fxa-shared/metrics/glean/web/error';
+import * as event from 'fxa-shared/metrics/glean/web/event';
+import {
+  appFramework,
+  cmsCustomizationEnrollment,
+} from 'fxa-shared/metrics/glean/web/event';
+import {
+  EventMapKeys,
+  EventsMap,
+  GleanMetricsConfig,
+  GleanPingMetrics,
+  booleanEventPropertyNames,
+  eventsMap,
+  stringEventPropertyNames,
+} from 'fxa-shared/metrics/glean/web/index';
+import * as login from 'fxa-shared/metrics/glean/web/login';
+import * as passwordReset from 'fxa-shared/metrics/glean/web/passwordReset';
+import { accountsEvents } from 'fxa-shared/metrics/glean/web/pings';
+import * as reg from 'fxa-shared/metrics/glean/web/reg';
 import {
   oauthClientId,
   service,
@@ -43,13 +43,16 @@ import {
   entrypoint,
   flowId,
 } from 'fxa-shared/metrics/glean/web/session';
-import * as sync from 'fxa-shared/metrics/glean/web/sync';
 import * as standard from 'fxa-shared/metrics/glean/web/standard';
+import * as sync from 'fxa-shared/metrics/glean/web/sync';
+import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
+import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
-import * as entrypointQuery from 'fxa-shared/metrics/glean/web/entrypoint';
+import { Entries } from 'type-fest';
+import UAParser from 'ua-parser-js';
+import { currentAccount } from '../../lib/cache';
 import { Integration } from '../../models';
 import { MetricsFlow } from '../metrics-flow';
-import { currentAccount } from '../../lib/cache';
 
 type DeviceTypes = 'mobile' | 'tablet' | 'desktop';
 export type GleanMetricsContext = {

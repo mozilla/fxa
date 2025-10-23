@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import SubRow, { BackupCodesSubRow, BackupPhoneSubRow } from './index';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import {
   MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER,
   MOCK_MASKED_PHONE_NUMBER_WITH_COPY,
 } from '../../../pages/mocks';
+import SubRow, { BackupCodesSubRow, BackupPhoneSubRow } from './index';
 
 describe('SubRow', () => {
   const defaultProps = {

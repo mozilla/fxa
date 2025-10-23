@@ -2,15 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { LocationProvider } from '@reach/router';
+import { SigninTotpCode, SigninTotpCodeProps } from '.';
+import VerificationMethods from '../../../constants/verification-methods';
+import { GenericData } from '../../../lib/model-data';
+import { MozServices } from '../../../lib/types';
 import {
   IntegrationData,
   IntegrationType,
-  RelierCmsInfo,
   OAuthNativeServices,
+  RelierCmsInfo,
 } from '../../../models';
-import { SigninTotpCode, SigninTotpCodeProps } from '.';
 import {
   MOCK_EMAIL,
   MOCK_SESSION_TOKEN,
@@ -18,10 +20,7 @@ import {
   mockFinishOAuthFlowHandler,
   mockGetWebChannelServices,
 } from '../../mocks';
-import { MozServices } from '../../../lib/types';
-import VerificationMethods from '../../../constants/verification-methods';
 import { SigninIntegration } from '../interfaces';
-import { GenericData } from '../../../lib/model-data';
 
 export const mockWebSigninIntegration = {
   type: IntegrationType.Web,
@@ -41,7 +40,7 @@ export const mockOAuthNativeSigninIntegration = (
 ) => {
   const service = isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay;
   const isRelay = service === OAuthNativeServices.Relay;
-  return ({
+  return {
     type: IntegrationType.OAuthNative,
     getService: () => (isSync ? MozServices.FirefoxSync : MozServices.Relay),
     isSync: () => isSync,
@@ -56,7 +55,7 @@ export const mockOAuthNativeSigninIntegration = (
     ),
     getCmsInfo: () => cmsInfo,
     isFirefoxMobileClient: () => false,
-  }) as SigninIntegration;
+  } as SigninIntegration;
 };
 
 export const MOCK_TOTP_LOCATION_STATE = {

@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { RemoteMetadata } from '../../../lib/types';
 
+import { FtlMsg } from '../../../../../fxa-react/lib/utils';
 import AppLayout from '../../../components/AppLayout';
 import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
-import { FtlMsg } from '../../../../../fxa-react/lib/utils';
 
 // Reuse these images temporarily
+import { LinkExternal } from 'fxa-react/components/LinkExternal';
+import Banner from '../../../components/Banner';
 import monitorIcon from '../../../components/Settings/BentoMenu/monitor.svg';
 import relayIcon from '../../../components/Settings/BentoMenu/relay.svg';
 import vpnIcon from '../../../components/Settings/BentoMenu/vpn-logo.svg';
 import checkmarkIcon from './greencheck.svg';
-import { LinkExternal } from 'fxa-react/components/LinkExternal';
-import Banner from '../../../components/Banner';
 
 export type SigninPushCodeConfirmProps = {
   authDeviceInfo: RemoteMetadata;

@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen } from '@testing-library/react';
-import { LinkExpired, LinkExpiredProps } from '.';
-import { ResendStatus } from 'fxa-settings/src/lib/types';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { ResendStatus } from 'fxa-settings/src/lib/types';
+import { LinkExpired, LinkExpiredProps } from '.';
 
 const mockResendHandler = jest.fn().mockResolvedValue(true);
 

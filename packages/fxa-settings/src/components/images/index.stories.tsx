@@ -2,28 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Meta } from '@storybook/react';
 
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
+  BackupAuthenticationCodesImage,
+  BackupCodesImage,
+  BackupRecoveryPhoneCodeImage,
+  BackupRecoveryPhoneImage,
+  BackupRecoveryPhoneSmsImage,
   EmailCodeImage,
+  FallingConfettiImage,
   HeartsBrokenImage,
   HeartsVerifiedImage,
   LightbulbImage,
-  PasswordImage,
   MailImage,
-  BackupCodesImage,
-  RecoveryKeyImage,
-  TwoFactorAuthImage,
+  PasswordImage,
   PasswordSuccessImage,
-  BackupRecoveryPhoneImage,
-  BackupRecoveryPhoneCodeImage,
-  BackupRecoveryPhoneSmsImage,
-  BackupAuthenticationCodesImage,
+  RecoveryKeyImage,
   SyncCloudsImage,
-  FallingConfettiImage,
+  TwoFactorAuthImage,
 } from '.';
-import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/Images',
@@ -75,6 +74,4 @@ export const BackupAuthenticationCodes = () => (
 );
 export const SyncClouds = () => <SyncCloudsImage />;
 
-export const ConfettiFallingFullPage = () => (
-  <FallingConfettiImage />
-);
+export const ConfettiFallingFullPage = () => <FallingConfettiImage />;

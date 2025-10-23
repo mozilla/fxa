@@ -4,8 +4,8 @@
 
 import { gql } from '@apollo/client';
 import React from 'react';
-import config from '../../lib/config';
 import firefox, { FirefoxCommand } from '../../lib/channels/firefox';
+import config from '../../lib/config';
 import { createApolloClient } from '../../lib/gql';
 import { Account, GET_PROFILE_INFO } from '../Account';
 import { AlertBarInfo } from '../AlertBarInfo';

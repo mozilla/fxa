@@ -2,30 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import React, { useEffect } from 'react';
 import AppLayout from '../../../components/AppLayout';
-import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import Banner from '../../../components/Banner';
+import ButtonBack from '../../../components/ButtonBack';
 import FormChoice, {
   CHOICES,
   FormChoiceData,
   FormChoiceOption,
 } from '../../../components/FormChoice';
-import { useFtlMsgResolver } from '../../../models';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import {
   BackupAuthenticationCodesImage,
   BackupRecoveryPhoneSmsImage,
 } from '../../../components/images';
-import ButtonBack from '../../../components/ButtonBack';
-import Banner from '../../../components/Banner';
 import {
   AuthUiError,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { useFtlMsgResolver } from '../../../models';
+import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 
 export type ResetPasswordRecoveryChoiceProps = {
   handlePhoneChoice: () => Promise<AuthUiError | void>;

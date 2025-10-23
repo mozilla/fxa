@@ -4,15 +4,14 @@
 
 // TODO in FXA-7890 import tests from previous design and update
 
-import React from 'react';
-import { Subject } from './mocks';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { LocationProvider } from '@reach/router';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MOCK_EMAIL } from '../../mocks';
-import { ResendStatus } from '../../../lib/types';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';
-import { LocationProvider } from '@reach/router';
+import { ResendStatus } from '../../../lib/types';
+import { MOCK_EMAIL } from '../../mocks';
+import { Subject } from './mocks';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,

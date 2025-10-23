@@ -4,10 +4,10 @@
 
 import { ReactLocalization } from '@fluent/react';
 import '@testing-library/jest-dom';
+import crypto from 'crypto';
 import { getFtlBundleSync } from 'fxa-react/lib/test-utils';
 import { FtlMsgProps } from 'fxa-react/lib/utils';
-import { TextEncoder, TextDecoder } from 'util';
-import crypto from 'crypto';
+import { TextDecoder, TextEncoder } from 'util';
 
 // react-pdf required TextEncoder for EncodeStream
 // See https://github.com/diegomura/react-pdf/issues/2054#issue-1407270392

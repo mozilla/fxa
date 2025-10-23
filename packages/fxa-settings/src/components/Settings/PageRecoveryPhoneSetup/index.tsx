@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { RouteComponentProps, useLocation } from '@reach/router';
 import React, { useState } from 'react';
 import { useErrorHandler } from 'react-error-boundary';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { MfaReason, RecoveryPhoneSetupReason } from '../../../lib/types';
 import { useAccount, useFtlMsgResolver } from '../../../models';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
-import { RouteComponentProps, useLocation } from '@reach/router';
-import { RecoveryPhoneSetupReason, MfaReason } from '../../../lib/types';
 import { MfaGuard } from '../MfaGuard';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 const numberOfSteps = 2;
 

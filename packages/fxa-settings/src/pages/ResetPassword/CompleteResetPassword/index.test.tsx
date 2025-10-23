@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { Subject } from './mocks';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MOCK_PASSWORD } from '../../mocks';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';
+import { MOCK_PASSWORD } from '../../mocks';
+import { Subject } from './mocks';
 
 const mockSubmitNewPassword = jest.fn((newPassword: string) =>
   Promise.resolve()

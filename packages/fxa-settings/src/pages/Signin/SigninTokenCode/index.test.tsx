@@ -2,32 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import * as ReactUtils from 'fxa-react/lib/utils';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import * as ReactUtils from 'fxa-react/lib/utils';
 // import { FluentBundle } from '@fluent/bundle';
-import { usePageViewEvent } from '../../../lib/metrics';
-import GleanMetrics from '../../../lib/glean';
+import { navigate } from '@reach/router';
 import { viewName } from '.';
-import { mockAppContext, mockSession } from '../../../models/mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { Session, AppContext } from '../../../models';
-import { SigninTokenCodeProps } from './interfaces';
-import { createOAuthNativeIntegration, Subject } from './mocks';
+import VerificationReasons from '../../../constants/verification-reasons';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../../lib/glean';
+import { usePageViewEvent } from '../../../lib/metrics';
+import { AppContext, Session } from '../../../models';
+import { mockAppContext, mockSession } from '../../../models/mocks';
 import { MOCK_SIGNUP_CODE } from '../../Signup/ConfirmSignupCode/mocks';
 import { MOCK_EMAIL, MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { SigninOAuthIntegration } from '../interfaces';
 import {
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeSyncIntegration,
   createMockSigninWebIntegration,
 } from '../mocks';
-import VerificationReasons from '../../../constants/verification-reasons';
-import { navigate } from '@reach/router';
-import { SigninOAuthIntegration } from '../interfaces';
 import * as SigninUtils from '../utils';
+import { SigninTokenCodeProps } from './interfaces';
+import { createOAuthNativeIntegration, Subject } from './mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),

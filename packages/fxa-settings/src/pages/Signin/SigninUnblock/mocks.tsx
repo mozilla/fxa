@@ -10,13 +10,13 @@ import {
   WebIntegrationData,
 } from '../../../models';
 import {
-  MOCK_EMAIL,
   MOCK_AUTH_PW,
+  MOCK_EMAIL,
   MOCK_UID,
   mockGetWebChannelServices,
 } from '../../mocks';
 
-export { CREDENTIAL_STATUS_MUTATION, BEGIN_SIGNIN_MUTATION } from '../gql';
+export { BEGIN_SIGNIN_MUTATION, CREDENTIAL_STATUS_MUTATION } from '../gql';
 
 export const MOCK_SIGNIN_UNBLOCK_LOCATION_STATE = {
   email: MOCK_EMAIL,

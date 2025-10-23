@@ -2,24 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
-import * as ConfirmSignupCodeModule from './index';
-import * as ModelsModule from '../../../models';
-import * as HooksModule from '../../../lib/oauth/hooks';
-import * as CacheModule from '../../../lib/cache';
 import * as ApolloModule from '@apollo/client';
 import * as ReachRouterModule from '@reach/router';
-import * as SentryModule from 'fxa-shared/sentry/browser';
+import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 import * as ReactUtils from 'fxa-react/lib/utils';
+import * as SentryModule from 'fxa-shared/sentry/browser';
+import * as CacheModule from '../../../lib/cache';
+import * as HooksModule from '../../../lib/oauth/hooks';
+import * as ModelsModule from '../../../models';
+import * as ConfirmSignupCodeModule from './index';
 
 import { screen, waitFor } from '@testing-library/react';
 import AuthClient from 'fxa-auth-client/browser';
-import { StoredAccountData } from '../../../lib/storage-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import SignupConfirmCodeContainer from './container';
+import GleanMetrics from '../../../lib/glean';
+import { StoredAccountData } from '../../../lib/storage-utils';
 import { Integration } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
-import GleanMetrics from '../../../lib/glean';
+import SignupConfirmCodeContainer from './container';
 
 import {
   MOCK_EMAIL,

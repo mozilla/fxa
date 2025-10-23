@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-
 import daApple from './apple-app-store-button/da.svg';
 import deApple from './apple-app-store-button/de.svg';
 import enApple from './apple-app-store-button/en.svg';
@@ -30,6 +28,7 @@ import trApple from './apple-app-store-button/tr.svg';
 import zhCNApple from './apple-app-store-button/zh-CN.svg';
 import zhTWApple from './apple-app-store-button/zh-TW.svg';
 
+import { FtlMsg } from 'fxa-react/lib/utils';
 import caGoogle from './google-play-store-button/ca.svg';
 import csGoogle from './google-play-store-button/cs.svg';
 import daGoogle from './google-play-store-button/da.svg';
@@ -57,7 +56,6 @@ import trGoogle from './google-play-store-button/tr.svg';
 import ukGoogle from './google-play-store-button/uk.svg';
 import zhCNGoogle from './google-play-store-button/zh-CN.svg';
 import zhTWGoogle from './google-play-store-button/zh-TW.svg';
-import { FtlMsg } from 'fxa-react/lib/utils';
 
 export enum StoreType {
   apple,

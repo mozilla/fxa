@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useContext } from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
-import { getStoreImageByLanguages, StoreType } from './storeImageLoader';
-import { SettingsContext } from '../../../models/contexts/SettingsContext';
-import GleanMetrics from '../../../lib/glean';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useContext } from 'react';
+import GleanMetrics from '../../../lib/glean';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { getStoreImageByLanguages, StoreType } from './storeImageLoader';
 
 export function ConnectAnotherDevicePromo() {
   const { navigatorLanguages } = useContext(SettingsContext);

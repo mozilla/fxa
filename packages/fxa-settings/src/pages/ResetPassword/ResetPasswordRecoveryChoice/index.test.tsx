@@ -4,11 +4,10 @@
 
 import * as ReachRouterModule from '@reach/router';
 
-import React from 'react';
 import { LocationProvider } from '@reach/router';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import ResetPasswordRecoveryChoice from '.';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';

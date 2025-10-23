@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { usePageViewEvent } from '../../../lib/metrics';
-import { FtlMsg } from 'fxa-react/lib/utils';
 import { RouteComponentProps } from '@reach/router';
-import { REACT_ENTRYPOINT } from '../../../constants';
-import CardHeader from '../../../components/CardHeader';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../../components/AppLayout';
+import CardHeader from '../../../components/CardHeader';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import { usePageViewEvent } from '../../../lib/metrics';
 
 export const viewName = 'signin-reported';
 

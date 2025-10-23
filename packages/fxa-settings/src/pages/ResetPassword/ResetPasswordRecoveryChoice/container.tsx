@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import ResetPasswordRecoveryChoice from '.';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import ResetPasswordRecoveryChoice from '.';
 import {
   AuthUiErrorNos,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
-import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
+import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { CompleteResetPasswordLocationState } from '../CompleteResetPassword/interfaces';
 
 export const ResetPasswordRecoveryChoiceContainer = (
   _: RouteComponentProps

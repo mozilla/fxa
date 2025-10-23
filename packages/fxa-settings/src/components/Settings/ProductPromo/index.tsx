@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import LinkExternal from 'fxa-react/components/LinkExternal';
-import monitorTextLogo from './monitor-text-logo.svg';
-import { FtlMsg } from 'fxa-react/lib/utils';
 import classNames from 'classnames';
-import { MozServices } from '../../../lib/types';
-import { AccountData, useConfig } from '../../../models';
-import { constructHrefWithUtm } from '../../../lib/utilities';
+import LinkExternal from 'fxa-react/components/LinkExternal';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import { LINK } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
+import { MozServices } from '../../../lib/types';
+import { constructHrefWithUtm } from '../../../lib/utilities';
+import { AccountData, useConfig } from '../../../models';
+import monitorTextLogo from './monitor-text-logo.svg';
 
 type ProductPromoType = 'sidebar' | 'settings';
 

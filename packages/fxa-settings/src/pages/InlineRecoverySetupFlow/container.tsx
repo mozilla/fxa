@@ -4,13 +4,21 @@
 
 import { useQuery } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import { useCallback, useEffect, useState } from 'react';
+import { GET_TOTP_STATUS } from '../../components/App/gql';
+import { Choice } from '../../components/FormChoice';
+import OAuthDataError from '../../components/OAuthDataError';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { getErrorFtlId, getHandledError } from '../../lib/error-utils';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../lib/oauth/hooks';
+import { SensitiveData } from '../../lib/sensitive-data-client';
+import { totpUtils } from '../../lib/totp-utils';
 import { MozServices } from '../../lib/types';
 import {
   Integration,
@@ -20,17 +28,9 @@ import {
   useFtlMsgResolver,
   useSensitiveDataClient,
 } from '../../models';
-import InlineRecoverySetup from './index';
-import { hardNavigate } from 'fxa-react/lib/utils';
-import { SigninRecoveryLocationState } from './interfaces';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
-import { GET_TOTP_STATUS } from '../../components/App/gql';
-import OAuthDataError from '../../components/OAuthDataError';
-import { SensitiveData } from '../../lib/sensitive-data-client';
-import { Choice } from '../../components/FormChoice';
-import { totpUtils } from '../../lib/totp-utils';
-import { getErrorFtlId, getHandledError } from '../../lib/error-utils';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import InlineRecoverySetup from './index';
+import { SigninRecoveryLocationState } from './interfaces';
 
 export const InlineRecoverySetupContainer = ({
   isSignedIn,

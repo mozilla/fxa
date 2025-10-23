@@ -2,27 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ModelsModule from '../../models';
-import * as IndexModule from './index';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as cache from '../../lib/cache';
+import * as ModelsModule from '../../models';
+import * as IndexModule from './index';
 
-import React from 'react';
-import { render, waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
-import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
-import { Integration, IntegrationType, WebIntegration } from '../../models';
-import IndexContainer from './container';
-import { MozServices } from '../../lib/types';
+import { render, waitFor } from '@testing-library/react';
 import AuthClient from 'fxa-auth-client/browser';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { IndexProps } from './interfaces';
-import { MOCK_EMAIL } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { checkEmailDomain } from '../../lib/email-domain-validator';
 import GleanMetrics from '../../lib/glean';
-import { IndexQueryParams } from '../../models/pages/index';
+import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { GenericData, ModelValidationErrors } from '../../lib/model-data';
+import { MozServices } from '../../lib/types';
+import { Integration, IntegrationType, WebIntegration } from '../../models';
+import { IndexQueryParams } from '../../models/pages/index';
+import { MOCK_EMAIL } from '../mocks';
+import IndexContainer from './container';
+import { IndexProps } from './interfaces';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();

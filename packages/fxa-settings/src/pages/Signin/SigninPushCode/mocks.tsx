@@ -2,11 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { LocationProvider } from '@reach/router';
-import { IntegrationType } from '../../../models';
 import { SigninPushCode } from '.';
-import { SigninPushCodeProps } from './interfaces';
+import VerificationMethods from '../../../constants/verification-methods';
+import VerificationReasons from '../../../constants/verification-reasons';
+import { MozServices } from '../../../lib/types';
+import { IntegrationType } from '../../../models';
 import {
   MOCK_EMAIL,
   MOCK_KEY_FETCH_TOKEN,
@@ -14,9 +15,7 @@ import {
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
 } from '../../mocks';
-import { MozServices } from '../../../lib/types';
-import VerificationMethods from '../../../constants/verification-methods';
-import VerificationReasons from '../../../constants/verification-reasons';
+import { SigninPushCodeProps } from './interfaces';
 
 export const MOCK_LOCATION_STATE = {
   email: MOCK_EMAIL,

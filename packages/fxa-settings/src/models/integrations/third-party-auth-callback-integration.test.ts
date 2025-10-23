@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ModelDataStore, GenericData } from '../../lib/model-data';
-import { ThirdPartyAuthCallbackIntegration } from './third-party-auth-callback-integration';
 import { AUTH_PROVIDER } from 'fxa-auth-client/browser';
+import { GenericData, ModelDataStore } from '../../lib/model-data';
+import { ThirdPartyAuthCallbackIntegration } from './third-party-auth-callback-integration';
 
 describe('models/integrations/third-party-auth-callback-integration', function () {
   let data: ModelDataStore;

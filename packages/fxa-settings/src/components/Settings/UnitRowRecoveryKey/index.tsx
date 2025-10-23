@@ -2,23 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
-import { logViewEvent } from '../../../lib/metrics';
-import Modal from '../Modal';
-import UnitRow from '../UnitRow';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { ButtonIconTrash } from '../ButtonIcon';
-import { SETTINGS_PATH } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useCallback, useState } from 'react';
+import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
+import { logViewEvent } from '../../../lib/metrics';
 import {
   clearMfaAndJwtCacheOnInvalidJwt,
   isInvalidJwtError,
 } from '../../../lib/mfa-guard-utils';
-import { MfaGuard } from '../MfaGuard';
 import { MfaReason } from '../../../lib/types';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
+import { ButtonIconTrash } from '../ButtonIcon';
+import { MfaGuard } from '../MfaGuard';
+import Modal from '../Modal';
+import UnitRow from '../UnitRow';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 export const UnitRowRecoveryKey = () => {
   const account = useAccount();

@@ -2,20 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import PageRecoveryPhoneSetup from '.';
-import { withLocalization } from 'fxa-react/lib/storybooks';
-import { Meta } from '@storybook/react';
-import SettingsLayout from '../SettingsLayout';
 import {
   createHistory,
   createMemorySource,
   LocationProvider,
 } from '@reach/router';
-import { Account, AppContext } from '../../../models';
-import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
+import PageRecoveryPhoneSetup from '.';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { RecoveryPhoneSetupReason } from '../../../lib/types';
+import { Account, AppContext } from '../../../models';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
+import SettingsLayout from '../SettingsLayout';
 
 export default {
   title: 'Pages/Settings/RecoveryPhoneSetup',

@@ -22,7 +22,7 @@ const mockUseLocaleManager = jest.fn(() => ({
   switchLocale: mockSwitchLocale,
   clearLocalePreference: mockClearLocalePreference,
   isUsingBrowserDefault: false,
-  isLoading: false
+  isLoading: false,
 }));
 
 jest.mock('../../lib/hooks/useLocaleManager', () => ({
@@ -36,15 +36,15 @@ jest.mock('../../lib/locales', () => ({
     code: 'en',
     name: 'English',
     nativeName: 'English',
-    rtl: false
-  })
+    rtl: false,
+  }),
 }));
 
 // Mock the useFtlMsgResolver hook
 jest.mock('../../models', () => ({
   useFtlMsgResolver: () => ({
-    getMsg: (_id: string, fallback: string) => fallback
-  })
+    getMsg: (_id: string, fallback: string) => fallback,
+  }),
 }));
 
 describe('LocaleToggle', () => {
@@ -63,7 +63,7 @@ describe('LocaleToggle', () => {
       switchLocale: mockSwitchLocale,
       clearLocalePreference: mockClearLocalePreference,
       isUsingBrowserDefault: false,
-      isLoading: false
+      isLoading: false,
     });
   });
 
@@ -128,7 +128,7 @@ describe('LocaleToggle', () => {
       switchLocale: mockSwitchLocale,
       clearLocalePreference: mockClearLocalePreference,
       isUsingBrowserDefault: false,
-      isLoading: true
+      isLoading: true,
     });
 
     renderWithLocalizationProvider(<LocaleToggle />);
@@ -136,7 +136,6 @@ describe('LocaleToggle', () => {
     const select = screen.getByRole('combobox', { name: 'Select language' });
     expect(select).toBeDisabled();
   });
-
 
   it('has proper accessibility attributes and labeling', () => {
     renderWithLocalizationProvider(<LocaleToggle />);
@@ -158,7 +157,7 @@ describe('LocaleToggle', () => {
       switchLocale: mockSwitchLocale,
       clearLocalePreference: mockClearLocalePreference,
       isUsingBrowserDefault: false,
-      isLoading: false
+      isLoading: false,
     });
 
     const { rerender } = renderWithLocalizationProvider(<LocaleToggle />);
@@ -179,7 +178,7 @@ describe('LocaleToggle', () => {
       switchLocale: mockSwitchLocale,
       clearLocalePreference: mockClearLocalePreference,
       isUsingBrowserDefault: false,
-      isLoading: false
+      isLoading: false,
     });
 
     rerender(<LocaleToggle />);
@@ -222,17 +221,19 @@ describe('LocaleToggle', () => {
       currentLocale: 'fr',
       availableLocales: [
         { code: 'en', name: 'English', nativeName: 'English', rtl: false },
-        { code: 'fr', name: 'French', nativeName: 'Français', rtl: false }
+        { code: 'fr', name: 'French', nativeName: 'Français', rtl: false },
       ],
       switchLocale: mockSwitchLocale,
       clearLocalePreference: mockClearLocalePreference,
       isUsingBrowserDefault: true,
-      isLoading: false
+      isLoading: false,
     });
 
     renderWithLocalizationProvider(<LocaleToggle />);
 
-    const select = screen.getByRole('combobox', { name: 'Select language' }) as HTMLSelectElement;
+    const select = screen.getByRole('combobox', {
+      name: 'Select language',
+    }) as HTMLSelectElement;
 
     // Should show the actual browser language (English) when using browser default
     expect(select.value).toBe('en'); // Browser default locale from mock

@@ -4,21 +4,30 @@
 
 import React from 'react';
 import { useLocaleManager } from '../../lib/hooks/useLocaleManager';
-import { useFtlMsgResolver } from '../../models';
 import { getBrowserDefaultLocaleInfo } from '../../lib/locales';
+import { useFtlMsgResolver } from '../../models';
 
 const BROWSER_DEFAULT_VALUE = 'browser-default';
 
 /**
-* Locale selection dropdown component with browser default support
-* Handles locale switching and preference clearing
-*/
+ * Locale selection dropdown component with browser default support
+ * Handles locale switching and preference clearing
+ */
 export const LocaleToggle: React.FC = () => {
   const ftlMsgResolver = useFtlMsgResolver();
-  const { currentLocale, availableLocales, switchLocale, clearLocalePreference, isUsingBrowserDefault, isLoading } = useLocaleManager();
+  const {
+    currentLocale,
+    availableLocales,
+    switchLocale,
+    clearLocalePreference,
+    isUsingBrowserDefault,
+    isLoading,
+  } = useLocaleManager();
 
   // Handle locale selection
-  const handleLocaleChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleLocaleChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const newLocale = event.target.value;
 
     if (newLocale === BROWSER_DEFAULT_VALUE) {
@@ -46,7 +55,7 @@ export const LocaleToggle: React.FC = () => {
   // Determine the current value for the select
   // If using browser default, show the actual browser locale in the dropdown
   const currentValue = isUsingBrowserDefault
-    ? (browserDefaultLocale?.code || currentLocale)
+    ? browserDefaultLocale?.code || currentLocale
     : currentLocale;
 
   return (

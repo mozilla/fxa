@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import LinkExternal from 'fxa-react/components/LinkExternal';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import FlowContainer from '../FlowContainer';
-import ProgressBar from '../ProgressBar';
-import { GleanClickEventType2FA } from '../../../lib/types';
+import { useCallback, useEffect, useState } from 'react';
 import GleanMetrics from '../../../lib/glean';
+import { GleanClickEventType2FA } from '../../../lib/types';
+import { useFtlMsgResolver } from '../../../models';
+import FormChoice, { Choice, CHOICES, FormChoiceData } from '../../FormChoice';
 import {
   BackupAuthenticationCodesImage,
   BackupRecoveryPhoneSmsImage,
 } from '../../images';
-import { useFtlMsgResolver } from '../../../models';
-import FormChoice, { Choice, CHOICES, FormChoiceData } from '../../FormChoice';
-import LinkExternal from 'fxa-react/components/LinkExternal';
+import FlowContainer from '../FlowContainer';
+import ProgressBar from '../ProgressBar';
 
 type FlowSetup2faBackupChoiceProps = {
   currentStep?: number;

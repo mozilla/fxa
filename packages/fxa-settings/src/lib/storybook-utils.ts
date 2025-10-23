@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ReactElement } from 'react';
+import { Account } from '../models';
 import {
   MOCK_ACCOUNT,
   createAppContext,
   createHistoryWithQuery,
   produceComponent,
 } from '../models/mocks';
-import { Account } from '../models';
 
 export function renderStoryWithHistory(
   component: ReactElement,

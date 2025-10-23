@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import Ready from '.';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import GleanMetrics from '../../lib/glean';
-import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
+import GleanMetrics from '../../lib/glean';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import { MozServices } from '../../lib/types';
 import { MOCK_SERVICE } from '../../pages/mocks';
 
 jest.mock('../../lib/metrics', () => ({

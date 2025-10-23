@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { SETTINGS_PATH } from '../../../constants';
-import { UnitRow } from '.';
-import { Modal } from '../Modal';
 import { AppContext } from 'fxa-settings/src/models';
+import React from 'react';
+import { UnitRow } from '.';
+import { SETTINGS_PATH } from '../../../constants';
 import { PLACEHOLDER_IMAGE_URL } from '../../../pages/mocks';
+import { Modal } from '../Modal';
 
 export const MOCK_HEADER = 'Some header';
 export const MOCK_HEADER_VALUE = 'Some header value';

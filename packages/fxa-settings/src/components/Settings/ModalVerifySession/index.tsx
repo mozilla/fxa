@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState, useRef } from 'react';
-import { useForm } from 'react-hook-form';
-import Modal from '../Modal';
-import InputText from '../../InputText';
 import { ApolloError } from '@apollo/client';
-import { useAccount, useSession } from '../../../models';
 import { Localized, useLocalization } from '@fluent/react';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { getErrorFtlId } from '../../../lib/error-utils';
+import { useAccount, useSession } from '../../../models';
+import InputText from '../../InputText';
+import Modal from '../Modal';
 
 type ModalProps = {
   onDismiss: () => void;

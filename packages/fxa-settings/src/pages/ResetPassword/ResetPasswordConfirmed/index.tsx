@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { RouteComponentProps } from '@reach/router';
-import AppLayout from '../../../components/AppLayout';
-import { ResetPasswordConfirmedProps } from './interfaces';
-import { PasswordSuccessImage } from '../../../components/images';
-import { CheckmarkCircleFullGreenIcon } from '../../../components/Icons';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
+import { CheckmarkCircleFullGreenIcon } from '../../../components/Icons';
+import { PasswordSuccessImage } from '../../../components/images';
+import { ResetPasswordConfirmedProps } from './interfaces';
 
 const ResetPasswordConfirmed = ({
   continueHandler,

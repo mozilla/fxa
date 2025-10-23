@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import LogoLockup from 'fxa-react/components/LogoLockup';
+import { Link, useLocation } from '@reach/router';
 import Header from 'fxa-react/components/Header';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import LogoLockup from 'fxa-react/components/LogoLockup';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useState } from 'react';
+import GleanMetrics from '../../../lib/glean';
 import { useFtlMsgResolver } from '../../../models';
 import BentoMenu from '../BentoMenu';
 import DropDownAvatarMenu from '../DropDownAvatarMenu';
+import Sidebar from '../Sidebar';
+import { ReactComponent as Close } from './close.svg';
 import { ReactComponent as Help } from './help.svg';
 import { ReactComponent as Menu } from './menu.svg';
-import { ReactComponent as Close } from './close.svg';
-import Sidebar from '../Sidebar';
-import GleanMetrics from '../../../lib/glean';
-import { Link, useLocation } from '@reach/router';
 
 export const HeaderLockup = () => {
   const [sidebarRevealedState, setNavState] = useState(false);

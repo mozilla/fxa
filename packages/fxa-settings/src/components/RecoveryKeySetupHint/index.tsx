@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { Control, useForm, useWatch } from 'react-hook-form';
-import InputText from '../InputText';
-import { RelierCmsInfo, useFtlMsgResolver } from '../../models';
-import { logViewEvent } from '../../lib/metrics';
-import { LightbulbImage } from '../images';
-import { DISPLAY_SAFE_UNICODE } from '../../constants';
 import classNames from 'classnames';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useEffect, useState } from 'react';
+import { Control, useForm, useWatch } from 'react-hook-form';
+import { DISPLAY_SAFE_UNICODE } from '../../constants';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
+import { logViewEvent } from '../../lib/metrics';
+import { RelierCmsInfo, useFtlMsgResolver } from '../../models';
 import Banner from '../Banner';
 import CmsButtonWithFallback from '../CmsButtonWithFallback';
+import { LightbulbImage } from '../images';
+import InputText from '../InputText';
 
 export type RecoveryKeySetupHintProps = {
   updateRecoveryKeyHint: (hint: string) => Promise<void>;

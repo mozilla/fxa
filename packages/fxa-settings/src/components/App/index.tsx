@@ -10,21 +10,21 @@ import {
 } from '@reach/router';
 import {
   lazy,
+  startTransition,
   Suspense,
   useEffect,
-  useState,
   useLayoutEffect,
   useMemo,
-  startTransition,
+  useState,
 } from 'react';
 
 import { QueryParams } from '../..';
-import { storeAccountData } from '../../lib/storage-utils';
 import { currentAccount, getAccountByUid } from '../../lib/cache';
 import { firefox } from '../../lib/channels/firefox';
-import * as MetricsFlow from '../../lib/metrics-flow';
 import GleanMetrics from '../../lib/glean';
 import * as Metrics from '../../lib/metrics';
+import * as MetricsFlow from '../../lib/metrics-flow';
+import { storeAccountData } from '../../lib/storage-utils';
 import { MozServices } from '../../lib/types';
 
 import {
@@ -44,9 +44,9 @@ import sentryMetrics from 'fxa-shared/sentry/browser';
 
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { ScrollToTop } from '../Settings/ScrollToTop';
-import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
+import { ScrollToTop } from '../Settings/ScrollToTop';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));

@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { PageRecoveryKeyCreate } from '.';
-import { Account, AppContext } from '../../../models';
-import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
-import { LocationProvider } from '@reach/router';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { Account, AppContext } from '../../../models';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 
 export default {
   title: 'Pages/Settings/RecoveryKeyCreate',

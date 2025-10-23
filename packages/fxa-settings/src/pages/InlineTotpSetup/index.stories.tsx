@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import InlineTotpSetup from '.';
-import { Meta } from '@storybook/react';
-import { MozServices } from '../../lib/types';
-import { MOCK_TOTP_TOKEN } from './mocks';
-import { withLocalization } from 'fxa-react/lib/storybooks';
 import { action } from '@storybook/addon-actions';
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
+import InlineTotpSetup from '.';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { MozServices } from '../../lib/types';
 import { createMockIntegrationWithCms } from '../mocks';
+import { MOCK_TOTP_TOKEN } from './mocks';
 
 export default {
   title: 'Pages/InlineTotpSetup',

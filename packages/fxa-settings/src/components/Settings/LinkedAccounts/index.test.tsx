@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
-import { Account, AppContext, LinkedAccount } from '../../../models';
-import LinkedAccounts from '../LinkedAccounts';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
-import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
-import { LinkedAccountProviderIds } from '../../../lib/types';
 import { withLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import GleanMetrics from '../../../lib/glean';
+import { LinkedAccountProviderIds } from '../../../lib/types';
+import { Account, AppContext, LinkedAccount } from '../../../models';
+import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import LinkedAccounts from '../LinkedAccounts';
+import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,

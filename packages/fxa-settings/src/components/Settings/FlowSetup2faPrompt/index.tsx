@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { BackupRecoveryPhoneCodeImage } from '../../images';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import FlowContainer from '../FlowContainer';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import { GleanClickEventType2FA } from '../../../lib/types';
-import Banner from '../../Banner';
 import { RelierCmsInfo } from '../../../models';
+import Banner from '../../Banner';
 import CmsButtonWithFallback from '../../CmsButtonWithFallback';
+import { BackupRecoveryPhoneCodeImage } from '../../images';
+import FlowContainer from '../FlowContainer';
 
 export type FlowSetup2faPromptProps = {
   localizedPageTitle: string;

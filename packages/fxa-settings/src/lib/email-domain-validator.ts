@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { AuthUiErrors } from './auth-errors/auth-errors';
 import topEmailDomains from 'fxa-shared/email/topEmailDomains';
+import { AuthUiErrors } from './auth-errors/auth-errors';
 import { resolveDomain } from './email-domain-validator-resolve-domain';
 
 let previousDomain: string | undefined;

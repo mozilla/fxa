@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import {
-  SignupConfirmedSyncIntegration,
-  SignupConfirmedSyncProps,
-} from './interfaces';
 import {
   createHistory,
   createMemorySource,
@@ -14,6 +9,10 @@ import {
 } from '@reach/router';
 import SignupConfirmedSync from '.';
 import { RelierCmsInfo } from '../../../models';
+import {
+  SignupConfirmedSyncIntegration,
+  SignupConfirmedSyncProps,
+} from './interfaces';
 
 export function createMockIntegration({
   isDesktopSync = true,

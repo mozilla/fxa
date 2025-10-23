@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import AppLayout from '../../../components/AppLayout';
-import { FormSetupAccount } from '../../../components/FormSetupAccount';
-import { SetPasswordFormData, SetPasswordProps } from './interfaces';
-import { useForm } from 'react-hook-form';
 import { useCallback, useState } from 'react';
-import { useFtlMsgResolver } from '../../../models';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { useForm } from 'react-hook-form';
+import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
+import { FormSetupAccount } from '../../../components/FormSetupAccount';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { useFtlMsgResolver } from '../../../models';
+import { SetPasswordFormData, SetPasswordProps } from './interfaces';
 
 export const SetPassword = ({
   email,

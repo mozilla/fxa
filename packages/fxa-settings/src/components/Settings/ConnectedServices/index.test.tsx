@@ -2,20 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { act, fireEvent, screen } from '@testing-library/react';
-import ConnectedServices, { sortAndFilterConnectedClients } from '.';
-import { Account, AlertBarInfo, AppContext } from '../../../models';
 import {
-  renderWithRouter,
   mockAppContext,
-  mockSettingsContext,
   mockSession,
+  mockSettingsContext,
+  renderWithRouter,
 } from 'fxa-settings/src/models/mocks';
+import ConnectedServices, { sortAndFilterConnectedClients } from '.';
 import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';
-import { MOCK_SERVICES } from './mocks';
+import { Account, AlertBarInfo, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { MOCK_SERVICES } from './mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),

@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { Suspense, lazy } from 'react';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { Suspense, lazy } from 'react';
+import { logViewEvent } from '../../lib/metrics';
+import { RelierCmsInfo } from '../../models';
+import DataBlockInline from '../DataBlockInline';
 import {
   FolderIconListItem,
   GlobeIconListItem,
   LockIconListItem,
   PrinterIconListItem,
 } from '../IconListItem';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { logViewEvent } from '../../lib/metrics';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import DataBlockInline from '../DataBlockInline';
-import { RelierCmsInfo } from '../../models';
 
 export interface RecoveryKeySetupDownloadProps {
   navigateForward: () => void;

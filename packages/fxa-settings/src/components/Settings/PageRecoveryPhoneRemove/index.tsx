@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { SETTINGS_PATH } from '../../../constants';
-import CardHeader from '../../CardHeader';
-import Banner from '../../Banner';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
-import FlowContainer from '../FlowContainer';
+import { useCallback } from 'react';
+import { SETTINGS_PATH } from '../../../constants';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { MfaGuard } from '../MfaGuard';
 import { MfaReason } from '../../../lib/types';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
+import Banner from '../../Banner';
+import CardHeader from '../../CardHeader';
+import FlowContainer from '../FlowContainer';
+import { MfaGuard } from '../MfaGuard';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 // TODO, update this link with #section-heading once the SUMO article is updated (FXA-10918)
 const sumoTwoStepLink = (

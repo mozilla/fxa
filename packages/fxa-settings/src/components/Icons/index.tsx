@@ -2,25 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { ImageProps, PreparedImage as PreparedIcon } from '../PreparedImage';
 import { ReactComponent as AlertFull } from './icon_alert_triangle_full_yellow.min.svg';
 import { ReactComponent as AlertOutlineCurrent } from './icon_alert_triangle_outline_current.min.svg';
 import { ReactComponent as AuthenticatorApp } from './icon_authenticator_app.min.svg';
 import { ReactComponent as BackupCodes } from './icon_backup_codes.min.svg';
 import { ReactComponent as BackupCodesDisabled } from './icon_backup_codes_disabled.min.svg';
-import { ReactComponent as BackupRecoverySmsDisabled } from './icon_backup_recovery_sms_disabled.min.svg';
 import { ReactComponent as BackupRecoverySms } from './icon_backup_recovery_sms.min.svg';
-import { ReactComponent as CheckmarkGreen } from './icon_checkmark_green.min.svg';
+import { ReactComponent as BackupRecoverySmsDisabled } from './icon_backup_recovery_sms_disabled.min.svg';
 import { ReactComponent as CheckmarkCircleFullGreen } from './icon_checkmark_circle_full_green.min.svg';
 import { ReactComponent as CheckmarkCircleOutlineCurrent } from './icon_checkmark_circle_outline_current.min.svg';
+import { ReactComponent as CheckmarkGreen } from './icon_checkmark_green.min.svg';
 import { ReactComponent as Close } from './icon_close.min.svg';
 import { ReactComponent as Code } from './icon_code.min.svg';
 import { ReactComponent as ErrorOutlineCurrent } from './icon_error_circle_outline_current.min.svg';
 import { ReactComponent as FlagCanada } from './icon_flag_canada.min.svg';
 import { ReactComponent as FlagUsa } from './icon_flag_usa.min.svg';
-import { ReactComponent as InformationOutlineCurrent } from './icon_information_circle_outline_current.min.svg';
 import { ReactComponent as InformationOutlineBlue } from './icon_information_circle_outline_blue.min.svg';
+import { ReactComponent as InformationOutlineCurrent } from './icon_information_circle_outline_current.min.svg';
 import { ReactComponent as Lightbulb } from './icon_lightbulb.min.svg';
 
 type AlertMode = 'alert' | 'attention' | 'warning';

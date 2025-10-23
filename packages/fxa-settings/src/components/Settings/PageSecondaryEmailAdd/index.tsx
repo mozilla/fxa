@@ -2,23 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
+import { AuthUiErrorNos } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { useAccount, useAlertBar } from 'fxa-settings/src/models';
+import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
+import { ChangeEvent, useCallback, useRef, useState } from 'react';
+import { useErrorHandler } from 'react-error-boundary';
+import { SETTINGS_PATH } from '../../../constants';
+import { getErrorFtlId } from '../../../lib/error-utils';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import { SETTINGS_PATH } from '../../../constants';
-import InputText from '../../InputText';
-import FlowContainer from '../FlowContainer';
-import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
-import { useAccount, useAlertBar } from 'fxa-settings/src/models';
-import { AuthUiErrorNos } from 'fxa-settings/src/lib/auth-errors/auth-errors';
-import { getErrorFtlId } from '../../../lib/error-utils';
-import { MfaGuard } from '../MfaGuard';
-import { useErrorHandler } from 'react-error-boundary';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 import { MfaReason } from '../../../lib/types';
+import InputText from '../../InputText';
+import FlowContainer from '../FlowContainer';
+import { MfaGuard } from '../MfaGuard';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.emails');

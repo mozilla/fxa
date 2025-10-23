@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
-import AppLayout from '../../../components/AppLayout';
-import FormVerifyTotp from '../../../components/FormVerifyTotp';
 import { RouteComponentProps } from '@reach/router';
-import { useFtlMsgResolver } from '../../../models';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { BackupRecoveryPhoneCodeImage } from '../../../components/images';
-import Banner from '../../../components/Banner';
-import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import ButtonBack from '../../../components/ButtonBack';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { ResetPasswordRecoveryPhoneProps } from './interfaces';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useEffect, useState } from 'react';
+import AppLayout from '../../../components/AppLayout';
+import Banner from '../../../components/Banner';
 import { BannerLinkProps } from '../../../components/Banner/interfaces';
+import ButtonBack from '../../../components/ButtonBack';
+import FormVerifyTotp from '../../../components/FormVerifyTotp';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
+import { BackupRecoveryPhoneCodeImage } from '../../../components/images';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import { useFtlMsgResolver } from '../../../models';
+import { ResetPasswordRecoveryPhoneProps } from './interfaces';
 
 // Helper to map sendCode errors to banner content
 function getSendCodeErrorBanner(

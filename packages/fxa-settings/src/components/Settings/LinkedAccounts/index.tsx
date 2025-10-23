@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { forwardRef } from 'react';
-import { useAccount } from '../../../models';
 import { Localized } from '@fluent/react';
+import { forwardRef } from 'react';
+import { useAccount } from '../../../models';
 import { LinkedAccount } from './LinkedAccount';
 
 export const LinkedAccounts = forwardRef<HTMLDivElement>((_, ref) => {

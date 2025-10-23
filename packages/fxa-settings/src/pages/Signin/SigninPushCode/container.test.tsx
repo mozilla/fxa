@@ -2,27 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as SigninPushCodeModule from '.';
-import { SigninPushCodeProps } from './interfaces';
 import * as ReactUtils from 'fxa-react/lib/utils';
+import * as SigninPushCodeModule from '.';
 import * as CacheModule from '../../../lib/cache';
+import { SigninPushCodeProps } from './interfaces';
 
-import { Integration, useSensitiveDataClient } from '../../../models';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { LocationProvider } from '@reach/router';
-import SigninPushCodeContainer from './container';
 import { waitFor } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { Integration, useSensitiveDataClient } from '../../../models';
+import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import {
   MOCK_EMAIL,
   MOCK_KEY_FETCH_TOKEN,
   MOCK_STORED_ACCOUNT,
   MOCK_UNWRAP_BKEY,
 } from '../../mocks';
+import SigninPushCodeContainer from './container';
 import {
   createMockSigninLocationState,
   createMockSyncIntegration,
 } from './mocks';
-import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 
 import { MozServices } from '../../../lib/types';
 

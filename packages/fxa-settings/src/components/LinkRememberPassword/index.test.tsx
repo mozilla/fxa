@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import LinkRememberPassword, { LinkRememberPasswordProps } from '.';
-import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
-import { MOCK_CLIENT_ID, MOCK_EMAIL } from '../../pages/mocks';
 import {
   createHistory,
   createMemorySource,
   LocationProvider,
 } from '@reach/router';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import LinkRememberPassword, { LinkRememberPasswordProps } from '.';
+import { MOCK_CLIENT_ID, MOCK_EMAIL } from '../../pages/mocks';
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,

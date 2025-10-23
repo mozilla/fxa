@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FtlMsg } from 'fxa-react/lib/utils';
 import React, { useCallback, useState } from 'react';
 import { UseFormMethods } from 'react-hook-form';
-import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
-import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
-import PasswordStrengthInline from '../PasswordStrengthInline';
 import CmsButtonWithFallback, { CmsButtonType } from '../CmsButtonWithFallback';
+import InputPassword from '../InputPassword';
+import PasswordStrengthInline from '../PasswordStrengthInline';
 
 export type PasswordFormType = 'signup' | 'reset' | 'post-verify-set-password';
 

@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import AuthTotp from '.';
 import AppLayout from '../../../components/AppLayout';
-import { Meta } from '@storybook/react';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
-import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MOCK_ACCOUNT } from '../../../models/mocks';
 
 export default {
   title: 'Pages/Pair/AuthTotp',

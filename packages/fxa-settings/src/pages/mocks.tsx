@@ -4,10 +4,10 @@
 
 import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 
-import { MozServices } from '../lib/types';
 import { SyncEngines, WebChannelServices } from '../lib/channels/firefox';
-import { MOCK_ACCOUNT } from '../models/mocks';
+import { MozServices } from '../lib/types';
 import { Integration, IntegrationType } from '../models';
+import { MOCK_ACCOUNT } from '../models/mocks';
 import PLACEHOLDER_IMAGE_URL from './cat.jpg';
 
 export const MOCK_EMAIL = MOCK_ACCOUNT.primaryEmail.email;

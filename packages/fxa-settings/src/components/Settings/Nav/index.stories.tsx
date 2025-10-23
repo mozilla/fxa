@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { LocationProvider } from '@reach/router';
-import { getDefault, Config } from '../../../lib/config';
-import { Nav } from '.';
-import { AppContext } from 'fxa-settings/src/models';
-import { mockAppContext } from '../../../models/mocks';
-import { Account } from '../../../models/Account';
-import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { AppContext } from 'fxa-settings/src/models';
+import { Nav } from '.';
+import { Config, getDefault } from '../../../lib/config';
+import { Account } from '../../../models/Account';
+import { mockAppContext } from '../../../models/mocks';
+import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 
 export default {
   title: 'Components/Settings/Nav',

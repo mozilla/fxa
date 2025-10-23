@@ -2,12 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { RouteComponentProps } from '@reach/router';
-import Ready from '../../../components/Ready';
-import { MozServices } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
-import { ReadyBaseIntegration } from '../../../components/Ready';
+import Ready, { ReadyBaseIntegration } from '../../../components/Ready';
+import { MozServices } from '../../../lib/types';
 
 export type PrimaryEmailVerifiedProps = {
   serviceName?: MozServices;
@@ -20,7 +18,7 @@ export const viewName = 'primary-email-verified';
 const PrimaryEmailVerified = ({
   serviceName,
   isSignedIn,
-  integration
+  integration,
 }: PrimaryEmailVerifiedProps & RouteComponentProps) => {
   const cmsInfo = integration?.getCmsInfo?.();
 

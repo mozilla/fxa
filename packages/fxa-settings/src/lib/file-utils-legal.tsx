@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { GET_LEGAL_DOC } from '../models';
 import { ApolloClient } from '@apollo/client';
+import { GET_LEGAL_DOC } from '../models';
 
 export enum LegalDocFile {
   privacy = 'mozilla_accounts_privacy_notice',

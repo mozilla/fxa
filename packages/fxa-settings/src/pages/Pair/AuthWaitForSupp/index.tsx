@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { RemoteMetadata } from '../../../lib/types';
-import { usePageViewEvent } from '../../../lib/metrics';
-import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
-import { REACT_ENTRYPOINT } from '../../../constants';
-import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
 import Banner from '../../../components/Banner';
+import CardHeader from '../../../components/CardHeader';
+import DeviceInfoBlock from '../../../components/DeviceInfoBlock';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import { usePageViewEvent } from '../../../lib/metrics';
+import { RemoteMetadata } from '../../../lib/types';
 
 export type AuthWaitForSuppProps = {
   suppDeviceInfo: RemoteMetadata;

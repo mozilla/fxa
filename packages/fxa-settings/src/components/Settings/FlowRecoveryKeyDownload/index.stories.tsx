@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import FlowRecoveryKeyDownload from '.';
 import { Meta } from '@storybook/react';
-import { useFtlMsgResolver } from '../../../models';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { MOCK_RECOVERY_KEY_VALUE } from './mocks';
+import FlowRecoveryKeyDownload from '.';
+import { useFtlMsgResolver } from '../../../models';
 import { MOCK_EMAIL } from '../../../pages/mocks';
+import { MOCK_RECOVERY_KEY_VALUE } from './mocks';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyDownload',

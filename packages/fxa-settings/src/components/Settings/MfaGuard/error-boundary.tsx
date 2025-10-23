@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Component, ReactNode } from 'react';
-import { MfaScope } from '../../../lib/types';
 import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
+import { MfaScope } from '../../../lib/types';
 
 /**
  * Error Boundary Implementation.

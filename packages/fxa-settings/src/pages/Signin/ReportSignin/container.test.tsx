@@ -6,21 +6,20 @@
  * TIP - See signup/container.test.tsx for helpful tips about writing container tests
  */
 
-import React from 'react';
-import * as ReportSigninModule from './index';
 import * as LinkDamagedModule from '../../../components/LinkDamaged';
 import * as UseValidateModule from '../../../lib/hooks/useValidate';
 import * as ModelsModule from '../../../models';
+import * as ReportSigninModule from './index';
 
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { screen, waitFor } from '@testing-library/react';
-import ReportSigninContainer from './container';
-import { ModelDataProvider } from '../../../lib/model-data';
-import AuthClient from 'fxa-auth-client/browser';
-import { MOCK_UID, MOCK_UNBLOCK_CODE } from '../../mocks';
-import { ReportSigninProps } from './interfaces';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { LocationProvider } from '@reach/router';
+import { screen, waitFor } from '@testing-library/react';
+import AuthClient from 'fxa-auth-client/browser';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { ModelDataProvider } from '../../../lib/model-data';
+import { MOCK_UID, MOCK_UNBLOCK_CODE } from '../../mocks';
+import ReportSigninContainer from './container';
+import { ReportSigninProps } from './interfaces';
 
 let currentReportSigninProps: ReportSigninProps | undefined;
 function mockReportSigninModule() {

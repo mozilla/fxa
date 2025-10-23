@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode } from 'react';
-import { ModelValidationErrors } from '../../lib/model-data';
 import * as Sentry from '@sentry/browser';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
+import React, { ReactNode } from 'react';
 import { AuthUiErrors, isAuthUiError } from '../../lib/auth-errors/auth-errors';
+import { ModelValidationErrors } from '../../lib/model-data';
 
 /**
  * Handles errors that might occur in fxa-settings

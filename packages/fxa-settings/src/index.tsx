@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ApolloProvider } from '@apollo/client';
+import { navigate } from '@reach/router';
+import sentryMetrics from 'fxa-shared/sentry/browser';
 import React from 'react';
 import { render } from 'react-dom';
-import sentryMetrics from 'fxa-shared/sentry/browser';
-import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
+import { AppErrorBoundary } from './components/ErrorBoundaries';
+import { DynamicLocalizationProvider } from './contexts/DynamicLocalizationContext';
 import config, { readConfigMeta } from './lib/config';
-import { searchParams } from './lib/utilities';
-import { AppContext, initializeAppContext } from './models';
-import { ApolloProvider } from '@apollo/client';
 import { createApolloClient } from './lib/gql';
 import Storage from './lib/storage';
-import './styles/tailwind.out.css';
+import { searchParams } from './lib/utilities';
+import { AppContext, initializeAppContext } from './models';
 import CookiesDisabled from './pages/CookiesDisabled';
-import { navigate } from '@reach/router';
-import { DynamicLocalizationProvider } from './contexts/DynamicLocalizationContext';
+import './styles/tailwind.out.css';
 
 export interface FlowQueryParams {
   broker?: string;
@@ -81,9 +81,7 @@ try {
 
   render(
     <React.StrictMode>
-      <DynamicLocalizationProvider
-        baseDir={config.l10n.baseUrl}
-      >
+      <DynamicLocalizationProvider baseDir={config.l10n.baseUrl}>
         <AppErrorBoundary>
           <AppContext.Provider value={appContext}>
             <ApolloProvider client={apolloClient}>

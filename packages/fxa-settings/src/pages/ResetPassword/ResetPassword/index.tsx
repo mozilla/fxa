@@ -3,19 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from '@reach/router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { useFtlMsgResolver } from '../../../models';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 
+import { isEmailValid } from 'fxa-shared/email/helpers';
 import AppLayout from '../../../components/AppLayout';
+import Banner from '../../../components/Banner';
 import { InputText } from '../../../components/InputText';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import { isEmailValid } from 'fxa-shared/email/helpers';
-import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import GleanMetrics from '../../../lib/glean';
-import Banner from '../../../components/Banner';
+import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 
 export const viewName = 'reset-password';
 

@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
+import GleanMetrics from '../../../lib/glean';
+import { MfaReason } from '../../../lib/types';
+import { AppContext } from '../../../models';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { MfaGuard } from './index';
-import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { AppContext } from '../../../models';
-import { MfaReason } from '../../../lib/types';
-import GleanMetrics from '../../../lib/glean';
 
 const mockSessionToken = 'session-xyz';
 const mockOtp = '123456';

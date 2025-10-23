@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import HeaderLockup from '../HeaderLockup';
-import ContentSkip from '../ContentSkip';
 import Footer from 'fxa-react/components/Footer';
-import { AlertBar } from '../AlertBar';
+import React from 'react';
 import { useConfig } from '../../../models/hooks';
 import { LocaleToggle } from '../../LocaleToggle';
+import { AlertBar } from '../AlertBar';
+import ContentSkip from '../ContentSkip';
+import HeaderLockup from '../HeaderLockup';
 
 type SettingsLayoutProps = {
   children: React.ReactNode;

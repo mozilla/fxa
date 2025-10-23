@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import Signin from '.';
-import { MozServices } from '../../lib/types';
 import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
+import Signin from '.';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { BeginSigninError } from '../../lib/error-utils';
+import { MozServices } from '../../lib/types';
+import { MOCK_SERVICE, MOCK_SESSION_TOKEN } from '../mocks';
+import { SigninProps } from './interfaces';
 import {
-  Subject,
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeSyncIntegration,
   MOCK_CMS_INFO,
+  Subject,
 } from './mocks';
-import { withLocalization } from 'fxa-react/lib/storybooks';
-import { SigninProps } from './interfaces';
-import { MOCK_SERVICE, MOCK_SESSION_TOKEN } from '../mocks';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { BeginSigninError } from '../../lib/error-utils';
 
 export default {
   title: 'Pages/Signin',

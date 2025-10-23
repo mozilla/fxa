@@ -3,35 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Mocked Module Imports
-import * as SigninTotpCodeModule from './index';
-import * as UseValidateModule from '../../../lib/hooks/useValidate';
-import * as CacheModule from '../../../lib/cache';
-import * as ReactUtils from 'fxa-react/lib/utils';
-import * as ReachRouterModule from '@reach/router';
 import * as ApolloModule from '@apollo/client';
+import * as ReachRouterModule from '@reach/router';
+import * as ReactUtils from 'fxa-react/lib/utils';
+import * as CacheModule from '../../../lib/cache';
+import * as UseValidateModule from '../../../lib/hooks/useValidate';
+import * as SigninTotpCodeModule from './index';
 
 // Regular imports
-import { screen } from '@testing-library/react';
-import { LocationProvider } from '@reach/router';
-import { SigninTotpCodeProps } from './index';
 import { ApolloClient } from '@apollo/client';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { LocationProvider } from '@reach/router';
+import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import SigninTotpCodeContainer from './container';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { MozServices } from '../../../lib/types';
-import { createMockWebIntegration } from '../SigninTokenCode/mocks';
 import {
   Integration,
   useSensitiveDataClient,
   useSession,
 } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
+import { createMockWebIntegration } from '../SigninTokenCode/mocks';
+import SigninTotpCodeContainer from './container';
+import { SigninTotpCodeProps } from './index';
 
-import {
-  MOCK_NON_TOTP_LOCATION_STATE,
-  MOCK_TOTP_LOCATION_STATE,
-} from './mocks';
-import { SigninLocationState } from '../interfaces';
+import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import {
   MOCK_AUTH_PW,
   MOCK_AUTH_PW_V2,
@@ -41,7 +37,11 @@ import {
   MOCK_UNWRAP_BKEY_V2,
   mockLoadingSpinnerModule,
 } from '../../mocks';
-import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
+import { SigninLocationState } from '../interfaces';
+import {
+  MOCK_NON_TOTP_LOCATION_STATE,
+  MOCK_TOTP_LOCATION_STATE,
+} from './mocks';
 
 let integration: Integration;
 

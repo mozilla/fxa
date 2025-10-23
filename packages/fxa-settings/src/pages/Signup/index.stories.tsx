@@ -2,27 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import Signup from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import Signup from '.';
+import { mockUseSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
+import { getSyncEngineIds } from '../../lib/sync-engines';
+import { AppContext } from '../../models';
+import {
+  MONITOR_CLIENTIDS,
+  POCKET_CLIENTIDS,
+} from '../../models/integrations/client-matching';
+import { mockAppContext } from '../../models/mocks';
+import { MOCK_CMS_INFO, MOCK_EMAIL } from '../mocks';
+import { SignupIntegration } from './interfaces';
 import {
   createMockSignupOAuthNativeIntegration,
   createMockSignupOAuthWebIntegration,
   createMockSignupSyncDesktopV3Integration,
   mockBeginSignupHandler,
 } from './mocks';
-import { SignupIntegration } from './interfaces';
-import { mockAppContext } from '../../models/mocks';
-import {
-  MONITOR_CLIENTIDS,
-  POCKET_CLIENTIDS,
-} from '../../models/integrations/client-matching';
-import { AppContext } from '../../models';
-import { mockUseSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
-import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
-import { getSyncEngineIds } from '../../lib/sync-engines';
 
 export default {
   title: 'Pages/Signup',

@@ -2,28 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models';
-import { logViewEvent } from '../../../lib/metrics';
-import { MozServices } from '../../../lib/types';
+import { useEffect, useState } from 'react';
 import AppLayout from '../../../components/AppLayout';
-import GleanMetrics from '../../../lib/glean';
-import { SigninIntegration, SigninLocationState } from '../interfaces';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { handleNavigation } from '../utils';
-import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { storeAccountData } from '../../../lib/storage-utils';
+import Banner from '../../../components/Banner';
+import FormVerifyTotp from '../../../components/FormVerifyTotp';
+import { HeadingPrimary } from '../../../components/HeadingPrimary';
 import {
   getLocalizedErrorMessage,
   HandledError,
 } from '../../../lib/error-utils';
-import protectionShieldIcon from '@fxa/shared/assets/images/protection-shield.svg';
-import Banner from '../../../components/Banner';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { logViewEvent } from '../../../lib/metrics';
+import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
-import { HeadingPrimary } from '../../../components/HeadingPrimary';
-import FormVerifyTotp from '../../../components/FormVerifyTotp';
+import { storeAccountData } from '../../../lib/storage-utils';
+import { MozServices } from '../../../lib/types';
+import { useFtlMsgResolver } from '../../../models';
+import { SigninIntegration, SigninLocationState } from '../interfaces';
+import { handleNavigation } from '../utils';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only

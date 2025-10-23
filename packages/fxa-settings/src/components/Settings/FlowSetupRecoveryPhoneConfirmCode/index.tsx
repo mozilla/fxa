@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
-import FlowContainer from '../FlowContainer';
-import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import { useEffect, useState } from 'react';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { RecoveryPhoneSetupReason, ResendStatus } from '../../../lib/types';
+import { useAlertBar, useFtlMsgResolver } from '../../../models';
 import Banner from '../../Banner';
 import FormVerifyTotp from '../../FormVerifyTotp';
 import { BackupRecoveryPhoneCodeImage } from '../../images';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { useAlertBar, useFtlMsgResolver } from '../../../models';
-import { RecoveryPhoneSetupReason, ResendStatus } from '../../../lib/types';
-import GleanMetrics from '../../../lib/glean';
+import FlowContainer from '../FlowContainer';
+import ProgressBar from '../ProgressBar';
 
 export type FlowSetupRecoveryPhoneConfirmCodeProps = {
   currentStep?: number;

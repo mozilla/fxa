@@ -2,36 +2,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import { useAuthClient, useConfig } from '../../models';
-import { Signup } from '.';
-import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
-import { SignupQueryParams } from '../../models/pages/signup';
 import { useMutation } from '@apollo/client';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import {
+  getCredentials,
+  getCredentialsV2,
+  getKeysV2,
+} from 'fxa-auth-client/lib/crypto';
+import { createSaltV2 } from 'fxa-auth-client/lib/salt';
+import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
+import { useCallback, useEffect } from 'react';
+import { Signup } from '.';
+import { QueryParams } from '../..';
+import VerificationMethods from '../../constants/verification-methods';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
+import { queryParamsToMetricsContext } from '../../lib/metrics';
+import { isMobileDevice } from '../../lib/utilities';
+import { useAuthClient, useConfig } from '../../models';
+import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
+import { isFirefoxService } from '../../models/integrations/utils';
+import { SignupQueryParams } from '../../models/pages/signup';
+import { BEGIN_SIGNUP_MUTATION } from './gql';
 import {
   BeginSignUpOptions,
   BeginSignupHandler,
   BeginSignupResponse,
   SignupIntegration,
 } from './interfaces';
-import { BEGIN_SIGNUP_MUTATION } from './gql';
-import { useCallback, useEffect } from 'react';
-import {
-  getCredentials,
-  getCredentialsV2,
-  getKeysV2,
-} from 'fxa-auth-client/lib/crypto';
-import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
-import { createSaltV2 } from 'fxa-auth-client/lib/salt';
-import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
 import { handleGQLError } from './utils';
-import VerificationMethods from '../../constants/verification-methods';
-import { queryParamsToMetricsContext } from '../../lib/metrics';
-import { QueryParams } from '../..';
-import { isFirefoxService } from '../../models/integrations/utils';
-import useSyncEngines from '../../lib/hooks/useSyncEngines';
-import { isMobileDevice } from '../../lib/utilities';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we

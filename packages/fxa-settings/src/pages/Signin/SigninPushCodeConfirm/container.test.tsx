@@ -5,13 +5,13 @@
 import * as ReactUtils from 'fxa-react/lib/utils';
 import { SigninPushCodeConfirmContainer } from './container';
 
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { LocationProvider } from '@reach/router';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
-import * as UseValidateModule from '../../../lib/hooks/useValidate';
-import { MOCK_HEXSTRING_32, MOCK_REMOTE_METADATA } from '../../mocks';
-import { ModelDataProvider } from '../../../lib/model-data';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import * as UseValidateModule from '../../../lib/hooks/useValidate';
+import { ModelDataProvider } from '../../../lib/model-data';
+import { MOCK_HEXSTRING_32, MOCK_REMOTE_METADATA } from '../../mocks';
 
 function applyDefaultMocks() {
   jest.resetAllMocks();

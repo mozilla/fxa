@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
-import { Account, AppContext } from '../../../models';
 import UnitRowTwoStepAuth from '.';
+import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
 
 export const createSubject = (
   accountOverrides = {},

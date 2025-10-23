@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import { Meta } from '@storybook/react';
 
 import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
+import { FlowSetup2faApp } from '.';
 import {
   MOCK_2FA_SECRET_KEY_RAW,
   PLACEHOLDER_QR_CODE,
 } from '../../../pages/mocks';
 import SettingsLayout from '../SettingsLayout';
-import { FlowSetup2faApp } from '.';
 import { TwoStepSetupMethod } from './types';
 
 export default {

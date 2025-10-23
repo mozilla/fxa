@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ReachRouterWindow } from '../../window';
-import { RawData, ModelDataStore } from '../model-data-store';
+import { ModelDataStore, RawData } from '../model-data-store';
 
 // TODO: Adapt to using ../../storage implementation. We need a way to migrate / deal with the namespace issue though.
 

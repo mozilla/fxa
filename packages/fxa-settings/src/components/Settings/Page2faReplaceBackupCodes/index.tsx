@@ -3,10 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useErrorHandler } from 'react-error-boundary';
 import { SETTINGS_PATH } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { totpUtils } from '../../../lib/totp-utils';
+import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
 import {
   useAccount,
   useAlertBar,
@@ -14,14 +18,10 @@ import {
   useFtlMsgResolver,
   useSession,
 } from '../../../models';
-import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
-import GleanMetrics from '../../../lib/glean';
-import { totpUtils } from '../../../lib/totp-utils';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
+import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import { MfaGuard } from '../MfaGuard';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 export const MfaGuardPage2faReplaceBackupCodes = (
   props: RouteComponentProps

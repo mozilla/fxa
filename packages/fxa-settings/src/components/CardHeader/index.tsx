@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { ReactElement } from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { MozServices } from '../../lib/types';
 import PocketTextLogo from '@fxa/shared/assets/images/pocket-text-logo.svg';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { ReactElement } from 'react';
+import { MozServices } from '../../lib/types';
 
 // NOTE: this component is heavily tested in components that use it and has complete line
 // coverage. However, we may file an issue out of FXA-6589 to add more explicit coverage.
@@ -109,9 +108,7 @@ function isDefaultService(
   );
 }
 
-function isCmsHeader(
-  props: CardHeaderProps
-): props is CardHeaderCmsProps {
+function isCmsHeader(props: CardHeaderProps): props is CardHeaderCmsProps {
   return (
     (props as CardHeaderCmsProps).cmsLogoUrl !== undefined ||
     (props as CardHeaderCmsProps).cmsLogoAltText !== undefined ||
@@ -173,9 +170,7 @@ const CardHeader = (props: CardHeaderProps) => {
           />
         )}
         <h1 className="card-header">{cmsHeadline}</h1>
-        <p className="card-subheader">
-          {cmsDescription}
-        </p>
+        <p className="card-subheader">{cmsDescription}</p>
       </>
     );
   }
@@ -232,8 +227,8 @@ const CardHeader = (props: CardHeaderProps) => {
         logo && props.subheadingWithLogoFtlId
           ? props.subheadingWithLogoFtlId
           : isDefaultService
-          ? props.subheadingWithDefaultServiceFtlId
-          : props.subheadingWithCustomServiceFtlId,
+            ? props.subheadingWithDefaultServiceFtlId
+            : props.subheadingWithCustomServiceFtlId,
       // include `vars={{ serviceName }}` if non-default and no logo
       ...(!isDefaultService && !logo && { vars: { serviceName } }),
       // include `elems={{ span: logo }}` if serviceName is given a logo in serviceLogos

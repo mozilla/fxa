@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import { useFtlMsgResolver } from '../../models';
+import { useState } from 'react';
 import AppLayout from '../../components/AppLayout';
-import { InlineTotpSetupProps } from './interfaces';
-import FlowSetup2faPrompt from '../../components/Settings/FlowSetup2faPrompt';
 import FlowSetup2faApp from '../../components/Settings/FlowSetup2faApp';
+import FlowSetup2faPrompt from '../../components/Settings/FlowSetup2faPrompt';
+import { useFtlMsgResolver } from '../../models';
+import { InlineTotpSetupProps } from './interfaces';
 
 // Total number of steps in the TOTP setup flow, including the recovery method setup.
 const numberOfSteps = 4;

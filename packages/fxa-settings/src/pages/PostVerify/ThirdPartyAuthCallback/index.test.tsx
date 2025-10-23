@@ -2,23 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import * as ModelsModule from '../../../models';
 import * as utils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../../lib/cache';
+import * as ModelsModule from '../../../models';
 
-import React from 'react';
+import { LocationProvider } from '@reach/router';
 import { screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import ThirdPartyAuthCallback from '.';
-import { AppContext } from '../../../models';
-import { createAppContext, mockAppContext } from '../../../models/mocks';
-import { useAccount } from '../../../models';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { handleNavigation } from '../../Signin/utils';
 import { QueryParams } from '../../../index';
-import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
-import { LocationProvider } from '@reach/router';
 import { GenericData } from '../../../lib/model-data';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { AppContext, useAccount } from '../../../models';
+import { createAppContext, mockAppContext } from '../../../models/mocks';
+import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
+import { handleNavigation } from '../../Signin/utils';
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),

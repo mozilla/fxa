@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { LocationProvider } from '@reach/router';
 import { StoryFn } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { LinkExpired, LinkExpiredProps } from '.';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
+import { LinkExpired, LinkExpiredProps } from '.';
 
 const meta = {
   title: 'Components/LinkExpired',

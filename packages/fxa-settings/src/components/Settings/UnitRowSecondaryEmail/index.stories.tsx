@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { Account, AppContext } from 'fxa-settings/src/models';
 import { UnitRowSecondaryEmail } from '.';
 import { mockAppContext } from '../../../models/mocks';
-import { LocationProvider } from '@reach/router';
-import { Account, AppContext } from 'fxa-settings/src/models';
 import {
   MOCK_MANY_SEC_EMAILS_MANY_UNVERIFIED,
   MOCK_MANY_SEC_EMAILS_ONE_UNVERIFIED,

@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 
-import { MOCK_TOTP_INFO, Subject } from './mocks';
 import userEvent from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import GleanMetrics from '../../../lib/glean';
 import { JwtNotFoundError } from '../../../lib/cache';
+import GleanMetrics from '../../../lib/glean';
+import { MOCK_TOTP_INFO, Subject } from './mocks';
 
 const mockNavigate = jest.fn();
 jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({

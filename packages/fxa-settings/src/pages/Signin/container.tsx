@@ -2,35 +2,66 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { MutationFunction, useMutation, useQuery } from '@apollo/client';
+import { MetricsContext } from '@fxa/shared/glean';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import Signin from '.';
-import {
-  Integration,
-  useAuthClient,
-  useFtlMsgResolver,
-  useConfig,
-  useSession,
-  useSensitiveDataClient,
-  isOAuthIntegration,
-  isOAuthNativeIntegrationSync,
-} from '../../models';
-import { MozServices } from '../../lib/types';
-import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
-import {
-  SigninQueryParams,
-  OAuthNativeSyncQueryParameters,
-  OAuthQueryParams,
-} from '../../models/pages/signin';
-import { useCallback, useEffect, useState } from 'react';
+import { getCredentials } from 'fxa-auth-client/lib/crypto';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { hardNavigate } from 'fxa-react/lib/utils';
+import { useCallback, useEffect, useState } from 'react';
+import Signin from '.';
+import { QueryParams } from '../..';
+import OAuthDataError from '../../components/OAuthDataError';
+import VerificationMethods from '../../constants/verification-methods';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
   cache,
   currentAccount,
-  lastStoredAccount,
   findAccountByEmail,
+  lastStoredAccount,
 } from '../../lib/cache';
-import { MutationFunction, useMutation, useQuery } from '@apollo/client';
+import { firefox } from '../../lib/channels/firefox';
+import { Constants } from '../../lib/constants';
+import {
+  getHandledError,
+  getLocalizedErrorMessage,
+} from '../../lib/error-utils';
+import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
+import { queryParamsToMetricsContext } from '../../lib/metrics';
+import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
+import {
+  SensitiveData,
+  SensitiveDataClient,
+} from '../../lib/sensitive-data-client';
+import {
+  setCurrentAccount,
+  storeAccountData,
+  StoredAccountData,
+} from '../../lib/storage-utils';
+import { MozServices } from '../../lib/types';
+import { searchParams } from '../../lib/utilities';
+import {
+  Integration,
+  isOAuthIntegration,
+  isOAuthNativeIntegrationSync,
+  useAuthClient,
+  useConfig,
+  useFtlMsgResolver,
+  useSensitiveDataClient,
+  useSession,
+} from '../../models';
+import { KeyStretchExperiment } from '../../models/experiments';
+import {
+  isFirefoxService,
+  isUnsupportedContext,
+} from '../../models/integrations/utils';
+import {
+  OAuthNativeSyncQueryParameters,
+  OAuthQueryParams,
+  SigninQueryParams,
+} from '../../models/pages/signin';
 import {
   AVATAR_QUERY,
   BEGIN_SIGNIN_MUTATION,
@@ -39,49 +70,18 @@ import {
   PASSWORD_CHANGE_FINISH_MUTATION,
   PASSWORD_CHANGE_START_MUTATION,
 } from './gql';
-import { hardNavigate } from 'fxa-react/lib/utils';
 import {
   AvatarResponse,
   BeginSigninHandler,
   BeginSigninResponse,
   CachedSigninHandler,
-  LocationState,
-  PasswordChangeStartResponse,
-  GetAccountKeysResponse,
-  PasswordChangeFinishResponse,
   CredentialStatusResponse,
+  GetAccountKeysResponse,
+  LocationState,
+  PasswordChangeFinishResponse,
+  PasswordChangeStartResponse,
 } from './interfaces';
-import { getCredentials } from 'fxa-auth-client/lib/crypto';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import VerificationMethods from '../../constants/verification-methods';
-import { KeyStretchExperiment } from '../../models/experiments';
-import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
-import { searchParams } from '../../lib/utilities';
-import { QueryParams } from '../..';
-import { queryParamsToMetricsContext } from '../../lib/metrics';
-import { MetricsContext } from '@fxa/shared/glean';
-import {
-  getHandledError,
-  getLocalizedErrorMessage,
-} from '../../lib/error-utils';
-import { firefox } from '../../lib/channels/firefox';
-import {
-  SensitiveData,
-  SensitiveDataClient,
-} from '../../lib/sensitive-data-client';
-import { Constants } from '../../lib/constants';
-import {
-  isFirefoxService,
-  isUnsupportedContext,
-} from '../../models/integrations/utils';
-import { GqlKeyStretchUpgrade } from '../../lib/gql-key-stretch-upgrade';
-import {
-  setCurrentAccount,
-  storeAccountData,
-  StoredAccountData,
-} from '../../lib/storage-utils';
 import { cachedSignIn } from './utils';
-import OAuthDataError from '../../components/OAuthDataError';
 
 /*
  * In Backbone, the `email` param is optional. If it's provided, we

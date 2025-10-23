@@ -2,22 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import Index from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import Index from '.';
+import { MozServices } from '../../lib/types';
+import {
+  MONITOR_CLIENTIDS,
+  POCKET_CLIENTIDS,
+} from '../../models/integrations/client-matching';
+import { MOCK_CMS_INFO, MOCK_EMAIL } from '../mocks';
 import { IndexProps } from './interfaces';
 import {
   createMockIndexOAuthIntegration,
   createMockIndexOAuthNativeIntegration,
   Subject,
 } from './mocks';
-import {
-  MONITOR_CLIENTIDS,
-  POCKET_CLIENTIDS,
-} from '../../models/integrations/client-matching';
-import { MozServices } from '../../lib/types';
-import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
 
 export default {
   title: 'Pages/Index',

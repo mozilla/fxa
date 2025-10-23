@@ -5,18 +5,18 @@
 import {
   IsBoolean,
   IsEmail,
+  IsIn,
   IsOptional,
   IsString,
-  MinLength,
-  MaxLength,
   Matches,
+  MaxLength,
+  MinLength,
   Validate,
-  IsIn,
 } from 'class-validator';
 import {
   bind,
-  KeyTransforms as T,
   ModelDataProvider,
+  KeyTransforms as T,
 } from '../../../lib/model-data';
 import { IsFxaRedirectToUrl } from '../../../lib/validation';
 

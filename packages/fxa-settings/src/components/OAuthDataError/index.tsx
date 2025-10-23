@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import { AuthError } from '../../lib/oauth';
 import { useFtlMsgResolver } from '../../models';
@@ -10,13 +10,18 @@ import AppLayout from '../AppLayout';
 import Banner from '../Banner';
 import CardHeader from '../CardHeader';
 
-const OAuthDataError = ({ error, gleanMetric }: { error: AuthError, gleanMetric?: (data: { event: { reason: string } }) => void }) => {
+const OAuthDataError = ({
+  error,
+  gleanMetric,
+}: {
+  error: AuthError;
+  gleanMetric?: (data: { event: { reason: string } }) => void;
+}) => {
   const ftlMsgResolver = useFtlMsgResolver();
-
 
   useEffect(() => {
     if (gleanMetric) {
-      gleanMetric({ event: { reason: error.errno.toString() }});
+      gleanMetric({ event: { reason: error.errno.toString() } });
     }
   }, [gleanMetric, error.errno]);
 

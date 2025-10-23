@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { bind, KeyTransforms as T, getBoundKeys } from './bind-decorator';
-import { GenericData } from './data-stores';
-import { ModelDataProvider } from './model-data-provider';
 import {
   IsBoolean,
   IsNotEmpty,
@@ -13,6 +10,9 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { bind, getBoundKeys, KeyTransforms as T } from './bind-decorator';
+import { GenericData } from './data-stores';
+import { ModelDataProvider } from './model-data-provider';
 
 /**
  * Example model for testing bind decorators

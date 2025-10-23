@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { useState } from 'react';
 import { FlowContainer } from '.';
 import { ProgressBar } from '../ProgressBar';
-import { LocationProvider } from '@reach/router';
 import { MOCK_CONTENT, MOCK_SUBTITLE, MOCK_TITLE } from './mocks';
 
 export default {

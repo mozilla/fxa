@@ -41,7 +41,8 @@ describe('OAuthQueryParams checks', function () {
 
   it('checks login_hint', () => {
     expect(
-      validate('client_id=123abc&scope=profile&login_hint=example@mozilla.com').isValid
+      validate('client_id=123abc&scope=profile&login_hint=example@mozilla.com')
+        .isValid
     ).toBeTruthy();
     expect(
       validate('client_id=123abc&scope=profile&login_hint=').isValid

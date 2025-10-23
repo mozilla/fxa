@@ -4,10 +4,10 @@
 
 import { RouteComponentProps } from '@reach/router';
 
-import FlowContainer from '../FlowContainer';
+import { useEffect, useState } from 'react';
 import { useAccount, useFtlMsgResolver } from '../../../models';
+import FlowContainer from '../FlowContainer';
 import { SecurityEvent as SecurityEventSection } from './SecurityEvent';
-import React, { useState, useEffect } from 'react';
 
 export const PageRecentActivity = (_: RouteComponentProps) => {
   const account = useAccount();

@@ -2,20 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { lazy, Suspense, useEffect } from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import { REACT_ENTRYPOINT } from '../../../constants';
-import AppLayout from '../../../components/AppLayout';
-import { useFtlMsgResolver } from '../../../models';
-import GleanMetrics from '../../../lib/glean';
-import { RecoveryKeyImage } from '../../../components/images';
-import DataBlockInline from '../../../components/DataBlockInline';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import RecoveryKeySetupHint from '../../../components/RecoveryKeySetupHint';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { AuthError } from '../../../lib/oauth';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { lazy, Suspense, useEffect } from 'react';
+import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
+import DataBlockInline from '../../../components/DataBlockInline';
+import { RecoveryKeyImage } from '../../../components/images';
+import RecoveryKeySetupHint from '../../../components/RecoveryKeySetupHint';
+import { REACT_ENTRYPOINT } from '../../../constants';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { AuthError } from '../../../lib/oauth';
+import { useFtlMsgResolver } from '../../../models';
 
 export const viewName = 'reset-password-with-recovery-key-verified';
 

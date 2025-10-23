@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState, useEffect, useCallback } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { useCallback, useEffect, useState } from 'react';
+import { useErrorHandler } from 'react-error-boundary';
+import { useForm } from 'react-hook-form';
 import { SETTINGS_PATH } from '../../../constants';
+import { getErrorFtlId } from '../../../lib/error-utils';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { logViewEvent } from '../../../lib/metrics';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { MfaReason } from '../../../lib/types';
 import { useAccount, useAlertBar } from '../../../models';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
-import { useForm } from 'react-hook-form';
-import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
-import { getErrorFtlId } from '../../../lib/error-utils';
 import { MfaGuard } from '../MfaGuard';
-import { useErrorHandler } from 'react-error-boundary';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
-import { MfaReason } from '../../../lib/types';
 
 type FormData = {
   verificationCode: string;

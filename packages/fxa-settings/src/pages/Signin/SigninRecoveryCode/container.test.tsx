@@ -6,27 +6,27 @@ import * as ReachRouterModule from '@reach/router';
 import * as CacheModule from '../../../lib/cache';
 import * as SigninRecoveryCodeModule from './index';
 
+import { loadDevMessages, loadErrorMessages } from '@apollo/client/dev';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
-import { loadErrorMessages, loadDevMessages } from '@apollo/client/dev';
 import { LocationProvider } from '@reach/router';
+import { waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import SigninRecoveryCodeContainer from './container';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { createMockWebIntegration } from '../../../lib/integrations/mocks';
+import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { Integration, useSensitiveDataClient } from '../../../models';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../../models/mocks';
 import {
-  MOCK_STORED_ACCOUNT,
   MOCK_BACKUP_CODE,
-  mockLoadingSpinnerModule,
-  MOCK_UNWRAP_BKEY,
   MOCK_KEY_FETCH_TOKEN,
+  MOCK_STORED_ACCOUNT,
+  MOCK_UNWRAP_BKEY,
+  mockLoadingSpinnerModule,
 } from '../../mocks';
-import { SigninRecoveryCodeProps } from './interfaces';
 import { mockGqlError, mockSigninLocationState } from '../mocks';
+import SigninRecoveryCodeContainer from './container';
+import { SigninRecoveryCodeProps } from './interfaces';
 import { mockConsumeRecoveryCodeUseMutation } from './mocks';
-import { waitFor } from '@testing-library/react';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { SensitiveData } from '../../../lib/sensitive-data-client';
 
 let integration: Integration;
 function mockWebIntegration() {

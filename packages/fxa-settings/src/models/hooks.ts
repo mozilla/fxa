@@ -2,41 +2,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useContext, useRef, useEffect, useMemo, useState } from 'react';
-import { isHexadecimal, length } from 'class-validator';
-import { AppContext } from './contexts/AppContext';
-import {
-  INITIAL_SETTINGS_QUERY,
-  SettingsContext,
-} from './contexts/SettingsContext';
 import { useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
+import * as Sentry from '@sentry/browser';
+import { isHexadecimal, length } from 'class-validator';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
-import { getDefault } from '../lib/config';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  DefaultIntegrationFlags,
-  IntegrationFactory,
-} from '../lib/integrations';
-import { ReachRouterWindow } from '../lib/window';
-import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
-import {
-  GET_LOCAL_SIGNED_IN_STATUS,
-  INITIAL_METRICS_QUERY,
-  GET_PRODUCT_INFO,
   GET_CLIENT_INFO,
+  GET_LOCAL_SIGNED_IN_STATUS,
+  GET_PRODUCT_INFO,
+  INITIAL_METRICS_QUERY,
 } from '../components/App/gql';
 import {
   MetricsDataResult,
   SignedInAccountStatus,
 } from '../components/App/interfaces';
+import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
+import { getDefault } from '../lib/config';
+import {
+  DefaultIntegrationFlags,
+  IntegrationFactory,
+} from '../lib/integrations';
+import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
+import { NimbusResult } from '../lib/nimbus';
+import { ReachRouterWindow } from '../lib/window';
+import { AppContext } from './contexts/AppContext';
+import {
+  INITIAL_SETTINGS_QUERY,
+  SettingsContext,
+} from './contexts/SettingsContext';
 import {
   RelierClientInfo,
-  RelierSubscriptionInfo,
   RelierCmsInfo,
+  RelierSubscriptionInfo,
 } from './integrations';
-import { NimbusResult } from '../lib/nimbus';
-import * as Sentry from '@sentry/browser';
-import { useDynamicLocalization } from '../contexts/DynamicLocalizationContext';
 
 const DEFAULT_CMS_ENTRYPOINT = 'default';
 

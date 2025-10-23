@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef, FormEventHandler, useEffect, useCallback } from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
 import { useLocalization } from '@fluent/react';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { FormEventHandler, useCallback, useEffect, useRef } from 'react';
 
-import { ReactComponent as GoogleLogo } from './google-logo-viewbox.svg';
 import { ReactComponent as AppleLogo } from './apple-logo-viewbox-white.svg';
+import { ReactComponent as GoogleLogo } from './google-logo-viewbox.svg';
 
-import { useConfig } from '../../models';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
-import { useMetrics } from '../../lib/metrics';
-import GleanMetrics from '../../lib/glean';
 import { QueryParams } from '../..';
+import GleanMetrics from '../../lib/glean';
+import { useMetrics } from '../../lib/metrics';
+import { useConfig } from '../../models';
 
 export type ThirdPartyAuthProps = {
   onContinueWithGoogle?: FormEventHandler<HTMLFormElement>;

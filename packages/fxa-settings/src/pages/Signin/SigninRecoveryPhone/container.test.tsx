@@ -5,23 +5,23 @@
 import * as ReachRouterModule from '@reach/router';
 import * as SigninRecoveryPhoneModule from './index';
 
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import {
+  useFinishOAuthFlowHandler,
+  useOAuthKeysCheck,
+} from '../../../lib/oauth/hooks';
+import { storeAccountData } from '../../../lib/storage-utils';
 import { AppContext, Integration } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
-import SigninRecoveryPhoneContainer from './container';
 import {
   createMockSigninOAuthNativeSyncIntegration,
   createMockSigninWebIntegration,
   MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
   mockSigninLocationState,
 } from '../mocks';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { SigninRecoveryPhoneProps } from './interfaces';
-import { storeAccountData } from '../../../lib/storage-utils';
 import { handleNavigation } from '../utils';
-import {
-  useFinishOAuthFlowHandler,
-  useOAuthKeysCheck,
-} from '../../../lib/oauth/hooks';
+import SigninRecoveryPhoneContainer from './container';
+import { SigninRecoveryPhoneProps } from './interfaces';
 
 const mockRecoveryPhoneSigninConfirm = jest.fn().mockImplementation(() => {
   return Promise.resolve();

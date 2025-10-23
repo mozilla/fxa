@@ -2,21 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import AppLayout from '../../../components/AppLayout';
 import Banner from '../../../components/Banner';
-import { useFtlMsgResolver } from '../../../models';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { hardNavigate } from 'fxa-react/lib/utils';
-import { firefox } from '../../../lib/channels/firefox';
-import { LocationState, SignupConfirmedSyncProps } from './interfaces';
+import CmsButtonWithFallback from '../../../components/CmsButtonWithFallback';
 import {
   FallingConfettiImage,
   SyncCloudsImage,
 } from '../../../components/images';
+import { firefox } from '../../../lib/channels/firefox';
 import { checkPaymentMethodsWillSync } from '../../../lib/sync-engines';
-import CmsButtonWithFallback from '../../../components/CmsButtonWithFallback';
+import { useFtlMsgResolver } from '../../../models';
+import { LocationState, SignupConfirmedSyncProps } from './interfaces';
 
 const SignupConfirmedSync = ({
   integration,

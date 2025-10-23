@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import InputText from '../InputText';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../models';
+import React, { useState } from 'react';
 import { UseFormMethods } from 'react-hook-form';
+import { useFtlMsgResolver } from '../../models';
+import InputText from '../InputText';
 
 interface Country {
   id: number;

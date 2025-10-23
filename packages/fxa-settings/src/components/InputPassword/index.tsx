@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState, useCallback, ChangeEvent } from 'react';
-import InputText, { InputTextProps } from '../InputText';
-import { ReactComponent as OpenEye } from './eye-open.svg';
-import { ReactComponent as ClosedEye } from './eye-closed.svg';
+import React, { ChangeEvent, useCallback, useState } from 'react';
 import { useFtlMsgResolver } from '../../models';
+import InputText, { InputTextProps } from '../InputText';
+import { ReactComponent as ClosedEye } from './eye-closed.svg';
+import { ReactComponent as OpenEye } from './eye-open.svg';
 
 export type InputPasswordProps = Omit<InputTextProps, 'type'> & {
   inputRefDOM?: React.RefObject<HTMLInputElement>;

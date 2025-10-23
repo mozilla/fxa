@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import React from 'react';
 import CardHeader from '.';
+import { MozServices } from '../../lib/types';
 import AppLayout from '../AppLayout';
-import { Meta } from '@storybook/react';
 import {
-  MOCK_DEFAULT_HEADING_FTL_ID,
   MOCK_CUSTOM_HEADING_FTL_ID,
+  MOCK_DEFAULT_HEADING_FTL_ID,
   MOCK_HEADING,
   MOCK_SERVICE_NAME,
   MOCK_SUBHEADING,
 } from './mocks';
-import { MozServices } from '../../lib/types';
-import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/CardHeader',

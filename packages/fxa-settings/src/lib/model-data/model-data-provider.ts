@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { validateSync, ValidationError } from 'class-validator';
-import { ModelDataStore, RawData } from './model-data-store';
 import { bindMetadataKey } from './bind-decorator';
 import { UrlData } from './data-stores';
+import { ModelDataStore, RawData } from './model-data-store';
 
 /**
  * Type guard for validating model

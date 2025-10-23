@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import { action } from '@storybook/addon-actions';
 import { Meta } from '@storybook/react';
 import { withLocalization, withLocation } from 'fxa-react/lib/storybooks';
-import SettingsLayout from '../SettingsLayout';
-import { action } from '@storybook/addon-actions';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import FlowSetupRecoveryPhoneConfirmCode from '.';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { MOCK_NATIONAL_FORMAT_PHONE_NUMBER } from '../../../pages/mocks';
+import SettingsLayout from '../SettingsLayout';
 
 export default {
   title: 'Components/Settings/FlowSetupRecoveryPhoneConfirmCode',

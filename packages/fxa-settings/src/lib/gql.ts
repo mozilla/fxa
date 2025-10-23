@@ -9,13 +9,13 @@ import {
   Observable,
   from,
 } from '@apollo/client';
+import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { setContext } from '@apollo/client/link/context';
 import { ErrorHandler, onError } from '@apollo/client/link/error';
-import { BatchHttpLink } from '@apollo/client/link/batch-http';
-import { cache, sessionToken, typeDefs } from './cache';
+import * as Sentry from '@sentry/browser';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
-import * as Sentry from '@sentry/browser';
+import { cache, sessionToken, typeDefs } from './cache';
 
 /**
  * These operation names either require auth with a valid session token

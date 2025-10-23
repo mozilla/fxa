@@ -2,41 +2,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
-import * as Sentry from '@sentry/browser';
-import SettingsLayout from './SettingsLayout';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
-import { useAccount, useInitialSettingsState, useSession } from '../../models';
 import {
   Redirect,
-  Router,
   RouteComponentProps,
+  Router,
   useLocation,
 } from '@reach/router';
-import PageSettings from './PageSettings';
-import MfaGuardedPageChangePassword from './PageChangePassword';
-import PageCreatePassword from './PageCreatePassword';
-import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
-import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
-import { PageDisplayName } from './PageDisplayName';
-import { MfaGuardPage2faSetup } from './Page2faSetup';
+import * as Sentry from '@sentry/browser';
+import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
+import Head from 'fxa-react/components/Head';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { useEffect, useState } from 'react';
+import { SETTINGS_PATH } from '../../constants';
+import { currentAccount } from '../../lib/cache';
+import GleanMetrics from '../../lib/glean';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
+import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
+import { useAccount, useInitialSettingsState, useSession } from '../../models';
 import { MfaGuardPage2faChange } from './Page2faChange';
 import { MfaGuardPage2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
-import { MfaGuardPageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
-import { PageDeleteAccount } from './PageDeleteAccount';
-import { ScrollToTop } from './ScrollToTop';
-import { SETTINGS_PATH } from '../../constants';
+import { MfaGuardPage2faSetup } from './Page2faSetup';
 import PageAvatar from './PageAvatar';
+import MfaGuardedPageChangePassword from './PageChangePassword';
+import PageCreatePassword from './PageCreatePassword';
+import { PageDeleteAccount } from './PageDeleteAccount';
+import { PageDisplayName } from './PageDisplayName';
 import PageRecentActivity from './PageRecentActivity';
 import { MfaGuardPageRecoveryKeyCreate } from './PageRecoveryKeyCreate';
-import { currentAccount } from '../../lib/cache';
-import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
-import GleanMetrics from '../../lib/glean';
-import Head from 'fxa-react/components/Head';
 import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
+import { MfaGuardPageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
+import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
+import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
+import PageSettings from './PageSettings';
+import { ScrollToTop } from './ScrollToTop';
+import SettingsLayout from './SettingsLayout';
 import { SettingsIntegration } from './interfaces';
-import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 
 import PageMfaGuardTestWithAuthClient from './PageMfaGuardTest';
 import PageMfaGuardTestWithGql from './PageMfaGuardWithGqlTest';

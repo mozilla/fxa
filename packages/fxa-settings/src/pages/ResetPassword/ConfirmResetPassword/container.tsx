@@ -2,18 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { useAuthClient, useFtlMsgResolver } from '../../../models';
+import { useEffect, useState } from 'react';
 import ConfirmResetPassword from '.';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
+import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { ResendStatus } from '../../../lib/types';
+import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import {
   ConfirmResetPasswordLocationState,
   RecoveryKeyCheckResult,
 } from './interfaces';
-import { ResendStatus } from '../../../lib/types';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import GleanMetrics from '../../../lib/glean';
 
 const ConfirmResetPasswordContainer = (_: RouteComponentProps) => {
   const [resendStatus, setResendStatus] = useState<ResendStatus>(

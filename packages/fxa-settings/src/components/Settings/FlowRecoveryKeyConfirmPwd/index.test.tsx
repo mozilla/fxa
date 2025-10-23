@@ -2,20 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { logViewEvent } from '../../../lib/metrics';
-import FlowRecoveryKeyConfirmPwd from './';
-import {
-  mockAppContext,
-  MOCK_ACCOUNT,
-  renderWithRouter,
-} from '../../../models/mocks';
-import { Account, AppContext } from '../../../models';
 import {
   AuthUiError,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
+import { logViewEvent } from '../../../lib/metrics';
+import { Account, AppContext } from '../../../models';
+import {
+  MOCK_ACCOUNT,
+  mockAppContext,
+  renderWithRouter,
+} from '../../../models/mocks';
+import FlowRecoveryKeyConfirmPwd from './';
 
 const localizedBackButtonTitle = 'Back to settings';
 const localizedPageTitle = 'Account Recovery Key';

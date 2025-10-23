@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import 'mutationobserver-shim';
 import { act, screen } from '@testing-library/react';
-import { renderWithRouter, mockAppContext } from '../../../models/mocks';
-import React from 'react';
+import 'mutationobserver-shim';
 import PageRecentActivity from '.';
 import { Account, AppContext } from '../../../models';
+import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { MOCK_SECURITY_EVENTS } from './mocks';
 
 const account = {

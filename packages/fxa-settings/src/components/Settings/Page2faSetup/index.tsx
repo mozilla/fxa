@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
+import { useCallback, useEffect, useState } from 'react';
 
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
@@ -20,16 +20,16 @@ import {
   useFtlMsgResolver,
 } from '../../../models';
 
+import { useErrorHandler } from 'react-error-boundary';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 import { Choice, CHOICES } from '../../FormChoice';
 import FlowSetup2faApp from '../FlowSetup2faApp';
 import FlowSetup2faBackupChoice from '../FlowSetup2faBackupChoice';
-import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
-import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
+import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
+import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import { MfaGuard } from '../MfaGuard';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
-import { useErrorHandler } from 'react-error-boundary';
 
 export const MfaGuardPage2faSetup = (_: RouteComponentProps) => {
   return (

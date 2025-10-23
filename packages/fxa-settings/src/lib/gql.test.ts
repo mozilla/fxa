@@ -1,13 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { errorHandler } from './gql';
+import { NextLink, Operation, ServerError } from '@apollo/client/core';
 import { ErrorResponse } from '@apollo/client/link/error';
-import { Operation, NextLink, ServerError } from '@apollo/client/core';
-import { GraphQLError } from 'graphql';
-import { cache } from './cache';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 import * as Sentry from '@sentry/browser';
+import { GraphQLError } from 'graphql';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
+import { cache } from './cache';
+import { errorHandler } from './gql';
 
 describe('errorHandler', () => {
   beforeAll(() => {

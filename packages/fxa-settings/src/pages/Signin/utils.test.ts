@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as ReachRouter from '@reach/router';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
+import firefox from '../../lib/channels/firefox';
 import {
   MOCK_EMAIL,
   MOCK_KEY_FETCH_TOKEN,
@@ -13,13 +16,10 @@ import {
 } from '../mocks';
 import { NavigationOptions } from './interfaces';
 import {
-  createMockSigninOAuthNativeSyncIntegration,
   createMockSigninOAuthNativeIntegration,
+  createMockSigninOAuthNativeSyncIntegration,
 } from './mocks';
 import { handleNavigation } from './utils';
-import * as ReachRouter from '@reach/router';
-import * as ReactUtils from 'fxa-react/lib/utils';
-import firefox from '../../lib/channels/firefox';
 
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),

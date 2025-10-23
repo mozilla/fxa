@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { Localized } from '@fluent/react';
 import classNames from 'classnames';
-import defaultAvatar from './avatar-default.svg';
 import { AccountAvatar } from '../../../lib/interfaces';
+import defaultAvatar from './avatar-default.svg';
 
 type AvatarProps = {
   className?: string;

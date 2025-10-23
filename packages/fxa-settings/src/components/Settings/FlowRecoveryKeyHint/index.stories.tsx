@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
 import { LocationProvider } from '@reach/router';
-import FlowRecoveryKeyHint from '.';
 import { Meta } from '@storybook/react';
-import { Account, AppContext } from '../../../models';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
+import FlowRecoveryKeyHint from '.';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { Account, AppContext } from '../../../models';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyHint',

@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import Page from '../Page';
-import Copiable from '../Copiable';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { useState } from 'react';
+import Copiable from '../Copiable';
+import Page from '../Page';
 
 /**
  * Note: we have a handful of concatenated classes here, which PurgeCSS will not observe

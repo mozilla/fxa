@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
-import UnitRowRecoveryKey from '.';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
-import { Account, AppContext } from '../../../models';
-import * as Metrics from '../../../lib/metrics';
-import { Config } from '../../../lib/config';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import AuthClient from 'fxa-auth-client/browser';
+import UnitRowRecoveryKey from '.';
 import * as cache from '../../../lib/cache';
+import { Config } from '../../../lib/config';
+import * as Metrics from '../../../lib/metrics';
+import { Account, AppContext } from '../../../models';
+import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),

@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import FormPhoneNumber from '.';
-import { withLocalization } from 'fxa-react/lib/storybooks';
-import { Meta } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
+import FormPhoneNumber from '.';
 import AppLayout from '../AppLayout';
 
 export default {

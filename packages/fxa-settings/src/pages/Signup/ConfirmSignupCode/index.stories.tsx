@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import ConfirmSignupCode from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { createMockOAuthNativeIntegration, Subject } from './mocks';
+import ConfirmSignupCode from '.';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { createMockIntegrationWithCms } from '../../mocks';
+import { createMockOAuthNativeIntegration, Subject } from './mocks';
 
 export default {
   title: 'Pages/Signup/ConfirmSignupCode',

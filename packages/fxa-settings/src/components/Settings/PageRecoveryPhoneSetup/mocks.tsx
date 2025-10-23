@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
-import { Account, AppContext } from '../../../models';
-import PageRecoveryPhoneSetup from '.';
 import { LocationProvider } from '@reach/router';
+import PageRecoveryPhoneSetup from '.';
+import { Account, AppContext } from '../../../models';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 
 export const Subject = ({ account: accountOverrides = {} }) => {
   const account = {

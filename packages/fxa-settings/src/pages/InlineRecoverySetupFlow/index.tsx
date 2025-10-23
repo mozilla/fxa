@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useMemo } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { useFtlMsgResolver } from '../../models';
+import { useCallback, useMemo } from 'react';
 import AppLayout from '../../components/AppLayout';
-import { InlineRecoverySetupProps } from './interfaces';
+import { CHOICES } from '../../components/FormChoice';
+import FlowSetup2faBackupChoice from '../../components/Settings/FlowSetup2faBackupChoice';
+import FlowSetup2faBackupCodeConfirm from '../../components/Settings/FlowSetup2faBackupCodeConfirm';
+import FlowSetup2faBackupCodeDownload from '../../components/Settings/FlowSetup2faBackupCodeDownload';
+import FlowSetup2faComplete from '../../components/Settings/FlowSetup2faComplete';
+import FlowSetupRecoveryPhoneConfirmCode from '../../components/Settings/FlowSetupRecoveryPhoneConfirmCode';
+import FlowSetupRecoveryPhoneSubmitNumber from '../../components/Settings/FlowSetupRecoveryPhoneSubmitNumber';
 import {
   GleanClickEventType2FA,
   RecoveryPhoneSetupReason,
 } from '../../lib/types';
-import FlowSetup2faBackupChoice from '../../components/Settings/FlowSetup2faBackupChoice';
-import FlowSetup2faBackupCodeDownload from '../../components/Settings/FlowSetup2faBackupCodeDownload';
-import FlowSetup2faBackupCodeConfirm from '../../components/Settings/FlowSetup2faBackupCodeConfirm';
-import FlowSetupRecoveryPhoneSubmitNumber from '../../components/Settings/FlowSetupRecoveryPhoneSubmitNumber';
-import FlowSetupRecoveryPhoneConfirmCode from '../../components/Settings/FlowSetupRecoveryPhoneConfirmCode';
-import FlowSetup2faComplete from '../../components/Settings/FlowSetup2faComplete';
-import { CHOICES } from '../../components/FormChoice';
+import { useFtlMsgResolver } from '../../models';
+import { InlineRecoverySetupProps } from './interfaces';
 
 const InlineRecoverySetup = ({
   flowHasPhoneChoice,

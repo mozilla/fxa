@@ -2,21 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import {
+  createHistory,
+  createMemorySource,
+  LocationProvider,
+  NavigateFn,
+} from '@reach/router';
+import { action } from '@storybook/addon-actions';
+import { Page2faSetup } from '.';
+import { Account, AppContext } from '../../../models';
 import {
   MOCK_ACCOUNT,
   mockAppContext,
   mockSession,
 } from '../../../models/mocks';
-import { Account, AppContext } from '../../../models';
-import { Page2faSetup } from '.';
-import {
-  LocationProvider,
-  createHistory,
-  createMemorySource,
-  NavigateFn,
-} from '@reach/router';
-import { action } from '@storybook/addon-actions';
 import {
   MOCK_2FA_SECRET_KEY_RAW,
   PLACEHOLDER_QR_CODE,

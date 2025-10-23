@@ -2,23 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode } from 'react';
+import { navigate } from '@reach/router';
 import { act, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { navigate } from '@reach/router';
+import { ReactNode } from 'react';
 import App from '.';
+import { firefox } from '../../lib/channels/firefox';
 import * as Metrics from '../../lib/metrics';
 import {
+  Account,
   AppContext,
-  useInitialMetricsQueryState,
-  useLocalSignedInQueryState,
-  useIntegration,
-  useInitialSettingsState,
+  IntegrationType,
   useClientInfoState,
+  useInitialMetricsQueryState,
+  useInitialSettingsState,
+  useIntegration,
+  useLocalSignedInQueryState,
   useProductInfoState,
   useSession,
-  Account,
-  IntegrationType,
 } from '../../models';
 import {
   MOCK_ACCOUNT,
@@ -26,14 +27,13 @@ import {
   mockAppContext,
   renderWithRouter,
 } from '../../models/mocks';
-import { firefox } from '../../lib/channels/firefox';
 
-import GleanMetrics from '../../lib/glean';
-import config from '../../lib/config';
 import { currentAccount } from '../../lib/cache';
-import { MozServices } from '../../lib/types';
-import mockUseSyncEngines from '../../lib/hooks/useSyncEngines/mocks';
+import config from '../../lib/config';
+import GleanMetrics from '../../lib/glean';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import mockUseSyncEngines from '../../lib/hooks/useSyncEngines/mocks';
+import { MozServices } from '../../lib/types';
 
 jest.mock('@reach/router', () => {
   return {

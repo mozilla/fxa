@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
-import AppLayout from '../../components/AppLayout';
 import { RouteComponentProps } from '@reach/router';
-import { FtlMsg } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import Storage from '../../lib/storage';
-import { searchParams } from '../../lib/utilities';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useCallback, useState } from 'react';
+import AppLayout from '../../components/AppLayout';
+import Banner from '../../components/Banner';
 import CardHeader from '../../components/CardHeader';
 import { REACT_ENTRYPOINT } from '../../constants';
-import Banner from '../../components/Banner';
+import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import Storage from '../../lib/storage';
+import { searchParams } from '../../lib/utilities';
 import { useFtlMsgResolver } from '../../models';
 
 export const viewName = 'cookies-disabled';

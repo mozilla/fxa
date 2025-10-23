@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
-import { Link } from '@reach/router';
-import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import { RouteComponentProps } from '@reach/router';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { usePageViewEvent } from '../../../lib/metrics';
-import { useFtlMsgResolver } from '../../../models';
-import CardHeader from '../../../components/CardHeader';
+import { Link, RouteComponentProps } from '@reach/router';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useEffect } from 'react';
 import { ENTRYPOINTS, REACT_ENTRYPOINT } from '../../../../src/constants';
+import Banner from '../../../components/Banner';
+import CardHeader from '../../../components/CardHeader';
 import { HeartsVerifiedImage } from '../../../components/images';
 import GleanMetrics from '../../../lib/glean';
-import Banner from '../../../components/Banner';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import { usePageViewEvent } from '../../../lib/metrics';
+import { useFtlMsgResolver } from '../../../models';
 
 type PairProps = {
   error?: string;
