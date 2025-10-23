@@ -667,7 +667,7 @@ export default async function Manage({
                               {nextBillDate && (
                                 <>
                                   <div
-                                    className="border-none h-px bg-grey-200 my-2"
+                                    className="border-none h-px bg-grey-100 my-2"
                                     role="separator"
                                     aria-hidden="true"
                                   ></div>
@@ -802,7 +802,7 @@ export default async function Manage({
                               {!!purchase.expiryTimeMillis && (
                                 <>
                                   <div
-                                    className="border-none h-px bg-grey-200 my-2"
+                                    className="border-none h-px bg-grey-100 my-2"
                                     role="separator"
                                     aria-hidden="true"
                                   ></div>
