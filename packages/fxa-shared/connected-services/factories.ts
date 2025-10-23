@@ -135,6 +135,7 @@ export interface IConnectedServicesFactoryBindings extends IClientFormatter {
 export class ConnectedServicesFactory {
   protected clientsBySessionTokenId = new Map<string, AttachedClient>();
   protected clientsByRefreshTokenId = new Map<string, AttachedClient>();
+  protected clientsByDeviceId = new Map<string, AttachedClient>();
   protected attachedClients: AttachedClient[] = [];
 
   constructor(protected readonly bindings: IConnectedServicesFactoryBindings) {}
@@ -143,6 +144,7 @@ export class ConnectedServicesFactory {
     this.attachedClients = [];
     this.clientsBySessionTokenId = new Map<string, AttachedClient>();
     this.clientsByRefreshTokenId = new Map<string, AttachedClient>();
+    this.clientsByDeviceId = new Map<string, AttachedClient>();
   }
 
   /**
@@ -178,6 +180,11 @@ export class ConnectedServicesFactory {
 
   protected async mergeSessions(sessionTokenId: string) {
     for (const session of await this.bindings.sessions()) {
+      if (!session.id) {
+        // on the off chance a session without an ID is returned, skip it.
+        continue;
+      }
+
       let client = this.clientsBySessionTokenId.get(session.id);
       if (!client) {
         client = {
@@ -186,6 +193,15 @@ export class ConnectedServicesFactory {
           createdTime: session.createdAt,
         };
         this.attachedClients.push(client);
+
+        this.clientsBySessionTokenId.set(session.id, client);
+      } else {
+        if (!client.sessionTokenId) {
+          client.sessionTokenId = session.id;
+        }
+        if (!this.clientsBySessionTokenId.has(session.id)) {
+          this.clientsBySessionTokenId.set(session.id, client);
+        }
       }
 
       client.createdTime = Math.min(
@@ -205,15 +221,25 @@ export class ConnectedServicesFactory {
 
       // Location, OS and UA are currently only available on sessionTokens, so we can
       // copy across without worrying about merging with data from the device record.
-      client.location = session.location ? { ...session.location } : null;
-      client.os = session.uaOS || null;
-      if (!session.uaBrowser) {
+      // Only update if the session has the data (to avoid overwriting with empty values from duplicate rows)
+      if (session.location) {
+        client.location = { ...session.location };
+      }
+      if (session.uaOS) {
+        client.os = session.uaOS;
+      }
+
+      // Only set userAgent if session has browser info
+      if (session.uaBrowser) {
+        if (!session.uaBrowserVersion) {
+          client.userAgent = session.uaBrowser;
+        } else {
+          const { uaBrowser: browser, uaBrowserVersion: version } = session;
+          client.userAgent = `${browser} ${version.split('.')[0]}`;
+        }
+      } else if (!client.userAgent) {
+        // Only set empty if client doesn't already have a userAgent
         client.userAgent = '';
-      } else if (!session.uaBrowserVersion) {
-        client.userAgent = session.uaBrowser;
-      } else {
-        const { uaBrowser: browser, uaBrowserVersion: version } = session;
-        client.userAgent = `${browser} ${version.split('.')[0]}`;
       }
 
       if (!client.name) {
@@ -224,6 +250,9 @@ export class ConnectedServicesFactory {
 
   protected async mergeOauthClients() {
     for (const oauthClient of await this.bindings.oauthClients()) {
+      if (!oauthClient.refresh_token_id) {
+        continue;
+      }
       let client = this.clientsByRefreshTokenId.get(
         oauthClient.refresh_token_id
       );
@@ -237,7 +266,9 @@ export class ConnectedServicesFactory {
           lastAccessTime: oauthClient.last_access_time,
         };
         this.attachedClients.push(client);
+        this.clientsByRefreshTokenId.set(oauthClient.refresh_token_id, client);
       }
+
       client.clientId = oauthClient.client_id;
       client.scope = oauthClient.scope;
       client.createdTime = Math.min(
@@ -263,25 +294,60 @@ export class ConnectedServicesFactory {
 
   protected async mergeDevices() {
     for (const device of await this.bindings.deviceList()) {
-      const client: AttachedClient = {
-        ...this.getDefaultClientFields(),
-        sessionTokenId: device.sessionTokenId || null,
-        // The refreshTokenId might be a dangling pointer, don't set it
-        // until we know whether the corresponding token exists in the OAuth db.
-        refreshTokenId: null,
-        deviceId: device.id,
-        deviceType: device.type,
-        name: device.name,
-        createdTime: device.createdAt,
-        lastAccessTime: device.lastAccessTime,
-      };
-      this.attachedClients.push(client);
-      if (device.sessionTokenId) {
-        this.clientsBySessionTokenId.set(device.sessionTokenId, client);
+      if (!device.id) {
+        // on the off chance a device without an ID is returned, skip it.
+        continue;
       }
-      if (device.refreshTokenId) {
-        this.clientsByRefreshTokenId.set(device.refreshTokenId, client);
+
+      // Since the device record is returned via the accountDevices_17 stored procedure,
+      // the device.id is a Buffer object. We need to convert it to a hex string for the Map key.
+      const deviceIdHex = hex(device.id);
+      const client = this.clientsByDeviceId.get(deviceIdHex);
+
+      if (!client) {
+        const client: AttachedClient = {
+          ...this.getDefaultClientFields(),
+          sessionTokenId: device.sessionTokenId || null,
+          // The refreshTokenId might be a dangling pointer, don't set it
+          // until we know whether the corresponding token exists in the OAuth db.
+          refreshTokenId: null,
+          deviceId: device.id,
+          deviceType: device.type,
+          name: device.name,
+          createdTime: device.createdAt,
+          lastAccessTime: device.lastAccessTime,
+        };
+        this.attachedClients.push(client);
+
+        this.clientsByDeviceId.set(deviceIdHex, client);
+
+        if (device.sessionTokenId) {
+          this.clientsBySessionTokenId.set(device.sessionTokenId, client);
+        }
+        if (device.refreshTokenId) {
+          this.clientsByRefreshTokenId.set(device.refreshTokenId, client);
+        }
+      } else {
+        // otherwise, we have record of the client for this device and we
+        // can update the client with the new information.
+        if (device.sessionTokenId) {
+          client.sessionTokenId = device.sessionTokenId;
+          this.clientsBySessionTokenId.set(device.sessionTokenId, client);
+        }
+        if (device.refreshTokenId) {
+          client.refreshTokenId = device.refreshTokenId;
+          this.clientsByRefreshTokenId.set(device.refreshTokenId, client);
+        }
+        client.createdTime = Math.min(
+          client.createdTime || Number.POSITIVE_INFINITY,
+          device.createdAt || Number.POSITIVE_INFINITY
+        );
+        client.lastAccessTime = Math.max(
+          client.lastAccessTime || 0,
+          device.lastAccessTime || 0
+        );
       }
+      ``;
     }
   }
 
