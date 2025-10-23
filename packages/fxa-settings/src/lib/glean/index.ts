@@ -33,7 +33,10 @@ import * as deleteAccount from 'fxa-shared/metrics/glean/web/deleteAccount';
 import * as thirdPartyAuth from 'fxa-shared/metrics/glean/web/thirdPartyAuth';
 import * as thirdPartyAuthSetPassword from 'fxa-shared/metrics/glean/web/thirdPartyAuthSetPassword';
 import { userIdSha256, userId } from 'fxa-shared/metrics/glean/web/account';
-import { appFramework, cmsCustomizationEnrollment } from 'fxa-shared/metrics/glean/web/event';
+import {
+  appFramework,
+  cmsCustomizationEnrollment,
+} from 'fxa-shared/metrics/glean/web/event';
 import {
   oauthClientId,
   service,
@@ -562,9 +565,6 @@ const recordEventMetric = (
       break;
     case 'account_pref_bento_monitor':
       accountPref.bentoMonitor.record();
-      break;
-    case 'account_pref_bento_pocket':
-      accountPref.bentoPocket.record();
       break;
     case 'account_pref_bento_relay':
       accountPref.bentoRelay.record();

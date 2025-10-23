@@ -130,8 +130,6 @@ export class GenericIntegration<
       case MozServices.MozillaVPN:
         return MozServices.MozillaVPN;
 
-      case MozServices.Pocket:
-        return MozServices.Pocket;
 
       case MozServices.TestService:
         return MozServices.TestService;
