@@ -4,15 +4,15 @@
 import { determineCheckoutType } from './determineCheckoutType';
 
 describe('determineCheckoutType', () => {
-  it('should return with-accounts if uid provided', () => {
-    expect(determineCheckoutType('validuid')).toEqual('with-accounts');
+  it('should return new_account if isNewAccount is true', () => {
+    expect(determineCheckoutType('true', 'true')).toEqual('new_account');
   });
 
-  it('should return without-accounts if empty uid', () => {
-    expect(determineCheckoutType('')).toEqual('without-accounts');
+  it('should return existing_account if uid provided but isNewAccount is not', () => {
+    expect(determineCheckoutType('true')).toEqual('existing_account');
   });
 
-  it('should return without-accounts if undefined uid', () => {
-    expect(determineCheckoutType(undefined)).toEqual('without-accounts');
+  it('should return logged_out if both isNewAccount and uid are empty', () => {
+    expect(determineCheckoutType('')).toEqual('logged_out');
   });
 });
