@@ -15,7 +15,6 @@ export interface IapOfferingSubGroupResult {
 
 export interface IapOfferingDefaultPurchaseDetails {
   productName: string;
-  webIcon: string;
 }
 
 export interface IapOfferingPurchaseStripePlanChoiceResult {
