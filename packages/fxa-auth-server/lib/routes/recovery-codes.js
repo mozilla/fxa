@@ -324,7 +324,13 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
           log.info('account.recoveryCode.consumedAllCodes', { uid });
         }
 
-        if (tokenVerificationId) {
+        if (
+          tokenVerificationId ||
+          // If there is no tokenVerificationId but the auth assurance level needs
+          // to be upgraded, then this user was redirected from Settings to
+          // our TOTP page and entered a recovery code to upgrade their session
+          request.auth.credentials.authenticatorAssuranceLevel <= 1
+        ) {
           await db.verifyTokensWithMethod(tokenId, 'recovery-code');
         }
 

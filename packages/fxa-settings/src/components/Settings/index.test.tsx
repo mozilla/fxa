@@ -17,9 +17,13 @@ import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject } from './mocks';
 
+const mockSessionStatus = jest.fn();
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
   useInitialSettingsState: jest.fn(),
+  useAuthClient: jest.fn(() => ({
+    sessionStatus: mockSessionStatus,
+  })),
 }));
 
 jest.mock('../../lib/totp-utils', () => {
@@ -62,12 +66,30 @@ jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
   useNavigateWithQuery: () => mockNavigateWithQuery,
 }));
 
+const mockCurrentAccount = jest.fn();
+jest.mock('../../lib/cache', () => ({
+  ...jest.requireActual('../../lib/cache'),
+  currentAccount: () => mockCurrentAccount(),
+}));
+
 describe('Settings App', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
     (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
     mockNavigate.mockReset();
+    mockSessionStatus.mockResolvedValue({
+      details: {
+        sessionVerified: true,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
+    });
+    mockCurrentAccount.mockReturnValue({
+      email: MOCK_ACCOUNT.primaryEmail.email,
+      sessionToken: 'mock-session-token',
+      uid: 'mock-uid',
+      verified: true,
+    });
   });
 
   it('renders `LoadingSpinner` component when loading initial state is true', () => {
@@ -143,6 +165,12 @@ describe('Settings App', () => {
         return;
     });
     const unverifiedSession = mockSession(false);
+    mockSessionStatus.mockResolvedValue({
+      details: {
+        sessionVerified: false,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
+    });
 
     renderWithRouter(
       <AppContext.Provider
@@ -155,6 +183,39 @@ describe('Settings App', () => {
 
     await waitFor(() => {
       expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    });
+    warnSpy.mockRestore();
+  });
+
+  it('redirects to signin_totp_code with correct state when AAL is not met', async () => {
+    // this warning is expected, so we don't want to see it in the test output
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
+      if (msg === '2FA must be entered to access /settings!') return;
+    });
+    mockSessionStatus.mockResolvedValue({
+      details: {
+        sessionVerified: true,
+        sessionVerificationMeetsMinimumAAL: false,
+      },
+    });
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/signin_totp_code', {
+        state: {
+          email: MOCK_ACCOUNT.primaryEmail.email,
+          sessionToken: 'mock-session-token',
+          uid: 'mock-uid',
+          verified: true,
+          isSessionAALUpgrade: true,
+        },
+      });
     });
     warnSpy.mockRestore();
   });

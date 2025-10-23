@@ -66,6 +66,7 @@ export const SigninTotpCodeContainer = ({
     state: SigninLocationState;
   };
   const signinState = getSigninState(location.state);
+
   const sensitiveDataClient = useSensitiveDataClient();
   const { keyFetchToken, unwrapBKey } =
     sensitiveDataClient.getDataType(SensitiveData.Key.Auth) || {};
@@ -135,8 +136,14 @@ export const SigninTotpCodeContainer = ({
       // a key stretching upgrade until the session is verified, which the process
       // can only be finished after the account has been verified on accounts that
       // require totp.
+      // Users accessing this page because they need a session token AAL upgrade will
+      // not upgrade key stretching since they were redirected and didn't enter a password.
       const sessionToken = signinState?.sessionToken;
-      if (sessionToken && (await session.isSessionVerified())) {
+      if (
+        !signinState?.isSessionAALUpgrade &&
+        sessionToken &&
+        (await session.isSessionVerified())
+      ) {
         await tryFinalizeUpgrade(
           sessionToken,
           sensitiveDataClient,
@@ -162,7 +169,8 @@ export const SigninTotpCodeContainer = ({
 
   if (
     !signinState ||
-    (signinState.verificationMethod &&
+    (signinState.isSessionAALUpgrade !== true &&
+      signinState.verificationMethod &&
       signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
   ) {
     navigateWithQuery('/');
