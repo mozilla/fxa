@@ -58,7 +58,7 @@ describe('mapSubscription', () => {
       cmsMetricsData: mockCmsMetricsData,
     });
     expect(result).toEqual({
-      subscription_checkout_type: 'without-accounts',
+      subscription_checkout_type: 'with-accounts',
       subscription_currency: '',
       subscription_error_id: '',
       subscription_interval: '',
