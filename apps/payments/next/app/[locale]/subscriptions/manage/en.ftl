@@ -24,7 +24,7 @@ subscription-management-button-manage-payment-method = Manage
 subscription-management-card-ending-in = Card ending in { $last4 }
 # $expirationDate (Date) - Payment card's expiration date
 subscription-management-card-expires-date = Expires { $expirationDate }
-subscription-management-error-paypal-billing-agreement = There is an issue with your PayPal account. Please resolve the issue to maintain your active subscriptions.
+subscription-management-error-paypal-billing-agreement = There is an issue with your { -brand-paypal } account. Please resolve the issue to maintain your active subscriptions.
 subscription-management-active-subscriptions-heading = Active subscriptions
 subscription-management-you-have-no-active-subscriptions = You have no active subscriptions
 subscription-management-new-subs-will-appear-here = New subscriptions will appear here.
