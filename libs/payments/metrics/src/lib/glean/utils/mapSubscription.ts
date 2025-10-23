@@ -24,7 +24,7 @@ export function mapSubscription({
 }) {
   const mappedParams = mapParams(commonMetricsData.params);
   return {
-    subscription_checkout_type: determineCheckoutType(cartMetricsData.uid),
+    subscription_checkout_type: determineCheckoutType(cartMetricsData.uid, commonMetricsData.searchParams['newAccount']),
     subscription_currency: normalizeGleanFalsyValues(cartMetricsData.currency),
     subscription_error_id: normalizeGleanFalsyValues(
       cartMetricsData.errorReasonId
