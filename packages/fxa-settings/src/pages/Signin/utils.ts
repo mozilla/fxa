@@ -200,12 +200,24 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     integration.isSync() ||
     integration.isFirefoxClientServiceRelay() ||
     integration.isFirefoxClientServiceAiMode();
-  const wantsTwoStepAuthentication = isOAuth && 'wantsTwoStepAuthentication' in integration
-    ? integration.wantsTwoStepAuthentication()
-    : false;
+  const wantsTwoStepAuthentication =
+    isOAuth && 'wantsTwoStepAuthentication' in integration
+      ? integration.wantsTwoStepAuthentication()
+      : false;
   const wantsKeys = integration?.wantsKeys?.() ?? false;
 
-  // Check CMS feature flags to determine if we should hide promos, the
+  // If this is an AAL upgrade, the user was redirected from Settings to enter TOTP.
+  // RP redirects won't get into this state since they'll be taken to the RP and
+  // never Settings. This flow doesn't need Sync web channel messages or care about
+  // skipping navigating either because if a Sync user is inside Settings, we probably
+  // don't have the oauth query parameters required to begin a sign-in flow
+  // anyway. Just take all users back to /settings.
+  if (navigationOptions.isSessionAALUpgrade) {
+    navigate('/settings');
+    return { error: undefined };
+  }
+
+  // Check CMS fleature flags to determine if we should hide promos, the
   // default is to navigate to settings
   const cmsInfo = integration?.getCmsInfo();
   if (
@@ -234,7 +246,8 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     // TODO, address signIn.verified vs session.verified discrepancy
     // currently 'verified' only checks session status, but 'verificationReason'
     // can tell us if it's a sign up. This will be cleaned up in FXA-12454
-    navigationOptions.signinData.verificationReason === VerificationReasons.SIGN_UP
+    navigationOptions.signinData.verificationReason ===
+      VerificationReasons.SIGN_UP
   ) {
     const { to, locationState } =
       getUnverifiedNavigationTarget(navigationOptions);
@@ -250,10 +263,15 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       sendFxaLogin(navigationOptions);
     }
 
-    if (navigationOptions.signinData.verificationReason === VerificationReasons.SIGN_UP ||
-      navigationOptions.signinData.verificationMethod === VerificationMethods.TOTP_2FA ||
-      navigationOptions.signinData.verificationReason === VerificationReasons.CHANGE_PASSWORD ||
-      wantsTwoStepAuthentication || wantsKeys
+    if (
+      navigationOptions.signinData.verificationReason ===
+        VerificationReasons.SIGN_UP ||
+      navigationOptions.signinData.verificationMethod ===
+        VerificationMethods.TOTP_2FA ||
+      navigationOptions.signinData.verificationReason ===
+        VerificationReasons.CHANGE_PASSWORD ||
+      wantsTwoStepAuthentication ||
+      wantsKeys
     ) {
       performNavigation({ to, locationState });
       return { error: undefined };
@@ -261,9 +279,9 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
 
     // Check if this is a standard OAuth web flow, not a NativeOAuth flow or settings flow
     // if so return to RP, they don't need to have a verified session
-    if ((isOAuth && !isOAuthNativeIntegration(integration))) {
+    if (isOAuth && !isOAuthNativeIntegration(integration)) {
       const { to, locationState, shouldHardNavigate, error } =
-      await getOAuthNavigationTarget(navigationOptions);
+        await getOAuthNavigationTarget(navigationOptions);
       if (error) {
         return { error };
       }
@@ -537,7 +555,11 @@ const getOAuthNavigationTarget = async (
 export function getSigninState(
   locationState?: SigninLocationState
 ): SigninLocationState | null {
-  return locationState && Object.keys(locationState).length > 0
+  // When location state isn't passed, reach-router still gives us an object
+  // that contains a 'key', e.g. { key: 123456 }
+  // So check for a required key in signin state and if it exists then use it.
+  // Otherwise, pull from local storage.
+  return locationState && locationState.sessionToken
     ? locationState
     : getStoredAccountInfo();
 }

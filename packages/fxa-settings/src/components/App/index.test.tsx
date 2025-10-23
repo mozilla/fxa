@@ -82,6 +82,7 @@ jest.mock('../../lib/cache', () => ({
   currentAccount: jest.fn(),
 }));
 
+const mockSessionStatus = jest.fn();
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
   useInitialMetricsQueryState: jest.fn(),
@@ -91,6 +92,9 @@ jest.mock('../../models', () => ({
   useProductInfoState: jest.fn(),
   useIntegration: jest.fn(),
   useSession: jest.fn(),
+  useAuthClient: jest.fn(() => ({
+    sessionStatus: mockSessionStatus,
+  })),
 }));
 
 jest.mock('react-markdown', () => {});
@@ -415,6 +419,12 @@ describe('SettingsRoutes', () => {
       data: {},
     });
     (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
+    mockSessionStatus.mockResolvedValue({
+      details: {
+        sessionVerified: true,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
+    });
   });
 
   afterEach(() => {
@@ -427,6 +437,7 @@ describe('SettingsRoutes', () => {
     (firefox.requestSignedInUser as jest.Mock).mockRestore();
     (useClientInfoState as jest.Mock).mockRestore();
     (useSession as jest.Mock).mockRestore();
+    mockSessionStatus.mockClear();
   });
 
   it('redirects to email-first if isSignedIn is false', async () => {

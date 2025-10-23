@@ -70,7 +70,13 @@ const SESSION_STATUS_GET = {
     dedent`
       🔒 Authenticated with session token
 
-      Returns a success response if the session token is valid.
+      Returns a success response if the session token is valid. The response includes detailed information about the session and account state.
+
+      **Response details object:**
+      - \`accountEmailVerified\`: Whether the account's primary email is verified
+      - \`sessionVerificationMethod\`: The verification method used for the session (e.g., 'email-2fa', 'totp-2fa'), or null if not verified
+      - \`sessionVerified\`: Whether the session token itself is verified (no pending token verification)
+      - \`sessionVerificationMeetsMinimumAAL\`: Whether the session's Authentication Assurance Level (AAL) meets or exceeds the account's maximum AAL
     `,
   ],
 };
