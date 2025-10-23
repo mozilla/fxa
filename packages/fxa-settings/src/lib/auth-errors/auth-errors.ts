@@ -56,8 +56,7 @@ const ERRORS = {
   },
   INVALID_TOKEN: {
     errno: 110,
-    message: 'Invalid session. Please sign out and sign in again.',
-    version: 2,
+    message: 'Invalid token',
   },
   INVALID_TIMESTAMP: {
     errno: 111,
@@ -140,8 +139,8 @@ const ERRORS = {
   },
   UNVERIFIED_SESSION: {
     errno: 138,
-    message: 'Unconfirmed session. Please sign out and sign in again.',
-    version: 3,
+    message: 'Unconfirmed session',
+    version: 2,
   },
   EMAIL_PRIMARY_EXISTS: {
     errno: 139,

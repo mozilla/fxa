@@ -102,6 +102,20 @@ describe('Signin utils', () => {
       expect(navigateSpy).toHaveBeenCalledWith('/settings', { replace: true });
     });
 
+    it('navigates to settings when isSessionAALUpgrade is true, even when performNavigation: false', async () => {
+      const navigationOptions = createBaseNavigationOptions({
+        integration: createMockSigninOAuthNativeSyncIntegration(),
+        isSessionAALUpgrade: true,
+        performNavigation: false,
+      });
+      const result = await handleNavigation(navigationOptions);
+
+      expect(result.error).toBeUndefined();
+      expect(navigateSpy).toHaveBeenCalledWith('/settings');
+      expect(hardNavigateSpy).not.toHaveBeenCalled();
+      expect(fxaLoginSpy).not.toHaveBeenCalled();
+    });
+
     describe('unverified session navigation', () => {
       it('returns early for SIGN_UP verification reason', async () => {
         const navigationOptions = createBaseNavigationOptions({
@@ -116,7 +130,10 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith('/confirm_signup_code', expect.any(Object));
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/confirm_signup_code',
+          expect.any(Object)
+        );
       });
 
       it('returns early for TOTP verification method', async () => {
@@ -132,12 +149,17 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith('/signin_totp_code', expect.any(Object));
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/signin_totp_code',
+          expect.any(Object)
+        );
       });
 
       it('returns early for OAuth integration with wantsTwoStepAuthentication', async () => {
         const mockOAuthIntegration = createMockSigninOAuthIntegration();
-        (mockOAuthIntegration).wantsTwoStepAuthentication = jest.fn().mockReturnValue(true);
+        mockOAuthIntegration.wantsTwoStepAuthentication = jest
+          .fn()
+          .mockReturnValue(true);
 
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
@@ -152,12 +174,17 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith('/signin_token_code', expect.any(Object));
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.any(Object)
+        );
       });
 
       it('navigates to OAuth redirect for successful OAuth flow', async () => {
         const mockOAuthIntegration = createMockSigninOAuthIntegration();
-        (mockOAuthIntegration as any).wantsKeys = jest.fn().mockReturnValue(false);
+        (mockOAuthIntegration as any).wantsKeys = jest
+          .fn()
+          .mockReturnValue(false);
 
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
@@ -187,7 +214,9 @@ describe('Signin utils', () => {
 
       it('returns early for OAuth integration with wantsKeys', async () => {
         const mockOAuthIntegration = createMockSigninOAuthIntegration();
-        (mockOAuthIntegration as any).wantsKeys = jest.fn().mockReturnValue(true);
+        (mockOAuthIntegration as any).wantsKeys = jest
+          .fn()
+          .mockReturnValue(true);
 
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
@@ -202,7 +231,10 @@ describe('Signin utils', () => {
         const result = await handleNavigation(navigationOptions);
 
         expect(result.error).toBeUndefined();
-        expect(navigateSpy).toHaveBeenCalledWith('/signin_token_code', expect.any(Object));
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/signin_token_code',
+          expect.any(Object)
+        );
       });
 
       it('does not send fxaLogin for TOTP verification', async () => {
@@ -220,7 +252,10 @@ describe('Signin utils', () => {
 
         expect(result.error).toBeUndefined();
         expect(fxaLoginSpy).not.toHaveBeenCalled();
-        expect(navigateSpy).toHaveBeenCalledWith('/signin_totp_code', expect.any(Object));
+        expect(navigateSpy).toHaveBeenCalledWith(
+          '/signin_totp_code',
+          expect.any(Object)
+        );
       });
     });
   });

@@ -1161,7 +1161,16 @@ export default class AuthClient {
   async sessionStatus(
     sessionToken: hexstring,
     headers?: Headers
-  ): Promise<{ state: 'verified' | 'unverified'; uid: string }> {
+  ): Promise<{
+    state: 'verified' | 'unverified';
+    uid: string;
+    details: {
+      accountEmailVerified: boolean;
+      sessionVerificationMethod: string | null;
+      sessionVerified: boolean;
+      sessionVerificationMeetsMinimumAAL: boolean;
+    };
+  }> {
     return this.sessionGet('/session/status', sessionToken, headers);
   }
 

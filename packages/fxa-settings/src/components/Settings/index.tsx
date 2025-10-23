@@ -7,7 +7,12 @@ import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
-import { useAccount, useInitialSettingsState, useSession } from '../../models';
+import {
+  useAccount,
+  useAuthClient,
+  useInitialSettingsState,
+  useSession,
+} from '../../models';
 import {
   Redirect,
   Router,
@@ -30,7 +35,7 @@ import { SETTINGS_PATH } from '../../constants';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import { MfaGuardPageRecoveryKeyCreate } from './PageRecoveryKeyCreate';
-import { currentAccount } from '../../lib/cache';
+import { currentAccount, sessionToken } from '../../lib/cache';
 import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
@@ -45,10 +50,13 @@ export const Settings = ({
   integration,
 }: { integration: SettingsIntegration } & RouteComponentProps) => {
   const session = useSession();
+  const authClient = useAuthClient();
   const account = useAccount();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>();
+  const [sessionVerificationMeetsAAL, setSessionVerificationMeetsAAL] =
+    useState<boolean | undefined>();
 
   useEffect(() => {
     /**
@@ -124,9 +132,20 @@ export const Settings = ({
 
   useEffect(() => {
     (async () => {
-      setSessionVerified(await session.isSessionVerified());
+      // Only run once
+      if (
+        sessionVerified !== undefined ||
+        sessionVerificationMeetsAAL !== undefined
+      ) {
+        return;
+      }
+      const { details } = await authClient.sessionStatus(sessionToken()!);
+      setSessionVerified(details.sessionVerified);
+      setSessionVerificationMeetsAAL(
+        details.sessionVerificationMeetsMinimumAAL
+      );
     })();
-  }, [session]);
+  }, [authClient, sessionVerified, sessionVerificationMeetsAAL]);
 
   if (loading || sessionVerified === undefined) {
     return <LoadingSpinner fullScreen />;
@@ -148,6 +167,24 @@ export const Settings = ({
       'Account or email verification is require to access /settings!'
     );
     navigateWithQuery('/');
+    return <LoadingSpinner fullScreen />;
+  }
+
+  // This happens when a multi-device user sets up 2FA on device A and tries
+  // to access Settings on device B. If they haven't upgraded the assurance level
+  // on device B's session token with TOTP, we require them to.
+  if (sessionVerificationMeetsAAL === false) {
+    console.warn('2FA must be entered to access /settings!');
+    const storedAccount = currentAccount();
+    navigateWithQuery('/signin_totp_code', {
+      state: {
+        email: storedAccount?.email,
+        sessionToken: storedAccount?.sessionToken,
+        uid: storedAccount?.uid,
+        verified: storedAccount?.verified,
+        isSessionAALUpgrade: true,
+      },
+    });
     return <LoadingSpinner fullScreen />;
   }
 

@@ -5,9 +5,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver } from '../../../models';
+import { useFtlMsgResolver, useSession } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
 import { MozServices } from '../../../lib/types';
+import firefox from '../../../lib/channels/firefox';
 import AppLayout from '../../../components/AppLayout';
 import GleanMetrics from '../../../lib/glean';
 import { SigninIntegration, SigninLocationState } from '../interfaces';
@@ -53,17 +54,43 @@ export const SigninTotpCode = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
+  const session = useSession();
+  const isSessionAALUpgrade = signinState.isSessionAALUpgrade;
 
   const [bannerError, setBannerError] = useState<string>('');
 
-  const {
-    email,
-    uid,
-    sessionToken,
-    verificationMethod,
-    verificationReason,
-    showInlineRecoveryKeySetup,
-  } = signinState;
+  const handleSignOut = async () => {
+    try {
+      setBannerError('');
+      await session.destroy();
+      // Send a logout event to Firefox even if the user is in a non-Sync flow.
+      // If the user is signed into the browser, they need to drop the now
+      // destroyed session token. Mobile users will have the web view closed
+      // and can start the signin process from the menu.
+      firefox.fxaLogout({ uid: signinState.uid });
+      navigateWithQuery('/');
+    } catch (error) {
+      setBannerError(
+        ftlMsgResolver.getMsg(
+          'signin-totp-code-aal-sign-out-error',
+          'Sorry, there was a problem signing you out'
+        )
+      );
+    }
+  };
+
+  const localizedBannerAALUpgrade = isSessionAALUpgrade
+    ? {
+        header: ftlMsgResolver.getMsg(
+          'signin-totp-code-aal-banner-header',
+          'Why are you being asked to authenticate?'
+        ),
+        content: ftlMsgResolver.getMsg(
+          'signin-totp-code-aal-banner-content',
+          'You set up two-step authentication on your account, but haven’t signed in with a code on this device yet.'
+        ),
+      }
+    : undefined;
 
   useEffect(() => {
     GleanMetrics.totpForm.view();
@@ -81,6 +108,15 @@ export const SigninTotpCode = ({
       return;
     } else {
       GleanMetrics.totpForm.success();
+
+      const {
+        email,
+        uid,
+        sessionToken,
+        verificationMethod,
+        verificationReason,
+        showInlineRecoveryKeySetup,
+      } = signinState;
 
       storeAccountData({
         sessionToken,
@@ -106,6 +142,7 @@ export const SigninTotpCode = ({
         redirectTo,
         queryParams: location.search,
         showInlineRecoveryKeySetup,
+        isSessionAALUpgrade,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         performNavigation: !integration.isFirefoxMobileClient(),
@@ -142,6 +179,16 @@ export const SigninTotpCode = ({
       <FtlMsg id="signin-totp-code-subheader-v2">
         <h2 className="card-header">Enter two-step authentication code</h2>
       </FtlMsg>
+
+      {isSessionAALUpgrade && localizedBannerAALUpgrade && (
+        <Banner
+          type="info"
+          content={{
+            localizedHeading: localizedBannerAALUpgrade.header,
+            localizedDescription: localizedBannerAALUpgrade.content,
+          }}
+        />
+      )}
 
       <div className="flex space-x-4">
         <img src={protectionShieldIcon} alt="" />
@@ -186,25 +233,40 @@ export const SigninTotpCode = ({
         }}
       />
       <div className="mt-8 link-blue text-sm flex justify-between">
-        <FtlMsg id="signin-totp-code-other-account-link">
-          {/* TODO in FXA-8636 replace with Link component once index reactified */}
-          <a
-            href="/"
-            className="text-sm link-blue"
-            data-glean-id="login_totp_code_different_account_link"
-            onClick={(e) => {
-              e.preventDefault();
-
-              navigateWithQuery('/', {
-                state: {
-                  prefillEmail: email,
-                },
-              });
-            }}
-          >
-            Use a different account
-          </a>
-        </FtlMsg>
+        {!isSessionAALUpgrade ? (
+          <FtlMsg id="signin-totp-code-other-account-link">
+            {/* TODO in FXA-8636 replace with Link component once index reactified */}
+            <a
+              href="/"
+              className="text-sm link-blue"
+              data-glean-id="login_totp_code_different_account_link"
+              onClick={(e) => {
+                e.preventDefault();
+                navigateWithQuery('/', {
+                  state: {
+                    prefillEmail: signinState.email,
+                  },
+                });
+              }}
+            >
+              Use a different account
+            </a>
+          </FtlMsg>
+        ) : (
+          <FtlMsg id="signin-totp-code-aal-sign-out">
+            {/* If this is a session AAL upgrade, do not offer to use a different account, only
+              sign out. This was a redirect from Settings and we do not reliably have Sync oauth
+              query parameters in desktop or mobile to initiate a Sync login, or even be able to
+              tell that it's a Sync integration */}
+            <button
+              className="link-blue"
+              data-glean-id="login_totp_code_aal_sign_out"
+              onClick={handleSignOut}
+            >
+              Sign out of this account
+            </button>
+          </FtlMsg>
+        )}
         <FtlMsg id="signin-totp-code-recovery-code-link">
           <Link
             to={`/signin_recovery_choice${location.search}`}
