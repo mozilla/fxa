@@ -284,15 +284,6 @@ it('displays the locale', async () => {
   expect(getByTestId('edit-account-locale')).toBeInTheDocument();
 });
 
-it('displays send password reset', async () => {
-  const { getByTestId } = render(
-    <MockedProvider>
-      <Account {...accountResponse} />
-    </MockedProvider>
-  );
-  expect(getByTestId('password-reset-button')).toBeInTheDocument();
-});
-
 it('displays key-stretch-version', async () => {
   const lockedAccount = {
     ...accountResponse,

@@ -19,12 +19,12 @@ export type FlowSetupRecoveryPhoneConfirmCodeProps = {
   nationalFormatPhoneNumber: string;
   localizedBackButtonTitle?: string;
   localizedPageTitle: string;
-  localizedSuccessMessage?: string;
   navigateBackward: () => void;
-  navigateForward: () => void;
+  navigateForward?: () => void;
   numberOfSteps?: number;
   reason?: RecoveryPhoneSetupReason;
   sendCode: () => Promise<void>;
+  showRecoveryPhoneSuccessMessage: boolean;
   verifyRecoveryCode: (code: string) => Promise<void>;
 };
 
@@ -33,12 +33,12 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
   nationalFormatPhoneNumber,
   localizedBackButtonTitle,
   localizedPageTitle,
-  localizedSuccessMessage,
   navigateBackward,
   navigateForward,
   numberOfSteps = 2,
   reason = RecoveryPhoneSetupReason.setup,
   sendCode,
+  showRecoveryPhoneSuccessMessage,
   verifyRecoveryCode,
 }: FlowSetupRecoveryPhoneConfirmCodeProps) => {
   const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
@@ -56,9 +56,8 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const successMessage = localizedSuccessMessage
-    ? localizedSuccessMessage
-    : reason === RecoveryPhoneSetupReason.setup
+  const successMessage =
+    reason === RecoveryPhoneSetupReason.setup
       ? ftlMsgResolver.getMsg(
           'flow-setup-phone-confirm-code-success-message-v2',
           'Recovery phone added'
@@ -79,7 +78,10 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
       await sendCode();
       setResendStatus(ResendStatus.sent);
     } catch (error) {
-      const localizedError = getLocalizedErrorMessage(ftlMsgResolver, error);
+      const localizedError: string = getLocalizedErrorMessage(
+        ftlMsgResolver,
+        error
+      );
       setLocalizedErrorBannerMessage(localizedError);
     }
     return;
@@ -91,8 +93,8 @@ export const FlowSetupRecoveryPhoneConfirmCode = ({
     try {
       await verifyRecoveryCode(code);
 
-      alertBar.success(successMessage);
-      navigateForward();
+      showRecoveryPhoneSuccessMessage && alertBar.success(successMessage);
+      navigateForward && navigateForward();
     } catch (error) {
       const localizedError = getLocalizedErrorMessage(ftlMsgResolver, error);
       setLocalizedErrorBannerMessage(localizedError);

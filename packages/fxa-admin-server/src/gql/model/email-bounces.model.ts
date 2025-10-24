@@ -5,10 +5,10 @@ import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 export enum BounceType {
   unmapped,
-  Undetermined,
   Permanent,
   Transient,
   Complaint,
+  Undetermined,
 }
 
 export enum BounceSubType {
@@ -16,7 +16,6 @@ export enum BounceSubType {
   Undetermined,
   General,
   NoEmail,
-  OnAccountSuppressionList,
   Suppressed,
   MailboxFull,
   MessageTooLarge,
@@ -28,6 +27,7 @@ export enum BounceSubType {
   NotSpam,
   Other,
   Virus,
+  OnAccountSuppressionList,
 }
 
 registerEnumType(BounceType, {

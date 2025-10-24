@@ -348,6 +348,36 @@ export default class AuthClient {
     return this.request('POST', path, payload, headers);
   }
 
+  private async jwtDelete(
+    path: string,
+    jwt: string,
+    payload: any,
+    headers?: Headers
+  ) {
+    const authorization = 'Bearer ' + jwt;
+    if (!headers) {
+      headers = new Headers({ authorization });
+    } else {
+      headers.set('authorization', authorization);
+    }
+    return this.request('DELETE', path, payload, headers);
+  }
+
+  private async jwtPut(
+    path: string,
+    jwt: string,
+    payload: any,
+    headers?: Headers
+  ) {
+    const authorization = 'Bearer ' + jwt;
+    if (!headers) {
+      headers = new Headers({ authorization });
+    } else {
+      headers.set('authorization', authorization);
+    }
+    return this.request('PUT', path, payload, headers);
+  }
+
   private async sessionPost(
     path: string,
     sessionToken: hexstring,
@@ -1131,7 +1161,16 @@ export default class AuthClient {
   async sessionStatus(
     sessionToken: hexstring,
     headers?: Headers
-  ): Promise<{ state: 'verified' | 'unverified'; uid: string }> {
+  ): Promise<{
+    state: 'verified' | 'unverified';
+    uid: string;
+    details: {
+      accountEmailVerified: boolean;
+      sessionVerificationMethod: string | null;
+      sessionVerified: boolean;
+      sessionVerificationMeetsMinimumAAL: boolean;
+    };
+  }> {
     return this.sessionGet('/session/status', sessionToken, headers);
   }
 
@@ -1272,30 +1311,21 @@ export default class AuthClient {
 
     let unwrapBKeyVersion2: string | undefined;
     if (this.keyStretchVersion === 2) {
-      const status = await this.getCredentialStatusV2(email, headers);
-      const clientSalt = status.clientSalt || createSaltV2();
-      const newCredentialsV2 = await crypto.getCredentialsV2({
-        password: newPassword,
-        clientSalt: clientSalt,
-      });
+      const v2Payload = await this.createPasswordChangeV2Payload(
+        email,
+        newPassword,
+        keys,
+        newCredentials,
+        wrapKb,
+        headers
+      );
 
-      // Important! Passing kB, ensures kB remains constant even after password upgrade.
-      const newKeys = await crypto.getKeysV2({
-        kB: keys.kB,
-        v1: newCredentials,
-        v2: newCredentialsV2,
-      });
-
-      if (newKeys.wrapKb !== wrapKb) {
-        throw new Error('Sanity check failed. wrapKb should not drift!');
-      }
-
-      unwrapBKeyVersion2 = newCredentialsV2.unwrapBKey;
+      unwrapBKeyVersion2 = v2Payload.unwrapBKeyVersion2;
       payload = {
         ...payload,
-        authPWVersion2: newCredentialsV2.authPW,
-        wrapKbVersion2: newKeys.wrapKbVersion2,
-        clientSalt: clientSalt,
+        authPWVersion2: v2Payload.authPWVersion2,
+        wrapKbVersion2: v2Payload.wrapKbVersion2,
+        clientSalt: v2Payload.clientSalt,
       };
     }
     const accountData = await this.passwordChangeFinish(
@@ -1431,6 +1461,171 @@ export default class AuthClient {
       headers
     );
     return response;
+  }
+
+  /**
+   * Creates the v2 extension payload for password change operations.
+   * Handles the common logic for v2 credential creation and validation.
+   *
+   * @private
+   * @param email - The email of the user
+   * @param newPassword - The new password for v2 credential generation
+   * @param keys - The account keys containing kB
+   * @param newCredentials - The new v1 credentials
+   * @param wrapKb - The wrapped key bundle to validate against
+   * @param headers - Optional headers
+   * @returns Object containing v2 payload fields and unwrapBKeyVersion2
+   */
+  private async createPasswordChangeV2Payload(
+    email: string,
+    newPassword: string,
+    keys: { kB: string },
+    newCredentials: { authPW: string; unwrapBKey: string },
+    wrapKb: string,
+    headers?: Headers
+  ): Promise<{
+    authPWVersion2: string;
+    wrapKbVersion2: string;
+    clientSalt: string;
+    unwrapBKeyVersion2: string;
+  }> {
+    const status = await this.getCredentialStatusV2(email, headers);
+    const clientSalt = status.clientSalt || createSaltV2();
+    const newCredentialsV2 = await crypto.getCredentialsV2({
+      password: newPassword,
+      clientSalt: clientSalt,
+    });
+
+    // Important! Passing kB, ensures kB remains constant even after password upgrade.
+    const newKeys = await crypto.getKeysV2({
+      kB: keys.kB,
+      v1: newCredentials,
+      v2: newCredentialsV2,
+    });
+
+    if (newKeys.wrapKb !== wrapKb) {
+      throw new Error('Sanity check failed. wrapKb should not drift!');
+    }
+
+    return {
+      authPWVersion2: newCredentialsV2.authPW,
+      wrapKbVersion2: newKeys.wrapKbVersion2,
+      clientSalt: clientSalt,
+      unwrapBKeyVersion2: newCredentialsV2.unwrapBKey,
+    };
+  }
+
+  /**
+   * Change password using JWT authentication (for MFA-protected operations).
+   * This uses the new /mfa/password/change endpoint that requires JWT authentication.
+   *
+   * @param jwt - The JWT token for authentication.
+   * @param email - The email of the user.
+   * @param oldPassword - The old password of the user.
+   * @param newPassword - The new password of the user.
+   * @param sessionToken - The session token of the user.
+   * @param options - The options for the password change.
+   * @param headers - The headers for the request.
+   */
+  async passwordChangeWithJWT(
+    jwt: string,
+    email: string,
+    oldPassword: string,
+    newPassword: string,
+    sessionToken: string,
+    options: {
+      keys?: boolean;
+      skipCaseError?: boolean;
+      reauthEmail?: string;
+    } = {},
+    headers?: Headers
+  ): Promise<SignedInAccountData> {
+    const oldCredentials = await this.sessionReauth(
+      sessionToken,
+      options.reauthEmail || email,
+      oldPassword,
+      {
+        keys: true,
+      },
+      headers
+    );
+    const oldCredentialsAuth = await crypto.getCredentials(email, oldPassword);
+    const oldAuthPW = oldCredentialsAuth.authPW;
+
+    const keys = await this.accountKeys(
+      oldCredentials.keyFetchToken!,
+      oldCredentials.unwrapBKey!,
+      headers
+    );
+
+    const newCredentials = await crypto.getCredentials(email, newPassword);
+
+    const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
+    const authPW = newCredentials.authPW;
+
+    let payload: {
+      email: string;
+      oldAuthPW: string;
+      authPW: string;
+      wrapKb: string;
+      authPWVersion2?: string;
+      wrapKbVersion2?: string;
+      clientSalt?: string;
+    } = {
+      email,
+      oldAuthPW,
+      authPW,
+      wrapKb,
+    };
+
+    if (this.keyStretchVersion === 2) {
+      const v2Payload = await this.createPasswordChangeV2Payload(
+        email,
+        newPassword,
+        keys,
+        newCredentials,
+        wrapKb,
+        headers
+      );
+      payload = {
+        ...payload,
+        authPWVersion2: v2Payload.authPWVersion2,
+        wrapKbVersion2: v2Payload.wrapKbVersion2,
+        clientSalt: v2Payload.clientSalt,
+      };
+    }
+
+    try {
+      const accountData = await this.jwtPost(
+        '/mfa/password/change',
+        jwt,
+        payload,
+        headers
+      );
+
+      return accountData;
+    } catch (error: any) {
+      if (
+        error &&
+        error.email &&
+        error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
+        !options.skipCaseError
+      ) {
+        options.skipCaseError = true;
+        options.reauthEmail = email;
+        return await this.passwordChangeWithJWT(
+          jwt,
+          error.email,
+          oldPassword,
+          newPassword,
+          sessionToken,
+          options,
+          headers
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 
   async createPassword(
@@ -1690,6 +1885,17 @@ export default class AuthClient {
     );
   }
 
+  async recoveryEmailDestroyWithJwt(
+    jwt: string,
+    email: string,
+    headers?: Headers
+  ) {
+    return this.jwtPost('/mfa/recovery_email/destroy', jwt, { email }, headers);
+  }
+
+  /**
+   * @deprecated Use recoveryEmailSetPrimaryEmailWithJwt instead
+   */
   async recoveryEmailSetPrimaryEmail(
     sessionToken: hexstring,
     email: string,
@@ -1698,9 +1904,27 @@ export default class AuthClient {
     return this.sessionPost(
       '/recovery_email/set_primary',
       sessionToken,
-      {
-        email,
-      },
+      { email },
+      headers
+    );
+  }
+
+  /**
+   * Sets a secondary email as the primary email for the account.
+   * @param jwt Required scope 'mfa:email'
+   * @param email a secondary email to set as primary
+   * @param headers
+   * @returns Response
+   */
+  async recoveryEmailSetPrimaryEmailWithJwt(
+    jwt: string,
+    email: string,
+    headers?: Headers
+  ) {
+    return this.jwtPost(
+      '/mfa/recovery_email/set_primary',
+      jwt,
+      { email },
       headers
     );
   }
@@ -1740,6 +1964,24 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * @deprecated Use createTotpTokenWithJwt instead
+   *
+   * Create a TOTP secret for the account (session-token variant).
+   *
+   * Requires a verified session token. Returns the QR code URL and shared
+   * secret used to enroll an authenticator app, and optionally a set of
+   * recovery codes.
+   *
+   * Note: Maintained for legacy/inline setup flows. For new integrations,
+   * prefer the MFA JWT variant.
+   *
+   * @param sessionToken - Verified session token for the signed-in user
+   * @param options - Optional request options
+   * @param options.metricsContext - Optional metrics context for telemetry
+   * @param headers - Optional additional request headers
+   * @returns Promise resolving to `{ qrCodeUrl, secret }`
+   */
   async createTotpToken(
     sessionToken: hexstring,
     options: {
@@ -1753,6 +1995,49 @@ export default class AuthClient {
     return this.sessionPost('/totp/create', sessionToken, options, headers);
   }
 
+  /**
+   * Create a new TOTP secret (JWT variant).
+   *
+   * Requires an MFA JWT with scope `mfa:2fa`. Returns the QR code URL,
+   * the shared secret, and optionally recovery codes when requested.
+   *
+   * @param jwt MFA access token including `mfa:2fa` scope
+   * @param options Optional request options
+   * @param options.metricsContext Optional metrics context for telemetry
+   * @param headers Optional extra headers
+   * @returns Promise resolving to `{ qrCodeUrl, secret }`
+   */
+  async createTotpTokenWithJwt(
+    jwt: string,
+    options: {
+      metricsContext?: MetricsContext;
+    } = {},
+    headers?: Headers
+  ): Promise<{
+    qrCodeUrl: string;
+    secret: string;
+  }> {
+    return this.jwtPost('/mfa/totp/create', jwt, options, headers);
+  }
+
+  /**
+   * @deprecated Use verifyTotpSetupCodeWithJwt instead
+   * Verify the authenticator code for the in-progress TOTP setup.
+   *
+   * Validates a 6-digit code generated by the app using the secret returned by
+   * `createTotpToken`. This does not finalize setup; call `completeTotpSetup`
+   * to activate TOTP.
+   *
+   * Note: Maintained for legacy/inline setup flows. For new integrations,
+   * prefer the MFA JWT variant.
+   *
+   * @param sessionToken - Verified session token for the signed-in user
+   * @param code - 6-digit code from the authenticator app
+   * @param options - Optional request options
+   * @param options.metricsContext - Optional metrics context for telemetry
+   * @param headers - Optional additional request headers
+   * @returns Promise resolving to `{ success: boolean }`
+   */
   async verifyTotpSetupCode(
     sessionToken: hexstring,
     code: string,
@@ -1767,6 +2052,49 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Verify a TOTP setup code against the in-progress secret (JWT variant).
+   *
+   * Requires an MFA JWT with scope `mfa:2fa`. On success, marks the setup
+   * as verified in Redis and refreshes TTLs.
+   *
+   * @param jwt MFA access token including `mfa:2fa` scope
+   * @param code The 6-digit authenticator app code
+   * @param options Optional request options
+   * @param options.metricsContext Optional metrics context for telemetry
+   * @param headers Optional extra headers
+   * @returns Promise resolving to `{ success: boolean }`
+   */
+  async verifyTotpSetupCodeWithJwt(
+    jwt: string,
+    code: string,
+    options: { metricsContext?: MetricsContext } = {},
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.jwtPost(
+      '/mfa/totp/setup/verify',
+      jwt,
+      { code, ...options },
+      headers
+    );
+  }
+
+  /**
+   * @deprecated Use completeTotpSetupWithJwt instead
+   * Finalize TOTP setup for the account.
+   *
+   * Marks the verified in-progress secret as the active second factor.
+   *
+   * Note: Maintained for legacy/inline setup flows. For new integrations,
+   * prefer the MFA JWT variant.
+   *
+   * @param sessionToken - Verified session token for the signed-in user
+   * @param options - Optional request options
+   * @param options.service - Optional service name
+   * @param options.metricsContext - Optional metrics context for telemetry
+   * @param headers - Optional additional request headers
+   * @returns Promise resolving to `{ success: boolean }`
+   */
   async completeTotpSetup(
     sessionToken: hexstring,
     options: { service?: string; metricsContext?: MetricsContext } = {},
@@ -1775,6 +2103,31 @@ export default class AuthClient {
     return this.sessionPost(
       '/totp/setup/complete',
       sessionToken,
+      { ...options },
+      headers
+    );
+  }
+
+  /**
+   * Complete TOTP setup after successful code verification (JWT variant).
+   *
+   * Requires an MFA JWT with scope `mfa:2fa`. Validates the verification
+   * flag for the current secret and persists the enabled, verified token.
+   *
+   * @param jwt MFA access token including `mfa:2fa` scope
+   * @param options Optional request options
+   * @param options.metricsContext Optional metrics context for telemetry
+   * @param headers Optional extra headers
+   * @returns Promise resolving to `{ success: boolean }`
+   */
+  async completeTotpSetupWithJwt(
+    jwt: string,
+    options: { metricsContext?: MetricsContext } = {},
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.jwtPost(
+      '/mfa/totp/setup/complete',
+      jwt,
       { ...options },
       headers
     );
@@ -1809,29 +2162,6 @@ export default class AuthClient {
   }
 
   /**
-   * @deprecated Use confirmReplaceTotpTokenWithJwt instead
-   * Confirms TOTP replacement by verifying the code for the in-progress secret.
-   * Requires a verified session token.
-   *
-   * @param sessionToken - required, must be a verified session token
-   * @param code - 6-digit authenticator app code to validate the new secret
-   * @param headers - Optional additional headers for the request
-   * @returns A promise that resolves when the replacement has been accepted
-   */
-  async confirmReplaceTotpToken(
-    sessionToken: hexstring,
-    code: string,
-    headers?: Headers
-  ): Promise<void> {
-    return this.sessionPost(
-      '/totp/replace/confirm',
-      sessionToken,
-      { code },
-      headers
-    );
-  }
-
-  /**
    * Initiates the TOTP replacement flow using an MFA JWT.
    * Requires a JWT with scope `mfa:2fa` and returns data to
    * complete the replace flow (QR code URL and shared secret).
@@ -1855,6 +2185,29 @@ export default class AuthClient {
   }
 
   /**
+   * @deprecated Use confirmReplaceTotpTokenWithJwt instead
+   * Confirms TOTP replacement by verifying the code for the in-progress secret.
+   * Requires a verified session token.
+   *
+   * @param sessionToken - required, must be a verified session token
+   * @param code - 6-digit authenticator app code to validate the new secret
+   * @param headers - Optional additional headers for the request
+   * @returns A promise that resolves when the replacement has been accepted
+   */
+  async confirmReplaceTotpToken(
+    sessionToken: hexstring,
+    code: string,
+    headers?: Headers
+  ): Promise<void> {
+    return this.sessionPost(
+      '/totp/replace/confirm',
+      sessionToken,
+      { code },
+      headers
+    );
+  }
+
+  /**
    * Confirms TOTP replacement by verifying the code for the in-progress secret.
    * Requires a valid MFA JWT scoped to the action (e.g. `mfa:2fa`).
    *
@@ -1871,8 +2224,28 @@ export default class AuthClient {
     return this.jwtPost('/mfa/totp/replace/confirm', jwt, { code }, headers);
   }
 
+  /**
+   * @deprecated Use deleteTotpTokenWithJwt instead
+   *
+   * Disables 2FA Protection on the account.
+   *
+   * @param sessionToken - required, must be a verified session token
+   * @param headers - Optional additional headers for the request
+   * @returns A promise that resolves when the 2FA has been removed
+   */
   async deleteTotpToken(sessionToken: hexstring, headers?: Headers) {
     return this.sessionPost('/totp/destroy', sessionToken, {}, headers);
+  }
+
+  /**
+   * Disables 2FA Protection on the account.
+   *
+   * @param jwt - required, must be a verified session token
+   * @param headers - Optional additional headers for the request
+   * @returns A promise that resolves when the 2FA has been removed
+   */
+  async deleteTotpTokenWithJwt(jwt: string, headers?: Headers) {
+    return this.jwtPost('/mfa/totp/destroy', jwt, {}, headers);
   }
 
   async checkTotpTokenExists(
@@ -1975,7 +2348,14 @@ export default class AuthClient {
     );
   }
 
-  // create recovery codes for initial 2FA setup
+  /**
+   * @deprecated Prefer setRecoveryCodesWithJwt where possible
+   * Set recovery codes for initial 2FA setup
+   * @param sessionToken session token
+   * @param recoveryCodes new codes
+   * @param headers optional headers
+   * @returns
+   */
   async setRecoveryCodes(
     sessionToken: hexstring,
     recoveryCodes: string[],
@@ -1989,6 +2369,21 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Set recovery codes for initial 2FA setup
+   * @param jwt auth token
+   * @param recoveryCodes new codes
+   * @param headers optional headers
+   * @returns
+   */
+  async setRecoveryCodesWithJwt(
+    jwt: string,
+    recoveryCodes: string[],
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.jwtPost('/mfa/recoveryCodes', jwt, { recoveryCodes }, headers);
+  }
+
   // create and update recovery codes without code confirmation
   async replaceRecoveryCodes(
     sessionToken: hexstring,
@@ -1997,7 +2392,9 @@ export default class AuthClient {
     return this.sessionGet('/recoveryCodes', sessionToken, headers);
   }
 
-  // update recovery codes with codes created and confirmed client-side
+  /**
+   * @deprecated Use updateRecoveryCodesWithJwt instead!
+   */
   async updateRecoveryCodes(
     sessionToken: hexstring,
     recoveryCodes: string[],
@@ -2009,6 +2406,21 @@ export default class AuthClient {
       { recoveryCodes },
       headers
     );
+  }
+
+  /**
+   * Update recovery codes with codes created and confirmed client-side
+   * @param jwt auth token
+   * @param recoveryCodes new codes
+   * @param headers optional headers
+   * @returns
+   */
+  async updateRecoveryCodesWithJwt(
+    jwt: hexstring,
+    recoveryCodes: string[],
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.jwtPut('/mfa/recoveryCodes', jwt, { recoveryCodes }, headers);
   }
 
   async getRecoveryCodesExist(
@@ -2047,6 +2459,16 @@ export default class AuthClient {
     );
   }
 
+  /**
+   * Creates an account recovery key that can be used to restore account data in the password is lost.
+   * @param sessionToken
+   * @param recoveryKeyId
+   * @param recoveryData
+   * @param enabled
+   * @param replaceKey
+   * @param headers
+   * @returns
+   */
   async createRecoveryKey(
     sessionToken: hexstring,
     recoveryKeyId: string,
@@ -2058,6 +2480,37 @@ export default class AuthClient {
     return this.sessionPost(
       '/recoveryKey',
       sessionToken,
+      {
+        recoveryKeyId,
+        recoveryData,
+        enabled,
+        replaceKey,
+      },
+      headers
+    );
+  }
+
+  /**
+   * Creates an account recovery key that can be used to restore account data in the password is lost.
+   * @param sessionToken
+   * @param recoveryKeyId
+   * @param recoveryData
+   * @param enabled
+   * @param replaceKey
+   * @param headers
+   * @returns
+   */
+  async createRecoveryKeyWithJwt(
+    jwt: string,
+    recoveryKeyId: string,
+    recoveryData: any,
+    enabled: boolean = true,
+    replaceKey: boolean = false,
+    headers?: Headers
+  ): Promise<{}> {
+    return this.jwtPost(
+      '/mfa/recoveryKey',
+      jwt,
       {
         recoveryKeyId,
         recoveryData,
@@ -2159,6 +2612,9 @@ export default class AuthClient {
     return accountData;
   }
 
+  /**
+   * @deprecated Use deleteRecoveryKeyWithJwt instead
+   */
   async deleteRecoveryKey(sessionToken: hexstring, headers?: Headers) {
     return this.hawkRequest(
       'DELETE',
@@ -2168,6 +2624,16 @@ export default class AuthClient {
       {},
       headers
     );
+  }
+
+  /**
+   * Removes the recovery key from the account
+   * @param jwt The MFA jwt for auth
+   * @param headers
+   * @returns
+   */
+  async deleteRecoveryKeyWithJwt(jwt: string, headers?: Headers) {
+    return this.jwtDelete('/mfa/recoveryKey', jwt, {}, headers);
   }
 
   async recoveryKeyExists(
@@ -2360,7 +2826,7 @@ export default class AuthClient {
   }
 
   /**
-   * Tries to register a recovery phone number
+   * Tries to register a recovery phone number. Important, this must be used for inline_recovery flow!
    *
    * @param sessionToken The user's current session token
    * @param phoneNumber The phone number to register. Should be E.164 format
@@ -2374,6 +2840,26 @@ export default class AuthClient {
     return this.sessionPost(
       '/recovery_phone/create',
       sessionToken,
+      { phoneNumber },
+      headers
+    );
+  }
+
+  /**
+   * Tries to register a recovery phone number
+   *
+   * @param jwt The users MFA jwt
+   * @param phoneNumber The phone number to register. Should be E.164 format
+   * @param headers
+   */
+  async recoveryPhoneCreateWithJwt(
+    jwt: string,
+    phoneNumber: string,
+    headers?: Headers
+  ): Promise<{ nationalFormat?: string; success: boolean }> {
+    return this.jwtPost(
+      '/mfa/recovery_phone/create',
+      jwt,
       { phoneNumber },
       headers
     );
@@ -2394,17 +2880,16 @@ export default class AuthClient {
   }
 
   /**
+   * @deprecated Prefer recoveryPhoneConfirmSetupWithJwt where possible
    * Confirms the code sent to the recovery phone when recoveryPhoneCreate was called.
    *
    * @param sessionToken The user's current session token
    * @param code The otp code sent to the user's phone
-   * @param isInitial2faSetup Whether recovery phone is added during initial 2FA setup or separately
    * @param headers
    */
   async recoveryPhoneConfirmSetup(
     sessionToken: string,
     code: string,
-    isInitial2faSetup: boolean,
     headers?: Headers
   ): Promise<{ nationalFormat?: string }> {
     return this.sessionPost(
@@ -2412,13 +2897,28 @@ export default class AuthClient {
       sessionToken,
       {
         code,
-        isInitial2faSetup,
       },
       headers
     );
   }
 
   /**
+   * Confirms the code sent to the recovery phone when recoveryPhoneCreate was called.
+   * @param jwt auth token
+   * @param code the otp code sent to the user's phone
+   * @param headers optional headers
+   * @returns
+   */
+  async recoveryPhoneConfirmSetupWithJwt(
+    jwt: string,
+    code: string,
+    headers?: Headers
+  ): Promise<{ success: boolean }> {
+    return this.jwtPost('/mfa/recovery_phone/confirm', jwt, { code }, headers);
+  }
+
+  /**
+   * @deprecated Prefer recoveryPhoneChangeWithJwt where possible
    * Confirms the code sent to the new recovery phone and replaces the phone.
    *
    * @param sessionToken The user's current session token
@@ -2438,6 +2938,22 @@ export default class AuthClient {
       },
       headers
     );
+  }
+
+  /**
+   * Confirms the code sent to the new recovery phone and replaces the phone.
+   *
+   * @param jwt auth token
+   * @param code The otp code sent to the user's phone
+   * @param headers optional headers
+   * @returns
+   */
+  async recoveryPhoneChangeWithJwt(
+    jwt: string,
+    code: string,
+    headers?: Headers
+  ): Promise<{ nationalFormat?: string }> {
+    return this.jwtPost('/mfa/recovery_phone/change', jwt, { code }, headers);
   }
 
   /**
@@ -2523,13 +3039,24 @@ export default class AuthClient {
   }
 
   /**
-   * Removes a recovery phone from the user's account
+   * @deprecated Use recoveryPhoneDeleteWithJwt instead
    *
    * @param sessionToken The user's current session token
    * @param headers
    */
   async recoveryPhoneDelete(sessionToken: string, headers?: Headers) {
     return this.sessionDelete('/recovery_phone', sessionToken, {}, headers);
+  }
+
+  /**
+   * Disables 2FA Protection on the account.
+   *
+   * @param jwt - required, must be a verified session token
+   * @param headers - Optional additional headers for the request
+   * @returns A promise that resolves when the 2FA has been removed
+   */
+  async recoveryPhoneDeleteWithJwt(jwt: string, headers?: Headers) {
+    return this.jwtDelete('/mfa/recovery_phone', jwt, {}, headers);
   }
 
   /**

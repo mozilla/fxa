@@ -9,6 +9,7 @@ export enum BannerVariant {
   Info = 'info',
   SignedIn = 'signed_in',
   Success = 'success',
+  Warning = 'warning',
 }
 
 export const OFFERING_LINKS = {

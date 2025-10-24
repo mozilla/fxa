@@ -2175,6 +2175,7 @@ describe('StripeWebhookHandler', () => {
         {
           acceptLanguage: mockAccount.locale,
           ...mockInvoiceDetails,
+          email: mockAccount.primaryEmail
         }
       );
     });
@@ -2212,6 +2213,7 @@ describe('StripeWebhookHandler', () => {
           {
             acceptLanguage: mockAccount.locale,
             ...mockInvoiceDetails,
+            email: mockAccount.primaryEmail
           }
         );
         if (expectedMethodName === 'sendSubscriptionFirstInvoiceEmail') {
@@ -2223,6 +2225,7 @@ describe('StripeWebhookHandler', () => {
               {
                 acceptLanguage: mockAccount.locale,
                 ...mockInvoiceDetails,
+                email: mockAccount.primaryEmail
               }
             );
           } else {
@@ -2411,6 +2414,7 @@ describe('StripeWebhookHandler', () => {
             {
               acceptLanguage: mockAccount.locale,
               ...mockInvoiceDetails,
+              email: mockAccount.primaryEmail
             }
           );
         } else {
@@ -2451,6 +2455,7 @@ describe('StripeWebhookHandler', () => {
               ...mockInvoiceDetails,
               showOutstandingBalance: options.hasOutstandingBalance,
               cancelAtEnd: subscription.cancel_at_period_end,
+              email: mockAccount.primaryEmail
             }
           );
         } else {

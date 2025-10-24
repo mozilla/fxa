@@ -5,7 +5,7 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import PageRecoveryPhoneRemove from '.';
+import { PageRecoveryPhoneRemove } from '.';
 import { LocationProvider } from '@reach/router';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';

@@ -658,6 +658,10 @@ module.exports = (config) => {
     return this.doRequest('POST', `${this.baseURL}/get_random_bytes`);
   };
 
+  ClientApi.prototype.changePasswordJWT = function (jwt, options = {}) {
+    return this.doRequestWithBearerToken('POST', `${this.baseURL}/mfa/password/change`, jwt, options);
+  }
+
   ClientApi.prototype.passwordChangeStart = async function (
     email,
     oldAuthPW,

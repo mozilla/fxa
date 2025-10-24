@@ -544,6 +544,12 @@ describe('StripeFirestore', () => {
     const invoiceId = 'in_123';
     const subscriptionId = 'sub_123';
     const customerId = 'cus_123';
+    const mockInvoice = {
+      id: invoiceId,
+      customer: customerId,
+      subscription: subscriptionId,
+    };
+    const eventTime = 123;
 
     beforeEach(() => {
       tx = {
@@ -572,22 +578,7 @@ describe('StripeFirestore', () => {
     });
 
     it('fetches and inserts an invoice for an existing customer and subscription', async () => {
-      // First call: pre-invoice to find customer + subscription
-      // Second call: fresh invoice inside the transaction
-      stripe.invoices.retrieve
-        .onFirstCall()
-        .resolves({
-          id: invoiceId,
-          customer: customerId,
-          subscription: subscriptionId,
-        })
-        .onSecondCall()
-        .resolves({
-          id: invoiceId,
-          customer: customerId,
-          subscription: subscriptionId,
-          lines: { data: [] },
-        });
+      stripe.invoices.retrieve.resolves(mockInvoice);
 
       const customerSnap = {
         empty: false,
@@ -600,30 +591,28 @@ describe('StripeFirestore', () => {
       stripeFirestore.customerCollectionDbRef.where.returns({
         get: sinon.stub().resolves(customerSnap),
       });
+      tx.get.resolves({
+        data: () => mockInvoice
+      });
 
-      await stripeFirestore.fetchAndInsertInvoice(invoiceId);
+      await stripeFirestore.fetchAndInsertInvoice(invoiceId, eventTime);
 
-      assert.calledTwice(stripe.invoices.retrieve);
+      assert.calledOnce(stripe.invoices.retrieve);
       assert.calledWithExactly(stripe.invoices.retrieve.firstCall, invoiceId);
-      assert.calledWithExactly(stripe.invoices.retrieve.secondCall, invoiceId);
       assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
       assert.callCount(tx.get, 1);
       assert.callCount(tx.set, 1);
     });
 
     it('errors on customer not found', async () => {
-      stripe.invoices.retrieve.resolves({
-        id: invoiceId,
-        customer: customerId,
-        subscription: subscriptionId,
-      });
+      stripe.invoices.retrieve.resolves(mockInvoice);
 
       stripeFirestore.customerCollectionDbRef.where.returns({
         get: sinon.stub().resolves({ empty: true }),
       });
 
       try {
-        await stripeFirestore.fetchAndInsertInvoice(invoiceId);
+        await stripeFirestore.fetchAndInsertInvoice(invoiceId, eventTime);
         assert.fail('should have thrown');
       } catch (err) {
         assert.equal(err.name, FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND);
@@ -635,37 +624,31 @@ describe('StripeFirestore', () => {
     });
 
     it('ignores customer not found when ignoreErrors is true', async () => {
-      const invoicePre = {
-        id: invoiceId,
-        customer: customerId,
-        subscription: subscriptionId,
-      };
-      stripe.invoices.retrieve.resolves(invoicePre);
+      stripe.invoices.retrieve.resolves(mockInvoice);
 
       stripeFirestore.customerCollectionDbRef.where.returns({
         get: sinon.stub().resolves({ empty: true }),
       });
 
-      const result = await stripeFirestore.fetchAndInsertInvoice(invoiceId, true);
+      const result = await stripeFirestore.fetchAndInsertInvoice(invoiceId, eventTime, true);
 
-      assert.deepEqual(result, invoicePre);
+      assert.deepEqual(result, mockInvoice);
       assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
       assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
       assert.equal(tx.get.callCount, 0);
       assert.equal(tx.set.callCount, 0);
     });
 
-    it('returns invoice as-is when it has no string subscription', async () => {
-      const invoicePre = {
-        id: invoiceId,
-        customer: customerId,
-        subscription: null,
-      };
-      stripe.invoices.retrieve.resolves(invoicePre);
+    it('returns invoice as-is when it has no subscription', async () => {
+      const mockInvoiceWithoutSubscription = {
+        ...mockInvoice,
+        subscription: null
+      }
+      stripe.invoices.retrieve.resolves(mockInvoiceWithoutSubscription);
 
-      const result = await stripeFirestore.fetchAndInsertInvoice(invoiceId);
+      const result = await stripeFirestore.fetchAndInsertInvoice(invoiceId, eventTime);
 
-      assert.deepEqual(result, invoicePre);
+      assert.deepEqual(result, mockInvoiceWithoutSubscription);
       assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
       assert.equal(stripeFirestore.customerCollectionDbRef.where.callCount, 0);
       assert.equal(tx.get.callCount, 0);
@@ -673,19 +656,7 @@ describe('StripeFirestore', () => {
     });
 
     it('errors on missing uid', async () => {
-      stripe.invoices.retrieve
-        .onFirstCall()
-        .resolves({
-          id: invoiceId,
-          customer: customerId,
-          subscription: subscriptionId,
-        })
-        .onSecondCall()
-        .resolves({
-          id: invoiceId,
-          customer: customerId,
-          subscription: subscriptionId,
-        });
+      stripe.invoices.retrieve.resolves(mockInvoice);
 
       const customerSnap = {
         empty: false,
@@ -700,7 +671,7 @@ describe('StripeFirestore', () => {
       });
 
       try {
-        await stripeFirestore.fetchAndInsertInvoice(invoiceId);
+        await stripeFirestore.fetchAndInsertInvoice(invoiceId, eventTime);
         assert.fail('should have thrown');
       } catch (err) {
         assert.equal(err.name, FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID);
@@ -712,12 +683,7 @@ describe('StripeFirestore', () => {
     });
 
     it('allows missing uid when ignoreErrors is true', async () => {
-      const invoicePre = {
-        id: invoiceId,
-        customer: customerId,
-        subscription: subscriptionId,
-      };
-      stripe.invoices.retrieve.resolves(invoicePre);
+      stripe.invoices.retrieve.resolves(mockInvoice);
 
       const customerSnap = {
         empty: false,
@@ -731,9 +697,9 @@ describe('StripeFirestore', () => {
         get: sinon.stub().resolves(customerSnap),
       });
 
-      const result = await stripeFirestore.fetchAndInsertInvoice(invoiceId, true);
+      const result = await stripeFirestore.fetchAndInsertInvoice(invoiceId, eventTime, true);
 
-      assert.deepEqual(result, invoicePre);
+      assert.deepEqual(result, mockInvoice);
       assert.calledOnceWithExactly(stripe.invoices.retrieve, invoiceId);
       assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
       assert.equal(tx.get.callCount, 0);
@@ -797,7 +763,20 @@ describe('StripeFirestore', () => {
   describe('fetchAndInsertPaymentMethod', () => {
     let tx;
     const paymentMethodId = 'pm_123';
-    const customerId = 'cus_123';
+    const mockPaymentMethod = {
+      customer: "cus_asdf",
+      card: {
+        last4: '4321',
+        brand: 'Mastercard',
+        country: 'US',
+      },
+      billing_details: {
+        address: {
+          postal_code: '99999',
+        },
+      },
+    };
+    const eventTime = 123;
 
     beforeEach(() => {
       tx = {
@@ -822,16 +801,7 @@ describe('StripeFirestore', () => {
     });
 
     it('fetches and inserts an attached payment method when customer exists and has uid', async () => {
-      // First call: pre-fetch for customer
-      // Second call: fresh fetch inside transaction
-      const pre = { id: paymentMethodId, customer: customerId };
-      const full = { ...pre, card: { brand: 'visa' } };
-
-      stripe.paymentMethods.retrieve
-        .onFirstCall()
-        .resolves(pre)
-        .onSecondCall()
-        .resolves(full);
+      stripe.paymentMethods.retrieve.resolves(mockPaymentMethod);
 
       const customerSnap = {
         empty: false,
@@ -844,19 +814,19 @@ describe('StripeFirestore', () => {
       stripeFirestore.customerCollectionDbRef.where.returns({
         get: sinon.stub().resolves(customerSnap),
       });
+      tx.get.resolves({
+        data: () => mockPaymentMethod
+      });
 
       const result = await stripeFirestore.fetchAndInsertPaymentMethod(
-        paymentMethodId
+        paymentMethodId,
+        eventTime,
       );
 
-      assert.deepEqual(result, full);
-      assert.calledTwice(stripe.paymentMethods.retrieve);
+      assert.deepEqual(result, mockPaymentMethod);
+      assert.calledOnce(stripe.paymentMethods.retrieve);
       assert.calledWithExactly(
         stripe.paymentMethods.retrieve.firstCall,
-        paymentMethodId
-      );
-      assert.calledWithExactly(
-        stripe.paymentMethods.retrieve.secondCall,
         paymentMethodId
       );
       assert.calledOnce(stripeFirestore.customerCollectionDbRef.where);
@@ -864,15 +834,19 @@ describe('StripeFirestore', () => {
       assert.callCount(tx.set, 1);
     });
 
-    it('returns pre-fetched payment method when it is not attached to a customer', async () => {
-      const pre = { id: paymentMethodId, customer: null };
-      stripe.paymentMethods.retrieve.resolves(pre);
+    it('returns payment method when it is not attached to a customer', async () => {
+      const mockPaymentMethodWithoutCustomer = {
+        ...mockPaymentMethod,
+        customer: null
+      }
+      stripe.paymentMethods.retrieve.resolves(mockPaymentMethodWithoutCustomer);
 
       const result = await stripeFirestore.fetchAndInsertPaymentMethod(
-        paymentMethodId
+        paymentMethodId,
+        eventTime,
       );
 
-      assert.deepEqual(result, pre);
+      assert.deepEqual(result, mockPaymentMethodWithoutCustomer);
       assert.calledOnceWithExactly(
         stripe.paymentMethods.retrieve,
         paymentMethodId
@@ -883,15 +857,14 @@ describe('StripeFirestore', () => {
     });
 
     it('errors on customer not found', async () => {
-      const pre = { id: paymentMethodId, customer: customerId };
-      stripe.paymentMethods.retrieve.resolves(pre);
+      stripe.paymentMethods.retrieve.resolves(mockPaymentMethod);
 
       stripeFirestore.customerCollectionDbRef.where.returns({
         get: sinon.stub().resolves({ empty: true }),
       });
 
       try {
-        await stripeFirestore.fetchAndInsertPaymentMethod(paymentMethodId);
+        await stripeFirestore.fetchAndInsertPaymentMethod(paymentMethodId, eventTime);
         assert.fail('should have thrown');
       } catch (err) {
         assert.equal(err.name, FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND);
@@ -906,8 +879,7 @@ describe('StripeFirestore', () => {
     });
 
     it('ignores customer not found when ignoreErrors is true', async () => {
-      const pre = { id: paymentMethodId, customer: customerId };
-      stripe.paymentMethods.retrieve.resolves(pre);
+      stripe.paymentMethods.retrieve.resolves(mockPaymentMethod);
 
       stripeFirestore.customerCollectionDbRef.where.returns({
         get: sinon.stub().resolves({ empty: true }),
@@ -915,10 +887,11 @@ describe('StripeFirestore', () => {
 
       const result = await stripeFirestore.fetchAndInsertPaymentMethod(
         paymentMethodId,
+        eventTime,
         true
       );
 
-      assert.deepEqual(result, pre);
+      assert.deepEqual(result, mockPaymentMethod);
       assert.calledOnceWithExactly(
         stripe.paymentMethods.retrieve,
         paymentMethodId
@@ -929,8 +902,7 @@ describe('StripeFirestore', () => {
     });
 
     it('errors on missing uid', async () => {
-      const pre = { id: paymentMethodId, customer: customerId };
-      stripe.paymentMethods.retrieve.resolves(pre);
+      stripe.paymentMethods.retrieve.resolves(mockPaymentMethod);
 
       const customerSnap = {
         empty: false,
@@ -945,7 +917,7 @@ describe('StripeFirestore', () => {
       });
 
       try {
-        await stripeFirestore.fetchAndInsertPaymentMethod(paymentMethodId);
+        await stripeFirestore.fetchAndInsertPaymentMethod(paymentMethodId, eventTime);
         assert.fail('should have thrown');
       } catch (err) {
         assert.equal(err.name, FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID);
@@ -960,8 +932,7 @@ describe('StripeFirestore', () => {
     });
 
     it('allows missing uid when ignoreErrors is true', async () => {
-      const pre = { id: paymentMethodId, customer: customerId };
-      stripe.paymentMethods.retrieve.resolves(pre);
+      stripe.paymentMethods.retrieve.resolves(mockPaymentMethod);
 
       const customerSnap = {
         empty: false,
@@ -977,10 +948,11 @@ describe('StripeFirestore', () => {
 
       const result = await stripeFirestore.fetchAndInsertPaymentMethod(
         paymentMethodId,
+        eventTime,
         true
       );
 
-      assert.deepEqual(result, pre);
+      assert.deepEqual(result, mockPaymentMethod);
       assert.calledOnceWithExactly(
         stripe.paymentMethods.retrieve,
         paymentMethodId

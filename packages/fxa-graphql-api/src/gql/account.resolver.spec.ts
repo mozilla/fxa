@@ -450,15 +450,17 @@ describe('#integration - AccountResolver', () => {
 
     describe('updatePrimaryEmail', () => {
       it('succeeds', async () => {
-        authClient.recoveryEmailSetPrimaryEmail = jest
+        authClient.recoveryEmailSetPrimaryEmailWithJwt = jest
           .fn()
           .mockResolvedValue(true);
-        const result = await resolver.updatePrimaryEmail('token', headers, {
+        const result = await resolver.updatePrimaryEmail(headers, {
           jwt: 'jwtToken',
           clientMutationId: 'testid',
           email: 'test@example.com',
         });
-        expect(authClient.recoveryEmailSetPrimaryEmail).toBeCalledTimes(1);
+        expect(authClient.recoveryEmailSetPrimaryEmailWithJwt).toBeCalledTimes(
+          1
+        );
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
         });

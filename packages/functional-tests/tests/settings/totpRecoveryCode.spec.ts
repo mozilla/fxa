@@ -34,7 +34,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(credentials, settings, totp);
       await settings.signOut();
       await signinWithRecoveryCode(
         credentials,
@@ -68,7 +68,7 @@ test.describe('severity-1 #smoke', () => {
         testAccountTracker
       );
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(credentials, settings, totp);
       await settings.signOut();
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
@@ -107,7 +107,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
+      const { recoveryCodes } = await addTotp(credentials, settings, totp);
       await settings.totp.getNewBackupCodesButton.click();
 
       const newCodes = await totp.getRecoveryCodes();
@@ -157,22 +157,34 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await settings.goto();
-      const { recoveryCodes } = await addTotp(settings, totp);
-      await settings.signOut();
+
+      const { recoveryCodes } = await addTotp(credentials, settings, totp);
+      const authClient = target.createAuthClient(2);
 
       for (let i = 0; i < recoveryCodes.length - 3; i++) {
-        await signinWithRecoveryCode(
-          credentials,
-          recoveryCodes[i],
-          page,
-          signin,
-          signinRecoveryCode,
-          signinTotpCode
-        );
-        await expect(settings.settingsHeading).toBeVisible();
-        await settings.signOut();
+        // We directly use the API here. Different environments will
+        // use a different number of recovery codes. In Stage & Prod, this results
+        // in having to consume through ~6 codes before the final code to trigger
+        // the email. This can be very slow going through the UI, and since
+        // we are only interested in the fact that the email is sent and has a valid link,
+        // this lets us get there faster.
+        try {
+          await authClient.consumeRecoveryCode(
+            credentials.sessionToken,
+            recoveryCodes[i]
+          );
+        } catch (error) {
+          // capture any errors so they're available in the trace.
+          // eslint-disable-next-line no-console
+          console.error(
+            `Error consuming recovery code ${recoveryCodes[i]}:`,
+            error
+          );
+          break;
+        }
       }
 
+      await settings.signOut();
       await signinWithRecoveryCode(
         credentials,
         recoveryCodes[recoveryCodes.length - 1],
@@ -187,6 +199,7 @@ test.describe('severity-1 #smoke', () => {
         credentials.email
       );
       await page.goto(link);
+      await settings.confirmMfaGuard(credentials.email);
       const newCodes = await totp.getRecoveryCodes();
       expect(newCodes.length).toEqual(recoveryCodes.length);
 
@@ -219,6 +232,7 @@ async function signInAccount(
 }
 
 async function addTotp(
+  credentials: Credentials,
   settings: SettingsPage,
   totp: TotpPage
 ): Promise<TotpCredentials> {
@@ -226,11 +240,12 @@ async function addTotp(
   await expect(settings.totp.status).toHaveText('Disabled');
 
   await settings.totp.addButton.click();
+  await settings.confirmMfaGuard(credentials.email);
   const totpCredentials =
     await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
   await expect(settings.settingsHeading).toBeVisible();
-  await expect(settings.alertBar).toHaveText(
+  await expect(settings.alertBar).toContainText(
     'Two-step authentication has been enabled'
   );
   await expect(settings.totp.status).toHaveText('Enabled');

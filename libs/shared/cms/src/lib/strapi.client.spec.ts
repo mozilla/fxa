@@ -61,7 +61,6 @@ jest.useFakeTimers();
 
 describe('StrapiClient', () => {
   let strapiClient: StrapiClient;
-  const onCallback = jest.fn();
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -73,11 +72,6 @@ describe('StrapiClient', () => {
     }).compile();
 
     strapiClient = module.get(StrapiClient);
-    strapiClient.on('response', onCallback);
-  });
-
-  afterEach(() => {
-    onCallback.mockClear();
   });
 
   describe('query', () => {
@@ -122,14 +116,6 @@ describe('StrapiClient', () => {
       await expect(() =>
         strapiClient.query(offeringQuery, queryArgs)
       ).rejects.toThrow(new StrapiQueryError(offeringQuery, queryArgs, error));
-
-      expect(onCallback).toHaveBeenCalledWith(
-        expect.objectContaining({
-          method: 'query',
-          cache: false,
-          error: expect.anything(),
-        })
-      );
     });
   });
 

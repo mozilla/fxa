@@ -66,10 +66,18 @@ describe('mfa', () => {
   }
 
   async function runAuthStrategyTest(token) {
-    const { authenticate } = strategy(config, mockGetCredentialsFunc)();
+    const { authenticate } = strategy(
+      config,
+      mockGetCredentialsFunc,
+      db,
+      statsd
+    )();
     const req = {
       headers: {
         authorization: 'Bearer ' + token,
+      },
+      route: {
+        path: '/v1/test',
       },
     };
     const h = {
@@ -91,6 +99,7 @@ describe('mfa', () => {
     db = mocks.mockDB({
       uid: UID,
       email: TEST_EMAIL,
+      emailVerified: true,
     });
     // TODO: Add and check glean events
     // glean = mocks.mockGlean();
@@ -101,6 +110,7 @@ describe('mfa', () => {
       id: SESSION_TOKEN_ID,
       uid: UID,
       uaBrowser: UA_BROWSER,
+      authenticatorAssuranceLevel: 2,
     });
 
     Container.set(OtpUtils, otpUtils);
@@ -169,6 +179,22 @@ describe('mfa', () => {
     // session that this token was issued from.
     assert.equal(authResult.credentials.id, SESSION_TOKEN_ID);
     assert.equal(authResult.credentials.uaBrowser, UA_BROWSER);
+
+    // Make sure customs was invoked
+    assert.calledWith(
+      customs.checkAuthenticated,
+      sinon.match.any,
+      UID,
+      TEST_EMAIL,
+      'mfaOtpCodeRequestForTest'
+    );
+    assert.calledWith(
+      customs.checkAuthenticated,
+      sinon.match.any,
+      UID,
+      TEST_EMAIL,
+      'mfaOtpCodeVerifyForTest'
+    );
   });
 
   it('will not allow an invalid token', async () => {

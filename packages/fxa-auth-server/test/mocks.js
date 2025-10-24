@@ -670,6 +670,9 @@ function mockDB(data, errors) {
     verifiedLoginSecurityEvents: sinon.spy(() => {
       return Promise.resolve([]);
     }),
+    verifiedLoginSecurityEventsByUid: sinon.spy(() => {
+      return Promise.resolve([]);
+    }),
     sessionToken: sinon.spy(() => {
       const res = {
         id: data.sessionTokenId || 'fake session token id',
@@ -722,6 +725,12 @@ function mockDB(data, errors) {
         uid: data.uid,
         verifierSetAt: Date.now(),
         email: data.email,
+      });
+    }),
+    totpToken: sinon.spy((uid) => {
+      assert.ok(typeof uid === 'string');
+      return Promise.resolve({
+        enabled: false,
       });
     }),
   });
@@ -1084,6 +1093,30 @@ function mockPriceManager() {
 function mockProductConfigurationManager() {
   const productConfigurationManager = {
     getIapOfferings: sinon.stub(),
+    getPurchaseWithDetailsOfferingContentByPlanIds: sinon.spy(async () => {
+      return {
+        transformedPurchaseWithCommonContentForPlanId: sinon.spy(() => {
+          return {
+            offering: {
+              commonContent: {
+                privacyNoticeDownloadUrl:
+                  'https://payments-next.example.com/privacy',
+                termsOfServiceDownloadUrl:
+                  'https://payments-next.example.com/tos',
+                localizations: [
+                  {
+                    privacyNoticeDownloadUrl:
+                      'https://payments-next.example.com/privacy',
+                    termsOfServiceDownloadUrl:
+                      'https://payments-next.example.com/tos',
+                  },
+                ],
+              },
+            },
+          };
+        }),
+      };
+    }),
   };
   Container.set(ProductConfigurationManager, productConfigurationManager);
   return productConfigurationManager;

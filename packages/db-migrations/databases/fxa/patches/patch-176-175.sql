@@ -1,0 +1,11 @@
+-- SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+--
+-- -- Remove only the rows this migration inserted.
+-- DELETE FROM securityEventNames WHERE name = 'account.password_upgrade_success';
+-- DELETE FROM securityEventNames WHERE name = 'account.password_upgraded';
+-- DELETE FROM securityEventNames WHERE name = 'account.recovery_phone_setup_failed';
+-- DELETE FROM securityEventNames WHERE name = 'account.mfa_send_otp_code';
+-- DELETE FROM securityEventNames WHERE name = 'account.mfa_verify_otp_code_success';
+-- DELETE FROM securityEventNames WHERE name = 'account.mfa_verify_otp_code_failed';
+--
+-- UPDATE dbMetadata SET value = '175' WHERE name = 'schema-patch-level';

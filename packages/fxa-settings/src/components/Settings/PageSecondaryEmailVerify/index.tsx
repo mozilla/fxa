@@ -16,6 +16,8 @@ import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { getErrorFtlId } from '../../../lib/error-utils';
 import { MfaGuard } from '../MfaGuard';
 import { useErrorHandler } from 'react-error-boundary';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { MfaReason } from '../../../lib/types';
 
 type FormData = {
   verificationCode: string;
@@ -67,7 +69,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         logViewEvent('verify-secondary-email.verification', 'success');
         alertSuccessAndGoHome(email);
       } catch (e) {
-        if (e && e.code === 401 && e.errno === 110) {
+        if (isInvalidJwtError(e)) {
           // JWT invalid/expired
           errorHandler(e);
           return;
@@ -174,9 +176,11 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   );
 };
 
-export const MfaGuardPageSecondaryEmailVerify = ( { location }: RouteComponentProps) => {
+export const MfaGuardPageSecondaryEmailVerify = ({
+  location,
+}: RouteComponentProps) => {
   return (
-    <MfaGuard requiredScope="email">
+    <MfaGuard requiredScope="email" reason={MfaReason.verifySecondaryEmail}>
       <PageSecondaryEmailVerify location={location} />
     </MfaGuard>
   );

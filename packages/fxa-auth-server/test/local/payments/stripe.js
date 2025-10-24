@@ -937,8 +937,8 @@ describe('#integration - StripeHelper', () => {
       stripeFirestore.insertCustomerRecordWithBackfill = sandbox
         .stub()
         .resolves({});
-      stripeFirestore.fetchAndInsertPaymentMethod = sandbox.stub().resolves({});
-      stripeFirestore.fetchAndInsertInvoice = sandbox.stub().resolves({});
+      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
+      stripeFirestore.insertInvoiceRecord = sandbox.stub().resolves({});
       const actual = await stripeHelper.retryInvoiceWithPaymentId(
         'customerId',
         'invoiceId',
@@ -7071,7 +7071,8 @@ describe('#integration - StripeHelper', () => {
       assert.isTrue(result);
       sinon.assert.calledOnceWithExactly(
         stripeHelper.stripeFirestore.fetchAndInsertInvoice,
-        eventInvoiceCreated.data.object.id
+        eventInvoiceCreated.data.object.id,
+        eventInvoiceCreated.created
       );
     });
 
@@ -7102,11 +7103,13 @@ describe('#integration - StripeHelper', () => {
       );
       sinon.assert.calledWithExactly(
         stripeHelper.stripeFirestore.fetchAndInsertInvoice.getCall(0),
-        eventInvoiceCreated.data.object.id
+        eventInvoiceCreated.data.object.id,
+        eventInvoiceCreated.created
       );
       sinon.assert.calledWithExactly(
         stripeHelper.stripeFirestore.fetchAndInsertInvoice.getCall(1),
-        eventInvoiceCreated.data.object.id
+        eventInvoiceCreated.data.object.id,
+        eventInvoiceCreated.created
       );
       sinon.assert.calledOnceWithExactly(
         stripeFirestore.fetchAndInsertCustomer,
@@ -7194,7 +7197,8 @@ describe('#integration - StripeHelper', () => {
         await stripeHelper.processWebhookEventToFirestore(event);
         sinon.assert.calledOnceWithExactly(
           stripeHelper.stripeFirestore.fetchAndInsertPaymentMethod,
-          event.data.object.id
+          event.data.object.id,
+          event.created
         );
       });
 
@@ -7235,7 +7239,8 @@ describe('#integration - StripeHelper', () => {
       await stripeHelper.processWebhookEventToFirestore(event);
       sinon.assert.calledOnceWithExactly(
         stripeFirestore.fetchAndInsertPaymentMethod,
-        event.data.object.id
+        event.data.object.id,
+        event.created
       );
     });
 
@@ -7253,7 +7258,8 @@ describe('#integration - StripeHelper', () => {
       await stripeHelper.processWebhookEventToFirestore(event);
       sinon.assert.calledOnceWithExactly(
         stripeFirestore.fetchAndInsertPaymentMethod,
-        event.data.object.id
+        event.data.object.id,
+        event.created
       );
     });
 

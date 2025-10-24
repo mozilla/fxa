@@ -156,6 +156,36 @@ const RECOVERY_EMAIL_DESTROY_POST = {
   },
 };
 
+const MFA_RECOVERY_EMAIL_DESTROY_POST = {
+  ...TAGS_EMAILS,
+  description: '/mfa/recovery_email/destroy',
+  notes: [
+    dedent`
+      🔒 Authenticated with session MFA JWT (scope: mfa:email)
+
+      Delete an email address associated with the logged-in user.
+    `,
+  ],
+  plugins: {
+    'hapi-swagger': {
+      responses: {
+        400: {
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 138\` - Unverified session
+          `,
+        },
+        401: {
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 110\` - Invalid authentication token in request signature
+          `,
+        },
+      },
+    },
+  },
+};
+
 const RECOVERY_EMAIL_SET_PRIMARY_POST = {
   ...TAGS_EMAILS,
   description: '/recovery_email/set_primary',
@@ -175,6 +205,38 @@ const RECOVERY_EMAIL_SET_PRIMARY_POST = {
             - \`errno: 138\` - Unverified session
             - \`errno: 147\` - Can not change primary email to an unverified email
             - \`errno: 148\` - Can not change primary email to an email that does not belong to this account
+          `,
+        },
+      },
+    },
+  },
+};
+
+const MFA_RECOVERY_EMAIL_SET_PRIMARY_POST = {
+  ...TAGS_EMAILS,
+  description: '/mfa/recovery_email/set_primary',
+  notes: [
+    dedent`
+      🔒 Authenticated with session MFA JWT (scope: mfa:email)
+
+      This endpoint changes a user's primary email address. This email address must belong to the user and be verified.
+    `,
+  ],
+  plugins: {
+    'hapi-swagger': {
+      responses: {
+        400: {
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 138\` - Unverified session
+            - \`errno: 147\` - Can not change primary email to an unverified email
+            - \`errno: 148\` - Can not change primary email to an email that does not belong to this account
+          `,
+        },
+        401: {
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 110\` - Invalid authentication token in request signature
           `,
         },
       },
@@ -235,11 +297,13 @@ const RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST = {
 const API_DOCS = {
   EMAILS_REMINDERS_CAD_POST,
   RECOVERY_EMAIL_DESTROY_POST,
+  MFA_RECOVERY_EMAIL_DESTROY_POST,
   RECOVERY_EMAIL_POST,
   RECOVERY_EMAIL_RESEND_CODE_POST,
   RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST,
   RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST,
   RECOVERY_EMAIL_SET_PRIMARY_POST,
+  MFA_RECOVERY_EMAIL_SET_PRIMARY_POST,
   RECOVERY_EMAIL_STATUS_GET,
   RECOVERY_EMAIL_VERIFY_CODE_POST,
   RECOVERY_EMAILS_GET,

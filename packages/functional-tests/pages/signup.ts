@@ -51,10 +51,6 @@ export class SignupPage extends BaseLayout {
     return this.page.getByRole('button', { name: 'Create account' });
   }
 
-  get cannotCreateAccountHeading() {
-    return this.page.getByRole('heading', { name: 'Cannot create account' });
-  }
-
   get changeEmailLink() {
     return this.page.getByRole('link', { name: 'Change email' });
   }

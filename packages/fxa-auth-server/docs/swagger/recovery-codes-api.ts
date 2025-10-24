@@ -33,12 +33,36 @@ const RECOVERY_CODES_POST = {
   ],
 };
 
+const MFA_RECOVERY_CODES_POST = {
+  ...TAGS_RECOVERY_CODE,
+  description: '/mfa/recoveryCodes',
+  notes: [
+    dedent`
+      🔒 Authenticated with MFA jwt (scope: mfa:2fa)
+
+      Set backup authentication codes (intended for initial set up)
+    `,
+  ],
+};
+
 const RECOVERY_CODES_PUT = {
   ...TAGS_RECOVERY_CODE,
   description: '/recoveryCodes',
   notes: [
     dedent`
       🔒 Authenticated with session token
+
+      Return new backup authentication codes while removing old ones.
+    `,
+  ],
+};
+
+const MFA_RECOVERY_CODES_PUT = {
+  ...TAGS_RECOVERY_CODE,
+  description: '/mfa/recoveryCodes',
+  notes: [
+    dedent`
+      🔒 Authenticated with MFA jwt (scope: mfa:2fa)
 
       Return new backup authentication codes while removing old ones.
     `,
@@ -60,6 +84,8 @@ const API_DOCS = {
   RECOVERYCODES_GET,
   RECOVERY_CODES_POST,
   RECOVERY_CODES_PUT,
+  MFA_RECOVERY_CODES_PUT,
+  MFA_RECOVERY_CODES_POST,
   SESSION_VERIFY_RECOVERYCODE_POST,
 };
 

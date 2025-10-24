@@ -508,13 +508,6 @@ describe('#integration - AccountResolver', () => {
     });
   });
 
-  it('sends password reset email', async () => {
-    authClient.passwordForgotSendCode = jest.fn().mockResolvedValue(true);
-    const result = await resolver.sendPasswordResetEmail(USER_1.email);
-    expect(authClient.passwordForgotSendCode).toBeCalledTimes(1);
-    expect(result).toBe(true);
-  });
-
   describe('unsubscribes from mailing lists', () => {
     const fakeToken = '123';
     const uid = USER_1.uid;
@@ -636,6 +629,52 @@ describe('#integration - AccountResolver', () => {
         ts: expect.any(Number),
         uid: '0f0f0f00f00f',
       },
+    });
+  });
+
+  describe('deleteRecoveryPhone', () => {
+    it('successfully deletes recovery phone', async () => {
+      const existingPhone = await db.recoveryPhones
+        .query()
+        .where('uid', uuidTransformer.to(USER_1.uid))
+        .first();
+
+      if (!existingPhone) {
+        await db.recoveryPhones.query().insert(RECOVERY_PHONE_1);
+      }
+
+      const success = await resolver.deleteRecoveryPhone(USER_1.uid);
+      expect(success).toBeTruthy();
+    });
+
+    it('fails to delete recovery phone when none exists', async () => {
+      const success = await resolver.deleteRecoveryPhone(USER_2.uid);
+      expect(success).toBeFalsy();
+
+      expect(profileClient.deleteCache).not.toHaveBeenCalled();
+      expect(notifier.send).not.toHaveBeenCalled();
+    });
+
+    it('handles invalid uid format', async () => {
+      const invalidUid = '00000000000000000000000000000000';
+      const success = await resolver.deleteRecoveryPhone(invalidUid);
+      expect(success).toBeFalsy();
+
+      expect(notifier.send).not.toHaveBeenCalled();
+    });
+
+    it('handles database errors gracefully', async () => {
+      const originalQuery = db.recoveryPhones.query;
+      db.recoveryPhones.query = jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
+
+      await expect(resolver.deleteRecoveryPhone(USER_1.uid)).rejects.toThrow(
+        'Database connection failed'
+      );
+      expect(notifier.send).not.toHaveBeenCalled();
+
+      db.recoveryPhones.query = originalQuery;
     });
   });
 });

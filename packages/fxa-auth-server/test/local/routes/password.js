@@ -1317,4 +1317,239 @@ describe('/password', () => {
       assert.deepEqual(res, 1584397692000);
     });
   });
+
+  describe('/mfa/password/change', () => {
+    let mockDB, mockMailer, mockPush, mockLog, mockStatsd, mockCustoms, uid;
+
+    beforeEach(() => {
+      uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+      mockDB = mocks.mockDB({
+        email: TEST_EMAIL,
+        uid,
+        emailVerified: true,
+        isPasswordMatchV1: true, // Enable password verification for tests
+        devices: [
+          { uid, id: crypto.randomBytes(16) },
+          { uid, id: crypto.randomBytes(16) },
+        ],
+      });
+      mockMailer = mocks.mockMailer();
+      mockPush = mocks.mockPush();
+      mockLog = mocks.mockLog();
+      mockStatsd = mocks.mockStatsd();
+      mockCustoms = mocks.mockCustoms();
+    });
+
+    it('should successfully change password with JWT authentication and V1 creds', async () => {
+      const oldAuthPW = crypto.randomBytes(32).toString('hex');
+      const authPW = crypto.randomBytes(32).toString('hex');
+      const wrapKb = crypto.randomBytes(32).toString('hex');
+
+      const mockRequest = mocks.mockRequest({
+        log: mockLog,
+        auth: {
+          credentials: {
+            uid,
+            email: TEST_EMAIL,
+            emailVerified: true,
+            tokenVerified: true,
+            deviceId: crypto.randomBytes(16).toString('hex'),
+            authenticatorAssuranceLevel: 2,
+            lastAuthAt: () => Date.now(),
+            data: crypto.randomBytes(32).toString('hex'),
+          },
+        },
+        payload: {
+          email: TEST_EMAIL,
+          oldAuthPW,
+          authPW,
+          wrapKb,
+        },
+        query: { keys: 'true' },
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '57',
+        uaOS: 'Mac OS X',
+        uaOSVersion: '10.11',
+      });
+
+      const passwordRoutes = makeRoutes({
+        db: mockDB,
+        mailer: mockMailer,
+        push: mockPush,
+        log: mockLog,
+        statsd: mockStatsd,
+        customs: mockCustoms,
+      });
+
+      const response = await runRoute(
+        passwordRoutes,
+        '/mfa/password/change',
+        mockRequest
+      );
+
+      assert.ok(response.uid);
+      assert.ok(response.sessionToken);
+      assert.ok(response.verified);
+      assert.ok(response.authAt);
+      assert.ok(response.keyFetchToken);
+
+      // Verify database calls
+      sinon.assert.calledOnce(mockDB.account);
+      sinon.assert.calledOnce(mockDB.resetAccount);
+      sinon.assert.calledWith(mockDB.resetAccount, { uid });
+
+      // Verify key fetch tokens are created and returned
+      sinon.assert.calledOnce(mockDB.createKeyFetchToken);
+
+      // Verify session token creation
+      sinon.assert.calledOnce(mockDB.createSessionToken);
+
+      // Verify notifications
+      sinon.assert.calledOnce(mockPush.notifyPasswordChanged);
+      sinon.assert.calledOnce(mockMailer.sendPasswordChangedEmail);
+
+      // Verify security events
+      sinon.assert.calledWith(
+        mockAccountEventsManager.recordSecurityEvent,
+        sinon.match.defined,
+        sinon.match({
+          name: 'account.password_changed',
+          ipAddr: '63.245.221.32',
+          uid,
+        })
+      );
+
+      sinon.assert.calledWith(
+        mockAccountEventsManager.recordSecurityEvent,
+        sinon.match.defined,
+        sinon.match({
+          name: 'account.password_reset_success',
+          ipAddr: '63.245.221.32',
+          uid,
+        })
+      );
+    });
+
+    it('should successfully change password with JWT authentication and V2 creds', async () => {
+      const oldAuthPW = crypto.randomBytes(32).toString('hex');
+      const authPW = crypto.randomBytes(32).toString('hex');
+      const authPWVersion2 = crypto.randomBytes(32).toString('hex');
+      const wrapKb = crypto.randomBytes(32).toString('hex');
+      const wrapKbVersion2 = crypto.randomBytes(32).toString('hex');
+      const clientSalt = 'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
+
+      const mockRequest = mocks.mockRequest({
+        log: mockLog,
+        auth: {
+          strategy: 'mfa',
+          credentials: {
+            uid,
+            email: TEST_EMAIL,
+            emailVerified: true,
+            tokenVerified: true,
+            authenticatorAssuranceLevel: 2,
+            lastAuthAt: () => Date.now(),
+            data: crypto.randomBytes(32).toString('hex'),
+          },
+        },
+        payload: {
+          email: TEST_EMAIL,
+          oldAuthPW,
+          authPW,
+          authPWVersion2,
+          wrapKb,
+          wrapKbVersion2,
+          clientSalt,
+        },
+        query: { keys: 'true' },
+      });
+
+      const passwordRoutes = makeRoutes({
+        db: mockDB,
+        mailer: mockMailer,
+        push: mockPush,
+        log: mockLog,
+        customs: mockCustoms,
+      });
+
+      const response = await runRoute(passwordRoutes, '/mfa/password/change', mockRequest);
+
+      // Verify V2 credentials are handled
+      const resetAccountCall = mockDB.resetAccount.firstCall.args[1];
+      assert.ok(resetAccountCall.verifyHashVersion2);
+      assert.ok(resetAccountCall.wrapWrapKbVersion2);
+      assert.equal(resetAccountCall.clientSalt, clientSalt);
+
+      assert.ok(response.sessionToken);
+      assert.ok(response.keyFetchToken);
+    });
+
+    it('should handle password upgrade scenario', async () => {
+      const oldAuthPW = crypto.randomBytes(32).toString('hex');
+      const authPW = crypto.randomBytes(32).toString('hex');
+      const authPWVersion2 = crypto.randomBytes(32).toString('hex');
+      const wrapKb = crypto.randomBytes(32).toString('hex');
+      const wrapKbVersion2 = crypto.randomBytes(32).toString('hex');
+      const clientSalt = 'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
+
+      mockDB.account = sinon.spy(() => ({
+        uid,
+        email: TEST_EMAIL,
+        authSalt: crypto.randomBytes(32).toString('hex'),
+        verifierVersion: 0,
+        verifyHash: crypto.randomBytes(32).toString('hex'),
+        wrapWrapKb: crypto.randomBytes(32).toString('hex'),
+      }));
+
+      // Mock signinUtils.checkPassword to return true for upgrade scenario
+       mockDB.checkPassword = sinon.spy(() => Promise.resolve({ v1: true, v2: false }));
+
+      const passwordRoutes = makeRoutes({
+        db: mockDB,
+        mailer: mockMailer,
+        push: mockPush,
+        log: mockLog,
+        customs: mockCustoms,
+      });
+
+      const mockRequest = mocks.mockRequest({
+        log: mockLog,
+        auth: {
+          strategy: 'mfa',
+          credentials: {
+            uid,
+            email: TEST_EMAIL,
+            emailVerified: true,
+            tokenVerified: true,
+            authenticatorAssuranceLevel: 2,
+            lastAuthAt: () => Date.now(),
+            data: crypto.randomBytes(32).toString('hex'),
+          },
+        },
+        payload: {
+          email: TEST_EMAIL,
+          oldAuthPW,
+          authPW,
+          authPWVersion2,
+          wrapKb,
+          wrapKbVersion2,
+          clientSalt,
+        },
+        query: {},
+      });
+
+      const response = await runRoute(passwordRoutes, '/mfa/password/change', mockRequest);
+
+      // Verify upgrade scenario is handled
+      const resetAccountCall = mockDB.resetAccount.firstCall;
+      assert.equal(resetAccountCall.args[2], true); // isPasswordUpgrade flag
+
+      // Notifications should be skipped during password upgrade
+      sinon.assert.notCalled(mockPush.notifyPasswordChanged);
+      sinon.assert.notCalled(mockMailer.sendPasswordChangedEmail);
+
+      assert.ok(response.sessionToken);
+      assert.notOk(response.keyFetchToken);
+    });
+  });
 });

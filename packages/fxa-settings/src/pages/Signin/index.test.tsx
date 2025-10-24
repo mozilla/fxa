@@ -36,7 +36,6 @@ import {
 } from '../mocks';
 import { MozServices } from '../../lib/types';
 import * as utils from 'fxa-react/lib/utils';
-import { storeAccountData } from '../../lib/storage-utils';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { SigninProps } from './interfaces';
@@ -47,7 +46,11 @@ import {
 } from '../../models/integrations/client-matching';
 import firefox from '../../lib/channels/firefox';
 import { navigate } from '@reach/router';
-import { IntegrationType, RelierCmsInfo } from '../../models';
+import {
+  IntegrationType,
+  OAuthNativeServices,
+  RelierCmsInfo,
+} from '../../models';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import * as SigninUtils from './utils';
@@ -99,6 +102,7 @@ jest.mock('../../lib/storage-utils', () => ({
 }));
 
 const mockSetData = jest.fn();
+const mockSendVerificationCode = jest.fn();
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
@@ -107,6 +111,9 @@ jest.mock('../../models', () => {
         setDataType: mockSetData,
       };
     },
+    useSession: () => ({
+      sendVerificationCode: mockSendVerificationCode,
+    }),
   };
 });
 
@@ -367,7 +374,6 @@ describe('Signin component', () => {
             });
             expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
             expect(GleanMetrics.login.success).toHaveBeenCalledTimes(1);
-            expect(storeAccountData).toHaveBeenCalled();
           });
 
           it('navigates to /signin_totp_code when TOTP verification requested', async () => {
@@ -442,6 +448,39 @@ describe('Signin component', () => {
                 },
               });
             });
+          });
+
+          it('calls sendVerificationCode with successful signin, but unverified session', async () => {
+            const beginSigninHandler = jest.fn().mockReturnValueOnce(
+              createBeginSigninResponse({
+                verified: false,
+                verificationReason: undefined,
+              })
+            );
+
+            render({ beginSigninHandler });
+
+            await enterPasswordAndSubmit();
+            await waitFor(() => {
+              expect(mockSendVerificationCode).toHaveBeenCalledTimes(1);
+            });
+          });
+
+          it('does not call sendVerificationCode when reason is signup, on successful signin unverified session', async () => {
+            const beginSigninHandler = jest.fn().mockReturnValueOnce(
+              createBeginSigninResponse({
+                verified: false,
+                verificationReason: VerificationReasons.SIGN_UP,
+              })
+            );
+
+            render({ beginSigninHandler });
+
+            await enterPasswordAndSubmit();
+            await waitFor(() => {
+              expect(navigate).toHaveBeenCalled();
+            });
+            expect(mockSendVerificationCode).not.toHaveBeenCalled();
           });
 
           it('OAuth forced 2FA without TOTP navigates to /signin_token_code (email OTP first)', async () => {
@@ -737,6 +776,7 @@ describe('Signin component', () => {
               );
               const integration = createMockSigninOAuthNativeIntegration({
                 isSync: false,
+                service: OAuthNativeServices.Relay,
               });
               render({
                 beginSigninHandler,

@@ -58,6 +58,9 @@ test.describe('severity-2 #smoke', () => {
 
       //Change password
       await settings.password.changeButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
+
       await changePassword.fillOutChangePassword(
         credentials.password,
         newPassword
@@ -76,7 +79,7 @@ test.describe('severity-2 #smoke', () => {
         settings,
         signin,
         signinTokenCode,
-        page,
+        page
       },
       testAccountTracker,
       storageState,
@@ -117,6 +120,9 @@ test.describe('severity-2 #smoke', () => {
 
       //Change password
       await settings.password.changeButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
+
       await changePassword.fillOutChangePassword(
         credentials.password,
         newPassword

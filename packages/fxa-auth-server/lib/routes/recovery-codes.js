@@ -27,14 +27,15 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
     RECOVERY_CODE_SANE_MAX_LENGTH
   );
 
-  return [
+  const routes = [
     {
       method: 'GET',
       path: '/recoveryCodes',
       options: {
         ...RECOVERY_CODES_DOCS.RECOVERYCODES_GET,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         response: {
           schema: recoveryCodesSchema,
@@ -43,13 +44,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       async handler(request) {
         log.begin('replaceRecoveryCodes', request);
 
-        const { authenticatorAssuranceLevel, uid } = request.auth.credentials;
-
-        // Since TOTP and backup authentication codes go hand in hand, you should only be
-        // able to replace backup authentication codes in a TOTP verified session.
-        if (!authenticatorAssuranceLevel || authenticatorAssuranceLevel <= 1) {
-          throw errors.unverifiedSession();
-        }
+        const { uid } = request.auth.credentials;
 
         const recoveryCodes = await db.replaceRecoveryCodes(
           uid,
@@ -88,7 +83,8 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       options: {
         ...RECOVERY_CODES_DOCS.RECOVERY_CODES_POST,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: recoveryCodesSchema,
@@ -108,13 +104,11 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         // no previous backup codes should be in the database
         // the session should not yet have a higher assurance level
         const account = await db.account(uid);
-        const { hasBackupCodes } =
-          await backupCodeManager.getCountForUserId(uid);
         const hasTotpToken = await otpUtils.hasTotpToken({ uid });
         // for initial setup, only fail if totp is already enabled
         // if totp is not enabled/verified, it is safe to replace the recovery codes
-        if (hasBackupCodes && hasTotpToken) {
-          throw errors.recoveryCodesAlreadyExist();
+        if (hasTotpToken) {
+          throw errors.totpTokenAlreadyExists();
         }
 
         const { recoveryCodes } = request.payload;
@@ -138,12 +132,42 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       },
     },
     {
+      method: 'POST',
+      path: '/mfa/recoveryCodes',
+      options: {
+        ...RECOVERY_CODES_DOCS.MFA_RECOVERY_CODES_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: recoveryCodesSchema,
+        },
+        response: {
+          schema: isA.object({
+            success: isA.boolean(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/recoveryCodes' && route.method === 'POST'
+          )
+          .handler(request);
+      },
+    },
+
+    {
       method: 'PUT',
       path: '/recoveryCodes',
       options: {
         ...RECOVERY_CODES_DOCS.RECOVERY_CODES_PUT,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: recoveryCodesSchema,
@@ -157,13 +181,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       async handler(request) {
         log.begin('updateRecoveryCodes', request);
 
-        const { authenticatorAssuranceLevel, uid } = request.auth.credentials;
-
-        // Since TOTP and backup authentication codes go hand in hand, you should only be
-        // able to replace backup authentication codes in a TOTP verified session.
-        if (!authenticatorAssuranceLevel || authenticatorAssuranceLevel <= 1) {
-          throw errors.unverifiedSession();
-        }
+        const { uid } = request.auth.credentials;
 
         const { recoveryCodes } = request.payload;
         await db.updateRecoveryCodes(uid, recoveryCodes);
@@ -195,6 +213,34 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         await request.emitMetricsEvent('recoveryCode.replaced', { uid });
 
         return { success: true };
+      },
+    },
+    {
+      method: 'PUT',
+      path: '/mfa/recoveryCodes',
+      options: {
+        ...RECOVERY_CODES_DOCS.MFA_RECOVERY_CODES_PUT,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:2fa'],
+          payload: false,
+        },
+        validate: {
+          payload: recoveryCodesSchema,
+        },
+        response: {
+          schema: isA.object({
+            success: isA.boolean(),
+          }),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/recoveryCodes' && route.method === 'PUT'
+          )
+          .handler(request);
       },
     },
     {
@@ -278,7 +324,13 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
           log.info('account.recoveryCode.consumedAllCodes', { uid });
         }
 
-        if (tokenVerificationId) {
+        if (
+          tokenVerificationId ||
+          // If there is no tokenVerificationId but the auth assurance level needs
+          // to be upgraded, then this user was redirected from Settings to
+          // our TOTP page and entered a recovery code to upgrade their session
+          request.auth.credentials.authenticatorAssuranceLevel <= 1
+        ) {
           await db.verifyTokensWithMethod(tokenId, 'recovery-code');
         }
 
@@ -331,4 +383,6 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
       },
     },
   ];
+
+  return routes;
 };

@@ -64,6 +64,7 @@ test.describe('recovery key promo', () => {
       await signin.fillOutPasswordForm(credentials.password);
       await page.waitForURL(/settings/);
       await settings.recoveryKey.createButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       await recoveryKey.acknowledgeInfoForm();
       await recoveryKey.fillOutConfirmPasswordForm(credentials.password);
       await recoveryKey.clickDownload();
@@ -173,6 +174,7 @@ test.describe('recovery key promo', () => {
 
       await expect(settings.settingsHeading).toBeVisible();
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
       await expect(settings.totp.status).toHaveText('Enabled');

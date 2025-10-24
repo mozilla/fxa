@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect } from 'react';
+import * as Sentry from '@sentry/browser';
+import { useErrorHandler } from 'react-error-boundary';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import Modal from '../Modal';
@@ -20,8 +22,9 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
-import { RecoveryPhoneSetupReason } from '../../../lib/types';
-import ModalVerifySession from '../ModalVerifySession';
+import { RecoveryPhoneSetupReason, MfaReason } from '../../../lib/types';
+import { MfaGuard } from '../MfaGuard';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
 const replaceCodesRoute = `${route}/replace_codes`;
@@ -38,19 +41,12 @@ export const UnitRowTwoStepAuth = () => {
   } = account;
   const [disable2FAModalRevealed, revealDisable2FAModal, hideDisable2FAModal] =
     useBooleanState();
-  const [add2FAModalRevealed, revealAdd2FAModal, hideAdd2FAModal] =
-    useBooleanState();
   const ftlMsgResolver = useFtlMsgResolver();
-
-  const handleAdd2FA = useCallback(() => {
-    hideAdd2FAModal();
-    navigateWithQuery(route);
-  }, [navigateWithQuery, hideAdd2FAModal]);
 
   const handleAdd2FAClick = useCallback(() => {
     GleanMetrics.accountPref.twoStepAuthSubmit();
-    revealAdd2FAModal();
-  }, [revealAdd2FAModal]);
+    navigateWithQuery(route, { replace: true }, false);
+  }, [navigateWithQuery]);
 
   const conditionalUnitRowProps: Partial<UnitRowProps> =
     exists && verified
@@ -121,7 +117,7 @@ export const UnitRowTwoStepAuth = () => {
                   alertBar.hide();
                   navigateWithQuery(
                     `${SETTINGS_PATH}/recovery_phone/remove`,
-                    undefined,
+                    {},
                     false
                   );
                 },
@@ -190,26 +186,16 @@ export const UnitRowTwoStepAuth = () => {
           </FtlMsg>
         )}
         {howThisProtectsYourAccountLink}
-        {add2FAModalRevealed && (
-          <ModalVerifySession
-            onDismiss={() => {
-              hideAdd2FAModal();
-            }}
-            onError={(error) => {
-              hideAdd2FAModal();
-              alertBar.error(
-                ftlMsgResolver.getMsg(
-                  'tfa-row-cannot-verify-session-4',
-                  'Sorry, there was a problem confirming your session'
-                ),
-                error
-              );
-            }}
-            onCompleted={handleAdd2FA}
-          />
-        )}
         {disable2FAModalRevealed && (
-          <DisableTwoStepAuthModal {...{ hideDisable2FAModal }} />
+          <MfaGuard
+            requiredScope={'2fa'}
+            reason={MfaReason.removeTotp}
+            onDismissCallback={async () => {
+              hideDisable2FAModal();
+            }}
+          >
+            <DisableTwoStepAuthModal {...{ hideDisable2FAModal }} />
+          </MfaGuard>
         )}
       </UnitRow>
     </>
@@ -221,9 +207,11 @@ const DisableTwoStepAuthModal = ({
 }: {
   hideDisable2FAModal: () => void;
 }) => {
+  const errorHandler = useErrorHandler();
   const alertBar = useAlertBar();
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
+  const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
 
   useEffect(() => {
@@ -242,7 +230,20 @@ const DisableTwoStepAuthModal = ({
         ),
         () => GleanMetrics.accountPref.twoStepAuthDisableSuccessView()
       );
+      navigateWithQuery(
+        `${SETTINGS_PATH}#two-step-authentication`,
+        {
+          replace: true,
+        },
+        false
+      );
     } catch (e) {
+      if (isInvalidJwtError(e)) {
+        // JWT invalid/expired.
+        errorHandler(e);
+        return;
+      }
+
       hideDisable2FAModal();
       alertBar.error(
         ftlMsgResolver.getMsg(
@@ -250,8 +251,17 @@ const DisableTwoStepAuthModal = ({
           'Two-step authentication could not be disabled'
         )
       );
+
+      Sentry.captureException(e);
     }
-  }, [account, hideDisable2FAModal, alertBar, ftlMsgResolver]);
+  }, [
+    account,
+    alertBar,
+    errorHandler,
+    ftlMsgResolver,
+    hideDisable2FAModal,
+    navigateWithQuery,
+  ]);
 
   return (
     <VerifiedSessionGuard

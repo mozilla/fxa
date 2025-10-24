@@ -4,7 +4,6 @@
 
 'use strict';
 
-const leftpad = require('leftpad');
 const { determineLocale } = require('../../../../libs/shared/l10n/src');
 
 module.exports = class UserRecordNormalizer {
@@ -56,13 +55,12 @@ module.exports = class UserRecordNormalizer {
   }
 
   formatDate(date) {
-    return `${date.getUTCFullYear()}-${leftpad(
-      date.getUTCMonth() + 1,
-      2
-    )}-${leftpad(date.getUTCDate(), 2)} @ ${leftpad(
-      date.getUTCHours(),
-      2
-    )}:${leftpad(date.getUTCMinutes(), 2)} UTC`;
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const hours = String(date.getUTCHours()).padStart(2, '0');
+    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+    return `${date.getUTCFullYear()}-${month}-${day} @ ${hours}:${minutes} UTC`;
   }
 
   normalizeLocationName(location, language) {

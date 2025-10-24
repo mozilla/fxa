@@ -10,10 +10,10 @@
 
 export enum BounceType {
     unmapped = "unmapped",
-    Undetermined = "Undetermined",
     Permanent = "Permanent",
     Transient = "Transient",
-    Complaint = "Complaint"
+    Complaint = "Complaint",
+    Undetermined = "Undetermined"
 }
 
 export enum BounceSubType {
@@ -21,7 +21,6 @@ export enum BounceSubType {
     Undetermined = "Undetermined",
     General = "General",
     NoEmail = "NoEmail",
-    OnAccountSuppressionList = "OnAccountSuppressionList",
     Suppressed = "Suppressed",
     MailboxFull = "MailboxFull",
     MessageTooLarge = "MessageTooLarge",
@@ -32,13 +31,25 @@ export enum BounceSubType {
     Fraud = "Fraud",
     NotSpam = "NotSpam",
     Other = "Other",
-    Virus = "Virus"
+    Virus = "Virus",
+    OnAccountSuppressionList = "OnAccountSuppressionList"
 }
 
 export enum ProviderId {
     unmapped = "unmapped",
     GOOGLE = "GOOGLE",
     APPLE = "APPLE"
+}
+
+export interface RelyingPartyUpdateDto {
+    name: string;
+    imageUri: string;
+    redirectUri: string;
+    canGrant: boolean;
+    publicClient: boolean;
+    trusted: boolean;
+    allowedScopes?: Nullable<string>;
+    notes?: Nullable<string>;
 }
 
 export interface Location {
@@ -211,17 +222,28 @@ export interface AccountDeleteTaskStatus {
     status: string;
 }
 
-export interface RelyingParty {
+export interface RelyingPartyDto {
     id: string;
+    createdAt: DateTime;
     name: string;
     imageUri: string;
     redirectUri: string;
     canGrant: boolean;
     publicClient: boolean;
-    createdAt: number;
     trusted: boolean;
     allowedScopes?: Nullable<string>;
     notes?: Nullable<string>;
+}
+
+export interface BlockStatus {
+    retryAfter: number;
+    reason: string;
+    action: string;
+    blockingOn: string;
+    startTime: number;
+    duration: number;
+    attempt: number;
+    policy: string;
 }
 
 export interface IQuery {
@@ -231,7 +253,8 @@ export interface IQuery {
     getEmailsLike(search: string): Nullable<Email[]> | Promise<Nullable<Email[]>>;
     getRecoveryPhonesLike(search: string): Nullable<RecoveryPhone[]> | Promise<Nullable<RecoveryPhone[]>>;
     getDeleteStatus(taskNames: string[]): AccountDeleteTaskStatus[] | Promise<AccountDeleteTaskStatus[]>;
-    relyingParties(): RelyingParty[] | Promise<RelyingParty[]>;
+    rateLimits(ip?: Nullable<string>, email?: Nullable<string>, uid?: Nullable<string>): BlockStatus[] | Promise<BlockStatus[]>;
+    relyingParties(): RelyingPartyDto[] | Promise<RelyingPartyDto[]>;
 }
 
 export interface IMutation {
@@ -239,14 +262,18 @@ export interface IMutation {
     unverifyEmail(email: string): boolean | Promise<boolean>;
     disableAccount(uid: string): boolean | Promise<boolean>;
     editLocale(uid: string, locale: string): boolean | Promise<boolean>;
+    deleteRecoveryPhone(uid: string): boolean | Promise<boolean>;
     enableAccount(uid: string): boolean | Promise<boolean>;
-    sendPasswordResetEmail(email: string): boolean | Promise<boolean>;
     recordAdminSecurityEvent(uid: string, name: string): boolean | Promise<boolean>;
     unlinkAccount(uid: string): boolean | Promise<boolean>;
     unsubscribeFromMailingLists(uid: string): boolean | Promise<boolean>;
     deleteAccounts(locators: string[]): AccountDeleteResponse[] | Promise<AccountDeleteResponse[]>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
-    updateNotes(id: string, notes: string): boolean | Promise<boolean>;
+    clearRateLimits(ip?: Nullable<string>, email?: Nullable<string>, uid?: Nullable<string>): number | Promise<number>;
+    create(relyingParty: RelyingPartyUpdateDto): string | Promise<string>;
+    update(id: string, relyingParty: RelyingPartyUpdateDto): boolean | Promise<boolean>;
+    delete(id: string): boolean | Promise<boolean>;
 }
 
+export type DateTime = any;
 type Nullable<T> = T | null;

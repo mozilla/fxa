@@ -18,7 +18,7 @@ export const cancelSubscriptionAtPeriodEndAction = async (
       subscriptionId,
     });
 
-  revalidatePath('/[locale]/subscriptions/manage');
+  revalidatePath('/[locale]/subscriptions/manage', 'page');
 
   return result;
 };

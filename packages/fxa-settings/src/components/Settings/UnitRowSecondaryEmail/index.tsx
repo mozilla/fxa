@@ -2,15 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode, useCallback, useState } from 'react';
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useAccount, Email, useAlertBar } from '../../../models';
 import UnitRow from '../UnitRow';
-import ModalVerifySession from '../ModalVerifySession';
 import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 import { Localized, useLocalization } from '@fluent/react';
 import { SETTINGS_PATH } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
+import { MfaGuard } from '../MfaGuard';
+import ModalVerifySession from '../ModalVerifySession';
+import {
+  clearMfaAndJwtCacheOnInvalidJwt,
+  isInvalidJwtError,
+} from '../../../lib/mfa-guard-utils';
+import { MfaReason } from '../../../lib/types';
 
 type UnitRowSecondaryEmailContentAndActionsProps = {
   secondary: Email;
@@ -22,6 +34,12 @@ export const UnitRowSecondaryEmail = () => {
   const navigateWithQuery = useNavigateWithQuery();
   const alertBar = useAlertBar();
   const [queuedAction, setQueuedAction] = useState<() => void>();
+  const [pendingSecondaryDelete, setPendingSecondaryDelete] = useState<
+    string | undefined
+  >();
+  const [pendingChangePrimary, setPendingChangePrimary] = useState<
+    string | undefined
+  >();
   const { l10n } = useLocalization();
 
   const secondaryEmails = account.emails.filter((email) => !email.isPrimary);
@@ -50,53 +68,91 @@ export const UnitRowSecondaryEmail = () => {
     [account, navigateWithQuery, alertBar, l10n]
   );
 
-  const makeEmailPrimary = useCallback(
-    async (email: string) => {
-      try {
-        await account.makeEmailPrimary(email);
-        alertBar.success(
-          l10n.getString(
-            'se-set-primary-successful-2',
-            { email },
-            `${email} is now your primary email`
-          )
-        );
-      } catch (e) {
-        alertBar.error(
-          l10n.getString(
-            'se-set-primary-error-2',
-            null,
-            'Sorry, there was a problem changing your primary email'
-          )
-        );
-      }
-    },
-    [account, alertBar, l10n]
-  );
+  const ChangePrimaryOnMount = ({ email }: { email: string }) => {
+    const called = useRef(false);
+    const account = useAccount();
+    const alertBar = useAlertBar();
+    const { l10n } = useLocalization();
+    const makePrimary = useCallback(
+      async (email: string) => {
+        try {
+          await account.makeEmailPrimaryWithJwt(email);
+          alertBar.success(
+            l10n.getString(
+              'se-set-primary-successful-2',
+              { email },
+              `${email} is now your primary email`
+            )
+          );
+          setPendingChangePrimary(undefined);
+        } catch (e) {
+          if (isInvalidJwtError(e)) {
+            clearMfaAndJwtCacheOnInvalidJwt(e, 'email');
+            return;
+          }
+          alertBar.error(
+            l10n.getString(
+              'se-set-primary-error-2',
+              null,
+              'Sorry, there was a problem changing your primary email'
+            )
+          );
+          setPendingChangePrimary(undefined);
+        }
+      },
+      [account, alertBar, l10n]
+    );
+    useEffect(() => {
+      (async () => {
+        // make sure this is only called once in it's lifecycle. However, if
+        // this component is double mounted, it will still be called twice.
+        if (called.current) {
+          return;
+        }
+        called.current = true;
+        await makePrimary(email);
+      })();
+    }, [makePrimary, email]);
+    return <></>;
+  };
 
-  const deleteEmail = useCallback(
-    async (email: string) => {
-      try {
-        await account.deleteSecondaryEmail(email);
-        alertBar.success(
-          l10n.getString(
-            'se-delete-email-successful-2',
-            { email },
-            `${email} successfully deleted`
-          )
-        );
-      } catch (e) {
-        alertBar.error(
-          l10n.getString(
-            'se-delete-email-error-2',
-            null,
-            `Sorry, there was a problem deleting this email`
-          )
-        );
-      }
-    },
-    [account, alertBar, l10n]
-  );
+  const DeleteEmailOnMount = ({ email }: { email: string }) => {
+    const account = useAccount();
+    const alertBar = useAlertBar();
+    const { l10n } = useLocalization();
+
+    useEffect(() => {
+      const deleteEmail = async () => {
+        try {
+          await account.deleteSecondaryEmailWithJwt(email);
+          alertBar.success(
+            l10n.getString(
+              'se-delete-email-successful-2',
+              { email },
+              `${email} successfully deleted`
+            )
+          );
+        } catch (e) {
+          if (isInvalidJwtError(e)) {
+            clearMfaAndJwtCacheOnInvalidJwt(e, 'email');
+            return;
+          }
+          alertBar.error(
+            l10n.getString(
+              'se-delete-email-error-2',
+              null,
+              `Sorry, there was a problem deleting this email`
+            )
+          );
+        }
+        // This will only run when MfaGuard renders this component
+        // which means MFA has been completed successfully
+      };
+      deleteEmail();
+    }, [account, alertBar, l10n, email]);
+
+    return <></>;
+  };
 
   const SecondaryEmailUtilities = ({ children }: { children: ReactNode }) => (
     <>
@@ -152,15 +208,6 @@ export const UnitRowSecondaryEmail = () => {
     secondary: { email, verified },
     isLastVerifiedSecondaryEmail,
   }: UnitRowSecondaryEmailContentAndActionsProps) => {
-    const queueEmailAction = (action: () => void) => {
-      setQueuedAction(() => {
-        return () => {
-          setQueuedAction(undefined);
-          action();
-        };
-      });
-    };
-
     return (
       <>
         <div className="@mobileLandscape/unitRow:flex unit-row-multi-row">
@@ -181,7 +228,7 @@ export const UnitRowSecondaryEmail = () => {
                       classNames="@mobileLandscape/unitRow:hidden ms-1"
                       disabled={account.loading}
                       onClick={() => {
-                        queueEmailAction(() => deleteEmail(email));
+                        setPendingSecondaryDelete(email);
                       }}
                     />
                   </Localized>
@@ -249,8 +296,9 @@ export const UnitRowSecondaryEmail = () => {
                   <button
                     disabled={account.loading}
                     className="cta-neutral cta-base-common cta-base-p disabled:cursor-wait whitespace-nowrap w-full @mobileLandscape/unitRow:w-auto @mobileLandscape/unitRow:text-xs @mobileLandscape/unitRow:py-1 @mobileLandscape/unitRow:px-5 @mobileLandscape/unitRow:mt-0"
-                    onClick={() => {
-                      queueEmailAction(() => makeEmailPrimary(email));
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPendingChangePrimary(email);
                     }}
                     data-testid="secondary-email-make-primary"
                   >
@@ -265,7 +313,7 @@ export const UnitRowSecondaryEmail = () => {
                   disabled={account.loading}
                   testId="secondary-email-delete"
                   onClick={() => {
-                    queueEmailAction(() => deleteEmail(email));
+                    setPendingSecondaryDelete(email);
                   }}
                 />
               </Localized>
@@ -285,6 +333,28 @@ export const UnitRowSecondaryEmail = () => {
         </div>
         {verified && isLastVerifiedSecondaryEmail && (
           <SecondaryEmailDefaultContent />
+        )}
+        {pendingChangePrimary === email && (
+          <MfaGuard
+            requiredScope="email"
+            reason={MfaReason.changePrimaryEmail}
+            onDismissCallback={async () => {
+              setPendingChangePrimary(undefined);
+            }}
+          >
+            <ChangePrimaryOnMount email={email} />
+          </MfaGuard>
+        )}
+        {pendingSecondaryDelete === email && (
+          <MfaGuard
+            requiredScope="email"
+            reason={MfaReason.removeSecondaryEmail}
+            onDismissCallback={async () => {
+              setPendingSecondaryDelete(undefined);
+            }}
+          >
+            <DeleteEmailOnMount email={email} />
+          </MfaGuard>
         )}
       </>
     );

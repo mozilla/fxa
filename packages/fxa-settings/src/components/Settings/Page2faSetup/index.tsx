@@ -12,13 +12,12 @@ import GleanMetrics from '../../../lib/glean';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { useTotpSetup } from '../../../lib/hooks/useTotpSetup';
 import { totpUtils } from '../../../lib/totp-utils';
-import { RecoveryPhoneSetupReason } from '../../../lib/types';
+import { MfaReason, RecoveryPhoneSetupReason } from '../../../lib/types';
 import {
   useAccount,
   useAlertBar,
   useConfig,
   useFtlMsgResolver,
-  useSession,
 } from '../../../models';
 
 import { Choice, CHOICES } from '../../FormChoice';
@@ -28,15 +27,25 @@ import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
-import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { MfaGuard } from '../MfaGuard';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { useErrorHandler } from 'react-error-boundary';
 
-const Page2faSetup = (_: RouteComponentProps) => {
+export const MfaGuardPage2faSetup = (_: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="2fa" reason={MfaReason.createTotp}>
+      <Page2faSetup />
+    </MfaGuard>
+  );
+};
+
+export const Page2faSetup = () => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const config = useConfig();
+  const errorHandler = useErrorHandler();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
-  const session = useSession();
   const {
     totpInfo,
     loading: totpInfoLoading,
@@ -63,14 +72,37 @@ const Page2faSetup = (_: RouteComponentProps) => {
   // when recovery phone is available, an extra choice step is added
   const numberOfSteps = flowHasPhoneChoice ? 4 : 3;
 
-  const showSuccess = useCallback(() => {
-    alertBar.success(
-      ftlMsgResolver.getMsg(
-        'page-2fa-setup-success',
-        'Two-step authentication has been enabled'
-      )
+  const alertBarSuccessMessage = useCallback(() => {
+    return (
+      <div>
+        <p>
+          <strong>
+            {ftlMsgResolver.getMsg(
+              'page-2fa-setup-success',
+              'Two-step authentication has been enabled'
+            )}
+          </strong>
+        </p>
+        <p>
+          {ftlMsgResolver.getMsg(
+            'page-2fa-setup-success-additional-message',
+            'To protect all your connected devices, you should sign out everywhere you’re using this account, and then sign back in using two-step authentication.'
+          )}
+        </p>
+      </div>
     );
-  }, [alertBar, ftlMsgResolver]);
+  }, [ftlMsgResolver]);
+
+  const handle2faSetupSuccess = useCallback(() => {
+    alertBar.success(alertBarSuccessMessage());
+    navigateWithQuery(
+      SETTINGS_PATH + '#connected-services',
+      {
+        replace: true,
+      },
+      false
+    );
+  }, [alertBar, alertBarSuccessMessage, navigateWithQuery]);
 
   const showGenericError = useCallback(() => {
     alertBar.error(
@@ -81,7 +113,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
     );
   }, [alertBar, ftlMsgResolver]);
 
-  const goHome = useCallback(
+  const goBackToSettings = useCallback(
     () =>
       navigateWithQuery(SETTINGS_PATH + '#two-step-authentication', {
         replace: true,
@@ -92,8 +124,8 @@ const Page2faSetup = (_: RouteComponentProps) => {
   const prevStep = useCallback(() => {
     if (currentStep > 1) {
       setCurrentStep((step) => step - 1);
-    } else goHome();
-  }, [currentStep, goHome]);
+    } else goBackToSettings();
+  }, [currentStep, goBackToSettings]);
 
   // generate & persist backup codes when users pick that route
   const createRecoveryCodes = useCallback(async () => {
@@ -122,17 +154,15 @@ const Page2faSetup = (_: RouteComponentProps) => {
   useEffect(() => {
     if (!totpInfoLoading && (totpInfoError || !totpInfo)) {
       showGenericError();
-      goHome();
+      goBackToSettings();
     }
-  }, [totpInfoLoading, totpInfoError, totpInfo, showGenericError, goHome]);
-
-  /* ───── early return states ───── */
-  // without a verified session, we can't set up 2FA
-  // totpInfoLoading would get stuck in a loading state and render as an infinite spinner
-  // adding a verified session guard allows the totpInfoLoading to resolve once session is verified
-  if (!session.verified) {
-    return <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />;
-  }
+  }, [
+    totpInfoLoading,
+    totpInfoError,
+    totpInfo,
+    showGenericError,
+    goBackToSettings,
+  ]);
 
   if (totpInfoLoading) return <LoadingSpinner fullScreen />;
 
@@ -140,14 +170,17 @@ const Page2faSetup = (_: RouteComponentProps) => {
     return <></>;
   }
 
-  /* ───── handlers ───── */
   const handleVerify2faAppCode = async (code: string) => {
     try {
-      await account.verifyTotpSetupCode(code);
+      await account.verifyTotpSetupCodeWithJwt(code);
       GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
       nextStep();
       return {};
     } catch (e) {
+      if (isInvalidJwtError(e)) {
+        errorHandler(e);
+        return {};
+      }
       return { error: true };
     }
   };
@@ -158,7 +191,19 @@ const Page2faSetup = (_: RouteComponentProps) => {
   };
 
   const enable2fa = async () => {
-    await account.completeTotpSetup();
+    try {
+      await account.completeTotpSetupWithJwt();
+      handle2faSetupSuccess();
+      return;
+    } catch (e) {
+      if (isInvalidJwtError(e)) {
+        errorHandler(e);
+        return;
+      }
+      showGenericError();
+      goBackToSettings();
+      return;
+    }
   };
 
   const handleBackupCodeConfirm = async (code: string) => {
@@ -173,43 +218,61 @@ const Page2faSetup = (_: RouteComponentProps) => {
     }
 
     try {
-      await account.setRecoveryCodes(backupCodes);
-      await enable2fa();
+      await account.setRecoveryCodesWithJwt(backupCodes);
     } catch (error) {
-      showGenericError();
-      goHome();
+      if (isInvalidJwtError(error)) {
+        errorHandler(error);
+      } else {
+        showGenericError();
+        goBackToSettings();
+      }
       return;
     }
-    showSuccess();
-    goHome();
-    return;
+
+    await enable2fa();
   };
 
   const handleVerifyPhone = async (phoneNumberInput: string) => {
-    const { nationalFormat } = await account.addRecoveryPhone(phoneNumberInput);
-    setPhoneData({
-      phoneNumber: phoneNumberInput,
-      nationalFormat,
-    });
+    try {
+      const { nationalFormat } =
+        await account.addRecoveryPhoneWithJwt(phoneNumberInput);
+      setPhoneData({
+        phoneNumber: phoneNumberInput,
+        nationalFormat,
+      });
+    } catch (error) {
+      if (isInvalidJwtError(error)) {
+        errorHandler(error);
+        return;
+      }
+      throw error;
+    }
   };
 
   const handleResendSms = async () => {
-    await account.addRecoveryPhone(phoneData.phoneNumber);
+    try {
+      await account.addRecoveryPhoneWithJwt(phoneData.phoneNumber);
+    } catch (error) {
+      if (isInvalidJwtError(error)) {
+        errorHandler(error);
+        return;
+      }
+      throw error;
+    }
   };
 
   const handleVerifySmsCode = async (code: string) => {
-    // if this errors, error will be handled by try/catch in child component
-    await account.confirmRecoveryPhone(code, phoneData.phoneNumber, true);
-
     try {
-      await enable2fa();
-    } catch (e) {
-      showGenericError();
-      goHome();
-      return;
+      await account.confirmRecoveryPhoneWithJwt(code);
+    } catch (error) {
+      if (isInvalidJwtError(error)) {
+        errorHandler(error);
+        return;
+      }
+      throw error;
     }
-    await account.refresh('recoveryPhone');
-    // success message controlled by child component
+
+    await enable2fa();
   };
 
   return (
@@ -217,7 +280,7 @@ const Page2faSetup = (_: RouteComponentProps) => {
       {currentStep === 1 && (
         <FlowSetup2faApp
           verifyCode={handleVerify2faAppCode}
-          onBackButtonClick={goHome}
+          onBackButtonClick={goBackToSettings}
           {...{ currentStep, numberOfSteps, localizedPageTitle, totpInfo }}
         />
       )}
@@ -264,16 +327,12 @@ const Page2faSetup = (_: RouteComponentProps) => {
 
       {backupMethod === CHOICES.phone && currentStep === 4 && (
         <FlowSetupRecoveryPhoneConfirmCode
-          localizedSuccessMessage={ftlMsgResolver.getMsg(
-            'page-2fa-setup-success',
-            'Two-step authentication has been enabled'
-          )}
           nationalFormatPhoneNumber={
             phoneData.nationalFormat || phoneData.phoneNumber
           }
           navigateBackward={prevStep}
-          navigateForward={goHome}
           sendCode={handleResendSms}
+          showRecoveryPhoneSuccessMessage={false} // we'll instead show a success message for 2fa setup
           verifyRecoveryCode={handleVerifySmsCode}
           reason={RecoveryPhoneSetupReason.setup}
           {...{ currentStep, numberOfSteps, localizedPageTitle }}
@@ -283,4 +342,4 @@ const Page2faSetup = (_: RouteComponentProps) => {
   );
 };
 
-export default Page2faSetup;
+export default MfaGuardPage2faSetup;

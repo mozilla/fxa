@@ -30,7 +30,6 @@ import {
   isRecoveryKeyPromoDismissed,
   isRecoveryPhonePromoDismissed,
 } from '../../../lib/promo-dismissal';
-import { useGeoEligibilityCheck } from '../../../lib/hooks/useGeoEligibilityCheck';
 
 export const PageSettings = ({
   integration,
@@ -46,11 +45,6 @@ export const PageSettings = ({
     totp,
     recoveryPhone,
   } = account;
-
-  const {
-    eligible: monitorPlusPromoEligible,
-    loading: monitorPlusEligibilityLoading,
-  } = useGeoEligibilityCheck('monitorpluspromo');
 
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
@@ -104,24 +98,15 @@ export const PageSettings = ({
 
   useEffect(() => {
     (async () => {
-      if (monitorPromo !== null || monitorPlusEligibilityLoading) {
+      if (monitorPromo !== null) {
         return;
       }
 
-      const promoData = getProductPromoData(
-        account.attachedClients,
-        account.subscriptions,
-        monitorPlusPromoEligible
-      );
+      const promoData = getProductPromoData(account.attachedClients);
 
       setMonitorPromo(promoData);
     })();
-  }, [
-    account,
-    monitorPlusPromoEligible,
-    monitorPlusEligibilityLoading,
-    monitorPromo,
-  ]);
+  }, [account, monitorPromo]);
 
   // -- Relying party promotion checks --
   useEffect(() => {

@@ -36,7 +36,19 @@ describe('support agents', () => {
       ).true;
       expect(
         stageGuard.allow(
-          AdminPanelFeature.RelyingPartiesEditNotes,
+          AdminPanelFeature.UpdateRelyingParty,
+          AdminPanelGroup.AdminStage
+        )
+      ).true;
+      expect(
+        stageGuard.allow(
+          AdminPanelFeature.CreateRelyingParty,
+          AdminPanelGroup.AdminStage
+        )
+      ).true;
+      expect(
+        stageGuard.allow(
+          AdminPanelFeature.DeleteRelyingParty,
           AdminPanelGroup.AdminStage
         )
       ).true;
@@ -52,9 +64,22 @@ describe('support agents', () => {
           AdminPanelGroup.SupportAgentProd
         )
       ).true;
+
       expect(
         prodGuard.allow(
-          AdminPanelFeature.RelyingPartiesEditNotes,
+          AdminPanelFeature.CreateRelyingParty,
+          AdminPanelGroup.AdminProd
+        )
+      ).true;
+      expect(
+        prodGuard.allow(
+          AdminPanelFeature.UpdateRelyingParty,
+          AdminPanelGroup.AdminProd
+        )
+      ).true;
+      expect(
+        prodGuard.allow(
+          AdminPanelFeature.DeleteRelyingParty,
           AdminPanelGroup.AdminProd
         )
       ).true;
@@ -106,6 +131,12 @@ describe('support agents', () => {
         stageGuard.allow(
           AdminPanelFeature.AccountSearch,
           AdminPanelGroup.ReadOnlyStage
+        )
+      ).true;
+      expect(
+        stageGuard.allow(
+          AdminPanelFeature.DeleteRecoveryPhone,
+          AdminPanelGroup.AdminStage
         )
       ).true;
     });
@@ -197,6 +228,12 @@ describe('support agents', () => {
       expect(
         guard.allow(
           AdminPanelFeature.DisableAccount,
+          AdminPanelGroup.SupportAgentStage
+        )
+      ).false;
+      expect(
+        guard.allow(
+          AdminPanelFeature.DeleteRecoveryPhone,
           AdminPanelGroup.SupportAgentStage
         )
       ).false;

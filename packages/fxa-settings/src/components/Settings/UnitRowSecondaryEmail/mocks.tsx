@@ -37,3 +37,16 @@ export const MOCK_MANY_SEC_EMAILS_MANY_UNVERIFIED = [
   mockEmail('johndope3@example.com', false, false),
   mockEmail('johndope4@example.com', false, false),
 ];
+
+/**
+ * Creates a mock account to provide to the AppContext. Gives strong typing
+ * and avoids the need to use `as unknown as Account` in tests.
+ * @param overrides
+ * @returns
+ */
+export const createMockAccount = (overrides: Partial<Account> = {}) => {
+  const base: Partial<Account> = {
+    emails: [mockEmail(), mockEmail('johndope2@example.com', false, false)],
+  };
+  return { ...base, ...overrides } as Account;
+};

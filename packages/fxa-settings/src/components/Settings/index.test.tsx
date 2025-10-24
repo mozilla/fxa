@@ -4,6 +4,7 @@
 
 import React, { ReactNode } from 'react';
 import { History } from '@reach/router';
+import { waitFor } from '@testing-library/react';
 import { Account, AppContext, useInitialSettingsState } from '../../models';
 import {
   mockAppContext,
@@ -16,9 +17,13 @@ import { SETTINGS_PATH } from '../../constants';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { Subject } from './mocks';
 
+const mockSessionStatus = jest.fn();
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
   useInitialSettingsState: jest.fn(),
+  useAuthClient: jest.fn(() => ({
+    sessionStatus: mockSessionStatus,
+  })),
 }));
 
 jest.mock('../../lib/totp-utils', () => {
@@ -30,15 +35,6 @@ jest.mock('../../lib/totp-utils', () => {
   };
 });
 
-// Mocking the component here avoids dealing with all the dependecies required to start the 2fa setup flow
-// Those are tested in Page2faSetup/index.test.tsx
-jest.mock('./Page2faSetup', () => ({
-  __esModule: true,
-  default: () => (
-    <div data-testid="mock-2fa-setup-page">Mock 2FA Setup Page</div>
-  ),
-}));
-
 jest.mock('./ScrollToTop', () => ({
   __esModule: true,
   ScrollToTop: ({ children }: { children: ReactNode }) => (
@@ -48,12 +44,16 @@ jest.mock('./ScrollToTop', () => ({
 
 // Mock the MFA guard so we can assert guarded pages render it without
 // pulling in the guard's dependencies or child flows
+const mockMfaGuard = jest.fn();
 jest.mock('./MfaGuard', () => ({
   __esModule: true,
-  MfaGuard: ({ children }: { children: ReactNode }) => (
-    <div data-testid="mfa-guard">MockMfaGuard</div>
-  ),
+  MfaGuard: (props: any) => mockMfaGuard(props),
 }));
+
+// Default behavior: render mock guard element
+mockMfaGuard.mockImplementation(({ children }: { children: ReactNode }) => (
+  <div data-testid="mfa-guard">MockMfaGuard</div>
+));
 
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
@@ -61,16 +61,15 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-const mockUseGeoEligibilityCheck = jest
-  .fn()
-  .mockReturnValue({ eligible: false });
-jest.mock('../../lib/hooks/useGeoEligibilityCheck', () => ({
-  useGeoEligibilityCheck: () => mockUseGeoEligibilityCheck(),
-}));
-
 const mockNavigateWithQuery = jest.fn();
 jest.mock('../../lib/hooks/useNavigateWithQuery', () => ({
   useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
+const mockCurrentAccount = jest.fn();
+jest.mock('../../lib/cache', () => ({
+  ...jest.requireActual('../../lib/cache'),
+  currentAccount: () => mockCurrentAccount(),
 }));
 
 describe('Settings App', () => {
@@ -79,6 +78,18 @@ describe('Settings App', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
     mockNavigate.mockReset();
+    mockSessionStatus.mockResolvedValue({
+      details: {
+        sessionVerified: true,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
+    });
+    mockCurrentAccount.mockReturnValue({
+      email: MOCK_ACCOUNT.primaryEmail.email,
+      sessionToken: 'mock-session-token',
+      uid: 'mock-uid',
+      verified: true,
+    });
   });
 
   it('renders `LoadingSpinner` component when loading initial state is true', () => {
@@ -94,8 +105,8 @@ describe('Settings App', () => {
     expect(getByLabelText('Loading…')).toBeInTheDocument();
   });
 
-  it('renders `AppErrorDialog` component when settings query errors', () => {
-    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
+  it('renders `AppErrorDialog` component when settings query errors', async () => {
+    (useInitialSettingsState as jest.Mock).mockReturnValue({
       error: { message: 'Error' },
     });
     const { getByRole } = renderWithRouter(
@@ -104,15 +115,19 @@ describe('Settings App', () => {
       </AppContext.Provider>
     );
 
-    expect(getByRole('heading', { level: 2 })).toHaveTextContent(
-      'General application error'
-    );
+    await waitFor(() => {
+      expect(getByRole('heading', { level: 2 })).toHaveTextContent(
+        'General application error'
+      );
+    });
   });
 
   it('redirects to root if account is not verified', async () => {
     // this warning is expected, so we don't want to see it in the test output
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
-      if (msg === 'Account verification is require to access /settings!')
+      if (
+        msg === 'Account or email verification is require to access /settings!'
+      )
         return;
     });
     const unverifiedAccount = {
@@ -135,8 +150,73 @@ describe('Settings App', () => {
       { route: SETTINGS_PATH }
     );
 
-    await Promise.resolve();
-    expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    });
+    warnSpy.mockRestore();
+  });
+
+  it('redirects to root if session is not verified', async () => {
+    // this warning is expected, so we don't want to see it in the test output
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
+      if (
+        msg === 'Account or email verification is require to access /settings!'
+      )
+        return;
+    });
+    const unverifiedSession = mockSession(false);
+    mockSessionStatus.mockResolvedValue({
+      details: {
+        sessionVerified: false,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
+    });
+
+    renderWithRouter(
+      <AppContext.Provider
+        value={mockAppContext({ session: unverifiedSession })}
+      >
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+    });
+    warnSpy.mockRestore();
+  });
+
+  it('redirects to signin_totp_code with correct state when AAL is not met', async () => {
+    // this warning is expected, so we don't want to see it in the test output
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation((msg) => {
+      if (msg === '2FA must be entered to access /settings!') return;
+    });
+    mockSessionStatus.mockResolvedValue({
+      details: {
+        sessionVerified: true,
+        sessionVerificationMeetsMinimumAAL: false,
+      },
+    });
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <Subject />
+      </AppContext.Provider>,
+      { route: SETTINGS_PATH }
+    );
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/signin_totp_code', {
+        state: {
+          email: MOCK_ACCOUNT.primaryEmail.email,
+          sessionToken: 'mock-session-token',
+          uid: 'mock-uid',
+          verified: true,
+          isSessionAALUpgrade: true,
+        },
+      });
+    });
     warnSpy.mockRestore();
   });
 
@@ -191,8 +271,28 @@ describe('Settings App', () => {
 
     expect(getAllByTestId('avatar-nondefault')[0]).toBeInTheDocument();
   });
-
   it('routes to PageChangePassword', async () => {
+    // Suppress MFA guard for this test
+    mockMfaGuard.mockImplementationOnce(
+      ({ children }: { children: ReactNode }) => <>{children}</>
+    );
+
+    // Mock the JWT token cache to suppress MFA guard
+    const mockJwtTokenCache = {
+      hasToken: jest.fn().mockReturnValue(true),
+      getToken: jest.fn().mockReturnValue('mock-jwt-token'),
+      setToken: jest.fn(),
+      removeToken: jest.fn(),
+      subscribe: jest.fn(),
+      getSnapshot: jest.fn(),
+      getKey: jest.fn(),
+    };
+
+    jest.mock('../../lib/cache', () => ({
+      ...jest.requireActual('../../lib/cache'),
+      JwtTokenCache: mockJwtTokenCache,
+    }));
+
     const session = mockSession(true);
     const {
       getByTestId,
@@ -207,46 +307,6 @@ describe('Settings App', () => {
     await navigate(SETTINGS_PATH + '/change_password');
 
     expect(getByTestId('change-password-requirements')).toBeInTheDocument();
-  });
-
-  it('routes to two step authentication page', async () => {
-    const session = mockSession(true);
-    const account = {
-      ...MOCK_ACCOUNT,
-      hasPassword: true,
-    } as unknown as Account;
-    const {
-      getByTestId,
-      history,
-      history: { navigate },
-    } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account, session })}>
-        <Subject />
-      </AppContext.Provider>,
-      { route: SETTINGS_PATH }
-    );
-
-    await navigate(SETTINGS_PATH + '/two_step_authentication');
-
-    expect(history.location.pathname).toBe('/settings/two_step_authentication');
-    expect(getByTestId('mock-2fa-setup-page')).toBeInTheDocument();
-  });
-
-  it('routes to Page2faReplaceBackupCodes', async () => {
-    const session = mockSession(true);
-    const {
-      getByTestId,
-      history: { navigate },
-    } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ session })}>
-        <Subject />
-      </AppContext.Provider>,
-      { route: SETTINGS_PATH }
-    );
-
-    await navigate(SETTINGS_PATH + '/two_step_authentication/replace_codes');
-
-    expect(getByTestId('2fa-backup-codes')).toBeInTheDocument();
   });
 
   it('routes to PageDeleteAccount', async () => {
@@ -346,6 +406,36 @@ describe('Settings App', () => {
         route: '/emails/verify',
         hasPassword: false,
       },
+      {
+        pageName: 'Page2faReplaceBackupCodes',
+        route: '/two_step_authentication/replace_codes',
+        hasPassword: true,
+      },
+      {
+        pageName: 'PageRecoveryPhoneSetup',
+        route: '/recovery_phone/setup',
+        hasPassword: false,
+      },
+      {
+        pageName: 'PageRecoveryKeyCreate',
+        route: '/account_recovery',
+        hasPassword: true,
+      },
+      {
+        pageName: 'PageChangePassword',
+        route: '/change_password',
+        hasPassword: true,
+      },
+      {
+        pageName: 'PageRecoveryPhoneRemove',
+        route: '/recovery_phone/remove',
+        hasPassword: true,
+      },
+      {
+        pageName: 'Page2faSetup',
+        route: '/two_step_authentication',
+        hasPassword: true,
+      },
     ];
 
     it.each(guardedRoutes)(
@@ -379,7 +469,6 @@ describe('Settings App', () => {
       const account = {
         ...MOCK_ACCOUNT,
         hasPassword: false,
-        getMonitorPlusPromoEligibility: () => Promise.resolve(false),
       } as unknown as Account;
 
       const config = {

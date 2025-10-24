@@ -31,6 +31,28 @@ const convictConf = convict({
     default: 1,
     env: 'AUTH_API_VERSION',
   },
+  authStrategies: {
+    verifiedSessionToken: {
+      skipEmailVerifiedCheckForRoutes: {
+        default: '',
+        doc: 'A regex that defines the routes that should skip the email verification check.',
+        env: 'AUTH_STRATEGIES__VERIFIED_SESSION_TOKEN__SKIP_EMAIL_CHECK_FOR_ROUTES',
+        format: String,
+      },
+      skipTokenVerifiedCheckForRoutes: {
+        default: '',
+        doc: 'A regex that defines the routes that should skip the token verified check.',
+        env: 'AUTH_STRATEGIES__VERIFIED_SESSION_TOKEN__SKIP_TOKEN_VERIFIED_CHECK_FOR_ROUTES',
+        format: String,
+      },
+      skipAalCheckForRoutes: {
+        default: '',
+        doc: 'A regex that defines the routes that should skip the account assurance level check.',
+        env: 'AUTH_STRATEGIES__VERIFIED_SESSION_TOKEN__SKIP_AAL_CHECK_FOR_ROUTES',
+        format: String,
+      },
+    },
+  },
   // TODO: Remove this after we have synchronized login records to Firestore
   firestore: {
     credentials: {
@@ -163,7 +185,7 @@ const convictConf = convict({
     rules: {
       doc: 'Mapping of features to country codes that are allowed to see the feature',
       format: Object,
-      default: {}, // ex. { "MONITORPLUSPROMO": ["US"] }
+      default: {}, // ex. { "FEATURE_NAME": ["US"] }
       env: 'GEO_ELIGIBILITY_RULES',
     },
   },
@@ -474,10 +496,16 @@ const convictConf = convict({
         'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8&utm_source=email',
     },
     supportUrl: {
-      doc: 'url to Mozilla Support product page',
+      doc: 'url to Mozilla account support page',
       format: String,
       default:
         'https://support.mozilla.org/kb/im-having-problems-my-firefox-account',
+    },
+    subscriptionSupportUrl: {
+      doc: 'url to Mozilla subscription support page',
+      format: String,
+      default:
+        'https://support.mozilla.org/products',
     },
     redirectDomain: {
       doc: 'Domain that mail urls are allowed to redirect to',
@@ -501,6 +529,12 @@ const convictConf = convict({
         'https://www.mozilla.org/about/legal/terms/firefox-private-network/',
       doc: 'Subscription terms and cancellation policy URL',
       env: 'SUBSCRIPTION_TERMS_URL',
+      format: String,
+    },
+    subscriptionSettingsUrl: {
+      default: 'https://payments.firefox.com/',
+      doc: 'Subscriptions management URL',
+      env: 'PAYMENTS_NEXT_HOSTED_URL',
       format: String,
     },
     unsubscribeUrl: {
@@ -1467,6 +1501,12 @@ const convictConf = convict({
       format: 'String',
       default: 'private, no-cache, no-store, must-revalidate',
     },
+    strictScopeValidation: {
+      doc: 'If true, removes OAuth scopes that are invalid',
+      env: 'OAUTH_STRICT_SCOPE_VALIDATION',
+      format: 'Boolean',
+      default: false,
+    },
   },
   metrics: {
     flow_id_key: {
@@ -1578,10 +1618,36 @@ const convictConf = convict({
       },
     },
     forceGlobally: {
-      doc: 'Force sign-in confirmation for all accounts',
+      doc: 'Force sign-in confirmation for all accounts. Sets "mustVerify: 1" on created session tokens and creates an entry in unverifiedTokens, simulating a suspicious request or requesting scoped keys',
       format: Boolean,
       default: false,
       env: 'SIGNIN_CONFIRMATION_FORCE_GLOBALLY',
+    },
+    deviceFingerprinting: {
+      enabled: {
+        doc: 'Enable device fingerprinting based verification skip',
+        format: Boolean,
+        default: false,
+        env: 'SIGNIN_CONFIRMATION_DEVICE_FINGERPRINTING_ENABLED',
+      },
+      reportOnlyMode: {
+        doc: 'When true, logs device matches but does not skip verification',
+        format: Boolean,
+        default: true,
+        env: 'SIGNIN_CONFIRMATION_DEVICE_FINGERPRINTING_REPORT_ONLY',
+      },
+      duration: {
+        doc: 'How long a recognized device can skip verification',
+        default: '7 days',
+        format: 'duration',
+        env: 'SIGNIN_CONFIRMATION_DEVICE_FINGERPRINTING_DURATION',
+      },
+    },
+    tokenVerification: {
+      doc: 'If set to false, force sign-in confirmation for logins that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating an unverified session state',
+      format: Boolean,
+      default: true,
+      env: 'SIGNIN_CONFIRMATION_TOKEN_VERIFICATION',
     },
   },
   forcePasswordChange: {
@@ -2476,7 +2542,7 @@ const convictConf = convict({
       env: 'MFA__ENABLED',
     },
     actions: {
-      default: ['test', '2fa', 'email'],
+      default: ['test', '2fa', 'email', 'recovery_key', 'password'],
       doc: 'Actions protected by MFA',
       format: Array,
       env: 'MFA__ACTIONS',
@@ -2593,8 +2659,6 @@ convictConf.set(
   'smtp.verifySecondaryEmailUrl',
   `${baseUri}/verify_secondary_email`
 );
-convictConf.set('smtp.subscriptionSettingsUrl', `${baseUri}/subscriptions`);
-convictConf.set('smtp.subscriptionSupportUrl', `${baseUri}/support`);
 convictConf.set('smtp.syncUrl', `${baseUri}/connect_another_device`);
 
 convictConf.set('isProduction', convictConf.get('env') === 'prod');

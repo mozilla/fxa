@@ -1,8 +1,9 @@
 {
   "appStore": [{
     "bundleId": "skydiving.with.foxkeh",
+    "currency": "USD",
     "environment": "Sandbox",
-    "expiresDate": "1707012573000",
+    "expiresDate": 1707012573000,
     "formOfPayment": "APPLE_APP_STORE",
     "isInBillingRetry": false,
     "originalPurchaseDate": 1602501465000,

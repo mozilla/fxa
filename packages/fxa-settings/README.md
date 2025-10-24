@@ -222,9 +222,10 @@ Example: Guarding a page at render time with a scoped JWT
 ```tsx
 import { MfaGuard } from './MfaGuard';
 import PageMfaGuardTestWithAuthClient from './components/Settings/PageMfaGuardTest';
+import { MfaReason } from '../../../lib/types';
 
 export const Page = () => (
-  <MfaGuard requiredScope="test">
+  <MfaGuard requiredScope="test" reason={MfaReason.test}>
     <PageMfaGuardTestWithAuthClient path="/mfa_guard/test/auth_client" />
   </MfaGuard>
 );

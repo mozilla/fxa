@@ -16,6 +16,7 @@ export type InvoicePreview = {
   number: string | null; // customer-facing invoice identifier
   paypalTransactionId?: string;
   invoiceDate: number;
+  invoiceUrl?: string | null;
   nextInvoiceDate: number;
   amountDue: number;
   creditApplied: number | null;
@@ -51,6 +52,11 @@ export interface StripePaymentMethod {
 export interface PayPalPaymentMethod {
   type: SubPlatPaymentMethodType.PayPal;
 }
+
+export type PaymentMethodTypeResponse =
+  | StripePaymentMethod
+  | PayPalPaymentMethod
+  | null;
 
 export interface Interval {
   interval: NonNullable<StripePrice['recurring']>['interval'];

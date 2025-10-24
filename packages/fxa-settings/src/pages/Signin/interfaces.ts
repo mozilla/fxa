@@ -9,7 +9,7 @@ import { BeginSigninError } from '../../lib/error-utils';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { MozServices } from '../../lib/types';
-import { Account, Integration } from '../../models';
+import { Integration } from '../../models';
 import { QueryParams } from '../..';
 
 export interface AvatarResponse {
@@ -30,6 +30,8 @@ export type SigninUnblockIntegration = Pick<
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
+  | 'isFirefoxClientServiceAiMode'
+  | 'getWebChannelServices'
   | 'wantsLogin'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
@@ -46,6 +48,8 @@ export type SigninIntegration =
       | 'data'
       | 'isDesktopSync'
       | 'isFirefoxClientServiceRelay'
+      | 'isFirefoxClientServiceAiMode'
+      | 'getWebChannelServices'
       | 'getCmsInfo'
       | 'isFirefoxMobileClient'
     >
@@ -63,6 +67,8 @@ export type SigninOAuthIntegration = Pick<
   | 'data'
   | 'isDesktopSync'
   | 'isFirefoxClientServiceRelay'
+  | 'isFirefoxClientServiceAiMode'
+  | 'getWebChannelServices'
   | 'getCmsInfo'
   | 'isFirefoxMobileClient'
 >;
@@ -217,6 +223,7 @@ export interface NavigationOptions {
   isSignInWithThirdPartyAuth?: boolean;
   showSignupConfirmedSync?: boolean;
   syncHidePromoAfterLogin?: boolean;
+  isSessionAALUpgrade?: boolean;
   handleFxaLogin?: boolean;
   handleFxaOAuthLogin?: boolean;
   syncEngines?: {
@@ -241,6 +248,5 @@ export interface SigninLocationState {
   verificationReason?: VerificationReasons;
   origin?: NavigationOptions['origin'];
   showInlineRecoveryKeySetup?: boolean;
+  isSessionAALUpgrade?: boolean;
 }
-
-export type TotpToken = Awaited<ReturnType<Account['createTotp']>>;

@@ -173,63 +173,10 @@ Lug.prototype.summary = function (request, response) {
     phoneNumber: responseBody.formattedPhoneNumber,
   };
 
-  // TODO: Remove after debugging mysterious empty response body reported in FXA-6573
-  //       is complete.
-  if (
-    config.env !== 'prod' &&
-    line.status === 400 &&
-    line.path === '/v1/session/verify_code'
-  ) {
-    try {
-      const body = JSON.stringify(responseBody);
-      this.info('request.summary.debug', {
-        body,
-        bodySize: body.length,
-      });
-    } catch (error) {
-      this.info('request.summary.debug', {
-        bodySize: -1,
-        error,
-      });
-    }
-  }
-
-
-  // TODO: Remove after debugging email confirmations issues
-  if (line.status === 400 &&
-    line.path === '/v1/session/verify_code' &&
-    // Only log for invalid code and invalid parameter errors
-    (line.errno === 107 || line.errno === 183)
-  ) {
-    (async () => {
-      try {
-        const metricsContext = (await request.app.metricsContext) || {};
-        const requestBody = JSON.stringify(payload);
-        const requestQuery = JSON.stringify(query);
-        const requestMetrics = JSON.stringify(metricsContext);
-        const body = JSON.stringify(responseBody);
-        this.info('request.summary.debug.email', {
-          body,
-          requestBody,
-          requestQuery,
-          requestMetrics,
-          bodySize: body.length,
-        });
-      } catch (error) {
-        this.info('request.summary.debug.email', {
-          bodySize: -1,
-          error,
-        });
-      }
-    })();
-  }
-
   if (line.status >= 500) {
     line.trace = request.app.traced;
     line.stack = response.stack;
     this.error('request.summary', line);
-  } else {
-    this.info('request.summary', line);
   }
 };
 

@@ -21,11 +21,12 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Disabled');
 
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
+      await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
@@ -67,11 +68,12 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Disabled');
 
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
+      await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
@@ -90,7 +92,7 @@ test.describe('severity-1 #smoke', () => {
       const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
 
-      await expect(page).toHaveURL(/pair/);
+      await page.waitForURL(/pair/);
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
@@ -112,11 +114,12 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Disabled');
 
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
+      await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');

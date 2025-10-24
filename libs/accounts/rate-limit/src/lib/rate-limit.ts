@@ -3,14 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Redis } from 'ioredis';
-import { BlockStatus, Rule, BlockOn, BlockOnOpts } from './models';
+import { BlockStatus, Rule, BlockOn, BlockOnOpts, SearchOpts } from './models';
 import { ActionNotFound, MissingOption } from './error';
 import {
   createBlockRecord,
   createBlockStatus,
+  createSearchIdentifiers,
   getBanKey,
   getKey,
   getLargestRetryAfter,
+  getKeyType,
   parseBlockRecord,
 } from './util';
 
@@ -222,13 +224,12 @@ export class RateLimit {
    * @param blocks set of applicable rules
    * @returns Block with policy of type 'block' and the largest retryAfter value.
    */
-  private determineBlockStatus(
-    action: string,
-    blocks: BlockStatus[]
-  ) {
+  private determineBlockStatus(action: string, blocks: BlockStatus[]) {
     // Blocks with a 'report' policy, are only reported. Don't return this block, but still emit
     // metrics indicating it may have resulted in block.
-    const reportOnlyBlock = getLargestRetryAfter(blocks.filter((x) => x.policy === 'report'));
+    const reportOnlyBlock = getLargestRetryAfter(
+      blocks.filter((x) => x.policy === 'report')
+    );
     if (reportOnlyBlock) {
       this.statsd?.increment(`rate_limit.${reportOnlyBlock.policy}`, [
         `on:${reportOnlyBlock.blockingOn}`,
@@ -238,7 +239,9 @@ export class RateLimit {
 
     // Next the block with the longest retry after. This is what we actually return in order
     // to initiate a block.
-    const block = getLargestRetryAfter(blocks.filter(x => x.policy !== 'report'));
+    const block = getLargestRetryAfter(
+      blocks.filter((x) => x.policy !== 'report')
+    );
     if (block) {
       this.statsd?.increment(`rate_limit.${block.policy}`, [
         `on:${block.blockingOn}`,
@@ -342,5 +345,97 @@ export class RateLimit {
       check('uid', opts.uid),
     ]);
     return bans;
+  }
+
+  /**
+   * Scans for keys matching the given attribute and identifier.
+   * Valid identifiers can be ip, email, uid, ip_email, ip_uid
+   */
+  private async scanKeys(
+    attr: BlockOn,
+    identifier: string | undefined
+  ): Promise<string[]> {
+    const keys: string[] = [];
+    if (!identifier) {
+      return keys;
+    }
+    let cursor = '0';
+    do {
+      const [next, batch] = await this.redis.scan(
+        cursor,
+        'MATCH',
+        `rate-limit:*:${attr}=${identifier}*`,
+        'COUNT',
+        1000
+      );
+      keys.push(...batch);
+      cursor = next;
+    } while (cursor !== '0' && keys.length <= 1000);
+    return keys;
+  }
+
+  /** Finds keys for for an identifier. Valid identifiers can be ip, email, uid, ip_email, ip_uid */
+  private async searchByIdentifier(
+    attr: BlockOn,
+    identifier: string | undefined
+  ): Promise<BlockStatus[]> {
+    if (!identifier) {
+      return [];
+    }
+    const keys = await this.scanKeys(attr, identifier);
+    return (
+      await Promise.all(
+        keys.map(async (key) => {
+          const json = await this.redis.get(key);
+          const blockRecord = parseBlockRecord(json);
+          return blockRecord
+            ? createBlockStatus(Date.now(), blockRecord)
+            : null;
+        })
+      )
+    ).filter((x) => x !== null);
+  }
+
+  /** search for rate limit statuses in redis by ip, uid, and email */
+  async search(opts: SearchOpts): Promise<BlockStatus[]> {
+    const { ip, email, uid, ip_email, ip_uid } = createSearchIdentifiers(opts);
+    return (
+      await Promise.all([
+        this.searchByIdentifier('ip', ip),
+        this.searchByIdentifier('email', email),
+        this.searchByIdentifier('uid', uid),
+        this.searchByIdentifier('ip_email', ip_email),
+        this.searchByIdentifier('ip_uid', ip_uid),
+      ])
+    ).flat();
+  }
+
+  /**
+   * search and clear rate limit blocks and bans by ip, uid, and email
+   * @returns number of cleared records
+   */
+  async searchAndClear(opts: SearchOpts): Promise<number> {
+    const { ip, email, uid, ip_email, ip_uid } = createSearchIdentifiers(opts);
+    const keys = (
+      await Promise.all([
+        this.scanKeys('ip', ip),
+        this.scanKeys('email', email),
+        this.scanKeys('uid', uid),
+        this.scanKeys('ip_email', ip_email),
+        this.scanKeys('ip_uid', ip_uid),
+      ])
+    ).flat();
+    const deleteResults = await Promise.all(
+      keys.map((key) => {
+        const type = getKeyType(key);
+        const delCount = this.redis.del(key);
+        if (type === 'ban' || type === 'block') {
+          return delCount;
+        }
+        // attempts and report does not count towards number of deleted records
+        return 0;
+      })
+    );
+    return deleteResults.reduce((sum, result) => sum + result, 0);
   }
 }

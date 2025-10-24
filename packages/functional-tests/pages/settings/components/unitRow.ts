@@ -123,13 +123,17 @@ export class TotpRow extends UnitRow {
 
 export class ConnectedServicesRow extends UnitRow {
   async services() {
-    const elements = this.page.locator('[data-testid=settings-connected-service]');
+    const elements = this.page.locator(
+      '[data-testid=settings-connected-service]'
+    );
     // there should be multiple, but you cannot call `.waitFor()` on a locator
     // that returns multiple elements.
     await elements.first().waitFor({ state: 'attached' });
-    const elementHandles = await elements.elementHandles();
+    const count = await elements.count();
     return Promise.all(
-      elementHandles.map((el) => ConnectedService.create(el, this.page))
+      Array.from({ length: count }, (_, i) =>
+        ConnectedService.create(elements.nth(i), this.page)
+      )
     );
   }
 }

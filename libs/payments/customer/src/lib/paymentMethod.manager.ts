@@ -13,14 +13,8 @@ import {
 import {
   DefaultPaymentMethod,
   SubPlatPaymentMethodType,
-  StripePaymentMethod,
-  PayPalPaymentMethod,
+  type PaymentMethodTypeResponse,
 } from './types';
-
-type PaymentMethodTypeResponse =
-  | StripePaymentMethod
-  | PayPalPaymentMethod
-  | null;
 
 @Injectable()
 export class PaymentMethodManager {
@@ -46,10 +40,7 @@ export class PaymentMethodManager {
     uid: string
   ) {
     let defaultPaymentMethod: DefaultPaymentMethod | undefined;
-    const paymentMethodType = await this.determineType(
-      customer,
-      subscriptions
-    );
+    const paymentMethodType = await this.determineType(customer, subscriptions);
     switch (paymentMethodType?.type) {
       case SubPlatPaymentMethodType.Link:
       case SubPlatPaymentMethodType.Card:
@@ -82,10 +73,10 @@ export class PaymentMethodManager {
     return defaultPaymentMethod;
   }
 
-  async determineType (
+  async determineType(
     customer?: StripeCustomer,
     subscriptions?: StripeSubscription[]
-  ): Promise <PaymentMethodTypeResponse> {
+  ): Promise<PaymentMethodTypeResponse> {
     // First check if payment method is PayPal
     // Note, this needs to happen first since a customer could also have a
     // default payment method. However if PayPal is set as the payment method,
@@ -107,22 +98,22 @@ export class PaymentMethodManager {
         return {
           type: SubPlatPaymentMethodType.ApplePay,
           paymentMethodId: customer.invoice_settings.default_payment_method,
-        }
+        };
       } else if (paymentMethod.card?.wallet?.type === 'google_pay') {
         return {
           type: SubPlatPaymentMethodType.GooglePay,
           paymentMethodId: customer.invoice_settings.default_payment_method,
-        }
+        };
       } else if (paymentMethod.type === 'link') {
         return {
           type: SubPlatPaymentMethodType.Link,
           paymentMethodId: customer.invoice_settings.default_payment_method,
-        }
+        };
       } else if (paymentMethod.type === 'card') {
         return {
           type: SubPlatPaymentMethodType.Card,
           paymentMethodId: customer.invoice_settings.default_payment_method,
-        }
+        };
       } else {
         return {
           type: SubPlatPaymentMethodType.Stripe,
@@ -132,6 +123,5 @@ export class PaymentMethodManager {
     }
 
     return null;
-  };
-
+  }
 }

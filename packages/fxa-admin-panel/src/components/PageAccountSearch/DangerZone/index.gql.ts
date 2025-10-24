@@ -28,14 +28,14 @@ export const REMOVE_2FA = gql`
   }
 `;
 
-export const SEND_PASSWORD_RESET_EMAIL = gql`
-  mutation sendPasswordResetEmail($email: String!) {
-    sendPasswordResetEmail(email: $email)
-  }
-`;
-
 export const UNSUBSCRIBE_FROM_MAILING_LISTS = gql`
   mutation unsubscribeFromMailingLists($uid: String!) {
     unsubscribeFromMailingLists(uid: $uid)
+  }
+`;
+
+export const DELETE_RECOVERY_PHONE = gql`
+  mutation deleteRecoveryPhone($uid: String!) {
+    deleteRecoveryPhone(uid: $uid)
   }
 `;

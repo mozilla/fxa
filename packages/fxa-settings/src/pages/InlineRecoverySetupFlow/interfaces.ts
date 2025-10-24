@@ -4,11 +4,11 @@
 
 import { Dispatch, SetStateAction } from 'react';
 import { Choice } from '../../components/FormChoice';
-import { MozServices } from '../../lib/types';
-import { SigninLocationState, TotpToken } from './../Signin/interfaces';
+import { MozServices, TotpInfo } from '../../lib/types';
+import { SigninLocationState } from './../Signin/interfaces';
 
 export type SigninRecoveryLocationState = SigninLocationState & {
-  totp: TotpToken;
+  totp: TotpInfo;
 };
 
 export interface InlineRecoverySetupProps {

@@ -22,6 +22,9 @@ test.describe('severity-1 #smoke', () => {
 
       // Goes to settings and enables the account recovery key on user's account.
       await settings.recoveryKey.createButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
+
       const accountRecoveryKey = await recoveryKey.createRecoveryKey(
         credentials.password,
         'hint'

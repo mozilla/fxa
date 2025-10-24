@@ -4,9 +4,14 @@
 
 import {
   BlockOn,
+  BlockOnOpts,
   BlockRecord,
   BlockStatus,
+  isBlockOn,
+  isBlockPolicy,
+  RateLimitKeyType,
   Rule,
+  SearchOpts,
   TOO_MANY_ATTEMPTS,
 } from './models';
 
@@ -19,13 +24,24 @@ export function getBanKey(blockingOn: BlockOn, blockedValue: string) {
  * Generates a redis key
  */
 export function getKey(
-  type: 'attempts' | 'block' | 'ban' | 'report',
+  type: RateLimitKeyType,
   action: string,
   rule: Rule,
   blockedValue: string
 ) {
   const sanitizedBlockedValue = sanitizeKeyValue(blockedValue);
   return `rate-limit:${type}:${rule.blockingOn}=${sanitizedBlockedValue}:${action}:${rule.maxAttempts}-${rule.windowDurationInSeconds}-${rule.blockDurationInSeconds}`;
+}
+
+/**
+ * Extracts the policy from a redis key.
+ * returns undefined if the key is not in valid format.
+ */
+export function getKeyType(key: string): RateLimitKeyType | undefined {
+  const parts = key.split(':');
+  return isBlockPolicy(parts[1]) || parts[1] === 'attempts'
+    ? parts[1]
+    : undefined;
 }
 
 /**
@@ -57,13 +73,13 @@ export function getLargestRetryAfter(blocks: BlockStatus[]) {
 export function isBlockRecord(obj: any): obj is BlockRecord {
   const result =
     typeof obj.action === 'string' &&
-    typeof obj.blockingOn === 'string' &&
+    isBlockOn(obj.blockingOn) &&
     typeof obj.blockedValue === 'string' &&
     typeof obj.startTime === 'number' &&
     typeof obj.duration === 'number' &&
     typeof obj.reason === 'string' &&
     typeof obj.attempts === 'number' &&
-    typeof obj.policy === 'string';
+    isBlockPolicy(obj.policy);
   return result;
 }
 
@@ -73,7 +89,9 @@ export function parseBlockRecord(value: string | null): BlockRecord | null {
   }
   const json = JSON.parse(value);
 
-  if (!json) {
+  // If the type is "attempt", then the value will be a string of integer
+  // instead of a BlockRecord
+  if (typeof json !== 'object' || json === null) {
     return null;
   }
 
@@ -121,4 +139,23 @@ export function createBlockRecord(
     usedDefaultRule,
     policy: rule.blockPolicy,
   } satisfies BlockRecord;
+}
+
+/** returns a set of identifiers for the given search options.
+ * If one of the options in the composite key is missing, it will be replaced
+ * with '*' to provide a wildcard match. if both options are missing, the
+ * composite key will not be included.
+ */
+export function createSearchIdentifiers({
+  ip,
+  email,
+  uid,
+}: SearchOpts): BlockOnOpts {
+  return {
+    ip,
+    email,
+    uid,
+    ip_email: ip || email ? `${ip || '*'}_${email || '*'}` : undefined,
+    ip_uid: ip || uid ? `${ip || '*'}_${uid || '*'}` : undefined,
+  };
 }

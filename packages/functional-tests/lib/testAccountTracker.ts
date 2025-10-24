@@ -147,6 +147,22 @@ export class TestAccountTracker {
   }
 
   /**
+   * Updates the password for an account in the TestAccountTracker instance.
+   * Useful for when password changes happen to ensure `destroyAllAccounts` uses
+   * the updated password.
+   * If the account is not found, an error is thrown.
+   * @param email email address of the account to update
+   * @param password new password for the account
+   */
+  updateAccountPassword(email: string, password: string) {
+    const account = this.accounts.find((account) => account.email === email);
+    if (!account) {
+      throw new Error(`Account ${email} not found`);
+    }
+    account.password = password;
+  }
+
+  /**
    * Signs up an account with the AuthClient with a new email address created
    * with the 'blocked' prefix and a new randomized password
    * @param options AuthClient signup options
@@ -256,27 +272,24 @@ export class TestAccountTracker {
         const verifyIfNeeded = async () => {
           try {
             await this.target.authClient.sessionResendVerifyCode(sessionToken);
-            // Prefer short (signup) code to confirm account when unverified
-            try {
-              const shortCode =
-                await this.target.emailClient.getVerifyShortCode(account.email);
-              await this.target.authClient.sessionVerifyCode(
-                sessionToken,
-                shortCode
-              );
-              return;
-            } catch (_) {
-              // Fallback to login verification code for unverified session
-            }
-            const loginCode = await this.target.emailClient.getVerifyLoginCode(
-              account.email
+
+            // Start checking for codes in parallel, whichever is available first will be used
+            const [shortCodePromise, loginCodePromise] = [
+              this.target.emailClient.getVerifyShortCode(account.email),
+              this.target.emailClient.getVerifyLoginCode(account.email),
+            ];
+            const code = await Promise.any([
+              shortCodePromise,
+              loginCodePromise,
+            ]);
+            await this.target.authClient.sessionVerifyCode(sessionToken, code);
+          } catch (err) {
+            // allow console.error so we can capture this message in the trace.
+            // eslint-disable-next-line no-console
+            console.error(
+              `Session verification skipped (might already be verified):`,
+              err
             );
-            await this.target.authClient.sessionVerifyCode(
-              sessionToken,
-              loginCode
-            );
-          } catch {
-            // Ignore verification errors - account/session might already be verified
           }
         };
 

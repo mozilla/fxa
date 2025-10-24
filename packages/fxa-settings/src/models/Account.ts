@@ -18,8 +18,9 @@ import {
   currentAccount,
   getStoredAccountData,
   sessionToken,
+  JwtTokenCache,
+  JwtNotFoundError,
 } from '../lib/cache';
-import { JwtTokenCache } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
@@ -586,15 +587,30 @@ export class Account implements AccountData {
   }
 
   async changePassword(oldPassword: string, newPassword: string) {
+    const currentSessionToken = sessionToken();
+
+    if (!currentSessionToken) {
+      throw AuthUiErrors.INVALID_TOKEN;
+    }
+
+    // Check if we have a JWT for MFA-protected password changes
+    const hasMfaJwt = JwtTokenCache.hasToken(currentSessionToken, 'password');
+
+    if (!hasMfaJwt) {
+      throw AuthUiErrors.INVALID_TOKEN;
+    }
+
+    // Use the new MFA-protected endpoint
+    const jwt = JwtTokenCache.getToken(currentSessionToken, 'password');
+
     const response = await this.withLoadingStatus(
-      this.authClient.passwordChange(
-        this.primaryEmail.email,
+      this.authClient.passwordChangeWithJWT(
+        jwt,
+        this.email,
         oldPassword,
         newPassword,
-        sessionToken()!,
-        {
-          keys: true,
-        }
+        currentSessionToken,
+        { keys: true }
       )
     );
 
@@ -1023,14 +1039,6 @@ export class Account implements AccountData {
       )
     );
 
-    currentAccount(getStoredAccountData(linkedAccount));
-    sessionToken(linkedAccount.sessionToken);
-
-    this.apolloClient.cache.writeQuery({
-      query: GET_LOCAL_SIGNED_IN_STATUS,
-      data: { isSignedIn: true },
-    });
-
     return linkedAccount;
   }
 
@@ -1071,13 +1079,23 @@ export class Account implements AccountData {
     return result;
   }
 
+  async setRecoveryCodesWithJwt(recoveryCodes: string[]) {
+    const jwt = this.getCachedJwtByScope('2fa');
+    const result = await this.withLoadingStatus(
+      this.authClient.setRecoveryCodesWithJwt(jwt, recoveryCodes)
+    );
+    await this.refresh('backupCodes');
+    return result;
+  }
+
   /**
    * Update recovery codes - replace existing codes with new codes generated client-side.
    * Allows for local code confirmation before updating.
    */
   async updateRecoveryCodes(recoveryCodes: string[]) {
+    const jwt = this.getCachedJwtByScope('2fa');
     const result = await this.withLoadingStatus(
-      this.authClient.updateRecoveryCodes(sessionToken()!, recoveryCodes)
+      this.authClient.updateRecoveryCodesWithJwt(jwt, recoveryCodes)
     );
     await this.refresh('backupCodes');
     return result;
@@ -1126,7 +1144,7 @@ export class Account implements AccountData {
 
   async disableTwoStepAuth() {
     await this.withLoadingStatus(
-      this.authClient.deleteTotpToken(sessionToken()!)
+      this.authClient.deleteTotpTokenWithJwt(this.getCachedJwtByScope('2fa'))
     );
 
     const cache = this.apolloClient.cache;
@@ -1142,10 +1160,9 @@ export class Account implements AccountData {
     await this.refresh('backupCodes');
   }
 
-  async deleteRecoveryKey() {
-    await this.withLoadingStatus(
-      this.authClient.deleteRecoveryKey(sessionToken()!)
-    );
+  async deleteRecoveryKeyWithJwt() {
+    const jwt = this.getCachedJwtByScope('recovery_key');
+    await this.withLoadingStatus(this.authClient.deleteRecoveryKeyWithJwt(jwt));
     const cache = this.apolloClient.cache;
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
@@ -1163,6 +1180,27 @@ export class Account implements AccountData {
   async deleteSecondaryEmail(email: string) {
     await this.withLoadingStatus(
       this.authClient.recoveryEmailDestroy(sessionToken()!, email)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        emails(existingEmails) {
+          const emails = [...existingEmails];
+          emails.splice(
+            emails.findIndex((x) => x.email === email),
+            1
+          );
+          return emails;
+        },
+      },
+    });
+  }
+
+  async deleteSecondaryEmailWithJwt(email: string) {
+    const jwt = this.getCachedJwtByScope('email');
+    await this.withLoadingStatus(
+      this.authClient.recoveryEmailDestroyWithJwt(jwt, email)
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1217,61 +1255,85 @@ export class Account implements AccountData {
     firefox.profileChanged({ uid: this.uid });
   }
 
+  async makeEmailPrimaryWithJwt(email: string) {
+    let jwt;
+    try {
+      jwt = this.getCachedJwtByScope('email');
+    } catch (error) {
+      throw AuthUiErrors.INVALID_TOKEN;
+    }
+    await this.withLoadingStatus(
+      this.authClient.recoveryEmailSetPrimaryEmailWithJwt(jwt, email)
+    );
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        emails(existingEmails) {
+          return existingEmails.map((x: Email) => {
+            const e = { ...x };
+            if (e.email === email) {
+              e.isPrimary = true;
+            } else if (e.isPrimary) {
+              e.isPrimary = false;
+            }
+            return e;
+          });
+        },
+        primaryEmail() {
+          return { email, isPrimary: true, verified: true };
+        },
+        avatar: (existing, { readField }) => {
+          const id = readField<string>('id', existing);
+          const oldUrl = readField<string>('url', existing);
+          return getNextAvatar(id, oldUrl, email, this.displayName);
+        },
+      },
+    });
+
+    const legacyLocalStorageAccount = currentAccount()!;
+    legacyLocalStorageAccount.email = email;
+    currentAccount(legacyLocalStorageAccount);
+
+    firefox.profileChanged({ uid: this.uid });
+  }
+
   async resendEmailCode(email: string) {
     return this.withLoadingStatus(
       this.authClient.recoveryEmailSecondaryResendCode(sessionToken()!, email)
     );
   }
 
-  async createTotp() {
+  async createTotpWithJwt() {
     const totp = await this.withLoadingStatus(
-      this.authClient.createTotpToken(sessionToken()!, {})
+      this.authClient.createTotpTokenWithJwt(
+        this.getCachedJwtByScope('2fa'),
+        {}
+      )
     );
-    const cache = this.apolloClient.cache;
-    cache.modify({
-      id: cache.identify({ __typename: 'Account' }),
-      fields: {
-        totp(currentTotp) {
-          return { ...currentTotp, exists: true };
-        },
-      },
-    });
     return totp;
   }
 
-  async verifyTotpSetupCode(code: string) {
+  async verifyTotpSetupCodeWithJwt(code: string) {
     await this.withLoadingStatus(
-      this.authClient.verifyTotpSetupCode(sessionToken()!, code, {})
+      this.authClient.verifyTotpSetupCodeWithJwt(
+        this.getCachedJwtByScope('2fa'),
+        code,
+        {}
+      )
     );
   }
 
-  async completeTotpSetup(service?: string) {
-    try {
-      await this.withLoadingStatus(
-        this.authClient.completeTotpSetup(
-          sessionToken()!,
-          service ? { service } : {}
-        )
-      );
-      // Only update local cache if the server-side setup completes successfully
-      await this.refresh('recoveryPhone');
-      const cache = this.apolloClient.cache;
-      cache.modify({
-        id: cache.identify({ __typename: 'Account' }),
-        fields: {
-          totp(currentTotp) {
-            return { ...currentTotp, verified: true };
-          },
-        },
-      });
-      await this.refresh('backupCodes');
-    } catch (e) {
-      // Surface to caller; ensures no partial/local updates if follow-up steps fail
-      throw e;
-    }
+  async completeTotpSetupWithJwt() {
+    await this.withLoadingStatus(
+      this.authClient.completeTotpSetupWithJwt(this.getCachedJwtByScope('2fa'))
+    );
+    await this.refresh('totp');
+    await this.refresh('backupCodes');
+    await this.refresh('recoveryPhone');
   }
 
-  async startReplaceTotp() {
+  async startReplaceTotpWithJwt() {
     const jwt = this.getCachedJwtByScope('2fa');
     const totp = await this.withLoadingStatus(
       this.authClient.startReplaceTotpTokenWithJwt(jwt, {})
@@ -1279,7 +1341,7 @@ export class Account implements AccountData {
     return totp;
   }
 
-  async confirmReplaceTotp(code: string) {
+  async confirmReplaceTotpWithJwt(code: string) {
     const jwt = this.getCachedJwtByScope('2fa');
     await this.withLoadingStatus(
       this.authClient.confirmReplaceTotpTokenWithJwt(jwt, code)
@@ -1319,7 +1381,11 @@ export class Account implements AccountData {
     firefox.profileChanged({ uid: this.uid });
   }
 
-  async createRecoveryKey(password: string, replaceKey: boolean = false) {
+  async createRecoveryKey(
+    password: string,
+    replaceKey: boolean,
+    useMfaJwt: boolean
+  ) {
     const reauth = await this.withLoadingStatus(
       this.authClient.sessionReauth(
         sessionToken()!,
@@ -1336,15 +1402,30 @@ export class Account implements AccountData {
     );
     const { recoveryKey, recoveryKeyId, recoveryData } =
       await generateRecoveryKey(this.uid, keys);
-    await this.withLoadingStatus(
-      this.authClient.createRecoveryKey(
-        sessionToken()!,
-        recoveryKeyId,
-        recoveryData,
-        true,
-        replaceKey
-      )
-    );
+
+    if (useMfaJwt) {
+      const jwt = this.getCachedJwtByScope('recovery_key');
+      await this.withLoadingStatus(
+        this.authClient.createRecoveryKeyWithJwt(
+          jwt,
+          recoveryKeyId,
+          recoveryData,
+          true,
+          replaceKey
+        )
+      );
+    } else {
+      await this.withLoadingStatus(
+        this.authClient.createRecoveryKey(
+          sessionToken()!,
+          recoveryKeyId,
+          recoveryData,
+          true,
+          replaceKey
+        )
+      );
+    }
+
     const cache = this.apolloClient.cache;
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
@@ -1468,8 +1549,17 @@ export class Account implements AccountData {
   }
 
   async removeRecoveryPhone() {
+    const jwt = this.getCachedJwtByScope('2fa');
     const result = await this.withLoadingStatus(
-      this.authClient.recoveryPhoneDelete(sessionToken()!)
+      this.authClient.recoveryPhoneDeleteWithJwt(jwt)
+    );
+    return result;
+  }
+
+  async addRecoveryPhoneWithJwt(phoneNumber: string) {
+    const jwt = this.getCachedJwtByScope('2fa');
+    const result = await this.withLoadingStatus(
+      this.authClient.recoveryPhoneCreateWithJwt(jwt, phoneNumber)
     );
     return result;
   }
@@ -1481,6 +1571,14 @@ export class Account implements AccountData {
     return result;
   }
 
+  async changeRecoveryPhoneWithJwt(code: string) {
+    const jwt = this.getCachedJwtByScope('2fa');
+    const result = await this.withLoadingStatus(
+      this.authClient.recoveryPhoneChangeWithJwt(jwt, code)
+    );
+    return result;
+  }
+
   async changeRecoveryPhone(code: string) {
     const result = await this.withLoadingStatus(
       this.authClient.recoveryPhoneChange(sessionToken()!, code)
@@ -1488,17 +1586,18 @@ export class Account implements AccountData {
     return result;
   }
 
-  async confirmRecoveryPhone(
-    code: string,
-    phoneNumber: string,
-    isInitial2faSetup: boolean
-  ) {
+  async confirmRecoveryPhoneWithJwt(code: string) {
+    const jwt = this.getCachedJwtByScope('2fa');
+    const result = await this.withLoadingStatus(
+      this.authClient.recoveryPhoneConfirmSetupWithJwt(jwt, code)
+    );
+    await this.refresh('recoveryPhone');
+    return result;
+  }
+
+  async confirmRecoveryPhone(code: string, phoneNumber: string) {
     const { nationalFormat } = await this.withLoadingStatus(
-      this.authClient.recoveryPhoneConfirmSetup(
-        sessionToken()!,
-        code,
-        isInitial2faSetup
-      )
+      this.authClient.recoveryPhoneConfirmSetup(sessionToken()!, code)
     );
     const cache = this.apolloClient.cache;
     cache.modify({
@@ -1521,14 +1620,14 @@ export class Account implements AccountData {
    * @param scope MfaScope
    * @returns JWT token string
    */
-  private getCachedJwtByScope(scope: MfaScope) {
+  getCachedJwtByScope(scope: MfaScope) {
     const token = sessionToken();
     if (!token) {
-      throw AuthUiErrors.INVALID_TOKEN;
+      throw new JwtNotFoundError('Missing parent session token.');
     }
     const hasJwt = JwtTokenCache.hasToken(token, scope);
     if (!hasJwt) {
-      throw AuthUiErrors.INVALID_REQUEST_SIGNATURE;
+      throw new JwtNotFoundError('Missing or expired jwt.');
     }
 
     return JwtTokenCache.getToken(token, scope);

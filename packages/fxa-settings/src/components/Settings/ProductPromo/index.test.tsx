@@ -4,13 +4,12 @@
 
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
-import ProductPromo from '.';
-import { Account, AppContext } from '../../../models';
-import { MozServices } from '../../../lib/types';
+import ProductPromo, { getProductPromoData } from '.';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { mockAppContext } from '../../../models/mocks';
 import GleanMetrics from '../../../lib/glean';
 import userEvent from '@testing-library/user-event';
+import { MozServices } from '../../../lib/types';
+import { AttachedClient } from '../../../models';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -38,12 +37,9 @@ describe('ProductPromo', () => {
     );
   });
 
-  it('can show generic promo', async () => {
+  it('can show promo', async () => {
     renderWithLocalizationProvider(
-      <ProductPromo
-        type="settings"
-        monitorPromo={{ hidePromo: false, showMonitorPlusPromo: false }}
-      />
+      <ProductPromo type="settings" monitorPromo={{ hidePromo: false }} />
     );
 
     await waitFor(() =>
@@ -61,35 +57,13 @@ describe('ProductPromo', () => {
     );
   });
 
-  it('can show special promo', async () => {
-    renderWithLocalizationProvider(
-      <ProductPromo
-        type="settings"
-        monitorPromo={{ hidePromo: false, showMonitorPlusPromo: true }}
-      />
-    );
-
-    await waitFor(() =>
-      expect(
-        screen.getByText(/save on VPN, Monitor’s data-broker protection/i)
-      ).toBeVisible()
-    );
-    expect(
-      screen.getByRole('link', { name: /Get year-round protection/i })
-    ).toHaveAttribute(
-      'href',
-      'https://monitor.mozilla.org/subscription-plans?utm_source=moz-account&utm_medium=referral&utm_term=settings&utm_content=get-year-round-protection-us&utm_campaign=settings-promo'
-    );
-  });
-
-  it('emits telemetry when CTA clicked (default)', async () => {
+  it('emits telemetry when CTA clicked', async () => {
     const user = userEvent.setup();
     renderWithLocalizationProvider(
       <ProductPromo
         type="settings"
         monitorPromo={{
           hidePromo: false,
-          showMonitorPlusPromo: false,
           gleanEvent: { event: { reason: 'default' } },
         }}
       />
@@ -114,41 +88,33 @@ describe('ProductPromo', () => {
     });
   });
 
-  it('emits telemetry when CTA clicked (special)', async () => {
-    const user = userEvent.setup();
-    const account = {
-      attachedClients: [{ name: MozServices.Monitor }],
-      subscriptions: [],
-      getMonitorPlusPromoEligibility: () => Promise.resolve({ eligible: true }),
-    } as unknown as Account;
+  describe('getProductPromoData', () => {
+    it('hides promo when Monitor is present', () => {
+      const result = getProductPromoData([
+        { name: MozServices.Monitor },
+      ] as AttachedClient[]);
+      expect(result).toEqual({ hidePromo: true });
+    });
 
-    renderWithLocalizationProvider(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <ProductPromo
-          type="settings"
-          monitorPromo={{
-            hidePromo: false,
-            showMonitorPlusPromo: true,
-            gleanEvent: { event: { reason: 'special' } },
-          }}
-        />
-      </AppContext.Provider>
-    );
+    it('hides promo when Monitor Stage is present', () => {
+      const result = getProductPromoData([
+        { name: MozServices.MonitorStage },
+      ] as AttachedClient[]);
+      expect(result).toEqual({ hidePromo: true });
+    });
 
-    await waitFor(() =>
-      expect(
-        screen.getByText(/save on VPN, Monitor’s data-broker protection/i)
-      ).toBeVisible()
-    );
-    await user.click(
-      screen.getByRole('link', {
-        name: /Get year-round protection/i,
-      })
-    );
-    await waitFor(() => {
-      expect(GleanMetrics.accountPref.promoMonitorSubmit).toHaveBeenCalledWith({
-        event: { reason: 'special' },
-      });
+    it('shows promo and provides gleanEvent when Monitor not present', () => {
+      const result = getProductPromoData([
+        { name: MozServices.Default },
+      ] as AttachedClient[]);
+      expect(result.hidePromo).toBe(false);
+      expect(result.gleanEvent).toEqual({ event: { reason: 'default' } });
+    });
+
+    it('shows promo with gleanEvent when there are no attached clients', () => {
+      const result = getProductPromoData([] as AttachedClient[]);
+      expect(result.hidePromo).toBe(false);
+      expect(result.gleanEvent).toEqual({ event: { reason: 'default' } });
     });
   });
 });

@@ -17,7 +17,13 @@ import {
 } from './emitter.types';
 import { AccountManager } from '@fxa/shared/account/account';
 import { retrieveAdditionalMetricsData } from './util/retrieveAdditionalMetricsData';
-import { getSubplatInterval } from '@fxa/payments/customer';
+import {
+  getSubplatInterval,
+  CustomerManager,
+  SubscriptionManager,
+  PaymentMethodManager,
+  type SubPlatPaymentMethodType,
+} from '@fxa/payments/customer';
 import * as Sentry from '@sentry/nestjs';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import { EmitterServiceHandleAuthError } from './emitter.error';
@@ -27,12 +33,15 @@ export class PaymentsEmitterService {
   private emitter: Emittery<PaymentsEmitterEvents>;
 
   constructor(
-    private productConfigurationManager: ProductConfigurationManager,
-    private paymentsGleanManager: PaymentsGleanManager,
-    private cartManager: CartManager,
     private accountManager: AccountManager,
+    private cartManager: CartManager,
+    private customerManager: CustomerManager,
+    private log: Logger,
+    private paymentsGleanManager: PaymentsGleanManager,
+    private paymentMethodManager: PaymentMethodManager,
+    private productConfigurationManager: ProductConfigurationManager,
     @Inject(StatsDService) public statsd: StatsD,
-    private log: Logger
+    private subscriptionManager: SubscriptionManager
   ) {
     this.emitter = new Emittery<PaymentsEmitterEvents>();
     this.emitter.on('checkoutView', this.handleCheckoutView.bind(this));
@@ -58,7 +67,7 @@ export class PaymentsEmitterService {
     this.statsd.increment('auth_event', { type });
 
     if (errorMessage) {
-      this.log.error(new EmitterServiceHandleAuthError(errorMessage))
+      this.log.error(new EmitterServiceHandleAuthError(errorMessage));
     }
   }
 
@@ -130,13 +139,32 @@ export class PaymentsEmitterService {
     const metricsOptOut = await this.retrieveOptOut(
       additionalData.cartMetricsData.uid
     );
+
     if (!metricsOptOut) {
+      // Determine payment method type
+      let paymentMethodType: SubPlatPaymentMethodType | undefined;
+      if (additionalData.cartMetricsData.stripeCustomerId) {
+        const { stripeCustomerId } = additionalData.cartMetricsData;
+        const customer = await this.customerManager.retrieve(stripeCustomerId);
+        const subscriptions =
+          await this.subscriptionManager.listForCustomer(stripeCustomerId);
+        const paymentMethodTypeResponse =
+          await this.paymentMethodManager.determineType(
+            customer,
+            subscriptions
+          );
+
+        if (paymentMethodTypeResponse?.type) {
+          paymentMethodType = paymentMethodTypeResponse.type;
+        }
+      }
+
       this.paymentsGleanManager.recordFxaPaySetupSuccess(
         {
           commonMetricsData: eventData,
           ...additionalData,
         },
-        eventData.paymentProvider
+        paymentMethodType
       );
     }
   }
@@ -152,13 +180,10 @@ export class PaymentsEmitterService {
       additionalData.cartMetricsData.uid
     );
     if (!metricsOptOut) {
-      this.paymentsGleanManager.recordFxaPaySetupFail(
-        {
-          commonMetricsData: eventData,
-          ...additionalData,
-        },
-        eventData.paymentProvider
-      );
+      this.paymentsGleanManager.recordFxaPaySetupFail({
+        commonMetricsData: eventData,
+        ...additionalData,
+      });
     }
   }
 

@@ -19,7 +19,7 @@ interface CacheEntry {
  * - method: There was no fresh enough value in cache, so the method was called.
  * - fallback: The method failed, so a very old (older than stale) value was returned.
  */
-type CacheResult = 'stale' | 'method' | 'fallback';
+type CacheResult = 'stale' | 'method' | 'fallback' | 'fallbackFailed';
 
 export class StaleWhileRevalidateWithFallbackStrategy implements CacheStrategy {
   private pendingCacheRequestMap = new Map<
@@ -149,6 +149,7 @@ export class StaleWhileRevalidateWithFallbackStrategy implements CacheStrategy {
         this.onRequestFinshed?.(startTime, Date.now(), 'fallback');
         return oldResult.value;
       } else {
+        this.onRequestFinshed?.(startTime, Date.now(), 'fallbackFailed');
         throw err;
       }
     }

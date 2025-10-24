@@ -2,12 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import SettingsLayout from './SettingsLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
-import { useAccount, useInitialSettingsState, useSession } from '../../models';
+import {
+  useAccount,
+  useAuthClient,
+  useInitialSettingsState,
+  useSession,
+} from '../../models';
 import {
   Redirect,
   Router,
@@ -15,28 +20,29 @@ import {
   useLocation,
 } from '@reach/router';
 import PageSettings from './PageSettings';
-import PageChangePassword from './PageChangePassword';
+import MfaGuardedPageChangePassword from './PageChangePassword';
 import PageCreatePassword from './PageCreatePassword';
 import { MfaGuardPageSecondaryEmailAdd } from './PageSecondaryEmailAdd';
 import { MfaGuardPageSecondaryEmailVerify } from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
-import Page2faSetup from './Page2faSetup';
-import { Page2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
-import { PageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
+import { MfaGuardPage2faSetup } from './Page2faSetup';
+import { MfaGuardPage2faChange } from './Page2faChange';
+import { MfaGuardPage2faReplaceBackupCodes } from './Page2faReplaceBackupCodes';
+import { MfaGuardPageRecoveryPhoneSetup } from './PageRecoveryPhoneSetup';
 import { PageDeleteAccount } from './PageDeleteAccount';
 import { ScrollToTop } from './ScrollToTop';
 import { SETTINGS_PATH } from '../../constants';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
-import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
-import { currentAccount } from '../../lib/cache';
+import { MfaGuardPageRecoveryKeyCreate } from './PageRecoveryKeyCreate';
+import { currentAccount, sessionToken } from '../../lib/cache';
 import { hasAccount, setCurrentAccount } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import Head from 'fxa-react/components/Head';
-import PageRecoveryPhoneRemove from './PageRecoveryPhoneRemove';
+import { PageMfaGuardRecoveryPhoneRemove } from './PageRecoveryPhoneRemove';
 import { SettingsIntegration } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
-import MfaGuardPage2faChange from './Page2faChange';
+
 import PageMfaGuardTestWithAuthClient from './PageMfaGuardTest';
 import PageMfaGuardTestWithGql from './PageMfaGuardWithGqlTest';
 
@@ -44,9 +50,13 @@ export const Settings = ({
   integration,
 }: { integration: SettingsIntegration } & RouteComponentProps) => {
   const session = useSession();
+  const authClient = useAuthClient();
   const account = useAccount();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
+  const [sessionVerified, setSessionVerified] = useState<boolean | undefined>();
+  const [sessionVerificationMeetsAAL, setSessionVerificationMeetsAAL] =
+    useState<boolean | undefined>();
 
   useEffect(() => {
     /**
@@ -120,7 +130,24 @@ export const Settings = ({
     gleanEnabled && GleanMetrics.pageLoad(location.pathname);
   }, [location.pathname, gleanEnabled]);
 
-  if (loading) {
+  useEffect(() => {
+    (async () => {
+      // Only run once
+      if (
+        sessionVerified !== undefined ||
+        sessionVerificationMeetsAAL !== undefined
+      ) {
+        return;
+      }
+      const { details } = await authClient.sessionStatus(sessionToken()!);
+      setSessionVerified(details.sessionVerified);
+      setSessionVerificationMeetsAAL(
+        details.sessionVerificationMeetsMinimumAAL
+      );
+    })();
+  }, [authClient, sessionVerified, sessionVerificationMeetsAAL]);
+
+  if (loading || sessionVerified === undefined) {
     return <LoadingSpinner fullScreen />;
   }
 
@@ -131,14 +158,33 @@ export const Settings = ({
     return <AppErrorDialog data-testid="error-dialog" />;
   }
 
-  // If the account email isn't verified, kick back to root to prompt for verification.
-  // This should only happen if the user tries to access /settings directly
-  // without entering a confirmation code on confirm_signup_code page.
-  // Session verification requirement and redirect is handled on initial app load
-  // (look for isUnverifiedSessionError in lib/gql.ts for that handling)
-  if (account.primaryEmail.verified === false) {
-    console.warn('Account verification is require to access /settings!');
+  // If the account email isn't verified or the user is an unverified session state,
+  // kick back to root to prompt for verification. This should only happen if the user
+  // tries to access /settings directly without entering a confirmation code on
+  // confirm_signup_code page or signin_token_code page.
+  if (account.primaryEmail.verified === false || sessionVerified === false) {
+    console.warn(
+      'Account or email verification is require to access /settings!'
+    );
     navigateWithQuery('/');
+    return <LoadingSpinner fullScreen />;
+  }
+
+  // This happens when a multi-device user sets up 2FA on device A and tries
+  // to access Settings on device B. If they haven't upgraded the assurance level
+  // on device B's session token with TOTP, we require them to.
+  if (sessionVerificationMeetsAAL === false) {
+    console.warn('2FA must be entered to access /settings!');
+    const storedAccount = currentAccount();
+    navigateWithQuery('/signin_totp_code', {
+      state: {
+        email: storedAccount?.email,
+        sessionToken: storedAccount?.sessionToken,
+        uid: storedAccount?.uid,
+        verified: storedAccount?.verified,
+        isSessionAALUpgrade: true,
+      },
+    });
     return <LoadingSpinner fullScreen />;
   }
 
@@ -151,21 +197,21 @@ export const Settings = ({
           <PageDisplayName path="/display_name" />
           <PageAvatar path="/avatar" />
           {account.hasPassword ? (
-            <PageRecoveryKeyCreate path="/account_recovery" />
+            <MfaGuardPageRecoveryKeyCreate path="/account_recovery" />
           ) : (
             <Redirect from="/account_recovery" to="/settings" noThrow />
           )}
           {account.hasPassword ? (
             <>
-              <PageChangePassword path="/change_password" />
+              <MfaGuardedPageChangePassword path="/change_password" />
               <Redirect
                 from="/create_password"
                 to="/settings/change_password"
                 noThrow
               />
-              <Page2faSetup path="/two_step_authentication" />
+              <MfaGuardPage2faSetup path="/two_step_authentication" />
               <MfaGuardPage2faChange path="/two_step_authentication/change" />
-              <Page2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
+              <MfaGuardPage2faReplaceBackupCodes path="/two_step_authentication/replace_codes" />
             </>
           ) : (
             <>
@@ -196,8 +242,8 @@ export const Settings = ({
           {/* NOTE: `/settings/avatar/change` is used to link directly to the avatar page within Sync preferences settings on Firefox browsers */}
           <Redirect from="/avatar/change" to="/settings/avatar/" noThrow />
 
-          <PageRecoveryPhoneSetup path="/recovery_phone/setup" />
-          <PageRecoveryPhoneRemove path="/recovery_phone/remove" />
+          <MfaGuardPageRecoveryPhoneSetup path="/recovery_phone/setup" />
+          <PageMfaGuardRecoveryPhoneRemove path="/recovery_phone/remove" />
 
           <PageMfaGuardTestWithAuthClient path="/mfa_guard/test/auth_client" />
           <PageMfaGuardTestWithGql path="/mfa_guard/test/gql" />

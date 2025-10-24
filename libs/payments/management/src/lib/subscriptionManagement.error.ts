@@ -77,10 +77,7 @@ export class SetDefaultPaymentAccountCustomerMissingStripeId extends Subscriptio
 
 export class CreateBillingAgreementActiveBillingAgreement extends SubscriptionManagementError {
   constructor(uid: string) {
-    super(
-      'Account already has an active paypal billing agreement',
-      { uid }
-    );
+    super('Account already has an active paypal billing agreement', { uid });
     this.name = 'CreateBillingAgreementActiveBillingAgreement';
   }
 }
@@ -97,20 +94,16 @@ export class CreateBillingAgreementAccountCustomerMissingStripeId extends Subscr
 
 export class CreateBillingAgreementCurrencyNotFound extends SubscriptionManagementError {
   constructor(uid: string) {
-    super(
-      'Currency could not be found for account',
-      { uid }
-    );
+    super('Currency could not be found for account', { uid });
     this.name = 'CreateBillingAgreementCurrencyNotFound';
   }
 }
 
 export class CreateBillingAgreementPaypalSubscriptionNotFound extends SubscriptionManagementError {
   constructor(uid: string) {
-    super(
-      'No PayPal subscription found when creating billing agreement',
-      { uid }
-    );
+    super('No PayPal subscription found when creating billing agreement', {
+      uid,
+    });
     this.name = 'CreateBillingAgreementPaypalSubscriptionNotFound';
   }
 }
@@ -202,16 +195,9 @@ export class SubscriptionContentMissingLatestInvoiceError extends SubscriptionMa
 }
 
 export class SubscriptionContentMissingUpcomingInvoicePreviewError extends SubscriptionManagementError {
-  constructor(
-    subscriptionId: string,
-    priceId: string,
-    currency: string,
-    customer: StripeCustomer
-  ) {
+  constructor(subscriptionId: string, customer: StripeCustomer) {
     super('Subscription is missing latest invoice preview', {
       subscriptionId,
-      priceId,
-      currency,
       customer,
     });
     this.name = 'SubscriptionContentMissingUpcomingInvoicePreviewError';

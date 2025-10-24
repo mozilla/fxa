@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from '@apollo/client/testing';
-import { RelyingParty } from 'fxa-admin-server/src/graphql';
-import { GET_RELYING_PARTIES, UPDATE_NOTE } from './index.gql';
-import { GraphQLError } from 'graphql';
+import { RelyingPartyDto } from 'fxa-admin-server/src/graphql';
+import { GET_RELYING_PARTIES } from './index.gql';
 
 // Response mocks
 export const MOCK_RP_ALL_FIELDS = {
@@ -20,7 +19,7 @@ export const MOCK_RP_ALL_FIELDS = {
     'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png',
   allowedScopes: 'https://identity.mozilla.com/apps/send',
   notes: null,
-} as RelyingParty;
+} as RelyingPartyDto;
 
 export const MOCK_RP_FALSY_FIELDS = {
   id: '38a6b9b3a65a1871',
@@ -33,11 +32,11 @@ export const MOCK_RP_FALSY_FIELDS = {
   imageUri: '',
   allowedScopes: null,
   notes: null,
-} as RelyingParty;
+} as RelyingPartyDto;
 
 // Apollo mocks
 export const mockGetRelyingParties = (
-  relyingParties: RelyingParty[] = []
+  relyingParties: RelyingPartyDto[] = []
 ): MockedResponse => ({
   request: {
     query: GET_RELYING_PARTIES,
@@ -46,32 +45,5 @@ export const mockGetRelyingParties = (
     data: {
       relyingParties,
     },
-  },
-});
-
-export const mockUpdateNotes = (id: string, notes: string): MockedResponse => ({
-  request: {
-    query: UPDATE_NOTE,
-    variables: { id, notes },
-  },
-  result: {
-    data: {
-      updateNotes: true,
-    },
-  },
-});
-
-export const mockUpdateNotesError = (
-  id: string,
-  notes: string
-): MockedResponse => ({
-  request: {
-    query: UPDATE_NOTE,
-    variables: { id, notes },
-  },
-  result: () => {
-    return {
-      errors: [new GraphQLError('... ER_DATA_TOO_LONG ...')],
-    };
   },
 });

@@ -9,7 +9,8 @@ import { Meta } from '@storybook/react';
 import {
   Subject,
   createMockSigninOAuthIntegration,
-  createMockSigninOAuthNativeSyncIntegration, MOCK_CMS_INFO,
+  createMockSigninOAuthNativeSyncIntegration,
+  MOCK_CMS_INFO,
 } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { SigninProps } from './interfaces';
@@ -78,8 +79,16 @@ export const NoLinkedAccountAndNoPassword = storyWithProps({
 });
 
 export const SignInToSync = storyWithProps({
+  serviceName: MozServices.FirefoxSync,
   hasLinkedAccount: true,
   hasPassword: true,
+  integration: createMockSigninOAuthNativeSyncIntegration(),
+});
+
+export const SignInToSyncNoPassword = storyWithProps({
+  serviceName: MozServices.FirefoxSync,
+  hasLinkedAccount: true,
+  hasPassword: false,
   integration: createMockSigninOAuthNativeSyncIntegration(),
 });
 
@@ -89,7 +98,7 @@ export const SignInToOAuthDesktopRelay = storyWithProps({
 
 export const SignInWithCms = storyWithProps({
   integration: createMockSigninOAuthIntegration({
-    cmsInfo: MOCK_CMS_INFO
+    cmsInfo: MOCK_CMS_INFO,
   }),
 });
 
@@ -97,6 +106,6 @@ export const SignInWithCmsCachedCredentials = storyWithProps({
   sessionToken: MOCK_SESSION_TOKEN,
   integration: createMockSigninOAuthIntegration({
     wantsKeys: false,
-    cmsInfo: MOCK_CMS_INFO
+    cmsInfo: MOCK_CMS_INFO,
   }),
 });

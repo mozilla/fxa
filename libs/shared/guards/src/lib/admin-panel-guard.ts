@@ -42,9 +42,12 @@ export enum AdminPanelFeature {
   UnlinkAccount = 'UnlinkAccount',
   DeleteAccount = 'DeleteAccount',
   RelyingParties = 'RelyingParties',
-  RelyingPartiesEditNotes = 'RelyingPartiesEditNotes',
-  SendPasswordResetEmail = 'SendPasswordResetEmail',
+  CreateRelyingParty = 'CreateRelyingParty',
+  UpdateRelyingParty = 'UpdateRelyingParty',
+  DeleteRelyingParty = 'DeleteRelyingParty',
   UnsubscribeFromMailingLists = 'UnsubscribeFromMailingLists',
+  RateLimiting = 'RateLimiting',
+  DeleteRecoveryPhone = 'DeleteRecoveryPhone',
 }
 
 /** Enum of known user groups */
@@ -177,17 +180,29 @@ const defaultAdminPanelPermissions: Permissions = {
     name: 'View Relying Parties',
     level: PermissionLevel.Support,
   },
-  [AdminPanelFeature.RelyingPartiesEditNotes]: {
+  [AdminPanelFeature.CreateRelyingParty]: {
     name: 'Edit Relying Parties Notes',
     level: PermissionLevel.Admin,
   },
-  [AdminPanelFeature.SendPasswordResetEmail]: {
-    name: 'Send Password Reset Email',
-    level: PermissionLevel.Support,
+  [AdminPanelFeature.DeleteRelyingParty]: {
+    name: 'Edit Relying Parties Notes',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.UpdateRelyingParty]: {
+    name: 'Edit Relying Parties Notes',
+    level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.UnsubscribeFromMailingLists]: {
     name: 'Unsubscribe User From Mozilla Mailing Lists',
     level: PermissionLevel.Support,
+  },
+  [AdminPanelFeature.RateLimiting]: {
+    name: 'View Rate Limiting Blocks and Bans',
+    level: PermissionLevel.Support,
+  },
+  [AdminPanelFeature.DeleteRecoveryPhone]: {
+    name: 'Delete Recovery Phone',
+    level: PermissionLevel.Admin,
   },
 };
 

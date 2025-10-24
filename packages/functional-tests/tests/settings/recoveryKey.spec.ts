@@ -19,7 +19,7 @@ test.describe('severity-1 #smoke', () => {
       pages: { page, recoveryKey, settings, signin },
       testAccountTracker,
     }) => {
-      const { password } = await signInAccount(
+      const { email, password } = await signInAccount(
         target,
         page,
         settings,
@@ -33,6 +33,9 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
       await settings.recoveryKey.createButton.click();
+
+      await settings.confirmMfaGuard(email);
+
       await recoveryKey.acknowledgeInfoForm();
       await recoveryKey.fillOutConfirmPasswordForm(password);
 
@@ -61,6 +64,9 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
       await settings.recoveryKey.createButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
+
       await recoveryKey.acknowledgeInfoForm();
       await recoveryKey.fillOutConfirmPasswordForm(credentials.password);
 
@@ -118,6 +124,9 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
       await settings.recoveryKey.createButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
+
       await recoveryKey.createRecoveryKey(credentials.password, HINT);
       await expect(page.getByRole('alert')).toHaveText(
         'Account recovery key created'

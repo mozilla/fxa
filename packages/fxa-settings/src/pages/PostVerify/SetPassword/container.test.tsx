@@ -17,6 +17,7 @@ import {
   MOCK_STORED_ACCOUNT,
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
+  mockGetWebChannelServices,
 } from '../../mocks';
 import { SetPasswordProps } from './interfaces';
 import { LocationProvider } from '@reach/router';
@@ -147,8 +148,10 @@ function mockSyncDesktopV3Integration() {
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiMode: () => false,
     isFirefoxMobileClient: () => false,
     getCmsInfo: () => undefined,
+    getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
   } as ModelsModule.Integration;
 }
 function mockOAuthNativeIntegration(
@@ -165,8 +168,10 @@ function mockOAuthNativeIntegration(
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiMode: () => false,
     isFirefoxMobileClient: () => isFirefoxMobileClient,
     getCmsInfo: () => undefined,
+    getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
   } as ModelsModule.Integration;
 }
 

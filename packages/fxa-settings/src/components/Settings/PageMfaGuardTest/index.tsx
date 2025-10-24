@@ -12,10 +12,11 @@ import {
 import { MfaGuard } from '../MfaGuard';
 import { RouteComponentProps } from '@reach/router';
 import { useErrorHandler } from 'react-error-boundary';
+import { MfaReason } from '../../../lib/types';
 
 export const PageMfaGuardTestWithAuthClient = (props: RouteComponentProps) => {
   return (
-    <MfaGuard requiredScope="test">
+    <MfaGuard requiredScope="test" reason={MfaReason.test}>
       <TestWithAuthClient {...{ props }} />
     </MfaGuard>
   );

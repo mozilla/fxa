@@ -150,13 +150,14 @@ test.describe('severity-1 #smoke', () => {
       // Enable 2FA
       await expect(settings.totp.status).toHaveText('Disabled');
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
 
       // Set up 2FA with QR code and backup codes
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
+      await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
@@ -282,6 +283,7 @@ test.describe('severity-1 #smoke', () => {
       // Enable 2FA
       await expect(settings.totp.status).toHaveText('Disabled');
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
 
       // Set up 2FA with QR code and recovery phone
       await totp.startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice();
@@ -301,7 +303,7 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/settings/);
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
+      await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
@@ -436,13 +438,14 @@ test.describe('severity-1 #smoke', () => {
       // Enable 2FA
       await expect(settings.totp.status).toHaveText('Disabled');
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
 
       // Set up 2FA with QR code and backup codes
       const { recoveryCodes } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
+      await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
@@ -570,6 +573,8 @@ test.describe('severity-1 #smoke', () => {
       submitButton = page.getByRole('button', { name: 'Sign in', exact: true });
       await submitButton.click();
 
+      await page.waitForURL(/pair/);
+
       await page.getByRole('link', { name: 'Not now' }).click();
 
       // Verify successful login and go to settings
@@ -579,13 +584,14 @@ test.describe('severity-1 #smoke', () => {
       // Enable 2FA
       await expect(settings.totp.status).toHaveText('Disabled');
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
 
       // Set up 2FA with QR code and backup codes
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
+      await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
@@ -646,6 +652,8 @@ test.describe('severity-1 #smoke', () => {
       // Enter TOTP code
       const totpCode = await getTotpCode(secret);
       await signinTotpCode.fillOutCodeForm(totpCode);
+
+      await page.waitForURL(/pair/);
 
       await page.getByRole('link', { name: 'Not now' }).click();
 

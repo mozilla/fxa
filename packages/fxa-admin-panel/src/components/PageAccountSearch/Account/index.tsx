@@ -457,6 +457,8 @@ export const Account = ({
           onCleared: onCleared,
           unsubscribeToken: '<USER_TOKEN>',
           has2FA: totps && totps.some((x) => x.enabled),
+          hasRecoveryPhone:
+            recoveryPhone && recoveryPhone.some((x) => x.exists),
         }}
       />
     </>

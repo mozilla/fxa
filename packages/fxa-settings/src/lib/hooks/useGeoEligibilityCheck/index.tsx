@@ -8,6 +8,11 @@ import { useAuthClient } from '../../../models';
 
 const featureEligibilityCache = new Map<string, boolean>();
 
+/**
+ * Checks if a feature is available based on user location.
+ * @param feature The feature that we are checking
+ * @returns { eligible:boolean }
+ */
 export function useGeoEligibilityCheck(feature: string): {
   eligible: boolean;
   loading: boolean;

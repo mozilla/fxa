@@ -20,6 +20,9 @@ test.describe('severity-1 #smoke', () => {
 
       // Enter incorrect old password and verify the tooltip error
       await settings.password.changeButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
+
       await changePassword.fillOutChangePassword(
         'Incorrect Password',
         newPassword
@@ -40,6 +43,9 @@ test.describe('severity-1 #smoke', () => {
 
       // Enter the correct old password and verify that change password is successful
       await settings.password.changeButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
+
       await changePassword.fillOutChangePassword(initialPassword, newPassword);
 
       await expect(settings.settingsHeading).toBeVisible();
@@ -56,32 +62,6 @@ test.describe('severity-1 #smoke', () => {
       credentials.password = newPassword;
     });
 
-    test('change password with short password tooltip shows, cancel and try to change password again, tooltip is not shown', async ({
-      target,
-      pages: { page, changePassword, settings, signin },
-      testAccountTracker,
-    }) => {
-      const credentials = await testAccountTracker.signUp();
-      await signInAccount(target, page, settings, signin, credentials);
-
-      await settings.goto();
-      await settings.password.changeButton.click();
-
-      await expect(changePassword.changePasswordHeading).toBeVisible();
-
-      await changePassword.newPasswordTextbox.fill('short');
-
-      await expect(changePassword.passwordLengthInvalidIcon).toBeVisible();
-
-      await changePassword.cancelButton.click();
-
-      await expect(settings.settingsHeading).toBeVisible();
-
-      await settings.password.changeButton.click();
-
-      await expect(changePassword.passwordLengthUnsetIcon).toBeVisible();
-    });
-
     test('reset password via settings works', async ({
       target,
       pages: { page, changePassword, resetPassword, settings, signin },
@@ -93,6 +73,8 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await settings.password.changeButton.click();
+
+      await settings.confirmMfaGuard(credentials.email);
 
       await expect(changePassword.changePasswordHeading).toBeVisible();
 

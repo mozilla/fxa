@@ -20,10 +20,11 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       const { secret } =
         await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.alertBar).toHaveText(
+      await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
@@ -52,19 +53,13 @@ test.describe('severity-1 #smoke', () => {
       await signInAccount(target, page, settings, signin, credentials);
       await settings.goto();
       await settings.totp.addButton.click();
+      await settings.confirmMfaGuard(credentials.email);
       await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
       await expect(settings.totp.status).toHaveText('Enabled');
-      await expect(settings.alertBar).toHaveText(
+      await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
-      await settings.totp.disableButton.click();
-      await settings.clickModalConfirm();
-
-      await expect(settings.modalConfirmButton).toBeHidden();
-      await expect(settings.totp.status).toHaveText('Disabled');
-      await expect(settings.alertBar).toHaveText(
-        'Two-step authentication disabled'
-      );
+      await settings.disconnectTotp();
 
       await relier.goto();
       await relier.clickEmailFirst();

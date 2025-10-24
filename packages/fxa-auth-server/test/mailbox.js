@@ -33,6 +33,16 @@ module.exports = function (host, port, printLogs) {
     });
   }
 
+  function waitForMfaCode(email) {
+    return waitForEmail(email).then((emailData) => {
+      const code = emailData.headers['x-account-change-verify-code'];
+      if (!code) {
+        throw new Error('email did not contain a verification code');
+      }
+      return code;
+    });
+  }
+
   function loop(name, tries, cb) {
     const url = `http://${host}:${port}/mail/${encodeURIComponent(name)}`;
     log('checking mail', url);
@@ -82,6 +92,7 @@ module.exports = function (host, port, printLogs) {
   return {
     waitForEmail: waitForEmail,
     waitForCode: waitForCode,
+    waitForMfaCode: waitForMfaCode,
     eventEmitter: eventEmitter,
   };
 };

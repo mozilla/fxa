@@ -1,6 +1,10 @@
 {
   "subject": {
-    "id": "password-forgot-otp-subject",
-    "message": "Forgot your password?"
+    "id": "password-forgot-otp-subject-2",
+    "message": "Use <%- code %> to change your password"
+  },
+  "preview": {
+    "id": "password-forgot-otp-preview",
+    "message": "This code expires in 10 minutes"
   }
 }

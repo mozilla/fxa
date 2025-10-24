@@ -29,6 +29,9 @@ test.describe('severity-2 #smoke', () => {
     await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
     await settings.recoveryKey.createButton.click();
+
+    await settings.confirmMfaGuard(email);
+
     await recoveryKey.createRecoveryKey(password, HINT);
 
     await expect(settings.recoveryKey.status).toHaveText('Enabled');

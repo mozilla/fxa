@@ -5,14 +5,18 @@
 /** The attributes we can count and block on. */
 export type BlockOn = 'ip' | 'email' | 'uid' | 'ip_email' | 'ip_uid';
 
+export function isBlockOn(value: unknown): value is BlockOn {
+  return (
+    value === 'ip' ||
+    value === 'email' ||
+    value === 'uid' ||
+    value === 'ip_email' ||
+    value === 'ip_uid'
+  );
+}
+
 /** Standard set of fields that can be blocked on. */
-export type BlockOnOpts = {
-  email?: string;
-  ip?: string;
-  ip_email?: string;
-  uid?: string;
-  ip_uid?: string;
-};
+export type BlockOnOpts = Partial<Record<BlockOn, string>>;
 
 /**
  * Controls how the block is applied.
@@ -20,6 +24,11 @@ export type BlockOnOpts = {
  *  - ban - will apply to the current action and all other actions being checked for the given rules ip, email, or uid.
  **/
 export type BlockPolicy = 'block' | 'ban' | 'report';
+export type RateLimitKeyType = BlockPolicy | 'attempts';
+
+export function isBlockPolicy(value: unknown): value is BlockPolicy {
+  return value === 'block' || value === 'ban' || value === 'report';
+}
 
 /** Constant for the common error message, too-many-attempts. */
 export const TOO_MANY_ATTEMPTS = 'too-many-attempts';
@@ -84,4 +93,10 @@ export type BlockStatus = {
   attempt: number;
   /** The type of block which occurred */
   policy: BlockPolicy;
+};
+
+export type SearchOpts = {
+  ip?: string;
+  email?: string;
+  uid?: string;
 };

@@ -28,7 +28,13 @@ test.describe('severity-1 #smoke', () => {
       const invalidPassword = testAccountTracker.generatePassword();
 
       await settings.goto();
-      await changePrimaryEmail(target, settings, secondaryEmail, blockedEmail, credentials.email);
+      await changePrimaryEmail(
+        target,
+        settings,
+        secondaryEmail,
+        blockedEmail,
+        credentials.email
+      );
       await settings.signOut();
       await signin.fillOutEmailFirstForm(blockedEmail);
       await signin.fillOutPasswordForm(invalidPassword);
@@ -47,6 +53,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
       // reset primary email to non-blocked email for account cleanup
       await settings.secondaryEmail.makePrimaryButton.click();
+      await settings.confirmMfaGuard(blockedEmail);
       await expect(settings.alertBar).toHaveText(
         new RegExp(`${credentials.email}.*is now your primary email`)
       );
@@ -67,7 +74,13 @@ test.describe('severity-1 #smoke', () => {
       const blockedEmail = testAccountTracker.generateBlockedEmail();
 
       await settings.goto();
-      await changePrimaryEmail(target, settings, secondaryEmail, blockedEmail, credentials.email);
+      await changePrimaryEmail(
+        target,
+        settings,
+        secondaryEmail,
+        blockedEmail,
+        credentials.email
+      );
       await settings.signOut();
 
       await signin.fillOutEmailFirstForm(blockedEmail);
@@ -81,6 +94,7 @@ test.describe('severity-1 #smoke', () => {
 
       // reset primary email to non-blocked email for account cleanup
       await settings.secondaryEmail.makePrimaryButton.click();
+      await settings.confirmMfaGuard(blockedEmail);
       await expect(settings.alertBar).toHaveText(
         new RegExp(`${credentials.email}.*is now your primary email`)
       );
@@ -111,7 +125,7 @@ async function changePrimaryEmail(
   settings: SettingsPage,
   secondaryEmail: SecondaryEmailPage,
   email: string,
-  primaryEmail: string,
+  primaryEmail: string
 ): Promise<void> {
   await settings.secondaryEmail.addButton.click();
   await settings.confirmMfaGuard(primaryEmail);

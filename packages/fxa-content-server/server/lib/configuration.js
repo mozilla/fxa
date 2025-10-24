@@ -261,6 +261,12 @@ const conf = (module.exports = convict({
       env: 'CMS_ENABLED',
       format: Boolean,
     },
+    l10nEnabled: {
+      default: false,
+      doc: 'Enables serving localization content of the CMS',
+      env: 'CMS_L10N_ENABLED',
+      format: Boolean,
+    },
   },
   showReactApp: {
     emailFirstRoutes: {
@@ -1032,6 +1038,12 @@ const conf = (module.exports = convict({
       env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
       format: Boolean,
     },
+    usePaymentsNextSubscriptionManagement : {
+      default: true,
+      doc: 'Whether to redirect to the new Subscription Management Page',
+      env: 'FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT',
+      format: Boolean,
+    }
   },
   sync_tokenserver_url: {
     default: 'http://localhost:8000/token',

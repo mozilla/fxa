@@ -6,7 +6,13 @@ import {
   StripeEventCustomerSubscriptionCreatedFactory,
   StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
-import { CustomerSubscriptionDeletedResponse } from './types';
+import {
+  CustomerSubscriptionDeletedResponse,
+  type StripeEventStoreEntry,
+  type StripeEventStoreEntryFirestoreRecord,
+} from './types';
+import { Timestamp } from '@google-cloud/firestore';
+import { faker } from '@faker-js/faker';
 
 const subscription = StripeSubscriptionFactory();
 
@@ -16,5 +22,23 @@ export const CustomerSubscriptionDeletedResponseFactory = (
   type: 'customer.subscription.deleted',
   event: StripeEventCustomerSubscriptionCreatedFactory(subscription),
   eventObjectData: subscription,
+  ...override,
+});
+
+export const StripeEventStoreEntryFactory = (
+  override?: Partial<StripeEventStoreEntry>
+): StripeEventStoreEntry => ({
+  eventId: `evt_${faker.string.alphanumeric({ length: 24 })}`,
+  processedAt: new Date(),
+  eventDetails: StripeEventCustomerSubscriptionCreatedFactory(),
+  ...override,
+});
+
+export const StripeEventStoreEntryFirestoreRecordFactory = (
+  override?: Partial<StripeEventStoreEntryFirestoreRecord>
+): StripeEventStoreEntryFirestoreRecord => ({
+  eventId: `evt_${faker.string.alphanumeric({ length: 24 })}`,
+  processedAt: Timestamp.fromDate(new Date()),
+  eventDetails: StripeEventCustomerSubscriptionCreatedFactory(),
   ...override,
 });

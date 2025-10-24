@@ -72,6 +72,32 @@ const conf = convict({
     fxa_oauth: makeMySQLConfig('OAUTH', 'fxa_oauth'),
   },
   redis: makeRedisConfig(),
+  rateLimit: {
+    ignoreIPs: {
+      default: undefined,
+      doc: 'Set of IPs to ignore while rate limiting. Rules will not apply to these values.',
+      env: 'RATE_LIMIT__IGNORE_IPS',
+      format: Array,
+    },
+    ignoreUIDs: {
+      default: undefined,
+      doc: 'Set of UIDs to ignore while rate limiting. Rules will not apply to these values.',
+      env: 'RATE_LIMIT__IGNORE_UIDS',
+      format: Array,
+    },
+    ignoreEmails: {
+      default: undefined,
+      doc: 'Set of emails to ignore while rate limiting. Rules will not apply to these values. Values can be a string or parsable regex.',
+      env: 'RATE_LIMIT__IGNORE_EMAILS',
+      format: Array,
+    },
+    rules: {
+      default: '',
+      doc: 'Rules for rate limiting user actions. These are essentially customs v2 rules.',
+      env: 'RATE_LIMIT__RULES',
+      format: String,
+    },
+  },
   env: {
     default: 'production',
     doc: 'The current node.js environment',

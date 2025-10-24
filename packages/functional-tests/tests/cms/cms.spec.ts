@@ -368,6 +368,8 @@ test.describe('severity-1 #smoke', () => {
         });
         await submitButton.click();
 
+        await page.waitForURL(/pair/);
+
         await page.getByRole('link', { name: 'Not now' }).click();
       });
 
@@ -441,6 +443,8 @@ test.describe('severity-1 #smoke', () => {
           exact: true,
         });
         await submitButton.click();
+
+        await page.waitForURL(/pair/);
 
         await page.getByRole('link', { name: 'Not now', exact: true }).click();
       });

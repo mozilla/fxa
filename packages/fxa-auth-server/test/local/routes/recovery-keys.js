@@ -784,35 +784,6 @@ describe('DELETE /recoveryKey', () => {
       );
     });
   });
-
-  describe('should fail for unverified session', () => {
-    beforeEach(() => {
-      mockAccountEventsManager = mocks.mockAccountEventsManager();
-      const requestOptions = {
-        method: 'DELETE',
-        credentials: { uid, email, tokenVerificationId: 'unverified' },
-        log,
-      };
-      return setup(
-        { db: { recoveryData } },
-        {},
-        '/recoveryKey',
-        requestOptions
-      ).then(assert.fail, (err) => (response = err));
-    });
-
-    after(() => {
-      mocks.unMockAccountEventsManager();
-    });
-
-    it('returned the correct response', () => {
-      assert.equal(
-        response.errno,
-        errors.ERRNO.SESSION_UNVERIFIED,
-        'unverified session'
-      );
-    });
-  });
 });
 
 describe('POST /recoveryKey/hint', () => {

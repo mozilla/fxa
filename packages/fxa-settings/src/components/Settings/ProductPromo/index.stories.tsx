@@ -14,9 +14,6 @@ export default {
   decorators: [withLocalization, withLocation('/settings')],
 } as Meta<typeof ProductPromo>;
 
-/**
- * Helper to generate a Storybook story with a mocked AppContext.
- */
 function storyWithProps(props: ProductPromoProps, storyName?: string) {
   return {
     name: storyName,
@@ -28,34 +25,17 @@ function storyWithProps(props: ProductPromoProps, storyName?: string) {
   };
 }
 
-// --- Generic promo: user *without* Monitor or **with** Monitor‑free but not in market eligible for special promo ----------------------------------
-export const DefaultMobile = storyWithProps(
+export const MobilePromo = storyWithProps(
   {
     type: 'settings',
-    monitorPromo: { hidePromo: false, showMonitorPlusPromo: false },
+    monitorPromo: { hidePromo: false },
   },
-  'Default Monitor promo - Banner - mobile'
+  'Monitor promo - Banner - mobile only'
 );
-export const DefaultDesktop = storyWithProps(
+export const DesktopPromo = storyWithProps(
   {
     type: 'sidebar',
-    monitorPromo: { hidePromo: false, showMonitorPlusPromo: false },
+    monitorPromo: { hidePromo: false },
   },
-  'Default Monitor promo - Sidebar - desktop'
-);
-
-// --- Special promo: Monitor‑free + eligible (US) ----------------------------
-export const SpecialPromoMobile = storyWithProps(
-  {
-    type: 'settings',
-    monitorPromo: { hidePromo: false, showMonitorPlusPromo: true },
-  },
-  'Special promo (US) - Banner - mobile'
-);
-export const SpecialPromoDesktop = storyWithProps(
-  {
-    type: 'sidebar',
-    monitorPromo: { hidePromo: false, showMonitorPlusPromo: true },
-  },
-  'Special promo (US) - Sidebar - desktop'
+  'Monitor promo - Sidebar - desktop'
 );

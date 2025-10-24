@@ -12,7 +12,6 @@ import { AccountData, useConfig } from '../../../models';
 import { constructHrefWithUtm } from '../../../lib/utilities';
 import { LINK } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
-import { parseAcceptLanguage } from '../../../../../../libs/shared/l10n/src';
 
 type ProductPromoType = 'sidebar' | 'settings';
 
@@ -23,44 +22,25 @@ export interface ProductPromoProps {
 
 export type MonitorPromoData = {
   hidePromo?: boolean;
-  showMonitorPlusPromo?: boolean;
   gleanEvent?: { event: { reason: string } };
 };
 
-/**
- * Determine which (if any) promo variant to show.
- *
- *   • Paid subscribers see nothing.
- *   • US‑based *Monitor‑free* users see a *special* bundled
- *     promo for Monitor Plus + VPN + Relay.
- *   • All others see the generic promo.
- */
 export function getProductPromoData(
-  attachedClients: AccountData['attachedClients'],
-  subscriptions: AccountData['subscriptions'],
-  monitorPlusPromoEligible = false
+  attachedClients: AccountData['attachedClients']
 ) {
   const hasMonitor = attachedClients.some(
-    ({ name }) => name === MozServices.Monitor || name === MozServices.MonitorStage
+    ({ name }) =>
+      name === MozServices.Monitor || name === MozServices.MonitorStage
   );
 
-  const hasMonitorPlus = subscriptions.some(
-    ({ productName }) => productName === MozServices.MonitorPlus
-  );
-
-  // Paid users never see a promo at all.
-  if (hasMonitorPlus) {
+  // Existing Monitor users should not see the promo
+  if (hasMonitor) {
     return { hidePromo: true } as const;
   }
 
-  // Decide whether to surface the special US‑only promo.
-  const showMonitorPlusPromo = hasMonitor && monitorPlusPromoEligible;
+  const gleanEvent = { event: { reason: 'default' } };
 
-  const gleanEvent = showMonitorPlusPromo
-    ? { event: { reason: 'special' } }
-    : { event: { reason: 'default' } };
-
-  return { hidePromo: false, showMonitorPlusPromo, gleanEvent };
+  return { hidePromo: false, gleanEvent };
 }
 
 export const ProductPromo = ({
@@ -69,12 +49,11 @@ export const ProductPromo = ({
 }: ProductPromoProps) => {
   const { sentry } = useConfig();
 
-  // Paid Monitor Plus subscribers never see a promo.
   if (monitorPromo.hidePromo) {
     return null;
   }
 
-  const DEFAULT_PROMO_URL = constructHrefWithUtm(
+  const MONITOR_PROMO_URL = constructHrefWithUtm(
     // using sentry.env because it differentiates between 'dev', 'stage' and 'prod'
     // (vs 'env' which marks all hosted environments as 'production')
     sentry.env !== 'stage' ? LINK.MONITOR : LINK.MONITOR_STAGE,
@@ -85,59 +64,7 @@ export const ProductPromo = ({
     'settings-promo'
   );
 
-  const SPECIAL_PROMO_URL = constructHrefWithUtm(
-    sentry.env !== 'stage' ? LINK.MONITOR_PLUS : LINK.MONITOR_PLUS_STAGE,
-    'referral',
-    'moz-account',
-    type === 'sidebar' ? 'sidebar' : 'settings',
-    'get-year-round-protection-us',
-    'settings-promo'
-  );
-
-  const price = 8.25;
-  const formattedLocalizedPrice = new Intl.NumberFormat(
-    parseAcceptLanguage(navigator.languages.join(', ')),
-    {
-      style: 'currency',
-      currency: 'USD',
-    }
-  ).format(price);
-
-  const promoContent = monitorPromo.showMonitorPlusPromo ? (
-    <>
-      <FtlMsg
-        id="product-promo-monitor-special-promo-description"
-        vars={{ price: formattedLocalizedPrice }}
-      >
-        {/* Price in fallback is always in English formatting */}
-        <p className="my-2">
-          For{' '}
-          {new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-          }).format(price)}
-          /mo, save on VPN, Monitor’s data-broker protection, and Relay’s
-          unlimited email masks.
-        </p>
-      </FtlMsg>
-
-      <LinkExternal
-        href={SPECIAL_PROMO_URL}
-        className="link-blue"
-        gleanDataAttrs={{
-          id: 'account_pref_promo_monitor_submit',
-          type: 'special',
-        }}
-        onClick={() =>
-          GleanMetrics.accountPref.promoMonitorSubmit(monitorPromo.gleanEvent)
-        }
-      >
-        <FtlMsg id="product-promo-monitor-special-promo-cta">
-          Get year-round protection
-        </FtlMsg>
-      </LinkExternal>
-    </>
-  ) : (
+  const promoContent = (
     <>
       <p className="my-2">
         <FtlMsg id="product-promo-monitor-description-v2">
@@ -145,7 +72,7 @@ export const ProductPromo = ({
         </FtlMsg>
       </p>
       <LinkExternal
-        href={DEFAULT_PROMO_URL}
+        href={MONITOR_PROMO_URL}
         className="link-blue"
         gleanDataAttrs={{
           id: 'account_pref_promo_monitor_submit',

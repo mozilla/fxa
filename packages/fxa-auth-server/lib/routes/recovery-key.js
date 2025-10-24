@@ -25,15 +25,15 @@ module.exports = (
   mailer,
   glean
 ) => {
-  return [
+  const routes = [
     {
       method: 'POST',
       path: '/recoveryKey',
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_POST,
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -52,10 +52,6 @@ module.exports = (
         log.begin('createRecoveryKey', request);
 
         const sessionToken = request.auth.credentials;
-
-        if (sessionToken.tokenVerificationId) {
-          throw errors.unverifiedSession();
-        }
 
         const { uid } = sessionToken;
         const { recoveryKeyId, recoveryData, enabled, replaceKey } =
@@ -184,6 +180,38 @@ module.exports = (
           }
         }
         return {};
+      },
+    },
+    {
+      method: 'POST',
+      path: '/mfa/recoveryKey',
+      options: {
+        ...RECOVERY_KEY_DOCS.MFA_RECOVERY_KEY_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:recovery_key'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            recoveryKeyId: validators.recoveryKeyId.description(
+              DESCRIPTION.recoveryKeyId
+            ),
+            recoveryData: validators.recoveryData.description(
+              DESCRIPTION.recoveryData
+            ),
+            enabled: isA.boolean().default(true),
+            replaceKey: isA.boolean().default(false),
+          }),
+        },
+      },
+      handler: async function (request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/recoveryKey' && route.method === 'POST'
+          )
+          .handler(request);
       },
     },
     {
@@ -395,17 +423,14 @@ module.exports = (
       options: {
         ...RECOVERY_KEY_DOCS.RECOVERYKEY_DELETE,
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
       },
       async handler(request) {
         log.begin('recoveryKeyDelete', request);
 
-        const { tokenVerificationId, uid } = request.auth.credentials;
-
-        if (tokenVerificationId) {
-          throw errors.unverifiedSession();
-        }
+        const { uid } = request.auth.credentials;
 
         await db.deleteRecoveryKey(uid);
         await recordSecurityEvent('account.recovery_key_removed', {
@@ -437,5 +462,27 @@ module.exports = (
         return {};
       },
     },
+    {
+      method: 'DELETE',
+      path: '/mfa/recoveryKey',
+      options: {
+        ...RECOVERY_KEY_DOCS.MFA_RECOVERY_KEY_DELETE,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:recovery_key'],
+          payload: false,
+        },
+      },
+      async handler(request) {
+        return routes
+          .find(
+            (route) =>
+              route.path === '/v1/recoveryKey' && route.method === 'DELETE'
+          )
+          .handler(request);
+      },
+    },
   ];
+
+  return routes;
 };

@@ -67,6 +67,7 @@ function getIndexRouteDefinition(config) {
   const GLEAN_LOG_PINGS = config.get('glean.logPings');
   const GLEAN_DEBUG_VIEW_TAG = config.get('glean.debugViewTag');
   const CMS_ENABLED = config.get('cms.enabled');
+  const CMS_L10N_ENABLED = config.get('cms.l10nEnabled');
 
   // Rather than relay all rollout rates, hand pick the ones that are applicable
   const ROLLOUT_RATES = config.get('rolloutRates');
@@ -82,9 +83,11 @@ function getIndexRouteDefinition(config) {
   const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get(
     'jsResourcePath'
   )}/`;
+  const PAYMENTS_NEXT_HOSTED_URL = config.get('payments_next_hosted_url');
 
   const configForFrontEnd = {
     authServerUrl: AUTH_SERVER_URL,
+    paymentsNextHostedUrl: PAYMENTS_NEXT_HOSTED_URL,
     maxEventOffset: MAX_EVENT_OFFSET,
     env: ENV,
     isCoppaEnabled: COPPA_ENABLED,
@@ -124,6 +127,7 @@ function getIndexRouteDefinition(config) {
     },
     cms: {
       enabled: CMS_ENABLED,
+      l10nEnabled: CMS_L10N_ENABLED,
     },
     nimbusPreview: NIMBUS_PREVIEW,
     glean: {

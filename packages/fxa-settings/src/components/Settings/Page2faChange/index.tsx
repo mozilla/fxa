@@ -15,13 +15,15 @@ import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 
 import FlowSetup2faApp from '../FlowSetup2faApp';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { GleanClickEventType2FA } from '../../../lib/types';
+import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MfaGuard } from '../MfaGuard';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import { useErrorHandler } from 'react-error-boundary';
 
-export const MfaGuardedPage2faChange = (_: RouteComponentProps) => {
+export const MfaGuardPage2faChange = (_: RouteComponentProps) => {
   return (
-    <MfaGuard requiredScope="2fa">
+    <MfaGuard requiredScope="2fa" reason={MfaReason.changeTotp}>
       <Page2faChange />
     </MfaGuard>
   );
@@ -30,6 +32,7 @@ export const MfaGuardedPage2faChange = (_: RouteComponentProps) => {
 export const Page2faChange = () => {
   const account = useAccount();
   const alertBar = useAlertBar();
+  const errorHandler = useErrorHandler();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const {
@@ -56,14 +59,30 @@ export const Page2faChange = () => {
     </FtlMsg>
   );
 
-  const showSuccess = useCallback(() => {
-    alertBar.success(
-      ftlMsgResolver.getMsg(
-        'page-2fa-change-success',
-        'Two-step authentication has been updated'
-      )
+  const alertBarSuccessMessage = useCallback(() => {
+    return (
+      <div>
+        <p>
+          <strong>
+            {ftlMsgResolver.getMsg(
+              'page-2fa-change-success',
+              'Two-step authentication has been updated'
+            )}
+          </strong>
+        </p>
+        <p>
+          {ftlMsgResolver.getMsg(
+            'page-2fa-change-success-additional-message',
+            'To protect all your connected devices, you should sign out everywhere you’re using this account, and then sign back in using your new two-step authentication.'
+          )}
+        </p>
+      </div>
     );
-  }, [alertBar, ftlMsgResolver]);
+  }, [ftlMsgResolver]);
+
+  const showSuccess = useCallback(() => {
+    alertBar.success(alertBarSuccessMessage());
+  }, [alertBar, alertBarSuccessMessage]);
 
   const showGenericError = useCallback(() => {
     alertBar.error(
@@ -74,11 +93,15 @@ export const Page2faChange = () => {
     );
   }, [alertBar, ftlMsgResolver]);
 
-  const goHome = useCallback(
+  const goBackToSettings = useCallback(
     () =>
-      navigateWithQuery(SETTINGS_PATH + '#two-step-authentication', {
-        replace: true,
-      }),
+      navigateWithQuery(
+        SETTINGS_PATH + '#two-step-authentication',
+        {
+          replace: true,
+        },
+        false
+      ),
     [navigateWithQuery]
   );
 
@@ -87,9 +110,15 @@ export const Page2faChange = () => {
   useEffect(() => {
     if (!totpInfoLoading && (totpInfoError || !totpInfo)) {
       showGenericError();
-      goHome();
+      goBackToSettings();
     }
-  }, [totpInfoLoading, totpInfoError, totpInfo, showGenericError, goHome]);
+  }, [
+    totpInfoLoading,
+    totpInfoError,
+    totpInfo,
+    showGenericError,
+    goBackToSettings,
+  ]);
 
   /* ───── early return states ───── */
   if (totpInfoLoading) return <LoadingSpinner fullScreen />;
@@ -101,23 +130,40 @@ export const Page2faChange = () => {
   /* ───── handlers ───── */
   const handleVerify2faAppCode = async (code: string) => {
     try {
-      await account.confirmReplaceTotp(code);
+      await account.confirmReplaceTotpWithJwt(code);
     } catch (error) {
+      if (isInvalidJwtError(error)) {
+        // JWT invalid/expired
+        errorHandler(error);
+        return {};
+      }
       return { error: true };
     }
 
     GleanMetrics.accountPref.twoStepAuthQrCodeSuccess();
 
     showSuccess();
-    goHome();
+    // We want to show the connected services page after success,
+    // to make it easier for the user to disconnect other devices or services
+    // that are not verified with the new 2FA connection..
+    navigateWithQuery(
+      `${SETTINGS_PATH}#connected-services`,
+      {
+        replace: true,
+      },
+      false
+    );
     return {};
   };
 
   return (
-    <VerifiedSessionGuard onDismiss={goHome} onError={goHome}>
+    <VerifiedSessionGuard
+      onDismiss={goBackToSettings}
+      onError={goBackToSettings}
+    >
       <FlowSetup2faApp
         verifyCode={handleVerify2faAppCode}
-        onBackButtonClick={goHome}
+        onBackButtonClick={goBackToSettings}
         {...{ localizedPageTitle, customQrInstructionEl, totpInfo }}
         reason={GleanClickEventType2FA.replace}
       />
@@ -125,4 +171,4 @@ export const Page2faChange = () => {
   );
 };
 
-export default MfaGuardedPage2faChange;
+export default MfaGuardPage2faChange;

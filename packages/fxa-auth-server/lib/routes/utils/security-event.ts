@@ -23,3 +23,35 @@ export async function recordSecurityEvent(name: SecurityEventNames, opts: any) {
     },
   });
 }
+
+export async function isRecognizedDevice(
+  db: any,
+  uid: string,
+  userAgent: string,
+  skipTimeframeMs: number
+): Promise<boolean> {
+  const verifiedLoginEvents = await db.verifiedLoginSecurityEventsByUid({
+    uid,
+    skipTimeframeMs
+  });
+
+  if (!verifiedLoginEvents || verifiedLoginEvents.length === 0) {
+    return false;
+  }
+
+  // Search through the results for matching user agent
+  for (const event of verifiedLoginEvents) {
+    if (event.additionalInfo) {
+      try {
+        const additionalInfo = JSON.parse(event.additionalInfo);
+        if (additionalInfo.userAgent === userAgent) {
+          return true;
+        }
+      } catch (e) {
+        // Skip events with invalid JSON
+      }
+    }
+  }
+
+  return false;
+}

@@ -43,6 +43,15 @@ describe('normalize-user-records', () => {
         assert.equal(location.timestamp, expectedTimestamp);
       });
     });
+
+    describe('padding functionality', () => {
+      it('pads single-digit values with zeros', () => {
+        const date = new Date('2023-01-01T01:01Z');
+        const location = { timestamp: date };
+        normalizer.normalizeLocationTimestamp(location);
+        assert.equal(location.timestamp, '2023-01-01 @ 01:01 UTC');
+      });
+    });
   });
 
   describe('normalizeLocationName', () => {

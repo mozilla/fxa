@@ -30,5 +30,3 @@ export function withLocalizationProvider(
     </AppLocalizationProvider>
   );
 }
-
-export default { renderWithLocalizationProvider, withLocalizationProvider };

@@ -194,19 +194,18 @@ export const Signup = ({
             sessionToken: data.signUp.sessionToken,
             uid: data.signUp.uid,
             verified: false,
-            services: {
-              sync: syncEngines,
-            },
+            services: integration.getWebChannelServices(syncEngines),
           });
-        } else if (isFirefoxClientServiceRelay) {
+        } else if (
+          isFirefoxClientServiceRelay ||
+          integration.isFirefoxClientServiceAiMode()
+        ) {
           firefox.fxaLogin({
             email,
             sessionToken: data.signUp.sessionToken,
             uid: data.signUp.uid,
             verified: false,
-            services: {
-              relay: {},
-            },
+            services: integration.getWebChannelServices(),
           });
         } else {
           GleanMetrics.registration.marketing({
@@ -259,6 +258,7 @@ export const Signup = ({
       selectedEnginesForGlean,
       isSyncOAuth,
       isFirefoxClientServiceRelay,
+      integration,
       isOAuth,
       sensitiveDataClient,
     ]
@@ -290,7 +290,9 @@ export const Signup = ({
             {...{
               isMobile,
               logos: [cmsInfo.SignupSetPasswordPage, cmsInfo.shared],
-              logoPosition: cmsInfo.SignupSetPasswordPage.logoUrl ? 'center' : 'left',
+              logoPosition: cmsInfo.SignupSetPasswordPage.logoUrl
+                ? 'center'
+                : 'left',
             }}
           />
           <h1 className="card-header">

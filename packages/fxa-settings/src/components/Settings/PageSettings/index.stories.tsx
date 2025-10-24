@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { Account } from '../../../models/Account';
-import AuthClient from 'fxa-auth-client/browser';
 
 import { PageSettings } from '.';
 import { Config } from '../../../lib/config';
@@ -29,10 +28,6 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const mockAuthClient = {
-  geoEligibilityCheck: async () => ({ eligible: true }),
-} as Partial<AuthClient> as AuthClient;
-
 const storyWithContext = (
   account: Partial<Account>,
   storyName?: string,
@@ -43,12 +38,10 @@ const storyWithContext = (
     ? {
         account: account as Account,
         config: config,
-        authClient: mockAuthClient,
         session: session,
       }
     : {
         account: account as Account,
-        authClient: mockAuthClient,
         session: session,
       };
 

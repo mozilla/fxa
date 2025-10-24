@@ -13,7 +13,6 @@ import {
 import {
   fetchCMSData,
   getCartOrRedirectAction,
-  recordEmitterEventAction,
 } from '@fxa/payments/ui/actions';
 import { CheckoutParams } from '@fxa/payments/ui/server';
 import Image from 'next/image';
@@ -66,13 +65,6 @@ export default async function UpgradeSuccess({
     cartDataPromise,
     sessionPromise,
   ]);
-
-  recordEmitterEventAction(
-    'checkoutSuccess',
-    { ...params },
-    searchParams,
-    cart.paymentInfo.type
-  );
 
   const { successActionButtonUrl, successActionButtonLabel } =
     cms.commonContent.localizations.at(0) || cms.commonContent;
@@ -157,21 +149,6 @@ export default async function UpgradeSuccess({
                   width={40}
                   height={24}
                 />
-                <span className="flex items-center gap-2">
-                  {cart.paymentInfo.brand && (
-                    <Image
-                      src={getCardIcon(cart.paymentInfo.brand, l10n).img}
-                      alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
-                      width={40}
-                      height={24}
-                    />
-                  )}
-                  {l10n.getString(
-                    'next-payment-confirmation-cc-card-ending-in',
-                    { last4: cart.paymentInfo.last4 ?? '' },
-                    `Card ending in ${cart.paymentInfo.last4}`
-                  )}
-                </span>
               </div>
             ) : cart.paymentInfo.walletType === 'google_pay' ? (
               <div className="flex items-center gap-3">
@@ -181,21 +158,6 @@ export default async function UpgradeSuccess({
                   width={40}
                   height={24}
                 />
-                <span className="flex items-center gap-2">
-                  {cart.paymentInfo.brand && (
-                    <Image
-                      src={getCardIcon(cart.paymentInfo.brand, l10n).img}
-                      alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
-                      width={40}
-                      height={24}
-                    />
-                  )}
-                  {l10n.getString(
-                    'next-payment-confirmation-cc-card-ending-in',
-                    { last4: cart.paymentInfo.last4 ?? '' },
-                    `Card ending in ${cart.paymentInfo.last4}`
-                  )}
-                </span>
               </div>
             ) : cart.paymentInfo.type === 'external_paypal' ? (
               <Image
@@ -211,7 +173,7 @@ export default async function UpgradeSuccess({
                 width={70}
                 height={24}
               />
-            ) :(
+            ) : (
               <span className="flex items-center gap-2">
                 {cart.paymentInfo.brand && (
                   <Image

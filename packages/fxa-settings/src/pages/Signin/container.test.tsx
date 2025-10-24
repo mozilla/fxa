@@ -62,12 +62,18 @@ import {
   OAuthQueryParams,
   SigninQueryParams,
 } from '../../models/pages/signin';
+import { storeAccountData } from '../../lib/storage-utils';
 
 jest.mock('../../lib/channels/firefox', () => ({
   ...jest.requireActual('../../lib/channels/firefox'),
   firefox: {
     fxaCanLinkAccount: jest.fn(),
   },
+}));
+
+jest.mock('../../lib/storage-utils', () => ({
+  ...jest.requireActual('../../lib/storage-utils'),
+  storeAccountData: jest.fn(),
 }));
 
 let integration: Integration;
@@ -181,6 +187,7 @@ const mockSensitiveDataClient = createMockSensitiveDataClient();
 mockSensitiveDataClient.setDataType = jest.fn();
 
 const mockSession = {
+  isSessionVerified: jest.fn().mockResolvedValue(true),
   sendVerificationCode: jest.fn().mockResolvedValue(undefined),
   verified: false,
   token: MOCK_SESSION_TOKEN,
@@ -215,6 +222,8 @@ function mockModelsModule() {
     },
   }));
   (ModelsModule.useSession as jest.Mock).mockImplementation(() => mockSession);
+  mockSession.isSessionVerified = jest.fn().mockResolvedValue(true);
+  mockSession.sendVerificationCode = jest.fn().mockResolvedValue(undefined);
 }
 
 // Call this when testing local storage
@@ -569,6 +578,7 @@ describe('signin container', () => {
         expect(handlerResult?.data?.signIn?.verificationReason).toEqual(
           MOCK_VERIFICATION.verificationReason
         );
+        expect(storeAccountData).toHaveBeenCalled();
       });
     });
 
@@ -1035,6 +1045,10 @@ describe('signin container', () => {
         // Note, we cannot automatically upgrade unverified accounts, because the
         // reset password mechanism won't work in this case, so we want to fallback
         // to using V1 credentials in this scenario.
+        (ModelsModule.useSession as jest.Mock).mockImplementation(() => ({
+          ...mockSession,
+          isSessionVerified: jest.fn().mockResolvedValue(false),
+        }));
         render([
           mockGqlAvatarUseQuery(),
           mockGqlCredentialStatusMutation({

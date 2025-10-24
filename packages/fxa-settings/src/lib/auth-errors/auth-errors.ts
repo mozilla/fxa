@@ -690,3 +690,14 @@ export const AuthUiErrorNos: {
     errnos.push(x.errno);
   }
 })();
+
+/**
+ * TypeGuard for AuthUiErrors
+ */
+export function isAuthUiError(error: any): error is AuthUiError {
+  return (
+    typeof error === 'object' &&
+    typeof error?.errno === 'number' &&
+    typeof error?.message === 'string'
+  );
+}

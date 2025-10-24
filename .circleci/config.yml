@@ -326,6 +326,20 @@ commands:
           environment:
             NODE_ENV: test
 
+  check-playwright-test-count:
+    parameters:
+      project:
+        type: string
+    steps:
+      - run:
+          name: Checking Playwright Test Count
+          command: |
+            TEST_COUNT=$(echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >> $GREP --list" | wc -l)
+            if [[ "$TEST_COUNT" -eq 0 ]]; then
+              echo "No functional tests targeted to run! Exiting early."
+              circleci-agent step halt
+            fi
+
   run-playwright-tests:
     parameters:
       project:
@@ -338,14 +352,24 @@ commands:
           name: Running Playwright tests
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
           command: |
+            if [[ "<< parameters.project >>" == "production" ]]; then
+              GREP="--grep=\"severity-1\""
+            elif [[ "<< parameters.project >>" == "stage" ]]; then
+              GREP="--grep=\"severity-(1|2)\""
+            else
+              GREP=""
+            fi
+            echo "targeting project << parameters.project >> $GREP"
+            npx nx build fxa-auth-client
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
-            printf '%s\n' $TEST_FILES | circleci tests run \
+
+            echo $TEST_FILES | circleci tests run \
+              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" \
               --verbose \
               --split-by=timings \
-              --timings-type=classname \
-              --command="~/project/.circleci/run-playwright.sh << parameters.project >>"
+              --timings-type=classname
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
             ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
@@ -359,10 +383,10 @@ commands:
     steps:
       - run:
           name: Ensure directories
-          command: mkdir -p ~/project/artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
+          command: mkdir -p artifacts/tests && mkdir -p ~/.pm2/logs && mkdir -p ~/screenshots
           when: always
       - store_artifacts:
-          path: ~/project/artifacts
+          path: artifacts
           when: always
       - store_artifacts:
           path: ~/screenshots
@@ -371,7 +395,7 @@ commands:
           path: ~/.pm2/logs
           when: always
       - store_test_results:
-          path: ~/project/artifacts/tests
+          path: artifacts/tests
           when: always
 
   build:
@@ -739,6 +763,8 @@ jobs:
     steps:
       - git-checkout
       - provision
+      - check-playwright-test-count:
+          project: production
       - run-playwright-tests:
           project: production
       - store-artifacts
@@ -762,6 +788,8 @@ jobs:
       - git-checkout
       - gcp-cli/setup
       - provision
+      - check-playwright-test-count:
+          project: << parameters.project >>
       - run-playwright-tests:
           project: << parameters.project >>
           fail_fast: << parameters.fail_fast >>
@@ -788,6 +816,8 @@ jobs:
       - git-checkout
       - restore-workspace
       - gcp-cli/setup
+      - check-playwright-test-count:
+          project: local
       - run:
           name: Add localhost
           command: |

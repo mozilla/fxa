@@ -208,7 +208,7 @@ describe('testL10n', () => {
       expect(() => {
         ftlMsgResolver.getMsg('test-straight-quote', `"please, don’t go"`);
       }).toThrow(
-        `Fluent message contains a straight quote (") and must be updated to its curly equivalent (“”). Fluent message: \"please, don’t go\"`
+        `Fluent message contains a straight quote (") and must be updated to its curly equivalent (“”). Fluent message: "please, don’t go"`
       );
     });
 

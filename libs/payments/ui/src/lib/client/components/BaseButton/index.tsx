@@ -8,6 +8,8 @@ export enum ButtonVariant {
   Primary,
   Secondary,
   ThirdParty,
+  SubscriptionManagementPrimary,
+  SubscriptionManagementSecondary,
 }
 
 interface BaseButtonProps
@@ -33,6 +35,14 @@ export const BaseButton = forwardRef(function BaseButton(
     case ButtonVariant.ThirdParty:
       variantStyles =
         'w-full bg-transparent border border-grey-300 font-normal text-black hover:border-black aria-disabled:hover:border-grey-300';
+      break;
+    case ButtonVariant.SubscriptionManagementPrimary:
+      variantStyles =
+        'bg-blue-500 border border-blue-600 box-border font-header inline-block rounded text-center text-white w-full py-2 px-5 tablet:w-auto';
+      break;
+    case ButtonVariant.SubscriptionManagementSecondary:
+      variantStyles =
+        'bg-grey-10 border border-grey-200 box-border font-header inline-block rounded text-center w-full py-2 px-5 tablet:w-auto';
       break;
   }
 

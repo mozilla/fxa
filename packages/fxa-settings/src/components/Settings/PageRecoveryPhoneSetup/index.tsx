@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
+import { useErrorHandler } from 'react-error-boundary';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import { useAccount, useFtlMsgResolver } from '../../../models';
@@ -10,15 +11,26 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import { RouteComponentProps, useLocation } from '@reach/router';
-import { RecoveryPhoneSetupReason } from '../../../lib/types';
+import { RecoveryPhoneSetupReason, MfaReason } from '../../../lib/types';
+import { MfaGuard } from '../MfaGuard';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
 const numberOfSteps = 2;
+
+export const MfaGuardPageRecoveryPhoneSetup = (props: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="2fa" reason={MfaReason.createRecoveryPhone}>
+      <PageRecoveryPhoneSetup {...props} />
+    </MfaGuard>
+  );
+};
 
 export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const account = useAccount();
   const location = useLocation();
+  const errorHandler = useErrorHandler();
   const reason: RecoveryPhoneSetupReason =
     (location as any)?.state?.reason ?? RecoveryPhoneSetupReason.setup;
 
@@ -73,7 +85,9 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     if (currentStep + 1 <= numberOfSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      navigateWithQuery(SETTINGS_PATH);
+      navigateWithQuery(`${SETTINGS_PATH}#two-step-authentication`, {
+        replace: true,
+      });
     }
   };
 
@@ -82,14 +96,38 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
     // one code can be valid at the same time if the user clicks “resend code” to
     // account for SMS transmission delay. (This will change in FXA-11039)
     // try/catch is in the component that calls this function
-    await account.addRecoveryPhone(phoneData.phoneNumber);
+    try {
+      const { nationalFormat } = await account.addRecoveryPhoneWithJwt(
+        phoneData.phoneNumber
+      );
+      setPhoneData({
+        phoneNumber: phoneData.phoneNumber,
+        nationalFormat,
+      });
+    } catch (e) {
+      if (isInvalidJwtError(e)) {
+        // JWT invalid/expired
+        errorHandler(e);
+        return;
+      }
+
+      throw e;
+    }
   };
 
   const verifyRecoveryCode = async (code: string) => {
-    // try/catch is in the component that calls this function
-    reason === RecoveryPhoneSetupReason.change
-      ? await account.changeRecoveryPhone(code)
-      : await account.confirmRecoveryPhone(code, phoneData.phoneNumber, false);
+    try {
+      reason === RecoveryPhoneSetupReason.change
+        ? await account.changeRecoveryPhoneWithJwt(code)
+        : await account.confirmRecoveryPhoneWithJwt(code);
+    } catch (e) {
+      if (isInvalidJwtError(e)) {
+        // JWT invalid/expired
+        errorHandler(e);
+        return;
+      }
+      throw e;
+    }
     // get the latest status of recovery phone info
     // ensure correct data is shown on the settings page
     await account.refresh('recoveryPhone');
@@ -97,11 +135,22 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
 
   const verifyPhoneNumber = async (phoneNumberInput: string) => {
     // try/catch is in the component that calls this function
-    const { nationalFormat } = await account.addRecoveryPhone(phoneNumberInput);
-    setPhoneData({
-      phoneNumber: phoneNumberInput,
-      nationalFormat,
-    });
+    try {
+      const { nationalFormat } =
+        await account.addRecoveryPhoneWithJwt(phoneNumberInput);
+      setPhoneData({
+        phoneNumber: phoneNumberInput,
+        nationalFormat,
+      });
+    } catch (e) {
+      if (isInvalidJwtError(e)) {
+        // JWT invalid/expired
+        errorHandler(e);
+        return;
+      }
+
+      throw e;
+    }
   };
 
   return (
@@ -118,7 +167,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
             verifyPhoneNumber,
             currentStep,
             numberOfSteps,
-            reason
+            reason,
           }}
         />
       )}
@@ -130,6 +179,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
           nationalFormatPhoneNumber={
             phoneData.nationalFormat || phoneData.phoneNumber
           }
+          showRecoveryPhoneSuccessMessage={true}
           {...{
             localizedBackButtonTitle,
             localizedPageTitle,
@@ -139,7 +189,7 @@ export const PageRecoveryPhoneSetup = (_: RouteComponentProps) => {
             verifyRecoveryCode,
             currentStep,
             numberOfSteps,
-            reason
+            reason,
           }}
         />
       )}

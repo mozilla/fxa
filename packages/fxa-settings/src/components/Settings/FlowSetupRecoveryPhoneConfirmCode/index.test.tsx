@@ -32,6 +32,7 @@ const defaultProps = {
   navigateForward: mockNavigateForward,
   nationalFormatPhoneNumber: MOCK_NATIONAL_FORMAT_PHONE_NUMBER,
   sendCode: mockSendCode,
+  showRecoveryPhoneSuccessMessage: true,
   verifyRecoveryCode: mockVerifyRecoveryCode,
 };
 

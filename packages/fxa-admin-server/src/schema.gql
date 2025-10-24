@@ -41,10 +41,10 @@ type EmailBounce {
 
 enum BounceType {
   unmapped
-  Undetermined
   Permanent
   Transient
   Complaint
+  Undetermined
 }
 
 enum BounceSubType {
@@ -52,7 +52,6 @@ enum BounceSubType {
   Undetermined
   General
   NoEmail
-  OnAccountSuppressionList
   Suppressed
   MailboxFull
   MessageTooLarge
@@ -64,6 +63,7 @@ enum BounceSubType {
   NotSpam
   Other
   Virus
+  OnAccountSuppressionList
 }
 
 type Email {
@@ -207,17 +207,33 @@ type AccountDeleteTaskStatus {
   status: String!
 }
 
-type RelyingParty {
+type RelyingPartyDto {
   id: ID!
+  createdAt: DateTime!
   name: String!
   imageUri: String!
   redirectUri: String!
   canGrant: Boolean!
   publicClient: Boolean!
-  createdAt: Float!
   trusted: Boolean!
   allowedScopes: String
   notes: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type BlockStatus {
+  retryAfter: Float!
+  reason: String!
+  action: String!
+  blockingOn: String!
+  startTime: Float!
+  duration: Int!
+  attempt: Int!
+  policy: String!
 }
 
 type Query {
@@ -227,7 +243,8 @@ type Query {
   getEmailsLike(search: String!): [Email!]
   getRecoveryPhonesLike(search: String!): [RecoveryPhone!]
   getDeleteStatus(taskNames: [String!]!): [AccountDeleteTaskStatus!]!
-  relyingParties: [RelyingParty!]!
+  rateLimits(ip: String, email: String, uid: String): [BlockStatus!]!
+  relyingParties: [RelyingPartyDto!]!
 }
 
 type Mutation {
@@ -235,12 +252,26 @@ type Mutation {
   unverifyEmail(email: String!): Boolean!
   disableAccount(uid: String!): Boolean!
   editLocale(uid: String!, locale: String!): Boolean!
+  deleteRecoveryPhone(uid: String!): Boolean!
   enableAccount(uid: String!): Boolean!
-  sendPasswordResetEmail(email: String!): Boolean!
   recordAdminSecurityEvent(uid: String!, name: String!): Boolean!
   unlinkAccount(uid: String!): Boolean!
   unsubscribeFromMailingLists(uid: String!): Boolean!
   deleteAccounts(locators: [String!]!): [AccountDeleteResponse!]!
   clearEmailBounce(email: String!): Boolean!
-  updateNotes(id: String!, notes: String!): Boolean!
+  clearRateLimits(ip: String, email: String, uid: String): Float!
+  create(relyingParty: RelyingPartyUpdateDto!): String!
+  update(id: String!, relyingParty: RelyingPartyUpdateDto!): Boolean!
+  delete(id: String!): Boolean!
+}
+
+input RelyingPartyUpdateDto {
+  name: String!
+  imageUri: String!
+  redirectUri: String!
+  canGrant: Boolean!
+  publicClient: Boolean!
+  trusted: Boolean!
+  allowedScopes: String
+  notes: String
 }

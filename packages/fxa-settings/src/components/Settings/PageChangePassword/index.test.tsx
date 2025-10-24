@@ -39,10 +39,62 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Mock authClient with basic functions needed for password change
+const mockAuthClient = {
+  passwordChangeWithJWT: jest.fn().mockResolvedValue({
+    uid: 'test-uid',
+    sessionToken: 'new-session-token',
+    verified: true,
+    authAt: Date.now(),
+  }),
+  sessionReauth: jest.fn().mockResolvedValue({
+    uid: 'test-uid',
+    sessionToken: 'reauth-session-token',
+    keyFetchToken: 'key-fetch-token',
+    unwrapBKey: 'unwrap-b-key',
+    verified: true,
+    authAt: Date.now(),
+  }),
+  accountKeys: jest.fn().mockResolvedValue({
+    kA: 'kA-key',
+    kB: 'kB-key',
+  }),
+} as any; // Use 'as any' to avoid TypeScript strict typing for mock
+
+// Mock the cache module to provide session token and JWT cache
+const mockSessionToken = 'mock-session-token';
+const mockJwtState: Record<string, string> = { [`${mockSessionToken}-password`]: 'mock-jwt-token' };
+jest.mock('../../../lib/cache', () => {
+  const actual = jest.requireActual('../../../lib/cache');
+  return {
+    __esModule: true,
+    ...actual,
+    sessionToken: () => mockSessionToken,
+    JwtTokenCache: {
+      subscribe: jest.fn((callback) => {
+        // Return unsubscribe function
+        return () => {};
+      }),
+      getSnapshot: jest.fn(() => mockJwtState),
+      hasToken: jest.fn((sessionToken: string, scope: string) => {
+        const key = `${sessionToken}-${scope}`;
+        return mockJwtState[key] != null;
+      }),
+      setToken: jest.fn(),
+      getToken: jest.fn((sessionToken: string, scope: string) => {
+        const key = `${sessionToken}-${scope}`;
+        return mockJwtState[key] || 'mock-jwt-token';
+      }),
+      removeToken: jest.fn(),
+    },
+  };
+});
+
 const account = {
   primaryEmail: {
     email: 'test@example.com',
   },
+  authClient: mockAuthClient,
   changePassword: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
 
@@ -50,7 +102,7 @@ const settingsContext = mockSettingsContext();
 
 const render = async (mockAccount = account) => {
   renderWithRouter(
-    <AppContext.Provider value={mockAppContext({ account: mockAccount })}>
+    <AppContext.Provider value={mockAppContext({ account: mockAccount, authClient: mockAuthClient })}>
       <SettingsContext.Provider value={settingsContext}>
         <PageChangePassword />
       </SettingsContext.Provider>

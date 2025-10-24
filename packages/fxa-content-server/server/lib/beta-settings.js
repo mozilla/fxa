@@ -126,6 +126,7 @@ const settingsConfig = {
   nimbusPreview: config.get('nimbusPreview'),
   cms: {
     enabled: config.get('cms.enabled'),
+    l10nEnabled: config.get('cms.l10nEnabled'),
   },
 };
 

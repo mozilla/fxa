@@ -9,9 +9,14 @@ import { LocationProvider } from '@reach/router';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { mockOAuthNativeSigninIntegration, mockWebSigninIntegration, Subject } from './mocks';
+import {
+  mockOAuthNativeSigninIntegration,
+  mockWebSigninIntegration,
+  Subject,
+  MOCK_TOTP_LOCATION_STATE,
+} from './mocks';
 import { BeginSigninError } from '../../../lib/error-utils';
-import { SigninIntegration } from '../interfaces';
+import { SigninIntegration, SigninLocationState } from '../interfaces';
 import { MOCK_CMS_INFO } from '../../mocks';
 
 export default {
@@ -24,6 +29,7 @@ const storyWithProps = (props: {
   submitTotpCode: () => Promise<{ error?: BeginSigninError }>;
   serviceName: MozServices;
   integration?: SigninIntegration;
+  signinState?: SigninLocationState;
 }) => {
   const story = () => (
     <LocationProvider>
@@ -37,6 +43,13 @@ export const Default = storyWithProps({
   submitTotpCode: async () => ({}),
   serviceName: MozServices.Default,
   integration: mockWebSigninIntegration,
+});
+
+export const RedirectFromSettingsBecauseAALUpgradeNeeded = storyWithProps({
+  submitTotpCode: async () => ({}),
+  serviceName: MozServices.Default,
+  integration: mockWebSigninIntegration,
+  signinState: { ...MOCK_TOTP_LOCATION_STATE, isSessionAALUpgrade: true },
 });
 
 export const WithOAuthDesktopServiceRelay = storyWithProps({

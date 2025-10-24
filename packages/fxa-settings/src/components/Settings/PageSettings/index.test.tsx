@@ -50,16 +50,8 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
-const mockUseGeoEligibilityCheck = jest
-  .fn()
-  .mockReturnValue({ eligible: false });
-jest.mock('../../../lib/hooks/useGeoEligibilityCheck', () => ({
-  useGeoEligibilityCheck: () => mockUseGeoEligibilityCheck(),
-}));
-
 const mockGetProductPromoData = jest.fn().mockReturnValue({
   hidePromo: false,
-  showMonitorPlusPromo: false,
   gleanEvent: { event: { reason: 'default' } },
 });
 jest.mock('../ProductPromo', () => ({
@@ -162,7 +154,11 @@ describe('PageSettings', () => {
     });
 
     describe('product promo event', () => {
-      it('user does not have Monitor', async () => {
+      it('user does not have Monitor, promo is shown and glean metric is called', async () => {
+        mockGetProductPromoData.mockReturnValue({
+          hidePromo: false,
+          gleanEvent: { event: { reason: 'default' } },
+        });
         renderWithRouter(
           <AppContext.Provider
             value={mockAppContext({ account: coldStartAccount })}
@@ -180,38 +176,7 @@ describe('PageSettings', () => {
         });
       });
 
-      it('user has Monitor and is eligible for special promo', async () => {
-        mockUseGeoEligibilityCheck.mockReturnValue({
-          eligible: true,
-          loading: false,
-        });
-        mockGetProductPromoData.mockReturnValue({
-          hidePromo: false,
-          showMonitorPlusPromo: true,
-          gleanEvent: { event: { reason: 'special' } },
-        });
-        renderWithRouter(
-          <AppContext.Provider
-            value={mockAppContext({ account: completelyFilledOutAccount })}
-          >
-            <PageSettings />
-          </AppContext.Provider>
-        );
-        await waitFor(() =>
-          expect(
-            GleanMetrics.accountPref.promoMonitorView
-          ).toHaveBeenCalledTimes(1)
-        );
-        expect(GleanMetrics.accountPref.promoMonitorView).toHaveBeenCalledWith({
-          event: { reason: 'special' },
-        });
-      });
-
-      it('user has all products and subscriptions', async () => {
-        mockUseGeoEligibilityCheck.mockReturnValue({
-          eligible: true,
-          loading: false,
-        });
+      it('user has Monitor, promo is not shown and glean metric is not called', async () => {
         mockGetProductPromoData.mockReturnValue({
           hidePromo: true,
         });

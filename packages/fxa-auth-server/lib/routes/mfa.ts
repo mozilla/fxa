@@ -45,6 +45,9 @@ interface DB {
   securityEvent: (arg: SecurityEvent) => Promise<void>;
 }
 
+const toPascal = (str) =>
+  str.replace(/(^|_)(\w)/g, (_, __, c) => c.toUpperCase());
+
 class MfaHandler {
   constructor(
     private readonly config: ConfigType,
@@ -66,7 +69,7 @@ class MfaHandler {
       request,
       uid,
       account.email,
-      'mfaOtpCodeRequest'
+      `mfaOtpCodeRequestFor${toPascal(action)}` // turns mfaOtpCodeRequest_recovery_key into mfaOtpCodeRequestRecoveryKey
     );
 
     let success = false;
@@ -133,7 +136,7 @@ class MfaHandler {
       request,
       uid,
       account.email,
-      'mfaVerifyOtpCode'
+      `mfaOtpCodeVerifyFor${toPascal(action)}` // turns mfaOtpCodeRequest_recovery_key into mfaOtpCodeRequestRecoveryKey
     );
 
     let success = false;
@@ -181,6 +184,7 @@ class MfaHandler {
       const scope = action;
 
       // Issue jwt
+      // TODO: Use `/mfa/otp/request` and `/mfa/otp/verify` to issue the jwt
       const now = Math.floor(Date.now() / 1000);
       const claims = {
         sub: account.uid,
@@ -253,7 +257,8 @@ export const mfaRoutes = (
       options: {
         pre: [{ method: featureEnabledCheck }],
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({
@@ -274,7 +279,8 @@ export const mfaRoutes = (
       path: '/mfa/otp/verify',
       options: {
         auth: {
-          strategy: 'sessionToken',
+          strategy: 'verifiedSessionToken',
+          payload: false,
         },
         validate: {
           payload: isA.object({

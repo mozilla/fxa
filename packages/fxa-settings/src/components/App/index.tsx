@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, Router, useLocation } from '@reach/router';
+import {
+  navigate,
+  RouteComponentProps,
+  Router,
+  useLocation,
+} from '@reach/router';
 import {
   lazy,
   Suspense,
@@ -24,6 +29,7 @@ import { MozServices } from '../../lib/types';
 
 import {
   Integration,
+  isOAuthIntegration,
   useConfig,
   useInitialMetricsQueryState,
   useIntegration,
@@ -35,8 +41,6 @@ import {
   SettingsContext,
 } from '../../models/contexts/SettingsContext';
 
-import { hardNavigate } from 'fxa-react/lib/utils';
-
 import sentryMetrics from 'fxa-shared/sentry/browser';
 
 // Components
@@ -47,9 +51,6 @@ import useSyncEngines from '../../lib/hooks/useSyncEngines';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
-const CannotCreateAccount = lazy(
-  () => import('../../pages/CannotCreateAccount')
-);
 const Clear = lazy(() => import('../../pages/Clear'));
 
 const InlineTotpSetupContainer = lazy(
@@ -152,6 +153,7 @@ const AuthorizationContainer = lazy(
   () => import('../../pages/Authorization/container')
 );
 const CookiesDisabled = lazy(() => import('../../pages/CookiesDisabled'));
+const OAuthDataError = lazy(() => import('../OAuthDataError'));
 const ResetPasswordRecoveryChoiceContainer = lazy(
   () =>
     import('../../pages/ResetPassword/ResetPasswordRecoveryChoice/container')
@@ -350,7 +352,7 @@ export const App = ({
 
   // If we're on settings route but user is not signed in, redirect immediately
   if (window.location.pathname?.includes('/settings') && !isSignedIn) {
-    hardNavigate('/');
+    navigate('/');
     return <LoadingSpinner fullScreen />;
   }
 
@@ -389,7 +391,7 @@ const SettingsRoutes = ({
       // For regular RP / web logins, maybe the session token expired. In this
       // case we just send them to the root.
       params.set('redirect_to', location.pathname);
-      hardNavigate(`/?${params.toString()}`);
+      navigate(`/?${params.toString()}`);
     }
 
     return <LoadingSpinner fullScreen />;
@@ -418,7 +420,7 @@ const AuthAndAccountSetupRoutes = ({
 } & RouteComponentProps) => {
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
-  const serviceName = integration.getServiceName() as MozServices;
+  let serviceName: MozServices;
   const location = useLocation();
   const { enabled: gleanEnabled } = GleanMetrics.useGlean();
 
@@ -427,6 +429,23 @@ const AuthAndAccountSetupRoutes = ({
   }, [location.pathname, gleanEnabled]);
 
   const useSyncEnginesResult = useSyncEngines(integration);
+  try {
+    // Handle getServiceName() errors that occur when OAuth scope validation fails.
+    // This can happen when scopes are missing, invalid, or filtered out during
+    // trusted/untrusted client validation. For OAuth integrations, show a user-friendly
+    // error page instead of letting it bubble up to the general error boundary.
+    serviceName = integration.getServiceName() as MozServices;
+  } catch (err: any) {
+    sentryMetrics.captureException(err);
+    if (isOAuthIntegration(integration)) {
+      return (
+        <Suspense fallback={<LoadingSpinner fullScreen />}>
+          <OAuthDataError error={err} />
+        </Suspense>
+      );
+    }
+    throw err;
+  }
 
   return (
     <Suspense fallback={<LoadingSpinner fullScreen />}>
@@ -567,7 +586,6 @@ const AuthAndAccountSetupRoutes = ({
         />
 
         {/* Signup */}
-        <CannotCreateAccount path="/cannot_create_account/*" />
         <ConfirmSignupCodeContainer
           path="/confirm_signup_code/*"
           {...{ integration, flowQueryParams }}

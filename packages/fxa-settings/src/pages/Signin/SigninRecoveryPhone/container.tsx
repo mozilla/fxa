@@ -5,7 +5,6 @@
 import React, { useContext, useEffect } from 'react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SigninRecoveryPhone from '.';
-import { SigninLocationState } from '../interfaces';
 import { getSigninState, handleNavigation } from '../utils';
 import {
   AppContext,
@@ -32,6 +31,7 @@ import {
 } from './interfaces';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../../../components/App/gql';
 import GleanMetrics from '../../../lib/glean';
+import { SigninLocationState } from '../interfaces';
 
 const SigninRecoveryPhoneContainer = ({
   integration,
@@ -104,6 +104,17 @@ const SigninRecoveryPhoneContainer = ({
       });
       await new Promise((resolve) => setTimeout(resolve, 100));
 
+      const recoveryPhoneSigninSuccessGleanMetric =
+        GleanMetrics.login.recoveryPhoneSuccessView;
+
+      alertBar.success(
+        ftlMsgResolver.getMsg(
+          'signin-recovery-phone-success-message',
+          'Signed in successfully. Limits may apply if you use your recovery phone again.'
+        ),
+        recoveryPhoneSigninSuccessGleanMetric
+      );
+
       const navigationOptions = {
         email: signinState.email,
         signinData: {
@@ -119,21 +130,11 @@ const SigninRecoveryPhoneContainer = ({
         finishOAuthFlowHandler,
         redirectTo,
         queryParams: location.search,
+        isSessionAALUpgrade: signinState.isSessionAALUpgrade,
         handleFxaLogin: true,
         handleFxaOAuthLogin: true,
         performNavigation: !integration.isFirefoxMobileClient(),
       };
-
-      const recoveryPhoneSigninSuccessGleanMetric =
-        GleanMetrics.login.recoveryPhoneSuccessView;
-
-      alertBar.success(
-        ftlMsgResolver.getMsg(
-          'signin-recovery-phone-success-message',
-          'Signed in successfully. Limits may apply if you use your recovery phone again.'
-        ),
-        recoveryPhoneSigninSuccessGleanMetric
-      );
 
       await handleNavigation(navigationOptions);
     } catch (error) {

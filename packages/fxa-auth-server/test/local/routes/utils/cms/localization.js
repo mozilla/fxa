@@ -95,10 +95,12 @@ describe('CMSLocalization', () => {
       assert.include(result, '# Description for Signin Page');
       assert.include(result, '# Headline for Email First Page');
       assert.include(result, '# Description for Email First Page');
-      assert.include(result, 'desktopSyncFirefoxCms-SigninPage-headline-');
-      assert.include(result, 'desktopSyncFirefoxCms-SigninPage-description-');
-      assert.include(result, 'desktopSyncFirefoxCms-EmailFirstPage-headline-');
-      assert.include(result, 'desktopSyncFirefoxCms-EmailFirstPage-description-');
+
+      // With fxa-prefixed hash IDs, we expect fxa-<component>-<hash> patterns
+      assert.match(result, /fxa-SigninPage-headline-[a-f0-9]{8} = Enter your password/);
+      assert.match(result, /fxa-SigninPage-description-[a-f0-9]{8} = to sign in to Firefox and start syncing/);
+      assert.match(result, /fxa-EmailFirstPage-headline-[a-f0-9]{8} = Welcome to Firefox Sync/);
+      assert.match(result, /fxa-EmailFirstPage-description-[a-f0-9]{8} = Sync your passwords, tabs, and bookmarks/);
     });
 
     it('handles empty Strapi data', () => {
@@ -130,8 +132,9 @@ describe('CMSLocalization', () => {
 
       const result = localization.strapiToFtl(strapiData);
 
-      assert.include(result, 'testClient-SigninPage-headline-');
-      assert.include(result, 'testClient-SigninPage-description-');
+      // With fxa-prefixed hash IDs, we expect fxa-<component>-<hash> patterns
+      assert.match(result, /fxa-SigninPage-headline-[a-f0-9]{8} = Enter your password/);
+      assert.match(result, /fxa-SigninPage-description-[a-f0-9]{8} = to sign in/);
       // Note: The current implementation doesn't filter out all non-string fields
       // This test reflects the actual behavior
     });
@@ -175,8 +178,8 @@ describe('CMSLocalization', () => {
           entrypoint: 'entryB',
           clientId: 'clientB',
           Page: {
-            field2: 'Value 2',
-            field1: 'Value 1'
+            field2: 'Value B2',
+            field1: 'Value B1'
           }
         },
         {
@@ -185,8 +188,8 @@ describe('CMSLocalization', () => {
           entrypoint: 'entryA',
           clientId: 'clientA',
           Page: {
-            field2: 'Value 2',
-            field1: 'Value 1'
+            field2: 'Value A2',
+            field1: 'Value A1'
           }
         }
       ];
@@ -194,148 +197,34 @@ describe('CMSLocalization', () => {
       const result = localization.strapiToFtl(strapiData);
       const lines = result.split('\n');
 
-      const clientASection = lines.findIndex(line => line.includes('# clientA'));
-      const clientBSection = lines.findIndex(line => line.includes('# clientB'));
+      const clientASection = lines.findIndex(line => line.includes('## clientA'));
+      const clientBSection = lines.findIndex(line => line.includes('## clientB'));
 
+      // Both clients should be present and clientA should come before clientB
+      assert.isTrue(clientASection >= 0, 'clientA should be found in output');
+      assert.isTrue(clientBSection >= 0, 'clientB should be found in output');
       assert.isTrue(clientASection < clientBSection, 'clientA should come before clientB');
     });
-  });
 
-  describe('parseFtlIdToFieldPath', () => {
-    it('parses FTL ID back to field path', () => {
-      const ftlId = 'desktopSyncFirefoxCms-EmailFirstPage-headline-dca46c64';
-      const result = localization.parseFtlIdToFieldPath(ftlId);
-
-      assert.equal(result, 'EmailFirstPage.headline');
-    });
-
-    it('handles complex field paths', () => {
-      const ftlId = 'testClient-very-deeply-nested-field-12345678';
-      const result = localization.parseFtlIdToFieldPath(ftlId);
-
-      assert.equal(result, 'very.deeply.nested.field');
-    });
-
-    it('returns null for invalid FTL ID format', () => {
-      const invalidFtlIds = [
-        'invalid',
-        'too-few-parts',
-        ''
+    it('ends with a newline character', () => {
+      const strapiData = [
+        {
+          l10nId: 'testClient',
+          name: 'Test Client',
+          SigninPage: {
+            headline: 'Enter your password'
+          }
+        }
       ];
 
-      invalidFtlIds.forEach(ftlId => {
-        const result = localization.parseFtlIdToFieldPath(ftlId);
-        assert.isNull(result, `Should return null for invalid FTL ID: ${ftlId}`);
-      });
+      const result = localization.strapiToFtl(strapiData);
+
+      // Verify that the file ends with exactly one newline
+      assert.isTrue(result.endsWith('\n'), 'FTL file should end with a newline');
+      assert.isFalse(result.endsWith('\n\n'), 'FTL file should not end with multiple newlines');
     });
   });
 
-  describe('convertFtlToStrapiFormat', () => {
-    it('converts FTL content to Strapi format', () => {
-      const l10nId = 'desktopSyncFirefoxCms';
-      const ftlContent = `
-# Generated on 2025-08-07T14:13:00.605Z
-# FTL file for CMS localization
-
-# desktopSyncFirefoxCms - Firefox Desktop Sync
-# Headline for Signin Page
-desktopSyncFirefoxCms-SigninPage-headline-e8d28194 = Enter your password
-# Description for Signin Page
-desktopSyncFirefoxCms-SigninPage-description-be763109 = to sign in to Firefox and start syncing
-# Headline for Email First Page
-desktopSyncFirefoxCms-EmailFirstPage-headline-9cf9a7d4 = Welcome to Firefox Sync
-`;
-
-      const baseData = {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        name: 'Firefox Desktop Sync',
-        l10nId: 'desktopSyncFirefoxCms'
-      };
-
-      const result = localization.convertFtlToStrapiFormat(l10nId, ftlContent, baseData);
-
-      assert.deepEqual(result, {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        name: 'Firefox Desktop Sync',
-        l10nId: 'desktopSyncFirefoxCms',
-        SigninPage: {
-          headline: 'Enter your password',
-          description: 'to sign in to Firefox and start syncing'
-        },
-        EmailFirstPage: {
-          headline: 'Welcome to Firefox Sync'
-        }
-      });
-    });
-
-    it('only processes entries matching the target l10nId', () => {
-      const l10nId = 'desktopSyncFirefoxCms';
-      const ftlContent = `
-# Headline for Signin Page
-desktopSyncFirefoxCms-SigninPage-headline-e8d28194 = Enter your password
-# Headline for Other Client
-otherClient-SigninPage-headline-12345678 = Other password
-`;
-
-      const baseData = {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        name: 'Firefox Desktop Sync',
-        l10nId: 'desktopSyncFirefoxCms'
-      };
-
-      const result = localization.convertFtlToStrapiFormat(l10nId, ftlContent, baseData);
-
-      assert.property(result.SigninPage, 'headline');
-      assert.equal(result.SigninPage.headline, 'Enter your password');
-      assert.notProperty(result, 'otherClient');
-    });
-
-    it('handles empty FTL content', () => {
-      const l10nId = 'desktopSyncFirefoxCms';
-      const ftlContent = '';
-      const baseData = {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        name: 'Firefox Desktop Sync',
-        l10nId: 'desktopSyncFirefoxCms'
-      };
-
-      const result = localization.convertFtlToStrapiFormat(l10nId, ftlContent, baseData);
-
-      assert.deepEqual(result, {
-        clientId: 'sync-client',
-        entrypoint: 'desktop-sync',
-        name: 'Firefox Desktop Sync',
-        l10nId: 'desktopSyncFirefoxCms'
-      });
-    });
-
-    it('unescapes FTL values', () => {
-      const l10nId = 'testClient';
-      const ftlContent = `
-testClient-SigninPage-headline-12345678 = Enter your password
-testClient-SigninPage-description-87654321 = Line 1\\nLine 2\\rLine 3
-testClient-SigninPage-message-abcdef12 = Quote: \\"Hello\\"
-`;
-
-      const baseData = {
-        clientId: 'test-client',
-        entrypoint: 'test',
-        name: 'Test Client',
-        l10nId: 'testClient'
-      };
-
-      const result = localization.convertFtlToStrapiFormat(l10nId, ftlContent, baseData);
-
-      assert.equal(result.SigninPage.headline, 'Enter your password');
-      assert.equal(result.SigninPage.description, 'Line 1\nLine 2\rLine 3');
-      // Note: The current implementation may not handle all escape sequences
-      // This test reflects the actual behavior
-    });
-  });
 
   describe('GitHub PR operations', () => {
     beforeEach(() => {
@@ -789,12 +678,7 @@ testClient-SigninPage-message-abcdef12 = Quote: \\"Hello\\"
   });
 
   describe('mergeConfigs', () => {
-    beforeEach(() => {
-      // Mock the convertFtlToStrapiFormat method
-      sandbox.stub(localization, 'convertFtlToStrapiFormat');
-    });
-
-    it('merges base config with localized data', async () => {
+    it('applies translation when hash matches', async () => {
       const baseConfig = {
         l10nId: 'testClient',
         name: 'Test Client',
@@ -809,18 +693,23 @@ testClient-SigninPage-message-abcdef12 = Quote: \\"Hello\\"
         }
       };
 
-      const ftlContent = 'mock FTL content';
-      const localizedData = {
+      // Generate FTL content using the actual method to get the correct hash
+      const strapiData = [{
+        l10nId: 'testClient',
+        name: 'Test Client',
         SigninPage: {
-          headline: 'Introduzca su contraseña',
-          // description should remain from base config
-        },
-        NewPage: {
-          headline: 'Nueva página'
+          headline: 'Enter your password'
         }
-      };
+      }];
+      const generatedFtl = localization.strapiToFtl(strapiData);
 
-      localization.convertFtlToStrapiFormat.returns(localizedData);
+      // Extract the hash from the generated FTL content
+      const hashMatch = generatedFtl.match(/(fxa-SigninPage-headline-[a-f0-9]{8}) = Enter your password/);
+      assert.isNotNull(hashMatch, 'Should find fxa-prefixed hash in generated FTL');
+      const fxaHash = hashMatch[1];
+
+      // Create FTL content with translation
+      const ftlContent = `${fxaHash} = Introduzca su contraseña`;
 
       const result = await localization.mergeConfigs(baseConfig, ftlContent, 'test-client', 'test');
 
@@ -829,16 +718,26 @@ testClient-SigninPage-message-abcdef12 = Quote: \\"Hello\\"
       assert.equal(result.clientId, 'test-client');
       assert.equal(result.entrypoint, 'test');
 
-      // Localized content should override base
+      // Translation should be applied for matching hash
       assert.equal(result.SigninPage.headline, 'Introduzca su contraseña');
-      // Non-localized content should remain from base
+      // Non-matching content should remain from base
       assert.equal(result.SigninPage.description, 'Original description');
-      // Base content should remain
       assert.equal(result.EmailFirstPage.headline, 'Welcome');
-      // New localized content should be added
-      assert.equal(result.NewPage.headline, 'Nueva página');
+    });
 
-      sinon.assert.calledWith(localization.convertFtlToStrapiFormat, 'testClient', ftlContent, baseConfig);
+    it('keeps English when no translation exists', async () => {
+      const baseConfig = {
+        l10nId: 'testClient',
+        SigninPage: {
+          headline: 'Enter your password'
+        }
+      };
+
+      const ftlContent = 'fxabcd1234 = Some other translation';
+
+      const result = await localization.mergeConfigs(baseConfig, ftlContent, 'test', 'test');
+
+      assert.equal(result.SigninPage.headline, 'Enter your password');
     });
 
     it('returns base config when FTL content is empty', async () => {
@@ -850,7 +749,6 @@ testClient-SigninPage-message-abcdef12 = Quote: \\"Hello\\"
       const result = await localization.mergeConfigs(baseConfig, '', 'test-client', 'test');
 
       assert.deepEqual(result, baseConfig);
-      sinon.assert.notCalled(localization.convertFtlToStrapiFormat);
     });
 
     it('returns base config when base config is null/undefined', async () => {
@@ -859,60 +757,61 @@ testClient-SigninPage-message-abcdef12 = Quote: \\"Hello\\"
 
       assert.isNull(result1);
       assert.isUndefined(result2);
-      sinon.assert.notCalled(localization.convertFtlToStrapiFormat);
     });
 
-    it('handles conversion errors gracefully', async () => {
+    it('handles malformed FTL content gracefully', async () => {
       const baseConfig = {
         l10nId: 'testClient',
-        name: 'Test Client'
+        SigninPage: {
+          headline: 'Enter your password'
+        }
       };
-      const ftlContent = 'invalid FTL content';
-
-      localization.convertFtlToStrapiFormat.throws(new Error('Conversion failed'));
+      const ftlContent = 'invalid FTL content without proper format';
 
       const result = await localization.mergeConfigs(baseConfig, ftlContent, 'test-client', 'test');
 
+      // Should return base config unchanged when FTL is malformed
       assert.deepEqual(result, baseConfig);
-      sinon.assert.calledWith(mockLog.error, 'cms.getLocalizedConfig.merge.error', {
-        error: 'Conversion failed',
-        clientId: 'test-client',
-        entrypoint: 'test'
-      });
     });
 
-    it('performs deep merge correctly', async () => {
+    it('skips non-localizable fields', async () => {
       const baseConfig = {
         l10nId: 'testClient',
         SigninPage: {
-          headline: 'Original headline',
-          description: 'Original description',
-          button: {
-            text: 'Sign In',
-            style: 'primary'
-          }
+          headline: 'Enter your password',
+          url: 'https://example.com',
+          color: '#ffffff',
+          date: '2023-01-01T00:00:00Z'
         }
       };
 
-      const localizedData = {
+      // Generate FTL content using the actual method to get the correct hash
+      const strapiData = [{
+        l10nId: 'testClient',
+        name: 'Test Client',
         SigninPage: {
-          headline: 'Localized headline',
-          button: {
-            text: 'Iniciar Sesión'
-            // style should remain from base
-          }
+          headline: 'Enter your password'
         }
-      };
+      }];
+      const generatedFtl = localization.strapiToFtl(strapiData);
 
-      localization.convertFtlToStrapiFormat.returns(localizedData);
+      // Extract the hash from the generated FTL content
+      const hashMatch = generatedFtl.match(/(fxa-SigninPage-headline-[a-f0-9]{8}) = Enter your password/);
+      assert.isNotNull(hashMatch, 'Should find fxa-prefixed hash in generated FTL');
+      const fxaHash = hashMatch[1];
 
-      const result = await localization.mergeConfigs(baseConfig, 'ftl content', 'client', 'entry');
+      const ftlContent = `${fxaHash} = Introduzca su contraseña`;
 
-      assert.equal(result.SigninPage.headline, 'Localized headline');
-      assert.equal(result.SigninPage.description, 'Original description');
-      assert.equal(result.SigninPage.button.text, 'Iniciar Sesión');
-      assert.equal(result.SigninPage.button.style, 'primary');
+      const result = await localization.mergeConfigs(baseConfig, ftlContent, 'test-client', 'test');
+
+      // Only localizable string should be translated
+      assert.equal(result.SigninPage.headline, 'Introduzca su contraseña');
+      // Non-localizable fields should remain unchanged
+      assert.equal(result.SigninPage.url, 'https://example.com');
+      assert.equal(result.SigninPage.color, '#ffffff');
+      assert.equal(result.SigninPage.date, '2023-01-01T00:00:00Z');
     });
+
   });
 
   describe('generateFtlContentFromEntries', () => {
@@ -963,5 +862,6 @@ testClient-SigninPage-message-abcdef12 = Quote: \\"Hello\\"
       // Verify the exact same entries object was passed
       sinon.assert.calledWith(localization.strapiToFtl, entries);
     });
+
   });
 });

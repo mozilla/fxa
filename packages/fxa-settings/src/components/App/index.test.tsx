@@ -5,6 +5,7 @@
 import React, { ReactNode } from 'react';
 import { act, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { navigate } from '@reach/router';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
 import {
@@ -29,15 +30,32 @@ import { firefox } from '../../lib/channels/firefox';
 
 import GleanMetrics from '../../lib/glean';
 import config from '../../lib/config';
-import * as utils from 'fxa-react/lib/utils';
 import { currentAccount } from '../../lib/cache';
 import { MozServices } from '../../lib/types';
 import mockUseSyncEngines from '../../lib/hooks/useSyncEngines/mocks';
 import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import sentryMetrics from 'fxa-shared/sentry/browser';
+import { OAuthError } from '../../lib/oauth';
+
+jest.mock('@reach/router', () => {
+  return {
+    ...jest.requireActual('@reach/router'),
+    navigate: jest.fn(),
+  };
+});
 
 jest.mock('../../lib/hooks/useSyncEngines', () => ({
   __esModule: true,
   default: jest.fn(),
+}));
+
+jest.mock('fxa-shared/sentry/browser', () => ({
+  __esModule: true,
+  default: {
+    enable: jest.fn(),
+    disable: jest.fn(),
+    captureException: jest.fn(),
+  },
 }));
 
 jest.mock('../../models/contexts/SettingsContext', () => ({
@@ -64,6 +82,7 @@ jest.mock('../../lib/cache', () => ({
   currentAccount: jest.fn(),
 }));
 
+const mockSessionStatus = jest.fn();
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
   useInitialMetricsQueryState: jest.fn(),
@@ -73,6 +92,9 @@ jest.mock('../../models', () => ({
   useProductInfoState: jest.fn(),
   useIntegration: jest.fn(),
   useSession: jest.fn(),
+  useAuthClient: jest.fn(() => ({
+    sessionStatus: mockSessionStatus,
+  })),
 }));
 
 jest.mock('react-markdown', () => {});
@@ -95,13 +117,6 @@ jest.mock('../../lib/glean', () => ({
     emailFirst: { view: jest.fn(), engage: jest.fn() },
     pageLoad: jest.fn(),
   },
-}));
-
-const mockUseGeoEligibilityCheck = jest
-  .fn()
-  .mockReturnValue({ eligible: false });
-jest.mock('../../lib/hooks/useGeoEligibilityCheck', () => ({
-  useGeoEligibilityCheck: () => mockUseGeoEligibilityCheck(),
 }));
 
 const mockMetricsQueryAccountAmplitude = {
@@ -276,6 +291,7 @@ describe('loading spinner states', () => {
     });
     (useSession as jest.Mock).mockReturnValue({
       isValid: () => true,
+      isSessionVerified: () => Promise.resolve(true),
     });
     (currentAccount as jest.Mock).mockReturnValueOnce({
       uid: 123,
@@ -375,21 +391,10 @@ describe('AuthAndAccountSetupRoutes', () => {
 });
 
 describe('SettingsRoutes', () => {
-  let hardNavigateSpy: jest.SpyInstance;
   const settingsPath = '/settings';
-  jest.mock('@reach/router', () => ({
-    ...jest.requireActual('@reach/router'),
-    useLocation: () => {
-      return {
-        pathname: settingsPath,
-      };
-    },
-  }));
 
   beforeEach(() => {
-    hardNavigateSpy = jest
-      .spyOn(utils, 'hardNavigate')
-      .mockImplementation(() => {});
+    (navigate as jest.Mock).mockClear();
     (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       loading: false,
     });
@@ -403,6 +408,7 @@ describe('SettingsRoutes', () => {
     });
     (useSession as jest.Mock).mockReturnValue({
       isValid: () => false,
+      isSessionVerified: () => Promise.resolve(true),
     });
     (useProductInfoState as jest.Mock).mockReturnValue({
       loading: false,
@@ -413,10 +419,16 @@ describe('SettingsRoutes', () => {
       data: {},
     });
     (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
+    mockSessionStatus.mockResolvedValue({
+      details: {
+        sessionVerified: true,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
+    });
   });
 
   afterEach(() => {
-    hardNavigateSpy.mockRestore();
+    (navigate as jest.Mock).mockRestore();
     (useIntegration as jest.Mock).mockRestore();
     (useInitialMetricsQueryState as jest.Mock).mockRestore();
     (useLocalSignedInQueryState as jest.Mock).mockRestore();
@@ -425,6 +437,7 @@ describe('SettingsRoutes', () => {
     (firefox.requestSignedInUser as jest.Mock).mockRestore();
     (useClientInfoState as jest.Mock).mockRestore();
     (useSession as jest.Mock).mockRestore();
+    mockSessionStatus.mockClear();
   });
 
   it('redirects to email-first if isSignedIn is false', async () => {
@@ -456,7 +469,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(hardNavigateSpy).toHaveBeenCalledWith(
+      expect(navigate).toHaveBeenCalledWith(
         `/?redirect_to=${encodeURIComponent(settingsPath)}`
       );
     });
@@ -500,7 +513,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(hardNavigateSpy).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
     });
 
     expect(screen.getByText('Session Expired')).toBeInTheDocument();
@@ -536,6 +549,7 @@ describe('SettingsRoutes', () => {
 
     (useSession as jest.Mock).mockReturnValue({
       isValid: () => true,
+      isSessionVerified: () => Promise.resolve(true),
     });
 
     let navigateResult: Promise<void>;
@@ -548,7 +562,6 @@ describe('SettingsRoutes', () => {
             ...mockAppContext({
               account: {
                 ...MOCK_ACCOUNT,
-                getMonitorPlusPromoEligibility: () => Promise.resolve(false),
               } as unknown as Account,
             }),
             ...createAppContext(),
@@ -564,7 +577,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(hardNavigateSpy).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });
@@ -583,7 +596,6 @@ describe('SettingsRoutes', () => {
           value={mockAppContext({
             account: {
               ...MOCK_ACCOUNT,
-              getMonitorPlusPromoEligibility: () => Promise.resolve(false),
             } as unknown as Account,
           })}
         >
@@ -597,8 +609,135 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(hardNavigateSpy).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
+  });
+});
+
+describe('Integration serviceName error handling', () => {
+  beforeEach(() => {
+    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: false,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: true },
+    });
+    (useSession as jest.Mock).mockReturnValue({
+      isValid: () => true,
+    });
+    (currentAccount as jest.Mock).mockReturnValue({
+      uid: '123',
+      sessionToken: '123',
+    });
+  });
+
+  afterEach(() => {
+    (useSyncEngines as jest.Mock).mockRestore();
+    (useInitialMetricsQueryState as jest.Mock).mockRestore();
+    (useLocalSignedInQueryState as jest.Mock).mockRestore();
+    (useSession as jest.Mock).mockRestore();
+    (currentAccount as jest.Mock).mockRestore();
+    (sentryMetrics.captureException as jest.Mock).mockClear();
+  });
+
+  it('shows OAuthDataError component when OAuth integration throws', async () => {
+    const mockError = new OAuthError(109, { param: 'scope' });
+    const mockOAuthIntegration = {
+      type: IntegrationType.OAuthWeb,
+      isSync: jest.fn().mockReturnValue(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
+      getServiceName: jest.fn().mockImplementation(() => {
+        throw mockError;
+      }),
+      getClientId: jest.fn(),
+      data: {},
+      getCmsInfo: jest.fn(),
+    };
+
+    (useIntegration as jest.Mock).mockReturnValue(mockOAuthIntegration);
+
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>
+      );
+    });
+
+    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
+    expect(screen.getByText('Bad Request')).toBeInTheDocument();
+    expect(screen.getByText(mockError.message)).toBeInTheDocument();
+  });
+
+  it('throws error when non-OAuth integration', async () => {
+    const mockError = new Error('Non-OAuth integration error');
+    const mockNonOAuthIntegration = {
+      type: IntegrationType.Web,
+      isSync: jest.fn().mockReturnValue(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
+      getServiceName: jest.fn().mockImplementation(() => {
+        throw mockError;
+      }),
+      getClientId: jest.fn(),
+      data: {},
+      getCmsInfo: jest.fn(),
+    };
+
+    (useIntegration as jest.Mock).mockReturnValue(mockNonOAuthIntegration);
+
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    await expect(
+      act(async () => {
+        renderWithLocalizationProvider(
+          <AppContext.Provider
+            value={{ ...mockAppContext(), ...createAppContext() }}
+          >
+            <App flowQueryParams={updatedFlowQueryParams} />
+          </AppContext.Provider>
+        );
+      })
+    ).rejects.toThrow('Non-OAuth integration error');
+
+    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
+
+    consoleSpy.mockRestore();
+  });
+
+  it('handles OAuthNative integration error correctly', async () => {
+    const mockError = new OAuthError(109, { param: 'scope' });
+    const mockOAuthNativeIntegration = {
+      type: IntegrationType.OAuthNative,
+      isSync: jest.fn().mockReturnValue(false),
+      isFirefoxClientServiceRelay: jest.fn().mockReturnValue(false),
+      getServiceName: jest.fn().mockImplementation(() => {
+        throw mockError;
+      }),
+      getClientId: jest.fn(),
+      data: {},
+      getCmsInfo: jest.fn(),
+    };
+
+    (useIntegration as jest.Mock).mockReturnValue(mockOAuthNativeIntegration);
+
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>
+      );
+    });
+
+    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
+    expect(screen.getByText('Bad Request')).toBeInTheDocument();
+    expect(screen.getByText(mockError.message)).toBeInTheDocument();
   });
 });

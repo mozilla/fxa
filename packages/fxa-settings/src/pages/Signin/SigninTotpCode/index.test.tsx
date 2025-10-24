@@ -13,8 +13,12 @@ import {
   AuthUiError,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
-import { mockOAuthNativeSigninIntegration, Subject } from './mocks';
-import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
+import {
+  mockOAuthNativeSigninIntegration,
+  Subject,
+  MOCK_TOTP_LOCATION_STATE,
+} from './mocks';
+import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE, MOCK_UID } from '../../mocks';
 import {
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeSyncIntegration,
@@ -47,6 +51,19 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
+const mockSessionDestroy = jest.fn();
+jest.mock('../../../models', () => ({
+  ...jest.requireActual('../../../models'),
+  useSession: () => ({
+    destroy: mockSessionDestroy,
+  }),
+}));
+
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
 const mockLocation = () => {
   return {
     pathname: '/signin_totp_cpde',
@@ -69,6 +86,9 @@ describe('Sign in with TOTP code page', () => {
     (GleanMetrics.totpForm.view as jest.Mock).mockClear();
     (GleanMetrics.totpForm.submit as jest.Mock).mockClear();
     (GleanMetrics.totpForm.success as jest.Mock).mockClear();
+    mockSessionDestroy.mockClear();
+    mockSessionDestroy.mockResolvedValue(undefined);
+    mockNavigateWithQuery.mockClear();
   });
 
   it('renders as expected', () => {
@@ -264,6 +284,116 @@ describe('Sign in with TOTP code page', () => {
             })
           );
         });
+      });
+    });
+  });
+
+  describe('AAL upgrade', () => {
+    it('renders as expected', () => {
+      renderWithLocalizationProvider(
+        <Subject
+          signinState={{
+            ...MOCK_TOTP_LOCATION_STATE,
+            isSessionAALUpgrade: true,
+          }}
+        />
+      );
+
+      expect(
+        screen.getByText('Why are you being asked to authenticate?')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'You set up two-step authentication on your account, but haven’t signed in with a code on this device yet.'
+        )
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('Use a different account')
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Sign out of this account' })
+      ).toBeInTheDocument();
+    });
+
+    it('passes isSessionAALUpgrade as a navigation option to handleNavigation', async () => {
+      const user = userEvent.setup();
+      const handleNavigationSpy = jest
+        .spyOn(SigninUtils, 'handleNavigation')
+        .mockResolvedValue({ error: undefined });
+      const submitTotpCode = jest.fn().mockResolvedValue({ error: undefined });
+      renderWithLocalizationProvider(
+        <Subject
+          submitTotpCode={submitTotpCode}
+          signinState={{
+            ...MOCK_TOTP_LOCATION_STATE,
+            isSessionAALUpgrade: true,
+          }}
+        />
+      );
+      await user.type(screen.getByLabelText('Enter 6-digit code'), '123456');
+      await user.click(screen.getByRole('button', { name: 'Confirm' }));
+
+      await waitFor(() => {
+        expect(handleNavigationSpy).toHaveBeenCalledWith(
+          expect.objectContaining({
+            isSessionAALUpgrade: true,
+          })
+        );
+      });
+    });
+
+    it('calls fxaLogout and navigates when sign out button is clicked', async () => {
+      const user = userEvent.setup();
+      const fxaLogoutSpy = jest.spyOn(firefox, 'fxaLogout');
+
+      renderWithLocalizationProvider(
+        <Subject
+          signinState={{
+            ...MOCK_TOTP_LOCATION_STATE,
+            isSessionAALUpgrade: true,
+          }}
+        />
+      );
+
+      const signOutButton = screen.getByRole('button', {
+        name: 'Sign out of this account',
+      });
+
+      await user.click(signOutButton);
+
+      await waitFor(() => {
+        expect(mockSessionDestroy).toHaveBeenCalled();
+        expect(fxaLogoutSpy).toHaveBeenCalledWith({
+          uid: MOCK_UID,
+        });
+        expect(mockNavigateWithQuery).toHaveBeenCalledWith('/');
+      });
+    });
+
+    it('shows error message when sign out fails', async () => {
+      const user = userEvent.setup();
+      mockSessionDestroy.mockRejectedValueOnce(new Error('Sign out failed'));
+
+      renderWithLocalizationProvider(
+        <Subject
+          signinState={{
+            ...MOCK_TOTP_LOCATION_STATE,
+            isSessionAALUpgrade: true,
+          }}
+        />
+      );
+
+      const signOutButton = screen.getByRole('button', {
+        name: 'Sign out of this account',
+      });
+
+      await user.click(signOutButton);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Sorry, there was a problem signing you out')
+        ).toBeInTheDocument();
+        expect(mockNavigateWithQuery).not.toHaveBeenCalled();
       });
     });
   });

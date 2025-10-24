@@ -5,6 +5,7 @@
 import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 
 import { MozServices } from '../lib/types';
+import { SyncEngines, WebChannelServices } from '../lib/channels/firefox';
 import { MOCK_ACCOUNT } from '../models/mocks';
 import { Integration, IntegrationType } from '../models';
 import PLACEHOLDER_IMAGE_URL from './cat.jpg';
@@ -72,10 +73,6 @@ export const MOCK_RECOVERY_KEY_WITH_SPACES =
   'ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F';
 export const MOCK_RECOVERY_KEY_INVALID = 'ANMD1S097Y2Y4EES02CWBJ6ZPYKPH69L';
 export const MOCK_REMOTE_METADATA = JSON.stringify({});
-export const ALL_PRODUCT_PROMO_SERVICES = [{ name: MozServices.Monitor }];
-export const ALL_PRODUCT_PROMO_SUBSCRIPTIONS = [
-  { productName: MozServices.MonitorPlus },
-];
 export const MOCK_FULL_PHONE_NUMBER = '+15555551234';
 export const MOCK_NATIONAL_FORMAT_PHONE_NUMBER = '(555) 555-1234';
 export const MOCK_MASKED_NATIONAL_FORMAT_PHONE_NUMBER = '(•••) •••-1234';
@@ -192,3 +189,26 @@ export const createMockIntegrationWithCms = () =>
       validate: () => {},
     },
   }) as Integration;
+
+export function mockGetWebChannelServices({
+  isSync = false,
+  isRelay = false,
+  isAiMode = false,
+}: {
+  isSync?: boolean;
+  isRelay?: boolean;
+  isAiMode?: boolean;
+} = {}) {
+  return (syncEngines?: SyncEngines): WebChannelServices | undefined => {
+    if (isRelay) {
+      return { relay: {} };
+    }
+    if (isAiMode) {
+      return { aimode: {} };
+    }
+    if (isSync) {
+      return { sync: syncEngines || {} };
+    }
+    return undefined;
+  };
+}

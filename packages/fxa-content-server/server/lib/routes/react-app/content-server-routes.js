@@ -13,7 +13,6 @@ const FRONTEND_ROUTES = [
   'account_recovery_confirm_key',
   'account_recovery_reset_password',
   'authorization',
-  'cannot_create_account',
   'choose_what_to_sync',
   'clear',
   'complete_reset_password',

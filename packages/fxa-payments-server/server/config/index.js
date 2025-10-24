@@ -24,6 +24,12 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_STRIPE_TAX_ENABLED',
       format: Boolean,
     },
+    paymentsNextSubscriptionManagement: {
+      default: false,
+      doc: 'Whether to redirect to the new Subscription Management Page',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT',
+    },
   },
   amplitude: {
     enabled: {
@@ -357,6 +363,14 @@ const conf = convict({
         format: 'url',
       },
     },
+    paymentsNext: {
+      url: {
+        default: 'http://localhost:3035',
+        doc: 'the url of the Payments-Next server',
+        env: 'PAYMENTS_NEXT_HOSTED_URL',
+        format: 'url',
+      }
+    }
   },
   staticResources: {
     directory: {

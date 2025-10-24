@@ -10,6 +10,7 @@ export const BOUNCE_TYPES = {
   Permanent: 1,
   Transient: 2,
   Complaint: 3,
+  Undetermined: 4,
 } as const;
 
 export const BOUNCE_SUB_TYPES = {
@@ -28,6 +29,7 @@ export const BOUNCE_SUB_TYPES = {
   'not-spam': 12,
   other: 13,
   virus: 14,
+  OnAccountSuppressionList: 15,
 } as const;
 
 export type BounceType = keyof typeof BOUNCE_TYPES;

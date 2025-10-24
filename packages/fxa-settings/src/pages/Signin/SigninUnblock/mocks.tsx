@@ -9,7 +9,12 @@ import {
   WebIntegration,
   WebIntegrationData,
 } from '../../../models';
-import { MOCK_EMAIL, MOCK_AUTH_PW, MOCK_UID } from '../../mocks';
+import {
+  MOCK_EMAIL,
+  MOCK_AUTH_PW,
+  MOCK_UID,
+  mockGetWebChannelServices,
+} from '../../mocks';
 
 export { CREDENTIAL_STATUS_MUTATION, BEGIN_SIGNIN_MUTATION } from '../gql';
 
@@ -75,6 +80,8 @@ export function createMockSigninWebSyncIntegration() {
     data: new WebIntegrationData(new GenericData({})),
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
+    isFirefoxClientServiceAiMode: () => false,
+    getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     wantsLogin: () => false,
     getCmsInfo: () => undefined,
   };

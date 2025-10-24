@@ -107,7 +107,7 @@ describe('useAwait', () => {
       } catch (e) {
         setThrownState(e);
       }
-    }, [execute]);
+    }, [execute, fnArgs]);
     return (
       <div>
         {state.pending && <div data-testid="pending">pending</div>}
@@ -187,9 +187,7 @@ describe('useAwait', () => {
     const fn = async () => {
       throw expectedError;
     };
-    const { findByTestId, getByTestId, debug } = render(
-      <Subject {...{ fn }} />
-    );
+    const { findByTestId, getByTestId } = render(<Subject {...{ fn }} />);
     expect(parseState(getByTestId)).toEqual({
       pending: undefined,
       result: undefined,
@@ -213,7 +211,7 @@ describe('useAwait', () => {
     const fn = async () => {
       throw expectedError;
     };
-    const { findByTestId, getByTestId, debug } = render(
+    const { findByTestId, getByTestId } = render(
       <Subject {...{ fn, rethrowError: true }} />
     );
     expect(parseState(getByTestId)).toEqual({
@@ -251,12 +249,9 @@ describe('useAwait', () => {
   });
 
   it('does not re-execute when a promise is already pending', async () => {
-    const expectedError = 'oops!';
     let count = 0;
     const fn = async () => `count: ${++count}`;
-    const { findByTestId, getByTestId, debug } = render(
-      <Subject {...{ fn }} />
-    );
+    const { findByTestId, getByTestId } = render(<Subject {...{ fn }} />);
     expect(parseState(getByTestId)).toEqual({
       pending: undefined,
       result: undefined,

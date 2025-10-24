@@ -145,23 +145,285 @@ function getExpectedOtpCode(options = {}, secret = 'abcdef') {
 }
 
 describe('/session/status', () => {
-  const log = mocks.mockLog();
-  const config = {};
-  const routes = makeRoutes({ log, config });
-  const route = getRoute(routes, '/session/status');
-  const request = mocks.mockRequest({
-    credentials: {
-      email: 'foo@example.org',
-      state: 'unverified',
-      uid: 'foo',
-    },
+  let log, db, config, routes, route;
+
+  beforeEach(() => {
+    sinon.reset();
+    log = mocks.mockLog();
+    db = {
+      account: () => {},
+      totpToken: () => {},
+    };
+    config = {};
+    routes = makeRoutes({ log, db, config });
+    route = getRoute(routes, '/session/status');
+  });
+
+  after(() => {
+    sinon.reset();
+  });
+
+  it('returns unknown account error', async () => {
+    db.account = sinon.fake.returns(null);
+    let error;
+    try {
+      const request = mocks.mockRequest({
+        credentials: {
+          uid: 'foo',
+        },
+      });
+      await runTest(route, request);
+    } catch (err) {
+      error = err;
+    }
+    assert.equal(error.message, 'Unknown account');
   });
 
   it('returns status correctly', () => {
+    db.account = sinon.fake.resolves({
+      uid: 'account-123',
+      primaryEmail: {
+        isVerified: false,
+      },
+    });
+    db.totpToken = sinon.fake.resolves({
+      verified: false,
+      enabled: false,
+    });
+    const request = mocks.mockRequest({
+      credentials: {
+        email: 'foo@example.org',
+        state: 'unverified',
+        verificationMethodValue: 'totp-2fa',
+        verified: false,
+        tokenVerified: false,
+        tokenVerificationId: 'token-123',
+        uid: 'foo',
+      },
+    });
     return runTest(route, request).then((res) => {
-      assert.equal(Object.keys(res).length, 2);
-      assert.equal(res.uid, 'foo');
-      assert.equal(res.state, 'unverified');
+      assert.deepEqual(res, {
+        uid: 'foo',
+        state: 'unverified',
+        details: {
+          accountEmailVerified: false,
+          sessionVerificationMeetsMinimumAAL: false,
+          sessionVerificationMethod: 'totp-2fa',
+          sessionVerified: false,
+        },
+      });
+    });
+  });
+
+  it('has unverified primary email', async () => {
+    db.account = sinon.fake.resolves({
+      uid: 'account-123',
+      primaryEmail: {
+        isVerified: false,
+      },
+    });
+    db.totpToken = sinon.fake.resolves({
+      verified: false,
+      enabled: false,
+    });
+
+    const request = mocks.mockRequest({
+      credentials: {
+        uid: 'account-123',
+        state: 'unverified',
+        verified: false,
+        tokenVerificationId: 'verification-id',
+        verificationMethodValue: 'email',
+        authenticatorAssuranceLevel: 1,
+      },
+    });
+    const resp = await runTest(route, request);
+
+    assert.deepEqual(resp, {
+      uid: 'account-123',
+      state: 'unverified',
+      details: {
+        accountEmailVerified: false,
+        sessionVerificationMethod: 'email',
+        sessionVerified: false,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
+    });
+  });
+
+  it('has unverified session because of defined tokenVerificationId', async () => {
+    db.account = sinon.fake.resolves({
+      uid: 'account-123',
+      primaryEmail: {
+        isVerified: false,
+      },
+    });
+    db.totpToken = sinon.fake.resolves({
+      verified: false,
+      enabled: false,
+    });
+
+    const request = mocks.mockRequest({
+      credentials: {
+        uid: 'account-123',
+        state: 'unverified',
+        verified: false,
+        tokenVerificationId: 'token-123',
+        verificationMethodValue: 'email',
+        authenticatorAssuranceLevel: 1,
+      },
+    });
+    const resp = await runTest(route, request);
+
+    assert.deepEqual(resp, {
+      uid: 'account-123',
+      state: 'unverified',
+      details: {
+        accountEmailVerified: false,
+        sessionVerificationMethod: 'email',
+        sessionVerified: false,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
+    });
+  });
+
+  it('has unverified AAL 1', async () => {
+    db.account = sinon.fake.resolves({
+      uid: 'account-123',
+      primaryEmail: {
+        isVerified: true,
+      },
+    });
+    db.totpToken = sinon.fake.resolves({
+      verified: true,
+      enabled: true,
+    });
+
+    const request = mocks.mockRequest({
+      credentials: {
+        uid: 'account-123',
+        state: 'unverified',
+        verified: false,
+        tokenVerificationId: 'verification-id',
+        verificationMethodValue: 'email',
+        authenticatorAssuranceLevel: 1,
+      },
+    });
+    const resp = await runTest(route, request);
+
+    assert.deepEqual(resp, {
+      uid: 'account-123',
+      state: 'unverified',
+      details: {
+        accountEmailVerified: true,
+        sessionVerificationMethod: 'email',
+        sessionVerified: false,
+        sessionVerificationMeetsMinimumAAL: false,
+      },
+    });
+  });
+
+  it('has unverified AAL 2', async () => {
+    db.account = sinon.fake.resolves({
+      uid: 'account-123',
+      primaryEmail: {
+        isVerified: true,
+      },
+    });
+    db.totpToken = sinon.fake.resolves({
+      verified: true,
+      enabled: true,
+    });
+
+    const request = mocks.mockRequest({
+      credentials: {
+        uid: 'account-123',
+        state: 'verified',
+        verified: true,
+        verificationMethodValue: 'totp-2fa',
+        authenticatorAssuranceLevel: 1,
+      },
+    });
+    const resp = await runTest(route, request);
+
+    assert.deepEqual(resp, {
+      uid: 'account-123',
+      state: 'verified',
+      details: {
+        accountEmailVerified: true,
+        sessionVerificationMethod: 'totp-2fa',
+        sessionVerified: true,
+        sessionVerificationMeetsMinimumAAL: false,
+      },
+    });
+  });
+
+  it('has verified AAL 1 state', async () => {
+    db.account = sinon.fake.resolves({
+      uid: 'account-123',
+      primaryEmail: {
+        isVerified: true,
+      },
+    });
+    db.totpToken = sinon.fake.resolves({
+      enabled: false,
+    });
+
+    const request = mocks.mockRequest({
+      credentials: {
+        uid: 'account-123',
+        state: 'verified',
+        verified: true,
+        verificationMethodValue: 'email',
+        authenticatorAssuranceLevel: 1,
+      },
+    });
+    const resp = await runTest(route, request);
+
+    assert.deepEqual(resp, {
+      uid: 'account-123',
+      state: 'verified',
+      details: {
+        accountEmailVerified: true,
+        sessionVerificationMethod: 'email',
+        sessionVerified: true,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
+    });
+  });
+
+  it('has verified AAL 2', async () => {
+    db.account = sinon.fake.resolves({
+      uid: 'account-123',
+      primaryEmail: {
+        isVerified: true,
+      },
+    });
+    db.totpToken = sinon.fake.resolves({
+      verified: true,
+      enabled: true,
+    });
+
+    const request = mocks.mockRequest({
+      credentials: {
+        uid: 'account-123',
+        state: 'verified',
+        verified: true,
+        verificationMethodValue: 'totp-2fa',
+        authenticatorAssuranceLevel: 2,
+      },
+    });
+    const resp = await runTest(route, request);
+
+    assert.deepEqual(resp, {
+      uid: 'account-123',
+      state: 'verified',
+      details: {
+        accountEmailVerified: true,
+        sessionVerificationMethod: 'totp-2fa',
+        sessionVerified: true,
+        sessionVerificationMeetsMinimumAAL: true,
+      },
     });
   });
 });

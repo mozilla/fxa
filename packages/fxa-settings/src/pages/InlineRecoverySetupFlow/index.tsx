@@ -132,6 +132,7 @@ const InlineRecoverySetup = ({
           navigateForward,
           navigateBackward,
           sendCode: sendSmsCode,
+          showRecoveryPhoneSuccessMessage: false,
           verifyRecoveryCode: verifySmsCode,
           localizedPageTitle,
         }}

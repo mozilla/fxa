@@ -22,10 +22,11 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     const { secret } = await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.alertBar).toHaveText(
+    await expect(settings.alertBar).toContainText(
       'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
@@ -56,12 +57,12 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(settings.alertBar).toHaveText('Your password has been reset');
 
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
+
     await expect(settings.settingsHeading).toBeVisible();
 
     // Remove TOTP before teardown
     await settings.disconnectTotp();
-    // Cleanup requires setting this value to correct password
-    credentials.password = newPassword;
   });
 
   test('can reset password with 2FA recovery code', async ({
@@ -80,11 +81,12 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     const { recoveryCodes } =
       await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.alertBar).toHaveText(
+    await expect(settings.alertBar).toContainText(
       'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
@@ -110,10 +112,10 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(settings.alertBar).toHaveText('Your password has been reset');
 
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
+
     // Remove TOTP before teardown
     await settings.disconnectTotp();
-    // Cleanup requires setting this value to correct password
-    credentials.password = newPassword;
   });
 
   test('can reset password with recovery key without 2FA prompt', async ({
@@ -133,16 +135,20 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.alertBar).toHaveText(
+    await expect(settings.alertBar).toContainText(
       'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
 
     // Create recovery key
     await settings.recoveryKey.createButton.click();
+
+    await settings.confirmMfaGuard(credentials.email);
+
     const key = await recoveryKey.createRecoveryKey(
       credentials.password,
       'hint'
@@ -167,6 +173,8 @@ test.describe('severity-1 #smoke', () => {
     await resetPassword.fillOutRecoveryKeyForm(key);
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
+
     await expect(resetPassword.passwordResetPasswordSaved).toBeVisible();
 
     await resetPassword.continueWithoutDownloadingRecoveryKey();
@@ -179,8 +187,6 @@ test.describe('severity-1 #smoke', () => {
 
     // Remove TOTP before teardown
     await settings.disconnectTotp();
-    // Cleanup requires setting this value to correct password
-    credentials.password = newPassword;
   });
 
   test('can reset password with recovery key then delete account', async ({
@@ -208,16 +214,20 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.alertBar).toHaveText(
+    await expect(settings.alertBar).toContainText(
       'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
 
     // Create recovery key
     await settings.recoveryKey.createButton.click();
+
+    await settings.confirmMfaGuard(credentials.email);
+
     const key = await recoveryKey.createRecoveryKey(
       credentials.password,
       'hint'
@@ -248,6 +258,8 @@ test.describe('severity-1 #smoke', () => {
     await resetPassword.recoveryKeyFinishButton.click();
 
     await expect(settings.settingsHeading).toBeVisible();
+
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
 
     // Recovery key has been consumed and a new one created
     await expect(settings.recoveryKey.status).toHaveText('Enabled');
@@ -277,16 +289,20 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     const { secret } = await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.alertBar).toHaveText(
+    await expect(settings.alertBar).toContainText(
       'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
 
     // Create recovery key
     await settings.recoveryKey.createButton.click();
+
+    await settings.confirmMfaGuard(credentials.email);
+
     await recoveryKey.createRecoveryKey(credentials.password, 'hint');
 
     // Verify status as 'enabled'
@@ -321,6 +337,8 @@ test.describe('severity-1 #smoke', () => {
 
     await expect(settings.alertBar).toHaveText('Your password has been reset');
 
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
+
     await expect(settings.settingsHeading).toBeVisible();
 
     // Recovery key has been removed
@@ -328,8 +346,6 @@ test.describe('severity-1 #smoke', () => {
 
     // Remove TOTP before teardown
     await settings.disconnectTotp();
-    // Cleanup requires setting this value to correct password
-    credentials.password = newPassword;
   });
 
   test('can reset password with unverified 2FA and skip recovery key', async ({
@@ -349,6 +365,7 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     await totp.setUp2faAppWithQrCode();
     await page.goto(`${target.contentServerUrl}/settings`);
 
@@ -357,6 +374,9 @@ test.describe('severity-1 #smoke', () => {
 
     // Create recovery key
     await settings.recoveryKey.createButton.click();
+
+    await settings.confirmMfaGuard(credentials.email);
+
     await recoveryKey.createRecoveryKey(credentials.password, 'hint');
 
     // Verify status as 'enabled'
@@ -375,11 +395,10 @@ test.describe('severity-1 #smoke', () => {
     await expect(resetPassword.dataLossWarning).toBeVisible();
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
+
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toHaveText('Your password has been reset');
-
-    // Cleanup requires setting this value to correct password
-    credentials.password = newPassword;
   });
 });
 
@@ -407,10 +426,11 @@ test.describe('reset password with recovery phone', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.alertBar).toHaveText(
+    await expect(settings.alertBar).toContainText(
       'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
@@ -464,14 +484,14 @@ test.describe('reset password with recovery phone', () => {
     // Create and submit new password
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
+
     await expect(settings.alertBar).toHaveText('Your password has been reset');
 
     await expect(settings.settingsHeading).toBeVisible();
 
     // Remove TOTP before teardown
     await settings.disconnectTotp();
-    // Cleanup requires setting this value to correct password
-    credentials.password = newPassword;
   });
 
   test('can use backup code after failing sms code', async ({
@@ -492,11 +512,12 @@ test.describe('reset password with recovery phone', () => {
     await expect(settings.totp.status).toHaveText('Disabled');
 
     await settings.totp.addButton.click();
+    await settings.confirmMfaGuard(credentials.email);
     const { recoveryCodes } =
       await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
 
     await expect(settings.settingsHeading).toBeVisible();
-    await expect(settings.alertBar).toHaveText(
+    await expect(settings.alertBar).toContainText(
       'Two-step authentication has been enabled'
     );
     await expect(settings.totp.status).toHaveText('Enabled');
@@ -556,13 +577,13 @@ test.describe('reset password with recovery phone', () => {
     // Create and submit new password
     await resetPassword.fillOutNewPasswordForm(newPassword);
 
+    testAccountTracker.updateAccountPassword(credentials.email, newPassword);
+
     await expect(settings.alertBar).toHaveText('Your password has been reset');
 
     await expect(settings.settingsHeading).toBeVisible();
 
     // Remove TOTP before teardown
     await settings.disconnectTotp();
-    // Cleanup requires setting this value to correct password
-    credentials.password = newPassword;
   });
 });

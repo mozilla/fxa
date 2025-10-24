@@ -5,14 +5,17 @@
 'use client';
 
 import { SupportedPages } from '@fxa/payments/ui';
-import { useSearchParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { validateCartStateAndRedirectAction } from '../../../actions/validateCartStateAndRedirect';
+import { recordEmitterEventAction } from '../../../actions';
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export function PaymentStateObserver({ cartId }: { cartId: string }) {
   const searchParams = useSearchParams();
+  const params = useParams();
+  const router = useRouter();
   const searchParamsRecord: Record<string, string> = {};
   for (const [key, value] of searchParams.entries()) {
     searchParamsRecord[key] = value;
@@ -24,11 +27,35 @@ export function PaymentStateObserver({ cartId }: { cartId: string }) {
     const poll = async () => {
       if (!isPolling) return;
 
-      await validateCartStateAndRedirectAction(
+      const redirectResponse = await validateCartStateAndRedirectAction(
         cartId,
         SupportedPages.PROCESSING,
-        searchParamsRecord
+        searchParamsRecord,
+        false,
       );
+
+      if (redirectResponse?.state && redirectResponse?.redirectToUrl) {
+        if (redirectResponse.state === 'success') {
+          await recordEmitterEventAction(
+            'checkoutSuccess',
+            { ...params },
+            searchParamsRecord
+          );
+        }
+
+        if (redirectResponse.state === 'fail') {
+          await recordEmitterEventAction(
+            'checkoutFail',
+            { ...params },
+            searchParamsRecord
+          );
+        }
+
+        isPolling = false;
+        router.push(redirectResponse.redirectToUrl);
+
+        return;
+      }
 
       // Time out after 2 minutes of cart being in the processing state
       if (Date.now() - startTime > 120000) {
@@ -48,5 +75,5 @@ export function PaymentStateObserver({ cartId }: { cartId: string }) {
     };
   }, []);
 
-  return <>{}</>;
+  return <>{ }</>;
 }

@@ -117,16 +117,6 @@ describe('backup authentication codes', () => {
         );
       });
     });
-
-    it("should't replace codes in non-TOTP verified session", () => {
-      requestOptions.credentials.authenticatorAssuranceLevel = 1;
-      return runTest('/recoveryCodes', requestOptions, 'GET').then(
-        assert.fail,
-        (err) => {
-          assert.equal(err.errno, error.ERRNO.SESSION_UNVERIFIED);
-        }
-      );
-    });
   });
 
   describe('PUT /recoveryCodes', () => {
@@ -167,17 +157,6 @@ describe('backup authentication codes', () => {
           }
         );
       });
-    });
-
-    it("should't overwrite codes for non-TOTP verified session", () => {
-      requestOptions.credentials.authenticatorAssuranceLevel = 1;
-      requestOptions.payload.recoveryCodes = ['123'];
-      return runTest('/recoveryCodes', requestOptions, 'PUT').then(
-        assert.fail,
-        (err) => {
-          assert.equal(err.errno, error.ERRNO.SESSION_UNVERIFIED);
-        }
-      );
     });
   });
 

@@ -27,6 +27,8 @@ test.describe('recovery key promo', () => {
 
       await inlineRecoveryKey.getBannerCreateLink().click();
 
+      await settings.confirmMfaGuard(credentials.email);
+
       await recoveryKey.acknowledgeInfoForm();
       await recoveryKey.fillOutConfirmPasswordForm(credentials.password);
 
@@ -56,6 +58,8 @@ test.describe('recovery key promo', () => {
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
       await inlineRecoveryKey.getBannerCreateLink().click();
+
+      await settings.confirmMfaGuard(credentials.email);
 
       await recoveryKey.acknowledgeInfoForm();
       await recoveryKey.fillOutConfirmPasswordForm(credentials.password);

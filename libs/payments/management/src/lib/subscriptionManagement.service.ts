@@ -288,11 +288,14 @@ export class SubscriptionManagementService {
               ?.productName ||
             cmsContent.offering.defaultPurchase.purchaseDetails.productName;
           const supportUrl = cmsContent.offering.commonContent.supportUrl;
+          const webIcon =
+            cmsContent.offering.defaultPurchase.purchaseDetails.webIcon;
 
           appleIapSubscriptions.push({
             ...purchase,
             productName,
             supportUrl,
+            webIcon,
           });
         }
       }
@@ -305,11 +308,14 @@ export class SubscriptionManagementService {
               ?.productName ||
             cmsContent.offering.defaultPurchase.purchaseDetails.productName;
           const supportUrl = cmsContent.offering.commonContent.supportUrl;
+          const webIcon =
+            cmsContent.offering.defaultPurchase.purchaseDetails.webIcon;
 
           googleIapSubscriptions.push({
             ...purchase,
             productName,
             supportUrl,
+            webIcon,
           });
         }
       }
@@ -374,7 +380,6 @@ export class SubscriptionManagementService {
     webIcon: string,
     supportUrl: string
   ): Promise<SubscriptionContent> {
-    const currency = subscription.currency;
     const latestInvoiceId = subscription.latest_invoice;
 
     if (!latestInvoiceId) {
@@ -392,11 +397,13 @@ export class SubscriptionManagementService {
     }
 
     const subplatInterval = getSubplatInterval(interval, intervalCount);
-    const priceId = price.id;
 
     const [latestInvoice, upcomingInvoice] = await Promise.all([
       this.invoiceManager.preview(latestInvoiceId),
-      this.invoiceManager.previewUpcoming({ priceId, currency, customer }),
+      this.invoiceManager.previewUpcomingSubscription({
+        customer,
+        subscription,
+      }),
     ]);
 
     if (!latestInvoice) {
@@ -409,8 +416,6 @@ export class SubscriptionManagementService {
     if (!upcomingInvoice) {
       throw new SubscriptionContentMissingUpcomingInvoicePreviewError(
         subscription.id,
-        price.id,
-        currency,
         customer
       );
     }
@@ -419,6 +424,7 @@ export class SubscriptionManagementService {
       amountDue,
       creditApplied,
       invoiceDate: currentInvoiceDate,
+      invoiceUrl: currentInvoiceUrl,
       promotionName,
       taxAmounts,
       totalAmount,
@@ -427,6 +433,7 @@ export class SubscriptionManagementService {
 
     const {
       nextInvoiceDate,
+      promotionName: nextPromotionName,
       subsequentAmount,
       subsequentAmountExcludingTax,
       subsequentTax,
@@ -461,12 +468,14 @@ export class SubscriptionManagementService {
             : totalAmount,
       currentPeriodEnd: subscription.current_period_end,
       currentInvoiceDate,
+      currentInvoiceUrl,
       nextInvoiceDate,
       nextInvoiceTax: nextInvoiceTotalExclusiveTax,
       nextInvoiceTotal:
         nextInvoiceTotalExclusiveTax && nextInvoiceTotalExclusiveTax > 0
           ? (subsequentAmountExcludingTax ?? subsequentAmount)
           : subsequentAmount,
+      nextPromotionName,
       promotionName,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
     };

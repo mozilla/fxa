@@ -419,7 +419,7 @@ describe('/account/attached_clients', () => {
 });
 
 describe('/account/attached_client/destroy', () => {
-  let config, uid, log, db, devices, request, route;
+  let config, uid, log, db, devices, request, route, accountRoutes;
 
   beforeEach(() => {
     config = {};
@@ -434,13 +434,21 @@ describe('/account/attached_client/destroy', () => {
       },
       payload: {},
     });
-    const accountRoutes = makeRoutes({
+    accountRoutes = makeRoutes({
       config,
       log,
       db,
       devices,
     });
     route = getRoute(accountRoutes, '/account/attached_client/destroy').handler;
+  });
+
+  it('requires verifiedSessionToken auth strategy', () => {
+    const routeConfig = getRoute(
+      accountRoutes,
+      '/account/attached_client/destroy'
+    );
+    assert.equal(routeConfig.options.auth.strategy, 'verifiedSessionToken');
   });
 
   it('can destroy by deviceId', async () => {

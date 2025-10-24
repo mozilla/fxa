@@ -13,6 +13,29 @@ import {
   TestResult,
 } from '@playwright/test/reporter';
 
+/**
+ * Converts milliseconds to human-readable format
+ * If the time is less than 1 second, it shows milliseconds
+ * If the time is less than 1 minute, it shows seconds
+ * And if over 1 minute, it shows minutes and seconds
+ * @param ms
+ */
+const formatTime = (ms: number) => {
+  // protect against bad input so we don't crash the reporter
+  if (ms === undefined || ms === null || isNaN(ms) || ms < 0) {
+    return 'unknown';
+  }
+  if (ms < 1000) {
+    return `${ms}ms`;
+  }
+  const seconds = Math.floor(ms / 1000);
+  if (seconds < 60) {
+    return `${seconds}s`;
+  }
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes}m${seconds % 60}s`;
+};
+
 class CIReporter implements Reporter {
   private fixmeCount = 0;
   private passCount = 0;
@@ -48,7 +71,7 @@ class CIReporter implements Reporter {
     console.log(
       `${status} ${path.relative(process.cwd(), test.location.file)}: ${
         test.title
-      }`
+      } (${formatTime(result.duration)})`
     );
     if (test.outcome() === 'unexpected') {
       console.log(result.error?.stack);

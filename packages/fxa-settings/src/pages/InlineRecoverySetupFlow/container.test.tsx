@@ -370,8 +370,7 @@ describe('InlineRecoverySetupContainer', () => {
           });
           expect(confirmRecoveryPhoneFn).toHaveBeenCalledWith(
             '010431',
-            '12345678900',
-            true
+            '12345678900'
           );
           expect(mockCompleteTotpSetup).toHaveBeenCalledTimes(1);
         });

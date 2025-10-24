@@ -7,7 +7,7 @@ import { expect, test } from '../../lib/fixtures/standard';
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 signin react', () => {
     test('verified, does not need to confirm', async ({
-      syncBrowserPages: { connectAnotherDevice, signin },
+      syncBrowserPages: { connectAnotherDevice, signin, page },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -19,6 +19,8 @@ test.describe('severity-2 #smoke', () => {
       await expect(signin.syncSignInHeading).toBeVisible();
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
+
+      await page.waitForURL(/pair/);
 
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
@@ -46,6 +48,6 @@ test.describe('severity-2 #smoke', () => {
 
     await signinTokenCode.fillOutCodeForm(code);
 
-    await expect(page).toHaveURL(/pair/);
+    await page.waitForURL(/pair/);
   });
 });

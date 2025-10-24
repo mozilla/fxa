@@ -51,9 +51,8 @@ describe('StaleWhileRevalidateWithFallbackStrategy', () => {
     };
     await cacheClient.set(cacheKey, cacheValue);
 
-    const result = await staleWhileRevalidateWithFallbackStrategy.handle(
-      context
-    );
+    const result =
+      await staleWhileRevalidateWithFallbackStrategy.handle(context);
 
     expect(result).toEqual(cacheValue.value);
 
@@ -80,9 +79,8 @@ describe('StaleWhileRevalidateWithFallbackStrategy', () => {
       isCacheable: () => true,
     } satisfies CacheStrategyContext;
 
-    const result = await staleWhileRevalidateWithFallbackStrategy.handle(
-      context
-    );
+    const result =
+      await staleWhileRevalidateWithFallbackStrategy.handle(context);
 
     expect(result).toEqual(methodValue);
 
@@ -117,9 +115,8 @@ describe('StaleWhileRevalidateWithFallbackStrategy', () => {
     };
     await cacheClient.set(cacheKey, cacheValue);
 
-    const result = await staleWhileRevalidateWithFallbackStrategy.handle(
-      context
-    );
+    const result =
+      await staleWhileRevalidateWithFallbackStrategy.handle(context);
 
     expect(result).toEqual(cacheValue.value);
 
@@ -179,9 +176,8 @@ describe('StaleWhileRevalidateWithFallbackStrategy', () => {
       .spyOn(cacheClient, 'get')
       .mockRejectedValue(new Error('cache get error'));
 
-    const result = await staleWhileRevalidateWithFallbackStrategy.handle(
-      context
-    );
+    const result =
+      await staleWhileRevalidateWithFallbackStrategy.handle(context);
 
     expect(result).toEqual(methodValue);
 
@@ -216,9 +212,8 @@ describe('StaleWhileRevalidateWithFallbackStrategy', () => {
     };
     await cacheClient.set(cacheKey, cacheValue);
 
-    const result = await staleWhileRevalidateWithFallbackStrategy.handle(
-      context
-    );
+    const result =
+      await staleWhileRevalidateWithFallbackStrategy.handle(context);
 
     expect(result).toEqual(cacheValue.value);
 
@@ -252,7 +247,11 @@ describe('StaleWhileRevalidateWithFallbackStrategy', () => {
     ).rejects.toThrowError('method error');
 
     expect(targetMethod).toHaveBeenCalled();
-    expect(onRequestFinished).not.toHaveBeenCalled();
+    expect(onRequestFinished).toHaveBeenCalledWith(
+      expect.any(Number),
+      expect.any(Number),
+      'fallbackFailed'
+    );
     expect(onAsyncCacheWriteFailure).not.toHaveBeenCalled();
   });
 });

@@ -538,6 +538,12 @@ const config = require('../../config').default.getProperties();
             assert.deepEqual(x, {
               state: 'unverified',
               uid: uid,
+              details: {
+                accountEmailVerified: true,
+                sessionVerificationMeetsMinimumAAL: true,
+                sessionVerificationMethod: null,
+                sessionVerified: false,
+              },
             });
           });
       });

@@ -30,6 +30,7 @@ export const swaggerOptions = {
         TAGS.ACCOUNT[1],
         TAGS.RECOVERY_KEY[1],
         TAGS.RECOVERY_CODES[1],
+        TAGS.RECOVERY_PHONE[1],
         TAGS.DEVICES_AND_SESSIONS[1],
         TAGS.EMAILS[1],
         TAGS.MISCELLANEOUS[1],

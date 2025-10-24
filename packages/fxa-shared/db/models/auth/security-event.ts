@@ -47,17 +47,26 @@ export const EVENT_NAMES: Record<string, number> = {
   'account.recovery_codes_created': 33,
   'account.recovery_codes_signin_complete': 34,
   'account.must_reset': 35,
-  'account.recovery_phone_reset_password_success': 36,
+  'account.recovery_phone_reset_password_complete': 36,
   'account.recovery_phone_reset_password_failed': 37,
-  'account.password_upgrade_success': 38,
-  'account.password_upgraded': 39,
-  'account.recovery_phone_setup_failed': 40,
-  'account.recovery_phone_replace_failed': 41,
-  'account.recovery_phone_replace_complete': 42,
-  'account.recovery_phone_reset_password_complete': 43,
-  'account.mfa_send_otp_code': 44,
-  'account.mfa_verify_otp_code_success': 45,
-  'account.mfa_verify_otp_code_failed': 46,
+  'account.recovery_phone_replace_complete': 38,
+  'account.recovery_phone_replace_failure': 39,
+  'account.two_factor_replace_success': 40,
+  'account.two_factor_replace_failure': 41,
+  'account.password_upgrade_success': 42,
+  /*
+   * This was added as a duplicate, however to avoid having breaking changes
+   * with migrations, removing security event records, etc., we're leaving it here
+   * for reference.
+   */
+  //'account.password_upgraded': 43,
+  'account.recovery_phone_setup_failed': 44,
+  'account.mfa_send_otp_code': 45,
+  'account.mfa_verify_otp_code_success': 46,
+  'account.mfa_verify_otp_code_failed': 47,
+  'account.signin_confirm_bypass_known_ip': 48,
+  'account.signin_confirm_bypass_new_account': 49,
+  'account.signin_confirm_bypass_known_device': 50,
 } as const;
 
 export type SecurityEventNames = keyof typeof EVENT_NAMES;
@@ -195,6 +204,31 @@ export class SecurityEvent extends BaseAuthModel {
       .where('securityEvents.verified', 1)
       .where('securityEvents.nameId', EVENT_NAMES['account.login'])
       .andWhere('securityEvents.ipAddrHmac', ipAddrHmac)
+      .orderBy('securityEvents.createdAt', 'DESC')
+      .limit(20);
+  }
+
+  static async findByUidAndVerifiedLogin(uid: string, timeframeMs: number) {
+    const id = uuidTransformer.to(uid);
+    const cutoffDate = Date.now() - timeframeMs;
+
+    return SecurityEvent.query()
+      .select(
+        'securityEventNames.name as name',
+        'securityEvents.verified as verified',
+        'securityEvents.createdAt as createdAt',
+        'securityEvents.ipAddr as ipAddr',
+        'securityEvents.additionalInfo as additionalInfo'
+      )
+      .leftJoin(
+        'securityEventNames',
+        'securityEvents.nameId',
+        'securityEventNames.id'
+      )
+      .where('securityEvents.uid', id)
+      .where('securityEvents.verified', 1)
+      .where('securityEvents.nameId', EVENT_NAMES['account.login'])
+      .where('securityEvents.createdAt', '>=', cutoffDate)
       .orderBy('securityEvents.createdAt', 'DESC')
       .limit(20);
   }

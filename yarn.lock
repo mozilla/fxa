@@ -55,6 +55,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@angular-devkit/core@npm:16.0.1":
+  version: 16.0.1
+  resolution: "@angular-devkit/core@npm:16.0.1"
+  dependencies:
+    ajv: "npm:8.12.0"
+    ajv-formats: "npm:2.1.1"
+    jsonc-parser: "npm:3.2.0"
+    rxjs: "npm:7.8.1"
+    source-map: "npm:0.7.4"
+  peerDependencies:
+    chokidar: ^3.5.2
+  peerDependenciesMeta:
+    chokidar:
+      optional: true
+  checksum: 10c0/061e9248f43dbbe11a74ccebe01152a93f1ebd43463f503d92bdb1bab8369a3568147b0b92ef4f285b8782f07532db62b83b639322479301e28fa606859fbccc
+  languageName: node
+  linkType: hard
+
 "@angular-devkit/core@npm:19.2.6":
   version: 19.2.6
   resolution: "@angular-devkit/core@npm:19.2.6"
@@ -106,6 +124,19 @@ __metadata:
   bin:
     schematics: bin/schematics.js
   checksum: 10c0/55f3e7f02161fab6e07b117bc659702292aad53c1bef3593cf68cf5be72a1e7edb35572f92508a60c6cf52393e4d5c7b82f1857b51d292e8858dbfeeaac44090
+  languageName: node
+  linkType: hard
+
+"@angular-devkit/schematics@npm:16.0.1":
+  version: 16.0.1
+  resolution: "@angular-devkit/schematics@npm:16.0.1"
+  dependencies:
+    "@angular-devkit/core": "npm:16.0.1"
+    jsonc-parser: "npm:3.2.0"
+    magic-string: "npm:0.30.0"
+    ora: "npm:5.4.1"
+    rxjs: "npm:7.8.1"
+  checksum: 10c0/26f6ef07ced08273ad9384867c92d4b295a013115355597306e84da1d3445dc41f90f9046dbe7024b7ed568f20dd4e28c070b59f10f0dea8e44cbe9f31825408
   languageName: node
   linkType: hard
 
@@ -8510,6 +8541,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jridgewell/sourcemap-codec@npm:^1.4.13":
+  version: 1.5.5
+  resolution: "@jridgewell/sourcemap-codec@npm:1.5.5"
+  checksum: 10c0/f9e538f302b63c0ebc06eecb1dd9918dd4289ed36147a0ddce35d6ea4d7ebbda243cda7b2213b6a5e1d8087a298d5cf630fb2bd39329cdecb82017023f6081a0
+  languageName: node
+  linkType: hard
+
 "@jridgewell/trace-mapping@npm:0.3.9":
   version: 0.3.9
   resolution: "@jridgewell/trace-mapping@npm:0.3.9"
@@ -9763,6 +9801,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/schematics@npm:^9.1.0":
+  version: 9.2.0
+  resolution: "@nestjs/schematics@npm:9.2.0"
+  dependencies:
+    "@angular-devkit/core": "npm:16.0.1"
+    "@angular-devkit/schematics": "npm:16.0.1"
+    jsonc-parser: "npm:3.2.0"
+    pluralize: "npm:8.0.0"
+  peerDependencies:
+    typescript: ">=4.3.5"
+  checksum: 10c0/8ce2de63f5d2d8ecd5fd5f761e1d718c0921423b620aeed2ac521d61d362aea83995f0081bd8d9af1796fa1f7d14751c5783142b9783aed36ac66c53b19106e0
+  languageName: node
+  linkType: hard
+
 "@nestjs/testing@npm:^10.3.4":
   version: 10.4.19
   resolution: "@nestjs/testing@npm:10.4.19"
@@ -10295,6 +10347,20 @@ __metadata:
     tslib: "npm:^2.3.0"
     webpack: "npm:^5.88.0"
   checksum: 10c0/18a24100c01fde8d120498e3f19668685dcdb442ff23c5407233e851f3ac0d184768768c947b304449b0eac85ba7ec87b92f23ef539e586f93d409ea64a1152f
+  languageName: node
+  linkType: hard
+
+"@nx/nest@npm:21.1.2":
+  version: 21.1.2
+  resolution: "@nx/nest@npm:21.1.2"
+  dependencies:
+    "@nestjs/schematics": "npm:^9.1.0"
+    "@nx/devkit": "npm:21.1.2"
+    "@nx/eslint": "npm:21.1.2"
+    "@nx/js": "npm:21.1.2"
+    "@nx/node": "npm:21.1.2"
+    tslib: "npm:^2.3.0"
+  checksum: 10c0/bdb12af7dd05d46cc3020032719d38febb2fae0a12ae94a48191637a0e5d30cb77d435266ac730d595adecc5b1e6943ccb5b049cd360dcd9fb248651a0ec16c4
   languageName: node
   linkType: hard
 
@@ -12516,25 +12582,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@paypal/paypal-js@npm:^8.1.2":
-  version: 8.2.0
-  resolution: "@paypal/paypal-js@npm:8.2.0"
+"@paypal/paypal-js@npm:^8.4.0":
+  version: 8.4.2
+  resolution: "@paypal/paypal-js@npm:8.4.2"
   dependencies:
     promise-polyfill: "npm:^8.3.0"
-  checksum: 10c0/84cd3ca6db0f8a2f1686a8a78b53fa26429b5660175e49750fc2d68c4324b1a52b367b155a5bd8cd0eaf8aae66832308c491ff5047197bccd510a07e0b72b3c7
+  checksum: 10c0/a8764d1d834ed1b7bac75acdd04af923af2b2ea78d059bf90225715b03327d3d228295f0da7c8ea0c6ee06ea498c4ea7a4e13e6e5ce318e2da1cf9160b0ec522
   languageName: node
   linkType: hard
 
-"@paypal/react-paypal-js@npm:^8.7.0":
-  version: 8.8.3
-  resolution: "@paypal/react-paypal-js@npm:8.8.3"
+"@paypal/react-paypal-js@npm:^8.9.1":
+  version: 8.9.1
+  resolution: "@paypal/react-paypal-js@npm:8.9.1"
   dependencies:
-    "@paypal/paypal-js": "npm:^8.1.2"
+    "@paypal/paypal-js": "npm:^8.4.0"
     "@paypal/sdk-constants": "npm:^1.0.122"
   peerDependencies:
     react: ^16.8.0 || ^17 || ^18 || ^19
     react-dom: ^16.8.0 || ^17 || ^18 || ^19
-  checksum: 10c0/3084ac62c2e7c368702a54896b65f23cd1c020cdaad75f26e4c4f19c4b1b9b9956a40d18aa2525727fd4247abaf79963431752c5637a7a4a6f5fb3e47b678636
+  checksum: 10c0/965586d4e78ab698b5f68d2f9fdc315d702aeb5f73ee0985ad112fe52eac36d83b163f3f08998c47613ddefd548d733f633632e38ed7f9ed5c3df8b2c15bac7f
   languageName: node
   linkType: hard
 
@@ -24221,6 +24287,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ajv-formats@npm:2.1.1, ajv-formats@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "ajv-formats@npm:2.1.1"
+  dependencies:
+    ajv: "npm:^8.0.0"
+  peerDependencies:
+    ajv: ^8.0.0
+  peerDependenciesMeta:
+    ajv:
+      optional: true
+  checksum: 10c0/e43ba22e91b6a48d96224b83d260d3a3a561b42d391f8d3c6d2c1559f9aa5b253bfb306bc94bbeca1d967c014e15a6efe9a207309e95b3eaae07fcbcdc2af662
+  languageName: node
+  linkType: hard
+
 "ajv-formats@npm:3.0.1":
   version: 3.0.1
   resolution: "ajv-formats@npm:3.0.1"
@@ -24232,20 +24312,6 @@ __metadata:
     ajv:
       optional: true
   checksum: 10c0/168d6bca1ea9f163b41c8147bae537e67bd963357a5488a1eaf3abe8baa8eec806d4e45f15b10767e6020679315c7e1e5e6803088dfb84efa2b4e9353b83dd0a
-  languageName: node
-  linkType: hard
-
-"ajv-formats@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "ajv-formats@npm:2.1.1"
-  dependencies:
-    ajv: "npm:^8.0.0"
-  peerDependencies:
-    ajv: ^8.0.0
-  peerDependenciesMeta:
-    ajv:
-      optional: true
-  checksum: 10c0/e43ba22e91b6a48d96224b83d260d3a3a561b42d391f8d3c6d2c1559f9aa5b253bfb306bc94bbeca1d967c014e15a6efe9a207309e95b3eaae07fcbcdc2af662
   languageName: node
   linkType: hard
 
@@ -24266,6 +24332,18 @@ __metadata:
   peerDependencies:
     ajv: ^8.8.2
   checksum: 10c0/18bec51f0171b83123ba1d8883c126e60c6f420cef885250898bf77a8d3e65e3bfb9e8564f497e30bdbe762a83e0d144a36931328616a973ee669dc74d4a9590
+  languageName: node
+  linkType: hard
+
+"ajv@npm:8.12.0":
+  version: 8.12.0
+  resolution: "ajv@npm:8.12.0"
+  dependencies:
+    fast-deep-equal: "npm:^3.1.1"
+    json-schema-traverse: "npm:^1.0.0"
+    require-from-string: "npm:^2.0.2"
+    uri-js: "npm:^4.2.2"
+  checksum: 10c0/ac4f72adf727ee425e049bc9d8b31d4a57e1c90da8d28bcd23d60781b12fcd6fc3d68db5df16994c57b78b94eed7988f5a6b482fd376dc5b084125e20a0a622e
   languageName: node
   linkType: hard
 
@@ -25286,6 +25364,17 @@ __metadata:
   peerDependencies:
     axios: 0.x || 1.x
   checksum: 10c0/574e7b1bf24aad99b560042d232a932d51bfaa29b5a6d4612d748ed799a6f11a5afb2582792492c55d95842200cbdfbe3454027a8c1b9a2d3e895d13c3d03c10
+  languageName: node
+  linkType: hard
+
+"axios@npm:1.12.0":
+  version: 1.12.0
+  resolution: "axios@npm:1.12.0"
+  dependencies:
+    follow-redirects: "npm:^1.15.6"
+    form-data: "npm:^4.0.4"
+    proxy-from-env: "npm:^1.1.0"
+  checksum: 10c0/44a1e4cfb69a2d59aa12bbc441a336e5c18e87c02b904c509fd33607d94e8cb8cc221c17e9d53f67841a4efe13abf1aa1497c85df390cdb8681ee723998d11b0
   languageName: node
   linkType: hard
 
@@ -27836,7 +27925,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"combined-stream@npm:^1.0.6, combined-stream@npm:^1.0.8, combined-stream@npm:~1.0.5, combined-stream@npm:~1.0.6":
+"combined-stream@npm:^1.0.8, combined-stream@npm:~1.0.5, combined-stream@npm:~1.0.6":
   version: 1.0.8
   resolution: "combined-stream@npm:1.0.8"
   dependencies:
@@ -33710,52 +33799,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"form-data@npm:^2.3.2, form-data@npm:^2.5.0":
-  version: 2.5.3
-  resolution: "form-data@npm:2.5.3"
-  dependencies:
-    asynckit: "npm:^0.4.0"
-    combined-stream: "npm:^1.0.8"
-    es-set-tostringtag: "npm:^2.1.0"
-    mime-types: "npm:^2.1.35"
-    safe-buffer: "npm:^5.2.1"
-  checksum: 10c0/48b910745d4fcd403f3d6876e33082a334e712199b8c86c4eb82f6da330a59b859943999d793856758c5ff18ca5261ced4d1062235a14543022d986bd21faa7d
-  languageName: node
-  linkType: hard
-
-"form-data@npm:^3.0.0":
-  version: 3.0.3
-  resolution: "form-data@npm:3.0.3"
-  dependencies:
-    asynckit: "npm:^0.4.0"
-    combined-stream: "npm:^1.0.8"
-    es-set-tostringtag: "npm:^2.1.0"
-    mime-types: "npm:^2.1.35"
-  checksum: 10c0/a62b275f9736ff94f327c66d5f6c581391eafe07c912b12c3738e822aa3b1f27fb23d7138af5b48163497a278e2f84ec9f4a27e60dd511b7683fb76a835bb395
-  languageName: node
-  linkType: hard
-
-"form-data@npm:^4.0.0":
-  version: 4.0.3
-  resolution: "form-data@npm:4.0.3"
+"form-data@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "form-data@npm:4.0.4"
   dependencies:
     asynckit: "npm:^0.4.0"
     combined-stream: "npm:^1.0.8"
     es-set-tostringtag: "npm:^2.1.0"
     hasown: "npm:^2.0.2"
     mime-types: "npm:^2.1.12"
-  checksum: 10c0/f0cf45873d600110b5fadf5804478377694f73a1ed97aaa370a74c90cebd7fe6e845a081171668a5476477d0d55a73a4e03d6682968fa8661eac2a81d651fcdb
-  languageName: node
-  linkType: hard
-
-"form-data@npm:~2.3.1, form-data@npm:~2.3.2":
-  version: 2.3.3
-  resolution: "form-data@npm:2.3.3"
-  dependencies:
-    asynckit: "npm:^0.4.0"
-    combined-stream: "npm:^1.0.6"
-    mime-types: "npm:^2.1.12"
-  checksum: 10c0/706ef1e5649286b6a61e5bb87993a9842807fd8f149cd2548ee807ea4fb882247bdf7f6e64ac4720029c0cd5c80343de0e22eee1dc9e9882e12db9cc7bc016a4
+  checksum: 10c0/373525a9a034b9d57073e55eab79e501a714ffac02e7a9b01be1c820780652b16e4101819785e1e18f8d98f0aee866cc654d660a435c378e16a72f2e7cac9695
   languageName: node
   linkType: hard
 
@@ -34333,7 +34386,6 @@ __metadata:
     jws: "npm:4.0.0"
     keypair: "npm:1.0.4"
     keyv: "npm:5.2.1"
-    leftpad: "npm:0.0.1"
     load-grunt-tasks: "npm:^5.1.0"
     lodash: "npm:^4.17.21"
     luxon: "npm:^3.5.0"
@@ -34524,7 +34576,6 @@ __metadata:
     url-loader: "npm:4.1.1"
     verror: "npm:1.10.1"
     webpack: "npm:^5.97.0"
-    webpack-cli: "npm:^6.0.1"
     webpack-dev-middleware: "npm:^7.4.0"
     xmlhttprequest: "npm:^1.8.0"
     yargs: "npm:^17.0.1"
@@ -34605,7 +34656,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^5.59.0"
     "@typescript-eslint/parser": "npm:^7.1.1"
     audit-filter: "npm:^0.5.0"
-    axios: "npm:1.8.4"
+    axios: "npm:1.12.0"
     chance: "npm:^1.1.8"
     convict: "npm:^6.2.4"
     convict-format-with-moment: "npm:^6.2.0"
@@ -35183,11 +35234,14 @@ __metadata:
     "@nx/eslint-plugin": "npm:21.1.2"
     "@nx/jest": "npm:21.1.2"
     "@nx/js": "npm:21.1.2"
+    "@nx/nest": "npm:21.1.2"
     "@nx/next": "npm:21.1.2"
     "@nx/node": "npm:21.1.2"
     "@nx/react": "npm:21.1.2"
     "@nx/s3-cache": "npm:^2.1.0"
     "@nx/storybook": "npm:21.1.2"
+    "@nx/web": "npm:21.1.2"
+    "@nx/webpack": "npm:21.1.2"
     "@nx/workspace": "npm:21.1.2"
     "@opentelemetry/api": "npm:^1.9.0"
     "@opentelemetry/auto-instrumentations-node": "npm:^0.58.0"
@@ -35195,7 +35249,7 @@ __metadata:
     "@opentelemetry/sdk-trace-node": "npm:^2.0.0"
     "@opentelemetry/sdk-trace-web": "npm:^2.0.0"
     "@opentelemetry/semantic-conventions": "npm:^1.32.0"
-    "@paypal/react-paypal-js": "npm:^8.7.0"
+    "@paypal/react-paypal-js": "npm:^8.9.1"
     "@radix-ui/react-dialog": "npm:^1.1.14"
     "@radix-ui/react-form": "npm:^0.1.0"
     "@radix-ui/react-tooltip": "npm:^1.1.2"
@@ -35343,6 +35397,7 @@ __metadata:
     typedi: "npm:^0.8.0"
     typescript: "npm:5.5.3"
     uuid: "npm:^10.0.0"
+    webpack-cli: "npm:^6.0.1"
     winston: "npm:^3.17.0"
   languageName: unknown
   linkType: soft
@@ -41757,13 +41812,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"leftpad@npm:0.0.1":
-  version: 0.0.1
-  resolution: "leftpad@npm:0.0.1"
-  checksum: 10c0/610aa10ae6ea09f038b5f3c5048948a0e62579ed56daa854217bbe7b04d29aa33d8e3b1f0eff5a4a7455e5c8699c1b23f44e2f35fec77bc900aff12421f50d56
-  languageName: node
-  linkType: hard
-
 "legal-docs@https://github.com/mozilla/legal-docs.git#68a02d3a95f22fb10db68893bb54e49bc0604f69":
   version: 1.0.0
   resolution: "legal-docs@https://github.com/mozilla/legal-docs.git#commit=68a02d3a95f22fb10db68893bb54e49bc0604f69"
@@ -42626,6 +42674,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"magic-string@npm:0.30.0":
+  version: 0.30.0
+  resolution: "magic-string@npm:0.30.0"
+  dependencies:
+    "@jridgewell/sourcemap-codec": "npm:^1.4.13"
+  checksum: 10c0/5fac57cf190bee966d3b5c55e0c23d6148b043a43220de91a369c4a81301b483418712b38440d15055a2ac04beec63dea4866a4e5c84ad6b919186e1c5c61241
+  languageName: node
+  linkType: hard
+
 "magic-string@npm:0.30.17, magic-string@npm:^0.30.3, magic-string@npm:^0.30.5":
   version: 0.30.17
   resolution: "magic-string@npm:0.30.17"
@@ -43373,7 +43430,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mime-types@npm:^2.1.12, mime-types@npm:^2.1.18, mime-types@npm:^2.1.25, mime-types@npm:^2.1.27, mime-types@npm:^2.1.31, mime-types@npm:^2.1.35, mime-types@npm:~2.1.17, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34":
+"mime-types@npm:^2.1.12, mime-types@npm:^2.1.18, mime-types@npm:^2.1.25, mime-types@npm:^2.1.27, mime-types@npm:^2.1.31, mime-types@npm:~2.1.17, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34":
   version: 2.1.35
   resolution: "mime-types@npm:2.1.35"
   dependencies:
@@ -52631,15 +52688,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sha.js@npm:^2.4.0, sha.js@npm:^2.4.11, sha.js@npm:^2.4.8":
-  version: 2.4.11
-  resolution: "sha.js@npm:2.4.11"
+"sha.js@npm:^2.4.12":
+  version: 2.4.12
+  resolution: "sha.js@npm:2.4.12"
   dependencies:
-    inherits: "npm:^2.0.1"
-    safe-buffer: "npm:^5.0.1"
+    inherits: "npm:^2.0.4"
+    safe-buffer: "npm:^5.2.1"
+    to-buffer: "npm:^1.2.0"
   bin:
-    sha.js: ./bin.js
-  checksum: 10c0/b7a371bca8821c9cc98a0aeff67444a03d48d745cb103f17228b96793f455f0eb0a691941b89ea1e60f6359207e36081d9be193252b0f128e0daf9cfea2815a5
+    sha.js: bin.js
+  checksum: 10c0/9d36bdd76202c8116abbe152a00055ccd8a0099cb28fc17c01fa7bb2c8cffb9ca60e2ab0fe5f274ed6c45dc2633d8c39cf7ab050306c231904512ba9da4d8ab1
   languageName: node
   linkType: hard
 

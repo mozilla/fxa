@@ -45,6 +45,9 @@ const isUnauthorizedError = (error: GraphQLError | GraphQLFormattedError) => {
  * not verified the login via email/2FA. Note, the email can be verified but not the
  * session. Only certain queries/API calls require a verified session.
  *
+ * TODO: FXA-12454 do we still need this or at least can it be removed for the
+ * '/settings' check?
+ *
  * @param error
  */
 const isUnverifiedSessionError = (

@@ -63,7 +63,7 @@ test.describe('severity-2 #smoke', () => {
 
     test('allows valid redirect_to parameter', async ({
       target,
-      pages: { page, changePassword, signin },
+      pages: { page, changePassword, signin, settings },
       testAccountTracker,
     }) => {
       const credentials = await testAccountTracker.signUp();
@@ -71,10 +71,14 @@ test.describe('severity-2 #smoke', () => {
       // set a redirect url that is not the usual navigation target after signin
       const redirectTo = `${target.contentServerUrl}/settings/change_password`;
       await page.goto(`${target.contentServerUrl}/?redirect_to=${redirectTo}`);
+
       await signin.fillOutEmailFirstForm(credentials.email);
       await signin.fillOutPasswordForm(credentials.password);
 
       await expect(page).toHaveURL(redirectTo);
+
+      await settings.confirmMfaGuard(credentials.email);
+
       await expect(changePassword.changePasswordHeading).toBeVisible();
     });
   });

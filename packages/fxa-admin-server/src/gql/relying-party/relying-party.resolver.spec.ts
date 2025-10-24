@@ -23,8 +23,9 @@ const MOCK_RP = {
   imageUri:
     'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png',
   allowedScopes: 'https://identity.mozilla.com/apps/send',
-  notes: null,
+  notes: '',
 };
+
 describe('#integration - RelyingPartyResolver', () => {
   let knex: Knex;
   let db = {
@@ -54,6 +55,10 @@ describe('#integration - RelyingPartyResolver', () => {
     resolver = module.get<RelyingPartyResolver>(RelyingPartyResolver);
   });
 
+  afterAll(async () => {
+    await db.relyingParty.query().delete();
+  });
+
   it('should be defined', () => {
     expect(resolver).toBeDefined();
   });
@@ -71,12 +76,74 @@ describe('#integration - RelyingPartyResolver', () => {
     ]);
   });
 
-  it('should update notes relying parties with transformed ID', async () => {
-    const result = await resolver.updateNotes(MOCK_RP_ID, 'notes 123');
+  it('should create relying party', async () => {
+    const payload = {
+      name: 'foo',
+      imageUri: 'https://mozilla.com/foo/logo.png',
+      redirectUri: 'https://mozilla.com/foo/signin',
+      canGrant: false,
+      publicClient: false,
+      createdAt: new Date(),
+      trusted: true,
+      allowedScopes: MOCK_RP.allowedScopes,
+      notes: 'test',
+    };
 
-    const mutated = await resolver.relyingParties();
+    const result = await resolver.create(payload);
+
+    expect(result).toBeDefined();
+    expect(
+      (await resolver.relyingParties()).some((x) => x.id === result)
+    ).toBeTruthy();
+  });
+
+  it('should update relying party', async () => {
+    const payload = {
+      name: 'foo',
+      imageUri: 'https://mozilla.com/foo/logo.png',
+      redirectUri: 'https://mozilla.com/foo/signin',
+      canGrant: false,
+      publicClient: false,
+      createdAt: new Date('2025-10-14T00:47:42.000Z'),
+      trusted: true,
+      allowedScopes: MOCK_RP.allowedScopes,
+      notes: 'test',
+    };
+    const result = await resolver.create(payload);
+
+    const payload2 = {
+      name: 'foo123',
+      imageUri: 'https://mozilla.com/foo123/logo.png',
+      redirectUri: 'https://mozilla.com/foo123/signin',
+      canGrant: !MOCK_RP.canGrant,
+      publicClient: !MOCK_RP.publicClient,
+      trusted: !MOCK_RP.trusted,
+      allowedScopes: '',
+      notes: 'test updated',
+    };
+    const result2 = await resolver.update(result, payload2);
+    const updatedState = (await resolver.relyingParties()).find(
+      (x) => x.id === result
+    );
+    expect(result).toBeDefined();
+    expect(result2).toBeTruthy();
+    expect(updatedState).toBeDefined();
+    expect(updatedState?.name).toEqual(payload2.name);
+    expect(updatedState?.imageUri).toEqual(payload2.imageUri);
+    expect(updatedState?.redirectUri).toEqual(payload2.redirectUri);
+    expect(updatedState?.canGrant).toEqual(payload2.canGrant);
+    expect(updatedState?.publicClient).toEqual(payload2.publicClient);
+    expect(updatedState?.trusted).toEqual(payload2.trusted);
+    expect(updatedState?.allowedScopes).toEqual(payload2.allowedScopes);
+    expect(updatedState?.notes).toEqual(payload2.notes);
+  });
+
+  it('should delete relying party', async () => {
+    const result = await resolver.delete(MOCK_RP.id);
+
     expect(result).toBeTruthy();
-    expect(mutated.length).toBe(1);
-    expect(mutated[0].notes).toBe('notes 123');
+    expect(
+      (await resolver.relyingParties()).some((x) => x.id === MOCK_RP.id)
+    ).toBeFalsy();
   });
 });

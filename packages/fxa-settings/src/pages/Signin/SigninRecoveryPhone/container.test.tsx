@@ -169,6 +169,8 @@ describe('SigninRecoveryPhoneContainer', () => {
         resendCode: expect.any(Function),
         verifyCode: expect.any(Function),
         integration: expect.any(Object),
+        numBackupCodes: undefined,
+        sendError: undefined,
       });
     });
 
@@ -196,6 +198,33 @@ describe('SigninRecoveryPhoneContainer', () => {
       await currentPageProps?.resendCode();
       expect(mockRecoveryPhoneSigninSendCode).toHaveBeenCalledWith(
         mockSigninLocationState.sessionToken
+      );
+    });
+
+    it('passes isSessionAALUpgrade as a navigation option to handleNavigation', async () => {
+      mockReachRouter('/signin_recovery_phone', {
+        signinState: {
+          ...mockSigninLocationState,
+          isSessionAALUpgrade: true,
+        },
+        lastFourPhoneDigits: '1234',
+      });
+
+      renderSigninRecoveryPhoneContainer();
+
+      await currentPageProps?.verifyCode('123456');
+
+      expect(storeAccountData).toHaveBeenCalledWith({
+        email: mockSigninLocationState.email,
+        sessionToken: mockSigninLocationState.sessionToken,
+        uid: mockSigninLocationState.uid,
+        verified: true,
+      });
+
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          isSessionAALUpgrade: true,
+        })
       );
     });
   });

@@ -18,7 +18,11 @@ const ACCOUNT_ATTACHED_CLIENTS_GET = {
 
       Returns an array listing all the clients connected to the authenticated user's account, including devices, OAuth clients, and web sessions.
 
-      This endpoint is primarily designed to power the "devices and apps" view on the user's account settings page. Depending on the type of client, it will have at least one and possibly several of the following properties:
+      This endpoint is primarily designed to power the "devices and apps" view on the user's account settings page.
+
+      It will only return active sessions. For example, if a user has signed into a service and then later disconnects from that service via account settings connected devices, they would not appear on this list.
+
+      Depending on the type of client, it will have at least one and possibly several of the following properties:
 
       - \`clientId\`: The OAuth client_id of the connected application.
       - \`sessionTokenId\`: The id of the \`sessionToken\` held by that client, if any.

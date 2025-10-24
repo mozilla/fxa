@@ -10,6 +10,8 @@ import { MfaGuard } from './index';
 import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { AppContext } from '../../../models';
+import { MfaReason } from '../../../lib/types';
+import GleanMetrics from '../../../lib/glean';
 
 const mockSessionToken = 'session-xyz';
 const mockOtp = '123456';
@@ -64,7 +66,7 @@ describe('MfaGuard', () => {
   it('requests OTP and shows modal when JWT missing', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope}>
+        <MfaGuard requiredScope={mockScope} reason={MfaReason.test}>
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -88,12 +90,32 @@ describe('MfaGuard', () => {
     );
   });
 
+  it('emits metrics on success', async () => {
+    const submitSuccessSpy = jest.spyOn(
+      GleanMetrics.accountPref,
+      'mfaGuardSubmitSuccess'
+    );
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <MfaGuard requiredScope={mockScope} reason={MfaReason.test}>
+          <div>secured</div>
+        </MfaGuard>
+      </AppContext.Provider>
+    );
+    await submitCode();
+    await waitFor(() => {
+      expect(submitSuccessSpy).toHaveBeenCalledWith({
+        event: { reason: MfaReason.test },
+      });
+    });
+  });
+
   it('renders children when JWT exists', () => {
     JwtTokenCache.setToken(mockSessionToken, mockScope, 'jwt-present');
 
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope}>
+        <MfaGuard requiredScope={mockScope} reason={MfaReason.test}>
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -106,10 +128,33 @@ describe('MfaGuard', () => {
     expect(mockAuthClient.mfaRequestOtp).not.toHaveBeenCalled();
   });
 
+  it('renders dialog when JWT has expired', async () => {
+    // Set an expired token...
+    JwtTokenCache.setToken(
+      mockSessionToken,
+      mockScope,
+      // The middle part of the string is the payload. The other parts don't matter for this test.
+      '__.eyJzdWIiOiI4YjMzNmZlNGE5MmM0ZTk5YmMyNGIyMjFmOTUzMzk0MiIsInNjb3BlIjpbIm1mYTpyZWNvdmVyeV9rZXkiXSwiaWF0IjoxNzU5MjQ3MTE3LCJqdGkiOiJjYmY1N2M2MC1hYzcwLTRhNGEtYTdkMy0wN2U0NTdlM2E4MWYiLCJzdGlkIjoiMzI5ZjQzNTFiMDUwN2QwNDVmNDYxZWQxNWY4MzZmNDM3MDBhMmM0YTk5NmVlMWM1ODMxZTQzNGIxZjc4ZjFhNCIsImV4cCI6MTc1OTI0NzE0NywiYXVkIjoiZnhhIiwiaXNzIjoiYWNjb3VudHMuZmlyZWZveC5jb20ifQ.__'
+    );
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext()}>
+        <MfaGuard requiredScope={mockScope} reason={MfaReason.test}>
+          <div>secured</div>
+        </MfaGuard>
+      </AppContext.Provider>
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByText('Enter confirmation code')).toBeInTheDocument();
+      expect(mockAuthClient.mfaRequestOtp).toHaveBeenCalled();
+    });
+  });
+
   it('shows error banner on invalid OTP', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope}>
+        <MfaGuard requiredScope={mockScope} reason={MfaReason.test}>
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -126,7 +171,11 @@ describe('MfaGuard', () => {
   it('clears error banner on input change', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope} debounceIntervalMs={0}>
+        <MfaGuard
+          requiredScope={mockScope}
+          debounceIntervalMs={0}
+          reason={MfaReason.test}
+        >
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -148,7 +197,11 @@ describe('MfaGuard', () => {
   it('shows resend success banner and hides error banner on resend success', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope} debounceIntervalMs={0}>
+        <MfaGuard
+          requiredScope={mockScope}
+          debounceIntervalMs={0}
+          reason={MfaReason.test}
+        >
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -178,7 +231,11 @@ describe('MfaGuard', () => {
   it('shows error banner and hide success banner on resend error', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope} debounceIntervalMs={0}>
+        <MfaGuard
+          requiredScope={mockScope}
+          debounceIntervalMs={0}
+          reason={MfaReason.test}
+        >
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -208,7 +265,11 @@ describe('MfaGuard', () => {
 
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope} debounceIntervalMs={0}>
+        <MfaGuard
+          requiredScope={mockScope}
+          debounceIntervalMs={0}
+          reason={MfaReason.test}
+        >
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>
@@ -229,6 +290,7 @@ describe('MfaGuard', () => {
           requiredScope={mockScope}
           onDismissCallback={mockOnDismiss}
           debounceIntervalMs={0}
+          reason={MfaReason.test}
         >
           <div>secured</div>
         </MfaGuard>
@@ -243,7 +305,11 @@ describe('MfaGuard', () => {
   it('debounces OTP resend requests', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext()}>
-        <MfaGuard requiredScope={mockScope} debounceIntervalMs={100}>
+        <MfaGuard
+          requiredScope={mockScope}
+          debounceIntervalMs={100}
+          reason={MfaReason.test}
+        >
           <div>secured</div>
         </MfaGuard>
       </AppContext.Provider>

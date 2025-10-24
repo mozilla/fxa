@@ -10,6 +10,7 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const { Container } = require('typedi');
 const proxyquire = require('proxyquire');
+const crypto = require('crypto');
 
 let log, mockConfig, mockStatsD, routes, route, request;
 let mockCmsManager, mockLocalization;
@@ -399,7 +400,11 @@ describe('cms', () => {
       const baseConfig = createBaseConfig();
       const mockResult = { relyingParties: [baseConfig] };
 
-      const ftlContent = 'Spanish FTL content';
+      // Create hash-based FTL content
+      const headlineHash = crypto.createHash('md5').update('Enter your password').digest('hex').substring(0, 8);
+      const descriptionHash = crypto.createHash('md5').update('Please enter your password to continue').digest('hex').substring(0, 8);
+
+      const ftlContent = `${headlineHash} = Introduzca su contraseña\n${descriptionHash} = para iniciar sesión en Firefox`;
 
       const localizedData = {
         SigninPage: {

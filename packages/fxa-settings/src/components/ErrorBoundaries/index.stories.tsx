@@ -4,10 +4,7 @@
 
 import React from 'react';
 import { AppError } from '.';
-import {
-
-  UrlQueryData,
-} from '../../lib/model-data';
+import { UrlQueryData } from '../../lib/model-data';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 import { Meta } from '@storybook/react';
@@ -42,4 +39,13 @@ export const QueryParamValidationError = () => {
 
   // AppError should display a list of the validation errors
   return <AppError error={validationError} />;
+};
+
+export const InvalidSessionError = () => {
+  const error = {
+    name: '',
+    message: 'Unconfirmed Session',
+    errno: 138,
+  };
+  return <AppError error={error} />;
 };

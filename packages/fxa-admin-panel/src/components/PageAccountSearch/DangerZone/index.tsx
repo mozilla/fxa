@@ -13,9 +13,9 @@ import {
   DISABLE_ACCOUNT,
   ENABLE_ACCOUNT,
   REMOVE_2FA,
-  SEND_PASSWORD_RESET_EMAIL,
   UNSUBSCRIBE_FROM_MAILING_LISTS,
   UNVERIFY_EMAIL,
+  DELETE_RECOVERY_PHONE,
 } from './index.gql';
 
 type DangerZoneProps = {
@@ -24,6 +24,7 @@ type DangerZoneProps = {
   disabledAt: number | null;
   onCleared: Function;
   has2FA?: boolean | null;
+  hasRecoveryPhone?: boolean | null;
 };
 
 const DangerZoneAction = ({
@@ -71,6 +72,7 @@ export const DangerZone = ({
   disabledAt,
   onCleared,
   has2FA,
+  hasRecoveryPhone,
 }: DangerZoneProps) => {
   const [unverify, { loading: unverifyLoading }] = useMutation(UNVERIFY_EMAIL, {
     onCompleted: () => {
@@ -143,13 +145,13 @@ export const DangerZone = ({
     },
   });
 
-  const [sendPasswordResetEmail] = useMutation(SEND_PASSWORD_RESET_EMAIL, {
+  const [deleteRecoveryPhone] = useMutation(DELETE_RECOVERY_PHONE, {
     onCompleted: () => {
-      window.alert(`Password reset email sent to ${email.email}`);
+      window.alert('Recovery phone has been deleted.');
       onCleared();
     },
     onError: () => {
-      window.alert('Error sending password reset email.');
+      window.alert('Error deleting recovery phone.');
     },
   });
 
@@ -181,11 +183,11 @@ export const DangerZone = ({
     });
   };
 
-  const handleSendPasswordReset = () => {
-    if (!window.confirm('Are you sure?')) {
+  const handleDeleteRecoveryPhone = () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
       return;
     }
-    sendPasswordResetEmail({ variables: { email: email.email } });
+    deleteRecoveryPhone({ variables: { uid } });
   };
 
   // define loading messages
@@ -195,7 +197,7 @@ export const DangerZone = ({
   if (unverifyLoading) unverifyMessage = loadingMessage;
 
   return (
-    <section className="mt-8">
+    <section className="mt-8" data-testid="danger-zone-section">
       <Guard
         features={[
           AdminPanelFeature.UnverifyEmail,
@@ -203,6 +205,7 @@ export const DangerZone = ({
           AdminPanelFeature.EnableAccount,
           AdminPanelFeature.UnsubscribeFromMailingLists,
           AdminPanelFeature.Remove2FA,
+          AdminPanelFeature.DeleteRecoveryPhone,
         ]}
       >
         <h3 className="mt-0 mb-1 bg-red-600 font-medium h-8 pb-8 pl-2 pt-1 rounded-sm text-lg text-white">
@@ -219,6 +222,7 @@ export const DangerZone = ({
           description="Reset email confirmation. User needs to re-confirm on next login."
           buttonHandler={handleUnverify}
           buttonText="Unconfirm Email"
+          buttonTestId="unverify-email"
           {...{ unverifyMessage }}
         />
       </Guard>
@@ -232,6 +236,7 @@ export const DangerZone = ({
             disabledAt
           )}`}
           buttonHandler={handleDisable}
+          buttonTestId="disable-account"
         />
       </Guard>
       {disabledAt && (
@@ -241,6 +246,7 @@ export const DangerZone = ({
             description="Allows this account to log in."
             buttonHandler={handleEnable}
             buttonText="Enable"
+            buttonTestId="enable-account"
           />
         </Guard>
       )}
@@ -251,20 +257,21 @@ export const DangerZone = ({
             description="Delete the account's 2FA."
             buttonHandler={handleRemove2FA}
             buttonText="Remove 2FA"
+            buttonTestId="remove-2fa"
           />
         </Guard>
       )}
-      <Guard features={[AdminPanelFeature.SendPasswordResetEmail]}>
-        <DangerZoneAction
-          header="Send Password Reset Email"
-          description="Send the user a password reset email to all verified emails. For
-          Sync users this will also reset their encryption key so make sure
-          they have a backup of Sync data."
-          buttonHandler={handleSendPasswordReset}
-          buttonText="Password Reset"
-          buttonTestId="password-reset-button"
-        />
-      </Guard>
+      {has2FA && hasRecoveryPhone && (
+        <Guard features={[AdminPanelFeature.DeleteRecoveryPhone]}>
+          <DangerZoneAction
+            header="Delete Recovery Phone"
+            description="Delete the account's recovery phone number."
+            buttonHandler={handleDeleteRecoveryPhone}
+            buttonText="Delete"
+            buttonTestId="delete-recovery-phone"
+          />
+        </Guard>
+      )}
       <Guard features={[AdminPanelFeature.UnsubscribeFromMailingLists]}>
         <DangerZoneAction
           header="Unsubscribe From Mailing Lists"

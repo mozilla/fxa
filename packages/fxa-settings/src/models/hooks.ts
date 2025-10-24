@@ -293,13 +293,14 @@ export function useCmsInfoState() {
 
         let config: RelierCmsInfo | undefined;
 
-        if (response.ok) {
-          config = await response.json();
-        } else {
-          Sentry.captureMessage(
-            `Failure to parse CMS config for clientId ${clientId} and entrypoint ${entrypoint}`
-          );
+        if (!response.ok) {
+          Sentry.captureMessage('Non-OK response from CMS fetchConfig.', {
+            tags: { area: 'useCmsInfoState' },
+            extra: { clientId, entrypoint, status: response.status },
+          });
         }
+
+        config = await response.json();
 
         if (mounted) {
           setState({
@@ -309,9 +310,10 @@ export function useCmsInfoState() {
           });
         }
       } catch (error) {
-        Sentry.captureMessage(
-          `Failure to fetch CMS config for clientId ${clientId} and entrypoint ${entrypoint}`
-        );
+        Sentry.captureException(error, {
+          tags: { area: 'useCmsInfoState' },
+          extra: { clientId, entrypoint },
+        });
 
         if (mounted) {
           setState({

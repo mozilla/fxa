@@ -1,4 +1,7 @@
-verifySecondaryCode-subject = Confirm secondary email
+# Variables:
+#  $code (String) - The confirmation code for secondary email
+verifySecondaryCode-subject-2 = Use { $code } to confirm your secondary email
+verifySecondaryCode-preview = This code expires in 5 minutes.
 verifySecondaryCode-title-2 = Confirm secondary email
 verifySecondaryCode-action-2 = Confirm email
 # Variables:

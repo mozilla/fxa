@@ -5,6 +5,7 @@
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from '@reach/router';
+import { MfaGuard } from '../MfaGuard';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import {
@@ -22,6 +23,7 @@ import {
   getLocalizedErrorMessage,
 } from '../../../lib/error-utils';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import { MfaReason } from '../../../lib/types';
 
 type FormData = {
   oldPassword: string;
@@ -143,4 +145,12 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   );
 };
 
-export default PageChangePassword;
+const MfaGuardedPageChangePassword = (_: RouteComponentProps) => {
+  return (
+    <MfaGuard requiredScope="password" reason={MfaReason.changePassword}>
+      <PageChangePassword />
+    </MfaGuard>
+  );
+};
+
+export default MfaGuardedPageChangePassword;

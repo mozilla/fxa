@@ -160,4 +160,5 @@ function strategy(
 
 module.exports = {
   strategy,
+  parseAuthorizationHeader,
 };

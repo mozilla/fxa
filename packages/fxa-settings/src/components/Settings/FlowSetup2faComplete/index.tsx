@@ -104,11 +104,14 @@ export const FlowSetup2faComplete = (props: FlowSetup2faCompleteProps) => {
     <FlowContainer hideBackButton={true}>
       <Banner
         type="success"
-        textAlignClassName="text-center"
         content={{
           localizedHeading: ftlMsgResolver.getMsg(
             'flow-setup-2fa-inline-complete-success-banner',
             'Two-step authentication enabled'
+          ),
+          localizedDescription: ftlMsgResolver.getMsg(
+            'flow-setup-2fa-inline-complete-success-banner-description',
+            'To protect all your connected devices, you should sign out everywhere you’re using this account, and then sign back in using your new two-step authentication.'
           ),
         }}
       ></Banner>
