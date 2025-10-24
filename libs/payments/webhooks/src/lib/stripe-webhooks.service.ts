@@ -4,10 +4,10 @@
 
 import { Injectable } from '@nestjs/common';
 
-import { StripeEventManager } from './stripeEvents.manager';
+import { StripeEventManager } from './stripe-event.manager';
 import { StripeWebhookEventResponse } from './types';
 import * as Sentry from '@sentry/nestjs';
-import { SubscriptionEventsService } from './subscriptionHandler.service';
+import { SubscriptionEventsService } from './subscription-handler.service';
 
 @Injectable()
 export class StripeWebhookService {
@@ -28,11 +28,23 @@ export class StripeWebhookService {
           payload,
           signature
         );
+
+      const eventAlreadyProcessed = await this.stripeEventManager.isProcessed(
+        webhookEventResponse.event.id
+      );
+
+      if (eventAlreadyProcessed) {
+        return {};
+      }
+
       await this.dispatchEventToHandler(webhookEventResponse);
+
+      await this.stripeEventManager.markAsProcessed(webhookEventResponse.event);
     } catch (error) {
       Sentry.captureException(error);
       throw error;
     }
+
     return {};
   }
 
@@ -47,6 +59,7 @@ export class StripeWebhookService {
         );
         break;
       default:
+        console.log('DEFAULT EVENT HANDLER', webhookResponse.type);
     }
   }
 }

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
+import { Type } from 'class-transformer';
 import { IsBoolean, IsEnum, IsString } from 'class-validator';
 
 enum GleanChannel {
@@ -12,6 +13,7 @@ enum GleanChannel {
 }
 
 export class PaymentsGleanConfig {
+  @Type(() => Boolean)
   @IsBoolean()
   enabled!: boolean;
 

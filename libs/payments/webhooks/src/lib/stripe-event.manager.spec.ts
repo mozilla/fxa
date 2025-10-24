@@ -9,9 +9,9 @@ import {
   StripeClient,
   StripeEventCustomerSubscriptionCreatedFactory,
 } from '@fxa/payments/stripe';
-import { StripeEventManager } from './stripeEvents.manager';
-import { StripeWebhookService } from './stripeWebhooks.service';
-import { SubscriptionEventsService } from './subscriptionHandler.service';
+import { StripeEventManager } from './stripe-event.manager';
+import { StripeWebhookService } from './stripe-webhooks.service';
+import { SubscriptionEventsService } from './subscription-handler.service';
 import {
   CustomerManager,
   InvoiceManager,
@@ -46,12 +46,30 @@ import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { StripeEventCustomerSubscriptionDeletedFactory } from 'libs/payments/stripe/src/lib/factories/event.factory';
 import { Logger } from '@nestjs/common';
 
+import {
+  createStripeEventStoreEntry,
+  getStripeEventStoreEntry,
+} from './stripe-event-store.repository';
+import { MockStripeEventConfigProvider } from './stripe-event.config';
+import { StripeEventStoreEntryFactory } from './factories';
+import {
+  StripeEventStoreEntryAlreadyExistsError,
+  StripeEventStoreEntryNotFoundError,
+} from './stripe-event-store.error';
+
+jest.mock('./stripe-event-store.repository');
+const mockedGetStripeEventStoreEntry = jest.mocked(getStripeEventStoreEntry);
+const mockedCreateStripeEventStoreEntry = jest.mocked(
+  createStripeEventStoreEntry
+);
+
 describe('StripeEventManager', () => {
   let stripeEventManager: StripeEventManager;
   let stripeClient: StripeClient;
 
   const mockLogger = {
     error: jest.fn(),
+    warn: jest.fn(),
     log: jest.fn(),
   };
 
@@ -68,9 +86,10 @@ describe('StripeEventManager', () => {
         },
         {
           provide: PaymentMethodManager,
-          useValue: paymentMethodManagerMock
+          useValue: paymentMethodManagerMock,
         },
         MockStripeConfigProvider,
+        MockStripeEventConfigProvider,
         StripeClient,
         StripeEventManager,
         StripeWebhookService,
@@ -123,6 +142,88 @@ describe('StripeEventManager', () => {
           .mockReturnValue(StripeEventCustomerSubscriptionCreatedFactory());
         const result = stripeEventManager.constructWebhookEventResponse({}, '');
         expect(result.type).toBe('customer.subscription.created');
+      });
+    });
+
+    describe('isProcessed', () => {
+      const mockEventStoreEntry = StripeEventStoreEntryFactory();
+      beforeEach(() => {
+        mockedGetStripeEventStoreEntry.mockResolvedValue(mockEventStoreEntry);
+      });
+
+      it('returns true if event is processed', async () => {
+        const result = await stripeEventManager.isProcessed(
+          mockEventStoreEntry.eventId
+        );
+        expect(result).toBeTruthy();
+        expect(mockedGetStripeEventStoreEntry).toHaveBeenCalledWith(
+          undefined,
+          mockEventStoreEntry.eventId
+        );
+      });
+
+      it('returns false if event is not processed', async () => {
+        mockedGetStripeEventStoreEntry.mockRejectedValue(
+          new StripeEventStoreEntryNotFoundError(mockEventStoreEntry.eventId)
+        );
+        const result = await stripeEventManager.isProcessed(
+          mockEventStoreEntry.eventId
+        );
+        expect(result).toBeFalsy();
+        expect(mockedGetStripeEventStoreEntry).toHaveBeenCalledWith(
+          undefined,
+          mockEventStoreEntry.eventId
+        );
+      });
+
+      it('throws an error if unexpected error occurs', async () => {
+        const expectedError = new Error('Unexpected error');
+        mockedGetStripeEventStoreEntry.mockRejectedValue(expectedError);
+        await expect(
+          stripeEventManager.isProcessed(mockEventStoreEntry.eventId)
+        ).rejects.toThrow(expectedError);
+      });
+    });
+
+    describe('markAsProcessed', () => {
+      const mockEventStoreEntry = StripeEventStoreEntryFactory();
+      beforeEach(() => {
+        mockedCreateStripeEventStoreEntry.mockResolvedValue(
+          mockEventStoreEntry
+        );
+      });
+
+      it('successfully creates a new record', async () => {
+        await stripeEventManager.markAsProcessed(
+          mockEventStoreEntry.eventDetails
+        );
+        expect(mockedCreateStripeEventStoreEntry).toHaveBeenCalledWith(
+          undefined,
+          {
+            eventId: mockEventStoreEntry.eventId,
+            processedAt: expect.any(Date),
+            eventDetails: mockEventStoreEntry.eventDetails,
+          }
+        );
+      });
+
+      it('logs a warning if entry already exists', async () => {
+        const expectedError = new StripeEventStoreEntryAlreadyExistsError(
+          mockEventStoreEntry.eventId
+        );
+        mockedCreateStripeEventStoreEntry.mockRejectedValue(expectedError);
+        await stripeEventManager.markAsProcessed(
+          mockEventStoreEntry.eventDetails
+        );
+        expect(mockLogger.warn).toHaveBeenCalledWith(expectedError);
+      });
+
+      it('throws an error if unexpected error occurs', async () => {
+        const expectedError = new Error('Unexpected error');
+        mockedCreateStripeEventStoreEntry.mockRejectedValue(expectedError);
+        await expect(
+          stripeEventManager.markAsProcessed(mockEventStoreEntry.eventDetails)
+        ).rejects.toThrow(expectedError);
       });
     });
   });
