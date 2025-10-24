@@ -162,7 +162,7 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.Remove2FA]: {
     name: 'Reset 2FA',
-    level: PermissionLevel.Admin,
+    level: PermissionLevel.Support,
   },
   [AdminPanelFeature.UnverifyEmail]: {
     name: 'Unconfirm Email Address',
