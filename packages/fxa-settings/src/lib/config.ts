@@ -103,7 +103,10 @@ export interface Config {
     showLocaleToggle?: boolean;
     paymentsNextSubscriptionManagement?: boolean;
   };
-  nimbusPreview: boolean;
+  nimbus: {
+    enabled: boolean;
+    preview: boolean;
+  };
   cms: {
     enabled: boolean;
     l10nEnabled: boolean;
@@ -199,7 +202,10 @@ export function getDefault() {
       enabled: false,
       l10nEnabled: false,
     },
-    nimbusPreview: false,
+    nimbus: {
+      enabled: true,
+      preview: true,
+    },
   } as Config;
 }
 

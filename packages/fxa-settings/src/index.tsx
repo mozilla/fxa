@@ -7,6 +7,7 @@ import { render } from 'react-dom';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { AppErrorBoundary } from './components/ErrorBoundaries';
 import App from './components/App';
+import { NimbusProvider } from './models/contexts/NimbusContext';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
@@ -86,9 +87,11 @@ try {
       >
         <AppErrorBoundary>
           <AppContext.Provider value={appContext}>
-            <ApolloProvider client={apolloClient}>
-              <View />
-            </ApolloProvider>
+            <NimbusProvider>
+              <ApolloProvider client={apolloClient}>
+                <View />
+              </ApolloProvider>
+            </NimbusProvider>
           </AppContext.Provider>
         </AppErrorBoundary>
       </DynamicLocalizationProvider>
