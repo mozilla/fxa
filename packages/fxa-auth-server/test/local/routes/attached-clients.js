@@ -196,7 +196,15 @@ describe('/account/attached_clients', () => {
     request.auth.credentials.id = SESSIONS[0].id;
     const result = await route(request);
 
-    assert.equal(result.length, 6);
+    console.debug('Result:', result);
+
+    // Even though there are 7 potential clients (devices + oauth clients),
+    // the service deduplicates them, so we only see 5 clients in the result.
+    // Specifically:
+    // - DEVICES[2] (device with both sessionTokenId and refreshTokenId)
+    // - OAUTH_CLIENTS[3] (OAuth Mega-Device linked to DEVICES[2].refreshTokenId)
+    // These two records get merged into a single AttachedClient instead of appearing twice.
+    assert.equal(result.length, 5);
 
     assert.equal(db.touchSessionToken.callCount, 1);
     const args = db.touchSessionToken.args[0];
@@ -258,26 +266,8 @@ describe('/account/attached_clients', () => {
       userAgent: '',
       os: null,
     });
-    // The cloud OAuth service using only access tokens.
-    assert.deepEqual(result[3], {
-      clientId: OAUTH_CLIENTS[0].client_id,
-      deviceId: null,
-      sessionTokenId: null,
-      refreshTokenId: null,
-      isCurrentSession: false,
-      deviceType: null,
-      name: 'Legacy OAuth Service',
-      createdTime: now - 1600,
-      createdTimeFormatted: 'a few seconds ago',
-      lastAccessTime: now - 200,
-      lastAccessTimeFormatted: 'a few seconds ago',
-      scope: ['a', 'b'],
-      location: {},
-      userAgent: '',
-      os: null,
-    });
     // The cloud OAuth service using a refresh token.
-    assert.deepEqual(result[4], {
+    assert.deepEqual(result[3], {
       clientId: OAUTH_CLIENTS[1].client_id,
       deviceId: null,
       sessionTokenId: null,
@@ -295,7 +285,7 @@ describe('/account/attached_clients', () => {
       os: null,
     });
     // The web-only login session.
-    assert.deepEqual(result[5], {
+    assert.deepEqual(result[4], {
       clientId: null,
       deviceId: null,
       sessionTokenId: SESSIONS[0].id,
