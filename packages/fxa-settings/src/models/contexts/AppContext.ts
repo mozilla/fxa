@@ -14,10 +14,7 @@ import { KeyStretchExperiment } from '../experiments/key-stretch-experiment';
 import { UrlQueryData } from '../../lib/model-data';
 import { ReachRouterWindow } from '../../lib/window';
 import { SensitiveDataClient } from '../../lib/sensitive-data-client';
-import { initializeNimbus, NimbusContextT } from '../../lib/nimbus';
-import { parseAcceptLanguage } from '../../../../../libs/shared/l10n/src';
 import { getUniqueUserId } from '../../lib/cache';
-import { searchParams } from '../../lib/utilities';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -29,40 +26,11 @@ export interface AppContextValue {
   account?: Account;
   session?: Session;
   uniqueUserId?: string; // used for experiments
-  experiments?: Promise<any>; // external response; not adding types
 }
 
 export interface SettingsContextValue {
   alertBarInfo?: AlertBarInfo;
   navigatorLanguages?: readonly string[];
-}
-
-/**
- * Fetches nimbus experiments from the Cirrus container via content-server.
- *
- * N.B: external response; not adding types
- *
- * @param uniqueUserId the ID that is used to retrieve the experiments for that client.
- * @returns a promise to the fetch JSON reponse.
- */
-function fetchNimbusExperiments(uniqueUserId: string): Promise<any> {
-  // We reuse parseAcceptLanguage with navigator.languages because
-  // that is the same as getting the headers directly as stated on MDN.
-  // See: https://developer.mozilla.org/en-US/docs/Web/API/Navigator/languages
-  const [locale] = parseAcceptLanguage(navigator.languages.join(', '));
-  let [language, region] = locale.split('-');
-  if (region) {
-    region = region.toLowerCase();
-  }
-
-  const nimbusPreview = config.nimbusPreview
-    ? config.nimbusPreview
-    : searchParams(window.location.search).nimbusPreview === 'true';
-
-  return initializeNimbus(uniqueUserId, nimbusPreview, {
-    language,
-    region,
-  } as NimbusContextT);
 }
 
 export function initializeAppContext() {
@@ -81,7 +49,6 @@ export function initializeAppContext() {
   const session = new Session(authClient, apolloClient);
   const sensitiveDataClient = new SensitiveDataClient();
   const uniqueUserId = getUniqueUserId();
-  const experiments = fetchNimbusExperiments(uniqueUserId);
 
   const context: AppContextValue = {
     authClient,
@@ -91,7 +58,6 @@ export function initializeAppContext() {
     session,
     sensitiveDataClient,
     uniqueUserId,
-    experiments,
   };
 
   return context;
