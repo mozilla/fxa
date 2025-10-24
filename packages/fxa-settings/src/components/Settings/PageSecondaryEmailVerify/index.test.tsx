@@ -122,15 +122,22 @@ describe('PageSecondaryEmailVerify', () => {
     let user: UserEvent;
 
     const setupMockAuthClient = () => {
-      mockAuthClient.mfaRequestOtp = jest.fn().mockResolvedValueOnce({ code: 200, errno: 0 });
-      mockAuthClient.mfaOtpVerify = jest.fn().mockResolvedValueOnce({ accessToken: mockJwt });
-    }
+      mockAuthClient.mfaRequestOtp = jest
+        .fn()
+        .mockResolvedValueOnce({ code: 200, errno: 0 });
+      mockAuthClient.mfaOtpVerify = jest
+        .fn()
+        .mockResolvedValueOnce({ accessToken: mockJwt });
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        details: { sessionVerificationMeetsMinimumAAL: true },
+      });
+    };
 
     const resetJwtCache = () => {
       if (JwtTokenCache.hasToken(mockSessionToken, requiredScope)) {
         JwtTokenCache.removeToken(mockSessionToken, requiredScope);
       }
-    }
+    };
 
     beforeEach(() => {
       jest.clearAllMocks();
@@ -148,16 +155,22 @@ describe('PageSecondaryEmailVerify', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailVerify location={{ state: { email: mockEmail } } as any} />
+          <MfaGuardPageSecondaryEmailVerify
+            location={{ state: { email: mockEmail } } as any}
+          />
         </AppContext.Provider>
       );
 
-      expect(screen.getByTestId('secondary-email-verify-form')).toBeInTheDocument();
-      expect(screen.queryByText('Enter confirmation code')).not.toBeInTheDocument();
+      expect(
+        screen.getByTestId('secondary-email-verify-form')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('Enter confirmation code')
+      ).not.toBeInTheDocument();
       expect(mockAuthClient.mfaRequestOtp).not.toHaveBeenCalled();
     });
 
-    it('renders MFA guard if JWT does not exist', () => {
+    it('renders MFA guard if JWT does not exist', async () => {
       const appCtx = mockAppContext({
         authClient: mockAuthClient as any,
         account: { ...(account as any), email: mockEmail },
@@ -165,18 +178,24 @@ describe('PageSecondaryEmailVerify', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailVerify location={{ state: { email: mockEmail } } as any} />
+          <MfaGuardPageSecondaryEmailVerify
+            location={{ state: { email: mockEmail } } as any}
+          />
         </AppContext.Provider>
       );
 
-      expect(screen.getByText('Enter confirmation code')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Enter confirmation code')
+      ).toBeInTheDocument();
     });
 
     it('renders MFA guard if the JWT is invalid', async () => {
       // an invalid token should be picked up by the guard which will
       // "send" a new one and display the modal again.
       JwtTokenCache.setToken(mockSessionToken, requiredScope, 'invalid-jwt');
-      account.verifySecondaryEmail = jest.fn().mockRejectedValue({ code: 401, errno: 110 });
+      account.verifySecondaryEmail = jest
+        .fn()
+        .mockRejectedValue({ code: 401, errno: 110 });
       const appCtx = mockAppContext({
         authClient: mockAuthClient as any,
         account: { ...(account as any), email: mockEmail },
@@ -184,17 +203,27 @@ describe('PageSecondaryEmailVerify', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailVerify location={{ state: { email: mockEmail } } as any} />
+          <MfaGuardPageSecondaryEmailVerify
+            location={{ state: { email: mockEmail } } as any}
+          />
         </AppContext.Provider>
       );
 
       // mock the submit for the verification code, which should trigger the MFA guard
       // because the JWT is considered invalid server-side.
-      await user.type(screen.getByTestId('verification-code-input-field'), '123456');
+      await user.type(
+        screen.getByTestId('verification-code-input-field'),
+        '123456'
+      );
       await user.click(screen.getByTestId('secondary-email-verify-submit'));
 
-      expect(account.verifySecondaryEmail).toHaveBeenCalledWith(mockEmail, '123456');
-      expect(await screen.findByText('Enter confirmation code')).toBeInTheDocument();
+      expect(account.verifySecondaryEmail).toHaveBeenCalledWith(
+        mockEmail,
+        '123456'
+      );
+      expect(
+        await screen.findByText('Enter confirmation code')
+      ).toBeInTheDocument();
     });
   });
 });

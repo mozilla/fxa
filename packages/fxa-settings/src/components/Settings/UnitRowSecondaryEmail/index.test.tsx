@@ -54,6 +54,9 @@ describe('UnitRowSecondaryEmail', () => {
     mockAuthClient.mfaOtpVerify = jest
       .fn()
       .mockResolvedValue({ accessToken: mockJwt });
+    mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+      details: { sessionVerificationMeetsMinimumAAL: true },
+    });
   };
 
   const resetJwtCache = () => {
