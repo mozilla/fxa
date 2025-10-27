@@ -2,28 +2,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Use require to avoid TypeScript type checking issues with punycode.js
+const punycode = require('punycode.js');
+
 // Mozmail.com is the Firefox Relay email mask, we prohibit creating accounts with it
 const emailMaskRegex = /@([a-zA-Z0-9.-]+\.)?(mozmail|relay\.firefox)\.(com)$/i;
 
+/**
+ * Normalize an email address
+ *
+ * This matches the validation logic in fxa-auth-server/lib/routes/validators.js
+ * which also uses punycode.toASCII() for domain validation.
+ *
+ * @param originalEmail - The email address to normalize
+ * @returns The normalized email address
+ */
 export function normalizeEmail(originalEmail: string): string {
-  return originalEmail.toLowerCase();
+  if (!originalEmail || typeof originalEmail !== 'string') {
+    return originalEmail;
+  }
+
+  const parts = originalEmail.split('@');
+
+  const [localPart, domain] = parts;
+
+  // RFC 5321 section 4.5.3.1.1 specifies that the local part should be case-folded to lowercase
+  const normalizedLocal = localPart.toLowerCase();
+
+  // RFC 3492 specifies that the domain part should be converted to punycode
+  const normalizedDomain = punycode.toASCII(domain.toLowerCase());
+
+  return `${normalizedLocal}@${normalizedDomain}`;
 }
 
 export function emailsMatch(firstEmail: string, secondEmail: string): boolean {
-  // This has traditionally been our comparison method
-  return firstEmail.toLowerCase() === secondEmail.toLowerCase();
-
-  // Down the road we should switch to something like this
-  // that allows comparison with better unicode support
-  // https://github.com/mozilla/fxa/pull/4736#discussion_r402647434
-  //
-  // return (
-  //   firstEmail.localeCompare(secondEmail, undefined, {
-  //     // We use 'accent' instead of 'base' here to ensure a character with
-  //     // an accent is not considered the same as that character without one
-  //     sensitivity: 'accent',
-  //   }) === 0
-  // );
+  return normalizeEmail(firstEmail) === normalizeEmail(secondEmail);
 }
 
 // Email regex, accepts punycoded addresses. See:

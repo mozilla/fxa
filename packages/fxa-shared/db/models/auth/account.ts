@@ -11,6 +11,7 @@ import { LinkedAccount } from './linked-account';
 import { SecurityEvent } from './security-event';
 import { intBoolTransformer, uuidTransformer } from '../../transformers';
 import { convertError, notFound } from '../../mysql';
+import { normalizeEmail } from '../../../email/helpers';
 
 export type AccountOptions = {
   include?: Array<'emails' | 'linkedAccounts' | 'securityEvents'>;
@@ -480,7 +481,7 @@ export class Account extends BaseAuthModel {
     options: { linkedAccounts?: boolean } = { linkedAccounts: false }
   ): Promise<(Account & { linkedAccounts?: LinkedAccount[] }) | null> {
     let account: Account | null = null;
-    const { rows } = await Account.callProcedure(Proc.AccountRecord, email);
+    const { rows } = await Account.callProcedure(Proc.AccountRecord, normalizeEmail(email));
     if (rows.length) {
       account = Account.fromDatabaseJson(rows[0]);
     }
@@ -490,7 +491,7 @@ export class Account extends BaseAuthModel {
       account =
         (await Account.query()
           .select(...selectFields)
-          .where('normalizedEmail', fn.lower(email))
+          .where('normalizedEmail', normalizeEmail(email))
           .first()) || null;
 
       if (!account) {
