@@ -89,7 +89,7 @@ describe('#integration - RelyingPartyResolver', () => {
       notes: 'test',
     };
 
-    const result = await resolver.create(payload);
+    const result = await resolver.createRelyingParty(payload);
 
     expect(result).toBeDefined();
     expect(
@@ -109,7 +109,7 @@ describe('#integration - RelyingPartyResolver', () => {
       allowedScopes: MOCK_RP.allowedScopes,
       notes: 'test',
     };
-    const result = await resolver.create(payload);
+    const result = await resolver.createRelyingParty(payload);
 
     const payload2 = {
       name: 'foo123',
@@ -121,7 +121,7 @@ describe('#integration - RelyingPartyResolver', () => {
       allowedScopes: '',
       notes: 'test updated',
     };
-    const result2 = await resolver.update(result, payload2);
+    const result2 = await resolver.updateRelyingParty(result, payload2);
     const updatedState = (await resolver.relyingParties()).find(
       (x) => x.id === result
     );
@@ -139,7 +139,7 @@ describe('#integration - RelyingPartyResolver', () => {
   });
 
   it('should delete relying party', async () => {
-    const result = await resolver.delete(MOCK_RP.id);
+    const result = await resolver.deleteRelyingParty(MOCK_RP.id);
 
     expect(result).toBeTruthy();
     expect(

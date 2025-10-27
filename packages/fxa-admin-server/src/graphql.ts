@@ -270,9 +270,9 @@ export interface IMutation {
     deleteAccounts(locators: string[]): AccountDeleteResponse[] | Promise<AccountDeleteResponse[]>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
     clearRateLimits(ip?: Nullable<string>, email?: Nullable<string>, uid?: Nullable<string>): number | Promise<number>;
-    create(relyingParty: RelyingPartyUpdateDto): string | Promise<string>;
-    update(id: string, relyingParty: RelyingPartyUpdateDto): boolean | Promise<boolean>;
-    delete(id: string): boolean | Promise<boolean>;
+    createRelyingParty(relyingParty: RelyingPartyUpdateDto): string | Promise<string>;
+    updateRelyingParty(id: string, relyingParty: RelyingPartyUpdateDto): boolean | Promise<boolean>;
+    deleteRelyingParty(id: string): boolean | Promise<boolean>;
 }
 
 export type DateTime = any;
