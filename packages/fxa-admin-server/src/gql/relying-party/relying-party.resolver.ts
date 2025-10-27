@@ -49,7 +49,7 @@ export class RelyingPartyResolver {
 
   @Features(AdminPanelFeature.CreateRelyingParty)
   @Mutation(() => String)
-  public async create(
+  public async createRelyingParty(
     @Args('relyingParty') relyingParty: RelyingPartyUpdateDto
   ) {
     const id = crypto.randomBytes(8).toString('hex');
@@ -71,7 +71,7 @@ export class RelyingPartyResolver {
 
   @Features(AdminPanelFeature.UpdateRelyingParty)
   @Mutation(() => Boolean)
-  public async update(
+  public async updateRelyingParty(
     @Args('id') id: string,
     @Args('relyingParty') relyingParty: RelyingPartyUpdateDto
   ) {
@@ -89,7 +89,7 @@ export class RelyingPartyResolver {
 
   @Features(AdminPanelFeature.DeleteRelyingParty)
   @Mutation(() => Boolean)
-  public async delete(@Args('id') id: string) {
+  public async deleteRelyingParty(@Args('id') id: string) {
     const result = await this.db.relyingParty
       .query()
       .deleteById(uuidTransformer.to(id));

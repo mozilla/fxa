@@ -260,9 +260,9 @@ type Mutation {
   deleteAccounts(locators: [String!]!): [AccountDeleteResponse!]!
   clearEmailBounce(email: String!): Boolean!
   clearRateLimits(ip: String, email: String, uid: String): Float!
-  create(relyingParty: RelyingPartyUpdateDto!): String!
-  update(id: String!, relyingParty: RelyingPartyUpdateDto!): Boolean!
-  delete(id: String!): Boolean!
+  createRelyingParty(relyingParty: RelyingPartyUpdateDto!): String!
+  updateRelyingParty(id: String!, relyingParty: RelyingPartyUpdateDto!): Boolean!
+  deleteRelyingParty(id: String!): Boolean!
 }
 
 input RelyingPartyUpdateDto {

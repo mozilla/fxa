@@ -186,11 +186,11 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
     setStatus('');
   };
 
-  const [createRelyingParty] = useMutation<{ create: string }>(
+  const [createRelyingParty] = useMutation<{ createRelyingParty: string }>(
     CREATE_RELYING_PARTY,
     {
       onCompleted: (data) => {
-        if (data.create) {
+        if (data.createRelyingParty) {
           setStatus('Success!');
           setTimeout(onExit, 500);
         } else {
@@ -241,11 +241,11 @@ const UpdateRelyingParty = ({
     setStatus('');
   };
 
-  const [updateRelyingParty] = useMutation<{ update: boolean }>(
+  const [updateRelyingParty] = useMutation<{ updateRelyingParty: boolean }>(
     UPDATE_RELYING_PARTY,
     {
       onCompleted: (data) => {
-        if (data.update === true) {
+        if (data.updateRelyingParty === true) {
           setStatus('Success!');
           setTimeout(onExit, 500);
         } else {
@@ -297,11 +297,11 @@ const DeleteRelyingParty = ({
 }) => {
   const [status, setStatus] = useState('');
 
-  const [deleteRelyingParty] = useMutation<{ delete: boolean }>(
+  const [deleteRelyingParty] = useMutation<{ deleteRelyingParty: boolean }>(
     DELETE_RELYING_PARTY,
     {
       onCompleted: (data) => {
-        if (data.delete === true) {
+        if (data.deleteRelyingParty === true) {
           setStatus('Success!');
           setTimeout(onExit, 500);
         } else {

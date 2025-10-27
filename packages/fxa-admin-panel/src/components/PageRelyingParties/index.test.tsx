@@ -100,7 +100,7 @@ it('creates a new relying party via UI', async () => {
           },
         },
       },
-      result: { data: { create: 'new-id' } },
+      result: { data: { createRelyingParty: 'new-id' } },
     },
     // refetch after success
     mockGetRelyingParties([]),
@@ -181,7 +181,7 @@ it('updates an existing relying party via UI', async () => {
           },
         },
       },
-      result: { data: { update: true } },
+      result: { data: { updateRelyingParty: true } },
     },
     // refetch after success
     mockGetRelyingParties([rp]),
@@ -221,7 +221,7 @@ it('deletes an existing relying party via UI', async () => {
         query: DELETE_RELYING_PARTY,
         variables: { id: rp.id },
       },
-      result: { data: { delete: true } },
+      result: { data: { deleteRelyingParty: true } },
     },
     // refetch after success
     mockGetRelyingParties([rp]),
