@@ -181,7 +181,7 @@ const {
             'login',
             'challenge reason set to signin'
           );
-          assert.equal(response.verified, false, 'verified set to false');
+          assert.equal(response.sessionVerified, false, 'session verified set to false');
           return server.mailbox.waitForEmail(email);
         })
         .then((emailData) => {
@@ -249,7 +249,7 @@ const {
             'login',
             'challenge reason set to signin'
           );
-          assert.equal(response.verified, false, 'verified set to false');
+          assert.equal(response.sessionVerified, false, 'session verified set to false');
 
           return server.mailbox.waitForEmail(email);
         })
@@ -441,7 +441,8 @@ const {
         undefined,
         'verificationMethod not set'
       );
-      assert.equal(res.verified, true);
+      assert.equal(res.emailVerified, true);
+      assert.equal(res.sessionVerified, true);
       assert.ok(res.keyFetchToken);
       assert.ok(res.sessionToken);
       assert.ok(res.authAt);

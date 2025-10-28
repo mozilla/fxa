@@ -52,7 +52,8 @@ const mockAuthClient = {
     sessionToken: 'reauth-session-token',
     keyFetchToken: 'key-fetch-token',
     unwrapBKey: 'unwrap-b-key',
-    verified: true,
+    emailVerified: true,
+    sessionVerified: true,
     authAt: Date.now(),
   }),
   accountKeys: jest.fn().mockResolvedValue({

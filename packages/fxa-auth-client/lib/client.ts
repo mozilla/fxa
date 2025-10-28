@@ -86,7 +86,8 @@ export type SignInOptions = {
 export type SignedInAccountData = {
   uid: hexstring;
   sessionToken: hexstring;
-  verified: boolean;
+  emailVerified: boolean;
+  sessionVerified: boolean;
   authAt: number;
   metricsEnabled: boolean;
   keyFetchToken?: hexstring;

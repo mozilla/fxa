@@ -605,21 +605,21 @@ module.exports = (
           verificationMethod = 'email';
         }
         return {
-          verified: false,
+          sessionVerified: false,
           verificationMethod: verificationMethod,
           verificationReason: 'signup',
         };
       }
 
-      if (sessionToken.mustVerify && !sessionToken.tokenVerified) {
+      if (!sessionToken.tokenVerified) {
         return {
-          verified: false,
+          sessionVerified: false,
           // Override the verification method if it was explicitly specified in the request.
           verificationMethod: verificationMethod || 'email',
           verificationReason: 'login',
         };
       }
-      return { verified: true };
+      return { sessionVerified: true };
     },
 
     /**
@@ -629,7 +629,7 @@ module.exports = (
       // We should only really remove reminders if the session
       // was marked as verified, ie have met all the requirements
       // to start syncing
-      if (response.verified) {
+      if (response.sessionVerified) {
         await cadReminders.delete(account.uid);
       }
       return;

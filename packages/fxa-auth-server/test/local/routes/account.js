@@ -517,7 +517,8 @@ describe('/account/reset', () => {
     it('should return response', () => {
       assert.ok(res.sessionToken, 'return sessionToken');
       assert.ok(res.keyFetchToken, 'return keyFetchToken');
-      assert.equal(res.verified, true, 'return verified true');
+      assert.equal(res.emailVerified, true, 'return email verified true');
+      assert.equal(res.sessionVerified, true, 'return session verified true');
       assert.equal(res.verificationMethod, undefined);
     });
 
@@ -2715,7 +2716,7 @@ describe('/account/login', () => {
         );
         assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.equal(
-          response.verified,
+          response.emailVerified,
           false,
           'response indicates account is unverified'
         );
@@ -2890,7 +2891,7 @@ describe('/account/login', () => {
       });
     });
 
-    it('does not require verification when keys are not requested', () => {
+    it('does not require verification when session is verified', () => {
       const email = 'test@mozilla.com';
       mockDB.accountRecord = function () {
         return Promise.resolve({
@@ -2912,6 +2913,13 @@ describe('/account/login', () => {
           wrapWrapKb: hexString(32),
         });
       };
+      const originalCreateSessionToken = mockDB.createSessionToken;
+      mockDB.createSessionToken = sinon.spy(async (opts) => {
+        const result = await originalCreateSessionToken(opts);
+        result.tokenVerificationId = null;
+        result.tokenVerified = true;
+        return result;
+      });
 
       return runTest(route, mockRequestNoKeys, (response) => {
         assert.equal(
@@ -2924,10 +2932,14 @@ describe('/account/login', () => {
           !tokenData.mustVerify,
           'sessionToken does not have to be verified'
         );
-        assert.ok(
-          tokenData.tokenVerificationId,
-          'sessionToken was created unverified'
-        );
+        const sessionToken = mockDB.createSessionToken.returnValues[0];
+        sessionToken.then((token) => {
+          assert.ok(
+            !token.tokenVerificationId,
+            'session token has no tokenVerificationId'
+          );
+          assert.ok(token.tokenVerified, 'session token is verified');
+        });
         assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
         assert.equal(
           mockMailer.sendVerifyLoginEmail.callCount,
@@ -2946,7 +2958,14 @@ describe('/account/login', () => {
           'argument was event name'
         );
 
-        assert.ok(response.verified, 'response indicates account is verified');
+        assert.ok(
+          response.emailVerified,
+          'response indicates account is verified'
+        );
+        assert.ok(
+          response.sessionVerified,
+          'response indicates session is verified'
+        );
         assert.ok(
           !response.verificationMethod,
           "verificationMethod doesn't exist"
@@ -2955,6 +2974,9 @@ describe('/account/login', () => {
           !response.verificationReason,
           "verificationReason doesn't exist"
         );
+
+        // Restore the original function
+        mockDB.createSessionToken = originalCreateSessionToken;
       });
     });
 
@@ -3288,7 +3310,7 @@ describe('/account/login', () => {
           );
           assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
           assert.ok(
-            response.verified,
+            response.emailVerified,
             'response indicates account is verified'
           );
 
@@ -3341,7 +3363,7 @@ describe('/account/login', () => {
           );
           assert.equal(mockMailer.sendNewDeviceLoginEmail.args[0][2].uid, uid);
           assert.ok(
-            response.verified,
+            response.emailVerified,
             'response indicates account is verified'
           );
         });
@@ -3550,7 +3572,7 @@ describe('/account/login', () => {
           );
           assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
           assert.ok(
-            response.verified,
+            response.emailVerified,
             'response indicates account is verified'
           );
         });
@@ -3583,7 +3605,7 @@ describe('/account/login', () => {
         config.signinConfirmation.deviceFingerprinting = {
           enabled: true,
           reportOnlyMode: false,
-          duration: 604800000 // 7 days
+          duration: 604800000, // 7 days
         };
 
         const email = mockRequest.payload.email;
@@ -3623,9 +3645,9 @@ describe('/account/login', () => {
             oauth: {
               ...config.oauth,
               openid: {
-                key: 'test-key'
-              }
-            }
+                key: 'test-key',
+              },
+            },
           },
           customs: mockCustoms,
           db: mockDB,
@@ -3637,7 +3659,7 @@ describe('/account/login', () => {
         });
 
         route = getRoute(accountRoutes, '/account/login');
-      })
+      });
 
       it('should skip verification when device is recognized and not in report-only mode', () => {
         mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() =>
@@ -3647,18 +3669,20 @@ describe('/account/login', () => {
               verified: true,
               createdAt: Date.now() - 3600000, // 1 hour ago
               additionalInfo: JSON.stringify({
-                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                location: { country: 'US', state: 'CA' }
-              })
-            }
+                userAgent:
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                location: { country: 'US', state: 'CA' },
+              }),
+            },
           ])
         );
 
         const requestWithUserAgent = {
           ...mockRequest,
           headers: {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
+            'user-agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
         };
 
         return runTest(route, requestWithUserAgent, (response) => {
@@ -3673,7 +3697,7 @@ describe('/account/login', () => {
             'sessionToken does not require verification'
           );
           assert.ok(
-            response.verified,
+            response.sessionVerified,
             'response indicates session is verified'
           );
 
@@ -3691,9 +3715,10 @@ describe('/account/login', () => {
               ipAddr: requestWithUserAgent.app.clientAddress,
               tokenId: undefined,
               additionalInfo: {
-                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                location: requestWithUserAgent.app.geo.location
-              }
+                userAgent:
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                location: requestWithUserAgent.app.geo.location,
+              },
             })
           );
         });
@@ -3707,8 +3732,9 @@ describe('/account/login', () => {
         const requestWithDifferentUserAgent = {
           ...mockRequest,
           headers: {
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-          }
+            'user-agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+          },
         };
 
         return runTest(route, requestWithDifferentUserAgent, (response) => {
@@ -3718,10 +3744,7 @@ describe('/account/login', () => {
             'db.createSessionToken was called'
           );
           const tokenData = mockDB.createSessionToken.getCall(0).args[0];
-          assert.ok(
-            tokenData.mustVerify,
-            'sessionToken requires verification'
-          );
+          assert.ok(tokenData.mustVerify, 'sessionToken requires verification');
           assert.ok(
             !response.verified,
             'response indicates session is not verified'
@@ -3744,18 +3767,20 @@ describe('/account/login', () => {
               verified: true,
               createdAt: Date.now() - 3600000, // 1 hour ago
               additionalInfo: JSON.stringify({
-                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                location: { country: 'US', state: 'CA' }
-              })
-            }
+                userAgent:
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                location: { country: 'US', state: 'CA' },
+              }),
+            },
           ])
         );
 
         const requestWithUserAgent = {
           ...mockRequest,
           headers: {
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
+            'user-agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
         };
 
         return runTest(route, requestWithUserAgent, (response) => {
@@ -3806,11 +3831,17 @@ describe('/account/login', () => {
         config.signinConfirmation.deviceFingerprinting.enabled = false;
 
         const originalSpy = mockDB.verifiedLoginSecurityEventsByUid;
-        mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() => Promise.resolve([]));
+        mockDB.verifiedLoginSecurityEventsByUid = sinon.spy(() =>
+          Promise.resolve([])
+        );
 
         return runTest(route, mockRequest, (response) => {
           // Should not call the device fingerprinting database method
-          assert.equal(mockDB.verifiedLoginSecurityEventsByUid.callCount, 0, 'device fingerprinting was not called');
+          assert.equal(
+            mockDB.verifiedLoginSecurityEventsByUid.callCount,
+            0,
+            'device fingerprinting was not called'
+          );
           // Restore original spy
           mockDB.verifiedLoginSecurityEventsByUid = originalSpy;
         });

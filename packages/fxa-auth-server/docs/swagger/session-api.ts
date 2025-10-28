@@ -41,6 +41,12 @@ const SESSION_REAUTH_POST = {
       🔒 Authenticated with session token
 
       Re-authenticate an existing session token. This is equivalent to calling \`/account/login\`, but it re-uses an existing session token rather than generating a new one, allowing the caller to maintain session state such as verification and device registration.
+
+      The response includes:
+      - \`emailVerified\`: Whether the account's primary email address has been verified
+      - \`sessionVerified\`: Whether the current session token has been verified
+      - \`verificationMethod\`: Present if verification is incomplete, e.g. \`email\`, \`email-2fa\`, \`email-otp\`, \`totp-2fa\`
+      - \`verificationReason\`: Present if verification is incomplete, e.g. \`login\`, \`signup\`
     `,
   ],
   plugins: {
