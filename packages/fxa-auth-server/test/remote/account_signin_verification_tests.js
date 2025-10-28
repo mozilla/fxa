@@ -29,37 +29,6 @@ const mocks = require('../mocks');
       await TestServer.stop(server);
     });
 
-    it('account signin without keys does not set challenge', () => {
-      const email = server.uniqueEmail();
-      const password = 'allyourbasearebelongtous';
-      let client = null;
-      return Client.createAndVerify(
-        config.publicUrl,
-        email,
-        password,
-        server.mailbox,
-        testOptions
-      )
-        .then((x) => {
-          client = x;
-          assert.ok(client.authAt, 'authAt was set');
-        })
-        .then(() => {
-          return client.emailStatus();
-        })
-        .then((status) => {
-          assert.equal(status.verified, true, 'account is verified');
-        })
-        .then(() => {
-          return client.login({ keys: false });
-        })
-        .then((response) => {
-          assert(!response.verificationMethod, 'no challenge method set');
-          assert(!response.verificationReason, 'no challenge reason set');
-          assert.equal(response.verified, true, 'verified set true');
-        });
-    });
-
     it('account signin with keys does set challenge', () => {
       const email = server.uniqueEmail();
       const password = 'allyourbasearebelongtous';
@@ -79,7 +48,7 @@ const mocks = require('../mocks');
           return client.emailStatus();
         })
         .then((status) => {
-          assert.equal(status.verified, true, 'account is verified');
+          assert.equal(status.emailVerified, true, 'account is verified');
         })
         .then(() => {
           return client.login({ keys: true });
@@ -95,7 +64,11 @@ const mocks = require('../mocks');
             'login',
             'challenge reason set'
           );
-          assert.equal(response.verified, false, 'verified set to false');
+          assert.equal(
+            response.sessionVerified,
+            false,
+            'session verified set to false'
+          );
         });
     });
 
@@ -140,7 +113,11 @@ const mocks = require('../mocks');
             'login',
             'challenge reason set to signin'
           );
-          assert.equal(response.verified, false, 'verified set to false');
+          assert.equal(
+            response.sessionVerified,
+            false,
+            'session verified set to false'
+          );
         })
         .then(() => {
           return server.mailbox.waitForEmail(email);
@@ -181,9 +158,18 @@ const mocks = require('../mocks');
         })
         .then((status) => {
           assert.equal(
-            status.verified,
+            status.emailVerified,
             true,
             'account is verified confirming email'
+          );
+          // account signin without keys does not set challenge
+          assert(
+            !status.verificationMethod,
+            'no challenge method set for verified session'
+          );
+          assert(
+            !status.verificationReason,
+            'no challenge reason set for verified session'
           );
         });
     });

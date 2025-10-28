@@ -41,7 +41,7 @@ export const mockOAuthNativeSigninIntegration = (
 ) => {
   const service = isSync ? OAuthNativeServices.Sync : OAuthNativeServices.Relay;
   const isRelay = service === OAuthNativeServices.Relay;
-  return ({
+  return {
     type: IntegrationType.OAuthNative,
     getService: () => (isSync ? MozServices.FirefoxSync : MozServices.Relay),
     isSync: () => isSync,
@@ -56,14 +56,15 @@ export const mockOAuthNativeSigninIntegration = (
     ),
     getCmsInfo: () => cmsInfo,
     isFirefoxMobileClient: () => false,
-  }) as SigninIntegration;
+  } as SigninIntegration;
 };
 
 export const MOCK_TOTP_LOCATION_STATE = {
   email: MOCK_EMAIL,
   uid: MOCK_UID,
   sessionToken: MOCK_SESSION_TOKEN,
-  verified: false,
+  emailVerified: true,
+  sessionVerified: false,
   verificationMethod: VerificationMethods.TOTP_2FA,
 };
 
@@ -71,7 +72,8 @@ export const MOCK_NON_TOTP_LOCATION_STATE = {
   email: MOCK_EMAIL,
   uid: MOCK_UID,
   sessionToken: MOCK_SESSION_TOKEN,
-  verified: false,
+  emailVerified: true,
+  sessionVerified: false,
   verificationMethod: VerificationMethods.EMAIL_OTP,
 };
 

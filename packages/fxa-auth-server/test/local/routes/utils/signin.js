@@ -1494,17 +1494,7 @@ describe('getSessionVerificationStatus', () => {
       tokenVerified: true,
     };
     const res = getSessionVerificationStatus(sessionToken);
-    assert.deepEqual(res, { verified: true });
-  });
-
-  it('correctly reports unverified sessions with mustVerify=false as verified', () => {
-    const sessionToken = {
-      emailVerified: true,
-      tokenVerified: false,
-      mustVerify: false,
-    };
-    const res = getSessionVerificationStatus(sessionToken);
-    assert.deepEqual(res, { verified: true });
+    assert.deepEqual(res, { sessionVerified: true });
   });
 
   it('correctly reports unverified accounts as unverified', () => {
@@ -1515,7 +1505,7 @@ describe('getSessionVerificationStatus', () => {
     };
     const res = getSessionVerificationStatus(sessionToken);
     assert.deepEqual(res, {
-      verified: false,
+      sessionVerified: false,
       verificationMethod: 'email',
       verificationReason: 'signup',
     });
@@ -1529,7 +1519,7 @@ describe('getSessionVerificationStatus', () => {
     };
     const res = getSessionVerificationStatus(sessionToken);
     assert.deepEqual(res, {
-      verified: false,
+      sessionVerified: false,
       verificationMethod: 'email',
       verificationReason: 'login',
     });
@@ -1543,7 +1533,7 @@ describe('getSessionVerificationStatus', () => {
     };
     const res = getSessionVerificationStatus(sessionToken, 'email-2fa');
     assert.deepEqual(res, {
-      verified: false,
+      sessionVerified: false,
       verificationMethod: 'email-2fa',
       verificationReason: 'login',
     });
@@ -1557,7 +1547,7 @@ describe('getSessionVerificationStatus', () => {
     };
     const res = getSessionVerificationStatus(sessionToken, 'email-2fa');
     assert.deepEqual(res, {
-      verified: false,
+      sessionVerified: false,
       verificationMethod: 'email',
       verificationReason: 'signup',
     });
@@ -1571,7 +1561,7 @@ describe('getSessionVerificationStatus', () => {
     };
     const res = getSessionVerificationStatus(sessionToken, 'email-otp');
     assert.deepEqual(res, {
-      verified: false,
+      sessionVerified: false,
       verificationMethod: 'email-otp',
       verificationReason: 'signup',
     });
@@ -1589,13 +1579,13 @@ describe('cleanupReminders', () => {
   });
 
   it('correctly calls cadReminders delete for verified session', async () => {
-    await cleanupReminders({ verified: true }, { uid: '123' });
+    await cleanupReminders({ sessionVerified: true }, { uid: '123' });
     assert.calledOnce(mockCadReminders.delete);
     assert.calledWithExactly(mockCadReminders.delete, '123');
   });
 
   it('does not call cadReminders delete for unverified session', async () => {
-    await cleanupReminders({ verified: false }, { uid: '123' });
+    await cleanupReminders({ sessionVerified: false }, { uid: '123' });
     assert.notCalled(mockCadReminders.delete);
   });
 });
