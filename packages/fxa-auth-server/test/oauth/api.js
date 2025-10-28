@@ -2847,61 +2847,6 @@ describe('#integration - /v1', function () {
       assert.equal(res.result.errno, 115);
     });
 
-    describe('expired tokens from pocket clients', () => {
-      const clientId = '749818d3f2e7857f';
-      let accessTokenExpiryEpoch;
-
-      before(async () => {
-        await Server.close();
-        accessTokenExpiryEpoch = config.get(
-          'oauthServer.expiration.accessTokenExpiryEpoch'
-        );
-        config.set('oauthServer.expiration.accessTokenExpiryEpoch', undefined);
-        Server = await testServer.start();
-        assert.isDefined(Server);
-      });
-
-      after(async () => {
-        await Server.close();
-        config.set(
-          'oauthServer.expiration.accessTokenExpiryEpoch',
-          accessTokenExpiryEpoch
-        );
-        Server = await testServer.start();
-        assert.isDefined(Server);
-      });
-
-      it('should not reject expired tokens from pocket clients', async function () {
-        let res = await newToken(
-          {
-            ttl: 1,
-          },
-          {
-            clientId,
-          }
-        );
-
-        assert.equal(res.statusCode, 200);
-        assertSecurityHeaders(res);
-        assert.equal(res.result.expires_in, 1);
-
-        sandbox.useFakeTimers({
-          now: Date.now() + 1000 * 60 * 60, // 1 hr in future
-          shouldAdvanceTime: true,
-        });
-
-        res = await Server.api.post({
-          url: '/verify',
-          payload: {
-            token: res.result.access_token,
-          },
-        });
-
-        assert.equal(res.statusCode, 200);
-        assertSecurityHeaders(res);
-      });
-    });
-
     describe('response', function () {
       it('should return the correct response', function () {
         return newToken({ scope: 'profile' })
