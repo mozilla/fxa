@@ -119,6 +119,7 @@ const settingsConfig = {
       'featureFlags.recoveryCodeSetupOnSyncSignIn'
     ),
     showLocaleToggle: config.get('featureFlags.showLocaleToggle'),
+    settingsAalRedirect: config.get('featureFlags.settingsAalRedirect'),
     paymentsNextSubscriptionManagement: config.get(
       'featureFlags.paymentsNextSubscriptionManagement'
     ),

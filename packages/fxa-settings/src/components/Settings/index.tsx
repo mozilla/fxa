@@ -10,6 +10,7 @@ import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import {
   useAccount,
   useAuthClient,
+  useConfig,
   useInitialSettingsState,
   useSession,
 } from '../../models';
@@ -54,6 +55,7 @@ export const Settings = ({
   const account = useAccount();
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
+  const config = useConfig();
   const [sessionVerified, setSessionVerified] = useState<boolean | undefined>();
   const [sessionVerificationMeetsAAL, setSessionVerificationMeetsAAL] =
     useState<boolean | undefined>();
@@ -173,7 +175,10 @@ export const Settings = ({
   // This happens when a multi-device user sets up 2FA on device A and tries
   // to access Settings on device B. If they haven't upgraded the assurance level
   // on device B's session token with TOTP, we require them to.
-  if (sessionVerificationMeetsAAL === false) {
+  if (
+    sessionVerificationMeetsAAL === false &&
+    config.featureFlags?.settingsAalRedirect === true
+  ) {
     console.warn('2FA must be entered to access /settings!');
     const storedAccount = currentAccount();
     navigateWithQuery('/signin_totp_code', {

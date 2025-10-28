@@ -101,6 +101,7 @@ export interface Config {
     keyStretchV2?: boolean;
     recoveryCodeSetupOnSyncSignIn?: boolean;
     showLocaleToggle?: boolean;
+    settingsAalRedirect?: boolean;
     paymentsNextSubscriptionManagement?: boolean;
   };
   nimbusPreview: boolean;
@@ -193,6 +194,7 @@ export function getDefault() {
     featureFlags: {
       recoveryCodeSetupOnSyncSignIn: false,
       showLocaleToggle: false,
+      settingsAalRedirect: false,
       paymentsNextSubscriptionManagement: false,
     },
     cms: {

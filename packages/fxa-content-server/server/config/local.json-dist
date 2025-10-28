@@ -75,7 +75,8 @@
     "sendFxAStatusOnSettings": true,
     "recoveryCodeSetupOnSyncSignIn": true,
     "showLocaleToggle": true,
-    "paymentsNextSubscriptionManagement": true
+    "paymentsNextSubscriptionManagement": true,
+    "settingsAalRedirect": true
   },
   "rolloutRates": {
     "keyStretchV2": 1,
