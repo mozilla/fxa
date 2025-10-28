@@ -3556,10 +3556,6 @@ export class StripeHelper extends StripeHelperBase {
     if (typeof customerId !== 'string') {
       throw new Error("customerId must be a string");
     }
-    const subscriptionId = eventData.subscription;
-    if (typeof subscriptionId !== 'string') {
-      throw new Error("subscriptionId must be a string");
-    }
 
     try {
       await this.stripeFirestore.fetchAndInsertInvoice(invoiceId, event.created);
