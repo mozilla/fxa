@@ -18,6 +18,8 @@ import { initializeNimbus, NimbusContextT } from '../../lib/nimbus';
 import { parseAcceptLanguage } from '../../../../../libs/shared/l10n/src';
 import { getUniqueUserId } from '../../lib/cache';
 import { searchParams } from '../../lib/utilities';
+import { AuthUiErrors, isAuthUiError } from '../../lib/auth-errors/auth-errors';
+import { navigate } from '@reach/router';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -75,6 +77,17 @@ export function initializeAppContext() {
   );
   const authClient = new AuthClient(config.servers.auth.url, {
     keyStretchVersion: keyStretchExperiment.isV2(config) ? 2 : 1,
+    errorHandler: async (error) => {
+      console.warn('caught some auth client error', error);
+      if (
+        isAuthUiError(error) &&
+        error.errno === AuthUiErrors.UNVERIFIED_SESSION.errno
+      ) {
+        console.warn('Navigating to TOTP code entry due to unverified session');
+        await navigate('/signin_totp_code');
+      }
+      throw error;
+    },
   });
   const apolloClient = createApolloClient(config.servers.gql.url);
   const account = new Account(authClient, apolloClient);
@@ -158,6 +171,5 @@ export function defaultAppContext(context?: AppContextValue) {
   ) as AppContextValue;
 }
 
-export const AppContext = React.createContext<AppContextValue>(
-  defaultAppContext()
-);
+export const AppContext =
+  React.createContext<AppContextValue>(defaultAppContext());
