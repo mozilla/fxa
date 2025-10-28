@@ -32,7 +32,6 @@ import {
 } from '../../models';
 import {
   isClientMonitor,
-  isClientPocket,
   isClientRelay,
 } from '../../models/integrations/client-matching';
 import { SignupFormData, SignupProps } from './interfaces';
@@ -81,10 +80,6 @@ export const Signup = ({
   const [beginSignupLoading, setBeginSignupLoading] = useState<boolean>(false);
   const [bannerErrorText, setBannerErrorText] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const [
-    isAccountSuggestionBannerVisible,
-    setIsAccountSuggestionBannerVisible,
-  ] = useState<boolean>(false);
   const navigateWithQuery = useNavigateWithQuery();
 
   // no newsletters are selected by default
@@ -96,10 +91,6 @@ export const Signup = ({
   useEffect(() => {
     if (isOAuth) {
       const clientId = integration.getClientId();
-      if (isClientPocket(clientId)) {
-        setClient(MozServices.Pocket);
-        setIsAccountSuggestionBannerVisible(true);
-      }
       if (isClientMonitor(clientId)) {
         setClient(MozServices.Monitor);
       }
@@ -341,30 +332,6 @@ export const Signup = ({
         <Banner type="error" content={{ localizedHeading: bannerErrorText }} />
       )}
 
-      {/* AccountSuggestion is only shown to Pocket clients */}
-      {isAccountSuggestionBannerVisible && (
-        <Banner
-          type="info"
-          content={{
-            localizedHeading: ftlMsgResolver.getMsg(
-              'signup-pocket-info-banner',
-              'Why do I need to create this account?'
-            ),
-          }}
-          link={{
-            url: 'https://support.mozilla.org/kb/pocket-firefox-account-migration',
-            localizedText: ftlMsgResolver.getMsg(
-              'signup-pocket-info-banner-link',
-              'Find out here'
-            ),
-            gleanId: 'signup-pocket-info-banner-link',
-          }}
-          dismissButton={{
-            action: () => setIsAccountSuggestionBannerVisible(false),
-          }}
-        />
-      )}
-
       <div className="mt-4 mb-6">
         <p className="break-all">{email}</p>
 
@@ -422,7 +389,6 @@ export const Signup = ({
       )}
 
       <TermsPrivacyAgreement
-        isPocketClient={client === MozServices.Pocket}
         isMonitorClient={client === MozServices.Monitor}
         isRelayClient={client === MozServices.Relay}
         {...{ isFirefoxClientServiceRelay }}

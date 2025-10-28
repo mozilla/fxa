@@ -7,7 +7,6 @@ index-relay-header = Create an email mask
 index-relay-subheader = Please provide the email address where you’d like to forward emails from your masked email.
 # $serviceName - the service (e.g., Pontoon) that the user is signing into with a Mozilla account
 index-subheader-with-servicename = Continue to { $serviceName }
-index-subheader-with-logo = Continue to <span>{ $serviceLogo }</span>
 index-subheader-default = Continue to account settings
 index-cta = Sign up or sign in
 index-account-info = A { -product-mozilla-account } also unlocks access to more privacy-protecting products from { -brand-mozilla }.
