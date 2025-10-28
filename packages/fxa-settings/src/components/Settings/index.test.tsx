@@ -199,8 +199,14 @@ describe('Settings App', () => {
       },
     });
 
+    const config = {
+      featureFlags: {
+        settingsAalRedirect: true,
+      },
+    } as Config;
+
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext()}>
+      <AppContext.Provider value={mockAppContext({ config })}>
         <Subject />
       </AppContext.Provider>,
       { route: SETTINGS_PATH }

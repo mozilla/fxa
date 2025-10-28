@@ -247,6 +247,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_SHOW_LOCALE_TOGGLE',
     },
+    settingsAalRedirect: {
+      default: false,
+      doc: 'Redirect from /settings to /signin_totp_code if the session token has an AAL mismatch',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_SETTINGS_AAL_REDIRECT',
+    },
     paymentsNextSubscriptionManagement: {
       default: false,
       doc: 'Enables Paid Subscriptions link in Account Settings to redirect to payments next',
@@ -1038,12 +1044,12 @@ const conf = (module.exports = convict({
       env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
       format: Boolean,
     },
-    usePaymentsNextSubscriptionManagement : {
+    usePaymentsNextSubscriptionManagement: {
       default: true,
       doc: 'Whether to redirect to the new Subscription Management Page',
       env: 'FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT',
       format: Boolean,
-    }
+    },
   },
   sync_tokenserver_url: {
     default: 'http://localhost:8000/token',

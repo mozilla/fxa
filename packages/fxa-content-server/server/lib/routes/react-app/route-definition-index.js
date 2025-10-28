@@ -58,6 +58,9 @@ function getIndexRouteDefinition(config) {
   const FEATURE_FLAGS_SHOW_LOCALE_TOGGLE = config.get(
     'featureFlags.showLocaleToggle'
   );
+  const FEATURE_FLAGS_SETTINGS_AAL_REDIRECT = config.get(
+    'featureFlags.settingsAalRedirect'
+  );
   const NIMBUS_PREVIEW = config.get('nimbusPreview');
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
@@ -124,6 +127,7 @@ function getIndexRouteDefinition(config) {
       recoveryCodeSetupOnSyncSignIn:
         FEATURE_FLAGS_RECOVERY_CODE_SETUP_ON_SYNC_SIGN_IN,
       showLocaleToggle: FEATURE_FLAGS_SHOW_LOCALE_TOGGLE,
+      settingsAalRedirect: FEATURE_FLAGS_SETTINGS_AAL_REDIRECT,
     },
     cms: {
       enabled: CMS_ENABLED,
