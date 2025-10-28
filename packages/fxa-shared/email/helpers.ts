@@ -26,6 +26,11 @@ export function normalizeEmail(originalEmail: string): string {
 
   const [localPart, domain] = parts;
 
+  if (!localPart || !domain) {
+    // This shouldn't happen in practice
+    return originalEmail.toLowerCase();
+  }
+
   // RFC 5321 section 4.5.3.1.1 specifies that the local part should be case-folded to lowercase
   const normalizedLocal = localPart.toLowerCase();
 
