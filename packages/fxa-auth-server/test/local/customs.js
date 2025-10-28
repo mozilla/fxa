@@ -945,6 +945,28 @@ describe('Customs', () => {
       }
     });
   });
+
+  describe('email normalization', () => {
+    it('normalizes email addresses in V2 rate limiting', async () => {
+      const mockRateLimit = {
+        supportsAction: () => true,
+        skip: () => false,
+        check: async (action, opts) => {
+          assert.equal(
+            opts.email,
+            'test.user+tag@example.com',
+            'email should be normalized (lowercase) in V2 rate limiting'
+          );
+          return null;
+        },
+      };
+
+      const customsWithV2 = new Customs(CUSTOMS_URL_REAL, log, error, statsd, mockRateLimit);
+      const unnormalizedEmail = 'Test.User+Tag@EXAMPLE.COM';
+      await customsWithV2.check(request, unnormalizedEmail, action);
+      assert.isTrue(true, 'V2 rate limiting normalized email correctly');
+    });
+  });
 });
 
 function newEmail() {
