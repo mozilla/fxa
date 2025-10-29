@@ -1,0 +1,1837 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import {
+  BAD_SIGNATURE_ERRORS,
+  ERRNO,
+  ERRNO_REVERSE_MAP,
+  TOO_LARGE,
+  DEFAULT_ERRROR,
+  IGNORED_ERROR_NUMBERS,
+  DEBUGGABLE_PAYLOAD_KEYS,
+} from './constants';
+import { OauthError } from './oauth-error';
+import { Request as HapiRequest } from 'hapi';
+
+/**
+ * Augmented Hapi request. Extends request.app interface auth-server specific feilds that this lib uses.
+ */
+export type Request = Partial<Omit<HapiRequest, 'route'>> & {
+  app: {
+    acceptLanguage: string;
+    locale: string;
+    ua: {
+      os: string;
+      osVersion: string;
+    };
+    geo: {
+      city: string;
+      state: string;
+    };
+    devices: Promise<Array<{ id: string | number }>>;
+    metricsContext: Promise<{
+      service: string;
+    }>;
+  };
+  route: {
+    path: string;
+  };
+};
+
+/**
+ * Type guard to determine if an error is of AppError type.
+ */
+export function isAppError(error: any): error is AppError {
+  if (
+    typeof error.errno === 'number' &&
+    typeof error.code === 'number' &&
+    typeof error.message === 'string'
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Represents known / sanctioned application errors.
+ */
+export class AppError extends Error {
+  // Rereference ERRNO for backward compatibility reasons
+  static readonly ERRNO = ERRNO;
+
+  /** Hapi specific field. Indicating unhandled error.*/
+  public isBoom: boolean;
+
+  /** VError specific field. Used for wrapping errors. */
+  public jse_cause?: AppError | Error;
+
+  /** The standardized error number. See ERRNO's. */
+  public errno: number;
+
+  /** The status code. Maps to http status code. */
+  public code: number;
+
+  /** Output state written to response object. */
+  public output: {
+    statusCode: number;
+    payload: {
+      code: number;
+      errno: number;
+      error?: Error;
+      message: string;
+      info?: string;
+      request?: any;
+      log?: any;
+      data?: any;
+      retryAfter?: number;
+      retryAfterLocalized?: string;
+    };
+    headers: Record<string, string>;
+  };
+
+  constructor(
+    options: any,
+    extra?: Record<string, any>,
+    headers?: Record<string, string>,
+    error?: AppError | Error
+  ) {
+    super(options.message || DEFAULT_ERRROR.message);
+    this.isBoom = true;
+    this.stack = options.stack;
+    if (!this.stack) {
+      Error.captureStackTrace(this, AppError);
+    }
+    if (error) {
+      // This is where verror stores the error cause passed in.
+      this.jse_cause = error;
+    }
+    this.code = options.code || DEFAULT_ERRROR.code;
+    this.errno = options.errno || DEFAULT_ERRROR.errno;
+    this.output = {
+      statusCode: options.code || DEFAULT_ERRROR.code,
+      payload: {
+        code: options.code || DEFAULT_ERRROR.code,
+        errno: this.errno,
+        error: options.error || DEFAULT_ERRROR.error,
+        message: this.message,
+        info: options.info || DEFAULT_ERRROR.info,
+        retryAfter: extra?.['retryAfter'],
+        retryAfterLocalized: extra?.['retryAfterLocalized'],
+      },
+      headers: headers || {},
+    };
+    Object.assign(this.output.payload, extra || {});
+  }
+
+  override toString() {
+    return `Error: ${this.message}`;
+  }
+
+  header(name: string, value: string) {
+    this.output.headers[name] = value;
+  }
+
+  backtrace(traced: string) {
+    this.output.payload.log = traced;
+  }
+
+  /**
+    Translates an error from Hapi format to our format
+  */
+  static translate(
+    request: Request,
+    response:
+      | AppError
+      | OauthError
+      | {
+          output: {
+            payload?: any;
+          };
+          reason?: string;
+          stack?: string;
+          data?: any;
+        },
+    oauthRoutes: Array<{ path: string; config: { cors: boolean } }>
+  ) {
+    let error;
+    if (response instanceof AppError) {
+      return response;
+    }
+
+    if (
+      request?.route?.path &&
+      OauthError.isOauthRoute(request.route.path, oauthRoutes)
+    ) {
+      return OauthError.translate(response);
+    } else if (response instanceof OauthError) {
+      return AppError.appErrorFromOauthError(response);
+    }
+    const payload = response.output.payload;
+    const reason = response.reason;
+    if (!payload) {
+      error = AppError.unexpectedError(request);
+    } else if (
+      payload.statusCode === 500 &&
+      reason &&
+      /(socket hang up|ECONNREFUSED)/.test(reason)
+    ) {
+      // A connection to a remote service either was not made or timed out.
+      if (response instanceof Error) {
+        error = AppError.backendServiceFailure(
+          undefined,
+          undefined,
+          undefined,
+          response
+        );
+      } else {
+        error = AppError.backendServiceFailure();
+      }
+    } else if (payload.statusCode === 401) {
+      // These are common errors generated by Hawk auth lib.
+      if (
+        payload.message === 'Unknown credentials' ||
+        payload.message === 'Invalid credentials'
+      ) {
+        error = AppError.invalidToken(
+          `Invalid authentication token: ${payload.message}`
+        );
+      } else if (payload.message === 'Stale timestamp') {
+        error = AppError.invalidTimestamp();
+      } else if (payload.message === 'Invalid nonce') {
+        error = AppError.invalidNonce();
+      } else if (BAD_SIGNATURE_ERRORS.indexOf(payload.message) !== -1) {
+        error = AppError.invalidSignature(payload.message);
+      } else {
+        error = AppError.invalidToken(
+          `Invalid authentication token: ${payload.message}`
+        );
+      }
+    } else if (payload.validation) {
+      if (payload.message?.includes('is required')) {
+        error = AppError.missingRequestParameter(payload.validation.keys[0]);
+      } else {
+        error = AppError.invalidRequestParameter(payload.validation);
+      }
+    } else if (payload.statusCode === 413 && TOO_LARGE.test(payload.message)) {
+      error = AppError.requestBodyTooLarge();
+    } else {
+      error = new AppError({
+        message: payload.message,
+        code: payload.statusCode,
+        error: payload.error,
+        errno: payload.errno,
+        info: payload.info,
+        stack: response.stack,
+      });
+
+      if (response.data) {
+        error.output.payload.data = JSON.stringify(response.data);
+      }
+
+      if (payload.statusCode >= 500) {
+        AppError.decorateErrorWithRequest(error, request);
+      }
+    }
+    return error;
+  }
+
+  static mapErrnoToKey(error: { errno: number }) {
+    const errno = error?.errno;
+    return ERRNO_REVERSE_MAP[errno];
+  }
+
+  // Helper functions for creating particular response types.
+  static dbIncorrectPatchLevel(level: string, levelRequired: boolean) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Server Startup',
+        errno: ERRNO.SERVER_CONFIG_ERROR,
+        message: 'Incorrect Database Patch Level',
+      },
+      {
+        level: level,
+        levelRequired: levelRequired,
+      }
+    );
+  }
+
+  static backendServiceFailure(
+    service?: string,
+    operation?: string,
+    extra?: Record<string, any>,
+    error?: Error
+  ) {
+    if (extra) {
+      return new AppError(
+        {
+          code: 500,
+          error: 'Internal Server Error',
+          errno: ERRNO.BACKEND_SERVICE_FAILURE,
+          message: 'System unavailable, try again soon',
+        },
+        {
+          service,
+          operation,
+          ...extra,
+        },
+        {},
+        error
+      );
+    }
+    return new AppError(
+      {
+        code: 500,
+        error: 'Internal Server Error',
+        errno: ERRNO.BACKEND_SERVICE_FAILURE,
+        message: 'System unavailable, try again soon',
+      },
+      {
+        service,
+        operation,
+      },
+      {},
+      error
+    );
+  }
+
+  static accountExists(email: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.ACCOUNT_EXISTS,
+        message: 'Account already exists',
+      },
+      {
+        email: email,
+      }
+    );
+  }
+
+  static unknownAccount(email: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.ACCOUNT_UNKNOWN,
+        message: 'Unknown account',
+      },
+      {
+        email: email,
+      }
+    );
+  }
+
+  static incorrectPassword(dbEmail: string, requestEmail: string) {
+    if (dbEmail !== requestEmail) {
+      return new AppError(
+        {
+          code: 400,
+          error: 'Bad Request',
+          errno: ERRNO.INCORRECT_EMAIL_CASE,
+          message: 'Incorrect email case',
+        },
+        {
+          email: dbEmail,
+        }
+      );
+    }
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INCORRECT_PASSWORD,
+        message: 'Incorrect password',
+      },
+      {
+        email: dbEmail,
+      }
+    );
+  }
+
+  static cannotCreatePassword() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.CANNOT_CREATE_PASSWORD,
+      message: 'Can not create password, password already set.',
+    });
+  }
+
+  static cannotLoginNoPasswordSet() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.UNABLE_TO_LOGIN_NO_PASSWORD_SET,
+      message: 'Complete account setup, please reset password to continue.',
+    });
+  }
+
+  static unverifiedAccount() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.ACCOUNT_UNVERIFIED,
+      message: 'Unconfirmed account',
+    });
+  }
+
+  static invalidVerificationCode(details: Record<string, any>) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INVALID_VERIFICATION_CODE,
+        message: 'Invalid confirmation code',
+      },
+      details
+    );
+  }
+
+  static invalidRequestBody() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_JSON,
+      message: 'Invalid JSON in request body',
+    });
+  }
+
+  static invalidRequestParameter(validation: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INVALID_PARAMETER,
+        message: 'Invalid parameter in request body',
+      },
+      {
+        validation: validation,
+      }
+    );
+  }
+
+  static missingRequestParameter(param: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.MISSING_PARAMETER,
+        message: `Missing parameter in request body${param ? `: ${param}` : ''}`,
+      },
+      {
+        param: param,
+      }
+    );
+  }
+
+  static invalidSignature(message?: string) {
+    return new AppError({
+      code: 401,
+      error: 'Unauthorized',
+      errno: ERRNO.INVALID_REQUEST_SIGNATURE,
+      message: message || 'Invalid request signature',
+    });
+  }
+
+  static invalidToken(message?: string) {
+    return new AppError({
+      code: 401,
+      error: 'Unauthorized',
+      errno: ERRNO.INVALID_TOKEN,
+      message: message || 'Invalid authentication token in request signature',
+    });
+  }
+
+  static invalidTimestamp() {
+    return new AppError(
+      {
+        code: 401,
+        error: 'Unauthorized',
+        errno: ERRNO.INVALID_TIMESTAMP,
+        message: 'Invalid timestamp in request signature',
+      },
+      {
+        serverTime: Math.floor(+new Date() / 1000),
+      }
+    );
+  }
+
+  static invalidNonce() {
+    return new AppError({
+      code: 401,
+      error: 'Unauthorized',
+      errno: ERRNO.INVALID_NONCE,
+      message: 'Invalid nonce in request signature',
+    });
+  }
+
+  static unauthorized(reason: string) {
+    return new AppError(
+      {
+        code: 401,
+        error: 'Unauthorized',
+        errno: ERRNO.INVALID_TOKEN,
+        message: 'Unauthorized for route',
+      },
+      {
+        detail: reason,
+      }
+    );
+  }
+
+  static missingContentLength() {
+    return new AppError({
+      code: 411,
+      error: 'Length Required',
+      errno: ERRNO.MISSING_CONTENT_LENGTH_HEADER,
+      message: 'Missing content-length header',
+    });
+  }
+
+  static requestBodyTooLarge() {
+    return new AppError({
+      code: 413,
+      error: 'Request Entity Too Large',
+      errno: ERRNO.REQUEST_TOO_LARGE,
+      message: 'Request body too large',
+    });
+  }
+
+  static tooManyRequests(
+    retryAfter: number,
+    retryAfterLocalized?: string,
+    canUnblock?: boolean
+  ) {
+    if (!retryAfter) {
+      retryAfter = 30;
+    }
+
+    const extraData: any = {
+      retryAfter: retryAfter,
+    };
+
+    if (retryAfterLocalized) {
+      extraData.retryAfterLocalized = retryAfterLocalized;
+    }
+
+    if (canUnblock) {
+      extraData.verificationMethod = 'email-captcha';
+      extraData.verificationReason = 'login';
+    }
+
+    const error = new AppError(
+      {
+        code: 429,
+        error: 'Too Many Requests',
+        errno: ERRNO.THROTTLED,
+        message: 'Client has sent too many requests',
+      },
+      extraData,
+      {
+        'retry-after': retryAfter.toString(),
+      }
+    );
+
+    return error;
+  }
+
+  static requestBlocked(canUnblock: boolean) {
+    let extra;
+    if (canUnblock) {
+      extra = {
+        verificationMethod: 'email-captcha',
+        verificationReason: 'login',
+      };
+    }
+    return new AppError(
+      {
+        code: 400,
+        error: 'Request blocked',
+        errno: ERRNO.REQUEST_BLOCKED,
+        message: 'The request was blocked for security reasons',
+      },
+      extra
+    );
+  }
+
+  static serviceUnavailable(retryAfter: number) {
+    if (!retryAfter) {
+      retryAfter = 30;
+    }
+    return new AppError(
+      {
+        code: 503,
+        error: 'Service Unavailable',
+        errno: ERRNO.SERVER_BUSY,
+        message: 'Service unavailable',
+      },
+      {
+        retryAfter: retryAfter,
+      },
+      {
+        'retry-after': retryAfter.toString(),
+      }
+    );
+  }
+
+  static featureNotEnabled(retryAfter: number) {
+    if (!retryAfter) {
+      retryAfter = 30;
+    }
+    return new AppError(
+      {
+        code: 503,
+        error: 'Feature not enabled',
+        errno: ERRNO.FEATURE_NOT_ENABLED,
+        message: 'Feature not enabled',
+      },
+      {
+        retryAfter: retryAfter,
+      },
+      {
+        'retry-after': retryAfter.toString(),
+      }
+    );
+  }
+
+  static gone() {
+    return new AppError({
+      code: 410,
+      error: 'Gone',
+      errno: ERRNO.ENDPOINT_NOT_SUPPORTED,
+      message: 'This endpoint is no longer supported',
+    });
+  }
+
+  static goneFourOhFour() {
+    return new AppError({
+      code: 404,
+      error: 'Gone',
+      errno: ERRNO.ENDPOINT_NOT_SUPPORTED,
+      message: 'This endpoint is no longer supported',
+    });
+  }
+
+  static mustResetAccount(email: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.ACCOUNT_RESET,
+        message: 'Account must be reset',
+      },
+      {
+        email: email,
+      }
+    );
+  }
+
+  static unknownDevice() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.DEVICE_UNKNOWN,
+      message: 'Unknown device',
+    });
+  }
+
+  static deviceSessionConflict(deviceId: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.DEVICE_CONFLICT,
+        message: 'Session already registered by another device',
+      },
+      { deviceId }
+    );
+  }
+
+  static invalidUnblockCode() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_UNBLOCK_CODE,
+      message: 'Invalid unblock code',
+    });
+  }
+
+  static invalidPhoneNumber() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_PHONE_NUMBER,
+      message: 'Invalid phone number',
+    });
+  }
+
+  static recoveryCodesAlreadyExist() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RECOVERY_CODES_ALREADY_EXISTS,
+      message: 'Recovery codes or a verified TOTP token already exist',
+    });
+  }
+
+  static recoveryPhoneNumberAlreadyExists() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RECOVERY_PHONE_NUMBER_ALREADY_EXISTS,
+      message: 'Recovery phone number already exists',
+    });
+  }
+
+  static recoveryPhoneNumberDoesNotExist() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RECOVERY_PHONE_NUMBER_DOES_NOT_EXIST,
+      message: 'Recovery phone number does not exist',
+    });
+  }
+
+  static recoveryPhoneRemoveMissingRecoveryCodes() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RECOVERY_PHONE_REMOVE_MISSING_RECOVERY_CODES,
+      message:
+        'Unable to remove recovery phone, missing backup authentication codes.',
+    });
+  }
+
+  static smsSendRateLimitExceeded() {
+    return new AppError({
+      code: 429,
+      error: 'Too many requests',
+      errno: ERRNO.SMS_SEND_RATE_LIMIT_EXCEEDED,
+      message: 'Text message limit reached',
+    });
+  }
+
+  static recoveryPhoneRegistrationLimitReached() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RECOVERY_PHONE_REGISTRATION_LIMIT_REACHED,
+      message:
+        'Limit reached for number off accounts that can be associated with phone number.',
+    });
+  }
+
+  static invalidRegion(region: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INVALID_REGION,
+        message: 'Invalid region',
+      },
+      {
+        region,
+      }
+    );
+  }
+
+  static unsupportedLocation(country: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.UNSUPPORTED_LOCATION,
+        message: 'Location is not supported according to our Terms of Service.',
+      },
+      {
+        country,
+      }
+    );
+  }
+
+  static currencyCountryMismatch(currency: string, country: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INVALID_REGION,
+        message: 'Funding source country does not match plan currency.',
+      },
+      {
+        currency,
+        country,
+      }
+    );
+  }
+
+  static currencyCurrencyMismatch(currencyA: string, currencyB: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INVALID_CURRENCY,
+        message: `Changing currencies is not permitted.`,
+      },
+      {
+        currencyA,
+        currencyB,
+      }
+    );
+  }
+
+  static billingAgreementExists(customerId: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.BILLING_AGREEMENT_EXISTS,
+        message: `Billing agreement already on file for this customer.`,
+      },
+      {
+        customerId,
+      }
+    );
+  }
+
+  static missingPaypalPaymentToken(customerId: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.MISSING_PAYPAL_PAYMENT_TOKEN,
+        message: `PayPal payment token is missing.`,
+      },
+      {
+        customerId,
+      }
+    );
+  }
+
+  static missingPaypalBillingAgreement(customerId: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.MISSING_PAYPAL_BILLING_AGREEMENT,
+        message: `PayPal billing agreement is missing for the existing subscriber.`,
+      },
+      {
+        customerId,
+      }
+    );
+  }
+
+  static invalidMessageId() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_MESSAGE_ID,
+      message: 'Invalid message id',
+    });
+  }
+
+  static messageRejected(reason: string, reasonCode: number) {
+    return new AppError(
+      {
+        code: 500,
+        error: 'Internal Server Error',
+        errno: ERRNO.MESSAGE_REJECTED,
+        message: 'Message rejected',
+      },
+      {
+        reason,
+        reasonCode,
+      }
+    );
+  }
+
+  static emailComplaint(bouncedAt: number) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.BOUNCE_COMPLAINT,
+        message: 'Email account sent complaint',
+      },
+      {
+        bouncedAt,
+      }
+    );
+  }
+
+  static emailBouncedHard(bouncedAt: number) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.BOUNCE_HARD,
+        message: 'Email account hard bounced',
+      },
+      {
+        bouncedAt,
+      }
+    );
+  }
+
+  static emailBouncedSoft(bouncedAt: number) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.BOUNCE_SOFT,
+        message: 'Email account soft bounced',
+      },
+      {
+        bouncedAt,
+      }
+    );
+  }
+
+  static emailExists() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.EMAIL_EXISTS,
+      message: 'Email already exists',
+    });
+  }
+
+  static cannotDeletePrimaryEmail() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.EMAIL_DELETE_PRIMARY,
+      message: 'Can not delete primary email',
+    });
+  }
+
+  static unverifiedSession() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.SESSION_UNVERIFIED,
+      message: 'Unconfirmed session',
+    });
+  }
+
+  static yourPrimaryEmailExists() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.USER_PRIMARY_EMAIL_EXISTS,
+      message: 'Can not add secondary email that is same as your primary',
+    });
+  }
+
+  static verifiedPrimaryEmailAlreadyExists() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.VERIFIED_PRIMARY_EMAIL_EXISTS,
+      message: 'Email already exists',
+    });
+  }
+
+  static verifiedSecondaryEmailAlreadyExists() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.VERIFIED_SECONDARY_EMAIL_EXISTS,
+      message: 'Email already exists',
+    });
+  }
+
+  // This error is thrown when someone attempts to add a secondary email
+  // that is the same as the primary email of another account, but the account
+  // was recently created ( < 24hrs).
+  static unverifiedPrimaryEmailNewlyCreated() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED,
+      message: 'Email already exists',
+    });
+  }
+
+  static unverifiedPrimaryEmailHasActiveSubscription() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.UNVERIFIED_PRIMARY_EMAIL_HAS_ACTIVE_SUBSCRIPTION,
+      message: 'Account for this email has an active subscription',
+    });
+  }
+
+  static maxSecondaryEmailsReached() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.MAX_SECONDARY_EMAILS_REACHED,
+      message: 'You have reached the maximum allowed secondary emails',
+    });
+  }
+
+  static alreadyOwnsEmail() {
+    return new AppError({
+      code: 400,
+      error: 'Conflict',
+      errno: ERRNO.ACCOUNT_OWNS_EMAIL,
+      message: 'This email already exists on your account',
+    });
+  }
+
+  static cannotLoginWithSecondaryEmail() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.LOGIN_WITH_SECONDARY_EMAIL,
+      message: 'Sign in with this email type is not currently supported',
+    });
+  }
+
+  static unknownSecondaryEmail() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.SECONDARY_EMAIL_UNKNOWN,
+      message: 'Unknown email',
+    });
+  }
+
+  static cannotResetPasswordWithSecondaryEmail() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RESET_PASSWORD_WITH_SECONDARY_EMAIL,
+      message: 'Reset password with this email type is not currently supported',
+    });
+  }
+
+  static invalidSigninCode() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_SIGNIN_CODE,
+      message: 'Invalid signin code',
+    });
+  }
+
+  static cannotChangeEmailToUnverifiedEmail() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.CHANGE_EMAIL_TO_UNVERIFIED_EMAIL,
+      message: 'Can not change primary email to an unconfirmed email',
+    });
+  }
+
+  static cannotChangeEmailToUnownedEmail() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.CHANGE_EMAIL_TO_UNOWNED_EMAIL,
+      message:
+        'Can not change primary email to an email that does not belong to this account',
+    });
+  }
+
+  static cannotLoginWithEmail() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.LOGIN_WITH_INVALID_EMAIL,
+      message: 'This email can not currently be used to login',
+    });
+  }
+
+  static cannotResendEmailCodeToUnownedEmail() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL,
+      message:
+        'Can not resend email code to an email that does not belong to this account',
+    });
+  }
+
+  static cannotSendEmail(isNewAddress: boolean) {
+    if (!isNewAddress) {
+      return new AppError({
+        code: 500,
+        error: 'Internal Server Error',
+        errno: ERRNO.FAILED_TO_SEND_EMAIL,
+        message: 'Failed to send email',
+      });
+    }
+    return new AppError({
+      code: 422,
+      error: 'Unprocessable Entity',
+      errno: ERRNO.FAILED_TO_SEND_EMAIL,
+      message: 'Failed to send email',
+    });
+  }
+
+  static invalidTokenVerficationCode(details?: Record<string, string>) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INVALID_TOKEN_VERIFICATION_CODE,
+        message: 'Invalid token confirmation code',
+      },
+      details
+    );
+  }
+
+  static expiredTokenVerficationCode(details?: Record<string, string>) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.EXPIRED_TOKEN_VERIFICATION_CODE,
+        message: 'Expired token confirmation code',
+      },
+      details
+    );
+  }
+
+  static totpTokenAlreadyExists() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.TOTP_TOKEN_EXISTS,
+      message: 'TOTP token already exists for this account.',
+    });
+  }
+
+  static totpTokenDoesNotExist() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.TOTP_SECRET_DOES_NOT_EXIST,
+      message: 'TOTP secret does not exist for this account.',
+    });
+  }
+
+  static totpTokenNotFound() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.TOTP_TOKEN_NOT_FOUND,
+      message: 'TOTP token not found.',
+    });
+  }
+
+  static recoveryCodeNotFound() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RECOVERY_CODE_NOT_FOUND,
+      message: 'Backup authentication code not found.',
+    });
+  }
+
+  static unavailableDeviceCommand() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.DEVICE_COMMAND_UNAVAILABLE,
+      message: 'Unavailable device command.',
+    });
+  }
+
+  static recoveryKeyNotFound() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RECOVERY_KEY_NOT_FOUND,
+      message: 'Account recovery key not found.',
+    });
+  }
+
+  static recoveryKeyInvalid() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RECOVERY_KEY_INVALID,
+      message: 'Account recovery key is not valid.',
+    });
+  }
+
+  static totpRequired() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.TOTP_REQUIRED,
+      message:
+        'This request requires two step authentication enabled on your account.',
+    });
+  }
+
+  static recoveryKeyExists() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.RECOVERY_KEY_EXISTS,
+      message: 'Account recovery key already exists.',
+    });
+  }
+
+  static unknownClientId(clientId?: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.UNKNOWN_CLIENT_ID,
+        message: 'Unknown client_id',
+      },
+      {
+        clientId,
+      }
+    );
+  }
+
+  static incorrectClientSecret(clientId?: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INCORRECT_CLIENT_SECRET,
+        message: 'Incorrect client_secret',
+      },
+      {
+        clientId,
+      }
+    );
+  }
+
+  static staleAuthAt(authAt: number) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.STALE_AUTH_AT,
+        message: 'Stale auth timestamp',
+      },
+      {
+        authAt,
+      }
+    );
+  }
+
+  static notPublicClient() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.NOT_PUBLIC_CLIENT,
+      message: 'Not a public client',
+    });
+  }
+
+  static redisConflict() {
+    return new AppError({
+      code: 409,
+      error: 'Conflict',
+      errno: ERRNO.REDIS_CONFLICT,
+      message: 'Redis WATCH detected a conflicting update',
+    });
+  }
+
+  static incorrectRedirectURI(redirectUri?: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INCORRECT_REDIRECT_URI,
+        message: 'Incorrect redirect URI',
+      },
+      {
+        redirectUri,
+      }
+    );
+  }
+
+  static unknownAuthorizationCode(code?: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.UNKNOWN_AUTHORIZATION_CODE,
+        message: 'Unknown authorization code',
+      },
+      {
+        code,
+      }
+    );
+  }
+
+  static mismatchAuthorizationCode(code?: string, clientId?: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.MISMATCH_AUTHORIZATION_CODE,
+        message: 'Mismatched authorization code',
+      },
+      {
+        code,
+        clientId,
+      }
+    );
+  }
+
+  static expiredAuthorizationCode(code?: string, expiredAt?: number) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.EXPIRED_AUTHORIZATION_CODE,
+        message: 'Expired authorization code',
+      },
+      {
+        code,
+        expiredAt,
+      }
+    );
+  }
+
+  static invalidResponseType() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_RESPONSE_TYPE,
+      message: 'Invalid response_type',
+    });
+  }
+
+  static invalidScopes(invalidScopes?: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INVALID_SCOPES,
+        message: 'Requested scopes are not allowed',
+      },
+      {
+        invalidScopes,
+      }
+    );
+  }
+
+  static missingPkceParameters() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.MISSING_PKCE_PARAMETERS,
+      message: 'Public clients require PKCE OAuth parameters',
+    });
+  }
+
+  static invalidPkceChallenge(pkceHashValue?: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INVALID_PKCE_CHALLENGE,
+        message: 'Public clients require PKCE OAuth parameters',
+      },
+      {
+        pkceHashValue,
+      }
+    );
+  }
+
+  static invalidPromoCode(promotionCode?: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INVALID_PROMOTION_CODE,
+        message: 'Invalid promotion code',
+      },
+      {
+        promotionCode,
+      }
+    );
+  }
+
+  static unknownCustomer(uid?: string) {
+    return new AppError(
+      {
+        code: 404,
+        error: 'Not Found',
+        errno: ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER,
+        message: 'Unknown customer',
+      },
+      {
+        uid,
+      }
+    );
+  }
+
+  static unknownSubscription(subscriptionId: string) {
+    return new AppError(
+      {
+        code: 404,
+        error: 'Not Found',
+        errno: ERRNO.UNKNOWN_SUBSCRIPTION,
+        message: 'Unknown subscription',
+      },
+      {
+        subscriptionId,
+      }
+    );
+  }
+
+  static unknownAppName(appName: string) {
+    return new AppError(
+      {
+        code: 404,
+        error: 'Not Found',
+        errno: ERRNO.IAP_UNKNOWN_APPNAME,
+        message: 'Unknown app name',
+      },
+      {
+        appName,
+      }
+    );
+  }
+
+  static unknownSubscriptionPlan(planId: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.UNKNOWN_SUBSCRIPTION_PLAN,
+        message: 'Unknown subscription plan',
+      },
+      {
+        planId,
+      }
+    );
+  }
+
+  static rejectedSubscriptionPaymentToken(
+    message: string,
+    paymentError: Error
+  ) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN,
+        message,
+      },
+      paymentError
+    );
+  }
+
+  static rejectedCustomerUpdate(message: string, paymentError: Error) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.REJECTED_CUSTOMER_UPDATE,
+        message,
+      },
+      paymentError
+    );
+  }
+
+  static subscriptionAlreadyCancelled() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.SUBSCRIPTION_ALREADY_CANCELLED,
+      message: 'Subscription has already been cancelled',
+    });
+  }
+
+  static invalidPlanUpdate() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_PLAN_UPDATE,
+      message: 'Subscription plan is not a valid update',
+    });
+  }
+
+  static paymentFailed() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.PAYMENT_FAILED,
+      message: 'Payment method failed',
+    });
+  }
+
+  static subscriptionAlreadyChanged() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.SUBSCRIPTION_ALREADY_CHANGED,
+      message: 'Subscription has already been cancelled',
+    });
+  }
+
+  static subscriptionAlreadyExists() {
+    return new AppError({
+      code: 409,
+      error: 'Already subscribed',
+      errno: ERRNO.SUBSCRIPTION_ALREADY_EXISTS,
+      message: 'User already subscribed.',
+    });
+  }
+
+  static userAlreadySubscribedToProduct() {
+    return new AppError({
+      code: 409,
+      error: 'Already subscribed to product with different plan',
+      errno: ERRNO.SUBSCRIPTION_ALREADY_EXISTS,
+      message: 'User already subscribed to product with different plan.',
+    });
+  }
+
+  static iapInvalidToken(error?: Error) {
+    const extra = error ? [{}, undefined, error] : [];
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.IAP_INVALID_TOKEN,
+        message: `Invalid IAP token${error?.message ? `: ${error.message}` : ''}`,
+      },
+      ...extra
+    );
+  }
+
+  static iapPurchaseConflict(error: Error) {
+    const extra = error ? [{}, undefined, error] : [];
+    return new AppError(
+      {
+        code: 403,
+        error: 'Forbidden',
+        errno: ERRNO.IAP_PURCHASE_ALREADY_REGISTERED,
+        message: 'Purchase has been registered to another user.',
+      },
+      ...extra
+    );
+  }
+
+  static invalidInvoicePreviewRequest(
+    error: Error,
+    message: string,
+    priceId: string,
+    customer: string
+  ) {
+    const extra = error ? [{}, undefined, error] : [];
+    return new AppError(
+      {
+        code: 500,
+        error: 'Internal Server Error',
+        errno: ERRNO.INVALID_INVOICE_PREVIEW_REQUEST,
+        message,
+      },
+      {
+        priceId,
+        customer,
+      },
+      ...extra
+    );
+  }
+
+  static iapInternalError(error: Error) {
+    const extra = error ? [{}, undefined, error] : [];
+    return new AppError(
+      {
+        code: 500,
+        error: 'Internal Server Error',
+        errno: ERRNO.IAP_INTERNAL_OTHER,
+        message: 'IAP Internal Error',
+      },
+      ...extra
+    );
+  }
+
+  static insufficientACRValues(foundValue: string) {
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.INSUFFICIENT_ACR_VALUES,
+        message:
+          'Required Authentication Context Reference values could not be satisfied',
+      },
+      {
+        foundValue,
+      }
+    );
+  }
+
+  static unknownRefreshToken() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.REFRESH_TOKEN_UNKNOWN,
+      message: 'Unknown refresh token',
+    });
+  }
+
+  static invalidOrExpiredOtpCode() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_EXPIRED_OTP_CODE,
+      message: 'Invalid or expired confirmation code',
+    });
+  }
+
+  static thirdPartyAccountError() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.THIRD_PARTY_ACCOUNT_ERROR,
+      message:
+        'Could not login with third party account, please try again later',
+    });
+  }
+
+  static disabledClientId(clientId: string, retryAfter?: number) {
+    if (!retryAfter) {
+      retryAfter = 30;
+    }
+    return new AppError(
+      {
+        code: 503,
+        error: 'Client Disabled',
+        errno: ERRNO.DISABLED_CLIENT_ID,
+        message: 'This client has been temporarily disabled',
+      },
+      {
+        clientId,
+        retryAfter,
+      },
+      {
+        'retry-after': retryAfter.toString(),
+      }
+    );
+  }
+
+  static internalValidationError(op: string, data: unknown, error: Error) {
+    return new AppError(
+      {
+        code: 500,
+        error: 'Internal Server Error',
+        errno: ERRNO.INTERNAL_VALIDATION_ERROR,
+        message: 'An internal validation check failed.',
+      },
+      {
+        op,
+        data,
+      },
+      {},
+      error
+    );
+  }
+
+  static unexpectedError(request?: Request) {
+    const error = new AppError({});
+    AppError.decorateErrorWithRequest(error, request);
+    return error;
+  }
+
+  static missingSubscriptionForSourceError(op: string, data: any) {
+    return new AppError(
+      {
+        code: 500,
+        error: 'Missing subscription for source',
+        errno: ERRNO.UNKNOWN_SUBSCRIPTION_FOR_SOURCE,
+        message: 'Failed to find a subscription associated with Stripe source.',
+      },
+      {
+        op,
+        data,
+      }
+    );
+  }
+
+  static accountCreationRejected() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.ACCOUNT_CREATION_REJECTED,
+      message: 'Account creation rejected.',
+    });
+  }
+
+  static subscriptionPromotionCodeNotApplied(error?: Error, message?: string) {
+    const extra = error ? [{}, undefined, error] : [];
+    return new AppError(
+      {
+        code: 400,
+        error: 'Bad Request',
+        errno: ERRNO.SUBSCRIPTION_PROMO_CODE_NOT_APPLIED,
+        message,
+      },
+      ...extra
+    );
+  }
+
+  static invalidCloudTaskEmailType() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INVALID_CLOUDTASK_EMAILTYPE,
+      message: 'Invalid email type',
+    });
+  }
+
+  private static decorateErrorWithRequest(error: AppError, request?: Request) {
+    if (request) {
+      error.output.payload.request = {
+        // request.app.devices and request.app.metricsContext are async, so can't be included here
+        acceptLanguage: request.app.acceptLanguage,
+        locale: request.app.locale,
+        userAgent: request.app.ua,
+        method: request.method,
+        path: request.path,
+        query: request.query,
+        payload: scrubPii(request.payload),
+        headers: scrubHeaders(request.headers),
+      };
+    }
+  }
+
+  private static appErrorFromOauthError(err: any) {
+    switch (err.errno) {
+      case 101:
+        return AppError.unknownClientId(err.clientId);
+      case 102:
+        return AppError.incorrectClientSecret(err.clientId);
+      case 103:
+        return AppError.incorrectRedirectURI(err.redirectUri);
+      case 104:
+        return AppError.invalidToken();
+      case 105:
+        return AppError.unknownAuthorizationCode(err.code);
+      case 106:
+        return AppError.mismatchAuthorizationCode(err.code, err.clientId);
+      case 107:
+        return AppError.expiredAuthorizationCode(err.code, err.expiredAt);
+      case 108:
+        return AppError.invalidToken();
+      case 109:
+        return AppError.invalidRequestParameter(err.validation);
+      case 110:
+        return AppError.invalidResponseType();
+      case 114:
+        return AppError.invalidScopes(err.invalidScopes);
+      case 116:
+        return AppError.notPublicClient();
+      case 117:
+        return AppError.invalidPkceChallenge(err.pkceHashValue);
+      case 118:
+        return AppError.missingPkceParameters();
+      case 119:
+        return AppError.staleAuthAt(err.authAt);
+      case 120:
+        return AppError.insufficientACRValues(err.foundValue);
+      case 121:
+        return AppError.invalidRequestParameter('grant_type');
+      case 122:
+        return AppError.unknownRefreshToken();
+      case 201:
+        return AppError.serviceUnavailable(err.retryAfter);
+      case 202:
+        return AppError.disabledClientId(err.clientId);
+      default:
+        return err;
+    }
+  }
+}
+
+/**
+ * Tries to remove PII from payload data.
+ * @param payload
+ * @returns
+ */
+function scrubPii(payload: any) {
+  if (!payload) {
+    return;
+  }
+
+  return Object.entries(payload).reduce((scrubbed: any, [key, value]) => {
+    if (DEBUGGABLE_PAYLOAD_KEYS.has(key)) {
+      scrubbed[key] = value;
+    }
+
+    return scrubbed;
+  }, {});
+}
+
+/**
+ * Deletes feilds with senstive data from headers.
+ * @param headers
+ * @returns
+ */
+function scrubHeaders(
+  headers?: Record<string, string>
+): Record<string, string> {
+  if (headers == null) {
+    return {};
+  }
+
+  const scrubbed = { ...headers };
+  delete scrubbed['x-forwarded-for'];
+  return scrubbed;
+}
+
+/**
+ * Prevents errors from being captured by Sentry.
+ *
+ * @param {Error} error An error with an error number. Note that errors of type vError will
+ *                use the underlying jse_cause error if possible.
+ */
+export function ignoreErrors(error: AppError) {
+  if (!error) {
+    return;
+  }
+
+  // Prefer jse_cause, but fallback to top level error if needed
+  const statusCode =
+    determineStatusCode(error.jse_cause) || determineStatusCode(error);
+
+  const errno = (() => {
+    if (error && error.jse_cause && 'errno' in error.jse_cause) {
+      return error.jse_cause.errno;
+    }
+    return error.errno;
+  })();
+
+  // Ignore non 500 status codes and specific error numbers
+  return (
+    (statusCode && statusCode < 500) || IGNORED_ERROR_NUMBERS.includes(errno)
+  );
+}
+
+/**
+ * Given an error tries to determine the HTTP status code associated with the error.
+ * @param {*} error
+ * @returns
+ */
+
+/**
+ * Uses some fallback logic to determine an error's underlying HTTP status code.
+ * @param error
+ * @returns
+ */
+function determineStatusCode(error?: any) {
+  if (!error) {
+    return;
+  }
+
+  return error.statusCode || error.output?.statusCode || error.code;
+}
