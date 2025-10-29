@@ -70,6 +70,26 @@ export class RetrieveStripePriceInvalidOfferingError extends ProductConfigError 
   }
 }
 
+export class StripeIntervalNotFoundError extends ProductConfigError {
+  constructor(interval?: string, intervalCount?: number) {
+    super('Stripe interval not found', {
+      name: 'StripeIntervalNotFoundError',
+      info: { interval, intervalCount },
+    });
+    this.name = 'StripeIntervalNotFoundError';
+  }
+}
+
+export class SubPlatIntervalNotFoundError extends ProductConfigError {
+  constructor(subplatInterval?: string) {
+    super('SubPlat interval not found', {
+      name: 'SubPlatIntervalNotFoundError',
+      info: { subplatInterval },
+    });
+    this.name = 'SubPlatIntervalNotFoundError';
+  }
+}
+
 export class ContentOfferingNotFoundError extends QueriesUtilError {
   constructor() {
     super('Content Offering not found', {});

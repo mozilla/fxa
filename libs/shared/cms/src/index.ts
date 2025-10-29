@@ -7,6 +7,7 @@ export * from './lib/constants';
 export * from './lib/product-configuration.manager';
 export * from './lib/relying-party-configuration.manager';
 export * from './lib/queries/capability-service-by-plan-ids';
+export * from './lib/queries/churn-intervention-by-offering';
 export * from './lib/queries/eligibility-content-by-offering';
 export * from './lib/queries/eligibility-content-by-plan-ids';
 export * from './lib/queries/iap-offerings-by-storeids';
