@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import classNames from 'classnames';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -57,17 +58,10 @@ export default async function Manage({
     appleIapSubscriptions,
     googleIapSubscriptions,
   } = await getSubManPageContentAction(session.user?.id);
-  const {
-    billingAgreementId,
-    brand,
-    expMonth,
-    expYear,
-    last4,
-    type,
-    walletType,
-  } = defaultPaymentMethod || {};
+  const { billingAgreementId, brand, expMonth, expYear, last4, type } =
+    defaultPaymentMethod || {};
   const isPaypalBillingAgreementError =
-    type === 'external_paypal' && brand === 'paypal' && !billingAgreementId;
+    type === 'external_paypal' && !billingAgreementId;
   const expirationDate =
     expMonth && expYear
       ? l10n.getLocalizedMonthYearString(expMonth, expYear, locale)
@@ -270,7 +264,9 @@ export default async function Manage({
                     aria-hidden="true"
                   ></div>
                   <div
-                    className={`w-full flex flex-col gap-2 tablet:flex-row ${(type === 'card' && brand && !walletType) || isPaypalBillingAgreementError ? 'tablet:items-start' : 'tablet:items-center'}`}
+                    className={classNames(
+                      `w-full flex flex-col gap-2 tablet:flex-row ${brand || isPaypalBillingAgreementError ? 'tablet:items-start' : 'tablet:items-center'}`
+                    )}
                   >
                     <h3 className="tablet:min-w-[160px]">
                       {l10n.getString(
@@ -305,136 +301,62 @@ export default async function Manage({
                       </div>
                     )}
 
-                    {type === 'card' && walletType && (
-                      <div className="w-full flex items-center justify-between">
-                        <Image
-                          src={
-                            getCardIcon(
-                              walletType === 'apple_pay'
-                                ? 'apple_pay'
-                                : 'google_pay',
-                              l10n
-                            ).img
-                          }
-                          alt={
-                            walletType === 'apple_pay'
-                              ? l10n.getString(
-                                  'apple-pay-logo-alt-text',
-                                  'Apple Pay logo'
-                                )
-                              : l10n.getString(
-                                  'google-pay-logo-alt-text',
-                                  'Google Pay logo'
-                                )
-                          }
-                          width={45}
-                          height={24}
-                        />
-                        <Link
-                          className="bg-grey-10 border border-grey-200 box-border font-bold font-header inline-block rounded text-center py-2 px-5 w-auto"
-                          href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
-                          aria-label={l10n.getString(
-                            'subscription-management-button-manage-payment-method-aria',
-                            'Manage payment method'
-                          )}
-                        >
-                          {l10n.getString(
-                            'subscription-management-button-manage-payment-method',
-                            'Manage'
-                          )}
-                        </Link>
-                      </div>
-                    )}
-
-                    {type === 'card' && brand && !walletType && (
-                      <div className="w-full flex flex-col leading-6 tablet:flex-row tablet:items-center tablet:justify-between">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src={getCardIcon(brand, l10n).img}
-                              alt={getCardIcon(brand, l10n).altText}
-                              width={32}
-                              height={20}
-                            />
-                            {last4 && (
-                              <span className="font-bold">
-                                {l10n.getString(
-                                  'subscription-management-card-ending-in',
-                                  { last4 },
-                                  `Card ending in ${last4}`
-                                )}
-                              </span>
-                            )}
-                          </div>
-                          {expirationDate && (
-                            <p className="pt-1 pb-2 tablet:pb-0 text-sm">
-                              {l10n.getString(
-                                'subscription-management-card-expires-date',
-                                { expirationDate },
-                                `Expires ${expirationDate}`
-                              )}
-                            </p>
-                          )}
-                        </div>
-                        <Link
-                          className="bg-grey-10 border border-grey-200 box-border font-bold font-header inline-block rounded text-center w-full py-2 px-5 tablet:w-auto"
-                          href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
-                          aria-label={l10n.getString(
-                            'subscription-management-button-manage-payment-method-aria',
-                            'Manage payment method'
-                          )}
-                        >
-                          {l10n.getString(
-                            'subscription-management-button-manage-payment-method',
-                            'Manage'
-                          )}
-                        </Link>
-                      </div>
-                    )}
-
-                    {type === 'link' && (
-                      <div className="w-full flex items-center justify-between">
-                        <Image
-                          src={getCardIcon('link', l10n).img}
-                          alt={l10n.getString(
-                            'link-logo-alt-text',
-                            'Link logo'
-                          )}
-                          width={72}
-                          height={24}
-                        />
-                        <Link
-                          className="bg-grey-10 border border-grey-200 box-border font-bold font-header inline-block rounded text-center py-2 px-5 w-auto"
-                          href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
-                          aria-label={l10n.getString(
-                            'subscription-management-button-manage-payment-method-aria',
-                            'Manage payment method'
-                          )}
-                        >
-                          {l10n.getString(
-                            'subscription-management-button-manage-payment-method',
-                            'Manage'
-                          )}
-                        </Link>
-                      </div>
-                    )}
-
-                    {type === 'external_paypal' && (
+                    {type && (
                       <div
-                        className={`w-full flex ${isPaypalBillingAgreementError ? 'flex-col items-start tablet:flex-row' : 'items-center'} justify-between gap-4`}
+                        className={classNames(
+                          'w-full flex justify-between gap-3',
+                          {
+                            'flex-row':
+                              !brand && !isPaypalBillingAgreementError,
+                            'flex-row items-center':
+                              !isPaypalBillingAgreementError,
+                            'flex-col items-start tablet:flex-row':
+                              isPaypalBillingAgreementError,
+                            'leading-6 items-start tablet:flex-row tablet:justify-between':
+                              brand,
+                          }
+                        )}
                       >
-                        <div className="leading-6">
-                          <Image
-                            src={getCardIcon('paypal', l10n).img}
-                            alt={l10n.getString(
-                              'paypal-logo-alt-text',
-                              'PayPal logo'
-                            )}
-                            width={91}
-                            height={24}
-                          />
+                        <div className="flex flex-col">
+                          {brand ? (
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <Image
+                                  src={getCardIcon(brand, l10n).img}
+                                  alt={getCardIcon(brand, l10n).altText}
+                                  width={getCardIcon(brand, l10n).width}
+                                  height={getCardIcon(brand, l10n).height}
+                                />
+                                {last4 && (
+                                  <span className="font-bold">
+                                    {l10n.getString(
+                                      'subscription-management-card-ending-in',
+                                      { last4 },
+                                      `Card ending in ${last4}`
+                                    )}
+                                  </span>
+                                )}
+                              </div>
+                              {expirationDate && (
+                                <p className="pt-1 tablet:pb-0 text-sm">
+                                  {l10n.getString(
+                                    'subscription-management-card-expires-date',
+                                    { expirationDate },
+                                    `Expires ${expirationDate}`
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <Image
+                              src={getCardIcon(type, l10n).img}
+                              alt={getCardIcon(type, l10n).altText}
+                              width={getCardIcon(type, l10n).width}
+                              height={getCardIcon(type, l10n).height}
+                            />
+                          )}
                           {isPaypalBillingAgreementError && (
-                            <p className="pt-3 text-red-700">
+                            <p className="leading-6 pt-3 text-red-700">
                               {l10n.getString(
                                 'subscription-management-error-paypal-billing-agreement',
                                 'There is an issue with your PayPal account. Please resolve the issue to maintain your active subscriptions.'
@@ -442,33 +364,62 @@ export default async function Manage({
                             </p>
                           )}
                         </div>
-                        <div
-                          className={`${isPaypalBillingAgreementError && 'flex tablet:justify-end w-full tablet:w-auto'}`}
-                        >
-                          <LinkExternal
-                            className={
-                              isPaypalBillingAgreementError
-                                ? `flex items-center justify-center bg-blue-500 border border-blue-600 box-border font-bold font-header rounded text-center py-2 px-5 tablet:w-auto text-white w-full h-10`
-                                : 'bg-grey-10 border border-grey-200 box-border font-bold font-header inline-block rounded text-center py-2 px-5 w-auto'
-                            }
-                            href={
-                              isPaypalBillingAgreementError
-                                ? `${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`
-                                : `${config.csp.paypalApi}/myaccount/autopay/connect/${billingAgreementId}`
-                            }
+
+                        {type === 'external_paypal' ? (
+                          <div
+                            className={`${isPaypalBillingAgreementError && 'flex tablet:justify-end w-full tablet:w-auto'}`}
+                          >
+                            <LinkExternal
+                              className={classNames(
+                                'border box-border font-bold font-header rounded text-center py-2 px-5',
+                                {
+                                  'flex items-center justify-center bg-blue-500 border-blue-600 tablet:w-auto text-white w-full h-10':
+                                    isPaypalBillingAgreementError,
+                                  'inline-block bg-grey-10 border-grey-200 w-auto':
+                                    !isPaypalBillingAgreementError,
+                                }
+                              )}
+                              href={
+                                isPaypalBillingAgreementError
+                                  ? `${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`
+                                  : `${config.csp.paypalApi}/myaccount/autopay/connect/${billingAgreementId}`
+                              }
+                              aria-label={l10n.getString(
+                                'subscription-management-button-manage-payment-method-aria',
+                                'Manage payment method'
+                              )}
+                            >
+                              <span>
+                                {l10n.getString(
+                                  'subscription-management-button-manage-payment-method',
+                                  'Manage'
+                                )}
+                              </span>
+                            </LinkExternal>
+                          </div>
+                        ) : (
+                          <Link
+                            className={classNames(
+                              'border box-border font-bold font-header inline-block rounded text-center py-2 px-5 tablet:w-auto',
+                              {
+                                'bg-grey-10 border-grey-200 w-auto':
+                                  !brand && !isPaypalBillingAgreementError,
+                                'bg-blue-500 border-blue-600 text-white w-full':
+                                  isPaypalBillingAgreementError,
+                              }
+                            )}
+                            href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
                             aria-label={l10n.getString(
                               'subscription-management-button-manage-payment-method-aria',
                               'Manage payment method'
                             )}
                           >
-                            <span>
-                              {l10n.getString(
-                                'subscription-management-button-manage-payment-method',
-                                'Manage'
-                              )}
-                            </span>
-                          </LinkExternal>
-                        </div>
+                            {l10n.getString(
+                              'subscription-management-button-manage-payment-method',
+                              'Manage'
+                            )}
+                          </Link>
+                        )}
                       </div>
                     )}
                   </div>

@@ -11,9 +11,7 @@ import {
   PayPalClient,
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
-import {
-  SubPlatPaymentMethodType,
-} from '@fxa/payments/customer';
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import {
   StripeClient,
   MockStripeConfigProvider,
@@ -101,7 +99,7 @@ describe('PaymentMethodManager', () => {
       const mockUid = faker.string.uuid();
 
       jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
-        type: SubPlatPaymentMethodType.Stripe,
+        type: SubPlatPaymentMethodType.Card,
         paymentMethodId: 'pm_id',
       });
       jest
@@ -114,7 +112,7 @@ describe('PaymentMethodManager', () => {
         mockUid
       );
       expect(result).toEqual({
-        type: mockPaymentMethod.type,
+        type: SubPlatPaymentMethodType.Card,
         brand: mockPaymentMethod.card?.brand,
         last4: mockPaymentMethod.card?.last4,
         expMonth: mockPaymentMethod.card?.exp_month,
@@ -142,9 +140,39 @@ describe('PaymentMethodManager', () => {
         mockUid
       );
       expect(result).toEqual({
-        type: 'external_paypal',
-        brand: 'paypal',
+        type: SubPlatPaymentMethodType.PayPal,
         billingAgreementId: mockPaypalBillingAgreementId,
+      });
+    });
+
+    it('returns payment method information - apple_pay', async () => {
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory({})
+      );
+      const mockStripeCustomer = StripeCustomerFactory();
+      const mockSubscriptions = [StripeSubscriptionFactory()];
+      const mockUid = faker.string.uuid();
+
+      jest.spyOn(paymentMethodManager, 'determineType').mockResolvedValue({
+        type: SubPlatPaymentMethodType.ApplePay,
+        paymentMethodId: 'pm_id',
+      });
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
+
+      const result = await paymentMethodManager.getDefaultPaymentMethod(
+        mockStripeCustomer,
+        mockSubscriptions,
+        mockUid
+      );
+      expect(result).toEqual({
+        type: SubPlatPaymentMethodType.ApplePay,
+        brand: mockPaymentMethod.card?.brand,
+        last4: mockPaymentMethod.card?.last4,
+        expMonth: mockPaymentMethod.card?.exp_month,
+        expYear: mockPaymentMethod.card?.exp_year,
+        walletType: mockPaymentMethod.card?.wallet?.type,
       });
     });
   });
@@ -153,15 +181,19 @@ describe('PaymentMethodManager', () => {
     it('returns card', async () => {
       const mockCustomer = StripeCustomerFactory({
         invoice_settings: {
-            custom_fields: null,
-            default_payment_method: 'any',
-            footer: null,
-            rendering_options: null,
-          },
+          custom_fields: null,
+          default_payment_method: 'any',
+          footer: null,
+          rendering_options: null,
+        },
       });
 
-      const mockPaymentMethod = StripeResponseFactory(StripeCardPaymentMethodFactory());
-      jest.spyOn(paymentMethodManager, 'retrieve').mockResolvedValue(mockPaymentMethod);
+      const mockPaymentMethod = StripeResponseFactory(
+        StripeCardPaymentMethodFactory()
+      );
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
 
       await expect(
         paymentMethodManager.determineType(mockCustomer)
@@ -198,7 +230,9 @@ describe('PaymentMethodManager', () => {
           type: 'link',
         })
       );
-      jest.spyOn(paymentMethodManager, 'retrieve').mockResolvedValue(mockPaymentMethod);
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
 
       await expect(
         paymentMethodManager.determineType(mockCustomer)
@@ -220,10 +254,12 @@ describe('PaymentMethodManager', () => {
 
       const mockPaymentMethod = StripeResponseFactory(
         StripeCardPaymentMethodFactory({
-          walletType: 'apple_pay'
+          walletType: 'apple_pay',
         })
       );
-      jest.spyOn(paymentMethodManager, 'retrieve').mockResolvedValue(mockPaymentMethod);
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
 
       await expect(
         paymentMethodManager.determineType(mockCustomer)
@@ -245,10 +281,12 @@ describe('PaymentMethodManager', () => {
 
       const mockPaymentMethod = StripeResponseFactory(
         StripeCardPaymentMethodFactory({
-          walletType: 'google_pay'
+          walletType: 'google_pay',
         })
       );
-      jest.spyOn(paymentMethodManager, 'retrieve').mockResolvedValue(mockPaymentMethod);
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
 
       await expect(
         paymentMethodManager.determineType(mockCustomer)
