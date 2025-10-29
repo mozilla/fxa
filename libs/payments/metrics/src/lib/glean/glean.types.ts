@@ -26,14 +26,24 @@ export type CommonMetrics = {
   ipAddress: string;
   deviceType: string;
   userAgent: string;
+  experimentationId: string;
   params: Record<string, string>;
   searchParams: Record<string, string>;
 };
 
 export type CartMetrics = Pick<
   ResultCart,
-  'uid' | 'errorReasonId' | 'couponCode' | 'currency' | 'stripeCustomerId'
+  | 'uid'
+  | 'errorReasonId'
+  | 'couponCode'
+  | 'currency'
+  | 'stripeCustomerId'
+  | 'taxAddress'
 >;
+
+export type ExperimentationData = {
+  nimbusUserId: string;
+};
 
 export type CmsMetricsData = {
   productId: string;

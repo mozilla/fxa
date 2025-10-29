@@ -31,6 +31,7 @@ const expectedCartMetricsData = {
   couponCode: mockCart.couponCode,
   currency: mockCart.currency,
   stripeCustomerId: mockCart.stripeCustomerId,
+  taxAddress: mockCart.taxAddress,
 };
 
 const emptyCmsMetricsData = {
@@ -43,6 +44,10 @@ const emptyCartMetricsData = {
   couponCode: '',
   currency: '',
   stripeCustomerId: '',
+  taxAddress: {
+    countryCode: '',
+    postalCode: '',
+  },
 };
 
 describe('retrieveAdditionalMetricsData', () => {

@@ -56,6 +56,14 @@ import {
   StripeEventStoreEntryAlreadyExistsError,
   StripeEventStoreEntryNotFoundError,
 } from './stripe-event-store.error';
+import {
+  MockNimbusClientConfigProvider,
+  NimbusClient,
+} from '@fxa/shared/experiments';
+import {
+  MockNimbusManagerConfigProvider,
+  NimbusManager,
+} from '@fxa/payments/experiments';
 
 jest.mock('./stripe-event-store.repository');
 const mockedGetStripeEventStoreEntry = jest.mocked(getStripeEventStoreEntry);
@@ -115,6 +123,10 @@ describe('StripeEventManager', () => {
         MockStatsDProvider,
         PriceManager,
         MockAccountDatabaseNestFactory,
+        NimbusClient,
+        MockNimbusClientConfigProvider,
+        NimbusManager,
+        MockNimbusManagerConfigProvider,
       ],
     }).compile();
 
