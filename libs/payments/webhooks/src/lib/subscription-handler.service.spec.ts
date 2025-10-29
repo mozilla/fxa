@@ -12,9 +12,9 @@ import {
   StripeResponseFactory,
   StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
-import { StripeEventManager } from './stripeEvents.manager';
-import { StripeWebhookService } from './stripeWebhooks.service';
-import { SubscriptionEventsService } from './subscriptionHandler.service';
+import { StripeEventManager } from './stripe-event.manager';
+import { StripeWebhookService } from './stripe-webhooks.service';
+import { SubscriptionEventsService } from './subscription-handler.service';
 import {
   CustomerDeletedError,
   CustomerManager,
@@ -54,6 +54,7 @@ import {
   determineCancellation,
 } from './util/determineCancellation';
 import { Logger } from '@nestjs/common';
+import { MockStripeEventConfigProvider } from './stripe-event.config';
 
 jest.mock('@fxa/payments/customer');
 jest.mock('./util/determineCancellation');
@@ -90,9 +91,10 @@ describe('SubscriptionEventsService', () => {
         },
         {
           provide: PaymentMethodManager,
-          useValue: paymentMethodManagerMock
+          useValue: paymentMethodManagerMock,
         },
         MockStripeConfigProvider,
+        MockStripeEventConfigProvider,
         StripeClient,
         StripeEventManager,
         StripeWebhookService,
@@ -170,9 +172,11 @@ describe('SubscriptionEventsService', () => {
       });
 
       it('should emit the subscriptionEnded event, with paymentProvider external_paypal', async () => {
-        (paymentMethodManager.determineType as jest.Mock).mockResolvedValueOnce({
-          type: SubPlatPaymentMethodType.PayPal,
-        });
+        (paymentMethodManager.determineType as jest.Mock).mockResolvedValueOnce(
+          {
+            type: SubPlatPaymentMethodType.PayPal,
+          }
+        );
         await subscriptionEventsService.handleCustomerSubscriptionDeleted(
           mockEvent,
           mockEventObjectData
@@ -242,7 +246,7 @@ describe('SubscriptionEventsService', () => {
       it('should emit the subscriptionEnded event, with paymentProvider undefined on error', async () => {
         jest
           .spyOn(customerManager, 'retrieve')
-          .mockRejectedValue(new CustomerDeletedError());
+          .mockRejectedValue(new CustomerDeletedError('customerId'));
         await subscriptionEventsService.handleCustomerSubscriptionDeleted(
           mockEvent,
           mockEventObjectData

@@ -9,39 +9,43 @@ import { StripeSubscription } from '../stripe.client.types';
 
 // TODO - Create generic factory
 export const StripeEventCustomerSubscriptionCreatedFactory = (
+  override?: Partial<Stripe.Event>,
   dataObjectOverride?: Partial<StripeSubscription>
 ): Stripe.Event => ({
   id: 'evt_123',
   object: 'event',
   api_version: '2019-02-19',
   created: faker.date.past().getTime(),
+  livemode: false,
+  request: null,
+  pending_webhooks: 0,
+  ...override,
+  type: 'customer.subscription.created',
   data: {
     object: {
       ...StripeSubscriptionFactory(),
       ...dataObjectOverride,
     },
   },
-  livemode: false,
-  request: null,
-  pending_webhooks: 0,
-  type: 'customer.subscription.created',
 });
 
 export const StripeEventCustomerSubscriptionDeletedFactory = (
+  override?: Partial<Stripe.Event>,
   dataObjectOverride?: Partial<StripeSubscription>
 ): Stripe.Event => ({
   id: 'evt_123',
   object: 'event',
   api_version: '2019-02-19',
   created: faker.date.past().getTime(),
+  livemode: false,
+  request: null,
+  pending_webhooks: 0,
+  ...override,
+  type: 'customer.subscription.deleted',
   data: {
     object: {
       ...StripeSubscriptionFactory(),
       ...dataObjectOverride,
     },
   },
-  livemode: false,
-  request: null,
-  pending_webhooks: 0,
-  type: 'customer.subscription.deleted',
 });

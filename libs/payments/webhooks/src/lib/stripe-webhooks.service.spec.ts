@@ -5,10 +5,10 @@
 import { Test } from '@nestjs/testing';
 
 import { MockStripeConfigProvider, StripeClient } from '@fxa/payments/stripe';
-import { StripeEventManager } from './stripeEvents.manager';
-import { StripeWebhookService } from './stripeWebhooks.service';
+import { StripeEventManager } from './stripe-event.manager';
+import { StripeWebhookService } from './stripe-webhooks.service';
 import { CustomerSubscriptionDeletedResponseFactory } from './factories';
-import { SubscriptionEventsService } from './subscriptionHandler.service';
+import { SubscriptionEventsService } from './subscription-handler.service';
 import {
   CustomerManager,
   InvoiceManager,
@@ -42,6 +42,7 @@ import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import * as Sentry from '@sentry/node';
 import { Logger } from '@nestjs/common';
+import { MockStripeEventConfigProvider } from './stripe-event.config';
 
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
@@ -69,9 +70,10 @@ describe('StripeWebhookService', () => {
         },
         {
           provide: PaymentMethodManager,
-          useValue: paymentMethodManagerMock
+          useValue: paymentMethodManagerMock,
         },
         MockStripeConfigProvider,
+        MockStripeEventConfigProvider,
         StripeClient,
         StripeEventManager,
         StripeWebhookService,
@@ -116,6 +118,10 @@ describe('StripeWebhookService', () => {
       jest
         .spyOn(stripeEventManager, 'constructWebhookEventResponse')
         .mockReturnValue(CustomerSubscriptionDeletedResponseFactory());
+      jest.spyOn(stripeEventManager, 'isProcessed').mockResolvedValue(false);
+      jest
+        .spyOn(stripeEventManager, 'markAsProcessed')
+        .mockResolvedValue(undefined);
     });
 
     describe('handleWebhookEvent', () => {
@@ -125,6 +131,17 @@ describe('StripeWebhookService', () => {
         expect(
           (stripeWebhookService as any).dispatchEventToHandler
         ).toHaveBeenCalled();
+        expect(stripeEventManager.markAsProcessed).toHaveBeenCalled();
+      });
+
+      it('should return early if event already processed', async () => {
+        jest.spyOn(stripeEventManager, 'isProcessed').mockResolvedValue(true);
+
+        await stripeWebhookService.handleWebhookEvent({}, 'signature');
+        expect(
+          (stripeWebhookService as any).dispatchEventToHandler
+        ).not.toHaveBeenCalled();
+        expect(stripeEventManager.markAsProcessed).not.toHaveBeenCalled();
       });
 
       it('should report exception to Sentry and throw on exception', async () => {

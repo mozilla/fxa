@@ -1,8 +1,41 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { TypedConfigModule, dotenvLoader } from 'nest-typed-config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RootConfig } from '../config';
+import {
+  StripeEventManager,
+  StripeWebhooksController,
+  StripeWebhookService,
+  SubscriptionEventsService,
+} from '@fxa/payments/webhooks';
+import { FirestoreProvider } from '@fxa/shared/db/firestore';
+import { StripeClient } from '@fxa/payments/stripe';
+import { StatsDProvider } from '@fxa/shared/metrics/statsd';
+import {
+  CustomerManager,
+  InvoiceManager,
+  PaymentMethodManager,
+  PriceManager,
+  SubscriptionManager,
+} from '@fxa/payments/customer';
+import {
+  PaypalBillingAgreementManager,
+  PayPalClient,
+  PaypalClientConfig,
+  PaypalCustomerManager,
+} from '@fxa/payments/paypal';
+import { CurrencyManager } from '@fxa/payments/currency';
+import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
+import { AccountManager } from '@fxa/shared/account/account';
+import { CartManager } from '@fxa/payments/cart';
+import { ProductConfigurationManager, StrapiClient } from '@fxa/shared/cms';
+import {
+  MockPaymentsGleanFactory,
+  PaymentsGleanManager,
+} from '@fxa/payments/metrics';
+import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
+import { PaymentsEmitterService } from '@fxa/payments/events';
 
 @Module({
   imports: [
@@ -18,7 +51,35 @@ import { RootConfig } from '../config';
       }),
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, StripeWebhooksController],
+  providers: [
+    Logger,
+    AccountDatabaseNestFactory,
+    AccountManager,
+    AppService,
+    ProductConfigurationManager,
+    CartManager,
+    SubscriptionEventsService,
+    PaymentsGleanFactory,
+    PaymentsGleanManager,
+    PaymentsEmitterService,
+    PriceManager,
+    FirestoreProvider,
+    StatsDProvider,
+    StripeClient,
+    PayPalClient,
+    PaypalClientConfig,
+    SubscriptionManager,
+    CustomerManager,
+    InvoiceManager,
+    PaymentMethodManager,
+    CurrencyManager,
+    StripeWebhookService,
+    StripeEventManager,
+    PaypalBillingAgreementManager,
+    PaypalCustomerManager,
+    StrapiClient,
+    MockPaymentsGleanFactory,
+  ],
 })
 export class AppModule {}

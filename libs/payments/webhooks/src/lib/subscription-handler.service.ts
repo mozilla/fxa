@@ -25,7 +25,7 @@ export class SubscriptionEventsService {
     private customerManager: CustomerManager,
     private invoiceManager: InvoiceManager,
     private emitterService: PaymentsEmitterService,
-    private paymentMethodManager: PaymentMethodManager,
+    private paymentMethodManager: PaymentMethodManager
   ) {}
 
   async handleCustomerSubscriptionDeleted(
@@ -45,13 +45,15 @@ export class SubscriptionEventsService {
         subscription.customer
       );
       uid = customer.metadata['userid'];
-      const paymentMethodType = await this.paymentMethodManager.determineType(customer, [
-        subscription,
-      ]);
+      const paymentMethodType = await this.paymentMethodManager.determineType(
+        customer,
+        [subscription]
+      );
       paymentProvider = paymentMethodType?.type;
 
       const latestInvoice =
-        paymentProvider === SubPlatPaymentMethodType.PayPal && subscription.latest_invoice
+        paymentProvider === SubPlatPaymentMethodType.PayPal &&
+        subscription.latest_invoice
           ? await this.invoiceManager.retrieve(subscription.latest_invoice)
           : undefined;
 
