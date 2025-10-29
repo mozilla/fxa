@@ -6,8 +6,13 @@ import { getOperationName } from '@apollo/client/utilities';
 import { Inject, Injectable } from '@nestjs/common';
 import { StatsD } from 'hot-shots';
 
-import { PriceManager, SubplatInterval } from '@fxa/payments/customer';
+import {
+  getSubplatInterval,
+  PriceManager,
+  SubplatInterval,
+} from '@fxa/payments/customer';
 import { StatsDService } from '@fxa/shared/metrics/statsd';
+import { StripeClient } from '@fxa/payments/stripe';
 import {
   EligibilityContentByPlanIdsQuery,
   PurchaseWithDetailsOfferingContentQuery,
@@ -17,12 +22,15 @@ import {
   PageContentForOfferingQuery,
   type IapOfferingsByStoreIDsQuery,
   PageContentByPriceIdsQuery,
+  ChurnInterventionByOfferingQuery,
 } from '../__generated__/graphql';
 import {
   FetchCmsInvalidOfferingError,
   QueriesUtilError,
   RetrieveStripePriceInvalidOfferingError,
   RetrieveStripePriceNotFoundError,
+  StripeIntervalNotFoundError,
+  SubPlatIntervalNotFoundError,
 } from './cms.error';
 import { DEFAULT_LOCALE } from './constants';
 import {
@@ -59,12 +67,17 @@ import {
   iapOfferingsByStoreIDsQuery,
   IapOfferingsByStoreIDsResultUtil,
 } from './queries/iap-offerings-by-storeids';
+import {
+  churnInterventionByOfferingQuery,
+  ChurnInterventionByOfferingResultUtil,
+} from './queries/churn-intervention-by-offering';
 
 @Injectable()
 export class ProductConfigurationManager {
   constructor(
     private strapiClient: StrapiClient,
     private priceManager: PriceManager,
+    private stripeClient: StripeClient,
     @Inject(StatsDService) private statsd: StatsD
   ) {
     this.strapiClient.on('response', this.onStrapiClientResponse.bind(this));
@@ -292,5 +305,55 @@ export class ProductConfigurationManager {
         throw error;
       }
     }
+  }
+
+  async getChurnIntervention(
+    interval: SubplatInterval,
+    stripeProductId: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ) {
+    const locale = await this.strapiClient.getLocale(
+      acceptLanguage,
+      selectedLanguage
+    );
+
+    const queryResult = await this.strapiClient.query(
+      churnInterventionByOfferingQuery,
+      { stripeProductId, interval, locale }
+    );
+
+    return new ChurnInterventionByOfferingResultUtil(
+      queryResult as DeepNonNullable<ChurnInterventionByOfferingQuery>
+    );
+  }
+
+  async getChurnInterventionBySubscription(
+    subscriptionId: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ) {
+    const subscription =
+      await this.stripeClient.subscriptionsRetrieve(subscriptionId);
+    const stripeInterval =
+      subscription.items.data.at(0)?.price.recurring?.interval;
+    const intervalCount =
+      subscription.items.data.at(0)?.price.recurring?.interval_count;
+    if (!stripeInterval || !intervalCount) {
+      throw new StripeIntervalNotFoundError(stripeInterval, intervalCount);
+    }
+    const interval = getSubplatInterval(stripeInterval, intervalCount);
+
+    if (!interval) throw new SubPlatIntervalNotFoundError(interval);
+
+    const stripeProductId = subscription.items.data.at(0)?.price
+      .product as string;
+
+    return this.getChurnIntervention(
+      interval,
+      stripeProductId,
+      acceptLanguage,
+      selectedLanguage
+    );
   }
 }
