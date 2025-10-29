@@ -8,6 +8,7 @@ import {
   CmsMetricsData,
   CommonMetrics,
   SubscriptionCancellationData,
+  type ExperimentationData,
 } from './glean.types';
 import { ResultCartFactory } from '@fxa/payments/cart';
 import { SubplatInterval } from '@fxa/payments/customer';
@@ -36,6 +37,7 @@ export const CommonMetricsFactory = (
   userAgent: faker.internet.userAgent(),
   params: {},
   searchParams: {},
+  experimentationId: faker.string.uuid(),
   ...override,
 });
 
@@ -52,6 +54,7 @@ export const CartMetricsFactory = (
     couponCode: resultCart.couponCode,
     currency: faker.finance.currencyCode().toLowerCase(),
     stripeCustomerId: `cus_${faker.string.alphanumeric({ length: 14 })}`,
+    taxAddress: resultCart.taxAddress,
     ...override,
   };
 };
@@ -81,3 +84,10 @@ export const SubscriptionCancellationDataFactory = (
     ...override,
   };
 };
+
+export const ExperimentationDataFactory = (
+  override?: Partial<ExperimentationData>
+): ExperimentationData => ({
+  nimbusUserId: faker.string.uuid(),
+  ...override,
+});

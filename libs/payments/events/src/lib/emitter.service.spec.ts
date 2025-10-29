@@ -64,6 +64,16 @@ import {
   PaypalClientConfig,
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
+import {
+  MockNimbusClientConfigProvider,
+  NimbusClient,
+  NimbusEnrollmentFactory,
+} from '@fxa/shared/experiments';
+import {
+  MockNimbusManagerConfigProvider,
+  NimbusManager,
+  SubPlatNimbusResultFactory,
+} from '@fxa/payments/experiments';
 
 jest.mock('./util/retrieveAdditionalMetricsData');
 const mockedRetrieveAdditionalMetricsData = jest.mocked(
@@ -78,6 +88,7 @@ describe('PaymentsEmitterService', () => {
   let paymentsGleanManager: PaymentsGleanManager;
   let paymentMethodManager: PaymentMethodManager;
   let productConfigurationManager: ProductConfigurationManager;
+  let nimbusManager: NimbusManager;
   let statsd: StatsD;
   let logger: Logger;
   let subscriptionManager: SubscriptionManager;
@@ -125,6 +136,10 @@ describe('PaymentsEmitterService', () => {
         PaymentsEmitterService,
         PaymentMethodManager,
         SubscriptionManager,
+        NimbusClient,
+        MockNimbusClientConfigProvider,
+        NimbusManager,
+        MockNimbusManagerConfigProvider,
       ],
     }).compile();
 
@@ -134,6 +149,7 @@ describe('PaymentsEmitterService', () => {
     paymentsGleanManager = moduleRef.get(PaymentsGleanManager);
     paymentMethodManager = moduleRef.get(PaymentMethodManager);
     productConfigurationManager = moduleRef.get(ProductConfigurationManager);
+    nimbusManager = moduleRef.get(NimbusManager);
     cartManager = moduleRef.get(CartManager);
     statsd = moduleRef.get<StatsD>(StatsDService);
     logger = moduleRef.get<Logger>(Logger);
@@ -182,10 +198,23 @@ describe('PaymentsEmitterService', () => {
   });
 
   describe('handleCheckoutView', () => {
+    const mockEnrollment = NimbusEnrollmentFactory();
+    const mockSubPlatExperiments = SubPlatNimbusResultFactory({
+      Enrollments: [mockEnrollment],
+    });
+    const nimbusUserId = mockEnrollment.nimbus_user_id;
+    const generatedNimbusUserId = NimbusEnrollmentFactory().nimbus_user_id;
+
     beforeEach(() => {
       jest
         .spyOn(paymentsGleanManager, 'recordFxaPaySetupView')
         .mockReturnValue();
+      jest
+        .spyOn(nimbusManager, 'fetchExperiments')
+        .mockResolvedValue(mockSubPlatExperiments);
+      jest
+        .spyOn(nimbusManager, 'generateNimbusId')
+        .mockReturnValue(generatedNimbusUserId);
     });
 
     it('should call manager record method', async () => {
@@ -198,8 +227,11 @@ describe('PaymentsEmitterService', () => {
       );
       expect(paymentsGleanManager.recordFxaPaySetupView).toHaveBeenCalledWith({
         commonMetricsData: mockCommonMetricsData,
+        experimentationData: { nimbusUserId },
         ...additionalMetricsData,
       });
+      expect(nimbusManager.fetchExperiments).toHaveBeenCalled();
+      expect(nimbusManager.generateNimbusId).toHaveBeenCalled();
     });
 
     it('should not record glean event if user opts out', async () => {
@@ -215,6 +247,8 @@ describe('PaymentsEmitterService', () => {
         mockCommonMetricsData.params
       );
       expect(paymentsGleanManager.recordFxaPaySetupView).not.toHaveBeenCalled();
+      expect(nimbusManager.fetchExperiments).not.toHaveBeenCalled();
+      expect(nimbusManager.generateNimbusId).not.toHaveBeenCalled();
     });
   });
 

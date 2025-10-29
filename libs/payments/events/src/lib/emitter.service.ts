@@ -27,6 +27,7 @@ import {
 import * as Sentry from '@sentry/nestjs';
 import { StatsD, StatsDService } from '@fxa/shared/metrics/statsd';
 import { EmitterServiceHandleAuthError } from './emitter.error';
+import { NimbusManager } from '@fxa/payments/experiments';
 
 @Injectable()
 export class PaymentsEmitterService {
@@ -37,6 +38,7 @@ export class PaymentsEmitterService {
     private cartManager: CartManager,
     private customerManager: CustomerManager,
     private log: Logger,
+    private nimbusManager: NimbusManager,
     private paymentsGleanManager: PaymentsGleanManager,
     private paymentMethodManager: PaymentMethodManager,
     private productConfigurationManager: ProductConfigurationManager,
@@ -83,9 +85,30 @@ export class PaymentsEmitterService {
     );
 
     if (!metricsOptOut) {
+      let experiments;
+      const generatedNimbusUserId = this.nimbusManager.generateNimbusId(
+        additionalData.cartMetricsData.uid,
+        eventData.experimentationId
+      );
+      try {
+        experiments = await this.nimbusManager.fetchExperiments({
+          nimbusUserId: generatedNimbusUserId,
+          language: additionalData.locale,
+          region: additionalData.cartMetricsData.taxAddress?.countryCode,
+        });
+      } catch (error) {
+        this.log.error(error);
+        Sentry.captureException(error);
+      }
+
+      const nimbusUserId =
+        experiments?.Enrollments?.at(0)?.nimbus_user_id ||
+        generatedNimbusUserId;
+
       this.paymentsGleanManager.recordFxaPaySetupView({
         commonMetricsData: eventData,
         ...additionalData,
+        experimentationData: { nimbusUserId },
       });
     }
   }
