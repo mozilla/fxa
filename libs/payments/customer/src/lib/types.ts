@@ -75,13 +75,12 @@ export type PaymentProvidersType =
   | 'external_paypal';
 
 export interface DefaultPaymentMethod {
-  type: PaymentProvidersType;
+  type: SubPlatPaymentMethodType;
   brand?: string;
   last4?: string;
   expMonth?: number;
   expYear?: number;
   billingAgreementId?: string;
-  walletType?: string;
 }
 
 export interface PricingForCurrency {
