@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Request } from '@hapi/hapi';
-import * as isA from 'joi';
-
 import {
   RecoveryPhoneService,
   RecoveryPhoneNotEnabled,
@@ -26,8 +24,14 @@ import {
   AuthRequest,
   SessionTokenAuthCredential,
 } from '../types';
-import { E164_NUMBER } from './validators';
-import AppError from '../error';
+import {
+  AuthDto,
+  E164_NUMBER,
+  SetupPhoneNumberDto,
+  SetupPhoneNumberZod,
+  zodValidator,
+} from './zvalidators';
+import * as AppError from '../error';
 import Localizer from '../l10n';
 import NodeRendererBindings from '../senders/renderer/bindings-node';
 import { AccountEventsManager } from '../account-events';
@@ -280,13 +284,14 @@ class RecoveryPhoneHandler {
     return { status: RecoveryPhoneStatus.FAILURE };
   }
 
-  async setupPhoneNumber(request: AuthRequest) {
-    const { uid, email } = request.auth
-      .credentials as SessionTokenAuthCredential;
-
-    const { phoneNumber } = request.payload as unknown as {
-      phoneNumber: string;
-    };
+  async setupPhoneNumber(
+    request: AuthRequest & {
+      auth: AuthDto;
+      payload: SetupPhoneNumberDto;
+    }
+  ) {
+    const { uid, email } = request.auth.credentials;
+    const { phoneNumber } = request.payload;
 
     if (!email) {
       throw AppError.invalidToken();
@@ -1035,12 +1040,15 @@ export const recoveryPhoneRoutes = (
           payload: false,
         },
         validate: {
-          payload: isA.object({
-            phoneNumber: isA.string().regex(E164_NUMBER).required(),
-          }),
+          payload: zodValidator(SetupPhoneNumberZod),
         },
       },
-      handler: function (request: AuthRequest) {
+      handler: function (
+        request: AuthRequest & {
+          auth: AuthDto;
+          payload: SetupPhoneNumberDto;
+        }
+      ) {
         log.begin('recoveryPhoneStartSetup', request);
         return recoveryPhoneHandler.setupPhoneNumber(request);
       },

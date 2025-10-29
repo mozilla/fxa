@@ -11,7 +11,9 @@ const { AccountManager } = require('@fxa/shared/account/account');
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...chai.assert };
 const mocks = require('../../mocks');
-const { recoveryPhoneRoutes } = require('../../../lib/routes/recovery-phone');
+const {
+  recoveryPhoneRoutes,
+} = require('../../../lib/routes/recovery-phone.router');
 const { OtpUtils } = require('../../../lib/routes/utils/otp');
 const {
   RecoveryNumberNotSupportedError,
@@ -474,17 +476,17 @@ describe('/recovery_phone', () => {
 
     it('validates incoming phone number', () => {
       const route = getRoute(routes, '/recovery_phone/create', 'POST');
-      const joiSchema = route.options.validate.payload;
+      const zodSchema = route.options.validate.payload;
 
-      const validNumber = joiSchema.validate({ phoneNumber: '+15550005555' });
-      const missingNumber = joiSchema.validate({});
-      const invalidNumber = joiSchema.validate({ phoneNumber: '5550005555' });
+      const validNumber = zodSchema({ phoneNumber: '+15550005555' });
+      const missingNumber = zodSchema({});
+      const invalidNumber = zodSchema({ phoneNumber: '5550005555' });
 
       assert.isUndefined(validNumber.error);
-      assert.include(missingNumber.error.message, 'is required');
+      assert.include(missingNumber.error.message, 'expected string');
       assert.include(
         invalidNumber.error.message,
-        'fails to match the required pattern'
+        'Invalid string: must match pattern'
       );
     });
 
