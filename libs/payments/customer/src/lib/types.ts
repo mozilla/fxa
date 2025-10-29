@@ -179,3 +179,15 @@ export interface TaxAddress {
   countryCode: string;
   postalCode: string;
 }
+
+export interface ChurnInterventionEntry {
+  customerId: string;
+  churnInterventionId: string;
+  redemptionCount: number;
+}
+
+export interface ChurnInterventionEntryFirestoreRecord {
+  customerId: string;
+  churnInterventionId: string;
+  redemptionCount: number;
+}
