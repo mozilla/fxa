@@ -22,61 +22,86 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: Amex,
         altText: l10n.getString('amex-logo-alt-text', 'American Express logo'),
+        width: 32,
+        height: 20,
       };
     case 'apple_pay':
       return {
         img: ApplePay,
         altText: l10n.getString('apple-pay-logo-alt-text', 'Apple Pay logo'),
+        width: 45,
+        height: 24,
       };
     case 'diners':
       return {
         img: Diners,
         altText: l10n.getString('diners-logo-alt-text', 'Diners logo'),
+        width: 32,
+        height: 20,
       };
     case 'discover':
       return {
         img: Discover,
         altText: l10n.getString('discover-logo-alt-text', 'Discover logo'),
+        width: 32,
+        height: 20,
       };
     case 'google_pay':
       return {
         img: GooglePay,
         altText: l10n.getString('google-pay-logo-alt-text', 'Google Pay logo'),
+        width: 45,
+        height: 24,
       };
     case 'jcb':
       return {
         img: Jcb,
         altText: l10n.getString('jcb-logo-alt-text', 'JCB logo'),
+        width: 32,
+        height: 20,
       };
     case 'link':
       return {
         img: Link,
         altText: l10n.getString('link-logo-alt-text', 'Link logo'),
-      }
+        width: 72,
+        height: 24,
+      };
     case 'mastercard':
       return {
         img: Mastercard,
         altText: l10n.getString('mastercard-logo-alt-text', 'Mastercard logo'),
+        width: 32,
+        height: 20,
       };
+    case 'external_paypal':
     case 'paypal':
       return {
         img: Paypal,
         altText: l10n.getString('paypal-logo-alt-text', 'PayPal logo'),
+        width: 91,
+        height: 24,
       };
     case 'unionpay':
       return {
         img: UnionPay,
         altText: l10n.getString('unionpay-logo-alt-text', 'Union Pay logo'),
+        width: 32,
+        height: 20,
       };
     case 'visa':
       return {
         img: Visa,
         altText: l10n.getString('visa-logo-alt-text', 'Visa logo'),
+        width: 32,
+        height: 20,
       };
     default:
       return {
         img: Unbranded,
         altText: l10n.getString('unbranded-logo-alt-text', 'Unbranded logo'),
+        width: 32,
+        height: 20,
       };
   }
 }

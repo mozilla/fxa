@@ -1,8 +1,5 @@
 ## Page - Subscription Management
 
-subscription-management-page-paypal-error-banner-title-invalid-payment-information = Invalid payment information
-subscription-management-page-paypal-error-banner-message-account-error = There is an error with your account.
-subscription-management-button-manage-payment-method-1 = Manage payment method
 subscription-management-page-banner-warning-title-no-payment-method = No payment method added
 subscription-management-page-banner-warning-link-no-payment-method = Add a payment method
 subscription-management-subscriptions-heading = Subscriptions
@@ -24,7 +21,6 @@ subscription-management-button-manage-payment-method = Manage
 subscription-management-card-ending-in = Card ending in { $last4 }
 # $expirationDate (Date) - Payment card's expiration date
 subscription-management-card-expires-date = Expires { $expirationDate }
-subscription-management-error-paypal-billing-agreement = There is an issue with your { -brand-paypal } account. Please resolve the issue to maintain your active subscriptions.
 subscription-management-active-subscriptions-heading = Active subscriptions
 subscription-management-you-have-no-active-subscriptions = You have no active subscriptions
 subscription-management-new-subs-will-appear-here = New subscriptions will appear here.
@@ -41,3 +37,15 @@ subscription-management-iap-sub-expires-on-expiry-date = Expires on { $date }
 # $productName (String) - The name of the subscribed product, e.g. Mozilla VPN
 subscription-management-button-manage-subscription-aria = Manage subscription for { $productName }
 subscription-management-button-manage-subscription-1 = Manage subscription
+error-payment-method-banner-title-expired-card = Expired card
+error-payment-method-banner-message-add-new-card = Add a new card or payment method to avoid interruption to your subscriptions.
+error-payment-method-banner-label-update-payment-method = Update payment method
+error-payment-method-expired-card = Your card has expired. Please add a new card or payment method to avoid interruption to your subscriptions.
+error-payment-method-banner-title-invalid-payment-information = Invalid payment information
+error-payment-method-banner-message-account-issue = There is an issue with your account.
+subscription-management-button-manage-payment-method-1 = Manage payment method
+subscription-management-error-apple-pay = There is an issue with your { -brand-apple-pay } account. Please resolve the issue to maintain your active subscriptions.
+subscription-management-error-google-pay = There is an issue with your { -brand-google-pay } account. Please resolve the issue to maintain your active subscriptions.
+subscription-management-error-link = There is an issue with your { -brand-link } account. Please resolve the issue to maintain your active subscriptions.
+subscription-management-error-paypal-billing-agreement = There is an issue with your { -brand-paypal } account. Please resolve the issue to maintain your active subscriptions.
+subscription-management-error-payment-method = There is an issue with your payment method. Please resolve the issue to maintain your active subscriptions.

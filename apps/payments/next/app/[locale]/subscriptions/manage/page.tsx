@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import classNames from 'classnames';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -9,6 +10,7 @@ import { redirect } from 'next/navigation';
 import React from 'react';
 import { URLSearchParams } from 'url';
 
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 import {
   Banner,
   BannerVariant,
@@ -17,7 +19,10 @@ import {
   ManageParams,
   SubscriptionContent,
 } from '@fxa/payments/ui';
-import { getExperimentsAction, getSubManPageContentAction } from '@fxa/payments/ui/actions';
+import {
+  getExperimentsAction,
+  getSubManPageContentAction,
+} from '@fxa/payments/ui/actions';
 import { getApp } from '@fxa/payments/ui/server';
 import alertIcon from '@fxa/shared/assets/images/alert-yellow.svg';
 import arrowDownIcon from '@fxa/shared/assets/images/arrow-down.svg';
@@ -52,7 +57,7 @@ export default async function Manage({
   const experiments = await getExperimentsAction({
     fxaUid: userId,
     language: locale,
-  })
+  });
 
   const {
     accountCreditBalance,
@@ -69,10 +74,8 @@ export default async function Manage({
     expYear,
     last4,
     type,
-    walletType,
+    hasPaymentMethodError,
   } = defaultPaymentMethod || {};
-  const isPaypalBillingAgreementError =
-    type === 'external_paypal' && brand === 'paypal' && !billingAgreementId;
   const expirationDate =
     expMonth && expYear
       ? l10n.getLocalizedMonthYearString(expMonth, expYear, locale)
@@ -85,9 +88,7 @@ export default async function Manage({
       {experiments?.Features['welcome-feature']?.enabled && (
         <Banner variant={BannerVariant.Success}>
           <div className="leading-6 text-base">
-            <p className="font-bold">
-              Welcome
-            </p>
+            <p className="font-bold">Welcome</p>
 
             <p className="font-normal">
               Welcome to the new and redesigned Subscription Management Page!
@@ -95,35 +96,41 @@ export default async function Manage({
           </div>
         </Banner>
       )}
-      {isPaypalBillingAgreementError && (
-        <Banner variant={BannerVariant.Error}>
+      {hasPaymentMethodError && (
+        <Banner variant={hasPaymentMethodError.bannerType}>
           <div className="leading-6 text-base">
             <p className="font-bold">
               {l10n.getString(
-                'subscription-management-page-paypal-error-banner-title-invalid-payment-information',
-                'Invalid payment information'
+                hasPaymentMethodError.bannerTitleFtl,
+                hasPaymentMethodError.bannerTitle
               )}
             </p>
 
             <p className="font-normal">
               {l10n.getString(
-                'subscription-management-page-paypal-error-banner-message-account-error',
-                'There is an error with your account.'
+                hasPaymentMethodError.bannerMessageFtl,
+                hasPaymentMethodError.bannerMessage
               )}
             </p>
 
             <LinkExternal
               className="font-normal text-blue-500 hover:text-blue-600 cursor-pointer underline"
-              href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`}
+              href={
+                hasPaymentMethodError.paymentMethodType ===
+                SubPlatPaymentMethodType.PayPal
+                  ? `${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`
+                  : `${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`
+              }
             >
               {l10n.getString(
-                'subscription-management-button-manage-payment-method-1',
-                'Manage payment method'
+                hasPaymentMethodError.bannerLinkLabelFtl,
+                hasPaymentMethodError.bannerLinkLabel
               )}
             </LinkExternal>
           </div>
         </Banner>
       )}
+
       {isStripeCustomer &&
         !defaultPaymentMethod &&
         subscriptions.length > 0 && (
@@ -141,7 +148,7 @@ export default async function Manage({
                   'Please add a payment method to avoid interruption to your subscriptions.'
                 )}
               </p>
-              <Link
+              <LinkExternal
                 className="font-normal text-blue-500 hover:text-blue-600 cursor-pointer underline"
                 href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
               >
@@ -149,7 +156,7 @@ export default async function Manage({
                   'subscription-management-page-banner-warning-link-no-payment-method',
                   'Add a payment method'
                 )}
-              </Link>
+              </LinkExternal>
             </div>
           </Banner>
         )}
@@ -166,25 +173,46 @@ export default async function Manage({
       {(subscriptions.length > 0 ||
         appleIapSubscriptions.length > 0 ||
         googleIapSubscriptions.length > 0) && (
-          <nav
-            className="px-4 tablet:hidden"
-            aria-labelledby="mobile-quick-links-menu"
-          >
-            <h2 id="mobile-quick-links-menu" className="font-bold my-6">
-              {l10n.getString(
-                'subscription-management-jump-to-heading',
-                'Jump to'
-              )}
-            </h2>
-            <ul className="flex flex-col gap-6">
+        <nav
+          className="px-4 tablet:hidden"
+          aria-labelledby="mobile-quick-links-menu"
+        >
+          <h2 id="mobile-quick-links-menu" className="font-bold my-6">
+            {l10n.getString(
+              'subscription-management-jump-to-heading',
+              'Jump to'
+            )}
+          </h2>
+          <ul className="flex flex-col gap-6">
+            <li>
+              <Link
+                className="flex items-center justify-between text-blue-500 hover:text-blue-600 cursor-pointer underline"
+                href="#payment-details"
+              >
+                {l10n.getString(
+                  'subscription-management-nav-payment-details',
+                  'Payment details'
+                )}
+                <Image
+                  src={arrowDownIcon}
+                  alt=""
+                  width={12}
+                  height={12}
+                  aria-hidden="true"
+                />
+              </Link>
+            </li>
+            {(subscriptions.length > 0 ||
+              appleIapSubscriptions.length > 0 ||
+              googleIapSubscriptions.length > 0) && (
               <li>
                 <Link
                   className="flex items-center justify-between text-blue-500 hover:text-blue-600 cursor-pointer underline"
-                  href="#payment-details"
+                  href="#active-subscriptions"
                 >
                   {l10n.getString(
-                    'subscription-management-nav-payment-details',
-                    'Payment details'
+                    'subscription-management-nav-active-subscriptions',
+                    'Active subscriptions'
                   )}
                   <Image
                     src={arrowDownIcon}
@@ -195,31 +223,10 @@ export default async function Manage({
                   />
                 </Link>
               </li>
-              {(subscriptions.length > 0 ||
-                appleIapSubscriptions.length > 0 ||
-                googleIapSubscriptions.length > 0) && (
-                  <li>
-                    <Link
-                      className="flex items-center justify-between text-blue-500 hover:text-blue-600 cursor-pointer underline"
-                      href="#active-subscriptions"
-                    >
-                      {l10n.getString(
-                        'subscription-management-nav-active-subscriptions',
-                        'Active subscriptions'
-                      )}
-                      <Image
-                        src={arrowDownIcon}
-                        alt=""
-                        width={12}
-                        height={12}
-                        aria-hidden="true"
-                      />
-                    </Link>
-                  </li>
-                )}
-            </ul>
-          </nav>
-        )}
+            )}
+          </ul>
+        </nav>
+      )}
 
       <section
         id="payment-details"
@@ -288,7 +295,9 @@ export default async function Manage({
                     aria-hidden="true"
                   ></div>
                   <div
-                    className={`w-full flex flex-col gap-2 tablet:flex-row ${(type === 'card' && brand && !walletType) || isPaypalBillingAgreementError ? 'tablet:items-start' : 'tablet:items-center'}`}
+                    className={classNames(
+                      `w-full flex flex-col gap-2 tablet:flex-row ${defaultPaymentMethod?.type === SubPlatPaymentMethodType.Card || hasPaymentMethodError ? 'tablet:items-start' : 'tablet:items-center'}`
+                    )}
                   >
                     <h3 className="tablet:min-w-[160px]">
                       {l10n.getString(
@@ -305,8 +314,8 @@ export default async function Manage({
                             'Please add a payment method to avoid interruption to your subscriptions.'
                           )}
                         </p>
-                        <Link
-                          className="bg-blue-500 border border-blue-600 box-border font-bold font-header inline-block rounded text-center text-white w-full py-2 px-5 tablet:w-auto"
+                        <LinkExternal
+                          className="bg-blue-500 border border-blue-600 box-border font-bold font-header inline-block rounded text-center text-white w-full py-2 px-5 hover:bg-blue-700 tablet:w-auto"
                           href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
                           aria-label={l10n.getString(
                             'subscription-management-button-add-payment-method-aria',
@@ -319,160 +328,122 @@ export default async function Manage({
                               'Add'
                             )}
                           </span>
-                        </Link>
+                        </LinkExternal>
                       </div>
                     )}
 
-                    {type === 'card' && walletType && (
-                      <div className="w-full flex items-center justify-between">
-                        <Image
-                          src={
-                            getCardIcon(
-                              walletType === 'apple_pay'
-                                ? 'apple_pay'
-                                : 'google_pay',
-                              l10n
-                            ).img
-                          }
-                          alt={
-                            walletType === 'apple_pay'
-                              ? l10n.getString(
-                                'apple-pay-logo-alt-text',
-                                'Apple Pay logo'
-                              )
-                              : l10n.getString(
-                                'google-pay-logo-alt-text',
-                                'Google Pay logo'
-                              )
-                          }
-                          width={45}
-                          height={24}
-                        />
-                        <Link
-                          className="bg-grey-10 border border-grey-200 box-border font-bold font-header inline-block rounded text-center py-2 px-5 w-auto"
-                          href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
-                          aria-label={l10n.getString(
-                            'subscription-management-button-manage-payment-method-aria',
-                            'Manage payment method'
-                          )}
-                        >
-                          {l10n.getString(
-                            'subscription-management-button-manage-payment-method',
-                            'Manage'
-                          )}
-                        </Link>
-                      </div>
-                    )}
-
-                    {type === 'card' && brand && !walletType && (
-                      <div className="w-full flex flex-col leading-6 tablet:flex-row tablet:items-center tablet:justify-between">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src={getCardIcon(brand, l10n).img}
-                              alt={getCardIcon(brand, l10n).altText}
-                              width={32}
-                              height={20}
-                            />
-                            {last4 && (
-                              <span className="font-bold">
-                                {l10n.getString(
-                                  'subscription-management-card-ending-in',
-                                  { last4 },
-                                  `Card ending in ${last4}`
-                                )}
-                              </span>
-                            )}
-                          </div>
-                          {expirationDate && (
-                            <p className="pt-1 pb-2 tablet:pb-0 text-sm">
-                              {l10n.getString(
-                                'subscription-management-card-expires-date',
-                                { expirationDate },
-                                `Expires ${expirationDate}`
-                              )}
-                            </p>
-                          )}
-                        </div>
-                        <Link
-                          className="bg-grey-10 border border-grey-200 box-border font-bold font-header inline-block rounded text-center w-full py-2 px-5 tablet:w-auto"
-                          href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
-                          aria-label={l10n.getString(
-                            'subscription-management-button-manage-payment-method-aria',
-                            'Manage payment method'
-                          )}
-                        >
-                          {l10n.getString(
-                            'subscription-management-button-manage-payment-method',
-                            'Manage'
-                          )}
-                        </Link>
-                      </div>
-                    )}
-
-                    {type === 'link' && (
-                      <div className="w-full flex items-center justify-between">
-                        <Image
-                          src={getCardIcon('link', l10n).img}
-                          alt={l10n.getString(
-                            'link-logo-alt-text',
-                            'Link logo'
-                          )}
-                          width={72}
-                          height={24}
-                        />
-                        <Link
-                          className="bg-grey-10 border border-grey-200 box-border font-bold font-header inline-block rounded text-center py-2 px-5 w-auto"
-                          href={`${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`}
-                          aria-label={l10n.getString(
-                            'subscription-management-button-manage-payment-method-aria',
-                            'Manage payment method'
-                          )}
-                        >
-                          {l10n.getString(
-                            'subscription-management-button-manage-payment-method',
-                            'Manage'
-                          )}
-                        </Link>
-                      </div>
-                    )}
-
-                    {type === 'external_paypal' && (
+                    {type && (
                       <div
-                        className={`w-full flex ${isPaypalBillingAgreementError ? 'flex-col items-start tablet:flex-row' : 'items-center'} justify-between gap-4`}
+                        className={classNames(
+                          'w-full flex justify-between gap-3',
+                          {
+                            'flex-row':
+                              !(
+                                defaultPaymentMethod?.type ===
+                                SubPlatPaymentMethodType.Card
+                              ) && !hasPaymentMethodError,
+                            'flex-row items-center': !hasPaymentMethodError,
+                            'flex-col items-start tablet:flex-row':
+                              hasPaymentMethodError,
+                            'flex-col leading-6 items-start tablet:flex-row tablet:justify-between':
+                              defaultPaymentMethod?.type ===
+                              SubPlatPaymentMethodType.Card,
+                          }
+                        )}
                       >
-                        <div className="leading-6">
-                          <Image
-                            src={getCardIcon('paypal', l10n).img}
-                            alt={l10n.getString(
-                              'paypal-logo-alt-text',
-                              'PayPal logo'
-                            )}
-                            width={91}
-                            height={24}
-                          />
-                          {isPaypalBillingAgreementError && (
-                            <p className="pt-3 text-red-700">
+                        <div
+                          className={classNames('flex flex-col', {
+                            'w-full':
+                              defaultPaymentMethod?.type ===
+                              SubPlatPaymentMethodType.Card,
+                          })}
+                        >
+                          {defaultPaymentMethod?.type ===
+                            SubPlatPaymentMethodType.Card && brand ? (
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <Image
+                                  src={getCardIcon(brand, l10n).img}
+                                  alt={getCardIcon(brand, l10n).altText}
+                                  width={getCardIcon(brand, l10n).width}
+                                  height={getCardIcon(brand, l10n).height}
+                                />
+                                {last4 && (
+                                  <span className="font-bold">
+                                    {l10n.getString(
+                                      'subscription-management-card-ending-in',
+                                      { last4 },
+                                      `Card ending in ${last4}`
+                                    )}
+                                  </span>
+                                )}
+                              </div>
+                              {expirationDate && (
+                                <p className="pt-1 tablet:pb-0 text-sm">
+                                  {l10n.getString(
+                                    'subscription-management-card-expires-date',
+                                    { expirationDate },
+                                    `Expires ${expirationDate}`
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <Image
+                              src={getCardIcon(type, l10n).img}
+                              alt={getCardIcon(type, l10n).altText}
+                              width={getCardIcon(type, l10n).width}
+                              height={getCardIcon(type, l10n).height}
+                            />
+                          )}
+                          {hasPaymentMethodError && (
+                            <p className="leading-6 pt-3 text-red-700">
                               {l10n.getString(
-                                'subscription-management-error-paypal-billing-agreement',
-                                'There is an issue with your PayPal account. Please resolve the issue to maintain your active subscriptions.'
+                                hasPaymentMethodError.messageFtl,
+                                {
+                                  paymentMethodType:
+                                    hasPaymentMethodError.paymentMethodType,
+                                },
+                                hasPaymentMethodError.message
                               )}
                             </p>
                           )}
                         </div>
+
                         <div
-                          className={`${isPaypalBillingAgreementError && 'flex tablet:justify-end w-full tablet:w-auto'}`}
+                          className={classNames('', {
+                            'w-auto': !(
+                              defaultPaymentMethod?.type ===
+                              SubPlatPaymentMethodType.Card
+                            ),
+                            'w-full tablet:w-auto':
+                              defaultPaymentMethod?.type ===
+                              SubPlatPaymentMethodType.Card,
+                            'flex tablet:justify-end w-full tablet:w-auto':
+                              hasPaymentMethodError,
+                          })}
                         >
                           <LinkExternal
-                            className={
-                              isPaypalBillingAgreementError
-                                ? `flex items-center justify-center bg-blue-500 border border-blue-600 box-border font-bold font-header rounded text-center py-2 px-5 tablet:w-auto text-white w-full h-10`
-                                : 'bg-grey-10 border border-grey-200 box-border font-bold font-header inline-block rounded text-center py-2 px-5 w-auto'
-                            }
+                            className={classNames(
+                              'border box-border font-bold font-header rounded text-center py-2 px-5',
+                              {
+                                'bg-grey-10 border-grey-200 w-auto':
+                                  !(
+                                    defaultPaymentMethod?.type ===
+                                    SubPlatPaymentMethodType.Card
+                                  ) && !hasPaymentMethodError,
+                                'bg-grey-10 border-grey-200 hover:bg-grey-50 inline-block justify-between w-full tablet:w-auto':
+                                  !hasPaymentMethodError,
+                                'bg-blue-500 border-blue-600 hover:bg-blue-700 text-white w-full':
+                                  hasPaymentMethodError,
+                              }
+                            )}
                             href={
-                              isPaypalBillingAgreementError
-                                ? `${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`
-                                : `${config.csp.paypalApi}/myaccount/autopay/connect/${billingAgreementId}`
+                              type === SubPlatPaymentMethodType.PayPal
+                                ? hasPaymentMethodError
+                                  ? `${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/paypal`
+                                  : `${config.csp.paypalApi}/myaccount/autopay/connect/${billingAgreementId}`
+                                : `${config.paymentsNextHostedUrl}/${locale}/subscriptions/payments/stripe`
                             }
                             aria-label={l10n.getString(
                               'subscription-management-button-manage-payment-method-aria',
@@ -537,53 +508,126 @@ export default async function Manage({
         {(subscriptions.length > 0 ||
           appleIapSubscriptions.length > 0 ||
           googleIapSubscriptions.length > 0) && (
-            <>
+          <>
+            <ul
+              aria-label={l10n.getString(
+                'subscription-management-your-active-subscriptions-aria',
+                'Your active subscriptions'
+              )}
+            >
+              {subscriptions.map((sub, index: number) => {
+                return (
+                  <li
+                    key={`${sub.productName}-${index}`}
+                    aria-labelledby={`${sub.productName}-information`}
+                    className="leading-6 pb-4"
+                  >
+                    <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
+                      <div className="flex flex-col px-4 tablet:px-0 tablet:flex-row tablet:items-start">
+                        <div className="tablet:min-w-[160px]">
+                          <Image
+                            src={sub.webIcon}
+                            alt={sub.productName}
+                            height={64}
+                            width={64}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-4 w-full">
+                          <div className="flex items-start justify-between mt-4 tablet:mt-0">
+                            <div>
+                              <h3
+                                id={`${sub.productName}-information`}
+                                className="font-bold text-lg"
+                              >
+                                {sub.productName}
+                              </h3>
+                              <p className="text-grey-500">
+                                {sub.interval &&
+                                  formatPlanInterval(sub.interval)}
+                              </p>
+                            </div>
+                            <LinkExternal
+                              href={sub.supportUrl}
+                              className="text-blue-500 hover:text-blue-600 cursor-pointer overflow-hidden text-ellipsis underline whitespace-nowrap"
+                              aria-label={l10n.getString(
+                                'subscription-management-button-support-aria',
+                                { productName: sub.productName },
+                                `Get help for ${sub.productName}`
+                              )}
+                              data-testid={`link-external-support-${sub.productName}`}
+                            >
+                              <span>
+                                {l10n.getString(
+                                  'subscription-management-button-support',
+                                  'Get help'
+                                )}
+                              </span>
+                            </LinkExternal>
+                          </div>
+                          <SubscriptionContent
+                            userId={userId}
+                            subscription={sub}
+                            locale={locale}
+                            supportUrl={sub.supportUrl}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {appleIapSubscriptions.length > 0 && (
               <ul
                 aria-label={l10n.getString(
-                  'subscription-management-your-active-subscriptions-aria',
-                  'Your active subscriptions'
+                  'subscription-management-your-apple-iap-subscriptions-aria',
+                  'Your Apple In-App Subscriptions'
                 )}
               >
-                {subscriptions.map((sub, index: number) => {
+                {appleIapSubscriptions.map((purchase, index: number) => {
+                  let nextBillDate: string | undefined;
+                  if (purchase.expiresDate) {
+                    const dateExpired = new Date(purchase.expiresDate);
+                    nextBillDate = l10n.getLocalizedDateString(
+                      Math.floor(dateExpired.getTime() / 1000),
+                      false,
+                      locale
+                    );
+                  }
                   return (
                     <li
-                      key={`${sub.productName}-${index}`}
-                      aria-labelledby={`${sub.productName}-information`}
+                      key={`${purchase.storeId}-${index}`}
+                      aria-labelledby={`${purchase.productName}-heading`}
                       className="leading-6 pb-4"
                     >
                       <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
                         <div className="flex flex-col px-4 tablet:px-0 tablet:flex-row tablet:items-start">
                           <div className="tablet:min-w-[160px]">
                             <Image
-                              src={sub.webIcon}
-                              alt={sub.productName}
+                              src={purchase.webIcon}
+                              alt={purchase.productName}
                               height={64}
                               width={64}
                             />
                           </div>
                           <div className="flex flex-col gap-4 w-full">
                             <div className="flex items-start justify-between mt-4 tablet:mt-0">
-                              <div>
-                                <h3
-                                  id={`${sub.productName}-information`}
-                                  className="font-bold text-lg"
-                                >
-                                  {sub.productName}
-                                </h3>
-                                <p className="text-grey-500">
-                                  {sub.interval &&
-                                    formatPlanInterval(sub.interval)}
-                                </p>
-                              </div>
+                              <h3
+                                id={`${purchase.productName}-heading`}
+                                className="font-bold text-lg"
+                              >
+                                {purchase.productName}
+                              </h3>
                               <LinkExternal
-                                href={sub.supportUrl}
-                                className="text-blue-500 hover:text-blue-600 cursor-pointer overflow-hidden text-ellipsis underline whitespace-nowrap"
+                                href={purchase.supportUrl}
+                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
                                 aria-label={l10n.getString(
                                   'subscription-management-button-support-aria',
-                                  { productName: sub.productName },
-                                  `Get help for ${sub.productName}`
+                                  { productName: purchase.productName },
+                                  `Get help for ${purchase.productName}`
                                 )}
-                                data-testid={`link-external-support-${sub.productName}`}
+                                data-testid={`link-external-support-${purchase.productName}`}
                               >
                                 <span>
                                   {l10n.getString(
@@ -593,12 +637,77 @@ export default async function Manage({
                                 </span>
                               </LinkExternal>
                             </div>
-                            <SubscriptionContent
-                              userId={userId}
-                              subscription={sub}
-                              locale={locale}
-                              supportUrl={sub.supportUrl}
-                            />
+                            <div className="bg-grey-10 leading-6 p-4 rounded-lg">
+                              <div className="flex items-center -my-2 -mx-3">
+                                <Image
+                                  src={iapAppleLogo}
+                                  alt=""
+                                  width={46}
+                                  height={46}
+                                  aria-hidden="true"
+                                />
+                                <p>
+                                  {l10n.getString(
+                                    'subscription-management-apple-in-app-purchase-2',
+                                    'Apple in-app purchase'
+                                  )}
+                                </p>
+                              </div>
+                              {nextBillDate && (
+                                <>
+                                  <div
+                                    className="border-none h-px bg-grey-100 my-2"
+                                    role="separator"
+                                    aria-hidden="true"
+                                  ></div>
+                                  <div className="flex items-center gap-1">
+                                    <Image
+                                      src={alertIcon}
+                                      alt=""
+                                      width={20}
+                                      height={20}
+                                      aria-hidden="true"
+                                    />
+                                    <p className="text-sm text-yellow-800">
+                                      {l10n.getString(
+                                        'subscription-management-iap-sub-expires-on-expiry-date',
+                                        {
+                                          date: nextBillDate,
+                                        },
+                                        `Expires on ${nextBillDate}`
+                                      )}
+                                    </p>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                            <div className="flex justify-end w-full tablet:w-auto">
+                              <LinkExternal
+                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
+                                href={`https://apps.apple.com/account/subscriptions`}
+                                aria-label={l10n.getString(
+                                  'subscription-management-button-manage-subscription-aria',
+                                  {
+                                    productName: purchase.productName,
+                                  },
+                                  `Manage subscription for ${purchase.productName}`
+                                )}
+                              >
+                                <span>
+                                  {l10n.getString(
+                                    'subscription-management-button-manage-subscription-1',
+                                    'Manage subscription'
+                                  )}
+                                </span>
+                                <Image
+                                  src={newWindowIcon}
+                                  alt=""
+                                  width={16}
+                                  height={16}
+                                  aria-hidden="true"
+                                />
+                              </LinkExternal>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -606,89 +715,98 @@ export default async function Manage({
                   );
                 })}
               </ul>
+            )}
 
-              {appleIapSubscriptions.length > 0 && (
-                <ul
-                  aria-label={l10n.getString(
-                    'subscription-management-your-apple-iap-subscriptions-aria',
-                    'Your Apple In-App Subscriptions'
-                  )}
-                >
-                  {appleIapSubscriptions.map((purchase, index: number) => {
-                    let nextBillDate: string | undefined;
-                    if (purchase.expiresDate) {
-                      const dateExpired = new Date(purchase.expiresDate);
-                      nextBillDate = l10n.getLocalizedDateString(
-                        Math.floor(dateExpired.getTime() / 1000),
-                        false,
-                        locale
-                      );
-                    }
-                    return (
-                      <li
-                        key={`${purchase.storeId}-${index}`}
-                        aria-labelledby={`${purchase.productName}-heading`}
-                        className="leading-6 pb-4"
-                      >
-                        <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
-                          <div className="flex flex-col px-4 tablet:px-0 tablet:flex-row tablet:items-start">
-                            <div className="tablet:min-w-[160px]">
-                              <Image
-                                src={purchase.webIcon}
-                                alt={purchase.productName}
-                                height={64}
-                                width={64}
-                              />
-                            </div>
-                            <div className="flex flex-col gap-4 w-full">
-                              <div className="flex items-start justify-between mt-4 tablet:mt-0">
-                                <h3
-                                  id={`${purchase.productName}-heading`}
-                                  className="font-bold text-lg"
-                                >
-                                  {purchase.productName}
-                                </h3>
-                                <LinkExternal
-                                  href={purchase.supportUrl}
-                                  className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
-                                  aria-label={l10n.getString(
-                                    'subscription-management-button-support-aria',
-                                    { productName: purchase.productName },
-                                    `Get help for ${purchase.productName}`
+            {googleIapSubscriptions.length > 0 && (
+              <ul
+                aria-label={l10n.getString(
+                  'subscription-management-your-google-iap-subscriptions-aria',
+                  'Your Google In-App Subscriptions'
+                )}
+              >
+                {googleIapSubscriptions.map((purchase, index: number) => {
+                  const nextBillDate = l10n.getLocalizedDateString(
+                    purchase.expiryTimeMillis / 1000,
+                    false,
+                    locale
+                  );
+                  return (
+                    <li
+                      key={`${purchase.storeId}-${index}`}
+                      aria-labelledby={`${purchase.productName}-heading`}
+                      className="leading-6 pb-4"
+                    >
+                      <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
+                        <div className="flex flex-col px-4 tablet:px-0 tablet:flex-row tablet:items-start">
+                          <div className="tablet:min-w-[160px]">
+                            <Image
+                              src={purchase.webIcon}
+                              alt={purchase.productName}
+                              height={64}
+                              width={64}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-4 w-full">
+                            <div className="flex items-start justify-between mt-4 tablet:mt-0">
+                              <h3
+                                id={`${purchase.productName}-heading`}
+                                className="font-bold text-lg"
+                              >
+                                {purchase.productName}
+                              </h3>
+                              <LinkExternal
+                                href={purchase.supportUrl}
+                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
+                                aria-label={l10n.getString(
+                                  'subscription-management-button-support-aria',
+                                  { productName: purchase.productName },
+                                  `Get help for ${purchase.productName}`
+                                )}
+                                data-testid={`link-external-support-${purchase.productName}`}
+                              >
+                                <span>
+                                  {l10n.getString(
+                                    'subscription-management-button-support',
+                                    'Get help'
                                   )}
-                                  data-testid={`link-external-support-${purchase.productName}`}
-                                >
-                                  <span>
-                                    {l10n.getString(
-                                      'subscription-management-button-support',
-                                      'Get help'
-                                    )}
-                                  </span>
-                                </LinkExternal>
+                                </span>
+                              </LinkExternal>
+                            </div>
+                            <div className="bg-grey-10 leading-6 p-4 rounded-lg">
+                              <div className="flex items-center -my-2 -mx-3">
+                                <Image
+                                  src={iapGoogleLogo}
+                                  alt=""
+                                  width={46}
+                                  height={46}
+                                  aria-hidden="true"
+                                />
+                                <p>
+                                  {l10n.getString(
+                                    'subscription-management-google-in-app-purchase-2',
+                                    'Google in-app purchase'
+                                  )}
+                                </p>
                               </div>
-                              <div className="bg-grey-10 leading-6 p-4 rounded-lg">
-                                <div className="flex items-center -my-2 -mx-3">
-                                  <Image
-                                    src={iapAppleLogo}
-                                    alt=""
-                                    width={46}
-                                    height={46}
+                              {!!purchase.expiryTimeMillis && (
+                                <>
+                                  <div
+                                    className="border-none h-px bg-grey-100 my-2"
+                                    role="separator"
                                     aria-hidden="true"
-                                  />
-                                  <p>
-                                    {l10n.getString(
-                                      'subscription-management-apple-in-app-purchase-2',
-                                      'Apple in-app purchase'
-                                    )}
-                                  </p>
-                                </div>
-                                {nextBillDate && (
-                                  <>
-                                    <div
-                                      className="border-none h-px bg-grey-100 my-2"
-                                      role="separator"
-                                      aria-hidden="true"
-                                    ></div>
+                                  ></div>
+
+                                  {purchase.autoRenewing ? (
+                                    <p className="text-grey-500 text-sm">
+                                      {l10n.getFragmentWithSource(
+                                        'subscription-management-iap-sub-next-bill-1',
+                                        {
+                                          vars: { date: nextBillDate },
+                                        },
+                                        <p>Next bill &bull; {nextBillDate}</p>
+                                      )}
+                                    </p>
+                                  ) : (
                                     <div className="flex items-center gap-1">
                                       <Image
                                         src={alertIcon}
@@ -707,196 +825,49 @@ export default async function Manage({
                                         )}
                                       </p>
                                     </div>
-                                  </>
-                                )}
-                              </div>
-                              <div className="flex justify-end w-full tablet:w-auto">
-                                <LinkExternal
-                                  className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
-                                  href={`https://apps.apple.com/account/subscriptions`}
-                                  aria-label={l10n.getString(
-                                    'subscription-management-button-manage-subscription-aria',
-                                    {
-                                      productName: purchase.productName,
-                                    },
-                                    `Manage subscription for ${purchase.productName}`
                                   )}
-                                >
-                                  <span>
-                                    {l10n.getString(
-                                      'subscription-management-button-manage-subscription-1',
-                                      'Manage subscription'
-                                    )}
-                                  </span>
-                                  <Image
-                                    src={newWindowIcon}
-                                    alt=""
-                                    width={16}
-                                    height={16}
-                                    aria-hidden="true"
-                                  />
-                                </LinkExternal>
-                              </div>
+                                </>
+                              )}
+                            </div>
+                            <div className="flex justify-end w-full tablet:w-auto">
+                              <LinkExternal
+                                className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
+                                href={`https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(
+                                  purchase.sku
+                                )}&package=${encodeURIComponent(purchase.packageName)}`}
+                                aria-label={l10n.getString(
+                                  'subscription-management-button-manage-subscription-aria',
+                                  {
+                                    productName: purchase.productName,
+                                  },
+                                  `Manage subscription for ${purchase.productName}`
+                                )}
+                              >
+                                <span>
+                                  {l10n.getString(
+                                    'subscription-management-button-manage-subscription-1',
+                                    'Manage subscription'
+                                  )}
+                                </span>
+                                <Image
+                                  src={newWindowIcon}
+                                  alt=""
+                                  width={16}
+                                  height={16}
+                                  aria-hidden="true"
+                                />
+                              </LinkExternal>
                             </div>
                           </div>
                         </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-
-              {googleIapSubscriptions.length > 0 && (
-                <ul
-                  aria-label={l10n.getString(
-                    'subscription-management-your-google-iap-subscriptions-aria',
-                    'Your Google In-App Subscriptions'
-                  )}
-                >
-                  {googleIapSubscriptions.map((purchase, index: number) => {
-                    const nextBillDate = l10n.getLocalizedDateString(
-                      purchase.expiryTimeMillis / 1000,
-                      false,
-                      locale
-                    );
-                    return (
-                      <li
-                        key={`${purchase.storeId}-${index}`}
-                        aria-labelledby={`${purchase.productName}-heading`}
-                        className="leading-6 pb-4"
-                      >
-                        <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
-                          <div className="flex flex-col px-4 tablet:px-0 tablet:flex-row tablet:items-start">
-                            <div className="tablet:min-w-[160px]">
-                              <Image
-                                src={purchase.webIcon}
-                                alt={purchase.productName}
-                                height={64}
-                                width={64}
-                              />
-                            </div>
-                            <div className="flex flex-col gap-4 w-full">
-                              <div className="flex items-start justify-between mt-4 tablet:mt-0">
-                                <h3
-                                  id={`${purchase.productName}-heading`}
-                                  className="font-bold text-lg"
-                                >
-                                  {purchase.productName}
-                                </h3>
-                                <LinkExternal
-                                  href={purchase.supportUrl}
-                                  className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
-                                  aria-label={l10n.getString(
-                                    'subscription-management-button-support-aria',
-                                    { productName: purchase.productName },
-                                    `Get help for ${purchase.productName}`
-                                  )}
-                                  data-testid={`link-external-support-${purchase.productName}`}
-                                >
-                                  <span>
-                                    {l10n.getString(
-                                      'subscription-management-button-support',
-                                      'Get help'
-                                    )}
-                                  </span>
-                                </LinkExternal>
-                              </div>
-                              <div className="bg-grey-10 leading-6 p-4 rounded-lg">
-                                <div className="flex items-center -my-2 -mx-3">
-                                  <Image
-                                    src={iapGoogleLogo}
-                                    alt=""
-                                    width={46}
-                                    height={46}
-                                    aria-hidden="true"
-                                  />
-                                  <p>
-                                    {l10n.getString(
-                                      'subscription-management-google-in-app-purchase-2',
-                                      'Google in-app purchase'
-                                    )}
-                                  </p>
-                                </div>
-                                {!!purchase.expiryTimeMillis && (
-                                  <>
-                                    <div
-                                      className="border-none h-px bg-grey-100 my-2"
-                                      role="separator"
-                                      aria-hidden="true"
-                                    ></div>
-
-                                    {purchase.autoRenewing ? (
-                                      <p className="text-grey-500 text-sm">
-                                        {l10n.getFragmentWithSource(
-                                          'subscription-management-iap-sub-next-bill-1',
-                                          {
-                                            vars: { date: nextBillDate },
-                                          },
-                                          <p>Next bill &bull; {nextBillDate}</p>
-                                        )}
-                                      </p>
-                                    ) : (
-                                      <div className="flex items-center gap-1">
-                                        <Image
-                                          src={alertIcon}
-                                          alt=""
-                                          width={20}
-                                          height={20}
-                                          aria-hidden="true"
-                                        />
-                                        <p className="text-sm text-yellow-800">
-                                          {l10n.getString(
-                                            'subscription-management-iap-sub-expires-on-expiry-date',
-                                            {
-                                              date: nextBillDate,
-                                            },
-                                            `Expires on ${nextBillDate}`
-                                          )}
-                                        </p>
-                                      </div>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                              <div className="flex justify-end w-full tablet:w-auto">
-                                <LinkExternal
-                                  className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis underline whitespace-nowrap"
-                                  href={`https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(
-                                    purchase.sku
-                                  )}&package=${encodeURIComponent(purchase.packageName)}`}
-                                  aria-label={l10n.getString(
-                                    'subscription-management-button-manage-subscription-aria',
-                                    {
-                                      productName: purchase.productName,
-                                    },
-                                    `Manage subscription for ${purchase.productName}`
-                                  )}
-                                >
-                                  <span>
-                                    {l10n.getString(
-                                      'subscription-management-button-manage-subscription-1',
-                                      'Manage subscription'
-                                    )}
-                                  </span>
-                                  <Image
-                                    src={newWindowIcon}
-                                    alt=""
-                                    width={16}
-                                    height={16}
-                                    aria-hidden="true"
-                                  />
-                                </LinkExternal>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </>
-          )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </>
+        )}
       </section>
     </div>
   );
