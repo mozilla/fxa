@@ -7,19 +7,19 @@ import { Provider } from '@nestjs/common';
 import { IsBoolean, IsUrl } from 'class-validator';
 
 export class NimbusClientConfig {
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   public readonly apiUrl!: string;
 
   @IsBoolean()
   public readonly previewEnabled!: boolean;
 }
 
-export const MockStrapiClientConfig = {
+export const MockNimbusClientConfig = {
   apiUrl: faker.internet.url(),
   previewEnabled: faker.datatype.boolean(),
 } satisfies NimbusClientConfig;
 
-export const MockStrapiClientConfigProvider = {
+export const MockNimbusClientConfigProvider = {
   provide: NimbusClientConfig,
-  useValue: MockStrapiClientConfig,
+  useValue: MockNimbusClientConfig,
 } satisfies Provider<NimbusClientConfig>;

@@ -22,6 +22,8 @@ import { AppleIapClientConfig, GoogleIapClientConfig } from '@fxa/payments/iap';
 import { TracingConfig } from './tracing.config';
 import { StripeEventConfig } from '@fxa/payments/webhooks';
 import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
+import { NimbusClientConfig } from 'libs/shared/experiments/src/lib/nimbus.config';
+import { NimbusManagerConfig } from '@fxa/payments/experiments';
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -117,4 +119,14 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   location!: LocationConfig;
+
+  @Type(() => NimbusClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  nimbusClient!: NimbusClientConfig;
+
+  @Type(() => NimbusManagerConfig)
+  @ValidateNested()
+  @IsDefined()
+  nimbusManager!: NimbusManagerConfig;
 }
