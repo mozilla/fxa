@@ -286,7 +286,6 @@
     "css-minimizer-webpack-plugin": ">=4 <5",
     "form-data": "^4.0.4",
     "gobbledygook": "https://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2",
-    "koa": "^2.16.1",
     "minimist": "^1.2.6",
     "nest-typed-config/class-validator": "0.14.1",
     "plist": "^3.0.6",
