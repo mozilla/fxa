@@ -4,7 +4,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { generateNimbusId, NimbusClient } from '@fxa/shared/experiments';
-import type { NimbusManagerConfig } from './nimbus.manager.config';
+import { NimbusManagerConfig } from './nimbus.manager.config';
 
 @Injectable()
 export class NimbusManager {
@@ -13,17 +13,23 @@ export class NimbusManager {
     private nimbusManagerConfig: NimbusManagerConfig
   ) {}
 
+  generateNimbusId(fxaUid?: string) {
+    return generateNimbusId(this.nimbusManagerConfig.namespace, fxaUid);
+  }
+
   async fetchExperiments(fxaUid?: string, language?: string, region?: string) {
     if (!this.nimbusManagerConfig.enabled) {
       return null;
     }
 
     try {
+      const clientId = this.generateNimbusId(fxaUid);
       return await this.nimbusClient.fetchExperiments({
-        clientId: generateNimbusId(this.nimbusManagerConfig.namespace, fxaUid),
+        clientId,
         context: { language: language || null, region: region || null },
       });
     } catch (error) {
+      console.error('Failed to fetch Nimbus experiments:', error);
       return null;
     }
   }

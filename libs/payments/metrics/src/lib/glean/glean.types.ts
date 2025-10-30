@@ -32,8 +32,17 @@ export type CommonMetrics = {
 
 export type CartMetrics = Pick<
   ResultCart,
-  'uid' | 'errorReasonId' | 'couponCode' | 'currency' | 'stripeCustomerId'
+  | 'uid'
+  | 'errorReasonId'
+  | 'couponCode'
+  | 'currency'
+  | 'stripeCustomerId'
+  | 'taxAddress'
 >;
+
+export type ExperimentationData = {
+  nimbusUserId: string;
+};
 
 export type CmsMetricsData = {
   productId: string;

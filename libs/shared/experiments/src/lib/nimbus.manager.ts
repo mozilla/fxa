@@ -4,7 +4,7 @@
 
 import { Injectable } from '@nestjs/common';
 import type { NimbusContext } from './nimbus.types';
-import type { NimbusClient } from './nimbus.client';
+import { NimbusClient } from './nimbus.client';
 
 @Injectable()
 export class NimbusManager {

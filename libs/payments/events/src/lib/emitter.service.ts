@@ -85,13 +85,20 @@ export class PaymentsEmitterService {
     );
 
     if (!metricsOptOut) {
-      const nimbusUserId = this.nimbusManager.fetchExperiments(
-        additionalData.cartMetricsData.uid
+      const nimbusResult = await this.nimbusManager.fetchExperiments(
+        additionalData.cartMetricsData.uid,
+        additionalData.locale,
+        additionalData.cartMetricsData.taxAddress?.countryCode
       );
+
+      const nimbusUserId =
+        nimbusResult?.Enrollments?.at(0)?.nimbus_user_id ||
+        this.nimbusManager.generateNimbusId(additionalData.cartMetricsData.uid);
 
       this.paymentsGleanManager.recordFxaPaySetupView({
         commonMetricsData: eventData,
         ...additionalData,
+        experimentationData: { nimbusUserId },
       });
     }
   }

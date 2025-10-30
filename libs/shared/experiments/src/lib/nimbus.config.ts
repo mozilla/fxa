@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { Provider } from '@nestjs/common';
-import { IsBoolean, IsUrl } from 'class-validator';
+import { IsBoolean, IsNumber, IsUrl } from 'class-validator';
 
 export class NimbusClientConfig {
   @IsUrl({ require_tld: false })
@@ -12,11 +12,15 @@ export class NimbusClientConfig {
 
   @IsBoolean()
   public readonly previewEnabled!: boolean;
+
+  @IsNumber()
+  public readonly timeoutMs!: number;
 }
 
 export const MockNimbusClientConfig = {
   apiUrl: faker.internet.url(),
   previewEnabled: faker.datatype.boolean(),
+  timeoutMs: faker.number.int({ min: 100, max: 2000 }),
 } satisfies NimbusClientConfig;
 
 export const MockNimbusClientConfigProvider = {

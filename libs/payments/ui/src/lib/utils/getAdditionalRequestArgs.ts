@@ -9,6 +9,7 @@ import { getIpAddress } from './getIpAddress';
 export function getAdditionalRequestArgs() {
   const userAgentString = headers().get('user-agent') || '';
   const userAgent = userAgentFromString(userAgentString);
+
   return {
     ipAddress: getIpAddress(),
     userAgent: userAgentString,

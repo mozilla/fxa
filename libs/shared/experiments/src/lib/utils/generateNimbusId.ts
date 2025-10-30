@@ -8,6 +8,7 @@ export function generateNimbusId(namespace: string, id?: string) {
   if (id) {
     return uuidv5(id, namespace);
   } else {
+    // TODO - Generate in middleware and get from header, so that guest always has the same ID
     return `guest-${crypto.randomUUID()}`;
   }
 }

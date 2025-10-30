@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import type { NimbusClientConfig } from './nimbus.config';
+import { NimbusClientConfig } from './nimbus.config';
 import type { NimbusContext, NimbusResult } from './nimbus.types';
 import {
   NimbusClientFetchExperimentsError,
@@ -15,6 +15,7 @@ export class NimbusClient {
   constructor(private config: NimbusClientConfig) {}
 
   // TODO -- Add caching
+  // TODO -- Add StatsD
   async fetchExperiments(params: { clientId: string; context: NimbusContext }) {
     const { clientId, context } = params;
 
@@ -23,16 +24,27 @@ export class NimbusClient {
       context,
     });
 
-    try {
-      const query =
+    const queryParams = new URLSearchParams({
+      nimbus_preview:
         this.config.previewEnabled === true
           ? `?nimbusPreview=${this.config.previewEnabled}`
-          : '';
+          : '',
+    });
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, this.config.timeoutMs);
+
+    try {
       const resp = await fetch(
-        `${this.config.apiUrl}/nimbus-experiments${query}`,
+        `${this.config.apiUrl}${queryParams.toString()}`,
         {
           method: 'POST',
           body,
+          // A request to cirrus should not be more than 50ms,
+          // but we give it a large enough padding.
+          signal: controller.signal,
           headers: {
             'Content-Type': 'application/json',
           },
@@ -47,6 +59,8 @@ export class NimbusClient {
       return (await resp.json()) as NimbusResult;
     } catch (err) {
       throw new NimbusClientFetchExperimentsError(err, params);
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 }
