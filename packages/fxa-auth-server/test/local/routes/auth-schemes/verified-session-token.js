@@ -198,12 +198,14 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
     );
   });
 
-  it('fails when AAL mismatch', async () => {
+  it('fails when session AAL is less than required AAL', async () => {
     // Force account AAL=2 by returning otp along with pwd/email
     db.totpToken = sinon.fake.resolves({
       verified: true,
       enabled: true,
     });
+
+    token.authenticatorAssuranceLevel = 1;
 
     const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
     try {
@@ -219,6 +221,25 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
         ])
       );
     }
+  });
+
+  it('passes when session AAL is greater than required AAL', async () => {
+    // Force account AAL=1 by returning otp along with pwd/email
+    db.totpToken = sinon.fake.resolves({
+      verified: false,
+      enabled: false,
+    });
+
+    // Fabricate higher session token AAL
+    token.authenticatorAssuranceLevel = 2;
+
+    const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
+    await authStrategy.authenticate(request, h);
+    assert.isTrue(
+      h.authenticated.calledOnceWithExactly({
+        credentials: token,
+      })
+    );
   });
 
   it('skips AAL check when configured', async () => {
