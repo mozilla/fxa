@@ -399,12 +399,6 @@ const conf = (module.exports = convict({
       format: String,
     },
   },
-  nimbusPreview: {
-    default: false,
-    doc: 'Enables preview mode for nimbus experiments for development and testing.',
-    format: Boolean,
-    env: 'NIMBUS_PREVIEW',
-  },
   glean: {
     enabled: {
       default: false,
@@ -705,6 +699,18 @@ const conf = (module.exports = convict({
     format: ['src', 'dist'],
   },
   nimbus: {
+    enabled: {
+      default: false,
+      doc: 'Enables nimbus experiments',
+      env: 'NIMBUS_ENABLED',
+      format: Boolean,
+    },
+    preview: {
+      default: true,
+      doc: 'Enables preview mode for nimbus experiments for development and testing.',
+      env: 'NIMBUS_PREVIEW',
+      format: Boolean,
+    },
     host: {
       default: 'http://localhost:8001',
       doc: 'Base URI for cirrus (Nimbus experimentation endpoint).',
