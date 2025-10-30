@@ -107,7 +107,7 @@ function strategy(getCredentialsFunc, db, config, statsd) {
         const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
         const sessionAal = token.authenticatorAssuranceLevel;
 
-        if (accountAal !== sessionAal) {
+        if (sessionAal < accountAal) {
           if (skipAalCheckForRoutes?.test(req.route.path)) {
             statsd?.increment('verified_session_token.aal.skipped', [
               `path:${req.route.path}`,
