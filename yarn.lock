@@ -20871,6 +20871,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/boom@npm:*":
+  version: 7.3.5
+  resolution: "@types/boom@npm:7.3.5"
+  checksum: 10c0/6b8577f26b22950b4d0fd1770b30f0d959c6d15275a72a381b91aea3772313675c6293fac6cd484cb40eec7715f1d321cacaacd7b510a68c3d21932af5c5f837
+  languageName: node
+  linkType: hard
+
 "@types/bunyan@npm:1.8.11":
   version: 1.8.11
   resolution: "@types/bunyan@npm:1.8.11"
@@ -20905,6 +20912,13 @@ __metadata:
   version: 0.12.5
   resolution: "@types/caseless@npm:0.12.5"
   checksum: 10c0/b1f8b8a38ce747b643115d37a40ea824c658bd7050e4b69427a10e9d12d1606ed17a0f6018241c08291cd59f70aeb3c1f3754ad61e45f8dbba708ec72dde7ec8
+  languageName: node
+  linkType: hard
+
+"@types/catbox@npm:*":
+  version: 10.0.9
+  resolution: "@types/catbox@npm:10.0.9"
+  checksum: 10c0/ec86aa00b64cf8912152cc937fc06604fecf602f37529aa1ae5c2991be9c957376bcb3df816c244bdbcd66f8822e2b36ac1b46a7ebc03e7d3d4c8e721271021e
   languageName: node
   linkType: hard
 
@@ -21317,6 +21331,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/hapi@npm:^18.0.15":
+  version: 18.0.15
+  resolution: "@types/hapi@npm:18.0.15"
+  dependencies:
+    "@types/boom": "npm:*"
+    "@types/catbox": "npm:*"
+    "@types/iron": "npm:*"
+    "@types/mimos": "npm:*"
+    "@types/node": "npm:*"
+    "@types/podium": "npm:*"
+    "@types/shot": "npm:*"
+    joi: "npm:^17.3.0"
+  checksum: 10c0/c17e6c1fbe1601c49f6d1616ffbe1ccc1275716c6a0ab98be780a51c11e6c2c3f8ab8edb0af184176434fdf49d9e2a1e2c86b50c3322fe7d16fd8e47762157c6
+  languageName: node
+  linkType: hard
+
 "@types/hapi__catbox@npm:*":
   version: 10.2.6
   resolution: "@types/hapi__catbox@npm:10.2.6"
@@ -21454,6 +21484,15 @@ __metadata:
   dependencies:
     "@types/node": "npm:*"
   checksum: 10c0/af576e33830196be01b71c48ad5f83380a1c51d62f394a5601e8c2a5b8b31cf6dc8fe71ac39c38d806bcf1d6f1c5c8205c129eca6b6d168c0df7ab3722df23b9
+  languageName: node
+  linkType: hard
+
+"@types/iron@npm:*":
+  version: 5.0.5
+  resolution: "@types/iron@npm:5.0.5"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/02300572301894077e19a63f069a8b8c41e185e4fe0115c33ffd18f304e3bc5cee58c9c901ff59f1782282f2feb7bae3139afd2024754e4f1ca7e60c4a47e11a
   languageName: node
   linkType: hard
 
@@ -21793,6 +21832,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/mimos@npm:*":
+  version: 3.0.6
+  resolution: "@types/mimos@npm:3.0.6"
+  dependencies:
+    "@types/mime-db": "npm:*"
+  checksum: 10c0/5a8693e27e0abce0641ec07b38b27f126e11c6ab1e9ea7ad52ff60065617ad1ac5e8209b5041d9184a9ab713aad022c4bee06aebfb6c33a9dfa1a18d1d35029a
+  languageName: node
+  linkType: hard
+
 "@types/minimatch@npm:^3.0.3":
   version: 3.0.5
   resolution: "@types/minimatch@npm:3.0.5"
@@ -22058,6 +22106,13 @@ __metadata:
     pg-protocol: "npm:*"
     pg-types: "npm:^2.2.0"
   checksum: 10c0/8d16660c9a4f050d6d5e391c59f9a62e9d377a2a6a7eb5865f8828082dbdfeab700fd707e585f42d67b29e796b32863aea5bd6d5cbb8ceda2d598da5d0c61693
+  languageName: node
+  linkType: hard
+
+"@types/podium@npm:*":
+  version: 1.0.4
+  resolution: "@types/podium@npm:1.0.4"
+  checksum: 10c0/d7a602f306b31eb5b62c8bdcc0d9f31034fbbf0b5f00bac552f7702128c121b4e21d291b19de2042683642d5af83243c8c6642e8846e6ef3c137594cc20b670b
   languageName: node
   linkType: hard
 
@@ -22446,6 +22501,15 @@ __metadata:
   version: 1.2.0
   resolution: "@types/shimmer@npm:1.2.0"
   checksum: 10c0/6f7bfe1b55601cfc3ae713fc74a03341f3834253b8b91cb2add926d5949e4a63f7e666f59c2a6e40a883a5f9e2f3e3af10f9d3aed9b60fced0bda87659e58d8d
+  languageName: node
+  linkType: hard
+
+"@types/shot@npm:*":
+  version: 4.0.5
+  resolution: "@types/shot@npm:4.0.5"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/c01275b11a6d2694b1c3ee3b31cbfe7b8a48b35a73253185cea03e0ad6fc949a2c348ff40688601d39b8d837581312b96200df9f844bb1f6f786ce4710aa36b7
   languageName: node
   linkType: hard
 
@@ -35309,6 +35373,7 @@ __metadata:
     "@types/babel__preset-env": "npm:^7"
     "@types/bn.js": "npm:^5"
     "@types/classnames": "npm:2.3.1"
+    "@types/hapi": "npm:^18.0.15"
     "@types/jest": "npm:29.5.14"
     "@types/jsdom": "npm:^21"
     "@types/module-alias": "npm:^2"
