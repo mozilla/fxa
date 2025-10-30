@@ -999,8 +999,15 @@ module.exports = function (
         request.validateMetricsContext();
 
         const account = await db.accountRecord(email);
-        if (!emailsMatch(account.primaryEmail.normalizedEmail, email)) {
-          throw error.cannotResetPasswordWithSecondaryEmail();
+
+        const isPrimaryOrVerifiedEmail =
+          emailsMatch(account.primaryEmail.normalizedEmail, email) ||
+          account.emails.some(
+            (e) => e.isVerified && emailsMatch(e.normalizedEmail, email)
+          );
+
+        if (!isPrimaryOrVerifiedEmail) {
+          throw error.unknownAccount();
         }
 
         let flowCompleteSignal;
@@ -1193,8 +1200,14 @@ module.exports = function (
         ]);
         const accountRecord = await db.accountRecord(email);
 
-        if (!emailsMatch(accountRecord.primaryEmail.normalizedEmail, email)) {
-          throw error.cannotResetPasswordWithSecondaryEmail();
+        const isPrimaryOrVerifiedEmail =
+          emailsMatch(accountRecord.primaryEmail.normalizedEmail, email) ||
+          accountRecord.emails.some(
+            (e) => e.isVerified && emailsMatch(e.normalizedEmail, email)
+          );
+
+        if (!isPrimaryOrVerifiedEmail) {
+          throw error.unknownAccount();
         }
         // The token constructor sets createdAt from its argument.
         // Clobber the timestamp to prevent prematurely expired tokens.
