@@ -19,9 +19,8 @@ export function middleware(request: NextRequest) {
   // Read env vars directly from process.env
   // As of 05-15-2024 its not possible to use app/config in middleware
   const accountsStaticCdn = process.env.CSP__ACCOUNTS_STATIC_CDN;
-  const PAYPAL_SCRIPT_URL = 'https://www.paypal.com';
-  const PAYPAL_API_URL = process.env.CSP__PAYPAL_API;
-  const PAYPAL_OBJECTS = 'https://www.paypalobjects.com';
+  const PAYPAL_SCRIPT_URL = '*.paypal.com';
+  const PAYPAL_OBJECTS = '*.paypalobjects.com';
   const PROFILE_CLIENT_URL = process.env.PROFILE_CLIENT_CONFIG__URL;
   const PROFILE_DEFAULT_IMAGES_URL = process.env.PROFILE_DEFAULT_IMAGES_URL;
   const PROFILE_UPLOADED_IMAGES_URL = process.env.PROFILE_UPLOADED_IMAGES_URL;
@@ -42,19 +41,19 @@ export function middleware(request: NextRequest) {
 
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const cspHeader = `
+    base-uri 'self';
+    child-src 'self' ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS};
+    connect-src 'self' https://api.stripe.com ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS};
     default-src 'self';
-    connect-src 'self' https://api.stripe.com ${PAYPAL_API_URL};
-    frame-src https://*.js.stripe.com https://js.stripe.com https://hooks.stripe.com ${PAYPAL_API_URL} ${PAYPAL_SCRIPT_URL};
+    font-src 'self';
+    frame-ancestors 'none';
+    frame-src https://*.js.stripe.com https://js.stripe.com https://hooks.stripe.com ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS};
+    img-src 'self' blob: data: ${accountsStaticCdn} ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS} ${PROFILE_CLIENT_URL} ${PROFILE_DEFAULT_IMAGES_URL} ${PROFILE_UPLOADED_IMAGES_URL};
+    object-src 'none';
     script-src 'self' 'nonce-${nonce}' ${
       process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
-    } https://*.js.stripe.com https://js.stripe.com ${PAYPAL_SCRIPT_URL};
-    style-src 'self' 'unsafe-hashes' 'sha256-0hAheEzaMe6uXIKV4EehS9pu1am1lj/KnnzrOYqckXk=' 'sha256-GsQC5AaXpdCaKTyWbxBzn7nitfp0Otwn7I/zu0rUKOs=' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=';
-    img-src 'self' blob: data: ${accountsStaticCdn} ${PAYPAL_OBJECTS} ${PROFILE_CLIENT_URL} ${PROFILE_DEFAULT_IMAGES_URL} ${PROFILE_UPLOADED_IMAGES_URL};
-    font-src 'self';
-    object-src 'none';
-    base-uri 'self';
-    form-action 'self' ${PAYPAL_API_URL};
-    frame-ancestors 'none';
+    } https://*.js.stripe.com https://js.stripe.com ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS};
+    style-src 'self' 'unsafe-hashes' 'sha256-0hAheEzaMe6uXIKV4EehS9pu1am1lj/KnnzrOYqckXk=' 'sha256-GsQC5AaXpdCaKTyWbxBzn7nitfp0Otwn7I/zu0rUKOs=' 'sha256-zlqnbDt84zf1iSefLU/ImC54isoprH/MRiVZGskwexk=' ${PAYPAL_SCRIPT_URL} ${PAYPAL_OBJECTS} 'nonce-${nonce}';
     upgrade-insecure-requests;
 `;
   // Replace newline characters and spaces
