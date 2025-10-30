@@ -184,166 +184,156 @@ export function PaymentMethodManagement({
   };
 
   return (
-    <>
-      <h1
-        className="font-bold leading-6 mt-8 px-4 pb-4 text-xl tablet:px-6"
-        id="stripe-payment-management"
-      >
-        {l10n.getString(
-          'manage-stripe-payments-title',
-          {},
-          'Manage payment methods'
+    <div className="p-4">
+      {!isReady && (
+        <div className="w-full flex bg-white bg-opacity-75 items-center justify-center">
+          <LoadingSpinner className="h-10 w-10" />
+        </div>
+      )}
+      {isReady && (
+        <h2
+          className="font-semibold mb-4 text-lg"
+          id="stripe-payment-management"
+        >
+          {l10n.getString(
+            'manage-stripe-payments-title',
+            {},
+            'Manage payment methods'
+          )}
+        </h2>
+      )}
+      <Form.Root ref={formRef} onSubmit={handleSubmit}>
+        {isInputNewCardDetails && (
+          <>
+            <Localized id="next-new-user-card-title">
+              <h3 className="font-semibold text-grey-600 text-start mt-6">
+                Enter your card information
+              </h3>
+            </Localized>
+            <Form.Field
+              name="name"
+              serverInvalid={hasFullNameError}
+              className="my-6"
+            >
+              <Form.Label className="text-grey-400 block mb-1 text-start">
+                <Localized id="payment-name-label">
+                  Name as it appears on your card
+                </Localized>
+              </Form.Label>
+              <Form.Control asChild>
+                <input
+                  className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
+                  type="text"
+                  data-testid="name"
+                  placeholder={l10n.getString(
+                    'payment-name-placeholder',
+                    {},
+                    'Full Name'
+                  )}
+                  value={fullName}
+                  onChange={(e) => {
+                    setFullName(e.target.value);
+                    setHasFullNameError(!e.target.value);
+                  }}
+                  aria-required
+                />
+              </Form.Control>
+              {hasFullNameError && (
+                <Form.Message asChild>
+                  <Localized id="next-payment-validate-name-error">
+                    <p className="mt-1 text-alert-red font-normal" role="alert">
+                      Please enter your full name
+                    </p>
+                  </Localized>
+                </Form.Message>
+              )}
+            </Form.Field>
+          </>
         )}
-      </h1>
-      <div className="w-full py-6 text-grey-600 bg-white rounded-[12px] border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
-        {!isReady && (
-          <div className="w-full flex bg-white bg-opacity-75 items-center justify-center">
-            <LoadingSpinner className="h-10 w-10" />
+        <Form.Field name="payment">
+          <Form.Control asChild>
+            <div className={`relative ${hideOverflow ? 'overflow-hidden' : ''}`}>
+              <PaymentElement
+                onChange={handlePaymentElementChange}
+                onLoaderStart={handleReady}
+                onReady={handleElementReady}
+                options={{
+                  layout: {
+                    type: 'accordion',
+                    defaultCollapsed: false,
+                    radios: false,
+                    spacedAccordionItems: true,
+                  },
+                  defaultValues: {
+                    billingDetails: {
+                      email: sessionEmail || undefined,
+                    },
+                  },
+                }}
+              />
+            </div>
+          </Form.Control>
+
+          {error && (
+            <Form.Message>
+              <div className="mt-5 text-alert-red font-normal">{error}</div>
+            </Form.Message>
+          )}
+        </Form.Field>
+        {(isInputNewCardDetails || (isNonCardSelected && !hasPaymentMethod)) && (
+          <div className="flex flex-row justify-center pt-4">
+            <Form.Submit asChild>
+              <BaseButton
+                className="h-10 mt-10 w-full"
+                type="submit"
+                variant={ButtonVariant.Primary}
+                aria-disabled={
+                  !stripe || !isComplete || isLoading || hasFullNameError
+                }
+                disabled={
+                  !stripe || !isComplete || isLoading || hasFullNameError
+                }
+              >
+                {isLoading ? (
+                  <Image
+                    src={spinnerWhiteImage}
+                    alt=""
+                    className="absolute animate-spin h-8 w-8"
+                  />
+                ) : (
+                  <Localized id="payment-method-management-save-method">
+                    Save payment method
+                  </Localized>
+                )}
+              </BaseButton>
+            </Form.Submit>
           </div>
         )}
-        <Form.Root
-          ref={formRef}
-          onSubmit={handleSubmit}
-          className="px-4 tablet:px-6"
-        >
-          {isInputNewCardDetails && (
-            <>
-              <Localized id="next-new-user-card-title">
-                <h2 className="font-semibold text-grey-600 text-start mt-6">
-                  Enter your card information
-                </h2>
-              </Localized>
-              <Form.Field
-                name="name"
-                serverInvalid={hasFullNameError}
-                className="my-6"
+        {isNonDefaultCardSelected && !isInputNewCardDetails && (
+          <div className="flex flex-row justify-center pt-4">
+            <Form.Submit asChild>
+              <BaseButton
+                className="h-10 mt-10 w-full"
+                type="submit"
+                variant={ButtonVariant.Primary}
+                aria-disabled={!stripe || !isComplete || isLoading}
               >
-                <Form.Label className="text-grey-400 block mb-1 text-start">
-                  <Localized id="payment-name-label">
-                    Name as it appears on your card
-                  </Localized>
-                </Form.Label>
-                <Form.Control asChild>
-                  <input
-                    className="w-full border rounded-md border-black/30 p-3 placeholder:text-grey-500 placeholder:font-normal focus:border focus:!border-black/30 focus:!shadow-[0_0_0_3px_rgba(10,132,255,0.3)] focus-visible:outline-none data-[invalid=true]:border-alert-red data-[invalid=true]:text-alert-red data-[invalid=true]:shadow-inputError"
-                    type="text"
-                    data-testid="name"
-                    placeholder={l10n.getString(
-                      'payment-name-placeholder',
-                      {},
-                      'Full Name'
-                    )}
-                    value={fullName}
-                    onChange={(e) => {
-                      setFullName(e.target.value);
-                      setHasFullNameError(!e.target.value);
-                    }}
-                    aria-required
+                {isLoading ? (
+                  <Image
+                    src={spinnerWhiteImage}
+                    alt=""
+                    className="absolute animate-spin h-8 w-8"
                   />
-                </Form.Control>
-                {hasFullNameError && (
-                  <Form.Message asChild>
-                    <Localized id="next-payment-validate-name-error">
-                      <p
-                        className="mt-1 text-alert-red font-normal"
-                        role="alert"
-                      >
-                        Please enter your full name
-                      </p>
-                    </Localized>
-                  </Form.Message>
+                ) : (
+                  <Localized id="payment-method-management-save-default">
+                    Set as default payment method
+                  </Localized>
                 )}
-              </Form.Field>
-            </>
-          )}
-          <Form.Field name="payment">
-            <Form.Control asChild>
-              <div
-                className={`relative ${hideOverflow ? 'overflow-hidden' : ''}`}
-              >
-                <PaymentElement
-                  onChange={handlePaymentElementChange}
-                  onLoaderStart={handleReady}
-                  onReady={handleElementReady}
-                  options={{
-                    layout: {
-                      type: 'accordion',
-                      defaultCollapsed: false,
-                      radios: false,
-                      spacedAccordionItems: true,
-                    },
-                    defaultValues: {
-                      billingDetails: {
-                        email: sessionEmail || undefined,
-                      },
-                    },
-                  }}
-                />
-              </div>
-            </Form.Control>
-
-            {error && (
-              <Form.Message>
-                <div className="mt-5 text-alert-red font-normal">{error}</div>
-              </Form.Message>
-            )}
-          </Form.Field>
-          {(isInputNewCardDetails ||
-            (isNonCardSelected && !hasPaymentMethod)) && (
-            <div className="flex flex-row justify-center pt-4">
-              <Form.Submit asChild>
-                <BaseButton
-                  className="h-10 mt-10 w-full"
-                  type="submit"
-                  variant={ButtonVariant.Primary}
-                  aria-disabled={
-                    !stripe || !isComplete || isLoading || hasFullNameError
-                  }
-                  disabled={
-                    !stripe || !isComplete || isLoading || hasFullNameError
-                  }
-                >
-                  {isLoading ? (
-                    <Image
-                      src={spinnerWhiteImage}
-                      alt=""
-                      className="absolute animate-spin h-8 w-8"
-                    />
-                  ) : (
-                    <Localized id="payment-method-management-save-method">
-                      Save payment method
-                    </Localized>
-                  )}
-                </BaseButton>
-              </Form.Submit>
-            </div>
-          )}
-          {isNonDefaultCardSelected && !isInputNewCardDetails && (
-            <div className="flex flex-row justify-center pt-4">
-              <Form.Submit asChild>
-                <BaseButton
-                  className="h-10 mt-10 w-full"
-                  type="submit"
-                  variant={ButtonVariant.Primary}
-                  aria-disabled={!stripe || !isComplete || isLoading}
-                >
-                  {isLoading ? (
-                    <Image
-                      src={spinnerWhiteImage}
-                      alt=""
-                      className="absolute animate-spin h-8 w-8"
-                    />
-                  ) : (
-                    <Localized id="payment-method-management-save-default">
-                      Set as default payment method
-                    </Localized>
-                  )}
-                </BaseButton>
-              </Form.Submit>
-            </div>
-          )}
-        </Form.Root>
-      </div>
-    </>
+              </BaseButton>
+            </Form.Submit>
+          </div>
+        )}
+      </Form.Root>
+    </div>
   );
 }
