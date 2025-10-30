@@ -194,7 +194,7 @@ module.exports = function (
         );
         const accountAal = authMethods.maximumAssuranceLevel(accountAmr);
         const sessionAal = sessionToken.authenticatorAssuranceLevel;
-        if (accountAal !== sessionAal) {
+        if (sessionAal < accountAal) {
           statsd.increment('session_reauth.all_not_met');
         }
         // End temporary metrics section
