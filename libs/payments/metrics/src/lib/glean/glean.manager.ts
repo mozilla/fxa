@@ -178,6 +178,7 @@ export class PaymentsGleanManager {
       }),
       ...mapUtm(commonMetricsData.searchParams),
       ...mapSubscriptionCancellation(subscriptionCancellationData),
+      nimbus_user_id: '',
     };
   }
 
