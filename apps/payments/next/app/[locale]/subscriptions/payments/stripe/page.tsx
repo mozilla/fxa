@@ -46,7 +46,7 @@ export default async function StripePaymentManagementPage({
 
   return (
     <section
-      className="px-4 tablet:px-8"
+      className="w-full tablet:px-8 desktop:max-w-[1024px]"
       data-testid="stripe-payment-management"
       aria-labelledby="stripe-payment-management"
     >
