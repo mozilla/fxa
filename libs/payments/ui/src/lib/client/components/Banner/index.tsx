@@ -11,7 +11,6 @@ import closeIcon from '@fxa/shared/assets/images/icon_close.min.svg';
 import checkmarkIcon from '@fxa/shared/assets/images/icon_checkmark_circle_outline_current.min.svg';
 import errorIcon from '@fxa/shared/assets/images/icon_error_circle_outline_current.min.svg';
 import infoIcon from '@fxa/shared/assets/images/icon_information_circle_outline_current.min.svg';
-import warningIcon from '@fxa/shared/assets/images/alert-black.svg';
 import { BannerVariant } from '../../../constants';
 
 interface BannerProps extends React.HTMLProps<HTMLDivElement> {
@@ -39,7 +38,7 @@ export function Banner({
       bannerAriaLive = 'assertive';
       bannerIcon = errorIcon;
       bannerRole = 'alert';
-      bannerStyle = 'bg-red-50 my-4 rounded-md';
+      bannerStyle = 'bg-red-100 my-4 rounded-md';
       closeStyle = 'hover:bg-red-200 focus:bg-red-300';
       break;
     case BannerVariant.SignedIn:
@@ -56,13 +55,6 @@ export function Banner({
       bannerRole = 'status';
       bannerStyle = 'bg-green-200 my-4 rounded-md ';
       closeStyle = 'hover:bg-green-300 focus:bg-green-500';
-      break;
-    case BannerVariant.Warning:
-      bannerAriaLive = 'polite';
-      bannerIcon = warningIcon;
-      bannerRole = 'status';
-      bannerStyle = 'bg-orange-50 my-4 rounded-md ';
-      closeStyle = 'hover:bg-orange-100 focus:bg-orange-200';
       break;
     case BannerVariant.Info:
     default:

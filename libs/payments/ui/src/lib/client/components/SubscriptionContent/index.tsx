@@ -10,8 +10,6 @@ import { Localized, useLocalization } from '@fluent/react';
 import * as Form from '@radix-ui/react-form';
 
 import { ActionButton, ButtonVariant, SubmitButton } from '@fxa/payments/ui';
-import alertIcon from '@fxa/shared/assets/images/alert-yellow.svg';
-import newWindowIcon from '@fxa/shared/assets/images/new-window.svg';
 import {
   getLocalizedCurrencyString,
   getLocalizedDateString,
@@ -34,7 +32,6 @@ interface Subscription {
   currentInvoiceDate: number;
   currentInvoiceTax: number;
   currentInvoiceTotal: number;
-  currentInvoiceUrl?: string | null;
   currentPeriodEnd: number;
   nextInvoiceDate: number;
   nextInvoiceTax?: number;
@@ -58,17 +55,18 @@ export const SubscriptionContent = ({
 }: SubscriptionContentProps) => {
   const {
     canResubscribe,
+    creditApplied,
     currency,
     currentInvoiceDate,
     currentInvoiceTax,
     currentInvoiceTotal,
-    currentInvoiceUrl,
     currentPeriodEnd,
     nextInvoiceTax,
     nextInvoiceTotal,
     nextPromotionName,
     productName,
     webIcon,
+    promotionName,
   } = subscription;
 
   const [checkedState, setCheckedState] = useState(false);
@@ -147,18 +145,26 @@ export const SubscriptionContent = ({
           <Dialog.Overlay className="fixed inset-0 bg-black/75 z-50" />
           <Dialog.Content
             className="w-11/12 max-w-[545px] text-center px-7 pt-6 pb-8 rounded-xl shadow inline-block fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] bg-white"
-            aria-describedby={undefined}
+            aria-labelledby="subscription-cancellation-dialog-title"
+            aria-describedby="subscription-cancellation-dialog-description"
             onEscapeKeyDown={() => setOpenCancellationDialog(false)}
             onPointerDownOutside={() => setOpenCancellationDialog(false)}
             onInteractOutside={() => setOpenCancellationDialog(false)}
           >
-            <Dialog.Title className="font-bold leading-6 m-5">
+            <Dialog.Title
+              id="subscription-cancellation-dialog-title"
+              className="font-bold leading-6 m-5"
+            >
               <Localized id="subscription-cancellation-dialog-title">
-                <span>We’re sorry to see you go</span>
+                We’re sorry to see you go
               </Localized>
             </Dialog.Title>
-            <Dialog.Description asChild className="leading-6 space-y-4">
-              <>
+            <Dialog.Description
+              asChild
+              id="subscription-cancellation-dialog-description"
+              className="leading-6 space-y-4"
+            >
+              <div>
                 <Localized
                   id="subscription-cancellation-dialog-msg"
                   vars={{
@@ -191,19 +197,17 @@ export const SubscriptionContent = ({
                     .
                   </p>
                 </Localized>
-              </>
+              </div>
             </Dialog.Description>
             <Dialog.Close asChild>
               <button
                 className="absolute bg-transparent border-0 cursor-pointer flex items-center justify-center w-6 h-6 m-0 p-0 top-4 right-4 hover:bg-grey-200 hover:rounded focus:border-blue-400 focus:rounded focus:shadow-input-blue-focus after:absolute after:content-[''] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10"
                 onClick={() => setOpenCancellationDialog(false)}
-                aria-label={l10n.getString(
-                  'dialog-close',
-                  null,
-                  'Close dialog'
-                )}
               >
-                <Image src={CloseIcon} alt="" aria-hidden="true" />
+                <Image
+                  src={CloseIcon}
+                  alt={l10n.getString('dialog-close', null, 'Close dialog')}
+                />
               </button>
             </Dialog.Close>
           </Dialog.Content>
@@ -214,48 +218,55 @@ export const SubscriptionContent = ({
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/75 z-50" />
           <Dialog.Content
-            className="w-11/12 max-w-[545px] text-center px-7 pt-6 pb-8 rounded-xl shadow inline-block fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] bg-white"
-            aria-describedby={undefined}
+            className="w-11/12 max-w-[545px] text-center px-7 pt-6 pb-8 rounded-xl shadow inline-block fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-9999 bg-white"
+            aria-labelledby="resubscribe-success-title"
+            aria-describedby="resubscribe-success-description"
             onEscapeKeyDown={() => setOpenResubscribeSuccessDialog(false)}
             onPointerDownOutside={() => setOpenResubscribeSuccessDialog(false)}
             onInteractOutside={() => setOpenResubscribeSuccessDialog(false)}
           >
-            <Dialog.Title className="font-bold leading-6 m-5 space-y-5">
+            <Dialog.Title
+              id="resubscribe-success-title"
+              className="font-bold leading-6 m-5 space-y-5"
+            >
               <Image
                 src={webIcon}
                 alt={productName}
                 height={64}
                 width={64}
-                className="h-16 w-16 mb-4 mx-auto"
+                className="h-16 w-16 mx-auto"
               />
               <Localized id="resubscribe-success-dialog-title">
-                <span>Thanks! You’re all set.</span>
+                <p>Thanks! You’re all set.</p>
               </Localized>
             </Dialog.Title>
-            <Localized
-              id="resubscribe-success-dialog-action-button-close"
-              attrs={{ 'aria-label': true }}
+            <Dialog.Description
+              id="resubscribe-success-description"
+              className="leading-6 space-y-4"
             >
-              <SubmitButton
-                className="h-10 w-full"
-                variant={ButtonVariant.Primary}
-                onClick={() => setOpenResubscribeSuccessDialog(false)}
-                aria-label="Close dialog"
+              <Localized
+                id="resubscribe-success-dialog-action-button-close"
+                attrs={{ 'aria-label': true }}
               >
-                Close
-              </SubmitButton>
-            </Localized>
+                <SubmitButton
+                  className="h-10 w-full"
+                  variant={ButtonVariant.Primary}
+                  onClick={() => setOpenResubscribeSuccessDialog(false)}
+                  aria-label="Close dialog"
+                >
+                  Close
+                </SubmitButton>
+              </Localized>
+            </Dialog.Description>
             <Dialog.Close asChild>
               <button
                 className="absolute bg-transparent border-0 cursor-pointer flex items-center justify-center w-6 h-6 m-0 p-0 top-4 right-4 hover:bg-grey-200 hover:rounded focus:border-blue-400 focus:rounded focus:shadow-input-blue-focus after:absolute after:content-[''] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10"
                 onClick={() => setOpenResubscribeSuccessDialog(false)}
-                aria-label={l10n.getString(
-                  'dialog-close',
-                  null,
-                  'Close dialog'
-                )}
               >
-                <Image src={CloseIcon} alt="" aria-hidden="true" />
+                <Image
+                  src={CloseIcon}
+                  alt={l10n.getString('dialog-close', null, 'Close dialog')}
+                />
               </button>
             </Dialog.Close>
           </Dialog.Content>
@@ -266,18 +277,23 @@ export const SubscriptionContent = ({
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/75 z-50" />
           <Dialog.Content
-            className="w-11/12 max-w-[545px] text-center px-7 pt-6 pb-8 rounded-xl shadow inline-block fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] bg-white"
+            className="w-11/12 max-w-[545px] text-center px-7 pt-6 pb-8 rounded-xl shadow inline-block fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-9999 bg-white"
+            aria-labelledby="resubscribe-dialog-title"
+            aria-describedby="resubscribe-dialog-description"
             onEscapeKeyDown={() => setOpenResubscribeDialog(false)}
             onPointerDownOutside={() => setOpenResubscribeDialog(false)}
             onInteractOutside={() => setOpenResubscribeDialog(false)}
           >
-            <Dialog.Title className="font-bold leading-6 m-5 space-y-5">
+            <Dialog.Title
+              id="resubscribe-dialog-title"
+              className="font-bold leading-6 m-5 space-y-5"
+            >
               <Image
                 src={webIcon}
                 alt={productName}
                 height={64}
                 width={64}
-                className="h-16 w-16 mb-4 mx-auto"
+                className="h-16 w-16 mx-auto"
               />
               <Localized
                 id="resubscribe-dialog-title"
@@ -285,10 +301,14 @@ export const SubscriptionContent = ({
                   name: productName,
                 }}
               >
-                <span>Want to keep using {productName}?</span>
+                <p>Want to keep using {productName}?</p>
               </Localized>
             </Dialog.Title>
-            <Dialog.Description asChild className="leading-6 space-y-4">
+            <Dialog.Description
+              asChild
+              id="resubscribe-dialog-description"
+              className="leading-6 space-y-4"
+            >
               <div>
                 {nextInvoiceTax ? (
                   <Localized
@@ -359,13 +379,11 @@ export const SubscriptionContent = ({
               <button
                 className="absolute bg-transparent border-0 cursor-pointer flex items-center justify-center w-6 h-6 m-0 p-0 top-4 right-4 hover:bg-grey-200 hover:rounded focus:border-blue-400 focus:rounded focus:shadow-input-blue-focus after:absolute after:content-[''] after:top-0 after:left-0 after:w-full after:h-full after:bg-white after:opacity-50 after:z-10"
                 onClick={() => setOpenResubscribeDialog(false)}
-                aria-label={l10n.getString(
-                  'dialog-close',
-                  null,
-                  'Close dialog'
-                )}
               >
-                <Image src={CloseIcon} alt="" aria-hidden="true" />
+                <Image
+                  src={CloseIcon}
+                  alt={l10n.getString('dialog-close', null, 'Close dialog')}
+                />
               </button>
             </Dialog.Close>
           </Dialog.Content>
@@ -471,137 +489,164 @@ export const SubscriptionContent = ({
           </div>
         </Form.Root>
       ) : (
-        <>
-          {isClient && (
-            <div className="bg-grey-10 leading-6 p-4 rounded-lg">
-              <div className="text-grey-500">
+        <section className="flex items-center justify-between gap-4 my-4">
+          {canResubscribe ? (
+            <>
+              {isClient && (
                 <Localized
-                  id="subscription-content-last-bill"
-                  vars={{ billedOnDate: currentInvoiceDateLongFallback }}
+                  id="subscription-content-resubscribe"
+                  vars={{
+                    name: productName,
+                    date: currentPeriodEndLongFallback,
+                  }}
+                  elems={{
+                    strong: <strong></strong>,
+                  }}
                 >
-                  <p>Last bill • {currentInvoiceDateLongFallback}</p>
+                  <p className="text-sm leading-4 text-grey-400">
+                    You will lose access to {productName} on{' '}
+                    <strong>{currentPeriodEndLongFallback}</strong>.
+                  </p>
                 </Localized>
-              </div>
-              <div className="flex items-center justify-between">
-                {currentInvoiceTax ? (
-                  <Localized
-                    id="subscription-content-last-bill-with-tax"
-                    vars={{
-                      invoiceTotal:
-                        getCurrencyFallbackText(currentInvoiceTotal),
-                      taxDue: getCurrencyFallbackText(currentInvoiceTax),
-                    }}
-                  >
-                    <p>
-                      {getCurrencyFallbackText(currentInvoiceTotal)} +{' '}
-                      {getCurrencyFallbackText(currentInvoiceTax)} tax
-                    </p>
-                  </Localized>
-                ) : (
-                  <Localized
-                    id="subscription-content-last-bill-no-tax"
-                    vars={{
-                      invoiceTotal:
-                        getCurrencyFallbackText(currentInvoiceTotal),
-                    }}
-                  >
-                    <p>{getCurrencyFallbackText(currentInvoiceTotal)}</p>
-                  </Localized>
-                )}
-                {currentInvoiceUrl && (
-                  <LinkExternal
-                    href={currentInvoiceUrl}
-                    className="text-blue-500 hover:text-blue-600 cursor-pointer flex items-center gap-1 flex-shrink-0 overflow-hidden text-ellipsis whitespace-nowrap"
-                    data-testid="link-external-view-invoice"
-                    aria-label={l10n.getString(
-                      'subscription-management-link-view-invoice-aria',
-                      {
-                        productName,
-                      },
-                      `View invoice for ${productName}`
-                    )}
-                  >
-                    <Localized id="subscription-content-view-invoice">
-                      <span className="underline">View invoice</span>
+              )}
+              <Localized
+                id="subscription-content-button-resubscribe"
+                vars={{ productName }}
+                attrs={{ 'aria-label': true }}
+              >
+                <SubmitButton
+                  className="h-10"
+                  variant={ButtonVariant.Secondary}
+                  onClick={() => setOpenResubscribeDialog(true)}
+                  aria-label={`Resubscribe to ${productName}`}
+                >
+                  Resubscribe
+                </SubmitButton>
+              </Localized>
+            </>
+          ) : (
+            <>
+              {isClient && (
+                <div className="leading-5">
+                  {currentInvoiceTax ? (
+                    <Localized
+                      id="subscription-content-current-billed-on-tax"
+                      vars={{
+                        billedOnDate: currentInvoiceDateLongFallback,
+                        invoiceTotal:
+                          getCurrencyFallbackText(currentInvoiceTotal),
+                        taxDue: getCurrencyFallbackText(currentInvoiceTax),
+                      }}
+                      elems={{
+                        strong: <strong></strong>,
+                        span: <span className="text-grey-600 text-sm"></span>,
+                      }}
+                    >
+                      <p>
+                        <strong>
+                          {getCurrencyFallbackText(currentInvoiceTotal)} +{' '}
+                          {getCurrencyFallbackText(currentInvoiceTax)} tax{' '}
+                        </strong>
+                        <span className="text-grey-600 text-sm">
+                          billed on {currentInvoiceDateLongFallback}
+                        </span>
+                      </p>
                     </Localized>
-                    <Image src={newWindowIcon} alt="" />
-                  </LinkExternal>
-                )}
-              </div>
-              {canResubscribe ? (
-                <>
-                  <div
-                    className="border-none h-px bg-grey-200 my-2"
-                    role="separator"
-                    aria-hidden="true"
-                  ></div>
-                  {isClient && (
-                    <div className="flex items-center gap-1">
-                      <Image
-                        src={alertIcon}
-                        alt=""
-                        width={20}
-                        height={20}
-                        aria-hidden="true"
-                      />
-                      <Localized
-                        id="subscription-content-expires-on-expiry-date"
-                        vars={{
-                          date: currentPeriodEndLongFallback,
-                        }}
-                      >
-                        <p className="text-sm text-yellow-800">
-                          Expires on {currentPeriodEndLongFallback}
-                        </p>
-                      </Localized>
-                    </div>
+                  ) : (
+                    <Localized
+                      id="subscription-content-current-billed-on-no-tax"
+                      vars={{
+                        billedOnDate: currentInvoiceDateLongFallback,
+                        invoiceTotal:
+                          getCurrencyFallbackText(currentInvoiceTotal),
+                      }}
+                      elems={{
+                        strong: <strong></strong>,
+                        span: <span className="text-grey-600 text-sm"></span>,
+                      }}
+                    >
+                      <p>
+                        <strong>
+                          {getCurrencyFallbackText(currentInvoiceTotal)}
+                        </strong>
+                        <span className="text-grey-600 text-sm">
+                          billed on {currentInvoiceDateLongFallback}
+                        </span>
+                      </p>
+                    </Localized>
                   )}
-                </>
-              ) : (
-                <>
+                  {creditApplied && creditApplied > 0 ? (
+                    <Localized
+                      id="subscription-content-credit-issued-to-your-account"
+                      vars={{
+                        creditApplied: getCurrencyFallbackText(creditApplied),
+                      }}
+                      elems={{ strong: <strong></strong> }}
+                    >
+                      <p className="text-green-900 text-sm">
+                        <strong>
+                          {getCurrencyFallbackText(creditApplied)}
+                        </strong>{' '}
+                        credit issued to your account
+                      </p>
+                    </Localized>
+                  ) : null}
+                  {promotionName && (
+                    <Localized
+                      id="subscription-content-coupon-applied"
+                      vars={{
+                        promotionName,
+                      }}
+                    >
+                      <p className="font-bold text-sm text-violet-700">
+                        {promotionName} applied
+                      </p>
+                    </Localized>
+                  )}
                   {nextInvoiceTotal !== undefined && nextInvoiceTotal >= 0 ? (
-                    <>
-                      <div
-                        className="border-none h-px bg-grey-200 my-2"
-                        role="separator"
-                        aria-hidden="true"
-                      ></div>
-                      <div className="text-grey-500">
-                        <Localized
-                          id="subscription-content-next-bill"
-                          vars={{
-                            billedOnDate: currentPeriodEndLongFallback,
-                          }}
-                        >
-                          <p>Next bill • {currentPeriodEndLongFallback}</p>
-                        </Localized>
-                      </div>
+                    <div className="mt-2 text-sm">
                       {nextInvoiceTax ? (
                         <Localized
-                          id="subscription-content-next-bill-with-tax-1"
+                          id="subscription-content-next-bill-excl-disc-with-tax"
                           vars={{
+                            nextBillDate: currentPeriodEndLongFallback,
                             nextInvoiceTotal:
                               getCurrencyFallbackText(nextInvoiceTotal),
                             taxDue: getCurrencyFallbackText(nextInvoiceTax),
                           }}
+                          elems={{ strong: <strong></strong> }}
                         >
                           <p>
-                            {getCurrencyFallbackText(nextInvoiceTotal)} +{' '}
-                            {getCurrencyFallbackText(nextInvoiceTax)} tax
+                            Next bill of{' '}
+                            <strong>
+                              {getCurrencyFallbackText(nextInvoiceTotal)} +{' '}
+                              {getCurrencyFallbackText(nextInvoiceTax)} tax
+                            </strong>
+                            , excluding discounts, is due{' '}
+                            <strong>{currentPeriodEndLongFallback}</strong>
                           </p>
                         </Localized>
                       ) : (
                         <Localized
-                          id="subscription-content-next-bill-no-tax-1"
+                          id="subscription-content-next-bill-excl-no-tax"
                           vars={{
+                            nextBillDate: currentPeriodEndLongFallback,
                             nextInvoiceTotal:
                               getCurrencyFallbackText(nextInvoiceTotal),
                           }}
+                          elems={{ strong: <strong></strong> }}
                         >
-                          <p>{getCurrencyFallbackText(nextInvoiceTotal)}</p>
+                          <p>
+                            Next bill of{' '}
+                            <strong>
+                              {getCurrencyFallbackText(nextInvoiceTotal)}
+                            </strong>
+                            , excluding discounts, is due{' '}
+                            <strong>{currentPeriodEndLongFallback}</strong>
+                          </p>
                         </Localized>
                       )}
-                    </>
+                    </div>
                   ) : null}
                   {nextPromotionName && (
                     <Localized
@@ -615,49 +660,28 @@ export const SubscriptionContent = ({
                       </p>
                     </Localized>
                   )}
-                </>
+                </div>
               )}
-            </div>
-          )}
-          {canResubscribe ? (
-            <div className="flex justify-end w-full tablet:w-auto">
               <Localized
-                id="subscription-content-button-stay-subscribed"
+                id="subscription-content-button-cancel"
                 vars={{ productName }}
                 attrs={{ 'aria-label': true }}
               >
                 <SubmitButton
-                  className="font-bold h-10"
-                  variant={ButtonVariant.SubscriptionManagementPrimary}
-                  onClick={() => setOpenResubscribeDialog(true)}
-                  aria-label={`Stay subscribed to ${productName}`}
-                >
-                  Stay subscribed
-                </SubmitButton>
-              </Localized>
-            </div>
-          ) : (
-            <div className="flex justify-end w-full tablet:w-auto">
-              <Localized
-                id="subscription-content-button-cancel-subscription-1"
-                vars={{ productName }}
-                attrs={{ 'aria-label': true }}
-              >
-                <SubmitButton
-                  className="font-bold h-10"
-                  variant={ButtonVariant.SubscriptionManagementSecondary}
+                  className="h-10"
+                  variant={ButtonVariant.Secondary}
                   onClick={() => {
                     setCheckedState(false);
                     setShowCancel(true);
                   }}
                   aria-label={`Cancel your subscription for ${productName}`}
                 >
-                  Cancel subscription
+                  Cancel
                 </SubmitButton>
               </Localized>
-            </div>
+            </>
           )}
-        </>
+        </section>
       )}
     </>
   );

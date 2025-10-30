@@ -46,64 +46,48 @@ export default async function PaypalPaymentManagementPage({
 
   return (
     <section
-      className="w-full tablet:px-8 desktop:max-w-[1024px]"
+      className="px-4 tablet:px-8"
       data-testid="paypal-payment-management"
       aria-labelledby="paypal-payment-management"
     >
-      <h1
-        className="font-bold leading-6 mt-8 px-4 pb-4 text-xl tablet:px-6"
-        id="paypal-payment-management"
-      >
-        {l10n.getString(
-          'manage-payment-methods-heading',
-          'Manage payment methods'
-        )}
-      </h1>
-      <div className="py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
-        <div className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2">
-          <Image
-            src={errorIcon}
-            alt=""
-            className="h-10 w-10"
+      <div className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2 h-[640px]">
+        <Image
+          src={errorIcon}
+          alt=""
+          className="h-10 w-10"
+          aria-hidden="true"
+        />
+        <h2 className="font-semibold text-grey-600 text-xl my-5">
+          {l10n.getString(
+            'paypal-payment-management-page-invalid-header',
+            'Invalid billing information'
+          )}
+        </h2>
+        <span className={'px-24 leading-6'}>
+          {l10n.getString(
+            'paypal-payment-management-page-invalid-description',
+            'There seems to be an error with your PayPal account, we need you to take the necessary steps to resolve this payment issue.'
+          )}
+        </span>
+        <div className="flex items-center w-2/3 py-10">
+          <hr
+            className="border-b border-grey-100 my-6 grow"
             aria-hidden="true"
           />
-          <h2 className="font-semibold text-grey-600 text-xl my-5">
-            {l10n.getString(
-              'paypal-payment-management-page-invalid-header',
-              'Invalid billing information'
-            )}
-          </h2>
-          <span className="px-12 tablet:px-24 leading-6">
-            {l10n.getString(
-              'paypal-payment-management-page-invalid-description',
-              'There seems to be an error with your PayPal account, we need you to take the necessary steps to resolve this payment issue.'
-            )}
+          <span className="flex-none px-4">
+            {l10n.getString('next-pay-with-heading-paypal', 'Pay with PayPal')}
           </span>
-          <div className="flex items-center w-2/3 py-5">
-            <div
-              className="border-b border-grey-100 my-6 grow"
-              role="presentation"
-              aria-hidden="true"
-            ></div>
-            <span className="flex-none px-4">
-              {l10n.getString(
-                'next-pay-with-heading-paypal',
-                'Pay with PayPal'
-              )}
-            </span>
-            <div
-              className="border-b border-grey-100 my-6 grow"
-              role="presentation"
-              aria-hidden="true"
-            ></div>
-          </div>
-          <PaypalManagement
-            sessionUid={sessionUid}
-            paypalClientId={'sb'}
-            nonce={nonce}
-            currency={currency}
+          <hr
+            className="border-b border-grey-100 my-6 grow"
+            aria-hidden="true"
           />
         </div>
+        <PaypalManagement
+          sessionUid={sessionUid}
+          paypalClientId={'sb'}
+          nonce={nonce}
+          currency={currency}
+        />
       </div>
     </section>
   );
