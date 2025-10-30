@@ -10,6 +10,7 @@ import {
   PaymentProvidersType,
   PaymentsGleanProvider,
   SubscriptionCancellationData,
+  type ExperimentationData,
 } from './glean.types';
 import { Inject, Injectable } from '@nestjs/common';
 import { type PaymentsGleanServerEventsLogger } from './glean.provider';
@@ -34,6 +35,7 @@ export class PaymentsGleanManager {
     commonMetricsData: CommonMetrics;
     cartMetricsData: CartMetrics;
     cmsMetricsData: CmsMetricsData;
+    experimentationData: ExperimentationData;
   }) {
     if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupView(
@@ -131,6 +133,7 @@ export class PaymentsGleanManager {
     commonMetricsData?: CommonMetrics;
     cartMetricsData?: CartMetrics;
     cmsMetricsData?: CmsMetricsData;
+    experimentationData?: ExperimentationData;
     subscriptionCancellationData?: SubscriptionCancellationData;
   }) {
     const emptyCommonMetricsData: CommonMetrics = {
@@ -146,6 +149,7 @@ export class PaymentsGleanManager {
       errorReasonId: null,
       couponCode: '',
       currency: '',
+      taxAddress: { countryCode: '', postalCode: '' },
     };
     const emptyCmsMetricsData: CmsMetricsData = {
       priceId: '',
@@ -157,12 +161,17 @@ export class PaymentsGleanManager {
       cancellationReason: CancellationReason.Involuntary,
       providerEventId: '',
     };
+    const emptyExperimentationData: ExperimentationData = {
+      nimbusUserId: '',
+    };
     const commonMetricsData =
       metrics.commonMetricsData || emptyCommonMetricsData;
     const cartMetricsData = metrics.cartMetricsData || emptyCartMetricsData;
     const cmsMetricsData = metrics.cmsMetricsData || emptyCmsMetricsData;
     const subscriptionCancellationData =
       metrics.subscriptionCancellationData || emptySubscriptionCancellationData;
+    const experimentationData =
+      metrics.experimentationData || emptyExperimentationData;
     return {
       user_agent: commonMetricsData.userAgent,
       ip_address: commonMetricsData.ipAddress,
@@ -178,6 +187,7 @@ export class PaymentsGleanManager {
       }),
       ...mapUtm(commonMetricsData.searchParams),
       ...mapSubscriptionCancellation(subscriptionCancellationData),
+      nimbus_user_id: experimentationData.nimbusUserId,
     };
   }
 

@@ -70,6 +70,11 @@ export function middleware(request: NextRequest) {
     contentSecurityPolicyHeaderValue
   );
 
+  if (!requestHeaders.get('x-experimenter-id')) {
+    const experimentationId = `guest-${crypto.randomUUID()}`;
+    requestHeaders.set('x-experimentation-id', experimentationId);
+  }
+
   const response = NextResponse.next({
     request: {
       headers: requestHeaders,

@@ -10,9 +10,7 @@ import {
 } from '@fxa/payments/metrics';
 import { LocationStatus } from '@fxa/payments/eligibility';
 import { TaxChangeAllowedStatus } from '@fxa/payments/cart';
-import {
-  SubPlatPaymentMethodType,
-} from '@fxa/payments/customer';
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 
 export type CheckoutEvents = CommonMetrics;
 export type CheckoutPaymentEvents = CommonMetrics & {
@@ -50,7 +48,7 @@ export type SP3RolloutEvent = {
 export type AuthEvents = {
   type: 'signin' | 'signout' | 'prompt_none_fail' | 'error';
   errorMessage?: string;
-}
+};
 
 export type PaymentsEmitterEvents = {
   checkoutView: CheckoutEvents;
@@ -67,4 +65,5 @@ export type PaymentsEmitterEvents = {
 export type AdditionalMetricsData = {
   cmsMetricsData: CmsMetricsData;
   cartMetricsData: CartMetrics;
+  locale: string;
 };

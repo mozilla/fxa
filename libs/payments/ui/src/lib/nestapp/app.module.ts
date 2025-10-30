@@ -69,6 +69,8 @@ import {
   GoogleIapClient,
   GoogleIapPurchaseManager,
 } from '@fxa/payments/iap';
+import { NimbusClient } from '@fxa/shared/experiments';
+import { NimbusManager } from '@fxa/payments/experiments';
 
 @Module({
   imports: [
@@ -144,6 +146,8 @@ import {
     SubscriptionEventsService,
     StripeWebhookService,
     SubscriptionManagementService,
+    NimbusClient,
+    NimbusManager,
     { provide: LOGGER_PROVIDER, useValue: logger },
   ],
 })
