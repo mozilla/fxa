@@ -1,0 +1,24 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<mj-include path="<%- locals.cssPath %>/bannerWarning/index.css" type="css" css-inline="inline" />
+
+<mj-section css-class="banner-warning-container">
+  <mj-column>
+    <mj-text css-class="banner-warning-text pb-1">
+      <!-- Note, we would prefer not to have this mailto link but email clients will add it
+      automatically regardless. Since we need custom styling that must be inlined when there
+      is a link, we add it ourselves for styling consistency. -->
+      <span data-l10n-id="banner-warning-message" data-l10n-args="<%= JSON.stringify({accountsEmail: "accounts@firefox.com"})%>">
+      Firefox add-on developers have been targeted by phishing email attacks recently. We’ll only send emails about your Mozilla account from <a href="mailto:accounts@firefox.com" data-l10n-name="accountsEmailLink">accounts@firefox.com</a>.
+      </span>
+    </mj-text>
+
+    <mj-text css-class="banner-warning-text">
+      <span data-l10n-id="banner-warning-check">
+        Check to make sure the device and location you signed in to is correct.
+      </span>
+    </mj-text>
+  </mj-column>
+</mj-section>

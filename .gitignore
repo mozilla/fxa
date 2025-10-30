@@ -87,6 +87,9 @@ Thumbs.db
 # command is called
 .venv
 
+## Lib Specific
+libs/accounts/email-renderer/public/locales
+
 ## Package-specific ##
 
 # circleci
