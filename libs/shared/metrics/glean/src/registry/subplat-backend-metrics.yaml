@@ -466,11 +466,16 @@ pay_setup:
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1997429
     data_reviews:
       - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
   engage:
     description: Checkout engage event
     type: event
@@ -479,11 +484,16 @@ pay_setup:
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1997429
     data_reviews:
       - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
   submit:
     description: Checkout submit event
     type: event
@@ -492,11 +502,16 @@ pay_setup:
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1997429
     data_reviews:
       - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
   success:
     description: Checkout engage event
     type: event
@@ -505,11 +520,16 @@ pay_setup:
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1997429
     data_reviews:
       - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
   fail:
     description: Checkout fail event
     type: event
@@ -518,8 +538,13 @@ pay_setup:
       - subplat-team@mozilla.com
     bugs:
       - https://mozilla-hub.atlassian.net/browse/FXA-7531
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1997429
     data_reviews:
       - https://github.com/mozilla/fxa/issues/18512
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
