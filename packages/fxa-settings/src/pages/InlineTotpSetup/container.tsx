@@ -92,7 +92,8 @@ export const InlineTotpSetupContainer = ({
     if (
       totp !== undefined ||
       totpStatus?.account?.totp.verified === true ||
-      isTotpCreating.current
+      isTotpCreating.current ||
+      totpStatusLoading === true
     ) {
       return;
     }
