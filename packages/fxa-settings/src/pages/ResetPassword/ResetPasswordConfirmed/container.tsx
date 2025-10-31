@@ -53,6 +53,9 @@ const ResetPasswordConfirmedContainer = ({
       error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
       error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
     ) {
+      // in most cases, this error will be returned because the account doesn't have TOTP enabled
+      // in the case where the account has TOTP enabled, it will be redirected to signin_totp_code
+      // from inline_totp_setup
       navigateWithQuery(`/inline_totp_setup`, {
         state: {
           email,
