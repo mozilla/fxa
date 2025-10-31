@@ -1,3 +1,11 @@
+SET NAMES utf8mb4 COLLATE utf8mb4_bin;
+
+CALL assertPatchLevel('178');
+
+-- This migration updates the attachedDevices sproc to optimize performance
+-- using CTE and MySQL 8 optimizer hints, limiting fan-out during joins to
+-- deviceCommands and deviceCommandIdentifiers.
+
 CREATE PROCEDURE `accountDevices_18` (
   IN `uidArg` BINARY(16),
   IN `limitArg` INT
@@ -31,9 +39,10 @@ BEGIN
   )
   -- MYSQL8 hints to improve joins to deviceCommands
   SELECT /*+ JOIN_ORDER(d0, s, dc, ci) NO_HASH_JOIN(d0, dc) INDEX(dc PRIMARY) */
-    HEX(d0.uid), HEX(d0.id) as device_id,
-    HEX(s.tokenId) AS sessionTokenId,
-    HEX(d0.refreshTokenId),
+    d0.uid,
+    d0.id,
+    s.tokenId AS sessionTokenId,
+    d0.refreshTokenId,
     d0.nameUtf8 AS name,
     d0.type,
     d0.createdAt,
@@ -56,3 +65,5 @@ BEGIN
   LEFT JOIN deviceCommandIdentifiers ci ON ci.commandId = dc.commandId
   ORDER BY d0.id;
 END;
+
+UPDATE dbMetadata SET value = '179' WHERE name = 'schema-patch-level';
