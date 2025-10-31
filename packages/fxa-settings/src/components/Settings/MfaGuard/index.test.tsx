@@ -24,9 +24,13 @@ const mockAuthClient = {
     }
     return Promise.reject(AuthUiErrors.INVALID_EXPIRED_OTP_CODE);
   }),
+  sessionStatus: jest.fn().mockResolvedValue({
+    details: { sessionVerificationMeetsMinimumAAL: true },
+  }),
 };
 const mockAlertBar = { error: jest.fn() };
 const mockNavigate = jest.fn();
+const mockNavigateWithQuery = jest.fn();
 
 jest.mock('../../../lib/cache', () => {
   const actual = jest.requireActual('../../../lib/cache');
@@ -43,6 +47,10 @@ jest.mock('../../../models', () => ({
   useAlertBar: () => mockAlertBar,
 }));
 
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
@@ -50,7 +58,7 @@ jest.mock('@reach/router', () => ({
 
 async function submitCode(otp: string = mockOtp) {
   await userEvent.type(
-    screen.getByRole('textbox', { name: 'Enter 6-digit code' }),
+    await screen.findByRole('textbox', { name: 'Enter 6-digit code' }),
     otp
   );
   await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -61,6 +69,10 @@ describe('MfaGuard', () => {
     JwtTokenCache.removeToken(mockSessionToken, mockScope);
     MfaOtpRequestCache.remove(mockSessionToken, mockScope);
     jest.clearAllMocks();
+
+    mockAuthClient.sessionStatus.mockResolvedValue({
+      details: { sessionVerificationMeetsMinimumAAL: true },
+    });
   });
 
   it('requests OTP and shows modal when JWT missing', async () => {
@@ -72,10 +84,12 @@ describe('MfaGuard', () => {
       </AppContext.Provider>
     );
 
-    expect(mockAuthClient.mfaRequestOtp).toHaveBeenCalledWith(
-      mockSessionToken,
-      mockScope
-    );
+    await waitFor(() => {
+      expect(mockAuthClient.mfaRequestOtp).toHaveBeenCalledWith(
+        mockSessionToken,
+        mockScope
+      );
+    });
 
     expect(
       await screen.findByText('Enter confirmation code')
@@ -110,7 +124,7 @@ describe('MfaGuard', () => {
     });
   });
 
-  it('renders children when JWT exists', () => {
+  it('renders children when JWT exists', async () => {
     JwtTokenCache.setToken(mockSessionToken, mockScope, 'jwt-present');
 
     renderWithRouter(
@@ -121,7 +135,7 @@ describe('MfaGuard', () => {
       </AppContext.Provider>
     );
 
-    expect(screen.getByText('secured')).toBeInTheDocument();
+    expect(await screen.findByText('secured')).toBeInTheDocument();
     expect(
       screen.queryByText('Enter confirmation code')
     ).not.toBeInTheDocument();
@@ -160,7 +174,9 @@ describe('MfaGuard', () => {
       </AppContext.Provider>
     );
 
-    expect(screen.queryByText('Enter confirmation code')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Enter confirmation code')
+    ).toBeInTheDocument();
     await submitCode('654321');
 
     expect(
@@ -181,7 +197,9 @@ describe('MfaGuard', () => {
       </AppContext.Provider>
     );
 
-    expect(screen.getByText('Enter confirmation code')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Enter confirmation code')
+    ).toBeInTheDocument();
     await submitCode('654321');
     expect(
       await screen.findByText('Invalid or expired confirmation code')
@@ -209,7 +227,7 @@ describe('MfaGuard', () => {
 
     // Trigger an error first
     await userEvent.type(
-      screen.getByRole('textbox', { name: 'Enter 6-digit code' }),
+      await screen.findByRole('textbox', { name: 'Enter 6-digit code' }),
       '654321'
     );
     await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -218,7 +236,7 @@ describe('MfaGuard', () => {
     ).toBeInTheDocument();
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Email new code.' })
+      await screen.findByRole('button', { name: 'Email new code.' })
     );
     expect(
       await screen.findByText('A new code was sent to your email.')
@@ -242,7 +260,7 @@ describe('MfaGuard', () => {
     );
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Email new code.' })
+      await screen.findByRole('button', { name: 'Email new code.' })
     );
     expect(
       await screen.findByText('A new code was sent to your email.')
@@ -253,9 +271,44 @@ describe('MfaGuard', () => {
     );
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Email new code.' })
+      await screen.findByRole('button', { name: 'Email new code.' })
     );
     expect(await screen.findByText('Unexpected error')).toBeInTheDocument();
+  });
+
+  it('navigates to signin_totp_code when session does not meet minimum AAL', async () => {
+    // Mock sessionStatus to return false for AAL check
+    mockAuthClient.sessionStatus.mockResolvedValue({
+      details: { sessionVerificationMeetsMinimumAAL: false },
+    });
+
+    const context = mockAppContext();
+
+    renderWithRouter(
+      <AppContext.Provider value={context}>
+        <MfaGuard
+          requiredScope={mockScope}
+          debounceIntervalMs={0}
+          reason={MfaReason.test}
+        >
+          <div>secured</div>
+        </MfaGuard>
+      </AppContext.Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/signin_totp_code', {
+        state: {
+          email: context.account!.email,
+          sessionToken: mockSessionToken,
+          uid: context.account!.uid,
+          verified: false,
+          isSessionAALUpgrade: true,
+        },
+      });
+    });
+
+    expect(mockAuthClient.mfaRequestOtp).not.toHaveBeenCalled();
   });
 
   it('goes home and shows error alert bar if request for OTP fails', async () => {
@@ -297,7 +350,9 @@ describe('MfaGuard', () => {
       </AppContext.Provider>
     );
 
-    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Cancel' })
+    );
 
     expect(mockOnDismiss).toHaveBeenCalledTimes(1);
   });
@@ -317,25 +372,25 @@ describe('MfaGuard', () => {
 
     // Should be debounced! The dialog just rendered and a code went out...
     await userEvent.click(
-      screen.getByRole('button', { name: 'Email new code.' })
+      await screen.findByRole('button', { name: 'Email new code.' })
     );
     await act(async () => {
       await new Promise((r) => setTimeout(r, 101));
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Email new code.' })
+      await screen.findByRole('button', { name: 'Email new code.' })
     );
     // Should be debounced! The resend request above was just clicked...
     await userEvent.click(
-      screen.getByRole('button', { name: 'Email new code.' })
+      await screen.findByRole('button', { name: 'Email new code.' })
     );
 
     await act(async () => {
       await new Promise((r) => setTimeout(r, 101));
     });
     await userEvent.click(
-      screen.getByRole('button', { name: 'Email new code.' })
+      await screen.findByRole('button', { name: 'Email new code.' })
     );
 
     expect(mockAuthClient.mfaRequestOtp).toHaveBeenCalledTimes(3);

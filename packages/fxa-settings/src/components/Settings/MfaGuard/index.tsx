@@ -30,6 +30,8 @@ import * as Sentry from '@sentry/react';
 import { MfaErrorBoundary } from './error-boundary';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import GleanMetrics from '../../../lib/glean';
+import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 /**
  * This is a guard component designed to wrap around components that perform
@@ -58,9 +60,12 @@ export const MfaGuard = ({
   const [resendCodeLoading, setResendCodeLoading] = useState(false);
   const [showResendSuccessBanner, setShowResendSuccessBanner] = useState(false);
 
+  const [modalLoading, setModalLoading] = useState(true);
+
   const resetStates = useCallback(() => {
     setLocalizedErrorBannerMessage(undefined);
     setShowResendSuccessBanner(false);
+    setModalLoading(true);
   }, []);
 
   // Reactive state: if the store state changes, a re-render is triggered
@@ -71,6 +76,7 @@ export const MfaGuard = ({
   const account = useAccount();
   const authClient = useAuthClient();
   const navigate = useNavigate();
+  const navigateWithQuery = useNavigateWithQuery();
   const sessionToken = getSessionToken();
 
   const ftlMsgResolver = useFtlMsgResolver();
@@ -105,7 +111,25 @@ export const MfaGuard = ({
   // Modal Setup
   useEffect(() => {
     (async () => {
-      // To avoid requesting multiple OTPs on mount
+      // Ensure the session meets the minimum AAL required
+      const {
+        details: { sessionVerificationMeetsMinimumAAL },
+      } = await authClient.sessionStatus(sessionToken);
+      if (!sessionVerificationMeetsMinimumAAL) {
+        console.warn('2FA must be entered to access /settings!');
+        navigateWithQuery('/signin_totp_code', {
+          state: {
+            email: account.email,
+            sessionToken: sessionToken,
+            uid: account.uid,
+            verified: false,
+            isSessionAALUpgrade: true,
+          },
+        });
+        return;
+      }
+      setModalLoading(false);
+
       if (JwtTokenCache.hasToken(sessionToken, requiredScope)) {
         return;
       }
@@ -122,10 +146,6 @@ export const MfaGuard = ({
         await authClient.mfaRequestOtp(sessionToken, requiredScope);
       } catch (err) {
         MfaOtpRequestCache.remove(sessionToken, requiredScope);
-        if (err.code === 401) {
-          handleError(err);
-          return;
-        }
         if (err.code === 429) {
           setShowResendSuccessBanner(false);
           setLocalizedErrorBannerMessage(
@@ -150,6 +170,9 @@ export const MfaGuard = ({
     onDismiss,
     config.mfa.otp.expiresInMinutes,
     debounce,
+    navigateWithQuery,
+    account.email,
+    account.uid,
   ]);
 
   const onSubmitOtp = async (code: string) => {
@@ -191,11 +214,6 @@ export const MfaGuard = ({
     } catch (err) {
       MfaOtpRequestCache.remove(sessionToken, requiredScope);
       setShowResendSuccessBanner(false);
-      if (err.code === 401) {
-        handleError(err);
-        return;
-      }
-      setShowResendSuccessBanner(false);
       setLocalizedErrorBannerMessage(
         getLocalizedErrorMessage(ftlMsgResolver, err)
       );
@@ -207,24 +225,25 @@ export const MfaGuard = ({
   const email = account.email;
   const expirationTime = config.mfa.otp.expiresInMinutes;
 
-  const getModal = () => (
-    <Modal
-      {...{
-        email,
-        expirationTime,
-        onSubmit: onSubmitOtp,
-        onDismiss,
-        handleResendCode,
-        clearErrorMessage: () => setLocalizedErrorBannerMessage(undefined),
-        resendCodeLoading,
-        showResendSuccessBanner,
-        localizedErrorBannerMessage,
-        reason,
-      }}
-    >
-      <p>Re-verify Account!</p>
-    </Modal>
-  );
+  const getModal = () =>
+    modalLoading ? (
+      <LoadingSpinner fullScreen />
+    ) : (
+      <Modal
+        {...{
+          email,
+          expirationTime,
+          onSubmit: onSubmitOtp,
+          onDismiss,
+          handleResendCode,
+          clearErrorMessage: () => setLocalizedErrorBannerMessage(undefined),
+          resendCodeLoading,
+          showResendSuccessBanner,
+          localizedErrorBannerMessage,
+          reason,
+        }}
+      />
+    );
 
   // If we don't have a JWT, we need to open the modal to prompt for it.
   // Note: I'm torn on whether we should render the child components or not. It seems

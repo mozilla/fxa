@@ -40,7 +40,13 @@ const accountWithoutPassword = {
   recoveryKey: { exists: false },
 } as unknown as Account;
 
-const authClient = {} as unknown as AuthClient;
+const authClient = {
+  sessionStatus: jest.fn().mockResolvedValue({
+    details: {
+      sessionVerificationMeetsMinimumAAL: true,
+    },
+  }),
+} as unknown as AuthClient;
 
 const renderWithContext = (
   account: Partial<Account>,
