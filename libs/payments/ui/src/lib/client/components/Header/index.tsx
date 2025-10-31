@@ -44,6 +44,7 @@ function buildSignOutRedirectPath(
   const allRemainingQueryParams = new URLSearchParams(searchParams.toString());
   allRemainingQueryParams.delete('countryCode');
   allRemainingQueryParams.delete('postalCode');
+  allRemainingQueryParams.delete('newAccount');
   const remainingQueryParams = allRemainingQueryParams.toString();
 
   if (remainingQueryParams) {
