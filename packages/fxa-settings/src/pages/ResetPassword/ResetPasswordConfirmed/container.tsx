@@ -19,6 +19,7 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { AuthError } from '../../../lib/oauth';
 import { useState } from 'react';
+import AuthenticationMethods from '../../../constants/authentication-methods';
 import GleanMetrics from '../../../lib/glean';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { currentAccount } from '../../../lib/cache';
@@ -48,12 +49,28 @@ const ResetPasswordConfirmedContainer = ({
     return;
   }
 
-  const handleOAuthRedirectError = (error: AuthError) => {
+  const handleOAuthRedirectError = async (error: AuthError) => {
     if (
       error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
       error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
     ) {
-      navigateWithQuery(`/inline_totp_setup`, {
+      // Check if account already has TOTP enabled; if so, go to code entry
+      let to = '/inline_totp_setup';
+      try {
+        if (sessionToken) {
+          const { authenticationMethods } =
+            await authClient.accountProfile(sessionToken);
+          const hasTotp = authenticationMethods?.includes(
+            AuthenticationMethods.OTP
+          );
+          if (hasTotp) {
+            to = '/signin_totp_code';
+          }
+        }
+      } catch (_) {
+        // Fallback to setup on error
+      }
+      navigateWithQuery(to, {
         state: {
           email,
           uid,
@@ -84,7 +101,7 @@ const ResetPasswordConfirmedContainer = ({
     if (isOAuthIntegration(integration)) {
       const { redirect, error } = await getOauthRedirect();
       if (error) {
-        handleOAuthRedirectError(error);
+        await handleOAuthRedirectError(error);
         return;
       }
       if (redirect) {
