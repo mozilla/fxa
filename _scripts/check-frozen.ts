@@ -1,0 +1,51 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// Inspired by: https://github.com/Lisba/prevent-file-changes
+
+import { execSync } from 'child_process';
+
+// Maintain List of frozen files here!
+const frozen: Array<{ pattern: string; reason: string }> = [
+  {
+    pattern: 'packages/fxa-auth-server/(lib|lib/oauth)/error.js',
+    reason: 'Files moved to libs/accounts/errors',
+  },
+];
+
+export const getChangedFiles = () => {
+  const referenceToCompare = execSync(
+    'git rev-parse --verify HEAD >/dev/null 2>&1 && echo HEAD || echo 4b825dc642cb6eb9a060e54bf8d69288fbee4904'
+  );
+  return execSync(`git diff --cached --name-only ${referenceToCompare}`)
+    .toString()
+    .trim()
+    .split('\n');
+};
+
+try {
+  let violations = false;
+  for (const x of frozen) {
+    const re = new RegExp(x.pattern);
+    const changedFiles = getChangedFiles();
+    for (const file of changedFiles) {
+      if (re.test(file)) {
+        console.error(
+          `🚫 Error: Cannot modify frozen file: ${file}\n   Reason: ${x.reason}.\n`
+        );
+        violations = true;
+      }
+    }
+  }
+
+  if (violations) {
+    process.exit(1);
+  } else {
+    console.log('✨ Successful Execution!');
+    process.exit(0);
+  }
+} catch (error: any) {
+  console.error('🚫 Execution Error:', error.message);
+  process.exit(1);
+}

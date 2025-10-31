@@ -26,7 +26,8 @@
     "gql:allowlist": "nx run-many -t gql-extract && nx run-many -t gql-copy",
     "check:mysql": "_scripts/check-mysql.sh",
     "check:url": "_scripts/check-url.sh",
-    "prepare": "husky"
+    "prepare": "husky",
+    "check:frozen": "ts-node _scripts/check-frozen.ts"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {
@@ -148,6 +149,9 @@
     "node": "^22.15.1"
   },
   "lint-staged": {
+    "*": [
+      "yarn check:frozen"
+    ],
     "packages/!(fxa-payments-server)/**/*.js": [
       "prettier --config _dev/.prettierrc --write",
       "eslint"
