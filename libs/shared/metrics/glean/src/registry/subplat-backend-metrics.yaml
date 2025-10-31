@@ -471,6 +471,10 @@ pay_setup:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
   engage:
     description: Checkout engage event
     type: event
@@ -497,6 +501,10 @@ pay_setup:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
   success:
     description: Checkout engage event
     type: event
@@ -510,6 +518,10 @@ pay_setup:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
   fail:
     description: Checkout fail event
     type: event
@@ -523,3 +535,7 @@ pay_setup:
     expires: never
     data_sensitivity:
       - interaction
+    extra_keys:
+      nimbus_user_id:
+        description: Nimbus user ID
+        type: string
