@@ -545,9 +545,7 @@ export class MfaOtpRequestCache {
 
   static clear(sessionToken: string) {
     for (const key of Object.keys(this.state)) {
-      console.log('!!! checking', key);
       if (key.startsWith(sessionToken)) {
-        console.log('!!! deleting', key);
         delete this.state[key];
       }
     }

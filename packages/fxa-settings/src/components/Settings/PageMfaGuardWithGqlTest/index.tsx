@@ -44,7 +44,7 @@ const TestWithGql = (_: RouteComponentProps) => {
 
   const [mfaTest] = useMutation(MFA_TEST_MUTATION, {
     onError() {
-      console.log('!!! on MFA_TEST_MUTATION error');
+      // no-op
     },
   });
 
