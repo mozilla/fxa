@@ -531,7 +531,7 @@ export const SubscriptionContent = ({
               {canResubscribe ? (
                 <>
                   <div
-                    className="border-none h-px bg-grey-200 my-2"
+                    className="border-none h-px bg-grey-100 my-2"
                     role="separator"
                     aria-hidden="true"
                   ></div>
@@ -562,7 +562,7 @@ export const SubscriptionContent = ({
                   {nextInvoiceTotal !== undefined && nextInvoiceTotal >= 0 ? (
                     <>
                       <div
-                        className="border-none h-px bg-grey-200 my-2"
+                        className="border-none h-px bg-grey-100 my-2"
                         role="separator"
                         aria-hidden="true"
                       ></div>

@@ -51,12 +51,11 @@ export class PaymentMethodManager {
           paymentMethodType.paymentMethodId
         );
         defaultPaymentMethod = {
-          type: paymentMethod.type,
+          type: paymentMethodType.type,
           brand: paymentMethod.card?.brand,
           last4: paymentMethod.card?.last4,
           expMonth: paymentMethod.card?.exp_month,
           expYear: paymentMethod.card?.exp_year,
-          walletType: paymentMethod.card?.wallet?.type,
         };
         break;
       }
@@ -64,8 +63,7 @@ export class PaymentMethodManager {
         const billingAgreementId =
           await this.paypalBillingAgreementManager.retrieveActiveId(uid);
         defaultPaymentMethod = {
-          type: 'external_paypal',
-          brand: 'paypal',
+          type: SubPlatPaymentMethodType.PayPal,
           billingAgreementId,
         };
         break;
