@@ -338,6 +338,9 @@ describe('SubscriptionManagementService', () => {
           mockIapOfferingResult1.offering.defaultPurchase.purchaseDetails
             .productName,
         supportUrl: mockIapOfferingResult1.offering.commonContent.supportUrl,
+        webIcon:
+          mockIapOfferingResult1.offering.defaultPurchase.purchaseDetails
+            .webIcon,
       };
       const mockGoogleIapSubscriptionContent = {
         ...mockGoogleIapPurchase,
@@ -347,6 +350,9 @@ describe('SubscriptionManagementService', () => {
           mockIapOfferingResult2.offering.defaultPurchase.purchaseDetails
             .productName,
         supportUrl: mockIapOfferingResult2.offering.commonContent.supportUrl,
+        webIcon:
+          mockIapOfferingResult2.offering.defaultPurchase.purchaseDetails
+            .webIcon,
       };
 
       jest
@@ -519,6 +525,9 @@ describe('SubscriptionManagementService', () => {
           mockIapOfferingResult1.offering.defaultPurchase.purchaseDetails
             .productName,
         supportUrl: mockIapOfferingResult1.offering.commonContent.supportUrl,
+        webIcon:
+          mockIapOfferingResult1.offering.defaultPurchase.purchaseDetails
+            .webIcon,
       };
       const mockGoogleIapSubscriptionContent = {
         ...mockGoogleIapPurchase,
@@ -528,6 +537,9 @@ describe('SubscriptionManagementService', () => {
           mockIapOfferingResult2.offering.defaultPurchase.purchaseDetails
             .productName,
         supportUrl: mockIapOfferingResult2.offering.commonContent.supportUrl,
+        webIcon:
+          mockIapOfferingResult2.offering.defaultPurchase.purchaseDetails
+            .webIcon,
       };
 
       jest
@@ -828,7 +840,6 @@ describe('SubscriptionManagementService', () => {
       const mockAccountCustomer = ResultAccountCustomerFactory({
         stripeCustomerId: mockStripeCustomer.id,
       });
-      const mockPrice = StripePriceFactory();
       const mockSubscription = StripeSubscriptionFactory();
       const mockAppleIapPurchaseResult = AppleIapPurchaseResultFactory({
         storeIds: [],
@@ -874,8 +885,6 @@ describe('SubscriptionManagementService', () => {
         .mockRejectedValue(
           new SubscriptionContentMissingUpcomingInvoicePreviewError(
             mockSubscription.id,
-            mockPrice.id,
-            mockCurrency,
             mockStripeCustomer
           )
         );
@@ -1720,10 +1729,12 @@ describe('SubscriptionManagementService', () => {
         .spyOn(paypalBillingAgreementManager, 'retrieveActiveId')
         .mockResolvedValue(faker.string.uuid());
 
-      await expect(subscriptionManagementService.createPaypalBillingAgreementId(
-        faker.string.uuid(),
-        faker.string.uuid()
-      )).rejects.toBeInstanceOf(CreateBillingAgreementActiveBillingAgreement)
+      await expect(
+        subscriptionManagementService.createPaypalBillingAgreementId(
+          faker.string.uuid(),
+          faker.string.uuid()
+        )
+      ).rejects.toBeInstanceOf(CreateBillingAgreementActiveBillingAgreement);
       expect(privateCustomerChanged).not.toHaveBeenCalled();
     });
     it('throws an error if the account customer has no stripe id', async () => {
@@ -1740,10 +1751,14 @@ describe('SubscriptionManagementService', () => {
         .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
         .mockResolvedValue(mockAccountCustomer);
 
-      await expect(subscriptionManagementService.createPaypalBillingAgreementId(
-        faker.string.uuid(),
-        faker.string.uuid()
-      )).rejects.toBeInstanceOf(CreateBillingAgreementAccountCustomerMissingStripeId)
+      await expect(
+        subscriptionManagementService.createPaypalBillingAgreementId(
+          faker.string.uuid(),
+          faker.string.uuid()
+        )
+      ).rejects.toBeInstanceOf(
+        CreateBillingAgreementAccountCustomerMissingStripeId
+      );
       expect(privateCustomerChanged).not.toHaveBeenCalled();
     });
     it('throws an error if no currency can be found', async () => {
@@ -1770,10 +1785,12 @@ describe('SubscriptionManagementService', () => {
         .spyOn(subscriptionManagementService, 'getCurrencyForCustomer')
         .mockResolvedValue(undefined);
 
-      await expect(subscriptionManagementService.createPaypalBillingAgreementId(
-        faker.string.uuid(),
-        faker.string.uuid()
-      )).rejects.toBeInstanceOf(CreateBillingAgreementCurrencyNotFound)
+      await expect(
+        subscriptionManagementService.createPaypalBillingAgreementId(
+          faker.string.uuid(),
+          faker.string.uuid()
+        )
+      ).rejects.toBeInstanceOf(CreateBillingAgreementCurrencyNotFound);
       expect(privateCustomerChanged).not.toHaveBeenCalled();
     });
     it('throws an error if the customer has no active paypal subscriptions', async () => {
@@ -1799,14 +1816,16 @@ describe('SubscriptionManagementService', () => {
       jest
         .spyOn(subscriptionManagementService, 'getCurrencyForCustomer')
         .mockResolvedValue(faker.finance.currencyCode().toLowerCase());
-      jest
-        .spyOn(subscriptionManager, 'listForCustomer')
-        .mockResolvedValue([]);
+      jest.spyOn(subscriptionManager, 'listForCustomer').mockResolvedValue([]);
 
-      await expect(subscriptionManagementService.createPaypalBillingAgreementId(
-        faker.string.uuid(),
-        faker.string.uuid()
-      )).rejects.toBeInstanceOf(CreateBillingAgreementPaypalSubscriptionNotFound)
+      await expect(
+        subscriptionManagementService.createPaypalBillingAgreementId(
+          faker.string.uuid(),
+          faker.string.uuid()
+        )
+      ).rejects.toBeInstanceOf(
+        CreateBillingAgreementPaypalSubscriptionNotFound
+      );
       expect(privateCustomerChanged).not.toHaveBeenCalled();
     });
   });

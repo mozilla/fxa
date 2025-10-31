@@ -12,6 +12,7 @@ export interface AppleIapPurchase {
 export interface AppleIapSubscriptionContent extends AppleIapPurchase {
   productName: string;
   supportUrl: string;
+  webIcon: string;
 }
 
 export interface AppleIapPurchaseResult {
@@ -30,6 +31,7 @@ export interface GoogleIapPurchase {
 export interface GoogleIapSubscriptionContent extends GoogleIapPurchase {
   productName: string;
   supportUrl: string;
+  webIcon: string;
 }
 
 export interface GoogleIapPurchaseResult {
@@ -50,6 +52,7 @@ export interface SubscriptionContent {
   currentInvoiceDate: number;
   currentInvoiceTax: number;
   currentInvoiceTotal: number;
+  currentInvoiceUrl?: string | null;
   currentPeriodEnd: number;
   nextInvoiceDate: number;
   nextInvoiceTax?: number;
