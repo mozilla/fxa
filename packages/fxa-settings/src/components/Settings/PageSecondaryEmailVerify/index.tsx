@@ -12,7 +12,10 @@ import { useAccount, useAlertBar } from '../../../models';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import { useForm } from 'react-hook-form';
-import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import {
+  AuthUiErrors,
+  AuthUiErrorNos,
+} from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { getErrorFtlId } from '../../../lib/error-utils';
 import { MfaGuard } from '../MfaGuard';
 import { useErrorHandler } from 'react-error-boundary';
@@ -75,11 +78,10 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           return;
         }
         if (e.errno) {
-          const errorText = l10n.getString(
-            getErrorFtlId(e),
-            null,
-            AuthUiErrors.INVALID_VERIFICATION_CODE.message
-          );
+          const fallback = AuthUiErrorNos[e.errno]
+            ? AuthUiErrorNos[e.errno].message
+            : AuthUiErrors.INVALID_VERIFICATION_CODE.message;
+          const errorText = l10n.getString(getErrorFtlId(e), null, fallback);
           setErrorText(errorText);
         } else {
           alertBar.error(
