@@ -1,0 +1,13 @@
+passwordResetWithRecoveryKeyPrompt-title = "Your password has been reset"
+
+passwordResetWithRecoveryKeyPrompt-description-2 = "You reset your Mozilla account password on:"
+
+<%- include('/partials/userInfo/index.txt') %>
+
+passwordResetWithRecoveryKeyPrompt-cta-description = "You’ll need to sign in again on all of your synced devices. Keep your data safe next time with an account recovery key. This allows you to recover your data if you forget your password."
+
+passwordResetWithRecoveryKeyPrompt-action-txt = "Create account recovery key:"
+
+<%- link %>
+
+<%- include('/partials/automatedEmailChangePassword/index.txt') %>
