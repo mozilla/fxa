@@ -15,6 +15,7 @@ import {
   isOAuthIntegration,
   isOAuthNativeIntegrationSync,
 } from '../../models';
+import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import {
@@ -153,10 +154,12 @@ const SigninContainer = ({
   integration,
   serviceName,
   flowQueryParams,
+  useFxAStatusResult,
 }: {
   integration: Integration;
   serviceName: MozServices;
   flowQueryParams?: QueryParams;
+  useFxAStatusResult: UseFxAStatusResult;
 } & RouteComponentProps) => {
   const config = useConfig();
   const authClient = useAuthClient();
@@ -312,7 +315,9 @@ const SigninContainer = ({
       // warning. The browser will automatically respond with { ok: true } without
       // prompting the user if it matches the email the browser has data for.
       if (
-        (integration.isSync() || integration.isFirefoxClientServiceRelay()) &&
+        (integration.isSync() ||
+          integration.isFirefoxClientServiceRelay() ||
+          integration.isFirefoxClientServiceAiMode()) &&
         !originFromEmailFirst
       ) {
         const { ok } = await firefox.fxaCanLinkAccount({ email });
@@ -556,6 +561,7 @@ const SigninContainer = ({
         localizedSuccessBannerDescription,
         deeplink,
         flowQueryParams,
+        useFxAStatusResult,
       }}
     />
   );

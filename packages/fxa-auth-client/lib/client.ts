@@ -1124,7 +1124,14 @@ export default class AuthClient {
     }
   }
 
-  async accountStatus(uid: hexstring, headers?: Headers) {
+  async accountStatus(
+    uid?: hexstring,
+    sessionToken?: hexstring,
+    headers?: Headers
+  ): Promise<{ exists: boolean; locale?: string; hasPassword?: boolean }> {
+    if (sessionToken) {
+      return this.sessionGet('/account/status', sessionToken, headers);
+    }
     return this.request('GET', `/account/status?uid=${uid}`, null, headers);
   }
 

@@ -48,6 +48,7 @@ import {
   MOCK_CLIENT_ID,
   MOCK_KEY_FETCH_TOKEN,
 } from './mocks';
+import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 import AuthClient from 'fxa-auth-client/browser';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
@@ -351,6 +352,8 @@ function render(mocks: Array<MockedResponse>) {
   loadDevMessages();
   loadErrorMessages();
 
+  const useFxAStatusResult = mockUseFxAStatus();
+
   return renderWithLocalizationProvider(
     <MockedProvider mocks={mocks} addTypename={false}>
       <LocationProvider>
@@ -358,6 +361,7 @@ function render(mocks: Array<MockedResponse>) {
           {...{
             integration,
             serviceName: MozServices.Default,
+            useFxAStatusResult,
           }}
           flowQueryParams={{ flowId: MOCK_FLOW_ID }}
         />

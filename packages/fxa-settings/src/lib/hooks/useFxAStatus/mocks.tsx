@@ -4,9 +4,13 @@
 
 import { getSyncEngineIds, syncEngineConfigs } from '../../sync-engines';
 
-export function mockUseSyncEngines(
-  offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>
-) {
+export function mockUseFxAStatus({
+  offeredSyncEnginesOverride,
+  supportsKeysOptionalLogin = false,
+}: {
+  offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
+  supportsKeysOptionalLogin?: boolean;
+} = {}) {
   const offeredSyncEngineConfigs = syncEngineConfigs;
   const offeredSyncEngines =
     offeredSyncEnginesOverride || getSyncEngineIds(offeredSyncEngineConfigs);
@@ -28,7 +32,8 @@ export function mockUseSyncEngines(
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
+    supportsKeysOptionalLogin,
   };
 }
 
-export default mockUseSyncEngines;
+export default mockUseFxAStatus;

@@ -141,8 +141,9 @@ async function enterPasswordAndSubmit() {
   await user.type(screen.getByLabelText('Password'), MOCK_PASSWORD);
   await submit();
 }
-const render = (props: Partial<SigninProps> = {}) =>
-  renderWithLocalizationProvider(<Subject {...props} />);
+const render = (
+  props: Partial<SigninProps> & { supportsKeysOptionalLogin?: boolean } = {}
+) => renderWithLocalizationProvider(<Subject {...props} />);
 
 /* Element rendered or not rendered functions */
 function signInHeaderRendered(service: MozServices = MozServices.Default) {
@@ -263,6 +264,69 @@ describe('Signin component', () => {
         ).not.toBeInTheDocument();
         expect(GleanMetrics.login.view).toHaveBeenCalledWith({
           event: { thirdPartyLinks: false },
+        });
+      });
+
+      it('does not render third party auth when service=relay and supportsKeysOptionalLogin is false', () => {
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.Relay,
+          isSync: false,
+        });
+        render({
+          integration,
+          supportsKeysOptionalLogin: false,
+        });
+
+        expect(
+          screen.queryByRole('button', { name: /Continue with Google/ })
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: /Continue with Apple/ })
+        ).not.toBeInTheDocument();
+        expect(GleanMetrics.login.view).toHaveBeenCalledWith({
+          event: { thirdPartyLinks: false },
+        });
+      });
+
+      it('renders third party auth when service=relay and supportsKeysOptionalLogin is true', () => {
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.Relay,
+          isSync: false,
+        });
+        render({
+          integration,
+          supportsKeysOptionalLogin: true,
+        });
+
+        expect(
+          screen.getByRole('button', { name: /Continue with Google/ })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', { name: /Continue with Apple/ })
+        ).toBeInTheDocument();
+        expect(GleanMetrics.login.view).toHaveBeenCalledWith({
+          event: { thirdPartyLinks: true },
+        });
+      });
+
+      it('renders third party auth when service=aimode and supportsKeysOptionalLogin is true', () => {
+        const integration = createMockSigninOAuthNativeIntegration({
+          service: OAuthNativeServices.AiMode,
+          isSync: false,
+        });
+        render({
+          integration,
+          supportsKeysOptionalLogin: true,
+        });
+
+        expect(
+          screen.getByRole('button', { name: /Continue with Google/ })
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', { name: /Continue with Apple/ })
+        ).toBeInTheDocument();
+        expect(GleanMetrics.login.view).toHaveBeenCalledWith({
+          event: { thirdPartyLinks: true },
         });
       });
 

@@ -71,6 +71,7 @@ export type FxAStatusResponse = {
     multiService: boolean;
     pairing: boolean;
     choose_what_to_sync?: boolean;
+    keys_optional?: boolean;
   };
   clientId?: string;
   signedInUser?: SignedInUser;

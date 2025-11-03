@@ -26,6 +26,7 @@ import {
   isOAuthIntegration,
   useSession,
   isOAuthWebIntegration,
+  isOAuthNativeIntegration,
 } from '../../models';
 import {
   isClientMonitor,
@@ -62,6 +63,7 @@ const Signin = ({
   localizedSuccessBannerDescription,
   deeplink,
   flowQueryParams,
+  useFxAStatusResult: { supportsKeysOptionalLogin },
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -118,8 +120,14 @@ const Signin = ({
     },
   });
 
-  const hideThirdPartyAuth =
-    (integration.isSync() || isFirefoxClientServiceRelay) && hasPassword;
+  // - Hide third-party auth if it's Sync and user has a password. Sync currently always
+  // requires a PW for scoped keys. Passwordless users signing into Sync will be prompted
+  // to create a PW at the end of the flow.
+  // - Hide third party auth if it's an oauth native integration without passwordless support
+  // Show for all other cases.
+  const hideThirdPartyAuth = integration.isSync()
+    ? hasPassword
+    : isOAuthNativeIntegration(integration) && !supportsKeysOptionalLogin;
 
   useEffect(() => {
     if (!isPasswordNeededRef.current) {

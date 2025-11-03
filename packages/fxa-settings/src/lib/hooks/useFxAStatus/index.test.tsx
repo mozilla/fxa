@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { renderHook } from '@testing-library/react-hooks';
-import { useSyncEngines } from '.';
+import { useFxAStatus } from '.';
 import { Constants } from '../../constants';
 import firefox from '../../channels/firefox';
 import { IntegrationType } from '../../../models';
@@ -15,7 +15,7 @@ jest.mock('../../channels/firefox', () => ({
   },
 }));
 
-describe('useSyncEngines', () => {
+describe('useFxAStatus', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
@@ -32,12 +32,11 @@ describe('useSyncEngines', () => {
       const integration = {
         type: IntegrationType.SyncDesktopV3,
         isSync: () => true,
+        isFirefoxClientServiceRelay: () => false,
+        isFirefoxClientServiceAiMode: () => false,
       };
 
-      const { waitForNextUpdate } = renderHook(() =>
-        useSyncEngines(integration)
-      );
-
+      const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
       await waitForNextUpdate();
 
       expect(firefox.fxaStatus).toHaveBeenCalledWith({
@@ -49,11 +48,6 @@ describe('useSyncEngines', () => {
   });
 
   describe('OAuth native integration', () => {
-    const integration = {
-      type: IntegrationType.OAuthNative,
-      isSync: () => true,
-    };
-
     it('calls fxaStatus with correct args', async () => {
       (firefox.fxaStatus as jest.Mock).mockResolvedValue({
         capabilities: {
@@ -62,10 +56,14 @@ describe('useSyncEngines', () => {
         },
       });
 
-      const { waitForNextUpdate } = renderHook(() =>
-        useSyncEngines(integration)
-      );
+      const integration = {
+        type: IntegrationType.OAuthNative,
+        isSync: () => true,
+        isFirefoxClientServiceRelay: () => false,
+        isFirefoxClientServiceAiMode: () => false,
+      };
 
+      const { waitForNextUpdate } = renderHook(() => useFxAStatus(integration));
       await waitForNextUpdate();
 
       expect(firefox.fxaStatus).toHaveBeenCalledWith({
@@ -83,19 +81,63 @@ describe('useSyncEngines', () => {
         },
       });
 
+      const integration = {
+        type: IntegrationType.OAuthNative,
+        isSync: () => true,
+        isFirefoxClientServiceRelay: () => false,
+        isFirefoxClientServiceAiMode: () => false,
+      };
+
       const { result, waitForNextUpdate } = renderHook(() =>
-        useSyncEngines(integration)
+        useFxAStatus(integration)
       );
 
       await waitForNextUpdate();
-
       expect(result.current.offeredSyncEngines).toEqual(
         expect.arrayContaining(['tabs', 'bookmarks', 'addons'])
       );
+
       expect(result.current.selectedEnginesForGlean).toEqual({
         tabs: true,
         bookmarks: true,
         addons: true,
+      });
+    });
+
+    describe('keys_optional capability', () => {
+      beforeEach(() => {
+        (firefox.fxaStatus as jest.Mock).mockResolvedValue({
+          capabilities: {
+            engines: [],
+            keys_optional: true,
+          },
+        });
+      });
+
+      it('returns supportsKeysOptionalLogin: true when Relay or AiMode service', async () => {
+        const integration = {
+          type: IntegrationType.OAuthNative,
+          isSync: () => false,
+          isFirefoxClientServiceRelay: () => true,
+          isFirefoxClientServiceAiMode: () => false,
+        };
+        const { result, waitForNextUpdate } = renderHook(() =>
+          useFxAStatus(integration)
+        );
+
+        await waitForNextUpdate();
+        expect(result.current.supportsKeysOptionalLogin).toBe(true);
+      });
+
+      it('returns supportsKeysOptionalLogin: false for Sync', async () => {
+        const integration = {
+          type: IntegrationType.OAuthNative,
+          isSync: () => true,
+          isFirefoxClientServiceRelay: () => false,
+          isFirefoxClientServiceAiMode: () => false,
+        };
+        const { result } = renderHook(() => useFxAStatus(integration));
+        expect(result.current.supportsKeysOptionalLogin).toBe(false);
       });
     });
   });
@@ -107,7 +149,7 @@ describe('useSyncEngines', () => {
         isSync: () => false,
       };
 
-      renderHook(() => useSyncEngines(integration));
+      renderHook(() => useFxAStatus(integration));
 
       expect(firefox.fxaStatus).not.toHaveBeenCalled();
     });
