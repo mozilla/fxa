@@ -59,8 +59,8 @@ export default async function PaypalPaymentManagementPage({
           'Manage payment methods'
         )}
       </h1>
-      <div className="py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
-        <div className="flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2">
+      <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
+        <div className="flex flex-col items-center text-center">
           <Image
             src={errorIcon}
             alt=""

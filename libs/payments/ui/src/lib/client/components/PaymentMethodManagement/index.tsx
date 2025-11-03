@@ -195,7 +195,7 @@ export function PaymentMethodManagement({
           'Manage payment methods'
         )}
       </h1>
-      <div className="w-full py-6 text-grey-600 bg-white rounded-[12px] border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)]">
+      <div className="w-full py-6 text-grey-600 bg-white rounded-xl border border-grey-200 opacity-100 shadow-[0_0_16px_0_rgba(0,0,0,0.08)] tablet:px-6 tablet:py-8">
         {!isReady && (
           <div className="w-full flex bg-white bg-opacity-75 items-center justify-center">
             <LoadingSpinner className="h-10 w-10" />
@@ -204,7 +204,7 @@ export function PaymentMethodManagement({
         <Form.Root
           ref={formRef}
           onSubmit={handleSubmit}
-          className="px-4 tablet:px-6"
+          className="px-4 tablet:px-0"
         >
           {isInputNewCardDetails && (
             <>
