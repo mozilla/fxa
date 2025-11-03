@@ -12,9 +12,7 @@ import {
   createMockIndexOAuthNativeIntegration,
   Subject,
 } from './mocks';
-import {
-  MONITOR_CLIENTIDS,
-} from '../../models/integrations/client-matching';
+import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
 import { MozServices } from '../../lib/types';
 import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
 
@@ -30,6 +28,7 @@ const storyWithProps = ({
   initialErrorBanner?: string;
   initialSuccessBanner?: string;
   initialTooltipMessage?: string;
+  supportsKeysOptionalLogin?: boolean;
 } = {}) => {
   const story = () => <Subject {...props} />;
   return story;
@@ -42,6 +41,21 @@ export const WithServiceRelayIntegration = storyWithProps({
     isFirefoxClientServiceRelay: true,
     isSync: false,
   }),
+});
+export const WithThirdPartyAuthServiceRelayIntegration = storyWithProps({
+  integration: createMockIndexOAuthNativeIntegration({
+    isFirefoxClientServiceRelay: true,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: true,
+});
+
+export const WithThirdPartyAuthServiceAIModeIntegration = storyWithProps({
+  integration: createMockIndexOAuthNativeIntegration({
+    isFirefoxClientServiceAiMode: true,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: true,
 });
 
 export const WithPrefilledEmail = storyWithProps({

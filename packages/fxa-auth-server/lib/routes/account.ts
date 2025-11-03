@@ -1454,7 +1454,16 @@ export class AccountHandler {
   async status(request: AuthRequest) {
     const sessionToken = request.auth.credentials;
     if (sessionToken) {
-      return { exists: true, locale: sessionToken.locale };
+      const account = await this.db.account(sessionToken.uid as string);
+      // Make sure the account still exists
+      if (!account) {
+        throw error.unknownAccount();
+      }
+      return {
+        exists: true,
+        locale: sessionToken.locale,
+        hasPassword: account.verifierSetAt > 0,
+      };
     } else if (request.query.uid) {
       const uid = request.query.uid;
       try {

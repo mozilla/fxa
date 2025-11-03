@@ -15,7 +15,7 @@ import {
   isClientMonitor,
   isClientRelay,
 } from '../../models/integrations/client-matching';
-import { isOAuthIntegration } from '../../models';
+import { isOAuthIntegration, isOAuthNativeIntegration } from '../../models';
 import GleanMetrics from '../../lib/glean';
 import Banner from '../../components/Banner';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
@@ -35,6 +35,7 @@ export const Index = ({
   deeplink,
   flowQueryParams,
   isMobile,
+  useFxAStatusResult,
 }: IndexProps) => {
   const clientId = integration.getClientId();
   const isSync = integration.isSync();
@@ -202,7 +203,8 @@ export const Index = ({
           </FtlMsg>
         </p>
       ) : (
-        !isFirefoxClientServiceRelay && (
+        (!isOAuthNativeIntegration(integration) ||
+          useFxAStatusResult.supportsKeysOptionalLogin) && (
           <ThirdPartyAuth
             showSeparator
             viewName="index"

@@ -30,7 +30,7 @@ import VerificationMethods from '../../constants/verification-methods';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import { QueryParams } from '../..';
 import { isFirefoxService } from '../../models/integrations/utils';
-import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { isMobileDevice } from '../../lib/utilities';
 
 /*
@@ -63,11 +63,11 @@ type LocationState = {
 const SignupContainer = ({
   integration,
   flowQueryParams,
-  useSyncEnginesResult,
+  useFxAStatusResult,
 }: {
   integration: SignupIntegration;
   flowQueryParams: QueryParams;
-  useSyncEnginesResult: ReturnType<typeof useSyncEngines>;
+  useFxAStatusResult: UseFxAStatusResult;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
@@ -219,7 +219,7 @@ const SignupContainer = ({
         integration,
         email,
         beginSignupHandler,
-        useSyncEnginesResult,
+        useFxAStatusResult,
         deeplink,
         flowQueryParams,
         isMobile,

@@ -75,9 +75,7 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
   }
 
   isSync() {
-    // For now, all mobile clients are Sync. This may change in the future,
-    // in which case we'll want a similar check to `isSyncDesktop`.
-    return this.isDesktopSync() || this.isFirefoxMobileClient();
+    return this.isFirefoxClient() && this.isDefaultSyncService();
   }
 
   isDesktopSync() {

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { HandledError } from '../../lib/error-utils';
-import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { Integration, OAuthIntegration } from '../../models';
 import { MetricsContext } from '@fxa/shared/glean';
 import { QueryParams } from '../..';
@@ -41,7 +41,7 @@ export interface SignupProps {
   integration: SignupIntegration;
   email: string;
   beginSignupHandler: BeginSignupHandler;
-  useSyncEnginesResult: ReturnType<typeof useSyncEngines>;
+  useFxAStatusResult: UseFxAStatusResult;
   deeplink?: string;
   flowQueryParams?: QueryParams;
   isMobile: boolean;

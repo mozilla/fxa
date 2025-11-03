@@ -32,8 +32,8 @@ import GleanMetrics from '../../lib/glean';
 import config from '../../lib/config';
 import { currentAccount } from '../../lib/cache';
 import { MozServices } from '../../lib/types';
-import mockUseSyncEngines from '../../lib/hooks/useSyncEngines/mocks';
-import useSyncEngines from '../../lib/hooks/useSyncEngines';
+import mockUseFxAStatus from '../../lib/hooks/useFxAStatus/mocks';
+import useFxAStatus from '../../lib/hooks/useFxAStatus';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { OAuthError } from '../../lib/oauth';
 
@@ -44,7 +44,7 @@ jest.mock('@reach/router', () => {
   };
 });
 
-jest.mock('../../lib/hooks/useSyncEngines', () => ({
+jest.mock('../../lib/hooks/useFxAStatus', () => ({
   __esModule: true,
   default: jest.fn(),
 }));
@@ -180,12 +180,12 @@ describe('metrics', () => {
     };
 
     flowInit = jest.spyOn(Metrics, 'init');
-    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+    (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
   });
 
   afterEach(() => {
     flowInit.mockReset();
-    (useSyncEngines as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockRestore();
   });
 
   it('Initializes metrics flow data when present', async () => {
@@ -232,11 +232,11 @@ describe('metrics', () => {
 
 describe('glean', () => {
   beforeEach(() => {
-    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+    (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
   });
 
   afterEach(() => {
-    (useSyncEngines as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockRestore();
   });
   it('Initializes glean', async () => {
     (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
@@ -349,13 +349,13 @@ describe('loading spinner states', () => {
 
 describe('AuthAndAccountSetupRoutes', () => {
   beforeEach(() => {
-    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+    (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
   });
 
   afterEach(() => {
-    (useSyncEngines as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockRestore();
   });
-  it('calls useSyncEngines with integration', async () => {
+  it('calls useFxAStatus with integration', async () => {
     const mockIntegration = {
       getServiceName: () => MozServices.FirefoxSync,
       isSync: () => true,
@@ -385,8 +385,8 @@ describe('AuthAndAccountSetupRoutes', () => {
       );
     });
 
-    expect(useSyncEngines).toHaveBeenCalledTimes(1);
-    expect(useSyncEngines).toHaveBeenCalledWith(mockIntegration);
+    expect(useFxAStatus).toHaveBeenCalledTimes(1);
+    expect(useFxAStatus).toHaveBeenCalledWith(mockIntegration);
   });
 });
 
@@ -617,7 +617,7 @@ describe('SettingsRoutes', () => {
 
 describe('Integration serviceName error handling', () => {
   beforeEach(() => {
-    (useSyncEngines as jest.Mock).mockReturnValue(mockUseSyncEngines());
+    (useFxAStatus as jest.Mock).mockReturnValue(mockUseFxAStatus());
     (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       loading: false,
     });
@@ -634,7 +634,7 @@ describe('Integration serviceName error handling', () => {
   });
 
   afterEach(() => {
-    (useSyncEngines as jest.Mock).mockRestore();
+    (useFxAStatus as jest.Mock).mockRestore();
     (useInitialMetricsQueryState as jest.Mock).mockRestore();
     (useLocalSignedInQueryState as jest.Mock).mockRestore();
     (useSession as jest.Mock).mockRestore();

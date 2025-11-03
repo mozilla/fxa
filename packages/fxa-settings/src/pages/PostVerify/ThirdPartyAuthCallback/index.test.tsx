@@ -19,6 +19,7 @@ import { QueryParams } from '../../../index';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
 import { LocationProvider } from '@reach/router';
 import { GenericData } from '../../../lib/model-data';
+import firefox from '../../../lib/channels/firefox';
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
@@ -65,6 +66,18 @@ jest.mock('../../Signin/utils', () => {
   };
 });
 
+jest.mock('../../../lib/channels/firefox', () => ({
+  __esModule: true,
+  default: {
+    fxaCanLinkAccount: jest.fn(),
+  },
+}));
+
+const mockNavigateWithQuery = jest.fn();
+jest.mock('../../../lib/hooks/useNavigateWithQuery', () => ({
+  useNavigateWithQuery: () => mockNavigateWithQuery,
+}));
+
 function mockThirdPartyAuthCallbackIntegration({
   error,
 }: { error?: string } = {}) {
@@ -86,6 +99,29 @@ function mockWebIntegration({ redirectTo }: { redirectTo?: string } = {}) {
       redirect_to: redirectTo,
     })
   );
+}
+
+function mockOAuthNativeIntegration({ service }: { service?: string } = {}) {
+  const integration = new ModelsModule.OAuthNativeIntegration(
+    new GenericData({
+      service,
+    }),
+    new GenericData({}),
+    {
+      scopedKeysEnabled: true,
+      scopedKeysValidation: {},
+      isPromptNoneEnabled: true,
+      isPromptNoneEnabledClientIds: [],
+    }
+  );
+  integration.clientInfo = {
+    clientId: ModelsModule.OAuthNativeClients.FirefoxDesktop,
+    serviceName: service,
+    redirectUri: 'https://mock.com',
+    trusted: true,
+    imageUri: '',
+  };
+  return integration;
 }
 
 function renderWith(
@@ -125,6 +161,8 @@ describe('ThirdPartyAuthCallback component', () => {
     }));
     mockHandleNavigation = jest.fn().mockResolvedValue({ error: null });
     (handleNavigation as jest.Mock).mockReturnValue(mockHandleNavigation);
+    (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({ ok: true });
+    mockNavigateWithQuery.mockClear();
     mockCurrentAccount();
   });
 
@@ -228,6 +266,56 @@ describe('ThirdPartyAuthCallback component', () => {
           verificationReason: 'login',
           emailVerified: false,
           sessionVerified: false,
+        },
+      });
+    });
+  });
+
+  it('sets handleFxaLogin and handleFxaOAuthLogin to true for non-Sync services', async () => {
+    const integration = mockOAuthNativeIntegration({
+      service: ModelsModule.OAuthNativeServices.Relay,
+    });
+    renderWith({ integration });
+
+    await waitFor(() => {
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          handleFxaLogin: true,
+          handleFxaOAuthLogin: true,
+          isSignInWithThirdPartyAuth: true,
+        })
+      );
+    });
+  });
+
+  it('redirects to Index with error banner when user cancels fxaCanLinkAccount', async () => {
+    const linkedAccountEmail = 'user@example.com';
+    (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({ ok: false });
+
+    mockCurrentAccount({
+      uid: '123',
+      sessionToken: MOCK_SESSION_TOKEN,
+      email: linkedAccountEmail,
+    });
+
+    const integration = mockOAuthNativeIntegration({
+      service: ModelsModule.OAuthNativeServices.Relay,
+    });
+
+    renderWith({ integration });
+
+    await waitFor(() => {
+      expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+        email: linkedAccountEmail,
+      });
+    });
+
+    await waitFor(() => {
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/', {
+        replace: true,
+        state: {
+          localizedErrorFromLocationState: 'Login attempt cancelled',
+          prefillEmail: linkedAccountEmail,
         },
       });
     });
