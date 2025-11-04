@@ -117,6 +117,41 @@ module.exports = (log, db, devices, clientUtils) => {
       },
     },
     {
+      method: 'GET',
+      path: '/account/attached_oauth_clients',
+      options: {
+        ...DEVICES_AND_SESSIONS_DOC.ACCOUNT_ATTACHED_OAUTH_CLIENTS_GET,
+        auth: {
+          strategy: 'sessionToken',
+        },
+        response: {
+          schema: isA.array().items(
+            isA.object({
+              clientId: isA.string().regex(HEX_STRING).allow(null).required(),
+              lastAccessTime: isA.number().min(0).required().allow(null),
+            })
+          ),
+        },
+      },
+      handler: async function (request) {
+        log.begin('Account.attachedOAuthClients', request);
+
+        const sessionToken = request.auth && request.auth.credentials;
+
+        sessionToken.lastAccessTime = Date.now();
+        await db.touchSessionToken(sessionToken, {}, true);
+
+        const oAuthClients = await authorizedClients.listUnique(
+          request.auth.credentials.uid
+        );
+
+        return oAuthClients.map((client) => ({
+          clientId: client.client_id,
+          lastAccessTime: client.last_access_time,
+        }));
+      },
+    },
+    {
       method: 'POST',
       path: '/account/attached_client/destroy',
       options: {

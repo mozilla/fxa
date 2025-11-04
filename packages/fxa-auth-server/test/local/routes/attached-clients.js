@@ -18,6 +18,7 @@ const EARLIEST_SANE_TIMESTAMP = 31536000000;
 const mockAuthorizedClients = {
   destroy: sinon.spy(() => Promise.resolve()),
   list: sinon.spy(() => Promise.resolve()),
+  listUnique: sinon.spy(() => Promise.resolve()),
 };
 
 function makeRoutes(options = {}) {
@@ -633,5 +634,61 @@ describe('/account/attached_client/destroy', () => {
     assert.ok(devices.destroy.notCalled);
     assert.ok(db.sessionToken.calledOnceWith(sessionTokenId));
     assert.ok(db.deleteSessionToken.notCalled);
+  });
+});
+
+describe('/account/attached_oauth_clients', () => {
+  let config, uid, log, db, request, route, accountRoutes;
+
+  beforeEach(() => {
+    config = {};
+    uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    log = mocks.mockLog();
+    db = mocks.mockDB();
+    request = mocks.mockRequest({
+      credentials: {
+        id: crypto.randomBytes(16).toString('hex'),
+        uid: uid,
+        setUserAgentInfo: sinon.spy(() => {}),
+      },
+      headers: {
+        'user-agent': 'fake agent',
+      },
+    });
+    accountRoutes = makeRoutes({
+      config,
+      log,
+      db,
+    });
+    route = getRoute(accountRoutes, '/account/attached_oauth_clients').handler;
+  });
+
+  it('returns a list of attached OAuth clients', async () => {
+    const now = Date.now();
+    const OAUTH_CLIENTS = [
+      {
+        client_id: newId(16),
+        client_name: 'OAuth Service',
+        last_access_time: now,
+      },
+    ];
+    mockAuthorizedClients.listUnique = sinon.spy(async () => {
+      return OAUTH_CLIENTS;
+    });
+    const result = await route(request);
+    assert.deepEqual(result, [
+      {
+        clientId: OAUTH_CLIENTS[0].client_id,
+        lastAccessTime: OAUTH_CLIENTS[0].last_access_time,
+      },
+    ]);
+  });
+
+  it('requires a sessionToken auth strategy', async () => {
+    const routeConfig = getRoute(
+      accountRoutes,
+      '/account/attached_oauth_clients'
+    );
+    assert.equal(routeConfig.options.auth.strategy, 'sessionToken');
   });
 });

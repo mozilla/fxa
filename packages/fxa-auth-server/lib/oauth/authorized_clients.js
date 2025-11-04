@@ -116,4 +116,48 @@ module.exports = {
     });
     return authorizedClients;
   },
+
+  /**
+   * Gets a list of all the OAuth clients connected to the authenticated user's account.
+   * Only one record per clientId is returned, prioritized by most recent last_access_time.
+   * @param {*} uid
+   * @returns
+   */
+  async listUnique(uid) {
+    await oauthDB.ready();
+    const clientsByClientId = new Map();
+
+    const [accessTokens, refreshTokens] = await Promise.all([
+      oauthDB.getAccessTokensByUid(uid),
+      oauthDB.getRefreshTokensByUid(uid),
+    ]);
+
+    // Since we only want one record per clientId, we want to deduplicate.
+    // Also, since accessTokens don't have a `lastUsedAt` field, we effectively
+    // use the `createdAt` field to achieve the same effect.
+    const addOrUpdateClient = (token, effectiveLastUsedAt) => {
+      const clientId = hex(token.clientId);
+      const existing = clientsByClientId.get(clientId);
+
+      if (!existing || existing.last_access_time < effectiveLastUsedAt) {
+        clientsByClientId.set(
+          clientId,
+          serialize(clientId, {
+            ...token,
+            lastUsedAt: effectiveLastUsedAt,
+          })
+        );
+      }
+    };
+
+    for (const token of refreshTokens) {
+      addOrUpdateClient(token, token.lastUsedAt);
+    }
+
+    for (const token of accessTokens) {
+      addOrUpdateClient(token, token.createdAt);
+    }
+
+    return Array.from(clientsByClientId.values());
+  },
 };

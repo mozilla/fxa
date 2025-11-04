@@ -36,6 +36,27 @@ const ACCOUNT_ATTACHED_CLIENTS_GET = {
   ],
 };
 
+const ACCOUNT_ATTACHED_OAUTH_CLIENTS_GET = {
+  ...TAGS_DEVICES_AND_SESSIONS,
+  description: '/account/attached_oauth_clients',
+  notes: [
+    dedent`
+      🔒 Authenticated with session token
+
+      Returns an array listing all the OAuth clients connected to the authenticated user's account.
+
+      It will only return active OAuth clients sessions.
+
+      All clients will have the following property:
+
+      - \`clientId\`: The OAuth client_id of the connected application.
+      - \`lastAccessTime\`: The timestamp of the last time the client was accessed.
+
+      This endpoint returns a maximum 500 last used OAuth clients.
+    `,
+  ],
+};
+
 const ACCOUNT_ATTACHED_CLIENT_DESTROY_POST = {
   ...TAGS_DEVICES_AND_SESSIONS,
   description: '/account/attached_client/destroy',
@@ -71,13 +92,13 @@ const ACCOUNT_DEVICE_POST = {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 107\` - Invalid parameter in request body
-          `
+          `,
         },
         503: {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 202\` - Feature not enabled
-          `
+          `,
         },
       },
     },
@@ -200,6 +221,7 @@ const ACCOUNT_DEVICE_DESTROY_POST = {
 const API_DOCS = {
   ACCOUNT_ATTACHED_CLIENT_DESTROY_POST,
   ACCOUNT_ATTACHED_CLIENTS_GET,
+  ACCOUNT_ATTACHED_OAUTH_CLIENTS_GET,
   ACCOUNT_DEVICE_COMMANDS_GET,
   ACCOUNT_DEVICE_DESTROY_POST,
   ACCOUNT_DEVICE_POST,
