@@ -21,7 +21,7 @@ subscription-content-view-invoice = View invoice
 subscription-management-link-view-invoice-aria = View invoice for { $productName }
 subscription-content-expires-on-expiry-date = Expires on { $date }
 # • is acting as a separator between "Next bill" and the next billing date.
-subscription-content-next-bill = Next bill • { $billedOnDate}
+subscription-content-next-bill = Next bill • { $billedOnDate }
 subscription-content-next-bill-with-tax-1 = { $nextInvoiceTotal } + { $taxDue } tax
 subscription-content-next-bill-no-tax-1 = { $nextInvoiceTotal }
 subscription-content-button-stay-subscribed =
