@@ -16,7 +16,7 @@ import { syncDesktopOAuthQueryParams } from '../../lib/query-params';
 import { getTotpCode } from '../../lib/totp';
 
 test.describe('severity-1 #smoke', () => {
-  test.describe('recovery phone', () => {
+  test.describe('recovery phone #phone', () => {
     // Run these tests sequentially. This must be done when using the Twilio API, because they rely on
     // the same test phone number, and we cannot determine the order in which the messages were received.
     test.describe.configure({ mode: 'serial' });
