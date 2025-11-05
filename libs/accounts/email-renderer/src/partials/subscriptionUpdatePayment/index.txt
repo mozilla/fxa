@@ -1,0 +1,2 @@
+subscriptionUpdatePayment-plaintext = "To prevent any interruption to your service, please update your payment information as soon as possible:"
+<%- updateBillingUrl %>

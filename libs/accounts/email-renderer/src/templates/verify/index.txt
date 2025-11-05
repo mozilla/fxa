@@ -1,0 +1,10 @@
+verify-title-3 = "Open the internet with Mozilla"
+
+verify-description-2 = "Confirm your account and get the most out of Mozilla everywhere you sign in starting with:"
+
+confirm-email-plaintext-2 = "Confirm account:"
+<%- link %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+
+<%- include('/partials/support/index.txt') %>
