@@ -40,7 +40,15 @@ const ACCOUNT_LOGIN_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/login',
   notes: [
-    'Obtain a `sessionToken` and, optionally, a `keyFetchToken` if `keys=true`.',
+    dedent`
+      Obtain a \`sessionToken\` and, optionally, a \`keyFetchToken\` if \`keys=true\`.
+
+      The response includes:
+      - \`emailVerified\`: Whether the account's primary email address has been verified
+      - \`sessionVerified\`: Whether the current session token has been verified
+      - \`verificationMethod\`: Present if verification is incomplete, e.g. \`email\`, \`email-2fa\`, \`email-otp\`, \`totp-2fa\`
+      - \`verificationReason\`: Present if verification is incomplete, e.g. \`login\`, \`signup\`
+    `,
   ],
   plugins: {
     'hapi-swagger': {

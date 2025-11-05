@@ -47,7 +47,10 @@ import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
 import { StatsD } from 'hot-shots';
-import { recordSecurityEvent, isRecognizedDevice } from './utils/security-event';
+import {
+  recordSecurityEvent,
+  isRecognizedDevice,
+} from './utils/security-event';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { OtpUtils } from './utils/otp';
 
@@ -1074,38 +1077,51 @@ export class AccountHandler {
       return false;
     };
 
-    const skipTokenVerification = async (request: AuthRequest, account: any) => {
-      // Skip all checks to simulate an unverified session token state
-      if (this.config.signinConfirmation.tokenVerification === false) {
-        return false;
-      }
-
+    const skipTokenVerification = async (
+      request: AuthRequest,
+      account: any
+    ) => {
       // Check to see if there has been a recent, successfully-verified login from
       // the same device (as indicated by User-Agent string)
       if (this.config.signinConfirmation.deviceFingerprinting?.enabled) {
         try {
           const currentUserAgent = request.headers['user-agent'] || '';
-          const skipTimeframeMs = this.config.signinConfirmation.deviceFingerprinting.duration as unknown as number;
+          const skipTimeframeMs = this.config.signinConfirmation
+            .deviceFingerprinting.duration as unknown as number;
 
-          const isRecognized = await isRecognizedDevice(this.db, account.uid, currentUserAgent, skipTimeframeMs);
+          const isRecognized = await isRecognizedDevice(
+            this.db,
+            account.uid,
+            currentUserAgent,
+            skipTimeframeMs
+          );
 
           if (isRecognized) {
-            if (this.config.signinConfirmation.deviceFingerprinting.reportOnlyMode) {
-              this.statsd.increment('account.signin.confirm.bypass.knownDevice.reportOnly');
+            if (
+              this.config.signinConfirmation.deviceFingerprinting.reportOnlyMode
+            ) {
+              this.statsd.increment(
+                'account.signin.confirm.bypass.knownDevice.reportOnly'
+              );
               this.log.info('account.signin.confirm.device.match.reportOnly', {
                 uid: account.uid,
               });
             } else {
-              this.statsd.increment('account.signin.confirm.bypass.knownDevice');
+              this.statsd.increment(
+                'account.signin.confirm.bypass.knownDevice'
+              );
               this.glean.loginConfirmSkipFor.knownDevice(request);
               this.log.info('account.signin.confirm.device.skip', {
                 uid: account.uid,
               });
-              recordSecurityEvent('account.signin_confirm_bypass_known_device', {
-                db: this.db,
-                request,
-                account,
-              });
+              recordSecurityEvent(
+                'account.signin_confirm_bypass_known_device',
+                {
+                  db: this.db,
+                  request,
+                  account,
+                }
+              );
               return true;
             }
           } else {
@@ -1117,7 +1133,7 @@ export class AccountHandler {
         } catch (error) {
           this.log.error('account.signin.confirm.device.error', {
             uid: account.uid,
-            error: error.message
+            error: error.message,
           });
           // Fall through to existing logic on error
         }
@@ -1386,6 +1402,7 @@ export class AccountHandler {
         sessionToken: sessionToken.data,
         authAt: sessionToken.lastAuthAt(),
         metricsEnabled: !accountRecord.metricsOptOutAt,
+        emailVerified: sessionToken.emailVerified,
       };
 
       if (keyFetchToken) {
@@ -1397,7 +1414,7 @@ export class AccountHandler {
       }
 
       if (passwordChangeRequired) {
-        response.verified = false;
+        response.sessionVerified = false;
         response.verificationReason = 'change_password';
         response.verificationMethod = verificationMethod;
       } else {
@@ -1412,7 +1429,7 @@ export class AccountHandler {
 
       await this.signinUtils.cleanupReminders(response, accountRecord);
 
-      if (response.verified) {
+      if (response.emailVerified && response.sessionVerified) {
         this.glean.login.success(request, { uid: sessionToken.uid });
       }
 
@@ -1883,7 +1900,7 @@ export class AccountHandler {
       const response: Record<string, any> = {
         uid: sessionToken.uid,
         sessionToken: sessionToken.data,
-        verified: sessionToken.emailVerified,
+        emailVerified: sessionToken.emailVerified,
         authAt: sessionToken.lastAuthAt(),
       };
 
@@ -2387,7 +2404,8 @@ export const accountRoutes = (
               .string()
               .optional()
               .description(DESCRIPTION.verificationReason),
-            verified: isA.boolean().required(),
+            emailVerified: isA.boolean().required(),
+            sessionVerified: isA.boolean().required(),
             authAt: isA.number().integer().description(DESCRIPTION.authAt),
             metricsEnabled: isA.boolean().required(),
           }),

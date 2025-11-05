@@ -307,7 +307,7 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         const {
           email,
           id: tokenId,
-          tokenVerificationId,
+          tokenVerified,
           uid,
         } = request.auth.credentials;
 
@@ -325,8 +325,8 @@ module.exports = (log, db, config, customs, mailer, glean, statsd) => {
         }
 
         if (
-          tokenVerificationId ||
-          // If there is no tokenVerificationId but the auth assurance level needs
+          !tokenVerified ||
+          // If the token is already verified but the auth assurance level needs
           // to be upgraded, then this user was redirected from Settings to
           // our TOTP page and entered a recovery code to upgrade their session
           request.auth.credentials.authenticatorAssuranceLevel <= 1

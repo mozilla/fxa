@@ -223,7 +223,7 @@ module.exports = (
       handler: async function (request) {
         log.begin('totp.setup.verify', request);
 
-        const { uid, email, tokenVerificationId } = request.auth.credentials;
+        const { uid, email, tokenVerified } = request.auth.credentials;
         const code = request.payload.code;
 
         await customs.checkAuthenticated(request, uid, email, 'verifyTotpCode');
@@ -233,7 +233,7 @@ module.exports = (
           throw errors.unverifiedAccount();
         }
 
-        if (tokenVerificationId) {
+        if (!tokenVerified) {
           throw errors.unverifiedSession();
         }
 
@@ -370,7 +370,7 @@ module.exports = (
           throw errors.unverifiedAccount();
         }
 
-        if (sessionToken.tokenVerificationId) {
+        if (!sessionToken.tokenVerified) {
           throw errors.unverifiedSession();
         }
 
@@ -1019,11 +1019,9 @@ module.exports = (
       handler: async function (request) {
         log.begin('totp.replace.create', request);
 
-        const { uid, email } = request.auth.credentials;
+        const { uid, email, tokenVerified } = request.auth.credentials;
 
-        const { tokenVerified, tokenVerificationId } =
-          request.auth.credentials || {};
-        if (tokenVerificationId || tokenVerified === false) {
+        if (!tokenVerified) {
           throw errors.unverifiedSession();
         }
 
@@ -1142,11 +1140,9 @@ module.exports = (
         log.begin('totp.replace.confirm', request);
 
         const code = request.payload.code;
-        const { uid, email } = request.auth.credentials;
+        const { uid, email, tokenVerified } = request.auth.credentials;
 
-        const { tokenVerified, tokenVerificationId } =
-          request.auth.credentials || {};
-        if (tokenVerificationId || tokenVerified === false) {
+        if (!tokenVerified) {
           throw errors.unverifiedSession();
         }
 

@@ -86,7 +86,7 @@ function strategy(getCredentialsFunc, db, config, statsd) {
         }
 
         // 2) session token is verified
-        if (token.tokenVerificationId || token.tokenVerified === false) {
+        if (!token.tokenVerified) {
           if (skipTokenVerifiedCheckForRoutes?.test(req.route.path)) {
             statsd?.increment('verified_session_token.token_verified.skipped', [
               `path:${req.route.path}`,

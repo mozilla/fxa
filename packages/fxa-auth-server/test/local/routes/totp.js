@@ -475,6 +475,7 @@ describe('totp', () => {
     });
 
     it('should verify a valid totp code', async () => {
+      requestOptions.credentials.tokenVerified = true;
       const authenticator = new otplib.authenticator.Authenticator();
       authenticator.options = Object.assign({}, otplib.authenticator.options, {
         secret,
@@ -503,6 +504,7 @@ describe('totp', () => {
     });
 
     it('should fail for an invalid totp code', async () => {
+      requestOptions.credentials.tokenVerified = true;
       requestOptions.payload = {
         code: '123123',
       };
@@ -525,7 +527,7 @@ describe('totp', () => {
       }
     });
 
-    it('should fail for an unverified session (still returns invalid code)', async () => {
+    it('should fail for an unverified session', async () => {
       requestOptions.credentials.tokenVerified = false;
       requestOptions.payload = { code: '123123' };
       try {
@@ -535,13 +537,9 @@ describe('totp', () => {
           '/totp/setup/verify',
           requestOptions
         );
-        assert.fail('Expected invalid code error');
+        assert.fail('Expected unverified session error');
       } catch (err) {
-        assert.equal(
-          err.errno,
-          authErrors.ERRNO.INVALID_TOKEN_VERIFICATION_CODE
-        );
-        assert.calledOnce(glean.twoFactorAuth.setupInvalidCodeError);
+        assert.equal(err.errno, authErrors.ERRNO.SESSION_UNVERIFIED);
       }
     });
 

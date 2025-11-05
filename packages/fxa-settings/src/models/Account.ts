@@ -634,7 +634,7 @@ export class Account implements AccountData {
       this.primaryEmail.email,
       response.uid,
       response.sessionToken,
-      response.verified,
+      response.sessionVerified,
       response.keyFetchToken,
       response.unwrapBKey
     );
@@ -655,7 +655,7 @@ export class Account implements AccountData {
           passwordCreated: response.authAt * 1000,
           __typename: 'Account',
         },
-        session: { verified: response.verified, __typename: 'Session' },
+        session: { verified: response.sessionVerified, __typename: 'Session' },
       },
     });
   }
@@ -891,7 +891,8 @@ export class Account implements AccountData {
               uid
               authAt
               keyFetchToken
-              verified
+              emailVerified
+              sessionVerified
             }
           }
         `,
@@ -908,7 +909,7 @@ export class Account implements AccountData {
       accountReset.unwrapBKeyVersion2 = credentialsV2?.unwrapBKey;
       currentAccount(getStoredAccountData(accountReset));
       sessionToken(accountReset.sessionToken);
-      if (accountReset.verified) {
+      if (accountReset.sessionVerified) {
         this.apolloClient.cache.writeQuery({
           query: GET_LOCAL_SIGNED_IN_STATUS,
           data: { isSignedIn: true },
