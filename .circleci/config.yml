@@ -344,6 +344,9 @@ commands:
     parameters:
       project:
         type: string
+      grep_invert:
+        type: string
+        default: ""
       fail_fast:
         type: boolean
         default: true
@@ -359,14 +362,19 @@ commands:
             else
               GREP=""
             fi
-            echo "targeting project << parameters.project >> $GREP"
+            if [[ "<< parameters.grep_invert >>" != "" ]]; then
+              GREP_INVERT="--grep-invert=\"<< parameters.grep_invert >>\""
+            else
+              GREP_INVERT=""
+            fi
+            echo "targeting project << parameters.project >> $GREP $GREP_INVERT"
             npx nx build fxa-auth-client
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
 
             echo $TEST_FILES | circleci tests run \
-              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP" \
+              --command="xargs yarn playwright test --project=<< parameters.project >> $GREP $GREP_INVERT" \
               --verbose \
               --split-by=timings \
               --timings-type=classname
@@ -378,6 +386,22 @@ commands:
             RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
             UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
             PLAYWRIGHT_FAIL_FAST: << parameters.fail_fast >>
+
+  # DRY helper to run phone-tagged tests in a single worker on node 0
+  run-phone-tests-serialized:
+    parameters:
+      project:
+        type: string
+    steps:
+      - run:
+          name: Recovery phone tests (serialized)
+          command: |
+            if [ "${CIRCLE_NODE_INDEX:-0}" != "0" ]; then
+              echo "Phone-tagged tests run only on node 0; this is node ${CIRCLE_NODE_INDEX:-0}. Skipping.";
+              exit 0;
+            fi
+            cd packages/functional-tests
+            yarn playwright test --project=<< parameters.project >> --grep "#phone" --workers=1
 
   store-artifacts:
     steps:
@@ -790,8 +814,11 @@ jobs:
       - provision
       - check-playwright-test-count:
           project: << parameters.project >>
+      - run-phone-tests-serialized:
+          project: << parameters.project >>
       - run-playwright-tests:
           project: << parameters.project >>
+          grep_invert: "#phone"
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
       - upload_to_gcs:
@@ -830,8 +857,11 @@ jobs:
           environment:
             NODE_ENV: test
           no_output_timeout: 20m
+      - run-phone-tests-serialized:
+          project: local
       - run-playwright-tests:
           project: local
+          grep_invert: "#phone"
           fail_fast: << parameters.fail_fast >>
       - store-artifacts
       - upload_to_gcs:
