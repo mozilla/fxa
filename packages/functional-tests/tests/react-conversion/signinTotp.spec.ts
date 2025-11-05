@@ -23,7 +23,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.totp.addButton.click();
       await settings.confirmMfaGuard(credentials.email);
       const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toContainText(
@@ -42,8 +42,6 @@ test.describe('severity-1 #smoke', () => {
       await expect(page).toHaveURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Enabled');
-
-      await settings.disconnectTotp(); // Required before teardown
     });
 
     test('add totp, login with sync', async ({
@@ -70,7 +68,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.totp.addButton.click();
       await settings.confirmMfaGuard(credentials.email);
       const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toContainText(
@@ -95,9 +93,6 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/pair/);
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-
-      await settings.goto();
-      await settings.disconnectTotp(); // Required before teardown
     });
 
     test('error message when totp code is invalid', async ({
@@ -116,7 +111,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.totp.addButton.click();
       await settings.confirmMfaGuard(credentials.email);
       const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toContainText(
@@ -135,11 +130,6 @@ test.describe('severity-1 #smoke', () => {
       await expect(signin.authenticationCodeTextboxTooltip).toHaveText(
         'Invalid two-step authentication code'
       );
-
-      // Required before teardown
-      const code = await getTotpCode(secret);
-      await signinTotpCode.fillOutCodeForm(code);
-      await settings.disconnectTotp();
     });
   });
 });

@@ -95,7 +95,8 @@ test.describe('relay integration', () => {
     syncOAuthBrowserPages: { signinTotpCode, totp, page, signin, settings },
     testAccountTracker,
   }) => {
-    const { email, password } = await testAccountTracker.signUp();
+    const credentials = await testAccountTracker.signUp();
+    const { email, password } = credentials;
 
     // Sign-in without Sync, otw you will get prompted to create a recovery key
     await page.goto(target.contentServerUrl, { waitUntil: 'load' });
@@ -106,7 +107,8 @@ test.describe('relay integration', () => {
     await expect(settings.settingsHeading).toBeVisible();
     await settings.totp.addButton.click();
     await settings.confirmMfaGuard(email);
-    const { secret } = await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+    const { secret } =
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
     await expect(settings.totp.status).toHaveText('Enabled');
     await settings.signOut();
 
@@ -127,7 +129,5 @@ test.describe('relay integration', () => {
 
     await signin.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     await signin.checkWebChannelMessage(FirefoxCommand.Login);
-
-    await settings.disconnectTotp(); // Required before teardown
   });
 });

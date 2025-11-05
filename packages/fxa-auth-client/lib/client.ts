@@ -111,6 +111,17 @@ export type SessionReauthedAccountData = Omit<
   'sessionToken'
 >;
 
+export type SessionStatus = {
+  state: 'verified' | 'unverified';
+  uid: string;
+  details: {
+    accountEmailVerified: boolean;
+    sessionVerificationMethod: string | null;
+    sessionVerified: boolean;
+    sessionVerificationMeetsMinimumAAL: boolean;
+  };
+};
+
 export type AuthServerError = Error & {
   error?: string;
   errno?: number;
@@ -1162,16 +1173,7 @@ export default class AuthClient {
   async sessionStatus(
     sessionToken: hexstring,
     headers?: Headers
-  ): Promise<{
-    state: 'verified' | 'unverified';
-    uid: string;
-    details: {
-      accountEmailVerified: boolean;
-      sessionVerificationMethod: string | null;
-      sessionVerified: boolean;
-      sessionVerificationMeetsMinimumAAL: boolean;
-    };
-  }> {
+  ): Promise<SessionStatus> {
     return this.sessionGet('/session/status', sessionToken, headers);
   }
 

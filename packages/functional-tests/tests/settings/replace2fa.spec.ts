@@ -45,8 +45,6 @@ test.describe('severity-2 #smoke', () => {
       await signinTotpCode.fillOutCodeForm(code);
 
       await expect(settings.settingsHeading).toBeVisible();
-
-      await settings.disconnectTotp();
     });
 
     test('can change 2FA and old 2FA should not work', async ({
@@ -106,8 +104,6 @@ test.describe('severity-2 #smoke', () => {
       });
 
       await expect(settings.settingsHeading).toBeVisible();
-
-      await settings.disconnectTotp();
     });
 
     test('can change 2fa and use existing recovery phone to sign in', async ({
@@ -155,8 +151,6 @@ test.describe('severity-2 #smoke', () => {
       });
 
       await expect(settings.settingsHeading).toBeVisible();
-
-      await settings.disconnectTotp();
     });
   });
 });
@@ -191,7 +185,7 @@ const addThenChange2FA = async ({
   await settings.totp.addButton.click();
   await settings.confirmMfaGuard(credentials.email);
   const { recoveryCodes, secret } =
-    await totp.setUpTwoStepAuthWithManualCodeAndBackupCodesChoice();
+    await totp.setUpTwoStepAuthWithManualCodeAndBackupCodesChoice(credentials);
 
   await assertEnabled(true);
 
@@ -201,7 +195,7 @@ const addThenChange2FA = async ({
 
   // changing doesn't do anything special or require saving backup codes
   // just call straight to the setup method
-  const newSecret = await totp.setUp2faAppWithQrCode();
+  const newSecret = await totp.setUp2faAppWithQrCode(credentials);
 
   await assertEnabled(false);
 

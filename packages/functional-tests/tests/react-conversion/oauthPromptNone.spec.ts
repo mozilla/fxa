@@ -254,7 +254,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.totp.addButton.click();
       await settings.confirmMfaGuard(credentials.email);
 
-      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
       await expect(settings.alertBar).toContainText(
         'Two-step authentication has been enabled'
       );
@@ -268,9 +268,6 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify logged in to relier
       expect(await relier.isLoggedIn()).toBe(true);
-
-      await settings.goto();
-      await settings.disconnectTotp(); // Required before teardown
     });
   });
 });

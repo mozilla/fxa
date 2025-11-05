@@ -176,7 +176,7 @@ test.describe('recovery key promo', () => {
       await settings.totp.addButton.click();
       await settings.confirmMfaGuard(credentials.email);
       const { secret } =
-        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+        await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.signOut();
 
@@ -200,9 +200,6 @@ test.describe('recovery key promo', () => {
 
       await page.waitForURL(/pair/);
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
-
-      await settings.goto();
-      await settings.disconnectTotp(); // Required before teardown
     });
 
     test('click do it later', async ({
