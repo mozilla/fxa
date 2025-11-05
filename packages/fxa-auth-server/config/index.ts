@@ -1745,6 +1745,12 @@ const convictConf = convict({
       format: 'duration',
       env: 'SECONDARY_EMAIL_MIN_UNVERIFIED_ACCOUNT_TIME',
     },
+    pendingTtlSeconds: {
+      doc: 'TTL in seconds for pending secondary email reservations (Redis)',
+      format: 'nat',
+      default: 3600,
+      env: 'SECONDARY_EMAIL_PENDING_TTL_SECONDS',
+    },
   },
   signinCodeSize: {
     doc: 'signinCode size in bytes',

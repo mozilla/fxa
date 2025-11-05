@@ -90,6 +90,7 @@ module.exports = (
   zendeskClient,
   /** @type import('../payments/stripe').StripeHelper */
   stripeHelper,
+  authServerCacheRedis,
   statsd
 ) => {
   const REMINDER_PATTERN = new RegExp(
@@ -98,22 +99,31 @@ module.exports = (
 
   const otpOptions = config.otp;
   const otpUtils = require('./utils/otp').default(db, statsd);
+  const SECONDARY_EMAIL_PENDING_TTL = config.secondaryEmail.pendingTtlSeconds;
+
+  function toRedisSecondaryEmailReservationKey(normalizedEmail) {
+    return `secondary_email:reservation:${normalizedEmail}`;
+  }
 
   const handlers = {
     recoveryEmailPost: async (request) => {
       log.begin('Account.RecoveryEmailCreate', request);
 
       const sessionToken = request.auth.credentials;
+
+      // error early if the account or session are not verified
+      if (!sessionToken.emailVerified) {
+        throw error.unverifiedAccount();
+      }
+
+      if (sessionToken.tokenVerificationId) {
+        throw error.unverifiedSession();
+      }
+
       const uid = sessionToken.uid;
       const primaryEmail = sessionToken.email;
       const { email } = request.payload;
-      const emailData = {
-        email: email,
-        normalizedEmail: normalizeEmail(email),
-        isVerified: false,
-        isPrimary: false,
-        uid: uid,
-      };
+      const normalizedEmail = normalizeEmail(email);
 
       await customs.checkAuthenticated(
         request,
@@ -123,83 +133,149 @@ module.exports = (
       );
 
       const account = await db.account(uid);
-      const secondaryEmails = account.emails.filter(
-        (email) => !email.isPrimary
-      );
+      const secondaryEmails = account.emails.filter((e) => !e.isPrimary);
       // This is compared against all secondary email
-      // records, both verified and unverified
+      // records in db, both verified and unverified
       if (secondaryEmails.length >= MAX_SECONDARY_EMAILS) {
         throw error.maxSecondaryEmailsReached();
       }
 
-      if (emailsMatch(sessionToken.email, email)) {
+      const normalizedPrimary = normalizeEmail(primaryEmail);
+      if (normalizedEmail === normalizedPrimary) {
+        // attempting to add the account's existing primary as secondary
         throw error.yourPrimaryEmailExists();
       }
-
-      if (
-        account.emails.map((accountEmail) => accountEmail.email).includes(email)
-      ) {
+      const existingSecondary = account.emails
+        .filter((e) => !e.isPrimary)
+        .map((e) => normalizeEmail(e.email));
+      if (existingSecondary.includes(normalizedEmail)) {
+        // attempting to add an email that already exists on this account (as secondary)
         throw error.alreadyOwnsEmail();
       }
 
-      if (!sessionToken.emailVerified) {
-        throw error.unverifiedAccount();
+      // Before reserving this address, attempt to free it if it’s being “held”:
+      // - If a verified primary exists for this email: fail (cannot reuse).
+      // - If a verified secondary exists on another account: fail.
+      // - If an unverified primary exists and is old enough with no active subscription:
+      //   delete that unverified account to release the email.
+      // - If an unverified secondary exists on another account: delete that email record.
+      // - No-op if there is no record.
+      // Notes:
+      // - Does not delete the current account’s own secondary record (skips same uid on secondary path).
+      // - Throws specific errors for newly created unverified primary or when there’s an active subscription.
+      await attemptToFreeEmail(normalizedEmail);
+
+      // Reserve email globally to prevent cross-account races for secondary email setup
+      // Note: In a race condition between new account creation and secondary email setup,
+      // the new account will take precedence and be able to claim the email.
+      const key = toRedisSecondaryEmailReservationKey(normalizedEmail);
+      const rawRecord = await authServerCacheRedis.get(key);
+      let parsedRecord;
+      if (rawRecord) {
+        try {
+          parsedRecord = JSON.parse(rawRecord);
+        } catch (err) {
+          // capture sentry error if we are writing bogus data accidentally to redis
+          reportSentryError(err, request);
+          await authServerCacheRedis.del(key);
+          parsedRecord = undefined;
+        }
       }
-
-      if (sessionToken.tokenVerificationId) {
-        throw error.unverifiedSession();
+      const uidStr = Buffer.isBuffer(uid)
+        ? uid.toString('base64')
+        : String(uid);
+      if (parsedRecord && parsedRecord.uid !== uidStr) {
+        // the email is already in use by another account (in-progress secondary email setup)
+        // we should abort early and return a conflict error
+        throw error.emailExists();
       }
-
-      await deleteAccountIfUnverified();
-
-      const hex = await random.hex(16);
-      emailData.emailCode = hex;
-
-      await db.createEmail(uid, emailData);
+      const secret = parsedRecord?.secret ?? (await random.hex(16));
+      const value = JSON.stringify({ uid: uidStr, secret });
+      // create new reservation or refresh existing reservation with updated TTL
+      const setResult = await authServerCacheRedis.set(
+        key,
+        value,
+        'EX',
+        SECONDARY_EMAIL_PENDING_TTL,
+        parsedRecord ? 'XX' : 'NX'
+      );
+      if (setResult !== 'OK') {
+        throw error.emailExists();
+      }
 
       const geoData = request.app.geo;
       try {
-        await mailer.sendVerifySecondaryCodeEmail([emailData], sessionToken, {
-          code: otpUtils.generateOtpCode(hex, otpOptions),
-          deviceId: sessionToken.deviceId,
-          acceptLanguage: request.app.acceptLanguage,
-          email: emailData.email,
-          primaryEmail,
-          location: geoData.location,
-          timeZone: geoData.timeZone,
-          uaBrowser: sessionToken.uaBrowser,
-          uaBrowserVersion: sessionToken.uaBrowserVersion,
-          uaOS: sessionToken.uaOS,
-          uaOSVersion: sessionToken.uaOSVersion,
-          uid,
-        });
+        await mailer.sendVerifySecondaryCodeEmail(
+          [
+            {
+              email,
+              normalizedEmail,
+              isVerified: false,
+              isPrimary: false,
+              uid,
+            },
+          ],
+          sessionToken,
+          {
+            code: otpUtils.generateOtpCode(secret, otpOptions),
+            deviceId: sessionToken.deviceId,
+            acceptLanguage: request.app.acceptLanguage,
+            email,
+            primaryEmail,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser: sessionToken.uaBrowser,
+            uaBrowserVersion: sessionToken.uaBrowserVersion,
+            uaOS: sessionToken.uaOS,
+            uaOSVersion: sessionToken.uaOSVersion,
+            uid,
+          }
+        );
       } catch (err) {
-        log.error('mailer.sendVerifySecondaryCodeEmail', { err: err });
-        await db.deleteEmail(emailData.uid, emailData.normalizedEmail);
+        log.error('secondary_email.sendVerifySecondaryCodeEmail.error', {
+          err: err,
+          uid,
+          normalizedEmail,
+        });
+        await authServerCacheRedis.del(
+          toRedisSecondaryEmailReservationKey(normalizedEmail)
+        );
         throw emailUtils.sendError(err, true);
       }
 
-      await recordSecurityEvent('account.secondary_email_added', {
-        db,
-        request,
-        account,
-      });
-
       return {};
 
-      async function deleteAccountIfUnverified() {
+      async function attemptToFreeEmail(normalizedEmail) {
         try {
-          const secondaryEmailRecord = await db.getSecondaryEmail(email);
-          if (secondaryEmailRecord.isPrimary) {
-            if (secondaryEmailRecord.isVerified) {
-              throw error.verifiedPrimaryEmailAlreadyExists();
-            }
+          const secondaryEmailRecord =
+            await db.getSecondaryEmail(normalizedEmail);
 
-            const msSinceCreated = Date.now() - secondaryEmailRecord.createdAt;
-            const minUnverifiedAccountTime =
-              config.secondaryEmail.minUnverifiedAccountTime;
-            const exceedsMinUnverifiedAccountTime =
-              msSinceCreated >= minUnverifiedAccountTime;
+          const msSinceCreated = Date.now() - secondaryEmailRecord.createdAt;
+          const minUnverifiedAccountTime =
+            config.secondaryEmail.minUnverifiedAccountTime;
+          const exceedsMinUnverifiedAccountTime =
+            msSinceCreated >= minUnverifiedAccountTime;
+
+          if (
+            secondaryEmailRecord.isPrimary &&
+            secondaryEmailRecord.isVerified
+          ) {
+            throw error.verifiedPrimaryEmailAlreadyExists();
+          }
+
+          // Can't add an email that is already verified
+          if (
+            !secondaryEmailRecord.isPrimary &&
+            secondaryEmailRecord.isVerified
+          ) {
+            throw error.emailExists();
+          }
+
+          // check if unverified account can be deleted to free up the email
+          if (
+            secondaryEmailRecord.isPrimary &&
+            !secondaryEmailRecord.isVerified
+          ) {
             if (
               exceedsMinUnverifiedAccountTime &&
               !(await stripeHelper.hasActiveSubscription(
@@ -218,9 +294,9 @@ module.exports = (
             }
           }
 
-          // Only delete secondary email if it is unverified and does not belong
-          // to the current user.
+          // Check if unverified secondary email can be deleted to free up the email
           if (
+            !secondaryEmailRecord.isPrimary &&
             !secondaryEmailRecord.isVerified &&
             !butil.buffersAreEqual(secondaryEmailRecord.uid, uid)
           ) {
@@ -242,6 +318,7 @@ module.exports = (
 
       const sessionToken = request.auth.credentials;
       const { email, code } = request.payload;
+      const normalizedEmail = normalizeEmail(email);
 
       await customs.checkAuthenticated(
         request,
@@ -251,49 +328,178 @@ module.exports = (
       );
 
       const { uid } = sessionToken;
-      const account = await db.account(uid);
-      const emails = await db.accountEmails(uid);
+      const [account, accountEmails] = await Promise.all([
+        db.account(uid),
+        db.accountEmails(uid),
+      ]);
 
-      // Get the secondary email code
-      const matchedEmail = emails.find((userEmail) =>
-        emailsMatch(userEmail.normalizedEmail, email)
+      const accountEmailRecord = accountEmails.find(
+        (e) => e.normalizedEmail === normalizedEmail
       );
 
-      if (!matchedEmail) {
-        throw error.invalidVerificationCode();
-      }
-
-      const secret = matchedEmail.emailCode;
-      const { valid: isValid } = otpUtils.verifyOtpCode(
-        code,
-        secret,
-        otpOptions,
-        'recovery_email.secondary.verify_code'
-      );
-
-      if (!isValid) {
-        throw error.invalidVerificationCode();
-      }
-
-      // User is attempting to verify a secondary email that has already been verified.
-      // Silently succeed and don't send post verification email.
-      if (matchedEmail.isVerified) {
-        log.info('account.verifyEmail.secondary.already-verified', {
-          uid,
-        });
+      // If email is already saved and verified for this account -> silent success
+      if (accountEmailRecord?.isVerified) {
         return {};
       }
 
-      await db.verifyEmail(account, matchedEmail.emailCode);
-      log.info('account.verifyEmail.secondary.confirmed', {
-        uid,
-      });
+      // Enforce cap at verify-time
+      const verifiedSecondaries = accountEmails.filter(
+        (e) => !e.isPrimary && e.isVerified
+      );
+      if (verifiedSecondaries.length >= MAX_SECONDARY_EMAILS) {
+        throw error.maxSecondaryEmailsReached();
+      }
 
-      await mailer.sendPostVerifySecondaryEmail([], account, {
-        acceptLanguage: request.app.acceptLanguage,
-        secondaryEmail: matchedEmail.email,
-        uid,
-      });
+      // Verify that the email is not already verified by another account.
+      try {
+        const emailRecord = await db.getSecondaryEmail(normalizedEmail);
+        if (
+          emailRecord &&
+          emailRecord.isVerified &&
+          !butil.buffersAreEqual(emailRecord.uid, uid)
+        ) {
+          try {
+            await authServerCacheRedis.del(
+              toRedisSecondaryEmailReservationKey(normalizedEmail)
+            );
+          } catch {}
+          throw error.emailExists();
+        }
+      } catch (err) {
+        if (err && err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
+          throw err;
+        }
+      }
+
+      // Verify against Redis reservation
+      const key = toRedisSecondaryEmailReservationKey(normalizedEmail);
+      const rawRecord = await authServerCacheRedis.get(key);
+      let parsedRecord;
+      if (rawRecord) {
+        try {
+          parsedRecord = JSON.parse(rawRecord);
+        } catch {
+          await authServerCacheRedis.del(key);
+        }
+      }
+
+      const uidStr = Buffer.isBuffer(uid)
+        ? uid.toString('base64')
+        : String(uid);
+      if (parsedRecord && parsedRecord.uid !== uidStr) {
+        // Another account is in the process of setting up this email as secondary
+        throw error.emailExists();
+      }
+      let secret = parsedRecord?.secret;
+      if (secret) {
+        const { valid } = otpUtils.verifyOtpCode(
+          code,
+          secret,
+          otpOptions,
+          'recovery_email.secondary.verify_code'
+        );
+        if (!valid) {
+          throw error.invalidVerificationCode();
+        }
+        // If a legacy unverified record already exists for this account/email, mark it verified
+        if (accountEmailRecord?.emailCode && !accountEmailRecord.isVerified) {
+          try {
+            await db.verifyEmail(account, accountEmailRecord.emailCode);
+          } catch (e) {
+            log.error('secondary_email.verify.legacy_record.verify_error', {
+              uid,
+              normalizedEmail,
+              error: e?.message,
+            });
+            throw e;
+          }
+        } else {
+          try {
+            await db.createEmail(uid, {
+              email,
+              normalizedEmail,
+              emailCode: await random.hex(16),
+              isVerified: true,
+              verifiedAt: Date.now(),
+            });
+          } catch (e) {
+            log.error('secondary_email.verify.dbCreate.error', {
+              uid,
+              normalizedEmail,
+              error: e?.message,
+              errno: e?.errno,
+              code: e?.code,
+              stack: e?.stack,
+            });
+            try {
+              await authServerCacheRedis.del(key);
+              secret = undefined;
+            } catch {}
+            throw e;
+          }
+        }
+        await recordSecurityEvent('account.secondary_email_added', {
+          db,
+          request,
+          account,
+        });
+        try {
+          await authServerCacheRedis.del(key);
+        } catch {}
+      }
+      // Fallback to legacy unverified record if present
+      // Only needed until "old" unverified secondary email records are cleaned up
+      // See FXA-10083 for more details
+      if (!secret) {
+        // Recheck for the email record in the account
+        const emailRecord = accountEmails.find(
+          (e) => e.normalizedEmail === normalizedEmail
+        );
+        if (!emailRecord || !emailRecord.emailCode) {
+          // no trace of the requested email in the account
+          throw error.unknownSecondaryEmail();
+        }
+        if (emailRecord.isVerified) {
+          // already verified for this account -> silent success
+          return {};
+        }
+        // there is a legacy unverified record for this email -> verify it
+        const { valid } = otpUtils.verifyOtpCode(
+          code,
+          emailRecord.emailCode,
+          otpOptions,
+          'recovery_email.secondary.verify_code'
+        );
+        if (!valid) {
+          throw error.invalidVerificationCode();
+        }
+        try {
+          await db.verifyEmail(account, emailRecord.emailCode);
+          log.info('account.verifyEmail.secondary.confirmed', { uid });
+        } catch (e) {
+          log.error('secondary_email.verify.dbVerify.error', {
+            uid,
+            normalizedEmail,
+            error: e?.message,
+          });
+          throw e;
+        }
+      }
+
+      try {
+        await mailer.sendPostVerifySecondaryEmail([], account, {
+          acceptLanguage: request.app.acceptLanguage,
+          secondaryEmail: email,
+          uid,
+        });
+      } catch (e) {
+        log.error('secondary_email.sendPostVerifySecondaryEmail.error', {
+          uid,
+          normalizedEmail,
+          error: e?.message,
+        });
+        // don't throw on email send error
+      }
 
       return {};
     },
@@ -664,6 +870,14 @@ module.exports = (
 
         // Any matching code verifies the account
         await signupUtils.verifyAccount(request, account, request.payload);
+
+        // best-effort cleanup: clear any secondary reservation for this primary email
+        try {
+          const normalized = normalizeEmail(account.email);
+          await authServerCacheRedis.del(
+            toRedisSecondaryEmailReservationKey(normalized)
+          );
+        } catch (_) {}
 
         return {};
 
@@ -1057,10 +1271,14 @@ module.exports = (
         response: {},
       },
       handler: async function (request) {
+        // Note that this "resend" flow is a legacy flow
+        // for secondary emails stored as unconfirmed records in the db
+        // This route only uses the legacy records, not the redis reservations
+        // TODO: Remove this flow once we have cleaned out the old unconfirmed records
+        // See FXA-10083 for more details
         log.begin('Account.RecoveryEmailSecondaryResend', request);
 
         const sessionToken = request.auth.credentials;
-        const geoData = request.app.geo;
         const { email } = request.payload;
 
         await customs.checkAuthenticated(
@@ -1081,41 +1299,57 @@ module.exports = (
         } = sessionToken;
 
         const account = await db.account(uid);
-        const emails = await db.accountEmails(uid);
+        const normalized = normalizeEmail(email);
 
-        // Get the secondary email code
-        const foundEmail = emails.find((userEmail) =>
-          emailsMatch(userEmail.normalizedEmail, email)
-        );
-
-        // This user is attempting to verify a secondary email that doesn't belong to the account.
-        if (!foundEmail) {
+        // check if there is an unconfirmed record for this email
+        let existingRecord;
+        try {
+          existingRecord = await db.getSecondaryEmail(normalized);
+        } catch (e) {
+          if (e && e.errno === error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
+            // maintain legacy errno for resend-to-unowned
+            throw error.cannotResendEmailCodeToUnownedEmail();
+          }
+          throw e;
+        }
+        if (!existingRecord) {
           throw error.cannotResendEmailCodeToUnownedEmail();
         }
+        if (existingRecord?.isVerified) {
+          throw error.alreadyOwnsEmail();
+        }
 
-        const secret = foundEmail.emailCode;
+        const code = otpUtils.generateOtpCode(
+          existingRecord.emailCode,
+          otpOptions
+        );
 
-        const code = otpUtils.generateOtpCode(secret, otpOptions);
-
-        const mailerOpts = {
-          code,
-          deviceId,
-          location: geoData.location,
-          timeZone: geoData.timeZone,
-          timestamp: Date.now(),
-          acceptLanguage: request.app.acceptLanguage,
-          uaBrowser,
-          uaBrowserVersion,
-          uaOS,
-          uaOSVersion,
-          uaDeviceType,
-          uid,
-        };
-
+        const geoData = request.app.geo;
         await mailer.sendVerifySecondaryCodeEmail(
-          [foundEmail],
+          [
+            {
+              email,
+              normalizedEmail: normalized,
+              isVerified: false,
+              isPrimary: false,
+              uid,
+            },
+          ],
           account,
-          mailerOpts
+          {
+            code,
+            deviceId,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            timestamp: Date.now(),
+            acceptLanguage: request.app.acceptLanguage,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uid,
+          }
         );
 
         return {};

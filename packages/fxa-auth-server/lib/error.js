@@ -583,8 +583,7 @@ AppError.recoveryCodesAlreadyExist = () => {
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.RECOVERY_CODES_ALREADY_EXISTS,
-    message:
-      'Recovery codes or a verified TOTP token already exist',
+    message: 'Recovery codes or a verified TOTP token already exist',
   });
 };
 

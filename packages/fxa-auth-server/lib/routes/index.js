@@ -118,6 +118,7 @@ module.exports = function (
     signupUtils,
     zendeskClient,
     stripeHelper,
+    authServerCacheRedis,
     statsd
   );
   const password = require('./password')(
