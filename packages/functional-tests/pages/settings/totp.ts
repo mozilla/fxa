@@ -8,6 +8,7 @@ import { expect } from '../../lib/fixtures/standard';
 import { SettingsLayout } from './layout';
 import { getTotpCode } from '../../lib/totp';
 import { DataTrioComponent } from './components/dataTrio';
+import { Credentials } from '../../lib/targets/base';
 
 export type TotpCredentials = {
   secret: string;
@@ -102,7 +103,16 @@ export class TotpPage extends SettingsLayout {
     );
   }
 
-  async setUp2faAppWithQrCode(): Promise<string> {
+  /**
+   * Sets up 2FA with a QR code. The secret is attached to the credentials if provided.
+   * This is necessary because accountDestroy needs the secret to fetch appropriate AAL2 credentials.
+   * If credentials are omitted, the test must call `settings.disconnectTotp()` before teardown.
+   *
+   * Credentials are optional for backwards compatibility, but it's recommended to pass them in.
+   * @param credentials
+   * @returns
+   */
+  async setUp2faAppWithQrCode(credentials: Credentials): Promise<string> {
     await expect(this.twoStepAuthenticationHeading).toBeVisible();
     await expect(this.setup2faAppHeading).toBeVisible();
 
@@ -121,6 +131,7 @@ export class TotpPage extends SettingsLayout {
     if (secret === null) {
       throw new Error('No secret found in QR code');
     }
+    credentials.secret = secret;
 
     const code = await getTotpCode(secret);
     await this.step1AuthenticationCodeTextbox.fill(code);
@@ -128,12 +139,14 @@ export class TotpPage extends SettingsLayout {
     return secret;
   }
 
-  async setUp2faAppWithManualCode(): Promise<string> {
+  async setUp2faAppWithManualCode(credentials: Credentials): Promise<string> {
     await expect(this.twoStepAuthenticationHeading).toBeVisible();
     await expect(this.setup2faAppHeading).toBeVisible();
 
     await this.step1CantScanCodeLink.click();
     const secret = (await this.step1ManualCode.innerText())?.replace(/\s/g, '');
+    credentials.secret = secret;
+
     const code = await getTotpCode(secret);
     await this.step1AuthenticationCodeTextbox.fill(code);
     await this.step1SubmitButton.click();
@@ -174,26 +187,32 @@ export class TotpPage extends SettingsLayout {
     await this.confirmBackupCodeSubmitButton.click();
   }
 
-  async setUpTwoStepAuthWithQrAndBackupCodesChoice(): Promise<TotpCredentials> {
-    const secret = await this.setUp2faAppWithQrCode();
+  async setUpTwoStepAuthWithQrAndBackupCodesChoice(
+    credentials: Credentials
+  ): Promise<TotpCredentials> {
+    const secret = await this.setUp2faAppWithQrCode(credentials);
     await this.chooseBackupCodesOption();
     const recoveryCodes = await this.backupCodesDownloadStep();
     await this.confirmBackupCodeStep(recoveryCodes[0]);
     return { secret, recoveryCodes };
   }
 
-  async setUpTwoStepAuthWithManualCodeAndBackupCodesChoice(): Promise<TotpCredentials> {
-    const secret = await this.setUp2faAppWithManualCode();
+  async setUpTwoStepAuthWithManualCodeAndBackupCodesChoice(
+    credentials: Credentials
+  ): Promise<TotpCredentials> {
+    const secret = await this.setUp2faAppWithManualCode(credentials);
     await this.chooseBackupCodesOption();
     const recoveryCodes = await this.backupCodesDownloadStep();
     await this.confirmBackupCodeStep(recoveryCodes[0]);
     return { secret, recoveryCodes };
   }
 
-  async startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice(): Promise<{
+  async startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice(
+    credentials: Credentials
+  ): Promise<{
     secret: string;
   }> {
-    const secret = await this.setUp2faAppWithManualCode();
+    const secret = await this.setUp2faAppWithManualCode(credentials);
     await this.chooseRecoveryPhoneOption();
     return { secret };
   }
