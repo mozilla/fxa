@@ -8,20 +8,36 @@ import { FirestoreFactory, FirestoreService } from './firestore.service';
 import { CloudTasksFactory, CloudTasksService } from './cloud-tasks.service';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import { ProfileClientService } from './profile-client.service';
+import {
+  EmailSenderFactory,
+  EmailService,
+  FxaEmailRendererFactory,
+  EmailLinkBuilderFactory,
+  BouncesFactory,
+} from './email.service';
+import { DatabaseService } from '../database/database.service';
 
 @Module({
   providers: [
     AuthClientFactory,
     FirestoreFactory,
     CloudTasksFactory,
+    DatabaseService,
     MetricsFactory,
     ProfileClientService,
+    EmailLinkBuilderFactory,
+    FxaEmailRendererFactory,
+    BouncesFactory,
+    EmailSenderFactory,
+    EmailService,
   ],
   exports: [
     AuthClientService,
     FirestoreService,
     CloudTasksService,
+    DatabaseService,
     ProfileClientService,
+    EmailService,
   ],
 })
 export class BackendModule {}

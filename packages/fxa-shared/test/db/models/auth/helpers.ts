@@ -216,6 +216,9 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
     './unverified-tokens.sql',
     './recovery-codes.sql',
     './recovery-phones.sql',
+    './key-fetch-tokens.sql',
+    './security-event-names.sql',
+    './security-events.sql'
   ]);
   // The order matters for inserts or foreign key refs
   await runSql([
@@ -226,6 +229,8 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
     './sp_prune.sql',
     './sp_limitSessions.sql',
     './sp_findLargeAccounts.sql',
+    './sp_resetAccount.sql',
+    './sp_createSecurityEvent.sql'
   ]);
 
   /*/ Debugging Assistance

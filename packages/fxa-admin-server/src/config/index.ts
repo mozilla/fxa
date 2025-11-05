@@ -649,6 +649,255 @@ const conf = convict({
       format: 'String',
     },
   },
+  links: {
+    desktopLink: {
+      doc: 'url to download Firefox page',
+      format: String,
+      default:
+        'https://firefox.com?utm_content=registration-confirmation&utm_medium=email&utm_source=fxa',
+    },
+    androidUrl: {
+      doc: 'url to Android product page',
+      format: String,
+      default:
+        'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=android&creative=button&utm_source=email',
+    },
+    iosUrl: {
+      doc: 'url to IOS product page',
+      format: String,
+      default:
+        'https://app.adjust.com/2uo1qc?campaign=fxa-conf-email&adgroup=ios&creative=button&fallback=https%3A%2F%2Fitunes.apple.com%2Fapp%2Fapple-store%2Fid989804926%3Fpt%3D373246%26ct%3Dadjust_tracker%26mt%3D8&utm_source=email',
+    },
+    supportUrl: {
+      doc: 'url to Mozilla account support page',
+      format: String,
+      default:
+        'https://support.mozilla.org/kb/im-having-problems-my-firefox-account',
+    },
+    subscriptionSupportUrl: {
+      doc: 'url to Mozilla subscription support page',
+      format: String,
+      default: 'https://support.mozilla.org/products',
+    },
+    redirectDomain: {
+      doc: 'Domain that mail urls are allowed to redirect to',
+      format: String,
+      default: 'firefox.com',
+      env: 'REDIRECT_DOMAIN',
+    },
+    privacyUrl: {
+      doc: 'url to Mozilla Accounts privacy page',
+      format: String,
+      default: 'https://www.mozilla.org/privacy/mozilla-accounts/',
+    },
+    passwordManagerInfoUrl: {
+      doc: 'url to Firefox password manager information',
+      format: String,
+      default:
+        'https://support.mozilla.org/kb/password-manager-remember-delete-change-and-import#w_viewing-and-deleting-passwords',
+    },
+    subscriptionTermsUrl: {
+      default:
+        'https://www.mozilla.org/about/legal/terms/firefox-private-network/',
+      doc: 'Subscription terms and cancellation policy URL',
+      env: 'SUBSCRIPTION_TERMS_URL',
+      format: String,
+    },
+    subscriptionSettingsUrl: {
+      default: 'https://payments.firefox.com/',
+      doc: 'Subscriptions management URL',
+      env: 'PAYMENTS_NEXT_HOSTED_URL',
+      format: String,
+    },
+    unsubscribeUrl: {
+      doc: 'URL to unsubscribe from MoCo and MoFo emails',
+      format: String,
+      env: 'UNSUBSCRIBE_EMAIL_LISTS_URL',
+      default:
+        'https://privacyportal.onetrust.com/webform/1350748f-7139-405c-8188-22740b3b5587/4ba08202-2ede-4934-a89e-f0b0870f95f0',
+    },
+    initiatePasswordResetUrl: {
+      doc: 'URL that allows a user to reset their account.',
+      format: String,
+      env: 'ACCOUNT_RESET_URL',
+      default: 'http://localhost:3030/reset_password',
+    },
+  },
+  smtp: {
+    api: {
+      host: {
+        doc: 'host for test/mail_helper.js',
+        default: 'localhost',
+        env: 'MAILER_HOST',
+      },
+      port: {
+        doc: 'port for test/mail_helper.js',
+        default: 9001,
+        env: 'MAILER_PORT',
+      },
+    },
+    brandMessagingMode: {
+      doc: 'The type of messaging to show. Options are prelaunch, postlaunch, or none',
+      format: String,
+      default: 'none',
+      env: 'BRAND_MESSAGING_MODE',
+    },
+    host: {
+      doc: 'SMTP host for sending email',
+      default: 'localhost',
+      env: 'SMTP_HOST',
+    },
+    port: {
+      doc: 'SMTP port',
+      default: 9999,
+      env: 'SMTP_PORT',
+    },
+    secure: {
+      doc: 'Connect to SMTP host securely',
+      default: false,
+      env: 'SMTP_SECURE',
+    },
+    ignoreTLS: {
+      doc: 'Ignore fact the TLS should be required',
+      default: true,
+      env: 'SMTP__IGNORE_TLS',
+    },
+    sendingRate: {
+      doc: 'How fast we can send emails',
+      default: 5,
+      env: 'SMTP__SENDING_RATE',
+    },
+    user: {
+      doc: 'SMTP username',
+      format: String,
+      default: 'local',
+      env: 'SMTP_USER',
+    },
+    password: {
+      doc: 'SMTP password',
+      format: String,
+      default: 'local',
+      env: 'SMTP_PASS',
+    },
+    sender: {
+      doc: 'email address of the sender',
+      default: 'Mozilla <no-reply@lcip.org>',
+      env: 'SMTP_SENDER',
+    },
+    pool: {
+      default: false,
+      doc: 'Should pooling be enabled for sending mail?',
+      env: 'SMTP_POOL',
+      format: Boolean,
+    },
+    maxMessages: {
+      default: 10,
+      doc: 'Maximum number of messages to be sent via nodemailer before a new SES SMTP connection is made',
+      env: 'SMTP_MAX_MESSAGES',
+      format: Number,
+    },
+    maxConnections: {
+      default: 2,
+      doc: 'Maximum number of simultaneous connections to make against the SES SMTP server',
+      env: 'SMTP_MAX_CONNECTIONS',
+      format: Number,
+    },
+    prependVerificationSubdomain: {
+      enabled: {
+        doc: 'Flag to prepend a verification subdomain to verification emails',
+        default: false,
+        env: 'PREPEND_VERIFICATION_SUBDOMAIN_ENABLED',
+      },
+      subdomain: {
+        doc: 'Prepend this subdomain',
+        format: String,
+        default: 'confirm',
+        env: 'PREPEND_VERIFICATION_SUBDOMAIN_SUBDOMAIN',
+      },
+    },
+    sesConfigurationSet: {
+      doc:
+        'AWS SES Configuration Set for SES Event Publishing. If defined, ' +
+        'X-SES-MESSAGE-TAGS headers will be added to emails. Only ' +
+        'intended for Production/Stage use.',
+      format: String,
+      default: '',
+      env: 'SES_CONFIGURATION_SET',
+    },
+    connectionTimeout: {
+      doc: 'Milliseconds to wait for the connection to establish (default is 2 minutes)',
+      format: 'int',
+      default: 120000,
+      env: 'SMTP_CONNECTION_TIMEOUT',
+    },
+    greetingTimeout: {
+      doc: 'Milliseconds to wait for the greeting after connection is established (default is 30 seconds)',
+      format: 'int',
+      default: 30000,
+      env: 'SMTP_GREETING_TIMEOUT',
+    },
+    socketTimeout: {
+      doc: 'Milliseconds of inactivity to allow (default is 10 minutes)',
+      format: 'int',
+      default: 600000,
+      env: 'SMTP_SOCKET_TIMEOUT',
+    },
+    dnsTimeout: {
+      doc: 'Milliseconds to wait for DNS requests to be resolved (default is 30 seconds)',
+      format: 'int',
+      default: 30000,
+      env: 'SMTP_DNS_TIMEOUT',
+    },
+  },
+  bounces: {
+    enabled: {
+      doc: 'Flag to enable checking for bounces before sending email',
+      format: Boolean,
+      default: true,
+      env: 'BOUNCES_ENABLED',
+    },
+    complaint: {
+      doc: 'Tiers of max allowed complaints per amount of milliseconds',
+      format: Object,
+      default: {
+        // 0 are allowed in the past day.
+        // 1 is allowed in the past year.
+        0: 24 * 60 * 60 * 1000,
+        1: 365 * 24 * 60 * 60 * 1000,
+      },
+      env: 'BOUNCES_COMPLAINT',
+    },
+    hard: {
+      doc: 'Tiers of max allowed hard bounces per amount of milliseconds',
+      format: Object,
+      default: {
+        // # of bounces allowed : time since last bounce
+        0: 15 * 60 * 1000,
+        1: 24 * 60 * 60 * 1000,
+      },
+      env: 'BOUNCES_HARD',
+    },
+    soft: {
+      doc: 'Tiers of max allowed soft bounces per amount of milliseconds',
+      format: Object,
+      default: {
+        0: 5 * 60 * 1000,
+      },
+      env: 'BOUNCES_SOFT',
+    },
+    ignoreTemplates: {
+      doc: 'Always ignore bounces from these email templates',
+      format: Array,
+      default: [
+        'verifyLoginCode',
+        'verifyLogin',
+        'recovery',
+        'unblockCode',
+        'subscriptionAccountFinishSetup',
+      ],
+      env: 'BOUNCES_IGNORE_TEMPLATES',
+    },
+  },
 });
 
 const configDir = __dirname;
