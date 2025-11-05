@@ -1,4 +1,6 @@
 #!/bin/bash -e
+set -euo pipefail
+shopt -s nullglob
 
 # Pulls the latest localization files into a target workspace.
 
@@ -37,16 +39,21 @@ mkdir -p "$TARGET_FOLDER"
 # Loop through all files and combine
 cd "$ROOT_FOLDER/external/l10n/locale";
 for d in */; do
-    cd "$d";
-    locale=$(echo $d | sed 's/_/-/' | sed 's/\/$//')
-    count=$(ls | grep .ftl | wc -l)
-    if [[ $((count)) == 0 ]]; then
-        echo "$PREFIX: $locale has no .ftl files"
-    else
-        mkdir -p "$ROOT_FOLDER/$TARGET_FOLDER/$locale"
-        cp *.ftl "$ROOT_FOLDER/$TARGET_FOLDER/$locale/"
-    fi
-    cd ..
+  cd "$d"
+
+  locale=${d%/}
+  locale=${locale//_/-}
+
+  files=( *.ftl )
+  if ((${#files[@]} == 0)); then
+    echo "$PREFIX: $locale has no .ftl files"
+  else
+    dest="$ROOT_FOLDER/$TARGET_FOLDER/$locale"
+    mkdir -p "$dest"
+    cp -- "${files[@]}" "$dest/"
+  fi
+
+  cd ..
 done
 
 # Record the current git version

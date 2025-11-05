@@ -139,6 +139,13 @@
       ],
       "cache": true
     },
+    "l10n-prime": {
+      "inputs": ["{workspaceRoot}/external/l10n/**/*.@(ftl)"],
+      "outputs": [
+        "{projectRoot}/public"
+      ],
+      "cache": true
+    },
     "@nx/jest:jest": {
       "cache": true,
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
