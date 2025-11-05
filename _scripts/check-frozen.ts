@@ -16,6 +16,10 @@ const frozen: Array<{ pattern: string; reason: string }> = [
     pattern: 'packages/fxa-auth-server/lib/senders/email.js',
     reason: 'Files moved to libs/accounts/email-sender',
   },
+  {
+    pattern: 'packages/fxa-auth-server/lib/senders/(emails|renderer)/.*',
+    reason: 'Files moved to libs/accounts/email-renderer',
+  },
 ];
 
 export const getChangedFiles = () => {

@@ -4,7 +4,8 @@
     "stylelint-config-recommended-scss"
   ],
   "ignoreFiles": [
-    "../packages/**/tailwind.out.scss"
+    "../**/tailwind.out.scss",
+    "../libs/accounts/email-renderer/src/**/*.{scss,css}"
   ],
   "rules": {
     "declaration-empty-line-before": "never",

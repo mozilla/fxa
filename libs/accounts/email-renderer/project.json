@@ -1,0 +1,97 @@
+{
+  "name": "accounts-email-renderer",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/accounts/email-renderer/src",
+  "projectType": "library",
+  "tags": ["scope:shared:lib"],
+  "targets": {
+    "build": {
+      "dependsOn": ["build-css", "build-ts"],
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "# Important!!! We have to do this cause these are .gitingored, which means nx ingores them too.",
+          "echo Copying l10n assets...",
+          "cp -r libs/accounts/email-renderer/public dist/libs/accounts/email-renderer/.",
+          "echo Copying css assets...",
+          "cp -r libs/accounts/email-renderer/src/css dist/libs/accounts/email-renderer/src/css"
+        ]
+      }
+    },
+    "build-ts": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "dependsOn": ["l10n-prime"],
+      "options": {
+        "outputPath": "dist/libs/accounts/email-renderer",
+        "main": "libs/accounts/email-renderer/src/index.ts",
+        "tsConfig": "libs/accounts/email-renderer/tsconfig.lib.json",
+        "assets": ["libs/accounts/email-renderer/*.md"],
+        "format": ["cjs"],
+        "generatePackageJson": true
+      }
+    },
+    "build-css": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "ts-node libs/accounts/email-renderer/src/sass-compile-files.ts"
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/accounts/email-renderer/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    },
+    "test-integration": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/accounts/email-renderer/jest.config.ts",
+        "testPathPattern": ["\\.in\\.spec\\.ts$"]
+      }
+    },
+    "build-storybook": {
+      "executor": "@nx/storybook:build",
+      "outputs": ["{options.outputDir}"],
+      "dependsOn": ["build-css", "build-ts"],
+      "options": {
+        "outputDir": "dist/storybook/accounts/email-renderer",
+        "configDir": "libs/accounts/email-renderer/.storybook"
+      }
+    },
+    "storybook": {
+      "executor": "@nx/storybook:storybook",
+      "dependsOn": ["build-css", "build-ts"],
+      "options": {
+        "port": 4400,
+        "configDir": "libs/accounts/email-renderer/.storybook",
+        "browserTarget": "accounts-email-renderer:build"
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "l10n-copy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "mkdir -p dist/libs/accounts/email-renderer",
+          "cp -r libs/accounts/email-renderer/public dist/libs/accounts/email-renderer/."
+        ]
+      }
+    },
+    "l10n-prime": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["_scripts/l10n/prime.sh libs/accounts/email-renderer"]
+      }
+    }
+  }
+}
