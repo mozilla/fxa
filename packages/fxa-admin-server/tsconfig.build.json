@@ -3,6 +3,9 @@
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"],
   "compilerOptions": {
     "paths": {
+      "@fxa/accounts/email-sender": ["libs/accounts/email-sender/src/index"],
+      "@fxa/accounts/email-renderer": ["libs/accounts/email-renderer/src/index"],
+      "@fxa/accounts/errors": ["libs/accounts/errors/src/index"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index"],
       "@fxa/payments/stripe": ["libs/payments/stripe/src/index"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index"],

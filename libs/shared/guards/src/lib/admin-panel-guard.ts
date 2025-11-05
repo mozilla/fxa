@@ -31,6 +31,7 @@ export enum AdminPanelFeature {
   AccountSearch = 'AccountSearch',
   AccountHistory = 'AccountHistory',
   AccountDelete = 'AccountDelete',
+  AccountReset = 'AccountReset',
   ConnectedServices = 'ConnectedServices',
   LinkedAccounts = 'LinkedAccounts',
   ClearEmailBounces = 'ClearEmailBounces',
@@ -135,6 +136,10 @@ const defaultAdminPanelPermissions: Permissions = {
   [AdminPanelFeature.AccountDelete]: {
     name: 'Delete Account By Email/UID',
     level: PermissionLevel.DSAR,
+  },
+  [AdminPanelFeature.AccountReset]: {
+    name: 'Reset Account By Email/UID',
+    level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.ConnectedServices]: {
     name: 'View Active Sessions',
