@@ -207,6 +207,11 @@ type AccountDeleteTaskStatus {
   status: String!
 }
 
+type AccountResetResponse {
+  locator: String!
+  status: String!
+}
+
 type RelyingPartyDto {
   id: ID!
   createdAt: DateTime!
@@ -258,6 +263,7 @@ type Mutation {
   unlinkAccount(uid: String!): Boolean!
   unsubscribeFromMailingLists(uid: String!): Boolean!
   deleteAccounts(locators: [String!]!): [AccountDeleteResponse!]!
+  resetAccounts(locators: [String!]!, notificationEmail: String!): [AccountResetResponse!]!
   clearEmailBounce(email: String!): Boolean!
   clearRateLimits(ip: String, email: String, uid: String): Float!
   createRelyingParty(relyingParty: RelyingPartyUpdateDto!): String!

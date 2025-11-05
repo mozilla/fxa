@@ -222,6 +222,11 @@ export interface AccountDeleteTaskStatus {
     status: string;
 }
 
+export interface AccountResetResponse {
+    locator: string;
+    status: string;
+}
+
 export interface RelyingPartyDto {
     id: string;
     createdAt: DateTime;
@@ -268,6 +273,7 @@ export interface IMutation {
     unlinkAccount(uid: string): boolean | Promise<boolean>;
     unsubscribeFromMailingLists(uid: string): boolean | Promise<boolean>;
     deleteAccounts(locators: string[]): AccountDeleteResponse[] | Promise<AccountDeleteResponse[]>;
+    resetAccounts(locators: string[], notificationEmail: string): AccountResetResponse[] | Promise<AccountResetResponse[]>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
     clearRateLimits(ip?: Nullable<string>, email?: Nullable<string>, uid?: Nullable<string>): number | Promise<number>;
     createRelyingParty(relyingParty: RelyingPartyUpdateDto): string | Promise<string>;

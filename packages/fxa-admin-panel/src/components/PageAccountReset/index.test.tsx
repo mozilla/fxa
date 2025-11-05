@@ -5,15 +5,12 @@
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
-import { PageAccountDelete } from './index';
+import { PageAccountReset } from '.';
 import { IClientConfig } from '../../../interfaces';
 import { GuardEnv, AdminPanelGroup, AdminPanelGuard } from '@fxa/shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import {
-  mockGqlAccountDeleteMutation,
-  mockGqlAccountDeleteTaskStatusQuery,
-} from './mocks';
+import { mockGqlAccountResetMutation } from './mocks';
 
 // Setup the current user hook. Required for Guards.
 const mockGuard = new AdminPanelGuard(GuardEnv.Prod);
@@ -38,27 +35,29 @@ jest.mock('../../hooks/UserContext.ts', () => ({
 it('renders without imploding', () => {
   renderWithLocalizationProvider(
     <MockedProvider mocks={[]} addTypename={false}>
-      <PageAccountDelete />
+      <PageAccountReset />
     </MockedProvider>
   );
 
   expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
-    'Delete Accounts'
+    'Reset Accounts'
   );
 });
 
-it('deletes accounts', async () => {
+it('resets accounts', async () => {
   renderWithLocalizationProvider(
-    <MockedProvider
-      mocks={[
-        mockGqlAccountDeleteMutation(),
-        mockGqlAccountDeleteTaskStatusQuery(),
-      ]}
-    >
-      <PageAccountDelete />
+    <MockedProvider mocks={[mockGqlAccountResetMutation()]}>
+      <PageAccountReset />
     </MockedProvider>
   );
 
+  expect(
+    fireEvent.change(screen.getByTestId(`notification-email-input`), {
+      target: {
+        value: 'sre@mozilla.com',
+      },
+    })
+  ).toBeTruthy();
   expect(
     fireEvent.change(screen.getByTestId(`account-list-input`), {
       target: {
@@ -66,13 +65,11 @@ it('deletes accounts', async () => {
       },
     })
   ).toBeTruthy();
-
-  expect(
-    fireEvent.click(screen.getByTestId(`account-delete-btn`))
-  ).toBeTruthy();
+  expect(fireEvent.click(screen.getByTestId(`account-reset-btn`))).toBeTruthy();
 
   await waitFor(() => {
-    screen.getByText('Pending');
-    screen.getByText('Task completed.');
+    screen.getByText('Reset Results');
+    screen.getByText('foo@mozilla.com');
+    screen.getByText('bar@mozilla.com');
   });
 });

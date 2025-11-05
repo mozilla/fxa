@@ -34117,6 +34117,7 @@ __metadata:
     convict: "npm:^6.2.4"
     convict-format-with-moment: "npm:^6.2.0"
     convict-format-with-validator: "npm:^6.2.0"
+    copyfiles: "npm:^2.4.1"
     esbuild: "npm:^0.17.15"
     esbuild-register: "npm:^3.5.0"
     eslint: "npm:^8.18.0"

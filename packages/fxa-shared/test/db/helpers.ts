@@ -16,6 +16,7 @@ export const defaultOpts = {
     password: '',
     port: 3306,
     user: 'root',
+    multipleStatements: true,
   },
   mainDbConfig: {
     client: 'mysql',
