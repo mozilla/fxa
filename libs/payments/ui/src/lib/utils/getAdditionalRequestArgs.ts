@@ -9,9 +9,12 @@ import { getIpAddress } from './getIpAddress';
 export function getAdditionalRequestArgs() {
   const userAgentString = headers().get('user-agent') || '';
   const userAgent = userAgentFromString(userAgentString);
+  const experimentationId = headers().get('x-experimentation-id') || '';
+
   return {
     ipAddress: getIpAddress(),
     userAgent: userAgentString,
     deviceType: userAgent.device.type || 'desktop',
+    experimentationId,
   };
 }

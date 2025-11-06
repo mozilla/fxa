@@ -30,6 +30,9 @@ class RequestArgs {
   @IsString()
   userAgent!: string;
 
+  @IsString()
+  experimentationId!: string;
+
   @IsObject()
   params!: Record<string, string>;
 

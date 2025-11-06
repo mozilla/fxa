@@ -18,15 +18,21 @@ import { SubplatInterval } from '@fxa/payments/customer';
 export const AuthEventsFactory = (
   override?: Partial<AuthEvents>
 ): AuthEvents => ({
-  type: faker.helpers.arrayElement(['signin', 'signout', 'prompt_none_fail', 'error']),
-  ...override
-})
+  type: faker.helpers.arrayElement([
+    'signin',
+    'signout',
+    'prompt_none_fail',
+    'error',
+  ]),
+  ...override,
+});
 
 export const AdditionalMetricsDataFactory = (
   override?: AdditionalMetricsData
 ): AdditionalMetricsData => ({
   cmsMetricsData: CmsMetricsDataFactory(),
   cartMetricsData: CartMetricsFactory(),
+  locale: faker.helpers.arrayElement(['en-US', 'de', 'es', 'fr-FR']),
   ...override,
 });
 

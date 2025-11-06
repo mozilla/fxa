@@ -41,6 +41,14 @@ import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { Logger } from '@nestjs/common';
+import {
+  MockNimbusClientConfigProvider,
+  NimbusClient,
+} from '@fxa/shared/experiments';
+import {
+  MockNimbusManagerConfigProvider,
+  NimbusManager,
+} from '@fxa/payments/experiments';
 
 describe('StripeWebhooksController', () => {
   let stripeWebhooksController: StripeWebhooksController;
@@ -96,6 +104,10 @@ describe('StripeWebhooksController', () => {
         StripeWebhookService,
         StripeEventManager,
         SubscriptionEventsService,
+        NimbusClient,
+        MockNimbusClientConfigProvider,
+        NimbusManager,
+        MockNimbusManagerConfigProvider,
       ],
     }).compile();
 

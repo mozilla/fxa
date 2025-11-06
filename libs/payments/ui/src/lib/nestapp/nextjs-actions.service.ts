@@ -18,7 +18,6 @@ import { SubscriptionManagementService } from '@fxa/payments/management';
 import {
   CheckoutTokenManager,
   PaypalBillingAgreementManager,
-  PaypalCustomerManager,
 } from '@fxa/payments/paypal';
 import {
   ProductConfigError,
@@ -109,6 +108,9 @@ import { GetPaypalBillingAgreementActiveIdResult } from './validators/GetPaypalB
 import { CreatePaypalBillingAgreementIdArgs } from './validators/CreatePaypalBillingAgreementIdArgs';
 import { DetermineCurrencyForCustomerActionArgs } from './validators/DetermineCurrencyForCustomerActionArgs';
 import { DetermineCurrencyForCustomerActionResult } from './validators/DetermineCurrencyForCustomerActionResult';
+import { NimbusManager } from '@fxa/payments/experiments';
+import { GetExperimentsActionArgs } from './validators/GetExperimentsActionArgs';
+import { GetExperimentsActionResult } from './validators/GetExperimentsActionResult';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -131,7 +133,7 @@ export class NextJSActionsService {
     private profileClient: ProfileClient,
     private subscriptionManagementService: SubscriptionManagementService,
     private paypalBillingAgreementManager: PaypalBillingAgreementManager,
-    private paypalCustomerManager: PaypalCustomerManager,
+    private nimbusManager: NimbusManager,
     @Inject(StatsDService) public statsd: StatsD,
     @Inject(Logger) private log: LoggerService
   ) {}
@@ -179,6 +181,36 @@ export class NextJSActionsService {
   @CaptureTimingWithStatsD()
   async getCart(args: { cartId: string }) {
     return this.cartService.getCart(args.cartId);
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(GetExperimentsActionArgs, GetExperimentsActionResult)
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getExperiments(args: {
+    language: string;
+    ip: string;
+    fxaUid?: string;
+    experimentationId?: string;
+  }) {
+    const nimbusUserId = this.nimbusManager.generateNimbusId(
+      args.fxaUid,
+      args.experimentationId
+    );
+    const location = this.geodbManager.getTaxAddress(args.ip);
+    const experiments = await this.nimbusManager.fetchExperiments({
+      nimbusUserId,
+      language: args.language,
+      region: location?.countryCode,
+    });
+
+    if (experiments) {
+      return {
+        experiments,
+      };
+    } else {
+      return undefined;
+    }
   }
 
   @SanitizeExceptions({

@@ -55,6 +55,14 @@ import {
 } from './util/determineCancellation';
 import { Logger } from '@nestjs/common';
 import { MockStripeEventConfigProvider } from './stripe-event.config';
+import {
+  MockNimbusClientConfigProvider,
+  NimbusClient,
+} from '@fxa/shared/experiments';
+import {
+  MockNimbusManagerConfigProvider,
+  NimbusManager,
+} from '@fxa/payments/experiments';
 
 jest.mock('@fxa/payments/customer');
 jest.mock('./util/determineCancellation');
@@ -120,6 +128,10 @@ describe('SubscriptionEventsService', () => {
         MockStatsDProvider,
         PriceManager,
         MockAccountDatabaseNestFactory,
+        NimbusClient,
+        MockNimbusClientConfigProvider,
+        NimbusManager,
+        MockNimbusManagerConfigProvider,
       ],
     }).compile();
 

@@ -43,6 +43,14 @@ import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import * as Sentry from '@sentry/node';
 import { Logger } from '@nestjs/common';
 import { MockStripeEventConfigProvider } from './stripe-event.config';
+import {
+  MockNimbusClientConfigProvider,
+  NimbusClient,
+} from '@fxa/shared/experiments';
+import {
+  MockNimbusManagerConfigProvider,
+  NimbusManager,
+} from '@fxa/payments/experiments';
 
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
@@ -99,6 +107,10 @@ describe('StripeWebhookService', () => {
         MockStatsDProvider,
         PriceManager,
         MockAccountDatabaseNestFactory,
+        NimbusClient,
+        MockNimbusClientConfigProvider,
+        NimbusManager,
+        MockNimbusManagerConfigProvider,
       ],
     }).compile();
 
