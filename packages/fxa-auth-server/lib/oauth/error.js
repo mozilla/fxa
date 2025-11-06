@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const util = require('util');
-const hex = require('buf').to.hex;
+const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 
 const DEFAULTS = {
   code: 500,

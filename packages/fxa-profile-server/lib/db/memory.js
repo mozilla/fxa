@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const buf = require('buf');
-const hex = buf.to.hex;
-
 const config = require('../config');
 const P = require('../promise');
 
@@ -64,8 +61,8 @@ MemoryStore.prototype = {
       providerId: provider,
       userId: uid,
     };
-    this.avatars[hex(id)] = avatar;
-    this.selected[hex(uid)] = {
+    this.avatars[id.toString('hex')] = avatar;
+    this.selected[uid.toString('hex')] = {
       userId: uid,
       avatarId: id,
     };
@@ -73,20 +70,20 @@ MemoryStore.prototype = {
   },
 
   getAvatar: function getAvatar(id) {
-    return P.resolve(this.avatars[hex(id)]);
+    return P.resolve(this.avatars[id.toString('hex')]);
   },
 
   getSelectedAvatar: function getSelectedAvatar(uid) {
-    var selected = this.selected[hex(uid)];
+    var selected = this.selected[uid.toString('hex')];
     if (selected) {
-      var avatar = this.avatars[hex(selected.avatarId)];
+      var avatar = this.avatars[selected.avatarId.toString('hex')];
       return P.resolve(avatar);
     }
     return P.resolve();
   },
 
   deleteAvatar: function deleteAvatar(id) {
-    delete this.avatars[hex(id)];
+    delete this.avatars[id.toString('hex')];
     return P.resolve();
   },
 
@@ -104,18 +101,18 @@ MemoryStore.prototype = {
   },
 
   removeProfile: function removeProfile(uid) {
-    delete this.profile[hex(uid)];
+    delete this.profile[uid.toString('hex')];
     return P.resolve();
   },
 
   getDisplayName: function (uid) {
-    var id = hex(uid);
+    var id = uid.toString('hex');
     var name = this.profile[id] ? this.profile[id].displayName : undefined;
     return P.resolve({ displayName: name });
   },
 
   setDisplayName: function (uid, displayName) {
-    var id = hex(uid);
+    var id = uid.toString('hex');
     if (this.profile[id]) {
       this.profile[id].displayName = displayName;
     } else {

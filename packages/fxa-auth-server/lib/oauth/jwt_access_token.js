@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const hex = require('buf').to.hex;
 const OauthError = require('./error');
 const jwt = require('./jwt');
 const sub = require('./jwt_sub');
@@ -16,7 +15,7 @@ const HEADER_TYP = 'at+JWT';
  * Create a JWT access token from `grant`
  */
 exports.create = async function generateJWTAccessToken(accessToken, grant) {
-  const clientId = hex(grant.clientId);
+  const clientId = grant.clientId.toString('hex');
   // For historical reasons (based on an early draft of the JWT-access-token spec) we
   // always include the client_id in the `aud` claim. A future iteration of this code
   // should instead infer an appropriate default `aud` based on the requested scopes.
@@ -35,7 +34,7 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
     exp: Math.floor(accessToken.expiresAt / 1000),
     iat: Math.floor(Date.now() / 1000),
     // iss is set in jwt.sign
-    jti: hex(accessToken.token),
+    jti: accessToken.token.toString('hex'),
     scope: grant.scope.toString(),
     sub: await sub(grant.userId, grant.clientId, grant.ppidSeed),
   };

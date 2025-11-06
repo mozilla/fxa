@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const hex = require('buf').to.hex;
 const hkdf = require('../../lib/crypto/hkdf');
 const { config } = require('../../config');
 const validators = require('./validators');
@@ -33,8 +32,8 @@ module.exports = async function generateSub(
     throw new Error('invalid ppidSeed');
   }
 
-  const clientIdHex = hex(clientIdBuf).toLowerCase();
-  const userIdHex = hex(userIdBuf).toLowerCase();
+  const clientIdHex = clientIdBuf.toString('hex').toLowerCase();
+  const userIdHex = userIdBuf.toString('hex').toLowerCase();
 
   if (PPID_ENABLED && PPID_CLIENT_IDS.has(clientIdHex)) {
     // Input values used in the HKDF must not contain a `.` to ensure
@@ -46,14 +45,14 @@ module.exports = async function generateSub(
     if (PPID_ROTATING_CLIENT_IDS.has(clientIdHex)) {
       timeBasedContext = Math.floor(Date.now() / PPID_ROTATION_PERIOD_MS);
     }
-    return hex(
+    return (
       await hkdf(
         `${clientIdHex}.${userIdHex}.${clientSeed}.${timeBasedContext}`,
         PPID_INFO,
         PPID_SALT,
         userIdBuf.length
       )
-    );
+    ).toString('hex');
   } else {
     return userIdHex;
   }

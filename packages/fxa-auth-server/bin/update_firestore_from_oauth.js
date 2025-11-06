@@ -6,7 +6,6 @@
 
 const Firestore = require('@google-cloud/firestore');
 const StatsD = require('hot-shots');
-const hex = require('buf').to.hex;
 
 const config = require('../config').getProperties();
 const mysql = require('../lib/oauth/db/mysql');
@@ -45,7 +44,7 @@ async function main() {
   const results = await oauthDB.getRefreshTokensByClientId(CLIENT_ID);
   let inserted = 0;
   for (const { userId } of results) {
-    const uid = hex(userId);
+    const uid = userId.toString('hex');
     const document = firestore.doc(`${storePrefix}users/${uid}`);
     const doc = await document.get();
     if (doc.exists) {
