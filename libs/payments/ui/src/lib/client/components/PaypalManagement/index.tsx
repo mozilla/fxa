@@ -58,7 +58,7 @@ export function PaypalManagement({
         components: 'buttons',
       }}
     >
-      <div className="flex justify-center w-full">
+      <div className="flex justify-center items-center max-w-md w-full h-12">
         {isLoading && (
           <Image
             src={spinnerImage}
