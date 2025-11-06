@@ -12,6 +12,7 @@ import { v4 as uuid } from 'uuid';
 import * as Sentry from '@sentry/browser';
 import { Constants } from './constants';
 import { MfaScope } from './types';
+import { AuthUiErrors } from './auth-errors/auth-errors';
 
 const storage = Storage.factory('localStorage');
 
@@ -481,7 +482,7 @@ export class JwtTokenCache {
  */
 export class JwtNotFoundError extends Error {
   // Mimic auth error status
-  errno = 110;
+  errno = AuthUiErrors.INVALID_MFA_TOKEN.errno;
   code = 401;
   constructor(message = 'Could not locate jwt in cache.') {
     super(message);

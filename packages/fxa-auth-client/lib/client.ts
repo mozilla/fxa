@@ -195,6 +195,7 @@ export default class AuthClient {
   private timeout: number;
   private keyStretchVersion: SaltVersion;
   private requireHeaders: boolean;
+  private errorHandler: (error: unknown) => Promise<void>;
 
   constructor(
     authServerUri: string,
@@ -202,6 +203,7 @@ export default class AuthClient {
       timeout?: number;
       keyStretchVersion?: SaltVersion;
       requireHeaders?: boolean;
+      errorHandler?: (error: unknown) => Promise<void>;
     } = {}
   ) {
     if (new RegExp(`/${AuthClient.VERSION}$`).test(authServerUri)) {
@@ -213,6 +215,11 @@ export default class AuthClient {
     this.localtimeOffsetMsec = 0;
     this.timeout = options.timeout || 30000;
     this.requireHeaders = options.requireHeaders === true;
+    this.errorHandler =
+      options.errorHandler ||
+      (async (e) => {
+        throw e;
+      });
   }
 
   static async create(authServerUri: string, options?: AuthClientOptions) {
@@ -238,7 +245,8 @@ export default class AuthClient {
   ) {
     if (extraHeaders === undefined) {
       if (this.requireHeaders) {
-        throw new Error('extraHeaders missing!');
+        await this.errorHandler(new Error('extraHeaders missing!'));
+        return;
       } else {
         extraHeaders = new Headers();
       }
@@ -259,10 +267,12 @@ export default class AuthClient {
       result = JSON.parse(result);
     } catch (e) {}
     if (result.errno) {
-      throw result;
+      await this.errorHandler(result);
     }
     if (!response.ok) {
-      throw new AuthClientError('Unknown error', result, 999, response.status);
+      await this.errorHandler(
+        new AuthClientError('Unknown error', result, 999, response.status)
+      );
     }
 
     return result;
@@ -278,7 +288,8 @@ export default class AuthClient {
   ) {
     if (extraHeaders === undefined) {
       if (this.requireHeaders) {
-        throw new Error('extraHeaders missing!');
+        await this.errorHandler(new Error('extraHeaders missing!'));
+        return;
       } else {
         extraHeaders = new Headers();
       }
@@ -571,9 +582,12 @@ export default class AuthClient {
             createHeaders(headers, options)
           );
         } else {
-          throw new Error(
-            'Invalid state. V2 credentials not provided and no upgraded needed.'
+          await this.errorHandler(
+            new Error(
+              'Invalid state. V2 credentials not provided and no upgraded needed.'
+            )
           );
+          return {} as SignedInAccountData;
         }
       } else {
         accountData = await this.signInWithAuthPW(
@@ -1505,7 +1519,10 @@ export default class AuthClient {
     });
 
     if (newKeys.wrapKb !== wrapKb) {
-      throw new Error('Sanity check failed. wrapKb should not drift!');
+      await this.errorHandler(
+        new Error('Sanity check failed. wrapKb should not drift!')
+      );
+      return {} as any;
     }
 
     return {
@@ -3140,7 +3157,10 @@ export default class AuthClient {
   }) {
     if (this.keyStretchVersion === 2) {
       if (!v2) {
-        throw new Error('Using key stretch version 2 requires v2 credentials.');
+        await this.errorHandler(
+          new Error('Using key stretch version 2 requires v2 credentials.')
+        );
+        return {};
       }
 
       // By passing in kB, we ensure wrapKbVersion2 will produce the same value

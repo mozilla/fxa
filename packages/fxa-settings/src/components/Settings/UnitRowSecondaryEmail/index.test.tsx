@@ -357,7 +357,11 @@ describe('UnitRowSecondaryEmail', () => {
       const account = createMockAccount({
         makeEmailPrimaryWithJwt: jest
           .fn()
-          .mockRejectedValue({ code: 401, errno: 110 }),
+          .mockRejectedValue({
+            code: 401,
+            errno: 223,
+            message: 'MFA token invalid or expired',
+          }),
         emails,
       });
 
@@ -460,7 +464,11 @@ describe('UnitRowSecondaryEmail', () => {
       const account = createMockAccount({
         deleteSecondaryEmailWithJwt: jest
           .fn()
-          .mockRejectedValue({ code: 401, errno: 110 }),
+          .mockRejectedValue({
+            code: 401,
+            errno: 223,
+            message: 'MFA token invalid or expired',
+          }),
       });
 
       const context = mockAppContext({
@@ -497,7 +505,11 @@ describe('UnitRowSecondaryEmail', () => {
         emails,
         deleteSecondaryEmailWithJwt: jest
           .fn()
-          .mockRejectedValue({ code: 401, errno: 110 }),
+          .mockRejectedValue({
+            code: 401,
+            errno: 223,
+            message: 'MFA token invalid or expired',
+          }),
       });
 
       const context = mockAppContext({

@@ -4,6 +4,7 @@
 
 import base32Encode from 'base32-encode';
 import { AttachedClient } from '../models/Account';
+import { navigate, NavigateOptions } from '@reach/router';
 
 // Various utilities that don't fit in a standalone lib
 
@@ -190,3 +191,26 @@ export const constructHrefWithUtm = (
 export const formatSecret = (secret: string) => {
   return secret.toUpperCase().match(/.{4}/g)!.join(' ');
 };
+
+/**
+ * The non-hook version of useNavigateWithQuery
+ */
+export function navigateWithQuery(
+  to: string,
+  options?: NavigateOptions<{}>,
+  includeHash: boolean = true
+) {
+  let path = to;
+
+  if (to.includes('?')) {
+    path = to;
+  } else if (window.location.search && window.location.search !== '?') {
+    path = `${to}${window.location.search}`;
+  }
+
+  if (includeHash && window.location.hash) {
+    path = `${path}${window.location.hash}`;
+  }
+
+  return options ? navigate(path, options) : navigate(path);
+}

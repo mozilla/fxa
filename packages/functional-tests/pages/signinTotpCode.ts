@@ -27,4 +27,9 @@ export class SigninTotpCodePage extends BaseTokenCodePage {
     this.checkPath();
     return this.troubleEnteringCode.click();
   }
+
+  get aalUpgradeBanner() {
+    this.checkPath();
+    return this.page.getByText('Why are you being asked to authenticate?');
+  }
 }
