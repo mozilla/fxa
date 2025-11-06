@@ -11,7 +11,7 @@ const config = require('../../config').default.getProperties();
 const tokens = require('../../lib/tokens')({ trace: () => {} }, config);
 const testUtils = require('../lib/util');
 const ScopeSet = require('fxa-shared').oauth.scopes;
-const buf = require('buf').hex;
+const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 const hashRefreshToken = require('fxa-shared/auth/encrypt').hash;
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';

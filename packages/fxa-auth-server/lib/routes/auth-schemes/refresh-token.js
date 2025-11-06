@@ -6,7 +6,6 @@
 
 const AppError = require('../../error');
 const joi = require('joi');
-const hex = require('buf').to.hex;
 const validators = require('../validators');
 const { BEARER_AUTH_REGEX } = validators;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
@@ -58,10 +57,10 @@ module.exports = function schemeRefreshTokenScheme(config, db) {
         const { ua = {} } = request.app;
 
         const credentials = {
-          uid: hex(refreshToken.userId),
+          uid: refreshToken.userId.toString('hex'),
           emailVerified: true,
           tokenVerified: true,
-          refreshTokenId: hex(tokenId),
+          refreshTokenId: tokenId.toString('hex'),
           uaBrowser: ua.browser,
           uaBrowserVersion: ua.browserVersion,
           uaOS: ua.os,

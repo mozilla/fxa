@@ -5,7 +5,6 @@
 const Joi = require('joi');
 
 const db = require('../../db');
-const hex = require('buf').to.hex;
 const validate = require('../../validate');
 const logger = require('../../logging')('routes.avatar.get');
 const avatarShared = require('./_shared');
@@ -16,7 +15,7 @@ async function avatarOrDefault(uid) {
     return {
       avatar: avatar.url,
       avatarDefault: false,
-      id: hex(avatar.id),
+      id: avatar.id.toString('hex'),
     };
   }
   return avatarShared.DEFAULT_AVATAR;

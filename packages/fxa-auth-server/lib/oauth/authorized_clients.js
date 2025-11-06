@@ -4,7 +4,6 @@
 
 const OauthError = require('./error');
 const oauthDB = require('./db');
-const hex = require('buf').to.hex;
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // Helper function to render each returned record in the expected form.
@@ -13,7 +12,7 @@ function serialize(clientIdHex, token) {
   const lastAccessTime = token.lastUsedAt.getTime();
   return {
     client_id: clientIdHex,
-    refresh_token_id: token.tokenId ? hex(token.tokenId) : undefined,
+    refresh_token_id: token.tokenId ? token.tokenId.toString('hex') : undefined,
     client_name: token.clientName,
     created_time: createdTime,
     last_access_time: lastAccessTime,
@@ -44,7 +43,7 @@ module.exports = {
     // and should be displayed to the user as such. Nice and simple!
     const seenClientIds = new Set();
     for (const token of await oauthDB.getRefreshTokensByUid(uid)) {
-      const clientId = hex(token.clientId);
+      const clientId = token.clientId.toString('hex');
       authorizedClients.push(serialize(clientId, token));
       seenClientIds.add(clientId);
     }
@@ -58,7 +57,7 @@ module.exports = {
     //     hold some other sort of token, and we don't want them to appear in the list twice.
     const accessTokenRecordsByClientId = new Map();
     for (const token of await oauthDB.getAccessTokensByUid(uid)) {
-      const clientId = hex(token.clientId);
+      const clientId = token.clientId.toString('hex');
       if (!seenClientIds.has(clientId) && !token.clientCanGrant) {
         let record = accessTokenRecordsByClientId.get(clientId);
         if (typeof record === 'undefined') {

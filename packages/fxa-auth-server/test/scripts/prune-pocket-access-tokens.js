@@ -8,8 +8,8 @@ const { assert } = require('chai');
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
 const path = require('path');
-const buf = require('buf').hex;
-const hex = require('buf').to.hex;
+const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
+const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const crypto = require('crypto');
 

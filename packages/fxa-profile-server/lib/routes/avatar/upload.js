@@ -8,7 +8,6 @@ const Joi = require('joi');
 
 const config = require('../../config');
 const db = require('../../db');
-const hex = require('buf').to.hex;
 const img = require('../../img');
 const notifyProfileUpdated = require('../../updates-queue');
 const validate = require('../../validate');
@@ -60,7 +59,7 @@ module.exports = {
         })
         .then(function uploadDone() {
           notifyProfileUpdated(uid); // Don't wait on promise
-          return h.response({ url: url, id: hex(id) }).code(201);
+          return h.response({ url: url, id: id.toString('hex') }).code(201);
         });
     });
   },

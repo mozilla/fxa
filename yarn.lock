@@ -26262,13 +26262,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buf@npm:0.1.1, buf@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "buf@npm:0.1.1"
-  checksum: 10c0/134a874dab97de9f687b1f6f960228eae7ee5442b34957c7201add93dd8b96e91dcf5dece134bb6e3ed59d089bb17b5ef2f01b0903801439664b7215ae188d6a
-  languageName: node
-  linkType: hard
-
 "buffer-builder@npm:^0.2.0":
   version: 0.2.0
   resolution: "buffer-builder@npm:0.2.0"
@@ -34211,7 +34204,6 @@ __metadata:
     audit-filter: "npm:^0.5.0"
     babel-loader: "npm:^9.1.3"
     binary-split: "npm:1.0.5"
-    buf: "npm:0.1.1"
     chai: "npm:^4.5.0"
     chai-as-promised: "npm:^7.1.1"
     commander: "npm:2.18.0"
@@ -34755,7 +34747,6 @@ __metadata:
     "@types/sharp": "npm:^0"
     audit-filter: "npm:^0.5.0"
     bluebird: "npm:^3.7.2"
-    buf: "npm:0.1.1"
     checksum: "npm:1.0.0"
     commander: "npm:9.3.0"
     compute-cluster: "npm:0.0.9"
@@ -35006,7 +34997,6 @@ __metadata:
     accept-language-parser: "npm:^1.5.0"
     ajv: "npm:^8.17.1"
     audit-filter: "npm:^0.5.0"
-    buf: "npm:^0.1.1"
     celebrate: "npm:^15.0.1"
     chai: "npm:^4.5.0"
     chance: "npm:^1.1.8"

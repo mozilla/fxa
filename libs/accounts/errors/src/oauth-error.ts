@@ -4,9 +4,8 @@
 
 import { DEFAULT_ERRROR } from './constants';
 
-// Leaving this here for historical reasons. But we should probably get rid
-// of references to this legacy buff package... See FXA-12594
-const hex = require('buf').to.hex;
+const hex = (v: Buffer | string): string =>
+  Buffer.isBuffer(v) ? v.toString('hex') : v;
 
 // Deprecated. New error types should be defined in lib/error.js
 export class OauthError extends Error {
@@ -20,9 +19,9 @@ export class OauthError extends Error {
       error: any;
       message: string;
       info: Record<string, any>;
-      log?:unknown;
+      log?: unknown;
     };
-    headers: Record<string, string|number>;
+    headers: Record<string, string | number>;
   };
 
   constructor(options: any, extra?: any, headers?: any) {
@@ -53,11 +52,11 @@ export class OauthError extends Error {
     return 'Error: ' + this.message;
   }
 
-  header(name:string, value:string|number) {
+  header(name: string, value: string | number) {
     this.output.headers[name] = value;
   }
 
-  translate(response:{output:{payload:any}, stack:string}) {
+  translate(response: { output: { payload: any }; stack: string }) {
     if (response instanceof OauthError) {
       return response;
     }
@@ -81,7 +80,10 @@ export class OauthError extends Error {
     return error;
   }
 
-  static isOauthRoute(path:string, routes?:Array<{path:string, config:{cors:any}}>) {
+  static isOauthRoute(
+    path: string,
+    routes?: Array<{ path: string; config: { cors: any } }>
+  ) {
     if (!routes) {
       return false;
     }
@@ -94,14 +96,15 @@ export class OauthError extends Error {
   }
 
   static translate(
-    response: {
-      output: {
-        payload?:any;
-      },
-      stack?:string
-    } | OauthError
-  ):OauthError {
-
+    response:
+      | {
+          output: {
+            payload?: any;
+          };
+          stack?: string;
+        }
+      | OauthError
+  ): OauthError {
     if (response instanceof OauthError) {
       return response;
     }
@@ -125,15 +128,15 @@ export class OauthError extends Error {
     });
   }
 
-  backtrace(traced:unknown) {
+  backtrace(traced: unknown) {
     this.output.payload.log = traced;
-  };
+  }
 
   static unexpectedError() {
     return new OauthError({});
   }
 
-  static unknownClient(clientId:string|Buffer) {
+  static unknownClient(clientId: string | Buffer) {
     return new OauthError(
       {
         code: 400,
@@ -147,7 +150,7 @@ export class OauthError extends Error {
     );
   }
 
-  static incorrectSecret(clientId:string) {
+  static incorrectSecret(clientId: string) {
     return new OauthError(
       {
         code: 400,
@@ -161,7 +164,7 @@ export class OauthError extends Error {
     );
   }
 
-  static incorrectRedirect(uri:string) {
+  static incorrectRedirect(uri: string) {
     return new OauthError(
       {
         code: 400,
@@ -184,7 +187,7 @@ export class OauthError extends Error {
     });
   }
 
-  static unknownCode(code:string) {
+  static unknownCode(code: string) {
     return new OauthError(
       {
         code: 400,
@@ -198,7 +201,7 @@ export class OauthError extends Error {
     );
   }
 
-  static mismatchCode(code:string, clientId:string) {
+  static mismatchCode(code: string, clientId: string) {
     return new OauthError(
       {
         code: 400,
@@ -213,7 +216,7 @@ export class OauthError extends Error {
     );
   }
 
-  static expiredCode(code:string, expiredAt:string) {
+  static expiredCode(code: string, expiredAt: string) {
     return new OauthError(
       {
         code: 400,
@@ -237,7 +240,7 @@ export class OauthError extends Error {
     });
   }
 
-  static invalidRequestParameter(val:string) {
+  static invalidRequestParameter(val: string) {
     return new OauthError(
       {
         code: 400,
@@ -260,7 +263,7 @@ export class OauthError extends Error {
     });
   }
 
-  static unauthorized(reason:string) {
+  static unauthorized(reason: string) {
     return new OauthError(
       {
         code: 401,
@@ -294,7 +297,7 @@ export class OauthError extends Error {
     });
   }
 
-  static invalidScopes(scopes:string) {
+  static invalidScopes(scopes: string) {
     return new OauthError(
       {
         code: 400,
@@ -308,7 +311,7 @@ export class OauthError extends Error {
     );
   }
 
-  static expiredToken(expiredAt:number) {
+  static expiredToken(expiredAt: number) {
     return new OauthError(
       {
         code: 400,
@@ -322,7 +325,7 @@ export class OauthError extends Error {
     );
   }
 
-  static notPublicClient(clientId:string) {
+  static notPublicClient(clientId: string) {
     return new OauthError(
       {
         code: 400,
@@ -336,7 +339,7 @@ export class OauthError extends Error {
     );
   }
 
-  static mismatchCodeChallenge(pkceHashValue:string) {
+  static mismatchCodeChallenge(pkceHashValue: string) {
     return new OauthError(
       {
         code: 400,
@@ -359,7 +362,7 @@ export class OauthError extends Error {
     });
   }
 
-  static staleAuthAt(authAt:number) {
+  static staleAuthAt(authAt: number) {
     return new OauthError(
       {
         code: 401,
@@ -373,7 +376,7 @@ export class OauthError extends Error {
     );
   }
 
-  static mismatchAcr(foundValue:boolean) {
+  static mismatchAcr(foundValue: boolean) {
     return new OauthError(
       {
         code: 400,
@@ -406,7 +409,7 @@ export class OauthError extends Error {
   // N.B. `errno: 201` is traditionally our generic "service unavailable" error,
   // so let's reserve it for that purpose here as well.
 
-  static disabledClient(clientId:string) {
+  static disabledClient(clientId: string) {
     return new OauthError(
       {
         code: 503,

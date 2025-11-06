@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const buf = require('buf');
-const hex = buf.to.hex;
 const P = require('./promise');
 
 const AppError = require('./error');
@@ -16,7 +14,7 @@ const ACCEPT_ENCODING_HEADER = 'identity';
 
 exports.upload = function upload(id, payload, headers) {
   return new P(function(resolve, reject) {
-    var url = WORKER_URL + '/a/' + hex(id);
+    var url = WORKER_URL + '/a/' + id.toString('hex');
 
     // filter incoming headers
     const header_excludes = config.get('worker.headers_exclude');
@@ -68,7 +66,7 @@ exports.upload = function upload(id, payload, headers) {
 
 exports.delete = function deleteAvatar(id) {
   return new P(function(resolve, reject) {
-    var url = WORKER_URL + '/a/' + hex(id);
+    var url = WORKER_URL + '/a/' + id.toString('hex');
     var opts = { method: 'delete', json: true };
     logger.verbose('delete', url);
     request(url, opts, function(err, res, body) {

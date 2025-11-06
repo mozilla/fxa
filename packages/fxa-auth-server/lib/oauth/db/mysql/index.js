@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const buf = require('buf').hex;
 const encrypt = require('fxa-shared/auth/encrypt');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const unique = require('../../unique');
@@ -156,6 +155,8 @@ const PRUNE_AUTHZ_CODES =
 const QUERY_SCOPE_FIND = 'SELECT * ' + 'FROM scopes ' + 'WHERE scopes.scope=?;';
 const QUERY_SCOPES_INSERT =
   'INSERT INTO scopes (scope, hasScopedKeys) ' + 'VALUES (?, ?);';
+
+const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 
 function firstRow(rows) {
   return rows[0];
