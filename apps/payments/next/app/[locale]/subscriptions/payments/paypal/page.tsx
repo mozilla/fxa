@@ -99,7 +99,7 @@ export default async function PaypalPaymentManagementPage({
           </div>
           <PaypalManagement
             sessionUid={sessionUid}
-            paypalClientId={'sb'}
+            paypalClientId={config.paypal.clientId}
             nonce={nonce}
             currency={currency}
           />
