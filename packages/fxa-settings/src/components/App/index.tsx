@@ -42,6 +42,7 @@ import {
 } from '../../models/contexts/SettingsContext';
 
 import sentryMetrics from 'fxa-shared/sentry/browser';
+import { maybeRecordWebAuthnCapabilities } from '../../lib/webauthnCapabilitiesProbe';
 
 // Components
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
@@ -297,6 +298,16 @@ export const App = ({
       }
     );
   }, [metricsEnabled, integration, config.glean, config.version, metricsFlow]);
+
+  // Fire the WebAuthn capability probe once at app level after metrics are initialized.
+  useEffect(() => {
+    if (!metricsEnabled) {
+      return;
+    }
+    maybeRecordWebAuthnCapabilities(
+      config.metrics?.webauthnCapabilitiesSampleRate
+    );
+  }, [metricsEnabled, config.metrics?.webauthnCapabilitiesSampleRate]);
 
   useEffect(() => {
     if (!metricsEnabled) {

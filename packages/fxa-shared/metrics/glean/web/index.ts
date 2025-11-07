@@ -234,6 +234,10 @@ export const eventsMap = {
     reactivationSuccessView: 'account_banner_reactivation_success_view',
   },
 
+  webauthn: {
+    capabilities: 'webauthn_capabilities',
+  },
+
   deleteAccount: {
     settingsSubmit: 'delete_account_settings_submit',
     view: 'delete_account_view',

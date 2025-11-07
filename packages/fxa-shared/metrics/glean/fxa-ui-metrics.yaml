@@ -2970,6 +2970,65 @@ account_pref:
         description: |
           Indicates which MFA protected action the user is being prompted the MFA Guard for.
         type: string
+webauthn:
+  capabilities:
+    type: event
+    description: |
+      Sampled capability probe for passkey/WebAuthn support, including PRF (Pseudo-Random Function) extension support.
+      This emits a privacy-preserving, minimal capability snapshot to estimate eligibility for passkeys and PRF.
+    send_in_pings:
+      - events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-12640
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+    expires: never
+    data_sensitivity:
+      - technical
+    extra_keys:
+      supported:
+        description: Whether capability API was available and query succeeded
+        type: boolean
+      ppa:
+        description: passkeyPlatformAuthenticator support
+        type: boolean
+      cg:
+        description: conditionalGet support
+        type: boolean
+      rel:
+        description: relatedOrigins support
+        type: boolean
+      hyb:
+        description: hybridTransport support
+        type: boolean
+      uvpa:
+        description: userVerifyingPlatformAuthenticator support
+        type: boolean
+      prf:
+        description: WebAuthn PRF extension support
+        type: boolean
+      error_reason:
+        description: Error or fallback reason when supported=false (e.g., no_getClientCapabilities, error)
+        type: string
+      # Device segmentation (bucketed, low-cardinality)
+      os_family:
+        description: OS family bucket {windows, macos, ios, android, linux, chromeos, other}
+        type: string
+      os_major:
+        description: OS major version bucket (e.g., '16', '14', '13', or 'other')
+        type: string
+      browser_family:
+        description: Browser family bucket {firefox, chrome, safari, edge, other}
+        type: string
+      browser_major:
+        description: Browser major version (e.g., '130', '127', '17', or 'other')
+        type: string
+      cpu_arm:
+        description: CPU architecture boolean bucket (true if ARM/ARM64, else false)
+        type: boolean
 account_banner:
   create_recovery_key_view:
     type: event
