@@ -1427,6 +1427,11 @@ export class AccountHandler {
         );
       }
 
+      // This has stuck around for backwards compatibility and is not currently
+      // used by our front-end. RPs should be encouraged to use 'sessionVerified'
+      // or 'emailVerified' instead.
+      response.verified = response.emailVerified && response.sessionVerified;
+
       await this.signinUtils.cleanupReminders(response, accountRecord);
 
       if (response.emailVerified && response.sessionVerified) {
@@ -2406,6 +2411,7 @@ export const accountRoutes = (
               .description(DESCRIPTION.verificationReason),
             emailVerified: isA.boolean().required(),
             sessionVerified: isA.boolean().required(),
+            verified: isA.boolean().required(),
             authAt: isA.number().integer().description(DESCRIPTION.authAt),
             metricsEnabled: isA.boolean().required(),
           }),
