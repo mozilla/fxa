@@ -12,6 +12,7 @@ import {
   TaxChangeAllowedStatus,
   TaxService,
 } from '@fxa/payments/cart';
+import { ChurnInterventionManager } from '@fxa/payments/customer';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
 import { SubscriptionManagementService } from '@fxa/payments/management';
@@ -33,6 +34,7 @@ import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithS
 import { FetchCMSDataActionArgs } from './validators/FetchCMSDataActionArgs';
 import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
 import { GetCartActionArgs } from './validators/GetCartActionArgs';
+import { GetChurnInterventionDataActionArgs } from './validators/GetChurnInterventionDataActionArgs';
 import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenArgs';
 import { GetSubManPageContentActionArgs } from './validators/GetSubManPageContentActionArgs';
 import { GetSubManPageContentActionResult } from './validators/GetSubManPageContentActionResult';
@@ -54,6 +56,7 @@ import type {
   PaymentProvidersType,
 } from '@fxa/payments/metrics';
 import { GetCartActionResult } from './validators/GetCartActionResult';
+import { GetChurnInterventionDataActionResult } from './validators/GetChurnInterventionDataActionResult';
 import { GetSuccessCartActionResult } from './validators/GetSuccessCartActionResult';
 import {
   CouponErrorCannotRedeem,
@@ -123,6 +126,7 @@ export class NextJSActionsService {
     private cartService: CartService,
     private taxService: TaxService,
     private checkoutTokenManager: CheckoutTokenManager,
+    private churnInterventionManager: ChurnInterventionManager,
     private contentServerManager: ContentServerManager,
     private emitterService: PaymentsEmitterService,
     private googleManager: GoogleManager,
@@ -227,6 +231,15 @@ export class NextJSActionsService {
     }
 
     return cart;
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(GetChurnInterventionDataActionArgs, GetChurnInterventionDataActionResult)
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async getChurnInterventionEntryData(args: { customerId: string; churnInterventionId: string }) {
+    const data = await this.churnInterventionManager.getEntry(args.customerId, args.churnInterventionId);
+    return data;
   }
 
   @SanitizeExceptions({

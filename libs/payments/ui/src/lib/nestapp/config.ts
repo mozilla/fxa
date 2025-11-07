@@ -19,6 +19,7 @@ import { ProfileClientConfig } from '@fxa/profile/client';
 import { ContentServerClientConfig } from '@fxa/payments/content-server';
 import { NotifierSnsConfig } from '@fxa/shared/notifier';
 import { AppleIapClientConfig, GoogleIapClientConfig } from '@fxa/payments/iap';
+import { ChurnInterventionConfig } from '@fxa/payments/customer';
 import { TracingConfig } from './tracing.config';
 import { StripeEventConfig } from '@fxa/payments/webhooks';
 import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';
@@ -74,6 +75,11 @@ export class RootConfig {
   @ValidateNested()
   @IsDefined()
   public readonly googleIapClientConfig!: Partial<GoogleIapClientConfig>;
+
+  @Type(() => ChurnInterventionConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly churnInterventionConfig!: Partial<ChurnInterventionConfig>;
 
   @Type(() => FirestoreConfig)
   @ValidateNested()

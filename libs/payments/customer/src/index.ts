@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+export * from './lib/churn-intervention.config';
+export * from './lib/churn-intervention.manager';
 export * from './lib/customer.manager';
 export * from './lib/customerSession.manager';
 export * from './lib/invoice.manager';

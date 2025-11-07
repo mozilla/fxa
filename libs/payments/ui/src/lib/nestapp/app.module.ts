@@ -38,6 +38,7 @@ import {
   SubscriptionManager,
   CustomerSessionManager,
   SetupIntentManager,
+  ChurnInterventionManager,
 } from '@fxa/payments/customer';
 import { PaymentsGleanManager } from '@fxa/payments/metrics';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
@@ -102,6 +103,7 @@ import { NimbusManager } from '@fxa/payments/experiments';
     CartService,
     TaxService,
     CheckoutTokenManager,
+    ChurnInterventionManager,
     ContentServerManager,
     ContentServerClient,
     CustomerManager,
