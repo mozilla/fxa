@@ -9,6 +9,7 @@ import {
   Subject,
   createMockSigninOAuthIntegration,
   createMockSigninOAuthNativeSyncIntegration,
+  createMockSigninOAuthNativeIntegration,
   MOCK_CMS_INFO,
 } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
@@ -17,6 +18,7 @@ import { MOCK_SERVICE, MOCK_SESSION_TOKEN } from '../mocks';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../../lib/error-utils';
 import { MozServices } from '../../lib/types';
+import { OAuthNativeServices } from '../../models';
 
 export default {
   title: 'Pages/Signin',
@@ -26,7 +28,7 @@ export default {
 
 const storyWithProps = ({
   ...props // overrides
-}: Partial<SigninProps> = {}) => {
+}: Partial<SigninProps> & { supportsKeysOptionalLogin?: boolean } = {}) => {
   const story = () => <Subject {...props} />;
   return story;
 };
@@ -81,10 +83,6 @@ export const SignInToSyncNoPassword = storyWithProps({
   integration: createMockSigninOAuthNativeSyncIntegration(),
 });
 
-export const SignInToOAuthDesktopRelay = storyWithProps({
-  integration: createMockSigninOAuthNativeSyncIntegration({ isSync: false }),
-});
-
 export const SignInWithCms = storyWithProps({
   integration: createMockSigninOAuthIntegration({
     cmsInfo: MOCK_CMS_INFO,
@@ -97,4 +95,28 @@ export const SignInWithCmsCachedCredentials = storyWithProps({
     wantsKeys: false,
     cmsInfo: MOCK_CMS_INFO,
   }),
+});
+
+export const SignInRelayNoPasswordlessSupport = storyWithProps({
+  integration: createMockSigninOAuthNativeIntegration({
+    service: OAuthNativeServices.Relay,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: false,
+});
+
+export const SignInRelayWithPasswordlessSupport = storyWithProps({
+  integration: createMockSigninOAuthNativeIntegration({
+    service: OAuthNativeServices.Relay,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: true,
+});
+
+export const SignInAiModeWithPasswordlessSupport = storyWithProps({
+  integration: createMockSigninOAuthNativeIntegration({
+    service: OAuthNativeServices.AiMode,
+    isSync: false,
+  }),
+  supportsKeysOptionalLogin: true,
 });

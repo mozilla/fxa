@@ -21,6 +21,7 @@ import { handleNavigation } from './utils';
 import * as ReachRouter from '@reach/router';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
+import { OAuthNativeServices } from '../../models';
 
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
@@ -263,6 +264,33 @@ describe('Signin utils', () => {
           '/signin_totp_code',
           expect.any(Object)
         );
+      });
+    });
+
+    describe('third party auth with non-Sync services', () => {
+      it('sends fxaOAuthLogin with empty values and navigates to settings', async () => {
+        const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+        const navigationOptions = createBaseNavigationOptions({
+          integration: createMockSigninOAuthNativeIntegration({
+            isSync: false,
+            service: OAuthNativeServices.Relay,
+          }),
+          isSignInWithThirdPartyAuth: true,
+          performNavigation: true,
+        });
+
+        const result = await handleNavigation(navigationOptions);
+
+        expect(result.error).toBeUndefined();
+        expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
+          action: 'signin',
+          code: '',
+          redirect: '',
+          state: '',
+        });
+        expect(navigateSpy).toHaveBeenCalledWith('/settings', {
+          replace: true,
+        });
       });
     });
   });

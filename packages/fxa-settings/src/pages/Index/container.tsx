@@ -37,6 +37,7 @@ const IndexContainer = ({
   integration,
   serviceName,
   flowQueryParams,
+  useFxAStatusResult,
 }: IndexContainerProps & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -45,7 +46,9 @@ const IndexContainer = ({
     state?: LocationState;
   };
 
-  const [errorBannerMessage, setErrorBannerMessage] = useState('');
+  const [errorBannerMessage, setErrorBannerMessage] = useState(
+    location.state?.localizedErrorFromLocationState || ''
+  );
   const [successBannerMessage, setSuccessBannerMessage] = useState('');
   const [tooltipErrorMessage, setTooltipErrorMessage] = useState('');
 
@@ -172,7 +175,11 @@ const IndexContainer = ({
           await checkEmailDomain(email);
         }
 
-        if (integration.isSync() || integration.isFirefoxClientServiceRelay()) {
+        if (
+          integration.isSync() ||
+          integration.isFirefoxClientServiceRelay() ||
+          integration.isFirefoxClientServiceAiMode()
+        ) {
           const { ok } = await firefox.fxaCanLinkAccount({ email });
           if (!ok) {
             throw AuthUiErrors.USER_CANCELED_LOGIN;
@@ -284,6 +291,7 @@ const IndexContainer = ({
         deeplink,
         flowQueryParams,
         isMobile,
+        useFxAStatusResult,
       }}
       prefillEmail={initialPrefill}
     />

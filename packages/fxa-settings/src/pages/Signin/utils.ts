@@ -369,6 +369,7 @@ const createSigninLocationState = (
       verificationReason,
     },
     showInlineRecoveryKeySetup,
+    isSignInWithThirdPartyAuth,
     origin,
   } = navigationOptions;
   return {
@@ -380,6 +381,7 @@ const createSigninLocationState = (
     verificationMethod,
     verificationReason,
     showInlineRecoveryKeySetup,
+    isSignInWithThirdPartyAuth,
     origin,
   };
 };
@@ -488,20 +490,36 @@ const getOAuthNavigationTarget = async (
 ): Promise<NavigationTarget | NavigationTargetError> => {
   const locationState = createSigninLocationState(navigationOptions);
 
-  if (
-    navigationOptions.integration.isSync() &&
-    navigationOptions.isSignInWithThirdPartyAuth
-  ) {
-    return {
-      ...getSyncNavigate(navigationOptions.queryParams, {
-        showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
-        isSignInWithThirdPartyAuth:
-          navigationOptions.isSignInWithThirdPartyAuth,
-        showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
-        syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
-      }),
-      locationState,
-    };
+  if (navigationOptions.isSignInWithThirdPartyAuth) {
+    if (navigationOptions.integration.isSync()) {
+      return {
+        ...getSyncNavigate(navigationOptions.queryParams, {
+          showInlineRecoveryKeySetup: locationState.showInlineRecoveryKeySetup,
+          isSignInWithThirdPartyAuth:
+            navigationOptions.isSignInWithThirdPartyAuth,
+          showSignupConfirmedSync: navigationOptions.showSignupConfirmedSync,
+          syncHidePromoAfterLogin: navigationOptions.syncHidePromoAfterLogin,
+        }),
+        locationState,
+      };
+    } else if (
+      navigationOptions.integration.isFirefoxClientServiceRelay() ||
+      navigationOptions.integration.isFirefoxClientServiceAiMode()
+    ) {
+      // This is login into the browser that did not fetch keys since
+      // the user didn't provide a password. Firefox expects these to
+      // be empty.
+      firefox.fxaOAuthLogin({
+        action: 'signin',
+        code: '',
+        redirect: '',
+        state: '',
+      });
+
+      return {
+        to: '/settings',
+      };
+    }
   }
 
   const { error, redirect, code, state } =

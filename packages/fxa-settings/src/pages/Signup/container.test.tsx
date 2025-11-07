@@ -47,7 +47,11 @@ import { ApolloClient } from '@apollo/client';
 import { ModelDataProvider } from '../../lib/model-data';
 import AuthClient from 'fxa-auth-client/browser';
 import { LocationProvider } from '@reach/router';
-import { mockLoadingSpinnerModule, MOCK_FLOW_ID, mockGetWebChannelServices } from '../mocks';
+import {
+  mockLoadingSpinnerModule,
+  MOCK_FLOW_ID,
+  mockGetWebChannelServices,
+} from '../mocks';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
 // often times a mocking util isn't even necessary. Note that using the Dependency Inversion
@@ -207,11 +211,12 @@ async function render(text?: string) {
           integration,
           serviceName,
         }}
-        useSyncEnginesResult={{
+        useFxAStatusResult={{
           offeredSyncEngines: [],
           offeredSyncEngineConfigs: [],
           selectedEnginesForGlean: {},
           declinedSyncEngines: [],
+          supportsKeysOptionalLogin: false,
         }}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />

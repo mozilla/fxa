@@ -15,11 +15,9 @@ import {
 } from './mocks';
 import { SignupIntegration } from './interfaces';
 import { mockAppContext } from '../../models/mocks';
-import {
-  MONITOR_CLIENTIDS,
-} from '../../models/integrations/client-matching';
-import { AppContext } from '../../models';
-import { mockUseSyncEngines } from '../../lib/hooks/useSyncEngines/mocks';
+import { MONITOR_CLIENTIDS } from '../../models/integrations/client-matching';
+import { AppContext, OAuthNativeServices } from '../../models';
+import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
 import { MOCK_EMAIL, MOCK_CMS_INFO } from '../mocks';
 import { getSyncEngineIds } from '../../lib/sync-engines';
 
@@ -33,12 +31,17 @@ const StoryWithProps = ({
   integration = createMockSignupOAuthWebIntegration(),
   isMobile = false,
   offeredSyncEnginesOverride,
+  supportsKeysOptionalLogin = false,
 }: {
   integration?: SignupIntegration;
   offeredSyncEnginesOverride?: ReturnType<typeof getSyncEngineIds>;
   isMobile?: boolean;
+  supportsKeysOptionalLogin?: boolean;
 }) => {
-  const useSyncEnginesResult = mockUseSyncEngines(offeredSyncEnginesOverride);
+  const useFxAStatusResult = mockUseFxAStatus({
+    offeredSyncEnginesOverride,
+    supportsKeysOptionalLogin,
+  });
 
   return (
     <AppContext.Provider value={mockAppContext()}>
@@ -47,7 +50,7 @@ const StoryWithProps = ({
           {...{
             integration,
             beginSignupHandler: mockBeginSignupHandler,
-            useSyncEnginesResult,
+            useFxAStatusResult,
             isMobile,
           }}
           email={MOCK_EMAIL}
@@ -80,7 +83,30 @@ export const SyncOAuthWithoutPaymentMethods = () => (
 );
 export const OAuthDesktopServiceRelay = () => (
   <StoryWithProps
-    integration={createMockSignupOAuthNativeIntegration('relay', false)}
+    integration={createMockSignupOAuthNativeIntegration(
+      OAuthNativeServices.Relay,
+      false
+    )}
+  />
+);
+
+export const WithThirdPartyAuthServiceRelayIntegration = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthNativeIntegration(
+      OAuthNativeServices.Relay,
+      false
+    )}
+    supportsKeysOptionalLogin={true}
+  />
+);
+
+export const WithThirdPartyAuthServiceAIModeIntegration = () => (
+  <StoryWithProps
+    integration={createMockSignupOAuthNativeIntegration(
+      OAuthNativeServices.AiMode,
+      false
+    )}
+    supportsKeysOptionalLogin={true}
   />
 );
 

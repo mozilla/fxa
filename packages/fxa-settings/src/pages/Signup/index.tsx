@@ -26,6 +26,7 @@ import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import { MozServices } from '../../lib/types';
 import {
   isOAuthIntegration,
+  isOAuthNativeIntegration,
   isOAuthNativeIntegrationSync,
   useFtlMsgResolver,
   useSensitiveDataClient,
@@ -47,11 +48,12 @@ export const Signup = ({
   integration,
   email,
   beginSignupHandler,
-  useSyncEnginesResult: {
+  useFxAStatusResult: {
     offeredSyncEngines,
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
+    supportsKeysOptionalLogin,
   },
   deeplink,
   flowQueryParams,
@@ -66,11 +68,15 @@ export const Signup = ({
   }, []);
 
   const isOAuth = isOAuthIntegration(integration);
+  const isOAuthNative = isOAuthNativeIntegration(integration);
   const isSyncOAuth = isOAuthNativeIntegrationSync(integration);
   const isSync = integration.isSync();
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const paymentMethodsWillSync =
     isSync && checkPaymentMethodsWillSync(offeredSyncEngines);
+  const showThirdPartyAuth = isOAuthNative
+    ? supportsKeysOptionalLogin
+    : !isSync;
 
   const onFocusMetricsEvent = () => {
     logViewEvent(settingsViewName, `${viewName}.engage`);
@@ -383,8 +389,7 @@ export const Signup = ({
         onSubmit={handleSubmit(onSubmit)}
       />
 
-      {/* Third party auth is not currently supported for sync */}
-      {!isSync && !isFirefoxClientServiceRelay && (
+      {showThirdPartyAuth && (
         <ThirdPartyAuth viewName="signup" flowQueryParams={flowQueryParams} />
       )}
 

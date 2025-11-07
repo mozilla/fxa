@@ -7,6 +7,7 @@ import {
   Integration,
   isOAuthIntegration,
   isSyncDesktopV3Integration,
+  isOAuthNativeIntegration,
 } from '../../../models';
 import {
   defaultDesktopV3SyncEngineConfigs,
@@ -17,16 +18,17 @@ import {
 import firefox from '../../channels/firefox';
 import { Constants } from '../../constants';
 
-type SyncEnginesIntegration = Pick<Integration, 'type' | 'isSync'>;
+type FxAStatusIntegration = Pick<Integration, 'type' | 'isSync'>;
 
 /**
- * If integration.isSync, sends firefox.fxaStatus to retrieve available sync
- * engines from the browser.
+ * If integration.isSync or integration is OAuthNative, sends firefox.fxaStatus to retrieve
+ * available sync engines from the browser and checks Fx capabilities.
  */
-export function useSyncEngines(integration: SyncEnginesIntegration) {
+export function useFxAStatus(integration: FxAStatusIntegration) {
   const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSync = integration.isSync();
+  const isOAuthNative = isOAuthNativeIntegration(integration);
 
   const [webChannelEngines, setWebChannelEngines] = useState<
     string[] | undefined
@@ -35,11 +37,13 @@ export function useSyncEngines(integration: SyncEnginesIntegration) {
     typeof syncEngineConfigs | undefined
   >();
   const [declinedSyncEngines, setDeclinedSyncEngines] = useState<string[]>([]);
+  const [supportsKeysOptionalLogin, setSupportsKeysOptionalLogin] =
+    useState<boolean>(false);
 
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
     // that we listen for.
-    if (isSync) {
+    if (isSync || isOAuthNative) {
       (async () => {
         const status = await firefox.fxaStatus({
           // TODO: Improve getting 'context', probably set this on the integration
@@ -61,9 +65,27 @@ export function useSyncEngines(integration: SyncEnginesIntegration) {
             setWebChannelEngines(status.capabilities.engines);
           }
         }
+        // Check if third party auth (passwordless) log in to the browser is supported
+        if (
+          status.capabilities.keys_optional &&
+          isOAuthNative &&
+          (integration.isFirefoxClientServiceRelay() ||
+            integration.isFirefoxClientServiceAiMode())
+        ) {
+          setSupportsKeysOptionalLogin(true);
+        } else {
+          setSupportsKeysOptionalLogin(false);
+        }
       })();
     }
-  }, [isSync, isSyncDesktopV3, isSyncOAuth, webChannelEngines]);
+  }, [
+    isSync,
+    isOAuthNative,
+    isSyncDesktopV3,
+    isSyncOAuth,
+    webChannelEngines,
+    integration,
+  ]);
 
   useEffect(() => {
     if (webChannelEngines) {
@@ -115,7 +137,10 @@ export function useSyncEngines(integration: SyncEnginesIntegration) {
     offeredSyncEngineConfigs,
     declinedSyncEngines,
     selectedEnginesForGlean,
+    supportsKeysOptionalLogin,
   };
 }
 
-export default useSyncEngines;
+export type UseFxAStatusResult = ReturnType<typeof useFxAStatus>;
+
+export default useFxAStatus;

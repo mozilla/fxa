@@ -80,7 +80,8 @@ export const SigninTotpCodeContainer = ({
   const { oAuthKeysCheckError } = useOAuthKeysCheck(
     integration,
     keyFetchToken,
-    unwrapBKey
+    unwrapBKey,
+    signinState?.isSignInWithThirdPartyAuth
   );
 
   const redirectTo =
@@ -163,6 +164,7 @@ export const SigninTotpCodeContainer = ({
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;
   }
+
   if (oAuthKeysCheckError) {
     return <OAuthDataError error={oAuthKeysCheckError} />;
   }
