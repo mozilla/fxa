@@ -79,5 +79,5 @@ jobs:
           method: 'chat.postMessage'
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: |
-            channel-id: 'CLV3KMZ8B'
+            channel: 'CLV3KMZ8B'
             text: "New assets have been uploaded to CDN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
