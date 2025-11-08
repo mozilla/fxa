@@ -738,11 +738,17 @@ async function fillOutRecoveryPhoneFromEmailFirst({
   await page.waitForURL(/signin_recovery_choice/);
 
   await signinRecoveryChoice.clickChoosePhone();
+  const signalTime = Date.now();
   await signinRecoveryChoice.clickContinue();
 
   await page.waitForURL(/signin_recovery_phone/);
 
-  const code = await target.smsClient.getCode({ ...credentials });
+  const code = await target.smsClient.getCode({
+    ...credentials,
+    // given there's a page load between between click and getCode,
+    // we use a longer startTime to ensure we don't miss the code.
+    startTime: Date.now() - signalTime,
+  });
 
   // Enter the new code and login
   await signinRecoveryPhone.enterCode(code);

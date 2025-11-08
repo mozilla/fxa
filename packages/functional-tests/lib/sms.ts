@@ -6,6 +6,7 @@ import { Twilio } from 'twilio';
 import Redis from 'ioredis';
 import type { Redis as RedisType } from 'ioredis';
 import { TargetName, getFromEnv, getFromEnvWithFallback } from './targets';
+import { getTestEmailLocalPart } from 'fxa-shared/email/helpers';
 
 // Default test number, see Twilio test credentials phone numbers:
 // https://www.twilio.com/docs/iam/test-credentials
@@ -14,6 +15,20 @@ export const TEST_NUMBER = '4159929960';
 function wait() {
   return new Promise((r) => setTimeout(r, 500));
 }
+
+/**
+ * Parameters for the `getCode` method. Shared between
+ * Twilio and local Redis implementations.
+ */
+type GetCodeParams = {
+  uid: string;
+  email: string;
+  phoneNumber?: string;
+  limit?: number;
+  codeRegex?: RegExp;
+  timeout?: number;
+  startTime?: number;
+};
 
 export class SmsClient {
   private readonly twilioClient?: Twilio;
@@ -88,22 +103,17 @@ export class SmsClient {
   /**
    * Gets the sent SMS code for an account uid. If no number is provided
    * `this.getPhoneNumber()` is used to get a default.
+   *
+   * Email is used to filter messages based on metadata included with test accounts.
    * @returns
    */
-  async getCode({
-    uid,
-    phoneNumber = this.getPhoneNumber(),
-    timeout = 10000,
-  }: {
-    uid: string;
-    phoneNumber?: string;
-    timeout?: number;
-  }) {
-    if (this.isTwilioEnabled()) {
-      return this._getCodeTwilio(phoneNumber);
-    } else {
-      return this._getCodeLocal(uid, timeout);
+  async getCode(params: GetCodeParams) {
+    if (!params.phoneNumber) {
+      params.phoneNumber = this.getPhoneNumber();
     }
+    return this.isTwilioEnabled()
+      ? this._getCodeTwilio(params)
+      : this._getCodeLocal(params);
   }
 
   /**
@@ -162,13 +172,14 @@ export class SmsClient {
     );
   }
 
-  async _getCodeTwilio(
-    recipientNumber: string,
-    limit = 1,
+  private async _getCodeTwilio({
+    phoneNumber: recipientNumber,
+    email,
+    limit = 20,
     codeRegex = /\b\d{6}\b/,
     timeout = 10000,
-    startTime = Date.now() - 1000
-  ): Promise<string> {
+    startTime = Date.now() - 1000,
+  }: GetCodeParams): Promise<string> {
     if (!this.twilioClient) {
       throw new Error('Twilio API not enabled');
     }
@@ -187,8 +198,23 @@ export class SmsClient {
         continue;
       }
 
-      const lastMessage = messages[0];
-      const match = lastMessage.body.match(codeRegex);
+      // all test accounts should be using a test email, so this should
+      // always return a local part value.
+      const emailLocalPart = getTestEmailLocalPart(email);
+      // filter down to messages for the calling test account, then sort
+      const messagesWithEmailMetadata = messages
+        .filter((message) => message.body.includes(`[${emailLocalPart}]`))
+        .sort((a, b) => {
+          return b.dateSent.getTime() - a.dateSent.getTime();
+        });
+
+      if (!messagesWithEmailMetadata.length) {
+        await wait();
+        continue;
+      }
+
+      const latestMessage = messagesWithEmailMetadata[0];
+      const match = latestMessage.body.match(codeRegex);
 
       if (!match) {
         await wait();
@@ -205,7 +231,9 @@ export class SmsClient {
       return code;
     }
 
-    throw new Error('Timeout: No new code found within the specified time');
+    throw new Error(
+      `Timeout: No new code found within the specified time for account: ${email}`
+    );
   }
 
   /**
@@ -214,7 +242,10 @@ export class SmsClient {
    * @param uid
    * @param timeout
    */
-  async _getCodeLocal(uid: string, timeout = 10000): Promise<string> {
+  async _getCodeLocal({
+    uid,
+    timeout = 10000,
+  }: GetCodeParams): Promise<string> {
     while (this._connecting) {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }

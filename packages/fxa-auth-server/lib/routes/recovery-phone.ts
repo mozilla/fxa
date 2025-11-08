@@ -20,6 +20,7 @@ import {
   AccountManager,
   VerificationMethods,
 } from '@fxa/shared/account/account';
+import { getTestEmailLocalPart } from 'fxa-shared/email/helpers';
 import { GleanMetricsType } from '../metrics/glean';
 import {
   AuthCredential,
@@ -109,7 +110,8 @@ class RecoveryPhoneHandler {
   getLocalizedMessage = async (
     request: AuthRequest,
     code: string,
-    type: keyof typeof l10nTypeMap
+    type: keyof typeof l10nTypeMap,
+    emailLocalPart?: string
   ) => {
     const l10n = l10nTypeMap[type];
     const localizedStrings = await this.localizer.localizeStrings(
@@ -122,7 +124,15 @@ class RecoveryPhoneHandler {
         },
       ]
     );
-    return localizedStrings[l10n.id];
+    return emailLocalPart
+      ? `${localizedStrings[l10n.id]} [${emailLocalPart}]`
+      : localizedStrings[l10n.id];
+  };
+
+  getFailsafeMessage = (code: string, emailLocalPart?: string) => {
+    return emailLocalPart
+      ? `Mozilla: ${code} [${emailLocalPart}]`
+      : `Mozilla: ${code}`;
   };
 
   async sendSigninCode(request: AuthRequest) {
@@ -141,20 +151,24 @@ class RecoveryPhoneHandler {
     );
 
     const getFormattedMessage = async (code: string) => {
+      const emailLocalPart = getTestEmailLocalPart(email);
       const localizedMessage = await this.getLocalizedMessage(
         request,
         code,
-        'signin'
+        'signin',
+        emailLocalPart
       );
       const shortLocalizedMessage = await this.getLocalizedMessage(
         request,
         code,
-        'signin-short'
+        'signin-short',
+        emailLocalPart
       );
+      const failsafeMessage = this.getFailsafeMessage(code, emailLocalPart);
       return {
         msg: localizedMessage,
         shortMsg: shortLocalizedMessage,
-        failsafeMsg: `Mozilla: ${code}`,
+        failsafeMsg: failsafeMessage,
       };
     };
 
@@ -216,20 +230,24 @@ class RecoveryPhoneHandler {
     );
 
     const getFormattedMessage = async (code: string) => {
+      const emailLocalPart = getTestEmailLocalPart(email);
       const localizedMessage = await this.getLocalizedMessage(
         request,
         code,
-        'reset-password'
+        'reset-password',
+        emailLocalPart
       );
       const shortLocalizedMessage = await this.getLocalizedMessage(
         request,
         code,
-        'reset-password-short'
+        'reset-password-short',
+        emailLocalPart
       );
+      const failsafeMessage = this.getFailsafeMessage(code, emailLocalPart);
       return {
         msg: localizedMessage,
         shortMsg: shortLocalizedMessage,
-        failsafeMsg: `Mozilla: ${code}`,
+        failsafeMsg: failsafeMessage,
       };
     };
 
@@ -300,17 +318,24 @@ class RecoveryPhoneHandler {
     );
 
     const getFormattedMessages = async (code: string) => {
-      const msg = await this.getLocalizedMessage(request, code, 'setup');
-      const shortMsg = await this.getLocalizedMessage(
+      const emailLocalPart = getTestEmailLocalPart(email);
+      const localizedMessage = await this.getLocalizedMessage(
         request,
         code,
-        'setup-short'
+        'setup',
+        emailLocalPart
       );
-      const failsafeMsg = `Mozilla: ${code}`;
+      const shortLocalizedMessage = await this.getLocalizedMessage(
+        request,
+        code,
+        'setup-short',
+        emailLocalPart
+      );
+      const failsafeMessage = this.getFailsafeMessage(code, emailLocalPart);
       return {
-        msg,
-        shortMsg,
-        failsafeMsg,
+        msg: localizedMessage,
+        shortMsg: shortLocalizedMessage,
+        failsafeMsg: failsafeMessage,
       };
     };
 

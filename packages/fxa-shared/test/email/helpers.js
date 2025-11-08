@@ -100,4 +100,12 @@ describe('email/helpers:', () => {
       assert.isFalse(Helpers.isEmailValid('a’b@example.com'));
     });
   });
+  describe('getTestEmailLocalPart', () => {
+    it('returns the local part of a test address', () => {
+      assert.equal(Helpers.getTestEmailLocalPart('test@restmail.net'), 'test');
+    });
+    it('returns undefined for a non-test address', () => {
+      assert.isUndefined(Helpers.getTestEmailLocalPart('test@example.com'));
+    });
+  });
 });

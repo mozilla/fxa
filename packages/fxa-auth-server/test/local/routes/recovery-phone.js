@@ -216,6 +216,46 @@ describe('/recovery_phone', () => {
       );
       assert.equal(route.options.auth.strategy, 'sessionToken');
     });
+
+    it('includes email metadata in messages for test email addresses', async () => {
+      let capturedCallback;
+      mockRecoveryPhoneService.sendCode = sinon.fake(async (uid, callback) => {
+        capturedCallback = callback;
+        return true;
+      });
+
+      await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/signin/send_code',
+        credentials: { uid, email: 'testuser@restmail.net' },
+      });
+
+      assert.isDefined(capturedCallback);
+      const messages = await capturedCallback('123456');
+      assert.include(messages.msg, '[testuser]');
+      assert.include(messages.shortMsg, '[testuser]');
+      assert.include(messages.failsafeMsg, '[testuser]');
+    });
+
+    it('does not include email metadata in messages for non-test email addresses', async () => {
+      let capturedCallback;
+      mockRecoveryPhoneService.sendCode = sinon.fake(async (uid, callback) => {
+        capturedCallback = callback;
+        return true;
+      });
+
+      await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/signin/send_code',
+        credentials: { uid, email: 'testuser@mozilla.com' },
+      });
+
+      assert.isDefined(capturedCallback);
+      const messages = await capturedCallback('123456');
+      assert.notInclude(messages.msg, '[');
+      assert.notInclude(messages.shortMsg, '[');
+      assert.notInclude(messages.failsafeMsg, '[');
+    });
   });
 
   describe('POST /recovery_phone/reset_password/send_code', () => {
@@ -335,6 +375,54 @@ describe('/recovery_phone', () => {
         'POST'
       );
       assert.equal(route.options.auth.strategy, 'passwordForgotToken');
+    });
+
+    it('includes email metadata in messages for test email addresses', async () => {
+      let capturedCallback;
+      mockRecoveryPhoneService.sendCode = sinon.fake(async (uid, callback) => {
+        capturedCallback = callback;
+        return true;
+      });
+
+      await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/reset_password/send_code',
+        credentials: { uid, email: 'testuser@restmail.net' },
+      });
+
+      // artificial delay since the metrics and security event related calls
+      // are not awaited
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      assert.isDefined(capturedCallback);
+      const messages = await capturedCallback('123456');
+      assert.include(messages.msg, '[testuser]');
+      assert.include(messages.shortMsg, '[testuser]');
+      assert.include(messages.failsafeMsg, '[testuser]');
+    });
+
+    it('does not include email metadata in messages for non-test email addresses', async () => {
+      let capturedCallback;
+      mockRecoveryPhoneService.sendCode = sinon.fake(async (uid, callback) => {
+        capturedCallback = callback;
+        return true;
+      });
+
+      await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/reset_password/send_code',
+        credentials: { uid, email: 'testuser@mozilla.com' },
+      });
+
+      // artificial delay since the metrics and security event related calls
+      // are not awaited
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      assert.isDefined(capturedCallback);
+      const messages = await capturedCallback('123456');
+      assert.notInclude(messages.msg, '[');
+      assert.notInclude(messages.shortMsg, '[');
+      assert.notInclude(messages.failsafeMsg, '[');
     });
   });
 
@@ -491,6 +579,56 @@ describe('/recovery_phone', () => {
     it('requires verified session authorization', () => {
       const route = getRoute(routes, '/recovery_phone/create', 'POST');
       assert.equal(route.options.auth.strategy, 'verifiedSessionToken');
+    });
+
+    it('includes email metadata in messages for test email addresses', async () => {
+      let capturedCallback;
+      mockRecoveryPhoneService.setupPhoneNumber = sinon.fake(
+        async (uid, phoneNumber, callback) => {
+          capturedCallback = callback;
+          return true;
+        }
+      );
+      mockRecoveryPhoneService.getNationalFormat =
+        sinon.fake.returns(nationalFormat);
+
+      await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/create',
+        credentials: { uid, email: 'testuser@restmail.net' },
+        payload: { phoneNumber },
+      });
+
+      assert.isDefined(capturedCallback);
+      const messages = await capturedCallback('123456');
+      assert.include(messages.msg, '[testuser]');
+      assert.include(messages.shortMsg, '[testuser]');
+      assert.include(messages.failsafeMsg, '[testuser]');
+    });
+
+    it('does not include email metadata in messages for non-test email addresses', async () => {
+      let capturedCallback;
+      mockRecoveryPhoneService.setupPhoneNumber = sinon.fake(
+        async (uid, phoneNumber, callback) => {
+          capturedCallback = callback;
+          return true;
+        }
+      );
+      mockRecoveryPhoneService.getNationalFormat =
+        sinon.fake.returns(nationalFormat);
+
+      await makeRequest({
+        method: 'POST',
+        path: '/recovery_phone/create',
+        credentials: { uid, email: 'testuser@mozilla.com' },
+        payload: { phoneNumber },
+      });
+
+      assert.isDefined(capturedCallback);
+      const messages = await capturedCallback('123456');
+      assert.notInclude(messages.msg, '[');
+      assert.notInclude(messages.shortMsg, '[');
+      assert.notInclude(messages.failsafeMsg, '[');
     });
   });
 

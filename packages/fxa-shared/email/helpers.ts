@@ -74,3 +74,17 @@ export function isEmailValid(email: string): boolean {
 export function isEmailMask(email: string): boolean {
   return emailMaskRegex.test(email);
 }
+
+/**
+ * Only returns the email local part _if_ it's a test address ending in "@restmail.net".
+ *
+ * For example, "test@restmail.net" will return "test", but "test@example.com" will return undefined.
+ *
+ * @param email - The email address to get the local part of.
+ * @returns The local part of the email address, or undefined if it's not a test address.
+ */
+export function getTestEmailLocalPart(email: string): string | undefined {
+  return email.toLowerCase().endsWith('@restmail.net')
+    ? email.split('@')[0]
+    : undefined;
+}

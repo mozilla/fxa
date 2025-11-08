@@ -271,10 +271,14 @@ const completeSigninWithDualRecovery = async ({
   await signinTotpCode.clickTroubleEnteringCode();
   await page.waitForURL(/signin_recovery_choice/);
   await signinRecoveryChoice[`clickChoose${method}`]();
+  const signalTime = Date.now();
   await signinRecoveryChoice.clickContinue();
   // new RegExp because template literal isn't supported directly inside regex literal
   await page.waitForURL(new RegExp(`signin_recovery_${method.toLowerCase()}`));
-  const code = await target.smsClient.getCode({ ...credentials });
+  const code = await target.smsClient.getCode({
+    ...credentials,
+    startTime: Date.now() - signalTime,
+  });
   await recoveries[method].fillOutCodeForm(code);
 };
 
