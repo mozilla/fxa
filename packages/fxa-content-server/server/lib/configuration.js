@@ -83,6 +83,14 @@ const conf = (module.exports = convict({
       env: 'DISABLE_CLIENT_METRICS_STDERR',
     },
   },
+  metrics: {
+    webauthnCapabilitiesSampleRate: {
+      default: 0.1,
+      doc: 'Sampling rate (0..1) for WebAuthn capabilities probe in Settings',
+      env: 'WEBAUTHN_CAPABILITIES_SAMPLE_RATE',
+      format: Number,
+    },
+  },
   client_sessions: {
     cookie_name: 'session',
     duration: {
@@ -1044,12 +1052,12 @@ const conf = (module.exports = convict({
       env: 'SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED',
       format: Boolean,
     },
-    usePaymentsNextSubscriptionManagement : {
+    usePaymentsNextSubscriptionManagement: {
       default: true,
       doc: 'Whether to redirect to the new Subscription Management Page',
       env: 'FEATURE_FLAGS_PAYMENTS_NEXT_SUBSCRIPTION_MANAGEMENT',
       format: Boolean,
-    }
+    },
   },
   sync_tokenserver_url: {
     default: 'http://localhost:8000/token',

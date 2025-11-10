@@ -23,6 +23,7 @@ export interface Config {
       enabled: boolean;
       endpoint: string;
     };
+    webauthnCapabilitiesSampleRate?: number;
   };
   sentry: {
     dsn: string;
@@ -123,6 +124,7 @@ export function getDefault() {
     marketingEmailPreferencesUrl: 'https://basket.mozilla.org/fxa/',
     metrics: {
       navTiming: { enabled: false, endpoint: '/check-your-metrics-config' },
+      webauthnCapabilitiesSampleRate: 0.1,
     },
     mfa: {
       otp: {

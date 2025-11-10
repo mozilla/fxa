@@ -274,6 +274,8 @@ const IndexContainer = ({
   const deeplink = queryParamModel.deeplink;
   const isMobile = isMobileDevice();
 
+  // WebAuthn capability probe is fired at app-level (components/App/index.tsx)
+
   return isLoading ? (
     <LoadingSpinner fullScreen />
   ) : (

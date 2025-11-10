@@ -91,6 +91,11 @@ function getIndexRouteDefinition(config) {
     paymentsNextHostedUrl: PAYMENTS_NEXT_HOSTED_URL,
     maxEventOffset: MAX_EVENT_OFFSET,
     env: ENV,
+    metrics: {
+      webauthnCapabilitiesSampleRate: config.get(
+        'metrics.webauthnCapabilitiesSampleRate'
+      ),
+    },
     isCoppaEnabled: COPPA_ENABLED,
     isPromptNoneEnabled: PROMPT_NONE_ENABLED,
     googleAuthConfig: GOOGLE_AUTH_CONFIG,
