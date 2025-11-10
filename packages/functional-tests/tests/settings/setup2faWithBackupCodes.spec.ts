@@ -46,8 +46,6 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await expect(settings.totp.status).toHaveText('Enabled');
-
-      await settings.disconnectTotp(); // Required before teardown
     });
 
     test('enable then disable and sign in', async ({
@@ -69,7 +67,7 @@ test.describe('severity-1 #smoke', () => {
       );
       await expect(settings.totp.status).toHaveText('Enabled');
 
-      await settings.disconnectTotp(); // Required before teardown
+      await settings.disconnectTotp();
 
       // No 2FA prompt on signin
       await settings.signOut();
@@ -100,8 +98,6 @@ test.describe('severity-1 #smoke', () => {
         'Two-step authentication has been enabled'
       );
       await expect(settings.totp.status).toHaveText('Enabled');
-
-      await settings.disconnectTotp(); // Required before teardown
     });
 
     test('delete account with 2FA enabled', async ({
@@ -157,7 +153,7 @@ async function addTotpWithManualCodeAndBackupCodeChoice(
   await settings.totp.addButton.click();
   await settings.confirmMfaGuard(credentials.email);
   const totpCredentials =
-    await totp.setUpTwoStepAuthWithManualCodeAndBackupCodesChoice();
+    await totp.setUpTwoStepAuthWithManualCodeAndBackupCodesChoice(credentials);
 
   return totpCredentials;
 }
@@ -173,7 +169,7 @@ async function addTotpWithQrCodeAndBackupCodeChoice(
   await settings.totp.addButton.click();
   await settings.confirmMfaGuard(credentials.email);
   const totpCredentials =
-    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
   return totpCredentials;
 }

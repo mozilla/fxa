@@ -23,7 +23,8 @@ test.describe('severity-1 #smoke', () => {
 
     await settings.totp.addButton.click();
     await settings.confirmMfaGuard(credentials.email);
-    const { secret } = await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+    const { secret } =
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toContainText(
@@ -60,9 +61,6 @@ test.describe('severity-1 #smoke', () => {
     testAccountTracker.updateAccountPassword(credentials.email, newPassword);
 
     await expect(settings.settingsHeading).toBeVisible();
-
-    // Remove TOTP before teardown
-    await settings.disconnectTotp();
   });
 
   test('can reset password with 2FA recovery code', async ({
@@ -83,7 +81,7 @@ test.describe('severity-1 #smoke', () => {
     await settings.totp.addButton.click();
     await settings.confirmMfaGuard(credentials.email);
     const { recoveryCodes } =
-      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toContainText(
@@ -113,9 +111,6 @@ test.describe('severity-1 #smoke', () => {
     await expect(settings.alertBar).toHaveText('Your password has been reset');
 
     testAccountTracker.updateAccountPassword(credentials.email, newPassword);
-
-    // Remove TOTP before teardown
-    await settings.disconnectTotp();
   });
 
   test('can reset password with recovery key without 2FA prompt', async ({
@@ -136,7 +131,7 @@ test.describe('severity-1 #smoke', () => {
 
     await settings.totp.addButton.click();
     await settings.confirmMfaGuard(credentials.email);
-    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toContainText(
@@ -184,9 +179,6 @@ test.describe('severity-1 #smoke', () => {
 
     // Recovery key has been consumed and a new one created
     await expect(settings.recoveryKey.status).toHaveText('Enabled');
-
-    // Remove TOTP before teardown
-    await settings.disconnectTotp();
   });
 
   test('can reset password with recovery key then delete account', async ({
@@ -215,7 +207,7 @@ test.describe('severity-1 #smoke', () => {
 
     await settings.totp.addButton.click();
     await settings.confirmMfaGuard(credentials.email);
-    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toContainText(
@@ -290,7 +282,8 @@ test.describe('severity-1 #smoke', () => {
 
     await settings.totp.addButton.click();
     await settings.confirmMfaGuard(credentials.email);
-    const { secret } = await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+    const { secret } =
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toContainText(
@@ -343,9 +336,6 @@ test.describe('severity-1 #smoke', () => {
 
     // Recovery key has been removed
     await expect(settings.recoveryKey.status).toHaveText('Not Set');
-
-    // Remove TOTP before teardown
-    await settings.disconnectTotp();
   });
 
   test('can reset password with unverified 2FA and skip recovery key', async ({
@@ -366,7 +356,7 @@ test.describe('severity-1 #smoke', () => {
 
     await settings.totp.addButton.click();
     await settings.confirmMfaGuard(credentials.email);
-    await totp.setUp2faAppWithQrCode();
+    await totp.setUp2faAppWithQrCode(credentials);
     await page.goto(`${target.contentServerUrl}/settings`);
 
     await expect(settings.settingsHeading).toBeVisible();
@@ -427,7 +417,7 @@ test.describe('reset password with recovery phone', () => {
 
     await settings.totp.addButton.click();
     await settings.confirmMfaGuard(credentials.email);
-    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toContainText(
@@ -489,9 +479,6 @@ test.describe('reset password with recovery phone', () => {
     await expect(settings.alertBar).toHaveText('Your password has been reset');
 
     await expect(settings.settingsHeading).toBeVisible();
-
-    // Remove TOTP before teardown
-    await settings.disconnectTotp();
   });
 
   test('can use backup code after failing sms code', async ({
@@ -514,7 +501,7 @@ test.describe('reset password with recovery phone', () => {
     await settings.totp.addButton.click();
     await settings.confirmMfaGuard(credentials.email);
     const { recoveryCodes } =
-      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+      await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
     await expect(settings.settingsHeading).toBeVisible();
     await expect(settings.alertBar).toContainText(
@@ -582,8 +569,5 @@ test.describe('reset password with recovery phone', () => {
     await expect(settings.alertBar).toHaveText('Your password has been reset');
 
     await expect(settings.settingsHeading).toBeVisible();
-
-    // Remove TOTP before teardown
-    await settings.disconnectTotp();
   });
 });

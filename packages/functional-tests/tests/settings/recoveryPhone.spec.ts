@@ -38,6 +38,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.goto();
       await setup2faWithBackupCodeChoice(credentials, settings, totp);
+
       await expect(settings.totp.status).toHaveText('Enabled');
       await settings.totp.addRecoveryPhoneButton.click();
 
@@ -48,9 +49,6 @@ test.describe('severity-1 #smoke', () => {
       await expect(recoveryPhone.addErrorBanner).toHaveText(
         /invalid phone number/i
       );
-
-      await settings.goto();
-      await settings.disconnectTotp();
     });
 
     test('can setup, confirm and remove recovery phone', async ({
@@ -101,8 +99,6 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/settings/);
       await expect(settings.totp.addRecoveryPhoneButton).toBeVisible();
-
-      await settings.disconnectTotp();
     });
 
     test('can change recovery phone', async ({
@@ -143,8 +139,6 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/settings/);
       await expect(settings.alertBar).toHaveText('Recovery phone changed');
-
-      await settings.disconnectTotp();
     });
 
     test('can sign-in to settings with recovery phone', async ({
@@ -187,11 +181,8 @@ test.describe('severity-1 #smoke', () => {
         target,
       });
 
+      // assert that we're signed in
       await page.waitForURL(/settings/);
-      await expect(settings.settingsHeading).toBeVisible();
-
-      // Remove totp so account can be deleted
-      await settings.disconnectTotp();
     });
 
     test('can sign-in Sync (fx_desktop_v3) with recovery phone', async ({
@@ -247,9 +238,6 @@ test.describe('severity-1 #smoke', () => {
 
       await connectAnotherDevice.clickNotNowPair();
       await page.waitForURL(/settings/);
-
-      // Remove totp so account can be deleted
-      await settings.disconnectTotp();
     });
 
     test('can sign-in Sync (oauth_webchannel_v1) with recovery phone', async ({
@@ -304,9 +292,6 @@ test.describe('severity-1 #smoke', () => {
 
       await connectAnotherDevice.clickNotNowPair();
       await page.waitForURL(/settings/);
-
-      // Remove totp so account can be deleted
-      await settings.disconnectTotp();
     });
 
     test('can sign-in with recovery phone after resend code', async ({
@@ -378,9 +363,6 @@ test.describe('severity-1 #smoke', () => {
       await signinRecoveryPhone.clickConfirm();
 
       await page.waitForURL(/settings/);
-
-      // Remove totp so account can be deleted
-      await settings.disconnectTotp();
     });
 
     test('can sign-in 123Done with recovery phone', async ({
@@ -428,10 +410,6 @@ test.describe('severity-1 #smoke', () => {
       });
 
       expect(await relier.isLoggedIn()).toBe(true);
-
-      // Remove totp so account can be deleted
-      await settings.goto();
-      await settings.disconnectTotp();
     });
 
     test('can use recovery code with recovery phone setup', async ({
@@ -492,9 +470,6 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await expect(settings.settingsHeading).toBeVisible();
-
-      // Remove totp so account can be deleted
-      await settings.disconnectTotp();
     });
 
     test('can still use totp code with recovery phone setup', async ({
@@ -557,9 +532,6 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/settings/);
       await expect(await settings.totp.status).toHaveText('Enabled');
-
-      // Remove totp so account can be deleted
-      await settings.disconnectTotp();
     });
 
     test('can set up recovery phone during initial 2FA setup', async ({
@@ -583,8 +555,6 @@ test.describe('severity-1 #smoke', () => {
       await expect(recoveryPhone.status).toHaveText(
         `(•••) •••-${testNumber.slice(-4)}`
       );
-
-      await settings.disconnectTotp();
     });
 
     test('sign in with only recovery phone available (no backup codes)', async ({
@@ -636,7 +606,6 @@ test.describe('severity-1 #smoke', () => {
       await signinRecoveryPhone.clickConfirm();
       await page.waitForURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
-      await settings.disconnectTotp();
     });
   });
 });
@@ -667,7 +636,7 @@ async function setup2faWithBackupCodeChoice(
   await settings.totp.addButton.click();
   await settings.confirmMfaGuard(credentials.email);
   const totpCredentials =
-    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice();
+    await totp.setUpTwoStepAuthWithQrAndBackupCodesChoice(credentials);
 
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.alertBar).toContainText(
@@ -690,7 +659,8 @@ async function setup2faWithRecoveryPhoneChoice(
   await settings.totp.addButton.click();
   await settings.confirmMfaGuard(credentials.email);
 
-  const secret = await totp.startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice();
+  const secret =
+    await totp.startTwoStepAuthWithQrCodeAndRecoveryPhoneChoice(credentials);
 
   await expect(recoveryPhone.addHeader()).toBeVisible();
 

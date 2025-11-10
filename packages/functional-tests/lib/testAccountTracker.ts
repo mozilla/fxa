@@ -2,12 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// We need to disable this rule so we can capture
+// messages in the traces in CI.
+/* eslint-disable no-console */
+
 import crypto from 'crypto';
 import { Page, TestInfo } from '@playwright/test';
 import { Credentials } from './targets';
 import { BaseTarget } from './targets/base';
 import { MfaScope } from 'fxa-settings/src/lib/types';
 import { getTotpCode } from './totp';
+import { SessionStatus } from 'fxa-auth-client/lib/client';
 
 enum EmailPrefix {
   BLOCKED = 'blocked',
@@ -245,149 +250,127 @@ export class TestAccountTracker {
    * Fails fast if any account cleanup fails.
    */
   async destroyAllAccounts() {
+    // reduce accounts down to unique emails so we don't try to destroy
+    // an already destroyed account, wasting time and potentially failing the test
+    this.accounts = this.accounts.reduce(
+      (acc, account) => {
+        const existingAccount = acc.find((a) => a.email === account.email);
+        return existingAccount ? acc : [...acc, account];
+      },
+      [] as (AccountDetails | Credentials)[]
+    );
     while (this.accounts.length > 0) {
       const account = this.accounts.pop();
       if (!account) continue;
 
-      // Check if account exists
       const accountStatus = await this.target.authClient.accountStatusByEmail(
         account.email
       );
       if (!accountStatus.exists) continue;
 
       try {
-        // Get session token (existing or new)
-        let sessionToken: string;
-        if ('sessionToken' in account && account.sessionToken) {
-          sessionToken = account.sessionToken;
-        } else {
-          const credentials = await this.target.authClient.signIn(
-            account.email,
-            account.password
-          );
-          sessionToken = credentials.sessionToken;
-        }
-
-        // Helper function to verify account or session if needed
-        const verifyIfNeeded = async () => {
-          try {
-            await this.target.authClient.sessionResendVerifyCode(sessionToken);
-
-            // Start checking for codes in parallel, whichever is available first will be used
-            const [shortCodePromise, loginCodePromise] = [
-              this.target.emailClient.getVerifyShortCode(account.email),
-              this.target.emailClient.getVerifyLoginCode(account.email),
-            ];
-            const code = await Promise.any([
-              shortCodePromise,
-              loginCodePromise,
-            ]);
-            await this.target.authClient.sessionVerifyCode(sessionToken, code);
-          } catch (err) {
-            // allow console.error so we can capture this message in the trace.
-            // eslint-disable-next-line no-console
-            console.error(
-              `Session verification skipped (might already be verified):`,
-              err
-            );
-          }
-        };
-
-        // Helper function to get fresh session if current one is invalid
-        const getFreshSessionIfNeeded = async (error: any) => {
-          if (
-            error.message.includes('Invalid authentication token') ||
-            error.message.includes('Missing authentication')
-          ) {
-            const credentials = await this.target.authClient.signIn(
-              account.email,
-              account.password
-            );
-            sessionToken = credentials.sessionToken;
-            await verifyIfNeeded();
-            return true;
-          }
-          return false;
-        };
-
-        const elevateToAal2 = async (secret: string) => {
-          const code = await getTotpCode(secret);
-          await this.target.authClient.verifyTotpCode(sessionToken, code);
-        };
-
-        // Check if account has 2FA enabled before attempting to delete TOTP
-        try {
-          const profile =
-            await this.target.authClient.accountProfile(sessionToken);
-          const has2FA = profile.authenticationMethods?.includes('otp');
-
-          if (has2FA) {
-            if ('secret' in account && account.secret) {
-              await elevateToAal2(account.secret);
-            }
-            try {
-              await this.target.authClient.deleteTotpToken(sessionToken);
-            } catch (totpError) {
-              if (totpError.message.includes('Unconfirmed session')) {
-                await verifyIfNeeded();
-                await this.target.authClient.deleteTotpToken(sessionToken);
-              } else if (await getFreshSessionIfNeeded(totpError)) {
-                await this.target.authClient.deleteTotpToken(sessionToken);
-              } else {
-                throw totpError;
-              }
-            }
-          }
-        } catch (profileError) {
-          // If we can't get profile info, fall back to trying TOTP deletion
-          // This handles edge cases where profile endpoint might fail
-          try {
-            await this.target.authClient.deleteTotpToken(sessionToken);
-          } catch (totpError) {
-            if (totpError.message.includes('Unconfirmed session')) {
-              await verifyIfNeeded();
-              await this.target.authClient.deleteTotpToken(sessionToken);
-            } else if (await getFreshSessionIfNeeded(totpError)) {
-              await this.target.authClient.deleteTotpToken(sessionToken);
-            }
-            // Ignore TOTP errors in fallback case - account might not have TOTP
-          }
-        }
-
-        // Try to destroy the account
-        try {
-          await this.target.authClient.accountDestroy(
-            account.email,
-            account.password,
-            {},
-            sessionToken
-          );
-        } catch (destroyError) {
-          if (destroyError.message.includes('Unconfirmed session')) {
-            await verifyIfNeeded();
-            await this.target.authClient.accountDestroy(
-              account.email,
-              account.password,
-              {},
-              sessionToken
-            );
-          } else if (await getFreshSessionIfNeeded(destroyError)) {
-            await this.target.authClient.accountDestroy(
-              account.email,
-              account.password,
-              {},
-              sessionToken
-            );
-          } else {
-            throw destroyError;
-          }
-        }
-      } catch (error) {
+        await this.destroyAccount(account);
+      } catch (error: any) {
         throw new Error(
-          `Failed to cleanup account ${account.email}: ${error.message}`
+          `Failed to cleanup account. Check admin panel for account status and delete if necessary.
+          Account: ${account.email}
+          Error: ${error.message}`
         );
       }
     }
+  }
+
+  /**
+   * Destroys a single account, handling session management, 2FA removal, and cleanup.
+   * This takes a naive approach, defaulting to fetching a new session token, checking status,
+   * verifying the session if needed, and defaulting to elevating to AAL2 when 2FA is enabled.
+   *
+   * Once we have a valid sessionToken, we disconnect 2FA then destroy the account.
+   */
+  private async destroyAccount(account: AccountDetails | Credentials) {
+    const { sessionToken } = await this.target.authClient.signIn(
+      account.email,
+      account.password
+    );
+
+    const [status, has2FA] = await Promise.all([
+      this.target.authClient.sessionStatus(sessionToken),
+      this.checkIfAccountHas2FA(sessionToken),
+    ]);
+
+    if (!status.details.sessionVerified && !has2FA) {
+      await this.target.authClient.sessionResendVerifyCode(sessionToken);
+
+      const [shortCodePromise, loginCodePromise] = [
+        this.target.emailClient.getVerifyShortCode(account.email),
+        this.target.emailClient.getVerifyLoginCode(account.email),
+      ];
+
+      const code = await Promise.any([shortCodePromise, loginCodePromise]);
+      await this.target.authClient.sessionVerifyCode(sessionToken, code);
+    }
+
+    const hasSecret = 'secret' in account && account.secret;
+    const needsElevation = !status.details.sessionVerificationMeetsMinimumAAL;
+
+    if (needsElevation && has2FA && !hasSecret) {
+      throw new Error(
+        `Cannot destroy account ${account.email}: Session does not meet minimum AAL, 2FA is enabled, and no TOTP secret is available.
+        Check admin panel and delete manually if necessary.
+        Account: ${account.email}`
+      );
+    }
+
+    if (needsElevation && hasSecret) {
+      await this.elevateToAal2(account.secret as string, sessionToken, status);
+    }
+
+    if (has2FA) {
+      // TODO: `deleteTotpToken` is deprecated, use `deleteTotpTokenWithJwt` instead
+      // https://mozilla-hub.atlassian.net/browse/FXA-12629
+      await this.target.authClient.deleteTotpToken(sessionToken);
+    }
+
+    await this.target.authClient.accountDestroy(
+      account.email,
+      account.password,
+      {},
+      sessionToken
+    );
+  }
+
+  /**
+   * Checks if an account has 2FA enabled by querying the profile.
+   * Returns false if profile query fails (graceful degradation).
+   */
+  private async checkIfAccountHas2FA(sessionToken: string): Promise<boolean> {
+    try {
+      const profile = await this.target.authClient.accountProfile(sessionToken);
+      return profile.authenticationMethods?.includes('otp') ?? false;
+    } catch (error) {
+      console.error(
+        'Could not check 2FA status from profile, assuming no 2FA:',
+        error
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Elevates the session to AAL2 by verifying a TOTP code.
+   * Uses provided session status to avoid unnecessary elevation if already at AAL2.
+   */
+  private async elevateToAal2(
+    secret: string,
+    sessionToken: string,
+    status: SessionStatus
+  ): Promise<void> {
+    if (status.details.sessionVerificationMeetsMinimumAAL) {
+      return;
+    }
+
+    const code = await getTotpCode(secret);
+    await this.target.authClient.verifyTotpCode(sessionToken, code);
   }
 
   /**
@@ -465,7 +448,6 @@ export class TestAccountTracker {
     }
 
     for (const scope of scopes) {
-      // eslint-disable-next-line no-await-in-loop
       scopeTokenKvp.push({ scope, token: await getTokenByScope(scope) });
     }
 
@@ -531,7 +513,6 @@ export class TestAccountTracker {
           } catch (e) {
             // page hooks that fail are ignored by Playwright, so log to console
             // to troubleshoot if needed
-            // eslint-disable-next-line no-console
             console.error('Error in onLoad hook', e);
           }
         },
