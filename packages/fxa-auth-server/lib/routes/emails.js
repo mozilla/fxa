@@ -1409,6 +1409,111 @@ module.exports = (
     },
     {
       method: 'POST',
+      path: '/mfa/recovery_email/secondary/resend_code',
+      options: {
+        ...EMAILS_DOCS.RECOVERY_EMAIL_SECONDARY_RESEND_CODE_POST,
+        auth: {
+          strategy: 'mfa',
+          scope: ['mfa:email'],
+          payload: false,
+        },
+        validate: {
+          payload: isA.object({
+            email: validators
+              .email()
+              .required()
+              .description(DESCRIPTION.emailSecondaryVerify),
+          }),
+        },
+        response: {},
+      },
+      handler: async function (request) {
+        // This MFA-protected route resends a secondary email verification code
+        // when the email is reserved in Redis but not yet stored in the DB.
+        // It avoids returning "unowned email" errors for reserved-but-not-stored emails.
+        log.begin('Account.RecoveryEmailSecondaryResend.mfa', request);
+        const sessionToken = request.auth.credentials;
+        const { email } = request.payload;
+        const normalizedEmail = normalizeEmail(email);
+
+        await customs.checkAuthenticated(
+          request,
+          sessionToken.uid,
+          sessionToken.email,
+          'recoveryEmailSecondaryResendCode'
+        );
+
+        // Verify Redis reservation exists and belongs to this account
+        const key = toRedisSecondaryEmailReservationKey(normalizedEmail);
+        const rawRecord = await authServerCacheRedis.get(key);
+        let parsedRecord;
+        if (rawRecord) {
+          try {
+            parsedRecord = JSON.parse(rawRecord);
+          } catch (err) {
+            // Bad record: cleanup and throw unowned email error
+            await authServerCacheRedis.del(key);
+            throw error.cannotResendEmailCodeToUnownedEmail();
+          }
+        }
+
+        const uidStr = Buffer.isBuffer(sessionToken.uid)
+          ? sessionToken.uid.toString('base64')
+          : String(sessionToken.uid);
+
+        // If there is no reservation or it belongs to another user, throw.
+        if (!parsedRecord || parsedRecord.uid !== uidStr) {
+          throw error.cannotResendEmailCodeToUnownedEmail();
+        }
+
+        // Generate a new OTP code using the reserved secret and resend the email.
+        const secret = parsedRecord.secret;
+        const code = otpUtils.generateOtpCode(secret, otpOptions);
+
+        const {
+          deviceId,
+          uaBrowser,
+          uaBrowserVersion,
+          uaOS,
+          uaOSVersion,
+          uaDeviceType,
+          uid,
+        } = sessionToken;
+
+        const geoData = request.app.geo;
+        await mailer.sendVerifySecondaryCodeEmail(
+          [
+            {
+              email,
+              normalizedEmail,
+              isVerified: false,
+              isPrimary: false,
+              uid,
+            },
+          ],
+          sessionToken,
+          {
+            code,
+            deviceId,
+            acceptLanguage: request.app.acceptLanguage,
+            email,
+            primaryEmail: sessionToken.email,
+            location: geoData.location,
+            timeZone: geoData.timeZone,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uid,
+          }
+        );
+
+        return {};
+      },
+    },
+    {
+      method: 'POST',
       path: '/recovery_email/secondary/verify_code',
       options: {
         ...EMAILS_DOCS.RECOVERY_EMAIL_SECONDARY_VERIFY_CODE_POST,

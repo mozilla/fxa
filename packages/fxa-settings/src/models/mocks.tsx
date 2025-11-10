@@ -182,7 +182,7 @@ function mockExperiment() {
 }
 
 export function mockAppContext(context?: AppContextValue) {
-  return Object.assign(
+  const base = Object.assign(
     {
       account: MOCK_ACCOUNT,
       session: mockSession(),
@@ -193,6 +193,13 @@ export function mockAppContext(context?: AppContextValue) {
     },
     context
   ) as AppContextValue;
+  // Ensure a sane default for MFA OTP expiry minutes to avoid flakiness in tests
+  try {
+    if (base.config?.mfa?.otp?.expiresInMinutes === 0) {
+      base.config.mfa.otp.expiresInMinutes = 1;
+    }
+  } catch {}
+  return base;
 }
 
 export function mockSettingsContext(context?: SettingsContextValue) {
