@@ -15,12 +15,20 @@ const { emailsMatch } = require('fxa-shared').email.helpers;
 const otp = require('../utils/otp');
 const { fetchRpCmsData } = require('../utils/account');
 const { RelyingPartyConfigurationManager } = require('@fxa/shared/cms');
+const requestHelper = require('./request_helper');
 
 const BASE_36 = validators.BASE_36;
 
 // An arbitrary, but very generous, limit on the number of active sessions.
 // Currently, only for metrics purposes, not enforced.
 const MAX_ACTIVE_SESSIONS = 200;
+
+// If the user is in a non-2FA unverified session state and has signed in through
+// an OAuth flow, the front-end skips `/signin_token_code` screen to avoid friction.
+// However we always want to send the OTP code verification email for VPN now, because
+// they manage their own front-end and can't retroactively update old clients. We
+// also always require verification if the request wantsKeys.
+const SERVICES_WITH_EMAIL_VERIFICATION = ['e6eb0d1e856335fc'];
 
 module.exports = (
   log,
@@ -292,20 +300,21 @@ module.exports = (
       request,
       accountRecord,
       sessionToken,
-      verificationMethod
+      verificationMethod,
+      passwordChangeRequired = false
     ) {
       const service = request.payload.service || request.query.service;
       const redirectTo = request.payload.redirectTo;
       const resume = request.payload.resume;
       const isUnverifiedAccount = !accountRecord.primaryEmail.isVerified;
+      const wantsKeys = requestHelper.wantsKeys(request);
 
       let sessions;
 
       const { deviceId, flowId, flowBeginTime } =
         await request.app.metricsContext;
 
-      const mustVerifySession =
-        sessionToken.mustVerify && !sessionToken.tokenVerified;
+      const mustVerifySession = !sessionToken.tokenVerified;
 
       // The final event to complete the login flow depends on the details
       // of the flow being undertaken, so prepare accordingly.
@@ -388,7 +397,15 @@ module.exports = (
           return await sendVerifyAccountEmail();
         }
         // If the session needs to be verified, send the sign-in confirmation email.
-        if (mustVerifySession) {
+        if (
+          mustVerifySession &&
+          // Always send if passwordChangeRequired, wantsKeys, or no service is specified
+          // Otherwise, only send for some services (see comment above SERVICES_WITH_EMAIL_VERIFICATION)
+          (passwordChangeRequired ||
+            wantsKeys ||
+            !service ||
+            SERVICES_WITH_EMAIL_VERIFICATION.includes(service))
+        ) {
           return await sendVerifySessionEmail();
         }
         // Otherwise, no email is necessary.

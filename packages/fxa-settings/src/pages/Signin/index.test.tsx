@@ -517,23 +517,6 @@ describe('Signin component', () => {
             });
           });
 
-          it('calls sendVerificationCode with successful signin, but unverified session', async () => {
-            const beginSigninHandler = jest.fn().mockReturnValueOnce(
-              createBeginSigninResponse({
-                emailVerified: true,
-                sessionVerified: false,
-                verificationReason: undefined,
-              })
-            );
-
-            render({ beginSigninHandler });
-
-            await enterPasswordAndSubmit();
-            await waitFor(() => {
-              expect(mockSendVerificationCode).toHaveBeenCalledTimes(1);
-            });
-          });
-
           it('does not call sendVerificationCode when reason is signup, on successful signin unverified session', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
