@@ -74,7 +74,7 @@ export const Page2faSetup = () => {
 
   const alertBarSuccessMessage = useCallback(() => {
     return (
-      <div>
+      <div className="text-center">
         <p>
           <strong>
             {ftlMsgResolver.getMsg(
