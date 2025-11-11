@@ -111,8 +111,7 @@ const config = require('../../config').default.getProperties();
       });
       assert.ok(response.sessionToken, 'session token is in response');
       assert.ok(response.keyFetchToken, 'keyFetchToken token is in response');
-      assert.equal(response.emailVerified, true, 'email verified is true');
-      assert.equal(response.sessionVerified, true, 'session verified is true');
+      assert.equal(response.verified, true, 'verified is true');
 
       const emailData = await server.mailbox.waitForEmail(email);
       const link = emailData.headers['x-link'];
@@ -172,8 +171,7 @@ const config = require('../../config').default.getProperties();
       const response = await resetPassword(client, code, newPassword);
       assert.ok(response.sessionToken, 'session token is in response');
       assert(!response.keyFetchToken, 'keyFetchToken token is not in response');
-      assert.equal(response.emailVerified, true, 'email verified is true');
-      assert.equal(response.sessionVerified, true, 'session verified is true');
+      assert.equal(response.verified, true, 'verified is true');
     });
 
     it('account reset deletes tokens', async () => {

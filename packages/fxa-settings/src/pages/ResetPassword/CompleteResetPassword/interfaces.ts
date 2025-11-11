@@ -53,6 +53,5 @@ export type AccountResetData = {
   sessionToken: string;
   uid: string;
   unwrapBKey: string;
-  emailVerified: boolean;
-  sessionVerified: boolean;
+  verified: boolean;
 };

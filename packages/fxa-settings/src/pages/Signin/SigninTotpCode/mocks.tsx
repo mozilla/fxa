@@ -63,8 +63,7 @@ export const MOCK_TOTP_LOCATION_STATE = {
   email: MOCK_EMAIL,
   uid: MOCK_UID,
   sessionToken: MOCK_SESSION_TOKEN,
-  emailVerified: true,
-  sessionVerified: false,
+  verified: false,
   verificationMethod: VerificationMethods.TOTP_2FA,
 };
 
@@ -72,8 +71,7 @@ export const MOCK_NON_TOTP_LOCATION_STATE = {
   email: MOCK_EMAIL,
   uid: MOCK_UID,
   sessionToken: MOCK_SESSION_TOKEN,
-  emailVerified: true,
-  sessionVerified: false,
+  verified: false,
   verificationMethod: VerificationMethods.EMAIL_OTP,
 };
 

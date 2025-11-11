@@ -102,8 +102,7 @@ export const mockSigninLocationState = {
   email: MOCK_EMAIL,
   sessionToken: MOCK_SESSION_TOKEN,
   uid: MOCK_UID,
-  emailVerified: false,
-  sessionVerified: false,
+  verified: false,
 };
 
 export function createMockSigninWebIntegration({
@@ -242,8 +241,7 @@ export function mockGqlBeginSigninMutation(
   },
   inputOverrides: any = {},
   resultOverrides?: {
-    emailVerified?: boolean;
-    sessionVerified?: boolean;
+    verified?: boolean;
   }
 ) {
   const result = opts.keys
@@ -256,11 +254,8 @@ export function mockGqlBeginSigninMutation(
     : createBeginSigninResponse();
 
   // Add ability to override result
-  if (resultOverrides?.emailVerified !== undefined) {
-    result.data.signIn.emailVerified = resultOverrides.emailVerified;
-  }
-  if (resultOverrides?.sessionVerified !== undefined) {
-    result.data.signIn.sessionVerified = resultOverrides.sessionVerified;
+  if (resultOverrides?.verified !== undefined) {
+    result.data.signIn.verified = resultOverrides.verified;
   }
 
   return {
@@ -426,8 +421,7 @@ export function createBeginSigninResponse({
   sessionToken = MOCK_SESSION_TOKEN,
   authAt = MOCK_AUTH_AT,
   metricsEnabled = true,
-  emailVerified = true,
-  sessionVerified = true,
+  verified = true,
   verificationMethod = MOCK_VERIFICATION.verificationMethod,
   verificationReason = MOCK_VERIFICATION.verificationReason,
   unwrapBKey = undefined,
@@ -446,8 +440,7 @@ export function createBeginSigninResponse({
         sessionToken,
         authAt,
         metricsEnabled,
-        emailVerified,
-        sessionVerified,
+        verified,
         verificationMethod,
         verificationReason,
         keyFetchToken,
@@ -495,6 +488,7 @@ export function createCachedSigninResponseError({
 
 export const CACHED_SIGNIN_HANDLER_RESPONSE = {
   data: {
+    verified: true,
     sessionVerified: true,
     emailVerified: true,
     uid: MOCK_UID,

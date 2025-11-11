@@ -4,14 +4,17 @@
 
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
-import { NavigationOptions, SigninLocationState } from './interfaces';
+import {
+  NavigationOptions,
+  RecoveryEmailStatusResponse,
+  SigninLocationState,
+} from './interfaces';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import {
   useSession,
   isOAuthIntegration,
   isOAuthNativeIntegration,
   useAuthClient,
-  isOAuthWebIntegration,
 } from '../../models';
 import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
@@ -127,9 +130,12 @@ export const cachedSignIn = async (
 
     // after accountProfile data is retrieved we must check verified status
     // TODO: FXA-9177 can we use the useSession hook here? Or update Apollo Cache
-    const { details } = await authClient.sessionStatus(sessionToken);
-    const sessionVerified = details.sessionVerified;
-    const emailVerified = details.accountEmailVerified;
+    const {
+      verified,
+      sessionVerified,
+      emailVerified,
+    }: RecoveryEmailStatusResponse =
+      await authClient.recoveryEmailStatus(sessionToken);
 
     let verificationMethod;
     let verificationReason;
@@ -156,10 +162,13 @@ export const cachedSignIn = async (
       data: {
         verificationMethod,
         verificationReason,
+        verified,
         // Because the cached signin was a success, we know 'uid' exists
         uid: storedLocalAccount!.uid,
+        // TODO, address signIn.verified vs session.verified discrepancy
+        // we're using sessionVerified now
         sessionVerified,
-        emailVerified,
+        emailVerified, // might not need
       },
     };
   } catch (error) {
@@ -192,9 +201,10 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     integration.isFirefoxClientServiceRelay() ||
     integration.isFirefoxClientServiceAiMode();
   const wantsTwoStepAuthentication =
-    isOAuthWebIntegration(integration) &&
-    integration.wantsTwoStepAuthentication();
-  const wantsKeys = integration.wantsKeys();
+    isOAuth && 'wantsTwoStepAuthentication' in integration
+      ? integration.wantsTwoStepAuthentication()
+      : false;
+  const wantsKeys = integration?.wantsKeys?.() ?? false;
 
   // If this is an AAL upgrade, the user was redirected from Settings to enter TOTP.
   // RP redirects won't get into this state since they'll be taken to the RP and
@@ -221,27 +231,24 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
 
   // When a session is unverified, we need to redirect to the appropriate page depending on status of
   // the account and the integration being used.
-  // There are 3 types of unverified sessions:
-  // A. User has 2FA and hasn't entered their code yet
-  // B. User has requested scoped keys (Sync flow) and needs to enter an OTP code
-  // C. User hasn't logged in in a while, or other heiruistics determined by auth-server
-  //
   // The following cases are handled:
-  // 1. Users that don't have a verified _email_ always get redirected to confirm signup
-  // 2. Users with type A session always get redirected to confirm TOTP
-  // 3. Users with type B session always get redirected to confirm email
-  // 4. Users with type C session going through an RP flow that requires two-step authentication
-  //    always get redirected to confirm email, before setting up TOTP
-  // 5. Users with type C session going through a normal RP redirect flow will be allowed to
-  //    continue onward without getting prompted for a code. If they try to use Settings with
-  //    this session later, they will be prompted then.
+  // 1. Users that don't have a verified email always get redirected to confirm signup
+  // 2. Users that have a TOTP always get redirected to confirm TOTP
+  // 3. OAuthNative integrations always get redirected to confirm email
+  // 4. Integrations that want two-step authentication always get redirected to confirm email, before
+  //    setting up TOTP
+  // 5. OAuthWeb (ie Relay, Monitor) are redirected to RP
   // 6. WebIntegrations (ie Settings) are always redirected to confirm email
-  // 7. Users that are forced to change their password always get redirected to confirm email
-  const isFullyVerified =
-    navigationOptions.signinData.emailVerified &&
-    navigationOptions.signinData.sessionVerified;
-
-  if (!isFullyVerified) {
+  // 7. Integrations that want keys always get redirected to confirm email
+  // 8. Users that are forced to change their password always get redirected to confirm email
+  if (
+    !navigationOptions.signinData.verified ||
+    // TODO, address signIn.verified vs session.verified discrepancy
+    // currently 'verified' only checks session status, but 'verificationReason'
+    // can tell us if it's a sign up. This will be cleaned up in FXA-12454
+    navigationOptions.signinData.verificationReason ===
+      VerificationReasons.SIGN_UP
+  ) {
     const { to, locationState } =
       getUnverifiedNavigationTarget(navigationOptions);
 
@@ -272,7 +279,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
 
     // Check if this is a standard OAuth web flow, not a NativeOAuth flow or settings flow
     // if so return to RP, they don't need to have a verified session
-    if (isOAuthWebIntegration(integration)) {
+    if (isOAuth && !isOAuthNativeIntegration(integration)) {
       const { to, locationState, shouldHardNavigate, error } =
         await getOAuthNavigationTarget(navigationOptions);
       if (error) {
@@ -295,7 +302,6 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
     return { error: undefined };
   }
 
-  // Account and session are verified
   if (
     navigationOptions.signinData.verificationReason ===
     VerificationReasons.CHANGE_PASSWORD
@@ -321,8 +327,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   }
 
   // Note that OAuth redirect can only be obtained when the session is verified,
-  // otherwise oauth/authorization endpoint throws an "unconfirmed session" error.
-  // The only exception to this is the type C unverified session noted above.
+  // otherwise oauth/authorization endpoint throws an "unconfirmed session" error
   if (isOAuth) {
     const { to, locationState, oauthData, shouldHardNavigate, error } =
       await getOAuthNavigationTarget(navigationOptions);
@@ -363,8 +368,7 @@ const createSigninLocationState = (
     signinData: {
       uid,
       sessionToken,
-      emailVerified,
-      sessionVerified,
+      verified,
       verificationMethod,
       verificationReason,
     },
@@ -376,8 +380,7 @@ const createSigninLocationState = (
     email,
     uid,
     sessionToken,
-    emailVerified,
-    sessionVerified,
+    verified,
     verificationMethod,
     verificationReason,
     showInlineRecoveryKeySetup,
@@ -388,14 +391,11 @@ const createSigninLocationState = (
 
 function sendFxaLogin(navigationOptions: NavigationOptions) {
   const isOAuth = isOAuthIntegration(navigationOptions.integration);
-  const isFullyVerified =
-    navigationOptions.signinData.emailVerified &&
-    navigationOptions.signinData.sessionVerified;
   firefox.fxaLogin({
     email: navigationOptions.email,
     sessionToken: navigationOptions.signinData.sessionToken,
     uid: navigationOptions.signinData.uid,
-    verified: isFullyVerified,
+    verified: navigationOptions.signinData.verified,
     // Do not send these values if OAuth. Mobile doesn't care about this message, and
     // sending these values can cause intermittent sync disconnect issues in oauth desktop.
     ...(!isOAuth && {
@@ -412,7 +412,7 @@ function sendFxaLogin(navigationOptions: NavigationOptions) {
 const getUnverifiedNavigationTarget = (
   navigationOptions: NavigationOptions
 ) => {
-  const { verificationMethod, verificationReason } =
+  const { verificationReason, verificationMethod } =
     navigationOptions.signinData;
   const { queryParams } = navigationOptions;
 
@@ -421,12 +421,7 @@ const getUnverifiedNavigationTarget = (
       return `/signin_totp_code${queryParams || ''}`;
     }
 
-    if (
-      // Note that now that we explicitely return 'emailVerified', we may
-      // not even need this verificationReason check.
-      verificationReason === VerificationReasons.SIGN_UP ||
-      !navigationOptions.signinData.emailVerified
-    ) {
+    if (verificationReason === VerificationReasons.SIGN_UP) {
       return `/confirm_signup_code${queryParams || ''}`;
     }
     return `/signin_token_code${queryParams || ''}`;
@@ -589,17 +584,14 @@ export function getSigninState(
 
 // When SigninLocationState is not available from the router state,
 // this method can be used to check local storage
-function getStoredAccountInfo(): SigninLocationState | null {
+function getStoredAccountInfo() {
   const { email, sessionToken, uid, verified } = currentAccount() || {};
   if (email && sessionToken && uid && verified !== undefined) {
-    // Storage, and Sync web channel messages, have a combined 'verified' field, which
-    // we've left combined for now, for backwards compatibility.
     return {
       email,
       sessionToken,
       uid,
-      emailVerified: verified,
-      sessionVerified: verified,
+      verified,
     };
   }
   return null;

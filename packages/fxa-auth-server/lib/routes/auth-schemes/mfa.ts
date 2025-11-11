@@ -165,7 +165,10 @@ export const strategy = (
       }
 
       // 2) session token is verified
-      if (!sessionToken.tokenVerified) {
+      if (
+        sessionToken.tokenVerificationId ||
+        sessionToken.tokenVerified === false
+      ) {
         if (skipTokenVerifiedCheckForRoutes?.test(req.route.path)) {
           statsd?.increment('verified_session_token.token_verified.skipped', [
             `path:${req.route.path}`,

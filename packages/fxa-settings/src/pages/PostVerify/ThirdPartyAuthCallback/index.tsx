@@ -113,8 +113,7 @@ const ThirdPartyAuthCallback = ({
         signinData: {
           uid: linkedAccount.uid,
           sessionToken: linkedAccount.sessionToken,
-          emailVerified: !needsVerification,
-          sessionVerified: !needsVerification,
+          verified: !needsVerification,
           verificationMethod: needsVerification
             ? VerificationMethods.TOTP_2FA
             : undefined,

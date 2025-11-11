@@ -22,8 +22,7 @@ export const BEGIN_SIGNIN_MUTATION = gql`
       sessionToken
       authAt
       metricsEnabled
-      sessionVerified
-      emailVerified
+      verified
       keyFetchToken
       verificationMethod
       verificationReason

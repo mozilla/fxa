@@ -123,14 +123,12 @@ export const SigninUnblock = ({
     if (data) {
       GleanMetrics.login.success();
 
-      const isFullyVerified =
-        data.signIn.emailVerified && data.signIn.sessionVerified;
       const accountData: StoredAccountData = {
         email,
         uid: data.signIn.uid,
         lastLogin: Date.now(),
         sessionToken: data.signIn.sessionToken,
-        verified: isFullyVerified,
+        verified: data.signIn.verified,
         metricsEnabled: data.signIn.metricsEnabled,
       };
 
@@ -147,7 +145,7 @@ export const SigninUnblock = ({
         handleFxaOAuthLogin: true,
         redirectTo,
         performNavigation: !(
-          integration.isFirefoxMobileClient() && isFullyVerified
+          integration.isFirefoxMobileClient() && data.signIn.verified
         ),
       };
 
