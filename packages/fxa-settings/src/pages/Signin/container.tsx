@@ -428,18 +428,29 @@ const SigninContainer = ({
       // In this case, we should stash the credentials so we can try at a later
       // point in then flow after verification is complete.
       //
+      let isVerified = false;
       if ('data' in result && result.data && 'signIn' in result.data) {
-        const { emailVerified, sessionVerified } = result.data.signIn;
         const accountData: StoredAccountData = {
           email,
           uid: result.data.signIn.uid,
           lastLogin: Date.now(),
           sessionToken: result.data.signIn.sessionToken,
-          verified: emailVerified && sessionVerified,
+          // TODO, address signIn.verified vs session.verified discrepancy
+          verified: result.data.signIn.verified,
           metricsEnabled: result.data.signIn.metricsEnabled,
         };
 
         storeAccountData(accountData);
+
+        // chicken and egg scenario where isSessionVerified GQL call needs
+        // the updated session token in local storage that we set with storeAccountData
+        // but we should update 'verified' once we know the real status
+        // this will be taken care of in the clean up ticket FXA-12454
+        isVerified = await session.isSessionVerified();
+        storeAccountData({
+          ...accountData,
+          verified: isVerified,
+        });
       }
 
       if (
@@ -447,11 +458,8 @@ const SigninContainer = ({
         credentials.v2Credentials
       ) {
         let upgraded = false;
-        if ('data' in result && result.data) {
-          const sessionToken = result.data.signIn.sessionToken;
-          const isVerified =
-            result.data.signIn.emailVerified &&
-            result.data.signIn.sessionVerified;
+        if ('data' in result) {
+          const sessionToken = result.data?.signIn.sessionToken;
           if (sessionToken && isVerified) {
             upgraded = await upgradeClient.upgrade(
               email,
@@ -473,7 +481,19 @@ const SigninContainer = ({
         }
       }
 
-      return result;
+      // TODO, address signIn.verified vs session.verified discrepancy
+      // This currently overrides data.signIn.verified with session.isSessionVerified
+      return {
+        ...result,
+        ...('data' in result &&
+          result.data && {
+            data: {
+              ...result.data,
+              // Temporarily override signIn data with session token verification state
+              signIn: { ...result.data.signIn, verified: isVerified },
+            },
+          }),
+      };
     },
     [
       beginSignin,
@@ -489,6 +509,7 @@ const SigninContainer = ({
       authClient,
       sensitiveDataClient,
       originFromEmailFirst,
+      session,
     ]
   );
 

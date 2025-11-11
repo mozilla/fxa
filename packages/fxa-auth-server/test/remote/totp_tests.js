@@ -156,6 +156,56 @@ const {
         });
     });
 
+    it('should not allow unverified sessions before totp enabled to delete totp token', () => {
+      email = server.uniqueEmail();
+      return Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        testOptions
+      )
+        .then((x) => {
+          client = x;
+          return client.login({ keys: true });
+        })
+        .then((response) => {
+          assert.equal(
+            response.verificationMethod,
+            'email',
+            'challenge method set to email'
+          );
+          assert.equal(
+            response.verificationReason,
+            'login',
+            'challenge reason set to signin'
+          );
+          assert.equal(response.verified, false, 'verified set to false');
+
+          return server.mailbox.waitForEmail(email);
+        })
+        .then(() => {
+          // Login with a new client and enabled TOTP
+          return Client.loginAndVerify(
+            config.publicUrl,
+            email,
+            password,
+            server.mailbox,
+            {
+              ...testOptions,
+              keys: true,
+            }
+          );
+        })
+        .then((client2) => verifyTOTP(client2))
+        .then((res) => {
+          // Attempt to delete totp from original unverified session
+          return client.deleteTotpToken().then(assert.fail, (err) => {
+            assert.equal(err.errno, 138, 'correct unverified session errno');
+          });
+        });
+    });
+
     it('should request `totp-2fa` on login if user has verified totp token', () => {
       return Client.login(config.publicUrl, email, password, {
         ...testOptions,
@@ -322,8 +372,7 @@ const {
         undefined,
         'verificationMethod not set'
       );
-      assert.equal(res.emailVerified, true);
-      assert.equal(res.sessionVerified, true);
+      assert.equal(res.verified, true);
       assert.ok(res.keyFetchToken);
       assert.ok(res.sessionToken);
       assert.ok(res.authAt);

@@ -1126,7 +1126,6 @@ describe('/recovery_email', () => {
         deviceId: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
-        tokenVerified: true,
         normalizedEmail: normalizeEmail(TEST_EMAIL),
       },
       log: mockLog,

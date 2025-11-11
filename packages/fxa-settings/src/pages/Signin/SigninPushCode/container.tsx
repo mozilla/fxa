@@ -88,11 +88,7 @@ export const SigninPushCodeContainer = ({
   const onCodeVerified = async () => {
     const navigationOptions = {
       email: signinState.email,
-      signinData: {
-        ...signinState,
-        emailVerified: true,
-        sessionVerified: true,
-      },
+      signinData: { ...signinState, verified: true },
       unwrapBKey,
       integration,
       finishOAuthFlowHandler,

@@ -130,8 +130,7 @@ const SetPasswordContainer = ({
             signinData: {
               uid,
               sessionToken,
-              emailVerified: true,
-              sessionVerified: true,
+              verified: true,
               keyFetchToken,
             },
             unwrapBKey,

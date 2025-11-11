@@ -111,7 +111,6 @@ describe('mfa', () => {
       uid: UID,
       uaBrowser: UA_BROWSER,
       authenticatorAssuranceLevel: 2,
-      tokenVerified: true,
     });
 
     Container.set(OtpUtils, otpUtils);

@@ -236,7 +236,7 @@ module.exports = (
         const { uid, email } = sessionToken;
 
         try {
-          if (!sessionToken.tokenVerified) {
+          if (sessionToken.tokenVerificationId) {
             throw errors.unverifiedSession();
           }
 
@@ -398,11 +398,11 @@ module.exports = (
       handler: async function (request) {
         log.begin('updateRecoveryKeyHint', request);
 
-        const { uid, tokenVerified } = request.auth.credentials;
+        const { uid, tokenVerificationId } = request.auth.credentials;
 
         const { hint } = request.payload;
 
-        if (!tokenVerified) {
+        if (tokenVerificationId) {
           throw errors.unverifiedSession();
         }
 

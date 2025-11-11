@@ -646,7 +646,7 @@ describe('#integration - AccountResolver', () => {
         authClient.accountResetAuthPW = jest.fn().mockResolvedValue({
           clientMutationId: 'testid',
           uid: 'uid',
-          sessionVerified: true,
+          verified: true,
           sessionToken: 'sessionToken',
           authAt: now,
           keyFetchToken: 'keyFetchToken',
@@ -660,7 +660,7 @@ describe('#integration - AccountResolver', () => {
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
           uid: 'uid',
-          sessionVerified: true,
+          verified: true,
           sessionToken: 'sessionToken',
           authAt: now,
           keyFetchToken: 'keyFetchToken',
@@ -672,7 +672,7 @@ describe('#integration - AccountResolver', () => {
         authClient.accountResetAuthPW = jest.fn().mockResolvedValue({
           clientMutationId: 'testid',
           uid: 'uid',
-          sessionVerified: true,
+          verified: true,
           sessionToken: 'sessionToken',
           authAt: now,
           keyFetchTokenVersion2: 'keyFetchToken',
@@ -693,7 +693,7 @@ describe('#integration - AccountResolver', () => {
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
           uid: 'uid',
-          sessionVerified: true,
+          verified: true,
           sessionToken: 'sessionToken',
           authAt: now,
           keyFetchTokenVersion2: 'keyFetchToken',
@@ -708,7 +708,7 @@ describe('#integration - AccountResolver', () => {
           clientMutationId: 'testid',
           uid: '1337',
           sessionToken: '2048',
-          sessionVerified: true,
+          verified: true,
           authAt: now,
         };
         authClient.signUpWithAuthPW = jest
@@ -736,7 +736,7 @@ describe('#integration - AccountResolver', () => {
           clientMutationId: 'testid',
           uid: '1337',
           sessionToken: '2048',
-          sessionVerified: true,
+          verified: true,
           authAt: now,
         };
         authClient.signUpWithAuthPW = jest
@@ -778,7 +778,7 @@ describe('#integration - AccountResolver', () => {
           clientMutationId: 'testid',
           uid: '1337',
           sessionToken: '2048',
-          sessionVerified: true,
+          verified: true,
         };
         authClient.finishSetupWithAuthPW = jest
           .fn()
@@ -802,7 +802,7 @@ describe('#integration - AccountResolver', () => {
           clientMutationId: 'testid',
           uid: '1337',
           sessionToken: '2048',
-          sessionVerified: true,
+          verified: true,
         };
         authClient.finishSetupWithAuthPW = jest
           .fn()
@@ -842,8 +842,7 @@ describe('#integration - AccountResolver', () => {
           clientMutationId: 'testid',
           uid: '1337',
           sessionToken: '2048',
-          emailVerified: true,
-          sessionVerified: true,
+          verified: true,
           authAt: now,
           metricsEnabled: true,
         };

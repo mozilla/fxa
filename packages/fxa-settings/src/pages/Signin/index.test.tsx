@@ -440,8 +440,7 @@ describe('Signin component', () => {
           it('navigates to /signin_totp_code when TOTP verification requested', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                emailVerified: true,
-                sessionVerified: false,
+                verified: false,
                 verificationMethod: VerificationMethods.TOTP_2FA,
               })
             );
@@ -455,8 +454,7 @@ describe('Signin component', () => {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
                   sessionToken: MOCK_SESSION_TOKEN,
-                  emailVerified: true,
-                  sessionVerified: false,
+                  verified: false,
                   verificationMethod: VerificationMethods.TOTP_2FA,
                   verificationReason: VerificationReasons.SIGN_IN,
                 },
@@ -467,8 +465,7 @@ describe('Signin component', () => {
           it('navigates to /confirm_signup_code when account unverified', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                emailVerified: false,
-                sessionVerified: false,
+                verified: false,
                 verificationReason: VerificationReasons.SIGN_UP,
               })
             );
@@ -482,8 +479,7 @@ describe('Signin component', () => {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
                   sessionToken: MOCK_SESSION_TOKEN,
-                  emailVerified: false,
-                  sessionVerified: false,
+                  verified: false,
                   verificationReason: 'signup',
                   verificationMethod: 'email-otp',
                 },
@@ -494,8 +490,7 @@ describe('Signin component', () => {
           it('navigates to /signin_token_code when session unverified', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                emailVerified: true,
-                sessionVerified: false,
+                verified: false,
               })
             );
             render({ beginSigninHandler });
@@ -508,8 +503,7 @@ describe('Signin component', () => {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
                   sessionToken: MOCK_SESSION_TOKEN,
-                  emailVerified: true,
-                  sessionVerified: false,
+                  verified: false,
                   verificationMethod: 'email-otp',
                   verificationReason: VerificationReasons.SIGN_IN,
                 },
@@ -520,8 +514,7 @@ describe('Signin component', () => {
           it('calls sendVerificationCode with successful signin, but unverified session', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                emailVerified: true,
-                sessionVerified: false,
+                verified: false,
                 verificationReason: undefined,
               })
             );
@@ -537,8 +530,7 @@ describe('Signin component', () => {
           it('does not call sendVerificationCode when reason is signup, on successful signin unverified session', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                emailVerified: false,
-                sessionVerified: false,
+                verified: false,
                 verificationReason: VerificationReasons.SIGN_UP,
               })
             );
@@ -555,8 +547,7 @@ describe('Signin component', () => {
           it('OAuth forced 2FA without TOTP navigates to /signin_token_code (email OTP first)', async () => {
             const beginSigninHandler = jest.fn().mockReturnValueOnce(
               createBeginSigninResponse({
-                emailVerified: true,
-                sessionVerified: false,
+                verified: false,
                 verificationMethod: VerificationMethods.EMAIL_OTP,
               })
             );
@@ -578,8 +569,7 @@ describe('Signin component', () => {
                   email: MOCK_EMAIL,
                   uid: MOCK_UID,
                   sessionToken: MOCK_SESSION_TOKEN,
-                  emailVerified: true,
-                  sessionVerified: false,
+                  verified: false,
                   verificationMethod: 'email-otp',
                   verificationReason: VerificationReasons.SIGN_IN,
                 },
@@ -608,8 +598,7 @@ describe('Signin component', () => {
                     email: MOCK_EMAIL,
                     uid: MOCK_UID,
                     sessionToken: MOCK_SESSION_TOKEN,
-                    emailVerified: true,
-                    sessionVerified: true,
+                    verified: true,
                     showInlineRecoveryKeySetup: true,
                     verificationMethod: 'email-otp',
                     verificationReason: VerificationReasons.SIGN_IN,
@@ -677,8 +666,7 @@ describe('Signin component', () => {
             it('is not sent if user has 2FA enabled', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
                 createBeginSigninResponse({
-                  emailVerified: false,
-                  sessionVerified: false,
+                  verified: false,
                   verificationMethod: VerificationMethods.TOTP_2FA,
                 })
               );
@@ -715,8 +703,7 @@ describe('Signin component', () => {
             it('unverified, wantsKeys, navigates to /confirm_signup_code with keys', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
                 createBeginSigninResponse({
-                  emailVerified: false,
-                  sessionVerified: false,
+                  verified: false,
                   verificationReason: VerificationReasons.SIGN_UP,
                   keyFetchToken: MOCK_KEY_FETCH_TOKEN,
                   unwrapBKey: MOCK_UNWRAP_BKEY,
@@ -737,8 +724,7 @@ describe('Signin component', () => {
                     email: MOCK_EMAIL,
                     uid: MOCK_UID,
                     sessionToken: MOCK_SESSION_TOKEN,
-                    emailVerified: false,
-                    sessionVerified: false,
+                    verified: false,
                     verificationReason: 'signup',
                     verificationMethod: 'email-otp',
                   },
@@ -748,8 +734,7 @@ describe('Signin component', () => {
             it('unverified, does not want keys, navigates to /confirm_signup_code without keys', async () => {
               const beginSigninHandler = jest.fn().mockReturnValueOnce(
                 createBeginSigninResponse({
-                  emailVerified: false,
-                  sessionVerified: false,
+                  verified: false,
                   verificationReason: VerificationReasons.SIGN_UP,
                 })
               );
@@ -768,8 +753,7 @@ describe('Signin component', () => {
                     email: MOCK_EMAIL,
                     uid: MOCK_UID,
                     sessionToken: MOCK_SESSION_TOKEN,
-                    emailVerified: false,
-                    sessionVerified: false,
+                    verified: false,
                     verificationReason: 'signup',
                     verificationMethod: 'email-otp',
                   },
@@ -1159,8 +1143,7 @@ describe('Signin component', () => {
           render({
             beginSigninHandler: jest.fn().mockReturnValue(
               createBeginSigninResponse({
-                emailVerified: true,
-                sessionVerified: true,
+                verified: true,
               })
             ),
             integration,
@@ -1193,8 +1176,7 @@ describe('Signin component', () => {
           render({
             beginSigninHandler: jest.fn().mockReturnValue(
               createBeginSigninResponse({
-                emailVerified: false,
-                sessionVerified: false,
+                verified: false,
               })
             ),
             integration,
@@ -1245,17 +1227,13 @@ describe('Signin component', () => {
               unwrapBKey: signinResponse.data.unwrapBKey,
               verificationMethod: signinResponse.data.signIn.verificationMethod,
               verificationReason: signinResponse.data.signIn.verificationReason,
-              emailVerified: signinResponse.data.signIn.emailVerified,
-              sessionVerified: signinResponse.data.signIn.sessionVerified,
+              verified: signinResponse.data.signIn.verified,
             },
           });
         });
 
         it('navigates to /inline_totp_setup when RP requires two-step auth and session is verified', async () => {
-          const signinResponse = createBeginSigninResponse({
-            emailVerified: true,
-            sessionVerified: true,
-          });
+          const signinResponse = createBeginSigninResponse({ verified: true });
           const beginSigninHandler = jest
             .fn()
             .mockReturnValueOnce(signinResponse);
@@ -1287,8 +1265,7 @@ describe('Signin component', () => {
                   signinResponse.data.signIn.verificationMethod,
                 verificationReason:
                   signinResponse.data.signIn.verificationReason,
-                emailVerified: signinResponse.data.signIn.emailVerified,
-                sessionVerified: signinResponse.data.signIn.sessionVerified,
+                verified: signinResponse.data.signIn.verified,
               },
             });
           });

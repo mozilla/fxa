@@ -160,7 +160,6 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
 
   it('fails when session token is unverified', async () => {
     // Set token as unverified.
-    token.tokenVerified = false;
     token.tokenVerificationId = 'abc';
 
     const authStrategy = strategy(getCredentialsFunc, db, config, statsd)();
@@ -182,7 +181,6 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
 
   it('skips session token is unverified check when configured', async () => {
     // Set token in unverified state
-    token.tokenVerified = false;
     token.tokenVerificationId = 'abc';
 
     // Skip token verification check for path

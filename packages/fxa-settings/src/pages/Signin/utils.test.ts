@@ -54,8 +54,7 @@ describe('Signin utils', () => {
         signinData: {
           uid: MOCK_UID,
           sessionToken: MOCK_SESSION_TOKEN,
-          emailVerified: true,
-          sessionVerified: true,
+          verified: true,
           verificationMethod: VerificationMethods.EMAIL,
           verificationReason: VerificationReasons.SIGN_IN,
           keyFetchToken: MOCK_KEY_FETCH_TOKEN,
@@ -123,8 +122,7 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            emailVerified: false,
-            sessionVerified: false,
+            verified: false,
             verificationReason: VerificationReasons.SIGN_UP,
           },
           integration: createMockSigninOAuthIntegration(),
@@ -143,8 +141,7 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            emailVerified: true,
-            sessionVerified: false,
+            verified: false,
             verificationMethod: VerificationMethods.TOTP_2FA,
           },
           integration: createMockSigninOAuthIntegration(),
@@ -168,8 +165,7 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            emailVerified: true,
-            sessionVerified: false,
+            verified: false,
             verificationMethod: VerificationMethods.EMAIL,
             verificationReason: VerificationReasons.SIGN_IN,
           },
@@ -194,8 +190,7 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            emailVerified: false,
-            sessionVerified: false,
+            verified: false,
             verificationMethod: VerificationMethods.EMAIL,
             verificationReason: VerificationReasons.SIGN_IN,
           },
@@ -227,8 +222,7 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            emailVerified: true,
-            sessionVerified: false,
+            verified: false,
             verificationMethod: VerificationMethods.EMAIL,
             verificationReason: VerificationReasons.SIGN_IN,
           },
@@ -248,8 +242,7 @@ describe('Signin utils', () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
-            emailVerified: false,
-            sessionVerified: false,
+            verified: false,
             verificationMethod: VerificationMethods.TOTP_2FA,
           },
           integration: createMockSigninOAuthNativeSyncIntegration(),
