@@ -2720,12 +2720,6 @@ describe('/account/login', () => {
           false,
           'response indicates account is unverified'
         );
-        // Deprecated
-        assert.equal(
-          response.verified,
-          false,
-          'response includes verified field set to false'
-        );
         assert.equal(
           response.verificationMethod,
           'email',
@@ -2971,11 +2965,6 @@ describe('/account/login', () => {
         assert.ok(
           response.sessionVerified,
           'response indicates session is verified'
-        );
-        // Deprecated
-        assert.ok(
-          response.verified,
-          'response includes verified field set to true'
         );
         assert.ok(
           !response.verificationMethod,

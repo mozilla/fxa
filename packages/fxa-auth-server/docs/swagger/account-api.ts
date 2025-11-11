@@ -46,7 +46,6 @@ const ACCOUNT_LOGIN_POST = {
       The response includes:
       - \`emailVerified\`: Whether the account's primary email address has been verified
       - \`sessionVerified\`: Whether the current session token has been verified
-      - \`verified\`: **Deprecated** - Whether both email and session are verified (equivalent to \`emailVerified && sessionVerified\`). Use \`emailVerified\` and \`sessionVerified\` instead.
       - \`verificationMethod\`: Present if verification is incomplete, e.g. \`email\`, \`email-2fa\`, \`email-otp\`, \`totp-2fa\`
       - \`verificationReason\`: Present if verification is incomplete, e.g. \`login\`, \`signup\`
     `,
