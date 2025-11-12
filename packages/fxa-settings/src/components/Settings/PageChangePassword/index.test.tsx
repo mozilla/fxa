@@ -52,7 +52,8 @@ const mockAuthClient = {
     sessionToken: 'reauth-session-token',
     keyFetchToken: 'key-fetch-token',
     unwrapBKey: 'unwrap-b-key',
-    verified: true,
+    emailVerified: true,
+    sessionVerified: true,
     authAt: Date.now(),
   }),
   accountKeys: jest.fn().mockResolvedValue({
@@ -63,9 +64,7 @@ const mockAuthClient = {
 
 // Mock the cache module to provide session token and JWT cache
 const mockSessionToken = 'mock-session-token';
-const mockJwtState: Record<string, string> = {
-  [`${mockSessionToken}-password`]: 'mock-jwt-token',
-};
+const mockJwtState: Record<string, string> = { [`${mockSessionToken}-password`]: 'mock-jwt-token' };
 jest.mock('../../../lib/cache', () => {
   const actual = jest.requireActual('../../../lib/cache');
   return {
@@ -104,12 +103,7 @@ const settingsContext = mockSettingsContext();
 
 const render = async (mockAccount = account) => {
   renderWithRouter(
-    <AppContext.Provider
-      value={mockAppContext({
-        account: mockAccount,
-        authClient: mockAuthClient,
-      })}
-    >
+    <AppContext.Provider value={mockAppContext({ account: mockAccount, authClient: mockAuthClient })}>
       <SettingsContext.Provider value={settingsContext}>
         <PageChangePassword />
       </SettingsContext.Provider>

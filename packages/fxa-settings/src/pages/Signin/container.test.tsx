@@ -203,10 +203,11 @@ function mockModelsModule() {
   mockAuthClient.accountProfile = jest
     .fn()
     .mockResolvedValue({ authenticationMethods: ['pwd', 'email'] });
-  mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-    verified: true,
-    sessionVerified: true,
-    emailVerified: true,
+  mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+    details: {
+      accountEmailVerified: true,
+      sessionVerified: true,
+    },
   });
   mockAuthClient.recoveryKeyExists = jest.fn().mockResolvedValue({
     exists: false,
@@ -575,7 +576,8 @@ describe('signin container', () => {
         );
         expect(handlerResult?.data?.signIn?.authAt).toEqual(MOCK_AUTH_AT);
         expect(handlerResult?.data?.signIn?.metricsEnabled).toEqual(true);
-        expect(handlerResult?.data?.signIn?.verified).toEqual(true);
+        expect(handlerResult?.data?.signIn?.emailVerified).toEqual(true);
+        expect(handlerResult?.data?.signIn?.sessionVerified).toEqual(true);
         expect(handlerResult?.data?.signIn?.verificationMethod).toEqual(
           MOCK_VERIFICATION.verificationMethod
         );
@@ -961,7 +963,11 @@ describe('signin container', () => {
             currentVersion: 'v1',
             clientSalt: '',
           }),
-          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: true }),
+          mockGqlBeginSigninMutation(
+            { keys: false },
+            {},
+            { emailVerified: true, sessionVerified: true }
+          ),
           {
             ...mockGqlPasswordChangeStartMutation(),
             error: mockGqlError(),
@@ -990,7 +996,11 @@ describe('signin container', () => {
             currentVersion: 'v1',
             clientSalt: '',
           }),
-          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: true }),
+          mockGqlBeginSigninMutation(
+            { keys: false },
+            {},
+            { emailVerified: true, sessionVerified: true }
+          ),
           mockGqlPasswordChangeStartMutation(),
           {
             ...mockGqlGetAccountKeysMutation(),
@@ -1021,7 +1031,11 @@ describe('signin container', () => {
             currentVersion: 'v1',
             clientSalt: '',
           }),
-          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: true }),
+          mockGqlBeginSigninMutation(
+            { keys: false },
+            {},
+            { emailVerified: true, sessionVerified: true }
+          ),
           mockGqlPasswordChangeStartMutation(),
           mockGqlGetAccountKeysMutation(),
           {
@@ -1060,7 +1074,11 @@ describe('signin container', () => {
             currentVersion: 'v1',
           }),
           // Fallback to the V1 signin!
-          mockGqlBeginSigninMutation({ keys: false }, {}, { verified: false }),
+          mockGqlBeginSigninMutation(
+            { keys: false },
+            {},
+            { emailVerified: false, sessionVerified: false }
+          ),
         ]);
 
         await waitFor(async () => {
@@ -1091,10 +1109,11 @@ describe('signin container', () => {
         authenticationMethods: ['pwd', 'email'],
         authenticatorAssuranceLevel: 1,
       });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: false,
-        sessionVerified: false,
-        emailVerified: true,
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        details: {
+          accountEmailVerified: true,
+          sessionVerified: false,
+        },
       });
 
       mockUseValidateModule();
@@ -1111,7 +1130,7 @@ describe('signin container', () => {
         expect(mockAuthClient.accountProfile).toHaveBeenCalledWith(
           MOCK_SESSION_TOKEN
         );
-        expect(mockAuthClient.recoveryEmailStatus).toHaveBeenCalledWith(
+        expect(mockAuthClient.sessionStatus).toHaveBeenCalledWith(
           MOCK_SESSION_TOKEN
         );
         expect(mockSession.sendVerificationCode).toHaveBeenCalled();
@@ -1122,7 +1141,6 @@ describe('signin container', () => {
         expect(handlerResult?.data?.verificationReason).toEqual(
           VerificationReasons.SIGN_IN
         );
-        expect(handlerResult?.data?.verified).toEqual(false);
         expect(handlerResult?.data?.sessionVerified).toEqual(false);
         expect(handlerResult?.data?.emailVerified).toEqual(true);
       });
@@ -1136,10 +1154,11 @@ describe('signin container', () => {
         authenticationMethods: ['pwd', 'email'],
         authenticatorAssuranceLevel: 1,
       });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: false,
-        sessionVerified: false,
-        emailVerified: false,
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        details: {
+          accountEmailVerified: false,
+          sessionVerified: false,
+        },
       });
 
       mockUseValidateModule();
@@ -1156,7 +1175,6 @@ describe('signin container', () => {
         expect(handlerResult?.data?.verificationReason).toEqual(
           VerificationReasons.SIGN_UP
         );
-        expect(handlerResult?.data?.verified).toEqual(false);
         expect(handlerResult?.data?.sessionVerified).toEqual(false);
         expect(handlerResult?.data?.emailVerified).toEqual(false);
       });
@@ -1170,10 +1188,11 @@ describe('signin container', () => {
         authenticationMethods: ['pwd', 'email', 'otp'],
         authenticatorAssuranceLevel: 2, // max account assurance level is 2fa
       });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: false,
-        sessionVerified: false,
-        emailVerified: true,
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        details: {
+          accountEmailVerified: true,
+          sessionVerified: false,
+        },
       });
 
       mockUseValidateModule();
@@ -1190,7 +1209,6 @@ describe('signin container', () => {
         expect(handlerResult?.data?.verificationReason).toEqual(
           VerificationReasons.SIGN_IN
         );
-        expect(handlerResult?.data?.verified).toEqual(false);
         expect(handlerResult?.data?.sessionVerified).toEqual(false);
         expect(handlerResult?.data?.emailVerified).toEqual(true);
       });
@@ -1204,10 +1222,11 @@ describe('signin container', () => {
         authenticationMethods: ['pwd', 'email', 'otp'],
         authenticatorAssuranceLevel: 2, // 2FA verified session
       });
-      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-        verified: true,
-        sessionVerified: true,
-        emailVerified: true,
+      mockAuthClient.sessionStatus = jest.fn().mockResolvedValue({
+        details: {
+          accountEmailVerified: true,
+          sessionVerified: true,
+        },
       });
 
       mockUseValidateModule();
@@ -1247,7 +1266,7 @@ describe('signin container', () => {
     });
 
     it('handles other errors', async () => {
-      mockAuthClient.recoveryEmailStatus = jest
+      mockAuthClient.sessionStatus = jest
         .fn()
         .mockRejectedValue(AuthUiErrors.UNEXPECTED_ERROR);
       mockUseValidateModule();

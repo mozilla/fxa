@@ -517,7 +517,8 @@ describe('/account/reset', () => {
     it('should return response', () => {
       assert.ok(res.sessionToken, 'return sessionToken');
       assert.ok(res.keyFetchToken, 'return keyFetchToken');
-      assert.equal(res.verified, true, 'return verified true');
+      assert.equal(res.emailVerified, true, 'return email verified true');
+      assert.equal(res.sessionVerified, true, 'return session verified true');
       assert.equal(res.verificationMethod, undefined);
     });
 
@@ -2715,9 +2716,15 @@ describe('/account/login', () => {
         );
         assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
         assert.equal(
-          response.verified,
+          response.emailVerified,
           false,
           'response indicates account is unverified'
+        );
+        // Deprecated
+        assert.equal(
+          response.verified,
+          false,
+          'response includes verified field set to false'
         );
         assert.equal(
           response.verificationMethod,
@@ -2890,7 +2897,7 @@ describe('/account/login', () => {
       });
     });
 
-    it('does not require verification when keys are not requested', () => {
+    it('does not require verification when session is verified', () => {
       const email = 'test@mozilla.com';
       mockDB.accountRecord = function () {
         return Promise.resolve({
@@ -2912,6 +2919,13 @@ describe('/account/login', () => {
           wrapWrapKb: hexString(32),
         });
       };
+      const originalCreateSessionToken = mockDB.createSessionToken;
+      mockDB.createSessionToken = sinon.spy(async (opts) => {
+        const result = await originalCreateSessionToken(opts);
+        result.tokenVerificationId = null;
+        result.tokenVerified = true;
+        return result;
+      });
 
       return runTest(route, mockRequestNoKeys, (response) => {
         assert.equal(
@@ -2924,10 +2938,14 @@ describe('/account/login', () => {
           !tokenData.mustVerify,
           'sessionToken does not have to be verified'
         );
-        assert.ok(
-          tokenData.tokenVerificationId,
-          'sessionToken was created unverified'
-        );
+        const sessionToken = mockDB.createSessionToken.returnValues[0];
+        sessionToken.then((token) => {
+          assert.ok(
+            !token.tokenVerificationId,
+            'session token has no tokenVerificationId'
+          );
+          assert.ok(token.tokenVerified, 'session token is verified');
+        });
         assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
         assert.equal(
           mockMailer.sendVerifyLoginEmail.callCount,
@@ -2946,7 +2964,19 @@ describe('/account/login', () => {
           'argument was event name'
         );
 
-        assert.ok(response.verified, 'response indicates account is verified');
+        assert.ok(
+          response.emailVerified,
+          'response indicates account is verified'
+        );
+        assert.ok(
+          response.sessionVerified,
+          'response indicates session is verified'
+        );
+        // Deprecated
+        assert.ok(
+          response.verified,
+          'response includes verified field set to true'
+        );
         assert.ok(
           !response.verificationMethod,
           "verificationMethod doesn't exist"
@@ -2955,6 +2985,9 @@ describe('/account/login', () => {
           !response.verificationReason,
           "verificationReason doesn't exist"
         );
+
+        // Restore the original function
+        mockDB.createSessionToken = originalCreateSessionToken;
       });
     });
 
@@ -3288,7 +3321,7 @@ describe('/account/login', () => {
           );
           assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
           assert.ok(
-            response.verified,
+            response.emailVerified,
             'response indicates account is verified'
           );
 
@@ -3341,7 +3374,7 @@ describe('/account/login', () => {
           );
           assert.equal(mockMailer.sendNewDeviceLoginEmail.args[0][2].uid, uid);
           assert.ok(
-            response.verified,
+            response.emailVerified,
             'response indicates account is verified'
           );
         });
@@ -3550,7 +3583,7 @@ describe('/account/login', () => {
           );
           assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 1);
           assert.ok(
-            response.verified,
+            response.emailVerified,
             'response indicates account is verified'
           );
         });
@@ -3675,7 +3708,7 @@ describe('/account/login', () => {
             'sessionToken does not require verification'
           );
           assert.ok(
-            response.verified,
+            response.sessionVerified,
             'response indicates session is verified'
           );
 

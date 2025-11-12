@@ -264,7 +264,8 @@ describe('ThirdPartyAuthCallback component', () => {
           uid: '123',
           verificationMethod: 'totp-2fa',
           verificationReason: 'login',
-          verified: false,
+          emailVerified: false,
+          sessionVerified: false,
         },
       });
     });

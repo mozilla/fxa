@@ -335,12 +335,12 @@ module.exports = (config) => {
       this.uid = data.uid;
       this.sessionToken = data.sessionToken;
       this.keyFetchToken = data.keyFetchToken || null;
-      this.emailVerified = data.verified;
+      this.emailVerified = data.emailVerified;
+      this.sessionVerified = data.sessionVerified;
       this.authAt = data.authAt;
       this.device = data.device;
       this.verificationReason = data.verificationReason;
       this.verificationMethod = data.verificationMethod;
-      this.verified = data.verified;
       return this;
     });
   };
@@ -352,12 +352,12 @@ module.exports = (config) => {
     );
     this.uid = data.uid;
     this.sessionToken = data.sessionToken;
-    this.emailVerified = data.verified;
+    this.emailVerified = data.emailVerified;
+    this.sessionVerified = data.sessionVerified;
     this.authAt = data.authAt;
     this.device = data.device;
     this.verificationReason = data.verificationReason;
     this.verificationMethod = data.verificationMethod;
-    this.verified = data.verified;
     this.keyFetchTokenVersion2 = data.keyFetchTokenVersion2;
     return this;
   };
@@ -468,11 +468,11 @@ module.exports = (config) => {
           this.keyFetchToken = data.keyFetchToken || null;
         }
 
-        this.emailVerified = data.verified;
+        this.emailVerified = data.emailVerified;
+        this.sessionVerified = data.sessionVerified;
         this.authAt = data.authAt;
         this.verificationReason = data.verificationReason;
         this.verificationMethod = data.verificationMethod;
-        this.verified = data.verified;
         return this;
       });
   };
@@ -498,7 +498,8 @@ module.exports = (config) => {
             c.uid = data.uid;
             c.sessionToken = data.sessionToken;
             c.authAt = data.authAt;
-            c.verified = data.verified;
+            c.emailVerified = data.emailVerified;
+            c.sessionVerified = data.sessionVerified;
             c.verificationReason = data.verificationReason;
             c.verificationMethod = data.verificationMethod;
           });
@@ -557,7 +558,7 @@ module.exports = (config) => {
 
   Client.prototype.changePasswordJWT = function (jwt, options = {}) {
     return this.api.changePasswordJWT(jwt, options);
-  };
+  }
 
   Client.prototype.changePassword = function (
     newPassword,

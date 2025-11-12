@@ -8,8 +8,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
-  MOCK_AUTH_AT,
-  MOCK_CMS_INFO,
+  MOCK_AUTH_AT, MOCK_CMS_INFO,
   MOCK_EMAIL,
   MOCK_SESSION_TOKEN,
   MOCK_UID,
@@ -37,7 +36,8 @@ const mockSuccessResponse = () =>
         sessionToken: MOCK_SESSION_TOKEN,
         authAt: MOCK_AUTH_AT,
         metricsEnabled: true,
-        verified: true,
+        emailVerified: true,
+        sessionVerified: true,
         verificationMethod: VerificationMethods.EMAIL_CAPTCHA,
         verificationReason: VerificationReasons.SIGN_IN,
       },
@@ -72,7 +72,7 @@ export const DefaultWithCms = () => (
       hasPassword={true}
       finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
       integration={createMockSigninOAuthIntegration({
-        cmsInfo: MOCK_CMS_INFO,
+        cmsInfo: MOCK_CMS_INFO
       })}
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendSuccessResponse}
