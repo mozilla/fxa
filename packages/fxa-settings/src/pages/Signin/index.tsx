@@ -25,6 +25,7 @@ import {
   isWebIntegration,
   isOAuthIntegration,
   useSession,
+  isOAuthWebIntegration,
   isOAuthNativeIntegration,
 } from '../../models';
 import {
@@ -39,7 +40,6 @@ import Banner from '../../components/Banner';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { BannerLinkProps } from '../../components/Banner/interfaces';
 import CmsButtonWithFallback from '../../components/CmsButtonWithFallback';
-import VerificationReasons from '../../constants/verification-reasons';
 
 export const viewName = 'signin';
 
@@ -154,9 +154,8 @@ const Signin = ({
         const navigationOptions = {
           email,
           signinData: {
-            // TODO, address signIn.verified vs session.verified discrepancy
-            // we're currently using 'sessionVerified' from recovery_email/status
-            verified: data.sessionVerified,
+            emailVerified: data.emailVerified,
+            sessionVerified: data.sessionVerified,
             verificationMethod: data.verificationMethod,
             verificationReason: data.verificationReason,
             uid: data.uid,
@@ -211,11 +210,12 @@ const Signin = ({
       if (data) {
         GleanMetrics.login.success();
 
+        const isFullyVerified =
+          data.signIn.emailVerified && data.signIn.sessionVerified;
         const navigationOptions = {
           email,
           signinData: data.signIn,
           unwrapBKey: data.unwrapBKey,
-          verified: data.signIn.verified,
           integration,
           finishOAuthFlowHandler,
           redirectTo:
@@ -227,7 +227,7 @@ const Signin = ({
           handleFxaLogin: true,
           handleFxaOAuthLogin: true,
           performNavigation: !(
-            integration.isFirefoxMobileClient() && data.signIn.verified
+            integration.isFirefoxMobileClient() && isFullyVerified
           ),
         };
 
@@ -237,13 +237,13 @@ const Signin = ({
             getLocalizedErrorMessage(ftlMsgResolver, navError)
           );
         } else {
-          // TODO, address signIn.verified vs session.verified discrepancy
-          // currently 'verified' only checks session status, but 'verificationReason'
-          // can tell us if it's a sign up. This will be cleaned up in FXA-12454
           if (
-            !data.signIn.verified &&
-            data.signIn.verificationReason !== VerificationReasons.SIGN_UP &&
-            isWebIntegration(integration)
+            // Don't send a verification code email if it's non-signup, the user has an unverified
+            // session, and it's an RP redirect flow. We don't need to prompt these users for
+            // a verification code.
+            data.signIn.emailVerified &&
+            !data.signIn.sessionVerified &&
+            !isOAuthWebIntegration(integration)
           ) {
             session.sendVerificationCode();
           }

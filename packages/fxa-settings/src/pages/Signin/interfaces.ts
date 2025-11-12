@@ -122,7 +122,8 @@ export interface BeginSigninResponse {
     sessionToken: hexstring;
     authAt: number;
     metricsEnabled: boolean;
-    verified: boolean;
+    emailVerified: boolean;
+    sessionVerified: boolean;
     verificationMethod: VerificationMethods;
     verificationReason: VerificationReasons;
     keyFetchToken?: hexstring;
@@ -136,18 +137,14 @@ export type CachedSigninHandler = (
   sessionToken: hexstring
 ) => Promise<CachedSigninHandlerResponse>;
 
-export interface RecoveryEmailStatusResponse {
-  verified: boolean;
-  sessionVerified: boolean;
-  emailVerified: boolean;
-}
-
 export interface CachedSigninHandlerResponse {
   data?: {
     verificationMethod?: VerificationMethods;
     verificationReason?: VerificationReasons;
     uid: hexstring;
-  } & RecoveryEmailStatusResponse;
+    sessionVerified: boolean;
+    emailVerified: boolean;
+  };
   error?: AuthUiError;
 }
 
@@ -205,7 +202,8 @@ export interface NavigationOptions {
   signinData: {
     uid: hexstring;
     sessionToken: hexstring;
-    verified: boolean;
+    emailVerified: boolean;
+    sessionVerified: boolean;
     verificationMethod?: VerificationMethods;
     verificationReason?: VerificationReasons;
     // keyFetchToken is included if options.keys=true
@@ -245,7 +243,8 @@ export interface SigninLocationState {
   email: string;
   uid: hexstring;
   sessionToken: hexstring;
-  verified: boolean;
+  emailVerified: boolean;
+  sessionVerified: boolean;
   verificationMethod?: VerificationMethods;
   verificationReason?: VerificationReasons;
   origin?: NavigationOptions['origin'];

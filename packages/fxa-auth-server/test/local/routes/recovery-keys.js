@@ -340,7 +340,7 @@ describe('POST /recoveryKey', () => {
     beforeEach(async () => {
       mockAccountEventsManager = mocks.mockAccountEventsManager();
       const requestOptions = {
-        credentials: { uid, email },
+        credentials: { uid, email, tokenVerified: true },
         log,
         payload: { recoveryKeyId, enabled: false },
       };
@@ -814,7 +814,7 @@ describe('POST /recoveryKey/hint', () => {
     beforeEach(() => {
       const requestOptions = {
         method: 'POST',
-        credentials: { uid, email },
+        credentials: { uid, email, tokenVerified: true },
         payload: { hint },
         log,
       };
@@ -837,7 +837,7 @@ describe('POST /recoveryKey/hint', () => {
     beforeEach(async () => {
       const requestOptions = {
         method: 'POST',
-        credentials: { uid, email },
+        credentials: { uid, email, tokenVerified: true },
         payload: { hint },
         log,
       };

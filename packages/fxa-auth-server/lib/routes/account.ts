@@ -1081,11 +1081,6 @@ export class AccountHandler {
       request: AuthRequest,
       account: any
     ) => {
-      // Skip all checks to simulate an unverified session token state
-      if (this.config.signinConfirmation.tokenVerification === false) {
-        return false;
-      }
-
       // Check to see if there has been a recent, successfully-verified login from
       // the same device (as indicated by User-Agent string)
       if (this.config.signinConfirmation.deviceFingerprinting?.enabled) {
@@ -1407,6 +1402,7 @@ export class AccountHandler {
         sessionToken: sessionToken.data,
         authAt: sessionToken.lastAuthAt(),
         metricsEnabled: !accountRecord.metricsOptOutAt,
+        emailVerified: sessionToken.emailVerified,
       };
 
       if (keyFetchToken) {
@@ -1418,7 +1414,7 @@ export class AccountHandler {
       }
 
       if (passwordChangeRequired) {
-        response.verified = false;
+        response.sessionVerified = false;
         response.verificationReason = 'change_password';
         response.verificationMethod = verificationMethod;
       } else {
@@ -1431,9 +1427,14 @@ export class AccountHandler {
         );
       }
 
+      // This has stuck around for backwards compatibility and is not currently
+      // used by our front-end. RPs should be encouraged to use 'sessionVerified'
+      // or 'emailVerified' instead.
+      response.verified = response.emailVerified && response.sessionVerified;
+
       await this.signinUtils.cleanupReminders(response, accountRecord);
 
-      if (response.verified) {
+      if (response.emailVerified && response.sessionVerified) {
         this.glean.login.success(request, { uid: sessionToken.uid });
       }
 
@@ -1913,7 +1914,7 @@ export class AccountHandler {
       const response: Record<string, any> = {
         uid: sessionToken.uid,
         sessionToken: sessionToken.data,
-        verified: sessionToken.emailVerified,
+        emailVerified: sessionToken.emailVerified,
         authAt: sessionToken.lastAuthAt(),
       };
 
@@ -2417,6 +2418,8 @@ export const accountRoutes = (
               .string()
               .optional()
               .description(DESCRIPTION.verificationReason),
+            emailVerified: isA.boolean().required(),
+            sessionVerified: isA.boolean().required(),
             verified: isA.boolean().required(),
             authAt: isA.number().integer().description(DESCRIPTION.authAt),
             metricsEnabled: isA.boolean().required(),

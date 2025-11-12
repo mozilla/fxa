@@ -67,7 +67,8 @@ export const createMockSigninLocationState = (
     email: MOCK_EMAIL,
     uid: MOCK_UID,
     sessionToken: MOCK_SESSION_TOKEN,
-    verified: false,
+    emailVerified: false,
+    sessionVerified: false,
     verificationReason,
     ...(wantsKeys && {
       keyFetchToken: MOCK_KEY_FETCH_TOKEN,

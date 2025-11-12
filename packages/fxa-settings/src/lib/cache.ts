@@ -27,7 +27,8 @@ export function getStoredAccountData({
   metricsEnabled,
   lastLogin,
   email,
-  verified,
+  emailVerified,
+  sessionVerified,
 }: Record<string, any>): StoredAccountData {
   return {
     uid,
@@ -37,7 +38,7 @@ export function getStoredAccountData({
     metricsEnabled,
     lastLogin,
     email,
-    verified,
+    verified: emailVerified && sessionVerified,
   };
 }
 

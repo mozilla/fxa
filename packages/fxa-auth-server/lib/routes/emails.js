@@ -115,8 +115,7 @@ module.exports = (
       if (!sessionToken.emailVerified) {
         throw error.unverifiedAccount();
       }
-
-      if (sessionToken.tokenVerificationId) {
+      if (!sessionToken.tokenVerified) {
         throw error.unverifiedSession();
       }
 
@@ -734,7 +733,7 @@ module.exports = (
             emails = [foundEmail];
             code = foundEmail.emailCode;
             return !foundEmail.isVerified;
-          } else if (sessionToken.tokenVerificationId) {
+          } else if (!sessionToken.tokenVerified) {
             emails = emailData;
             code = sessionToken.tokenVerificationId;
 
@@ -1036,7 +1035,7 @@ module.exports = (
         );
         const account = await db.account(uid);
 
-        if (sessionToken.tokenVerificationId) {
+        if (!sessionToken.tokenVerified) {
           throw error.unverifiedSession();
         }
 
@@ -1137,7 +1136,7 @@ module.exports = (
           'setPrimaryEmail'
         );
 
-        if (sessionToken.tokenVerificationId) {
+        if (!sessionToken.tokenVerified) {
           throw error.unverifiedSession();
         }
 
