@@ -81,6 +81,7 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
     null
   );
   const [reason, setReason] = useState<string>('');
+  const [isRefreshingClients, setIsRefreshingClients] = useState(false);
 
   const clearDisconnectingState = useCallback(
     (errorMessage?: string, error?: ApolloError) => {
@@ -192,6 +193,15 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
     hideAdviceModal();
   }, [clearDisconnectingState, hideAdviceModal]);
 
+  const handleRefreshClients = useCallback(async () => {
+    setIsRefreshingClients(true);
+    try {
+      await account.refresh('clients');
+    } finally {
+      setIsRefreshingClients(false);
+    }
+  }, [account]);
+
   return (
     <section
       data-testid="settings-connected-services"
@@ -212,8 +222,8 @@ export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
               title="Refresh connected services"
               classNames="hidden mobileLandscape:inline-block"
               testId="connected-services-refresh"
-              disabled={account.loading}
-              onClick={() => account.refresh('clients')}
+              disabled={isRefreshingClients}
+              onClick={handleRefreshClients}
             />
           </Localized>
         </div>
