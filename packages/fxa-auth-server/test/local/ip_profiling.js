@@ -60,6 +60,11 @@ function makeRoutes(options = {}) {
   const glean = gleanMetrics(defaultConfig);
   const { accountRoutes } = require('../../lib/routes/account');
 
+  const authServerCacheRedis = {
+    get: async () => null,
+    del: async () => 0,
+  };
+
   return accountRoutes(
     log,
     db,
@@ -76,6 +81,7 @@ function makeRoutes(options = {}) {
     null,
     null,
     glean,
+    authServerCacheRedis,
     mocks.mockStatsd()
   );
 }

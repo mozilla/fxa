@@ -1742,7 +1742,7 @@ const convictConf = convict({
     pendingTtlSeconds: {
       doc: 'TTL in seconds for pending secondary email reservations (Redis)',
       format: 'nat',
-      default: 3600,
+      default: 600,
       env: 'SECONDARY_EMAIL_PENDING_TTL_SECONDS',
     },
   },
