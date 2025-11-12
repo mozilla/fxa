@@ -179,6 +179,11 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
 
   Container.set(ProfileClient, profile);
 
+  const authServerCacheRedis = options.authServerCacheRedis || {
+    get: async () => null,
+    del: async () => 0,
+  };
+
   return accountRoutes(
     log,
     db,
@@ -195,6 +200,7 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     options.stripeHelper,
     pushbox,
     glean,
+    authServerCacheRedis,
     statsd
   );
 };
@@ -864,7 +870,7 @@ describe('/account/create', () => {
     glean.registration.confirmationEmailSent.reset();
   });
 
-  function setup(extraConfig, mockRequestOptsCb) {
+  function setup(extraConfig, mockRequestOptsCb, makeRoutesOptions = {}) {
     const config = {
       securityHistory: {
         enabled: true,
@@ -965,6 +971,7 @@ describe('/account/create', () => {
       push: mockPush,
       verificationReminders,
       subscriptionAccountReminders,
+      ...makeRoutesOptions,
     });
     const route = getRoute(accountRoutes, '/account/create');
 
@@ -1288,6 +1295,23 @@ describe('/account/create', () => {
 
       sinon.assert.calledOnce(glean.registration.accountCreated);
     }).finally(() => Date.now.restore());
+  });
+
+  it('should reject creation when email is reserved in Redis', async () => {
+    const authServerCacheRedis = {
+      get: async () => JSON.stringify({ uid: 'someone-else', secret: 'abc' }),
+      del: async () => 1,
+    };
+    const { route, mockRequest } = setup({}, undefined, {
+      authServerCacheRedis,
+    });
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.VERIFIED_SECONDARY_EMAIL_EXISTS);
+      assert.equal(err.message, 'Email already exists');
+    }
   });
 
   it('should create a non-sync account', () => {
@@ -1632,11 +1656,10 @@ describe('/account/stub', () => {
 });
 
 describe('/account/status', () => {
-  function setup({
-    extraConfig = {},
-    dbOptions = {},
-    shouldError = true,
-  } = {}) {
+  function setup(
+    { extraConfig = {}, dbOptions = {}, shouldError = true } = {},
+    makeRoutesOptions = {}
+  ) {
     const config = {
       securityHistory: {
         enabled: true,
@@ -1717,6 +1740,7 @@ describe('/account/status', () => {
       push: mockPush,
       verificationReminders,
       subscriptionAccountReminders,
+      ...makeRoutesOptions,
     });
     const route = getRoute(accountRoutes, '/account/status', 'POST');
 
@@ -1743,6 +1767,21 @@ describe('/account/status', () => {
     return runTest(route, mockRequest, (response) => {
       assert.equal(response.invalidDomain, false);
     });
+  });
+
+  it('rejects with EMAIL_EXISTS when reserved in Redis', async () => {
+    const authServerCacheRedis = {
+      get: async () => JSON.stringify({ uid: 'someone-else', secret: 'zzz' }),
+      del: async () => 1,
+    };
+    const { route, mockRequest } = setup({}, { authServerCacheRedis });
+    try {
+      await runTest(route, mockRequest);
+      assert.fail('should have errored');
+    } catch (err) {
+      assert.equal(err.errno, error.ERRNO.VERIFIED_SECONDARY_EMAIL_EXISTS);
+      assert.equal(err.message, 'Email already exists');
+    }
   });
 
   it('#integration -returns invalid for an invalid email domain', async () => {

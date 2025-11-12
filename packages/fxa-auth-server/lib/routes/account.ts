@@ -43,6 +43,7 @@ import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
 import { AccountDeleteManager } from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { normalizeEmail } from 'fxa-shared/email/helpers';
 import { DeleteAccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { ProfileClient } from '@fxa/profile/client';
 import { DB } from '../db';
@@ -53,6 +54,8 @@ import {
 } from './utils/security-event';
 import { RelyingPartyConfigurationManager } from '@fxa/shared/cms';
 import { OtpUtils } from './utils/otp';
+import { getExistingSecondaryEmailRecord } from './emails';
+import { Redis } from 'ioredis';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -91,7 +94,8 @@ export class AccountHandler {
     private oauth: any,
     private stripeHelper: StripeHelper,
     private glean: ReturnType<typeof gleanMetrics>,
-    private statsd: StatsD
+    private statsd: StatsD,
+    private authServerCacheRedis: Redis
   ) {
     this.otpUtils = require('./utils/otp').default(db, statsd);
     this.skipConfirmationForEmailAddresses = config.signinConfirmation
@@ -566,6 +570,19 @@ export class AccountHandler {
       request,
       email
     );
+
+    // Block creation if email is reserved for secondary email registration
+    const normalizedEmail = normalizeEmail(email);
+    const existingSecondaryEmailRecord = await getExistingSecondaryEmailRecord(
+      normalizedEmail,
+      request,
+      this.authServerCacheRedis
+    );
+    if (existingSecondaryEmailRecord) {
+      // in this instance the secondary email is not verified,
+      // but the error message is adequate
+      throw error.verifiedSecondaryEmailAlreadyExists();
+    }
 
     const { hex16: emailCode, hex32: authSalt } =
       await this.generateRandomValues();
@@ -1497,6 +1514,19 @@ export class AccountHandler {
 
     await this.customs.check(request, email, 'accountStatusCheck');
 
+    // Block creation if email is reserved for secondary email registration
+    const normalizedEmail = normalizeEmail(email);
+    const existingSecondaryEmailRecord = await getExistingSecondaryEmailRecord(
+      normalizedEmail,
+      request,
+      this.authServerCacheRedis
+    );
+    if (existingSecondaryEmailRecord) {
+      // in this instance the secondary email is not verified,
+      // but the error message is adequate
+      throw error.verifiedSecondaryEmailAlreadyExists();
+    }
+
     const result: {
       exists: boolean;
       invalidDomain?: boolean;
@@ -2171,6 +2201,7 @@ export const accountRoutes = (
   stripeHelper: StripeHelper,
   pushbox: any,
   glean: ReturnType<typeof gleanMetrics>,
+  authServerCacheRedis: Redis,
   statsd: any
 ) => {
   const accountHandler = new AccountHandler(
@@ -2188,7 +2219,8 @@ export const accountRoutes = (
     oauth,
     stripeHelper,
     glean,
-    statsd
+    statsd,
+    authServerCacheRedis
   );
   const routes = [
     {
