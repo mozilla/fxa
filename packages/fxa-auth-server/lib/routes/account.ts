@@ -1300,7 +1300,8 @@ export class AccountHandler {
         request,
         accountRecord,
         sessionToken,
-        verificationMethod
+        verificationMethod,
+        passwordChangeRequired
       );
 
       // For new logins that don't send some other sort of email,

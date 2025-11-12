@@ -751,7 +751,6 @@ describe('sendSigninNotifications', () => {
       keys: false,
     },
     payload: {
-      service: 'testservice',
       metricsContext: {
         deviceId: 'wibble',
         flowBeginTime: Date.now(),
@@ -796,6 +795,7 @@ describe('sendSigninNotifications', () => {
       uid: TEST_UID,
       email: TEST_EMAIL,
       mustVerify: false,
+      tokenVerified: true,
     };
     config = {
       otp: otpOptions,
@@ -838,7 +838,7 @@ describe('sendSigninNotifications', () => {
         country: 'United States',
         event: 'account.login',
         region: 'California',
-        service: 'testservice',
+        service: undefined,
         userAgent: 'test user-agent',
         uid: TEST_UID,
       });
@@ -855,7 +855,7 @@ describe('sendSigninNotifications', () => {
       assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
         deviceCount: 0,
         email: TEST_EMAIL,
-        service: 'testservice',
+        service: undefined,
         uid: TEST_UID,
         userAgent: 'test user-agent',
         country: 'United States',
@@ -915,7 +915,7 @@ describe('sendSigninNotifications', () => {
           deviceId: request.payload.metricsContext.deviceId,
           flowBeginTime: request.payload.metricsContext.flowBeginTime,
           flowId: request.payload.metricsContext.flowId,
-          service: 'testservice',
+          service: undefined,
           redirectTo: request.payload.redirectTo,
           resume: request.payload.resume,
           timeZone: 'America/Los_Angeles',
@@ -971,7 +971,7 @@ describe('sendSigninNotifications', () => {
           deviceId: request.payload.metricsContext.deviceId,
           flowBeginTime: request.payload.metricsContext.flowBeginTime,
           flowId: request.payload.metricsContext.flowId,
-          service: 'testservice',
+          service: undefined,
           redirectTo: request.payload.redirectTo,
           resume: request.payload.resume,
           timeZone: 'America/Los_Angeles',
@@ -995,7 +995,7 @@ describe('sendSigninNotifications', () => {
         assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
           deviceCount: 0,
           email: TEST_EMAIL,
-          service: 'testservice',
+          service: undefined,
           uid: TEST_UID,
           userAgent: 'test user-agent',
           country: 'United States',
@@ -1039,7 +1039,7 @@ describe('sendSigninNotifications', () => {
         assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
           deviceCount: 0,
           email: TEST_EMAIL,
-          service: 'testservice',
+          service: undefined,
           uid: TEST_UID,
           userAgent: 'test user-agent',
           country: 'United States',
@@ -1100,7 +1100,7 @@ describe('sendSigninNotifications', () => {
               state: 'California',
               stateCode: 'CA',
             },
-            service: 'testservice',
+            service: undefined,
             timeZone: 'America/Los_Angeles',
             uaBrowser: 'Firefox Mobile',
             uaBrowserVersion: '9',
@@ -1169,7 +1169,7 @@ describe('sendSigninNotifications', () => {
             flowId: request.payload.metricsContext.flowId,
             redirectTo: request.payload.redirectTo,
             resume: request.payload.resume,
-            service: 'testservice',
+            service: undefined,
             timeZone: 'America/Los_Angeles',
             uaBrowser: 'Firefox Mobile',
             uaBrowserVersion: '9',
@@ -1227,13 +1227,108 @@ describe('sendSigninNotifications', () => {
       assert.calledWithExactly(log.notifyAttachedServices, 'login', request, {
         deviceCount: 0,
         email: TEST_EMAIL,
-        service: 'testservice',
+        service: undefined,
         uid: TEST_UID,
         userAgent: 'test user-agent',
         country: 'United States',
         countryCode: 'US',
       });
       assert.calledOnce(db.securityEvent);
+    });
+  });
+
+  describe('email verification sending', () => {
+    beforeEach(() => {
+      sessionToken.tokenVerified = false;
+    });
+
+    it('passes service parameter correctly when request wantsKeys', () => {
+      request.query.keys = true;
+      request.query.service = 'sync';
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp'
+      ).then(() => {
+        assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
+        const callArgs = mailer.sendVerifyLoginCodeEmail.getCall(0).args[2];
+        assert.equal(callArgs.service, 'sync');
+      });
+    });
+
+    it('passes service parameter correctly when service is undefined', () => {
+      request.payload.service = undefined;
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp'
+      ).then(() => {
+        assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
+        const callArgs = mailer.sendVerifyLoginCodeEmail.getCall(0).args[2];
+        assert.equal(callArgs.service, undefined);
+      });
+    });
+
+    it('passes service parameter correctly for email-2fa when service is sync', () => {
+      request.query.keys = true;
+      request.query.service = 'sync';
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-2fa'
+      ).then(() => {
+        assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
+        const callArgs = mailer.sendVerifyLoginCodeEmail.getCall(0).args[2];
+        assert.equal(callArgs.service, 'sync');
+        assert.notCalled(mailer.sendVerifyEmail);
+        assert.notCalled(mailer.sendVerifyLoginEmail);
+      });
+    });
+
+    it('sends verification email when service is VPN', () => {
+      request.payload.service = 'e6eb0d1e856335fc';
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp'
+      ).then(() => {
+        assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
+        assert.notCalled(mailer.sendVerifyEmail);
+        assert.notCalled(mailer.sendVerifyLoginEmail);
+      });
+    });
+
+    it('does NOT send verification email when service is a non-whitelisted RP', () => {
+      request.payload.service = 'some-other-service';
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp'
+      ).then(() => {
+        assert.notCalled(mailer.sendVerifyLoginCodeEmail);
+        assert.notCalled(mailer.sendVerifyEmail);
+        assert.notCalled(mailer.sendVerifyLoginEmail);
+      });
+    });
+
+    it('sends verification email when passwordChangeRequired is true, regardless of service', () => {
+      request.payload.service = 'some-other-service';
+      return sendSigninNotifications(
+        request,
+        accountRecord,
+        sessionToken,
+        'email-otp',
+        true // passwordChangeRequired
+      ).then(() => {
+        assert.calledOnce(mailer.sendVerifyLoginCodeEmail);
+        assert.notCalled(mailer.sendVerifyEmail);
+        assert.notCalled(mailer.sendVerifyLoginEmail);
+      });
     });
   });
 
@@ -1295,7 +1390,7 @@ describe('sendSigninNotifications', () => {
               flowId: req.payload.metricsContext.flowId,
               redirectTo: req.payload.redirectTo,
               resume: req.payload.resume,
-              service: 'testservice',
+              service: undefined,
               timeZone: 'America/Los_Angeles',
               uaBrowser: 'Firefox Mobile',
               uaBrowserVersion: '9',

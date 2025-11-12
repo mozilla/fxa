@@ -24,8 +24,6 @@ import {
   useFtlMsgResolver,
   isWebIntegration,
   isOAuthIntegration,
-  useSession,
-  isOAuthWebIntegration,
   isOAuthNativeIntegration,
 } from '../../models';
 import {
@@ -71,7 +69,6 @@ const Signin = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
   const sensitiveDataClient = useSensitiveDataClient();
-  const session = useSession();
 
   const [localizedBannerError, setLocalizedBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -236,17 +233,6 @@ const Signin = ({
           setLocalizedBannerError(
             getLocalizedErrorMessage(ftlMsgResolver, navError)
           );
-        } else {
-          if (
-            // Don't send a verification code email if it's non-signup, the user has an unverified
-            // session, and it's an RP redirect flow. We don't need to prompt these users for
-            // a verification code.
-            data.signIn.emailVerified &&
-            !data.signIn.sessionVerified &&
-            !isOAuthWebIntegration(integration)
-          ) {
-            session.sendVerificationCode();
-          }
         }
       }
       if (error) {
@@ -341,7 +327,6 @@ const Signin = ({
       setLocalizedBannerError,
       finishOAuthFlowHandler,
       integration,
-      session,
       location.search,
       webRedirectCheck,
       sensitiveDataClient,

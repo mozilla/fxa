@@ -2243,7 +2243,7 @@ describe('/account/login', () => {
     payload: {
       authPW: hexString(32),
       email: TEST_EMAIL,
-      service: 'dcdb5ae7add825d2',
+      service: undefined,
       reason: 'signin',
       metricsContext: {
         deviceId: 'blee',
