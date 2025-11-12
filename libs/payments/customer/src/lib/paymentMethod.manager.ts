@@ -12,9 +12,12 @@ import {
 } from '@fxa/payments/stripe';
 import {
   DefaultPaymentMethod,
+  DefaultPaymentMethodError,
+  PaymentMethodErrorType,
   SubPlatPaymentMethodType,
   type PaymentMethodTypeResponse,
 } from './types';
+import { getPaymentMethodErrorContent } from './util/getPaymentMethodErrorContent';
 
 @Injectable()
 export class PaymentMethodManager {
@@ -40,6 +43,7 @@ export class PaymentMethodManager {
     uid: string
   ) {
     let defaultPaymentMethod: DefaultPaymentMethod | undefined;
+    let hasPaymentMethodError: DefaultPaymentMethodError | undefined;
     const paymentMethodType = await this.determineType(customer, subscriptions);
     switch (paymentMethodType?.type) {
       case SubPlatPaymentMethodType.Link:
@@ -50,23 +54,57 @@ export class PaymentMethodManager {
         const paymentMethod = await this.retrieve(
           paymentMethodType.paymentMethodId
         );
+
+        if (paymentMethod.card) {
+          const expiry = new Date(
+            paymentMethod.card.exp_year,
+            paymentMethod.card.exp_month,
+            0,
+            23,
+            59,
+            59,
+            999
+          );
+
+          const isValid = expiry.getTime() > Date.now();
+          if (!isValid) {
+            hasPaymentMethodError =
+              paymentMethodType.type === SubPlatPaymentMethodType.Card
+                ? getPaymentMethodErrorContent(
+                    PaymentMethodErrorType.CardExpired,
+                    paymentMethodType.type
+                  )
+                : getPaymentMethodErrorContent(
+                    PaymentMethodErrorType.GenericIssue,
+                    paymentMethodType.type
+                  );
+          }
+        }
         defaultPaymentMethod = {
-          type: paymentMethod.type,
+          type: paymentMethodType.type,
           brand: paymentMethod.card?.brand,
           last4: paymentMethod.card?.last4,
           expMonth: paymentMethod.card?.exp_month,
           expYear: paymentMethod.card?.exp_year,
-          walletType: paymentMethod.card?.wallet?.type,
+          hasPaymentMethodError,
         };
         break;
       }
       case SubPlatPaymentMethodType.PayPal:
         const billingAgreementId =
           await this.paypalBillingAgreementManager.retrieveActiveId(uid);
+
+        if (!billingAgreementId) {
+          hasPaymentMethodError = getPaymentMethodErrorContent(
+            PaymentMethodErrorType.GenericIssue,
+            SubPlatPaymentMethodType.PayPal
+          );
+        }
+
         defaultPaymentMethod = {
-          type: 'external_paypal',
-          brand: 'paypal',
+          type: SubPlatPaymentMethodType.PayPal,
           billingAgreementId,
+          hasPaymentMethodError,
         };
         break;
     }

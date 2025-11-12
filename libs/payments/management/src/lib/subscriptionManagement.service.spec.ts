@@ -18,6 +18,7 @@ import {
   SubscriptionManager,
   SetupIntentManager,
   CustomerSessionManager,
+  SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
   AppleIapClient,
@@ -298,11 +299,12 @@ describe('SubscriptionManagementService', () => {
       );
       const mockSubscriptionContent = SubscriptionContentFactory();
       const mockPaymentMethodInformation = {
-        type: mockPaymentMethod.type,
+        type: SubPlatPaymentMethodType.Card,
         brand: mockPaymentMethod.card?.brand,
         last4: mockPaymentMethod.card?.last4,
         expMonth: mockPaymentMethod.card?.exp_month,
         expYear: mockPaymentMethod.card?.exp_year,
+        hasPaymentMethodError: undefined,
       };
       const mockStoreId1 = faker.string.sample();
       const mockStoreId2 = faker.string.sample();
