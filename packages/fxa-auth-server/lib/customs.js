@@ -180,13 +180,8 @@ class CustomsClient {
   }
 
   async flag(ip, info) {
-    await this.makeRequest('/failedLoginAttempt', {
-      ...this.sanitizePayload({
-        ip,
-        email: info.email,
-        errno: info.errno || this.error.ERRNO.UNEXPECTED_ERROR,
-      }),
-    });
+    // noop since this is being deprecated
+    return Promise.resolve();
   }
 
   async reset(request, email) {
