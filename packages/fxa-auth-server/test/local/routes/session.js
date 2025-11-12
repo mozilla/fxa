@@ -232,7 +232,7 @@ describe('/session/status', () => {
         uid: 'account-123',
         state: 'unverified',
         verified: false,
-        tokenVerified: false,
+        tokenVerificationId: 'verification-id',
         verificationMethodValue: 'email',
         authenticatorAssuranceLevel: 1,
       },
@@ -251,7 +251,7 @@ describe('/session/status', () => {
     });
   });
 
-  it('has unverified session because of defined tokenVerificationId (tokenVerified: false)', async () => {
+  it('has unverified session because of defined tokenVerificationId', async () => {
     db.account = sinon.fake.resolves({
       uid: 'account-123',
       primaryEmail: {
@@ -267,7 +267,8 @@ describe('/session/status', () => {
       credentials: {
         uid: 'account-123',
         state: 'unverified',
-        tokenVerified: false,
+        verified: false,
+        tokenVerificationId: 'token-123',
         verificationMethodValue: 'email',
         authenticatorAssuranceLevel: 1,
       },
@@ -302,7 +303,8 @@ describe('/session/status', () => {
       credentials: {
         uid: 'account-123',
         state: 'unverified',
-        tokenVerified: false,
+        verified: false,
+        tokenVerificationId: 'verification-id',
         verificationMethodValue: 'email',
         authenticatorAssuranceLevel: 1,
       },
@@ -337,7 +339,7 @@ describe('/session/status', () => {
       credentials: {
         uid: 'account-123',
         state: 'verified',
-        tokenVerified: true,
+        verified: true,
         verificationMethodValue: 'totp-2fa',
         authenticatorAssuranceLevel: 1,
       },
@@ -371,7 +373,7 @@ describe('/session/status', () => {
       credentials: {
         uid: 'account-123',
         state: 'verified',
-        tokenVerified: true,
+        verified: true,
         verificationMethodValue: 'email',
         authenticatorAssuranceLevel: 1,
       },
@@ -406,7 +408,7 @@ describe('/session/status', () => {
       credentials: {
         uid: 'account-123',
         state: 'verified',
-        tokenVerified: true,
+        verified: true,
         verificationMethodValue: 'totp-2fa',
         authenticatorAssuranceLevel: 2,
       },
@@ -500,7 +502,6 @@ describe('/session/reauth', () => {
       email: TEST_EMAIL,
       uid: TEST_UID,
       createdAt: 12345678,
-      emailVerified: true,
     }).then((sessionToken) => {
       request.auth.credentials = sessionToken;
     });
@@ -518,7 +519,7 @@ describe('/session/reauth', () => {
       Promise.resolve({ data: 'KEYFETCHTOKEN' })
     );
     signinUtils.getSessionVerificationStatus = sinon.spy(() => ({
-      sessionVerified: true,
+      verified: true,
     }));
     const testNow = Math.floor(Date.now() / 1000);
     return runTest(route, request).then((res) => {
@@ -720,7 +721,7 @@ describe('/session/reauth', () => {
 
       assert.equal(
         Object.keys(res).length,
-        6,
+        5,
         'response object had correct number of keys'
       );
       assert.equal(res.uid, TEST_UID, 'response object contained correct uid');
@@ -734,14 +735,9 @@ describe('/session/reauth', () => {
         'response object contained the keyFetchToken'
       );
       assert.equal(
-        res.emailVerified,
+        res.verified,
         true,
-        'response object indicated correct email verification status'
-      );
-      assert.equal(
-        res.sessionVerified,
-        true,
-        'response object indicated correct session verification status'
+        'response object indicated correct verification status'
       );
     });
   });
@@ -1165,7 +1161,7 @@ describe('/session/duplicate', () => {
     return runTest(route, request).then((res) => {
       assert.equal(
         Object.keys(res).length,
-        5,
+        4,
         'response has correct number of keys'
       );
       assert.equal(
@@ -1180,14 +1176,9 @@ describe('/session/duplicate', () => {
         'response includes correctly-copied auth timestamp'
       );
       assert.equal(
-        res.emailVerified,
+        res.verified,
         true,
-        'response includes correctly-copied email verification flag'
-      );
-      assert.equal(
-        res.sessionVerified,
-        true,
-        'response includes correctly-copied session verification flag'
+        'response includes correctly-copied verification flag'
       );
 
       assert.equal(
@@ -1283,7 +1274,7 @@ describe('/session/duplicate', () => {
     return runTest(route, request).then((res) => {
       assert.equal(
         Object.keys(res).length,
-        7,
+        6,
         'response has correct number of keys'
       );
       assert.equal(
@@ -1298,14 +1289,9 @@ describe('/session/duplicate', () => {
         'response includes correctly-copied auth timestamp'
       );
       assert.equal(
-        res.emailVerified,
-        true,
-        'response includes correctly-copied email verification flag'
-      );
-      assert.equal(
-        res.sessionVerified,
+        res.verified,
         false,
-        'response includes correctly-copied session verification flag'
+        'response includes correctly-copied verification flag'
       );
       assert.equal(
         res.verificationMethod,
@@ -1414,7 +1400,7 @@ describe('/session/duplicate', () => {
     return runTest(route, request).then((res) => {
       assert.equal(
         Object.keys(res).length,
-        7,
+        6,
         'response has correct number of keys'
       );
       assert.equal(
@@ -1429,14 +1415,9 @@ describe('/session/duplicate', () => {
         'response includes correctly-copied auth timestamp'
       );
       assert.equal(
-        res.emailVerified,
+        res.verified,
         false,
-        'response includes correctly-copied email verification flag'
-      );
-      assert.equal(
-        res.sessionVerified,
-        true,
-        'response includes correctly-copied session verification flag'
+        'response includes correctly-copied verification flag'
       );
       assert.equal(
         res.verificationMethod,

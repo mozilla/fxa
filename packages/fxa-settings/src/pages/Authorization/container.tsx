@@ -92,7 +92,7 @@ const AuthorizationContainer = ({
         throw error;
       }
 
-      if (!data?.emailVerified) {
+      if (!data?.verified) {
         throw new OAuthError('PROMPT_NONE_UNVERIFIED');
       }
 
@@ -100,8 +100,9 @@ const AuthorizationContainer = ({
         const navigationOptions = {
           email: account?.email!,
           signinData: {
-            emailVerified: data.emailVerified,
-            sessionVerified: data.sessionVerified,
+            // TODO, address signIn.verified vs session.verified discrepancy
+            // we're currently using 'sessionVerified' from recovery_email/status
+            verified: data.sessionVerified,
             verificationMethod: data.verificationMethod,
             verificationReason: data.verificationReason,
             uid: data.uid,

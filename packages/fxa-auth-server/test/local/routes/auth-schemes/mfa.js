@@ -55,7 +55,6 @@ describe('lib/routes/auth-schemes/mfa', () => {
       uid: 'account-123',
       id: 'session-123',
       authenticatorAssuranceLevel: 2,
-      tokenVerified: true,
       get foo() {
         return 'bar';
       },
@@ -226,7 +225,6 @@ describe('lib/routes/auth-schemes/mfa', () => {
 
   it('fails when session token is unverified', async () => {
     // Set token as unverified.
-    sessionToken.tokenVerified = false;
     sessionToken.tokenVerificationId = 'abc';
 
     const authStrategy = strategy(config, getCredentialsFunc, db, statsd)();
@@ -248,7 +246,6 @@ describe('lib/routes/auth-schemes/mfa', () => {
 
   it('skips session token is unverified check when configured', async () => {
     // Set token in unverified state
-    sessionToken.tokenVerified = false;
     sessionToken.tokenVerificationId = 'abc';
 
     // Skip token verification check for path

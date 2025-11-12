@@ -147,8 +147,7 @@ module.exports = function (
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
             verificationMethod: isA.string().optional(),
             verificationReason: isA.string().optional(),
-            emailVerified: isA.boolean().required(),
-            sessionVerified: isA.boolean().required(),
+            verified: isA.boolean().required(),
             authAt: isA.number().integer(),
             metricsEnabled: isA.boolean().required(),
           }),
@@ -183,7 +182,10 @@ module.exports = function (
         if (!account?.primaryEmail?.isVerified) {
           statsd.increment('session_reauth.primary_email_not_verified');
         }
-        if (!sessionToken.tokenVerified) {
+        if (
+          sessionToken.tokenVerificationId ||
+          sessionToken.tokenVerified === false
+        ) {
           statsd.increment('session_reauth.token_not_verified');
         }
         const accountAmr = await authMethods.availableAuthenticationMethods(
@@ -260,7 +262,6 @@ module.exports = function (
           uid: sessionToken.uid,
           authAt: sessionToken.lastAuthAt(),
           metricsEnabled: !accountRecord.metricsOptOut,
-          emailVerified: sessionToken.emailVerified,
         };
 
         if (requestHelper.wantsKeys(request)) {
@@ -330,7 +331,7 @@ module.exports = function (
           sessionToken.verificationMethodValue || null;
 
         // See verified-session-token auth strategy
-        const sessionVerified = sessionToken.tokenVerified;
+        const sessionVerified = !sessionToken.tokenVerificationId;
 
         // Account Assurance Level
         const sessionVerificationMeetsMinimumAAL = sessionAal >= accountAal;
@@ -395,19 +396,18 @@ module.exports = function (
           uid: newSessionToken.uid,
           sessionToken: newSessionToken.data,
           authAt: newSessionToken.lastAuthAt(),
-          emailVerified: newSessionToken.emailVerified,
         };
 
         if (!newSessionToken.emailVerified) {
-          response.sessionVerified = newSessionToken.tokenVerified;
+          response.verified = false;
           response.verificationMethod = 'email';
           response.verificationReason = 'signup';
         } else if (!newSessionToken.tokenVerified) {
-          response.sessionVerified = false;
+          response.verified = false;
           response.verificationMethod = 'email';
           response.verificationReason = 'login';
         } else {
-          response.sessionVerified = true;
+          response.verified = true;
         }
 
         return response;

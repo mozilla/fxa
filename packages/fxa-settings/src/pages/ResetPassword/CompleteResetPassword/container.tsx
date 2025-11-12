@@ -124,7 +124,7 @@ const CompleteResetPasswordContainer = ({
   const handleNavigationWithoutRecoveryKey = async (
     accountResetData: AccountResetData
   ) => {
-    if (accountResetData.sessionVerified) {
+    if (accountResetData.verified) {
       // For verified users with OAuth integration, navigate to confirmation page then to the relying party
       if (isOAuth && !integration.isSync()) {
         sensitiveDataClient.setDataType(SensitiveData.Key.AccountReset, {
@@ -205,14 +205,13 @@ const CompleteResetPasswordContainer = ({
         undefined,
         includeRecoveryKeyPrompt
       );
-    console.log('accountResetData', accountResetData);
     return accountResetData;
   };
 
   const notifyClientOfSignin = async (accountResetData: AccountResetData) => {
     // Users will not be verified if they have 2FA. If this is the case, users are
     // taken back to `/signin`, where they can sign in with 2FA and login to Sync.
-    if (!accountResetData.sessionVerified) {
+    if (!accountResetData.verified) {
       return;
     }
 
@@ -221,7 +220,7 @@ const CompleteResetPasswordContainer = ({
       email,
       lastLogin: Date.now(),
       sessionToken: accountResetData.sessionToken,
-      verified: accountResetData.sessionVerified,
+      verified: accountResetData.verified,
     });
 
     // This handles the sync desktop v3 case and the sync oauth_webchannel_v1 case.
@@ -232,7 +231,7 @@ const CompleteResetPasswordContainer = ({
         email,
         sessionToken: accountResetData.sessionToken,
         uid: accountResetData.uid,
-        verified: accountResetData.sessionVerified,
+        verified: accountResetData.verified,
         // Do not send these values if OAuth. Mobile doesn't care about this message, and
         // sending these values can cause intermittent sync disconnect issues in oauth desktop.
         ...(!isOAuth && {
@@ -302,7 +301,7 @@ const CompleteResetPasswordContainer = ({
           );
 
           // we cannot create a new recovery key if the session is not verified
-          if (accountResetData.sessionVerified) {
+          if (accountResetData.verified) {
             await account.refresh('account');
             const recoveryKey = await account.createRecoveryKey(
               newPassword,
@@ -316,7 +315,7 @@ const CompleteResetPasswordContainer = ({
 
           handleNavigationWithRecoveryKey(
             { email: emailToUse },
-            accountResetData.sessionVerified
+            accountResetData.verified
           );
         }
       } else if (isResetWithoutRecoveryKey) {

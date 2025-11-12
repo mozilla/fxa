@@ -99,8 +99,7 @@ describe('SessionResolver', () => {
     const mockRespPayload = {
       clientMutationId: 'testid',
       uid: '1337',
-      emailVerified: true,
-      sessionVerified: true,
+      verified: true,
       authAt: now,
       metricsEnabled: true,
     };

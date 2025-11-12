@@ -1576,7 +1576,7 @@ const convictConf = convict({
   },
   signinConfirmation: {
     forcedEmailAddresses: {
-      doc: 'Force sign-in confirmation for email addresses matching this regex for those that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating an unverified session state',
+      doc: 'Force sign-in confirmation for email addresses matching this regex.',
       format: RegExp,
       default: /.+@mozilla\.com$/,
       env: 'SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX',
@@ -1589,7 +1589,7 @@ const convictConf = convict({
     },
     skipForNewAccounts: {
       enabled: {
-        doc: 'Skip sign-in confirmation for newly-created accounts. Use this in tandem with forcedEmailAddresses',
+        doc: 'Skip sign-in confirmation for newly-created accounts.',
         default: true,
         env: 'SIGNIN_CONFIRMATION_SKIP_FOR_NEW_ACCOUNTS',
       },
@@ -1638,6 +1638,12 @@ const convictConf = convict({
         format: 'duration',
         env: 'SIGNIN_CONFIRMATION_DEVICE_FINGERPRINTING_DURATION',
       },
+    },
+    tokenVerification: {
+      doc: 'If set to false, force sign-in confirmation for logins that do not request scoped keys. Sets "mustVerify: 0" on created session tokens but creates an entry in unverifiedTokens, simulating an unverified session state',
+      format: Boolean,
+      default: true,
+      env: 'SIGNIN_CONFIRMATION_TOKEN_VERIFICATION',
     },
   },
   forcePasswordChange: {
