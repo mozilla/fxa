@@ -157,7 +157,8 @@ describe('models/integrations/oauth-relier', function () {
 
       function getIntegrationForSentryTest(
         scope: string,
-        isTrusted: boolean = false
+        isTrusted: boolean = false,
+        wantsConsent: boolean = true
       ) {
         const integration = new OAuthWebIntegration(
           new GenericData({
@@ -176,6 +177,7 @@ describe('models/integrations/oauth-relier', function () {
         // Set clientId after construction to avoid validation issues
         integration.data.clientId = 'a1b2c3d4e5f6789012345678901234567890abcd';
         integration.isTrusted = () => isTrusted;
+        integration.wantsConsent = () => wantsConsent;
         return integration;
       }
 
@@ -183,7 +185,11 @@ describe('models/integrations/oauth-relier', function () {
        * If a test should expect an OAuth scope error, use this function to assert the error was captured.
        * @param scope
        */
-      function expectSentryOAuthScopeError(scope: string) {
+      function expectSentryOAuthScopeError(
+        scope: string,
+        trusted: boolean,
+        wantsConsent: boolean
+      ) {
         expect(Sentry.captureException).toHaveBeenCalledTimes(1);
 
         const sentryCall = (Sentry.captureException as jest.Mock).mock.calls[0];
@@ -198,6 +204,8 @@ describe('models/integrations/oauth-relier', function () {
             scope,
             clientId: 'a1b2c3d4e5f6789012345678901234567890abcd',
             service: 'test-service',
+            trusted,
+            wantsConsent,
           },
         });
       }
@@ -207,26 +215,39 @@ describe('models/integrations/oauth-relier', function () {
       });
 
       it('captures Sentry error and throws OAuthError when permissions array is empty', () => {
-        const integration = getIntegrationForSentryTest(EMPTY_SCOPE, false);
-
-        expect(() => {
-          integration.getPermissions();
-        }).toThrow(OAuthError);
-
-        expectSentryOAuthScopeError(EMPTY_SCOPE);
-      });
-
-      it('captures Sentry error and throws OAuthError when untrusted scope results in empty permissions', () => {
+        const isTrusted = true;
+        const wantsConsent = true;
         const integration = getIntegrationForSentryTest(
-          INVALID_UNTRUSTED_SCOPE,
-          false
+          EMPTY_SCOPE,
+          isTrusted,
+          wantsConsent
         );
 
         expect(() => {
           integration.getPermissions();
         }).toThrow(OAuthError);
 
-        expectSentryOAuthScopeError(INVALID_UNTRUSTED_SCOPE);
+        expectSentryOAuthScopeError(EMPTY_SCOPE, isTrusted, wantsConsent);
+      });
+
+      it('captures Sentry error and throws OAuthError when untrusted scope results in empty permissions', () => {
+        const isTrusted = false;
+        const wantsConsent = false;
+        const integration = getIntegrationForSentryTest(
+          INVALID_UNTRUSTED_SCOPE,
+          isTrusted,
+          wantsConsent
+        );
+
+        expect(() => {
+          integration.getPermissions();
+        }).toThrow(OAuthError);
+
+        expectSentryOAuthScopeError(
+          INVALID_UNTRUSTED_SCOPE,
+          isTrusted,
+          wantsConsent
+        );
       });
     });
 

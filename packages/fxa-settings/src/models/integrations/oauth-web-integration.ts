@@ -242,11 +242,17 @@ export class OAuthWebIntegration extends GenericIntegration<
       const err = new OAuthError(OAUTH_ERRORS.INVALID_PARAMETER.errno, {
         param: 'scope',
       });
+      // capture error to Sentry, but throw so it can be handled
+      // in app/index. We check the integration type and present
+      // an OAuthDataError component.
       Sentry.captureException(err, {
         tags: { area: 'OAuthWebIntegration.getPermissions' },
         extra: {
           scope: this.data.scope,
           clientId: this.data.clientId,
+          trusted: this.isTrusted(),
+          wantsConsent: this.wantsConsent(),
+          clientInfo: this.clientInfo,
           service: this.data.service,
         },
       });
