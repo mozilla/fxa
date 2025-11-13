@@ -6,7 +6,7 @@
   "tags": ["scope:shared:lib"],
   "targets": {
     "build": {
-      "dependsOn": ["build-css", "build-ts"],
+      "dependsOn": ["l10n-merge", "build-css", "build-ts"],
       "executor": "nx:run-commands",
       "options": {
         "commands": [
@@ -77,6 +77,34 @@
           "quiet": true
         }
       }
+    },
+    "l10n-watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx grunt --gruntfile libs/accounts/email-renderer/gruntfile.js l10n-watch",
+        "cwd": "."
+      },
+      "inputs": [
+        "{projectRoot}/gruntfile.js",
+        "{projectRoot}/src/**/en.ftl"
+      ],
+      "outputs": [
+        "{projectRoot}/public/en/auth.ftl"
+      ]
+    },
+    "l10n-merge": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "yarn grunt --gruntfile libs/accounts/email-renderer/gruntfile.js l10n-merge",
+        "cwd": "."
+      },
+      "inputs": [
+        "{projectRoot}/gruntfile.js",
+        "{projectRoot}/src/**/en.ftl"
+      ],
+      "outputs": [
+        "{projectRoot}/public/en/auth.ftl"
+      ]
     },
     "l10n-copy": {
       "executor": "nx:run-commands",

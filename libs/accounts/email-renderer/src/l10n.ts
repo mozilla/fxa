@@ -140,7 +140,7 @@ class Localizer {
     // English strings within the templates are tested and are shown in other envs
     const authPath = `${this.bindings.opts.translations.basePath}/${
       locale || 'en'
-    }/auth.ftl`;
+    }/emails.ftl`;
     results.push(await this.bindings.fetchResource(authPath));
 
     const brandingPath = `${this.bindings.opts.translations.basePath}/${
