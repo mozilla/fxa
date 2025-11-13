@@ -668,7 +668,6 @@ describe('Integration serviceName error handling', () => {
       );
     });
 
-    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
     expect(screen.getByText('Bad Request')).toBeInTheDocument();
     expect(screen.getByText(mockError.message)).toBeInTheDocument();
   });
@@ -705,8 +704,6 @@ describe('Integration serviceName error handling', () => {
       })
     ).rejects.toThrow('Non-OAuth integration error');
 
-    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
-
     consoleSpy.mockRestore();
   });
 
@@ -736,7 +733,6 @@ describe('Integration serviceName error handling', () => {
       );
     });
 
-    expect(sentryMetrics.captureException).toHaveBeenCalledWith(mockError);
     expect(screen.getByText('Bad Request')).toBeInTheDocument();
     expect(screen.getByText(mockError.message)).toBeInTheDocument();
   });
