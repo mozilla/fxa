@@ -714,7 +714,7 @@ const conf = (module.exports = convict({
       format: Boolean,
     },
     preview: {
-      default: true,
+      default: false,
       doc: 'Enables preview mode for nimbus experiments for development and testing.',
       env: 'NIMBUS_PREVIEW',
       format: Boolean,
