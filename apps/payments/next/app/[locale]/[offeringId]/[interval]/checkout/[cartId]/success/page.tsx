@@ -178,8 +178,7 @@ export default async function CheckoutSuccess({
                 <Image
                   src={getCardIcon(cart.paymentInfo.brand, l10n).img}
                   alt={getCardIcon(cart.paymentInfo.brand, l10n).altText}
-                  width={40}
-                  height={24}
+                  className="w-10 h-auto object-cover"
                 />
               )}
               {l10n.getString(

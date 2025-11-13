@@ -365,8 +365,7 @@ export default async function Manage({
                                 <Image
                                   src={getCardIcon(brand, l10n).img}
                                   alt={getCardIcon(brand, l10n).altText}
-                                  width={getCardIcon(brand, l10n).width}
-                                  height={getCardIcon(brand, l10n).height}
+                                  className="w-10 h-auto object-cover"
                                 />
                                 {last4 && (
                                   <span className="font-bold">
