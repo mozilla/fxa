@@ -109,8 +109,6 @@ class PairIndexView extends FormView {
       GleanMetrics.cadFirefox.choiceView();
     }
 
-    // Apply CMS button color
-    let buttonStyle = '';
     // Apply CMS button text shadow if needed
     let buttonTextShadowClass = '';
     if (
@@ -118,7 +116,6 @@ class PairIndexView extends FormView {
       this.cmsConfig.shared &&
       this.cmsConfig.shared.buttonColor
     ) {
-      buttonStyle = `style="--cta-bg: ${this.cmsConfig.shared.buttonColor}; --cta-border: ${this.cmsConfig.shared.buttonColor}; --cta-active: ${this.cmsConfig.shared.buttonColor}; --cta-disabled: ${this.cmsConfig.shared.buttonColor}60;"`;
       if (
         !hasSufficientContrast(
           this.cmsConfig.shared.buttonColor.trim(),
@@ -194,10 +191,26 @@ class PairIndexView extends FormView {
       graphicId,
       needsMobileConfirmed,
       showSuccessMessage: this.showSuccessMessage(),
-      buttonStyle,
       buttonTextShadowClass,
       tabletBackArrowColor,
     });
+  }
+
+  afterRender() {
+    const buttonColor = this.cmsConfig?.shared?.buttonColor;
+    if (buttonColor) {
+      const applyStyle = (el) => {
+        if (!el) return;
+        el.style.setProperty('--cta-bg', buttonColor);
+        el.style.setProperty('--cta-border', buttonColor);
+        el.style.setProperty('--cta-active', buttonColor);
+        el.style.setProperty('--cta-disabled', `${buttonColor}60`);
+      };
+
+      applyStyle(this.el.querySelector('#set-needs-mobile'));
+      applyStyle(this.el.querySelector('#start-pairing'));
+    }
+    return FormView.prototype.afterRender.call(this);
   }
 
   async setNeedsMobile() {
