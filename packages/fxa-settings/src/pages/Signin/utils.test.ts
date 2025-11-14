@@ -261,7 +261,7 @@ describe('Signin utils', () => {
     });
 
     describe('third party auth with non-Sync services', () => {
-      it('sends fxaOAuthLogin with empty values and navigates to settings', async () => {
+      it('sends fxaOAuthLogin and navigates to settings', async () => {
         const fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
         const navigationOptions = createBaseNavigationOptions({
           integration: createMockSigninOAuthNativeIntegration({
@@ -270,6 +270,7 @@ describe('Signin utils', () => {
           }),
           isSignInWithThirdPartyAuth: true,
           performNavigation: true,
+          handleFxaOAuthLogin: true,
         });
 
         const result = await handleNavigation(navigationOptions);
@@ -277,9 +278,9 @@ describe('Signin utils', () => {
         expect(result.error).toBeUndefined();
         expect(fxaOAuthLoginSpy).toHaveBeenCalledWith({
           action: 'signin',
-          code: '',
-          redirect: '',
-          state: '',
+          code: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.code,
+          redirect: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect,
+          state: MOCK_OAUTH_FLOW_HANDLER_RESPONSE.state,
         });
         expect(navigateSpy).toHaveBeenCalledWith('/settings', {
           replace: true,
