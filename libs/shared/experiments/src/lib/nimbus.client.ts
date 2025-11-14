@@ -25,6 +25,7 @@ export class NimbusClient {
   @CaptureTimingWithStatsD()
   async fetchExperiments<ResultT>(params: {
     clientId: string;
+    preview: boolean;
     context: NimbusContext;
   }) {
     const { clientId, context } = params;
@@ -35,7 +36,7 @@ export class NimbusClient {
     });
 
     const queryParams = new URLSearchParams({
-      nimbus_preview: this.config.previewEnabled === true ? 'true' : 'false',
+      nimbus_preview: params.preview ? 'true' : 'false',
     });
 
     const controller = new AbortController();

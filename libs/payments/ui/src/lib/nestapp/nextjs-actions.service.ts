@@ -194,6 +194,7 @@ export class NextJSActionsService {
   async getExperiments(args: {
     language: string;
     ip: string;
+    experimentationPreview: boolean;
     fxaUid?: string;
     experimentationId?: string;
   }) {
@@ -206,6 +207,7 @@ export class NextJSActionsService {
       nimbusUserId,
       language: args.language,
       region: location?.countryCode,
+      preview: args.experimentationPreview,
     });
 
     if (experiments) {
@@ -234,11 +236,20 @@ export class NextJSActionsService {
   }
 
   @SanitizeExceptions()
-  @NextIOValidator(GetChurnInterventionDataActionArgs, GetChurnInterventionDataActionResult)
+  @NextIOValidator(
+    GetChurnInterventionDataActionArgs,
+    GetChurnInterventionDataActionResult
+  )
   @WithTypeCachableAsyncLocalStorage()
   @CaptureTimingWithStatsD()
-  async getChurnInterventionEntryData(args: { customerId: string; churnInterventionId: string }) {
-    const data = await this.churnInterventionManager.getEntry(args.customerId, args.churnInterventionId);
+  async getChurnInterventionEntryData(args: {
+    customerId: string;
+    churnInterventionId: string;
+  }) {
+    const data = await this.churnInterventionManager.getEntry(
+      args.customerId,
+      args.churnInterventionId
+    );
     return data;
   }
 

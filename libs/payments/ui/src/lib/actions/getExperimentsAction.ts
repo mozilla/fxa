@@ -9,6 +9,7 @@ import { getIpAddress } from '../utils/getIpAddress';
 import { headers } from 'next/headers';
 
 export const getExperimentsAction = async (args: {
+  experimentationPreview: boolean;
   language: string;
   fxaUid?: string;
 }) => {
