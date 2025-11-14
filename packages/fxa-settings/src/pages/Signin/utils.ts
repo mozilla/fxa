@@ -394,9 +394,6 @@ const createSigninLocationState = (
 
 function sendFxaLogin(navigationOptions: NavigationOptions) {
   const isOAuth = isOAuthIntegration(navigationOptions.integration);
-  const isFullyVerified =
-    navigationOptions.signinData.emailVerified &&
-    navigationOptions.signinData.sessionVerified;
 
   firefox.fxaLogin({
     email: navigationOptions.email,
