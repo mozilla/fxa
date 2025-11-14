@@ -59,6 +59,7 @@ const SigninRecoveryPhone = ({
   sendError,
   numBackupCodes,
   integration,
+  loading = false,
 }: SigninRecoveryPhoneProps & RouteComponentProps) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorDescription, setErrorDescription] = useState('');
@@ -161,7 +162,7 @@ const SigninRecoveryPhone = ({
   const cmsInfo = integration?.getCmsInfo();
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout cmsInfo={cmsInfo} loading={loading}>
       <div className="relative flex items-center">
         <ButtonBack
           cmsBackground={cmsInfo?.shared.backgrounds?.defaultLayout}

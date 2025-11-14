@@ -220,16 +220,9 @@ export const SigninRecoveryChoiceContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  if (loading) {
-    return <LoadingSpinner fullScreen />;
-  }
-
-  if (!phoneData.phoneNumber) {
-    return <LoadingSpinner fullScreen />;
-  } else if (!numBackupCodes || numBackupCodes === 0) {
-    // Don't do anything here; auto-send is handled in useEffect above
-    return <LoadingSpinner fullScreen />;
-  }
+  // check if we are in a valid loading state to keep the user on the page
+  // and display a "card" style loader
+  const shouldLoadInCard = loading || !phoneData.phoneNumber || !numBackupCodes;
 
   return (
     <SigninRecoveryChoice
@@ -240,6 +233,7 @@ export const SigninRecoveryChoiceContainer = ({
         numBackupCodes,
         signinState,
         integration,
+        loading: shouldLoadInCard,
       }}
     />
   );

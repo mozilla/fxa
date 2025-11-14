@@ -38,6 +38,7 @@ export type SigninTotpCodeProps = {
   // TODO: Switch to gql error shaped object
   submitTotpCode: (totpCode: string) => Promise<{ error?: HandledError }>;
   serviceName?: MozServices;
+  loading?: boolean;
 } & SensitiveData.AuthData;
 
 export const viewName = 'signin-totp-code';
@@ -50,6 +51,7 @@ export const SigninTotpCode = ({
   submitTotpCode,
   keyFetchToken,
   unwrapBKey,
+  loading,
 }: SigninTotpCodeProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
@@ -160,7 +162,7 @@ export const SigninTotpCode = ({
   const title = cmsInfo?.SigninTotpCodePage?.pageTitle;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, loading }}>
       {cmsInfo ? (
         <>
           {cmsInfo.shared.logoUrl && cmsInfo.shared.logoAltText && (

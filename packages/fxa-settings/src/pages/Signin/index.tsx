@@ -62,6 +62,7 @@ const Signin = ({
   deeplink,
   flowQueryParams,
   useFxAStatusResult: { supportsKeysOptionalLogin },
+  loading = false,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -369,7 +370,7 @@ const Signin = ({
   const title = cmsInfo?.SigninPage.pageTitle;
 
   return (
-    <AppLayout {...{ cmsInfo, title }}>
+    <AppLayout {...{ cmsInfo, title, loading }}>
       {(localizedSuccessBannerHeading || localizedSuccessBannerDescription) && (
         <Banner
           type="success"

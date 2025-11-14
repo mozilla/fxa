@@ -541,6 +541,13 @@ const SigninContainer = ({
 
   const deeplink = queryParamModel.deeplink;
 
+  // Determine if we should show loading in card
+  // We show CardLoadingSpinner while avatar is loading, but only if we have the basic data
+  const shouldLoadInCard =
+    avatarLoading &&
+    hasLinkedAccount !== undefined &&
+    hasPassword !== undefined;
+
   return (
     <Signin
       {...{
@@ -562,6 +569,7 @@ const SigninContainer = ({
         deeplink,
         flowQueryParams,
         useFxAStatusResult,
+        loading: shouldLoadInCard,
       }}
     />
   );

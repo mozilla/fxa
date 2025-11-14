@@ -25,7 +25,7 @@ exports[`<AppLayout /> snapshots renders correctly with CMS: header logo 1`] = `
 
 exports[`<AppLayout /> snapshots renders correctly with CMS: split layout main 1`] = `
 <main
-  class="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1"
+  class="flex mobileLandscape:items-center flex-1"
 />
 `;
 

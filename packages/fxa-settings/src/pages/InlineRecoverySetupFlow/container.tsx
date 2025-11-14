@@ -11,6 +11,7 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../lib/oauth/hooks';
+import AppLayout from '../../components/AppLayout';
 import { MozServices } from '../../lib/types';
 import {
   Integration,
@@ -259,7 +260,7 @@ export const InlineRecoverySetupContainer = ({
     navigateWithQuery('/signin_totp_code', {
       state: signinLocationState,
     });
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout loading>Loading</AppLayout>;
   }
 
   // !recoveryCodes check should happen after checking !totp

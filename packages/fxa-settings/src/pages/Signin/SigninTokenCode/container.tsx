@@ -6,6 +6,7 @@ import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import SigninTokenCode from '.';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import AppLayout from '../../../components/AppLayout';
 import {
   Integration,
   useAuthClient,
@@ -64,6 +65,8 @@ const SigninTokenCodeContainer = ({
     unwrapBKey
   );
 
+  const cmsInfo = integration?.getCmsInfo();
+
   const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
     PASSWORD_CHANGE_START_MUTATION
   );
@@ -107,7 +110,11 @@ const SigninTokenCodeContainer = ({
     navigateWithQuery('/signin_totp_code', {
       state: signinState,
     });
-    return <LoadingSpinner fullScreen />;
+    return (
+      <AppLayout cmsInfo={cmsInfo} loading>
+        Loading
+      </AppLayout>
+    );
   }
 
   if (oAuthDataError) {
