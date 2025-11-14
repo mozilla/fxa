@@ -8,6 +8,7 @@ import { GraphQLError } from 'graphql';
 import { cache } from './cache';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 import * as Sentry from '@sentry/browser';
+import * as utilities from './utilities';
 
 describe('errorHandler', () => {
   beforeAll(() => {
@@ -98,6 +99,8 @@ describe('errorHandler', () => {
   });
 
   it('handles invalid token on settings page', () => {
+    const navigateWithQuerySpy = jest.spyOn(utilities, 'navigateWithQuery');
+
     Object.defineProperty(window, 'location', {
       writable: true,
       value: {
@@ -125,8 +128,7 @@ describe('errorHandler', () => {
       forward: jest.fn(),
     };
     errorHandler(errorResponse);
-    expect(window.location.replace).toHaveBeenCalledWith(
-      '/signin?email=foo@mozilla.com'
-    );
+    expect(navigateWithQuerySpy).toHaveBeenCalledWith('/signin');
+    navigateWithQuerySpy.mockRestore();
   });
 });

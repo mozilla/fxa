@@ -97,13 +97,13 @@ export const strategy = (
 
       // Make sure auth header is at least semi valid.
       if (!auth || auth.indexOf('Bearer') !== 0) {
-        throw AppError.unauthorized('Token not found');
+        throw AppError.invalidMfaToken();
       }
 
       // Extract jwt value
       const token = auth.split(' ')[1];
       if (!token) {
-        throw AppError.invalidToken();
+        throw AppError.invalidMfaToken();
       }
 
       // Verify and decode the jwt
@@ -122,7 +122,7 @@ export const strategy = (
           scope?: string[];
         };
       } catch (err) {
-        throw AppError.unauthorized('Token invalid');
+        throw AppError.invalidMfaToken();
       }
 
       // Ensure required state
@@ -131,16 +131,16 @@ export const strategy = (
         decoded.scope == null ||
         decoded.stid == null
       ) {
-        throw AppError.invalidToken();
+        throw AppError.invalidMfaToken();
       }
 
       const sessionToken = await getCredentialsFunc(decoded.stid);
       if (!sessionToken) {
-        throw AppError.unauthorized('Token not found');
+        throw AppError.invalidMfaToken();
       }
 
       if (sessionToken.uid == null || sessionToken.uid !== decoded.sub) {
-        throw AppError.unauthorized('Token invalid');
+        throw AppError.invalidMfaToken();
       }
 
       // TODO: FXA-12494 - This was copied from verified-session-token.js. We should
@@ -195,7 +195,7 @@ export const strategy = (
           statsd?.increment('verified_session_token.aal.error', [
             `path:${req.route.path}`,
           ]);
-          throw AppError.unauthorized('AAL mismatch');
+          throw AppError.insufficientAal();
         }
       }
 

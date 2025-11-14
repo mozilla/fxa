@@ -122,10 +122,6 @@ export const MfaGuard = ({
         await authClient.mfaRequestOtp(sessionToken, requiredScope);
       } catch (err) {
         MfaOtpRequestCache.remove(sessionToken, requiredScope);
-        if (err.code === 401) {
-          handleError(err);
-          return;
-        }
         if (err.code === 429) {
           setShowResendSuccessBanner(false);
           setLocalizedErrorBannerMessage(
@@ -165,10 +161,6 @@ export const MfaGuard = ({
       JwtTokenCache.setToken(sessionToken, requiredScope, result.accessToken);
       resetStates();
     } catch (err) {
-      if (err.code === 401) {
-        handleError(err);
-        return;
-      }
       setShowResendSuccessBanner(false);
       setLocalizedErrorBannerMessage(
         getLocalizedErrorMessage(ftlMsgResolver, err)
