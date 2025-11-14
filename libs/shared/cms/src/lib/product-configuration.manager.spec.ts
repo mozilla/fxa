@@ -4,13 +4,18 @@
 import { Test } from '@nestjs/testing';
 import { StatsD } from 'hot-shots';
 
-import { PriceManager, SubplatInterval } from '@fxa/payments/customer';
+import {
+  getSubplatInterval,
+  PriceManager,
+  SubplatInterval,
+} from '@fxa/payments/customer';
 import {
   StripeClient,
   StripeConfig,
   StripePlanFactory,
   StripePriceFactory,
   StripeResponseFactory,
+  StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
@@ -18,6 +23,9 @@ import {
   CapabilityPurchaseResultFactory,
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResultUtil,
+  churnInterventionByOfferingQuery,
+  ChurnInterventionByOfferingQueryFactory,
+  ChurnInterventionByOfferingResultUtil,
   EligibilityContentByOfferingResultUtil,
   eligibilityContentByPlanIdsQuery,
   EligibilityContentByPlanIdsQueryFactory,
@@ -90,6 +98,7 @@ describe('productConfigurationManager', () => {
   let productConfigurationManager: ProductConfigurationManager;
   let strapiClient: StrapiClient;
   let mockStatsd: StatsD;
+  let stripeClient: StripeClient;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -109,6 +118,7 @@ describe('productConfigurationManager', () => {
     strapiClient = module.get(StrapiClient);
     priceManager = module.get(PriceManager);
     productConfigurationManager = module.get(ProductConfigurationManager);
+    stripeClient = module.get(StripeClient);
   });
 
   describe('onStrapiClientResponse', () => {
@@ -589,6 +599,51 @@ describe('productConfigurationManager', () => {
           mockInterval
         )
       ).rejects.toThrow(ProductConfigError);
+    });
+  });
+
+  describe('getChurnInterventionForSubscription', () => {
+    it('returns SubplatInterval based on subscription', async () => {
+      const queryData = ChurnInterventionByOfferingQueryFactory();
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+
+      jest
+        .spyOn(stripeClient, 'subscriptionsRetrieve')
+        .mockResolvedValue(mockSubscription);
+      jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
+
+      const stripeProductId = mockSubscription.items.data.at(0)?.price
+        .product as string;
+      const stripeInterval =
+        mockSubscription.items.data.at(0)?.price.recurring?.interval;
+      const intervalCount =
+        mockSubscription.items.data.at(0)?.price.recurring?.interval_count;
+      const interval = getSubplatInterval(
+        stripeInterval as string,
+        intervalCount as number
+      );
+
+      const result =
+        await productConfigurationManager.getChurnInterventionBySubscription(
+          mockSubscription.id,
+          'en'
+        );
+
+      expect(strapiClient.query).toHaveBeenCalledWith(
+        churnInterventionByOfferingQuery,
+        {
+          stripeProductId,
+          interval,
+          locale: 'en',
+        }
+      );
+
+      expect(result).toBeInstanceOf(ChurnInterventionByOfferingResultUtil);
+      expect(result.churnInterventionByOffering.offerings).toHaveLength(1);
     });
   });
 });
