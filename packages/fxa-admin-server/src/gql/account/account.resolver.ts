@@ -7,9 +7,11 @@ import * as Sentry from '@sentry/node';
 import { NotifierService } from '@fxa/shared/notifier';
 import { Firestore } from '@google-cloud/firestore';
 import { Inject, UseGuards } from '@nestjs/common';
+import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import {
   Args,
+  Context,
   Mutation,
   Query,
   ResolveField,
@@ -385,15 +387,21 @@ export class AccountResolver {
   @Mutation((returns) => Boolean)
   public async recordAdminSecurityEvent(
     @Args('uid') uid: string,
-    @Args('name', { type: () => String }) name: SecurityEventNames
+    @Args('name', { type: () => String }) name: SecurityEventNames,
+    @Context() ctx: { req: Request }
   ) {
     // the ipAddr and ipHmacKey values here are required, but also have no bearing on this type of record.
     // the securityEvents table is being repurposed to store a broader variety of events, hence the dummy values.
     const result = await this.db.securityEvents.create({
       uid,
       name,
-      ipAddr: '',
+      ipAddr:
+        (ctx.req.headers['x-forwarded-for'] as string) || ctx.req.ip || '',
       ipHmacKey: this.ipHmacKey,
+      additionalInfo: {
+        userAgent: ctx.req.headers['user-agent'],
+        adminPanelAction: true,
+      },
     });
     return !!result;
   }
@@ -763,7 +771,8 @@ export class AccountResolver {
     @Args('locators', { type: () => [String] }) locators: string[],
     @Args('notificationEmail', { type: () => String })
     notificationEmail: string,
-    @CurrentUser() user: string
+    @CurrentUser() user: string,
+    @Context() ctx: { req: Request }
   ) {
     this.eventLogging.onEvent('deleteAccounts');
 
@@ -840,12 +849,11 @@ export class AccountResolver {
           await this.emailService.sendPasswordChangeRequired(account);
 
           // Record a security event noting this transaction.
-          await this.db.securityEvents.create({
-            uid: account.uid,
-            name: 'account.must_reset',
-            ipAddr: '127.0.0.1',
-            ipHmacKey: this.ipHmacKey,
-          });
+          await this.recordAdminSecurityEvent(
+            account.uid,
+            'account.must_reset',
+            ctx
+          );
 
           // Add account to status list
           status.push({
@@ -853,8 +861,6 @@ export class AccountResolver {
             status: AccountResetStatus.Success,
           });
         } catch (err) {
-          console.log('!!! err', err);
-
           Sentry.captureException(err);
 
           status.push({
