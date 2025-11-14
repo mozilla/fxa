@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const buf = require('buf').hex;
-const hex = require('buf').to.hex;
 const { Container } = require('typedi');
 
 const { CapabilityService } = require('../payments/capability');
@@ -160,7 +158,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
     name: client.name,
     canGrant: client.canGrant,
     publicClient: client.publicClient,
-    userId: buf(verifiedClaims.uid),
+    userId: Buffer.from(verifiedClaims.uid, 'hex'),
     email: verifiedClaims['fxa-verifiedEmail'],
     scope: requestedGrant.scope,
     scopeConfig,
@@ -218,7 +216,7 @@ module.exports.generateTokens = async function generateTokens(grant) {
 
 async function generateIdToken(grant, accessToken) {
   var now = Math.floor(Date.now() / 1000);
-  const clientId = hex(grant.clientId);
+  const clientId = grant.clientId.toString('hex');
   // The IETF spec for `aud` refers to https://openid.net/specs/openid-connect-core-1_0.html#IDToken
   // > REQUIRED. Audience(s) that this ID Token is intended for. It MUST contain the
   // > OAuth 2.0 client_id of the Relying Party as an audience value. It MAY also contain
@@ -252,7 +250,7 @@ async function generateIdToken(grant, accessToken) {
 }
 
 exports.generateAccessToken = async function generateAccessToken(grant) {
-  const clientId = hex(grant.clientId).toLowerCase();
+  const clientId = grant.clientId.toString('hex').toLowerCase();
   const accessToken = await db.generateAccessToken(grant);
   if (
     !JWT_ACCESS_TOKENS_ENABLED ||
@@ -266,9 +264,9 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
   if (grant.scope.contains('profile:subscriptions')) {
     const capabilities =
       await capabilityService.determineClientVisibleSubscriptionCapabilities(
-        hex(clientId),
+        clientId,
         await capabilityService.subscriptionCapabilities(
-          hex(grant.userId),
+          grant.userId.toString('hex'),
           grant.email
         )
       );

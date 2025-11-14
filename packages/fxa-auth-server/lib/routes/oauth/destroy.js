@@ -4,7 +4,6 @@
 
 const crypto = require('crypto');
 const Joi = require('joi');
-const hex = require('buf').to.hex;
 
 const OauthError = require('../../oauth/error');
 const AuthError = require('../../error');
@@ -60,7 +59,7 @@ module.exports = ({ log, oauthDB }) => {
       // Log a warning if legacy client_secret is provided, so we can
       // measure whether it's safe to remove this behaviour.
       log.warn('destroy.unexpectedClientSecret', {
-        client_id: hex(token.clientId),
+        client_id: token.clientId.toString('hex'),
       });
     }
     await oauthDB[removeToken](token);

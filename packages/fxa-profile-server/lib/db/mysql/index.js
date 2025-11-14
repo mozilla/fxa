@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const mysql = require('mysql');
-const buf = require('buf').hex;
+const buf = (v) => (Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex'));
 
 const AppError = require('../../error');
 const config = require('../../config');

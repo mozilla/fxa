@@ -7,7 +7,7 @@
 const { URL } = require('url');
 const Ajv = require('ajv');
 const ajv = new Ajv();
-const hex = require('buf').to.hex;
+const hex = (v) => (Buffer.isBuffer(v) ? v.toString('hex') : v);
 const error = require('../error');
 const fs = require('fs');
 const isA = require('joi');
