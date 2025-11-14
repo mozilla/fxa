@@ -290,6 +290,36 @@ describe('<AppLayout />', () => {
     });
   });
 
+  describe('loading functionality', () => {
+    it('shows CardLoadingSpinner when loading is true', () => {
+      renderWithLocalizationProvider(
+        <AppLayout loading={true}>
+          <p>This content should not be visible</p>
+        </AppLayout>
+      );
+
+      // Should show the loading spinner instead of children
+      expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+      expect(
+        screen.queryByText('This content should not be visible')
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows children when loading is false (default)', () => {
+      renderWithLocalizationProvider(
+        <AppLayout>
+          <p>This content should be visible</p>
+        </AppLayout>
+      );
+
+      // Should show children instead of loading spinner
+      expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
+      expect(
+        screen.getByText('This content should be visible')
+      ).toBeInTheDocument();
+    });
+  });
+
   describe('snapshots', () => {
     it('renders correctly with CMS', () => {
       const { container } = renderWithLocalizationProvider(

@@ -187,7 +187,13 @@ describe('SigninRecoveryChoice container', () => {
       await waitFor(() => {
         expect(mockAuthClient.getRecoveryCodesExist).toHaveBeenCalled();
         expect(mockAuthClient.recoveryPhoneGet).toHaveBeenCalled();
-        expect(SigninRecoveryChoiceModule.default).not.toHaveBeenCalled();
+        // show loading spinner while navigating
+        expect(SigninRecoveryChoiceModule.default).toHaveBeenCalledWith(
+          expect.objectContaining({
+            loading: true,
+          }),
+          expect.anything()
+        );
         expect(mockNavigate).toHaveBeenCalledWith('/signin_recovery_code', {
           replace: true,
           state: { signinState: mockSigninLocationState },

@@ -104,6 +104,7 @@ export interface SigninProps {
   deeplink?: string;
   flowQueryParams?: QueryParams;
   useFxAStatusResult: UseFxAStatusResult;
+  loading?: boolean;
 }
 
 export type BeginSigninHandler = (

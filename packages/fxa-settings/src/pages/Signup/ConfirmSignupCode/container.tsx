@@ -25,6 +25,7 @@ import OAuthDataError from '../../../components/OAuthDataError';
 import { QueryParams } from '../../..';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import GleanMetrics from '../../../lib/glean';
+import AppLayout from '../../../components/AppLayout';
 
 export const POLL_INTERVAL = 5000;
 
@@ -64,6 +65,8 @@ const SignupConfirmCodeContainer = ({
     keyFetchToken,
     unwrapBKey
   );
+
+  const cmsInfo = integration?.getCmsInfo();
 
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
@@ -125,7 +128,11 @@ const SignupConfirmCodeContainer = ({
   // TODO: This check and related test can be moved up the tree to the App component,
   // where a missing integration should be caught and handled.
   if (!integration) {
-    return <LoadingSpinner fullScreen />;
+    return (
+      <AppLayout cmsInfo={cmsInfo} loading>
+        Loading
+      </AppLayout>
+    );
   }
 
   if (!uid || !sessionToken || !email) {
@@ -134,22 +141,36 @@ const SignupConfirmCodeContainer = ({
   }
 
   if (oAuthDataError) {
-    return <OAuthDataError error={oAuthDataError} gleanMetric={GleanMetrics.signupConfirmation.error} />;
+    return (
+      <OAuthDataError
+        error={oAuthDataError}
+        gleanMetric={GleanMetrics.signupConfirmation.error}
+      />
+    );
   }
   if (oAuthKeysCheckError) {
     if (!keyFetchToken || !unwrapBKey) {
       const localizedErrorMessage = ftlMsg.getMsg(
         'signin-code-expired-error',
         'Code expired. Please sign in again.'
-      )
+      );
       navigateWithQuery('/signin', {
         state: {
-          localizedErrorMessage
-        }
+          localizedErrorMessage,
+        },
       });
-      return <LoadingSpinner fullScreen />;
+      return (
+        <AppLayout cmsInfo={cmsInfo} loading>
+          Loading
+        </AppLayout>
+      );
     }
-    return <OAuthDataError error={oAuthKeysCheckError} gleanMetric={GleanMetrics.signupConfirmation.error}/>;
+    return (
+      <OAuthDataError
+        error={oAuthKeysCheckError}
+        gleanMetric={GleanMetrics.signupConfirmation.error}
+      />
+    );
   }
 
   return (
@@ -166,7 +187,7 @@ const SignupConfirmCodeContainer = ({
         keyFetchToken,
         unwrapBKey,
         flowQueryParams,
-        origin
+        origin,
       }}
     />
   );

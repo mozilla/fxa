@@ -231,3 +231,23 @@ export const WithoutCmsInfo = () => {
     </AppLayout>
   );
 };
+
+export const Loading = () => {
+  return <AppLayout loading>Children</AppLayout>;
+};
+
+export const LoadingWithIntegration = () => {
+  return (
+    <AppLayout cmsInfo={MOCK_CMS_INFO} loading>
+      Children
+    </AppLayout>
+  );
+};
+
+export const LoadingWithSplitLayout = () => {
+  return (
+    <AppLayout cmsInfo={MOCK_CMS_INFO} loading splitLayout>
+      Children
+    </AppLayout>
+  );
+};

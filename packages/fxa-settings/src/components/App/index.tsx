@@ -49,6 +49,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useFxAStatus from '../../lib/hooks/useFxAStatus';
+import AppLayout from '../AppLayout';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
@@ -459,7 +460,13 @@ const AuthAndAccountSetupRoutes = ({
   }
 
   return (
-    <Suspense fallback={<LoadingSpinner fullScreen />}>
+    <Suspense
+      fallback={
+        <AppLayout cmsInfo={integration.cmsInfo} loading>
+          Loading
+        </AppLayout>
+      }
+    >
       <Router>
         {/* Index */}
         <IndexContainer

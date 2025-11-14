@@ -34,6 +34,7 @@ export type SigninRecoveryChoiceProps = {
   numBackupCodes: number;
   signinState: SigninLocationState;
   integration?: SigninIntegration;
+  loading?: boolean;
 };
 
 const SigninRecoveryChoice = ({
@@ -43,6 +44,7 @@ const SigninRecoveryChoice = ({
   numBackupCodes,
   signinState,
   integration,
+  loading = false,
 }: SigninRecoveryChoiceProps) => {
   const [errorBannerMessage, setErrorBannerMessage] = React.useState('');
   const [errorBannerDescription, setErrorBannerDescription] =
@@ -140,7 +142,7 @@ const SigninRecoveryChoice = ({
   };
 
   return (
-    <AppLayout cmsInfo={cmsInfo}>
+    <AppLayout cmsInfo={cmsInfo} loading={loading}>
       <div className="relative flex items-center mb-5">
         <ButtonBack
           cmsBackground={cmsInfo?.shared.backgrounds?.defaultLayout}

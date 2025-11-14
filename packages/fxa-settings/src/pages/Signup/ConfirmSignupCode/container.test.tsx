@@ -110,6 +110,7 @@ function applyMocks() {
   integration = {
     type: ModelsModule.IntegrationType.OAuthWeb,
     wantsKeys: () => false,
+    getCmsInfo: () => undefined,
   } as Integration;
   jest
     .spyOn(ConfirmSignupCodeModule, 'default')
@@ -307,6 +308,7 @@ describe('confirm-signup-container', () => {
       integration = {
         type: ModelsModule.IntegrationType.OAuthNative,
         wantsKeys: () => true,
+        getCmsInfo: () => undefined,
       } as Integration;
       mockSensitiveDataClient.getDataType = jest.fn().mockReturnValue({
         keyFetchToken: undefined,
