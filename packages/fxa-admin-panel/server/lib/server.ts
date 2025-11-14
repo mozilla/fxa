@@ -123,14 +123,21 @@ if (proxyUrl) {
     { encoding: 'utf-8' }
   );
 
-  ['/', '/account-search', '/relying-parties', '/permissions'].forEach(
-    (route) => {
-      // FIXME: should set ETag, Not-Modified:
-      app.get(route, (req, res) => {
-        res.send(ClientConfig.injectIntoHtml(STATIC_INDEX_HTML, req.headers));
-      });
-    }
-  );
+  // TODO: use a wildcard matcher instead, in case this list continues to grow
+  [
+    '/',
+    '/account-search',
+    '/account-delete',
+    '/account-reset',
+    '/relying-parties',
+    '/rate-limiting',
+    '/permissions',
+  ].forEach((route) => {
+    // FIXME: should set ETag, Not-Modified:
+    app.get(route, (req, res) => {
+      res.send(ClientConfig.injectIntoHtml(STATIC_INDEX_HTML, req.headers));
+    });
+  });
 
   logger.info('static.directory', { directory: STATIC_DIRECTORY });
   app.use(
