@@ -19,8 +19,8 @@ export const USER_EMAIL_HEADER = 'oidc-claim-id-token-email';
 /** Enum of known permission levels. A lower level will indicate increased permissions. */
 export enum PermissionLevel {
   Admin = 0,
-  Support = 1,
-  DSAR = 2,
+  DSAR = 1,
+  Support = 2,
   ReadOnly = 3,
   None = MaxPermissionLevel,
 }
