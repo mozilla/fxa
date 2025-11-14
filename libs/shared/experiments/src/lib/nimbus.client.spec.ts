@@ -78,15 +78,16 @@ describe('NimbusClient', () => {
     });
 
     it('successfully calls with preview enabled', async () => {
-      mockNimbusClientConfig.previewEnabled = true;
       const expectedUrl =
         mockNimbusClientConfig.apiUrl + '?nimbus_preview=true';
-      await nimbusClient.fetchExperiments(mockFetchExperimentsParams);
+      await nimbusClient.fetchExperiments({
+        ...mockFetchExperimentsParams,
+        preview: true,
+      });
       expect(fetch).toHaveBeenCalledWith(expectedUrl, expect.anything());
     });
 
     it('successfully calls with preview disabled', async () => {
-      mockNimbusClientConfig.previewEnabled = false;
       const expectedUrl =
         mockNimbusClientConfig.apiUrl + '?nimbus_preview=false';
       await nimbusClient.fetchExperiments(mockFetchExperimentsParams);
