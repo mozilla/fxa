@@ -34265,7 +34265,7 @@ __metadata:
     mysql: "npm:^2.18.1"
     nock: "npm:^13.5.1"
     node-zendesk: "npm:^2.2.0"
-    nodemailer: "npm:^6.9.9"
+    nodemailer: "npm:^7.0.7"
     nodemon: "npm:^3.1.0"
     nx: "npm:21.2.4"
     nyc: "npm:^17.1.0"
@@ -45157,10 +45157,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:^6.9.9":
-  version: 6.10.1
-  resolution: "nodemailer@npm:6.10.1"
-  checksum: 10c0/e81fde258ea4f4e5646e9e3eebe89294d007939999d2d1a8c96c5488fa00bf659e46cf76fccb2697e9aa6ef9807a1ed47ff2aef6ad30b795e3849b6997066d16
+"nodemailer@npm:^7.0.7":
+  version: 7.0.10
+  resolution: "nodemailer@npm:7.0.10"
+  checksum: 10c0/9bb39bde904397879a6394e5202146167cabc3bd4089c1b0255ce16875e721d1cf132afde25a570fc4cf38f159ba6b6b5411d3b9371775543d38343fbd505101
   languageName: node
   linkType: hard
 
