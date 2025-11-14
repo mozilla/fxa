@@ -299,16 +299,6 @@ export const App = ({
     );
   }, [metricsEnabled, integration, config.glean, config.version, metricsFlow]);
 
-  // Fire the WebAuthn capability probe once at app level after metrics are initialized.
-  useEffect(() => {
-    if (!metricsEnabled) {
-      return;
-    }
-    maybeRecordWebAuthnCapabilities(
-      config.metrics?.webauthnCapabilitiesSampleRate
-    );
-  }, [metricsEnabled, config.metrics?.webauthnCapabilitiesSampleRate]);
-
   useEffect(() => {
     if (!metricsEnabled) {
       return;
@@ -339,6 +329,7 @@ export const App = ({
   useEffect(() => {
     if (metricsEnabled || isSignedIn === false) {
       sentryMetrics.enable();
+      maybeRecordWebAuthnCapabilities();
     } else {
       sentryMetrics.disable();
     }

@@ -5,12 +5,22 @@
 import GleanMetrics from './glean';
 
 type DeviceExtras = {
-  os_family: string;
-  os_major: string;
-  browser_family: string;
-  browser_major: string;
-  cpu_arm: boolean;
+  os_family?: string;
+  os_major?: string;
+  browser_family?: string;
+  browser_major?: string;
 };
+
+export type WebAuthnExtras = {
+  cg?: string;
+  error_reason?: string;
+  hyb?: string;
+  ppa?: string;
+  prf?: string;
+  rel?: string;
+  supported?: string;
+  uvpa?: string;
+} & DeviceExtras;
 
 function getDeviceExtras(): DeviceExtras {
   const ua = navigator.userAgent || '';
@@ -58,50 +68,21 @@ function getDeviceExtras(): DeviceExtras {
   } else if (uaLower.includes('linux')) {
     os_family = 'linux';
   }
-  // CPU architecture (best-effort)
-  let cpu_arm = false;
-  try {
-    const anyNav: any = navigator;
-    const arch = anyNav?.userAgentData?.architecture || '';
-    if (arch) {
-      cpu_arm = /arm/i.test(arch);
-    } else {
-      cpu_arm =
-        /arm|aarch64/i.test(ua) ||
-        // Apple Silicon heuristic
-        (os_family === 'macos' && !/intel mac os x/i.test(ua));
-    }
-  } catch {
-    // leave cpu_arm=false
-  }
-  return { os_family, os_major, browser_family, browser_major, cpu_arm };
+  return { os_family, os_major, browser_family, browser_major };
 }
 
 /**
  * Fire-and-forget probe to record WebAuthn/passkey capabilities + device buckets.
- * - 10% sampled
  * - 30-day deduped
  * - gated on Glean upload being enabled
  */
-export function maybeRecordWebAuthnCapabilities(samplingRate?: number) {
+export function maybeRecordWebAuthnCapabilities() {
   // Only run client-side and if telemetry is enabled
   if (typeof window === 'undefined' || !GleanMetrics.getEnabled()) {
     return;
   }
 
-  const rate =
-    typeof samplingRate === 'number' && isFinite(samplingRate)
-      ? samplingRate
-      : 0.1;
-  if (rate <= 0) {
-    return;
-  }
-  // sampling
-  if (Math.random() > rate) {
-    return;
-  }
-
-  const storageKey = 'webauthn:caps:v1';
+  const storageKey = 'webauthn:caps:v2';
   try {
     const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
     const last = Number(window.localStorage.getItem(storageKey) || 0);
@@ -119,59 +100,41 @@ export function maybeRecordWebAuthnCapabilities(samplingRate?: number) {
       typeof (window as any).PublicKeyCredential?.getClientCapabilities ===
         'function';
 
-    let reason = '';
+    let eventExtras: WebAuthnExtras;
+    eventExtras = {
+      os_family: deviceExtras.os_family,
+      os_major: deviceExtras.os_major,
+      browser_family: deviceExtras.browser_family,
+      browser_major: deviceExtras.browser_major,
+    };
 
     if (!supportedApi) {
-      reason = 's=0;no_getClientCapabilities';
+      eventExtras.supported = 'false';
+      eventExtras.error_reason = 'no_getClientCapabilities';
     } else {
       try {
         // getClientCapabilities is proposal-stage; use `any` for forward-compat
         const caps = await (
           window as any
         ).PublicKeyCredential.getClientCapabilities();
-        const ppa = !!caps?.passkeyPlatformAuthenticator;
-        const cg = !!caps?.conditionalGet;
-        const rel = !!caps?.relatedOrigins;
-        const hyb = !!caps?.hybridTransport;
-        const uvpa = !!caps?.userVerifyingPlatformAuthenticator;
-        const prf = !!caps?.['extension:prf'];
-        // Compact, non-PII payload encoded as a string
-        reason = `s=1;ppa=${Number(ppa)};cg=${Number(cg)};rel=${Number(
-          rel
-        )};hyb=${Number(hyb)};uvpa=${Number(uvpa)};prf=${Number(prf)}`;
+        eventExtras.supported = 'true';
+        eventExtras.ppa = String(!!caps?.passkeyPlatformAuthenticator);
+        eventExtras.cg = String(!!caps?.conditionalGet);
+        eventExtras.rel = String(!!caps?.relatedOrigins);
+        eventExtras.hyb = String(!!caps?.hybridTransport);
+        eventExtras.uvpa = String(!!caps?.userVerifyingPlatformAuthenticator);
+        eventExtras.prf = String(!!caps?.['extension:prf']);
       } catch {
-        reason = 's=0;error';
+        // If capabilities query fails, still emit a fallback event
+        eventExtras.supported = 'false';
+        eventExtras.error_reason = 'error';
       }
     }
 
     try {
-      if (reason.startsWith('s=1;')) {
-        // parse the compact string we constructed to booleans for extras
-        // s=1;ppa=0;cg=1;rel=0;hyb=1;uvpa=1;prf=0
-        const parts = Object.fromEntries(
-          reason.split(';').map((kv) => kv.split('='))
-        ) as Record<string, string>;
-        GleanMetrics.webauthn.capabilities({
-          event: {
-            supported: true,
-            ppa: parts['ppa'] === '1',
-            cg: parts['cg'] === '1',
-            rel: parts['rel'] === '1',
-            hyb: parts['hyb'] === '1',
-            uvpa: parts['uvpa'] === '1',
-            prf: parts['prf'] === '1',
-            ...deviceExtras,
-          },
-        } as any);
-      } else {
-        GleanMetrics.webauthn.capabilities({
-          event: {
-            supported: false,
-            error_reason: reason,
-            ...deviceExtras,
-          },
-        } as any);
-      }
+      GleanMetrics.webauthn.capabilities({
+        event: eventExtras,
+      } as any);
     } catch {
       // swallow telemetry errors
     }

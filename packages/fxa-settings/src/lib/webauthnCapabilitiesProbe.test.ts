@@ -27,10 +27,6 @@ function setUA(ua: string) {
   });
 }
 
-function setMathRandom(value: number) {
-  jest.spyOn(Math, 'random').mockReturnValue(value);
-}
-
 async function flush() {
   await Promise.resolve();
   jest.runAllTimers();
@@ -54,36 +50,38 @@ describe('webauthnCapabilitiesProbe', () => {
 
   it('does nothing when telemetry disabled', () => {
     GleanMetrics.getEnabled.mockReturnValue(false);
-    setMathRandom(0.01);
-    maybeRecordWebAuthnCapabilities(1);
-    expect(GleanMetrics.webauthn.capabilities).not.toHaveBeenCalled();
-  });
-
-  it('samples ~10%: skips when random > 0.1', () => {
-    setMathRandom(0.5);
-    maybeRecordWebAuthnCapabilities(0.1);
+    maybeRecordWebAuthnCapabilities();
     expect(GleanMetrics.webauthn.capabilities).not.toHaveBeenCalled();
   });
 
   it('dedupes for 30 days when key present', () => {
-    setMathRandom(0.01);
-    localStorage.setItem('webauthn:caps:v1', String(Date.now()));
-    maybeRecordWebAuthnCapabilities(1);
+    localStorage.setItem('webauthn:caps:v2', String(Date.now()));
+    maybeRecordWebAuthnCapabilities();
     expect(GleanMetrics.webauthn.capabilities).not.toHaveBeenCalled();
   });
 
   it('emits supported=false when capability API missing', async () => {
-    setMathRandom(0.01);
-    maybeRecordWebAuthnCapabilities(1);
+    maybeRecordWebAuthnCapabilities();
     await flush();
     expect(GleanMetrics.webauthn.capabilities).toHaveBeenCalledTimes(1);
     const arg = GleanMetrics.webauthn.capabilities.mock.calls[0][0];
-    expect(arg.event.supported).toBe(false);
+    expect(arg.event.supported).toBe('false');
     expect(typeof arg.event.error_reason).toBe('string');
   });
 
+  it('emits supported=false with error_reason when getClientCapabilities throws', async () => {
+    (global as any).PublicKeyCredential = {
+      getClientCapabilities: jest.fn().mockRejectedValue(new Error('boom')),
+    };
+    maybeRecordWebAuthnCapabilities();
+    await flush();
+    expect(GleanMetrics.webauthn.capabilities).toHaveBeenCalledTimes(1);
+    const arg = GleanMetrics.webauthn.capabilities.mock.calls[0][0];
+    expect(arg.event.supported).toBe('false');
+    expect(String(arg.event.error_reason)).toBe('error');
+  });
+
   it('emits supported=true with flags and device buckets', async () => {
-    setMathRandom(0.01);
     (global as any).PublicKeyCredential = {
       getClientCapabilities: jest.fn().mockResolvedValue({
         passkeyPlatformAuthenticator: true,
@@ -95,7 +93,7 @@ describe('webauthnCapabilitiesProbe', () => {
       }),
     };
 
-    maybeRecordWebAuthnCapabilities(1);
+    maybeRecordWebAuthnCapabilities();
     await flush();
 
     expect(
@@ -103,18 +101,17 @@ describe('webauthnCapabilitiesProbe', () => {
     ).toHaveBeenCalled();
     expect(GleanMetrics.webauthn.capabilities).toHaveBeenCalledTimes(1);
     const { event } = GleanMetrics.webauthn.capabilities.mock.calls[0][0];
-    expect(event.supported).toBe(true);
-    expect(event.ppa).toBe(true);
-    expect(event.cg).toBe(true);
-    expect(event.rel).toBe(false);
-    expect(event.hyb).toBe(true);
-    expect(event.uvpa).toBe(true);
-    expect(event.prf).toBe(false);
+    expect(event.supported).toBe('true');
+    expect(event.ppa).toBe('true');
+    expect(event.cg).toBe('true');
+    expect(event.rel).toBe('false');
+    expect(event.hyb).toBe('true');
+    expect(event.uvpa).toBe('true');
+    expect(event.prf).toBe('false');
     // device buckets derived from UA
     expect(event.os_family).toBe('windows');
     expect(event.os_major).toBe('10');
     expect(event.browser_family).toBe('chrome');
     expect(event.browser_major).toBe('127');
-    expect(typeof event.cpu_arm).toBe('boolean');
   });
 });
