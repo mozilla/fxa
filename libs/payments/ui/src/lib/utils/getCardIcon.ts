@@ -22,8 +22,6 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: Amex,
         altText: l10n.getString('amex-logo-alt-text', 'American Express logo'),
-        width: 32,
-        height: 20,
       };
     case 'apple_pay':
       return {
@@ -36,15 +34,11 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: Diners,
         altText: l10n.getString('diners-logo-alt-text', 'Diners logo'),
-        width: 32,
-        height: 20,
       };
     case 'discover':
       return {
         img: Discover,
         altText: l10n.getString('discover-logo-alt-text', 'Discover logo'),
-        width: 32,
-        height: 20,
       };
     case 'google_pay':
       return {
@@ -57,8 +51,6 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: Jcb,
         altText: l10n.getString('jcb-logo-alt-text', 'JCB logo'),
-        width: 32,
-        height: 20,
       };
     case 'link':
       return {
@@ -71,8 +63,6 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: Mastercard,
         altText: l10n.getString('mastercard-logo-alt-text', 'Mastercard logo'),
-        width: 32,
-        height: 20,
       };
     case 'external_paypal':
     case 'paypal':
@@ -86,15 +76,11 @@ export function getCardIcon(cardBrand: string, l10n: LocalizerRsc) {
       return {
         img: UnionPay,
         altText: l10n.getString('unionpay-logo-alt-text', 'Union Pay logo'),
-        width: 32,
-        height: 20,
       };
     case 'visa':
       return {
         img: Visa,
         altText: l10n.getString('visa-logo-alt-text', 'Visa logo'),
-        width: 32,
-        height: 20,
       };
     default:
       return {
