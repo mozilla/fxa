@@ -42,7 +42,7 @@ console.log(secret);
 console.log();
 
 var sql = `\
-INSERT INTO clients (id, name, hashedSecret, redirectUri, imageUri, canGrant, termsUri, privacyUri, trusted${
+INSERT INTO clients (id, name, hashedSecret, redirectUri, imageUri, canGrant, trusted${
   client['allowedScopes'] ? ', allowedScopes' : ''
 })
 VALUES (unhex('${client.id}'),\
@@ -51,8 +51,6 @@ unhex('${client.hashedSecret}'),\
 '${client.redirectUri}',\
 '${client.imageUri}',\
 '${client.canGrant ? 1 : 0}',\
-'${client.termsUri}',\
-'${client.privacyUri}',\
 '${client.trusted ? 1 : 0}'\
 ${client['allowedScopes'] ? ",'" + client.allowedScopes + "'" : ''});\
 `;

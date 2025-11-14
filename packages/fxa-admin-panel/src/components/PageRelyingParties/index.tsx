@@ -64,6 +64,7 @@ const RelyingPartyForm = ({
   status?: string;
 }) => {
   const onSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const state = {
       name: formData.get('name')?.toString() || '',
@@ -210,7 +211,7 @@ const CreateRelyingParty = ({ onExit }: { onExit: () => void }) => {
         relyingParty: data,
       },
     };
-    createRelyingParty(payload);
+    await createRelyingParty(payload);
   };
 
   return (
@@ -315,6 +316,7 @@ const DeleteRelyingParty = ({
   );
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get('confirmName')?.toString()?.trim();
     if (name === data.name) {
@@ -502,6 +504,7 @@ export const PageRelyingParties = () => {
   // Let's us find a specific RP quickly.
   const [filter, setFilter] = useState('');
   const filterRelyingParties = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const rpFilter = formData.get('rpFilter');
     try {
