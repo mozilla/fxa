@@ -5,6 +5,7 @@
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { NotifierService } from '@fxa/shared/notifier';
 import { Provider } from '@nestjs/common';
+import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import Chance from 'chance';
@@ -595,6 +596,66 @@ describe('#integration - AccountResolver', () => {
     expect(result.length).toBe(1);
   });
 
+  describe('recordAdminSecurityEvent', () => {
+    it('records security event', async () => {
+      const securityEventSpy = jest.spyOn(SecurityEvent, 'create');
+
+      await resolver.recordAdminSecurityEvent(
+        USER_1.uid,
+        'account.must_reset',
+        {
+          req: {
+            ip: '0.0.0.0',
+            headers: {
+              'user-agent': 'Mozilla!',
+              'x-forward-for': '127.0.0.1',
+            },
+          } as unknown as Request,
+        }
+      );
+
+      expect(securityEventSpy).toHaveBeenCalledWith({
+        ipAddr: '0.0.0.0',
+        ipHmacKey: '000000',
+        uid: USER_1.uid,
+        name: 'account.must_reset',
+        additionalInfo: {
+          userAgent: 'Mozilla!',
+          adminPanelAction: true,
+        },
+      });
+    });
+
+    it('records security event and prefers x-fordwarded-for header', async () => {
+      const securityEventSpy = jest.spyOn(SecurityEvent, 'create');
+
+      await resolver.recordAdminSecurityEvent(
+        USER_1.uid,
+        'account.must_reset',
+        {
+          req: {
+            ip: '0.0.0.0',
+            headers: {
+              'user-agent': 'Mozilla!',
+              'x-forwarded-for': '127.0.0.1',
+            },
+          } as unknown as Request,
+        }
+      );
+
+      expect(securityEventSpy).toHaveBeenCalledWith({
+        ipAddr: '127.0.0.1',
+        ipHmacKey: '000000',
+        uid: USER_1.uid,
+        name: 'account.must_reset',
+        additionalInfo: {
+          userAgent: 'Mozilla!',
+          adminPanelAction: true,
+        },
+      });
+    });
+  });
+
   describe('resetAccounts', () => {
     it('resets accounts, logs security events, and emails SRE', async () => {
       const resetSpy = jest.spyOn(Account, 'reset');
@@ -604,7 +665,15 @@ describe('#integration - AccountResolver', () => {
       const result = await resolver.resetAccounts(
         [USER_1.email, USER_1.uid, 'foo@mozilla.com'],
         notify,
-        'sre joe'
+        'sre joe',
+        {
+          req: {
+            ip: '127.0.0.1',
+            headers: {
+              'user-agent': 'Mozilla!',
+            },
+          } as unknown as Request,
+        }
       );
 
       expect(Array.isArray(result)).toBe(true);
@@ -620,12 +689,20 @@ describe('#integration - AccountResolver', () => {
         ipHmacKey: '000000',
         uid: USER_1.uid,
         name: 'account.must_reset',
+        additionalInfo: {
+          userAgent: 'Mozilla!',
+          adminPanelAction: true,
+        },
       });
       expect(securityEventSpy).toHaveBeenCalledWith({
         ipAddr: '127.0.0.1',
         ipHmacKey: '000000',
         uid: USER_1.uid,
         name: 'account.must_reset',
+        additionalInfo: {
+          userAgent: 'Mozilla!',
+          adminPanelAction: true,
+        },
       });
       expect(emailService.sendPasswordResetNotification).toHaveBeenCalledWith(
         notify,
@@ -645,7 +722,15 @@ describe('#integration - AccountResolver', () => {
       const result = await resolver.resetAccounts(
         [USER_1.email, USER_1.email, USER_1.email],
         '',
-        'joe-sre'
+        'joe-sre',
+        {
+          req: {
+            ip: '127.0.0.1',
+            headers: {
+              'user-agent': 'Mozilla!',
+            },
+          } as unknown as Request,
+        }
       );
 
       expect(Array.isArray(result)).toBe(true);
