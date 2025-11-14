@@ -14,6 +14,12 @@ Run `nx test-unit accounts-email-renderer` to execute the unit tests via [Jest](
 
 Run `nx storybook accounts-email-renderer`
 
+## L10N Considerations
+
+Run `nx run accounts-email-renderer:l10n-merge` to take the current state of the en.ftl files in the src directory and apply to them to public/locales/en/auth.ftl. Doing so ensures that the current state of the .ftl files is represented in the `/public/locales/en/emails.ftl` file.
+
+If you are actively working on storybooks, running `nx run accounts-email-renderer:l10n-watch` will keep an eye on the ftl files and aumatically update the `public/locales/en/emails.ftl` file whenever changes are made to `src/**/en.ftl` files. This is useful to ensure the the changes to `en.ftl` files are accurate.
+
 ## Using this library in your service
 
 The install is like most other libs, except there's a good chance you'll have to copy assests from this lib into your build's dist folder.
