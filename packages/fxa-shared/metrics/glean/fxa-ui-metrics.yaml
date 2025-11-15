@@ -2991,25 +2991,25 @@ webauthn:
     extra_keys:
       supported:
         description: Whether capability API was available and query succeeded
-        type: boolean
+        type: string
       ppa:
         description: passkeyPlatformAuthenticator support
-        type: boolean
+        type: string
       cg:
         description: conditionalGet support
-        type: boolean
+        type: string
       rel:
         description: relatedOrigins support
-        type: boolean
+        type: string
       hyb:
         description: hybridTransport support
-        type: boolean
+        type: string
       uvpa:
         description: userVerifyingPlatformAuthenticator support
-        type: boolean
+        type: string
       prf:
         description: WebAuthn PRF extension support
-        type: boolean
+        type: string
       error_reason:
         description: Error or fallback reason when supported=false (e.g., no_getClientCapabilities, error)
         type: string
@@ -3026,9 +3026,6 @@ webauthn:
       browser_major:
         description: Browser major version (e.g., '130', '127', '17', or 'other')
         type: string
-      cpu_arm:
-        description: CPU architecture boolean bucket (true if ARM/ARM64, else false)
-        type: boolean
 account_banner:
   create_recovery_key_view:
     type: event

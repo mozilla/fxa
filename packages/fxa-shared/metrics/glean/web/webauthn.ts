@@ -17,17 +17,16 @@ import EventMetricType from '@mozilla/glean/private/metrics/event';
 export const capabilities = new EventMetricType<{
   browser_family?: string;
   browser_major?: string;
-  cg?: boolean;
-  cpu_arm?: boolean;
+  cg?: string;
   error_reason?: string;
-  hyb?: boolean;
+  hyb?: string;
   os_family?: string;
   os_major?: string;
-  ppa?: boolean;
-  prf?: boolean;
-  rel?: boolean;
-  supported?: boolean;
-  uvpa?: boolean;
+  ppa?: string;
+  prf?: string;
+  rel?: string;
+  supported?: string;
+  uvpa?: string;
 }>(
   {
     category: 'webauthn',
@@ -40,7 +39,6 @@ export const capabilities = new EventMetricType<{
     'browser_family',
     'browser_major',
     'cg',
-    'cpu_arm',
     'error_reason',
     'hyb',
     'os_family',

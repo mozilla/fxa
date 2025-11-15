@@ -659,25 +659,28 @@ const recordEventMetric = (
       break;
     case 'webauthn_capabilities': {
       const e = (gleanPingMetrics as any).event || {};
-      const extras: Record<string, any> = {};
-      if (typeof e['supported'] === 'boolean')
-        extras.supported = e['supported'];
-      if (typeof e['ppa'] === 'boolean') extras.ppa = e['ppa'];
-      if (typeof e['cg'] === 'boolean') extras.cg = e['cg'];
-      if (typeof e['rel'] === 'boolean') extras.rel = e['rel'];
-      if (typeof e['hyb'] === 'boolean') extras.hyb = e['hyb'];
-      if (typeof e['uvpa'] === 'boolean') extras.uvpa = e['uvpa'];
-      if (typeof e['prf'] === 'boolean') extras.prf = e['prf'];
-      if (typeof e['error_reason'] === 'string')
-        extras.error_reason = e['error_reason'];
-      if (typeof e['os_family'] === 'string') extras.os_family = e['os_family'];
-      if (typeof e['os_major'] === 'string') extras.os_major = e['os_major'];
-      if (typeof e['browser_family'] === 'string')
-        extras.browser_family = e['browser_family'];
-      if (typeof e['browser_major'] === 'string')
-        extras.browser_major = e['browser_major'];
-      if (typeof e['cpu_arm'] === 'boolean') extras.cpu_arm = e['cpu_arm'];
-      webauthn.capabilities.record(extras);
+      // Always coerce expected extras to strings to ensure they appear in Looker "Events Extras"
+      const extras: Record<string, string> = {};
+      const allKeys = [
+        'supported',
+        'ppa',
+        'cg',
+        'rel',
+        'hyb',
+        'uvpa',
+        'prf',
+        'error_reason',
+        'os_family',
+        'os_major',
+        'browser_family',
+        'browser_major',
+      ] as const;
+      for (const key of allKeys) {
+        if (e[key] !== undefined) {
+          extras[key] = String(e[key]);
+        }
+      }
+      webauthn.capabilities.record(extras as any);
       break;
     }
   }

@@ -83,14 +83,6 @@ const conf = (module.exports = convict({
       env: 'DISABLE_CLIENT_METRICS_STDERR',
     },
   },
-  metrics: {
-    webauthnCapabilitiesSampleRate: {
-      default: 0.1,
-      doc: 'Sampling rate (0..1) for WebAuthn capabilities probe in Settings',
-      env: 'WEBAUTHN_CAPABILITIES_SAMPLE_RATE',
-      format: Number,
-    },
-  },
   client_sessions: {
     cookie_name: 'session',
     duration: {
