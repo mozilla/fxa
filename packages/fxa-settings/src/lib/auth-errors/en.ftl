@@ -17,6 +17,9 @@ auth-error-125 = The request was blocked for security reasons
 auth-error-129-2 = You entered an invalid phone number. Please check it and try again.
 auth-error-138-2 = Unconfirmed session
 auth-error-139 = Secondary email must be different than your account email
+# (Email) address has been added as a secondary email for another account and cannot be used to register a new account.
+# The reservation may be temporary. If the reservation is not confirmed before the reservation expires (~10 min), the email will become available again.
+auth-error-144 = This email is reserved by another account. Try again later or use a different email address.
 auth-error-155 = TOTP token not found
 # Error shown when the user submits an invalid backup authentication code
 auth-error-156 = Backup authentication code not found

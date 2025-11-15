@@ -77,6 +77,7 @@ module.exports = function (
     stripeHelper,
     pushbox,
     glean,
+    authServerCacheRedis,
     statsd
   );
   const oauth = require('./oauth')(

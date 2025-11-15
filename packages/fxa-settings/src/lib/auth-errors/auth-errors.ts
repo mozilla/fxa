@@ -168,7 +168,8 @@ const ERRORS = {
   },
   VERIFIED_SECONDARY_EMAIL_EXISTS: {
     errno: 144,
-    message: 'Address in use by another account',
+    message:
+      'This email is reserved by another account. Try again later or use a different email address.',
   },
   RESET_PASSWORD_WITH_SECONDARY_EMAIL: {
     errno: 145,
