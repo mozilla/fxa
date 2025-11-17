@@ -134,6 +134,10 @@ export type FxAOAuthLogin = {
 // ref: https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccountsWebChannel.sys.mjs#230
 export type FxACanLinkAccount = {
   email: string;
+  // To allow secondary email sign-ins, we send the UID up to the browser when
+  // the UID is availabe. New Firefox versions that allow this will ignore
+  // can_link_account messages sent up with only 'email'.
+  uid?: string;
 };
 type FxACanLinkAccountResponse = {
   ok: boolean;

@@ -78,6 +78,7 @@ export interface LocationState {
   email?: string;
   hasLinkedAccount?: boolean;
   hasPassword?: boolean;
+  hasSentCanLinkAccountFromEmailFirst?: boolean;
   localizedErrorMessage?: string;
   successBanner?: {
     localizedSuccessBannerHeading?: string;

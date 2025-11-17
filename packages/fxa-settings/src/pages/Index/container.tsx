@@ -60,6 +60,7 @@ const IndexContainer = ({
   // This must be a 'ref' because we don't want to trigger a re-render when the state changes
   const attemptedEmailAutoSubmit = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasSentCanLinkAccountFromEmailFirst, setHasSentCanLinkAccountFromEmailFirst] = useState(false);
 
   const { queryParamModel, validationError } = useValidatedQueryParams(
     IndexQueryParams,
@@ -113,6 +114,7 @@ const IndexContainer = ({
             email,
             hasLinkedAccount,
             hasPassword,
+            hasSentCanLinkAccountFromEmailFirst,
           },
         });
       } else {
@@ -127,7 +129,7 @@ const IndexContainer = ({
         });
       }
     },
-    [integration, navigateWithQuery]
+    [integration, navigateWithQuery, hasSentCanLinkAccountFromEmailFirst]
   );
 
   const handleEmailSubmissionError = useCallback(
@@ -154,6 +156,8 @@ const IndexContainer = ({
 
   const processEmailSubmission = useCallback(
     async (email: string, isManualSubmission = true) => {
+      setHasSentCanLinkAccountFromEmailFirst(false);
+
       let accountExists;
       try {
         if (!isEmail(email)) {
@@ -179,11 +183,12 @@ const IndexContainer = ({
           // DNS lookup for MX record
           await checkEmailDomain(email);
 
-          // This is for newer Firefox versions allowing secondary email sign-in.
+          // For newer Firefox versions allowing secondary email sign-in.
           // The merge warning will be unconditionally shown if anyone was previously
           // logged in to the existing Profile since the account does not exist. The
           // 'email' we pass will only be used to display the email in the alert.
           if (isOAuthNative) {
+            setHasSentCanLinkAccountFromEmailFirst(true);
             const { ok } = await firefox.fxaCanLinkAccount({
               email,
               uid: undefined,
@@ -193,9 +198,12 @@ const IndexContainer = ({
             }
           }
         }
-
-        // For previous Firefox versions that don't allow secondary email sign-in
-        if (isOAuthNative) {
+        // For previous Firefox versions that don't allow secondary email sign-ins.
+        // We send 'can_link_account' despite if the account exists or not.
+        // New Fx versions will ignore this even for the "exists" case since it
+        // doesn't provide the UID.
+        if (isOAuthNative && !hasSentCanLinkAccountFromEmailFirst) {
+          setHasSentCanLinkAccountFromEmailFirst(true);
           const { ok } = await firefox.fxaCanLinkAccount({ email });
           if (!ok) {
             throw AuthUiErrors.USER_CANCELED_LOGIN;
@@ -225,7 +233,8 @@ const IndexContainer = ({
       authClient,
       handleEmailSubmissionError,
       handleSuccessNavigation,
-      integration,
+      isOAuthNative,
+      hasSentCanLinkAccountFromEmailFirst,
     ]
   );
 

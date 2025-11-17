@@ -336,6 +336,7 @@ const Signin = ({
       hasLinkedAccount,
       hasPassword,
       navigateWithQuery,
+      isOAuthNative,
       sendUnblockEmailHandler,
       setLocalizedBannerError,
       finishOAuthFlowHandler,
