@@ -20,7 +20,11 @@ import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { ModelValidationErrors } from '../../lib/model-data';
 import { AuthError } from '../../lib/oauth';
 
-import { useAuthClient, useFtlMsgResolver } from '../../models';
+import {
+  isOAuthNativeIntegration,
+  useAuthClient,
+  useFtlMsgResolver,
+} from '../../models';
 import { isOAuthWebIntegration } from '../../models/integrations/oauth-web-integration';
 import { isUnsupportedContext } from '../../models/integrations/utils';
 import { IndexQueryParams } from '../../models/pages/index';
@@ -45,6 +49,7 @@ const IndexContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
+  const isOAuthNative = isOAuthNativeIntegration(integration);
 
   const [errorBannerMessage, setErrorBannerMessage] = useState(
     location.state?.localizedErrorFromLocationState || ''
@@ -173,13 +178,24 @@ const IndexContainer = ({
           }
           // DNS lookup for MX record
           await checkEmailDomain(email);
+
+          // This is for newer Firefox versions allowing secondary email sign-in.
+          // The merge warning will be unconditionally shown if anyone was previously
+          // logged in to the existing Profile since the account does not exist. The
+          // 'email' we pass will only be used to display the email in the alert.
+          if (isOAuthNative) {
+            const { ok } = await firefox.fxaCanLinkAccount({
+              email,
+              uid: undefined,
+            });
+            if (!ok) {
+              throw AuthUiErrors.USER_CANCELED_LOGIN;
+            }
+          }
         }
 
-        if (
-          integration.isSync() ||
-          integration.isFirefoxClientServiceRelay() ||
-          integration.isFirefoxClientServiceAiMode()
-        ) {
+        // For previous Firefox versions that don't allow secondary email sign-in
+        if (isOAuthNative) {
           const { ok } = await firefox.fxaCanLinkAccount({ email });
           if (!ok) {
             throw AuthUiErrors.USER_CANCELED_LOGIN;

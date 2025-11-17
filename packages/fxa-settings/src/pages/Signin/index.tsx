@@ -31,7 +31,7 @@ import {
   isClientRelay,
 } from '../../models/integrations/client-matching';
 import { SigninFormData, SigninProps } from './interfaces';
-import { handleNavigation } from './utils';
+import { handleNavigation, fxaCanLinkAccountAndNavigate } from './utils';
 import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 import { getLocalizedErrorMessage } from '../../lib/error-utils';
 import Banner from '../../components/Banner';
@@ -84,6 +84,7 @@ const Signin = ({
   const [hasEngaged, setHasEngaged] = useState<boolean>(false);
 
   const isOAuth = isOAuthIntegration(integration);
+  const isOAuthNative = isOAuthNativeIntegration(integration);
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const clientId = integration.getClientId();
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
@@ -124,7 +125,7 @@ const Signin = ({
   // Show for all other cases.
   const hideThirdPartyAuth = integration.isSync()
     ? hasPassword
-    : isOAuthNativeIntegration(integration) && !supportsKeysOptionalLogin;
+    : isOAuthNative && !supportsKeysOptionalLogin;
 
   useEffect(() => {
     if (!isPasswordNeededRef.current) {
@@ -206,6 +207,18 @@ const Signin = ({
 
       if (data) {
         GleanMetrics.login.success();
+
+        if (isOAuthNative) {
+          const ok = await fxaCanLinkAccountAndNavigate({
+            email,
+            uid: data.signIn.uid,
+            ftlMsgResolver,
+            navigateWithQuery,
+          });
+          if (!ok) {
+            return;
+          }
+        }
 
         const isFullyVerified =
           data.signIn.emailVerified && data.signIn.sessionVerified;

@@ -12,8 +12,12 @@ import {
   Integration,
   isWebIntegration,
   useFtlMsgResolver,
+  isOAuthIntegration,
 } from '../../../models';
-import { handleNavigation } from '../../Signin/utils';
+import {
+  handleNavigation,
+  fxaCanLinkAccountAndNavigate,
+} from '../../Signin/utils';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
   StoredAccountData,
@@ -28,7 +32,6 @@ import VerificationReasons from '../../../constants/verification-reasons';
 import { currentAccount } from '../../../lib/cache';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import firefox from '../../../lib/channels/firefox';
 
 type LinkedAccountData = {
   uid: hexstring;
@@ -82,28 +85,16 @@ const ThirdPartyAuthCallback = ({
    */
   const performNavigation = useCallback(
     async (linkedAccount: LinkedAccountData, needsVerification = false) => {
-      const shouldSendWebChannelMessages =
-        integration.isFirefoxClientServiceRelay() ||
-        integration.isFirefoxClientServiceAiMode();
+      const shouldSendWebChannelMessages = isOAuthIntegration(integration);
 
       if (shouldSendWebChannelMessages) {
-        const { ok } = await firefox.fxaCanLinkAccount({
+        const ok = await fxaCanLinkAccountAndNavigate({
           email: linkedAccount.email,
+          uid: linkedAccount.uid,
+          ftlMsgResolver,
+          navigateWithQuery,
         });
         if (!ok) {
-          // User cancelled the login, redirect back to Index with error banner.
-          // Prefill the email with this account to prevent a redirect to '/signin'
-          // so they can see the error and decide what to do.
-          navigateWithQuery('/', {
-            replace: true,
-            state: {
-              localizedErrorFromLocationState: ftlMsgResolver.getMsg(
-                'auth-error-1001',
-                'Login attempt cancelled'
-              ),
-              prefillEmail: linkedAccount.email,
-            },
-          });
           return;
         }
       }
