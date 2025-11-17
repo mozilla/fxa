@@ -19,8 +19,10 @@ export class NimbusManager {
     nimbusUserId,
     language,
     region,
+    preview,
   }: {
     nimbusUserId: string;
+    preview: boolean;
     language?: string;
     region?: string;
   }) {
@@ -28,10 +30,21 @@ export class NimbusManager {
       return null;
     }
 
+    // Temporarily log payload for debugging purposes
+    this.log.log(
+      JSON.stringify({
+        msg: 'NimbusPayload',
+        clientId: nimbusUserId,
+        context: { language: language || null, region: region || null },
+        preview,
+      })
+    );
+
     const results =
       await this.nimbusClient.fetchExperiments<SubPlatNimbusResult>({
         clientId: nimbusUserId,
         context: { language: language || null, region: region || null },
+        preview,
       });
 
     // Temporarily log results for debugging purposes

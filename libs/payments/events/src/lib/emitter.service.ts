@@ -95,6 +95,8 @@ export class PaymentsEmitterService {
           nimbusUserId: generatedNimbusUserId,
           language: additionalData.locale,
           region: additionalData.cartMetricsData.taxAddress?.countryCode,
+          preview:
+            eventData?.searchParams?.['experimentationPreview'] === 'true',
         });
       } catch (error) {
         this.log.error(error);
