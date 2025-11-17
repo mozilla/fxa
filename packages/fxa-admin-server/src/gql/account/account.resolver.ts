@@ -37,6 +37,7 @@ import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { CurrentUser } from '../../auth/auth-header.decorator';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
 import { Features } from '../../auth/user-group-header.decorator';
+import { AuditLog } from '../../auth/audit-log.decorator';
 import { EmailService } from '../../backend/email.service';
 import {
   CloudTasks,
@@ -240,6 +241,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.Remove2FA)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async remove2FA(@Args('uid') uid: string) {
     this.eventLogging.onEvent(EventNames.Remove2FA);
@@ -281,6 +283,7 @@ export class AccountResolver {
 
   // unverifies the user's email. will have to verify again on next login
   @Features(AdminPanelFeature.UnverifyEmail)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async unverifyEmail(@Args('email') email: string) {
     this.eventLogging.onEvent(EventNames.UnverifyEmail);
@@ -295,6 +298,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.DisableAccount)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async disableAccount(@Args('uid') uid: string) {
     this.eventLogging.onEvent(EventNames.DisableLogin);
@@ -315,6 +319,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.EditLocale)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async editLocale(
     @Args('uid') uid: string,
@@ -340,6 +345,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.DeleteRecoveryPhone)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async deleteRecoveryPhone(@Args('uid') uid: string): Promise<Boolean> {
     this.eventLogging.onEvent(EventNames.DeleteRecoveryPhone);
@@ -363,6 +369,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.EnableAccount)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async enableAccount(@Args('uid') uid: string) {
     const uidBuffer = uuidTransformer.to(uid);
@@ -593,6 +600,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.UnlinkAccount)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async unlinkAccount(
     @Args('uid') uid: string,
@@ -609,6 +617,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.UnsubscribeFromMailingLists)
+  @AuditLog()
   @Mutation((returns) => Boolean)
   public async unsubscribeFromMailingLists(@Args('uid') uid: string) {
     // Look up email. This end point is protected, but using a uid would makes it harder
@@ -681,6 +690,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.DeleteAccount)
+  @AuditLog()
   @Mutation((returns) => [AccountDeleteResponse])
   public async deleteAccounts(
     @Args('locators', { type: () => [String] }) locators: string[],
@@ -766,6 +776,7 @@ export class AccountResolver {
   }
 
   @Features(AdminPanelFeature.AccountReset)
+  @AuditLog()
   @Mutation((returns) => [AccountResetResponse])
   public async resetAccounts(
     @Args('locators', { type: () => [String] }) locators: string[],

@@ -8,6 +8,7 @@ import { uuidTransformer } from '../../database/transformers';
 
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { GqlAuthHeaderGuard } from '../../auth/auth-header.guard';
+import { AuditLog } from '../../auth/audit-log.decorator';
 import { Features } from '../../auth/user-group-header.decorator';
 import { DatabaseService } from '../../database/database.service';
 import {
@@ -48,6 +49,7 @@ export class RelyingPartyResolver {
   }
 
   @Features(AdminPanelFeature.CreateRelyingParty)
+  @AuditLog()
   @Mutation(() => String)
   public async createRelyingParty(
     @Args('relyingParty') relyingParty: RelyingPartyUpdateDto
@@ -60,7 +62,6 @@ export class RelyingPartyResolver {
       ...relyingParty,
     });
 
-
     if (result.id) {
       // Ping FxA channel, so devs know to setup a new queue
       // TODO: Create the event broker queue
@@ -70,6 +71,7 @@ export class RelyingPartyResolver {
   }
 
   @Features(AdminPanelFeature.UpdateRelyingParty)
+  @AuditLog()
   @Mutation(() => Boolean)
   public async updateRelyingParty(
     @Args('id') id: string,
@@ -88,6 +90,7 @@ export class RelyingPartyResolver {
   }
 
   @Features(AdminPanelFeature.DeleteRelyingParty)
+  @AuditLog()
   @Mutation(() => Boolean)
   public async deleteRelyingParty(@Args('id') id: string) {
     const result = await this.db.relyingParty

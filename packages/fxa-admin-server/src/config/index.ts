@@ -115,6 +115,12 @@ const conf = convict({
       default: 'info',
       env: 'LOG_LEVEL',
     },
+    auditSanitizeProperties: {
+      default: ['password', 'sessionToken', 'token', 'secret', 'key', 'auth'],
+      doc: 'Properties to sanitize in the audit log',
+      env: 'LOGGING_AUDIT_SANITIZE_PROPERTIES',
+      format: Array,
+    },
   },
   port: {
     default: 8095,
