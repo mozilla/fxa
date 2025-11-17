@@ -84,6 +84,7 @@ const Signin = ({
   const [hasEngaged, setHasEngaged] = useState<boolean>(false);
 
   const isOAuth = isOAuthIntegration(integration);
+  const isOAuthNative = isOAuthNativeIntegration(integration);
   const isFirefoxClientServiceRelay = integration.isFirefoxClientServiceRelay();
   const clientId = integration.getClientId();
   const isMonitorClient = isOAuth && isClientMonitor(clientId);
@@ -124,7 +125,7 @@ const Signin = ({
   // Show for all other cases.
   const hideThirdPartyAuth = integration.isSync()
     ? hasPassword
-    : isOAuthNativeIntegration(integration) && !supportsKeysOptionalLogin;
+    : isOAuthNative && !supportsKeysOptionalLogin;
 
   useEffect(() => {
     if (!isPasswordNeededRef.current) {

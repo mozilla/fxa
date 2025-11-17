@@ -217,6 +217,7 @@ async function render(text?: string) {
           selectedEnginesForGlean: {},
           declinedSyncEngines: [],
           supportsKeysOptionalLogin: false,
+          supportsCanLinkAccountUid: false,
         }}
         flowQueryParams={{ flowId: MOCK_FLOW_ID }}
       />

@@ -54,10 +54,11 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
-import { firefox } from '../../lib/channels/firefox';
+import { fxaCanLinkAccountAndNavigate } from './utils';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
+import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import {
   OAuthNativeSyncQueryParameters,
   OAuthQueryParams,
@@ -75,6 +76,16 @@ jest.mock('../../lib/channels/firefox', () => ({
 jest.mock('../../lib/storage-utils', () => ({
   ...jest.requireActual('../../lib/storage-utils'),
   storeAccountData: jest.fn(),
+}));
+
+jest.mock('./utils', () => ({
+  ...jest.requireActual('./utils'),
+  fxaCanLinkAccountAndNavigate: jest.fn(),
+}));
+
+jest.mock('../../lib/oauth/hooks', () => ({
+  ...jest.requireActual('../../lib/oauth/hooks'),
+  useFinishOAuthFlowHandler: jest.fn(),
 }));
 
 let integration: Integration;
@@ -194,7 +205,18 @@ const mockSession = {
   token: MOCK_SESSION_TOKEN,
 };
 
+const mockFinishOAuthFlowHandler = jest.fn().mockResolvedValue({
+  error: undefined,
+  redirect: undefined,
+  code: undefined,
+  state: undefined,
+});
+
 function mockModelsModule() {
+  (useFinishOAuthFlowHandler as jest.Mock).mockReturnValue({
+    finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
+    oAuthDataError: undefined,
+  });
   mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
     exists: true,
     hasLinkedAccount: false,
@@ -348,11 +370,14 @@ function mockSentryModule() {
   mockSentryCaptureMessage = jest.spyOn(SentryModule, 'captureMessage');
 }
 
-function render(mocks: Array<MockedResponse>) {
+function render(
+  mocks: Array<MockedResponse>,
+  options?: { useFxAStatusResult?: ReturnType<typeof mockUseFxAStatus> }
+) {
   loadDevMessages();
   loadErrorMessages();
 
-  const useFxAStatusResult = mockUseFxAStatus();
+  const useFxAStatusResult = options?.useFxAStatusResult || mockUseFxAStatus();
 
   return renderWithLocalizationProvider(
     <MockedProvider mocks={mocks} addTypename={false}>
@@ -726,19 +751,15 @@ describe('signin container', () => {
     describe('fxaCanLinkAccount', () => {
       beforeEach(() => {
         mockSyncDesktopV3Integration();
+        (fxaCanLinkAccountAndNavigate as jest.Mock).mockResolvedValue(true);
       });
       afterEach(() => {
-        (firefox.fxaCanLinkAccount as jest.Mock).mockRestore();
+        (fxaCanLinkAccountAndNavigate as jest.Mock).mockRestore();
       });
       it('is not called when conditions are not met (query param)', async () => {
         // this puts hasLinkedAccount=false in the query params
         // We don't want this called when the user was prompted on email-first
         mockUseValidateModule();
-        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
-          async () => ({
-            ok: true,
-          })
-        );
         render([
           mockGqlAvatarUseQuery(),
           mockGqlCredentialStatusMutation({
@@ -757,53 +778,15 @@ describe('signin container', () => {
             MOCK_EMAIL,
             MOCK_PASSWORD
           );
-          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
+          expect(fxaCanLinkAccountAndNavigate).not.toHaveBeenCalled();
         });
       });
-      it('is not called when conditions are not met (oauth web integration)', async () => {
-        mockOAuthWebIntegration({ data: {} });
-        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
-          async () => ({
-            ok: true,
-          })
-        );
-        render([mockGqlAvatarUseQuery()]);
 
-        await waitFor(async () => {
-          await currentSigninProps?.beginSigninHandler(
-            MOCK_EMAIL,
-            MOCK_PASSWORD
-          );
-          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
-        });
-      });
-      it('calls fxaCanLinkAccount when conditions are met (oauth native integration, isSyncDesktop)', async () => {
-        mockOAuthNativeIntegration();
-        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
-          async () => ({
-            ok: true,
-          })
-        );
-        render([mockGqlAvatarUseQuery()]);
-
-        await waitFor(async () => {
-          await currentSigninProps?.beginSigninHandler(
-            MOCK_EMAIL,
-            MOCK_PASSWORD
-          );
-          expect(firefox.fxaCanLinkAccount).not.toHaveBeenCalled();
-        });
-      });
-      it('calls fxaCanLinkAccount when conditions are met', async () => {
+      it('calls fxaCanLinkAccountAndNavigate early without UID when conditions are met', async () => {
         mockLocationState = {
           hasLinkedAccount: undefined,
           email: MOCK_ROUTER_STATE_EMAIL,
         };
-        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
-          async () => ({
-            ok: true,
-          })
-        );
         render([
           mockGqlAvatarUseQuery(),
           mockGqlCredentialStatusMutation({
@@ -818,26 +801,32 @@ describe('signin container', () => {
         ]);
 
         await waitFor(async () => {
-          await currentSigninProps?.beginSigninHandler(
+          const handlerResult = await currentSigninProps?.beginSigninHandler(
             MOCK_EMAIL,
             MOCK_PASSWORD
           );
-          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+
+          expect(handlerResult?.data).toBeDefined();
+        });
+        expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledTimes(1);
+        expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledWith(
+          expect.objectContaining({
             email: MOCK_EMAIL,
-          });
-        });
+          })
+        );
+        expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledWith(
+          expect.not.objectContaining({
+            uid: expect.anything(),
+          })
+        );
       });
 
-      it('returns expected error when fxaCanLinkAccount response is ok: false', async () => {
+      it('returns error when user cancels', async () => {
         mockLocationState = {
           hasLinkedAccount: undefined,
           email: MOCK_ROUTER_STATE_EMAIL,
         };
-        (firefox.fxaCanLinkAccount as jest.Mock).mockImplementationOnce(
-          async () => ({
-            ok: false,
-          })
-        );
+        (fxaCanLinkAccountAndNavigate as jest.Mock).mockResolvedValue(false);
         render([mockGqlAvatarUseQuery()]);
 
         await waitFor(async () => {
@@ -846,7 +835,51 @@ describe('signin container', () => {
             MOCK_PASSWORD
           );
           expect(handlerResult?.data).toBeUndefined();
-          expect(handlerResult?.error?.errno).toEqual(1001);
+        });
+      });
+
+      describe('with supportsCanLinkAccountUid capability and OAuthNative integration', () => {
+        beforeEach(() => {
+          mockOAuthNativeIntegration();
+        });
+
+        it('calls fxaCanLinkAccountAndNavigate with UID after successful signin', async () => {
+          const useFxAStatusResult = mockUseFxAStatus({
+            supportsCanLinkAccountUid: true,
+          });
+
+          render(
+            [
+              mockGqlAvatarUseQuery(),
+              mockGqlCredentialStatusMutation({
+                currentVersion: 'v2',
+                upgradeNeeded: false,
+                clientSalt: MOCK_CLIENT_SALT,
+              }),
+              mockGqlBeginSigninMutation(
+                { keys: true, service: 'sync' },
+                { email: MOCK_EMAIL }
+              ),
+            ],
+            { useFxAStatusResult }
+          );
+
+          await waitFor(async () => {
+            const handlerResult = await currentSigninProps?.beginSigninHandler(
+              MOCK_EMAIL,
+              MOCK_PASSWORD
+            );
+
+            expect(handlerResult?.data).toBeDefined();
+            expect(handlerResult?.data?.signIn?.uid).toBe(MOCK_UID);
+          });
+          expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledTimes(1);
+          expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledWith(
+            expect.objectContaining({
+              email: MOCK_EMAIL,
+              uid: MOCK_UID,
+            })
+          );
         });
       });
     });

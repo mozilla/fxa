@@ -39,6 +39,8 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
   const [declinedSyncEngines, setDeclinedSyncEngines] = useState<string[]>([]);
   const [supportsKeysOptionalLogin, setSupportsKeysOptionalLogin] =
     useState<boolean>(false);
+  const [supportsCanLinkAccountUid, setSupportsCanLinkAccountUid] =
+    useState<boolean>(false);
 
   useEffect(() => {
     // This sends a web channel message to the browser to prompt a response
@@ -75,6 +77,11 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
           setSupportsKeysOptionalLogin(true);
         } else {
           setSupportsKeysOptionalLogin(false);
+        }
+        if (status.capabilities.can_link_account_uid) {
+          setSupportsCanLinkAccountUid(true);
+        } else {
+          setSupportsCanLinkAccountUid(false);
         }
       })();
     }
@@ -138,6 +145,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
     declinedSyncEngines,
     selectedEnginesForGlean,
     supportsKeysOptionalLogin,
+    supportsCanLinkAccountUid,
   };
 }
 

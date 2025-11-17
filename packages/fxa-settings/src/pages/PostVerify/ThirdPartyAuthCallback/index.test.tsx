@@ -14,12 +14,14 @@ import { AppContext } from '../../../models';
 import { createAppContext, mockAppContext } from '../../../models/mocks';
 import { useAccount } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import { handleNavigation } from '../../Signin/utils';
+import {
+  handleNavigation,
+  fxaCanLinkAccountAndNavigate,
+} from '../../Signin/utils';
 import { QueryParams } from '../../../index';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
 import { LocationProvider } from '@reach/router';
 import { GenericData } from '../../../lib/model-data';
-import firefox from '../../../lib/channels/firefox';
 
 jest.mock('../../../models', () => ({
   ...jest.requireActual('../../../models'),
@@ -63,6 +65,7 @@ jest.mock('../../Signin/utils', () => {
   return {
     __esModule: true,
     handleNavigation: jest.fn(),
+    fxaCanLinkAccountAndNavigate: jest.fn(),
   };
 });
 
@@ -161,7 +164,7 @@ describe('ThirdPartyAuthCallback component', () => {
     }));
     mockHandleNavigation = jest.fn().mockResolvedValue({ error: null });
     (handleNavigation as jest.Mock).mockReturnValue(mockHandleNavigation);
-    (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({ ok: true });
+    (fxaCanLinkAccountAndNavigate as jest.Mock).mockResolvedValue(true);
     mockNavigateWithQuery.mockClear();
     mockCurrentAccount();
   });
@@ -288,12 +291,12 @@ describe('ThirdPartyAuthCallback component', () => {
     });
   });
 
-  it('redirects to Index with error banner when user cancels fxaCanLinkAccount', async () => {
+  it('calls fxaCanLinkAccountAndNavigate', async () => {
     const linkedAccountEmail = 'user@example.com';
-    (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({ ok: false });
+    const linkedAccountUid = '123';
 
     mockCurrentAccount({
-      uid: '123',
+      uid: linkedAccountUid,
       sessionToken: MOCK_SESSION_TOKEN,
       email: linkedAccountEmail,
     });
@@ -305,19 +308,12 @@ describe('ThirdPartyAuthCallback component', () => {
     renderWith({ integration });
 
     await waitFor(() => {
-      expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
-        email: linkedAccountEmail,
-      });
-    });
-
-    await waitFor(() => {
-      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/', {
-        replace: true,
-        state: {
-          localizedErrorFromLocationState: 'Login attempt cancelled',
-          prefillEmail: linkedAccountEmail,
-        },
-      });
+      expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: linkedAccountEmail,
+          uid: linkedAccountUid,
+        })
+      );
     });
   });
 });
