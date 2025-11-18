@@ -77,6 +77,48 @@ async function updateStripeEmail(
   });
 }
 
+export function toRedisSecondaryEmailReservationKey(normalizedEmail) {
+  return `secondary_email:reservation:${normalizedEmail}`;
+}
+
+export async function getExistingSecondaryEmailRecord(
+  normalizedEmail,
+  request,
+  authServerCacheRedis
+) {
+  let rawRecord, parsedRecord;
+  const key = toRedisSecondaryEmailReservationKey(normalizedEmail);
+
+  try {
+    rawRecord = await authServerCacheRedis.get(key);
+    if (!rawRecord) {
+      return undefined;
+    }
+    parsedRecord = JSON.parse(rawRecord);
+    return parsedRecord;
+  } catch (err) {
+    // this should never happen, but if it does it means there is malformed data in redis
+    // we should report it to sentry and delete the record
+    // we typically do not capture emails, but in this case it is not yet linked to an account
+    // and we may need the redis key to determine what went wrong
+    try {
+      Sentry.withScope((scope) => {
+        scope.setContext('secondaryEmailReservation', {
+          reservationKey: key,
+        });
+        reportSentryError(
+          new Error('secondaryEmail.reservation.malformedRecord'),
+          request
+        );
+      });
+    } catch {}
+    try {
+      await authServerCacheRedis.del(key);
+    } catch {}
+    return undefined;
+  }
+}
+
 module.exports = (
   log,
   db,
@@ -100,10 +142,6 @@ module.exports = (
   const otpOptions = config.otp;
   const otpUtils = require('./utils/otp').default(db, statsd);
   const SECONDARY_EMAIL_PENDING_TTL = config.secondaryEmail.pendingTtlSeconds;
-
-  function toRedisSecondaryEmailReservationKey(normalizedEmail) {
-    return `secondary_email:reservation:${normalizedEmail}`;
-  }
 
   const handlers = {
     recoveryEmailPost: async (request) => {
@@ -164,31 +202,28 @@ module.exports = (
       // - Throws specific errors for newly created unverified primary or when there’s an active subscription.
       await attemptToFreeEmail(normalizedEmail);
 
-      // Reserve email globally to prevent cross-account races for secondary email setup
-      // Note: In a race condition between new account creation and secondary email setup,
-      // the new account will take precedence and be able to claim the email.
+      // Reserve email globally to prevent cross-account races
+
       const key = toRedisSecondaryEmailReservationKey(normalizedEmail);
-      const rawRecord = await authServerCacheRedis.get(key);
-      let parsedRecord;
-      if (rawRecord) {
-        try {
-          parsedRecord = JSON.parse(rawRecord);
-        } catch (err) {
-          // capture sentry error if we are writing bogus data accidentally to redis
-          reportSentryError(err, request);
-          await authServerCacheRedis.del(key);
-          parsedRecord = undefined;
-        }
-      }
+      const existingSecondaryEmailRecord =
+        await getExistingSecondaryEmailRecord(
+          normalizedEmail,
+          request,
+          authServerCacheRedis
+        );
       const uidStr = Buffer.isBuffer(uid)
         ? uid.toString('base64')
         : String(uid);
-      if (parsedRecord && parsedRecord.uid !== uidStr) {
+      if (
+        existingSecondaryEmailRecord &&
+        existingSecondaryEmailRecord.uid !== uidStr
+      ) {
         // the email is already in use by another account (in-progress secondary email setup)
         // we should abort early and return a conflict error
         throw error.emailExists();
       }
-      const secret = parsedRecord?.secret ?? (await random.hex(16));
+      const secret =
+        existingSecondaryEmailRecord?.secret ?? (await random.hex(16));
       const value = JSON.stringify({ uid: uidStr, secret });
       // create new reservation or refresh existing reservation with updated TTL
       const setResult = await authServerCacheRedis.set(
@@ -196,7 +231,7 @@ module.exports = (
         value,
         'EX',
         SECONDARY_EMAIL_PENDING_TTL,
-        parsedRecord ? 'XX' : 'NX'
+        existingSecondaryEmailRecord ? 'XX' : 'NX'
       );
       if (setResult !== 'OK') {
         throw error.emailExists();
@@ -236,9 +271,7 @@ module.exports = (
           uid,
           normalizedEmail,
         });
-        await authServerCacheRedis.del(
-          toRedisSecondaryEmailReservationKey(normalizedEmail)
-        );
+        await authServerCacheRedis.del(key);
         throw emailUtils.sendError(err, true);
       }
 
@@ -357,11 +390,6 @@ module.exports = (
           emailRecord.isVerified &&
           !butil.buffersAreEqual(emailRecord.uid, uid)
         ) {
-          try {
-            await authServerCacheRedis.del(
-              toRedisSecondaryEmailReservationKey(normalizedEmail)
-            );
-          } catch {}
           throw error.emailExists();
         }
       } catch (err) {
@@ -370,26 +398,24 @@ module.exports = (
         }
       }
 
-      // Verify against Redis reservation
       const key = toRedisSecondaryEmailReservationKey(normalizedEmail);
-      const rawRecord = await authServerCacheRedis.get(key);
-      let parsedRecord;
-      if (rawRecord) {
-        try {
-          parsedRecord = JSON.parse(rawRecord);
-        } catch {
-          await authServerCacheRedis.del(key);
-        }
-      }
-
+      const existingSecondaryEmailRecord =
+        await getExistingSecondaryEmailRecord(
+          normalizedEmail,
+          request,
+          authServerCacheRedis
+        );
       const uidStr = Buffer.isBuffer(uid)
         ? uid.toString('base64')
         : String(uid);
-      if (parsedRecord && parsedRecord.uid !== uidStr) {
+      if (
+        existingSecondaryEmailRecord &&
+        existingSecondaryEmailRecord.uid !== uidStr
+      ) {
         // Another account is in the process of setting up this email as secondary
         throw error.emailExists();
       }
-      let secret = parsedRecord?.secret;
+      let secret = existingSecondaryEmailRecord?.secret;
       if (secret) {
         const { valid } = otpUtils.verifyOtpCode(
           code,
@@ -1450,3 +1476,7 @@ module.exports = (
 // Exported for testing purposes.
 module.exports._updateZendeskPrimaryEmail = updateZendeskPrimaryEmail;
 module.exports._updateStripeEmail = updateStripeEmail;
+module.exports.toRedisSecondaryEmailReservationKey =
+  toRedisSecondaryEmailReservationKey;
+module.exports.getExistingSecondaryEmailRecord =
+  getExistingSecondaryEmailRecord;
