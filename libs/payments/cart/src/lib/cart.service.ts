@@ -86,7 +86,10 @@ import type {
   UpdateCartInput,
 } from './cart.types';
 import { NeedsInputType } from './cart.types';
-import { handleEligibilityStatusMap } from './cart.utils';
+import {
+  handleEligibilityStatusMap,
+  convertStripePaymentMethodTypeToSubPlat,
+} from './cart.utils';
 import { SubmitNeedsInputFailedError } from './checkout.error';
 import { CheckoutService } from './checkout.service';
 import { resolveErrorInstance } from './util/resolveErrorInstance';
@@ -636,6 +639,17 @@ export class CartService {
           cart.stripeSubscriptionId
         );
       }
+
+      let paymentForm: SubPlatPaymentMethodType;
+      if (this.subscriptionManager.getPaymentProvider(subscription) === 'paypal') {
+        paymentForm = SubPlatPaymentMethodType.PayPal;
+      } else {
+        const stripePaymentMethod = await this.paymentMethodManager.retrieve(
+          subscription.default_payment_method ?? '',
+        );
+        paymentForm = convertStripePaymentMethodTypeToSubPlat(stripePaymentMethod);
+      }
+
       await this.checkoutService.postPaySteps({
         cart,
         version: cart.version,
@@ -643,6 +657,7 @@ export class CartService {
         uid: cart.uid,
         paymentProvider:
           this.subscriptionManager.getPaymentProvider(subscription),
+        paymentForm,
       });
     });
   }
@@ -1068,6 +1083,12 @@ export class CartService {
         const subscription = await this.subscriptionManager.retrieve(
           cart.stripeSubscriptionId
         );
+
+        const paymentMethod = await this.paymentMethodManager.retrieve(
+          intent.payment_method
+        );
+        const paymentForm = convertStripePaymentMethodTypeToSubPlat(paymentMethod);
+
         await this.checkoutService.postPaySteps({
           cart,
           version: cart.version,
@@ -1075,6 +1096,7 @@ export class CartService {
           uid: cart.uid,
           paymentProvider:
             this.subscriptionManager.getPaymentProvider(subscription),
+          paymentForm,
         });
       } else if (intent.status === 'requires_payment_method') {
         const errorCode = isPaymentIntent(intent)

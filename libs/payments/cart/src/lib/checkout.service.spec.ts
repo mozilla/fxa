@@ -48,6 +48,7 @@ import {
   STRIPE_SUBSCRIPTION_METADATA,
   SubscriptionManager,
   TaxAddressFactory,
+  SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
   StripeClient,
@@ -143,6 +144,7 @@ describe('CheckoutService', () => {
   let promotionCodeManager: PromotionCodeManager;
   let statsd: StatsD;
   let subscriptionManager: SubscriptionManager;
+  let paymentMethodManager: PaymentMethodManager;
 
   const mockLogger = {
     error: jest.fn(),
@@ -232,6 +234,7 @@ describe('CheckoutService', () => {
     promotionCodeManager = moduleRef.get(PromotionCodeManager);
     statsd = moduleRef.get(StatsDService);
     subscriptionManager = moduleRef.get(SubscriptionManager);
+    paymentMethodManager = moduleRef.get(PaymentMethodManager);
   });
 
   describe('prePaySteps', () => {
@@ -521,6 +524,7 @@ describe('CheckoutService', () => {
     it('success', async () => {
       const mockCart = ResultCartFactory();
       const paymentProvider = 'stripe';
+      const paymentForm = SubPlatPaymentMethodType.Card;
 
       await checkoutService.postPaySteps({
         cart: mockCart,
@@ -528,6 +532,7 @@ describe('CheckoutService', () => {
         subscription: mockSubscription,
         uid: mockUid,
         paymentProvider,
+        paymentForm,
       });
 
       expect(customerManager.setTaxId).toHaveBeenCalledWith(
@@ -539,6 +544,7 @@ describe('CheckoutService', () => {
       expect(cartManager.finishCart).toHaveBeenCalled();
       expect(statsd.increment).toHaveBeenCalledWith('subscription_success', {
         payment_provider: paymentProvider,
+        payment_form: paymentForm,
         offering_id: mockCart.offeringConfigId,
         interval: mockCart.interval,
       });
@@ -557,6 +563,7 @@ describe('CheckoutService', () => {
         })
       );
       const paymentProvider = 'stripe';
+      const paymentForm = SubPlatPaymentMethodType.Card;
 
       jest
         .spyOn(subscriptionManager, 'update')
@@ -568,6 +575,7 @@ describe('CheckoutService', () => {
         subscription: mockSubscription,
         uid: mockUid,
         paymentProvider,
+        paymentForm,
       });
 
       expect(customerManager.setTaxId).toHaveBeenCalledWith(
@@ -629,6 +637,9 @@ describe('CheckoutService', () => {
         eligibility: mockEligibilityResult,
       });
       const mockPricingForCurrency = PricingForCurrencyFactory();
+      const mockPaymentMethod = StripeResponseFactory(
+        StripePaymentMethodFactory()
+      );
 
       beforeEach(async () => {
         jest
@@ -650,7 +661,10 @@ describe('CheckoutService', () => {
         jest.spyOn(statsd, 'increment');
         jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
         jest.spyOn(asyncLocalStorage, 'getStore');
-      });
+        jest
+          .spyOn(paymentMethodManager, 'retrieve')
+          .mockResolvedValue(mockPaymentMethod);
+        });
 
       beforeEach(async () => {
         await checkoutService.payWithStripe(
@@ -748,6 +762,7 @@ describe('CheckoutService', () => {
           subscription: mockSubscription,
           uid: mockCart.uid,
           paymentProvider: 'stripe',
+          paymentForm: SubPlatPaymentMethodType.Card,
         });
       });
 
@@ -1181,6 +1196,7 @@ describe('CheckoutService', () => {
           subscription: mockSubscription,
           uid: mockCart.uid,
           paymentProvider: 'paypal',
+          paymentForm: SubPlatPaymentMethodType.PayPal,
         });
       });
 
