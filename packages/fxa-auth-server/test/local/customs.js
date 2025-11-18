@@ -57,6 +57,7 @@ describe('Customs', () => {
   });
 
   afterEach(() => {
+    nock.cleanAll();
     sandbox.restore();
   });
 
@@ -143,28 +144,14 @@ describe('Customs', () => {
         );
       })
       .then(() => {
-        // Mock a report of a failed login attempt
-        customsServer
-          .post('/failedLoginAttempt', (body) => {
-            assert.deepEqual(
-              body,
-              {
-                ip: ip,
-                email: email,
-                errno: error.ERRNO.UNEXPECTED_ERROR,
-              },
-              'first call to /failedLoginAttempt had expected request params'
-            );
-            return true;
-          })
-          .reply(200, {});
+        // flag() is now a noop, so no HTTP request is made
         return customsWithUrl.flag(ip, { email, uid });
       })
       .then((result) => {
         assert.equal(
           result,
           undefined,
-          'Nothing is returned when /failedLoginAttempt succeeds'
+          'Nothing is returned when flag() is called (now a noop)'
         );
       })
       .then(() => {
@@ -263,6 +250,9 @@ describe('Customs', () => {
             return true;
           })
           .reply(200, {});
+        // flag() is now a noop, so no HTTP request is made
+        // Note: The nock interceptor above is left in place for now to maintain
+        // test structure, but it will never be consumed since flag() is a noop.
         return customsWithUrl.flag(ip, {
           email: email,
           errno: error.ERRNO.INCORRECT_PASSWORD,
@@ -272,7 +262,7 @@ describe('Customs', () => {
         assert.equal(
           result,
           undefined,
-          'Nothing is returned when /failedLoginAttempt succeeds'
+          'Nothing is returned when flag() is called (now a noop)'
         );
       })
       .then(() => {
@@ -378,14 +368,6 @@ describe('Customs', () => {
             'an error is returned from /check'
           );
         }),
-
-      customsInvalidUrl.flag(ip, { email, uid }).then(assert.fail, (err) => {
-        assert.equal(
-          err.errno,
-          error.ERRNO.BACKEND_SERVICE_FAILURE,
-          'an error is returned from /flag'
-        );
-      }),
 
       customsInvalidUrl.reset(request, email).then(assert.fail, (err) => {
         assert.equal(
