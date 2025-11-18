@@ -48,6 +48,7 @@ export class PaymentsGleanManager {
     commonMetricsData: CommonMetrics;
     cartMetricsData: CartMetrics;
     cmsMetricsData: CmsMetricsData;
+    experimentationData: ExperimentationData;
   }) {
     if (this.isEnabled) {
       this.paymentsGleanServerEventsLogger.recordPaySetupEngage(
@@ -61,6 +62,7 @@ export class PaymentsGleanManager {
       commonMetricsData: CommonMetrics;
       cartMetricsData: CartMetrics;
       cmsMetricsData: CmsMetricsData;
+      experimentationData: ExperimentationData;
     },
     paymentProvider?: PaymentProvidersType
   ) {
@@ -78,6 +80,7 @@ export class PaymentsGleanManager {
       commonMetricsData: CommonMetrics;
       cartMetricsData: CartMetrics;
       cmsMetricsData: CmsMetricsData;
+      experimentationData: ExperimentationData;
     },
     paymentProvider?: SubPlatPaymentMethodType
   ) {
@@ -97,6 +100,7 @@ export class PaymentsGleanManager {
       commonMetricsData: CommonMetrics;
       cartMetricsData: CartMetrics;
       cmsMetricsData: CmsMetricsData;
+      experimentationData: ExperimentationData;
     },
     paymentProvider?: PaymentProvidersType
   ) {
