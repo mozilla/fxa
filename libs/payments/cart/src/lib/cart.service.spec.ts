@@ -36,6 +36,7 @@ import {
   SubplatInterval,
   SubscriptionManager,
   TaxAddressFactory,
+  SubPlatPaymentMethodType,
 } from '@fxa/payments/customer';
 import {
   ResultAccountCustomerFactory,
@@ -1131,6 +1132,16 @@ describe('CartService', () => {
   });
 
   describe('finalizeProcessingCart', () => {
+    const mockPaymentMethod = StripeResponseFactory(
+      StripePaymentMethodFactory({})
+    );
+
+    beforeEach(() => {
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
+    });
+
     it('throws an error for a cart that has no uid', async () => {
       const mockCart = ResultCartFactory();
 
@@ -1186,6 +1197,7 @@ describe('CartService', () => {
         subscription: mockSubscription,
         uid: mockCart.uid,
         paymentProvider: 'stripe',
+        paymentForm: SubPlatPaymentMethodType.Card,
       });
     });
   });
@@ -2222,6 +2234,9 @@ describe('CartService', () => {
       jest
         .spyOn(subscriptionManager, 'retrieve')
         .mockResolvedValue(mockSubscription);
+      jest
+        .spyOn(paymentMethodManager, 'retrieve')
+        .mockResolvedValue(mockPaymentMethod);
       jest.spyOn(checkoutService, 'postPaySteps').mockResolvedValue();
       jest.spyOn(cartService, 'finalizeCartWithError').mockResolvedValue();
       jest.spyOn(cartManager, 'finishErrorCart').mockResolvedValue();
@@ -2247,6 +2262,7 @@ describe('CartService', () => {
         subscription: mockSubscription,
         uid: mockCart.uid,
         paymentProvider: 'stripe',
+        paymentForm: SubPlatPaymentMethodType.Card,
       });
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });
@@ -2279,6 +2295,7 @@ describe('CartService', () => {
         subscription: mockSubscription,
         uid: mockCartWithSetupIntent.uid,
         paymentProvider: 'stripe',
+        paymentForm: SubPlatPaymentMethodType.Card,
       });
       expect(cartManager.finishErrorCart).not.toHaveBeenCalled();
     });
