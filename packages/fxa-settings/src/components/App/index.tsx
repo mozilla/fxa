@@ -438,7 +438,6 @@ const AuthAndAccountSetupRoutes = ({
     // error page instead of letting it bubble up to the general error boundary.
     serviceName = integration.getServiceName() as MozServices;
   } catch (err: any) {
-    sentryMetrics.captureException(err);
     if (isOAuthIntegration(integration)) {
       return (
         <Suspense fallback={<LoadingSpinner fullScreen />}>
