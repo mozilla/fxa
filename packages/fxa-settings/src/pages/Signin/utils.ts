@@ -13,6 +13,8 @@ import {
   useAuthClient,
   isOAuthWebIntegration,
 } from '../../models';
+import { FtlMsgResolver } from 'fxa-react/lib/utils';
+import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
@@ -591,4 +593,40 @@ function getStoredAccountInfo(): SigninLocationState | null {
     };
   }
   return null;
+}
+
+/**
+ * Sends `can_link_account` with email and UID and handles navigation if cancelled.
+ */
+export async function fxaCanLinkAccountAndNavigate({
+  email,
+  uid,
+  ftlMsgResolver,
+  navigateWithQuery,
+}: {
+  email: string;
+  uid?: hexstring;
+  ftlMsgResolver: FtlMsgResolver;
+  navigateWithQuery: ReturnType<typeof useNavigateWithQuery>;
+}): Promise<boolean> {
+  const { ok } = await firefox.fxaCanLinkAccount({
+    email,
+    uid,
+  });
+  if (!ok) {
+    // User cancelled the login, redirect back to Index with error banner.
+    // Prefill the email with this account to prevent a redirect to '/signin'
+    // so they can see the error and decide what to do.
+    navigateWithQuery('/', {
+      replace: true,
+      state: {
+        localizedErrorFromLocationState: ftlMsgResolver.getMsg(
+          'auth-error-1001',
+          'Login attempt cancelled'
+        ),
+        prefillEmail: email,
+      },
+    });
+  }
+  return ok;
 }

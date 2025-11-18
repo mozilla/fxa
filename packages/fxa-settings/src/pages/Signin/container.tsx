@@ -14,6 +14,7 @@ import {
   useSensitiveDataClient,
   isOAuthIntegration,
   isOAuthNativeIntegrationSync,
+  isOAuthNativeIntegration,
 } from '../../models';
 import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { MozServices } from '../../lib/types';
@@ -65,7 +66,6 @@ import {
   getHandledError,
   getLocalizedErrorMessage,
 } from '../../lib/error-utils';
-import { firefox } from '../../lib/channels/firefox';
 import {
   SensitiveData,
   SensitiveDataClient,
@@ -81,7 +81,7 @@ import {
   storeAccountData,
   StoredAccountData,
 } from '../../lib/storage-utils';
-import { cachedSignIn } from './utils';
+import { cachedSignIn, fxaCanLinkAccountAndNavigate } from './utils';
 import OAuthDataError from '../../components/OAuthDataError';
 
 /*
@@ -318,16 +318,16 @@ const SigninContainer = ({
         (integration.isSync() ||
           integration.isFirefoxClientServiceRelay() ||
           integration.isFirefoxClientServiceAiMode()) &&
-        !originFromEmailFirst
+        !originFromEmailFirst &&
+        !useFxAStatusResult.supportsCanLinkAccountUid
       ) {
-        const { ok } = await firefox.fxaCanLinkAccount({ email });
+        const ok = await fxaCanLinkAccountAndNavigate({
+          email,
+          ftlMsgResolver,
+          navigateWithQuery,
+        });
         if (!ok) {
-          const error = {
-            // TODO FXA-9757, these should never be undefined
-            errno: AuthUiErrors.USER_CANCELED_LOGIN.errno!,
-            message: AuthUiErrors.USER_CANCELED_LOGIN.message!,
-          };
-          return { data: undefined, error };
+          return { data: undefined };
         }
       }
 
@@ -386,49 +386,62 @@ const SigninContainer = ({
         }
       );
 
-      // Check recovery key status if signin was successful, user is on sync Desktop
-      // and they didn't click "Do it later"; this affects navigation.
-      if (
-        'data' in result &&
-        result.data &&
-        integration.isDesktopSync() &&
-        config.featureFlags?.recoveryCodeSetupOnSyncSignIn === true &&
-        localStorage.getItem(
-          Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER
-        ) !== 'true'
-      ) {
-        try {
-          // We must use auth-client here in case the user has 2FA or should be
-          // taken to signin_token_code, else GQL responds with 'Invalid token'
-          const { exists } = await authClient.recoveryKeyExists(
-            result.data.signIn.sessionToken,
-            email
-          );
-          cache.modify({
-            id: cache.identify({ __typename: 'Account' }),
-            fields: {
-              recoveryKey() {
-                return {
-                  exists,
-                };
-              },
-            },
+      if ('data' in result && result.data) {
+        if (
+          isOAuthNativeIntegration(integration) &&
+          useFxAStatusResult.supportsCanLinkAccountUid
+        ) {
+          const ok = await fxaCanLinkAccountAndNavigate({
+            email,
+            uid: result.data.signIn.uid,
+            ftlMsgResolver,
+            navigateWithQuery,
           });
-          result.data.showInlineRecoveryKeySetup = !exists;
-        } catch (e) {
-          // no-op, don't block the user from anything and just
-          // skip the inline_recovery_key_setup step this time.
+          if (!ok) {
+            return { data: undefined };
+          }
         }
-      }
 
-      // If an upgrade is needed try running it after we know whether or not
-      // the session is verified. If the session is not verified, there's no
-      // point in attempting the upgrade at this time.
-      //
-      // In this case, we should stash the credentials so we can try at a later
-      // point in then flow after verification is complete.
-      //
-      if ('data' in result && result.data && 'signIn' in result.data) {
+        // Check recovery key status if signin was successful, user is on sync Desktop
+        // and they didn't click "Do it later"; this affects navigation.
+        if (
+          integration.isDesktopSync() &&
+          config.featureFlags?.recoveryCodeSetupOnSyncSignIn === true &&
+          localStorage.getItem(
+            Constants.DISABLE_PROMO_ACCOUNT_RECOVERY_KEY_DO_IT_LATER
+          ) !== 'true'
+        ) {
+          try {
+            // We must use auth-client here in case the user has 2FA or should be
+            // taken to signin_token_code, else GQL responds with 'Invalid token'
+            const { exists } = await authClient.recoveryKeyExists(
+              result.data.signIn.sessionToken,
+              email
+            );
+            cache.modify({
+              id: cache.identify({ __typename: 'Account' }),
+              fields: {
+                recoveryKey() {
+                  return {
+                    exists,
+                  };
+                },
+              },
+            });
+            result.data.showInlineRecoveryKeySetup = !exists;
+          } catch (e) {
+            // no-op, don't block the user from anything and just
+            // skip the inline_recovery_key_setup step this time.
+          }
+        }
+
+        // If an upgrade is needed try running it after we know whether or not
+        // the session is verified. If the session is not verified, there's no
+        // point in attempting the upgrade at this time.
+        //
+        // In this case, we should stash the credentials so we can try at a later
+        // point in then flow after verification is complete.
+        //
         const { emailVerified, sessionVerified } = result.data.signIn;
         const accountData: StoredAccountData = {
           email,
@@ -440,14 +453,12 @@ const SigninContainer = ({
         };
 
         storeAccountData(accountData);
-      }
 
-      if (
-        credentials.credentialStatus?.upgradeNeeded === true &&
-        credentials.v2Credentials
-      ) {
-        let upgraded = false;
-        if ('data' in result && result.data) {
+        if (
+          credentials.credentialStatus?.upgradeNeeded === true &&
+          credentials.v2Credentials
+        ) {
+          let upgraded = false;
           const sessionToken = result.data.signIn.sessionToken;
           const isVerified =
             result.data.signIn.emailVerified &&
@@ -460,16 +471,16 @@ const SigninContainer = ({
               sessionToken
             );
           }
-        }
 
-        if (upgraded) {
-          sensitiveDataClient.KeyStretchUpgradeData = undefined;
-        } else {
-          sensitiveDataClient.KeyStretchUpgradeData = {
-            email,
-            v1Credentials: credentials.v1Credentials,
-            v2Credentials: credentials.v2Credentials,
-          };
+          if (upgraded) {
+            sensitiveDataClient.KeyStretchUpgradeData = undefined;
+          } else {
+            sensitiveDataClient.KeyStretchUpgradeData = {
+              email,
+              v1Credentials: credentials.v1Credentials,
+              v2Credentials: credentials.v2Credentials,
+            };
+          }
         }
       }
 
@@ -489,6 +500,9 @@ const SigninContainer = ({
       authClient,
       sensitiveDataClient,
       originFromEmailFirst,
+      ftlMsgResolver,
+      navigateWithQuery,
+      useFxAStatusResult,
     ]
   );
 

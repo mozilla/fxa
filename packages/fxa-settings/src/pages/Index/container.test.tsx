@@ -24,6 +24,7 @@ import GleanMetrics from '../../lib/glean';
 import { IndexQueryParams } from '../../models/pages/index';
 import { GenericData, ModelValidationErrors } from '../../lib/model-data';
 import { mockUseFxAStatus } from '../../lib/hooks/useFxAStatus/mocks';
+import { firefox } from '../../lib/channels/firefox';
 
 let mockLocationState = {};
 let mockNavigate = jest.fn();
@@ -55,7 +56,10 @@ jest.mock('../../models', () => {
 });
 
 jest.mock('../../lib/channels/firefox', () => ({
-  fxaCanLinkAccount: jest.fn(),
+  ...jest.requireActual('../../lib/channels/firefox'),
+  firefox: {
+    fxaCanLinkAccount: jest.fn(),
+  },
 }));
 
 jest.mock('../../lib/email-domain-validator', () => ({
@@ -99,7 +103,7 @@ describe('IndexContainer', () => {
   let mockUseAuthClient: jest.Mock;
 
   let integration: Integration;
-  const mockUseFxAStatusResult = mockUseFxAStatus();
+  let mockUseFxAStatusResult = mockUseFxAStatus();
 
   function mockWebIntegration() {
     // Leaving for historical record. Remove once baked.
@@ -127,6 +131,19 @@ describe('IndexContainer', () => {
     expect(integration.wantsKeys()).toBeFalsy();
     expect(integration.isDesktopSync()).toBeFalsy();
     expect(integration.isFirefoxClientServiceRelay()).toBeFalsy();
+  }
+
+  function mockOAuthNativeIntegration() {
+    integration = {
+      type: IntegrationType.OAuthNative,
+      getService: () => MozServices.FirefoxSync,
+      getClientId: () => 'abc123',
+      isSync: () => true,
+      isFirefoxClientServiceRelay: () => false,
+      isFirefoxClientServiceAiMode: () => false,
+      wantsKeys: () => true,
+      data: { clientId: 'abc123' },
+    } as Integration;
   }
 
   function mockUnsupportedContextIntegration() {
@@ -834,6 +851,113 @@ describe('IndexContainer', () => {
         );
         expect(gleanSubmitFailSpy).toHaveBeenCalledWith({
           event: { reason: 'registration' },
+        });
+      });
+    });
+
+    describe('fxaCanLinkAccount with OAuthNative integration', () => {
+      beforeEach(() => {
+        mockOAuthNativeIntegration();
+        mockUseFxAStatusResult = mockUseFxAStatus({
+          supportsCanLinkAccountUid: true,
+        });
+      });
+      afterEach(() => {
+        (firefox.fxaCanLinkAccount as jest.Mock).mockRestore();
+      });
+
+      it('calls fxaCanLinkAccount with email when supportsCanLinkAccountUid is false', async () => {
+        mockUseFxAStatusResult = mockUseFxAStatus({
+          supportsCanLinkAccountUid: false,
+        });
+
+        render(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+        await waitFor(() => {
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+            email: MOCK_EMAIL,
+          });
+        });
+      });
+
+      it('calls fxaCanLinkAccount with email and UID when supportsCanLinkAccountUid is true and account does not exist', async () => {
+        mockAuthClient.accountStatusByEmail = jest.fn().mockResolvedValue({
+          exists: false,
+          hasLinkedAccount: false,
+          hasPassword: false,
+        });
+        (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+          () => mockAuthClient
+        );
+
+        render(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+        await waitFor(() => {
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledTimes(1);
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalledWith({
+            email: MOCK_EMAIL,
+            uid: undefined,
+          });
+        });
+      });
+
+      it('handles user cancelling account linking', async () => {
+        mockUseFxAStatusResult = mockUseFxAStatus({
+          supportsCanLinkAccountUid: false,
+        });
+        (firefox.fxaCanLinkAccount as jest.Mock).mockResolvedValue({
+          ok: false,
+        });
+
+        render(
+          <IndexContainer
+            {...{
+              integration,
+              serviceName: MozServices.Default,
+              useFxAStatusResult: mockUseFxAStatusResult,
+            }}
+          />
+        );
+
+        await waitFor(() => {
+          expect(currentIndexProps?.processEmailSubmission).toBeDefined();
+        });
+
+        await currentIndexProps?.processEmailSubmission(MOCK_EMAIL);
+
+        await waitFor(() => {
+          expect(firefox.fxaCanLinkAccount).toHaveBeenCalled();
+        });
+        await waitFor(() => {
+          expect(currentIndexProps?.errorBannerMessage).toBeDefined();
         });
       });
     });

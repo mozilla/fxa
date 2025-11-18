@@ -17,7 +17,7 @@ import {
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthIntegration,
 } from './mocks';
-import { handleNavigation } from './utils';
+import { handleNavigation, fxaCanLinkAccountAndNavigate } from './utils';
 import * as ReachRouter from '@reach/router';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
@@ -33,12 +33,14 @@ jest.mock('../../lib/channels/firefox', () => ({
   default: {
     fxaLogin: jest.fn(),
     fxaOAuthLogin: jest.fn(),
+    fxaCanLinkAccount: jest.fn(),
   },
 }));
 
 const navigateSpy = jest.spyOn(ReachRouter, 'navigate');
 const hardNavigateSpy = jest.spyOn(ReactUtils, 'hardNavigate');
 const fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
+const fxaCanLinkAccountSpy = jest.spyOn(firefox, 'fxaCanLinkAccount');
 
 describe('Signin utils', () => {
   beforeEach(() => {
@@ -292,6 +294,61 @@ describe('Signin utils', () => {
         expect(navigateSpy).toHaveBeenCalledWith('/settings', {
           replace: true,
         });
+      });
+    });
+  });
+
+  describe('fxaCanLinkAccountAndNavigate', () => {
+    const mockFtlMsgResolver = {
+      getMsg: jest.fn().mockReturnValue('Login attempt cancelled'),
+    };
+    const mockNavigateWithQuery = jest.fn();
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('returns true when user accepts', async () => {
+      fxaCanLinkAccountSpy.mockResolvedValue({ ok: true });
+
+      const result = await fxaCanLinkAccountAndNavigate({
+        email: MOCK_EMAIL,
+        uid: MOCK_UID,
+        ftlMsgResolver: mockFtlMsgResolver as any,
+        navigateWithQuery: mockNavigateWithQuery as any,
+      });
+
+      expect(result).toBe(true);
+      expect(fxaCanLinkAccountSpy).toHaveBeenCalledWith({
+        email: MOCK_EMAIL,
+        uid: MOCK_UID,
+      });
+      expect(mockNavigateWithQuery).not.toHaveBeenCalled();
+    });
+
+    it('navigates to Index with error banner when user cancels', async () => {
+      const linkedAccountEmail = 'user@example.com';
+      const linkedAccountUid = '123';
+      fxaCanLinkAccountSpy.mockResolvedValue({ ok: false });
+
+      const result = await fxaCanLinkAccountAndNavigate({
+        email: linkedAccountEmail,
+        uid: linkedAccountUid,
+        ftlMsgResolver: mockFtlMsgResolver as any,
+        navigateWithQuery: mockNavigateWithQuery as any,
+      });
+
+      expect(result).toBe(false);
+      expect(fxaCanLinkAccountSpy).toHaveBeenCalledWith({
+        email: linkedAccountEmail,
+        uid: linkedAccountUid,
+      });
+      expect(mockNavigateWithQuery).toHaveBeenCalledWith('/', {
+        replace: true,
+        state: {
+          localizedErrorFromLocationState: 'Login attempt cancelled',
+          prefillEmail: linkedAccountEmail,
+        },
       });
     });
   });
