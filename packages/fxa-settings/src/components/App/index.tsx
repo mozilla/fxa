@@ -49,6 +49,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useFxAStatus from '../../lib/hooks/useFxAStatus';
+import AppLayout from '../AppLayout';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
@@ -358,13 +359,17 @@ export const App = ({
     isSignedIn === undefined ||
     metricsEnabled === undefined
   ) {
-    return <LoadingSpinner fullScreen />;
+    return window.location.pathname?.includes('/settings') ? (
+      <LoadingSpinner fullScreen />
+    ) : (
+      <AppLayout cmsInfo={integration?.getCmsInfo()} loading />
+    );
   }
 
   // If we're on settings route but user is not signed in, redirect immediately
   if (window.location.pathname?.includes('/settings') && !isSignedIn) {
     navigate('/');
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   return (
@@ -450,7 +455,7 @@ const AuthAndAccountSetupRoutes = ({
     sentryMetrics.captureException(err);
     if (isOAuthIntegration(integration)) {
       return (
-        <Suspense fallback={<LoadingSpinner fullScreen />}>
+        <Suspense fallback={<AppLayout loading />}>
           <OAuthDataError error={err} />
         </Suspense>
       );
@@ -459,7 +464,9 @@ const AuthAndAccountSetupRoutes = ({
   }
 
   return (
-    <Suspense fallback={<LoadingSpinner fullScreen />}>
+    <Suspense
+      fallback={<AppLayout cmsInfo={integration.getCmsInfo()} loading />}
+    >
       <Router>
         {/* Index */}
         <IndexContainer

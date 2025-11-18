@@ -5,7 +5,6 @@
 import { RouteComponentProps, useLocation } from '@reach/router';
 import SetPassword from '.';
 import { currentAccount } from '../../../lib/cache';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Integration, useAuthClient } from '../../../models';
 import { cache } from '../../../lib/cache';
@@ -24,6 +23,7 @@ import GleanMetrics from '../../../lib/glean';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
 import type { UseFxAStatusResult } from '../../../lib/hooks/useFxAStatus';
+import AppLayout from '../../../components/AppLayout';
 
 const SetPasswordContainer = ({
   integration,
@@ -178,7 +178,7 @@ const SetPasswordContainer = ({
   // This page is currently always for the Sync flow.
   if (!email || !sessionToken || !uid || !integration.isSync()) {
     navigateWithQuery('/signin', { replace: true });
-    return <LoadingSpinner />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
   if (oAuthDataError) {
     return <OAuthDataError error={oAuthDataError} />;

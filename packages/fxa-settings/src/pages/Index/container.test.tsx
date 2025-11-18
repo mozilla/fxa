@@ -8,7 +8,7 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 import * as cache from '../../lib/cache';
 
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { Integration, IntegrationType, WebIntegration } from '../../models';
@@ -62,9 +62,11 @@ jest.mock('../../lib/email-domain-validator', () => ({
   checkEmailDomain: jest.fn(),
 }));
 
-jest.mock('fxa-react/components/LoadingSpinner', () => () => (
-  <div>LoadingSpinner</div>
-));
+jest.mock('fxa-react/components/LoadingSpinner', () => ({
+  __esModule: true,
+  ...jest.requireActual('fxa-react/components/LoadingSpinner'),
+  default: () => <div>LoadingSpinner</div>,
+}));
 
 const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 2,
@@ -345,7 +347,7 @@ describe('IndexContainer', () => {
         queryParamModel: { email: 'test@example.com' },
         validationError: null,
       });
-      render(
+      renderWithLocalizationProvider(
         <IndexContainer
           {...{
             integration,
@@ -388,7 +390,7 @@ describe('IndexContainer', () => {
         queryParamModel: { email: 'test@example.com' },
         validationError: null,
       });
-      render(
+      renderWithLocalizationProvider(
         <IndexContainer
           {...{
             integration,
@@ -478,7 +480,7 @@ describe('IndexContainer', () => {
         accountStatusByEmail: jest.fn().mockResolvedValue(mockAccountStatus),
       });
 
-      render(
+      renderWithLocalizationProvider(
         <IndexContainer
           {...{
             integration,
@@ -529,7 +531,7 @@ describe('IndexContainer', () => {
         accountStatusByEmail: jest.fn().mockResolvedValue(mockAccountStatus),
       });
 
-      render(
+      renderWithLocalizationProvider(
         <IndexContainer
           {...{
             integration,
@@ -556,7 +558,7 @@ describe('IndexContainer', () => {
 
     it('should redirect if context is unsupported', async () => {
       mockUnsupportedContextIntegration();
-      render(
+      renderWithLocalizationProvider(
         <IndexContainer
           {...{
             integration,
@@ -592,7 +594,7 @@ describe('IndexContainer', () => {
           'submitSuccess'
         );
 
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
             {...{
               integration,
@@ -635,7 +637,7 @@ describe('IndexContainer', () => {
           }),
         });
 
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
             {...{
               integration,
@@ -684,7 +686,7 @@ describe('IndexContainer', () => {
             hasPassword: false,
           }),
         });
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
             {...{
               integration,
@@ -720,7 +722,7 @@ describe('IndexContainer', () => {
             hasPassword: false,
           }),
         });
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
             {...{
               integration,
@@ -761,7 +763,7 @@ describe('IndexContainer', () => {
             hasPassword: false,
           }),
         });
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
             {...{
               integration,
@@ -805,7 +807,7 @@ describe('IndexContainer', () => {
           AuthUiErrors.INVALID_EMAIL_DOMAIN
         );
 
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
             {...{
               integration,

@@ -30,8 +30,8 @@ import { getLocalizedEmailValidationErrorMessage } from './errorMessageMapper';
 import { IndexContainerProps, LocationState } from './interfaces';
 import { useNavigateWithQuery } from '../../lib/hooks/useNavigateWithQuery';
 import { hardNavigate } from 'fxa-react/lib/utils';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { isMobileDevice } from '../../lib/utilities';
+import AppLayout from '../../components/AppLayout';
 
 const IndexContainer = ({
   integration,
@@ -277,7 +277,7 @@ const IndexContainer = ({
   // WebAuthn capability probe is fired at app-level (components/App/index.tsx)
 
   return isLoading ? (
-    <LoadingSpinner fullScreen />
+    <AppLayout cmsInfo={integration.getCmsInfo()} loading />
   ) : (
     <Index
       {...{

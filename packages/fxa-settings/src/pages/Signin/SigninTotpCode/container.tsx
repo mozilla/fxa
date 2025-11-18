@@ -29,7 +29,6 @@ import {
   useFinishOAuthFlowHandler,
   useOAuthKeysCheck,
 } from '../../../lib/oauth/hooks';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { getHandledError, HandledError } from '../../../lib/error-utils';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
@@ -44,6 +43,7 @@ import {
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import AppLayout from '../../../components/AppLayout';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -176,7 +176,7 @@ export const SigninTotpCodeContainer = ({
       signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
   ) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   return (

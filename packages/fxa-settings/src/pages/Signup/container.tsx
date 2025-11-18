@@ -22,7 +22,6 @@ import {
   getCredentialsV2,
   getKeysV2,
 } from 'fxa-auth-client/lib/crypto';
-import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
 import { handleGQLError } from './utils';
@@ -32,6 +31,7 @@ import { QueryParams } from '../..';
 import { isFirefoxService } from '../../models/integrations/utils';
 import { UseFxAStatusResult } from '../../lib/hooks/useFxAStatus';
 import { isMobileDevice } from '../../lib/utilities';
+import AppLayout from '../../components/AppLayout';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -207,7 +207,7 @@ const SignupContainer = ({
 
   if (validationError || !email) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   const deeplink = queryParamModel.deeplink;

@@ -7,7 +7,6 @@ import { RouteComponentProps } from '@reach/router';
 import { usePageViewEvent } from '../../../lib/metrics';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import Banner from '../../../components/Banner';
 
 // pair/supp is the gateway to the supplicant pairing flow
@@ -24,14 +23,12 @@ export const viewName = 'pair.supp';
 const Supp = ({ error }: SuppProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  return (
+  return error ? (
     <AppLayout>
-      {error ? (
-        <Banner type="error" content={{ localizedHeading: error }} />
-      ) : (
-        <LoadingSpinner fullScreen />
-      )}
+      <Banner type="error" content={{ localizedHeading: error }} />
     </AppLayout>
+  ) : (
+    <AppLayout loading />
   );
 };
 

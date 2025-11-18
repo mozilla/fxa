@@ -190,6 +190,7 @@ const defaultProps = {
     getClientId: () => MOCK_CLIENT_ID,
     getRedirectWithErrorUrl: (error: AuthUiError) =>
       `https://localhost:8080/?error=${error.errno}`,
+    getCmsInfo: () => undefined,
   } as OAuthIntegration,
   serviceName: MozServices.Default,
 };
