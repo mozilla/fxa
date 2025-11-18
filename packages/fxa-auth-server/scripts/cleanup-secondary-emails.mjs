@@ -1,44 +1,24 @@
 #!/usr/bin/env node
 
-/*
-Args:
-  --execute               Perform deletions (default is dry-run)
-  --batch-size=N          Max rows per batch (default 500)
-  --sleep-sec=N           Seconds to sleep between batches (default 2)
-*/
-
 import fs from 'fs';
 import path from 'path';
-import { setTimeout as sleep } from 'timers/promises';
 import mysql from 'mysql2/promise';
+import program from 'commander';
 
-function parseArgs(argv) {
-  let dryRun = true; // default to dry-run
-  let batchSize = 500;
-  let sleepSec = 2;
-  const args = argv.slice(2);
-  for (let i = 0; i < args.length; i++) {
-    const a = args[i];
-    if (a === '--execute') {
-      dryRun = false;
-      continue;
-    }
-    if (a.startsWith('--batch-size=')) {
-      const v = parseInt(a.split('=')[1]);
-      if (v > 0) batchSize = v;
-      continue;
-    }
-    if (a.startsWith('--sleep-sec=')) {
-      const v = parseInt(a.split('=')[1]);
-      if (v >= 0) sleepSec = v;
-      continue;
-    }
-  }
-  return { dryRun, batchSize, sleepSec };
+program
+  .option('--execute', 'Perform deletions (default is dry-run)')
+  .option('--limit <number>', 'Number of records to process', '100')
+  .parse(process.argv);
+
+const dryRun = !program.execute;
+const limit = parseInt(program.limit, 10);
+
+if (isNaN(limit) || limit <= 0) {
+  console.error('Error: --limit must be a positive number');
+  process.exit(1);
 }
 
 async function main() {
-  const { dryRun, batchSize, sleepSec } = parseArgs(process.argv);
   const cfg = {
     host: process.env.MYSQL_HOST ?? 'localhost',
     user: process.env.MYSQL_USERNAME ?? 'root',
@@ -50,69 +30,56 @@ async function main() {
 
   const csvPath = path.join(process.cwd(), `cleanup-secondary-emails-${Date.now()}.csv`);
   const csvStream = fs.createWriteStream(csvPath, { encoding: 'utf8' });
-  csvStream.write(['batchId', 'id', 'createdAtISO', 'email'].join(',') + '\n');
+  csvStream.write(['id', 'createdAtISO', 'email'].join(',') + '\n');
 
-  let totalCandidates = 0;
-  let totalDeleted = 0;
-  let lastId = 0;
-  let batchId = 0;
   const start = Date.now();
 
   console.log(`[${new Date().toISOString()}] Starting cleanup-secondary-emails:
-host=${cfg.host} db=${cfg.database} port=${cfg.port} dryRun=${dryRun} batchSize=${batchSize} sleepSec=${sleepSec}`);
+host=${cfg.host} db=${cfg.database} port=${cfg.port} dryRun=${dryRun} limit=${limit}`);
 
   try {
-    while (true) {
-      batchId += 1;
-      const [rows] = await pool.query(
-        `SELECT id, email, createdAt
-         FROM emails
-         WHERE isVerified = 0
-           AND verifiedAt IS NULL
-           AND isPrimary = 0
-           AND id > ?
-         ORDER BY id ASC
-         LIMIT ?`,
-        [lastId, batchSize]
-      );
+    const [rows] = await pool.query(
+      `SELECT id, email, createdAt
+       FROM emails
+       WHERE isVerified = 0
+         AND verifiedAt IS NULL
+         AND isPrimary = 0
+       ORDER BY id ASC
+       LIMIT ?`,
+      [limit]
+    );
 
-      const candidates = rows;
-      if (!candidates || candidates.length === 0) {
-        break;
-      }
-
-      const ids = candidates.map((r) => r.id);
-
-      for (const r of candidates) {
-        const createdAtMs = Number(r.createdAt);
-        csvStream.write([
-          batchId,
-          r.id,
-          new Date(createdAtMs).toISOString(),
-          r.email,
-        ].join(',') + '\n');
-      }
-
-      totalCandidates += candidates.length;
-
-      if (!dryRun) {
-        const deleteSql = `DELETE FROM emails WHERE id IN (${ids.map(() => '?').join(',')})`;
-        const [res] = await pool.query(deleteSql, ids);
-        const affected = res.affectedRows;
-        totalDeleted += affected;
-      }
-
-      const last = candidates[candidates.length - 1];
-      lastId = Number(last.id);
-
-      await sleep(sleepSec * 1000);
+    const candidates = rows;
+    if (!candidates || candidates.length === 0) {
+      console.log(`[${new Date().toISOString()}] No candidates found.`);
+      return;
     }
+
+    const ids = candidates.map((r) => r.id);
+
+    for (const r of candidates) {
+      const createdAtMs = Number(r.createdAt);
+      csvStream.write([
+        r.id,
+        new Date(createdAtMs).toISOString(),
+        JSON.stringify(r.email),
+      ].join(',') + '\n');
+    }
+
+    let deleted = 0;
+    if (!dryRun) {
+      // mysql2 doesn't support arrays directly in IN clauses, so we build parameterized query with ? placeholders.
+      // Values are passed via pool.query().
+      const deleteSql = `DELETE FROM emails WHERE id IN (${ids.map(() => '?').join(',')})`;
+      const [res] = await pool.query(deleteSql, ids);
+      deleted = res.affectedRows;
+    }
+
+    console.log(`[${new Date().toISOString()}] Finished: candidates=${candidates.length}, deleted=${deleted}, durationMs=${Date.now() - start}, csv=${csvPath}`);
   } finally {
     csvStream.end();
     await pool.end();
   }
-
-  console.log(`[${new Date().toISOString()}] Finished: candidates=${totalCandidates}, deleted=${totalDeleted}, durationMs=${Date.now() - start}, csv=${csvPath}`);
 }
 
 main().catch((err) => {
