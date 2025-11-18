@@ -192,7 +192,7 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
   const isWebChannelIntegration =
     integration.isSync() ||
     integration.isFirefoxClientServiceRelay() ||
-    integration.isFirefoxClientServiceAiMode();
+    integration.isFirefoxClientServiceAiWindow();
   const wantsTwoStepAuthentication =
     isOAuthWebIntegration(integration) &&
     integration.wantsTwoStepAuthentication();
@@ -551,7 +551,7 @@ const getOAuthNavigationTarget = async (
     };
   } else if (
     navigationOptions.integration.isFirefoxClientServiceRelay() ||
-    navigationOptions.integration.isFirefoxClientServiceAiMode()
+    navigationOptions.integration.isFirefoxClientServiceAiWindow()
   ) {
     return {
       to: '/settings',

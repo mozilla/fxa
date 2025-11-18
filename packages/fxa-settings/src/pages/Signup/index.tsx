@@ -195,7 +195,7 @@ export const Signup = ({
           });
         } else if (
           isFirefoxClientServiceRelay ||
-          integration.isFirefoxClientServiceAiMode()
+          integration.isFirefoxClientServiceAiWindow()
         ) {
           firefox.fxaLogin({
             email,

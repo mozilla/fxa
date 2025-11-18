@@ -227,11 +227,14 @@ describe('Signup page', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders third party auth when service=aimode and supportsKeysOptionalLogin is true', async () => {
+  it('renders third party auth when service=ai-window and supportsKeysOptionalLogin is true', async () => {
     await act(() => {
       renderWithLocalizationProvider(
         <Subject
-          integration={createMockSignupOAuthNativeIntegration('aimode', false)}
+          integration={createMockSignupOAuthNativeIntegration(
+            'ai-window',
+            false
+          )}
           supportsKeysOptionalLogin={true}
         />
       );

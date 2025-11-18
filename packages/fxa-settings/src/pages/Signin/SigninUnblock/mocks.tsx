@@ -80,7 +80,7 @@ export function createMockSigninWebSyncIntegration() {
     data: new WebIntegrationData(new GenericData({})),
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync: true }),
     wantsLogin: () => false,
     getCmsInfo: () => undefined,

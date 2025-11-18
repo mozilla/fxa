@@ -317,7 +317,7 @@ const SigninContainer = ({
       if (
         (integration.isSync() ||
           integration.isFirefoxClientServiceRelay() ||
-          integration.isFirefoxClientServiceAiMode()) &&
+          integration.isFirefoxClientServiceAiWindow()) &&
         !originFromEmailFirst &&
         !useFxAStatusResult.supportsCanLinkAccountUid
       ) {

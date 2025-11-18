@@ -120,7 +120,7 @@ export function createMockSigninWebIntegration({
     data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => false,
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
     getWebChannelServices: mockGetWebChannelServices(),
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
@@ -147,7 +147,7 @@ export function createMockSigninOAuthNativeSyncIntegration({
     data: new IntegrationData(new GenericData({})),
     isDesktopSync: () => isSync && !isMobile,
     isFirefoxClientServiceRelay: () => !isSync && !isMobile,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,
@@ -180,7 +180,7 @@ export function createMockSigninOAuthIntegration({
     isDesktopSync: () => isSync,
     data: new IntegrationData(new GenericData({})),
     isFirefoxClientServiceRelay: () => false,
-    isFirefoxClientServiceAiMode: () => false,
+    isFirefoxClientServiceAiWindow: () => false,
     getWebChannelServices: mockGetWebChannelServices({ isSync }),
     getCmsInfo: () => cmsInfo,
     isFirefoxMobileClient: () => false,
@@ -197,7 +197,7 @@ export function createMockSigninOAuthNativeIntegration({
   isMobile?: boolean;
 } = {}): SigninOAuthIntegration {
   const isRelay = service === OAuthNativeServices.Relay;
-  const isAiMode = service === OAuthNativeServices.AiMode;
+  const isAiWindow = service === OAuthNativeServices.AiWindow;
   return {
     type: IntegrationType.OAuthNative,
     getService: () => service,
@@ -208,11 +208,11 @@ export function createMockSigninOAuthNativeIntegration({
     isDesktopSync: () => isSync && !isMobile,
     data: new IntegrationData(new GenericData({})),
     isFirefoxClientServiceRelay: () => isRelay,
-    isFirefoxClientServiceAiMode: () => isAiMode,
+    isFirefoxClientServiceAiWindow: () => isAiWindow,
     getWebChannelServices: mockGetWebChannelServices({
       isSync,
       isRelay,
-      isAiMode,
+      isAiWindow,
     }),
     getClientId: () => MOCK_CLIENT_ID,
     getCmsInfo: () => undefined,

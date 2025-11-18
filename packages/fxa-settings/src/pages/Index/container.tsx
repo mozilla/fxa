@@ -201,7 +201,7 @@ const IndexContainer = ({
         if (
           (integration.isSync() ||
             integration.isFirefoxClientServiceRelay() ||
-            integration.isFirefoxClientServiceAiMode()) &&
+            integration.isFirefoxClientServiceAiWindow()) &&
           !useFxAStatusResult.supportsCanLinkAccountUid
         ) {
           const { ok } = await firefox.fxaCanLinkAccount({ email });

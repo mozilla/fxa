@@ -48,7 +48,7 @@ export enum OAuthNativeClients {
 export enum OAuthNativeServices {
   Sync = 'sync',
   Relay = 'relay',
-  AiMode = 'aimode',
+  AiWindow = 'ai-window',
 }
 
 /**
@@ -101,9 +101,10 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     );
   }
 
-  isFirefoxClientServiceAiMode() {
+  isFirefoxClientServiceAiWindow() {
     return (
-      this.isFirefoxClient() && this.data.service === OAuthNativeServices.AiMode
+      this.isFirefoxClient() &&
+      this.data.service === OAuthNativeServices.AiWindow
     );
   }
 
@@ -133,8 +134,8 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     if (this.isFirefoxClientServiceRelay()) {
       return { relay: {} };
     }
-    if (this.isFirefoxClientServiceAiMode()) {
-      return { aimode: {} };
+    if (this.isFirefoxClientServiceAiWindow()) {
+      return { 'ai-window': {} };
     }
     if (this.isDefaultSyncService()) {
       return { sync: syncEngines || {} };
@@ -149,7 +150,7 @@ export class OAuthNativeIntegration extends OAuthWebIntegration {
     if (this.isFirefoxClientServiceRelay()) {
       return Constants.RELIER_FF_CLIENT_RELAY_SERVICE_NAME;
     }
-    if (this.isFirefoxClientServiceAiMode()) {
+    if (this.isFirefoxClientServiceAiWindow()) {
       return Constants.RELIER_FF_CLIENT_AI_MODE_SERVICE_NAME;
     }
     // TODO: handle Thunderbird case better? FXA-10848

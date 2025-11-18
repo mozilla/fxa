@@ -86,7 +86,7 @@ const ThirdPartyAuthCallback = ({
     async (linkedAccount: LinkedAccountData, needsVerification = false) => {
       const shouldSendWebChannelMessages =
         integration.isFirefoxClientServiceRelay() ||
-        integration.isFirefoxClientServiceAiMode() ||
+        integration.isFirefoxClientServiceAiWindow() ||
         integration.isSync();
 
       if (shouldSendWebChannelMessages) {

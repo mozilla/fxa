@@ -82,7 +82,7 @@ export class GenericIntegration<
     return false;
   }
 
-  isFirefoxClientServiceAiMode() {
+  isFirefoxClientServiceAiWindow() {
     return false;
   }
 

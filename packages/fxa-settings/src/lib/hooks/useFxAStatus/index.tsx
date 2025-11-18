@@ -72,7 +72,7 @@ export function useFxAStatus(integration: FxAStatusIntegration) {
           status.capabilities.keys_optional &&
           isOAuthNative &&
           (integration.isFirefoxClientServiceRelay() ||
-            integration.isFirefoxClientServiceAiMode())
+            integration.isFirefoxClientServiceAiWindow())
         ) {
           setSupportsKeysOptionalLogin(true);
         } else {
