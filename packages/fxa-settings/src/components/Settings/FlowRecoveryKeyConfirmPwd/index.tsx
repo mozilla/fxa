@@ -19,6 +19,7 @@ import { SETTINGS_PATH } from '../../../constants';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { formatRecoveryKey } from '../../../lib/utilities';
 import Banner from '../../Banner';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
 type FormData = {
   password: string;
@@ -82,8 +83,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
       logViewEvent(`flow.${viewName}`, 'confirm-password.success');
       navigateForward();
     } catch (err) {
-      if (err && err.code === 401 && err.errno === 110) {
-        // JWT invalid/expired
+      if (isInvalidJwtError(err)) {
         errorHandler(err);
         return;
       }

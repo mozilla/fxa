@@ -288,6 +288,15 @@ AppError.unverifiedAccount = function () {
   });
 };
 
+AppError.insufficientAal = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.INSUFFICIENT_AAL,
+    message: 'Insufficient AAL',
+  });
+};
+
 AppError.invalidVerificationCode = function (details) {
   return new AppError(
     {
@@ -352,6 +361,15 @@ AppError.invalidToken = function (message) {
     error: 'Unauthorized',
     errno: ERRNO.INVALID_TOKEN,
     message: message || 'Invalid authentication token in request signature',
+  });
+};
+
+AppError.invalidMfaToken = function () {
+  return new AppError({
+    code: 401,
+    error: 'Unauthorized',
+    errno: ERRNO.INVALID_MFA_TOKEN,
+    message: 'Invalid or expired MFA token',
   });
 };
 

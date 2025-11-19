@@ -215,8 +215,8 @@ describe('lib/routes/auth-schemes/verified-session-token', () => {
       assert.fail('Should have thrown');
     } catch (err) {
       const payload = err.output.payload;
-      assert.equal(payload.code, 401);
-      assert.equal(payload.errno, AppError.ERRNO.INVALID_TOKEN);
+      assert.equal(payload.code, 400);
+      assert.equal(payload.errno, AppError.ERRNO.INSUFFICIENT_AAL);
       assert.isTrue(
         statsd.increment.calledWithExactly('verified_session_token.aal.error', [
           'path:/foo/{id}',

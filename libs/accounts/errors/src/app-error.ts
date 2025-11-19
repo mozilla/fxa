@@ -378,6 +378,15 @@ export class AppError extends Error {
     });
   }
 
+  static insufficientAal() {
+    return new AppError({
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.INSUFFICIENT_AAL,
+      message: 'Insufficient AAL',
+    });
+  }
+
   static invalidVerificationCode(details: Record<string, any>) {
     return new AppError(
       {
@@ -442,6 +451,15 @@ export class AppError extends Error {
       error: 'Unauthorized',
       errno: ERRNO.INVALID_TOKEN,
       message: message || 'Invalid authentication token in request signature',
+    });
+  }
+
+  static invalidMfaToken() {
+    return new AppError({
+      code: 401,
+      error: 'Unauthorized',
+      errno: ERRNO.INVALID_MFA_TOKEN,
+      message: 'Invalid or expired MFA token',
     });
   }
 

@@ -2068,7 +2068,7 @@ export class AccountHandler {
       (sessionToken.tokenVerificationId ||
         (sessionToken.authenticatorAssuranceLevel as number) <= 1)
     ) {
-      throw error.unverifiedSession();
+      throw error.insufficientAal();
     }
 
     // We can also check that the email was verified. This proves the account is active and

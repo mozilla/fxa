@@ -190,21 +190,25 @@ describe('PageSecondaryEmailAdd', () => {
     });
   });
 
-    describe('MfaGuard', () => {
+  describe('MfaGuard', () => {
     const mockEmail = 'user@example.com';
     const mockAuthClient = new AuthClient('http://localhost:9000');
     let user: UserEvent;
 
     const setupMockAuthClient = () => {
-      mockAuthClient.mfaRequestOtp = jest.fn().mockResolvedValueOnce({ code: 200, errno: 0 });
-      mockAuthClient.mfaOtpVerify = jest.fn().mockResolvedValueOnce({ accessToken: mockJwt });
-    }
+      mockAuthClient.mfaRequestOtp = jest
+        .fn()
+        .mockResolvedValueOnce({ code: 200, errno: 0 });
+      mockAuthClient.mfaOtpVerify = jest
+        .fn()
+        .mockResolvedValueOnce({ accessToken: mockJwt });
+    };
 
     const resetJwtCache = () => {
       if (JwtTokenCache.hasToken(mockSessionToken, requiredScope)) {
         JwtTokenCache.removeToken(mockSessionToken, requiredScope);
       }
-    }
+    };
 
     beforeEach(() => {
       jest.clearAllMocks();
@@ -222,12 +226,16 @@ describe('PageSecondaryEmailAdd', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailAdd location={{ state: { email: mockEmail } } as any} />
+          <MfaGuardPageSecondaryEmailAdd
+            location={{ state: { email: mockEmail } } as any}
+          />
         </AppContext.Provider>
       );
 
       expect(screen.getByTestId('secondary-email-input')).toBeInTheDocument();
-      expect(screen.queryByText('Enter confirmation code')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('Enter confirmation code')
+      ).not.toBeInTheDocument();
       expect(mockAuthClient.mfaRequestOtp).not.toHaveBeenCalled();
     });
 
@@ -239,7 +247,9 @@ describe('PageSecondaryEmailAdd', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailAdd location={{ state: { email: mockEmail } } as any} />
+          <MfaGuardPageSecondaryEmailAdd
+            location={{ state: { email: mockEmail } } as any}
+          />
         </AppContext.Provider>
       );
 
@@ -250,7 +260,11 @@ describe('PageSecondaryEmailAdd', () => {
       // an invalid token should be picked up by the guard which will
       // "send" a new one and display the modal again.
       JwtTokenCache.setToken(mockSessionToken, requiredScope, 'invalid-jwt');
-      account.createSecondaryEmail = jest.fn().mockRejectedValue({ code: 401, errno: 110 });
+      account.createSecondaryEmail = jest.fn().mockRejectedValue({
+        code: 401,
+        errno: 223,
+        message: 'Invalid or expired MFA token',
+      });
       const appCtx = mockAppContext({
         authClient: mockAuthClient as any,
         account: { ...(account as any), email: mockEmail },
@@ -258,7 +272,9 @@ describe('PageSecondaryEmailAdd', () => {
 
       renderWithRouter(
         <AppContext.Provider value={appCtx}>
-          <MfaGuardPageSecondaryEmailAdd location={{ state: { email: mockEmail } } as any} />
+          <MfaGuardPageSecondaryEmailAdd
+            location={{ state: { email: mockEmail } } as any}
+          />
         </AppContext.Provider>
       );
 
@@ -266,7 +282,9 @@ describe('PageSecondaryEmailAdd', () => {
       await user.click(screen.getByTestId('save-button'));
 
       expect(account.createSecondaryEmail).toHaveBeenCalledWith(mockEmail);
-      expect(await screen.findByText('Enter confirmation code')).toBeInTheDocument();
+      expect(
+        await screen.findByText('Enter confirmation code')
+      ).toBeInTheDocument();
     });
   });
 });

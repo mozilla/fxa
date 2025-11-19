@@ -116,7 +116,7 @@ function strategy(getCredentialsFunc, db, config, statsd) {
             statsd?.increment('verified_session_token.aal.error', [
               `path:${req.route.path}`,
             ]);
-            throw AppError.unauthorized('AAL mismatch');
+            throw AppError.insufficientAal();
           }
         }
 

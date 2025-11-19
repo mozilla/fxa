@@ -4,6 +4,7 @@
 
 import base32Encode from 'base32-encode';
 import { AttachedClient } from '../models/Account';
+import { navigate, NavigateFn, NavigateOptions } from '@reach/router';
 
 // Various utilities that don't fit in a standalone lib
 
@@ -190,3 +191,49 @@ export const constructHrefWithUtm = (
 export const formatSecret = (secret: string) => {
   return secret.toUpperCase().match(/.{4}/g)!.join(' ');
 };
+
+/**
+ * A helper function containing the shared logic of both the
+ * useNavigateWithQuery hook and the navigateWithQuery function
+ */
+export function navigateWithQueryHelper(
+  location: Location,
+  navigate: NavigateFn,
+  to: string,
+  options?: NavigateOptions<{}>,
+  includeHash: boolean = true
+): Promise<void> {
+  let path = to;
+
+  if (to.includes('?')) {
+    path = to;
+  } else if (location.search && location.search !== '?') {
+    path = `${to}${location.search}`;
+  }
+
+  if (includeHash && location.hash) {
+    path = `${path}${location.hash}`;
+  }
+
+  return options ? navigate(path, options) : navigate(path);
+}
+
+/**
+ * **NOTE:** This should only be used outside of a router context.
+ * Prefer using useNavigateWithQuery when possible.
+ *
+ * The non-hook version of useNavigateWithQuery
+ */
+export function navigateWithQuery(
+  to: string,
+  options?: NavigateOptions<{}>,
+  includeHash: boolean = true
+): Promise<void> {
+  return navigateWithQueryHelper(
+    window.location,
+    navigate,
+    to,
+    options,
+    includeHash
+  );
+}

@@ -39,7 +39,7 @@ describe('MfaErrorBoundary', () => {
     expect(screen.getByText('child')).toBeInTheDocument();
   });
 
-  it('renders fallback and removes JWT on auth error (401/110)', () => {
+  it('renders fallback and removes JWT on auth error (401/223)', () => {
     const ref = React.createRef<MfaErrorBoundary>();
     const { rerender } = render(
       <MfaErrorBoundary
@@ -53,9 +53,9 @@ describe('MfaErrorBoundary', () => {
       </MfaErrorBoundary>
     );
 
-    const authError: any = new Error('Unauthorized for route');
+    const authError: any = new Error('Invalid or expired MFA token');
     authError.code = 401;
-    authError.errno = 110;
+    authError.errno = 223;
 
     // Simulate boundary catching the error
     ref.current?.componentDidCatch(authError, {} as any);

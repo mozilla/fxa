@@ -9,6 +9,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const otplib = require('otplib');
 const crypto = require('crypto');
+const AppError = require('../../lib/error');
 
 const config = require('../../config').default.getProperties();
 
@@ -154,7 +155,11 @@ const config = require('../../config').default.getProperties();
           'Should not be able to destroy account without verifying totp'
         );
       } catch (err) {
-        assert.equal(err.errno, 138, 'unverified session');
+        assert.equal(
+          err.errno,
+          AppError.ERRNO.INSUFFICIENT_AAL,
+          'Insufficient AAL'
+        );
       }
     });
 
@@ -227,7 +232,11 @@ const config = require('../../config').default.getProperties();
           'Should not be able to destroy account without verifying totp'
         );
       } catch (error) {
-        assert.equal(error.errno, 138, 'unverified session');
+        assert.equal(
+          error.errno,
+          AppError.ERRNO.INSUFFICIENT_AAL,
+          'Insufficient AAL'
+        );
       }
     });
 

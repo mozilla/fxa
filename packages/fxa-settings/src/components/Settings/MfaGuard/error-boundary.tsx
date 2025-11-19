@@ -5,6 +5,7 @@
 import { Component, ReactNode } from 'react';
 import { MfaScope } from '../../../lib/types';
 import { JwtTokenCache, MfaOtpRequestCache } from '../../../lib/cache';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
 /**
  * Error Boundary Implementation.
@@ -40,7 +41,7 @@ export class MfaErrorBoundary extends Component<
   }
 
   static getDerivedStateFromError(error: any) {
-    if (error && error.code === 401 && error.errno === 110) {
+    if (isInvalidJwtError(error)) {
       return { hasError: true };
     }
 
@@ -48,7 +49,7 @@ export class MfaErrorBoundary extends Component<
   }
 
   componentDidCatch(error: any, info: any) {
-    if (error && error.code === 401 && error.errno === 110) {
+    if (isInvalidJwtError(error)) {
       this.setState({
         hasError: true,
         error: error,

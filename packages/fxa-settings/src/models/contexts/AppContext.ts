@@ -14,7 +14,10 @@ import { KeyStretchExperiment } from '../experiments/key-stretch-experiment';
 import { UrlQueryData } from '../../lib/model-data';
 import { ReachRouterWindow } from '../../lib/window';
 import { SensitiveDataClient } from '../../lib/sensitive-data-client';
-import { getUniqueUserId } from '../../lib/cache';
+import { currentAccount, getUniqueUserId } from '../../lib/cache';
+import { AuthUiErrors, isAuthUiError } from '../../lib/auth-errors/auth-errors';
+import { navigateWithQuery } from '../../lib/utilities';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../components/App/gql';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -41,10 +44,51 @@ export function initializeAppContext() {
   const keyStretchExperiment = new KeyStretchExperiment(
     new UrlQueryData(new ReachRouterWindow())
   );
+
+  const apolloClient = createApolloClient(config.servers.gql.url);
+
   const authClient = new AuthClient(config.servers.auth.url, {
     keyStretchVersion: keyStretchExperiment.isV2(config) ? 2 : 1,
+    errorHandler: async (error) => {
+      if (isAuthUiError(error)) {
+        if (
+          error.errno === AuthUiErrors.INSUFFICIENT_AAL.errno &&
+          window?.location.pathname.includes('settings')
+        ) {
+          const cache = apolloClient.cache;
+          cache.modify({
+            id: cache.identify({ __typename: 'Account' }),
+            fields: {
+              totp(_, { DELETE }) {
+                return DELETE;
+              },
+            },
+          });
+
+          const storedAccount = currentAccount();
+          await navigateWithQuery('/signin_totp_code', {
+            state: {
+              email: storedAccount?.email,
+              sessionToken: storedAccount?.sessionToken,
+              uid: storedAccount?.uid,
+              verified: storedAccount?.verified,
+              isSessionAALUpgrade: true,
+            },
+          });
+        } else if (
+          error.errno === AuthUiErrors.INVALID_TOKEN.errno &&
+          window?.location.pathname.includes('settings')
+        ) {
+          apolloClient.cache.writeQuery({
+            query: GET_LOCAL_SIGNED_IN_STATUS,
+            data: { isSignedIn: false },
+          });
+        }
+      }
+      throw error;
+    },
   });
-  const apolloClient = createApolloClient(config.servers.gql.url);
+
   const account = new Account(authClient, apolloClient);
   const session = new Session(authClient, apolloClient);
   const sensitiveDataClient = new SensitiveDataClient();
@@ -124,6 +168,5 @@ export function defaultAppContext(context?: AppContextValue) {
   ) as AppContextValue;
 }
 
-export const AppContext = React.createContext<AppContextValue>(
-  defaultAppContext()
-);
+export const AppContext =
+  React.createContext<AppContextValue>(defaultAppContext());
