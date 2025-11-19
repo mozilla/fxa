@@ -144,6 +144,7 @@ describe('IndexContainer', () => {
       isFirefoxClientServiceRelay: () => false,
       isFirefoxClientServiceAiMode: () => false,
       wantsKeys: () => true,
+      getCmsInfo: () => undefined,
       data: { clientId: 'abc123' },
     } as Integration;
   }
