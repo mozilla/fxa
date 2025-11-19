@@ -22,7 +22,7 @@ import {
   PageContentForOfferingQuery,
   type IapOfferingsByStoreIDsQuery,
   PageContentByPriceIdsQuery,
-  ChurnInterventionByOfferingQuery,
+  ChurnInterventionByProductIdQuery,
 } from '../__generated__/graphql';
 import {
   FetchCmsInvalidOfferingError,
@@ -68,9 +68,14 @@ import {
   IapOfferingsByStoreIDsResultUtil,
 } from './queries/iap-offerings-by-storeids';
 import {
-  churnInterventionByOfferingQuery,
-  ChurnInterventionByOfferingResultUtil,
-} from './queries/churn-intervention-by-offering';
+  churnInterventionByProductIdQuery,
+  ChurnInterventionByProductIdResultUtil,
+} from './queries/churn-intervention-by-product-id';
+import {
+  cancelInterstitialOfferQuery,
+  CancelInterstitialOfferResult,
+  CancelInterstitialOfferUtil,
+} from './queries/cancel-interstitial-offer';
 
 @Injectable()
 export class ProductConfigurationManager {
@@ -309,27 +314,52 @@ export class ProductConfigurationManager {
 
   async getChurnIntervention(
     interval: SubplatInterval,
-    stripeProductId: string,
+    churnType: 'cancel' | 'stay_subscribed',
+    stripeProductId: null,
+    offeringApiIdentifier: string,
     acceptLanguage?: string,
     selectedLanguage?: string
-  ) {
+  ): Promise<ChurnInterventionByProductIdResultUtil>;
+  async getChurnIntervention(
+    interval: SubplatInterval,
+    churnType: 'cancel' | 'stay_subscribed',
+    stripeProductId: string,
+    offeringApiIdentifier: null,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<ChurnInterventionByProductIdResultUtil>;
+  async getChurnIntervention(
+    interval: SubplatInterval,
+    churnType: 'cancel' | 'stay_subscribed',
+    stripeProductId: string | null,
+    offeringApiIdentifier: string | null,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<ChurnInterventionByProductIdResultUtil> {
     const locale = await this.strapiClient.getLocale(
       acceptLanguage,
       selectedLanguage
     );
 
     const queryResult = await this.strapiClient.query(
-      churnInterventionByOfferingQuery,
-      { stripeProductId, interval, locale }
+      churnInterventionByProductIdQuery,
+      {
+        stripeProductId,
+        offeringApiIdentifier,
+        interval,
+        locale,
+        churnType,
+      }
     );
 
-    return new ChurnInterventionByOfferingResultUtil(
-      queryResult as DeepNonNullable<ChurnInterventionByOfferingQuery>
+    return new ChurnInterventionByProductIdResultUtil(
+      queryResult as DeepNonNullable<ChurnInterventionByProductIdQuery>
     );
   }
 
   async getChurnInterventionBySubscription(
     subscriptionId: string,
+    churnType: 'cancel' | 'stay_subscribed',
     acceptLanguage?: string,
     selectedLanguage?: string
   ) {
@@ -351,9 +381,38 @@ export class ProductConfigurationManager {
 
     return this.getChurnIntervention(
       interval,
+      churnType,
       stripeProductId,
+      null,
       acceptLanguage,
       selectedLanguage
+    );
+  }
+
+  async getCancelInterstitialOffer(
+    offeringApiIdentifier: string,
+    currentInterval: SubplatInterval,
+    upgradeInterval: SubplatInterval,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ) {
+    const locale = await this.strapiClient.getLocale(
+      acceptLanguage,
+      selectedLanguage
+    );
+
+    const queryResult = await this.strapiClient.query(
+      cancelInterstitialOfferQuery,
+      {
+        offeringApiIdentifier,
+        currentInterval,
+        upgradeInterval,
+        locale,
+      }
+    );
+
+    return new CancelInterstitialOfferUtil(
+      queryResult as DeepNonNullable<CancelInterstitialOfferResult>
     );
   }
 }

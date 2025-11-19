@@ -3,25 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  ChurnInterventionByOfferingRawResult,
-  ChurnInterventionByOfferingResult,
+  ChurnInterventionByProductIdRawResult,
+  ChurnInterventionByProductIdResult,
 } from './types';
 import * as Sentry from '@sentry/node';
 
-export class ChurnInterventionByOfferingResultUtil {
-  constructor(private rawResult: ChurnInterventionByOfferingRawResult) {}
+export class ChurnInterventionByProductIdResultUtil {
+  constructor(private rawResult: ChurnInterventionByProductIdRawResult) {}
 
-  getTransformedChurnInterventionByOffering() {
+  getTransformedChurnInterventionByProductId() {
     if (this.rawResult.offerings.length !== 1) {
       Sentry.captureMessage(
-        'Unexpected number of offerings found for product and interval'
+        'Unexpected number of offerings found for product and interval',
+        { extra: { offeringsCount: this.rawResult.offerings.length } }
       );
     }
     const { defaultPurchase, commonContent, churnInterventions } =
       this.rawResult.offerings[0];
 
     // One ChurnInterventionByOfferingResult per churn intervention to handle multiple churn types
-    const churnInterventionsByOffering: ChurnInterventionByOfferingResult[] =
+    const churnInterventionsByProductId: ChurnInterventionByProductIdResult[] =
       churnInterventions.map((churnIntervention) => {
         return {
           ...churnIntervention,
@@ -39,10 +40,10 @@ export class ChurnInterventionByOfferingResultUtil {
         };
       });
 
-    return churnInterventionsByOffering;
+    return churnInterventionsByProductId;
   }
 
-  get churnInterventionByOffering(): ChurnInterventionByOfferingRawResult {
+  get churnInterventionByProductId(): ChurnInterventionByProductIdRawResult {
     return this.rawResult;
   }
   private transformArrayStringField(details: string): string[] {

@@ -4,10 +4,21 @@
 
 import { graphql } from '../../../__generated__/gql';
 
-export const churnInterventionByOfferingQuery = graphql(`
-  query ChurnInterventionByOffering($stripeProductId: String!, $interval: String!, $locale: String!) {
+export const churnInterventionByProductIdQuery = graphql(`
+  query ChurnInterventionByProductId(
+    $offeringApiIdentifier: String
+    $stripeProductId: String
+    $interval: String!
+    $locale: String!
+    $churnType: String!
+  ) {
     offerings(
-      filters: { stripeProductId: { eq: $stripeProductId } }
+      filters: {
+        or: [
+          { stripeProductId: { eq: $stripeProductId } }
+          { apiIdentifier: { eq: $offeringApiIdentifier } }
+        ]
+      }
       pagination: { limit: 200 }
     ) {
       defaultPurchase {
@@ -22,7 +33,11 @@ export const churnInterventionByOfferingQuery = graphql(`
         supportUrl
       }
       churnInterventions(
-        filters: { interval: { eq: $interval } }
+        filters: {
+          interval: { eq: $interval }
+          locale: { eq: $locale }
+          churnType: { eq: $churnType }
+        }
         pagination: { limit: 200 }
       ) {
         churnInterventionId

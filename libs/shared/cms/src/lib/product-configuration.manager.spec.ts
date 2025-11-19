@@ -20,12 +20,15 @@ import {
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 import { MockStatsDProvider, StatsDService } from '@fxa/shared/metrics/statsd';
 import {
+  cancelInterstitialOfferQuery,
+  CancelInterstitialOfferResultFactory,
+  CancelInterstitialOfferUtil,
   CapabilityPurchaseResultFactory,
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResultUtil,
-  churnInterventionByOfferingQuery,
-  ChurnInterventionByOfferingQueryFactory,
-  ChurnInterventionByOfferingResultUtil,
+  churnInterventionByProductIdQuery,
+  ChurnInterventionByProductIdQueryFactory,
+  ChurnInterventionByProductIdResultUtil,
   EligibilityContentByOfferingResultUtil,
   eligibilityContentByPlanIdsQuery,
   EligibilityContentByPlanIdsQueryFactory,
@@ -604,8 +607,8 @@ describe('productConfigurationManager', () => {
   });
 
   describe('getChurnIntervention', () => {
-    it('returns SubplatInterval based on subscription', async () => {
-      const queryData = ChurnInterventionByOfferingQueryFactory();
+    it('returns Churn Intervention based on product id', async () => {
+      const queryData = ChurnInterventionByProductIdQueryFactory();
       jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
       jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
 
@@ -614,26 +617,62 @@ describe('productConfigurationManager', () => {
 
       const result = await productConfigurationManager.getChurnIntervention(
         subplatInterval,
+        'cancel',
         stripeProductId,
+        null,
+        'en'
       );
 
       expect(strapiClient.query).toHaveBeenCalledWith(
-        churnInterventionByOfferingQuery,
+        churnInterventionByProductIdQuery,
         {
           stripeProductId,
+          offeringApiIdentifier: null,
           interval: subplatInterval,
+          churnType: 'cancel',
           locale: 'en',
         }
       );
 
-      expect(result).toBeInstanceOf(ChurnInterventionByOfferingResultUtil);
-      expect(result.churnInterventionByOffering.offerings).toHaveLength(1);
+      expect(result).toBeInstanceOf(ChurnInterventionByProductIdResultUtil);
+      expect(result.churnInterventionByProductId.offerings).toHaveLength(1);
+    });
+
+    it('returns Churn Intervention based on api identifier', async () => {
+      const queryData = ChurnInterventionByProductIdQueryFactory();
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
+
+      const subplatInterval = faker.helpers.enumValue(SubplatInterval);
+      const offeringApiIdentifier = faker.string.sample();
+
+      const result = await productConfigurationManager.getChurnIntervention(
+        subplatInterval,
+        'cancel',
+        null,
+        offeringApiIdentifier,
+        'en'
+      );
+
+      expect(strapiClient.query).toHaveBeenCalledWith(
+        churnInterventionByProductIdQuery,
+        {
+          stripeProductId: null,
+          offeringApiIdentifier,
+          interval: subplatInterval,
+          churnType: 'cancel',
+          locale: 'en',
+        }
+      );
+
+      expect(result).toBeInstanceOf(ChurnInterventionByProductIdResultUtil);
+      expect(result.churnInterventionByProductId.offerings).toHaveLength(1);
     });
   });
 
   describe('getChurnInterventionForSubscription', () => {
     it('returns SubplatInterval based on subscription', async () => {
-      const queryData = ChurnInterventionByOfferingQueryFactory();
+      const queryData = ChurnInterventionByProductIdQueryFactory();
       jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
 
       const mockSubscription = StripeResponseFactory(
@@ -659,20 +698,56 @@ describe('productConfigurationManager', () => {
       const result =
         await productConfigurationManager.getChurnInterventionBySubscription(
           mockSubscription.id,
+          'cancel',
           'en'
         );
 
       expect(strapiClient.query).toHaveBeenCalledWith(
-        churnInterventionByOfferingQuery,
+        churnInterventionByProductIdQuery,
         {
           stripeProductId,
+          offeringApiIdentifier: null,
           interval,
+          churnType: 'cancel',
           locale: 'en',
         }
       );
 
-      expect(result).toBeInstanceOf(ChurnInterventionByOfferingResultUtil);
-      expect(result.churnInterventionByOffering.offerings).toHaveLength(1);
+      expect(result).toBeInstanceOf(ChurnInterventionByProductIdResultUtil);
+      expect(result.churnInterventionByProductId.offerings).toHaveLength(1);
+    });
+  });
+
+  describe('getCancelInterstitialOffer', () => {
+    it('returns cancel interstitial offer based on parameters', async () => {
+      const queryData = CancelInterstitialOfferResultFactory();
+      jest.spyOn(strapiClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(strapiClient, 'getLocale').mockResolvedValue('en');
+
+      const offeringApiIdentifier = faker.string.sample();
+      const currentInterval = faker.helpers.enumValue(SubplatInterval);
+      const upgradeInterval = faker.helpers.enumValue(SubplatInterval);
+
+      const result =
+        await productConfigurationManager.getCancelInterstitialOffer(
+          offeringApiIdentifier,
+          currentInterval,
+          upgradeInterval
+        );
+      expect(strapiClient.query).toHaveBeenCalledWith(
+        cancelInterstitialOfferQuery,
+        {
+          offeringApiIdentifier,
+          currentInterval,
+          upgradeInterval,
+          locale: 'en',
+        }
+      );
+
+      expect(result).toBeInstanceOf(CancelInterstitialOfferUtil);
+      expect(
+        result.cancelInterstitialOffer.cancelInterstitialOffers
+      ).toHaveLength(1);
     });
   });
 });
