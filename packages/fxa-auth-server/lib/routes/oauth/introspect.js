@@ -5,7 +5,6 @@
 /*jshint camelcase: false*/
 const Joi = require('joi');
 const validators = require('../../oauth/validators');
-const hex = require('buf').to.hex;
 const AppError = require('../../oauth/error');
 const { getTokenId } = require('../../oauth/token');
 const OAUTH_SERVER_DOCS =
@@ -95,11 +94,11 @@ module.exports = ({ oauthDB }) => ({
 
         Object.assign(response, {
           scope: token.scope.toString(),
-          client_id: hex(token.clientId),
+          client_id: token.clientId.toString('hex'),
           token_type: tokenType,
           iat: token.createdAt.getTime(),
-          sub: hex(token.userId),
-          jti: hex(tokenId),
+          sub: token.userId.toString('hex'),
+          jti: tokenId.toString('hex'),
         });
 
         if (token.expiresAt) {

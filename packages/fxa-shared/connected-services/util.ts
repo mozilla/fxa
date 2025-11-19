@@ -8,8 +8,8 @@ import { DeviceSessionToken } from './models/DeviceSessionToken';
 import { SerializableAttachedClient } from './models/SerializableAttachedClient';
 import { Token } from './models/Token';
 import { SessionToken } from './models/SessionToken';
-
-export const hex = require('buf').to.hex;
+export const hex = (v: Buffer | string): string =>
+  Buffer.isBuffer(v) ? v.toString('hex') : v;
 
 // Helper function to render each returned record in the expected form.
 export function serialize(
@@ -20,7 +20,7 @@ export function serialize(
   const lastAccessTime = token.lastUsedAt.getTime();
   return {
     client_id: clientIdHex,
-    refresh_token_id: token.tokenId ? hex(token.tokenId) : undefined,
+    refresh_token_id: token.tokenId ? hex(token.tokenId) : '',
     client_name: token.clientName,
     created_time: createdTime,
     last_access_time: lastAccessTime,

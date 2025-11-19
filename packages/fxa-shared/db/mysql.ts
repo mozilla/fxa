@@ -14,8 +14,8 @@ interface DbPoolConfig extends mysql.PoolConfig {
   idleLimitMs: number;
 }
 
-// TODO: Improve types. Ported form javascript...
-const buf = require('buf').hex;
+const buf = (v: Buffer | string) =>
+  Buffer.isBuffer(v) ? v : Buffer.from(v, 'hex');
 
 /**
  * List of mysql error codes
