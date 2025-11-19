@@ -9,7 +9,7 @@ import { Knex } from 'knex';
 export enum Proc {
   AccountRecord = 'accountRecord_10',
   AccountResetToken = 'accountResetToken_2',
-  AccountDevices = 'accountDevices_18',
+  AccountDevices = 'accountDevices_17',
   ConsumeRecoveryCode = 'consumeRecoveryCode_3',
   ConsumeSigninCode = 'consumeSigninCode_4',
   ConsumeUnblockCode = 'consumeUnblockCode_4',

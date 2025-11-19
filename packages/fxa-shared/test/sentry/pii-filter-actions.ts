@@ -358,9 +358,9 @@ describe('pii-filter-actions', () => {
 
     it('filters token value in db statement', () => {
       const result = CommonPiiActions.tokenValues.execute(
-        `Call accountDevices_18(X'cce22e4006d243c895c7596e2cad53d8',500)`
+        `Call accountDevices_17(X'cce22e4006d243c895c7596e2cad53d8',500)`
       );
-      expect(result.val).to.equal(`Call accountDevices_18(X'${FILTERED}',500)`);
+      expect(result.val).to.equal(`Call accountDevices_17(X'${FILTERED}',500)`);
     });
 
     it('filters token value in db query', () => {

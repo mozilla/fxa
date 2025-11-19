@@ -1,46 +1,20 @@
-CREATE PROCEDURE `accountDevices_18` (
+CREATE PROCEDURE `accountDevices_17` (
   IN `uidArg` BINARY(16),
   IN `limitArg` INT
 )
 BEGIN
-  WITH d0 AS (
-    SELECT
-      uid,
-      id,
-      sessionTokenId,
-      refreshTokenId,
-      nameUtf8,
-      type,
-      createdAt,
-      callbackURL,
-      callbackPublicKey,
-      callbackAuthKey,
-      callbackIsExpired
-    FROM devices as d
-    WHERE uid = uidArg
-      AND (
-      d.refreshTokenId IS NOT NULL
-      OR EXISTS (
-        SELECT 1
-        FROM sessionTokens st
-        WHERE st.tokenId = d.sessionTokenId
-      )
-    )
-    ORDER BY id
-    LIMIT limitArg
-  )
-  -- MYSQL8 hints to improve joins to deviceCommands
-  SELECT /*+ JOIN_ORDER(d0, s, dc, ci) NO_HASH_JOIN(d0, dc) INDEX(dc PRIMARY) */
-    HEX(d0.uid), HEX(d0.id) as device_id,
-    HEX(s.tokenId) AS sessionTokenId,
-    HEX(d0.refreshTokenId),
-    d0.nameUtf8 AS name,
-    d0.type,
-    d0.createdAt,
-    d0.callbackURL,
-    d0.callbackPublicKey,
-    d0.callbackAuthKey,
-    d0.callbackIsExpired,
+  SELECT
+    d.uid,
+    d.id,
+    s.tokenId AS sessionTokenId, -- Ensure we only return valid sessionToken ids
+    d.refreshTokenId,
+    d.nameUtf8 AS name,
+    d.type,
+    d.createdAt,
+    d.callbackURL,
+    d.callbackPublicKey,
+    d.callbackAuthKey,
+    d.callbackIsExpired,
     s.uaBrowser,
     s.uaBrowserVersion,
     s.uaOS,
@@ -50,9 +24,20 @@ BEGIN
     s.lastAccessTime,
     ci.commandName,
     dc.commandData
-  FROM d0
-  LEFT JOIN sessionTokens s ON s.tokenId = d0.sessionTokenId
-  LEFT JOIN deviceCommands dc ON dc.uid = d0.uid AND dc.deviceId = d0.id
-  LEFT JOIN deviceCommandIdentifiers ci ON ci.commandId = dc.commandId
-  ORDER BY d0.id;
+  FROM devices AS d
+  -- Left join, because it might not have a sessionToken.
+  LEFT JOIN sessionTokens AS s
+    ON d.sessionTokenId = s.tokenId
+  LEFT JOIN (
+    deviceCommands AS dc FORCE INDEX (PRIMARY)
+    INNER JOIN deviceCommandIdentifiers AS ci FORCE INDEX (PRIMARY)
+      ON ci.commandId = dc.commandId
+  ) ON (dc.uid = d.uid AND dc.deviceId = d.id)
+  WHERE d.uid = uidArg
+  -- We don't want to return 'zombie' device records where the sessionToken
+  -- no longer exists in the sessionTokens table.
+  AND (s.tokenId IS NOT NULL OR d.refreshTokenId IS NOT NULL)
+  -- For easy flattening, ensure rows are ordered by device id.
+  ORDER BY 1, 2
+  LIMIT limitArg;
 END;
