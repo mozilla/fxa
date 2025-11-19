@@ -677,6 +677,10 @@ describe('PayPalHelper', () => {
         total: 400,
         currency: 'usd',
       };
+      const invoice = {
+        ...validInvoice,
+        ...expectedInvoiceResults,
+      };
       mockStripeHelper.getInvoicePaypalTransactionId =
         sinon.fake.returns('123');
       mockStripeHelper.getInvoicePaypalRefundTransactionId =
@@ -684,16 +688,75 @@ describe('PayPalHelper', () => {
       mockStripeHelper.getPriceIdFromInvoice = sinon.fake.returns(
         expectedInvoiceResults.priceId
       );
-      await paypalHelper.refundInvoice({
-        ...validInvoice,
-        ...expectedInvoiceResults,
-      });
+      await paypalHelper.refundInvoice(invoice);
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.issueRefund,
+        invoice,
+        '123',
+        RefundType.Full,
+        undefined
+      );
       sinon.assert.calledOnceWithExactly(
         paypalHelper.log.info,
         'refundInvoice',
         expectedInvoiceResults
       );
       sinon.assert.notCalled(paypalHelper.log.error);
+    });
+
+    it('issues partial refund successfully', async () => {
+      const invoice = {
+        ...validInvoice,
+        id: 'inv_partial',
+        amount_paid: 1000,
+      };
+      mockStripeHelper.getInvoicePaypalTransactionId =
+        sinon.fake.returns('123');
+      mockStripeHelper.getInvoicePaypalRefundTransactionId =
+        sinon.fake.returns(undefined);
+      mockStripeHelper.getPriceIdFromInvoice = sinon.fake.returns('priceId1');
+
+      await paypalHelper.refundInvoice(invoice, {
+        refundType: RefundType.Partial,
+        amount: 500,
+      });
+
+      sinon.assert.calledOnceWithExactly(
+        paypalHelper.issueRefund,
+        invoice,
+        '123',
+        RefundType.Partial,
+        500
+      );
+      sinon.assert.notCalled(paypalHelper.log.error);
+    });
+
+    it('throws error if partial refund amount is not less than amount paid', async () => {
+      const invoice = {
+        ...validInvoice,
+        amount_paid: 1000,
+      };
+      const expectedErrorMessage = 'Partial refunds must be less than the amount paid on the invoice';
+      mockStripeHelper.getInvoicePaypalTransactionId =
+        sinon.fake.returns('123');
+      mockStripeHelper.getInvoicePaypalRefundTransactionId =
+        sinon.fake.returns(undefined);
+
+      try {
+        await paypalHelper.refundInvoice(invoice, {
+          refundType: RefundType.Partial,
+          amount: 1000,
+        });
+        sinon.assert.fail('Method did not throw error.');
+      } catch (e) {
+        sinon.assert.match(
+          e,
+          sinon.match
+            .instanceOf(RefundError)
+            .and(sinon.match.has('message', expectedErrorMessage))
+        );
+      }
+      sinon.assert.notCalled(paypalHelper.issueRefund);
     });
   });
 
