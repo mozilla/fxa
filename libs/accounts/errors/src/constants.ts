@@ -127,6 +127,8 @@ export const ERRNO = {
   RECOVERY_PHONE_REGISTRATION_LIMIT_REACHED: 219,
   TOTP_SECRET_DOES_NOT_EXIST: 220,
   RECOVERY_CODES_ALREADY_EXISTS: 221,
+  INSUFFICIENT_AAL: 222,
+  INVALID_MFA_TOKEN: 223,
   INTERNAL_VALIDATION_ERROR: 998,
   UNEXPECTED_ERROR: 999,
 };
@@ -136,9 +138,7 @@ export const ERRNO = {
  * @param obj - Object to swap keys and values on
  * @returns An object with keys and values reveresed.
  */
-function swapObjectKeysAndValues(obj: {
-  [key: string]: string | number;
-}) {
+function swapObjectKeysAndValues(obj: { [key: string]: string | number }) {
   const result: { [key: string | number]: string } = {};
   for (const key in obj) {
     result[obj[key]] = key;
@@ -173,7 +173,8 @@ export const IGNORED_ERROR_NUMBERS = [
 /**
  * Regex to determine if message is a payload too large message.
  */
-export const TOO_LARGE = /^Payload (?:content length|size) greater than maximum allowed/;
+export const TOO_LARGE =
+  /^Payload (?:content length|size) greater than maximum allowed/;
 
 /**
  * Set of errors indicating a bad request signature

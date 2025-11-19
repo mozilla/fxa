@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useNavigate, NavigateOptions, useLocation } from '@reach/router';
+import { navigateWithQueryHelper } from '../../utilities';
 
 export function useNavigateWithQuery() {
   const location = useLocation();
@@ -13,18 +14,12 @@ export function useNavigateWithQuery() {
     options?: NavigateOptions<{}>,
     includeHash: boolean = true
   ) => {
-    let path = to;
-
-    if (to.includes('?')) {
-      path = to;
-    } else if (location.search && location.search !== '?') {
-      path = `${to}${location.search}`;
-    }
-
-    if (includeHash && location.hash) {
-      path = `${path}${location.hash}`;
-    }
-
-    return options ? navigate(path, options) : navigate(path);
+    return navigateWithQueryHelper(
+      location,
+      navigate,
+      to,
+      options,
+      includeHash
+    );
   };
 }

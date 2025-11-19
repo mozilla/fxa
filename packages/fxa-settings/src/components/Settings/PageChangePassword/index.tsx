@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState } from 'react';
+import { useErrorHandler } from 'react-error-boundary';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps } from '@reach/router';
 import { MfaGuard } from '../MfaGuard';
@@ -24,6 +25,7 @@ import {
 } from '../../../lib/error-utils';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { MfaReason } from '../../../lib/types';
+import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
 type FormData = {
   oldPassword: string;
@@ -55,6 +57,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
+  const errorHandler = useErrorHandler();
 
   const [currentPasswordErrorText, setCurrentPasswordErrorText] =
     useState<string>();
@@ -90,6 +93,10 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
         logViewEvent(settingsViewName, 'change-password.success');
         alertSuccessAndGoHome();
       } catch (e) {
+        if (isInvalidJwtError(e)) {
+          errorHandler(e);
+          return;
+        }
         const localizedError = getLocalizedErrorMessage(ftlMsgResolver, e);
         if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
           setCurrentPasswordErrorText(localizedError);
@@ -103,9 +110,8 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
       account,
       alertBar,
       alertSuccessAndGoHome,
+      errorHandler,
       ftlMsgResolver,
-      setCurrentPasswordErrorText,
-      setNewPasswordErrorText,
       setValue,
     ]
   );

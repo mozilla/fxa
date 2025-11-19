@@ -609,15 +609,8 @@ export class Account implements AccountData {
       throw AuthUiErrors.INVALID_TOKEN;
     }
 
-    // Check if we have a JWT for MFA-protected password changes
-    const hasMfaJwt = JwtTokenCache.hasToken(currentSessionToken, 'password');
-
-    if (!hasMfaJwt) {
-      throw AuthUiErrors.INVALID_TOKEN;
-    }
-
     // Use the new MFA-protected endpoint
-    const jwt = JwtTokenCache.getToken(currentSessionToken, 'password');
+    const jwt = this.getCachedJwtByScope('password');
 
     const response = await this.withLoadingStatus(
       this.authClient.passwordChangeWithJWT(
@@ -1212,12 +1205,7 @@ export class Account implements AccountData {
   }
 
   async makeEmailPrimaryWithJwt(email: string) {
-    let jwt;
-    try {
-      jwt = this.getCachedJwtByScope('email');
-    } catch (error) {
-      throw AuthUiErrors.INVALID_TOKEN;
-    }
+    const jwt = this.getCachedJwtByScope('email');
     await this.withLoadingStatus(
       this.authClient.recoveryEmailSetPrimaryEmailWithJwt(jwt, email)
     );

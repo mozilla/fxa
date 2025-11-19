@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { AuthUiErrors } from './auth-errors/auth-errors';
 import {
   JwtTokenCache,
   MfaOtpRequestCache,
@@ -37,6 +38,6 @@ export const clearMfaAndJwtCacheOnInvalidJwt = (
  * @param e - The error to check, must have code and errno properties.
  * @returns
  */
-export const isInvalidJwtError = (e: any): boolean => {
-  return e && e.code === 401 && e.errno === 110;
+export const isInvalidJwtError = (e: unknown): boolean => {
+  return (e as any)?.errno === AuthUiErrors.INVALID_MFA_TOKEN.errno;
 };

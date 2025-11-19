@@ -329,6 +329,14 @@ const ERRORS = {
     errno: 220,
     message: 'TOTP secret does not exist',
   },
+  INSUFFICIENT_AAL: {
+    errno: 222,
+    message: 'Insufficient AAL',
+  },
+  INVALID_MFA_TOKEN: {
+    errno: 223,
+    message: 'Invalid or expired MFA token',
+  },
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: 'System unavailable, try again soon',
