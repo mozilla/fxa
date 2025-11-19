@@ -9,10 +9,9 @@ import {
   useAuthClient,
   useSensitiveDataClient,
 } from '../../../models';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useMutation } from '@apollo/client';
 import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { getSigninState } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import {
@@ -25,6 +24,7 @@ import { getHandledError } from '../../../lib/error-utils';
 import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import AppLayout from '../../../components/AppLayout';
 
 type SigninRecoveryCodeLocationState = {
   signinState: SigninLocationState;
@@ -82,23 +82,28 @@ export const SigninRecoveryCodeContainer = ({
     [consumeRecoveryCode]
   );
 
+  const [sendingPhoneCode, setSendingPhoneCode] = useState(false);
+
   const navigateToRecoveryPhone = async () => {
     if (!signinState) {
       return;
     }
     try {
+      setSendingPhoneCode(true);
       await authClient.recoveryPhoneSigninSendCode(signinState.sessionToken);
-      navigateWithQuery('/signin_recovery_phone', {
+      await navigateWithQuery('/signin_recovery_phone', {
         state: { signinState, lastFourPhoneDigits },
       });
       return;
     } catch (error) {
       const { error: handledError } = getHandledError(error);
       if (handledError.errno === AuthUiErrors.INVALID_TOKEN.errno) {
-        navigateWithQuery('/signin');
+        await navigateWithQuery('/signin');
         return;
       }
       return handledError;
+    } finally {
+      setSendingPhoneCode(false);
     }
   };
 
@@ -111,7 +116,7 @@ export const SigninRecoveryCodeContainer = ({
 
   if (!signinState) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   return (
@@ -125,6 +130,7 @@ export const SigninRecoveryCodeContainer = ({
         signinState,
         submitRecoveryCode,
         unwrapBKey,
+        loading: sendingPhoneCode,
       }}
     />
   );

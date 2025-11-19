@@ -5,7 +5,7 @@
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import SigninTokenCode from '.';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import AppLayout from '../../../components/AppLayout';
 import {
   Integration,
   useAuthClient,
@@ -98,7 +98,7 @@ const SigninTokenCodeContainer = ({
 
   if (!signinState || !signinState.sessionToken) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   // redirect if there is 2FA is set up for the account,
@@ -107,7 +107,7 @@ const SigninTokenCodeContainer = ({
     navigateWithQuery('/signin_totp_code', {
       state: signinState,
     });
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   if (oAuthDataError) {

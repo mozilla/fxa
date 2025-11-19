@@ -100,6 +100,7 @@ function mockSyncDesktopV3Integration() {
     data: { service: 'sync' },
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
+    getCmsInfo: () => undefined,
   } as Integration;
 }
 function mockOAuthWebIntegration(
@@ -114,6 +115,7 @@ function mockOAuthWebIntegration(
     data,
     isDesktopSync: () => false,
     isFirefoxClientServiceRelay: () => false,
+    getCmsInfo: () => undefined,
   } as Integration;
 }
 
@@ -126,6 +128,7 @@ function mockOAuthNativeIntegration() {
     wantsKeys: () => true,
     isDesktopSync: () => true,
     isFirefoxClientServiceRelay: () => false,
+    getCmsInfo: () => undefined,
     data: {
       service: 'sync',
       context: Constants.FX_SYNC_CONTEXT,

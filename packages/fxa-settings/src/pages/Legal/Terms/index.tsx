@@ -6,7 +6,7 @@ import React, { lazy, Suspense } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FetchLegalDoc } from '../../../components/LegalWithMarkdown';
 import { LegalDocFile } from '../../../lib/file-utils-legal';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import AppLayout from '../../../components/AppLayout';
 
 const LegalWithMarkdown = lazy(
   () => import('../../../components/LegalWithMarkdown')
@@ -23,7 +23,7 @@ const LegalTerms = ({
   locale,
   fetchLegalDoc,
 }: LegalTermsProps & RouteComponentProps) => (
-  <Suspense fallback={<LoadingSpinner fullScreen />}>
+  <Suspense fallback={<AppLayout loading />}>
     <LegalWithMarkdown
       {...{ locale, fetchLegalDoc, viewName }}
       headingTextFtlId="legal-terms-heading"

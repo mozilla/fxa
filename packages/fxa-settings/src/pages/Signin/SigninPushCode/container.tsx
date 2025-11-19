@@ -14,7 +14,7 @@ import {
   useSensitiveDataClient,
 } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import AppLayout from '../../../components/AppLayout';
 import OAuthDataError from '../../../components/OAuthDataError';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { useEffect, useState } from 'react';
@@ -73,7 +73,7 @@ export const SigninPushCodeContainer = ({
 
   if (!signinState) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   // redirect if there is 2FA is set up for the account,
@@ -82,7 +82,7 @@ export const SigninPushCodeContainer = ({
     navigateWithQuery('/signin_totp_code', {
       state: signinState,
     });
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   const onCodeVerified = async () => {

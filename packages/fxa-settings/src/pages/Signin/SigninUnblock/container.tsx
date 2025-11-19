@@ -5,8 +5,6 @@
 import { useMutation } from '@apollo/client';
 import { RouteComponentProps, useLocation } from '@reach/router';
 
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-
 import VerificationMethods from '../../../constants/verification-methods';
 import {
   useAuthClient,
@@ -52,6 +50,7 @@ import { SensitiveData } from '../../../lib/sensitive-data-client';
 import { isFirefoxService } from '../../../models/integrations/utils';
 import { tryFinalizeUpgrade } from '../../../lib/gql-key-stretch-upgrade';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
+import AppLayout from '../../../components/AppLayout';
 
 export const SigninUnblockContainer = ({
   integration,
@@ -229,7 +228,7 @@ export const SigninUnblockContainer = ({
 
   if (!email || !password) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
   return (
     <SigninUnblock

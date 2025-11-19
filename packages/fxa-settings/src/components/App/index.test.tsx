@@ -320,6 +320,7 @@ describe('loading spinner states', () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: jest.fn().mockReturnValueOnce(true),
       isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
+      getCmsInfo: jest.fn(),
       data: {
         context: {},
       },
@@ -402,6 +403,7 @@ describe('SettingsRoutes', () => {
       isSync: () => false,
       isFirefoxClientServiceRelay: jest.fn().mockReturnValueOnce(false),
       getServiceName: jest.fn(),
+      getCmsInfo: jest.fn(),
     });
     (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
       data: { isSignedIn: false },
@@ -446,6 +448,7 @@ describe('SettingsRoutes', () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => false,
       isFirefoxClientServiceRelay: () => false,
+      getCmsInfo: jest.fn(),
       data: {
         context: {},
       },
@@ -479,6 +482,7 @@ describe('SettingsRoutes', () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
       isFirefoxClientServiceRelay: () => false,
+      getCmsInfo: jest.fn(),
       data: {
         context: {},
       },
@@ -531,6 +535,7 @@ describe('SettingsRoutes', () => {
     (useIntegration as jest.Mock).mockReturnValue({
       isSync: () => true,
       isFirefoxClientServiceRelay: () => false,
+      getCmsInfo: jest.fn(),
       data: {
         context: {},
       },

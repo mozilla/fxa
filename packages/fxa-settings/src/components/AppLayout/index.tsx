@@ -11,6 +11,8 @@ import classNames from 'classnames';
 import { RelierCmsInfo } from '../../models/integrations';
 import { LocaleToggle } from '../LocaleToggle';
 import { useConfig } from '../../models/hooks';
+import { CardLoadingSpinner } from '../CardLoadingSpinner';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 type AppLayoutProps = {
   // TODO: FXA-6803 - the title prop should be made mandatory
@@ -19,7 +21,7 @@ type AppLayoutProps = {
    * `title` takes precedence over the `cmsInfo.shared.pageTitle` if both are present.
    */
   title?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   widthClass?: string;
   cmsInfo?: RelierCmsInfo;
   /** Whether the content is wrapped in a card.
@@ -30,6 +32,10 @@ type AppLayoutProps = {
   splitLayout?: boolean;
   /** Whether to show the locale toggle in the footer */
   showLocaleToggle?: boolean;
+  /** Whether to show a loading spinner instead of children.
+   * This preserves the background styling while showing a loading state.
+   */
+  loading?: boolean;
 };
 
 export const AppLayout = ({
@@ -39,6 +45,7 @@ export const AppLayout = ({
   cmsInfo,
   splitLayout = false,
   wrapInCard = true,
+  loading = false,
 }: AppLayoutProps) => {
   const { l10n } = useLocalization();
   const config = useConfig();
@@ -114,10 +121,18 @@ export const AppLayout = ({
         </header>
 
         {!splitLayout ? (
-          <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
-            <section>
-              {wrapInCard ? (
-                <div className={classNames('card', widthClass)}>{children}</div>
+          <main className="flex mobileLandscape:items-center flex-1">
+            <section className="relative">
+              {loading ? (
+                <>
+                  <CardLoadingSpinner />
+                </>
+              ) : wrapInCard ? (
+                <>
+                  <div className={classNames('card', widthClass)}>
+                    {children}
+                  </div>
+                </>
               ) : (
                 children
               )}
@@ -147,7 +162,13 @@ export const AppLayout = ({
               }
             />
             <main className="mobileLandscape:items-center tablet:flex-1 tablet:bg-white py-8 px-6 tablet:px-10 mobileLandscape:py-9 tablet:ml-auto flex justify-center flex-1">
-              <section className="max-w-120">{children}</section>
+              <section className="max-w-120">
+                {loading ? (
+                  <LoadingSpinner className="h-full flex items-center" />
+                ) : (
+                  children
+                )}
+              </section>
             </main>
           </div>
         )}

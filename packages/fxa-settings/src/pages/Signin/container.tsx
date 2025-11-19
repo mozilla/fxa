@@ -25,7 +25,6 @@ import {
   OAuthQueryParams,
 } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import {
   cache,
   currentAccount,
@@ -83,6 +82,7 @@ import {
 } from '../../lib/storage-utils';
 import { cachedSignIn, fxaCanLinkAccountAndNavigate } from './utils';
 import OAuthDataError from '../../components/OAuthDataError';
+import { AppLayout } from '../../components/AppLayout';
 
 /*
  * In Backbone, the `email` param is optional. If it's provided, we
@@ -540,17 +540,17 @@ const SigninContainer = ({
   // For now, just redirect to index-first, until FXA-8289 is done
   if (!email || validationError) {
     navigateWithQuery('/');
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   // Wait for async call (if needed) to complete
   if (hasLinkedAccount === undefined || hasPassword === undefined) {
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   if (isUnsupportedContext(integration.data.context)) {
     hardNavigate('/update_firefox', {}, true);
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout loading />;
   }
 
   const deeplink = queryParamModel.deeplink;
