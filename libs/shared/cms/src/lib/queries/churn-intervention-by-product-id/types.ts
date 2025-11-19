@@ -7,7 +7,7 @@ import {
   Enum_Churnintervention_Interval,
 } from '../../../__generated__/graphql';
 
-export interface ChurnInterventionByOfferingChurnInterventionsResult {
+export interface ChurnInterventionByProductIdChurnInterventionsResult {
   churnInterventionId: string;
   churnType: Enum_Churnintervention_Churntype;
   redemptionLimit: number;
@@ -22,7 +22,7 @@ export interface ChurnInterventionByOfferingChurnInterventionsResult {
   termsDetails: string;
 }
 
-export interface ChurnInterventionByOfferingOfferingResult {
+export interface ChurnInterventionByProductIdOfferingResult {
   defaultPurchase: {
     purchaseDetails: {
       webIcon: string;
@@ -32,14 +32,14 @@ export interface ChurnInterventionByOfferingOfferingResult {
   commonContent: {
     supportUrl: string;
   };
-  churnInterventions: ChurnInterventionByOfferingChurnInterventionsResult[];
+  churnInterventions: ChurnInterventionByProductIdChurnInterventionsResult[];
 }
 
-export interface ChurnInterventionByOfferingRawResult {
-  offerings: ChurnInterventionByOfferingOfferingResult[];
+export interface ChurnInterventionByProductIdRawResult {
+  offerings: ChurnInterventionByProductIdOfferingResult[];
 }
 
-export interface ChurnInterventionByOfferingResult {
+export interface ChurnInterventionByProductIdResult {
   webIcon: string;
   churnInterventionId: string;
   churnType: Enum_Churnintervention_Churntype;

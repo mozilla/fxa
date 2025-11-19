@@ -5,21 +5,21 @@
 import { faker } from '@faker-js/faker';
 
 import {
-  ChurnInterventionByOfferingQuery,
+  ChurnInterventionByProductIdQuery,
   Enum_Churnintervention_Churntype,
   Enum_Churnintervention_Interval,
 } from '../../../__generated__/graphql';
 
 import {
-  ChurnInterventionByOfferingRawResult,
-  ChurnInterventionByOfferingResult,
-  ChurnInterventionByOfferingOfferingResult,
-  ChurnInterventionByOfferingChurnInterventionsResult,
+  ChurnInterventionByProductIdRawResult,
+  ChurnInterventionByProductIdResult,
+  ChurnInterventionByProductIdOfferingResult,
+  ChurnInterventionByProductIdChurnInterventionsResult,
 } from '.';
 
-export const ChurnInterventionByOfferingChurnInterventionsResultFactory = (
-  override?: Partial<ChurnInterventionByOfferingChurnInterventionsResult>
-): ChurnInterventionByOfferingChurnInterventionsResult => ({
+export const ChurnInterventionByProductIdChurnInterventionsResultFactory = (
+  override?: Partial<ChurnInterventionByProductIdChurnInterventionsResult>
+): ChurnInterventionByProductIdChurnInterventionsResult => ({
   churnInterventionId: faker.string.uuid(),
   churnType: faker.helpers.enumValue(Enum_Churnintervention_Churntype),
   redemptionLimit: faker.number.int({ min: 1, max: 10 }),
@@ -35,9 +35,9 @@ export const ChurnInterventionByOfferingChurnInterventionsResultFactory = (
   ...override,
 });
 
-export const ChurnInterventionByOfferingOfferingsResultFactory = (
-  override?: Partial<ChurnInterventionByOfferingOfferingResult>
-): ChurnInterventionByOfferingOfferingResult => ({
+export const ChurnInterventionByProductIdOfferingsResultFactory = (
+  override?: Partial<ChurnInterventionByProductIdOfferingResult>
+): ChurnInterventionByProductIdOfferingResult => ({
   defaultPurchase: {
     purchaseDetails: {
       webIcon: faker.image.urlLoremFlickr(),
@@ -52,28 +52,28 @@ export const ChurnInterventionByOfferingOfferingsResultFactory = (
     supportUrl: faker.internet.url(),
   },
   churnInterventions: [
-    ChurnInterventionByOfferingChurnInterventionsResultFactory(),
+    ChurnInterventionByProductIdChurnInterventionsResultFactory(),
   ],
   ...override,
 });
 
-export const ChurnInterventionByOfferingQueryFactory = (
-  override?: Partial<ChurnInterventionByOfferingQuery>
-): ChurnInterventionByOfferingQuery => ({
-  offerings: [ChurnInterventionByOfferingOfferingsResultFactory()],
+export const ChurnInterventionByProductIdQueryFactory = (
+  override?: Partial<ChurnInterventionByProductIdQuery>
+): ChurnInterventionByProductIdQuery => ({
+  offerings: [ChurnInterventionByProductIdOfferingsResultFactory()],
   ...override,
 });
 
-export const ChurnInterventionByOfferingRawResultFactory = (
-  override?: Partial<ChurnInterventionByOfferingRawResult>
-): ChurnInterventionByOfferingRawResult => ({
-  offerings: [ChurnInterventionByOfferingOfferingsResultFactory()],
+export const ChurnInterventionByProductIdRawResultFactory = (
+  override?: Partial<ChurnInterventionByProductIdRawResult>
+): ChurnInterventionByProductIdRawResult => ({
+  offerings: [ChurnInterventionByProductIdOfferingsResultFactory()],
   ...override,
 });
 
-export const ChurnInterventionByOfferingResultFactory = (
-  override?: Partial<ChurnInterventionByOfferingResult>
-): ChurnInterventionByOfferingResult => ({
+export const ChurnInterventionByProductIdResultFactory = (
+  override?: Partial<ChurnInterventionByProductIdResult>
+): ChurnInterventionByProductIdResult => ({
   webIcon: faker.image.urlLoremFlickr(),
   churnInterventionId: faker.string.uuid(),
   churnType: faker.helpers.enumValue(Enum_Churnintervention_Churntype),
