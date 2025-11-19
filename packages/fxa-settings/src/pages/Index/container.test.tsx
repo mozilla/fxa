@@ -873,7 +873,7 @@ describe('IndexContainer', () => {
           supportsCanLinkAccountUid: false,
         });
 
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
             {...{
               integration,
@@ -907,7 +907,7 @@ describe('IndexContainer', () => {
           () => mockAuthClient
         );
 
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
             {...{
               integration,
@@ -939,7 +939,7 @@ describe('IndexContainer', () => {
           ok: false,
         });
 
-        render(
+        renderWithLocalizationProvider(
           <IndexContainer
             {...{
               integration,
