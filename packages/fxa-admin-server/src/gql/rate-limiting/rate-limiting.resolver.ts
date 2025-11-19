@@ -6,6 +6,7 @@ import { UseGuards, Inject } from '@nestjs/common';
 import { Args, Query, Resolver, Mutation } from '@nestjs/graphql';
 import { AdminPanelFeature } from '@fxa/shared/guards';
 import { MozLoggerService } from '@fxa/shared/mozlog';
+import { AuditLog } from '../../auth/audit-log.decorator';
 
 import { RateLimit, RateLimitClient } from '@fxa/accounts/rate-limit';
 import { CurrentUser } from '../../auth/auth-header.decorator';
@@ -35,6 +36,7 @@ export class RateLimitingResolver {
 
   @Mutation(() => Number)
   @Features(AdminPanelFeature.RateLimiting)
+  @AuditLog()
   public async clearRateLimits(
     @CurrentUser() user: string,
     @Args('ip', { type: () => String, nullable: true }) ip?: string,

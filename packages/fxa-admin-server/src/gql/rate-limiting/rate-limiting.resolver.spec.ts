@@ -8,6 +8,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from '@fxa/shared/mozlog';
 import { RateLimitClient } from '@fxa/accounts/rate-limit';
 import { EventLoggingService } from '../../event-logging/event-logging.service';
+import { AuditLogInterceptor } from '../../auth/audit-log.interceptor';
 import { RateLimitingResolver } from './rate-limiting.resolver';
 import { BlockStatus } from '../model/block-status.model';
 
@@ -60,6 +61,7 @@ describe('RateLimitingResolver', () => {
       providers: [
         RateLimitingResolver,
         EventLoggingService,
+        AuditLogInterceptor,
         MockMozLoggerService,
         MockConfig,
         MockMetricsFactory,

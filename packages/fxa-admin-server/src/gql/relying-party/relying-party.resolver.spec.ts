@@ -4,7 +4,9 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
+import { AuditLogInterceptor } from '../../auth/audit-log.interceptor';
 import { RelyingParty } from 'fxa-shared/db/models/auth';
 import { testDatabaseSetup } from 'fxa-shared/test/db/helpers';
 import { Knex } from 'knex';
@@ -38,6 +40,12 @@ describe('#integration - RelyingPartyResolver', () => {
     db.relyingParty = RelyingParty.bindKnex(knex);
     await db.relyingParty.query().insert(MOCK_RP as any);
 
+    const logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
+    const MockMozLoggerService: Provider = {
+      provide: MozLoggerService,
+      useValue: logger,
+    };
+
     const MockConfig: Provider = {
       provide: ConfigService,
       useValue: {
@@ -47,6 +55,8 @@ describe('#integration - RelyingPartyResolver', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RelyingPartyResolver,
+        AuditLogInterceptor,
+        MockMozLoggerService,
         MockConfig,
         { provide: DatabaseService, useValue: db },
       ],
