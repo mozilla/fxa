@@ -118,6 +118,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { signin, settings },
       testAccountTracker,
     }) => {
+      console.log('!!! sanity check');
       const credentials = await testAccountTracker.signUp();
       await signInAccount(target, page, signin, settings, credentials);
 
