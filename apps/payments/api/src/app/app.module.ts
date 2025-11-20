@@ -36,6 +36,8 @@ import {
 } from '@fxa/payments/metrics';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
 import { PaymentsEmitterService } from '@fxa/payments/events';
+import { NimbusManager, NimbusManagerConfig } from '@fxa/payments/experiments';
+import { NimbusClient, NimbusClientConfig } from '@fxa/shared/experiments';
 
 @Module({
   imports: [
@@ -79,6 +81,10 @@ import { PaymentsEmitterService } from '@fxa/payments/events';
     PaypalBillingAgreementManager,
     PaypalCustomerManager,
     StrapiClient,
+    NimbusManager,
+    NimbusManagerConfig,
+    NimbusClient,
+    NimbusClientConfig,
     MockPaymentsGleanFactory,
   ],
 })

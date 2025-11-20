@@ -182,6 +182,7 @@ async function run(config) {
       const productConfigurationManager = new ProductConfigurationManager(
         strapiClient,
         priceManager,
+        stripeClient,
         statsd
       );
       Container.set(ProductConfigurationManager, productConfigurationManager);
