@@ -52,6 +52,7 @@ import {
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
   UpdateAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
+  SubscriptionCustomerMismatch,
   ResubscribeSubscriptionCustomerMismatch,
   CreateBillingAgreementAccountCustomerMissingStripeId,
   CreateBillingAgreementActiveBillingAgreement,
@@ -479,6 +480,27 @@ export class SubscriptionManagementService {
       promotionName,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
     };
+  }
+
+  @SanitizeExceptions()
+  async getSubscriptionById(
+    uid: string,
+    subscriptionId: string
+  ): Promise<StripeSubscription> {
+    const accountCustomer =
+      await this.accountCustomerManager.getAccountCustomerByUid(uid);
+    const subscription = await this.subscriptionManager.retrieve(subscriptionId);
+
+    if (subscription.customer !== accountCustomer.stripeCustomerId) {
+      throw new SubscriptionCustomerMismatch(
+        uid,
+        accountCustomer.uid,
+        subscription.customer,
+        subscriptionId
+      );
+    }
+
+    return subscription;
   }
 
   async getCurrencyForCustomer(uid: string) {
