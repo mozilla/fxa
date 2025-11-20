@@ -218,7 +218,7 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
     './recovery-phones.sql',
     './key-fetch-tokens.sql',
     './security-event-names.sql',
-    './security-events.sql'
+    './security-events.sql',
   ]);
   // The order matters for inserts or foreign key refs
   await runSql([
@@ -230,7 +230,8 @@ export async function testAuthDatabaseSetup(instance: Knex): Promise<void> {
     './sp_limitSessions.sql',
     './sp_findLargeAccounts.sql',
     './sp_resetAccount.sql',
-    './sp_createSecurityEvent.sql'
+    './sp_createSecurityEvent.sql',
+    './sp_deviceFromRefreshTokenId.sql',
   ]);
 
   /*/ Debugging Assistance

@@ -40,6 +40,7 @@ export enum Proc {
   DeleteTotpToken = 'deleteTotpToken_4',
   Device = 'device_3',
   DeviceFromTokenVerificationId = 'deviceFromTokenVerificationId_6',
+  DeviceFromRefreshTokenId = 'deviceFromRefreshTokenId_1',
   EmailBounces = 'fetchEmailBounces_3',
   FindLargeAccounts = 'findLargeAccounts_1',
   ForgotPasswordVerified = 'forgotPasswordVerified_9',
