@@ -517,6 +517,8 @@ module.exports = function (log, config, bounces, statsd) {
     try {
       await bounces.check(to, template);
     } catch (err) {
+      console.log('!!! bounce check failed', err);
+
       const tags = { template, error: err.errno };
       statsd.increment('email.bounce.limit', tags);
 
@@ -582,6 +584,7 @@ module.exports = function (log, config, bounces, statsd) {
             code: err.code,
             errno: err.errno,
             message: status && status.message,
+            rawStatus: JSON.stringify(status),
             to: emailConfig && emailConfig.to,
             template,
           });
@@ -591,6 +594,7 @@ module.exports = function (log, config, bounces, statsd) {
 
         log.debug('mailer.send.1', {
           status: status && status.message,
+          rawStatus: JSON.stringify(status),
           id: status && status.messageId,
           to: emailConfig && emailConfig.to,
         });
