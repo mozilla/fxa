@@ -1062,6 +1062,12 @@ const convictConf = convict({
       env: 'SUBSCRIPTIONS_BILLING_PRICE_INFO_FEATURE',
       default: false,
     },
+    nimbusUserIdNamespace: {
+      doc: 'Namespace used to generate the SubPlat nimbus_user_id. This needs to be the same value used in payments-next',
+      format: String,
+      env: 'SUBSCRIPTIONS_NIMBUS_USER_ID_NAMESPACE',
+      default: 'e0066f05-3967-4f6e-8492-03933512611a',
+    },
   },
   currenciesToCountries: {
     doc: 'Mapping from ISO 4217 three-letter currency codes to list of ISO 3166-1 alpha-2 two-letter country codes: {"EUR": ["DE", "FR"], "USD": ["CA", "GB", "US" ]}  Requirement for only one currency per country. Tested at runtime. Must be uppercased.',

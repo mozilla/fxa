@@ -36,6 +36,7 @@ import {
   VerificationMethod,
 } from 'fxa-shared/db/models/auth/session-token';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { generateNimbusId } from '@fxa/shared/experiments';
 
 function resolveMetrics(): StatsD | undefined {
   return Container.has(StatsD) ? Container.get(StatsD) : undefined;
@@ -821,7 +822,13 @@ export const createDB = (
     async deleteAccount(authToken: { uid: string }) {
       const { uid } = authToken;
 
-      log.info('DB.deleteAccount', { uid });
+      log.info('DB.deleteAccount', {
+        uid,
+        subplatNimbusUserId: generateNimbusId(
+          config.subscriptions.nimbusUserIdNamespace,
+          uid
+        ),
+      });
       if (this.redis) {
         await this.redis.del(uid);
       }
@@ -1064,15 +1071,15 @@ export const createDB = (
       );
     }
 
-    async verifiedLoginSecurityEventsByUid(params: { uid: string; skipTimeframeMs: number}) {
+    async verifiedLoginSecurityEventsByUid(params: {
+      uid: string;
+      skipTimeframeMs: number;
+    }) {
       log.trace('DB.verifiedLoginSecurityEventsByUid', {
         params: params,
       });
       const { uid, skipTimeframeMs } = params;
-      return SecurityEvent.findByUidAndVerifiedLogin(
-        uid,
-        skipTimeframeMs
-      );
+      return SecurityEvent.findByUidAndVerifiedLogin(uid, skipTimeframeMs);
     }
 
     async securityEventsByUid(params: { uid: string }) {
