@@ -636,6 +636,17 @@ export class CartService {
           cart.stripeSubscriptionId
         );
       }
+
+      let paymentMethodType: string;
+      if (this.subscriptionManager.getPaymentProvider(subscription) === 'paypal') {
+        paymentMethodType = SubPlatPaymentMethodType.PayPal;
+      } else {
+        const stripePaymentMethod = await this.paymentMethodManager.retrieve(
+          subscription.default_payment_method ?? '',
+        );
+        paymentMethodType = stripePaymentMethod.type as string;
+      }
+
       await this.checkoutService.postPaySteps({
         cart,
         version: cart.version,
@@ -643,6 +654,7 @@ export class CartService {
         uid: cart.uid,
         paymentProvider:
           this.subscriptionManager.getPaymentProvider(subscription),
+        paymentForm: paymentMethodType as SubPlatPaymentMethodType     // check
       });
     });
   }
@@ -1068,6 +1080,12 @@ export class CartService {
         const subscription = await this.subscriptionManager.retrieve(
           cart.stripeSubscriptionId
         );
+
+        const paymentMethod = await this.paymentMethodManager.retrieve(
+          intent.payment_method
+        );
+        const paymentMethodType = paymentMethod.type as string;
+
         await this.checkoutService.postPaySteps({
           cart,
           version: cart.version,
@@ -1075,6 +1093,7 @@ export class CartService {
           uid: cart.uid,
           paymentProvider:
             this.subscriptionManager.getPaymentProvider(subscription),
+          paymentForm: paymentMethodType as SubPlatPaymentMethodType,
         });
       } else if (intent.status === 'requires_payment_method') {
         const errorCode = isPaymentIntent(intent)
