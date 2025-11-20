@@ -19,7 +19,7 @@ import { ProfileClientConfig } from '@fxa/profile/client';
 import { ContentServerClientConfig } from '@fxa/payments/content-server';
 import { NotifierSnsConfig } from '@fxa/shared/notifier';
 import { AppleIapClientConfig, GoogleIapClientConfig } from '@fxa/payments/iap';
-import { ChurnInterventionConfig } from '@fxa/payments/customer';
+import { ChurnInterventionConfig } from '@fxa/payments/cart';
 import { TracingConfig } from './tracing.config';
 import { StripeEventConfig } from '@fxa/payments/webhooks';
 import { FirestoreConfig } from 'libs/shared/db/firestore/src/lib/firestore.config';

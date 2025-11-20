@@ -12,10 +12,9 @@ import {
   TaxChangeAllowedStatus,
   TaxService,
 } from '@fxa/payments/cart';
-import { ChurnInterventionManager } from '@fxa/payments/customer';
 import { ContentServerManager } from '@fxa/payments/content-server';
 import { CurrencyManager } from '@fxa/payments/currency';
-import { SubscriptionManagementService } from '@fxa/payments/management';
+import { SubscriptionManagementService, ChurnInterventionService } from '@fxa/payments/management';
 import {
   CheckoutTokenManager,
   PaypalBillingAgreementManager,
@@ -50,6 +49,7 @@ import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionA
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeActionArgs } from './validators/ValidatePostalCodeActionArgs';
 import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
+import { DetermineStaySubscribedEligibilityActionArgs } from './validators/DetermineStaySubscribedEligibilityActionArgs';
 import { NextIOValidator } from './NextIOValidator';
 import type {
   CommonMetrics,
@@ -111,6 +111,7 @@ import { GetPaypalBillingAgreementActiveIdResult } from './validators/GetPaypalB
 import { CreatePaypalBillingAgreementIdArgs } from './validators/CreatePaypalBillingAgreementIdArgs';
 import { DetermineCurrencyForCustomerActionArgs } from './validators/DetermineCurrencyForCustomerActionArgs';
 import { DetermineCurrencyForCustomerActionResult } from './validators/DetermineCurrencyForCustomerActionResult';
+import { DetermineStaySubscribedEligibilityActionResult } from './validators/DetermineStaySubscribedEligibilityActionResult';
 import { NimbusManager } from '@fxa/payments/experiments';
 import { GetExperimentsActionArgs } from './validators/GetExperimentsActionArgs';
 import { GetExperimentsActionResult } from './validators/GetExperimentsActionResult';
@@ -126,7 +127,7 @@ export class NextJSActionsService {
     private cartService: CartService,
     private taxService: TaxService,
     private checkoutTokenManager: CheckoutTokenManager,
-    private churnInterventionManager: ChurnInterventionManager,
+    private churnInterventionService: ChurnInterventionService,
     private contentServerManager: ContentServerManager,
     private emitterService: PaymentsEmitterService,
     private googleManager: GoogleManager,
@@ -246,11 +247,32 @@ export class NextJSActionsService {
     customerId: string;
     churnInterventionId: string;
   }) {
-    const data = await this.churnInterventionManager.getEntry(
+    const data = await this.churnInterventionService.getChurnInterventionForCustomerId(
       args.customerId,
       args.churnInterventionId
     );
     return data;
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    DetermineStaySubscribedEligibilityActionArgs,
+    DetermineStaySubscribedEligibilityActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async determineStaySubscribedEligibility(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    return await this.churnInterventionService.determineStaySubscribedEligibility(
+      args.uid,
+      args.subscriptionId,
+      args.acceptLanguage,
+      args.selectedLanguage,
+    );
   }
 
   @SanitizeExceptions({

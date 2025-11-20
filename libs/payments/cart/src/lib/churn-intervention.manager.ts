@@ -6,8 +6,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { CollectionReference, Firestore } from '@google-cloud/firestore';
 import { FirestoreService } from '@fxa/shared/db/firestore';
 import { ChurnInterventionConfig } from './churn-intervention.config';
-
-import type { ChurnInterventionEntry } from './types';
+import { ChurnInterventionEntryNotFoundError } from './churn-intervention.error';
+import type { ChurnInterventionEntry } from './churn-intervention.types';
 import {
   createChurnInterventionEntry,
   getChurnInterventionEntryData,
@@ -54,6 +54,21 @@ export class ChurnInterventionManager {
       churnInterventionId: data.churnInterventionId,
       redemptionCount: data.redemptionCount,
     };
+  }
+
+  async getRedemptionCountForUid(
+    customerId: string,
+    churnInterventionId: string
+  ) {
+    try {
+      const churnInterventionEntryData = await this.getEntry(customerId, churnInterventionId);
+      return churnInterventionEntryData.redemptionCount ?? 0;
+    } catch (error) {
+      if (error instanceof ChurnInterventionEntryNotFoundError) {
+        return 0;
+      }
+      throw error;
+    }
   }
 
   async updateEntry(
