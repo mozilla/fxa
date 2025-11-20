@@ -2,12 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  navigate,
-  RouteComponentProps,
-  Router,
-  useLocation,
-} from '@reach/router';
+import { RouteComponentProps, Router, useLocation } from '@reach/router';
 import {
   lazy,
   Suspense,
@@ -50,6 +45,7 @@ import { ScrollToTop } from '../Settings/ScrollToTop';
 import SignupConfirmedSync from '../../pages/Signup/SignupConfirmedSync';
 import useFxAStatus from '../../lib/hooks/useFxAStatus';
 import AppLayout from '../AppLayout';
+import { hardNavigate } from 'fxa-react/lib/utils';
 
 // Pages
 const IndexContainer = lazy(() => import('../../pages/Index/container'));
@@ -357,12 +353,6 @@ export const App = ({
     );
   }
 
-  // If we're on settings route but user is not signed in, redirect immediately
-  if (window.location.pathname?.includes('/settings') && !isSignedIn) {
-    navigate('/');
-    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
-  }
-
   return (
     <Router basepath="/">
       <AuthAndAccountSetupRoutes
@@ -398,10 +388,10 @@ const SettingsRoutes = ({
       // For regular RP / web logins, maybe the session token expired. In this
       // case we just send them to the root.
       params.set('redirect_to', location.pathname);
-      navigate(`/?${params.toString()}`);
+      hardNavigate(`/?${params.toString()}`);
     }
 
-    return <LoadingSpinner fullScreen />;
+    return <AppLayout cmsInfo={integration.getCmsInfo()} loading />;
   }
 
   const settingsContext = initializeSettingsContext();

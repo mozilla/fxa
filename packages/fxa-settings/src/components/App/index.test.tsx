@@ -5,7 +5,7 @@
 import React, { ReactNode } from 'react';
 import { act, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { navigate } from '@reach/router';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
 import {
@@ -36,13 +36,6 @@ import mockUseFxAStatus from '../../lib/hooks/useFxAStatus/mocks';
 import useFxAStatus from '../../lib/hooks/useFxAStatus';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 import { OAuthError } from '../../lib/oauth';
-
-jest.mock('@reach/router', () => {
-  return {
-    ...jest.requireActual('@reach/router'),
-    navigate: jest.fn(),
-  };
-});
 
 jest.mock('../../lib/hooks/useFxAStatus', () => ({
   __esModule: true,
@@ -395,7 +388,8 @@ describe('SettingsRoutes', () => {
   const settingsPath = '/settings';
 
   beforeEach(() => {
-    (navigate as jest.Mock).mockClear();
+    jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
+    jest.clearAllMocks();
     (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       loading: false,
     });
@@ -430,7 +424,6 @@ describe('SettingsRoutes', () => {
   });
 
   afterEach(() => {
-    (navigate as jest.Mock).mockRestore();
     (useIntegration as jest.Mock).mockRestore();
     (useInitialMetricsQueryState as jest.Mock).mockRestore();
     (useLocalSignedInQueryState as jest.Mock).mockRestore();
@@ -472,7 +465,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(navigate).toHaveBeenCalledWith(
+      expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
         `/?redirect_to=${encodeURIComponent(settingsPath)}`
       );
     });
@@ -517,7 +510,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(navigate).not.toHaveBeenCalled();
+      expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
     });
 
     expect(screen.getByText('Session Expired')).toBeInTheDocument();
@@ -582,7 +575,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(navigate).not.toHaveBeenCalled();
+      expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });
@@ -614,7 +607,7 @@ describe('SettingsRoutes', () => {
     await act(() => navigateResult);
 
     await waitFor(() => {
-      expect(navigate).not.toHaveBeenCalled();
+      expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
     });
     expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });

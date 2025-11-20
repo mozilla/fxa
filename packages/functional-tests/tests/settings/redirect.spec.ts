@@ -112,7 +112,15 @@ test.describe('severity-2 #smoke', () => {
       await secondContext.close();
     });
 
-    test('redirects to email first when session token is invalid', async ({
+    test('redirects to email first when not signed in', async ({
+      page,
+      pages: { signup, settings },
+    }) => {
+      page.goto(settings.url);
+      await expect(signup.emailFormHeading).toBeVisible();
+    });
+
+    test('redirects to sign in when session token is invalid', async ({
       target,
       page,
       pages: { signin, settings },
