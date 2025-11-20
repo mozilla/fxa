@@ -4,7 +4,7 @@
 import { DocumentReference, FieldValue, type CollectionReference } from '@google-cloud/firestore';
 import type {
   ChurnInterventionEntry,
-} from './types';
+} from './churn-intervention.types';
 import {
   ChurnInterventionEntryAlreadyExistsError,
   ChurnInterventionEntryCreateError,

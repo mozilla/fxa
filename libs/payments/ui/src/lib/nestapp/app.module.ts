@@ -12,6 +12,7 @@ import {
   CartService,
   CheckoutService,
   TaxService,
+  ChurnInterventionRecordManager,
 } from '@fxa/payments/cart';
 import {
   EligibilityManager,
@@ -38,7 +39,6 @@ import {
   SubscriptionManager,
   CustomerSessionManager,
   SetupIntentManager,
-  ChurnInterventionManager,
 } from '@fxa/payments/customer';
 import { PaymentsGleanManager } from '@fxa/payments/metrics';
 import { PaymentsGleanFactory } from '@fxa/payments/metrics/provider';
@@ -58,7 +58,7 @@ import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
 import { logger, LOGGER_PROVIDER } from '@fxa/shared/log';
 import { StatsDProvider } from '@fxa/shared/metrics/statsd';
 import { NotifierService, NotifierSnsProvider } from '@fxa/shared/notifier';
-import { SubscriptionManagementService } from '@fxa/payments/management';
+import { SubscriptionManagementService, ChurnInterventionService } from '@fxa/payments/management';
 import { RootConfig } from './config';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { validate } from '../config.utils';
@@ -103,7 +103,8 @@ import { NimbusManager } from '@fxa/payments/experiments';
     CartService,
     TaxService,
     CheckoutTokenManager,
-    ChurnInterventionManager,
+    ChurnInterventionRecordManager,
+    ChurnInterventionService,
     ContentServerManager,
     ContentServerClient,
     CustomerManager,

@@ -7,7 +7,7 @@ import type { CollectionReference, Firestore } from '@google-cloud/firestore';
 import { FirestoreService } from '@fxa/shared/db/firestore';
 import { ChurnInterventionConfig } from './churn-intervention.config';
 
-import type { ChurnInterventionEntry } from './types';
+import type { ChurnInterventionEntry } from './churn-intervention.types';
 import {
   createChurnInterventionEntry,
   getChurnInterventionEntryData,
@@ -16,7 +16,7 @@ import {
 } from './churn-intervention.repository';
 
 @Injectable()
-export class ChurnInterventionManager {
+export class ChurnInterventionRecordManager {
   constructor(
     private config: ChurnInterventionConfig,
     @Inject(FirestoreService) private firestore: Firestore,

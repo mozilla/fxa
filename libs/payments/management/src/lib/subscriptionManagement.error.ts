@@ -33,6 +33,23 @@ export class CancelSubscriptionCustomerMismatch extends SubscriptionManagementEr
   }
 }
 
+export class SubscriptionCustomerMismatch extends SubscriptionManagementError {
+  constructor(
+    uid: string,
+    accountCustomer: string,
+    subscriptionCustomer: string,
+    subscriptionId: string
+  ) {
+    super('Subscription customer does not match account customer', {
+      uid,
+      accountCustomer,
+      subscriptionCustomer,
+      subscriptionId,
+    });
+    this.name = 'SubscriptionCustomerMismatch';
+  }
+}
+
 export class GetAccountCustomerMissingStripeId extends SubscriptionManagementError {
   constructor(uid: string) {
     super('Retrieved AccountCustomer is missing a Stripe customer id', { uid });

@@ -5,3 +5,4 @@
 export * from './lib/factories/subscriptionContent.factory';
 export * from './lib/subscriptionManagement.service';
 export * from './lib/types';
+export * from './lib/churn-intervention.service';

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ChurnInterventionManager } from './churn-intervention.manager';
+import { ChurnInterventionRecordManager } from './churn-intervention-record.manager';
 import { ChurnInterventionConfig } from './churn-intervention.config';
 import {
   createChurnInterventionEntry,
@@ -10,7 +10,7 @@ import {
   updateChurnInterventionEntry,
   deleteChurnInterventionEntry,
 } from './churn-intervention.repository';
-import { ChurnInterventionEntryFactory } from './factories/churn-intervention.factories';
+import { ChurnInterventionEntryFactory } from './churn-intervention.factories';
 
 const mockCollection = { name: 'mockCollection' } as any;
 const mockFirestore = {
@@ -24,14 +24,14 @@ jest.mock('./churn-intervention.repository', () => ({
   deleteChurnInterventionEntry: jest.fn(),
 }));
 
-describe('ChurnInterventionManager', () => {
-  let manager: ChurnInterventionManager;
+describe('ChurnInterventionRecordManager', () => {
+  let manager: ChurnInterventionRecordManager;
   const mockConfig = { collectionName: 'testCollection' } as ChurnInterventionConfig;
   const mockEntry = ChurnInterventionEntryFactory();
 
   beforeEach(() => {
     jest.clearAllMocks();
-    manager = new ChurnInterventionManager(mockConfig, mockFirestore);
+    manager = new ChurnInterventionRecordManager(mockConfig, mockFirestore);
   });
 
   describe('collectionRef', () => {
