@@ -600,6 +600,12 @@ const convictConf = convict({
         ],
         env: 'BOUNCES_IGNORE_TEMPLATES',
       },
+      deleteAccount: {
+        doc: 'Flag to enable deleting account on email bounce.',
+        format: Boolean,
+        default: false,
+        env: 'BOUNCES_DELETE_ACCOUNT',
+      },
     },
     connectionTimeout: {
       doc: 'Milliseconds to wait for the connection to establish (default is 2 minutes)',

@@ -19,20 +19,26 @@ const emailHelpers = require('../../../lib/email/utils/helpers');
 const mockBounceQueue = new EventEmitter();
 mockBounceQueue.start = function start() {};
 
-function mockMessage(msg) {
-  msg.del = sinon.spy();
-  msg.headers = {};
-  return msg;
-}
-
-function mockedBounces(log, db) {
-  return bounces(log, error)(mockBounceQueue, db);
-}
-
 describe('bounce messages', () => {
-  let log, mockDB, mockStripeHelper;
+  let log, mockConfig, mockDB, mockStripeHelper;
+
+  function mockMessage(msg) {
+    msg.del = sinon.spy();
+    msg.headers = {};
+    return msg;
+  }
+
+  function mockedBounces(log, db) {
+    return bounces(log, error, mockConfig)(mockBounceQueue, db);
+  }
+
   beforeEach(() => {
     log = mockLog();
+    mockConfig = {
+      bounces: {
+        deleteAccount: true,
+      },
+    };
     mockDB = {
       createEmailBounce: sinon.spy(() => Promise.resolve({})),
       accountRecord: sinon.spy((email) => {
@@ -106,6 +112,41 @@ describe('bounce messages', () => {
         assert.equal(mockDB.accountRecord.args[0][0], 'test@example.com');
         assert.equal(mockDB.accountRecord.args[1][0], 'foobar@example.com');
         assert.equal(mockMsg.del.callCount, 1);
+      });
+  });
+
+  it('should not delete account when account delete is disabled', () => {
+    mockConfig.bounces.deleteAccount = false;
+    const bounceType = 'Transient';
+    const mockMsg = mockMessage({
+      bounce: {
+        bounceType: bounceType,
+        bouncedRecipients: [{ emailAddress: 'test@example.com' }],
+      },
+      mail: {
+        headers: [
+          {
+            name: 'X-Template-Name',
+            value: 'verifyEmail',
+          },
+        ],
+      },
+    });
+    return mockedBounces(log, mockDB)
+      .handleBounce(mockMsg)
+      .then(() => {
+        assert.equal(mockDB.deleteAccount.callCount, 0);
+        assert.equal(mockMsg.del.callCount, 1);
+        sinon.assert.calledWith(log.debug, 'accountNotDeleted', {
+          uid: '123456',
+          email: 'test@example.com',
+          accountDeleteEnabled: false,
+          emailUnverified: true,
+          isRecentAccount: true,
+          hasNoActiveSubscription: true,
+          errorMessage: undefined,
+          errorStackTrace: undefined,
+        });
       });
   });
 
