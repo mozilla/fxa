@@ -23,13 +23,6 @@ const BASE_36 = validators.BASE_36;
 // Currently, only for metrics purposes, not enforced.
 const MAX_ACTIVE_SESSIONS = 200;
 
-// If the user is in a non-2FA unverified session state and has signed in through
-// an OAuth flow, the front-end skips `/signin_token_code` screen to avoid friction.
-// However we always want to send the OTP code verification email for VPN now, because
-// they manage their own front-end and can't retroactively update old clients. We
-// also always require verification if the request wantsKeys.
-const SERVICES_WITH_EMAIL_VERIFICATION = ['e6eb0d1e856335fc'];
-
 module.exports = (
   log,
   config,
@@ -390,21 +383,28 @@ module.exports = (
           uid: accountRecord.uid,
           isUnverifiedAccount,
           mustVerifySession,
+          service,
         });
 
         // For unverified accounts, we always re-send the account verification email.
         if (isUnverifiedAccount) {
           return await sendVerifyAccountEmail();
         }
+
         // If the session needs to be verified, send the sign-in confirmation email.
         if (
           mustVerifySession &&
           // Always send if passwordChangeRequired, wantsKeys, or no service is specified
-          // Otherwise, only send for some services (see comment above SERVICES_WITH_EMAIL_VERIFICATION)
+          // Otherwise, only send for some services
           (passwordChangeRequired ||
             wantsKeys ||
             !service ||
-            SERVICES_WITH_EMAIL_VERIFICATION.includes(service))
+            // If the user is in a non-2FA unverified session state and has signed in through
+            // an OAuth flow, the front-end skips `/signin_token_code` screen to avoid friction.
+            // However we always want to send the OTP code verification email for VPN now, because
+            // they manage their own front-end and can't retroactively update old clients. We
+            // also always require verification if the request wantsKeys.
+            config.servicesWithEmailVerification.includes(service))
         ) {
           return await sendVerifySessionEmail();
         }

@@ -1758,6 +1758,12 @@ const convictConf = convict({
     format: 'nat',
     env: 'SIGNIN_CODE_SIZE',
   },
+  servicesWithEmailVerification: {
+    doc: 'Services that will alwasy send a session verification email on sign in',
+    default: ['e6eb0d1e856335fc'],
+    format: Array,
+    env: 'SERVICES_WITH_EMAIL_VERIFICATION',
+  },
   emailStatusPollingTimeout: {
     doc: 'how long before emails status polling is considered stale',
     default: '1 month',
