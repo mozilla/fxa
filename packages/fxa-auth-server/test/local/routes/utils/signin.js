@@ -799,6 +799,7 @@ describe('sendSigninNotifications', () => {
     };
     config = {
       otp: otpOptions,
+      servicesWithEmailVerification: ['e6eb0d1e856335fc'],
     };
 
     sendSigninNotifications = makeSigninUtils({
