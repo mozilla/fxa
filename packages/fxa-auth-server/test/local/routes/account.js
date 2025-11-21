@@ -2211,6 +2211,7 @@ describe('/account/login', () => {
     signinUnblock: {
       codeLifetime: 1000,
     },
+    servicesWithEmailVerification: [],
   };
   const mockLog = log('ERROR', 'test');
   mockLog.activityEvent = sinon.spy(() => {
