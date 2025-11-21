@@ -66,7 +66,7 @@ export class EmailBounce extends BaseAuthModel {
         BOUNCE_TYPES[bounceType],
         BOUNCE_SUB_TYPES[bounceSubType],
         Date.now(),
-        diagnosticCode
+        diagnosticCode ?? null
       );
     } catch (e: any) {
       throw convertError(e);
