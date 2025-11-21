@@ -13,12 +13,18 @@ const isValidEmailAddress =
   require('./../routes/validators').isValidEmailAddress;
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
-module.exports = function (log, error) {
+module.exports = function (log, error, config) {
   const stripeHelper = Container.get(StripeHelper);
 
   return function start(bounceQueue, db) {
-    function accountDeleted(uid, email) {
-      log.info('accountDeleted', { uid: uid, email: email });
+    function logBounceMessage(message) {
+      try {
+        log.debug('bounceMessage', { message: JSON.stringify(message) });
+      } catch {
+        log.debug('bounceMessage', {
+          message: 'Could not stringify bounce message.',
+        });
+      }
     }
 
     function gotError(email, err) {
@@ -34,23 +40,52 @@ module.exports = function (log, error) {
     }
 
     async function deleteAccountIfUnverifiedNew(record) {
+      let success = false;
+      let error = null;
+
+      // Checks
+      const accountDeleteEnabled = config.bounces.deleteAccount === true;
+      const emailUnverified = !record.emailVerified;
+      const isRecentAccount =
+        record.createdAt && record.createdAt > Date.now() - SIX_HOURS;
+      const hasNoActiveSubscription =
+        !(await stripeHelper.hasActiveSubscription(record.uid));
+
       // if account is not verified and younger than 6 hours then delete it.
       if (
-        !record.emailVerified &&
-        record.createdAt &&
-        record.createdAt > Date.now() - SIX_HOURS &&
-        !(await stripeHelper.hasActiveSubscription(record.uid))
+        accountDeleteEnabled &&
+        emailUnverified &&
+        isRecentAccount &&
+        hasNoActiveSubscription
       ) {
         try {
           await db.deleteAccount(record);
+          log.info('accountDeleted', { uid: record.uid, email: record.email });
+          success = true;
         } catch (err) {
-          return gotError(record.email, err);
+          error = err;
+          gotError(record.email, err);
         }
-        accountDeleted(record.uid, record.email);
+      }
+
+      // Account deletion never occurred, log account info and reasons
+      if (!success) {
+        log.debug('accountNotDeleted', {
+          uid: record.uid,
+          email: record.email,
+          accountDeleteEnabled,
+          emailUnverified,
+          isRecentAccount,
+          hasNoActiveSubscription,
+          errorMessage: error?.message,
+          errorStackTrace: error?.stackTrace,
+        });
       }
     }
 
     async function handleBounce(message) {
+      logBounceMessage(message);
+
       utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'bounce');
 
       let recipients = [];
