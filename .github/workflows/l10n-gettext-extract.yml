@@ -19,12 +19,12 @@ jobs:
         run: |
           yarn global add grunt-cli
       - name: Clone l10n repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: mozilla/fxa-content-server-l10n
           path: 'fxa-l10n'
       - name: Clone FxA code repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 2
           path: 'fxa-code'
