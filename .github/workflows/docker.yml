@@ -74,7 +74,7 @@ jobs:
     needs:
       - tag
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ env.GIT_TAG }}
 
