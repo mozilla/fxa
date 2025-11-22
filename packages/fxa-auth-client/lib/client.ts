@@ -1995,6 +1995,28 @@ export default class AuthClient {
   }
 
   /**
+   * Resend secondary email verification code using MFA JWT (email scope).
+   * This route supports resending when the email is reserved in Redis but
+   * not yet persisted in the DB.
+   *
+   * @param jwt MFA JWT with scope 'mfa:email'
+   * @param email Secondary email address to resend code to
+   * @param headers Optional extra headers
+   */
+  async recoveryEmailSecondaryResendCodeWithJwt(
+    jwt: string,
+    email: string,
+    headers?: Headers
+  ) {
+    return this.jwtPost(
+      '/mfa/recovery_email/secondary/resend_code',
+      jwt,
+      { email },
+      headers
+    );
+  }
+
+  /**
    * @deprecated Use createTotpTokenWithJwt instead
    *
    * Create a TOTP secret for the account (session-token variant).

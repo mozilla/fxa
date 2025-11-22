@@ -59,6 +59,85 @@ describe('PageSecondaryEmailVerify', () => {
     ).toBeInTheDocument();
   });
 
+  it('disables resend while request is in-flight and shows disabled styling', async () => {
+    let resolveResend: (() => void) | undefined;
+    const customAccount = {
+      ...(account as any),
+      loading: false,
+      resendSecondaryEmailCodeWithJwt: jest.fn().mockImplementation(
+        () =>
+          new Promise<void>((resolve) => {
+            resolveResend = resolve;
+          })
+      ),
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account: customAccount })}>
+        <PageSecondaryEmailVerify location={mockLocation} />
+      </AppContext.Provider>
+    );
+
+    const btn = screen.getByTestId('secondary-email-resend-code-button');
+    expect(btn).toBeEnabled();
+    await act(async () => {
+      fireEvent.click(btn);
+    });
+    expect(btn).toBeDisabled();
+    expect(btn).toHaveClass('cursor-not-allowed');
+
+    // Finish the pending request
+    await act(async () => {
+      resolveResend && resolveResend();
+    });
+  });
+
+  it('disables resend during cooldown and re-enables after cooldown', async () => {
+    jest.useFakeTimers();
+    const customAccount = {
+      ...(account as any),
+      loading: false,
+      resendSecondaryEmailCodeWithJwt: jest.fn().mockResolvedValue(undefined),
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account: customAccount })}>
+        <PageSecondaryEmailVerify location={mockLocation} />
+      </AppContext.Provider>
+    );
+
+    const btn = screen.getByTestId('secondary-email-resend-code-button');
+    await act(async () => {
+      fireEvent.click(btn);
+    });
+    expect(btn).toBeDisabled();
+    await act(async () => {
+      jest.advanceTimersByTime(2999);
+    });
+    expect(btn).toBeDisabled();
+    await act(async () => {
+      jest.advanceTimersByTime(1);
+    });
+    expect(btn).toBeEnabled();
+    jest.useRealTimers();
+  });
+
+  it('disables resend while verification is in progress (account.loading)', () => {
+    const customAccount = {
+      ...(account as any),
+      loading: true,
+      resendSecondaryEmailCodeWithJwt: jest.fn(),
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account: customAccount })}>
+        <PageSecondaryEmailVerify location={mockLocation} />
+      </AppContext.Provider>
+    );
+    const btn = screen.getByTestId('secondary-email-resend-code-button');
+    expect(btn).toBeDisabled();
+  });
+
   it('renders error messages', async () => {
     const error: any = new Error();
     error.errno = AuthUiErrors.INVALID_VERIFICATION_CODE.errno;
@@ -184,7 +263,7 @@ describe('PageSecondaryEmailVerify', () => {
       expect(screen.getByText('Enter confirmation code')).toBeInTheDocument();
     });
 
-    it('renders MFA guard if the JWT is invalid', async () => {
+    it('renders MFA guard if the JWT is invalid on verify secondary email request', async () => {
       // an invalid token should be picked up by the guard which will
       // "send" a new one and display the modal again.
       JwtTokenCache.setToken(mockSessionToken, requiredScope, 'invalid-jwt');
@@ -220,6 +299,35 @@ describe('PageSecondaryEmailVerify', () => {
       );
       expect(
         await screen.findByText('Enter confirmation code')
+      ).toBeInTheDocument();
+    });
+
+    it('renders MFA guard if the JWT is invalid on resend code request', async () => {
+      JwtTokenCache.setToken(mockSessionToken, requiredScope, 'invalid-jwt');
+      account.resendSecondaryEmailCodeWithJwt = jest.fn().mockRejectedValue({
+        code: 401,
+        errno: 223,
+        message: 'Invalid or expired MFA token',
+      });
+      const appCtx = mockAppContext({
+        authClient: mockAuthClient as any,
+        account: { ...(account as any), email: mockEmail },
+      });
+      renderWithRouter(
+        <AppContext.Provider value={appCtx}>
+          <MfaGuardPageSecondaryEmailVerify
+            location={{ state: { email: mockEmail } } as any}
+          />
+        </AppContext.Provider>
+      );
+      await user.click(
+        screen.getByRole('button', { name: 'Resend confirmation code' })
+      );
+      expect(account.resendSecondaryEmailCodeWithJwt).toHaveBeenCalledWith(
+        mockEmail
+      );
+      expect(
+        await screen.findByRole('heading', { name: /Enter confirmation code/ })
       ).toBeInTheDocument();
     });
   });

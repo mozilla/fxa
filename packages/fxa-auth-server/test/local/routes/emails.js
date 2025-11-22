@@ -1790,6 +1790,120 @@ describe('/recovery_email', () => {
   });
 });
 
+describe('/mfa/recovery_email/secondary/resend_code', () => {
+  it('resends code when redis reservation exists for this uid', async () => {
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const email = TEST_EMAIL_ADDITIONAL;
+    const normalized = normalizeEmail(email);
+    const mockLog = mocks.mockLog();
+    const mockMailer = mocks.mockMailer();
+    const secret = 'abcd1234abcd1234abcd1234abcd1234';
+
+    const authServerCacheRedis = {
+      get: sinon.stub().resolves(JSON.stringify({ uid, secret })),
+      set: sinon.stub().resolves('OK'),
+      del: sinon.stub().resolves(1),
+    };
+
+    const routes = makeRoutes(
+      {
+        authServerCacheRedis,
+        mailer: mockMailer,
+        log: mockLog,
+      },
+      {}
+    );
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
+
+    const request = mocks.mockRequest({
+      credentials: {
+        uid,
+        email: TEST_EMAIL,
+        deviceId: 'device-xyz',
+      },
+      payload: { email },
+      app: { geo: knownIpLocation },
+    });
+
+    const otpUtilsLocal = require('../../../lib/routes/utils/otp').default(
+      {},
+      { histogram: () => {} }
+    );
+    const expectedCode = otpUtilsLocal.generateOtpCode(secret, otpOptions);
+
+    const response = await runTest(route, request);
+    assert.ok(response);
+    assert.calledOnce(mockMailer.sendVerifySecondaryCodeEmail);
+    const args = mockMailer.sendVerifySecondaryCodeEmail.args[0];
+    assert.equal(args[0][0].normalizedEmail, normalized);
+    assert.equal(args[2].code, expectedCode, 'verification codes match');
+  });
+
+  it('errors when no reservation exists', async () => {
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const email = TEST_EMAIL_ADDITIONAL;
+    const mockMailer = mocks.mockMailer();
+    const authServerCacheRedis = {
+      get: sinon.stub().resolves(null),
+      set: sinon.stub().resolves('OK'),
+      del: sinon.stub().resolves(1),
+    };
+    const routes = makeRoutes({ authServerCacheRedis, mailer: mockMailer }, {});
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
+    const request = mocks.mockRequest({
+      credentials: { uid, email: TEST_EMAIL },
+      payload: { email },
+    });
+    await assert.failsAsync(runTest(route, request), {
+      errno: error.ERRNO.RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL,
+    });
+  });
+
+  it('errors when reservation belongs to a different uid', async () => {
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const otherUid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const email = TEST_EMAIL_ADDITIONAL;
+    const mockMailer = mocks.mockMailer();
+    const authServerCacheRedis = {
+      get: sinon
+        .stub()
+        .resolves(JSON.stringify({ uid: otherUid, secret: 'abc' })),
+      set: sinon.stub().resolves('OK'),
+      del: sinon.stub().resolves(1),
+    };
+    const routes = makeRoutes({ authServerCacheRedis, mailer: mockMailer }, {});
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
+    const request = mocks.mockRequest({
+      credentials: { uid, email: TEST_EMAIL },
+      payload: { email },
+    });
+    await assert.failsAsync(runTest(route, request), {
+      errno: error.ERRNO.RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL,
+    });
+  });
+
+  it('cleans invalid redis record and errors', async () => {
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const email = TEST_EMAIL_ADDITIONAL;
+    const mockMailer = mocks.mockMailer();
+    const authServerCacheRedis = {
+      get: sinon.stub().resolves('not-json'),
+      set: sinon.stub().resolves('OK'),
+      del: sinon.stub().resolves(1),
+    };
+    const routes = makeRoutes({ authServerCacheRedis, mailer: mockMailer }, {});
+    const route = getRoute(routes, '/mfa/recovery_email/secondary/resend_code');
+    const request = mocks.mockRequest({
+      credentials: { uid, email: TEST_EMAIL },
+      payload: { email },
+    });
+    await assert.failsAsync(runTest(route, request), {
+      errno: error.ERRNO.RESEND_EMAIL_CODE_TO_UNOWNED_EMAIL,
+    });
+    assert.calledOnce(authServerCacheRedis.del);
+  });
+});
+
 describe('/emails/reminders/cad', () => {
   const mockLog = mocks.mockLog();
   let accountRoutes, mockRequest, route, uid;

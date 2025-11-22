@@ -217,6 +217,33 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(settings.alertBar).toHaveText(/successfully deleted/);
     });
+
+    test('resend secondary email code and verify', async ({
+      target,
+      pages: { page, secondaryEmail, settings, signin },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpAndPrimeMfa({
+        scopes: 'email',
+      });
+      await signInAccount(target, page, settings, signin, credentials);
+
+      const newEmail = testAccountTracker.generateEmail();
+
+      await settings.goto();
+      await settings.secondaryEmail.addButton.click();
+      await secondaryEmail.fillOutEmail(newEmail);
+      // let's make sure to retrieve and clear the initial code
+      // to make sure that the next code we get is the one we just resent
+      await target.emailClient.getVerifySecondaryCode(newEmail);
+      await secondaryEmail.clickResendConfirmationCode();
+      // Fetch the new secondary verification code and submit
+      const resentCode: string =
+        await target.emailClient.getVerifySecondaryCode(newEmail);
+      await secondaryEmail.fillOutVerificationCode(resentCode);
+
+      await expect(settings.alertBar).toHaveText(/successfully added/);
+    });
   });
 });
 
