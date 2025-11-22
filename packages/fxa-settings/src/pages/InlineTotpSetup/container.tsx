@@ -91,8 +91,9 @@ export const InlineTotpSetupContainer = ({
   useEffect(() => {
     if (
       totp !== undefined ||
-      totpStatus?.account?.totp.verified === true ||
-      isTotpCreating.current
+      totpStatus?.account?.totp.verified ||
+      isTotpCreating.current ||
+      totpStatusLoading
     ) {
       return;
     }
@@ -171,7 +172,7 @@ export const InlineTotpSetupContainer = ({
   if (
     !isSignedIn ||
     !signinState ||
-    totpStatusLoading === true ||
+    totpStatusLoading ||
     totp === undefined ||
     sessionVerified === undefined
   ) {
