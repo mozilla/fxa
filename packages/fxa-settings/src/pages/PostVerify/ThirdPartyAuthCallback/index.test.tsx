@@ -16,7 +16,7 @@ import { useAccount } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
   handleNavigation,
-  fxaCanLinkAccountAndNavigate,
+  ensureCanLinkAcountOrRedirect,
 } from '../../Signin/utils';
 import { QueryParams } from '../../../index';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN } from '../../mocks';
@@ -65,7 +65,7 @@ jest.mock('../../Signin/utils', () => {
   return {
     __esModule: true,
     handleNavigation: jest.fn(),
-    fxaCanLinkAccountAndNavigate: jest.fn(),
+    ensureCanLinkAcountOrRedirect: jest.fn(),
   };
 });
 
@@ -164,7 +164,7 @@ describe('ThirdPartyAuthCallback component', () => {
     }));
     mockHandleNavigation = jest.fn().mockResolvedValue({ error: null });
     (handleNavigation as jest.Mock).mockReturnValue(mockHandleNavigation);
-    (fxaCanLinkAccountAndNavigate as jest.Mock).mockResolvedValue(true);
+    (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
     mockNavigateWithQuery.mockClear();
     mockCurrentAccount();
   });
@@ -291,7 +291,23 @@ describe('ThirdPartyAuthCallback component', () => {
     });
   });
 
-  it('calls fxaCanLinkAccountAndNavigate', async () => {
+  it('sets handleFxaLogin and handleFxaOAuthLogin to false for Sync integrations', async () => {
+    const integration = mockOAuthNativeIntegration({
+      service: ModelsModule.OAuthNativeServices.Sync,
+    });
+    renderWith({ integration });
+    await waitFor(() => {
+      expect(handleNavigation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          handleFxaLogin: false,
+          handleFxaOAuthLogin: false,
+          isSignInWithThirdPartyAuth: true,
+        })
+      );
+    });
+  });
+
+  it('calls ensureCanLinkAcountOrRedirect', async () => {
     const linkedAccountEmail = 'user@example.com';
     const linkedAccountUid = '123';
 
@@ -308,7 +324,7 @@ describe('ThirdPartyAuthCallback component', () => {
     renderWith({ integration });
 
     await waitFor(() => {
-      expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledWith(
+      expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
         expect.objectContaining({
           email: linkedAccountEmail,
           uid: linkedAccountUid,

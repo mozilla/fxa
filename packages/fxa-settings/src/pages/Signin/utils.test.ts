@@ -17,7 +17,7 @@ import {
   createMockSigninOAuthNativeIntegration,
   createMockSigninOAuthIntegration,
 } from './mocks';
-import { handleNavigation, fxaCanLinkAccountAndNavigate } from './utils';
+import { handleNavigation, ensureCanLinkAcountOrRedirect } from './utils';
 import * as ReachRouter from '@reach/router';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import firefox from '../../lib/channels/firefox';
@@ -246,7 +246,7 @@ describe('Signin utils', () => {
         );
       });
 
-      it('does not send fxaLogin for TOTP verification', async () => {
+      it('does not send fxaLogin if TOTP verification required', async () => {
         const navigationOptions = createBaseNavigationOptions({
           signinData: {
             ...createBaseNavigationOptions().signinData,
@@ -298,7 +298,7 @@ describe('Signin utils', () => {
     });
   });
 
-  describe('fxaCanLinkAccountAndNavigate', () => {
+  describe('ensureCanLinkAcountOrRedirect', () => {
     const mockFtlMsgResolver = {
       getMsg: jest.fn().mockReturnValue('Login attempt cancelled'),
     };
@@ -311,7 +311,7 @@ describe('Signin utils', () => {
     it('returns true when user accepts', async () => {
       fxaCanLinkAccountSpy.mockResolvedValue({ ok: true });
 
-      const result = await fxaCanLinkAccountAndNavigate({
+      const result = await ensureCanLinkAcountOrRedirect({
         email: MOCK_EMAIL,
         uid: MOCK_UID,
         ftlMsgResolver: mockFtlMsgResolver as any,
@@ -331,7 +331,7 @@ describe('Signin utils', () => {
       const linkedAccountUid = '123';
       fxaCanLinkAccountSpy.mockResolvedValue({ ok: false });
 
-      const result = await fxaCanLinkAccountAndNavigate({
+      const result = await ensureCanLinkAcountOrRedirect({
         email: linkedAccountEmail,
         uid: linkedAccountUid,
         ftlMsgResolver: mockFtlMsgResolver as any,
