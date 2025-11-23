@@ -8,7 +8,7 @@ import { currentAccount } from '../../../lib/cache';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { Integration, useAuthClient } from '../../../models';
 import { cache } from '../../../lib/cache';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { CreatePasswordHandler } from './interfaces';
 import { HandledError } from '../../../lib/error-utils';
 import {
@@ -51,7 +51,10 @@ const SetPasswordContainer = ({
     flowQueryParams as unknown as Record<string, string>
   );
 
+  const didRunPasswordStatusCheckRef = useRef(false);
   useEffect(() => {
+    if (didRunPasswordStatusCheckRef.current) return;
+    didRunPasswordStatusCheckRef.current = true;
     const checkPasswordStatus = async () => {
       if (sessionToken) {
         try {
@@ -72,9 +75,8 @@ const SetPasswordContainer = ({
         }
       }
     };
-
     checkPasswordStatus();
-  }, [sessionToken, authClient, navigateWithQuery]);
+  }, [authClient, sessionToken, navigateWithQuery]);
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,

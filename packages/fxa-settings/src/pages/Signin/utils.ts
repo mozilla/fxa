@@ -338,8 +338,9 @@ export async function handleNavigation(navigationOptions: NavigationOptions) {
       oauthData
     ) {
       // If this is a Sync (with password) sign-in, the scoped keys will be bundled
-      // with the 'code'. If this is a third party auth sign-in, oauth data is still
-      // needed but the keys will not be bundled.
+      // with the 'code'.
+      // If this is a third party auth sign-in prior to setting a password,
+      // the oauthLogin will be deferred until after the password is set.
       firefox.fxaOAuthLogin({
         action: 'signin',
         code: oauthData.code,
@@ -598,7 +599,7 @@ function getStoredAccountInfo(): SigninLocationState | null {
 /**
  * Sends `can_link_account` with email and UID and handles navigation if cancelled.
  */
-export async function fxaCanLinkAccountAndNavigate({
+export async function ensureCanLinkAcountOrRedirect({
   email,
   uid,
   ftlMsgResolver,
