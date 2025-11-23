@@ -80,7 +80,7 @@ import {
   storeAccountData,
   StoredAccountData,
 } from '../../lib/storage-utils';
-import { cachedSignIn, fxaCanLinkAccountAndNavigate } from './utils';
+import { cachedSignIn, ensureCanLinkAcountOrRedirect } from './utils';
 import OAuthDataError from '../../components/OAuthDataError';
 import { AppLayout } from '../../components/AppLayout';
 
@@ -321,7 +321,7 @@ const SigninContainer = ({
         !originFromEmailFirst &&
         !useFxAStatusResult.supportsCanLinkAccountUid
       ) {
-        const ok = await fxaCanLinkAccountAndNavigate({
+        const ok = await ensureCanLinkAcountOrRedirect({
           email,
           ftlMsgResolver,
           navigateWithQuery,
@@ -391,7 +391,7 @@ const SigninContainer = ({
           isOAuthNativeIntegration(integration) &&
           useFxAStatusResult.supportsCanLinkAccountUid
         ) {
-          const ok = await fxaCanLinkAccountAndNavigate({
+          const ok = await ensureCanLinkAcountOrRedirect({
             email,
             uid: result.data.signIn.uid,
             ftlMsgResolver,
