@@ -50,6 +50,7 @@ import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionA
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeActionArgs } from './validators/ValidatePostalCodeActionArgs';
 import { DetermineCurrencyActionArgs } from './validators/DetermineCurrencyActionArgs';
+import { DetermineStaySubscribedEligibilityActionArgs } from './validators/DetermineStaySubscribedEligibilityActionArgs';
 import { NextIOValidator } from './NextIOValidator';
 import type {
   CommonMetrics,
@@ -63,6 +64,7 @@ import {
   PromotionCodeSanitizedError,
   TaxAddress,
   type SubplatInterval,
+  ChurnInterventionEntryNotFoundError,
 } from '@fxa/payments/customer';
 import { EligibilityService, LocationStatus } from '@fxa/payments/eligibility';
 import { WithTypeCachableAsyncLocalStorage } from '@fxa/shared/db/type-cacheable';
@@ -111,6 +113,7 @@ import { GetPaypalBillingAgreementActiveIdResult } from './validators/GetPaypalB
 import { CreatePaypalBillingAgreementIdArgs } from './validators/CreatePaypalBillingAgreementIdArgs';
 import { DetermineCurrencyForCustomerActionArgs } from './validators/DetermineCurrencyForCustomerActionArgs';
 import { DetermineCurrencyForCustomerActionResult } from './validators/DetermineCurrencyForCustomerActionResult';
+import { DetermineStaySubscribedEligibilityActionResult } from './validators/DetermineStaySubscribedEligibilityActionResult';
 import { NimbusManager } from '@fxa/payments/experiments';
 import { GetExperimentsActionArgs } from './validators/GetExperimentsActionArgs';
 import { GetExperimentsActionResult } from './validators/GetExperimentsActionResult';
@@ -251,6 +254,95 @@ export class NextJSActionsService {
       args.churnInterventionId
     );
     return data;
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    DetermineStaySubscribedEligibilityActionArgs,
+    DetermineStaySubscribedEligibilityActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async determineStaySubscribedEligibility(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    try {
+      const cmsChurnResult =
+        await this.productConfigurationManager.getChurnInterventionBySubscription(
+          args.subscriptionId,
+          'stay_subscribed',
+          args.acceptLanguage || undefined,
+          args.selectedLanguage
+        );
+
+      const cmsChurnInterventionEntries = cmsChurnResult.getTransformedChurnInterventionByProductId();
+      if (!cmsChurnInterventionEntries.length) {
+        return {
+          isEligible: false,
+          reason: 'no_churn_intervention_found',
+          cmsChurnInterventionEntry: null,
+        }
+      }
+
+      const cmsChurnInterventionEntry = cmsChurnInterventionEntries[0];
+      let redemptionCount = 0;
+      try {
+        const churnInterventionEntryData = await this.churnInterventionManager.getEntry(
+          args.uid,
+          cmsChurnInterventionEntry.churnInterventionId
+        );
+        redemptionCount = churnInterventionEntryData.redemptionCount ?? 0;
+      } catch (error) {
+        if (error instanceof ChurnInterventionEntryNotFoundError) {
+          redemptionCount = 0;
+        } else {
+          throw error
+        }
+      }
+
+      if (redemptionCount >= cmsChurnInterventionEntry.redemptionLimit) {
+        return {
+          isEligible: false,
+          reason: 'discount_already_applied',
+          cmsChurnInterventionEntry: null,
+        }
+      }
+
+      const subscription = await this.subscriptionManagementService.getSubscriptionById(
+        args.uid,
+        args.subscriptionId
+      );
+      if (subscription.status !== 'active') {
+        return {
+          isEligible: false,
+          reason: 'subscription_not_active',
+          cmsChurnInterventionEntry: null,
+        }
+      }
+      if (subscription.cancel_at_period_end === false) {
+        return {
+          isEligible: false,
+          reason: 'subscription_still_active',
+          cmsChurnInterventionEntry: null,
+        };
+      }
+
+      return {
+        isEligible: true,
+        reason: 'eligible',
+        cmsChurnInterventionEntry,
+      }
+    } catch (error) {
+      this.log.error(error);
+      return {
+        isEligible: false,
+        reason: 'general_error',
+        cmsChurnInterventionEntry: null,
+      }
+    }
   }
 
   @SanitizeExceptions({
