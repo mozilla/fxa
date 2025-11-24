@@ -1238,6 +1238,13 @@ export class Account implements AccountData {
     );
   }
 
+  async resendSecondaryEmailCodeWithJwt(email: string) {
+    const jwt = this.getCachedJwtByScope('email');
+    return this.withLoadingStatus(
+      this.authClient.recoveryEmailSecondaryResendCodeWithJwt(jwt, email)
+    );
+  }
+
   async createTotpWithJwt() {
     const totp = await this.withLoadingStatus(
       this.authClient.createTotpTokenWithJwt(

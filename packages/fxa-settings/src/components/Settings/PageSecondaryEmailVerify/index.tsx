@@ -2,33 +2,38 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import classNames from 'classnames';
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { SETTINGS_PATH } from '../../../constants';
 import { logViewEvent } from '../../../lib/metrics';
-import { useAccount, useAlertBar } from '../../../models';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import { useForm } from 'react-hook-form';
-import {
-  AuthUiErrors,
-  AuthUiErrorNos,
-} from 'fxa-settings/src/lib/auth-errors/auth-errors';
-import { getErrorFtlId } from '../../../lib/error-utils';
+import { getLocalizedErrorMessage } from '../../../lib/error-utils';
 import { MfaGuard } from '../MfaGuard';
-import { useErrorHandler } from 'react-error-boundary';
-import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
+import {
+  isInvalidJwtError,
+  clearMfaAndJwtCacheOnInvalidJwt,
+} from '../../../lib/mfa-guard-utils';
 import { MfaReason } from '../../../lib/types';
+import Banner, { ResendCodeSuccessBanner } from '../../Banner';
 
 type FormData = {
   verificationCode: string;
 };
 
 export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
-  const errorHandler = useErrorHandler();
   const [errorText, setErrorText] = useState<string>();
+  const [resendCodeLoading, setResendCodeLoading] = useState(false);
+  const [showResendSuccessBanner, setShowResendSuccessBanner] = useState(false);
+  const [localizedErrorBannerMessage, setLocalizedErrorBannerMessage] =
+    useState<string | undefined>(undefined);
+  const lastResendRef = useRef<number | undefined>(undefined);
+  const [resendCooldownActive, setResendCooldownActive] = useState(false);
   const { handleSubmit, register, formState } = useForm<FormData>({
     mode: 'all',
     defaultValues: {
@@ -42,6 +47,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
     [navigateWithQuery]
   );
   const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
   const account = useAccount();
   const alertSuccessAndGoHome = useCallback(
@@ -73,30 +79,50 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         alertSuccessAndGoHome(email);
       } catch (e) {
         if (isInvalidJwtError(e)) {
-          // JWT invalid/expired
-          errorHandler(e);
+          // JWT invalid/expired — defer cache clear to next tick so the modal opens
+          // after the current click event completes (avoids immediate outside-click dismiss).
+          setTimeout(() => clearMfaAndJwtCacheOnInvalidJwt(e, 'email'), 0);
           return;
         }
-        if (e.errno) {
-          const fallback = AuthUiErrorNos[e.errno]
-            ? AuthUiErrorNos[e.errno].message
-            : AuthUiErrors.INVALID_VERIFICATION_CODE.message;
-          const errorText = l10n.getString(getErrorFtlId(e), null, fallback);
-          setErrorText(errorText);
-        } else {
-          alertBar.error(
-            l10n.getString(
-              'verify-secondary-email-error-3',
-              null,
-              'There was a problem sending the confirmation code'
-            )
-          );
-        }
+        setErrorText(getLocalizedErrorMessage(ftlMsgResolver, e));
         logViewEvent('verify-secondary-email.verification', 'fail');
       }
     },
-    [account, alertSuccessAndGoHome, setErrorText, alertBar, l10n, errorHandler]
+    [account, alertSuccessAndGoHome, setErrorText, ftlMsgResolver]
   );
+
+  const handleResendCode = useCallback(async () => {
+    if (!email) {
+      return;
+    }
+    // Simple debounce to prevent over-sending
+    const now = Date.now();
+    if (lastResendRef.current && now - lastResendRef.current < 3000) {
+      return;
+    }
+    lastResendRef.current = now;
+    setResendCooldownActive(true);
+    // Clear the UI cooldown after 3s to mirror the debounce window
+    setTimeout(() => setResendCooldownActive(false), 3000);
+    setResendCodeLoading(true);
+    try {
+      await account.resendSecondaryEmailCodeWithJwt(email);
+      setLocalizedErrorBannerMessage(undefined);
+      setShowResendSuccessBanner(true);
+    } catch (err) {
+      setShowResendSuccessBanner(false);
+      if (isInvalidJwtError(err)) {
+        // Defer cache clear to next tick to avoid immediate outside-click dismissal.
+        setTimeout(() => clearMfaAndJwtCacheOnInvalidJwt(err, 'email'), 0);
+        return;
+      }
+      setLocalizedErrorBannerMessage(
+        getLocalizedErrorMessage(ftlMsgResolver, err)
+      );
+    } finally {
+      setResendCodeLoading(false);
+    }
+  }, [account, email, ftlMsgResolver]);
 
   useEffect(() => {
     if (!email) {
@@ -106,6 +132,8 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
 
   const buttonDisabled =
     !formState.isDirty || !formState.isValid || account.loading;
+  const resendDisabled =
+    resendCodeLoading || account.loading || resendCooldownActive;
   return (
     <Localized id="verify-secondary-email-page-title" attrs={{ title: true }}>
       <FlowContainer title="Secondary email" subtitle={subtitleText}>
@@ -116,6 +144,16 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
             logViewEvent('verify-secondary-email.verification', 'clicked');
           })}
         >
+          {showResendSuccessBanner && <ResendCodeSuccessBanner />}
+          {localizedErrorBannerMessage && (
+            <Banner
+              type="error"
+              content={{ localizedHeading: localizedErrorBannerMessage }}
+              dismissButton={{
+                action: () => setLocalizedErrorBannerMessage(undefined),
+              }}
+            />
+          )}
           <Localized
             id="verify-secondary-email-please-enter-code-2"
             vars={{ email: email }}
@@ -169,6 +207,25 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
                 disabled={buttonDisabled}
               >
                 Confirm
+              </button>
+            </Localized>
+          </div>
+
+          <div className="flex justify-center mx-auto max-w-64 mt-8">
+            <Localized id="verify-secondary-email-resend-code-button">
+              <button
+                type="button"
+                className={classNames(
+                  'text-sm',
+                  resendDisabled
+                    ? 'text-grey-300 cursor-not-allowed pointer-events-none'
+                    : 'link-blue'
+                )}
+                data-testid="secondary-email-resend-code-button"
+                disabled={resendDisabled}
+                onClick={handleResendCode}
+              >
+                Resend confirmation code
               </button>
             </Localized>
           </div>
