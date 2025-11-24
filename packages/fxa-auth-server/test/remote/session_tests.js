@@ -543,6 +543,7 @@ const config = require('../../config').default.getProperties();
                 sessionVerificationMeetsMinimumAAL: true,
                 sessionVerificationMethod: null,
                 sessionVerified: false,
+                verified: false,
               },
             });
           });
