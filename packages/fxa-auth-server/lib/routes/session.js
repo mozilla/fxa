@@ -151,6 +151,7 @@ module.exports = function (
             sessionVerified: isA.boolean().required(),
             authAt: isA.number().integer(),
             metricsEnabled: isA.boolean().required(),
+            verified: isA.boolean().required(), // Deprecated!
           }),
         },
       },
@@ -281,6 +282,11 @@ module.exports = function (
           )
         );
 
+        // Needed to prevent breaking API changes!
+        // Legacy implemenation would set verified true when
+        // session and email are flagged as verified
+        response.verified = response.emailVerified && response.sessionVerified;
+
         return response;
       },
     },
@@ -301,6 +307,7 @@ module.exports = function (
               sessionVerificationMethod: isA.string().allow(null),
               sessionVerified: isA.boolean(),
               sessionVerificationMeetsMinimumAAL: isA.boolean(),
+              verified: isA.boolean(), // Deprecated!
             }),
           }),
         },
@@ -335,6 +342,9 @@ module.exports = function (
         // Account Assurance Level
         const sessionVerificationMeetsMinimumAAL = sessionAal >= accountAal;
 
+        // Legacy verified flag. Keep for backwards compatibility.
+        const verified = accountEmailVerified && sessionVerified;
+
         return {
           state: sessionToken.state,
           uid: sessionToken.uid,
@@ -343,6 +353,7 @@ module.exports = function (
             sessionVerificationMethod,
             sessionVerified,
             sessionVerificationMeetsMinimumAAL,
+            verified,
           },
         };
       },
@@ -359,6 +370,18 @@ module.exports = function (
         validate: {
           payload: isA.object({
             reason: isA.string().max(16).optional(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            authAt: isA.number().integer(),
+            emailVerified: isA.boolean(),
+            sessionVerified: isA.boolean(),
+            verificationMethod: isA.string().allow(null),
+            verificationReason: isA.string().allow(null),
+            verified: isA.boolean(), // Deprecated
           }),
         },
       },
@@ -409,6 +432,10 @@ module.exports = function (
         } else {
           response.sessionVerified = true;
         }
+
+        // Prevents breaking API changes!
+        response.verified =
+          newSessionToken.emailVerified && newSessionToken.tokenVerified;
 
         return response;
       },

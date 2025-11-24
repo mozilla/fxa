@@ -43,10 +43,15 @@ const SESSION_REAUTH_POST = {
       Re-authenticate an existing session token. This is equivalent to calling \`/account/login\`, but it re-uses an existing session token rather than generating a new one, allowing the caller to maintain session state such as verification and device registration.
 
       The response includes:
-      - \`emailVerified\`: Whether the account's primary email address has been verified
-      - \`sessionVerified\`: Whether the current session token has been verified
+      - \`uid\`: Account id
+      - \`keyFetchToken\`: Present if keys were requested.
       - \`verificationMethod\`: Present if verification is incomplete, e.g. \`email\`, \`email-2fa\`, \`email-otp\`, \`totp-2fa\`
       - \`verificationReason\`: Present if verification is incomplete, e.g. \`login\`, \`signup\`
+      - \`emailVerified\`: Whether the account's primary email address has been verified
+      - \`sessionVerified\`: Whether the current session token has been verified
+      - \`authAt\`: Timestamp of authentication
+      - \`metricsEnabled\`: Flag indicating if metrics are enabled on the session
+      - \`verified\`: Deprecated! Use emailVerified and sessionVerified instead.
     `,
   ],
   plugins: {
@@ -78,11 +83,15 @@ const SESSION_STATUS_GET = {
 
       Returns a success response if the session token is valid. The response includes detailed information about the session and account state.
 
-      **Response details object:**
-      - \`accountEmailVerified\`: Whether the account's primary email is verified
-      - \`sessionVerificationMethod\`: The verification method used for the session (e.g., 'email-2fa', 'totp-2fa'), or null if not verified
-      - \`sessionVerified\`: Whether the session token itself is verified (no pending token verification)
-      - \`sessionVerificationMeetsMinimumAAL\`: Whether the session's Authentication Assurance Level (AAL) meets or exceeds the account's maximum AAL
+
+      **Response object:**
+      - \`state\`: Describes the session's verification state.
+      - \`uid\`: Account id
+      - \`details.accountEmailVerified\`: Whether the account's primary email is verified
+      - \`details.sessionVerificationMethod\`: The verification method used for the session (e.g., 'email-2fa', 'totp-2fa'), or null if not verified
+      - \`details.sessionVerified\`: Whether the session token itself is verified (no pending token verification)
+      - \`details.sessionVerificationMeetsMinimumAAL\`: Whether the session's Authentication Assurance Level (AAL) meets or exceeds the account's maximum AAL
+      - \`details.verified\`: Deprecated! Use accountEmailVerified and sessionVerified instead.
     `,
   ],
 };
@@ -95,6 +104,16 @@ const SESSION_DUPLICATE_POST = {
       🔒 Authenticated with session token
 
       Create a new \`sessionToken\` that duplicates the current session. It will have the same verification status as the current session, but will have a distinct verification code.
+
+      **Response object:**
+      - \`uid\`: Account id
+      - \`sessionToken\`: Session Token
+      - \`authAt\`: Authentication timestamp
+      - \`emailVerified\`: Whether the account's primary email is verified
+      - \`sessionVerified\`: Whether the session token itself is verified (no pending token verification)
+      - \`verificationMethod\`: Present if verification is incomplete, e.g. \`email\`, \`email-2fa\`, \`email-otp\`, \`totp-2fa\`
+      - \`verificationReason\`: Present if verification is incomplete, e.g. \`login\`, \`signup\`
+      - \`verified\`: Deprecated! Use emailVerified and sessionVerified instead.
     `,
   ],
 };
@@ -129,7 +148,7 @@ const SESSION_VERIFY_PUSH_POST = {
   notes: [
     dedent`
     🔒 Authenticated with session token
-    
+
     Endpoint that accepts a code and tokenVerificationId to verify a session.
     `,
   ],
