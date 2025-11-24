@@ -15,7 +15,7 @@ import {
 } from '../../../models';
 import {
   handleNavigation,
-  fxaCanLinkAccountAndNavigate,
+  ensureCanLinkAcountOrRedirect,
 } from '../../Signin/utils';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
@@ -84,13 +84,12 @@ const ThirdPartyAuthCallback = ({
    */
   const performNavigation = useCallback(
     async (linkedAccount: LinkedAccountData, needsVerification = false) => {
-      const shouldSendWebChannelMessages =
+      const isNonSyncBrowserSignIn =
         integration.isFirefoxClientServiceRelay() ||
-        integration.isFirefoxClientServiceAiMode() ||
-        integration.isSync();
+        integration.isFirefoxClientServiceAiMode();
 
-      if (shouldSendWebChannelMessages) {
-        const ok = await fxaCanLinkAccountAndNavigate({
+      if (isNonSyncBrowserSignIn || integration.isSync()) {
+        const ok = await ensureCanLinkAcountOrRedirect({
           email: linkedAccount.email,
           uid: linkedAccount.uid,
           ftlMsgResolver,
@@ -123,8 +122,13 @@ const ThirdPartyAuthCallback = ({
         finishOAuthFlowHandler,
         queryParams: location.search,
         isSignInWithThirdPartyAuth: true,
-        handleFxaLogin: shouldSendWebChannelMessages,
-        handleFxaOAuthLogin: shouldSendWebChannelMessages,
+        // For non‑Sync integrations we can sign in to the browser immediately because
+        // those integrations do not require keys to be available.
+        // For Sync, third‑party auth is only offered if the account is passwordless.
+        // In that case, we must defer browser login/OAuth messages until after the
+        // user sets a password and keys are available (see SetPassword/container.tsx).
+        handleFxaLogin: isNonSyncBrowserSignIn,
+        handleFxaOAuthLogin: isNonSyncBrowserSignIn,
       };
 
       const { error: navError } = await handleNavigation(navigationOptions);

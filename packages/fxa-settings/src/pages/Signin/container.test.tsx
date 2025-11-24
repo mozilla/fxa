@@ -54,7 +54,7 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
-import { fxaCanLinkAccountAndNavigate } from './utils';
+import { ensureCanLinkAcountOrRedirect } from './utils';
 import { mockSensitiveDataClient as createMockSensitiveDataClient } from '../../models/mocks';
 import { SensitiveData } from '../../lib/sensitive-data-client';
 import { Constants } from '../../lib/constants';
@@ -80,7 +80,7 @@ jest.mock('../../lib/storage-utils', () => ({
 
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
-  fxaCanLinkAccountAndNavigate: jest.fn(),
+  ensureCanLinkAcountOrRedirect: jest.fn(),
 }));
 
 jest.mock('../../lib/oauth/hooks', () => ({
@@ -754,10 +754,10 @@ describe('signin container', () => {
     describe('fxaCanLinkAccount', () => {
       beforeEach(() => {
         mockSyncDesktopV3Integration();
-        (fxaCanLinkAccountAndNavigate as jest.Mock).mockResolvedValue(true);
+        (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(true);
       });
       afterEach(() => {
-        (fxaCanLinkAccountAndNavigate as jest.Mock).mockRestore();
+        (ensureCanLinkAcountOrRedirect as jest.Mock).mockRestore();
       });
       it('is not called when conditions are not met (query param)', async () => {
         // this puts hasLinkedAccount=false in the query params
@@ -781,11 +781,11 @@ describe('signin container', () => {
             MOCK_EMAIL,
             MOCK_PASSWORD
           );
-          expect(fxaCanLinkAccountAndNavigate).not.toHaveBeenCalled();
+          expect(ensureCanLinkAcountOrRedirect).not.toHaveBeenCalled();
         });
       });
 
-      it('calls fxaCanLinkAccountAndNavigate early without UID when conditions are met', async () => {
+      it('calls ensureCanLinkAcountOrRedirect early without UID when conditions are met', async () => {
         mockLocationState = {
           hasLinkedAccount: undefined,
           email: MOCK_ROUTER_STATE_EMAIL,
@@ -811,13 +811,13 @@ describe('signin container', () => {
 
           expect(handlerResult?.data).toBeDefined();
         });
-        expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledTimes(1);
-        expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledWith(
+        expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledTimes(1);
+        expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
           expect.objectContaining({
             email: MOCK_EMAIL,
           })
         );
-        expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledWith(
+        expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
           expect.not.objectContaining({
             uid: expect.anything(),
           })
@@ -829,7 +829,7 @@ describe('signin container', () => {
           hasLinkedAccount: undefined,
           email: MOCK_ROUTER_STATE_EMAIL,
         };
-        (fxaCanLinkAccountAndNavigate as jest.Mock).mockResolvedValue(false);
+        (ensureCanLinkAcountOrRedirect as jest.Mock).mockResolvedValue(false);
         render([mockGqlAvatarUseQuery()]);
 
         await waitFor(async () => {
@@ -846,7 +846,7 @@ describe('signin container', () => {
           mockOAuthNativeIntegration();
         });
 
-        it('calls fxaCanLinkAccountAndNavigate with UID after successful signin', async () => {
+        it('calls ensureCanLinkAcountOrRedirect with UID after successful signin', async () => {
           const useFxAStatusResult = mockUseFxAStatus({
             supportsCanLinkAccountUid: true,
           });
@@ -876,8 +876,8 @@ describe('signin container', () => {
             expect(handlerResult?.data).toBeDefined();
             expect(handlerResult?.data?.signIn?.uid).toBe(MOCK_UID);
           });
-          expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledTimes(1);
-          expect(fxaCanLinkAccountAndNavigate).toHaveBeenCalledWith(
+          expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledTimes(1);
+          expect(ensureCanLinkAcountOrRedirect).toHaveBeenCalledWith(
             expect.objectContaining({
               email: MOCK_EMAIL,
               uid: MOCK_UID,
