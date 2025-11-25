@@ -17,9 +17,8 @@ import FlowSetup2faApp from '../FlowSetup2faApp';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { GleanClickEventType2FA, MfaReason } from '../../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { MfaGuard } from '../MfaGuard';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
-import { useErrorHandler } from 'react-error-boundary';
 
 export const MfaGuardPage2faChange = (_: RouteComponentProps) => {
   return (
@@ -32,7 +31,7 @@ export const MfaGuardPage2faChange = (_: RouteComponentProps) => {
 export const Page2faChange = () => {
   const account = useAccount();
   const alertBar = useAlertBar();
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const {
@@ -133,8 +132,7 @@ export const Page2faChange = () => {
       await account.confirmReplaceTotpWithJwt(code);
     } catch (error) {
       if (isInvalidJwtError(error)) {
-        // JWT invalid/expired
-        errorHandler(error);
+        handleMfaError(error);
         return {};
       }
       return { error: true };

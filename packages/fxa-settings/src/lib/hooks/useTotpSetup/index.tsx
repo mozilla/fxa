@@ -5,12 +5,12 @@
 import { useEffect, useState } from 'react';
 import { useAccount, useSession } from '../../../models';
 import { TotpInfo } from '../../types';
-import { useErrorHandler } from 'react-error-boundary';
+import { useMfaErrorHandler } from '../../../components/Settings/MfaGuard';
 import { isInvalidJwtError } from '../../mfa-guard-utils';
 
 export const useTotpSetup = () => {
   const account = useAccount();
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
   const session = useSession();
 
   const [totpInfo, setTotpInfo] = useState<TotpInfo | undefined>();
@@ -31,8 +31,7 @@ export const useTotpSetup = () => {
         if (!cancelled) setTotpInfo(result);
       } catch (err) {
         if (isInvalidJwtError(err)) {
-          // JWT invalid/expired
-          errorHandler(err);
+          handleMfaError(err);
           return;
         }
         if (!cancelled) setError(err as Error);
@@ -46,7 +45,7 @@ export const useTotpSetup = () => {
     return () => {
       cancelled = true;
     };
-  }, [account, session.verified, errorHandler]);
+  }, [account, session.verified, handleMfaError]);
 
   return {
     totpInfo,

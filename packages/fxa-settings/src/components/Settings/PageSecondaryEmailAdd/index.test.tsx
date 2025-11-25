@@ -13,6 +13,7 @@ import { resetOnce } from '../../../lib/utilities';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import AuthClient from 'fxa-auth-client/lib/client';
 import { JwtTokenCache } from '../../../lib/cache';
+import { MfaContext } from '../MfaGuard';
 
 window.console.error = jest.fn();
 
@@ -46,7 +47,9 @@ describe('PageSecondaryEmailAdd', () => {
     it('renders as expected', () => {
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
-          <PageSecondaryEmailAdd />
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailAdd />
+          </MfaContext.Provider>
         </AppContext.Provider>
       );
 
@@ -62,7 +65,9 @@ describe('PageSecondaryEmailAdd', () => {
     it('Enables "save" button once valid email is input', () => {
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
-          <PageSecondaryEmailAdd />
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailAdd />
+          </MfaContext.Provider>
         </AppContext.Provider>
       );
 
@@ -77,7 +82,9 @@ describe('PageSecondaryEmailAdd', () => {
     it('Do not Enable "save" button if invalid email is input', () => {
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
-          <PageSecondaryEmailAdd />
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailAdd />
+          </MfaContext.Provider>
         </AppContext.Provider>
       );
 
@@ -90,7 +97,9 @@ describe('PageSecondaryEmailAdd', () => {
     it('should display tooltip error when using email mask', async () => {
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
-          <PageSecondaryEmailAdd />
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailAdd />
+          </MfaContext.Provider>
         </AppContext.Provider>
       );
 
@@ -117,7 +126,9 @@ describe('PageSecondaryEmailAdd', () => {
       } as unknown as Account;
       renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account })}>
-          <PageSecondaryEmailAdd />
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailAdd />
+          </MfaContext.Provider>
         </AppContext.Provider>
       );
       const input = screen.getByTestId('input-field');
@@ -169,7 +180,9 @@ describe('PageSecondaryEmailAdd', () => {
             account,
           })}
         >
-          <PageSecondaryEmailAdd />
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailAdd />
+          </MfaContext.Provider>
         </AppContext.Provider>
       );
 

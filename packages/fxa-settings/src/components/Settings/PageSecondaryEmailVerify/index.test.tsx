@@ -15,6 +15,7 @@ import { PageSecondaryEmailVerify, MfaGuardPageSecondaryEmailVerify } from '.';
 import { WindowLocation } from '@reach/router';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { MfaContext } from '../MfaGuard';
 import { JwtTokenCache } from '../../../lib/cache';
 import AuthClient from 'fxa-auth-client/lib/client';
 import userEvent, { UserEvent } from '@testing-library/user-event';
@@ -50,7 +51,9 @@ describe('PageSecondaryEmailVerify', () => {
   it('renders as expected', () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <PageSecondaryEmailVerify location={mockLocation} />
+        <MfaContext.Provider value="email">
+          <PageSecondaryEmailVerify location={mockLocation} />
+        </MfaContext.Provider>
       </AppContext.Provider>
     );
 
@@ -74,7 +77,9 @@ describe('PageSecondaryEmailVerify', () => {
 
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account: customAccount })}>
-        <PageSecondaryEmailVerify location={mockLocation} />
+        <MfaContext.Provider value="email">
+          <PageSecondaryEmailVerify location={mockLocation} />
+        </MfaContext.Provider>
       </AppContext.Provider>
     );
 
@@ -102,7 +107,9 @@ describe('PageSecondaryEmailVerify', () => {
 
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account: customAccount })}>
-        <PageSecondaryEmailVerify location={mockLocation} />
+        <MfaContext.Provider value="email">
+          <PageSecondaryEmailVerify location={mockLocation} />
+        </MfaContext.Provider>
       </AppContext.Provider>
     );
 
@@ -131,7 +138,9 @@ describe('PageSecondaryEmailVerify', () => {
 
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account: customAccount })}>
-        <PageSecondaryEmailVerify location={mockLocation} />
+        <MfaContext.Provider value="email">
+          <PageSecondaryEmailVerify location={mockLocation} />
+        </MfaContext.Provider>
       </AppContext.Provider>
     );
     const btn = screen.getByTestId('secondary-email-resend-code-button');
@@ -146,7 +155,9 @@ describe('PageSecondaryEmailVerify', () => {
     } as unknown as Account;
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <PageSecondaryEmailVerify location={mockLocation} />
+        <MfaContext.Provider value="email">
+          <PageSecondaryEmailVerify location={mockLocation} />
+        </MfaContext.Provider>
       </AppContext.Provider>
     );
 
@@ -173,7 +184,9 @@ describe('PageSecondaryEmailVerify', () => {
     const { history } = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
         <SettingsContext.Provider value={settingsContext}>
-          <PageSecondaryEmailVerify location={mockLocation} />
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailVerify location={mockLocation} />
+          </MfaContext.Provider>
         </SettingsContext.Provider>
       </AppContext.Provider>
     );

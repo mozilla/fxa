@@ -4,7 +4,6 @@
 
 import React, { useCallback, useEffect } from 'react';
 import * as Sentry from '@sentry/browser';
-import { useErrorHandler } from 'react-error-boundary';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import Modal from '../Modal';
@@ -23,7 +22,7 @@ import { BackupCodesSubRow, BackupPhoneSubRow } from '../SubRow';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
 import { formatPhoneNumber } from '../../../lib/recovery-phone-utils';
 import { RecoveryPhoneSetupReason, MfaReason } from '../../../lib/types';
-import { MfaGuard } from '../MfaGuard';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
 
 const route = `${SETTINGS_PATH}/two_step_authentication`;
@@ -207,7 +206,7 @@ const DisableTwoStepAuthModal = ({
 }: {
   hideDisable2FAModal: () => void;
 }) => {
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
   const alertBar = useAlertBar();
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -239,8 +238,7 @@ const DisableTwoStepAuthModal = ({
       );
     } catch (e) {
       if (isInvalidJwtError(e)) {
-        // JWT invalid/expired.
-        errorHandler(e);
+        handleMfaError(e);
         return;
       }
 
@@ -257,7 +255,7 @@ const DisableTwoStepAuthModal = ({
   }, [
     account,
     alertBar,
-    errorHandler,
+    handleMfaError,
     ftlMsgResolver,
     hideDisable2FAModal,
     navigateWithQuery,

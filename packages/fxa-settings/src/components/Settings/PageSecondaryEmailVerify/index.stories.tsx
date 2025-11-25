@@ -10,6 +10,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
 import { AppContext } from '../../../models/contexts/AppContext';
 import { mockAppContext } from '../../../models/mocks';
+import { MfaContext } from '../MfaGuard';
 
 export default {
   title: 'Pages/Settings/SecondaryEmailVerify',
@@ -37,7 +38,9 @@ export const ResendSuccess: Story = {
     <LocationProvider>
       <AppContext.Provider value={SuccessAppCtx}>
         <SettingsLayout>
-          <PageSecondaryEmailVerify location={mockLocation} />
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailVerify location={mockLocation} />
+          </MfaContext.Provider>
         </SettingsLayout>
       </AppContext.Provider>
     </LocationProvider>
@@ -61,7 +64,9 @@ export const ResendError: Story = {
     <LocationProvider>
       <AppContext.Provider value={ErrorAppCtx}>
         <SettingsLayout>
-          <PageSecondaryEmailVerify location={mockLocation} />
+          <MfaContext.Provider value="email">
+            <PageSecondaryEmailVerify location={mockLocation} />
+          </MfaContext.Provider>
         </SettingsLayout>
       </AppContext.Provider>
     </LocationProvider>

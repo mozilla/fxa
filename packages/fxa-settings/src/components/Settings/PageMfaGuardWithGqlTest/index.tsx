@@ -9,9 +9,8 @@ import {
   sessionToken as getSessionToken,
 } from '../../../lib/cache';
 
-import { MfaGuard } from '../MfaGuard';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { RouteComponentProps } from '@reach/router';
-import { useErrorHandler } from 'react-error-boundary';
 import { ApolloError, gql, useMutation } from '@apollo/client';
 import { MfaReason } from '../../../lib/types';
 
@@ -34,7 +33,7 @@ const MFA_TEST_MUTATION = gql`
 `;
 
 const TestWithGql = (_: RouteComponentProps) => {
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
   const jwtCache = useSyncExternalStore(
     JwtTokenCache.subscribe,
     JwtTokenCache.getSnapshot
@@ -78,10 +77,10 @@ const TestWithGql = (_: RouteComponentProps) => {
         );
       } else if (result.errors instanceof ApolloError) {
         // extensions holds the auth server errno and code
-        errorHandler(result.errors?.cause?.extensions);
+        handleMfaError(result.errors?.cause?.extensions);
       }
     })();
-  }, [jwtCache, mfaTest, errorHandler, sessionToken]);
+  }, [jwtCache, mfaTest, handleMfaError, sessionToken]);
 
   // Wrap the page's content with an MfaGuard to protect it from access without
   // a JWT that has a scope of "test"
@@ -172,7 +171,7 @@ const TestWithGql = (_: RouteComponentProps) => {
           // In the event a random error is thrown, the MFA error boundary
           // should let it bubble up to the AppError boundary, and
           // we should see the General Error screen
-          errorHandler(new Error('BOOMO!'));
+          handleMfaError(new Error('BOOMO!'));
           e.stopPropagation();
         }}
       >
@@ -188,7 +187,7 @@ const TestWithGql = (_: RouteComponentProps) => {
           // In the event a fabricated JWT-not-found error occurs,
           // the error boundary should catch this, and clear the
           // token from cache, which will cause the OTP modal to pop up.
-          errorHandler(new JwtNotFoundError());
+          handleMfaError(new JwtNotFoundError());
           e.stopPropagation();
         }}
       >

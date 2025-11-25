@@ -36,9 +36,9 @@ jest.mock('../../../lib/glean', () => ({
 }));
 
 const mockErrorHandler = jest.fn();
-jest.mock('react-error-boundary', () => ({
-  ...jest.requireActual('react-error-boundary'),
-  useErrorHandler: () => mockErrorHandler,
+jest.mock('../MfaGuard', () => ({
+  ...jest.requireActual('../MfaGuard'),
+  useMfaErrorHandler: () => mockErrorHandler,
 }));
 
 describe('Page2faChange', () => {
