@@ -391,6 +391,8 @@ describe('IndexContainer', () => {
           email: 'test@example.com',
           hasLinkedAccount: false,
           hasPassword: true,
+          // no can_link_account check performed for non-browser services
+          canLinkAccountOk: undefined,
         },
       });
     });
@@ -433,6 +435,8 @@ describe('IndexContainer', () => {
         state: {
           email: 'test@example.com',
           emailStatusChecked: true,
+          // no can_link_account check performed for non-browser services
+          canLinkAccountOk: undefined,
         },
       });
     });
@@ -519,6 +523,8 @@ describe('IndexContainer', () => {
           email: 'current@example.com',
           hasLinkedAccount: false,
           hasPassword: true,
+          // no can_link_account check performed for non-browser services
+          canLinkAccountOk: undefined,
         },
       });
     });
@@ -570,6 +576,8 @@ describe('IndexContainer', () => {
           email: 'stored@example.com',
           hasLinkedAccount: false,
           hasPassword: true,
+          // no can_link_account check performed for non-browser services
+          canLinkAccountOk: undefined,
         },
       });
     });
@@ -878,7 +886,7 @@ describe('IndexContainer', () => {
           <IndexContainer
             {...{
               integration,
-              serviceName: MozServices.Default,
+              serviceName: MozServices.Relay,
               useFxAStatusResult: mockUseFxAStatusResult,
             }}
           />
