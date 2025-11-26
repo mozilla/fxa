@@ -36,3 +36,8 @@ export type PageType = 'checkout' | 'upgrade';
 export interface ManageParams {
   locale: string;
 }
+
+export interface SubscriptionParams {
+  locale: string;
+  subscriptionId: string;
+}

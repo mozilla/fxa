@@ -4,21 +4,22 @@
 
 'use server';
 
-import { revalidatePath } from 'next/cache';
 import { getApp } from '../nestapp/app';
 
-export const cancelSubscriptionAtPeriodEndAction = async (
+export const getStaySubscribedFlowContentAction = async (
   uid: string,
-  subscriptionId: string
+  subscriptionId: string,
+  acceptLanguage?: string | null,
+  selectedLanguage?: string
 ) => {
   const result = await getApp()
     .getActionsService()
-    .cancelSubscriptionAtPeriodEnd({
+    .getStaySubscribedFlowContent({
       uid,
       subscriptionId,
+      acceptLanguage,
+      selectedLanguage,
     });
-
-  revalidatePath('/[locale]/subscriptions/[subscriptionId]/cancel', 'page');
 
   return result;
 };

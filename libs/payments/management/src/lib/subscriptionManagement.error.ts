@@ -238,3 +238,23 @@ export class SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError exte
       'SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError';
   }
 }
+
+export class SubscriptionManagementNoStripeCustomerFoundError extends SubscriptionManagementError {
+  constructor(uid: string, subscriptionId: string) {
+    super('Stripe customer not found', {
+      uid,
+      subscriptionId,
+    });
+    this.name = 'SubscriptionManagementNoStripeCustomerFoundError';
+  }
+}
+
+export class SubscriptionManagementSubscriptionNotFoundError extends SubscriptionManagementError {
+  constructor(uid: string, subscriptionId: string) {
+    super('Subscription not found', {
+      uid,
+      subscriptionId,
+    });
+    this.name = 'SubscriptionManagementSubscriptionNotFoundError';
+  }
+}

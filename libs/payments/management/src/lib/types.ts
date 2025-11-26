@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { SubplatInterval } from '@fxa/payments/customer';
+import {
+  SubPlatPaymentMethodType,
+  SubplatInterval,
+} from '@fxa/payments/customer';
 
 export interface AppleIapPurchase {
   storeId: string;
@@ -38,6 +41,34 @@ export interface GoogleIapPurchaseResult {
   storeIds: string[];
   purchaseDetails: GoogleIapPurchase[];
 }
+
+export type CancelFlowResult =
+  | { flowType: 'not_found' }
+  | {
+      flowType: 'cancel';
+      active: boolean;
+      cancelAtPeriodEnd: boolean;
+      currentPeriodEnd: number;
+      productName: string;
+      supportUrl: string;
+      webIcon: string;
+    };
+
+export type StaySubscribedFlowResult =
+  | { flowType: 'not_found' }
+  | {
+      flowType: 'stay_subscribed';
+      active: boolean;
+      cancelAtPeriodEnd: boolean;
+      currency: string;
+      currentPeriodEnd: number;
+      defaultPaymentMethodType?: SubPlatPaymentMethodType;
+      last4?: string;
+      nextInvoiceTax?: number;
+      nextInvoiceTotal?: number;
+      productName: string;
+      webIcon: string;
+    };
 
 export interface SubscriptionContent {
   id: string;
