@@ -38,11 +38,16 @@ module.exports = {
     await oauthDB.ready();
     const authorizedClients = [];
 
+    const [refreshTokens, accessTokens] = await Promise.all([
+      oauthDB.getRefreshTokensByUid(uid),
+      oauthDB.getAccessTokensByUid(uid),
+    ]);
+
     // First, enumerate all the refresh tokens.
     // Each of these is a separate instance of an authorized client
     // and should be displayed to the user as such. Nice and simple!
     const seenClientIds = new Set();
-    for (const token of await oauthDB.getRefreshTokensByUid(uid)) {
+    for (const token of refreshTokens) {
       const clientId = token.clientId.toString('hex');
       authorizedClients.push(serialize(clientId, token));
       seenClientIds.add(clientId);
@@ -56,7 +61,7 @@ module.exports = {
     //  2. Avoid showing access tokens for `canGrant` clients; such clients will always
     //     hold some other sort of token, and we don't want them to appear in the list twice.
     const accessTokenRecordsByClientId = new Map();
-    for (const token of await oauthDB.getAccessTokensByUid(uid)) {
+    for (const token of accessTokens) {
       const clientId = token.clientId.toString('hex');
       if (!seenClientIds.has(clientId) && !token.clientCanGrant) {
         let record = accessTokenRecordsByClientId.get(clientId);
