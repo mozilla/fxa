@@ -82,7 +82,7 @@
     "@radix-ui/react-visually-hidden": "^1.2.3",
     "@sentry/browser": "8.42.0",
     "@sentry/nestjs": "8.42.0",
-    "@sentry/nextjs": "8.42.0",
+    "@sentry/nextjs": "10.27.0",
     "@sentry/node": "8.42.0",
     "@sentry/opentelemetry": "8.42.0",
     "@smithy/smithy-client": "^4.5.0",
