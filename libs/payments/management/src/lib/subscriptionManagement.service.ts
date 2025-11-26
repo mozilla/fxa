@@ -50,6 +50,7 @@ import {
   SubscriptionContentMissingUpcomingInvoicePreviewError,
   SubscriptionManagementCouldNotRetrieveIapContentFromCMSError,
   SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
+  SubscriptionManagementNoStripeCustomerFoundError,
   UpdateAccountCustomerMissingStripeId,
   CancelSubscriptionCustomerMismatch,
   SubscriptionCustomerMismatch,
@@ -64,8 +65,10 @@ import { ProfileClient } from '@fxa/profile/client';
 import {
   AppleIapPurchaseResult,
   AppleIapSubscriptionContent,
+  CancelFlowResult,
   GoogleIapPurchaseResult,
   GoogleIapSubscriptionContent,
+  StaySubscribedFlowResult,
   SubscriptionContent,
 } from './types';
 import {
@@ -493,7 +496,8 @@ export class SubscriptionManagementService {
   }> {
     const accountCustomer =
       await this.accountCustomerManager.getAccountCustomerByUid(uid);
-    const subscription = await this.subscriptionManager.retrieve(subscriptionId);
+    const subscription =
+      await this.subscriptionManager.retrieve(subscriptionId);
 
     if (subscription.customer !== accountCustomer.stripeCustomerId) {
       throw new SubscriptionCustomerMismatch(
@@ -507,6 +511,205 @@ export class SubscriptionManagementService {
     return {
       active: subscription.status === 'active',
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
+    };
+  }
+
+  @SanitizeExceptions({
+    allowlist: [AccountCustomerNotFoundError],
+  })
+  private async validateAndRetrieveSubscription(
+    uid: string,
+    subscriptionId: string
+  ) {
+    const accountCustomer = await this.accountCustomerManager
+      .getAccountCustomerByUid(uid)
+      .catch((error) => {
+        if (!(error instanceof AccountCustomerNotFoundError)) {
+          throw error;
+        }
+        return undefined;
+      });
+
+    if (!accountCustomer || !accountCustomer.stripeCustomerId) {
+      return undefined;
+    }
+
+    try {
+      return await this.subscriptionManager.retrieve(subscriptionId);
+    } catch (err) {
+      if (
+        err.type === 'StripeInvalidRequestError' &&
+        (err.code === 'resource_missing' ||
+          err.message?.startsWith('No such subscription'))
+      ) {
+        return undefined;
+      }
+      throw err;
+    }
+  }
+
+  @SanitizeExceptions({
+    allowlist: [SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError],
+  })
+  async getCancelFlowContent(
+    uid: string,
+    subscriptionId: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<CancelFlowResult> {
+    const subscription = await this.validateAndRetrieveSubscription(
+      uid,
+      subscriptionId
+    );
+
+    if (!subscription) {
+      return {
+        flowType: 'not_found',
+      };
+    }
+
+    const item = subscription.items.data[0];
+    const price = item.price;
+    const priceId = price.id;
+    const productMap =
+      await this.productConfigurationManager.getPageContentByPriceIds(
+        [priceId],
+        acceptLanguage,
+        selectedLanguage
+      );
+
+    if (!productMap) {
+      throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError([
+        priceId,
+      ]);
+    }
+
+    const cmsPurchase = productMap.purchaseForPriceId(priceId);
+    const productName =
+      cmsPurchase.purchaseDetails.localizations[0]?.productName ||
+      cmsPurchase.purchaseDetails.productName;
+    const supportUrl = cmsPurchase.offering.commonContent.supportUrl;
+    const webIcon = cmsPurchase.purchaseDetails.webIcon;
+    const currentPeriodEnd = subscription.current_period_end;
+
+    return {
+      flowType: 'cancel',
+      active: subscription.status === 'active',
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      currentPeriodEnd,
+      productName,
+      supportUrl,
+      webIcon,
+    };
+  }
+
+  @SanitizeExceptions({
+    allowlist: [
+      CustomerDeletedError,
+      SubscriptionManagementNoStripeCustomerFoundError,
+      SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError,
+      SubscriptionContentMissingUpcomingInvoicePreviewError,
+    ],
+  })
+  async getStaySubscribedFlowContent(
+    uid: string,
+    subscriptionId: string,
+    acceptLanguage?: string,
+    selectedLanguage?: string
+  ): Promise<StaySubscribedFlowResult> {
+    const subscription = await this.validateAndRetrieveSubscription(
+      uid,
+      subscriptionId
+    );
+
+    if (!subscription) {
+      return {
+        flowType: 'not_found',
+      };
+    }
+
+    const stripeCustomer = await this.customerManager
+      .retrieve(subscription.customer)
+      .catch((error) => {
+        if (!(error instanceof CustomerDeletedError)) {
+          throw error;
+        }
+        return undefined;
+      });
+
+    if (!stripeCustomer)
+      throw new SubscriptionManagementNoStripeCustomerFoundError(
+        uid,
+        subscriptionId
+      );
+
+    const defaultPaymentMethod =
+      await this.paymentMethodManager.getDefaultPaymentMethod(
+        stripeCustomer,
+        [subscription],
+        uid
+      );
+
+    const item = subscription.items.data[0];
+    const price = item.price;
+    const priceId = price.id;
+    const productMap =
+      await this.productConfigurationManager.getPageContentByPriceIds(
+        [priceId],
+        acceptLanguage,
+        selectedLanguage
+      );
+
+    if (!productMap) {
+      throw new SubscriptionManagementCouldNotRetrieveProductNamesFromCMSError([
+        priceId,
+      ]);
+    }
+
+    const cmsPurchase = productMap.purchaseForPriceId(priceId);
+    const productName =
+      cmsPurchase.purchaseDetails.localizations[0]?.productName ||
+      cmsPurchase.purchaseDetails.productName;
+    const webIcon = cmsPurchase.purchaseDetails.webIcon;
+    const currentPeriodEnd = subscription.current_period_end;
+
+    const upcomingInvoice =
+      await this.invoiceManager.previewUpcomingSubscription({
+        customer: stripeCustomer,
+        subscription,
+      });
+
+    if (!upcomingInvoice) {
+      throw new SubscriptionContentMissingUpcomingInvoicePreviewError(
+        subscription.id,
+        stripeCustomer
+      );
+    }
+
+    const { subsequentAmount, subsequentAmountExcludingTax, subsequentTax } =
+      upcomingInvoice;
+
+    const nextInvoiceTotalExclusiveTax =
+      subsequentTax &&
+      subsequentTax
+        .filter((tax) => !tax.inclusive)
+        .reduce((sum, tax) => sum + tax.amount, 0);
+
+    return {
+      flowType: 'stay_subscribed',
+      active: subscription.status === 'active',
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      currency: subscription.currency,
+      currentPeriodEnd,
+      defaultPaymentMethodType: defaultPaymentMethod?.type,
+      last4: defaultPaymentMethod?.last4,
+      nextInvoiceTax: nextInvoiceTotalExclusiveTax,
+      nextInvoiceTotal:
+        nextInvoiceTotalExclusiveTax && nextInvoiceTotalExclusiveTax > 0
+          ? (subsequentAmountExcludingTax ?? subsequentAmount)
+          : subsequentAmount,
+      productName,
+      webIcon,
     };
   }
 
