@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver, useSession } from '../../../models';
+import { useAlertBar, useFtlMsgResolver, useSession } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
 import { MozServices } from '../../../lib/types';
 import firefox from '../../../lib/channels/firefox';
@@ -56,6 +56,7 @@ export const SigninTotpCode = ({
   const navigateWithQuery = useNavigateWithQuery();
   const session = useSession();
   const isSessionAALUpgrade = signinState.isSessionAALUpgrade;
+  const alertBar = useAlertBar();
 
   const [bannerError, setBannerError] = useState<string>('');
 
@@ -107,6 +108,11 @@ export const SigninTotpCode = ({
       setBannerError(getLocalizedErrorMessage(ftlMsgResolver, error));
       return;
     } else {
+      // Clear lingering error alert caused by insufficient AAL error (see FXA-12707)
+      if (isSessionAALUpgrade) {
+        alertBar.hide();
+      }
+
       GleanMetrics.totpForm.success();
 
       const {
