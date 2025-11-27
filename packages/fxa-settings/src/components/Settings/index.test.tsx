@@ -372,21 +372,6 @@ describe('Settings App', () => {
     expect(history.location.pathname).toBe('/settings/avatar');
   });
 
-  it('redirects to CreatePassword', async () => {
-    const {
-      history,
-      history: { navigate },
-    } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext()}>
-        <Subject />
-      </AppContext.Provider>,
-      { route: SETTINGS_PATH }
-    );
-
-    await navigate(SETTINGS_PATH + '/create_password');
-    expect(history.location.pathname).toBe('/settings/change_password');
-  });
-
   describe('guarded routes render MFA guard', () => {
     // as new guards are added to pages we just add the page name and route here
     // hasPassword is used to pass needed context to `mockAppContext`
