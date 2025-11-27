@@ -48,7 +48,22 @@ const account = {
     email: 'test@example.com',
     createdAt: 0,
   },
+  hasPassword: false,
   createPassword: jest.fn().mockResolvedValue(true),
+} as unknown as Account;
+
+const accountWithPassword = {
+  ...account,
+  hasPassword: true,
+} as unknown as Account;
+
+const accountThatGainsPassword = {
+  ...account,
+  createPassword: jest.fn().mockImplementation(function (this: any) {
+    // Simulate the account gaining a password after createPassword is called
+    this.hasPassword = true;
+    return Promise.resolve(true);
+  }),
 } as unknown as Account;
 
 const accountWithCreateErr = {
@@ -58,7 +73,7 @@ const accountWithCreateErr = {
   }),
 } as unknown as Account;
 
-const render = async (shouldError = false) => {
+const render = async (accountOverride?: Account) => {
   const alertBarInfo = {
     success: jest.fn(),
     error: jest.fn(),
@@ -67,7 +82,7 @@ const render = async (shouldError = false) => {
   renderWithRouter(
     <AppContext.Provider
       value={mockAppContext({
-        account: shouldError ? accountWithCreateErr : account,
+        account: accountOverride || account,
       })}
     >
       <SettingsContext.Provider value={settingsContext}>
@@ -78,8 +93,8 @@ const render = async (shouldError = false) => {
   return alertBarInfo;
 };
 
-const createPassword = async (shouldError = false) => {
-  const alertBarInfo = await render(shouldError);
+const createPassword = async (accountOverride?: Account) => {
+  const alertBarInfo = await render(accountOverride);
   await inputNewPassword('testotesto');
   await inputVerifyPassword('testotesto');
   await act(async () => {
@@ -112,6 +127,33 @@ describe('PageCreatePassword', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('redirects to /change_password when account already has a password', async () => {
+    await render(accountWithPassword);
+    expect(mockNavigate).toHaveBeenCalledWith(
+      SETTINGS_PATH + '/change_password',
+      {
+        replace: true,
+      }
+    );
+  });
+
+  it('redirects to settings and not /change_password if password is successfully created', async () => {
+    const alertBarInfo = await createPassword(accountThatGainsPassword);
+    // Should only navigate once - to settings after success, not to change_password
+    expect(mockNavigate).toHaveBeenCalledTimes(1);
+    expect(mockNavigate).not.toHaveBeenCalledWith(
+      SETTINGS_PATH + '/change_password',
+      expect.anything()
+    );
+    expect(mockNavigate).toHaveBeenCalledWith(SETTINGS_PATH + '#password', {
+      replace: true,
+      state: {
+        wantsUnlinkProviderId: undefined,
+      },
+    });
+    expect(alertBarInfo.success).toHaveBeenCalledWith('Password set');
+  });
+
   it('emits a metrics event on render', async () => {
     await render();
     expect(usePageViewEvent).toHaveBeenCalledWith('settings.create-password');
@@ -134,7 +176,7 @@ describe('PageCreatePassword', () => {
   });
 
   it('emits metrics events on failure', async () => {
-    await createPassword(true);
+    await createPassword(accountWithCreateErr);
     expect(logViewEvent).toHaveBeenCalledWith(
       settingsViewName,
       'create-password.engage'
@@ -150,7 +192,7 @@ describe('PageCreatePassword', () => {
   });
 
   it('displays alert bar error on fail without redirecting', async () => {
-    const alertBarInfo = await createPassword(true);
+    const alertBarInfo = await createPassword(accountWithCreateErr);
     expect(mockNavigate).not.toHaveBeenCalled();
     expect(alertBarInfo.error).toHaveBeenCalledTimes(1);
     expect(alertBarInfo.error).toHaveBeenCalledWith(

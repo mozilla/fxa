@@ -5,7 +5,7 @@
 import { Localized } from '@fluent/react';
 import { RouteComponentProps, useLocation } from '@reach/router';
 import { useNavigateWithQuery } from '../../../lib/hooks/useNavigateWithQuery';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { SETTINGS_PATH } from '../../../constants';
 import {
@@ -50,6 +50,13 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
   };
   const { wantsUnlinkProviderId } = location.state || {};
 
+  const passwordCreated = useRef(false);
+  useEffect(() => {
+    if (account.hasPassword && !passwordCreated.current) {
+      navigateWithQuery(SETTINGS_PATH + '/change_password', { replace: true });
+    }
+  }, [account.hasPassword, navigateWithQuery]);
+
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
       ftlMsgResolver.getMsg('pw-create-success-alert-2', 'Password set')
@@ -67,10 +74,12 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
     async ({ newPassword }: FormData) => {
       try {
         logViewEvent(settingsViewName, 'create-password.submit');
+        passwordCreated.current = true;
         await account.createPassword(newPassword);
         logViewEvent(settingsViewName, 'create-password.success');
         alertSuccessAndGoHome();
       } catch (e) {
+        passwordCreated.current = false;
         logViewEvent(settingsViewName, 'create-password.fail');
         alertBar.error(
           ftlMsgResolver.getMsg(
