@@ -122,7 +122,7 @@ export const AppLayout = ({
 
         {!splitLayout ? (
           <main className="flex mobileLandscape:items-center flex-1">
-            <section className="relative">
+            <section>
               {loading ? (
                 <>
                   <CardLoadingSpinner />
