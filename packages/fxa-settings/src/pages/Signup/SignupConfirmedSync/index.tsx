@@ -48,7 +48,7 @@ const SignupConfirmedSync = ({
 
   return (
     <AppLayout {...{ cmsInfo, title }}>
-      <FallingConfettiImage />
+      <FallingConfettiImage ariaHidden />
 
       {originPostVerifySetPassword ? (
         <Banner
