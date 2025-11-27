@@ -25,7 +25,7 @@ import {
 } from './churn-intervention.repository';
 import {
   ChurnInterventionEntryFactory,
-} from './factories/churn-intervention.factories';
+} from './churn-intervention.factories';
 
 
 describe('Churn Intervention Repository', () => {

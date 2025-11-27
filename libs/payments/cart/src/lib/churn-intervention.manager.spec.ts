@@ -10,7 +10,7 @@ import {
   updateChurnInterventionEntry,
   deleteChurnInterventionEntry,
 } from './churn-intervention.repository';
-import { ChurnInterventionEntryFactory } from './factories/churn-intervention.factories';
+import { ChurnInterventionEntryFactory } from './churn-intervention.factories';
 
 const mockCollection = { name: 'mockCollection' } as any;
 const mockFirestore = {

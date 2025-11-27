@@ -60,3 +60,11 @@ export interface SubscriptionContent {
   nextPromotionName?: string | null;
   promotionName?: string | null;
 }
+
+export enum ChurnErrorReason {
+  OfferExpired = 'no_churn_intervention_found',
+  DiscountAlreadyApplied = 'discount_already_applied',
+  SubscriptionNotActive = 'subscription_not_active',
+  SubscriptionStillActive = 'subscription_still_active',
+  GeneralError = 'general_error',
+}

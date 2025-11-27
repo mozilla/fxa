@@ -5,7 +5,7 @@
 import { faker } from '@faker-js/faker';
 import type {
   ChurnInterventionEntry,
-} from '../types';
+} from './churn-intervention.types';
 
 export const ChurnInterventionEntryFactory = (
   override?: Partial<ChurnInterventionEntry>
