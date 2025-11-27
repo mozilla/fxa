@@ -58,6 +58,8 @@ test.describe('severity-2 #smoke', () => {
       await signinTotpCode.fillOutCodeForm(code);
 
       await expect(page).toHaveURL(/settings/);
+      // Error alert caused by insufficient AAL error should not linger (see FXA-12707)
+      await expect(page.getByText(/Insufficient AAL/)).toBeHidden();
       await settings.disconnectTotp();
       await secondContext.close();
     });
