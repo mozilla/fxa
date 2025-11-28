@@ -51,13 +51,14 @@ export class ClientCapabilityService
       if (throwOnError) {
         throw ExtendedError.withCause(
           'Unexpected error fetching client capabilities from auth-server',
-          err
+          err as Error
         );
       }
       this.log.error('updateCapabilities', {
-        status: err.response
-          ? (err.response as AxiosResponse).status
-          : undefined,
+        status:
+          axios.isAxiosError(err) && err.response
+            ? err.response.status
+            : undefined,
         message: 'Error fetching client capabilities.',
       });
       Sentry.captureException(err);

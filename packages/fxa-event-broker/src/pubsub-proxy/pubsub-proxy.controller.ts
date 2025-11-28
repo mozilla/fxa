@@ -126,11 +126,11 @@ export class PubsubProxyController {
       }
       return response;
     } catch (err) {
-      if (err.response) {
+      if (axios.isAxiosError(err) && err.response) {
         // Proxy normal HTTP responses that aren't 200.
         this.metrics.increment(`proxy.fail`, {
           clientId,
-          statusCode: (err.response as AxiosResponse).status.toString(),
+          statusCode: String(err.response.status),
           type: message.event,
         });
         this.log.debug('proxyDeliverFail', {
@@ -138,11 +138,10 @@ export class PubsubProxyController {
           message: 'failed to proxy message',
         });
         return err.response;
-      } else {
-        this.log.error('proxyDeliverError', { err });
-        Sentry.captureException(err);
-        throw ExtendedError.withCause('Proxy delivery error', err);
       }
+      this.log.error('proxyDeliverError', { err });
+      Sentry.captureException(err);
+      throw ExtendedError.withCause('Proxy delivery error', err as Error);
     }
   }
 
