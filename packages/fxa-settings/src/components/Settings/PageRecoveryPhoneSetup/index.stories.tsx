@@ -16,6 +16,7 @@ import { Account, AppContext } from '../../../models';
 import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { RecoveryPhoneSetupReason } from '../../../lib/types';
+import { MfaContext } from '../MfaGuard';
 
 export default {
   title: 'Pages/Settings/RecoveryPhoneSetup',
@@ -35,7 +36,9 @@ export const AddWithSuccess = () => (
           } as unknown as Account,
         })}
       >
-        <PageRecoveryPhoneSetup />
+        <MfaContext.Provider value="2fa">
+          <PageRecoveryPhoneSetup />
+        </MfaContext.Provider>
       </AppContext.Provider>
     </SettingsLayout>
   </LocationProvider>
@@ -70,7 +73,9 @@ export const ChangeWithSuccess = () => {
             } as unknown as Account,
           })}
         >
-          <PageRecoveryPhoneSetup />
+          <MfaContext.Provider value="2fa">
+            <PageRecoveryPhoneSetup />
+          </MfaContext.Provider>
         </AppContext.Provider>
       </SettingsLayout>
     </LocationProvider>
@@ -91,7 +96,9 @@ export const WithErrorOnAdd = () => (
           } as unknown as Account,
         })}
       >
-        <PageRecoveryPhoneSetup />
+        <MfaContext.Provider value="2fa">
+          <PageRecoveryPhoneSetup />
+        </MfaContext.Provider>
       </AppContext.Provider>
     </SettingsLayout>
   </LocationProvider>
@@ -111,7 +118,9 @@ export const WithErrorOnConfirmSetup = () => (
           } as unknown as Account,
         })}
       >
-        <PageRecoveryPhoneSetup />
+        <MfaContext.Provider value="2fa">
+          <PageRecoveryPhoneSetup />
+        </MfaContext.Provider>
       </AppContext.Provider>
     </SettingsLayout>
   </LocationProvider>
@@ -131,7 +140,9 @@ export const WithErrorOnConfirmChange = () => (
           } as unknown as Account,
         })}
       >
-        <PageRecoveryPhoneSetup />
+        <MfaContext.Provider value="2fa">
+          <PageRecoveryPhoneSetup />
+        </MfaContext.Provider>
       </AppContext.Provider>
     </SettingsLayout>
   </LocationProvider>

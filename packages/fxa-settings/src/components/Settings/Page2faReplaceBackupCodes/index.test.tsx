@@ -19,6 +19,7 @@ import {
 
 import { Page2faReplaceBackupCodes } from '.';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { MfaContext } from '../MfaGuard';
 
 const mockRecoveryCodes = ['0123456789'];
 
@@ -78,7 +79,9 @@ async function renderPage2faReplaceBackupCodes(
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account, session, config })}>
         <SettingsContext.Provider value={mockSettingsContext()}>
-          <Page2faReplaceBackupCodes />
+          <MfaContext.Provider value="2fa">
+            <Page2faReplaceBackupCodes />
+          </MfaContext.Provider>
         </SettingsContext.Provider>
       </AppContext.Provider>
     );
@@ -123,7 +126,9 @@ describe('Page2faReplaceBackupCodes', () => {
       renderWithRouter(
         <AppContext.Provider value={context}>
           <SettingsContext.Provider value={settingsContext}>
-            <Page2faReplaceBackupCodes />
+            <MfaContext.Provider value="2fa">
+              <Page2faReplaceBackupCodes />
+            </MfaContext.Provider>
           </SettingsContext.Provider>
         </AppContext.Provider>
       );
@@ -148,7 +153,9 @@ describe('Page2faReplaceBackupCodes', () => {
       renderWithRouter(
         <AppContext.Provider value={context}>
           <SettingsContext.Provider value={settingsContext}>
-            <Page2faReplaceBackupCodes />
+            <MfaContext.Provider value="2fa">
+              <Page2faReplaceBackupCodes />
+            </MfaContext.Provider>
           </SettingsContext.Provider>
         </AppContext.Provider>
       );
@@ -182,7 +189,9 @@ describe('Page2faReplaceBackupCodes', () => {
       renderWithRouter(
         <AppContext.Provider value={context}>
           <SettingsContext.Provider value={settingsContext}>
-            <Page2faReplaceBackupCodes />
+            <MfaContext.Provider value="2fa">
+              <Page2faReplaceBackupCodes />
+            </MfaContext.Provider>
           </SettingsContext.Provider>
         </AppContext.Provider>
       );
@@ -285,7 +294,9 @@ describe('Page2faReplaceBackupCodes', () => {
       renderWithRouter(
         <AppContext.Provider value={context}>
           <SettingsContext.Provider value={settingsContext}>
-            <Page2faReplaceBackupCodes />
+            <MfaContext.Provider value="2fa">
+              <Page2faReplaceBackupCodes />
+            </MfaContext.Provider>
           </SettingsContext.Provider>
         </AppContext.Provider>
       );

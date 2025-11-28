@@ -27,9 +27,8 @@ import FlowSetup2faBackupCodeDownload from '../FlowSetup2faBackupCodeDownload';
 import FlowSetup2faBackupCodeConfirm from '../FlowSetup2faBackupCodeConfirm';
 import FlowSetupRecoveryPhoneSubmitNumber from '../FlowSetupRecoveryPhoneSubmitNumber';
 import FlowSetupRecoveryPhoneConfirmCode from '../FlowSetupRecoveryPhoneConfirmCode';
-import { MfaGuard } from '../MfaGuard';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import { isInvalidJwtError } from '../../../lib/mfa-guard-utils';
-import { useErrorHandler } from 'react-error-boundary';
 
 export const MfaGuardPage2faSetup = (_: RouteComponentProps) => {
   return (
@@ -43,7 +42,7 @@ export const Page2faSetup = () => {
   const account = useAccount();
   const alertBar = useAlertBar();
   const config = useConfig();
-  const errorHandler = useErrorHandler();
+  const handleMfaError = useMfaErrorHandler();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigateWithQuery = useNavigateWithQuery();
   const {
@@ -178,7 +177,7 @@ export const Page2faSetup = () => {
       return {};
     } catch (e) {
       if (isInvalidJwtError(e)) {
-        errorHandler(e);
+        handleMfaError(e);
         return {};
       }
       return { error: true };
@@ -197,7 +196,7 @@ export const Page2faSetup = () => {
       return;
     } catch (e) {
       if (isInvalidJwtError(e)) {
-        errorHandler(e);
+        handleMfaError(e);
         return;
       }
       showGenericError();
@@ -221,7 +220,7 @@ export const Page2faSetup = () => {
       await account.setRecoveryCodesWithJwt(backupCodes);
     } catch (error) {
       if (isInvalidJwtError(error)) {
-        errorHandler(error);
+        handleMfaError(error);
       } else {
         showGenericError();
         goBackToSettings();
@@ -242,7 +241,7 @@ export const Page2faSetup = () => {
       });
     } catch (error) {
       if (isInvalidJwtError(error)) {
-        errorHandler(error);
+        handleMfaError(error);
         return;
       }
       throw error;
@@ -254,7 +253,7 @@ export const Page2faSetup = () => {
       await account.addRecoveryPhoneWithJwt(phoneData.phoneNumber);
     } catch (error) {
       if (isInvalidJwtError(error)) {
-        errorHandler(error);
+        handleMfaError(error);
         return;
       }
       throw error;
@@ -266,7 +265,7 @@ export const Page2faSetup = () => {
       await account.confirmRecoveryPhoneWithJwt(code);
     } catch (error) {
       if (isInvalidJwtError(error)) {
-        errorHandler(error);
+        handleMfaError(error);
         return;
       }
       throw error;

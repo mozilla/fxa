@@ -13,6 +13,7 @@ import {
   mockSession,
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
+import { MfaContext } from '../MfaGuard';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -59,7 +60,9 @@ const renderPageWithContext = (account: Account) => {
     <AppContext.Provider
       value={mockAppContext({ account, session: mockSession(true, false) })}
     >
-      <PageRecoveryKeyCreate />
+      <MfaContext.Provider value="recovery_key">
+        <PageRecoveryKeyCreate />
+      </MfaContext.Provider>
     </AppContext.Provider>
   );
 };

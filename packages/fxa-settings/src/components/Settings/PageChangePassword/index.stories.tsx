@@ -8,6 +8,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import SettingsLayout from '../SettingsLayout';
+import { MfaContext } from '../MfaGuard';
 
 export default {
   title: 'Pages/Settings/ChangePassword',
@@ -18,7 +19,9 @@ export default {
 export const Default = () => (
   <LocationProvider>
     <SettingsLayout>
-      <PageChangePassword />
+      <MfaContext.Provider value="password">
+        <PageChangePassword />
+      </MfaContext.Provider>
     </SettingsLayout>
   </LocationProvider>
 );

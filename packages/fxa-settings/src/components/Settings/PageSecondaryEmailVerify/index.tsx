@@ -14,7 +14,7 @@ import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import { useForm } from 'react-hook-form';
 import { getLocalizedErrorMessage } from '../../../lib/error-utils';
-import { MfaGuard } from '../MfaGuard';
+import { MfaGuard, useMfaErrorHandler } from '../MfaGuard';
 import {
   isInvalidJwtError,
   clearMfaAndJwtCacheOnInvalidJwt,
@@ -50,6 +50,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const alertBar = useAlertBar();
   const account = useAccount();
+  const handleMfaError = useMfaErrorHandler();
   const alertSuccessAndGoHome = useCallback(
     (email: string) => {
       alertBar.success(
@@ -79,16 +80,20 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
         alertSuccessAndGoHome(email);
       } catch (e) {
         if (isInvalidJwtError(e)) {
-          // JWT invalid/expired — defer cache clear to next tick so the modal opens
-          // after the current click event completes (avoids immediate outside-click dismiss).
-          setTimeout(() => clearMfaAndJwtCacheOnInvalidJwt(e, 'email'), 0);
+          handleMfaError(e);
           return;
         }
         setErrorText(getLocalizedErrorMessage(ftlMsgResolver, e));
         logViewEvent('verify-secondary-email.verification', 'fail');
       }
     },
-    [account, alertSuccessAndGoHome, setErrorText, ftlMsgResolver]
+    [
+      account,
+      alertSuccessAndGoHome,
+      setErrorText,
+      ftlMsgResolver,
+      handleMfaError,
+    ]
   );
 
   const handleResendCode = useCallback(async () => {
