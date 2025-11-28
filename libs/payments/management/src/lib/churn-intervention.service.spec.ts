@@ -222,4 +222,13 @@ describe('ChurnInterventionService', () => {
       expect(mockLogger.error).toHaveBeenCalled();
     });
   });
+
+  /*
+  describe('redeemChurnCoupon', () => {
+    it('successfully redeems a churn coupon', async () => {
+    });
+
+    it('fails to redeem a churn coupon', async () => {
+    });
+  }); */
 });
