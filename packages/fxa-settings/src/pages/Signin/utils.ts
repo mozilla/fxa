@@ -526,8 +526,13 @@ const getOAuthNavigationTarget = async (
       error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
     ) {
       GleanMetrics.login.error({ event: { reason: error.message } });
+      // If user already has TOTP enabled, send them to enter their code instead of setup
+      const hasTotp =
+        locationState.verificationMethod === VerificationMethods.TOTP_2FA;
       return {
-        to: `/inline_totp_setup${navigationOptions.queryParams || ''}`,
+        to: hasTotp
+          ? `/signin_totp_code${navigationOptions.queryParams || ''}`
+          : `/inline_totp_setup${navigationOptions.queryParams || ''}`,
         locationState,
       };
     }
