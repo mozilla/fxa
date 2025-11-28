@@ -45,6 +45,7 @@ import { GetCouponArgs } from './validators/GetCouponArgs';
 import { GetCouponResult } from './validators/GetCouponResult';
 import { PaymentsEmitterService } from '@fxa/payments/events';
 import { FinalizeProcessingCartActionArgs } from './validators/finalizeProcessingCartActionArgs';
+import { RedeemChurnCouponActionArgs } from './validators/RedeemChurnCouponActionArgs';
 import { SubmitNeedsInputActionArgs } from './validators/SubmitNeedsInputActionArgs';
 import { GetNeedsInputActionArgs } from './validators/GetNeedsInputActionArgs';
 import { ValidatePostalCodeActionArgs } from './validators/ValidatePostalCodeActionArgs';
@@ -104,6 +105,7 @@ import { UpdateStripePaymentDetailsResult } from './validators/UpdateStripePayme
 import { SetDefaultStripePaymentDetailsActionArgs } from './validators/SetDefaultStripePaymentDetailsActionArgs';
 import { CancelSubscriptionAtPeriodEndActionArgs } from './validators/CancelSubscriptionAtPeriodEndActionArgs';
 import { CancelSubscriptionAtPeriodEndActionResult } from './validators/CancelSubscriptionAtPeriodEndActionResult';
+import { RedeemChurnCouponActionResult } from './validators/RedeemChurnCouponActionResult';
 import { ResubscribeSubscriptionActionArgs } from './validators/ResubscribeSubscriptionActionArgs';
 import { ResubscribeSubscriptionActionResult } from './validators/ResubscribeSubscriptionActionResult';
 import { GetPaypalBillingAgreementActiveIdArgs } from './validators/GetPaypalBillingAgreementActiveIdArgs';
@@ -268,6 +270,27 @@ export class NextJSActionsService {
     selectedLanguage?: string;
   }) {
     return await this.churnInterventionService.determineStaySubscribedEligibility(
+      args.uid,
+      args.subscriptionId,
+      args.acceptLanguage,
+      args.selectedLanguage,
+    );
+  }
+
+  @SanitizeExceptions()
+  @NextIOValidator(
+    RedeemChurnCouponActionArgs,
+    RedeemChurnCouponActionResult
+  )
+  @WithTypeCachableAsyncLocalStorage()
+  @CaptureTimingWithStatsD()
+  async redeemChurnCoupon(args: {
+    uid: string;
+    subscriptionId: string;
+    acceptLanguage?: string | null;
+    selectedLanguage?: string;
+  }) {
+    return await this.churnInterventionService.redeemChurnCoupon(
       args.uid,
       args.subscriptionId,
       args.acceptLanguage,
