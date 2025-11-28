@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { StripeError } from '@stripe/stripe-js';
+import type { Stripe } from 'stripe';
 import { EligibilityStatus } from '@fxa/payments/eligibility';
 import {
   CartEligibilityStatus,
@@ -10,6 +11,7 @@ import {
   CartState,
 } from '@fxa/shared/db/mysql/account';
 import { CartEligibilityDetails } from './cart.types';
+import { SubPlatPaymentMethodType } from '@fxa/payments/customer';
 
 export const handleEligibilityStatusMap = {
   [EligibilityStatus.BLOCKED_IAP]: CartEligibilityStatus.BLOCKED_IAP,
@@ -62,4 +64,33 @@ export function stripeErrorToErrorReasonId(
     default:
       return CartErrorReasonId.UNKNOWN;
   }
+}
+
+export const stripeToSubPlatPaymentType: Partial<Record<
+  Stripe.PaymentMethod.Type,
+  SubPlatPaymentMethodType
+>> = {
+  card: SubPlatPaymentMethodType.Card,
+  link: SubPlatPaymentMethodType.Link,
+};
+
+export const stripeWalletToSubPlatPaymentType: Partial<Record<
+  Stripe.PaymentMethod.Card.Wallet.Type,
+  SubPlatPaymentMethodType
+>> = {
+  apple_pay: SubPlatPaymentMethodType.ApplePay,
+  google_pay: SubPlatPaymentMethodType.GooglePay,
+};
+
+export function convertStripePaymentMethodTypeToSubPlat(
+  stripePaymentMethod: Stripe.PaymentMethod,
+): SubPlatPaymentMethodType {
+  if (stripePaymentMethod.type === 'card') {
+    const walletType = stripePaymentMethod.card?.wallet?.type;
+    return (
+      (walletType && stripeWalletToSubPlatPaymentType[walletType]) ??
+      SubPlatPaymentMethodType.Card
+    );
+  }
+  return stripeToSubPlatPaymentType[stripePaymentMethod.type] ?? SubPlatPaymentMethodType.Stripe;
 }
