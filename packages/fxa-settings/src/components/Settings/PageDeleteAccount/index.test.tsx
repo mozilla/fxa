@@ -4,7 +4,13 @@
 
 import React from 'react';
 import 'mutationobserver-shim';
-import { screen, fireEvent, act, within } from '@testing-library/react';
+import {
+  screen,
+  fireEvent,
+  act,
+  within,
+  waitFor,
+} from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import {
   mockAppContext,
@@ -14,9 +20,20 @@ import {
 import { PageDeleteAccount } from '.';
 import { typeByTestIdFn } from '../../../lib/test-utils';
 import { Account, AppContext } from '../../../models';
-import { logViewEvent } from '../../../lib/metrics';
 import { MOCK_EMAIL } from '../../../pages/mocks';
 import GleanMetrics from '../../../lib/glean';
+
+const mockApolloClearStore = jest.fn().mockResolvedValue(undefined);
+
+jest.mock('@apollo/client', () => {
+  const actual = jest.requireActual('@apollo/client');
+  return {
+    ...actual,
+    useApolloClient: () => ({
+      clearStore: mockApolloClearStore,
+    }),
+  };
+});
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -36,6 +53,8 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
+const mockDestroy = jest.fn().mockResolvedValue({});
+
 const account = {
   primaryEmail: {
     email: MOCK_EMAIL,
@@ -43,6 +62,7 @@ const account = {
   uid: '0123456789abcdef',
   metricsEnabled: true,
   hasPassword: true,
+  destroy: mockDestroy,
 } as unknown as Account;
 
 const pwdlessAccount = {
@@ -52,7 +72,7 @@ const pwdlessAccount = {
   uid: '0123456789abcdef',
   metricsEnabled: true,
   hasPassword: false,
-  destroy: jest.fn().mockResolvedValue({}),
+  destroy: mockDestroy,
 } as unknown as Account;
 
 const session = mockSession(true, false);
@@ -152,7 +172,7 @@ describe('PageDeleteAccount', () => {
     expect(screen.getByTestId('delete-account-button')).toBeEnabled();
   });
 
-  it('gets valid response on submit', async () => {
+  it('deletes account with password set', async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account, session })}>
         <PageDeleteAccount />
@@ -164,7 +184,11 @@ describe('PageDeleteAccount', () => {
 
     const deleteAccountButton = screen.getByTestId('delete-account-button');
     expect(deleteAccountButton).toBeEnabled();
-
+    await userEvent.click(deleteAccountButton);
+    await waitFor(() => {
+      expect(mockDestroy).toHaveBeenCalled();
+    });
+    expect(mockApolloClearStore).toHaveBeenCalled();
     expect(window.location.pathname).toContainEqual('/');
   });
 
@@ -181,10 +205,11 @@ describe('PageDeleteAccount', () => {
 
     await advanceStep();
 
-    expect(logViewEvent).toHaveBeenCalledWith(
-      'flow.settings.account-delete',
-      'confirm-password.success'
-    );
+    await waitFor(() => {
+      expect(mockDestroy).toHaveBeenCalled();
+    });
+    expect(mockApolloClearStore).toHaveBeenCalled();
+    expect(window.location.pathname).toContainEqual('/');
   });
 
   describe('glean metrics', () => {

@@ -59,13 +59,7 @@ test.describe('severity-1 #smoke', () => {
     testAccountTracker,
   }) => {
     const credentials = await testAccountTracker.signUp();
-    await signInAccount(
-      target,
-      page,
-      settings,
-      signin,
-      credentials
-    );
+    await signInAccount(target, page, settings, signin, credentials);
 
     await settings.goto();
 
@@ -99,6 +93,25 @@ test.describe('severity-1 #smoke', () => {
     await deleteAccount.deleteButton.click();
 
     await expect(deleteAccount.tooltip).toHaveText('Incorrect password');
+  });
+
+  test('delete account A then sign in with account B, no apollo cache pollution', async ({
+    target,
+    pages: { page, deleteAccount, settings, signin },
+    testAccountTracker,
+  }) => {
+    const credentialsA = await testAccountTracker.signUp();
+    const credentialsB = await testAccountTracker.signUp();
+
+    await signInAccount(target, page, settings, signin, credentialsA);
+    await settings.deleteAccountButton.click();
+    await deleteAccount.deleteAccount(credentialsA.password);
+
+    await expect(page.getByText('Account deleted successfully')).toBeVisible();
+    await signin.fillOutEmailFirstForm(credentialsB.email);
+    await signin.fillOutPasswordForm(credentialsB.password);
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.primaryEmail.status).toHaveText(credentialsB.email);
   });
 });
 
