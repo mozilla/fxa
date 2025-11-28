@@ -111,6 +111,7 @@ export interface Config {
     enabled: boolean;
     l10nEnabled: boolean;
   };
+  servicesWithEmailVerification: string[];
 }
 
 export function getDefault() {
@@ -206,6 +207,7 @@ export function getDefault() {
       enabled: true,
       preview: true,
     },
+    servicesWithEmailVerification: ['e6eb0d1e856335fc'],
   } as Config;
 }
 

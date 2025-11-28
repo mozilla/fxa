@@ -50,6 +50,7 @@
   },
   "allowed_metrics_flow_cors_origins": ["http://localhost:8001", "http://localhost:8080"],
   "allowed_parent_origins": ["http://localhost:8080"],
+  "servicesWithEmailVerification": ["e6eb0d1e856335fc"],
   "sourceMapType": "cheap-source-map",
   "csp": {
     "enabled": false,
