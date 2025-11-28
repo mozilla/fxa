@@ -25,6 +25,7 @@ import {
   isWebIntegration,
   isOAuthIntegration,
   isOAuthNativeIntegration,
+  useConfig,
 } from '../../models';
 import {
   isClientMonitor,
@@ -63,6 +64,7 @@ const Signin = ({
   flowQueryParams,
   useFxAStatusResult: { supportsKeysOptionalLogin },
 }: SigninProps & RouteComponentProps) => {
+  const config = useConfig();
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
   const navigateWithQuery = useNavigateWithQuery();
@@ -92,6 +94,8 @@ const Signin = ({
   const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
 
   const isDeeplinking = !!deeplink;
+  const isServiceWithEmailVerification =
+    !!clientId && config.servicesWithEmailVerification.includes(clientId);
 
   // We must use a ref because we may update this value in a callback
   let isPasswordNeededRef = useRef(
@@ -167,6 +171,7 @@ const Signin = ({
           finishOAuthFlowHandler,
           queryParams: location.search,
           performNavigation: !integration.isFirefoxMobileClient(),
+          isServiceWithEmailVerification,
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -195,6 +200,7 @@ const Signin = ({
       finishOAuthFlowHandler,
       location.search,
       webRedirectCheck,
+      isServiceWithEmailVerification,
     ]
   );
 
@@ -227,6 +233,7 @@ const Signin = ({
           performNavigation: !(
             integration.isFirefoxMobileClient() && isFullyVerified
           ),
+          isServiceWithEmailVerification,
         };
 
         const { error: navError } = await handleNavigation(navigationOptions);
@@ -331,6 +338,7 @@ const Signin = ({
       location.search,
       webRedirectCheck,
       sensitiveDataClient,
+      isServiceWithEmailVerification,
     ]
   );
 

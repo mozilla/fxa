@@ -907,6 +907,12 @@ const conf = (module.exports = convict({
       env: 'SENTRY_TRACES_SAMPLE_RATE',
     },
   },
+  servicesWithEmailVerification: {
+    doc: 'Services that will alwasy send a session verification email on sign in',
+    default: ['e6eb0d1e856335fc'],
+    format: Array,
+    env: 'SERVICES_WITH_EMAIL_VERIFICATION',
+  },
   sourceMapType: {
     default: 'source-map',
     doc: 'Type of source maps created. See https://webpack.js.org/configuration/devtool/',
